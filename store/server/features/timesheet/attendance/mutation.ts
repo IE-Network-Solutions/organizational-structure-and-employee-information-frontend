@@ -1,7 +1,8 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { PAYROLL_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
-import { useMutation, useQueryClient } from 'react-query';
+import { QueryClient, useMutation, useQueryClient } from 'react-query';
+import { getEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import {
   AttendanceSetShiftRequestBody,
@@ -124,13 +125,72 @@ const exportWarningLetter = async ({
   window.URL.revokeObjectURL(url);
 };
 
-const setCurrentAttendance = async (data: AttendanceSetShiftRequestBody) => {
+const resolveDepartmentIdFromEmployeeData = (
+  employeeData: Record<string, unknown> | null | undefined,
+): string | undefined => {
+  if (!employeeData || typeof employeeData !== 'object') return undefined;
+
+  const jobs = employeeData.employeeJobInformation;
+  if (Array.isArray(jobs) && jobs.length > 0) {
+    const activeJob =
+      jobs.find(
+        (job: { isPositionActive?: boolean }) => job?.isPositionActive,
+      ) ?? jobs[0];
+    const jobDepartmentId =
+      activeJob?.departmentId ?? activeJob?.department?.id;
+    if (jobDepartmentId) return String(jobDepartmentId);
+  }
+
+  const department = employeeData.department as { id?: string } | undefined;
+  const fallbackId = employeeData.departmentId ?? department?.id;
+  return fallbackId ? String(fallbackId) : undefined;
+};
+
+const resolveCurrentUserDepartmentId = async (
+  queryClient?: QueryClient,
+): Promise<string | undefined> => {
+  const { userData, userId } = useAuthenticationStore.getState();
+
+  const fromAuth = resolveDepartmentIdFromEmployeeData(userData);
+  if (fromAuth) return fromAuth;
+
+  if (!userId) return undefined;
+
+  const cachedEmployee =
+    queryClient?.getQueryData<Record<string, unknown>>(['employee', userId]) ??
+    queryClient?.getQueryData<Record<string, unknown>>([
+      'employeeItemData',
+      userId,
+    ]);
+  const fromCache = resolveDepartmentIdFromEmployeeData(cachedEmployee);
+  if (fromCache) return fromCache;
+
+  try {
+    const employee = await getEmployee(userId);
+    return resolveDepartmentIdFromEmployeeData(employee);
+  } catch {
+    return undefined;
+  }
+};
+
+const setCurrentAttendance = async (
+  data: AttendanceSetShiftRequestBody,
+  queryClient?: QueryClient,
+) => {
   const requestHeaders = await requestHeader();
+  const departmentId =
+    data.departmentId ?? (await resolveCurrentUserDepartmentId(queryClient));
+
+  const payload: AttendanceSetShiftRequestBody = {
+    ...data,
+    ...(departmentId ? { departmentId } : {}),
+  };
+
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift`,
     method: 'POST',
     headers: requestHeaders,
-    data,
+    data: payload,
   });
 };
 
@@ -269,7 +329,10 @@ export const useExportWarningLetter = () => {
 
 export const useSetCurrentAttendance = () => {
   const queryClient = useQueryClient();
-  return useMutation(setCurrentAttendance, {
+  return useMutation(
+    (data: AttendanceSetShiftRequestBody) =>
+      setCurrentAttendance(data, queryClient),
+    {
     onMutate: () => {
       useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(true);
     },
@@ -282,7 +345,8 @@ export const useSetCurrentAttendance = () => {
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
-  });
+  },
+  );
 };
 
 /**
