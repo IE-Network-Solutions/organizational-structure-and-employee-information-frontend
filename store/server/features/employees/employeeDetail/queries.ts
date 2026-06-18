@@ -8,7 +8,7 @@ import {
   isUserNotFoundError,
 } from '@/utils/unknownEmployee';
 
-const getEmployee = async (id: string) => {
+export const getEmployee = async (id: string) => {
   // Prevent API call if id is not available
   if (!id || id === '' || id === 'undefined') {
     throw new Error(

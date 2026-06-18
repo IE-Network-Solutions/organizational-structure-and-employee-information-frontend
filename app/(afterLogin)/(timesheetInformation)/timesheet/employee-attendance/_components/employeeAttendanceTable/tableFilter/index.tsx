@@ -146,9 +146,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
     {
       value: AttendanceCheckOutSource.SYSTEM_UPDATED,
       label:
-        attendanceCheckOutSourceLabels[
-          AttendanceCheckOutSource.SYSTEM_UPDATED
-        ],
+        attendanceCheckOutSourceLabels[AttendanceCheckOutSource.SYSTEM_UPDATED],
     },
   ];
 
