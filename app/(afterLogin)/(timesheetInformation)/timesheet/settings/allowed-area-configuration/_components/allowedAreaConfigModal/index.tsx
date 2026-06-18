@@ -28,11 +28,11 @@ import { flattenDepartments } from '@/utils/approval/departmentHelpers';
 const CONFIG_TYPE_OPTIONS = [
   {
     value: AllowedAreaResolverType.DEPARTMENT_BASED,
-    label: 'Department Based',
+    label: 'Department',
   },
   {
     value: AllowedAreaResolverType.USER_BASED,
-    label: 'User Based',
+    label: 'User',
   },
 ];
 
