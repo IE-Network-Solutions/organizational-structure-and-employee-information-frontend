@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 
-// import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -9,7 +9,6 @@ import { CreateEmployeeJobInformationInterface } from './interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
-const ORG_AND_EMP_URL = `http://localhost:8099/api/v1`;
 /**
  * Function to add a new post by sending a POST request to the API
  * @param newPost The data for the new post
