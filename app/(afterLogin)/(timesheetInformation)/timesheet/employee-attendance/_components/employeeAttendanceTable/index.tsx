@@ -639,10 +639,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       key: 'checkOutSource',
       width: 120,
       render: (val: AttendanceCheckOutSource | undefined, record: any) => {
-        const checkOutSource = getRowCheckOutSource(
-          record,
-          filter?.breakTypeId,
-        ) ?? val;
+        const checkOutSource =
+          getRowCheckOutSource(record, filter?.breakTypeId) ?? val;
 
         if (!shouldShowCheckOutMethod(record, filter?.breakTypeId)) {
           return (
