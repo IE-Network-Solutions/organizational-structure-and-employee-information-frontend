@@ -19,8 +19,8 @@ type AttendanceLocationErrorState = {
   closeModal: () => void;
 };
 
-export const useAttendanceLocationErrorStore = create<AttendanceLocationErrorState>(
-  (set) => ({
+export const useAttendanceLocationErrorStore =
+  create<AttendanceLocationErrorState>((set) => ({
     isOpen: false,
     errorMessage: null,
     userCoords: null,
@@ -39,5 +39,4 @@ export const useAttendanceLocationErrorStore = create<AttendanceLocationErrorSta
         userCoords: null,
         allowedAreas: [],
       }),
-  }),
-);
+  }));
