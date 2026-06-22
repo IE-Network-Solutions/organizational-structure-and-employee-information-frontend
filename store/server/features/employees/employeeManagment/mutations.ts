@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
 
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+// import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -9,6 +9,7 @@ import { CreateEmployeeJobInformationInterface } from './interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
+const ORG_AND_EMP_URL = `http://localhost:8099/api/v1`;
 /**
  * Function to add a new post by sending a POST request to the API
  * @param newPost The data for the new post
@@ -109,6 +110,42 @@ const deleteEmployee = async (employeeId?: string) => {
   }
 };
 
+const updateEmployeeEmail = async (
+  userId: string,
+  values: { newEmail: string; continueUrl?: string },
+) => {
+  const token = await getCurrentToken();
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/${userId}/request-email-change`,
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    data: {
+      newEmail: values.newEmail.trim().toLowerCase(),
+      ...(values.continueUrl ? { continueUrl: values.continueUrl } : {}),
+    },
+  });
+};
+
+export const verifyEmailChange = async ({
+  token,
+  continueUrl,
+}: {
+  token: string;
+  continueUrl?: string;
+}) => {
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users/verify-email-change`,
+    method: 'GET',
+    params: {
+      token,
+      ...(continueUrl ? { continueUrl } : {}),
+    },
+  });
+};
+
 /**
  * Custom hook to add a new group Permissions using useMutation from react-query.
  *
@@ -195,4 +232,35 @@ export const useDownloadEmployeeDataByFilter = () => {
       }
     },
   });
+};
+export const useUpdateEmployeeEmail = () => {
+  return useMutation(
+    ({
+      userId,
+      values,
+    }: {
+      userId: string;
+      values: { newEmail: string; continueUrl?: string };
+    }) => updateEmployeeEmail(userId, values),
+    {
+      onSuccess: () => {
+        NotificationMessage.success({
+          message: 'Successfully Requested',
+          description: 'Verification email sent to your new email successfully',
+        });
+      },
+      onError: (error: any) => {
+        NotificationMessage.error({
+          message:
+            error?.response?.data?.message ||
+            error?.message ||
+            'Failed to request email change',
+        });
+      },
+    },
+  );
+};
+
+export const useVerifyEmailChange = () => {
+  return useMutation(verifyEmailChange);
 };

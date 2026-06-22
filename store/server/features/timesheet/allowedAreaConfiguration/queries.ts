@@ -50,9 +50,7 @@ export const useGetAllowedAreaConfigurations = (
   return useQuery<ApiResponse<AllowedAreaConfiguration>>(
     ['allowed-area-configurations', departmentId ?? 'all'],
     () =>
-      getAllowedAreaConfigurations(
-        departmentId ? { departmentId } : undefined,
-      ),
+      getAllowedAreaConfigurations(departmentId ? { departmentId } : undefined),
     {
       keepPreviousData: true,
       enabled: true,
