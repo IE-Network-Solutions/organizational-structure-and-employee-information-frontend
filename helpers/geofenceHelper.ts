@@ -49,8 +49,7 @@ export function getCircleEdgeLatLng(
   lng: number,
   radiusMeters: number,
 ): [number, number] {
-  const metersPerDegreeLng =
-    111320 * Math.cos((lat * Math.PI) / 180) || 111320;
+  const metersPerDegreeLng = 111320 * Math.cos((lat * Math.PI) / 180) || 111320;
   const deltaLng = radiusMeters / metersPerDegreeLng;
   return [lat, lng + deltaLng];
 }
@@ -65,8 +64,7 @@ export function getAllowedAreaCircleBounds(
   const lat = area.latitude;
   const lng = area.longitude;
   const metersPerDegreeLat = 111320;
-  const metersPerDegreeLng =
-    111320 * Math.cos((lat * Math.PI) / 180) || 111320;
+  const metersPerDegreeLng = 111320 * Math.cos((lat * Math.PI) / 180) || 111320;
 
   return L.latLngBounds(
     L.latLng(
