@@ -157,13 +157,13 @@ export default function VpDeductionDetailModal({
         data-cy="variable-pay-vp-deduction-detail-modal-body"
       >
         {isLoading ? (
-          Array.from({ length: 3 }).map((_, index) => (
+          [0, 1, 2].map((skeletonIndex) => (
             <Skeleton.Input
-              key={`vp-deduction-detail-skeleton-${index}`}
+              key={`vp-deduction-detail-skeleton-${skeletonIndex}`}
               active
               block
               style={{ height: 72, borderRadius: 8 }}
-              data-cy={`variable-pay-vp-deduction-detail-skeleton-${index}`}
+              data-cy={`variable-pay-vp-deduction-detail-skeleton-${skeletonIndex}`}
             />
           ))
         ) : items.length === 0 ? (
@@ -192,7 +192,10 @@ export default function VpDeductionDetailModal({
                   className="mt-0.5"
                   data-cy={`variable-pay-vp-deduction-detail-checkbox-${item.id}`}
                 >
-                  <div className="flex flex-col">
+                  <div
+                    className="flex flex-col"
+                    data-cy={`variable-pay-vp-deduction-detail-item-content-${item.id}`}
+                  >
                     <Text
                       style={{
                         fontSize: 14,

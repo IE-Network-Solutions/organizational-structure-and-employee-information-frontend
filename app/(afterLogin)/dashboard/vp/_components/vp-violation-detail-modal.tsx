@@ -102,13 +102,13 @@ export default function VpViolationDetailModal({
         data-cy="vp-dashboard-violation-detail-modal-body"
       >
         {isLoading ? (
-          Array.from({ length: 3 }).map((_, index) => (
+          [0, 1, 2].map((skeletonIndex) => (
             <Skeleton.Input
-              key={`vp-violation-detail-skeleton-${index}`}
+              key={`vp-violation-detail-skeleton-${skeletonIndex}`}
               active
               block
               style={{ height: 72, borderRadius: 8 }}
-              data-cy={`vp-dashboard-violation-detail-skeleton-${index}`}
+              data-cy={`vp-dashboard-violation-detail-skeleton-${skeletonIndex}`}
             />
           ))
         ) : items.length === 0 ? (

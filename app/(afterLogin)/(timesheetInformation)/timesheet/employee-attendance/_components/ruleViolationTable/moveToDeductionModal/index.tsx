@@ -28,7 +28,16 @@ interface MoveToDeductionModalProps {
 const EmployeeNameChip = ({ userId }: { userId: string }) => {
   const { data, isLoading } = useGetSimpleEmployee(userId);
 
-  if (isLoading) return <span className="text-sm text-[#4d4d4d]">...</span>;
+  if (isLoading) {
+    return (
+      <span
+        className="text-sm text-[#4d4d4d]"
+        data-cy={`time-attendance-rule-violation-move-to-deduction-employee-chip-loading-${userId}`}
+      >
+        ...
+      </span>
+    );
+  }
 
   const name = data
     ? [data.firstName, data.middleName, data.lastName]
@@ -38,7 +47,10 @@ const EmployeeNameChip = ({ userId }: { userId: string }) => {
     : '-';
 
   return (
-    <span className="px-3 py-1 bg-white border border-[#D9D9D9] rounded text-sm text-[#4d4d4d]">
+    <span
+      className="px-3 py-1 bg-white border border-[#D9D9D9] rounded text-sm text-[#4d4d4d]"
+      data-cy={`time-attendance-rule-violation-move-to-deduction-employee-chip-${userId}`}
+    >
       {name || '-'}
     </span>
   );
@@ -226,7 +238,10 @@ const MoveToDeductionModal = ({
               screen
             </Text>
             {moveToVp && (
-              <div className="flex flex-wrap gap-2 p-3 border border-[#D9D9D9] rounded-md bg-[#FAFAFA]">
+              <div
+                className="flex flex-wrap gap-2 p-3 border border-[#D9D9D9] rounded-md bg-[#FAFAFA]"
+                data-cy="time-attendance-rule-violation-move-to-deduction-vp-employees"
+              >
                 {vpUserIds.map((userId) => (
                   <EmployeeNameChip key={userId} userId={userId} />
                 ))}
