@@ -24,6 +24,9 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { SingleLogRequest } from '@/types/timesheet/settings';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import AddEmployeeModal from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/_components/add-employee-modal';
+import { mapCandidateToEmployeePrefill } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/_components/mapCandidateToEmployeePrefill';
+import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 
 type ApprovalRecord = {
   approverId: string;
@@ -83,6 +86,12 @@ const StageApprovalModal = () => {
   const [moveToStageId, setMoveToStageId] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userId = useAuthenticationStore((state) => state.userId);
+
+  const {
+    setOpen: setAddEmployeeModalOpen,
+    setEmployeePrefillData,
+    setIsEmployeeModalFromCandidateMove,
+  } = useEmployeeManagementStore();
 
   const { data: candidateData, isLoading: isCandidateLoading } =
     useGetCandidateById(stageApprovalCandidateId ?? '');
@@ -169,7 +178,7 @@ const StageApprovalModal = () => {
         id: stage.id,
         title: stage.title ?? '',
         level: Number(stage.level),
-        isFinal: !!stage.isFinal,
+        isFinal: Boolean(stage.isFinal),
       });
     });
     return map;
@@ -372,9 +381,26 @@ const StageApprovalModal = () => {
 
       await submitApprovalItems(approveItems, rejectItems);
 
+      const isMovingToFinalStage =
+        stageById.get(moveToStageId)?.isFinal === true;
+
+      const candidateForPrefill =
+        candidateData ??
+        activeRows[0]?.displayCandidate ??
+        stageApprovalCandidate;
+      const employeePrefill = isMovingToFinalStage
+        ? mapCandidateToEmployeePrefill(candidateForPrefill)
+        : null;
+
       setSelectedCandidate([]);
       setSelectedRowKeys([]);
       onClose();
+
+      if (isMovingToFinalStage) {
+        setEmployeePrefillData(employeePrefill);
+        setIsEmployeeModalFromCandidateMove(true);
+        setAddEmployeeModalOpen(true);
+      }
     } catch (error: any) {
       NotificationMessage.error({
         message:
@@ -421,254 +447,257 @@ const StageApprovalModal = () => {
   ]);
 
   return (
-    <Modal
-      open={isShow && !!stageApprovalCandidateId}
-      onCancel={onClose}
-      footer={null}
-      width={720}
-      centered
-      destroyOnClose
-      className="stage-approval-modal"
-      data-cy="talent-acquisition-stage-approval-modal"
-    >
-      {isCandidateLoading && !candidate ? (
-        <div
-          className="flex justify-center py-10"
-          data-cy="talent-acquisition-stage-approval-modal-loading"
-        >
-          <Skeleton active />
-        </div>
-      ) : (
-        <div
-          className="rounded-[12px] bg-white"
-          data-cy="talent-acquisition-stage-approval-modal-content"
-        >
+    <>
+      <Modal
+        open={isShow && !!stageApprovalCandidateId}
+        onCancel={onClose}
+        footer={null}
+        width={720}
+        centered
+        destroyOnClose
+        className="stage-approval-modal"
+        data-cy="talent-acquisition-stage-approval-modal"
+      >
+        {isCandidateLoading && !candidate ? (
           <div
-            className="mb-6"
-            data-cy="talent-acquisition-stage-approval-modal-header"
+            className="flex justify-center py-10"
+            data-cy="talent-acquisition-stage-approval-modal-loading"
           >
-            <h2
-              className="text-base font-bold text-[#4D4D4D] m-0 mb-2"
-              data-cy="talent-acquisition-stage-approval-modal-title"
-            >
-              Stage Approval
-            </h2>
+            <Skeleton active />
           </div>
-
+        ) : (
           <div
-            className="mb-6"
-            data-cy="talent-acquisition-stage-approval-modal-approval-stages"
+            className="rounded-[12px] bg-white"
+            data-cy="talent-acquisition-stage-approval-modal-content"
           >
             <div
-              className="text-sm font-normal text-black mb-4"
-              data-cy="talent-acquisition-stage-approval-modal-approval-stages-label"
+              className="mb-6"
+              data-cy="talent-acquisition-stage-approval-modal-header"
             >
-              Approval Stages
+              <h2
+                className="text-base font-bold text-[#4D4D4D] m-0 mb-2"
+                data-cy="talent-acquisition-stage-approval-modal-title"
+              >
+                Stage Approval
+              </h2>
             </div>
+
             <div
-              className="flex items-center justify-center gap-0 min-w-0 px-1"
-              data-cy="talent-acquisition-stage-approval-modal-approval-timeline"
+              className="mb-6"
+              data-cy="talent-acquisition-stage-approval-modal-approval-stages"
             >
-              {isLogLoading ? (
-                <div
-                  data-cy="talent-acquisition-stage-approval-modal-approval-timeline-skeleton"
-                  className="h-16 w-full flex items-center justify-center"
-                >
-                  <Skeleton.Button active size="small" />
-                </div>
-              ) : sortedApprovals.length === 0 ? (
-                <div
-                  data-cy="talent-acquisition-stage-approval-modal-approval-timeline-empty"
-                  className="h-12 w-full"
-                />
-              ) : (
-                (() => {
-                  const primaryColor = '#3636F0';
-                  const notReachedColor = '#E6F4FF';
-                  const firstPendingIdx = sortedApprovals.findIndex(
-                    (a: ApprovalRecord) => a.status === 'Pending',
-                  );
+              <div
+                className="text-sm font-normal text-black mb-4"
+                data-cy="talent-acquisition-stage-approval-modal-approval-stages-label"
+              >
+                Approval Stages
+              </div>
+              <div
+                className="flex items-center justify-center gap-0 min-w-0 px-1"
+                data-cy="talent-acquisition-stage-approval-modal-approval-timeline"
+              >
+                {isLogLoading ? (
+                  <div
+                    data-cy="talent-acquisition-stage-approval-modal-approval-timeline-skeleton"
+                    className="h-16 w-full flex items-center justify-center"
+                  >
+                    <Skeleton.Button active size="small" />
+                  </div>
+                ) : sortedApprovals.length === 0 ? (
+                  <div
+                    data-cy="talent-acquisition-stage-approval-modal-approval-timeline-empty"
+                    className="h-12 w-full"
+                  />
+                ) : (
+                  (() => {
+                    const primaryColor = '#3636F0';
+                    const notReachedColor = '#E6F4FF';
+                    const firstPendingIdx = sortedApprovals.findIndex(
+                      (a: ApprovalRecord) => a.status === 'Pending',
+                    );
 
-                  return sortedApprovals.map(
-                    (approval: ApprovalRecord, idx: number) => {
-                      const displayId =
-                        approval.displayUserId ?? approval.userId;
-                      const isPendingStep = approval.status === 'Pending';
-                      const isApprovedStep = approval.status === 'Approved';
-                      const isRejectedStep = approval.status === 'Rejected';
-                      const isCurrentStage =
-                        isPendingStep && idx === firstPendingIdx;
-                      const isConnectorActive =
-                        isApprovedStep && idx < firstPendingIdx;
-                      const avatarPx = isCurrentStage ? 48 : 40;
+                    return sortedApprovals.map(
+                      (approval: ApprovalRecord, idx: number) => {
+                        const displayId =
+                          approval.displayUserId ?? approval.userId;
+                        const isPendingStep = approval.status === 'Pending';
+                        const isApprovedStep = approval.status === 'Approved';
+                        const isRejectedStep = approval.status === 'Rejected';
+                        const isCurrentStage =
+                          isPendingStep && idx === firstPendingIdx;
+                        const isConnectorActive =
+                          isApprovedStep && idx < firstPendingIdx;
+                        const avatarPx = isCurrentStage ? 48 : 40;
 
-                      return (
-                        <React.Fragment key={approval.stepOrder}>
-                          {idx > 0 && (
-                            <div
-                              data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item"
-                              className="flex-1 min-w-[40px] flex items-center justify-center"
-                            >
+                        return (
+                          <React.Fragment key={approval.stepOrder}>
+                            {idx > 0 && (
                               <div
-                                data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-connector"
-                                className="w-full h-0.5"
-                                style={{
-                                  backgroundColor: isConnectorActive
-                                    ? primaryColor
-                                    : notReachedColor,
-                                }}
-                              />
-                            </div>
-                          )}
-                          <div
-                            data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content"
-                            className="flex items-center shrink-0"
-                          >
-                            <Tooltip
-                              title={userData(displayId) || 'Approver'}
-                              placement="bottom"
-                              overlayInnerStyle={{
-                                background: '#000',
-                                color: '#fff',
-                                borderRadius: 8,
-                              }}
-                            >
-                              <div
-                                className={`relative shrink-0 rounded-full overflow-hidden border-2 transition-transform ${
-                                  isCurrentStage
-                                    ? 'w-12 h-12 border-dashed border-[#3636F0]'
-                                    : isApprovedStep
-                                      ? 'w-10 h-10 border-[#3636F0]'
-                                      : isRejectedStep
-                                        ? 'w-10 h-10 border-[#FF4D4F]'
-                                        : 'w-10 h-10 border-gray-200'
-                                }`}
-                                data-cy={`talent-acquisition-stage-approval-modal-approval-avatar-${approval.stepOrder}`}
+                                data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item"
+                                className="flex-1 min-w-[40px] flex items-center justify-center"
                               >
-                                {displayId && userImage(displayId) ? (
-                                  <Image
-                                    src={userImage(displayId) ?? ''}
-                                    alt={userData(displayId)}
-                                    width={avatarPx}
-                                    height={avatarPx}
-                                    className="object-cover w-full h-full"
-                                  />
-                                ) : (
-                                  <div
-                                    data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content-avatar-fallback"
-                                    className="w-full h-full bg-gray-200"
-                                  />
-                                )}
+                                <div
+                                  data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-connector"
+                                  className="w-full h-0.5"
+                                  style={{
+                                    backgroundColor: isConnectorActive
+                                      ? primaryColor
+                                      : notReachedColor,
+                                  }}
+                                />
                               </div>
-                            </Tooltip>
-                          </div>
-                        </React.Fragment>
-                      );
-                    },
-                  );
-                })()
-              )}
+                            )}
+                            <div
+                              data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content"
+                              className="flex items-center shrink-0"
+                            >
+                              <Tooltip
+                                title={userData(displayId) || 'Approver'}
+                                placement="bottom"
+                                overlayInnerStyle={{
+                                  background: '#000',
+                                  color: '#fff',
+                                  borderRadius: 8,
+                                }}
+                              >
+                                <div
+                                  className={`relative shrink-0 rounded-full overflow-hidden border-2 transition-transform ${
+                                    isCurrentStage
+                                      ? 'w-12 h-12 border-dashed border-[#3636F0]'
+                                      : isApprovedStep
+                                        ? 'w-10 h-10 border-[#3636F0]'
+                                        : isRejectedStep
+                                          ? 'w-10 h-10 border-[#FF4D4F]'
+                                          : 'w-10 h-10 border-gray-200'
+                                  }`}
+                                  data-cy={`talent-acquisition-stage-approval-modal-approval-avatar-${approval.stepOrder}`}
+                                >
+                                  {displayId && userImage(displayId) ? (
+                                    <Image
+                                      src={userImage(displayId) ?? ''}
+                                      alt={userData(displayId)}
+                                      width={avatarPx}
+                                      height={avatarPx}
+                                      className="object-cover w-full h-full"
+                                    />
+                                  ) : (
+                                    <div
+                                      data-cy="talent-acquisition-stage-approval-modal-approval-timeline-item-content-avatar-fallback"
+                                      className="w-full h-full bg-gray-200"
+                                    />
+                                  )}
+                                </div>
+                              </Tooltip>
+                            </div>
+                          </React.Fragment>
+                        );
+                      },
+                    );
+                  })()
+                )}
+              </div>
+            </div>
+
+            <Form
+              layout="vertical"
+              className="stage-approval-form"
+              data-cy="talent-acquisition-stage-approval-modal-form"
+            >
+              <Form.Item
+                label={
+                  <>
+                    Previous Stage{' '}
+                    <span
+                      data-cy="talent-acquisition-stage-approval-modal-previous-stage-required"
+                      className="text-red-500 pl-1"
+                      aria-hidden
+                    >
+                      *
+                    </span>
+                  </>
+                }
+                data-cy="talent-acquisition-stage-approval-modal-previous-stage"
+              >
+                <Select
+                  value={currentStageId || undefined}
+                  options={
+                    currentStageId
+                      ? [
+                          {
+                            value: currentStageId,
+                            label: currentStageTitle || 'Current stage',
+                          },
+                        ]
+                      : []
+                  }
+                  disabled
+                  suffixIcon={null}
+                  className="w-full"
+                  data-cy="talent-acquisition-stage-approval-modal-previous-stage-select"
+                />
+              </Form.Item>
+
+              <Form.Item
+                label={
+                  <>
+                    Move to{' '}
+                    <span
+                      data-cy="talent-acquisition-stage-approval-modal-move-to-required"
+                      className="text-red-500 pl-1"
+                      aria-hidden
+                    >
+                      *
+                    </span>
+                  </>
+                }
+                data-cy="talent-acquisition-stage-approval-modal-move-to"
+              >
+                <Select
+                  value={moveToStageId}
+                  onChange={setMoveToStageId}
+                  options={stageOptions}
+                  placeholder="Choose Stage"
+                  className="w-full"
+                  data-cy="talent-acquisition-stage-approval-modal-move-to-select"
+                />
+                {moveToActionHint && (
+                  <p
+                    className="mt-2 mb-0 text-xs text-gray-500"
+                    data-cy="talent-acquisition-stage-approval-modal-move-to-hint"
+                  >
+                    {moveToActionHint}
+                  </p>
+                )}
+              </Form.Item>
+            </Form>
+
+            <div
+              className="flex items-center justify-end gap-3 pt-2"
+              data-cy="talent-acquisition-stage-approval-modal-footer"
+            >
+              <Button
+                onClick={onClose}
+                className="h-10 px-5 rounded-lg border border-gray-300 text-gray-700"
+                data-cy="talent-acquisition-stage-approval-modal-cancel-button"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                onClick={handleMoveTo}
+                loading={isSubmitting}
+                disabled={!moveToStageId || isSubmitting}
+                className="h-10 px-6 rounded-lg !bg-[#1E40AF] hover:!bg-[#1D4ED8] border-0"
+                data-cy="talent-acquisition-stage-approval-modal-move-to-button"
+              >
+                Move to
+              </Button>
             </div>
           </div>
-
-          <Form
-            layout="vertical"
-            className="stage-approval-form"
-            data-cy="talent-acquisition-stage-approval-modal-form"
-          >
-            <Form.Item
-              label={
-                <>
-                  Previous Stage{' '}
-                  <span
-                    data-cy="talent-acquisition-stage-approval-modal-previous-stage-required"
-                    className="text-red-500 pl-1"
-                    aria-hidden
-                  >
-                    *
-                  </span>
-                </>
-              }
-              data-cy="talent-acquisition-stage-approval-modal-previous-stage"
-            >
-              <Select
-                value={currentStageId || undefined}
-                options={
-                  currentStageId
-                    ? [
-                        {
-                          value: currentStageId,
-                          label: currentStageTitle || 'Current stage',
-                        },
-                      ]
-                    : []
-                }
-                disabled
-                suffixIcon={null}
-                className="w-full"
-                data-cy="talent-acquisition-stage-approval-modal-previous-stage-select"
-              />
-            </Form.Item>
-
-            <Form.Item
-              label={
-                <>
-                  Move to{' '}
-                  <span
-                    data-cy="talent-acquisition-stage-approval-modal-move-to-required"
-                    className="text-red-500 pl-1"
-                    aria-hidden
-                  >
-                    *
-                  </span>
-                </>
-              }
-              data-cy="talent-acquisition-stage-approval-modal-move-to"
-            >
-              <Select
-                value={moveToStageId}
-                onChange={setMoveToStageId}
-                options={stageOptions}
-                placeholder="Choose Stage"
-                className="w-full"
-                data-cy="talent-acquisition-stage-approval-modal-move-to-select"
-              />
-              {moveToActionHint && (
-                <p
-                  className="mt-2 mb-0 text-xs text-gray-500"
-                  data-cy="talent-acquisition-stage-approval-modal-move-to-hint"
-                >
-                  {moveToActionHint}
-                </p>
-              )}
-            </Form.Item>
-          </Form>
-
-          <div
-            className="flex items-center justify-end gap-3 pt-2"
-            data-cy="talent-acquisition-stage-approval-modal-footer"
-          >
-            <Button
-              onClick={onClose}
-              className="h-10 px-5 rounded-lg border border-gray-300 text-gray-700"
-              data-cy="talent-acquisition-stage-approval-modal-cancel-button"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="primary"
-              onClick={handleMoveTo}
-              loading={isSubmitting}
-              disabled={!moveToStageId || isSubmitting}
-              className="h-10 px-6 rounded-lg !bg-[#1E40AF] hover:!bg-[#1D4ED8] border-0"
-              data-cy="talent-acquisition-stage-approval-modal-move-to-button"
-            >
-              Move to
-            </Button>
-          </div>
-        </div>
-      )}
-    </Modal>
+        )}
+      </Modal>
+      <AddEmployeeModal onClose={() => setAddEmployeeModalOpen(false)} />
+    </>
   );
 };
 

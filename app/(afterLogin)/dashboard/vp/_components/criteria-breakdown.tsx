@@ -3,6 +3,7 @@
 import { Skeleton } from 'antd';
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import ViolationCard from './violation-card';
 
 type VPCriteria = {
   name?: string;
@@ -36,9 +37,13 @@ const CriteriaBreakdown = () => {
       </h3>
 
       <div
-        className="rounded-lg border border-[#f0f0f0] p-4 mb-3"
-        data-cy="vp-criteria-breakdown-attendance-card"
+        className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3"
+        data-cy="vp-criteria-breakdown-top-row"
       >
+        <div
+          className="rounded-lg border border-[#f0f0f0] p-4"
+          data-cy="vp-criteria-breakdown-attendance-card"
+        >
         <div
           className="flex items-center justify-between gap-3"
           data-cy="vp-criteria-breakdown-attendance-header"
@@ -114,6 +119,9 @@ const CriteriaBreakdown = () => {
             </p>
           </div>
         )}
+        </div>
+
+        <ViolationCard userId={userId} />
       </div>
 
       <div
