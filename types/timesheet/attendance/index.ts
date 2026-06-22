@@ -142,6 +142,16 @@ export enum AttendanceActionType {
   VP_DEDUCTION = 'VP_DEDUCTION',
 }
 
+export type AttendanceRuleActionStatusEntry = {
+  taken?: boolean;
+  takenAt?: string | null;
+  source?: string | null;
+};
+
+export type AttendanceRuleActionStatus = Partial<
+  Record<AttendanceActionType | string, AttendanceRuleActionStatusEntry>
+>;
+
 export interface AttendanceRule extends DateInfo {
   id: string;
   name: string;
@@ -201,6 +211,7 @@ export interface AttendanceRuleViolation extends DateInfo {
   actionTypes: string[];
   actionTaken: boolean;
   actionTakenAt: string | null;
+  actionStatus?: AttendanceRuleActionStatus;
   attendanceRule: AttendanceRule;
   attendanceRuleTypes?: AttendanceRuleTypes;
   logs: unknown[];
