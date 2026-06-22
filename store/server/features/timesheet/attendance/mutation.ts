@@ -16,6 +16,7 @@ import useAttendanceImportErrorModalStore from '@/store/uistate/features/timeshe
 import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { handleAttendanceShiftError } from '@/helpers/geofenceHelper';
 import dayjs from 'dayjs';
 
 const attendanceImport = async (file: string) => {
@@ -336,16 +337,27 @@ export const useSetCurrentAttendance = () => {
       onMutate: () => {
         useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(true);
       },
-      onSettled: () => {
-        useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(false);
-      },
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      onSuccess: (_, variables: any) => {
-        queryClient.invalidateQueries('current-attendance');
-        const method = variables?.method?.toUpperCase();
-        handleSuccessMessage(method);
-      },
+    
+    onSettled: () => {
+      useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(false);
     },
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('current-attendance');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+    onError: (error, variables) => {
+      const userCoords =
+        variables?.latitude != null && variables?.longitude != null
+          ? {
+              latitude: variables.latitude,
+              longitude: variables.longitude,
+            }
+          : null;
+      handleAttendanceShiftError(error, userCoords);
+    },
+  },
   );
 };
 
