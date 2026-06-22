@@ -85,6 +85,8 @@ const StageApprovalModal = () => {
 
   const [moveToStageId, setMoveToStageId] = useState<string | undefined>();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const userId = useAuthenticationStore((state) => state.userId);
+
   const {
     setOpen: setAddEmployeeModalOpen,
     setEmployeePrefillData,
