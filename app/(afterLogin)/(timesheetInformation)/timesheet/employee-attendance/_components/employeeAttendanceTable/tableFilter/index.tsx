@@ -27,8 +27,12 @@ import { CommonObject } from '@/types/commons/commonObject';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
-import { useSyncZktAttendance } from '@/store/server/features/timesheet/attendance/mutation';
+import {
+  useSyncZktAttendance,
+  useSyncZktBreak,
+} from '@/store/server/features/timesheet/attendance/mutation';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface TableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -36,12 +40,15 @@ interface TableFilterProps {
 
 const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   const [form] = Form.useForm();
+  const { isMobile } = useIsMobile();
   const { data: employeeData } = useGetAllUsers();
   const { data: breakTypeData } = useGetBreakTypes();
   const { isShowMobileFilters, setIsShowMobileFilters, filter } =
     useEmployeeAttendanceStore();
   const { mutate: syncZktAttendance, isLoading: isSyncingZkt } =
     useSyncZktAttendance();
+  const { mutate: syncZktBreak, isLoading: isSyncingZktBreak } =
+    useSyncZktBreak();
 
   const getSyncDateFilter = () => {
     const today = dayjs().format('YYYY-MM-DD');
@@ -56,6 +63,27 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
       ? dayjs(values.endDate).format('YYYY-MM-DD')
       : today;
     return { date: { from, to } };
+  };
+
+  const getSyncBreakTypeId = () =>
+    filter?.breakTypeId || form.getFieldValue('breakTypeId');
+
+  const selectedBreakTypeId = getSyncBreakTypeId();
+  const isBreakZktSync = Boolean(selectedBreakTypeId);
+  const syncLabel = isBreakZktSync
+    ? 'Sync break from Attendance Machine'
+    : 'Sync from Attendance Machine';
+
+  const handleSyncZkt = () => {
+    const dateFilter = getSyncDateFilter();
+    const breakTypeId = getSyncBreakTypeId();
+
+    if (breakTypeId) {
+      syncZktBreak({ breakTypeId, filter: dateFilter });
+      return;
+    }
+
+    syncZktAttendance(dateFilter);
   };
 
   const employeeOptions =
@@ -519,17 +547,44 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             id="time-attendance-employee-attendance-filter-actions"
             data-cy="time-attendance-employee-attendance-filter-actions"
           >
-            <Tooltip title="Sync from ZK">
+            {isMobile ? (
+              <Tooltip title={syncLabel}>
+                <span data-cy="time-attendance-employee-attendance-sync-zkt-tooltip-wrapper">
+                  <Button
+                    type="primary"
+                    size="large"
+                    className="w-10 h-10 p-0 flex items-center justify-center text-base font-normal text-white"
+                    id="time-attendance-employee-attendance-sync-zkt-button"
+                    data-cy={
+                      isBreakZktSync
+                        ? 'time-attendance-employee-attendance-sync-zkt-break-button'
+                        : 'time-attendance-employee-attendance-sync-zkt-button'
+                    }
+                    icon={<ReloadOutlined />}
+                    loading={isSyncingZkt || isSyncingZktBreak}
+                    onClick={handleSyncZkt}
+                    aria-label={syncLabel}
+                  />
+                </span>
+              </Tooltip>
+            ) : (
               <Button
-                className="h-8 w-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d] p-0"
+                type="primary"
+                size="large"
+                className="h-10 text-base font-normal text-white"
                 id="time-attendance-employee-attendance-sync-zkt-button"
-                data-cy="time-attendance-employee-attendance-sync-zkt-button"
-                icon={<ReloadOutlined className="text-[#374151]" />}
-                loading={isSyncingZkt}
-                onClick={() => syncZktAttendance(getSyncDateFilter())}
-                aria-label="Sync from ZK"
-              />
-            </Tooltip>
+                data-cy={
+                  isBreakZktSync
+                    ? 'time-attendance-employee-attendance-sync-zkt-break-button'
+                    : 'time-attendance-employee-attendance-sync-zkt-button'
+                }
+                loading={isSyncingZkt || isSyncingZktBreak}
+                onClick={handleSyncZkt}
+                aria-label={syncLabel}
+              >
+                {syncLabel}
+              </Button>
+            )}
             <Dropdown
               overlay={<MobileFilters />}
               trigger={['click']}

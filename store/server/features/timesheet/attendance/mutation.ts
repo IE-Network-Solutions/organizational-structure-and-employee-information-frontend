@@ -16,6 +16,7 @@ import useAttendanceImportErrorModalStore from '@/store/uistate/features/timeshe
 import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { handleAttendanceShiftError } from '@/helpers/geofenceHelper';
 import dayjs from 'dayjs';
 
 const attendanceImport = async (file: string) => {
@@ -345,6 +346,16 @@ export const useSetCurrentAttendance = () => {
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
       },
+      onError: (error, variables) => {
+        const userCoords =
+          variables?.latitude != null && variables?.longitude != null
+            ? {
+                latitude: variables.latitude,
+                longitude: variables.longitude,
+              }
+            : null;
+        handleAttendanceShiftError(error, userCoords);
+      },
     },
   );
 };
@@ -415,6 +426,25 @@ const syncZktAttendance = async (filter?: {
   });
 };
 
+type ZktBreakSyncParams = {
+  breakTypeId: string;
+  filter?: { date: { from: string; to: string } };
+};
+
+const syncZktBreak = async ({ breakTypeId, filter }: ZktBreakSyncParams) => {
+  const requestHeaders = await requestHeader();
+  const requestData = {
+    ...(await buildZktSyncRequestData(filter)),
+    breakTypeId,
+  };
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/sync-zkt-break`,
+    method: 'POST',
+    headers: requestHeaders,
+    data: requestData,
+  });
+};
+
 export const useFetchZKTAttendance = () => {
   return useMutation(
     (filter?: { date: { from: string; to: string } }) =>
@@ -451,7 +481,8 @@ export const useSyncZktAttendance = () => {
 
         handleSuccessMessage(
           'POST',
-          item?.message || 'Attendance synced from ZK successfully.',
+          item?.message ||
+            'Attendance synced from attendance machine successfully.',
         );
       },
       onError(error: any) {
@@ -460,9 +491,40 @@ export const useSyncZktAttendance = () => {
           description:
             error?.response?.data?.message ||
             error?.message ||
-            'Failed to sync attendance from ZK.',
+            'Failed to sync attendance from attendance machine.',
         });
       },
     },
   );
+};
+
+export const useSyncZktBreak = () => {
+  const queryClient = useQueryClient();
+  return useMutation((params: ZktBreakSyncParams) => syncZktBreak(params), {
+    onSuccess: (response: any) => {
+      queryClient.invalidateQueries('attendance');
+
+      const item = response?.item ?? response?.data?.item;
+      const importWarnings: ZktImportWarning[] = item?.importWarnings ?? [];
+
+      if (importWarnings.length > 0) {
+        showZktImportWarnings(importWarnings);
+      }
+
+      handleSuccessMessage(
+        'POST',
+        item?.message ||
+          'Break attendance synced from attendance machine successfully.',
+      );
+    },
+    onError(error: any) {
+      NotificationMessage.error({
+        message: 'Error',
+        description:
+          error?.response?.data?.message ||
+          error?.message ||
+          'Failed to sync break attendance from attendance machine.',
+      });
+    },
+  });
 };

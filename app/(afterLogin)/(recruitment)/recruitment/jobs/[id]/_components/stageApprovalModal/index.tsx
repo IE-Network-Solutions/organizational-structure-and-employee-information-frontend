@@ -21,6 +21,7 @@ import {
   type CandidateApprovalActionPayload,
 } from '@/store/server/features/recruitment/candidateApproval/mutation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { SingleLogRequest } from '@/types/timesheet/settings';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import AddEmployeeModal from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/_components/add-employee-modal';
@@ -133,6 +134,21 @@ const StageApprovalModal = () => {
     }
   }, [isShow, stageApprovalCandidateId]);
 
+  const isFinalApprover = useMemo(() => {
+    const approvers =
+      primaryApprovalRow?.approvers ?? workflowData?.approvers ?? [];
+    if (!approvers.length || !userId) return false;
+
+    const maxStepOrder = Math.max(
+      ...approvers.map((approver: { stepOrder: number }) => approver.stepOrder),
+    );
+    const loggedInApprover = approvers.find(
+      (approver: { userId: string }) => approver.userId === userId,
+    );
+
+    return loggedInApprover?.stepOrder === maxStepOrder;
+  }, [primaryApprovalRow?.approvers, workflowData?.approvers, userId]);
+
   const userData = (id: string) => {
     const user = usersData?.items?.find(
       (item: { id: string }) => item.id === id,
@@ -168,12 +184,25 @@ const StageApprovalModal = () => {
 
   const stageOptions = useMemo(
     () =>
-      (statusStages?.items ?? []).map((stage: any) => ({
-        value: stage.id,
-        label: stage.title,
-      })),
-    [statusStages?.items],
+      (statusStages?.items ?? [])
+        .filter((stage: any) => {
+          if (stage?.isFinal && !isFinalApprover) return false;
+          return true;
+        })
+        .map((stage: any) => ({
+          value: stage.id,
+          label: stage.title,
+        })),
+    [statusStages?.items, isFinalApprover],
   );
+
+  useEffect(() => {
+    if (!moveToStageId) return;
+    const selectedStage = stageById.get(moveToStageId);
+    if (selectedStage?.isFinal && !isFinalApprover) {
+      setMoveToStageId(undefined);
+    }
+  }, [moveToStageId, isFinalApprover, stageById]);
 
   const moveToActionHint = useMemo(() => {
     if (!moveToStageId || !currentStageId) return null;
@@ -290,6 +319,15 @@ const StageApprovalModal = () => {
     if (!activeRows.length || !stageApprovalWorkflowId) {
       NotificationMessage.error({
         message: 'Approval request data is missing',
+      });
+      return;
+    }
+
+    const targetStage = stageById.get(moveToStageId);
+    if (targetStage?.isFinal && !isFinalApprover) {
+      NotificationMessage.error({
+        message:
+          'Only the final approver can move candidates to a final stage.',
       });
       return;
     }

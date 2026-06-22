@@ -100,3 +100,7 @@ export interface ZKTAttendanceRequestBody {
     };
   };
 }
+
+export interface ZktBreakSyncRequestBody extends ZKTAttendanceRequestBody {
+  breakTypeId: string;
+}
