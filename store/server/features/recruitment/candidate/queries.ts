@@ -101,6 +101,7 @@ export const useGetCandidates = (
   selectedDepartment: string,
   pageSize: number,
   currentPage: number,
+  options?: { enabled?: boolean },
 ) => {
   return useQuery(
     [
@@ -125,6 +126,7 @@ export const useGetCandidates = (
         pageSize,
         currentPage,
       ),
+    { enabled: options?.enabled ?? !!jobId },
   );
 };
 
