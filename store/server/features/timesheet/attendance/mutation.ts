@@ -1,5 +1,5 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { PAYROLL_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { OKR_URL, PAYROLL_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import { getEmployee } from '@/store/server/features/employees/employeeDetail/queries';
@@ -87,6 +87,53 @@ const addAttendanceViolationsToDeduction = async (data: {
       Authorization: `Bearer ${token}`,
     },
     data,
+  });
+};
+
+const createVpDeduction = async (data: { violationIds: string[] }) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const createdBy = useAuthenticationStore.getState().userId;
+
+  return await crudRequest({
+    url: `${OKR_URL}/vp-deduction`,
+    method: 'POST',
+    headers: {
+      tenantId,
+      createdBy,
+      Authorization: `Bearer ${token}`,
+    },
+    data,
+  });
+};
+
+const reverseVpDeductionByViolationId = async (violationId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const createdBy = useAuthenticationStore.getState().userId;
+
+  return await crudRequest({
+    url: `${OKR_URL}/vp-deduction/by-violation/${violationId}`,
+    method: 'DELETE',
+    headers: {
+      tenantId,
+      createdBy,
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+const updateViolationActionStatus = async (
+  violationId: string,
+  actionType: string,
+  taken: boolean,
+) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations/${violationId}/action-status/${actionType}`,
+    method: 'PATCH',
+    headers: requestHeaders,
+    data: { taken },
   });
 };
 
@@ -318,6 +365,62 @@ export const useAddAttendanceViolationsToDeduction = () => {
             error?.response?.data?.message ||
             'Failed to add attendance violations to deduction.',
         });
+      },
+    },
+  );
+};
+
+export const useCreateVpDeduction = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (data: { violationIds: string[] }) => createVpDeduction(data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance-rule-violations');
+        handleSuccessMessage(
+          'POST',
+          'VP deductions created successfully.',
+        );
+      },
+      onError: (error: any) => {
+        NotificationMessage.error({
+          message: 'Error',
+          description:
+            error?.response?.data?.message ||
+            'Failed to create VP deductions.',
+        });
+      },
+    },
+  );
+};
+
+export const useReverseVpDeductionByViolationId = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (violationId: string) => reverseVpDeductionByViolationId(violationId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance-rule-violations');
+      },
+    },
+  );
+};
+
+export const useUpdateViolationActionStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({
+      violationId,
+      actionType,
+      taken,
+    }: {
+      violationId: string;
+      actionType: string;
+      taken: boolean;
+    }) => updateViolationActionStatus(violationId, actionType, taken),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance-rule-violations');
       },
     },
   );
