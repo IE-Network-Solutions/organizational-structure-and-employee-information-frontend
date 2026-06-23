@@ -23,6 +23,12 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useGetVpDeductionTotal } from '@/store/server/features/okrplanning/okr/vp-deduction/queries';
+import {
+  FiscalSession,
+  resolvePreviousMonthId,
+} from '@/store/server/features/okrplanning/okr/vp-deduction/utils';
+import VpDeductionDetailModal from './vpDeductionDetailModal';
 
 const EXPANDED_VP_SKELETON_METRIC_COUNT = 3;
 
@@ -207,16 +213,50 @@ const VpScoreCell = ({
 const ExpandedVPDetails = ({
   userId,
   monthId,
+  sessionId,
 }: {
   userId: string;
   monthId?: string;
+  sessionId?: string;
 }) => {
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const { data: activeCalender } = useGetActiveFiscalYears();
   const { data: vpScore, isLoading } = useGetVPScore(userId, { monthId });
   const {
     isLoading: isRefreshLoading,
     refetch,
     isRefetching,
   } = useGetVpScoreCalculate(userId, false);
+
+  const sessionOptions = (activeCalender?.sessions ?? []) as FiscalSession[];
+
+  const resolvedSessionId =
+    sessionId ||
+    sessionOptions.find((session) => session.active)?.id ||
+    sessionOptions[0]?.id;
+
+  const previousMonthId = resolvePreviousMonthId(
+    sessionOptions,
+    resolvedSessionId,
+    monthId,
+  );
+
+  const totalVpDeductions = Number(vpScore?.totalVpDeductions ?? 0);
+
+  const { data: previousVpDeductionTotal } = useGetVpDeductionTotal({
+    userId,
+    monthId: previousMonthId,
+    sessionId: resolvedSessionId,
+    enabled: Boolean(previousMonthId && resolvedSessionId),
+  });
+
+  const previousVpDeductions = Number(
+    previousVpDeductionTotal?.totalVpDeductions ?? 0,
+  );
+  const vpDeductionChange = (totalVpDeductions - previousVpDeductions).toFixed(
+    0,
+  );
+  const isVpDeductionChangeNegative = totalVpDeductions - previousVpDeductions < 0;
 
   if (isLoading) {
     return <ExpandedVPDetailsSkeleton />;
@@ -349,6 +389,69 @@ const ExpandedVPDetails = ({
             </div>
           </div>
 
+          {/* Card 2: VP Deduction */}
+          <div
+            className="bg-white border border-gray-200 shadow-sm flex flex-col justify-between p-4 w-[256px] flex-shrink-0"
+            style={{ height: '124px', borderRadius: '8px' }}
+            data-cy="expanded-vp-details-vp-deduction-card"
+          >
+            <div
+              className="flex justify-between items-center"
+              data-cy="expanded-vp-details-vp-deduction-card-header"
+            >
+              <span
+                className="text-gray-500 text-[14px] font-medium"
+                data-cy="expanded-vp-details-vp-deduction-card-title"
+              >
+                VP Deduction
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsDetailModalOpen(true)}
+                className="text-[14px] font-medium text-[#1677ff] hover:text-blue-800"
+                data-cy="expanded-vp-details-vp-deduction-detail-link"
+              >
+                Detail
+              </button>
+            </div>
+
+            <span
+              className={`text-[20px] font-bold leading-none ${
+                totalVpDeductions > 0 ? 'text-red-500' : 'text-gray-800'
+              }`}
+              data-cy="expanded-vp-details-vp-deduction-total"
+            >
+              {totalVpDeductions > 0 ? '+' : ''}
+              {totalVpDeductions}
+            </span>
+
+            <span
+              className={`text-[12px] font-medium ${
+                !isVpDeductionChangeNegative ? 'text-green-500' : 'text-red-500'
+              }`}
+              data-cy="expanded-vp-details-vp-deduction-change"
+            >
+              {!isVpDeductionChangeNegative && Number(vpDeductionChange) !== 0
+                ? '+'
+                : ''}
+              {vpDeductionChange}{' '}
+              <span
+                className="text-gray-400 font-normal"
+                data-cy="expanded-vp-details-vp-deduction-change-subtext"
+              >
+                vs last month
+              </span>
+            </span>
+          </div>
+
+          <VpDeductionDetailModal
+            open={isDetailModalOpen}
+            userId={userId}
+            monthId={monthId}
+            sessionId={resolvedSessionId}
+            onClose={() => setIsDetailModalOpen(false)}
+          />
+
           {/* Criteria cards */}
           {displayCriteria.map((card: any, index: number) => {
             const score = Number(card?.score ?? 0);
@@ -459,6 +562,14 @@ const VariablePayTable = () => {
         : [activeMonth?.id];
 
   const appliedMonthId = selectedMonthIds.filter(Boolean)[0];
+
+  const appliedSessionId =
+    typeof searchParams?.selectedSession === 'string' &&
+    searchParams.selectedSession
+      ? searchParams.selectedSession
+      : activeCalender?.sessions?.find((session: any) => session.active)?.id ||
+        activeCalender?.sessions?.[0]?.id ||
+        '';
 
   const variablePayFilterPayload = {
     monthIds: selectedMonthIds.filter(Boolean),
@@ -911,6 +1022,7 @@ const VariablePayTable = () => {
                     <ExpandedVPDetails
                       userId={record.userId}
                       monthId={appliedMonthId}
+                      sessionId={appliedSessionId}
                     />
                   ),
                   expandIcon: () => null,

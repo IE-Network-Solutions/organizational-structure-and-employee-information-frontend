@@ -287,6 +287,47 @@ export function getKeyResultProgressRatioText(kr: {
 }
 
 /**
+ * Compact metric summary for OKR list rows (beneath key result title).
+ */
+export function getKeyResultMetricDetailLine(kr: {
+  metricType?: { name?: string };
+  key_type?: string;
+  milestones?: Array<{ status?: string }>;
+  progress?: number | string | null;
+  currentValue?: number | string | null;
+  initialValue?: number | string | null;
+  targetValue?: number | string | null;
+}): string | null {
+  const metric = getMetricTypeName(kr);
+
+  if (metric === 'Milestone') {
+    const { completed, total } = getMilestoneProgressCounts(kr);
+    if (total <= 0) return null;
+    return `Milestones: ${completed}/${total} Completed`;
+  }
+
+  if (
+    metric === 'Numeric' ||
+    metric === 'Currency' ||
+    metric === 'Percentage' ||
+    metric === 'Percent'
+  ) {
+    const initial = Number(kr?.initialValue ?? 0);
+    const target = getNumericMetricTargetValue(kr);
+    const current = getNumericMetricCurrentValue(kr);
+    const initialFmt = formatValueForMetric(
+      metric,
+      Number.isFinite(initial) ? initial : 0,
+    );
+    const targetFmt = formatValueForMetric(metric, target);
+    const progressFmt = formatValueForMetric(metric, current);
+    return `Initial: ${initialFmt} | Target: ${targetFmt} | Progress: ${progressFmt}`;
+  }
+
+  return null;
+}
+
+/**
  * Progress ring / summary percent (0–100).
  * Prefers a linear mapping from initial→target when possible; otherwise backend `progress`.
  */

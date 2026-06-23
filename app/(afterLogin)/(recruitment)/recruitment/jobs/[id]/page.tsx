@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaTimes, FaCheck, FaUserPlus } from 'react-icons/fa';
 import { MdOutlineFileDownload } from 'react-icons/md';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import CreateCandidate from './_components/createCandidate';
 import { useCandidateState } from '@/store/uistate/features/recruitment/candidate';
 import { useJobState } from '@/store/uistate/features/recruitment/jobs';
@@ -109,8 +109,19 @@ const MoveToTalentPoolIcon = () => (
   </svg>
 );
 
+const JOB_DETAIL_TAB_KEYS = [
+  'candidates',
+  'information',
+  'myApprovals',
+] as const;
+type JobDetailTabKey = (typeof JOB_DETAIL_TAB_KEYS)[number];
+
+const isJobDetailTabKey = (value: string | null): value is JobDetailTabKey =>
+  !!value && JOB_DETAIL_TAB_KEYS.includes(value as JobDetailTabKey);
+
 const Candidates = ({ params: { id } }: CandidateProps) => {
   const router = useRouter();
+  const urlSearchParams = useSearchParams();
   const {
     selectedCandidate,
     setCreateJobDrawer,
@@ -190,6 +201,13 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
       setSelectedRowKeys?.([] as any);
     } catch {}
   }, [pathname, setSelectedCandidate, setSelectedRowKeys]);
+
+  useEffect(() => {
+    const tabFromUrl = urlSearchParams.get('tab');
+    if (isJobDetailTabKey(tabFromUrl)) {
+      setActiveTabKey(tabFromUrl);
+    }
+  }, [urlSearchParams]);
 
   const handleDownloadExcel = () => {
     setIsDownloading(true);

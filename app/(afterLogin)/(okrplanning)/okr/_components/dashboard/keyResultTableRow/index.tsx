@@ -47,6 +47,7 @@ import {
   getRemovedMilestoneIds,
   persistKeyResultMilestones,
 } from '../../../_utils/milestoneSave';
+import { getKeyResultMetricDetailLine } from '@/utils/okrKeyResultProgressDisplay';
 
 const { Option } = Select;
 
@@ -468,6 +469,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
   };
   const canOpenMilestoneModal =
     isMilestoneMetric && hasMilestones && !objectiveEditMode && !rowInlineEdit;
+  const metricDetailLine = getKeyResultMetricDetailLine(rowKeyResult);
 
   return (
     <>
@@ -496,7 +498,21 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
               disabled={!canInlineEditNow}
             />
           ) : (
-            keyResult?.title
+            <div className="flex flex-col gap-1">
+              <span
+                data-cy={`okr-key-result-table-row-title-text-${keyResult?.id}`}
+              >
+                {keyResult?.title}
+              </span>
+              {metricDetailLine ? (
+                <span
+                  className="text-xs text-gray-500 leading-snug"
+                  data-cy={`okr-key-result-table-row-metric-detail-${keyResult?.id}`}
+                >
+                  {metricDetailLine}
+                </span>
+              ) : null}
+            </div>
           )}
         </td>
         {objectiveEditMode || rowInlineEdit ? (

@@ -107,6 +107,8 @@ export interface AttendanceBreak extends DateInfo {
   geolocations: Geolocation[];
   earlyByMinutes: number;
   lateByMinutes: number;
+  checkInSource?: AttendanceCheckInSource;
+  checkOutSource?: AttendanceCheckOutSource;
 }
 
 export interface AttendanceImport extends DateInfo {
@@ -139,6 +141,16 @@ export enum AttendanceActionType {
   SALARY_DEDUCTION = 'SALARY_DEDUCTION',
   VP_DEDUCTION = 'VP_DEDUCTION',
 }
+
+export type AttendanceRuleActionStatusEntry = {
+  taken?: boolean;
+  takenAt?: string | null;
+  source?: string | null;
+};
+
+export type AttendanceRuleActionStatus = Partial<
+  Record<AttendanceActionType | string, AttendanceRuleActionStatusEntry>
+>;
 
 export interface AttendanceRule extends DateInfo {
   id: string;
@@ -199,6 +211,7 @@ export interface AttendanceRuleViolation extends DateInfo {
   actionTypes: string[];
   actionTaken: boolean;
   actionTakenAt: string | null;
+  actionStatus?: AttendanceRuleActionStatus;
   attendanceRule: AttendanceRule;
   attendanceRuleTypes?: AttendanceRuleTypes;
   logs: unknown[];

@@ -23,6 +23,7 @@ import {
   AttendanceRuleType,
   AttendanceRuleTypes,
   AttendanceRuleViolation,
+  AttendanceActionType,
 } from '@/types/timesheet/attendance';
 import { useGetAttendanceRuleTypes } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
 import { buildRuleViolationQueryParams } from '@/store/server/features/timesheet/attendance/ruleViolationParams';
@@ -44,8 +45,12 @@ import RemoveCircleOutlineOutlinedIcon from '@mui/icons-material/RemoveCircleOut
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import statusType from '../statusType';
 import EditRuleViolationModal from './editModal';
-import DeleteRuleViolationModal from './deleteRuleViolation';
-import MoveToDeductionModal from './moveToDeductionModal';
+import DeleteRuleViolationModal, {
+  hasRemovableViolationActions,
+} from './deleteRuleViolation';
+import MoveToDeductionModal, {
+  DeductionViolation,
+} from './moveToDeductionModal';
 
 const resolveViolationRuleType = (
   item: AttendanceRuleViolation,
@@ -97,12 +102,14 @@ interface RuleViolationTableProps {
   isImport: boolean;
   selectedRowKeys?: Key[];
   setSelectedRowKeys?: (keys: Key[]) => void;
+  onSelectedViolationsChange?: (violations: DeductionViolation[]) => void;
 }
 
 const RuleViolationTable: FC<RuleViolationTableProps> = ({
   isImport,
   selectedRowKeys,
   setSelectedRowKeys,
+  onSelectedViolationsChange,
 }) => {
   const [tableData, setTableData] = useState<RuleViolationTableRow[]>([]);
   const [exportSubmenuOpenId, setExportSubmenuOpenId] = useState<string | null>(
@@ -110,9 +117,9 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
   );
   const [isMoveToDeductionModalOpen, setIsMoveToDeductionModalOpen] =
     useState(false);
-  const [deductionViolationIds, setDeductionViolationIds] = useState<string[]>(
-    [],
-  );
+  const [deductionViolations, setDeductionViolations] = useState<
+    DeductionViolation[]
+  >([]);
   const pathname = usePathname();
   const {
     violationFilters,
@@ -462,19 +469,28 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
                   <DriveFileMoveOutlinedIcon fontSize="small" />
                   Move to Deduction
                 </button>
-                <button
-                  type="button"
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedViolation(record.id, record.actionTypes ?? []);
-                    setIsShowDeleteRuleViolationModal(true);
-                  }}
-                  data-cy="time-attendance-rule-violation-table-button-delete"
-                >
-                  <RemoveCircleOutlineOutlinedIcon fontSize="small" />
-                  Remove Action
-                </button>
+                {hasRemovableViolationActions(
+                  record.actionTypes ?? [],
+                  record.actionStatus,
+                ) && (
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-[#F5F5F5] rounded flex items-center gap-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedViolation(
+                        record.id,
+                        record.actionTypes ?? [],
+                        record.actionStatus,
+                      );
+                      setIsShowDeleteRuleViolationModal(true);
+                    }}
+                    data-cy="time-attendance-rule-violation-table-button-delete"
+                  >
+                    <RemoveCircleOutlineOutlinedIcon fontSize="small" />
+                    Remove Action
+                  </button>
+                )}
               </>
             </div>
           )}
@@ -563,9 +579,44 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
 
   const handleOpenMoveToDeductionModal = (violationIds: string[]) => {
     if (violationIds.length === 0) return;
-    setDeductionViolationIds(violationIds);
+    const selected = tableData
+      .filter((row) => violationIds.includes(row.key))
+      .map((row) => ({
+        id: row.key,
+        userId: row.userId,
+        actionTypes: row.actionTypes,
+      }));
+    setDeductionViolations(selected);
     setIsMoveToDeductionModalOpen(true);
   };
+
+  useEffect(() => {
+    if (!onSelectedViolationsChange) return;
+
+    if (!selectedRowKeys?.length) {
+      onSelectedViolationsChange([]);
+      return;
+    }
+
+    const selectedKeys = selectedRowKeys.map(String);
+    const fromTable = tableData
+      .filter((row) => selectedKeys.includes(row.key))
+      .map((row) => ({
+        id: row.key,
+        userId: row.userId,
+        actionTypes: row.actionTypes,
+      }));
+    const knownIds = new Set(fromTable.map((v) => v.id));
+    const fromOtherPages = selectedKeys
+      .filter((id) => !knownIds.has(id))
+      .map((id) => ({
+        id,
+        userId: '',
+        actionTypes: [AttendanceActionType.SALARY_DEDUCTION],
+      }));
+
+    onSelectedViolationsChange([...fromTable, ...fromOtherPages]);
+  }, [tableData, selectedRowKeys, onSelectedViolationsChange]);
 
   return (
     <div
@@ -653,14 +704,14 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
         />
         <MoveToDeductionModal
           open={isMoveToDeductionModalOpen}
-          violationIds={deductionViolationIds}
+          violations={deductionViolations}
           onClose={() => {
             setIsMoveToDeductionModalOpen(false);
-            setDeductionViolationIds([]);
+            setDeductionViolations([]);
           }}
           onSuccess={() => {
             setIsMoveToDeductionModalOpen(false);
-            setDeductionViolationIds([]);
+            setDeductionViolations([]);
             setSelectedRowKeys?.([]);
           }}
         />

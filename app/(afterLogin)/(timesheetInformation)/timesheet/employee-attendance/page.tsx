@@ -36,7 +36,9 @@ import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import RuleViolationTable from './_components/ruleViolationTable';
-import MoveToDeductionModal from './_components/ruleViolationTable/moveToDeductionModal';
+import MoveToDeductionModal, {
+  DeductionViolation,
+} from './_components/ruleViolationTable/moveToDeductionModal';
 
 const EmployeeAttendance = () => {
   const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
@@ -85,6 +87,9 @@ const EmployeeAttendance = () => {
   const [activeTabKey, setActiveTabKey] = useState('1');
   const [isBulkMoveToDeductionModalOpen, setIsBulkMoveToDeductionModalOpen] =
     useState(false);
+  const [bulkDeductionViolations, setBulkDeductionViolations] = useState<
+    DeductionViolation[]
+  >([]);
 
   const exportTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -539,6 +544,7 @@ const EmployeeAttendance = () => {
                   setSelectedRowKeys={setSelectedRowKeys}
                   setBodyRequest={setBodyRequest}
                   isImport={isSuccess}
+                  onSelectedViolationsChange={setBulkDeductionViolations}
                   data-cy="time-attendance-rule-violation-table"
                 />
               ),
@@ -547,11 +553,12 @@ const EmployeeAttendance = () => {
         />
         <MoveToDeductionModal
           open={isBulkMoveToDeductionModalOpen}
-          violationIds={selectedRowKeys.map((key) => String(key))}
+          violations={bulkDeductionViolations}
           onClose={() => setIsBulkMoveToDeductionModalOpen(false)}
           onSuccess={() => {
             setIsBulkMoveToDeductionModalOpen(false);
             setSelectedRowKeys([]);
+            setBulkDeductionViolations([]);
           }}
         />
 

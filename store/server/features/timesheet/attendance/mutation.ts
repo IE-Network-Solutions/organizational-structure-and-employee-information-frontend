@@ -1,7 +1,8 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { PAYROLL_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import { OKR_URL, PAYROLL_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
-import { useMutation, useQueryClient } from 'react-query';
+import { QueryClient, useMutation, useQueryClient } from 'react-query';
+import { getEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import {
   AttendanceSetShiftRequestBody,
@@ -15,6 +16,7 @@ import useAttendanceImportErrorModalStore from '@/store/uistate/features/timeshe
 import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { handleAttendanceShiftError } from '@/helpers/geofenceHelper';
 import dayjs from 'dayjs';
 
 const attendanceImport = async (file: string) => {
@@ -89,6 +91,53 @@ const addAttendanceViolationsToDeduction = async (data: {
   });
 };
 
+const createVpDeduction = async (data: { violationIds: string[] }) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const createdBy = useAuthenticationStore.getState().userId;
+
+  return await crudRequest({
+    url: `${OKR_URL}/vp-deduction`,
+    method: 'POST',
+    headers: {
+      tenantId,
+      createdBy,
+      Authorization: `Bearer ${token}`,
+    },
+    data,
+  });
+};
+
+const reverseVpDeductionByViolationId = async (violationId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const createdBy = useAuthenticationStore.getState().userId;
+
+  return await crudRequest({
+    url: `${OKR_URL}/vp-deduction/by-violation/${violationId}`,
+    method: 'DELETE',
+    headers: {
+      tenantId,
+      createdBy,
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+const updateViolationActionStatus = async (
+  violationId: string,
+  actionType: string,
+  taken: boolean,
+) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance-rule-violations/${violationId}/action-status/${actionType}`,
+    method: 'PATCH',
+    headers: requestHeaders,
+    data: { taken },
+  });
+};
+
 const exportWarningLetter = async ({
   violationId,
   format,
@@ -124,13 +173,72 @@ const exportWarningLetter = async ({
   window.URL.revokeObjectURL(url);
 };
 
-const setCurrentAttendance = async (data: AttendanceSetShiftRequestBody) => {
+const resolveDepartmentIdFromEmployeeData = (
+  employeeData: Record<string, unknown> | null | undefined,
+): string | undefined => {
+  if (!employeeData || typeof employeeData !== 'object') return undefined;
+
+  const jobs = employeeData.employeeJobInformation;
+  if (Array.isArray(jobs) && jobs.length > 0) {
+    const activeJob =
+      jobs.find(
+        (job: { isPositionActive?: boolean }) => job?.isPositionActive,
+      ) ?? jobs[0];
+    const jobDepartmentId =
+      activeJob?.departmentId ?? activeJob?.department?.id;
+    if (jobDepartmentId) return String(jobDepartmentId);
+  }
+
+  const department = employeeData.department as { id?: string } | undefined;
+  const fallbackId = employeeData.departmentId ?? department?.id;
+  return fallbackId ? String(fallbackId) : undefined;
+};
+
+const resolveCurrentUserDepartmentId = async (
+  queryClient?: QueryClient,
+): Promise<string | undefined> => {
+  const { userData, userId } = useAuthenticationStore.getState();
+
+  const fromAuth = resolveDepartmentIdFromEmployeeData(userData);
+  if (fromAuth) return fromAuth;
+
+  if (!userId) return undefined;
+
+  const cachedEmployee =
+    queryClient?.getQueryData<Record<string, unknown>>(['employee', userId]) ??
+    queryClient?.getQueryData<Record<string, unknown>>([
+      'employeeItemData',
+      userId,
+    ]);
+  const fromCache = resolveDepartmentIdFromEmployeeData(cachedEmployee);
+  if (fromCache) return fromCache;
+
+  try {
+    const employee = await getEmployee(userId);
+    return resolveDepartmentIdFromEmployeeData(employee);
+  } catch {
+    return undefined;
+  }
+};
+
+const setCurrentAttendance = async (
+  data: AttendanceSetShiftRequestBody,
+  queryClient?: QueryClient,
+) => {
   const requestHeaders = await requestHeader();
+  const departmentId =
+    data.departmentId ?? (await resolveCurrentUserDepartmentId(queryClient));
+
+  const payload: AttendanceSetShiftRequestBody = {
+    ...data,
+    ...(departmentId ? { departmentId } : {}),
+  };
+
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/shift`,
     method: 'POST',
     headers: requestHeaders,
-    data,
+    data: payload,
   });
 };
 
@@ -263,26 +371,96 @@ export const useAddAttendanceViolationsToDeduction = () => {
   );
 };
 
+export const useCreateVpDeduction = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (data: { violationIds: string[] }) => createVpDeduction(data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance-rule-violations');
+        handleSuccessMessage(
+          'POST',
+          'VP deductions created successfully.',
+        );
+      },
+      onError: (error: any) => {
+        NotificationMessage.error({
+          message: 'Error',
+          description:
+            error?.response?.data?.message ||
+            'Failed to create VP deductions.',
+        });
+      },
+    },
+  );
+};
+
+export const useReverseVpDeductionByViolationId = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (violationId: string) => reverseVpDeductionByViolationId(violationId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance-rule-violations');
+      },
+    },
+  );
+};
+
+export const useUpdateViolationActionStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({
+      violationId,
+      actionType,
+      taken,
+    }: {
+      violationId: string;
+      actionType: string;
+      taken: boolean;
+    }) => updateViolationActionStatus(violationId, actionType, taken),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance-rule-violations');
+      },
+    },
+  );
+};
+
 export const useExportWarningLetter = () => {
   return useMutation(exportWarningLetter);
 };
 
 export const useSetCurrentAttendance = () => {
   const queryClient = useQueryClient();
-  return useMutation(setCurrentAttendance, {
-    onMutate: () => {
-      useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(true);
+  return useMutation(
+    (data: AttendanceSetShiftRequestBody) =>
+      setCurrentAttendance(data, queryClient),
+    {
+      onMutate: () => {
+        useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(true);
+      },
+      onSettled: () => {
+        useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(false);
+      },
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      onSuccess: (_, variables: any) => {
+        queryClient.invalidateQueries('current-attendance');
+        const method = variables?.method?.toUpperCase();
+        handleSuccessMessage(method);
+      },
+      onError: (error, variables) => {
+        const userCoords =
+          variables?.latitude != null && variables?.longitude != null
+            ? {
+                latitude: variables.latitude,
+                longitude: variables.longitude,
+              }
+            : null;
+        handleAttendanceShiftError(error, userCoords);
+      },
     },
-    onSettled: () => {
-      useRemoteAttendanceCameraStore.getState().setIsSubmitInProgress(false);
-    },
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('current-attendance');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
-    },
-  });
+  );
 };
 
 /**
@@ -351,6 +529,25 @@ const syncZktAttendance = async (filter?: {
   });
 };
 
+type ZktBreakSyncParams = {
+  breakTypeId: string;
+  filter?: { date: { from: string; to: string } };
+};
+
+const syncZktBreak = async ({ breakTypeId, filter }: ZktBreakSyncParams) => {
+  const requestHeaders = await requestHeader();
+  const requestData = {
+    ...(await buildZktSyncRequestData(filter)),
+    breakTypeId,
+  };
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/sync-zkt-break`,
+    method: 'POST',
+    headers: requestHeaders,
+    data: requestData,
+  });
+};
+
 export const useFetchZKTAttendance = () => {
   return useMutation(
     (filter?: { date: { from: string; to: string } }) =>
@@ -387,7 +584,8 @@ export const useSyncZktAttendance = () => {
 
         handleSuccessMessage(
           'POST',
-          item?.message || 'Attendance synced from ZK successfully.',
+          item?.message ||
+            'Attendance synced from attendance machine successfully.',
         );
       },
       onError(error: any) {
@@ -396,9 +594,40 @@ export const useSyncZktAttendance = () => {
           description:
             error?.response?.data?.message ||
             error?.message ||
-            'Failed to sync attendance from ZK.',
+            'Failed to sync attendance from attendance machine.',
         });
       },
     },
   );
+};
+
+export const useSyncZktBreak = () => {
+  const queryClient = useQueryClient();
+  return useMutation((params: ZktBreakSyncParams) => syncZktBreak(params), {
+    onSuccess: (response: any) => {
+      queryClient.invalidateQueries('attendance');
+
+      const item = response?.item ?? response?.data?.item;
+      const importWarnings: ZktImportWarning[] = item?.importWarnings ?? [];
+
+      if (importWarnings.length > 0) {
+        showZktImportWarnings(importWarnings);
+      }
+
+      handleSuccessMessage(
+        'POST',
+        item?.message ||
+          'Break attendance synced from attendance machine successfully.',
+      );
+    },
+    onError(error: any) {
+      NotificationMessage.error({
+        message: 'Error',
+        description:
+          error?.response?.data?.message ||
+          error?.message ||
+          'Failed to sync break attendance from attendance machine.',
+      });
+    },
+  });
 };
