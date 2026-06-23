@@ -154,17 +154,45 @@ const AllowedAreaConfigModal = () => {
     [usersWithoutDepartment],
   );
 
-  const selectableUsers = useMemo(() => {
-    if (!includeUsersWithoutDepartment) return departmentUsers;
+  const savedEditUserIds = useMemo(() => {
+    if (!isEditMode || !configData?.item) return [];
+    return getAllowedAreaConfigUserIds(
+      configData.item as AllowedAreaConfiguration,
+    ).map(String);
+  }, [isEditMode, configData]);
 
+  const selectableUsers = useMemo(() => {
     const departmentUserIds = new Set(
       departmentUsers.map((user) => String(user.id)),
     );
-    const extraUsers = usersWithoutDepartment.filter(
-      (user) => !departmentUserIds.has(String(user.id)),
-    );
-    return [...departmentUsers, ...extraUsers];
-  }, [departmentUsers, usersWithoutDepartment, includeUsersWithoutDepartment]);
+
+    let users = [...departmentUsers];
+
+    if (includeUsersWithoutDepartment) {
+      const extraUsers = usersWithoutDepartment.filter(
+        (user) => !departmentUserIds.has(String(user.id)),
+      );
+      users = [...users, ...extraUsers];
+    }
+
+    if (savedEditUserIds.length > 0) {
+      const existingIds = new Set(users.map((user) => String(user.id)));
+      const missingSavedUsers = allUsersList.filter(
+        (user) =>
+          savedEditUserIds.includes(String(user.id)) &&
+          !existingIds.has(String(user.id)),
+      );
+      users = [...users, ...missingSavedUsers];
+    }
+
+    return users;
+  }, [
+    departmentUsers,
+    usersWithoutDepartment,
+    includeUsersWithoutDepartment,
+    savedEditUserIds,
+    allUsersList,
+  ]);
 
   const userOptions = useMemo(
     () =>
@@ -201,40 +229,31 @@ const AllowedAreaConfigModal = () => {
 
     const item = configData.item as AllowedAreaConfiguration;
     const itemDepartmentId = item.departmentId ?? null;
+    const savedUserIds = getAllowedAreaConfigUserIds(item).map(String);
+
     lockedDepartmentIdRef.current = itemDepartmentId;
     skipAutoSelectUsersRef.current = true;
+
+    const hasUsersWithoutDepartment =
+      allUsersList.length > 0 &&
+      savedUserIds.some((id) => usersWithoutDepartmentIdSet.has(id));
+
     form.setFieldsValue({
       configType: getAllowedAreaConfigType(item),
       departmentId: itemDepartmentId ?? undefined,
-      userIds: getAllowedAreaConfigUserIds(item),
-      includeUsersWithoutDepartment: false,
+      userIds: savedUserIds,
+      includeUsersWithoutDepartment: hasUsersWithoutDepartment,
     });
-  }, [configData, allowedAreaConfigId, form]);
-
-  useEffect(() => {
-    if (!configData?.item || !allowedAreaConfigId || allUsersList.length === 0) {
-      return;
-    }
-
-    const savedUserIds = getAllowedAreaConfigUserIds(
-      configData.item as AllowedAreaConfiguration,
-    );
-    const hasUsersWithoutDepartment = savedUserIds.some((id) =>
-      usersWithoutDepartmentIdSet.has(String(id)),
-    );
-
-    if (hasUsersWithoutDepartment) {
-      form.setFieldValue('includeUsersWithoutDepartment', true);
-    }
   }, [
     configData,
     allowedAreaConfigId,
+    form,
     allUsersList.length,
     usersWithoutDepartmentIdSet,
-    form,
   ]);
 
   useEffect(() => {
+    if (isEditMode) return;
     if (!isUserBased || !departmentId || isUsersLoading) return;
     if (skipAutoSelectUsersRef.current) {
       skipAutoSelectUsersRef.current = false;
@@ -244,7 +263,14 @@ const AllowedAreaConfigModal = () => {
     form.setFieldsValue({
       userIds: departmentUsers.map((user) => String(user.id)),
     });
-  }, [isUserBased, departmentId, isUsersLoading, departmentUsers, form]);
+  }, [
+    isEditMode,
+    isUserBased,
+    departmentId,
+    isUsersLoading,
+    departmentUsers,
+    form,
+  ]);
 
   const handleConfigTypeChange = (value: AllowedAreaResolverType) => {
     if (isEditMode) {
@@ -472,7 +498,7 @@ const AllowedAreaConfigModal = () => {
                 </Checkbox>
               </Form.Item>
 
-              {includeUsersWithoutDepartment && (
+              {includeUsersWithoutDepartment && !isEditMode && (
                 <p
                   className="-mt-1 mb-3 text-sm text-gray-500"
                   data-cy="time-attendance-settings-allowed-area-config-include-users-without-department-hint"
