@@ -41,8 +41,11 @@ const deleteAttendanceRule = async (id: string) => {
 export const useCreateAttendanceRule = () => {
   const queryClient = useQueryClient();
   return useMutation(createAttendanceRule, {
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries('attendance-rules');
+      if (variables.backtrackEnabled) {
+        queryClient.invalidateQueries('attendance-rule-violations');
+      }
       handleSuccessMessage('POST');
     },
   });
@@ -51,8 +54,11 @@ export const useCreateAttendanceRule = () => {
 export const useUpdateAttendanceRule = () => {
   const queryClient = useQueryClient();
   return useMutation(updateAttendanceRule, {
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries('attendance-rules');
+      if (variables.backtrackEnabled) {
+        queryClient.invalidateQueries('attendance-rule-violations');
+      }
       handleSuccessMessage('PATCH');
     },
   });
