@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { Form, Modal, Select, Spin } from 'antd';
+import { Checkbox, Form, Modal, Select, Spin } from 'antd';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
 } from '@/components/common/customDrawer/customDrawerFooterButton';
@@ -12,6 +12,7 @@ import {
 } from '@/types/timesheet/settings';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetDepartmentUsersAllLevels } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetAllowedAreaConfiguration } from '@/store/server/features/timesheet/allowedAreaConfiguration/queries';
 import {
   buildCreateAllowedAreaConfigurationPayload,
@@ -42,13 +43,34 @@ interface Department {
   children?: Department[];
 }
 
+interface EmployeeJobInformation {
+  isPositionActive?: boolean;
+  departmentId?: string | null;
+  department?: { id?: string };
+}
+
 interface DepartmentUser {
   id: string;
   firstName?: string;
   middleName?: string;
   lastName?: string;
   email?: string;
+  employeeJobInformation?: EmployeeJobInformation[];
 }
+
+const getActiveJob = (user: DepartmentUser) => {
+  const jobs = user.employeeJobInformation;
+  if (!Array.isArray(jobs) || jobs.length === 0) return undefined;
+  return jobs.find((job) => job.isPositionActive) ?? jobs[0];
+};
+
+const isUserWithoutDepartment = (user: DepartmentUser) => {
+  const activeJob = getActiveJob(user);
+  if (!activeJob) return false;
+
+  const departmentId = activeJob.departmentId ?? activeJob.department?.id;
+  return departmentId == null || departmentId === '';
+};
 
 const getEmployeeName = (user: DepartmentUser) =>
   `${user.firstName ?? ''} ${user.middleName ?? ''} ${user.lastName ?? ''}`.trim() ||
@@ -66,12 +88,16 @@ const AllowedAreaConfigModal = () => {
   const [form] = Form.useForm();
   const configType = Form.useWatch('configType', form);
   const departmentId = Form.useWatch('departmentId', form);
+  const includeUsersWithoutDepartment =
+    Form.useWatch('includeUsersWithoutDepartment', form) ?? false;
   const skipAutoSelectUsersRef = useRef(false);
   const lockedDepartmentIdRef = useRef<string | null>(null);
 
   const { data: departmentsData } = useGetDepartments();
   const { data: departmentUsersData, isFetching: isUsersLoading } =
     useGetDepartmentUsersAllLevels(departmentId ?? null);
+  const { data: allUsersData, isFetching: isAllUsersLoading } =
+    useGetAllUsersData();
   const {
     data: configData,
     isFetching: isConfigFetching,
@@ -101,7 +127,7 @@ const AllowedAreaConfigModal = () => {
     [departments],
   );
 
-  const availableUsers = useMemo(() => {
+  const departmentUsers = useMemo(() => {
     const users =
       departmentUsersData?.items ??
       departmentUsersData?.data?.items ??
@@ -112,13 +138,41 @@ const AllowedAreaConfigModal = () => {
     return users as DepartmentUser[];
   }, [departmentUsersData]);
 
+  const allUsersList = useMemo(() => {
+    const users = allUsersData?.items ?? allUsersData ?? [];
+    if (!Array.isArray(users)) return [];
+    return users as DepartmentUser[];
+  }, [allUsersData]);
+
+  const usersWithoutDepartment = useMemo(
+    () => allUsersList.filter(isUserWithoutDepartment),
+    [allUsersList],
+  );
+
+  const usersWithoutDepartmentIdSet = useMemo(
+    () => new Set(usersWithoutDepartment.map((user) => String(user.id))),
+    [usersWithoutDepartment],
+  );
+
+  const selectableUsers = useMemo(() => {
+    if (!includeUsersWithoutDepartment) return departmentUsers;
+
+    const departmentUserIds = new Set(
+      departmentUsers.map((user) => String(user.id)),
+    );
+    const extraUsers = usersWithoutDepartment.filter(
+      (user) => !departmentUserIds.has(String(user.id)),
+    );
+    return [...departmentUsers, ...extraUsers];
+  }, [departmentUsers, usersWithoutDepartment, includeUsersWithoutDepartment]);
+
   const userOptions = useMemo(
     () =>
-      availableUsers.map((user) => ({
+      selectableUsers.map((user) => ({
         value: String(user.id),
         label: getEmployeeName(user),
       })),
-    [availableUsers],
+    [selectableUsers],
   );
 
   const onClose = useCallback(() => {
@@ -153,8 +207,32 @@ const AllowedAreaConfigModal = () => {
       configType: getAllowedAreaConfigType(item),
       departmentId: itemDepartmentId ?? undefined,
       userIds: getAllowedAreaConfigUserIds(item),
+      includeUsersWithoutDepartment: false,
     });
   }, [configData, allowedAreaConfigId, form]);
+
+  useEffect(() => {
+    if (!configData?.item || !allowedAreaConfigId || allUsersList.length === 0) {
+      return;
+    }
+
+    const savedUserIds = getAllowedAreaConfigUserIds(
+      configData.item as AllowedAreaConfiguration,
+    );
+    const hasUsersWithoutDepartment = savedUserIds.some((id) =>
+      usersWithoutDepartmentIdSet.has(String(id)),
+    );
+
+    if (hasUsersWithoutDepartment) {
+      form.setFieldValue('includeUsersWithoutDepartment', true);
+    }
+  }, [
+    configData,
+    allowedAreaConfigId,
+    allUsersList.length,
+    usersWithoutDepartmentIdSet,
+    form,
+  ]);
 
   useEffect(() => {
     if (!isUserBased || !departmentId || isUsersLoading) return;
@@ -164,9 +242,9 @@ const AllowedAreaConfigModal = () => {
     }
 
     form.setFieldsValue({
-      userIds: availableUsers.map((user) => String(user.id)),
+      userIds: departmentUsers.map((user) => String(user.id)),
     });
-  }, [isUserBased, departmentId, isUsersLoading, availableUsers, form]);
+  }, [isUserBased, departmentId, isUsersLoading, departmentUsers, form]);
 
   const handleConfigTypeChange = (value: AllowedAreaResolverType) => {
     if (isEditMode) {
@@ -179,6 +257,7 @@ const AllowedAreaConfigModal = () => {
           configType: value,
           departmentId: currentDepartmentId,
           userIds: [],
+          includeUsersWithoutDepartment: false,
         });
         return;
       }
@@ -199,6 +278,7 @@ const AllowedAreaConfigModal = () => {
       configType: value,
       departmentId: undefined,
       userIds: [],
+      includeUsersWithoutDepartment: false,
     });
     skipAutoSelectUsersRef.current = false;
   };
@@ -209,8 +289,21 @@ const AllowedAreaConfigModal = () => {
     form.setFieldsValue({
       departmentId: value,
       userIds: [],
+      includeUsersWithoutDepartment: false,
     });
     skipAutoSelectUsersRef.current = false;
+  };
+
+  const handleIncludeUsersWithoutDepartmentChange = (checked: boolean) => {
+    if (checked) return;
+
+    const currentUserIds: string[] = form.getFieldValue('userIds') ?? [];
+    form.setFieldsValue({
+      includeUsersWithoutDepartment: false,
+      userIds: currentUserIds.filter(
+        (id) => !usersWithoutDepartmentIdSet.has(String(id)),
+      ),
+    });
   };
 
   const handleSubmit = (values: {
@@ -362,36 +455,67 @@ const AllowedAreaConfigModal = () => {
           </Form.Item>
 
           {isUserBased && departmentId && (
-            <Form.Item
-              name="userIds"
-              label={
-                <span
-                  className="text-sm font-normal text-gray-900"
-                  data-cy="time-attendance-settings-allowed-area-config-users-label"
+            <>
+              <Form.Item
+                name="includeUsersWithoutDepartment"
+                valuePropName="checked"
+                className="mb-3"
+                data-cy="time-attendance-settings-allowed-area-config-include-users-without-department-field"
+              >
+                <Checkbox
+                  onChange={(event) =>
+                    handleIncludeUsersWithoutDepartmentChange(event.target.checked)
+                  }
+                  data-cy="time-attendance-settings-allowed-area-config-include-users-without-department-checkbox"
                 >
-                  Users
-                </span>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'Please select at least one user',
-                },
-              ]}
-              data-cy="time-attendance-settings-allowed-area-config-users-field"
-            >
-              <Select
-                mode="multiple"
-                showSearch
-                placeholder="Select users"
-                className="w-full"
-                options={userOptions}
-                optionFilterProp="label"
-                loading={isUsersLoading}
-                maxTagCount="responsive"
-                data-cy="time-attendance-settings-allowed-area-config-users-select"
-              />
-            </Form.Item>
+                  Include users without department
+                </Checkbox>
+              </Form.Item>
+
+              {includeUsersWithoutDepartment && (
+                <p
+                  className="-mt-1 mb-3 text-sm text-gray-500"
+                  data-cy="time-attendance-settings-allowed-area-config-include-users-without-department-hint"
+                >
+                  Users without a department are added to the list but are not
+                  selected automatically. Please select them manually.
+                </p>
+              )}
+
+              <Form.Item
+                name="userIds"
+                label={
+                  <span
+                    className="text-sm font-normal text-gray-900"
+                    data-cy="time-attendance-settings-allowed-area-config-users-label"
+                  >
+                    Users
+                  </span>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please select at least one user',
+                  },
+                ]}
+                data-cy="time-attendance-settings-allowed-area-config-users-field"
+              >
+                <Select
+                  mode="multiple"
+                  showSearch
+                  placeholder="Select users"
+                  className="w-full"
+                  options={userOptions}
+                  optionFilterProp="label"
+                  loading={
+                    isUsersLoading ||
+                    (includeUsersWithoutDepartment && isAllUsersLoading)
+                  }
+                  maxTagCount="responsive"
+                  data-cy="time-attendance-settings-allowed-area-config-users-select"
+                />
+              </Form.Item>
+            </>
           )}
         </Form>
       </Spin>
