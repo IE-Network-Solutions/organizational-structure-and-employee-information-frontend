@@ -31,15 +31,11 @@ import FailedAssignmentModal from '../failed-assignment-modal';
 const { Option } = Select;
 
 const ScoringModal: React.FC = () => {
-  const {
-    mutate: updateScoring,
-    isLoading: isUpdatingLoading,
-  } = useUpdateVpScoring();
+  const { mutate: updateScoring, isLoading: isUpdatingLoading } =
+    useUpdateVpScoring();
 
-  const {
-    mutate: vpScoringMutate,
-    isLoading: isCreateLoading,
-  } = useCreateVpScoring();
+  const { mutate: vpScoringMutate, isLoading: isCreateLoading } =
+    useCreateVpScoring();
 
   const { isDrawerVisible, closeDrawer, currentId } = useDrawerStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
@@ -67,8 +63,7 @@ const ScoringModal: React.FC = () => {
     useState(false);
 
   const allDepartmentUsers = useMemo(
-    () =>
-      departmentData?.flatMap((dept: any) => dept.users || []) || [],
+    () => departmentData?.flatMap((dept: any) => dept.users || []) || [],
     [departmentData],
   );
 
@@ -339,568 +334,568 @@ const ScoringModal: React.FC = () => {
         className="okr-settings-modal"
         data-cy="okr-criteria-modal"
       >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        className=""
-        id="okr-criteria-modal-form"
-        data-cy="okr-criteria-modal-form"
-      >
-        <Row gutter={[24, 16]} data-cy="okr-criteria-modal-name-row">
-          <Col xs={24} sm={18} data-cy="okr-criteria-modal-name-col">
-            <Form.Item
-              label={
-                <div
-                  className="flex items-center gap-1"
-                  data-cy="okr-criteria-modal-name-label"
-                >
-                  <span
-                    className="text-[14px] font-medium text-[#262626]"
-                    data-cy="okr-criteria-modal-name-label-text"
-                  >
-                    Name configuration
-                  </span>
-                  <Tooltip title="Enter a name for this scoring configuration.">
-                    <QuestionCircleOutlined
-                      className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
-                      data-cy="okr-criteria-modal-name-tooltip"
-                    />
-                  </Tooltip>
-                </div>
-              }
-              name="name"
-              required
-              rules={[{ required: true, message: 'Please enter the name' }]}
-              data-cy="okr-criteria-modal-name-field"
-            >
-              <Input
-                placeholder="Update all UI screens"
-                className="h-11"
-                data-cy="okr-criteria-modal-name-input"
-              />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={6} data-cy="okr-criteria-modal-percentage-col">
-            <Form.Item
-              label={
-                <div
-                  className="flex items-center gap-1"
-                  data-cy="okr-criteria-modal-percentage-label"
-                >
-                  <span
-                    className="text-[14px] font-medium text-[#262626] truncate block"
-                    title="Total Percentage"
-                    data-cy="okr-criteria-modal-percentage-label-text"
-                  >
-                    Total Percentage
-                  </span>
-                  <Tooltip title="Enter the total percentage (0-100).">
-                    <QuestionCircleOutlined
-                      className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
-                      data-cy="okr-criteria-modal-percentage-tooltip"
-                    />
-                  </Tooltip>
-                </div>
-              }
-              name="totalPercentage"
-              required
-              rules={[{ required: true, message: 'Please enter percentage' }]}
-              data-cy="okr-criteria-modal-percentage-field"
-            >
-              <Input
-                type="number"
-                placeholder="Input"
-                className="h-11"
-                data-cy="okr-criteria-modal-percentage-input"
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Form.Item
-          label={
-            <div
-              className="flex items-center gap-1"
-              data-cy="okr-criteria-modal-department-label"
-            >
-              <span
-                className="text-[14px] font-medium text-[#262626]"
-                data-cy="okr-criteria-modal-department-label-text"
-              >
-                Department
-              </span>
-              <Tooltip title="Select departments to filter employees.">
-                <QuestionCircleOutlined
-                  className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
-                  data-cy="okr-criteria-modal-department-tooltip"
-                />
-              </Tooltip>
-            </div>
-          }
-          name="department"
-          className="mb-2"
-          required
-          data-cy="okr-criteria-modal-department-field"
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={onFinish}
+          className=""
+          id="okr-criteria-modal-form"
+          data-cy="okr-criteria-modal-form"
         >
-          <div
-            className="custom-centered-select-wrapper relative"
-            data-cy="okr-criteria-modal-department-select-wrapper"
-          >
-            <Select
-              mode="multiple"
-              placeholder=""
-              className="w-full h-11 custom-modal-select always-show-placeholder"
-              maxTagCount={0}
-              maxTagPlaceholder={() => null}
-              value={watchedDepartments}
-              onSelect={(val) => {
-                const current = form.getFieldValue('department') || [];
-                if (!current.includes(val))
-                  form.setFieldsValue({ department: [...current, val] });
-              }}
-              onDeselect={(val) => {
-                const current = form.getFieldValue('department') || [];
-                form.setFieldsValue({
-                  department: current.filter((v: any) => v !== val),
-                });
-              }}
-              dropdownClassName="custom-assignee-dropdown"
-              data-cy="okr-criteria-modal-department-select"
-            >
-              {departmentData?.map((dept: any) => (
-                <Option
-                  key={dept.id}
-                  value={dept.id}
-                  data-cy={`okr-criteria-modal-department-option-${dept.id}`}
-                >
-                  {dept.name}
-                </Option>
-              ))}
-            </Select>
-            {/* Always visible placeholder overlay */}
-            <span
-              className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-              style={{ lineHeight: '44px' }}
-              data-cy="okr-criteria-modal-department-placeholder"
-            >
-              Select Department
-            </span>
-          </div>
-        </Form.Item>
-
-        <div
-          className="flex flex-wrap gap-2 mb-6"
-          data-cy="okr-criteria-modal-department-tags-container"
-        >
-          {watchedDepartments?.map((id: string) => {
-            const dept = departmentData?.find((d: any) => d.id === id);
-            if (!dept) return null;
-            return (
-              <div
-                key={id}
-                className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
-                data-cy={`okr-criteria-modal-department-tag-${id}`}
-              >
-                <span
-                  className="text-[14px] text-[#595959]"
-                  data-cy={`okr-criteria-modal-department-tag-name-${id}`}
-                >
-                  {dept.name}
-                </span>
-                <CloseOutlined
-                  className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
-                  onClick={() =>
-                    form.setFieldsValue({
-                      department: watchedDepartments.filter(
-                        (v: any) => v !== id,
-                      ),
-                    })
-                  }
-                  data-cy={`okr-criteria-modal-department-tag-close-${id}`}
-                />
-              </div>
-            );
-          })}
-        </div>
-
-        <Row gutter={24} data-cy="okr-criteria-modal-users-row">
-          <Col span={18} data-cy="okr-criteria-modal-users-col">
-            <Form.Item
-              label={
-                <div
-                  className="flex items-center gap-1"
-                  data-cy="okr-criteria-modal-users-label"
-                >
-                  <span
-                    className="text-[14px] font-medium text-[#262626]"
-                    data-cy="okr-criteria-modal-users-label-text"
+          <Row gutter={[24, 16]} data-cy="okr-criteria-modal-name-row">
+            <Col xs={24} sm={18} data-cy="okr-criteria-modal-name-col">
+              <Form.Item
+                label={
+                  <div
+                    className="flex items-center gap-1"
+                    data-cy="okr-criteria-modal-name-label"
                   >
-                    Users
-                  </span>
-                  <Tooltip title="Select specific users for this configuration.">
-                    <QuestionCircleOutlined
-                      className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
-                      data-cy="okr-criteria-modal-users-tooltip"
-                    />
-                  </Tooltip>
-                </div>
-              }
-              name="users"
-              className="mb-2"
-              required
-              rules={[{ required: true, message: 'Please select users' }]}
-              data-cy="okr-criteria-modal-users-field"
-            >
-              <div
-                className="custom-centered-select-wrapper relative"
-                data-cy="okr-criteria-modal-users-select-wrapper"
-              >
-                <Select
-                  mode="multiple"
-                  placeholder=""
-                  className="w-full h-11 custom-modal-select always-show-placeholder"
-                  maxTagCount={0}
-                  maxTagPlaceholder={() => null}
-                  value={watchedUsers}
-                  onSelect={(val) => {
-                    const current = form.getFieldValue('users') || [];
-                    if (!current.includes(val))
-                      form.setFieldsValue({ users: [...current, val] });
-                  }}
-                  onDeselect={(val) => {
-                    const current = form.getFieldValue('users') || [];
-                    form.setFieldsValue({
-                      users: current.filter((v: any) => v !== val),
-                    });
-                  }}
-                  dropdownClassName="custom-assignee-dropdown"
-                  data-cy="okr-criteria-modal-users-select"
-                >
-                  {filteredUsers?.map((user: any) => (
-                    <Option
-                      key={user.id}
-                      value={user.id}
-                      data-cy={`okr-criteria-modal-users-option-${user.id}`}
+                    <span
+                      className="text-[14px] font-medium text-[#262626]"
+                      data-cy="okr-criteria-modal-name-label-text"
                     >
-                      {user.firstName} {user.lastName}
-                    </Option>
-                  ))}
-                </Select>
-                {/* Always visible placeholder overlay */}
-                <span
-                  className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-                  style={{ lineHeight: '44px' }}
-                  data-cy="okr-criteria-modal-users-placeholder"
-                >
-                  Select Users
-                </span>
-              </div>
-            </Form.Item>
-          </Col>
-          <Col span={6} data-cy="okr-criteria-modal-filter-col">
-            <Form.Item
-              label={
-                <div
-                  className="flex items-center gap-1"
-                  data-cy="okr-criteria-modal-filter-label"
-                >
-                  <span
-                    className="text-[14px] font-medium text-[#262626]"
-                    data-cy="okr-criteria-modal-filter-label-text"
+                      Name configuration
+                    </span>
+                    <Tooltip title="Enter a name for this scoring configuration.">
+                      <QuestionCircleOutlined
+                        className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                        data-cy="okr-criteria-modal-name-tooltip"
+                      />
+                    </Tooltip>
+                  </div>
+                }
+                name="name"
+                required
+                rules={[{ required: true, message: 'Please enter the name' }]}
+                data-cy="okr-criteria-modal-name-field"
+              >
+                <Input
+                  placeholder="Update all UI screens"
+                  className="h-11"
+                  data-cy="okr-criteria-modal-name-input"
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} sm={6} data-cy="okr-criteria-modal-percentage-col">
+              <Form.Item
+                label={
+                  <div
+                    className="flex items-center gap-1"
+                    data-cy="okr-criteria-modal-percentage-label"
                   >
-                    Filter
-                  </span>
-                  <Tooltip title="Filter users by type.">
-                    <QuestionCircleOutlined
-                      className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
-                      data-cy="okr-criteria-modal-filter-tooltip"
-                    />
-                  </Tooltip>
-                </div>
-              }
-              data-cy="okr-criteria-modal-filter-field"
+                    <span
+                      className="text-[14px] font-medium text-[#262626] truncate block"
+                      title="Total Percentage"
+                      data-cy="okr-criteria-modal-percentage-label-text"
+                    >
+                      Total Percentage
+                    </span>
+                    <Tooltip title="Enter the total percentage (0-100).">
+                      <QuestionCircleOutlined
+                        className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                        data-cy="okr-criteria-modal-percentage-tooltip"
+                      />
+                    </Tooltip>
+                  </div>
+                }
+                name="totalPercentage"
+                required
+                rules={[{ required: true, message: 'Please enter percentage' }]}
+                data-cy="okr-criteria-modal-percentage-field"
+              >
+                <Input
+                  type="number"
+                  placeholder="Input"
+                  className="h-11"
+                  data-cy="okr-criteria-modal-percentage-input"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item
+            label={
+              <div
+                className="flex items-center gap-1"
+                data-cy="okr-criteria-modal-department-label"
+              >
+                <span
+                  className="text-[14px] font-medium text-[#262626]"
+                  data-cy="okr-criteria-modal-department-label-text"
+                >
+                  Department
+                </span>
+                <Tooltip title="Select departments to filter employees.">
+                  <QuestionCircleOutlined
+                    className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                    data-cy="okr-criteria-modal-department-tooltip"
+                  />
+                </Tooltip>
+              </div>
+            }
+            name="department"
+            className="mb-2"
+            required
+            data-cy="okr-criteria-modal-department-field"
+          >
+            <div
+              className="custom-centered-select-wrapper relative"
+              data-cy="okr-criteria-modal-department-select-wrapper"
             >
               <Select
-                value={userTypeFilter}
-                onChange={setUserTypeFilter}
-                className="h-11"
-                placeholder="Select"
-                data-cy="okr-criteria-modal-filter-select"
+                mode="multiple"
+                placeholder=""
+                className="w-full h-11 custom-modal-select always-show-placeholder"
+                maxTagCount={0}
+                maxTagPlaceholder={() => null}
+                value={watchedDepartments}
+                onSelect={(val) => {
+                  const current = form.getFieldValue('department') || [];
+                  if (!current.includes(val))
+                    form.setFieldsValue({ department: [...current, val] });
+                }}
+                onDeselect={(val) => {
+                  const current = form.getFieldValue('department') || [];
+                  form.setFieldsValue({
+                    department: current.filter((v: any) => v !== val),
+                  });
+                }}
+                dropdownClassName="custom-assignee-dropdown"
+                data-cy="okr-criteria-modal-department-select"
               >
-                <Option
-                  value="all"
-                  data-cy="okr-criteria-modal-filter-option-all"
-                >
-                  All
-                </Option>
-                <Option
-                  value="team leads"
-                  data-cy="okr-criteria-modal-filter-option-team-leads"
-                >
-                  Team Leads
-                </Option>
-                <Option
-                  value="team members"
-                  data-cy="okr-criteria-modal-filter-option-team-members"
-                >
-                  Team Members
-                </Option>
+                {departmentData?.map((dept: any) => (
+                  <Option
+                    key={dept.id}
+                    value={dept.id}
+                    data-cy={`okr-criteria-modal-department-option-${dept.id}`}
+                  >
+                    {dept.name}
+                  </Option>
+                ))}
               </Select>
-            </Form.Item>
-          </Col>
-        </Row>
+              {/* Always visible placeholder overlay */}
+              <span
+                className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
+                style={{ lineHeight: '44px' }}
+                data-cy="okr-criteria-modal-department-placeholder"
+              >
+                Select Department
+              </span>
+            </div>
+          </Form.Item>
 
-        <div
-          className="flex flex-wrap gap-2 mb-6"
-          data-cy="okr-criteria-modal-users-tags-container"
-        >
-          {watchedUsers?.map((id: string) => {
-            const user = filteredUsers?.find((u: any) => u.id === id);
-            if (!user) return null;
-            return (
+          <div
+            className="flex flex-wrap gap-2 mb-6"
+            data-cy="okr-criteria-modal-department-tags-container"
+          >
+            {watchedDepartments?.map((id: string) => {
+              const dept = departmentData?.find((d: any) => d.id === id);
+              if (!dept) return null;
+              return (
+                <div
+                  key={id}
+                  className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+                  data-cy={`okr-criteria-modal-department-tag-${id}`}
+                >
+                  <span
+                    className="text-[14px] text-[#595959]"
+                    data-cy={`okr-criteria-modal-department-tag-name-${id}`}
+                  >
+                    {dept.name}
+                  </span>
+                  <CloseOutlined
+                    className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
+                    onClick={() =>
+                      form.setFieldsValue({
+                        department: watchedDepartments.filter(
+                          (v: any) => v !== id,
+                        ),
+                      })
+                    }
+                    data-cy={`okr-criteria-modal-department-tag-close-${id}`}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
+          <Row gutter={24} data-cy="okr-criteria-modal-users-row">
+            <Col span={18} data-cy="okr-criteria-modal-users-col">
+              <Form.Item
+                label={
+                  <div
+                    className="flex items-center gap-1"
+                    data-cy="okr-criteria-modal-users-label"
+                  >
+                    <span
+                      className="text-[14px] font-medium text-[#262626]"
+                      data-cy="okr-criteria-modal-users-label-text"
+                    >
+                      Users
+                    </span>
+                    <Tooltip title="Select specific users for this configuration.">
+                      <QuestionCircleOutlined
+                        className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                        data-cy="okr-criteria-modal-users-tooltip"
+                      />
+                    </Tooltip>
+                  </div>
+                }
+                name="users"
+                className="mb-2"
+                required
+                rules={[{ required: true, message: 'Please select users' }]}
+                data-cy="okr-criteria-modal-users-field"
+              >
+                <div
+                  className="custom-centered-select-wrapper relative"
+                  data-cy="okr-criteria-modal-users-select-wrapper"
+                >
+                  <Select
+                    mode="multiple"
+                    placeholder=""
+                    className="w-full h-11 custom-modal-select always-show-placeholder"
+                    maxTagCount={0}
+                    maxTagPlaceholder={() => null}
+                    value={watchedUsers}
+                    onSelect={(val) => {
+                      const current = form.getFieldValue('users') || [];
+                      if (!current.includes(val))
+                        form.setFieldsValue({ users: [...current, val] });
+                    }}
+                    onDeselect={(val) => {
+                      const current = form.getFieldValue('users') || [];
+                      form.setFieldsValue({
+                        users: current.filter((v: any) => v !== val),
+                      });
+                    }}
+                    dropdownClassName="custom-assignee-dropdown"
+                    data-cy="okr-criteria-modal-users-select"
+                  >
+                    {filteredUsers?.map((user: any) => (
+                      <Option
+                        key={user.id}
+                        value={user.id}
+                        data-cy={`okr-criteria-modal-users-option-${user.id}`}
+                      >
+                        {user.firstName} {user.lastName}
+                      </Option>
+                    ))}
+                  </Select>
+                  {/* Always visible placeholder overlay */}
+                  <span
+                    className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
+                    style={{ lineHeight: '44px' }}
+                    data-cy="okr-criteria-modal-users-placeholder"
+                  >
+                    Select Users
+                  </span>
+                </div>
+              </Form.Item>
+            </Col>
+            <Col span={6} data-cy="okr-criteria-modal-filter-col">
+              <Form.Item
+                label={
+                  <div
+                    className="flex items-center gap-1"
+                    data-cy="okr-criteria-modal-filter-label"
+                  >
+                    <span
+                      className="text-[14px] font-medium text-[#262626]"
+                      data-cy="okr-criteria-modal-filter-label-text"
+                    >
+                      Filter
+                    </span>
+                    <Tooltip title="Filter users by type.">
+                      <QuestionCircleOutlined
+                        className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                        data-cy="okr-criteria-modal-filter-tooltip"
+                      />
+                    </Tooltip>
+                  </div>
+                }
+                data-cy="okr-criteria-modal-filter-field"
+              >
+                <Select
+                  value={userTypeFilter}
+                  onChange={setUserTypeFilter}
+                  className="h-11"
+                  placeholder="Select"
+                  data-cy="okr-criteria-modal-filter-select"
+                >
+                  <Option
+                    value="all"
+                    data-cy="okr-criteria-modal-filter-option-all"
+                  >
+                    All
+                  </Option>
+                  <Option
+                    value="team leads"
+                    data-cy="okr-criteria-modal-filter-option-team-leads"
+                  >
+                    Team Leads
+                  </Option>
+                  <Option
+                    value="team members"
+                    data-cy="okr-criteria-modal-filter-option-team-members"
+                  >
+                    Team Members
+                  </Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <div
+            className="flex flex-wrap gap-2 mb-6"
+            data-cy="okr-criteria-modal-users-tags-container"
+          >
+            {watchedUsers?.map((id: string) => {
+              const user = filteredUsers?.find((u: any) => u.id === id);
+              if (!user) return null;
+              return (
+                <div
+                  key={id}
+                  className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+                  data-cy={`okr-criteria-modal-users-tag-${id}`}
+                >
+                  <span
+                    className="text-[14px] text-[#595959]"
+                    data-cy={`okr-criteria-modal-users-tag-name-${id}`}
+                  >
+                    {user.firstName}
+                  </span>
+                  <CloseOutlined
+                    className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
+                    onClick={() =>
+                      form.setFieldsValue({
+                        users: watchedUsers.filter((v: any) => v !== id),
+                      })
+                    }
+                    data-cy={`okr-criteria-modal-users-tag-close-${id}`}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
+          <Form.Item
+            label={
               <div
-                key={id}
-                className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
-                data-cy={`okr-criteria-modal-users-tag-${id}`}
+                className="flex items-center gap-1"
+                data-cy="okr-criteria-modal-criteria-label"
               >
                 <span
-                  className="text-[14px] text-[#595959]"
-                  data-cy={`okr-criteria-modal-users-tag-name-${id}`}
+                  className="text-[14px] font-medium text-[#262626]"
+                  data-cy="okr-criteria-modal-criteria-label-text"
                 >
-                  {user.firstName}
+                  Chritaria
                 </span>
-                <CloseOutlined
-                  className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
-                  onClick={() =>
-                    form.setFieldsValue({
-                      users: watchedUsers.filter((v: any) => v !== id),
-                    })
-                  }
-                  data-cy={`okr-criteria-modal-users-tag-close-${id}`}
-                />
+                <Tooltip title="Select the criteria items.">
+                  <QuestionCircleOutlined
+                    className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                    data-cy="okr-criteria-modal-criteria-tooltip"
+                  />
+                </Tooltip>
               </div>
-            );
-          })}
-        </div>
-
-        <Form.Item
-          label={
-            <div
-              className="flex items-center gap-1"
-              data-cy="okr-criteria-modal-criteria-label"
-            >
-              <span
-                className="text-[14px] font-medium text-[#262626]"
-                data-cy="okr-criteria-modal-criteria-label-text"
-              >
-                Chritaria
-              </span>
-              <Tooltip title="Select the criteria items.">
-                <QuestionCircleOutlined
-                  className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
-                  data-cy="okr-criteria-modal-criteria-tooltip"
-                />
-              </Tooltip>
-            </div>
-          }
-          name="criteria"
-          className="mb-2"
-          required
-          rules={[{ required: true, message: 'Please select criteria' }]}
-          data-cy="okr-criteria-modal-criteria-field"
-        >
-          <div
-            className="custom-centered-select-wrapper relative"
-            data-cy="okr-criteria-modal-criteria-select-wrapper"
+            }
+            name="criteria"
+            className="mb-2"
+            required
+            rules={[{ required: true, message: 'Please select criteria' }]}
+            data-cy="okr-criteria-modal-criteria-field"
           >
-            <Select
-              mode="multiple"
-              placeholder=""
-              className="w-full h-11 custom-modal-select always-show-placeholder"
-              maxTagCount={0}
-              maxTagPlaceholder={() => null}
-              value={watchedCriteria}
-              onSelect={(val) => {
-                const current = form.getFieldValue('criteria') || [];
-                if (!current.includes(val)) {
-                  const newValues = [...current, val];
-                  form.setFieldsValue({ criteria: newValues });
-                  handleCriteriaChange(newValues);
-                }
-              }}
-              onDeselect={(val) => {
-                const current = form.getFieldValue('criteria') || [];
-                const newValues = current.filter((v: any) => v !== val);
-                form.setFieldsValue({ criteria: newValues });
-                handleCriteriaChange(newValues);
-              }}
-              dropdownClassName="custom-assignee-dropdown"
-              data-cy="okr-criteria-modal-criteria-select"
-            >
-              {criteriaData?.items?.map((c: any) => (
-                <Option
-                  key={c.id}
-                  value={c.name}
-                  data-cy={`okr-criteria-modal-criteria-option-${c.id}`}
-                >
-                  {c.name}
-                </Option>
-              ))}
-            </Select>
-            {/* Always visible placeholder overlay */}
-            <span
-              className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-              style={{ lineHeight: '44px' }}
-              data-cy="okr-criteria-modal-criteria-placeholder"
-            >
-              Select Criteria
-            </span>
-          </div>
-        </Form.Item>
-
-        <div
-          className="flex flex-wrap gap-2 mb-6"
-          data-cy="okr-criteria-modal-criteria-tags-container"
-        >
-          {watchedCriteria?.map((name: string) => (
             <div
-              key={name}
-              className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
-              data-cy={`okr-criteria-modal-criteria-tag-${name}`}
+              className="custom-centered-select-wrapper relative"
+              data-cy="okr-criteria-modal-criteria-select-wrapper"
             >
-              <span
-                className="text-[14px] text-[#595959]"
-                data-cy={`okr-criteria-modal-criteria-tag-name-${name}`}
-              >
-                {name}
-              </span>
-              <CloseOutlined
-                className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
-                onClick={() => {
-                  const newValues = watchedCriteria.filter(
-                    (v: any) => v !== name,
-                  );
+              <Select
+                mode="multiple"
+                placeholder=""
+                className="w-full h-11 custom-modal-select always-show-placeholder"
+                maxTagCount={0}
+                maxTagPlaceholder={() => null}
+                value={watchedCriteria}
+                onSelect={(val) => {
+                  const current = form.getFieldValue('criteria') || [];
+                  if (!current.includes(val)) {
+                    const newValues = [...current, val];
+                    form.setFieldsValue({ criteria: newValues });
+                    handleCriteriaChange(newValues);
+                  }
+                }}
+                onDeselect={(val) => {
+                  const current = form.getFieldValue('criteria') || [];
+                  const newValues = current.filter((v: any) => v !== val);
                   form.setFieldsValue({ criteria: newValues });
                   handleCriteriaChange(newValues);
                 }}
-                data-cy={`okr-criteria-modal-criteria-tag-close-${name}`}
-              />
+                dropdownClassName="custom-assignee-dropdown"
+                data-cy="okr-criteria-modal-criteria-select"
+              >
+                {criteriaData?.items?.map((c: any) => (
+                  <Option
+                    key={c.id}
+                    value={c.name}
+                    data-cy={`okr-criteria-modal-criteria-option-${c.id}`}
+                  >
+                    {c.name}
+                  </Option>
+                ))}
+              </Select>
+              {/* Always visible placeholder overlay */}
+              <span
+                className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
+                style={{ lineHeight: '44px' }}
+                data-cy="okr-criteria-modal-criteria-placeholder"
+              >
+                Select Criteria
+              </span>
             </div>
-          ))}
-        </div>
+          </Form.Item>
 
-        {selectedCriteria.length > 0 && (
           <div
-            className="mt-6 border-t pt-4"
-            data-cy="okr-criteria-modal-weights-section"
+            className="flex flex-wrap gap-2 mb-6"
+            data-cy="okr-criteria-modal-criteria-tags-container"
           >
-            <div
-              className="flex font-semibold text-[#262626] mb-3"
-              data-cy="okr-criteria-modal-weights-header"
-            >
-              <span
-                className="flex-1"
-                data-cy="okr-criteria-modal-weights-header-name"
-              >
-                Criteria Name
-              </span>
-              <span
-                className="flex-1"
-                data-cy="okr-criteria-modal-weights-header-weight"
-              >
-                Weight
-              </span>
-            </div>
-            {selectedCriteria.map((criteria) => (
+            {watchedCriteria?.map((name: string) => (
               <div
-                key={criteria.vpCriteriaId}
-                className="flex gap-4 mb-3"
-                data-cy={`okr-criteria-modal-weight-row-${criteria.vpCriteriaId}`}
+                key={name}
+                className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+                data-cy={`okr-criteria-modal-criteria-tag-${name}`}
               >
-                <Input
-                  value={criteria.name}
-                  disabled
-                  className="flex-1 h-11"
-                  data-cy={`okr-criteria-modal-weight-name-input-${criteria.vpCriteriaId}`}
-                />
-                <Input
-                  type="number"
-                  value={weights[criteria.vpCriteriaId] || ''}
-                  className="flex-1 h-11"
-                  onChange={(e) =>
-                    setWeights({
-                      ...weights,
-                      [criteria.vpCriteriaId]: e.target.value,
-                    })
-                  }
-                  data-cy={`okr-criteria-modal-weight-input-${criteria.vpCriteriaId}`}
+                <span
+                  className="text-[14px] text-[#595959]"
+                  data-cy={`okr-criteria-modal-criteria-tag-name-${name}`}
+                >
+                  {name}
+                </span>
+                <CloseOutlined
+                  className="text-[10px] text-[#8c8c8c] cursor-pointer hover:text-red-500"
+                  onClick={() => {
+                    const newValues = watchedCriteria.filter(
+                      (v: any) => v !== name,
+                    );
+                    form.setFieldsValue({ criteria: newValues });
+                    handleCriteriaChange(newValues);
+                  }}
+                  data-cy={`okr-criteria-modal-criteria-tag-close-${name}`}
                 />
               </div>
             ))}
           </div>
-        )}
 
-        <style jsx global data-cy="okr-criteria-modal-styles">{`
-          .custom-centered-select-wrapper .ant-select-selector {
-            display: flex !important;
-            align-items: center !important;
-            height: 44px !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-            position: relative !important;
-          }
-          .custom-centered-select-wrapper
-            .always-show-placeholder
-            .ant-select-selection-placeholder {
-            display: none !important;
-          }
-          .custom-centered-select-wrapper
-            .always-show-placeholder
-            .ant-select-selection-item {
-            display: none !important;
-          }
-          .custom-centered-select-wrapper
-            .always-show-placeholder
-            .ant-select-selection-search {
-            display: none !important;
-          }
-          .custom-centered-select-wrapper
-            .always-show-placeholder
-            .ant-select-selection-overflow {
-            display: none !important;
-          }
-          .custom-assignee-dropdown .ant-select-item-option-selected {
-            background-color: #e6f7ff !important;
-            font-weight: 500;
-          }
-          .custom-assignee-dropdown
-            .ant-select-item-option-selected
-            .ant-select-item-option-state {
-            color: #1890ff;
-          }
-          .okr-settings-modal .ant-modal-content {
-            padding: 0 !important;
-            border-radius: 8px !important;
-          }
-          .okr-settings-modal .ant-modal-header {
-            padding: 20px 24px 16px 24px !important;
-            border-bottom: none !important;
-          }
-          .okr-settings-modal .ant-modal-body {
-            padding: 0px 24px 24px 24px !important;
-          }
-          .okr-settings-modal .ant-modal-footer {
-            padding: 8px 24px 24px 24px !important;
-            border-top: none !important;
-          }
-          .okr-settings-modal .ant-form-item-label > label {
-            height: auto !important;
-            line-height: 1.5 !important;
-            padding-bottom: 4px !important;
-          }
-        `}</style>
-      </Form>
+          {selectedCriteria.length > 0 && (
+            <div
+              className="mt-6 border-t pt-4"
+              data-cy="okr-criteria-modal-weights-section"
+            >
+              <div
+                className="flex font-semibold text-[#262626] mb-3"
+                data-cy="okr-criteria-modal-weights-header"
+              >
+                <span
+                  className="flex-1"
+                  data-cy="okr-criteria-modal-weights-header-name"
+                >
+                  Criteria Name
+                </span>
+                <span
+                  className="flex-1"
+                  data-cy="okr-criteria-modal-weights-header-weight"
+                >
+                  Weight
+                </span>
+              </div>
+              {selectedCriteria.map((criteria) => (
+                <div
+                  key={criteria.vpCriteriaId}
+                  className="flex gap-4 mb-3"
+                  data-cy={`okr-criteria-modal-weight-row-${criteria.vpCriteriaId}`}
+                >
+                  <Input
+                    value={criteria.name}
+                    disabled
+                    className="flex-1 h-11"
+                    data-cy={`okr-criteria-modal-weight-name-input-${criteria.vpCriteriaId}`}
+                  />
+                  <Input
+                    type="number"
+                    value={weights[criteria.vpCriteriaId] || ''}
+                    className="flex-1 h-11"
+                    onChange={(e) =>
+                      setWeights({
+                        ...weights,
+                        [criteria.vpCriteriaId]: e.target.value,
+                      })
+                    }
+                    data-cy={`okr-criteria-modal-weight-input-${criteria.vpCriteriaId}`}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          <style jsx global data-cy="okr-criteria-modal-styles">{`
+            .custom-centered-select-wrapper .ant-select-selector {
+              display: flex !important;
+              align-items: center !important;
+              height: 44px !important;
+              padding-top: 0 !important;
+              padding-bottom: 0 !important;
+              position: relative !important;
+            }
+            .custom-centered-select-wrapper
+              .always-show-placeholder
+              .ant-select-selection-placeholder {
+              display: none !important;
+            }
+            .custom-centered-select-wrapper
+              .always-show-placeholder
+              .ant-select-selection-item {
+              display: none !important;
+            }
+            .custom-centered-select-wrapper
+              .always-show-placeholder
+              .ant-select-selection-search {
+              display: none !important;
+            }
+            .custom-centered-select-wrapper
+              .always-show-placeholder
+              .ant-select-selection-overflow {
+              display: none !important;
+            }
+            .custom-assignee-dropdown .ant-select-item-option-selected {
+              background-color: #e6f7ff !important;
+              font-weight: 500;
+            }
+            .custom-assignee-dropdown
+              .ant-select-item-option-selected
+              .ant-select-item-option-state {
+              color: #1890ff;
+            }
+            .okr-settings-modal .ant-modal-content {
+              padding: 0 !important;
+              border-radius: 8px !important;
+            }
+            .okr-settings-modal .ant-modal-header {
+              padding: 20px 24px 16px 24px !important;
+              border-bottom: none !important;
+            }
+            .okr-settings-modal .ant-modal-body {
+              padding: 0px 24px 24px 24px !important;
+            }
+            .okr-settings-modal .ant-modal-footer {
+              padding: 8px 24px 24px 24px !important;
+              border-top: none !important;
+            }
+            .okr-settings-modal .ant-form-item-label > label {
+              height: auto !important;
+              line-height: 1.5 !important;
+              padding-bottom: 4px !important;
+            }
+          `}</style>
+        </Form>
       </Modal>
 
       <FailedAssignmentModal

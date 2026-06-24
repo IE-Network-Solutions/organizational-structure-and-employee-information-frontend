@@ -67,9 +67,19 @@ const FailedAssignmentModal: React.FC<FailedAssignmentModalProps> = ({
             className="text-[14px] text-[#262626]"
             data-cy={`okr-criteria-failed-assignment-item-${item.userId}`}
           >
-            <span className="font-medium">{getEmployeeName(item.userId)}</span>
+            <span
+              className="font-medium"
+              data-cy={`okr-criteria-failed-assignment-employee-name-${item.userId}`}
+            >
+              {getEmployeeName(item.userId)}
+            </span>
             {' — '}
-            <span className="text-[#595959]">{item.vpScoringName}</span>
+            <span
+              className="text-[#595959]"
+              data-cy={`okr-criteria-failed-assignment-config-name-${item.userId}`}
+            >
+              {item.vpScoringName}
+            </span>
           </li>
         ))}
       </ul>
