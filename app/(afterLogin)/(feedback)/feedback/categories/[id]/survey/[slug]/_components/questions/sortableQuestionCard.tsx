@@ -20,7 +20,6 @@ import {
 import {
   SURVEY_FIELD_TYPE_LABELS,
   coerceSurveyRequired,
-  surveyTypePillClassName,
 } from '../surveyFieldUi';
 
 interface SortableSurveyQuestionCardProps {
@@ -125,12 +124,17 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
     [setNodeRef, scrollAnchorRef],
   );
 
+  const baseTransform = CSS.Transform.toString(transform);
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: isDragging && baseTransform
+      ? `${baseTransform} scale(1.02)`
+      : baseTransform || undefined,
     transition,
-    opacity: isDragging ? 0.88 : 1,
-    zIndex: isDragging ? 2 : 0,
+    zIndex: isDragging ? 50 : 0,
     position: 'relative' as const,
+    boxShadow: isDragging
+      ? '0 16px 40px rgba(0,0,0,0.14), 0 4px 12px rgba(0,0,0,0.08)'
+      : undefined,
   };
 
   const typeLabel =
@@ -209,13 +213,17 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
     <div
       ref={setRootRef}
       style={style}
-      className={`box-border rounded-md border border-gray-200 bg-white transition-colors ${
-        showEditor ? 'border-[#4096ff]' : 'hover:border-[#2D5BFF]/40'
+      className={`box-border overflow-hidden rounded-xl border transition-all duration-200 ${
+        isDragging
+          ? 'border-[#4096ff]/60 bg-white'
+          : showEditor
+            ? 'border-[#4096ff] bg-white shadow-[0_0_0_3px_rgba(64,150,255,0.08)]'
+            : 'border-gray-200 bg-[#F8F9FA] shadow-sm hover:border-[#4096ff]/40 hover:shadow-md'
       }`}
       data-cy={`survey-sortable-question-${question.id}`}
     >
       <div
-        className="flex min-h-[52px] items-center gap-2 border-b border-gray-200 px-2 py-2"
+        className="flex min-h-[52px] items-center gap-2 px-3 py-2"
         onClick={(e) => {
           if (isDraft) return;
           const t = e.target as HTMLElement;
@@ -253,7 +261,7 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
               {question.question?.trim() ? question.question : 'Question Name'}
             </span>
             <span
-              className={surveyTypePillClassName}
+              className="inline-flex shrink-0 items-center rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-[12px] font-semibold tabular-nums text-gray-600"
               data-cy={`survey-question-type-tag-${question.id}`}
             >
               {typeLabel}
@@ -263,7 +271,7 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
         {showEditor && (
           <>
             <span
-              className={`${surveyTypePillClassName} max-w-[min(100%,220px)] min-w-0 truncate`}
+              className="inline-flex min-w-0 max-w-[min(100%,220px)] shrink-0 items-center truncate rounded border border-gray-200 bg-gray-100 px-1.5 py-0.5 text-[12px] font-semibold tabular-nums text-gray-600"
               data-cy={`survey-question-expanded-type-${question.id}`}
             >
               {typeLabel}
@@ -278,7 +286,7 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
         <button
           type="button"
           data-delete
-          className="shrink-0 rounded border border-gray-200 p-1 transition-colors hover:border-gray-300 hover:bg-gray-50"
+          className="shrink-0 rounded-lg border border-gray-200 p-1 transition-colors hover:border-red-200 hover:bg-red-50"
           aria-label="Delete question"
           onClick={(e) => {
             e.stopPropagation();
@@ -288,6 +296,7 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
         >
           <DeleteOutlineIcon
             sx={{ fontSize: 18, color: '#374151' }}
+            className="group-hover:text-red-500"
             data-cy={`survey-question-delete-icon-${question.id}`}
           />
         </button>
@@ -295,7 +304,7 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
 
       {showEditor && (
         <div
-          className="px-2 pb-3 pt-2"
+          className="border-t border-gray-100 px-3 pb-4 pt-3"
           data-cy={`survey-question-editor-${question.id}`}
         >
           {showRatingPreview ? (

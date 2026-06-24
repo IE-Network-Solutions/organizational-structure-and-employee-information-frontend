@@ -1,8 +1,12 @@
 /* eslint-disable local-rules/data-cy-required, @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars */
 import React from 'react';
-import { Card, Skeleton, Tabs, Typography } from 'antd';
-import { CalendarOutlined } from '@ant-design/icons';
-import { MdOutlineFactCheck } from 'react-icons/md';
+import { Card, Skeleton, Tabs, Typography, Tag, Space, Avatar, Divider } from 'antd';
+import {
+  CalendarOutlined,
+  AuditOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+} from '@ant-design/icons';
 import {
   useGetMeetings,
   useGetUserMeetings,
@@ -15,7 +19,7 @@ import { ActionPlanSourceType } from '@/types/enumTypes';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 const LIST_SCROLL_THRESHOLD = 5;
 type DashboardListItem = {
@@ -451,39 +455,43 @@ function RecentList({
   borderless?: boolean;
   hideHeader?: boolean;
 }) {
-  const wrapperClass = borderless
-    ? 'mt-2'
-    : 'mt-6 rounded-md border border-[#e5e7eb] bg-white p-3';
   return (
-    <div className={wrapperClass}>
+    <div className={borderless ? 'mt-1' : 'mt-4 rounded-xl border border-[#e8eeff] bg-white p-3'}>
       {!hideHeader ? (
-        <div className="mb-2 flex items-center justify-between">
+        <div className="mb-2.5 flex items-center justify-between">
           <Text className="!text-[12px] !font-semibold !text-[#1f3f8f]">
             {title}
           </Text>
-          {loading ? null : (
-            <span className="rounded bg-[#e8efff] px-2 py-0.5 text-[10px] font-semibold text-[#365fbd]">
+          {!loading && (
+            <Tag
+              bordered={false}
+              color="geekblue"
+              style={{ fontSize: 10, padding: '0 6px', lineHeight: '18px', borderRadius: 10 }}
+            >
               {items.length}
-            </span>
+            </Tag>
           )}
         </div>
       ) : null}
+
       {loading ? (
-        <div className="space-y-2">
+        <div className="space-y-2 pt-1">
           {Array.from({ length: 3 }).map((_, idx) => (
             <div
               key={`recent-list-skeleton-${title}-${idx}`}
-              className="rounded px-2.5 py-2"
+              className="rounded-lg bg-[#f8faff] px-3 py-2.5"
             >
               <Skeleton active paragraph={{ rows: 1 }} title={false} />
             </div>
           ))}
         </div>
       ) : items.length === 0 ? (
-        <Text className="!text-[12px] !text-[#7b8794]">{emptyText}</Text>
+        <div className="flex items-center justify-center py-6">
+          <Text className="!text-[12px] !text-[#9ca3af]">{emptyText}</Text>
+        </div>
       ) : (
         <div
-          className={`space-y-2 ${
+          className={`space-y-1.5 ${
             items.length > LIST_SCROLL_THRESHOLD
               ? 'conversation-list-scroll max-h-[265px] overflow-y-auto pr-1'
               : ''
@@ -491,47 +499,61 @@ function RecentList({
         >
           {items.map((item) =>
             (() => {
-              const cardClassName = `flex items-start justify-between gap-2 rounded border border-[#e7ecf8] bg-white px-2.5 py-2 ${
+              const cardClass = `flex items-start justify-between gap-2 rounded-lg border px-3 py-2.5 transition-all ${
                 item.href
-                  ? 'cursor-pointer hover:border-[#d7dff3] hover:bg-[#fafcff]'
-                  : ''
+                  ? 'cursor-pointer border-[#e6edff] bg-white hover:border-[#adc6ff] hover:bg-[#f0f5ff] hover:shadow-sm'
+                  : 'border-[#f0f0f0] bg-[#fafafa]'
               }`;
 
               const inner = (
                 <>
-                  <div className="min-w-0">
-                    <div className="truncate text-[12px] font-medium text-[#1f2937]">
+                  <div className="min-w-0 flex-1">
+                    <Text className="!block !truncate !text-[12.5px] !font-medium !text-[#1f2937]">
                       {item.title}
-                    </div>
-                    <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#6b7280]">
+                    </Text>
+                    <Space size={4} className="mt-1 flex-wrap">
                       {item.subtitle ? (
                         item.subtitleTag ? (
-                          <span
-                            className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
-                              item.subtitleTag === 'solved'
-                                ? 'bg-[#E6FBDA] text-[#2f8f2f]'
-                                : 'bg-[#FFF7E6] text-[#b26a00]'
-                            }`}
+                          <Tag
+                            bordered={false}
+                            color={item.subtitleTag === 'solved' ? 'success' : 'warning'}
+                            style={{ fontSize: 10, lineHeight: '16px', padding: '0 5px', margin: 0 }}
                           >
-                            {item.subtitleTag === 'solved'
-                              ? 'Solved'
-                              : 'Pending'}
-                          </span>
+                            {item.subtitleTag === 'solved' ? 'Solved' : 'Pending'}
+                          </Tag>
                         ) : (
-                          <span className="truncate">{item.subtitle}</span>
+                          <Text className="!truncate !text-[11px] !text-[#6b7280]">
+                            {item.subtitle}
+                          </Text>
                         )
                       ) : null}
                       {item.badge ? (
-                        <span className="rounded bg-[#f2f6ff] px-1.5 py-0.5 text-[10px] font-medium text-[#2f66c9]">
+                        <Tag
+                          bordered={false}
+                          color="geekblue"
+                          style={{ fontSize: 10, lineHeight: '16px', padding: '0 5px', margin: 0 }}
+                        >
                           {item.badge}
-                        </span>
+                        </Tag>
                       ) : null}
-                    </div>
+                    </Space>
                   </div>
                   {item.dateLabel ? (
-                    <span className="shrink-0 rounded bg-[#f5f7fb] px-1.5 py-0.5 text-[10px] text-[#5b6472]">
+                    <Tag
+                      bordered={false}
+                      style={{
+                        backgroundColor: '#f0f4ff',
+                        color: '#4a6fd5',
+                        fontSize: 10,
+                        lineHeight: '16px',
+                        padding: '0 6px',
+                        flexShrink: 0,
+                        margin: 0,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
                       {item.dateLabel}
-                    </span>
+                    </Tag>
                   ) : null}
                 </>
               );
@@ -541,7 +563,7 @@ function RecentList({
                   <Link
                     key={item.id}
                     href={item.href}
-                    className={cardClassName}
+                    className={cardClass}
                     onClick={(e) => {
                       if (!onItemClick) return;
                       onItemClick(item, e);
@@ -553,7 +575,7 @@ function RecentList({
               }
 
               return (
-                <div key={item.id} className={cardClassName}>
+                <div key={item.id} className={cardClass}>
                   {inner}
                 </div>
               );
@@ -688,77 +710,112 @@ const DashboardComponent = () => {
           height: 0;
         }
       `}</style>
+
+      {/* ── MEETINGS CARD ── */}
       <div
         className="block min-w-0"
         data-cy="feedback-conversation-component-conversationdashboard-link-meetings"
         id="feedback-conversation-component-conversationdashboard-link-meetings"
       >
         <Card
+          bordered={false}
           bodyStyle={{ padding: 0 }}
-          className="shadow-sm border border-[#e8e8e8] rounded-lg px-4 py-3 h-full hover:shadow-md transition-shadow"
+          className="h-full overflow-hidden rounded-xl shadow-sm transition-shadow hover:shadow-md"
+          style={{ border: '1px solid #e8e8f0' }}
           data-cy="feedback-conversation-component-conversationdashboard-card-meetings"
           id="feedback-conversation-component-conversationdashboard-card-meetings"
         >
-          <div className="mb-3 flex items-center justify-between gap-3 border-b border-[#e5e7eb] pb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-[31.5px] h-[29.5px] gap-[10px] rounded-[3px] pt-[5px] pr-[7px] pb-[5px] pl-[7px] flex items-center justify-center bg-[#f4f8ff]">
-                <CalendarOutlined className="text-[20px] text-[#4a6fd5]" />
+          <div className="px-5 py-4">
+            {/* Header */}
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Avatar
+                  shape="square"
+                  size={38}
+                  icon={<CalendarOutlined />}
+                  style={{
+                    backgroundColor: '#e8f0fe',
+                    color: '#4a6fd5',
+                    borderRadius: 10,
+                    flexShrink: 0,
+                  }}
+                />
+                <Title
+                  level={4}
+                  style={{ margin: 0, color: '#1a1a2e', fontSize: 20, fontWeight: 700 }}
+                >
+                  Meetings
+                </Title>
               </div>
-              <Text className="!text-[28px] !font-semibold !text-[#222]">
-                Meetings
-              </Text>
+              <Link href="/feedback/meeting">
+                <Text
+                  className="!text-[13px] !font-medium !text-[#4a6fd5] hover:!text-[#365fbd] hover:!underline"
+                  style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  Go to meeting →
+                </Text>
+              </Link>
             </div>
-            <Link href="/feedback/meeting">
-              <Text className="!text-[14px] !font-medium !text-[#2f66c9]">
-                Go to meeting
-              </Text>
-            </Link>
-          </div>
 
-          <div className="flex items-end justify-between">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1.5">
-                <Text className="!text-[16px] !text-[#555]">
-                  Total Action plans
+            <Divider style={{ margin: '0 0 16px' }} />
+
+            {/* Stats row */}
+            <div className="flex gap-3">
+              <div
+                className="flex-1 rounded-xl px-4 py-3"
+                style={{ background: '#f8faff' }}
+              >
+                <Text className="!block !text-[11px] !font-medium !text-[#6b7280]">
+                  Total Action Plans
                 </Text>
                 {isMeetingsSectionLoading ? (
-                  <Skeleton.Button active size="small" style={{ width: 28 }} />
+                  <Skeleton.Button active size="small" style={{ width: 56, height: 28, marginTop: 6 }} />
                 ) : (
-                  <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#f5f5f5] text-[#6b7280]">
-                    {userMeetings?.totalActionPlans ?? 0}
+                  <div className="mt-1 flex items-end gap-2">
+                    <span className="text-[26px] font-bold leading-none text-[#1a1a2e]">
+                      {userMeetings?.totalActionPlans ?? 0}
+                    </span>
+                  </div>
+                )}
+                {isMeetingsSectionLoading ? null : (
+                  <Tag
+                    icon={<CheckCircleOutlined />}
+                    bordered={false}
+                    color="success"
+                    style={{ marginTop: 6, fontSize: 11 }}
+                  >
+                    {userMeetings?.resolvedActionPlans ?? 0} resolved
+                  </Tag>
+                )}
+              </div>
+
+              <div
+                className="flex-1 rounded-xl px-4 py-3"
+                style={{ background: '#eef3ff' }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <ClockCircleOutlined style={{ color: '#4a6fd5', fontSize: 12 }} />
+                  <Text className="!text-[11px] !font-medium !text-[#4a6fd5]">
+                    Upcoming
+                  </Text>
+                </div>
+                {isMeetingsSectionLoading ? (
+                  <Skeleton.Button active size="small" style={{ width: 56, height: 28, marginTop: 6 }} />
+                ) : (
+                  <span className="mt-1 block text-[26px] font-bold leading-none text-[#0958d9]">
+                    {userMeetings?.totalUpcomingMeetings ?? 0}
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-1.5">
-                <Text className="!text-[12px] !text-[#555]">
-                  Total Action plans resolved
-                </Text>
-                {isMeetingsSectionLoading ? (
-                  <Skeleton.Button active size="small" style={{ width: 28 }} />
-                ) : (
-                  <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#E6FBDA] text-[#52C41A]">
-                    {userMeetings?.resolvedActionPlans ?? 0}
-                  </span>
-                )}
-              </div>
             </div>
 
-            <div className="min-w-[56px] rounded-md px-2 py-1 text-center bg-[#f4f8ff]">
-              <div className="text-[14px] leading-4 font-semibold text-[#2f66c9]">
-                {isMeetingsSectionLoading ? (
-                  <Skeleton.Button active size="small" style={{ width: 28 }} />
-                ) : (
-                  (userMeetings?.totalUpcomingMeetings ?? 0)
-                )}
-              </div>
-              <div className="text-[14px] leading-4 text-[#2f66c9]">
-                Upcoming
-              </div>
-            </div>
           </div>
-          <div className="mt-6">
+
+          {/* Tabs section */}
+          <div className="px-5 pb-4 pt-2">
             <Tabs
               defaultActiveKey="upcoming-meetings"
+              size="small"
               items={[
                 {
                   key: 'upcoming-meetings',
@@ -792,7 +849,7 @@ const DashboardComponent = () => {
                   key: 'meeting-action-plans',
                   label: 'Action plans',
                   children: (
-                    <div className="mt-2 rounded-md border border-dashed border-[#d7ddea] bg-white px-3 py-4 text-[12px] text-[#6b7280]">
+                    <div className="mt-2 rounded-lg border border-dashed border-[#d7ddea] bg-white px-4 py-5 text-center text-[12px] text-[#9ca3af]">
                       To be completed.
                     </div>
                   ),
@@ -803,75 +860,109 @@ const DashboardComponent = () => {
         </Card>
       </div>
 
+      {/* ── SURVEYS CARD ── */}
       <div
         className="block min-w-0"
         data-cy="feedback-conversation-component-conversationdashboard-link-surveys"
         id="feedback-conversation-component-conversationdashboard-link-surveys"
       >
         <Card
+          bordered={false}
           bodyStyle={{ padding: 0 }}
-          className="shadow-sm border border-[#e8e8e8] rounded-lg px-4 py-3 h-full hover:shadow-md transition-shadow"
+          className="h-full overflow-hidden rounded-xl shadow-sm transition-shadow hover:shadow-md"
+          style={{ border: '1px solid #e8e8f0' }}
           data-cy="feedback-conversation-component-conversationdashboard-card-surveys"
           id="feedback-conversation-component-conversationdashboard-card-surveys"
         >
-          <div className="mb-3 flex items-center justify-between gap-3 border-b border-[#e5e7eb] pb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-[31.5px] h-[29.5px] gap-[10px] rounded-[3px] pt-[5px] pr-[7px] pb-[5px] pl-[7px] flex items-center justify-center bg-[#f4f8ff]">
-                <MdOutlineFactCheck className="text-[20px] text-[#4a6fd5]" />
+          <div className="px-5 py-4">
+            {/* Header */}
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <Avatar
+                  shape="square"
+                  size={38}
+                  icon={<AuditOutlined />}
+                  style={{
+                    backgroundColor: '#e6f7e9',
+                    color: '#13a554',
+                    borderRadius: 10,
+                    flexShrink: 0,
+                  }}
+                />
+                <Title
+                  level={4}
+                  style={{ margin: 0, color: '#1a1a2e', fontSize: 20, fontWeight: 700 }}
+                >
+                  Surveys
+                </Title>
               </div>
-              <Text className="!text-[28px] !font-semibold !text-[#222]">
-                Surveys
-              </Text>
+              <Link href="/feedback/categories">
+                <Text
+                  className="!text-[13px] !font-medium !text-[#13a554] hover:!text-[#0e8040] hover:!underline"
+                  style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  Go to survey →
+                </Text>
+              </Link>
             </div>
-            <Link href="/feedback/categories">
-              <Text className="!text-[14px] !font-medium !text-[#2f66c9]">
-                Go to survey
-              </Text>
-            </Link>
-          </div>
 
-          <div className="flex items-end justify-between">
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-1.5">
-                <Text className="!text-[16px] !text-[#555]">Total Survey</Text>
+            <Divider style={{ margin: '0 0 16px' }} />
+
+            {/* Stats row */}
+            <div className="flex gap-3">
+              <div
+                className="flex-1 rounded-xl px-4 py-3"
+                style={{ background: '#f6fff8' }}
+              >
+                <Text className="!block !text-[11px] !font-medium !text-[#6b7280]">
+                  Total Surveys
+                </Text>
                 {isSurveysSectionLoading ? (
-                  <Skeleton.Button active size="small" style={{ width: 28 }} />
+                  <Skeleton.Button active size="small" style={{ width: 56, height: 28, marginTop: 6 }} />
                 ) : (
-                  <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#f5f5f5] text-[#6b7280]">
+                  <span className="mt-1 block text-[26px] font-bold leading-none text-[#1a1a2e]">
                     {userMeetings?.totalSurvey ?? 0}
                   </span>
                 )}
+                {isSurveysSectionLoading ? null : (
+                  <Tag
+                    icon={<CheckCircleOutlined />}
+                    bordered={false}
+                    color="success"
+                    style={{ marginTop: 6, fontSize: 11 }}
+                  >
+                    {userMeetings?.totalCompletedSurvey ?? 0} completed
+                  </Tag>
+                )}
               </div>
-              <div className="flex items-center gap-1.5">
-                <Text className="!text-[16px] !text-[#555]">
-                  Total Survey Completed
-                </Text>
+
+              <div
+                className="flex-1 rounded-xl px-4 py-3"
+                style={{ background: '#e6f7e9' }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <ClockCircleOutlined style={{ color: '#13a554', fontSize: 12 }} />
+                  <Text className="!text-[11px] !font-medium !text-[#13a554]">
+                    Upcoming
+                  </Text>
+                </div>
                 {isSurveysSectionLoading ? (
-                  <Skeleton.Button active size="small" style={{ width: 28 }} />
+                  <Skeleton.Button active size="small" style={{ width: 56, height: 28, marginTop: 6 }} />
                 ) : (
-                  <span className="inline-flex items-center justify-center min-w-[29px] h-[22px] gap-[4px] rounded-[4px] border border-[#d9d9d9] pt-[1px] pr-[7px] pb-[1px] pl-[7px] text-[10px] leading-none bg-[#E6FBDA] text-[#52C41A]">
-                    {userMeetings?.totalCompletedSurvey ?? 0}
+                  <span className="mt-1 block text-[26px] font-bold leading-none text-[#0e8040]">
+                    {userMeetings?.totalUpcomingMeetings ?? 0}
                   </span>
                 )}
               </div>
             </div>
 
-            <div className="min-w-[56px] rounded-md px-2 py-1 text-center bg-[#f4f8ff]">
-              <div className="text-[14px] leading-4 font-semibold text-[#2f66c9]">
-                {isSurveysSectionLoading ? (
-                  <Skeleton.Button active size="small" style={{ width: 28 }} />
-                ) : (
-                  (userMeetings?.totalUpcomingMeetings ?? 0)
-                )}
-              </div>
-              <div className="text-[14px] leading-4 text-[#2f66c9]">
-                Upcoming
-              </div>
-            </div>
           </div>
-          <div className="mt-6">
+
+          {/* Tabs section */}
+          <div className="px-5 pb-4 pt-2">
             <Tabs
               defaultActiveKey="assigned-action-plans"
+              size="small"
               items={[
                 {
                   key: 'assigned-action-plans',
