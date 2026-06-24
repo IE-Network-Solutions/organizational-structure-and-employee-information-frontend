@@ -59,7 +59,8 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
   return (
     <Card
       bodyStyle={{ padding: '10px' }}
-      className="cursor-pointer relative rounded-md border-1 border-[#d9d9d9]"
+      className="cursor-pointer relative rounded-md border-0"
+      style={{ background: '#F9FAFB' }}
       key={props?.item?.id}
       id={`settings-role-card-item-${props?.item?.id}`}
       data-cy={`settings-role-card-item-${props?.item?.id}`}
@@ -85,14 +86,14 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
             className="flex flex-wrap gap-2 mt-3"
           >
             <Tag
-              className="rounded-sm border border-[#d9d9d9] text-xs font-normal text-[#9ca3af]"
+              className="rounded-md border border-[#d9d9d9] text-xs font-normal text-[#9ca3af] py-1 px-2"
               id={`settings-role-card-permissions-pill-${props?.item?.id}`}
               data-cy={`settings-role-card-permissions-pill-${props?.item?.id}`}
             >
               {permissionCount} Permission{permissionCount !== 1 ? 's' : ''}
             </Tag>
             <Tag
-              className="rounded-sm border border-[#d9d9d9] text-xs font-normal text-[#9ca3af]"
+              className="rounded-md border border-[#d9d9d9] text-xs font-normal text-[#9ca3af] py-1 px-2"
               id={`settings-role-card-groups-pill-${props?.item?.id}`}
               data-cy={`settings-role-card-groups-pill-${props?.item?.id}`}
             >
@@ -105,22 +106,18 @@ const EditAndDeleteButtonCard: React.FC<RolePermissionCardProps> = (props) => {
           id={`settings-role-card-menu-wrapper-${props?.item?.id}`}
           data-cy={`settings-role-card-menu-wrapper-${props?.item?.id}`}
         >
-          <div
-            data-cy="settings-role-card-menu-wrapper"
-            className="border border-[#d9d9d9] rounded-md"
+          <button
+            id={`cardIdComponent${props?.item?.id}`}
+            className="text-gray-600 hover:text-gray-800 h-6 w-6 flex items-center justify-center"
+            onClick={() => props?.handleButtonClick(props?.item?.id)}
+            data-cy={`settings-role-card-menu-btn-${props?.item?.id}`}
           >
-            <button
-              id={`cardIdComponent${props?.item?.id}`}
-              className="text-gray-600 hover:text-gray-800 h-6 w-6"
-              onClick={() => props?.handleButtonClick(props?.item?.id)}
-              data-cy={`settings-role-card-menu-btn-${props?.item?.id}`}
-            >
-              <MoreHorizIcon
-                data-cy={`settings-role-card-menu-btn-icon-${props?.item?.id}`}
-                id={`settings-role-card-menu-btn-icon-${props?.item?.id}`}
-              />
-            </button>
-          </div>
+            <MoreHorizIcon
+              style={{ fontSize: 14 }}
+              data-cy={`settings-role-card-menu-btn-icon-${props?.item?.id}`}
+              id={`settings-role-card-menu-btn-icon-${props?.item?.id}`}
+            />
+          </button>
           {props?.visibleEditCardId === props?.item?.id && (
             <KebabMenu
               item={props?.item?.id}

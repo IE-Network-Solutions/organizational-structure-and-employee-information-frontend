@@ -2,6 +2,7 @@
 /* eslint-disable local-rules/data-cy-required */
 import React, {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -15,6 +16,11 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import RenderOptions from './_components/fieldTypes';
+import {
+  isDescriptionRequired,
+  RATING_DESCRIPTION_VALUE,
+} from './_components/fieldTypes/ratingField';
+import { FieldType } from '@/types/enumTypes';
 import { usePublicFormStore } from '@/store/uistate/features/feedback/publicForm';
 import {
   useSubmitFormResponse,
@@ -32,6 +38,7 @@ import {
   getResponseSubmissionIdForRow,
 } from './prefillFromIndividualResponses';
 import { useRouter } from 'next/navigation';
+import { getStoredAuthToken } from '@/utils/getCurrentToken';
 
 interface Params {
   id: string;
@@ -167,8 +174,36 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
   >(null);
   const [isUpdatingAll, setIsUpdatingAll] = useState(false);
   const [loginRequiredModalOpen, setLoginRequiredModalOpen] = useState(false);
+  const [authGateReady, setAuthGateReady] = useState(false);
 
   const prefillAppliedKeyRef = useRef<string | null>(null);
+
+  const redirectToLogin = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('redirectAfterLogin', `/surveys/${id}`);
+    }
+    router.replace('/authentication/login');
+  }, [id, router]);
+
+  useEffect(() => {
+    if (!publicForm) {
+      setAuthGateReady(false);
+      return;
+    }
+
+    if (publicForm.isAnonymous) {
+      setAuthGateReady(true);
+      return;
+    }
+
+    const token = getStoredAuthToken() || authToken;
+    if (!token) {
+      redirectToLogin();
+      return;
+    }
+
+    setAuthGateReady(true);
+  }, [publicForm, authToken, redirectToLogin]);
 
   const submissionHistory = useMemo(
     () => inferSubmissionHistoryFromResponseRows(responseRows),
@@ -319,7 +354,10 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
     );
   }
 
-  if (isLoading || !publicForm || awaitingPriorResponses) {
+  const requiresLogin =
+    !!publicForm && !publicForm.isAnonymous && !authGateReady;
+
+  if (isLoading || !publicForm || awaitingPriorResponses || requiresLogin) {
     return (
       <div
         className="relative min-h-[100dvh] bg-white"
@@ -509,20 +547,25 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
             className="px-5 py-6 sm:px-8 sm:py-8"
             colon={false}
             disabled={isViewingOldSubmittedResponse}
-            onFinishFailed={({ errorFields }) => {
-              const firstError = errorFields[0]?.errors?.[0];
-              NotificationMessage.error({
-                message:
-                  firstError ??
-                  (isUpdateFlow
-                    ? 'We could not save your update.'
-                    : 'We could not submit your answers.'),
-                description: isUpdateFlow
-                  ? 'Fix the highlighted questions below, then tap Update response again.'
-                  : 'Fix the highlighted questions below, then submit again.',
-              });
-            }}
+            // onFinishFailed={({ errorFields }) => {
+            //   const firstError = errorFields[0]?.errors?.[0];
+            //   NotificationMessage.error({
+            //     message:
+            //       firstError ??
+            //       (isUpdateFlow
+            //         ? 'We could not save your update.'
+            //         : 'We could not submit your answers.'),
+            //     description: isUpdateFlow
+            //       ? 'Fix the highlighted questions below, then tap Update response again.'
+            //       : 'Fix the highlighted questions below, then submit again.',
+            //   });
+            // }}
             onFinish={() => {
+              if (!publicForm.isAnonymous && !getStoredAuthToken()) {
+                redirectToLogin();
+                return;
+              }
+
               if (isUpdateFlow) {
                 if (isViewingOldSubmittedResponse) {
                   NotificationMessage.error({
@@ -607,14 +650,22 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                       respData?.details ??
                       respData?.Details ??
                       respData?.error_description;
+                    const backendText =
+                      `${backendMsg ?? ''} ${backendDetails ?? ''}`.toLowerCase();
+                    const isClosedSurvey =
+                      backendText.includes('expired') ||
+                      backendText.includes('closed') ||
+                      backendText.includes('no longer accept responses');
 
                     NotificationMessage.error({
                       message: 'Update failed',
-                      description: backendDetails
-                        ? `${backendMsg ?? 'Server error'}`
-                        : (backendMsg ??
-                          e?.message ??
-                          'Something went wrong while saving. Check your connection and try again.'),
+                      description: isClosedSurvey
+                        ? 'This survey is closed and no longer accepts responses.'
+                        : backendDetails
+                          ? `${backendMsg ?? 'Server error'}`
+                          : (backendMsg ??
+                            e?.message ??
+                            'Something went wrong while saving. Check your connection and try again.'),
                     });
                   } finally {
                     setIsUpdatingAll(false);
@@ -668,11 +719,11 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                       return;
                     }
 
-                    NotificationMessage.error({
-                      message: 'Submit failed',
-                      description:
-                        'Something went wrong. Check your connection and try again.',
-                    });
+                    // NotificationMessage.error({
+                    //   message: 'Submit failed',
+                    //   description:
+                    //     'Something went wrong. Check your connection and try again.',
+                    // });
                   },
                 },
               );
@@ -712,18 +763,70 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                   <Form.Item
                     name={`question_${q.id}`}
                     required={false}
-                    className="!mb-0"
+                    className={`!mb-0 ${
+                      q.fieldType === FieldType.RATING
+                        ? '[&.ant-form-item-has-error_.public-survey-rating-feedback:not(.ant-input-status-error)]:!shadow-none [&.ant-form-item-has-error_.public-survey-rating-feedback:not(.ant-input-status-error)]:!border-[#d9d9d9]'
+                        : ''
+                    }`}
                     label={null}
-                    rules={
-                      q.required
-                        ? [
-                            {
-                              required: true,
-                              message: 'This field is required.',
-                            },
-                          ]
-                        : []
-                    }
+                    help={q.fieldType === FieldType.RATING ? '' : undefined}
+                    rules={(() => {
+                      const rules: {
+                        required?: boolean;
+                        message?: string;
+                        validator?: (
+                          _: unknown,
+                          value: unknown,
+                        ) => Promise<void>;
+                      }[] = [];
+                      if (q.required) {
+                        rules.push({
+                          required: true,
+                          message: 'This field is required.',
+                        });
+                      }
+                      if (
+                        q.fieldType === FieldType.RATING &&
+                        isDescriptionRequired(
+                          (q.field ?? []).find(
+                            (f: { value?: string }) =>
+                              f.value === RATING_DESCRIPTION_VALUE,
+                          ),
+                        )
+                      ) {
+                        rules.push({
+                          validator: async () => {
+                            const entry = usePublicFormStore
+                              .getState()
+                              .selectedAnswer.find(
+                                (a) => String(a.questionId) === String(q.id),
+                              );
+                            const descField = (q.field ?? []).find(
+                              (f: { value?: string; id?: string }) =>
+                                f.value === RATING_DESCRIPTION_VALUE,
+                            );
+                            const descId = descField?.id;
+                            const feedback = entry?.responseDetail?.find(
+                              (d) =>
+                                descId != null &&
+                                String(d.id) === String(descId),
+                            )?.value;
+                            if (
+                              feedback == null ||
+                              String(feedback).trim() === '' ||
+                              feedback === RATING_DESCRIPTION_VALUE
+                            ) {
+                              return Promise.reject(
+                                new Error(
+                                  'Feedback or description is required.',
+                                ),
+                              );
+                            }
+                          },
+                        });
+                      }
+                      return rules;
+                    })()}
                   >
                     <RenderOptions
                       type={q?.fieldType}
@@ -731,6 +834,7 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
                       field={q?.field}
                       form={form}
                       isAnonymous={publicForm?.isAnonymous}
+                      disabled={isViewingOldSubmittedResponse}
                     />
                   </Form.Item>
                 </div>

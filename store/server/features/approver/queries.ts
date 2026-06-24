@@ -11,13 +11,27 @@ export const approvalFilter = async (
   entityId: string,
   entityType: string,
   name: string,
-  branch: string,
+  branch: string | string[],
 ) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const searchParams = new URLSearchParams({
+    entityId,
+    entityType,
+    name,
+    page: String(currentPage),
+    limit: String(pageSize),
+  });
+
+  const approvalTypes = Array.isArray(branch) ? branch : [branch];
+  approvalTypes.forEach((approvalType) => {
+    if (approvalType) {
+      searchParams.append('approvalType', approvalType);
+    }
+  });
 
   const response = await crudRequest({
-    url: `${APPROVER_URL}/approver/approvalworkflows?entityId=${entityId}&entityType=${entityType}&name=${name}&page=${currentPage}&limit=${pageSize}&approvalType=${branch}`,
+    url: `${APPROVER_URL}/approver/approvalworkflows?${searchParams.toString()}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -107,10 +121,19 @@ export const useApprovalFilter = (
   entityType: string,
   entityId: string,
   name: string,
-  branch: string,
+  branch: string | string[],
 ) => {
+  const approvalTypes = Array.isArray(branch) ? branch : [branch];
   return useQuery<any>(
-    ['approvals', pageSize, currentPage, entityId, name],
+    [
+      'approvals',
+      pageSize,
+      currentPage,
+      entityType,
+      entityId,
+      name,
+      approvalTypes.join(','),
+    ],
     () =>
       approvalFilter(pageSize, currentPage, entityId, entityType, name, branch),
     {
@@ -132,7 +155,7 @@ export const useGetAllLeaveRequestByWorkFlowId = (id: string) => {
 
 export const useAllApproval = (entityId: string, branch: string) => {
   return useQuery<any>(
-    ['allApprovals', entityId],
+    ['allApprovals', entityId, branch],
     () => allApproval(entityId, branch),
     {
       keepPreviousData: true,

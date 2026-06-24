@@ -2,14 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { InstallPrompt } from '@/components/PWA/InstallPrompt';
-import { OfflineIndicator } from '@/components/PWA/OfflineIndicator';
 import { AnimatedSplashScreen } from '@/components/PWA/AnimatedSplashScreen';
 // import { useRouter } from 'next/navigation';
 
 interface PWAProviderProps {
   children: React.ReactNode;
   enableInstallPrompt?: boolean;
-  enableOfflineIndicator?: boolean;
   autoShowInstallPrompt?: boolean;
   enableAnimatedSplash?: boolean;
   splashDuration?: number;
@@ -18,7 +16,6 @@ interface PWAProviderProps {
 export const PWAProvider: React.FC<PWAProviderProps> = ({
   children,
   enableInstallPrompt = true,
-  enableOfflineIndicator = true,
   autoShowInstallPrompt = true,
   enableAnimatedSplash = true,
   splashDuration = 3000,
@@ -240,7 +237,6 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
       {enableInstallPrompt && (
         <InstallPrompt autoShow={autoShowInstallPrompt} />
       )}
-      {enableOfflineIndicator && <OfflineIndicator />}
     </>
   );
 };

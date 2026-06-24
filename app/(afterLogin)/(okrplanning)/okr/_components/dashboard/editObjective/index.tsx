@@ -83,6 +83,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const [krForm] = Form.useForm();
 
   const isEditDisabled = hasAnyProgress(objectiveValue?.keyResults || []);
+  const canEditObjectiveMetricType =
+    Number(objectiveValue?.objectiveProgress ?? 0) === 0;
   const objectiveValueNew = { ...objectiveValue }; // Create a copy of objectiveValue
   delete objectiveValueNew.daysLeft;
   delete objectiveValueNew.completedKeyResults;
@@ -135,7 +137,9 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           keyType === 'Numeric' ||
           keyType === 'Percentage'
         ) {
-          if (keyResult?.initialValue > keyResult?.targetValue) {
+          if (
+            Number(keyResult?.initialValue) >= Number(keyResult?.targetValue)
+          ) {
             return false;
           }
         }
@@ -224,9 +228,12 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             ) {
               // Check if at least one milestone is added
 
-              if (keyResult?.initialValue > keyResult?.targetValue) {
+              if (
+                Number(keyResult?.initialValue) >=
+                Number(keyResult?.targetValue)
+              ) {
                 NotificationMessage.warning({
-                  message: `On number:${index + 1} title:${keyResult.title} key result initialValue should be less than or equal to the target value.`,
+                  message: `On number:${index + 1} title:${keyResult.title}: Target value must be greater than the initial value.`,
                 });
                 return; // Stop submission if the sum is not 100
               }
@@ -374,6 +381,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     if (props.open && objectiveValue) {
       form.setFieldsValue({
         title: objectiveValue.title || '',
+        metricTypeId: (objectiveValue as any)?.metricTypeId || null,
         allignedKeyResultId: objectiveValue.allignedKeyResultId || null,
         ObjectiveDeadline: objectiveValue.deadline
           ? dayjs(objectiveValue.deadline)
@@ -523,6 +531,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         className="w-full"
         initialValues={{
           title: objectiveValue?.title || '',
+          metricTypeId: (objectiveValue as any)?.metricTypeId || null,
           allignedKeyResultId: objectiveValue?.allignedKeyResultId || null,
           ObjectiveDeadline: objectiveValue?.deadline
             ? dayjs(objectiveValue.deadline)
@@ -591,6 +600,38 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               data-cy="okr-edit-objective-mobile-alignment-select-container"
               className="flex w-full gap-4 mb-10"
             >
+              <Form.Item
+                id="mobile-metric-type-select"
+                data-cy="okr-edit-objective-mobile-metric-type-select"
+                className="h-11 w-1/2 mb-0"
+                name="metricTypeId"
+                label="Metric Type"
+                rules={[
+                  { required: true, message: 'Please select a metric type' },
+                ]}
+              >
+                <Select
+                  id="mobile-metric-type-select-dropdown"
+                  data-cy="okr-edit-objective-mobile-metric-type-select-dropdown"
+                  className="h-11"
+                  showSearch
+                  disabled={!canEditObjectiveMetricType}
+                  placeholder="Select metric type"
+                  filterOption={(input: string, option: any) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
+                  style={{ fontSize: '14px', height: '44px' }}
+                  onChange={(value) =>
+                    handleObjectiveChange(value, 'metricTypeId')
+                  }
+                >
+                  {metrics?.items?.map((metric: any) => (
+                    <Select.Option key={metric.id} value={metric.id}>
+                      {metric.name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </Form.Item>
               <Form.Item
                 id="mobile-alignment-select"
                 data-cy="okr-edit-objective-mobile-alignment-select"
@@ -693,6 +734,45 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   handleObjectiveChange(e.target.value, 'title');
                 }}
               />
+            </Form.Item>
+            <Form.Item
+              id="desktop-metric-type-select"
+              data-cy="okr-edit-objective-desktop-metric-type-select"
+              className="h-11 mb-10 w-1/4"
+              name="metricTypeId"
+              label="Metric Type"
+              rules={[
+                { required: true, message: 'Please select a metric type' },
+              ]}
+            >
+              <Select
+                id="desktop-metric-type-select-dropdown"
+                data-cy="okr-edit-objective-desktop-metric-type-dropdown"
+                className="h-11 w-full"
+                showSearch
+                disabled={!canEditObjectiveMetricType}
+                placeholder="Select metric type"
+                filterOption={(input: string, option: any) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
+                style={{
+                  fontSize: isMobile ? '14px' : '12px',
+                  height: '44px',
+                }}
+                onChange={(value) =>
+                  handleObjectiveChange(value, 'metricTypeId')
+                }
+              >
+                {metrics?.items?.map((metric: any) => (
+                  <Select.Option
+                    data-cy="okr-edit-objective-desktop-metric-type-option"
+                    key={metric.id}
+                    value={metric.id}
+                  >
+                    {metric.name}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
             <Form.Item
               id="desktop-alignment-select"
@@ -1088,6 +1168,9 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                       removeKeyResult={removeForMerged}
                       addKeyResultValue={addKeyResultValue}
                       embedInOkrSheet={isMobile}
+                      disableMetricTypeEdit={
+                        Number(normalizedKr?.progress ?? 0) !== 0
+                      }
                       onSaveSuccess={() => setEditingKeyResultIndex(null)}
                     />
                   </div>

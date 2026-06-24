@@ -44,6 +44,13 @@ const ApprovalFilter = () => {
       onSelectChange(value, key);
     }
   };
+
+  const handleApprovalTypeChange = (value: string[]) => {
+    const normalized =
+      value && value.length > 0 ? value : ['Leave', 'WorkFromHome'];
+    setSearchParams('approvalType', normalized);
+  };
+
   const handleNavigation = () => {
     router.push('/tna/settings/approvals/workFlow');
     setApproverType('');
@@ -63,6 +70,7 @@ const ApprovalFilter = () => {
           searchParams={searchParams}
           handleSearchInput={handleSearchInput}
           handleDepartmentChange={handleDepartmentChange}
+          handleApprovalTypeChange={handleApprovalTypeChange}
           data-cy="tna-approval-filter-component"
         />
       </div>

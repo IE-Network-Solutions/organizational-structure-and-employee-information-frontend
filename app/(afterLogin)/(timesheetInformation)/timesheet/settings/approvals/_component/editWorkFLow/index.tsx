@@ -65,7 +65,16 @@ const EditWorkFLow = () => {
       .filter((step: any) => step.userId); // Filter out empty entries
 
     EditApprover(
-      { values: { approvalWorkflowId: selectedItem?.id, steps } },
+      {
+        values: {
+          approvalWorkflowId: selectedItem?.id,
+          steps,
+          entityType: formValues.workflowAppliesType,
+          entityId: formValues.workflowAppliesId,
+          name: formValues.workFlownName,
+          description: formValues.description,
+        },
+      },
       {
         onSuccess: () => {
           setEditModal(false);

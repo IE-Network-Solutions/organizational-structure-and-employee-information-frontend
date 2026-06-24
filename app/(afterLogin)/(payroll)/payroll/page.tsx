@@ -93,6 +93,13 @@ import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { MdAttachMoney, MdCardGiftcard } from 'react-icons/md';
 
+/** Summary cards: horizontal scroll on phone & tablet; 5-col grid from `lg` up. */
+const PAYROLL_SUMMARY_CARDS_ROW_CLASS =
+  'mb-8 flex flex-nowrap gap-4 overflow-x-auto overflow-y-visible pb-2 scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] touch-pan-x lg:grid lg:grid-cols-5 lg:overflow-x-visible lg:snap-none';
+
+const PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS =
+  'min-w-[228px] w-[min(88vw,304px)] shrink-0 snap-start lg:min-w-0 lg:h-full lg:w-full lg:shrink lg:max-w-none';
+
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [exportBank, setExportBank] = useState(true);
@@ -302,7 +309,7 @@ const Payroll = () => {
     if (bankLetter) {
       // Calculate total net pay for selected items
       const totalNetPay = selectedData.reduce(
-        (sum: number, item: any) => sum + (item.netPay || 0),
+        (sum: number, item: any) => sum + Number(item.netPay || 0),
         0,
       );
       exportTasks.push(Promise.resolve(handleBankLetter(totalNetPay)));
@@ -874,9 +881,13 @@ const Payroll = () => {
     try {
       await generateBankLetter(amount);
     } catch (error) {
+      const description =
+        error instanceof Error
+          ? error.message
+          : 'An error occurred while generating the bank letter.';
       notification.error({
         message: 'Error Generating Bank Letter',
-        description: 'An error occurred while generating the bank letter.',
+        description,
       });
     } finally {
       setLoading(false);
@@ -1601,70 +1612,95 @@ const Payroll = () => {
             <div
               id="payroll-summary-cards-view-row"
               data-cy="payroll-summary-cards-view-row"
-              className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
+              className={PAYROLL_SUMMARY_CARDS_ROW_CLASS}
             >
-              <PayrollCard
-                title="Total Amount"
-                data-cy="payroll-summary-card-total-amount-view-component"
-                value={payrollForExport?.totalGrossPaymentAmount}
-                icon={
-                  <MdAttachMoney data-cy="payroll-summary-card-total-amount-icon" />
-                }
-                iconBg="bg-[#E6F4FF]"
-                iconText="text-[#1E40AF]"
-              />
-              <PayrollCard
-                title="Net Paid Amount"
-                data-cy="payroll-summary-card-net-paid-view-component"
-                value={payrollForExport?.totalNetPayAmount}
-                icon={
-                  <LocalAtmIcon
-                    data-cy="payroll-summary-card-net-paid-amount-icon"
-                    className="w-5 h-5"
-                  />
-                }
-                iconBg="bg-[#F9F0FF]"
-                iconText="text-[#722ED1]"
-              />
-              <PayrollCard
-                title="Total Allowance"
-                data-cy="payroll-summary-card-total-allowance-view-component"
-                value={payrollForExport?.totalAllowanceAmount}
-                icon={
-                  <PaymentsIcon
-                    data-cy="payroll-summary-card-total-allowance-icon"
-                    className="w-5 h-5"
-                  />
-                }
-                iconBg="bg-[#F6FFED]"
-                iconText="text-[#52C41A]"
-              />
-              <PayrollCard
-                title="Total Benefit"
-                data-cy="payroll-summary-card-total-benefit-view-component"
-                value={payrollForExport?.totalMeritAmount}
-                icon={
-                  <MdCardGiftcard
-                    data-cy="payroll-summary-card-total-benefit-icon"
-                    className="w-5 h-5"
-                  />
-                }
-                iconBg="bg-[#FFFBE6]"
-                iconText="text-[#FBB221]"
-              />
-              <PayrollCard
-                title="Total Deduction"
-                data-cy="payroll-summary-card-total-deduction-view-component"
-                value={payrollForExport?.totalDeductionsAmount}
-                icon={
-                  <MoneyOffIcon
-                    data-cy="payroll-summary-card-total-deduction-icon"
-                    className="w-5 h-5"
-                  />
-                }
-                iconBg="bg-[#FFF2F0]"
-                iconText="text-[#FF4D4F]"
-              />
+              <div
+                className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+                data-cy="payroll-summary-cards-scroll-item-total-amount"
+              >
+                <PayrollCard
+                  title="Total Amount"
+                  data-cy="payroll-summary-card-total-amount-view-component"
+                  value={payrollForExport?.totalGrossPaymentAmount}
+                  icon={
+                    <MdAttachMoney data-cy="payroll-summary-card-total-amount-icon" />
+                  }
+                  iconBg="bg-[#E6F4FF]"
+                  iconText="text-[#1E40AF]"
+                />
+              </div>
+              <div
+                className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+                data-cy="payroll-summary-cards-scroll-item-net-paid"
+              >
+                <PayrollCard
+                  title="Net Paid Amount"
+                  data-cy="payroll-summary-card-net-paid-view-component"
+                  value={payrollForExport?.totalNetPayAmount}
+                  icon={
+                    <LocalAtmIcon
+                      data-cy="payroll-summary-card-net-paid-amount-icon"
+                      className="w-5 h-5"
+                    />
+                  }
+                  iconBg="bg-[#F9F0FF]"
+                  iconText="text-[#722ED1]"
+                />
+              </div>
+              <div
+                className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+                data-cy="payroll-summary-cards-scroll-item-total-allowance"
+              >
+                <PayrollCard
+                  title="Total Allowance"
+                  data-cy="payroll-summary-card-total-allowance-view-component"
+                  value={payrollForExport?.totalAllowanceAmount}
+                  icon={
+                    <PaymentsIcon
+                      data-cy="payroll-summary-card-total-allowance-icon"
+                      className="w-5 h-5"
+                    />
+                  }
+                  iconBg="bg-[#F6FFED]"
+                  iconText="text-[#52C41A]"
+                />
+              </div>
+              <div
+                className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+                data-cy="payroll-summary-cards-scroll-item-total-benefit"
+              >
+                <PayrollCard
+                  title="Total Benefit"
+                  data-cy="payroll-summary-card-total-benefit-view-component"
+                  value={payrollForExport?.totalMeritAmount}
+                  icon={
+                    <MdCardGiftcard
+                      data-cy="payroll-summary-card-total-benefit-icon"
+                      className="w-5 h-5"
+                    />
+                  }
+                  iconBg="bg-[#FFFBE6]"
+                  iconText="text-[#FBB221]"
+                />
+              </div>
+              <div
+                className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+                data-cy="payroll-summary-cards-scroll-item-total-deduction"
+              >
+                <PayrollCard
+                  title="Total Deduction"
+                  data-cy="payroll-summary-card-total-deduction-view-component"
+                  value={payrollForExport?.totalDeductionsAmount}
+                  icon={
+                    <MoneyOffIcon
+                      data-cy="payroll-summary-card-total-deduction-icon"
+                      className="w-5 h-5"
+                    />
+                  }
+                  iconBg="bg-[#FFF2F0]"
+                  iconText="text-[#FF4D4F]"
+                />
+              </div>
             </div>
           )}
           <div

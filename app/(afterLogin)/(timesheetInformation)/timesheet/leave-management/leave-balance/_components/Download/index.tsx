@@ -1,37 +1,51 @@
-import React, { useEffect } from 'react';
-import { Button, message } from 'antd';
+import React from 'react';
+import { Button, message, Popover } from 'antd';
 import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBalance';
-import { useGetAllLeaveBalanceWithFilter } from '@/store/server/features/timesheet/leaveBalance/queries';
+import {
+  useGetAllLeaveBalanceWithFilter,
+  useGetAllLeaveBalanceWithoutFilter,
+} from '@/store/server/features/timesheet/leaveBalance/queries';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
-const DownloadLeaveBalance: React.FC = () => {
+interface DownloadLeaveBalanceProps {
+  'data-cy'?: string;
+}
+
+const DownloadLeaveBalance: React.FC<DownloadLeaveBalanceProps> = ({
+  'data-cy': dataCy,
+}) => {
   const { selectedUserId, leaveTypeId, isDownloading, setIsDownloading } =
     useLeaveBalanceStore();
-  const buttonClass = 'text-xs font-bold h-[40px] w-full px-5';
+  const { isMobile } = useIsMobile();
+  const buttonClass = 'font-normal w-10 sm:w-full h-[40px] rounded-lg';
 
-  const { data: allFilteredLeaveBalanceData, refetch: refetchFiltered } =
-    useGetAllLeaveBalanceWithFilter(selectedUserId, leaveTypeId);
+  const { refetch: refetchFiltered } = useGetAllLeaveBalanceWithFilter(
+    selectedUserId,
+    leaveTypeId,
+  );
+  const { refetch: refetchAll } = useGetAllLeaveBalanceWithoutFilter();
 
-  useEffect(() => {
-    const prefetchData = async () => {
-      await refetchFiltered();
-    };
-
-    prefetchData();
-  }, [selectedUserId, leaveTypeId, refetchFiltered]);
-
-  const handleDownload = async () => {
-    if (!allFilteredLeaveBalanceData?.file) {
-      message.warning('No leave balance data available for download');
+  const handleDownload = async (downloadType: 'all' | 'filtered') => {
+    if (downloadType === 'filtered' && !selectedUserId) {
+      message.warning(
+        'Select a user before downloading filtered leave balance',
+      );
       return;
     }
 
     setIsDownloading(true);
 
     try {
-      // Ensure we have the latest data
-      await refetchFiltered();
+      const response =
+        downloadType === 'all' ? await refetchAll() : await refetchFiltered();
+      const fileUrl = response.data?.file;
 
-      const { file: fileUrl } = allFilteredLeaveBalanceData;
+      if (!fileUrl) {
+        message.warning('No leave balance data available for download');
+        return;
+      }
+
       const filename = extractFilenameFromUrl(fileUrl) || 'leave-balance.xlsx';
 
       downloadFile(fileUrl, filename);
@@ -69,18 +83,49 @@ const DownloadLeaveBalance: React.FC = () => {
   };
 
   return (
-    <Button
-      size="small"
-      id="excelFileTypeToExportId"
-      className={buttonClass}
-      type="primary"
-      onClick={handleDownload}
-      loading={isDownloading || !allFilteredLeaveBalanceData}
-      disabled={!allFilteredLeaveBalanceData}
-      data-cy="time-attendance-leave-balance-download-button"
+    <Popover
+      trigger="click"
+      placement="bottom"
+      align={{ offset: [0, 4] }}
+      content={
+        <div
+          className="flex flex-col gap-1 min-w-[180px] py-1"
+          id="time-attendance-leave-balance-export-popover-content"
+          data-cy="time-attendance-leave-balance-export-popover-content"
+        >
+          <button
+            type="button"
+            id="leaveBalanceDownloadAllId"
+            data-cy="time-attendance-leave-balance-export-popover-all"
+            className="w-full rounded-lg bg-white px-4 py-2.5 text-left text-sm font-normal text-gray-600 shadow-sm border border-gray-200 hover:border-[#4096FF] hover:text-[#4096FF] transition-colors"
+            onClick={() => handleDownload('all')}
+          >
+            Download All
+          </button>
+          <button
+            type="button"
+            id="leaveBalanceDownloadFilteredId"
+            data-cy="time-attendance-leave-balance-export-popover-filtered"
+            className="w-full rounded-lg bg-white px-4 py-2.5 text-left text-sm font-normal text-gray-600 shadow-sm border border-gray-200 hover:border-[#4096FF] hover:text-[#4096FF] transition-colors"
+            onClick={() => handleDownload('filtered')}
+          >
+            Download Filtered
+          </button>
+        </div>
+      }
     >
-      {isDownloading ? 'Preparing Download...' : 'Download'}
-    </Button>
+      <Button
+        size="large"
+        id="excelFileTypeToExportId"
+        className={buttonClass}
+        type="primary"
+        loading={isDownloading}
+        data-cy={dataCy || 'time-attendance-leave-balance-download-button'}
+        icon={<SaveAltIcon fontSize="small" />}
+      >
+        {isMobile ? '' : isDownloading ? 'Preparing Download...' : 'Download'}
+      </Button>
+    </Popover>
   );
 };
 

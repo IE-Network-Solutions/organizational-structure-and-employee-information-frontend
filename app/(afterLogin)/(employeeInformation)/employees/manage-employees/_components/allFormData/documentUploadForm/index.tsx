@@ -91,7 +91,7 @@ const DocumentUploadForm = () => {
                 id="document-upload-dragger"
                 data-cy="document-upload-dragger"
                 className="bg-gray-50 border-dashed border-gray-200 hover:border-blue-500 rounded-lg transition-colors"
-                style={{ backgroundColor: '#fafafa', padding: '0 0' }} // Overriding antd default styles if needed
+                style={{ backgroundColor: '#F9FAFB', padding: '0 0' }} // Overriding antd default styles if needed
               >
                 <div
                   data-cy="document-upload-form-drag-div"

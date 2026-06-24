@@ -70,6 +70,7 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
 };
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -83,6 +84,13 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
+import { useCopilotStore } from '@/store/uistate/features/copilot';
+import CopilotModule from '@/components/copilot/CopilotModule';
+import { OfflineIndicator } from '@/components/PWA/OfflineIndicator';
+import {
+  COPILOT_SHARE_QUERY,
+  COPILOT_SHARE_REF_QUERY,
+} from '@/utils/copilotShare';
 
 interface CustomMenuItem {
   key: string;
@@ -265,9 +273,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const { userId, tenantId } = useAuthenticationStore();
+  const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
   useGetEmployee(userId);
-  const { userData } = useAuthenticationStore();
   // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
     setLocalId,
@@ -286,11 +293,27 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = useAuthenticationStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
+    useCopilotStore();
   const pathName = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isMounted || typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    if (
+      params.get(COPILOT_SHARE_QUERY) ||
+      params.get(COPILOT_SHARE_REF_QUERY)
+    ) {
+      setCopilotOpen(true);
+      return;
+    }
+    // Sidebar / in-app navigation: hide Copilot full-page workspace so main `children` render.
+    setCopilotOpen(false);
+  }, [isMounted, pathname, setCopilotOpen]);
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -641,7 +664,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             title: <span data-cy="nav-tree-payroll">Payroll</span>,
             key: '/payroll',
             className: 'font-bold',
-            permissions: ['view_payroll_overview'],
+            permissions: ['view_payroll_overview_page'],
           },
           {
             title: <span data-cy="nav-tree-my-payroll">My Payroll</span>,
@@ -974,21 +997,69 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   // ✅ Check permission on pathname change
+  // Wait for persisted auth (token, userPermissions) before checking access.
+  // Without this, reload can run the check with empty store state and redirect to /unauthorized.
   useEffect(() => {
+    if (!hasHydrated) {
+      setIsCheckingPermissions(false);
+      return;
+    }
+
+    let cancelled = false;
+
     const checkPermissions = async () => {
       setIsCheckingPermissions(true);
+      try {
+        if (pathname === '/') {
+          router.push('/dashboard');
+          return;
+        }
 
-      if (pathname === '/') {
-        router.push('/dashboard');
-      } else if (!checkPathnamePermissions(pathname)) {
-        router.push('/unauthorized');
+        const state = useAuthenticationStore.getState();
+        const isOwner = state.userData?.role?.slug?.toLowerCase() === 'owner';
+
+        const hasNoPermissions =
+          !state.userData?.userPermissions ||
+          (Array.isArray(state.userData.userPermissions) &&
+            state.userData.userPermissions.length === 0);
+
+        if (state.token && state.localId && !isOwner && hasNoPermissions) {
+          const success = await fetchCurrentUserAndUpdateStore();
+          if (cancelled) return;
+          if (!success) {
+            const refreshed = useAuthenticationStore.getState();
+            const stillNoPerms =
+              !refreshed.userData?.userPermissions ||
+              (Array.isArray(refreshed.userData.userPermissions) &&
+                refreshed.userData.userPermissions.length === 0);
+            if (stillNoPerms) {
+              return;
+            }
+          }
+        }
+
+        if (!checkPathnamePermissions(pathname)) {
+          router.push('/unauthorized');
+        }
+      } finally {
+        if (!cancelled) {
+          setIsCheckingPermissions(false);
+        }
       }
-
-      setIsCheckingPermissions(false);
     };
 
     checkPermissions();
-  }, [pathname, router, checkPathnamePermissions, setIsCheckingPermissions]);
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    pathname,
+    router,
+    checkPathnamePermissions,
+    setIsCheckingPermissions,
+    hasHydrated,
+    userData,
+  ]);
 
   const findParentMenuKey = React.useCallback(
     (pathname: string, menuItems: CustomMenuItem[]): string | null => {
@@ -1788,7 +1859,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 msOverflowStyle: 'none',
               }}
             >
-              {children}
+              <OfflineIndicator variant="content" showNotifications={false} />
+              {isCopilotOpen ? (
+                <div
+                  id="copilot-workspace-root"
+                  data-cy="copilot-workspace-root"
+                >
+                  <CopilotModule />
+                </div>
+              ) : (
+                children
+              )}
             </div>
           )}
           {/* <CreateEmployeeJobInformation

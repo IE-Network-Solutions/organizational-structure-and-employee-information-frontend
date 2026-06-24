@@ -1,118 +1,79 @@
 'use client';
-
-import { Avatar, Table, TableColumnsType } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
-import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBalance';
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
-import { TableSkeleton } from '@/components/tableSkeleton';
+import EmptyState from '@/components/empty';
 
-type NewUserData = {
-  key: number;
-  leaveType: string;
-  accrued: number;
-  balance: number;
-  carriedOver: number;
-  totalBalance: number;
-  utilizedLeave: number;
-  cashValue: number;
-};
+const LEAVE_BALANCE_CARD_SKELETON_KEYS = [0, 1, 2, 3, 4, 5] as const;
 
-const EmpRender: React.FC<{ userId: string }> = ({ userId }) => {
-  const {
-    isLoading,
-    data: employeeData,
-    isError,
-  } = useGetSimpleEmployee(userId);
-
-  if (isLoading)
-    return (
-      <div
-        id={`time-attendance-leave-balance-employee-loading-${userId}`}
-        data-cy={`time-attendance-leave-balance-employee-loading-${userId}`}
-      >
-        ...
-      </div>
-    );
-  if (isError || !employeeData) return <>-</>;
-
-  return (
+const LeaveBalanceCardSkeleton: React.FC<{ index: number }> = ({ index }) => (
+  <div
+    className="animate-pulse rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+    id={`time-attendance-leave-balance-card-skeleton-${index}`}
+    data-cy={`time-attendance-leave-balance-card-skeleton-${index}`}
+    aria-hidden
+  >
     <div
-      className="flex items-center gap-1.5"
-      id={`time-attendance-leave-balance-employee-${userId}`}
-      data-cy={`time-attendance-leave-balance-employee-${userId}`}
+      data-cy="time-attendance-leave-balance-card-skeleton-header"
+      className="mb-3 flex items-center justify-between gap-2"
     >
-      <Avatar
-        size={24}
-        icon={
-          <UserOutlined data-cy="time-attendance-leave-balance-employee-avatar-icon" />
-        }
-        data-cy="time-attendance-leave-balance-employee-avatar"
-      />
       <div
-        className="flex-1"
-        id={`time-attendance-leave-balance-employee-${userId}-info`}
-        data-cy={`time-attendance-leave-balance-employee-${userId}-info`}
+        data-cy="time-attendance-leave-balance-card-skeleton-header-left"
+        className="h-5 w-full max-w-[200px] rounded bg-gray-200"
+      />
+    </div>
+
+    <div
+      data-cy="time-attendance-leave-balance-card-skeleton-stats"
+      className="mb-2 flex justify-between gap-2"
+    >
+      <div
+        data-cy="time-attendance-leave-balance-card-skeleton-stats-left"
+        className="flex flex-1 flex-col gap-1"
       >
         <div
-          className="text-xs text-gray-900 flex gap-2"
-          data-cy="time-attendance-leave-balance-employee-name"
-        >
-          {employeeData?.firstName || '-'} {employeeData?.middleName || '-'}{' '}
-          {employeeData?.lastName || '-'}
-        </div>
-        <div
-          className="text-[10px] leading-4 text-gray-600"
-          data-cy="time-attendance-leave-balance-employee-email"
-        >
-          {employeeData?.email || '-'}
-        </div>
+          data-cy="time-attendance-leave-balance-card-skeleton-stats-left-value"
+          className="h-7 w-40 max-w-[85%] rounded bg-gray-200"
+        />
       </div>
+      <div
+        data-cy="time-attendance-leave-balance-card-skeleton-stats-right-value"
+        className="h-5 w-28 shrink-0 self-end rounded bg-gray-200"
+      />
     </div>
-  );
-};
+
+    <div
+      data-cy="time-attendance-leave-balance-card-skeleton-progress"
+      className="mb-4 h-2 w-full rounded-full bg-gray-200"
+    />
+
+    <div
+      data-cy="time-attendance-leave-balance-card-skeleton-stats-grid"
+      className="grid grid-cols-4 gap-2 text-center"
+    >
+      {[0, 1, 2, 3].map((col) => (
+        <div
+          key={col}
+          data-cy={`time-attendance-leave-balance-card-skeleton-stats-grid-item-${col}`}
+          className="flex flex-col items-center gap-2"
+        >
+          <div
+            data-cy={`time-attendance-leave-balance-card-skeleton-stats-grid-item-${col}-value`}
+            className="h-5 w-10 rounded bg-gray-200"
+          />
+          <div
+            data-cy={`time-attendance-leave-balance-card-skeleton-stats-grid-item-${col}-label`}
+            className="h-3 w-16 rounded bg-gray-200"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 const LeaveBalanceTable: React.FC = () => {
   const { selectedUserId, leaveTypeId } = useLeaveBalanceStore();
   const { data: leaveBalanceData, isLoading: leaveBalanceIsLoading } =
     useGetLeaveBalance(selectedUserId, leaveTypeId);
-  const columns: TableColumnsType<NewUserData> = [
-    {
-      title: 'Leave Name',
-      dataIndex: 'leaveType',
-      key: 'leaveType',
-    },
-    {
-      title: 'Accrued',
-      dataIndex: 'accrued',
-      key: 'accrued',
-    },
-    {
-      title: 'Entitled Balance',
-      dataIndex: 'balance',
-      key: 'balance',
-    },
-    {
-      title: 'Carried Over',
-      dataIndex: 'carriedOver',
-      key: 'carriedOver',
-    },
-    {
-      title: 'Total Balance',
-      dataIndex: 'totalBalance',
-      key: 'totalBalance',
-    },
-    {
-      title: 'Utilized Leave',
-      dataIndex: 'utilizedLeave',
-      key: 'utilizedLeave',
-    },
-    {
-      title: 'Cash Value',
-      dataIndex: 'cashValue',
-      key: 'cashValue',
-    },
-  ];
 
   let itemsArray: any[] = [];
   if (Array.isArray(leaveBalanceData?.items)) {
@@ -129,6 +90,7 @@ const LeaveBalanceTable: React.FC = () => {
     const cashValue = item?.cashValue || 0;
     return {
       key: index,
+      userId: item?.userId,
       leaveType: item?.leaveType?.title || '-',
       accrued: parseFloat(item?.accrued.toFixed(1)) || 0,
       balance: parseFloat(item?.balance.toFixed(1)) || 0,
@@ -138,39 +100,194 @@ const LeaveBalanceTable: React.FC = () => {
       cashValue: parseFloat(cashValue.toFixed(2)),
     };
   });
+  const employeeId =
+    dataSource?.[0]?.userId || leaveBalanceData?.items?.items?.[0]?.userId;
 
   return (
     <>
-      {leaveBalanceData && (
+      {employeeId && (
         <div
           id="time-attendance-leave-balance-employee-summary"
           data-cy="time-attendance-leave-balance-employee-summary"
         >
-          <EmpRender userId={leaveBalanceData?.items?.items?.[0]?.userId} />
+          {/* <EmpRender userId={employeeId} /> */}
         </div>
       )}
       <div
-        className="flex overflow-x-auto scrollbar-none w-full bg-[#fafafa]"
+        className="w-full rounded-lg border border-gray-200 p-3 mt-2"
         id="time-attendance-leave-balance-table-scroll-wrapper"
         data-cy="time-attendance-leave-balance-table-scroll-wrapper"
       >
         {leaveBalanceIsLoading ? (
-          <TableSkeleton columns={columns} />
+          <div
+            className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
+            id="time-attendance-leave-balance-cards-skeleton-grid"
+            data-cy="time-attendance-leave-balance-cards-skeleton-grid"
+          >
+            {LEAVE_BALANCE_CARD_SKELETON_KEYS.map((i) => (
+              <LeaveBalanceCardSkeleton key={i} index={i} />
+            ))}
+          </div>
         ) : (
-          <Table
-            className="mt-2"
+          <div
             id="time-attendance-leave-balance-table"
             data-cy="time-attendance-leave-balance-table"
-            columns={columns}
-            dataSource={dataSource}
-            locale={{
-              emptyText: selectedUserId ? undefined : (
-                <h3 data-cy="leave-balance-components-leavebalancetable-index-tsx-index-h3-164">
-                  Please Select User
-                </h3>
-              ),
-            }}
-          />
+          >
+            {!selectedUserId ? (
+              <h3
+                className="py-8 text-center text-gray-500"
+                data-cy="leave-balance-select-user-empty-state"
+              >
+                <EmptyState
+                  title="Please Select User"
+                  description="Please select a user to view leave balance"
+                />
+              </h3>
+            ) : dataSource.length === 0 ? (
+              <h3
+                className="py-8 text-center text-gray-500"
+                data-cy="leave-balance-no-data-empty-state"
+              >
+                No leave balance found
+              </h3>
+            ) : (
+              <div
+                className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3"
+                id="time-attendance-leave-balance-cards-grid"
+                data-cy="time-attendance-leave-balance-cards-grid"
+              >
+                {dataSource.map((item) => {
+                  const progressPercent =
+                    item.totalBalance > 0
+                      ? Math.min(
+                          (item.utilizedLeave /
+                            (item.totalBalance + item.utilizedLeave)) *
+                            100,
+                          100,
+                        )
+                      : 0;
+
+                  return (
+                    <div
+                      key={item.key}
+                      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+                      id={`time-attendance-leave-balance-card-${item.key}`}
+                      data-cy={`time-attendance-leave-balance-card-${item.key}`}
+                    >
+                      <div
+                        data-cy="time-attendance-leave-balance-card-header"
+                        className="mb-3 flex items-center justify-between gap-2"
+                      >
+                        <h3
+                          data-cy="time-attendance-leave-balance-card-header-title"
+                          className="text-base font-bold text-black"
+                        >
+                          {item.leaveType}
+                        </h3>
+                      </div>
+
+                      <div
+                        data-cy="time-attendance-leave-balance-card-stats"
+                        className="flex justify-between mb-2 "
+                      >
+                        <span
+                          data-cy="time-attendance-leave-balance-card-stats-total-balance"
+                          className="text-[20px] font-bold leading-none text-black opacity-65"
+                        >
+                          {item.totalBalance}
+                          <span
+                            data-cy="time-attendance-leave-balance-card-stats-total-balance-label"
+                            className="ml-1 text-sm font-normal text-black opacity-65"
+                          >
+                            Days net balance
+                          </span>
+                        </span>
+                        <span
+                          data-cy="time-attendance-leave-balance-card-stats-entitled"
+                          className="text-sm font-bold text-black opacity-70"
+                        >
+                          Entitled: {item.totalBalance + item.utilizedLeave}
+                        </span>
+                      </div>
+
+                      <div
+                        data-cy="time-attendance-leave-balance-card-progress"
+                        className="mb-4 h-2 w-full rounded-full bg-gray-200"
+                      >
+                        <div
+                          data-cy="time-attendance-leave-balance-card-progress-bar"
+                          className="h-2 rounded-full bg-[#2155CD]"
+                          style={{ width: `${progressPercent}%` }}
+                        />
+                      </div>
+
+                      <div
+                        data-cy="time-attendance-leave-balance-card-stats-grid"
+                        className="grid grid-cols-4 gap-2 text-center"
+                      >
+                        <div data-cy="time-attendance-leave-balance-card-stats-grid-item-accrued">
+                          <p
+                            data-cy="time-attendance-leave-balance-card-stats-grid-item-accrued-value"
+                            className="text-base font-bold text-black opacity-70"
+                          >
+                            {item.accrued}
+                          </p>
+                          <p
+                            data-cy="time-attendance-leave-balance-card-stats-grid-item-accrued-label"
+                            className="text-sm font-normal text-black opacity-65"
+                          >
+                            Accrued
+                          </p>
+                        </div>
+                        <div data-cy="time-attendance-leave-balance-card-stats-grid-item-carried-over">
+                          <p
+                            data-cy="time-attendance-leave-balance-card-stats-grid-item-carried-over-value"
+                            className="text-base font-bold text-black opacity-70"
+                          >
+                            {item.carriedOver}
+                          </p>
+                          <p
+                            data-cy="time-attendance-leave-balance-card-stats-grid-item-carried-over-label"
+                            className="text-sm font-normal text-black opacity-65"
+                          >
+                            Carried Over
+                          </p>
+                        </div>
+                        <div data-cy="time-attendance-leave-balance-card-stats-grid-item-utilized-leave">
+                          <p
+                            data-cy="time-attendance-leave-balance-card-stats-grid-item-utilized-leave-value"
+                            className="text-base font-bold text-black opacity-70"
+                          >
+                            {item.utilizedLeave}
+                          </p>
+                          <p
+                            data-cy="time-attendance-leave-balance-card-stats-grid-item-utilized-leave-label"
+                            className="text-sm font-normal text-black opacity-65"
+                          >
+                            Utilized
+                          </p>
+                        </div>
+                        <div data-cy="time-attendance-leave-balance-card-stats-grid-item-cash-value">
+                          <p
+                            data-cy="time-attendance-leave-balance-card-stats-grid-item-cash-value-value"
+                            className="text-base font-bold text-black opacity-70"
+                          >
+                            {item.cashValue}
+                          </p>
+                          <p
+                            data-cy="time-attendance-leave-balance-card-stats-grid-item-cash-value-label"
+                            className="text-sm font-normal text-black opacity-65"
+                          >
+                            Cash Value
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </>

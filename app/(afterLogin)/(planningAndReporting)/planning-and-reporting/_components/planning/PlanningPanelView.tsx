@@ -20,6 +20,9 @@ import type {
 } from '../types';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import {
+  aggregateKeyResultForPanel,
+  buildBlockedKeyResultIdSet,
+  enrichOwnerGroupsPlanningBlocked,
   mergeUserKeyResultsIntoOwnerGroups,
   type KRPanelOwnerGroup,
   type ParentPlanContext,
@@ -121,7 +124,9 @@ interface AggregatedKR {
   metricType: string;
   targetValue: string | number;
   currentValue: string | number;
+  progressLabel: string;
   isDeleted: boolean;
+  planningBlocked: boolean;
 }
 
 interface OwnerKRGroup {
@@ -154,35 +159,7 @@ export function buildOwnerKRGroups(plans: PlanSummary[]): OwnerKRGroup[] {
       entry.seenKRs.add(kr.id);
 
       const allTasks = getAllKRTasks(kr);
-      const totalWeight = allTasks.reduce(
-        (s, t) => s + (Number(t.weight) || 0),
-        0,
-      );
-      const completedWeight = allTasks
-        .filter(
-          (t) =>
-            t.status === 'completed' ||
-            t.status === 'Done' ||
-            t.isAchieved === true,
-        )
-        .reduce((s, t) => s + (Number(t.weight) || 0), 0);
-
-      const prog = kr.progress
-        ? Number(kr.progress)
-        : totalWeight > 0
-          ? Math.round((completedWeight / totalWeight) * 100)
-          : 0;
-
-      entry.krs.push({
-        id: kr.id,
-        title: kr.title || kr.name || 'Untitled KR',
-        progress: prog,
-        taskCount: allTasks.length,
-        metricType: kr.metricType?.name || 'N/A',
-        targetValue: kr.targetValue ?? 0,
-        currentValue: kr.currentValue ?? 0,
-        isDeleted: kr.deletedAt != null,
-      });
+      entry.krs.push(aggregateKeyResultForPanel(kr, allTasks.length));
     }
   }
 
@@ -240,15 +217,21 @@ function KRProgressCard({
     isMobile || isTablet ? ('bottomCenter' as const) : ('bottomLeft' as const);
   const metricLabel = formatKrMetricTypeLabel(kr.metricType);
 
+  const showTaskCount = kr.taskCount > 0;
+
   const rowSelected =
     inlinePickEnabled &&
     planningTargetsForKr.some((t) => t.id === selectedPlanningTargetId);
   const showPickChrome = isHighlighted || rowSelected;
 
+  const isFullyCompleted = kr.planningBlocked;
+
   const showPickControl =
     inlinePickEnabled &&
     !!onPickPlanningTarget &&
-    planningTargetsForKr.length > 0;
+    planningTargetsForKr.length > 0 &&
+    !isFullyCompleted &&
+    !kr.isDeleted;
 
   const dropdownSlotItems: MenuProps['items'] = planningTargetsForKr.map(
     (t) => ({
@@ -393,23 +376,25 @@ function KRProgressCard({
               </span>
             </>
           ) : null}
-          <span
-            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-357"
-            className="flex min-w-0 shrink items-center gap-1 truncate"
-          >
+          {showTaskCount ? (
             <span
-              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-395"
-              className="inline-block h-1 w-1 shrink-0 rounded-full"
-              style={{ backgroundColor: color }}
-            />
-            <span
-              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-362"
-              className="truncate"
+              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-357"
+              className="flex min-w-0 shrink items-center gap-1 truncate"
             >
-              {kr.taskCount} task{kr.taskCount !== 1 ? 's' : ''}
+              <span
+                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-395"
+                className="inline-block h-1 w-1 shrink-0 rounded-full"
+                style={{ backgroundColor: color }}
+              />
+              <span
+                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-362"
+                className="truncate"
+              >
+                {kr.taskCount} task{kr.taskCount !== 1 ? 's' : ''}
+              </span>
             </span>
-          </span>
-          {kr.metricType !== 'N/A' && kr.metricType !== 'Milestone' && (
+          ) : null}
+          {kr.progressLabel ? (
             <>
               <span
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-368"
@@ -419,12 +404,12 @@ function KRProgressCard({
               </span>
               <span
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-369"
-                className="shrink-0 tabular-nums"
+                className="shrink-0 tabular-nums font-medium text-[#64748B]"
               >
-                {formatNum(kr.currentValue)} / {formatNum(kr.targetValue)}
+                {kr.progressLabel}
               </span>
             </>
-          )}
+          ) : null}
         </div>
         {pickButton ? (
           <div
@@ -793,6 +778,7 @@ function ParentPlanTasksSection({
   onPickPlanningTarget,
   loading,
   expandToFill,
+  blockedKrIds,
 }: {
   title: string;
   slots: PlanningTarget[];
@@ -800,6 +786,7 @@ function ParentPlanTasksSection({
   selectedPlanningTargetId: string | null;
   onPickPlanningTarget?: (target: PlanningTarget) => void;
   loading: boolean;
+  blockedKrIds?: Set<string>;
   /** Fills KR column height when Key Results list is hidden (child cadence). */
   expandToFill?: boolean;
 }) {
@@ -905,7 +892,10 @@ function ParentPlanTasksSection({
           >
             {slots.map((slot) => {
               const selected = selectedPlanningTargetId === slot.id;
-              const canPick = showPick && !!onPickPlanningTarget;
+              const canPick =
+                showPick &&
+                !!onPickPlanningTarget &&
+                !blockedKrIds?.has(slot.keyResultId);
               return (
                 <li
                   data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-li-710"
@@ -971,6 +961,8 @@ export interface KRPanelProps {
   userKeyResultItems?: any[];
   /** Unreported parent plan for current cadence (planning period hierarchy). */
   parentPlanContext?: ParentPlanContext | null;
+  /** False while user KR API is loading/refetching — hides + until eligibility is current. */
+  planningPickReady?: boolean;
 }
 
 export function KRLeftPanel({
@@ -989,15 +981,19 @@ export function KRLeftPanel({
   onPickPlanningTarget,
   userKeyResultItems = [],
   parentPlanContext = null,
+  planningPickReady = true,
 }: KRPanelProps) {
   const ownerGroups = React.useMemo(() => {
     const base = buildOwnerKRGroups(plans);
-    const merged = mergeUserKeyResultsIntoOwnerGroups(
-      base,
+    const merged = enrichOwnerGroupsPlanningBlocked(
+      mergeUserKeyResultsIntoOwnerGroups(
+        base,
+        userKeyResultItems,
+        plans,
+        transformedData,
+        userId,
+      ),
       userKeyResultItems,
-      plans,
-      transformedData,
-      userId,
     );
     const currentUserOwnerKeys = new Set(
       transformedData
@@ -1022,25 +1018,35 @@ export function KRLeftPanel({
     ? (threadEntities.find((p) => p.id === activeThread.id) ?? null)
     : null;
 
-  const showInlinePick = inlinePlanningMode && activeTab === 1 && !threadPlan;
+  const showInlinePick =
+    inlinePlanningMode && activeTab === 1 && !threadPlan && planningPickReady;
+
+  const blockedKrIds = React.useMemo(() => {
+    const panelKrs = ownerGroups.flatMap((g) => g.krs);
+    return buildBlockedKeyResultIdSet(userKeyResultItems, panelKrs);
+  }, [ownerGroups, userKeyResultItems]);
 
   /** Parent-plan rows (daily-under-weekly etc.) — picked from the plan section only, not KR +. */
   const parentPlanSlots = React.useMemo(
-    () => planningTargets.filter((t) => t.isDailySlot),
-    [planningTargets],
+    () =>
+      planningTargets.filter(
+        (t) => t.isDailySlot && !blockedKrIds.has(t.keyResultId),
+      ),
+    [planningTargets, blockedKrIds],
   );
 
   const targetsByKrId = React.useMemo(() => {
     const m = new Map<string, PlanningTarget[]>();
     for (const t of planningTargets) {
       if (t.isDailySlot) continue;
+      if (blockedKrIds.has(t.keyResultId)) continue;
       const kid = t.keyResultId;
       const list = m.get(kid);
       if (list) list.push(t);
       else m.set(kid, [t]);
     }
     return m;
-  }, [planningTargets]);
+  }, [planningTargets, blockedKrIds]);
 
   const showKrTargetsLoadingRow =
     showInlinePick && planningTargetsLoading && !parentPlanContext;
@@ -1112,6 +1118,7 @@ export function KRLeftPanel({
               selectedPlanningTargetId={selectedPlanningTargetId}
               onPickPlanningTarget={onPickPlanningTarget}
               loading={planningTargetsLoading}
+              blockedKrIds={blockedKrIds}
               expandToFill={isChildCadence}
             />
           ) : null}

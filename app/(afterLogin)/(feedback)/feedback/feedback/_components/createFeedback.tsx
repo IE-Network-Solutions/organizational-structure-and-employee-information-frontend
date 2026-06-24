@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Form, Select, Input, Button, Modal } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import {
@@ -16,8 +16,7 @@ import {
   useUpdateFeedbackRecord,
 } from '@/store/server/features/feedback/feedbackRecord/mutation';
 import { FeedbackItem } from '@/store/server/features/CFR/conversation/action-plan/interface';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useGetPerspectiveById } from '@/store/server/features/CFR/feedback/queries';
+import { useGetAllPerspectives } from '@/store/server/features/CFR/feedback/queries';
 import { FeedbackTypeItems } from '@/store/server/features/CFR/conversation/action-plan/interface';
 
 const { TextArea } = Input;
@@ -40,8 +39,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
   const { data: getActiveEmployee } = useGetActiveEmployee();
   const { data: getAllFeedbackTypeById } = useFetchFeedbackTypeById(activeTab);
 
-  const { data: departments, isLoading } = useGetDepartments();
-  const { data: perspectiveData } = useGetPerspectiveById(selectedDepartment);
+  const { data: perspectiveData } = useGetAllPerspectives();
   const {
     mutate: createFeedbackRecord,
     isLoading: loadingCreateFeedbackRecord,
@@ -51,11 +49,28 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     isLoading: loadingUpdateFeedbackRecord,
   } = useUpdateFeedbackRecord();
   const { data: getAllFeedbackTypes } = useFetchAllFeedbackTypes();
+  const selectedRecipientId = Form.useWatch('recipientId', form);
+
+  const getDepartmentIdForUser = useCallback(
+    (recipientId?: string | null) => {
+      if (!recipientId) return null;
+
+      const recipient = getActiveEmployee?.items?.find(
+        (item: any) => item?.id === recipientId,
+      );
+
+      return recipient?.employeeJobInformation?.[0]?.departmentId ?? null;
+    },
+    [getActiveEmployee?.items],
+  );
 
   const onFinish = (values: any) => {
+    const derivedDepartmentId =
+      getDepartmentIdForUser(values.recipientId) ?? selectedDepartment;
     if (selectedFeedbackRecord !== null) {
       const updatedValues = {
         ...values,
+        departmentId: derivedDepartmentId,
         points:
           getAllFeedbackTypeById?.feedback?.find(
             (feedback: FeedbackItem) => feedback.id === values.feedbackId,
@@ -72,6 +87,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
     } else {
       const updatedValues = {
         ...values,
+        departmentId: derivedDepartmentId,
         points:
           getAllFeedbackTypeById?.feedback?.find(
             (feedback: FeedbackItem) => feedback.id === values.feedbackId,
@@ -113,31 +129,37 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
   };
 
   useEffect(() => {
-    const getDepartmentIdFromPerspective = (
-      perspectiveId: string | undefined,
-    ) => {
-      const perspective = perspectiveData?.find(
-        (item: any) => item.id === perspectiveId,
-      );
-      return perspective?.departmentId ?? null;
-    };
     if (selectedFeedbackRecord !== null) {
-      const departmentId = getDepartmentIdFromPerspective(
-        selectedFeedbackRecord?.perspectiveId,
-      );
       form.setFieldsValue({
         id: selectedFeedbackRecord?.id,
         recipientId: selectedFeedbackRecord?.recipientId,
         feedbackId: selectedFeedbackRecord?.feedbackId,
-        departmentId,
         reason: selectedFeedbackRecord?.reason,
         action: selectedFeedbackRecord?.action,
       });
-      if (departmentId) {
-        setSelectedDepartmentId(departmentId);
-      }
     }
-  }, [selectedFeedbackRecord, perspectiveData, form]);
+  }, [selectedFeedbackRecord, form]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const departmentIdFromRecipient =
+      getDepartmentIdForUser(selectedRecipientId);
+    const fallbackDepartmentId =
+      selectedFeedbackRecord?.perspectiveId && perspectiveData
+        ? (perspectiveData.find(
+            (item: any) => item.id === selectedFeedbackRecord.perspectiveId,
+          )?.departmentId ?? null)
+        : null;
+
+    setSelectedDepartmentId(departmentIdFromRecipient ?? fallbackDepartmentId);
+  }, [
+    open,
+    perspectiveData,
+    selectedFeedbackRecord?.perspectiveId,
+    selectedRecipientId,
+    getDepartmentIdForUser,
+  ]);
 
   useEffect(() => {
     if (
@@ -334,7 +356,7 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
               )}
 
               <div
-                className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-3"
+                className="grid w-full grid-cols-1 gap-3"
                 data-cy="feedback-create-feedback-row-employee-dept"
               >
                 <div
@@ -371,6 +393,11 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
                       className="add-feedback-field-select w-full"
                       placeholder="Select"
                       data-cy="feedback-feedback-components-createfeedback-select-employee"
+                      onChange={(value) => {
+                        if (value !== selectedFeedbackRecord?.recipientId) {
+                          form.setFieldValue('feedbackId', undefined);
+                        }
+                      }}
                       options={
                         getActiveEmployee?.items
                           ?.filter((i: any) => i.id !== userId)
@@ -386,51 +413,6 @@ const CreateFeedbackForm = ({ form }: { form: any }) => {
                           .includes(input.toLowerCase())
                       }
                     />
-                  </Form.Item>
-                </div>
-                <div
-                  className="min-w-0"
-                  data-cy="feedback-create-feedback-col-department"
-                >
-                  <Form.Item
-                    name="departmentId"
-                    label={
-                      <span
-                        className="add-feedback-form-label text-sm font-normal leading-[22px] text-[#030712]"
-                        data-cy="feedback-create-feedback-label-department"
-                      >
-                        Department{' '}
-                        <span
-                          className="text-[#FF4D4F]"
-                          data-cy="feedback-create-feedback-label-department-required"
-                        >
-                          *
-                        </span>
-                      </span>
-                    }
-                    rules={[
-                      { required: true, message: 'Please select a department' },
-                    ]}
-                    data-cy="feedback-feedback-components-createfeedback-form-item-department"
-                  >
-                    <Select
-                      loading={isLoading}
-                      className="add-feedback-field-select w-full"
-                      placeholder="Select"
-                      data-cy="feedback-feedback-components-createfeedback-select-department"
-                      onChange={(departmentId: string) => {
-                        setSelectedDepartmentId(departmentId);
-                      }}
-                    >
-                      {departments?.map((department: any) => (
-                        <Select.Option
-                          key={department.id}
-                          value={department.id}
-                        >
-                          {department.name}
-                        </Select.Option>
-                      ))}
-                    </Select>
                   </Form.Item>
                 </div>
               </div>

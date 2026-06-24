@@ -43,6 +43,7 @@ const ManageEmployees: React.FC<any> = () => {
     setSearchParams,
     setIsMobileFilterVisible,
     isMobileFilterVisible,
+    setIsEmployeeModalFromCandidateMove,
   } = useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { mutate: downloadAllFilterData } = useDownloadEmployeeDataByFilter();
@@ -52,6 +53,7 @@ const ManageEmployees: React.FC<any> = () => {
   const { data: EmployeeStatus } = useGetEmployeeStatus();
   const { isMobile } = useIsMobile();
   const showDrawer = () => {
+    setIsEmployeeModalFromCandidateMove(false);
     setOpen(true);
   };
   const onClose = () => {
@@ -425,17 +427,14 @@ const ManageEmployees: React.FC<any> = () => {
           </div>
         </div>
       </div>
-      <div
-        className="border border-[#D9D9D9] rounded-lg "
-        data-cy="manage-employees-table-section"
-      >
+      <div className="rounded-lg" data-cy="manage-employees-table-section">
         <div
           className="w-full h-auto"
           id="manage-employees-content"
           data-cy="manage-employees-content"
         >
           <div
-            className="flex justify-between gap-4 mb-2 px-3 pt-3"
+            className="flex justify-between gap-4 mb-2 pt-3"
             id="manage-employees-filter-row"
             data-cy="manage-employees-filter-row"
           >
@@ -457,7 +456,7 @@ const ManageEmployees: React.FC<any> = () => {
             />
 
             <div
-              className="flex items-center gap-2 flex-wrap bg-blue-600"
+              className="flex items-center gap-2 flex-wrap"
               id="manage-employees-active-filters"
               data-cy="manage-employees-active-filters"
             >

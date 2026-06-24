@@ -6,7 +6,7 @@ import {
   QuestionCircleOutlined,
   CloseOutlined,
 } from '@ant-design/icons';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGetAllPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import {
   useAssignPlanningPeriodToUsers,
@@ -34,12 +34,20 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
 
   const { Option } = Select;
   const [form] = Form.useForm();
+  const [assigneeSearchValue, setAssigneeSearchValue] = useState('');
+  const [planSearchValue, setPlanSearchValue] = useState('');
+  const [assigneeDropdownOpen, setAssigneeDropdownOpen] = useState(false);
+  const [planDropdownOpen, setPlanDropdownOpen] = useState(false);
 
   const userIds = Form.useWatch('userIds', form);
   const planningPeriods = Form.useWatch('planningPeriods', form);
 
   const handleModalClose = () => {
     form.resetFields();
+    setAssigneeSearchValue('');
+    setPlanSearchValue('');
+    setAssigneeDropdownOpen(false);
+    setPlanDropdownOpen(false);
     onClose();
   };
 
@@ -167,27 +175,50 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
           className="mb-2"
         >
           <div
-            className="custom-centered-select-wrapper relative"
+            className="okr-planning-assignation-select-wrapper relative"
             data-cy="okr-planning-assignation-assignee-select-wrapper"
           >
             <Select
               mode="multiple"
+              showSearch
+              autoClearSearchValue={false}
               placeholder=""
-              className="w-full h-11 custom-modal-select always-show-placeholder"
+              className="w-full h-11 okr-planning-assignation-assignee-select"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
-              value={userIds} // Correctly pass selected IDs to show selection in dropdown
+              tagRender={() => (
+                <span
+                  className="hidden"
+                  data-cy="okr-planning-assignation-assignee-hidden-tag"
+                />
+              )}
+              searchValue={assigneeSearchValue}
+              onSearch={setAssigneeSearchValue}
+              onDropdownVisibleChange={setAssigneeDropdownOpen}
+              value={userIds}
               onSelect={(id: string) => {
                 const currentIds = form.getFieldValue('userIds') || [];
                 if (!currentIds.includes(id)) {
                   form.setFieldsValue({ userIds: [...currentIds, id] });
                 }
+                setAssigneeSearchValue('');
               }}
               onDeselect={(id: string) => {
                 const currentIds = form.getFieldValue('userIds') || [];
                 form.setFieldsValue({
                   userIds: currentIds.filter((uid: string) => uid !== id),
                 });
+              }}
+              filterOption={(input, option: any) => {
+                const search = input.toLowerCase();
+                const user = allUsers?.items?.find(
+                  (u: any) => u.id === option?.value,
+                );
+                if (!user) return false;
+                const fullName =
+                  `${user.firstName} ${user.lastName}`.toLowerCase();
+                const email = (user.email ?? '').toLowerCase();
+                return fullName.includes(search) || email.includes(search);
               }}
               optionLabelProp="label"
               id="okr-planning-assignation-assignee-select"
@@ -234,46 +265,72 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                 </Option>
               ))}
             </Select>
-            {/* Always visible placeholder overlay */}
-            <span
-              className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-              style={{ lineHeight: '44px' }}
-              data-cy="okr-planning-assignation-assignee-placeholder"
-            >
-              Select Employee
-            </span>
+            {!assigneeSearchValue && !assigneeDropdownOpen ? (
+              <span
+                className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-[1]"
+                style={{ lineHeight: '44px' }}
+                data-cy="okr-planning-assignation-assignee-placeholder"
+              >
+                Select Employee
+              </span>
+            ) : null}
             <style
               jsx
               global
               data-cy="okr-planning-assignation-drawer-styles"
             >{`
-              .custom-centered-select-wrapper .ant-select-selector {
+              .okr-planning-assignation-select-wrapper .ant-select-selector {
                 display: flex !important;
                 align-items: center !important;
                 height: 44px !important;
                 padding-top: 0 !important;
                 padding-bottom: 0 !important;
-                position: relative !important;
               }
-              .custom-centered-select-wrapper
-                .always-show-placeholder
-                .ant-select-selection-placeholder {
+              .okr-planning-assignation-assignee-select
+                .ant-select-selection-overflow-item:not(
+                  .ant-select-selection-overflow-item-suffix
+                ) {
                 display: none !important;
               }
-              .custom-centered-select-wrapper
-                .always-show-placeholder
-                .ant-select-selection-item {
-                display: none !important;
-              }
-              .custom-centered-select-wrapper
-                .always-show-placeholder
+              .okr-planning-assignation-assignee-select
                 .ant-select-selection-search {
+                inset-inline-start: 12px !important;
+                inset-inline-end: 28px !important;
+                position: relative !important;
+                z-index: 2 !important;
+              }
+              .okr-planning-assignation-assignee-select
+                .ant-select-selection-search-input {
+                height: 42px !important;
+                opacity: 1 !important;
+              }
+              .okr-planning-assignation-assignee-select.ant-select-open
+                .ant-select-selection-search {
+                width: 100% !important;
+                max-width: 100% !important;
+              }
+              .okr-planning-assignation-plan-select
+                .ant-select-selection-overflow-item:not(
+                  .ant-select-selection-overflow-item-suffix
+                ) {
                 display: none !important;
               }
-              .custom-centered-select-wrapper
-                .always-show-placeholder
-                .ant-select-selection-overflow {
-                display: none !important;
+              .okr-planning-assignation-plan-select
+                .ant-select-selection-search {
+                inset-inline-start: 12px !important;
+                inset-inline-end: 28px !important;
+                position: relative !important;
+                z-index: 2 !important;
+              }
+              .okr-planning-assignation-plan-select
+                .ant-select-selection-search-input {
+                height: 42px !important;
+                opacity: 1 !important;
+              }
+              .okr-planning-assignation-plan-select.ant-select-open
+                .ant-select-selection-search {
+                width: 100% !important;
+                max-width: 100% !important;
               }
               .custom-assignee-dropdown .ant-select-item-option-selected {
                 background-color: #e6f7ff !important;
@@ -372,15 +429,26 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
           data-cy="okr-planning-assignation-plan-field"
         >
           <div
-            className="custom-centered-select-wrapper relative"
+            className="okr-planning-assignation-select-wrapper relative"
             data-cy="okr-planning-assignation-plan-select-wrapper"
           >
             <Select
               mode="multiple"
+              showSearch
+              autoClearSearchValue={false}
               placeholder=""
-              className="w-full h-11 custom-modal-select always-show-placeholder"
+              className="w-full h-11 okr-planning-assignation-plan-select"
               maxTagCount={0}
               maxTagPlaceholder={() => null}
+              tagRender={() => (
+                <span
+                  className="hidden"
+                  data-cy="okr-planning-assignation-plan-hidden-tag"
+                />
+              )}
+              searchValue={planSearchValue}
+              onSearch={setPlanSearchValue}
+              onDropdownVisibleChange={setPlanDropdownOpen}
               id="okr-planning-assignation-plan-select"
               data-cy="okr-planning-assignation-plan-select"
               dropdownClassName="custom-assignee-dropdown"
@@ -391,6 +459,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                 if (!current.includes(id)) {
                   form.setFieldsValue({ planningPeriods: [...current, id] });
                 }
+                setPlanSearchValue('');
               }}
               onDeselect={(id: string) => {
                 const current = form.getFieldValue('planningPeriods') || [];
@@ -398,6 +467,12 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                   planningPeriods: current.filter((pid: string) => pid !== id),
                 });
               }}
+              filterOption={(input, option: any) =>
+                (option?.children ?? '')
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
             >
               {allPlanningperiod?.items
                 ?.filter((p) => p.isActive)
@@ -411,13 +486,15 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                   </Option>
                 ))}
             </Select>
-            <span
-              className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-10"
-              style={{ lineHeight: '44px' }}
-              data-cy="okr-planning-assignation-plan-placeholder"
-            >
-              Select Plan
-            </span>
+            {!planSearchValue && !planDropdownOpen ? (
+              <span
+                className="absolute left-3 text-[#8c8c8c] font-normal pointer-events-none z-[1]"
+                style={{ lineHeight: '44px' }}
+                data-cy="okr-planning-assignation-plan-placeholder"
+              >
+                Select Plan
+              </span>
+            ) : null}
           </div>
         </Form.Item>
 

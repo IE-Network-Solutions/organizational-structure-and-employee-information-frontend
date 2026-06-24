@@ -28,6 +28,7 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
     '/authentication/reset-password',
     '/authentication/2fa',
     '/authentication/new-password',
+    '/verify-email-change',
     '/onboarding',
     '/signup',
     '/not-found',

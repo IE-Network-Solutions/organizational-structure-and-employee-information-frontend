@@ -137,7 +137,6 @@ export const OkrPageLoadingSkeleton: React.FC<OkrPageLoadingSkeletonProps> = ({
           data-cy="okr-page-skel-objective-cards"
           count={objectiveCount}
           showAssignee={false}
-          expanded={true}
         />
       </div>
     </div>

@@ -1,9 +1,10 @@
+'use client';
+
+import { Modal } from 'antd';
 import { NotificationType } from '@/store/server/features/notification/interface';
-import { useUpdateNotificationStatus } from '@/store/server/features/notification/mutation';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useNotificationDetailStore } from '@/store/uistate/features/notification';
-import { Modal } from 'antd';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -16,19 +17,19 @@ interface NotificationDetailProps {
 }
 
 export const NotificationDetailVisible = ({ id }: NotificationDetailProps) => {
-  const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
   const userId = useAuthenticationStore.getState().userId;
-
   const { data } = useGetNotifications(userId ?? '');
-  const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
-  const newData = list.filter((item: NotificationType) => item.id === id);
   const { isNotificationDetailVisible, setIsNotificationDetailVisible } =
     useNotificationDetailStore();
+
+  const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
+  const notification = list.find((item: NotificationType) => item.id === id);
+  const detailSlug = toSlug(notification?.id ?? id);
+
   const handleClose = () => {
     setIsNotificationDetailVisible(false);
-    updateNotificationStatus(newData?.[0]?.id);
   };
-  const detailSlug = toSlug(newData?.[0]?.id ?? id);
+
   return (
     <Modal
       title="Notification Details"
@@ -40,18 +41,18 @@ export const NotificationDetailVisible = ({ id }: NotificationDetailProps) => {
       data-cy={`notification-detail-modal-${detailSlug}`}
     >
       <h2
-        className="text-xl font-bold text-gray-800 mb-4"
+        className="mb-4 text-xl font-bold text-gray-800"
         id={`notification-detail-title-${detailSlug}`}
         data-cy={`notification-detail-title-${detailSlug}`}
       >
-        Title: {newData?.[0]?.title}
+        {notification?.title ?? 'Notification'}
       </h2>
       <p
-        className="text-gray-600 mb-6 "
+        className="mb-6 text-gray-600"
         id={`notification-detail-body-${detailSlug}`}
         data-cy={`notification-detail-body-${detailSlug}`}
       >
-        Body: {newData?.[0]?.body}
+        {notification?.body ?? 'No details available.'}
       </p>
       <div
         className="flex justify-end"
@@ -59,8 +60,9 @@ export const NotificationDetailVisible = ({ id }: NotificationDetailProps) => {
         data-cy={`notification-detail-action-${detailSlug}`}
       >
         <button
-          className="px-4 py-2 rounded-lg border-[1px] border-black"
-          onClick={() => handleClose()}
+          type="button"
+          className="rounded-lg border border-black px-4 py-2"
+          onClick={handleClose}
           id={`notification-detail-close-btn-${detailSlug}`}
           data-cy={`notification-detail-close-btn-${detailSlug}`}
         >

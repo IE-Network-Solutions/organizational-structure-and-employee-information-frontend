@@ -16,7 +16,11 @@ import dayjs from 'dayjs';
 import { useGetIntern } from '@/store/server/features/recruitment/intern/query';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetDepartmentByID } from '@/store/server/features/recruitment/job/queries';
-import { CloseOutlined, LoadingOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  LoadingOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import { useInternStore } from '@/store/uistate/features/recruitment/talent-resource/intern';
 import { useDeleteIntern } from '@/store/server/features/recruitment/intern/mutation';
 import CustomPagination from '@/components/customPagination';
@@ -27,7 +31,7 @@ import { useEmployeeDepartments } from '@/store/server/features/employees/employ
 import { useRouter } from 'next/navigation';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useState, useEffect } from 'react';
 import { DATE_FORMAT } from '@/utils/constants';
 
@@ -623,18 +627,23 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         data-cy="talent-acquisition-intern-table-filters"
         className="flex justify-between items-center py-4"
       >
-        <div
-          data-cy="talent-acquisition-intern-table-input-search-container"
-          className="w-1/2"
-        >
+        <div data-cy="talent-acquisition-intern-table-input-search-container">
           <Input
             id={`inputInternNames`}
             data-cy="talent-acquisition-intern-table-input-search"
             placeholder="Search intern"
             value={searchParams.fullName}
             onChange={(e) => handleSearchCandidate(e.target.value, 'fullName')}
-            className="w-full h-10 rounded-md"
+            className="w-full h-8 max-w-[300px]"
             allowClear
+            suffix={
+              <div
+                data-cy="talent-acquisition-talent-roaster-table-input-search-suffix-icon-div"
+                className="text-gray-400 border-l p-2"
+              >
+                <SearchOutlined />
+              </div>
+            }
           />
         </div>
         <Dropdown
@@ -645,7 +654,9 @@ const InternTable = ({ onEdit }: InternTableProps) => {
         >
           <Button
             className="border border-[#d9d9d9] text-gray-600 text-sm"
-            icon={<FilterAltIcon fontSize="small" className="text-gray-600" />}
+            icon={
+              <FilterAltOutlinedIcon className="text-[#374151] text-base" />
+            }
           >
             {!isMobile && 'Filter'}
           </Button>

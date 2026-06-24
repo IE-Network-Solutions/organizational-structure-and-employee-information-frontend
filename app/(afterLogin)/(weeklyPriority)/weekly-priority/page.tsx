@@ -29,16 +29,10 @@ function Page(): JSX.Element {
   return (
     <ConfigProvider
       theme={{
-        token: {
-          colorPrimary: '#254ec2',
-        },
         components: {
           Tabs: {
             titleFontSize: 14,
             horizontalItemPadding: '12px 16px',
-            itemHoverColor: '#254ec2',
-            itemSelectedColor: '#254ec2',
-            inkBarColor: '#254ec2',
           },
         },
       }}

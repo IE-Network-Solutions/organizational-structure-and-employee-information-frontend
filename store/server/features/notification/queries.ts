@@ -2,7 +2,25 @@ import { NOTIFICATION_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
-import type { PushSubscriptionStatusResponse } from './interface';
+import type {
+  PushSubscriptionStatusResponse,
+  NotificationType,
+} from './interface';
+
+function parseThemeFromRoute(routeStr: string): string | null {
+  const s = (routeStr ?? '').trim();
+  if (!s) return null;
+  const [, searchPart] = s.includes('?') ? s.split('?') : ['', ''];
+  const params = new URLSearchParams(searchPart || '');
+  return params.get('theme') || null;
+}
+
+function normalizeNotificationItem(item: any): NotificationType {
+  const raw = item?.isRead ?? item?.read ?? item?.is_read;
+  const isRead = raw === true || raw === 'true';
+  const theme = item?.theme ?? parseThemeFromRoute(item?.route ?? '');
+  return { ...item, isRead, theme: theme || undefined };
+}
 
 export interface GetNotificationsOptions {
   page?: number;
@@ -13,7 +31,7 @@ const getNotifications = async (
   userId: string,
   options: GetNotificationsOptions = {},
 ) => {
-  const { page = 1, limit = 50 } = options;
+  const { page = 1, limit = 100 } = options;
   const headers = await requestHeader();
   const res = await crudRequest({
     url: `${NOTIFICATION_URL}/notification`,
@@ -21,10 +39,13 @@ const getNotifications = async (
     params: { userId, page, limit },
     headers,
   });
-  if (Array.isArray(res)) return { data: res, total: res.length };
+  if (Array.isArray(res)) {
+    const normalized = res.map((item: any) => normalizeNotificationItem(item));
+    return { data: normalized, total: normalized.length };
+  }
   // Backend (nestjs-typeorm-paginate) returns { items, meta }
   const list = (res as any)?.items ?? (res as any)?.data;
-  const arr = Array.isArray(list) ? list : [];
+  const arr = Array.isArray(list) ? list.map(normalizeNotificationItem) : [];
   const total =
     (res as any)?.meta?.itemCount ?? (res as any)?.total ?? arr.length;
   return { data: arr, total };

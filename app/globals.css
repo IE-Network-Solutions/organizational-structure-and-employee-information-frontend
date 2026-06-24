@@ -316,6 +316,25 @@
   color: #1890ff !important;
 }
 
+.radius-resize-handle-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.radius-resize-handle {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3636f0;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  cursor: grab;
+}
+
+.radius-resize-handle:active {
+  cursor: grabbing;
+}
+
 /* Hide scrollbar while maintaining scroll functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -509,6 +528,133 @@ h6 {
 
 .ant-upload {
   width: 100%;
+}
+
+/* Admin dashboard + subscription UI: match design (Calibri is a system font on Windows). */
+.admin-console-scope,
+.manage-subscription-modal.ant-modal,
+.invoice-modal.ant-modal {
+  font-family:
+    Calibri, 'Calibri Light', Candara, 'Segoe UI', system-ui, sans-serif;
+}
+
+.manage-subscription-modal.ant-modal .ant-modal-content,
+.invoice-modal.ant-modal .ant-modal-content {
+  border-radius: 12px !important;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18) !important;
+  overflow: hidden;
+}
+
+/* Invoice modal: fixed design size; body scrolls when content is tall */
+.invoice-modal.ant-modal .ant-modal-content {
+  width: 684px !important;
+  max-width: min(684px, calc(100vw - 24px)) !important;
+  height: 833px !important;
+  max-height: min(833px, calc(100vh - 24px)) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+}
+
+.invoice-modal.ant-modal .ant-modal-header {
+  flex-shrink: 0;
+}
+
+.invoice-modal.ant-modal .ant-modal-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.manage-subscription-modal.ant-modal .ant-modal-header,
+.invoice-modal.ant-modal .ant-modal-header {
+  padding: 14px 20px 0 !important;
+  border-bottom: none !important;
+}
+
+.manage-subscription-modal.ant-modal .ant-modal-title,
+.invoice-modal.ant-modal .ant-modal-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+}
+
+.manage-subscription-modal.ant-modal .ant-modal-close,
+.invoice-modal.ant-modal .ant-modal-close {
+  top: 14px !important;
+  right: 16px !important;
+  color: rgba(0, 0, 0, 0.65) !important;
+}
+
+.manage-subscription-modal.ant-modal .ant-modal-close:hover,
+.invoice-modal.ant-modal .ant-modal-close:hover {
+  color: rgba(0, 0, 0, 0.88) !important;
+}
+
+.manage-subscription-modal.ant-modal .ant-input-number,
+.manage-subscription-modal.ant-modal .ant-input-affix-wrapper,
+.manage-subscription-modal.ant-modal .ant-input {
+  border-radius: 8px !important;
+}
+
+.manage-subscription-modal.ant-modal .ant-input-number-input,
+.manage-subscription-modal.ant-modal .ant-input {
+  font-size: 13px !important;
+}
+
+.manage-subscription-modal.ant-modal .manage-subscription-total-amount-wrap {
+  border-radius: 8px !important;
+  box-sizing: border-box;
+}
+
+.manage-subscription-modal.ant-modal .ant-btn-primary.ant-btn-loading,
+.manage-subscription-modal.ant-modal .ant-btn-primary.ant-btn-loading:hover,
+.manage-subscription-modal.ant-modal .ant-btn-primary.ant-btn-loading:focus {
+  background: #1677ff !important;
+  border-color: #1677ff !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+@media (max-width: 767px) {
+  .manage-subscription-modal.ant-modal {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    margin: 8px auto !important;
+  }
+
+  .manage-subscription-modal.ant-modal .ant-modal-content {
+    border-radius: 10px !important;
+  }
+
+  .manage-subscription-modal.ant-modal .ant-modal-header {
+    padding: 10px 12px 0 !important;
+  }
+
+  .manage-subscription-modal.ant-modal .ant-modal-body {
+    padding: 10px 12px 12px !important;
+  }
+
+  .manage-subscription-modal.ant-modal .ant-modal-title {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+  }
+
+  .invoice-modal.ant-modal .ant-modal-content {
+    width: calc(100vw - 28px) !important;
+    max-width: calc(100vw - 28px) !important;
+    height: auto !important;
+    max-height: calc(100vh - 40px) !important;
+    border-radius: 10px !important;
+  }
+
+  .invoice-modal.ant-modal .ant-modal-header {
+    padding: 14px 16px 0 !important;
+  }
 }
 
 .ql-container.ql-snow {
@@ -810,6 +956,27 @@ h6 {
 
 .install-button-floating:active {
   transform: translateY(0) !important;
+}
+
+/* Copilot: Selamnew hand "something is cooking" animation */
+@keyframes copilotHandCooking {
+  0%,
+  100% {
+    transform: rotate(-6deg) scale(1);
+  }
+  25% {
+    transform: rotate(6deg) scale(1.05);
+  }
+  50% {
+    transform: rotate(-4deg) scale(1.02);
+  }
+  75% {
+    transform: rotate(5deg) scale(1.05);
+  }
+}
+
+.copilot-hand-cooking {
+  animation: copilotHandCooking 1.4s ease-in-out infinite;
 }
 
 /* Floating button animation */
@@ -1829,9 +1996,8 @@ h6 {
 }
 
 .recruitment-settings-card {
-  border: 1px solid var(--recruitment-settings-border);
   border-radius: var(--recruitment-settings-radius);
-  background: #ffffff;
+  background: #F9FAFB;
 }
 
 .recruitment-settings-card-title {
@@ -1868,15 +2034,15 @@ h6 {
 }
 
 .recruitment-settings-more-btn {
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
+  border: none;
+  background: transparent;
 }
 .recruitment-settings-more-btn:hover {
-  background: rgb(243 244 246);
+  background: transparent;
 }
 
 .recruitment-settings-dragging-card {
-  transform: scale(0.98) rotate(8deg);
+  transform: scale(0.98);
   transform-origin: center center;
   opacity: 0.7;
   box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.12);
@@ -1884,6 +2050,16 @@ h6 {
     transform 0.2s ease-out,
     opacity 0.2s ease-out,
     box-shadow 0.2s ease-out;
+}
+
+@keyframes custom-fields-drop-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.35); }
+  50%       { box-shadow: 0 0 0 7px rgba(30, 64, 175, 0); }
+}
+.custom-fields-drop-active {
+  border-color: #1E40AF !important;
+  border-style: solid !important;
+  animation: custom-fields-drop-pulse 1s ease-in-out infinite;
 }
 
 .recruitment-settings-status-drag-placeholder {
@@ -2256,4 +2432,108 @@ h6 {
 }
 .planning-target-pick-menu .ant-dropdown-menu-item-group-list {
   margin: 0;
+}
+
+/* Copilot: typing / generating indicator (three dots) */
+@keyframes copilot-typing-bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  40% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+
+.copilot-typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 22px;
+  padding: 2px 0;
+}
+
+.copilot-typing-dots__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: #9ca3af;
+  animation: copilot-typing-bounce 1.2s ease-in-out infinite;
+}
+
+.copilot-typing-dots__dot:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.copilot-typing-dots__dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.copilot-typing-dots__dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes copilot-typing-bounce-dark {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.copilot-typing-dots--dark .copilot-typing-dots__dot {
+  width: 5px;
+  height: 5px;
+  background-color: rgba(0, 0, 0, 0.7);
+  animation: copilot-typing-bounce-dark 1.2s ease-in-out infinite;
+}
+
+/* Copilot: compact generating dots used inside the 31×32 box */
+.copilot-generating-dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 0;
+  line-height: 0;
+}
+
+.copilot-generating-dots__dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.7);
+  animation: copilot-typing-bounce-dark 1.2s ease-in-out infinite;
+}
+
+.copilot-generating-dots__dot:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.copilot-generating-dots__dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.copilot-generating-dots__dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Employee attendance: image hover card popover */
+.attendance-image-hover-popover .ant-popover-inner {
+  padding: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+}
+
+.attendance-image-hover-popover .ant-popover-inner-content {
+  padding: 0;
 }

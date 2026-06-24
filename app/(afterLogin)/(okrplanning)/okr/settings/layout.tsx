@@ -9,6 +9,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { usePlanningAssignationStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer';
 import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assignTargetDrawerStore';
 import { useOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule';
+import { useAverageOkrRuleAssignmentStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/average-okr-rule-assignment';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import Link from 'next/link';
@@ -25,10 +26,15 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
   const { setOpen: setPlanningOpen } = usePlanningAssignationStore();
   const { openDrawer: setCriteriaOpen } = useDrawerStore();
   const { setOpen: setOkrRuleOpen } = useOkrRuleStore();
+  const {
+    setOpen: setAverageOkrRuleAssignmentOpen,
+    setAssignment: setAverageOkrRuleAssignment,
+  } = useAverageOkrRuleAssignmentStore();
   const { showNotReportedList } = useOKRSettingStore();
 
   const isPlanningAssignation = activeTab === 'planning-assignation';
   const isCriteriaManagement = activeTab === 'criteria-management';
+  const isAverageOkrRuleAssignment = activeTab === 'okr-rule-assignment';
 
   const handleAddAssignee = () => {
     setPlanningOpen(true);
@@ -40,6 +46,11 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
 
   const handleAddRule = () => {
     setOkrRuleOpen(true);
+  };
+
+  const handleAddAssignment = () => {
+    setAverageOkrRuleAssignment(null);
+    setAverageOkrRuleAssignmentOpen(true);
   };
 
   const tabs = [
@@ -68,6 +79,11 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       label: 'OKR Rules',
       path: '/okr/settings/define-okr-rule',
     },
+    {
+      key: 'okr-rule-assignment',
+      label: 'OKR rule assignment',
+      path: '/okr/settings/assign-average-okr-rule',
+    },
   ];
 
   useEffect(() => {
@@ -81,6 +97,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       'criteria-management': 'criteria-management',
       'target-assignment': 'target-assignment',
       'define-okr-rule': 'okr-rules',
+      'assign-average-okr-rule': 'okr-rule-assignment',
     };
 
     if (tabMap[lastKey]) {
@@ -274,6 +291,23 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                       </span>
                     </Button>
                   </AccessGuard>
+                )}
+                {isAverageOkrRuleAssignment && (
+                  <Button
+                    icon={<FaPlus />}
+                    onClick={handleAddAssignment}
+                    className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-[40px] px-3 sm:px-6 text-white border-none mb-3 rounded-lg flex items-center justify-center font-medium"
+                    type="primary"
+                    id="okr-settings-add-average-okr-rule-assignment-button"
+                    data-cy="okr-settings-add-average-okr-rule-assignment-button"
+                  >
+                    <span
+                      className="hidden sm:inline ml-2"
+                      data-cy="okr-settings-add-average-okr-rule-assignment-button-text"
+                    >
+                      Add Assignment
+                    </span>
+                  </Button>
                 )}
               </div>
             </div>

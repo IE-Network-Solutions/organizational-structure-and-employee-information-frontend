@@ -12,9 +12,9 @@ import { BreakTypeStatus, formatBreakTypeToStatus } from '@/helpers/formatTo';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import TakePicture from '@/components/common/takePicture';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
 
 type LabelRender = SelectProps['labelRender'];
 
@@ -34,6 +34,8 @@ const CheckOutSidebar = () => {
   } = useMyTimesheetStore();
   const { userId } = useAuthenticationStore();
   const { mutate: setCurrentAttendance, isSuccess } = useSetCurrentAttendance();
+  const { capturedAttendancePhotoUrl, setCapturedAttendancePhotoUrl } =
+    useRemoteAttendanceCameraStore();
 
   const [form] = Form.useForm();
 
@@ -92,10 +94,21 @@ const CheckOutSidebar = () => {
     if (isSuccess) {
       form.resetFields();
       setIsShowCheckOutSidebar(false);
+      setCapturedAttendancePhotoUrl(null);
     }
-  }, [isSuccess]);
+  }, [isSuccess, setCapturedAttendancePhotoUrl]);
 
   const onFinish = () => {
+    const photo = capturedAttendancePhotoUrl;
+    if (!photo) {
+      NotificationMessage.error({
+        message: 'Photo required',
+        description:
+          'Please capture your attendance photo before checking out.',
+      });
+      return;
+    }
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -106,7 +119,7 @@ const CheckOutSidebar = () => {
             userId: userId,
             isSignIn: false,
             breakTypeId: value.type,
-            file: value.photo,
+            file: photo,
           });
         },
         () => {
@@ -128,7 +141,10 @@ const CheckOutSidebar = () => {
     isShowCheckOutSidebar && (
       <CustomDrawerLayout
         open={isShowCheckOutSidebar}
-        onClose={() => setIsShowCheckOutSidebar(false)}
+        onClose={() => {
+          setIsShowCheckOutSidebar(false);
+          setCapturedAttendancePhotoUrl(null);
+        }}
         modalHeader={
           <CustomDrawerHeader
             className="px-3"
@@ -230,18 +246,6 @@ const CheckOutSidebar = () => {
                 </Select.Option>
               ))}
             </Select>
-          </Form.Item>
-          <Form.Item
-            id="time-attendance-check-out-sidebar-photo"
-            data-cy="time-attendance-check-out-sidebar-photo"
-            name="photo"
-          >
-            <TakePicture
-              onChange={(imgSrc) => {
-                form.setFieldValue('photo', imgSrc);
-              }}
-              data-cy="time-attendance-check-out-sidebar-take-picture"
-            />
           </Form.Item>
         </Form>
       </CustomDrawerLayout>

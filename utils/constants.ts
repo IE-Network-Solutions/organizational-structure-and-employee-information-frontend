@@ -1,5 +1,6 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
+/** Org & employee API. Override in `.env.local` for local backend (see `.env.local.example`). */
 export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
 export const OKR_URL = process.env.OKR_URL;
 export const PAYROLL_URL = process.env.PAYROLL_URL;
@@ -11,7 +12,6 @@ export const RECRUITMENT_URL = process.env.RECRUITMENT_URL;
 export const PUBLIC_DOMAIN = process.env.PUBLIC_DOMAIN;
 
 export const TENANT_BASE_URL = process.env.TENANT_BASE_URL;
-
 export const TENANT_MGMT_URL = `${TENANT_BASE_URL}/api/v1`;
 
 // Notification: NOTIFICATION_URL for REST and WebSocket (WS URL = origin). Push: NEXT_PUBLIC_VAPID_PUBLIC_KEY.
@@ -46,3 +46,11 @@ export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 export const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL;
 export const AI_REC_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL;
+
+/**
+ * Copilot (direct-to-Azure).
+ *
+ * Set `NEXT_PUBLIC_AZURE_APP_SERVICE` to the full Copilot endpoint URL, e.g.
+ * `https://<app>.azurewebsites.net/copilot`
+ */
+export const AZURE_APP_SERVICE = process.env.NEXT_PUBLIC_AZURE_APP_SERVICE;

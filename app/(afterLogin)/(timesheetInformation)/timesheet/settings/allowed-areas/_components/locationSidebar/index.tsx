@@ -12,7 +12,6 @@ import {
   Slider,
   message,
   InputNumber,
-  Tag,
 } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useSetAllowedArea } from '@/store/server/features/timesheet/allowedArea/mutation';
@@ -133,9 +132,11 @@ const LocationSidebar = () => {
   const controlClass = 'mt-2.5 h-[40px] w-full';
 
   const handleLocationChange = (lat: number, lng: number) => {
-    form.setFieldValue('latitude', lat);
-    form.setFieldValue('longitude', lng);
-    setFormValues((prev) => ({ ...prev, latitude: lat, longitude: lng }));
+    const latitude = Number(Number(lat).toFixed(6));
+    const longitude = Number(Number(lng).toFixed(6));
+    form.setFieldValue('latitude', latitude);
+    form.setFieldValue('longitude', longitude);
+    setFormValues((prev) => ({ ...prev, latitude, longitude }));
   };
 
   const handleRadiusChange = (radius: number) => {
@@ -280,9 +281,9 @@ const LocationSidebar = () => {
                     id="time-attendance-settings-allowed-areas-sidebar-info-banner-text-description"
                     className=" bg-[#e6f4ff] m-0 text-sm font-normal text-[#2748b3]"
                   >
-                    Click anywhere on the map to set your location. Adjust the
-                    radius slider to define the area coverage, or use the
-                    &quot;Use Current Location&quot; button for quick setup.
+                    Click on the map to set latitude and longitude. Drag the
+                    blue handle on the circle edge or use the +/− buttons on the
+                    map to change the radius. You can also type radius below.
                   </p>
                 </div>
 
@@ -329,65 +330,9 @@ const LocationSidebar = () => {
                       data-cy="time-attendance-settings-allowed-areas-sidebar-map-picker"
                     />
                   </div>
-                </div>
-
-                {/* Hidden form fields for map values */}
-                <Form.Item
-                  data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-form-item"
-                  name="latitude"
-                  hidden
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  data-cy="time-attendance-settings-allowed-areas-sidebar-longitude-form-item"
-                  name="longitude"
-                  hidden
-                >
-                  <Input />
-                </Form.Item>
-                <Form.Item
-                  data-cy="time-attendance-settings-allowed-areas-sidebar-distance-form-item"
-                  name="distance"
-                  hidden
-                >
-                  <Input />
-                </Form.Item>
-
-                {/* Radius display (mirrors EnhancedLocationPicker behaviour) */}
-                <div
-                  data-cy="time-attendance-settings-allowed-areas-sidebar-radius-container"
-                  id="time-attendance-settings-allowed-areas-sidebar-radius-container"
-                  className="mt-4"
-                >
-                  <div
-                    data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label-container"
-                    id="time-attendance-settings-allowed-areas-sidebar-radius-label-container"
-                    className="flex items-center justify-between mb-2"
-                  >
-                    <span
-                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label"
-                      id="time-attendance-settings-allowed-areas-sidebar-radius-label"
-                      className="text-sm font-normal text-gray-900"
-                    >
-                      Radius
-                    </span>
-                    <div
-                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input-container"
-                      id="time-attendance-settings-allowed-areas-sidebar-radius-input-container"
-                      className="flex items-center gap-2"
-                    >
-                      <Tag
-                        data-cy="components-common-map-enhancedlocationpicker-tsx-enhancedlocationpicker-span-196"
-                        className="bg-[#e6f4ff] text-[#237fff] border border-[#bcdfff] py-1 px-2 rounded-[4px]"
-                      >
-                        {formValues.distance} km
-                      </Tag>
-                    </div>
-                  </div>
                   <Slider
                     min={0.01}
-                    max={0.5}
+                    max={Math.max(0.5, formValues.distance)}
                     step={0.001}
                     value={formValues.distance}
                     onChange={(value) => {
@@ -406,15 +351,113 @@ const LocationSidebar = () => {
                     }}
                     id="time-attendance-settings-allowed-areas-sidebar-radius-slider"
                     data-cy="time-attendance-settings-allowed-areas-sidebar-radius-slider"
-                    className="mt-4"
+                    className="mt-4 px-1"
                   />
                 </div>
 
-                {/* Lat / Long display (editable, mirrors EnhancedLocationPicker behaviour) */}
+                {/* Hidden form fields for map values */}
+                <Form.Item
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-form-item"
+                  name="latitude"
+                  hidden
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-longitude-form-item"
+                  name="longitude"
+                  hidden
+                >
+                  <Input />
+                </Form.Item>
+                {/* Radius (km) — label/input spacing matches latitude / longitude */}
+                <div
+                  data-cy="time-attendance-settings-allowed-areas-sidebar-radius-container"
+                  id="time-attendance-settings-allowed-areas-sidebar-radius-container"
+                  className="mt-5 space-y-1"
+                >
+                  <span
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-radius-label"
+                    id="time-attendance-settings-allowed-areas-sidebar-radius-label"
+                    className="text-sm font-normal text-gray-900"
+                  >
+                    Radius (km)
+                    <span
+                      className="ml-1 text-error"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-required"
+                    >
+                      *
+                    </span>
+                  </span>
+                  <Form.Item
+                    data-cy="time-attendance-settings-allowed-areas-sidebar-radius-form-item"
+                    name="distance"
+                    rules={[
+                      { required: true, message: 'Required' },
+                      {
+                        type: 'number',
+                        min: 0.01,
+                        message: 'Enter a value of at least 0.01 km (10 m)',
+                      },
+                    ]}
+                    noStyle
+                  >
+                    <InputNumber
+                      min={0.01}
+                      step={0.001}
+                      precision={3}
+                      controls
+                      inputMode="decimal"
+                      className={controlClass}
+                      style={{ width: '100%' }}
+                      placeholder="e.g. 0.1"
+                      parser={(value) => {
+                        const parsed = value?.replace(/[^\d.]/g, '') ?? '';
+                        return parsed === ''
+                          ? ('' as unknown as number)
+                          : Number(parsed);
+                      }}
+                      formatter={(value) =>
+                        value === undefined || value === null
+                          ? ''
+                          : String(value).replace(/[^\d.]/g, '')
+                      }
+                      onKeyDown={(e) => {
+                        const allowedKeys = [
+                          'Backspace',
+                          'Delete',
+                          'Tab',
+                          'ArrowLeft',
+                          'ArrowRight',
+                          'Home',
+                          'End',
+                        ];
+                        if (
+                          allowedKeys.includes(e.key) ||
+                          (e.ctrlKey && ['a', 'c', 'v', 'x'].includes(e.key))
+                        ) {
+                          return;
+                        }
+                        if (!/^[0-9.]$/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      onChange={(value) => {
+                        if (value !== null && value !== undefined) {
+                          handleRadiusChange(Number(value));
+                        }
+                      }}
+                      id="time-attendance-settings-allowed-areas-sidebar-radius-input"
+                      data-cy="time-attendance-settings-allowed-areas-sidebar-radius-input"
+                    />
+                  </Form.Item>
+                </div>
+
+                {/* Lat / Long — directly below radius */}
                 <div
                   data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-longitude-container"
                   id="time-attendance-settings-allowed-areas-sidebar-latitude-longitude-container"
-                  className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2"
+                  className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2"
                 >
                   <div
                     data-cy="time-attendance-settings-allowed-areas-sidebar-latitude-container"

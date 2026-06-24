@@ -69,7 +69,7 @@ const LessonSectionInlineEdit: FC<LessonSectionInlineEditProps> = ({
   return (
     <div
       id={`tna-course-lesson-section-edit-${lesson.id}`}
-      className="mb-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      className="mb-3 rounded-xl bg-[#F9FAFB] p-4"
       data-cy={`tna-course-lesson-section-edit-${lesson.id}`}
     >
       <Form
@@ -88,7 +88,7 @@ const LessonSectionInlineEdit: FC<LessonSectionInlineEditProps> = ({
         />
       </Form>
       <div
-        className="mt-3 flex flex-col gap-2 border-t border-gray-100 pt-2.5 sm:flex-row sm:items-center sm:justify-between"
+        className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
         data-cy={`tna-course-lesson-section-edit-footer-${lesson.id}`}
       >
         <Button
@@ -106,7 +106,7 @@ const LessonSectionInlineEdit: FC<LessonSectionInlineEditProps> = ({
         >
           <Button
             size="middle"
-            className="w-full !border-[#D9D9D9] !font-normal !text-black/70 hover:!border-[#D9D9D9] hover:!text-black/70 sm:w-auto"
+            className="w-full !font-normal sm:w-auto"
             onClick={onCancel}
             disabled={isSaving}
             data-cy={`tna-course-lesson-section-edit-cancel-${lesson.id}`}

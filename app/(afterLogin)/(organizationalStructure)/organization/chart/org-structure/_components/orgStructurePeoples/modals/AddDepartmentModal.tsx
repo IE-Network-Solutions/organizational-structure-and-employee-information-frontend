@@ -107,8 +107,14 @@ function ColorPalettePicker({
   );
 }
 
+function getValidColourOrDefault(colour?: string): string {
+  const hex = colour?.trim?.() ?? '';
+  return /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(hex) ? hex : '#4B0082';
+}
+
 export function AddDepartmentModal() {
   const [form] = Form.useForm();
+  const selectedColour = Form.useWatch('colour', form);
   const { data: branches } = useGetBranches();
   const createMutation = useCreateDepartment();
   const updateMutation = useUpdateOrgChart();
@@ -155,12 +161,13 @@ export function AddDepartmentModal() {
       name,
       description,
       branchId,
+      departmentColor: fetchedDepartment.departmentColor ?? '',
     });
     form.setFieldsValue({
       name,
       description,
       branchId: branchId || undefined,
-      colour: '#4B0082',
+      colour: getValidColourOrDefault(fetchedDepartment.departmentColor),
     });
   }, [
     needsFetch,
@@ -176,7 +183,7 @@ export function AddDepartmentModal() {
       name: departmentToEdit.name,
       description: departmentToEdit.description ?? '',
       branchId: departmentToEdit.branchId ?? undefined,
-      colour: '#4B0082',
+      colour: getValidColourOrDefault(departmentToEdit.departmentColor),
     });
   }, [
     open,
@@ -185,6 +192,7 @@ export function AddDepartmentModal() {
     departmentToEdit?.name,
     departmentToEdit?.description,
     departmentToEdit?.branchId,
+    departmentToEdit?.departmentColor,
     form,
   ]);
 
@@ -218,6 +226,7 @@ export function AddDepartmentModal() {
           updateMutation.mutate(
             {
               id: departmentToEdit.id,
+              suppressDefaultSuccessToast: true,
               orgChart: {
                 id: departmentToEdit.id,
                 name,
@@ -301,7 +310,7 @@ export function AddDepartmentModal() {
           name: departmentToEdit.name,
           description: departmentToEdit.description ?? '',
           branchId: departmentToEdit.branchId ?? undefined,
-          colour: '#4B0082',
+          colour: getValidColourOrDefault(departmentToEdit.departmentColor),
         }
       : { colour: '#4B0082' };
 
@@ -394,7 +403,10 @@ export function AddDepartmentModal() {
                 className="inline-flex items-center justify-center border border-gray-200 rounded-md px-3 py-1.5 box-border transition-colors duration-200 hover:border-[#4096FF] focus-within:border-[#4096FF] focus-within:shadow-[0_0_0_2px_rgba(64,150,255,0.2)]"
                 data-cy="org-structure-department-colour-control"
               >
-                <ColorPalettePicker />
+                <ColorPalettePicker
+                  value={selectedColour}
+                  onChange={(hex) => form.setFieldsValue({ colour: hex })}
+                />
               </div>
             </Form.Item>
           </div>

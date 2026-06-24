@@ -11,11 +11,11 @@ import React, {
 } from 'react';
 import {
   Button,
-  Checkbox,
   Input,
   InputNumber,
   Modal,
   Select,
+  Switch,
   Tooltip,
   message,
 } from 'antd';
@@ -41,7 +41,10 @@ import {
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { NAME } from '@/types/enumTypes';
-import type { PlanningTarget } from './buildPlanningTargets';
+import {
+  isPlanningTargetBlocked,
+  type PlanningTarget,
+} from './buildPlanningTargets';
 
 type DraftLine = {
   id: string;
@@ -183,7 +186,32 @@ function canUseAchieveMK(
   return false;
 }
 
-function outcomeCheckboxLabel(milestoneId: string | null | undefined): string {
+/** Drawer parity: numeric target only for quantitative KR metrics (daily slots keep target). */
+function shouldShowPlanningTarget(
+  metricTypeName: string | null | undefined,
+  isDailySlot: boolean,
+): boolean {
+  if (isDailySlot) return true;
+  if (metricTypeName === NAME.ACHIEVE) return false;
+  if (metricTypeName === NAME.MILESTONE) return false;
+  return true;
+}
+
+function shouldShowTargetOnDraftLine(line: DraftLine): boolean {
+  if (line.achieveMK) return false;
+  return shouldShowPlanningTarget(line.metricTypeName, line.isDailySlot);
+}
+
+function resolvePlanningTargetValue(
+  raw: number | null | undefined,
+  metricTypeName: string | null | undefined,
+  isDailySlot: boolean,
+): number {
+  if (!shouldShowPlanningTarget(metricTypeName, isDailySlot)) return 0;
+  return Number(raw) || 0;
+}
+
+function outcomeSwitchLabel(milestoneId: string | null | undefined): string {
   return milestoneId ? 'Plan milestone' : 'Plan key result';
 }
 
@@ -265,7 +293,7 @@ function OutcomeTaskListIcon({ line }: { line: DraftLine }) {
   );
 }
 
-function OutcomeTaskCheckboxRow({
+function OutcomeTaskSwitchRow({
   milestoneId,
   checked,
   onToggle,
@@ -274,29 +302,94 @@ function OutcomeTaskCheckboxRow({
   checked: boolean;
   onToggle: (next: boolean) => void;
 }) {
+  const labelId = `outcome-plan-switch-label-${milestoneId ?? 'kr'}`;
   return (
     <div
       data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-256"
-      className="flex items-center gap-1.5"
+      className="flex items-center justify-between gap-3 rounded-lg border border-[#F1F2F6] bg-[#FAFBFC]/80 px-3 py-2.5"
     >
-      <Checkbox checked={checked} onChange={(e) => onToggle(e.target.checked)}>
+      <div
+        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-257"
+        className="flex min-w-0 flex-1 items-center gap-1.5"
+      >
         <span
+          id={labelId}
           data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-258"
           className="text-[13px] leading-snug text-[#575B7A]"
         >
-          {outcomeCheckboxLabel(milestoneId)}
+          {outcomeSwitchLabel(milestoneId)}
         </span>
-      </Checkbox>
-      <Tooltip title={outcomeAsTaskTooltip(milestoneId)} placement="topLeft">
-        <span
-          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-290"
-          className="inline-flex cursor-help text-[#94A3B8] hover:text-[#64748B]"
-          role="img"
-          aria-label="About outcome tasks"
-        >
-          <InfoCircleOutlined className="text-[15px]" />
-        </span>
-      </Tooltip>
+        <Tooltip title={outcomeAsTaskTooltip(milestoneId)} placement="topLeft">
+          <span
+            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-290"
+            className="inline-flex cursor-help text-[#94A3B8] hover:text-[#64748B]"
+            role="img"
+            aria-label="About outcome tasks"
+          >
+            <InfoCircleOutlined className="text-[15px]" />
+          </span>
+        </Tooltip>
+      </div>
+      <Switch
+        checked={checked}
+        onChange={onToggle}
+        aria-labelledby={labelId}
+        data-cy="plan-outcome-switch"
+      />
+    </div>
+  );
+}
+
+function PlanningMetricsRow({
+  metricTypeName,
+  isDailySlot,
+  priority,
+  setPriority,
+  weight,
+  setWeight,
+  targetValue,
+  setTargetValue,
+}: {
+  metricTypeName: string | null | undefined;
+  isDailySlot: boolean;
+  priority: string | undefined;
+  setPriority: (v: string) => void;
+  weight: number | null;
+  setWeight: (v: number | null) => void;
+  targetValue: number | null;
+  setTargetValue: (v: number | null) => void;
+}) {
+  const showTarget = shouldShowPlanningTarget(metricTypeName, isDailySlot);
+  return (
+    <div
+      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1006"
+      className={`grid min-w-0 flex-1 gap-2 sm:gap-3 [&>*]:min-w-0 ${
+        showTarget ? 'grid-cols-3' : 'grid-cols-2'
+      }`}
+    >
+      <Select
+        placeholder="Priority"
+        className={`w-full min-w-0 rounded-lg ${controlH40} [&_.ant-select-selector]:!rounded-lg`}
+        value={priority}
+        onChange={setPriority}
+        options={priorityOptions}
+      />
+      <InputNumber
+        placeholder="Weight %"
+        min={1}
+        max={100}
+        className={`w-full min-w-0 rounded-lg ${inputNumH40} [&_.ant-input-number]:!rounded-lg`}
+        value={weight ?? undefined}
+        onChange={(v) => setWeight(v ?? null)}
+      />
+      {showTarget ? (
+        <InputNumber
+          placeholder="Target"
+          className={`w-full min-w-0 rounded-lg ${inputNumH40} [&_.ant-input-number]:!rounded-lg`}
+          value={targetValue ?? undefined}
+          onChange={(v) => setTargetValue(v ?? null)}
+        />
+      ) : null}
     </div>
   );
 }
@@ -375,6 +468,8 @@ interface InlinePlanningWorkspaceProps {
   /** Active period name from toolbar (e.g. Weekly, Monthly) */
   planningPeriodLabel: string;
   activeTarget: PlanningTarget | null;
+  /** User KR API — hides add (+) UI when target KR is achieved */
+  userKeyResultItems?: any[];
   /** Clear selected key result / slot (closes composer until + is used again) */
   onClearTarget: () => void;
   onExit: () => void;
@@ -391,6 +486,7 @@ const InlinePlanningWorkspace = forwardRef<
   {
     planningPeriodLabel,
     activeTarget,
+    userKeyResultItems = [],
     onClearTarget,
     onExit,
     hideHeaderCloseButton = false,
@@ -443,6 +539,17 @@ const InlinePlanningWorkspace = forwardRef<
     [draftLines],
   );
 
+  const activeTargetBlocked = useMemo(
+    () => isPlanningTargetBlocked(activeTarget, userKeyResultItems),
+    [activeTarget, userKeyResultItems],
+  );
+
+  useEffect(() => {
+    if (activeTarget && activeTargetBlocked) {
+      onClearTarget();
+    }
+  }, [activeTarget, activeTargetBlocked, onClearTarget]);
+
   useEffect(() => {
     editHydratedRef.current = null;
   }, [editPlanId]);
@@ -489,11 +596,25 @@ const InlinePlanningWorkspace = forwardRef<
     setPriority(DEFAULT_INLINE_PRIORITY);
     setWeight(DEFAULT_INLINE_WEIGHT);
     setPlanAsAchieve(false);
+    if (
+      activeTarget &&
+      !shouldShowPlanningTarget(
+        activeTarget.metricTypeName,
+        activeTarget.isDailySlot,
+      )
+    ) {
+      setTargetValue(0);
+      return;
+    }
     const hint = activeTarget?.targetValueHint;
     setTargetValue(
       hint != null && !Number.isNaN(Number(hint)) ? Number(hint) : null,
     );
-  }, [activeTarget?.targetValueHint]);
+  }, [
+    activeTarget?.targetValueHint,
+    activeTarget?.metricTypeName,
+    activeTarget?.isDailySlot,
+  ]);
 
   React.useEffect(() => {
     if (!activeTarget || editingDraftId) return;
@@ -501,10 +622,19 @@ const InlinePlanningWorkspace = forwardRef<
     setPlanAsAchieve(false);
     setTask('');
     setPriority(DEFAULT_INLINE_PRIORITY);
-    const hint = activeTarget.targetValueHint;
-    setTargetValue(
-      hint != null && !Number.isNaN(Number(hint)) ? Number(hint) : null,
-    );
+    if (
+      !shouldShowPlanningTarget(
+        activeTarget.metricTypeName,
+        activeTarget.isDailySlot,
+      )
+    ) {
+      setTargetValue(0);
+    } else {
+      const hint = activeTarget.targetValueHint;
+      setTargetValue(
+        hint != null && !Number.isNaN(Number(hint)) ? Number(hint) : null,
+      );
+    }
     if (activeTarget.isDailySlot) {
       setWeight(equalIntegerWeightsForCount(1)[0]);
     } else {
@@ -513,6 +643,7 @@ const InlinePlanningWorkspace = forwardRef<
   }, [
     activeTarget?.id,
     activeTarget?.targetValueHint,
+    activeTarget?.metricTypeName,
     activeTarget?.isDailySlot,
     editingDraftId,
   ]);
@@ -620,7 +751,11 @@ const InlinePlanningWorkspace = forwardRef<
                 task: t,
                 priority,
                 weight: w,
-                targetValue: Number(targetValue) || 0,
+                targetValue: resolvePlanningTargetValue(
+                  targetValue,
+                  existing.metricTypeName,
+                  existing.isDailySlot,
+                ),
                 achieveMK: nextAchieveMK,
               }
             : l,
@@ -693,7 +828,11 @@ const InlinePlanningWorkspace = forwardRef<
       task: t,
       priority,
       weight: initialWeight,
-      targetValue: Number(targetValue) || 0,
+      targetValue: resolvePlanningTargetValue(
+        targetValue,
+        activeTarget.metricTypeName,
+        activeTarget.isDailySlot,
+      ),
       keyResultId: activeTarget.keyResultId,
       milestoneId: activeTarget.milestoneId,
       parentTaskId: activeTarget.parentTaskId,
@@ -1035,6 +1174,7 @@ const InlinePlanningWorkspace = forwardRef<
           ) : null}
 
           {activeTarget &&
+          !activeTargetBlocked &&
           !composerCollapsed &&
           !editingDraftId &&
           !loadingEditPlan ? (
@@ -1093,13 +1233,14 @@ const InlinePlanningWorkspace = forwardRef<
                     className="!h-10 rounded-lg border-[#E5E7EB] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]"
                   />
                   {showAchieveOptionForAdd && activeTarget ? (
-                    <OutcomeTaskCheckboxRow
+                    <OutcomeTaskSwitchRow
                       milestoneId={activeTarget.milestoneId}
                       checked={planAsAchieve}
                       onToggle={(next) => {
                         setPlanAsAchieve(next);
                         if (next) {
                           setTask(outcomeTaskTitleFromTarget(activeTarget));
+                          setTargetValue(0);
                         } else {
                           setTask('');
                         }
@@ -1110,32 +1251,16 @@ const InlinePlanningWorkspace = forwardRef<
                     data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1005"
                     className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-5"
                   >
-                    <div
-                      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1006"
-                      className="grid min-w-0 flex-1 grid-cols-3 gap-2 sm:gap-3 [&>*]:min-w-0"
-                    >
-                      <Select
-                        placeholder="Priority"
-                        className={`w-full min-w-0 rounded-lg ${controlH40} [&_.ant-select-selector]:!rounded-lg`}
-                        value={priority}
-                        onChange={setPriority}
-                        options={priorityOptions}
-                      />
-                      <InputNumber
-                        placeholder="Weight %"
-                        min={1}
-                        max={100}
-                        className={`w-full min-w-0 rounded-lg ${inputNumH40} [&_.ant-input-number]:!rounded-lg`}
-                        value={weight ?? undefined}
-                        onChange={(v) => setWeight(v ?? null)}
-                      />
-                      <InputNumber
-                        placeholder="Target"
-                        className={`w-full min-w-0 rounded-lg ${inputNumH40} [&_.ant-input-number]:!rounded-lg`}
-                        value={targetValue ?? undefined}
-                        onChange={(v) => setTargetValue(v ?? null)}
-                      />
-                    </div>
+                    <PlanningMetricsRow
+                      metricTypeName={activeTarget.metricTypeName}
+                      isDailySlot={activeTarget.isDailySlot}
+                      priority={priority}
+                      setPriority={setPriority}
+                      weight={weight}
+                      setWeight={setWeight}
+                      targetValue={targetValue}
+                      setTargetValue={setTargetValue}
+                    />
                     <Button
                       type="default"
                       icon={<PlusOutlined className="text-[14px]" />}
@@ -1266,13 +1391,14 @@ const InlinePlanningWorkspace = forwardRef<
                               l.isDailySlot,
                               l.milestoneId,
                             ) ? (
-                              <OutcomeTaskCheckboxRow
+                              <OutcomeTaskSwitchRow
                                 milestoneId={l.milestoneId}
                                 checked={planAsAchieve}
                                 onToggle={(next) => {
                                   setPlanAsAchieve(next);
                                   if (next) {
                                     setTask(outcomeTaskTitleFromLine(l));
+                                    setTargetValue(0);
                                   } else {
                                     setTask('');
                                   }
@@ -1283,32 +1409,16 @@ const InlinePlanningWorkspace = forwardRef<
                               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1127"
                               className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-5"
                             >
-                              <div
-                                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1128"
-                                className="grid min-w-0 flex-1 grid-cols-3 gap-2 sm:gap-3 [&>*]:min-w-0"
-                              >
-                                <Select
-                                  placeholder="Priority"
-                                  className={`w-full min-w-0 rounded-lg ${controlH40} [&_.ant-select-selector]:!rounded-lg`}
-                                  value={priority}
-                                  onChange={setPriority}
-                                  options={priorityOptions}
-                                />
-                                <InputNumber
-                                  placeholder="Weight %"
-                                  min={1}
-                                  max={100}
-                                  className={`w-full min-w-0 rounded-lg ${inputNumH40} [&_.ant-input-number]:!rounded-lg`}
-                                  value={weight ?? undefined}
-                                  onChange={(v) => setWeight(v ?? null)}
-                                />
-                                <InputNumber
-                                  placeholder="Target"
-                                  className={`w-full min-w-0 rounded-lg ${inputNumH40} [&_.ant-input-number]:!rounded-lg`}
-                                  value={targetValue ?? undefined}
-                                  onChange={(v) => setTargetValue(v ?? null)}
-                                />
-                              </div>
+                              <PlanningMetricsRow
+                                metricTypeName={l.metricTypeName}
+                                isDailySlot={l.isDailySlot}
+                                priority={priority}
+                                setPriority={setPriority}
+                                weight={weight}
+                                setWeight={setWeight}
+                                targetValue={targetValue}
+                                setTargetValue={setTargetValue}
+                              />
                               <div
                                 data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1151"
                                 className="flex w-full shrink-0 flex-col gap-2 lg:ml-2 lg:w-auto lg:flex-row lg:justify-end"
@@ -1406,18 +1516,30 @@ const InlinePlanningWorkspace = forwardRef<
                         >
                           {l.weight}%
                         </span>
-                        <span
-                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1217"
-                          className="inline-flex items-center gap-1 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-2.5 py-0.5 text-[11px] font-medium tabular-nums text-[#475569]"
-                        >
+                        {shouldShowTargetOnDraftLine(l) ? (
                           <span
-                            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1218"
-                            className="font-normal text-[#94A3B8]"
+                            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1217"
+                            className="inline-flex items-center gap-1 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-2.5 py-0.5 text-[11px] font-medium tabular-nums text-[#475569]"
                           >
-                            Target
+                            <span
+                              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1218"
+                              className="font-normal text-[#94A3B8]"
+                            >
+                              Target
+                            </span>
+                            {l.targetValue}
                           </span>
-                          {l.targetValue}
-                        </span>
+                        ) : null}
+                        {l.achieveMK ? (
+                          <span
+                            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-outcome-pill"
+                            className="inline-flex items-center rounded-full border border-[#BFDBFE] bg-[#EFF6FF] px-2.5 py-0.5 text-[11px] font-semibold text-[#1E40AF]"
+                          >
+                            {l.milestoneId
+                              ? 'Milestone outcome'
+                              : 'Key result outcome'}
+                          </span>
+                        ) : null}
                       </div>
                     </div>
                   </li>

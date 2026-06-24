@@ -12,7 +12,12 @@
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
-    "prettier/prettier": "error",
+    "prettier/prettier": [
+  "error",
+  {
+    "endOfLine": "auto"
+  }
+],
     "@typescript-eslint/naming-convention": [
       "error",
       {
@@ -56,6 +61,11 @@
     }
   ],
   "ignorePatterns": [
+    ".next/",
+    "node_modules/",
+    "out/",
+    "dist/",
+    "coverage/",
     "public/workbox-*.js",
     "public/sw.js",
     "public/fallback-*.js",

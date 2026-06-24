@@ -23,6 +23,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
   addKeyResultValue,
   embedInOkrSheet = false,
   disableWeightEdit,
+  disableMetricTypeEdit,
   onSaveSuccess,
   hideRemoveButton,
 }) => {
@@ -70,6 +71,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
           disableWeightEdit={disableWeightEdit}
+          disableMetricTypeEdit={disableMetricTypeEdit}
           hideRemoveButton={hideRemoveButton}
         />
       );
@@ -86,6 +88,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
           disableWeightEdit={disableWeightEdit}
+          disableMetricTypeEdit={disableMetricTypeEdit}
           onSaveSuccess={onSaveSuccess}
           hideRemoveButton={hideRemoveButton}
         />
@@ -103,6 +106,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
           disableWeightEdit={disableWeightEdit}
+          disableMetricTypeEdit={disableMetricTypeEdit}
           hideRemoveButton={hideRemoveButton}
         />
       );
@@ -119,6 +123,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
           disableWeightEdit={disableWeightEdit}
+          disableMetricTypeEdit={disableMetricTypeEdit}
           hideRemoveButton={hideRemoveButton}
         />
       );
@@ -135,6 +140,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           removeKeyResult={removeKeyResult}
           addKeyResultValue={addKeyResultValue}
           disableWeightEdit={disableWeightEdit}
+          disableMetricTypeEdit={disableMetricTypeEdit}
           hideRemoveButton={hideRemoveButton}
         />
       );

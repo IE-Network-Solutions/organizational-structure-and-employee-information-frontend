@@ -15,7 +15,7 @@ import { DATE_FORMAT } from '@/utils/constants';
 import { formatToOptions } from '@/helpers/formatTo';
 import { LeaveRequestStatusOption } from '@/types/timesheet/settings';
 import { MdKeyboardArrowDown } from 'react-icons/md';
-import { FilterOutlined, SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined } from '@ant-design/icons';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   useGetDepartments,
@@ -24,6 +24,7 @@ import {
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import { Dayjs } from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
 interface LeaveManagementTableFilterProps {
   onChange: (val: CommonObject) => void;
@@ -105,7 +106,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
    * and Start Date, End Date and actions stay visible (scrollable if needed). */
   const filterContent = (
     <div
-      className="box-border relative px-4 py-3 overflow-y-auto overflow-x-hidden"
+      className="box-border relative px-4 sm:py-3 overflow-y-auto overflow-x-hidden"
       style={
         isMobile
           ? undefined
@@ -362,7 +363,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
         data-cy="time-attendance-leave-management-filter-row"
       >
         <div
-          className="flex-1 min-w-[200px] max-w-md"
+          className="flex justify-between"
           data-cy="time-attendance-leave-management-filter-search-wrapper"
         >
           <Form.Item name="searchEmployee" className="mb-0">
@@ -376,12 +377,14 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
                 label:
                   `${list?.firstName ?? ''} ${list?.middleName ?? ''} ${list?.lastName ?? ''}`.trim(),
               }))}
-              className="h-10 border-gray-100"
+              className="h-8 border-gray-100 w-[200px] sm:w-[300px]"
               suffixIcon={
-                <SearchOutlined
-                  data-cy="time-attendance-leave-management-search-employee-suffix-icon"
-                  className="text-gray-600"
-                />
+                <div
+                  data-cy="time-attendance-leave-management-search-employee-suffix-icon-div"
+                  className="text-gray-400 border-l p-2"
+                >
+                  <SearchOutlined />
+                </div>
               }
               id="time-attendance-leave-management-search-employee"
               data-cy="time-attendance-leave-management-search-employee"
@@ -392,11 +395,11 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
         {isMobile ? (
           <>
             <Button
-              className="h-10 flex items-center gap-2 border border-gray-200 text-gray-700 bg-white transition-colors hover:border-[#4096FF] hover:text-[#4096FF] hover:[&_.ant-btn-icon]:text-[#4096FF] active:border-[#4096FF] active:text-[#4096FF] active:[&_.ant-btn-icon]:text-[#4096FF] active:bg-blue-50"
+              className="h-8 flex items-center gap-2 border border-gray-200 text-gray-700 bg-white transition-colors hover:border-[#4096FF] hover:text-[#4096FF] hover:[&_.ant-btn-icon]:text-[#4096FF] active:border-[#4096FF] active:text-[#4096FF] active:[&_.ant-btn-icon]:text-[#4096FF] active:bg-blue-50"
               id="time-attendance-leave-management-filter-button"
               data-cy="time-attendance-leave-management-filter-button"
               icon={
-                <FilterOutlined
+                <FilterAltOutlinedIcon
                   data-cy="time-attendance-leave-management-filter-button-icon"
                   className="text-gray-600"
                 />
@@ -468,7 +471,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
               id="time-attendance-leave-management-filter-button"
               data-cy="time-attendance-leave-management-filter-button"
               icon={
-                <FilterOutlined
+                <FilterAltOutlinedIcon
                   data-cy="time-attendance-leave-management-filter-button-icon"
                   className="text-gray-600"
                 />

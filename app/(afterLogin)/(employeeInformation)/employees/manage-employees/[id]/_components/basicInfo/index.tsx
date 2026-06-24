@@ -1,6 +1,6 @@
 'use client';
 
-import { Avatar, Card, message, Tag, Modal, Button } from 'antd';
+import { Avatar, Card, message, Tag, Modal, Button, Input } from 'antd';
 import { FiTrash2 } from 'react-icons/fi';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { Upload } from 'antd';
@@ -18,6 +18,9 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import dayjs from 'dayjs';
 import { LuPencil } from 'react-icons/lu';
 import { UserOutlined } from '@ant-design/icons';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { validateEmail } from '@/utils/validation';
+import { useUpdateEmployeeEmail } from '@/store/server/features/employees/employeeManagment/mutations';
 
 const { Dragger } = Upload;
 
@@ -47,6 +50,7 @@ function BasicInfo({ id }: { id: string }) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
   const { profileFileList, setProfileFileList } = useEmployeeManagementStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
   const { userId } = useAuthenticationStore();
   const queryClient = useQueryClient();
   const [isProfileDeleted, setIsProfileDeleted] = useState(false);
@@ -54,54 +58,138 @@ function BasicInfo({ id }: { id: string }) {
   const { mutate: updateProfileImage, isLoading: isUploading } =
     useUpdateProfileImage();
 
+  const { mutate: updateEmployeeEmail, isLoading: isUpdatingEmail } =
+    useUpdateEmployeeEmail();
+
   const { mutate: deleteProfileImage, isLoading: isDeleting } =
     useDeleteProfileImage();
 
-  const showModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const buildExistingProfileFileList = (): UploadFile[] => {
+    if (isProfileDeleted || !employeeData?.profileImage) return [];
 
-  const handleSaveChange = () => {
-    if (profileFileList.length === 0) {
-      message.warning('Please upload an image before saving.');
+    return [
+      {
+        uid: 'existing-profile-image',
+        name: 'profile-image',
+        status: 'done',
+        url: employeeData.profileImage,
+      },
+    ];
+  };
+
+  const showModal = () => {
+    setNewEmail(employeeData?.email ?? '');
+    setProfileFileList(buildExistingProfileFileList());
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setNewEmail('');
+    setProfileFileList([]);
+  };
+
+  const getEmailChangeContinueUrl = () =>
+    `${window.location.origin}/authentication/login`;
+
+  const requestEmailChange = (onComplete?: () => void) => {
+    const trimmedEmail = newEmail.trim().toLowerCase();
+    const emailError = validateEmail(trimmedEmail);
+
+    if (emailError) {
+      message.error(emailError);
       return;
     }
 
-    const formData = new FormData();
-    const file = profileFileList[0].originFileObj as RcFile;
-
-    formData.append('profileImage', file);
-
-    updateProfileImage(
-      { id, formData },
+    updateEmployeeEmail(
+      {
+        userId: id,
+        values: {
+          newEmail: trimmedEmail,
+          continueUrl: getEmailChangeContinueUrl(),
+        },
+      },
       {
         onSuccess: () => {
-          message.success('Your profile image has been successfully updated.');
-          handleCloseModal();
-          setProfileFileList([]);
-          setIsProfileDeleted(false);
-          const previewUrl = getImageUrl([
-            { ...(profileFileList[0] as any) } as UploadFile,
-          ]);
-          if (previewUrl) {
-            queryClient.setQueryData(['employee', id], (oldData: any) => {
-              if (!oldData) return oldData;
-              return { ...oldData, profileImage: previewUrl };
-            });
-            if (userId) {
-              queryClient.setQueryData(['employee', userId], (oldData: any) => {
-                if (!oldData) return oldData;
-                return { ...oldData, profileImage: previewUrl };
-              });
-            }
-          }
-        },
-        onError: () => {
-          message.error(
-            'Failed to update the profile image. Please try again.',
-          );
+          onComplete?.();
         },
       },
     );
+  };
+
+  const handleSaveChange = () => {
+    const hasNewImage = profileFileList.some((file: UploadFile) =>
+      Boolean(file.originFileObj),
+    );
+    const trimmedEmail = newEmail.trim().toLowerCase();
+    const currentEmail = (employeeData?.email ?? '').trim().toLowerCase();
+    const hasEmailChange =
+      Boolean(trimmedEmail) && trimmedEmail !== currentEmail;
+
+    if (!hasNewImage && !hasEmailChange) {
+      handleCloseModal();
+      return;
+    }
+
+    const finishSave = () => {
+      handleCloseModal();
+    };
+
+    if (hasNewImage) {
+      const newImageFile = profileFileList.find(
+        (file: UploadFile) => file.originFileObj,
+      );
+      const formData = new FormData();
+      const file = newImageFile?.originFileObj as RcFile;
+      formData.append('profileImage', file);
+
+      updateProfileImage(
+        { id, formData },
+        {
+          onSuccess: () => {
+            message.success(
+              'Your profile image has been successfully updated.',
+            );
+            setIsProfileDeleted(false);
+            const previewUrl = getImageUrl([
+              { ...(newImageFile as any) } as UploadFile,
+            ]);
+            if (previewUrl) {
+              queryClient.setQueryData(['employee', id], (oldData: any) => {
+                if (!oldData) return oldData;
+                return { ...oldData, profileImage: previewUrl };
+              });
+              if (userId) {
+                queryClient.setQueryData(
+                  ['employee', userId],
+                  (oldData: any) => {
+                    if (!oldData) return oldData;
+                    return { ...oldData, profileImage: previewUrl };
+                  },
+                );
+              }
+            }
+
+            if (hasEmailChange) {
+              requestEmailChange(finishSave);
+              return;
+            }
+
+            finishSave();
+          },
+          onError: () => {
+            message.error(
+              'Failed to update the profile image. Please try again.',
+            );
+          },
+        },
+      );
+      return;
+    }
+
+    if (hasEmailChange) {
+      requestEmailChange(finishSave);
+    }
   };
 
   const handleDeleteProfileImage = () => {
@@ -150,15 +238,16 @@ function BasicInfo({ id }: { id: string }) {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
       message.error('You can only upload image files!');
+      return false;
     }
-    return isImage;
+    return false;
   };
 
   const handleProfileChange = (info: {
     file: UploadFile;
     fileList: UploadFile[];
   }) => {
-    setProfileFileList(info.fileList);
+    setProfileFileList(info.fileList.slice(-1));
   };
 
   const handleProfileRemove = (file: UploadFile) => {
@@ -209,7 +298,7 @@ function BasicInfo({ id }: { id: string }) {
   return (
     <Card
       loading={isLoading}
-      className="mb-3 rounded-lg border border-[#D9D9D9]"
+      className="mb-3 rounded-lg bg-[#F9FAFB]"
       id="basic-info-card"
       data-cy="basic-info-card"
     >
@@ -360,7 +449,7 @@ function BasicInfo({ id }: { id: string }) {
       {/* Modal for Changing Image */}
       <Modal
         data-cy="basic-info-change-profile-image-modal"
-        title="Change Profile Image"
+        title="Update Profile"
         open={isModalOpen}
         onCancel={handleCloseModal}
         footer={[
@@ -376,18 +465,22 @@ function BasicInfo({ id }: { id: string }) {
             key="save"
             type="primary"
             onClick={handleSaveChange}
-            loading={isUploading}
+            loading={isUploading || isUpdatingEmail}
             id="basic-info-change-image-save-btn"
             data-cy="basic-info-change-image-save-btn"
           >
-            Change
+            Update
           </Button>,
         ]}
+        centered
       >
         <Dragger
           name="files"
           fileList={profileFileList}
           beforeUpload={beforeProfileUpload}
+          customRequest={({ onSuccess }) => {
+            setTimeout(() => onSuccess?.('ok'), 0);
+          }}
           onChange={handleProfileChange}
           onRemove={handleProfileRemove}
           accept="image/*"
@@ -401,7 +494,11 @@ function BasicInfo({ id }: { id: string }) {
         >
           {profileFileList.length > 0 ? (
             <img
-              src={getImageUrl(profileFileList) || '/placeholder.svg'}
+              src={
+                getImageUrl(profileFileList) ||
+                employeeData?.profileImage ||
+                '/placeholder.svg'
+              }
               alt="Uploaded Preview"
               width={400}
               height={256}
@@ -431,6 +528,38 @@ function BasicInfo({ id }: { id: string }) {
             </>
           )}
         </Dragger>
+        <AccessGuard
+          permissions={[Permissions.ChangeEmployeeEmail]}
+          id="basic-info-change-email-guard"
+          data-cy="basic-info-change-email-guard"
+        >
+          <div
+            className="text-sm text-[#030712] font-normal py-1"
+            data-cy="basic-info-change-email-label"
+          >
+            Update Email
+          </div>
+          <div
+            className="text-sm text-black opacity-70 font-normal py-1"
+            data-cy="basic-info-change-email-input"
+          >
+            <Input
+              type="email"
+              placeholder="Enter email"
+              value={newEmail}
+              onChange={(event) => setNewEmail(event.target.value)}
+              className="w-full h-10"
+              data-cy="basic-info-change-email-input-field"
+            />
+            <InfoOutlinedIcon className="text-black opacity-70 text-base pr-1" />
+            <span
+              data-cy="basic-info-change-email-info"
+              className="text-sm text-black opacity-70 font-normal"
+            >
+              You must verify your new email before it updates.
+            </span>
+          </div>
+        </AccessGuard>
       </Modal>
     </Card>
   );

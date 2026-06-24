@@ -26,6 +26,10 @@ export const useRestoreKeyResultMetric = () => {
   return useMutation(restoreKeyResultMetric, {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
+      queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrUserPlans']);
+      queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReport']);
       queryClient.refetchQueries('ObjectiveDashboard');
       NotificationMessage.success({
         message: 'Restored',

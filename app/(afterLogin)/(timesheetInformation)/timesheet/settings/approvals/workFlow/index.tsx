@@ -5,12 +5,35 @@ import { useCreateApproverMutation } from '@/store/server/features/approver/muta
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { Button, Form, Input, Modal, Radio, Select, Steps, Tag } from 'antd';
-import { useRouter } from 'next/navigation';
+import {
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  Modal,
+  Radio,
+  Select,
+  Steps,
+  Tag,
+} from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
-import { APPROVALTYPES } from '@/types/enumTypes';
+import {
+  findDepartmentById,
+  flattenDepartments,
+  isDepartmentEntityType,
+} from '@/utils/approval/departmentHelpers';
 
 const STEP_LABELS = ['Choose Approval Type', 'Setup Approval', 'Finalize'];
+
+type TimesheetApprovalTypeValue = 'Leave' | 'WorkFromHome';
+
+const TIMESHEET_APPROVAL_TYPE_OPTIONS: {
+  label: string;
+  value: TimesheetApprovalTypeValue;
+}[] = [
+  { label: 'Leave', value: 'Leave' },
+  { label: 'Work From Home', value: 'WorkFromHome' },
+];
 
 const ApprovalWorkflowSteps = React.memo(({ current }: { current: number }) => {
   const stepItems = useMemo(
@@ -83,11 +106,8 @@ const ApprovalWorkFlowModal = ({
   openApprovalModal,
   onCancelApprovalModal,
 }: ApprovalWorkFlowModalProps) => {
-  const {
-    mutate: createApprover,
-    isSuccess,
-    isLoading: isCreateLoading,
-  } = useCreateApproverMutation();
+  const { mutate: createApprover, isLoading: isCreateLoading } =
+    useCreateApproverMutation();
   const [form] = Form.useForm();
   const {
     setApproverType,
@@ -103,40 +123,12 @@ const ApprovalWorkFlowModal = ({
   } = useApprovalStore();
   const { data: usersData } = useGetAllUsers();
   const { data: departmentsData } = useGetDepartments();
-  const router = useRouter();
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     if (!openApprovalModal) return;
     setCurrent(0);
   }, [openApprovalModal]);
-
-  useEffect(() => {
-    if (!isSuccess) return;
-    NotificationMessage.success({
-      message: 'Success',
-      description: 'Approver created successfully',
-    });
-    onCancelApprovalModal();
-    setCurrent(0);
-    form.resetFields();
-    setApproverType(null);
-    setWorkflowApplies(null);
-    setWorkflowUserId(null);
-    setLevel(1);
-    setSelections({ SectionItemType: Array(1).fill({ user: null }) });
-    router.push('/timesheet/settings/approvals');
-  }, [
-    form,
-    isSuccess,
-    onCancelApprovalModal,
-    router,
-    setApproverType,
-    setLevel,
-    setSelections,
-    setWorkflowApplies,
-    setWorkflowUserId,
-  ]);
 
   const users = useMemo(() => usersData?.items || [], [usersData?.items]);
   const departments = useMemo(
@@ -154,8 +146,8 @@ const ApprovalWorkFlowModal = ({
     const selectedId = form.getFieldValue('workflowAppliesId');
     if (!selectedId) return '-';
 
-    if (workflowApplies === 'Department') {
-      return departments.find((dept) => dept.id === selectedId)?.name || '-';
+    if (isDepartmentEntityType(workflowApplies)) {
+      return findDepartmentById(departments, selectedId)?.name || '-';
     }
 
     if (workflowApplies === 'User') {
@@ -278,6 +270,15 @@ const ApprovalWorkFlowModal = ({
       const workflowAppliesId = form.getFieldValue('workflowAppliesId');
       const workflowName = form.getFieldValue('workflowName');
       const carryOverPeriod = form.getFieldValue('carryOverPeriod');
+      const selectedApprovalTypes: TimesheetApprovalTypeValue[] =
+        form.getFieldValue('timesheetApprovalTypes') || [];
+      const isMultiApprovalTypeSelected = selectedApprovalTypes.length > 1;
+      const approvalType = isMultiApprovalTypeSelected
+        ? null
+        : (selectedApprovalTypes[0] ?? null);
+      const approvalTypes = isMultiApprovalTypeSelected
+        ? selectedApprovalTypes
+        : null;
 
       const steps = selections.SectionItemType.flatMap((selection, idx) => {
         const usersForStep = Array.isArray(selection.user)
@@ -297,7 +298,8 @@ const ApprovalWorkFlowModal = ({
             description: carryOverPeriod,
             entityType: workflowApplies,
             entityId: workflowAppliesId,
-            approvalType: APPROVALTYPES.LEAVE,
+            approvalType,
+            approvalTypes,
             approvalWorkflowType: approverType,
             steps,
           },
@@ -308,6 +310,7 @@ const ApprovalWorkFlowModal = ({
               message: 'Success',
               description: 'Approver created successfully',
             });
+            handleCancel();
           },
           onError: (error: any) => {
             NotificationMessage.error({
@@ -325,7 +328,10 @@ const ApprovalWorkFlowModal = ({
 
   const workflowTargetOptions = (() => {
     if (workflowApplies === 'Department') {
-      return departments.map((item) => ({ value: item.id, label: item.name }));
+      return flattenDepartments(departments).map((item) => ({
+        value: item.id,
+        label: item.name,
+      }));
     }
     if (workflowApplies === 'User') {
       return users.map((item: User) => ({
@@ -526,6 +532,25 @@ const ApprovalWorkFlowModal = ({
         className={current === 1 ? 'block px-2' : 'hidden'}
         data-cy="approval-workflow-setup-form"
       >
+        <Form.Item
+          name="timesheetApprovalTypes"
+          label="Approval Request Type"
+          initialValue={['Leave']}
+          rules={[
+            {
+              required: true,
+              message: 'Please select at least one request type',
+            },
+          ]}
+          data-cy="approval-workflow-timesheet-approval-types-field"
+        >
+          <Checkbox.Group
+            options={TIMESHEET_APPROVAL_TYPE_OPTIONS}
+            className="flex flex-wrap items-center gap-4"
+            data-cy="approval-workflow-timesheet-approval-types-checkbox-group"
+          />
+        </Form.Item>
+
         <Form.Item
           name="workflowName"
           label="Workflow Name"
@@ -749,6 +774,20 @@ const ApprovalWorkFlowModal = ({
                   data-cy="approval-workflow-final-applies"
                 >
                   Applied to: {getAppliedToLabel()}
+                </span>
+                <span
+                  className="mt-2 inline-flex items-center rounded-lg border border-gray-200 bg-[#f7f7f7] px-2 py-0.5 text-sm text-[#4d4d4d]"
+                  data-cy="approval-workflow-final-request-types"
+                >
+                  Request type:{' '}
+                  {(
+                    (form.getFieldValue('timesheetApprovalTypes') ||
+                      []) as string[]
+                  )
+                    .map((value) =>
+                      value === 'WorkFromHome' ? 'Work From Home' : value,
+                    )
+                    .join(' and ') || '-'}
                 </span>
               </div>
               <span

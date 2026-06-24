@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useGetApprovalLeaveRequestAllStatus } from '@/store/server/features/timesheet/leaveRequest/queries';
+import { useGetWorkFromHomeApprovalAllStatus } from '@/store/server/features/timesheet/workFromHome/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TableColumnsType } from '@/types/table/table';
 import {
@@ -21,6 +22,7 @@ import {
   useSetFinalApproveLeaveRequest,
   useSetRejectLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
+import { useSetFinalWorkFromHomeRequest } from '@/store/server/features/timesheet/workFromHome/mutation';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet/myTimesheet/currentApproval';
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
@@ -49,6 +51,8 @@ const ApprovalTable = () => {
   const { mutate: editApprover, isLoading: isLoadingEditApprover } =
     useSetApproveLeaveRequest();
   const { mutate: finalApprover } = useSetFinalApproveLeaveRequest();
+  const { mutate: finalWorkFromHomeApprover } =
+    useSetFinalWorkFromHomeRequest();
   const { mutate: allApprover, isLoading: allApproveIsLoading } =
     useSetAllApproveLeaveRequest();
   const { mutate: allReject, isLoading: allRejectIsLoading } =
@@ -57,6 +61,9 @@ const ApprovalTable = () => {
 
   const [searchEmployee, setSearchEmployee] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
+  const [approvalTypeFilter, setApprovalTypeFilter] = useState<
+    'Leave' | 'WorkFromHome'
+  >('Leave');
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const { data: allUsersData } = useGetAllUsers();
@@ -76,6 +83,13 @@ const ApprovalTable = () => {
     { label: 'Approved', value: LeaveRequestStatus.APPROVED },
     { label: 'Rejected', value: LeaveRequestStatus.DECLINED },
   ];
+  const approvalTypePills: Array<{
+    id: 'Leave' | 'WorkFromHome';
+    label: string;
+  }> = [
+    { id: 'Leave', label: 'Leave' },
+    { id: 'WorkFromHome', label: 'Work From Home' },
+  ];
 
   useEffect(() => {
     setUserCurrentPage(1);
@@ -83,10 +97,9 @@ const ApprovalTable = () => {
   }, [pathname]);
 
   const {
-    data: approvalData,
-    isLoading: isLoadingApproval,
-    isFetching: isFetchingApproval,
-    refetch,
+    data: leaveApprovalData,
+    isLoading: isLoadingLeaveApproval,
+    refetch: refetchLeave,
   } = useGetApprovalLeaveRequestAllStatus(
     userId ?? '',
     userCurrentPage,
@@ -94,28 +107,71 @@ const ApprovalTable = () => {
     searchEmployee || undefined,
     filterStatus || undefined,
   );
+  const {
+    data: workFromHomeApprovalData,
+    isLoading: isLoadingWorkFromHomeApproval,
+    refetch: refetchWorkFromHome,
+  } = useGetWorkFromHomeApprovalAllStatus(
+    userId ?? '',
+    userCurrentPage,
+    pageSize,
+    searchEmployee || undefined,
+    filterStatus || undefined,
+    approvalTypeFilter === 'WorkFromHome',
+  );
 
   // Reset to page 1 when filters change
   useEffect(() => {
     setUserCurrentPage(1);
-  }, [searchEmployee, filterStatus]);
+    setSelectedRowKeys([]);
+  }, [searchEmployee, filterStatus, approvalTypeFilter]);
 
-  // When page, page size, or filters change, refetch so the endpoint is called with the new params
-  useEffect(() => {
-    refetch();
-  }, [userCurrentPage, pageSize, searchEmployee, filterStatus, refetch]);
-
-  /** True on first load and on every refetch (e.g. filter / page changes). `isLoading` alone misses refetches when `keepPreviousData` is on. */
-  const isApprovalListLoading = isLoadingApproval || isFetchingApproval;
+  /**
+   * Use only initial-loading state for table skeleton.
+   * Keeping refetch (`isFetching`) out of this prevents action buttons/popconfirms
+   * from getting disabled mid-interaction (seen on WFH approve flow).
+   */
+  const isApprovalListLoading =
+    approvalTypeFilter === 'WorkFromHome'
+      ? isLoadingWorkFromHomeApproval
+      : isLoadingLeaveApproval;
 
   // Normalize response: support both { items, meta } and { data: { items, meta } }
+  const approvalData =
+    approvalTypeFilter === 'WorkFromHome'
+      ? workFromHomeApprovalData
+      : leaveApprovalData;
   const payload = approvalData?.data ?? approvalData;
   const rawItems = payload?.items ?? approvalData?.items ?? [];
-  const finalApproval: any = (
-    e: { leaveRequestId: string; status: string },
+  const isWorkFromHome = approvalTypeFilter === 'WorkFromHome';
+  const requestLabel = isWorkFromHome
+    ? 'work from home request'
+    : 'leave request';
+  const finalApproval = (
+    e: {
+      leaveRequestId?: string;
+      workFromHomeRequestId?: string;
+      status: 'approved' | 'declined';
+    },
     options?: { onSuccess?: () => void },
   ) => {
-    finalApprover(e, { onSuccess: () => options?.onSuccess?.() });
+    if (isWorkFromHome) {
+      finalWorkFromHomeApprover(
+        {
+          workFromHomeRequestId: e.workFromHomeRequestId || '',
+          status: e.status,
+        },
+        { onSuccess: () => options?.onSuccess?.() },
+      );
+    } else {
+      finalApprover(
+        {
+          leaveRequestId: e.leaveRequestId || '',
+          status: e.status,
+        },
+        { onSuccess: () => options?.onSuccess?.() },
+      );
+    }
   };
   const reject: any = (e: {
     approvalWorkflowId: string;
@@ -131,8 +187,13 @@ const ApprovalTable = () => {
       onSuccess: () => {
         setRejectComment('');
         finalApproval(
-          { leaveRequestId: e.requestId, status: 'declined' },
-          { onSuccess: () => refetch() },
+          isWorkFromHome
+            ? { workFromHomeRequestId: e.requestId, status: 'declined' }
+            : { leaveRequestId: e.requestId, status: 'declined' },
+          {
+            onSuccess: () =>
+              isWorkFromHome ? refetchWorkFromHome() : refetchLeave(),
+          },
         );
       },
     });
@@ -151,11 +212,20 @@ const ApprovalTable = () => {
       onSuccess: (data) => {
         if (data?.last === true) {
           finalApproval(
-            { leaveRequestId: e.requestId, status: 'approved' },
-            { onSuccess: () => refetch() },
+            isWorkFromHome
+              ? { workFromHomeRequestId: e.requestId, status: 'approved' }
+              : { leaveRequestId: e.requestId, status: 'approved' },
+            {
+              onSuccess: () =>
+                isWorkFromHome ? refetchWorkFromHome() : refetchLeave(),
+            },
           );
         } else {
-          refetch();
+          if (isWorkFromHome) {
+            refetchWorkFromHome();
+          } else {
+            refetchLeave();
+          }
         }
       },
     });
@@ -174,7 +244,7 @@ const ApprovalTable = () => {
           startAt: item?.startAt,
           endAt: item?.endAt,
           days: item?.days,
-          leaveType: item?.leaveType?.title,
+          leaveType: isWorkFromHome ? 'Work From Home' : item?.leaveType?.title,
           status: item?.status,
           action: (
             <div
@@ -186,7 +256,7 @@ const ApprovalTable = () => {
                 <>
                   <Popconfirm
                     title="Approve Request"
-                    description="Are you sure to approve this leave request?"
+                    description={`Are you sure to approve this ${requestLabel}?`}
                     onConfirm={() => {
                       confirm({
                         approvalWorkflowId: item?.approvalWorkflowId,
@@ -222,7 +292,7 @@ const ApprovalTable = () => {
                     description={
                       <>
                         <p data-cy="my-timesheet-components-approvaltable-index-tsx-index-p-166">
-                          Are you sure you want to reject this leave request?
+                          {`Are you sure you want to reject this ${requestLabel}?`}
                         </p>
                         <Input
                           placeholder="Add a comment"
@@ -296,10 +366,14 @@ const ApprovalTable = () => {
       userRollId,
       tenantId,
       rejectComment,
+      isWorkFromHome,
+      requestLabel,
       isApprovalListLoading,
       isLoadingEditApprover,
       allApproveIsLoading,
       allRejectIsLoading,
+      refetchLeave,
+      refetchWorkFromHome,
     ],
   );
   const EmpRender = ({ userId }: any) => {
@@ -461,7 +535,7 @@ const ApprovalTable = () => {
           }),
         );
         finalAllApproval(transformData);
-        refetch();
+        refetchLeave();
       },
     });
   };
@@ -480,7 +554,7 @@ const ApprovalTable = () => {
           status: 'declined',
         }));
         finalAllApproval(transformData);
-        refetch();
+        refetchLeave();
       },
     });
   };
@@ -517,7 +591,31 @@ const ApprovalTable = () => {
           className="flex w-full min-w-0 flex-wrap items-center gap-2 min-[400px]:w-auto min-[400px]:shrink-0 min-[400px]:justify-end"
           data-cy="time-attendance-approval-table-toolbar-actions"
         >
-          {selectedRowKeys.length > 0 && (
+          <div
+            className="flex w-full min-w-0 flex-wrap gap-2 min-[400px]:w-auto"
+            data-cy="time-attendance-approval-table-filter-approval-type-pills"
+          >
+            {approvalTypePills.map((pill) => {
+              const isSelected = approvalTypeFilter === pill.id;
+              return (
+                <Button
+                  key={pill.id}
+                  type="default"
+                  size="small"
+                  data-cy={`time-attendance-approval-table-filter-approval-type-pill-${pill.id}`}
+                  onClick={() => setApprovalTypeFilter(pill.id)}
+                  className={
+                    isSelected
+                      ? '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-[#1d4ed8] text-[#1d4ed8] !bg-white hover:!bg-[#FAFAFA] hover:!border-[#1d4ed8] hover:!text-[#1d4ed8]'
+                      : '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-gray-200 text-gray-700 !bg-white hover:!bg-gray-50 hover:!border-gray-300 hover:!text-gray-800'
+                  }
+                >
+                  {pill.label}
+                </Button>
+              );
+            })}
+          </div>
+          {!isWorkFromHome && selectedRowKeys.length > 0 && (
             <>
               <Popconfirm
                 title="All Reject Request"
@@ -597,13 +695,17 @@ const ApprovalTable = () => {
         <TableSkeleton columns={columns} />
       ) : (
         <Table
-          rowSelection={rowSelection}
+          rowSelection={!isWorkFromHome ? rowSelection : undefined}
           columns={columns}
           dataSource={allFilterData}
           pagination={false}
           // Single horizontal scroll: only Ant Design’s table body (no outer overflow-x wrapper).
           scroll={{ x: APPROVAL_TABLE_SCROLL_X }}
-          locale={{ emptyText: 'No leave requests' }}
+          locale={{
+            emptyText: isWorkFromHome
+              ? 'No work from home approvals'
+              : 'No leave requests',
+          }}
           className="mx-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.my-timesheet-approval-table-row-even>td]:!bg-[#FAFAFA] [&_tr.my-timesheet-approval-table-row-odd>td]:!bg-white"
           rowClassName={(record, index) => {
             void record;

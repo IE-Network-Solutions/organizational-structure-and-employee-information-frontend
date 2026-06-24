@@ -11,6 +11,7 @@ import RecaptchaProvider from '@/components/recaptcha';
 import { PWAProvider } from '@/providers/PWAProvider';
 import { NotificationSocketProvider } from '@/providers/NotificationSocketProvider';
 import RouteTopLoader from '@/components/RouteTopLoader';
+import CopilotFloatEntry from '@/components/copilot/CopilotFloatEntry';
 
 // Disable static prerendering globally; ensure all pages are rendered dynamically
 export const dynamic = 'force-dynamic';
@@ -356,6 +357,7 @@ export default function RootLayout({
                         <AuthBridge />
                         <UserSessionRefresher />
                         <ConditionalNav>{children}</ConditionalNav>
+                        <CopilotFloatEntry />
                         {/* <ChatBotButton /> */}
                       </RecaptchaProvider>
                     </NotificationSocketProvider>

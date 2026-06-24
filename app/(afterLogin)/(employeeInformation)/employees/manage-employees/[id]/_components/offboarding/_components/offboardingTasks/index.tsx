@@ -1,6 +1,16 @@
 'use client';
-import React, { useCallback } from 'react';
-import { Card, Checkbox, Button, Avatar } from 'antd';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+  Card,
+  Checkbox,
+  Button,
+  Avatar,
+  Modal,
+  Form,
+  Input,
+  Select,
+  Row,
+} from 'antd';
 import {
   PlusOutlined,
   DownloadOutlined,
@@ -24,7 +34,7 @@ import OffboardingTemplate from '../offboardingTemplate';
 import CertificateContent from '../certificateContent';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import DeleteModal from '@/components/common/deleteConfirmationModal';
+import DeleteConfirmationPopover from '@/components/common/deleteConfirmationPopover';
 import {
   useDeleteOffboardingItem,
   useUpdateOffboardingItem,
@@ -37,6 +47,7 @@ import {
 } from '@/store/server/features/employees/offboarding/queries';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   OffBoardingTasksUpdateStatus,
@@ -44,12 +55,18 @@ import {
 } from '@/store/server/features/employees/offboarding/interface';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useGetEmployee,
+  useGetEmployees,
+} from '@/store/server/features/employees/employeeManagment/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import EmptyState from '@/components/empty';
 
 const TEMPLATE_DROPPABLE_ID = 'template-tasks';
 const EMPLOYEE_DROPPABLE_ID = 'employee-tasks';
+
+const { TextArea } = Input;
+const { Option } = Select;
 
 interface Ids {
   id: string;
@@ -82,34 +99,53 @@ function TemplateTaskDraggable({
       data: { type: 'template' as const, index, task: item },
     });
   const style = transform
-    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
-    : undefined;
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        opacity: isDragging ? 0.45 : 1,
+      }
+    : { opacity: isDragging ? 0.45 : 1 };
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...listeners}
       {...attributes}
-      className={`bg-white rounded-lg border border-gray-200 p-3 mb-2 shadow-sm ${
-        isDragging ? 'opacity-90 shadow-md relative z-[100]' : ''
+      className={`bg-white rounded-lg p-3 mb-2 cursor-grab active:cursor-grabbing select-none transition-colors border ${
+        isDragging
+          ? 'drag-item-active'
+          : 'border-[#E5E7EB] hover:border-[#1E40AF]/50'
       }`}
       id={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
       data-cy={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
     >
       <div
-        className="font-medium text-gray-800"
-        data-cy={`offboarding-template-draggable-title-${toSlug(item.id ?? index)}`}
+        className="flex items-center gap-2"
+        data-cy={`offboarding-template-draggable-row-${toSlug(item.id ?? index)}`}
       >
-        {item.title}
-      </div>
-      {item.description && (
+        <DragIndicatorIcon
+          style={{ fontSize: 16 }}
+          className="text-gray-300 shrink-0"
+          aria-hidden
+        />
         <div
-          className="text-sm text-gray-500 mt-1"
-          data-cy={`offboarding-template-draggable-description-${toSlug(item.id ?? index)}`}
+          data-cy={`offboarding-template-draggable-text-${toSlug(item.id ?? index)}`}
         >
-          {item.description}
+          <div
+            className="font-medium text-sm text-gray-800"
+            data-cy={`offboarding-template-draggable-title-${toSlug(item.id ?? index)}`}
+          >
+            {item.title}
+          </div>
+          {item.description && (
+            <div
+              className="text-xs text-gray-500 mt-1"
+              data-cy={`offboarding-template-draggable-description-${toSlug(item.id ?? index)}`}
+            >
+              {item.description}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -128,21 +164,41 @@ function EmployeeTaskDraggable({
       data: { type: 'employee' as const, task },
     });
   const style = transform
-    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
-    : undefined;
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        opacity: isDragging ? 0.45 : 1,
+      }
+    : { opacity: isDragging ? 0.45 : 1 };
   return (
     <div
       ref={setNodeRef}
       style={style}
       {...listeners}
       {...attributes}
-      className={`bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-3 flex justify-between items-center ${
-        isDragging ? 'opacity-90 shadow-md z-10' : ''
+      className={`bg-white rounded-lg p-4 mb-3 cursor-grab active:cursor-grabbing select-none transition-colors border ${
+        isDragging
+          ? 'drag-item-active'
+          : 'border-[#E5E7EB] hover:border-[#1E40AF]/50'
       }`}
       id={`offboarding-task-${taskSlug}`}
       data-cy={`offboarding-task-${taskSlug}`}
     >
-      {children}
+      <div
+        className="flex items-center gap-2 w-full"
+        data-cy={`offboarding-task-row-${taskSlug}`}
+      >
+        <DragIndicatorIcon
+          style={{ fontSize: 16 }}
+          className="text-gray-300 shrink-0"
+          aria-hidden
+        />
+        <div
+          className="flex flex-1 justify-between items-center min-w-0"
+          data-cy={`offboarding-task-content-${taskSlug}`}
+        >
+          {children}
+        </div>
+      </div>
     </div>
   );
 }
@@ -160,12 +216,12 @@ function DroppableArea({
   return (
     <div
       ref={setNodeRef}
-      className={className}
-      style={{
-        minHeight: 120,
-        transition: 'background-color 0.2s',
-        ...(isOver ? { backgroundColor: '#FFFFFF' } : {}),
-      }}
+      className={`${className ?? ''} rounded-lg border-2 transition-all ${
+        isOver
+          ? 'drop-zone-active'
+          : 'border-dashed border-[#D1D5DB] hover:border-[#1E40AF]/40'
+      }`}
+      style={{ minHeight: 120, padding: '8px' }}
       data-cy={`offboarding-droppable-${id}`}
     >
       {children}
@@ -174,17 +230,34 @@ function DroppableArea({
 }
 
 const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
-  const {
-    isDeleteModalVisible,
-    toggleTask,
-    taskToDelete,
-    setTaskToDelete,
-    setIsAddTaskModalVisible,
-    setIsDeleteModalVisible,
-  } = useOffboardingStore();
+  const { toggleTask, setIsAddTaskModalVisible } = useOffboardingStore();
 
-  const { mutate: offboardingTaskDelete } = useDeleteOffboardingItem();
-  const { mutate: updateOffboardingItem } = useUpdateOffboardingItem();
+  const { mutate: offboardingTaskDelete, isLoading: isDeleting } =
+    useDeleteOffboardingItem();
+
+  const [deletePopoverOpen, setDeletePopoverOpen] = useState<
+    Record<string, boolean>
+  >({});
+
+  const handleDeleteConfirm = (taskId: string) => {
+    offboardingTaskDelete(taskId, {
+      onSuccess: () => {
+        setDeletePopoverOpen((prev) => ({ ...prev, [taskId]: false }));
+      },
+    });
+  };
+
+  const handleDeleteCancel = (taskId: string) => {
+    setDeletePopoverOpen((prev) => ({ ...prev, [taskId]: false }));
+  };
+
+  const [editForm] = Form.useForm();
+  const [taskBeingEdited, setTaskBeingEdited] = useState<Task | null>(null);
+
+  const {
+    mutate: updateOffboardingItem,
+    isLoading: isUpdatingOffboardingItem,
+  } = useUpdateOffboardingItem();
   const { mutate: createTaskList } = useAddTerminationTasks();
   const { userId } = useAuthenticationStore();
 
@@ -197,6 +270,44 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     useFetchOffBoardingTasksTemplate();
   const { data: offboardingTermination } = useFetchUserTerminationByUserId(id);
   const { data: employeeData } = useGetEmployee(id);
+  const { data: users } = useGetEmployees();
+
+  useEffect(() => {
+    if (taskBeingEdited) {
+      editForm.setFieldsValue({
+        title: taskBeingEdited.title,
+        description: taskBeingEdited.description ?? '',
+        approverId: taskBeingEdited.approverId || undefined,
+      });
+    }
+  }, [taskBeingEdited, editForm]);
+
+  const closeEditModal = () => {
+    setTaskBeingEdited(null);
+    editForm.resetFields();
+  };
+
+  const handleEditTaskSubmit = (values: {
+    title: string;
+    description?: string;
+    approverId: string;
+  }) => {
+    if (!taskBeingEdited) return;
+    updateOffboardingItem(
+      {
+        id: taskBeingEdited.id,
+        title: values.title,
+        description: values.description ?? '',
+        approverId: values.approverId,
+        employeTerminationId: taskBeingEdited.employeTerminationId,
+        isCompleted: taskBeingEdited.isCompleted,
+        ...(taskBeingEdited.completedDate
+          ? { completedDate: taskBeingEdited.completedDate }
+          : {}),
+      },
+      { onSuccess: closeEditModal },
+    );
+  };
 
   const handleAddTaskClick = () => setIsAddTaskModalVisible(true);
 
@@ -230,10 +341,6 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
     },
     [offboardingTermination, createTaskList],
   );
-
-  const handelTaskDelete = (value: string) => {
-    offboardingTaskDelete(value);
-  };
 
   const handelCehckBox = (task: any) => {
     const data: OffBoardingTasksUpdateStatus = {
@@ -273,6 +380,35 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
       id="offboarding-tasks-container"
       data-cy="offboarding-tasks-container"
     >
+      <style data-cy="offboarding-tasks-dnd-style" jsx global>{`
+        @keyframes drag-item-pulse {
+          0%,
+          100% {
+            box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.45);
+          }
+          50% {
+            box-shadow: 0 0 0 5px rgba(30, 64, 175, 0);
+          }
+        }
+        .drag-item-active {
+          border-color: #1e40af !important;
+          animation: drag-item-pulse 1s ease-in-out infinite;
+        }
+        @keyframes drop-zone-pulse {
+          0%,
+          100% {
+            box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.35);
+          }
+          50% {
+            box-shadow: 0 0 0 7px rgba(30, 64, 175, 0);
+          }
+        }
+        .drop-zone-active {
+          border-color: #1e40af !important;
+          border-style: solid !important;
+          animation: drop-zone-pulse 1s ease-in-out infinite;
+        }
+      `}</style>
       <DndContext sensors={sensors} onDragEnd={onDragEnd}>
         <div
           className="flex flex-col sm:flex-row gap-4 w-full"
@@ -280,10 +416,31 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
         >
           {/* Left panel: Core Offboarding Tasks */}
           <Card
-            title="Core Offboarding Tasks"
-            className="flex-1 min-w-0 relative z-10 overflow-visible [&_.ant-card-body]:overflow-visible"
+            bordered={false}
+            className="flex-1 min-w-0 relative z-10 overflow-visible [&_.ant-card-body]:overflow-visible rounded-xl"
+            style={{ background: '#F9FAFB', boxShadow: 'none' }}
             id="core-offboarding-tasks-card"
             data-cy="core-offboarding-tasks-card"
+            headStyle={{
+              borderBottom: '1px solid #F3F4F6',
+              background: '#F9FAFB',
+            }}
+            title={
+              <div data-cy="core-offboarding-tasks-card-title">
+                <p
+                  className="text-sm font-semibold text-gray-800 m-0"
+                  data-cy="core-offboarding-tasks-card-heading"
+                >
+                  Core Offboarding Tasks
+                </p>
+                <p
+                  className="text-xs font-normal text-gray-400 m-0 mt-0.5"
+                  data-cy="core-offboarding-tasks-card-subheading"
+                >
+                  Drag a task to the employee board
+                </p>
+              </div>
+            }
           >
             <DroppableArea
               id={TEMPLATE_DROPPABLE_ID}
@@ -317,10 +474,31 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
 
           {/* Right panel: Off-boarding Tasks */}
           <Card
-            title="Off-boarding Tasks"
-            className="flex-1 min-w-0 relative z-0"
+            bordered={false}
+            className="flex-1 min-w-0 relative z-0 rounded-xl"
+            style={{ background: '#F9FAFB', boxShadow: 'none' }}
             id="offboarding-tasks-card"
             data-cy="offboarding-tasks-card"
+            headStyle={{
+              borderBottom: '1px solid #F3F4F6',
+              background: '#F9FAFB',
+            }}
+            title={
+              <div data-cy="offboarding-tasks-card-title">
+                <p
+                  className="text-sm font-semibold text-gray-800 m-0"
+                  data-cy="offboarding-tasks-card-heading"
+                >
+                  Off-boarding Tasks
+                </p>
+                <p
+                  className="text-xs font-normal text-gray-400 m-0 mt-0.5"
+                  data-cy="offboarding-tasks-card-subheading"
+                >
+                  Drop tasks here or add manually
+                </p>
+              </div>
+            }
             extra={
               <div
                 className="flex flex-wrap gap-2 items-center"
@@ -515,29 +693,53 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                         data-cy={`offboarding-task-actions-${taskSlug}`}
                         className="flex items-center gap-2"
                       >
-                        <Button
-                          type="default"
-                          size="small"
-                          id={`offboarding-task-edit-btn-${taskSlug}`}
-                          data-cy={`offboarding-task-edit-btn-${taskSlug}`}
-                          className="border border-[#D9D9D9] !h-8 !w-8 rounded-lg"
+                        <AccessGuard
+                          permissions={[Permissions.AddOffloadingTasks]}
+                          id={`offboarding-task-edit-guard-${taskSlug}`}
+                          data-cy={`offboarding-task-edit-guard-${taskSlug}`}
                         >
-                          <EditOutlinedIcon className="text-base" />
-                        </Button>
+                          <Button
+                            type="default"
+                            size="small"
+                            id={`offboarding-task-edit-btn-${taskSlug}`}
+                            data-cy={`offboarding-task-edit-btn-${taskSlug}`}
+                            className="border border-[#D9D9D9] !h-8 !w-8 rounded-lg"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setTaskBeingEdited(task);
+                            }}
+                            onMouseDown={(e) => e.stopPropagation()}
+                          >
+                            <EditOutlinedIcon className="text-base" />
+                          </Button>
+                        </AccessGuard>
 
-                        <Button
-                          type="default"
-                          onClick={() => {
-                            setIsDeleteModalVisible(true);
-                            setTaskToDelete(task);
-                          }}
-                          size="small"
-                          id={`offboarding-task-delete-btn-${taskSlug}`}
-                          data-cy={`offboarding-task-delete-btn-${taskSlug}`}
-                          className="border border-[#ff8384] !h-8 !w-8 text-[#ff8384] rounded-lg"
+                        <DeleteConfirmationPopover
+                          open={deletePopoverOpen[task.id] || false}
+                          onCancel={() => handleDeleteCancel(task.id)}
+                          onConfirm={() => handleDeleteConfirm(task.id)}
+                          message="Are you sure you want to permanently delete this Task?"
+                          loading={isDeleting}
+                          id={`offboarding-delete-modal-${taskSlug}`}
+                          data-cy={`offboarding-delete-modal-${taskSlug}`}
                         >
-                          <DeleteOutlineOutlinedIcon className="text-base" />
-                        </Button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setDeletePopoverOpen((prev) => ({
+                                ...prev,
+                                [task.id]: true,
+                              }));
+                            }}
+                            className="border border-[#ff8384] h-8 w-8 text-[#ff8384] rounded-lg inline-flex items-center justify-center bg-white hover:bg-gray-50"
+                            id={`offboarding-task-delete-btn-${taskSlug}`}
+                            data-cy={`offboarding-task-delete-btn-${taskSlug}`}
+                          >
+                            <DeleteOutlineOutlinedIcon className="text-base" />
+                          </button>
+                        </DeleteConfirmationPopover>
                       </div>
                     </EmployeeTaskDraggable>
                   );
@@ -552,52 +754,138 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
                 </div>
               )}
             </DroppableArea>
-            {isDeleteModalVisible && taskToDelete && (
-              <DeleteModal
-                data-cy="offboarding-delete-modal"
-                open={isDeleteModalVisible}
-                onConfirm={() => {
-                  handelTaskDelete(taskToDelete.id);
-                  setIsDeleteModalVisible(false);
-                  setTaskToDelete(null as any);
-                }}
-                onCancel={() => {
-                  setIsDeleteModalVisible(false);
-                  setTaskToDelete(null as any);
-                }}
-                customMessage={
-                  <>
-                    <div
-                      id="offboarding-delete-modal-body"
-                      data-cy="offboarding-delete-modal-body"
-                    >
-                      <p
-                        id="offboarding-delete-modal-title-p"
-                        data-cy="offboarding-delete-modal-title-p"
-                      >
-                        <strong data-cy="offboarding-delete-modal-title-label">
-                          Title:{' '}
-                        </strong>{' '}
-                        {taskToDelete.title}
-                      </p>
-                      <p
-                        id="offboarding-delete-modal-assigned-to-p"
-                        data-cy="offboarding-delete-modal-assigned-to-p"
-                      >
-                        <strong
-                          id="offboarding-delete-modal-assigned-to-strong"
-                          data-cy="offboarding-delete-modal-assigned-to-strong"
-                        >
-                          Assigned To:{' '}
-                        </strong>
-                        {`${taskToDelete?.approver?.firstName || ''} ${taskToDelete?.approver?.middleName || ''} ${taskToDelete?.approver?.lastName || ''}`.trim()}
-                      </p>
-                    </div>
-                  </>
-                }
-              />
-            )}
             <AddTaskModal id={id} data-cy="offboarding-add-task-modal" />
+
+            <Modal
+              title="Edit Task"
+              centered
+              open={!!taskBeingEdited}
+              onCancel={closeEditModal}
+              footer={false}
+              destroyOnClose
+              data-cy="offboarding-edit-task-modal"
+            >
+              <Form
+                form={editForm}
+                layout="vertical"
+                onFinish={handleEditTaskSubmit}
+                disabled={isUpdatingOffboardingItem}
+                requiredMark={false}
+                id="offboarding-edit-task-form"
+                data-cy="offboarding-edit-task-form"
+              >
+                <div
+                  data-cy="offboarding-edit-task-form-items"
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+                >
+                  <Form.Item
+                    label="Task Name"
+                    name="title"
+                    rules={[
+                      { required: true, message: 'Please enter a task name' },
+                    ]}
+                    data-cy="offboarding-edit-task-title-item"
+                  >
+                    <Input
+                      placeholder="Task Name"
+                      className="h-10"
+                      id="offboarding-edit-task-title-input"
+                      data-cy="offboarding-edit-task-title-input"
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="Approver"
+                    name="approverId"
+                    rules={[
+                      { required: true, message: 'Please select approver' },
+                    ]}
+                    data-cy="offboarding-edit-task-approver-item"
+                  >
+                    <Select
+                      placeholder="Search and select approver"
+                      allowClear
+                      showSearch
+                      filterOption={(input, option) => {
+                        const user = users?.items?.find(
+                          (u: { id: string }) => u.id === option?.value,
+                        );
+                        if (!user) return false;
+                        const fullName =
+                          `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`
+                            .trim()
+                            .toLowerCase();
+                        return fullName.includes(input.toLowerCase());
+                      }}
+                      optionFilterProp="children"
+                      className="h-10"
+                      id="offboarding-edit-task-approver-select"
+                      data-cy="offboarding-edit-task-approver-select"
+                    >
+                      {users?.items?.map(
+                        (user: {
+                          id: string;
+                          firstName?: string;
+                          middleName?: string;
+                          lastName?: string;
+                        }) => (
+                          <Option key={user.id} value={user.id}>
+                            {`${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`.trim()}
+                          </Option>
+                        ),
+                      )}
+                    </Select>
+                  </Form.Item>
+                </div>
+                <Form.Item
+                  label={
+                    <span data-cy="offboarding-edit-task-description-label">
+                      Description{' '}
+                      <span
+                        data-cy="offboarding-edit-task-description-label-optional"
+                        className="text-gray-400 font-normal"
+                      >
+                        (optional)
+                      </span>
+                    </span>
+                  }
+                  name="description"
+                  data-cy="offboarding-edit-task-description-item"
+                >
+                  <TextArea
+                    className="h-[52px]"
+                    allowClear
+                    placeholder="Description (optional)"
+                    id="offboarding-edit-task-description-textarea"
+                    data-cy="offboarding-edit-task-description-textarea"
+                  />
+                </Form.Item>
+                <Form.Item data-cy="offboarding-edit-task-actions">
+                  <Row className="flex justify-end gap-3 mt-3">
+                    <Button
+                      type="default"
+                      className="border border-[#D9D9D9] !h-8 font-normal"
+                      htmlType="button"
+                      onClick={closeEditModal}
+                      disabled={isUpdatingOffboardingItem}
+                      id="offboarding-edit-task-cancel-btn"
+                      data-cy="offboarding-edit-task-cancel-btn"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={isUpdatingOffboardingItem}
+                      className="!h-8 font-normal"
+                      id="offboarding-edit-task-submit-btn"
+                      data-cy="offboarding-edit-task-submit-btn"
+                    >
+                      Save
+                    </Button>
+                  </Row>
+                </Form.Item>
+              </Form>
+            </Modal>
           </Card>
         </div>
       </DndContext>

@@ -137,6 +137,7 @@ const EnhancedLocationPicker: React.FC<EnhancedLocationPickerProps> = ({
           longitude={longitude}
           radius={radius}
           onLocationChange={handleLocationChange}
+          onRadiusChange={onRadiusChange}
           height={height}
           width={width}
           autoZoom={autoZoom}

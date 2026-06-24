@@ -48,6 +48,20 @@ const fetchQuestionTemplate = async (pageSize: number, current: number) => {
   });
 };
 
+const fetchSurveyAssignment = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    tenantId,
+    Authorization: `Bearer ${token}`,
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/form-permissions/survey-vp-assignments`,
+    method: 'GET',
+    headers,
+  });
+};
+
 /**
  * Custom hook to fetch question templates with pagination using React Query's useQuery hook.
  * The query's cache key is based on the `pageSize` and `current` page number to ensure proper cache handling.
@@ -60,4 +74,8 @@ export const useFetchQuestionTemplate = (pageSize: number, current: number) => {
   return useQuery(['questionTemplate', pageSize, current], () =>
     fetchQuestionTemplate(pageSize, current),
   );
+};
+
+export const useFetchSurveyAssignment = () => {
+  return useQuery(['surveyAssignment'], fetchSurveyAssignment);
 };

@@ -1,27 +1,461 @@
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
 import {
   Button,
+  Checkbox,
   Col,
+  DatePicker,
   Form,
   Input,
   InputNumber,
   Modal,
+  Radio,
   Row,
-  Select,
   Skeleton,
+  Tooltip,
 } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
-import { useSetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
-import { formatToOptions } from '@/helpers/formatTo';
-import { useGetAttendanceNotificationRule } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
-import React, { useEffect } from 'react';
-import { MdKeyboardArrowDown } from 'react-icons/md';
+import TimerOffOutlinedIcon from '@mui/icons-material/TimerOffOutlined';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
+import UpdateIcon from '@mui/icons-material/Update';
+import {
+  useCreateAttendanceRule,
+  useUpdateAttendanceRule,
+} from '@/store/server/features/timesheet/attendanceNotificationRule/mutation';
+import {
+  useGetAttendanceRule,
+  useGetAttendanceRuleTypes,
+} from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
+import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
+import { BreakType } from '@/types/timesheet/breakType';
+import {
+  AttendanceActionType,
+  AttendanceRule,
+  AttendanceRuleType,
+  AttendanceRuleTypes,
+} from '@/types/timesheet/attendance';
+import React, { useEffect, useMemo, useState } from 'react';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import TextEditor from '@/components/form/textEditor';
+import dayjs from 'dayjs';
+
+type StepType = 1 | 2 | 3;
+
+const ACTION_TYPE_OPTIONS = [
+  {
+    label: 'Warning Letter',
+    value: AttendanceActionType.WARNING_LETTER,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-warning-letter-label',
+  },
+  {
+    label: 'Reprimand',
+    value: AttendanceActionType.REPRIMAND,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-reprimand-label',
+  },
+  {
+    label: 'Salary Deduction',
+    value: AttendanceActionType.SALARY_DEDUCTION,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-salary-deduction-label',
+  },
+  {
+    label: 'VP Deduction',
+    value: AttendanceActionType.VP_DEDUCTION,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-vp-deduction-label',
+  },
+] as const;
+
+const actionCheckboxGroupClassName =
+  'grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 [&_.ant-checkbox-wrapper]:m-0 [&_.ant-checkbox-wrapper]:flex [&_.ant-checkbox-wrapper]:w-full [&_.ant-checkbox-wrapper]:items-center [&_.ant-checkbox-wrapper]:gap-2 [&_.ant-checkbox-wrapper]:rounded-md [&_.ant-checkbox-wrapper]:bg-[#F3F4F6] [&_.ant-checkbox-wrapper]:px-3 [&_.ant-checkbox-wrapper]:py-2 [&_.ant-checkbox-wrapper]:after:hidden';
+
+const DEDUCTION_TYPE_OPTIONS = [
+  {
+    label: 'Amount in Days',
+    value: false,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-deduction-type-amount-in-days-label',
+  },
+  {
+    label: 'Fixed Amount',
+    value: true,
+    dataCy:
+      'time-attendance-settings-attendance-rules-create-rule-sidebar-deduction-type-fixed-amount-label',
+  },
+] as const;
+
+const deductionRadioGroupClassName =
+  'grid w-full grid-cols-1 gap-3 sm:grid-cols-3 [&_.ant-radio-wrapper]:m-0 [&_.ant-radio-wrapper]:flex [&_.ant-radio-wrapper]:w-full [&_.ant-radio-wrapper]:items-center [&_.ant-radio-wrapper]:gap-2 [&_.ant-radio-wrapper]:rounded-md [&_.ant-radio-wrapper]:bg-[#F3F4F6] [&_.ant-radio-wrapper]:px-3 [&_.ant-radio-wrapper]:py-2 [&_.ant-radio-wrapper]:after:hidden';
+
+const NUMERIC_NAVIGATION_KEYS = new Set([
+  'Backspace',
+  'Delete',
+  'Tab',
+  'Escape',
+  'Enter',
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowUp',
+  'ArrowDown',
+  'Home',
+  'End',
+]);
+
+const blockNonNumericKeyDown = (
+  event: React.KeyboardEvent<HTMLInputElement>,
+) => {
+  if (
+    NUMERIC_NAVIGATION_KEYS.has(event.key) ||
+    event.ctrlKey ||
+    event.metaKey
+  ) {
+    return;
+  }
+  if (/^\d$/.test(event.key)) {
+    return;
+  }
+  if (event.key === '.') {
+    if (event.currentTarget.value.includes('.')) {
+      event.preventDefault();
+    }
+    return;
+  }
+  event.preventDefault();
+};
+
+const blockNonNumericPaste = (
+  event: React.ClipboardEvent<HTMLInputElement>,
+) => {
+  const pasted = event.clipboardData.getData('text').trim();
+  if (pasted !== '' && !/^\d+(\.\d+)?$/.test(pasted)) {
+    event.preventDefault();
+  }
+};
+
+const parseNumericValue = (displayValue: string | undefined) => {
+  if (!displayValue) return '' as unknown as number;
+
+  const sanitized = displayValue.replace(/[^\d.]/g, '');
+  const [whole = '', ...fractionalParts] = sanitized.split('.');
+  const normalized =
+    fractionalParts.length === 0
+      ? whole
+      : `${whole}.${fractionalParts.join('')}`;
+
+  if (normalized === '' || normalized === '.') {
+    return '' as unknown as number;
+  }
+
+  return Number(normalized);
+};
+
+const formatNumericValue = (value: string | number | undefined) => {
+  if (value === undefined || value === null || value === '') {
+    return '';
+  }
+  return String(value);
+};
+
+const integerInputNumberProps = {
+  min: 1,
+  step: 1,
+  precision: 0,
+  controls: false,
+  inputMode: 'numeric' as const,
+  parser: parseNumericValue,
+  formatter: formatNumericValue,
+  onKeyDown: blockNonNumericKeyDown,
+  onPaste: blockNonNumericPaste,
+};
+
+const decimalAmountInputNumberProps = {
+  min: 0.01,
+  step: 0.01,
+  controls: false,
+  inputMode: 'decimal' as const,
+  parser: parseNumericValue,
+  formatter: formatNumericValue,
+  onKeyDown: blockNonNumericKeyDown,
+  onPaste: blockNonNumericPaste,
+};
+
+const integerFieldRules = (requiredMessage: string) => [
+  { required: true, message: requiredMessage },
+  {
+    type: 'number' as const,
+    min: 1,
+    message: 'Enter a valid number',
+  },
+];
+
+const decimalAmountFieldRules = (requiredMessage: string) => [
+  { required: true, message: requiredMessage },
+  {
+    type: 'number' as const,
+    min: 0.01,
+    message: 'Enter a valid amount',
+  },
+];
+
+/** API may return ruleType as a UUID string or a populated rule-type object. */
+const resolveRuleTypeId = (
+  ruleType?: string | AttendanceRuleTypes | null,
+): string | undefined => {
+  if (!ruleType) return undefined;
+  if (typeof ruleType === 'string') return ruleType;
+  if (typeof ruleType === 'object' && ruleType.id) return ruleType.id;
+  return undefined;
+};
+
+/** API may return breakType as a UUID string or a populated break-type object. */
+const resolveBreakTypeId = (
+  breakType?: string | BreakType | null,
+): string | undefined => {
+  if (!breakType) return undefined;
+  if (typeof breakType === 'string') return breakType;
+  if (typeof breakType === 'object' && breakType.id) return breakType.id;
+  return undefined;
+};
+
+const normalizeActionTypes = (actionTypes?: string | string[]) => {
+  const types = Array.isArray(actionTypes) ? actionTypes : [actionTypes];
+  return types.filter(Boolean) as string[];
+};
+
+const isLetterAction = (actionType?: string | string[]) => {
+  const types = normalizeActionTypes(actionType);
+  return (
+    types.includes(AttendanceActionType.WARNING_LETTER) ||
+    types.includes(AttendanceActionType.REPRIMAND) ||
+    types.includes(AttendanceActionType.SALARY_DEDUCTION) ||
+    types.includes(AttendanceActionType.VP_DEDUCTION)
+  );
+};
+
+const getActionLabel = (actionTypes?: string | string[]): string => {
+  const types = normalizeActionTypes(actionTypes);
+  if (types.includes(AttendanceActionType.VP_DEDUCTION)) return 'VP Deduction';
+  if (types.includes(AttendanceActionType.SALARY_DEDUCTION))
+    return 'Salary Deduction';
+  if (types.includes(AttendanceActionType.REPRIMAND)) return 'Reprimand';
+  if (types.includes(AttendanceActionType.WARNING_LETTER)) return 'Warning';
+  return 'Warning';
+};
+
+const RULE_TYPE_TOPIC_BY_TYPE: Record<AttendanceRuleType, string> = {
+  [AttendanceRuleType.ABSENT]: 'Absenteeism',
+  [AttendanceRuleType.LATE]: 'Late Arrival',
+  [AttendanceRuleType.EARLY_CLOCK_OUT]: 'Early Clock-out',
+  [AttendanceRuleType.MISSED_CHECK_IN_OUT]: 'Missed Check-in/out',
+  [AttendanceRuleType.BREAK]: 'Break',
+};
+
+const getRuleTopic = (
+  ruleType?: AttendanceRuleType | string,
+  ruleName?: string,
+): string => {
+  if (ruleType && ruleType in RULE_TYPE_TOPIC_BY_TYPE) {
+    return RULE_TYPE_TOPIC_BY_TYPE[ruleType as AttendanceRuleType];
+  }
+  if (ruleName) return ruleName;
+  return 'Attendance';
+};
+
+const getLetterBodyParagraph = (
+  ruleType?: AttendanceRuleType | string,
+  actionTypes?: string | string[],
+) => {
+  const types = normalizeActionTypes(actionTypes);
+  const isVpDeduction = types.includes(AttendanceActionType.VP_DEDUCTION);
+  const vpClause = isVpDeduction
+    ? ' As a result, {{vp deducted point}} VP points have been deducted.'
+    : '';
+  const absentVpClause = isVpDeduction
+    ? ' As a result, {{vp deducted point}} VP points have been deducted for this absence.'
+    : '';
+
+  switch (ruleType) {
+    case AttendanceRuleType.ABSENT:
+      return `This letter serves as a formal warning for your absence from work on {{violationDates}} without prior notice or approval. In accordance with company policy, regular attendance is required.${absentVpClause}`;
+    case AttendanceRuleType.LATE:
+      return `This letter serves as a formal warning for your late arrival on {{violationDates}}. In accordance with company policy, punctual attendance is required.${vpClause}`;
+    case AttendanceRuleType.EARLY_CLOCK_OUT:
+      return `This letter serves as a formal warning for your early clock-out on {{violationDates}}. In accordance with company policy, regular attendance is required.${vpClause}`;
+    case AttendanceRuleType.MISSED_CHECK_IN_OUT:
+      return `This letter serves as a formal warning for your missed check-in/check-out on {{violationDates}}. In accordance with company policy, regular attendance is required.${vpClause}`;
+    case AttendanceRuleType.BREAK:
+      return `This letter serves as a formal warning regarding your break violation on {{violationDates}}. In accordance with company policy, break guidelines must be followed.${vpClause}`;
+    default:
+      return `This letter serves as a formal ${getActionLabel(actionTypes).toLowerCase()} regarding your attendance on {{violationDates}}. In accordance with company policy, regular attendance is required.${vpClause}`;
+  }
+};
+
+const getLetterClosingParagraph = (ruleType?: AttendanceRuleType | string) => {
+  switch (ruleType) {
+    case AttendanceRuleType.ABSENT:
+      return 'Repeated absenteeism may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
+    case AttendanceRuleType.LATE:
+      return 'Repeated late arrivals may lead to further disciplinary measures. Please ensure punctual attendance moving forward.';
+    case AttendanceRuleType.EARLY_CLOCK_OUT:
+      return 'Repeated early clock-outs may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
+    case AttendanceRuleType.MISSED_CHECK_IN_OUT:
+      return 'Repeated missed check-ins/check-outs may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
+    case AttendanceRuleType.BREAK:
+      return 'Repeated break violations may lead to further disciplinary measures. Please follow break guidelines moving forward.';
+    default:
+      return 'Repeated violations may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
+  }
+};
+
+const getDefaultLetterTemplate = (
+  ruleType?: AttendanceRuleType | string,
+  ruleName?: string,
+  actionTypes?: string | string[],
+) => {
+  const actionLabel = getActionLabel(actionTypes);
+  const topic = getRuleTopic(ruleType, ruleName);
+  const bodyParagraph = getLetterBodyParagraph(ruleType, actionTypes);
+  const closingParagraph = getLetterClosingParagraph(ruleType);
+
+  return [
+    '<p>Dear {{employeeName}},</p>',
+    `<p><strong>Subject: ${actionLabel} – ${topic}</strong></p>`,
+    `<p>${bodyParagraph}</p>`,
+    `<p>${closingParagraph}</p>`,
+    '<p><br></p>',
+    '<p>Sincerely,</p>',
+    '<p>Binyam Tekle</p>',
+    '<p>People Manager</p>',
+    '<p><br></p>',
+    '<p>Cc</p>',
+    '<p>Personal file</p>',
+  ].join('');
+};
+
+const getIcon = (ruleType: AttendanceRuleType) => {
+  switch (ruleType) {
+    case AttendanceRuleType.LATE:
+      return <TimerOffOutlinedIcon className="text-amber-600" />;
+    case AttendanceRuleType.ABSENT:
+      return <EventBusyIcon className="text-red-500" />;
+    case AttendanceRuleType.EARLY_CLOCK_OUT:
+      return <UpdateIcon className="text-[#1e40af]" />;
+    case AttendanceRuleType.MISSED_CHECK_IN_OUT:
+      return <TimerOffOutlinedIcon className="text-slate-600" />;
+    case AttendanceRuleType.BREAK:
+      return <EventBusyIcon className="text-slate-600" />;
+    default:
+      return null;
+  }
+};
+
+const StepHeader = ({ currentStep }: { currentStep: StepType }) => {
+  if (currentStep === 1) return null;
+  const isStatementStep = currentStep === 3;
+
+  return (
+    <div
+      className="mb-6 px-4 hidden sm:block"
+      id="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header"
+      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header"
+    >
+      <div
+        id="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-indicator"
+        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-indicator"
+        className="flex items-center justify-center"
+      >
+        <div
+          id="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-indicator-circle"
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-indicator-circle"
+          className="w-3 h-3 rounded-full bg-[#1D4ED8]"
+        />
+        <div
+          id="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-indicator-line"
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-indicator-line"
+          className={`w-[190px] h-[2px] ${isStatementStep ? 'bg-[#1D4ED8]' : 'bg-gray-300'}`}
+        />
+        <div
+          id="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-indicator-circle"
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-indicator-circle"
+          className={`w-3 h-3 rounded-full ${isStatementStep ? 'bg-[#1D4ED8]' : 'bg-gray-400'}`}
+        />
+      </div>
+      <div
+        id="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-label"
+        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-label"
+        className="mt-2 flex justify-center gap-[140px] text-[26px] sm:text-base"
+      >
+        <span
+          id="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-label-basic-details"
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-label-basic-details"
+          className="text-[#1D4ED8]"
+        >
+          Basic Details
+        </span>
+        <span
+          id="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-label-statement"
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-header-label-statement"
+          className={isStatementStep ? 'text-[#1D4ED8]' : 'text-gray-500'}
+        >
+          Statement
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const buildAttendanceRulePayload = (
+  values: Record<string, any>,
+  selectedTypeId: string,
+  isBreakRule: boolean,
+): Partial<AttendanceRule> => {
+  const effectiveStartDate = values.effectiveStartDate
+    ? dayjs(values.effectiveStartDate).startOf('day').toISOString()
+    : undefined;
+
+  const payload: Partial<AttendanceRule> = {
+    name: String(values.name ?? '').trim(),
+    effectiveStartDate,
+    resetDays: Number(values.resetDays),
+    ruleAppliedDays: Number(values.ruleAppliedDays),
+    ruleType: resolveRuleTypeId(selectedTypeId) ?? selectedTypeId,
+    actionTypes: values.actionTypes,
+    description: values.description,
+  };
+
+  const breakTypeId = resolveBreakTypeId(values.breakType);
+  if (isBreakRule && breakTypeId) {
+    payload.breakType = breakTypeId;
+  }
+
+  const actionTypesArray = Array.isArray(values.actionTypes)
+    ? values.actionTypes
+    : [values.actionTypes];
+  if (actionTypesArray.includes(AttendanceActionType.SALARY_DEDUCTION)) {
+    payload.isFixed = values.isFixed;
+    if (values.isFixed) {
+      payload.deductibleFixedAmount = Number(values.deductibleFixedAmount);
+    } else {
+      payload.deductibleSalaryDays = Number(values.deductibleSalaryDays);
+    }
+  }
+
+  if (actionTypesArray.includes(AttendanceActionType.VP_DEDUCTION)) {
+    payload.vpDeductionAmount = Number(values.vpDeductionAmount);
+  }
+
+  if (isLetterAction(values.actionTypes)) {
+    payload.letterTemplate = values.letterTemplate;
+  }
+
+  return payload;
+};
 
 const CreateRuleSidebar = () => {
   const {
     isShowCreateRuleSidebar: isShow,
     setIsShowCreateRuleSidebar: setIsShow,
-    attendanceNotificationType,
     attendanceRuleId,
     setAttendanceRuleId,
   } = useTimesheetSettingsStore();
@@ -30,105 +464,739 @@ const CreateRuleSidebar = () => {
     data: attendanceRuleData,
     isFetching,
     refetch,
-  } = useGetAttendanceNotificationRule(attendanceRuleId ?? '');
+  } = useGetAttendanceRule(attendanceRuleId ?? '');
   const {
-    mutate: setAttendanceRule,
-    isLoading,
-    isSuccess,
-  } = useSetAttendanceNotificationRule();
+    mutate: createAttendanceRule,
+    isLoading: isCreating,
+    isSuccess: isCreateSuccess,
+  } = useCreateAttendanceRule();
+  const {
+    mutate: updateAttendanceRule,
+    isLoading: isUpdating,
+    isSuccess: isUpdateSuccess,
+  } = useUpdateAttendanceRule();
+  const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
+  const { data: breakTypesData } = useGetBreakTypes();
+
+  const ruleOrder = [
+    'LATE',
+    'ABSENT',
+    'EARLY_CLOCK_OUT',
+    'MISSED_CHECK_IN_OUT',
+  ];
+
+  const sortedAttendanceRuleTypes = useMemo(
+    () =>
+      [...(attendanceRuleTypesData?.items ?? [])].sort(
+        (a, b) => ruleOrder.indexOf(a.ruleType) - ruleOrder.indexOf(b.ruleType),
+      ),
+    [attendanceRuleTypesData?.items],
+  );
+
+  // const sortedAttendanceRuleTypes = useMemo(
+  //   () =>
+  //     [...(attendanceRuleTypesData?.items ?? [])].sort((a, b) =>
+  //       a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
+  //     ),
+  //   [attendanceRuleTypesData?.items],
+  // );
 
   const [form] = Form.useForm();
+  const [currentStep, setCurrentStep] = useState<StepType>(1);
+  const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
+
+  const selectedRule = attendanceRuleTypesData?.items?.find(
+    (rule) => rule.id === selectedTypeId,
+  );
+  const breakTypeOptions =
+    breakTypesData?.items?.map((breakType) => ({
+      label: (
+        <span
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-break-type-label"
+          className="text-sm font-normal text-black opacity-70"
+        >
+          {breakType.title}
+        </span>
+      ),
+      value: breakType.id as string,
+    })) ?? [];
 
   useEffect(() => {
     if (attendanceRuleId) {
       refetch();
+      setCurrentStep(2);
     }
-  }, [attendanceRuleId]);
+  }, [attendanceRuleId, refetch]);
 
   useEffect(() => {
-    if (attendanceRuleData) {
+    if (attendanceRuleData?.item) {
       const item = attendanceRuleData.item;
-      form.setFieldValue('title', item.title);
-      form.setFieldValue('type', item.attendanceNotificationTypeId);
-      form.setFieldValue('count', item.value);
-      form.setFieldValue('description', item.description);
+      const ruleTypeId = resolveRuleTypeId(
+        item.ruleType as string | AttendanceRuleTypes,
+      );
+      const matchingRule = attendanceRuleTypesData?.items?.find(
+        (rule) => rule.id === ruleTypeId,
+      );
+      form.setFieldsValue({
+        name: item.name,
+        effectiveStartDate: item.effectiveStartDate
+          ? dayjs(item.effectiveStartDate)
+          : undefined,
+        resetDays: item.resetDays,
+        ruleAppliedDays: item.ruleAppliedDays,
+        actionTypes: item.actionTypes,
+        breakType: resolveBreakTypeId(item.breakType as string | BreakType),
+        isFixed: item.isFixed,
+        deductibleSalaryDays: item.deductibleSalaryDays,
+        deductibleFixedAmount: item.deductibleFixedAmount,
+        vpDeductionAmount: item.vpDeductionAmount,
+        letterTemplate:
+          item.letterTemplate ||
+          (isLetterAction(item.actionTypes)
+            ? getDefaultLetterTemplate(
+                matchingRule?.ruleType,
+                matchingRule?.name,
+                item.actionTypes,
+              )
+            : undefined),
+      });
+      setSelectedTypeId(ruleTypeId ?? null);
+      setCurrentStep(isLetterAction(item.actionTypes) ? 3 : 2);
     }
-  }, [attendanceRuleData]);
+  }, [attendanceRuleData, attendanceRuleTypesData?.items, form]);
 
   useEffect(() => {
-    if (isSuccess) {
+    if (isShow && !attendanceRuleId) {
+      form.resetFields();
+      setSelectedTypeId(null);
+      setCurrentStep(1);
+    }
+  }, [isShow, attendanceRuleId, form]);
+
+  useEffect(() => {
+    if (isCreateSuccess || isUpdateSuccess) {
       onClose();
     }
-  }, [isSuccess]);
+  }, [isCreateSuccess, isUpdateSuccess]);
 
-  const itemClass = 'font-semibold text-xs';
-  const controlClass = 'mt-2.5 h-[40px] sm:h-[51px] w-full';
+  const itemClass = 'w-full font-semibold text-xs';
+  const controlClass =
+    'h-[40px] w-full text-sm font-normal text-black opacity-70';
+  const isPending = isFetching || isCreating || isUpdating;
+
+  const getStepTwoFieldsToValidate = () => {
+    const fields = [
+      'name',
+      'effectiveStartDate',
+      'resetDays',
+      'ruleAppliedDays',
+      'actionTypes',
+    ];
+
+    if (selectedRule?.isBreak) {
+      fields.push('breakType');
+    }
+
+    const actionTypes = form.getFieldValue('actionTypes') || [];
+    const actionTypesArray = Array.isArray(actionTypes)
+      ? actionTypes
+      : [actionTypes];
+    if (actionTypesArray.includes(AttendanceActionType.SALARY_DEDUCTION)) {
+      fields.push('isFixed');
+      if (form.getFieldValue('isFixed') === true) {
+        fields.push('deductibleFixedAmount');
+      }
+      if (form.getFieldValue('isFixed') === false) {
+        fields.push('deductibleSalaryDays');
+      }
+    }
+
+    if (actionTypesArray.includes(AttendanceActionType.VP_DEDUCTION)) {
+      fields.push('vpDeductionAmount');
+    }
+
+    return fields;
+  };
+
+  const submitRule = async () => {
+    const ruleTypeId = resolveRuleTypeId(selectedTypeId);
+    if (!ruleTypeId) return;
+
+    await form.validateFields(getStepTwoFieldsToValidate());
+
+    if (isLetterAction(form.getFieldValue('actionTypes'))) {
+      await form.validateFields(['letterTemplate']);
+    }
+
+    const values = form.getFieldsValue(true);
+    const payload = buildAttendanceRulePayload(
+      values,
+      ruleTypeId,
+      !!selectedRule?.isBreak,
+    );
+
+    if (attendanceRuleId) {
+      updateAttendanceRule({ id: attendanceRuleId, ...payload });
+      return;
+    }
+
+    createAttendanceRule(payload);
+  };
 
   const onFinish = () => {
-    const value = form.getFieldsValue();
-    setAttendanceRule({
-      ...(attendanceRuleId && attendanceRuleData!.item),
-      title: value.title,
-      attendanceNotificationType: value.type,
-      value: value.count,
-      description: value.description,
-    });
+    void submitRule();
   };
 
   const onClose = () => {
     form.resetFields();
+    setSelectedTypeId(null);
+    setCurrentStep(1);
     setAttendanceRuleId(null);
     setIsShow(false);
+  };
+
+  const handleContinueFromType = () => {
+    if (!selectedTypeId) return;
+    setCurrentStep(2);
+  };
+
+  const handleContinueFromBasicDetail = async () => {
+    await form.validateFields(getStepTwoFieldsToValidate());
+
+    const actionTypes = form.getFieldValue('actionTypes');
+    if (isLetterAction(actionTypes)) {
+      form.setFieldValue(
+        'letterTemplate',
+        getDefaultLetterTemplate(
+          selectedRule?.ruleType,
+          selectedRule?.name,
+          actionTypes,
+        ),
+      );
+    }
+
+    setCurrentStep(3);
+  };
+
+  const renderStepOne = () => (
+    <div
+      id="time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-container"
+      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-container"
+      className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"
+    >
+      {sortedAttendanceRuleTypes.map((rule) => {
+        const isSelected = selectedTypeId === rule.id;
+        return (
+          <button
+            key={rule.id}
+            type="button"
+            className={`rounded-xl border p-6 text-left transition-all bg-[#F3F4F6] hover:border-2 hover:border-gray-200 disabled:cursor-not-allowed disabled:opacity-50 ${isSelected ? 'border-2 border-gray-200' : 'border-transparent'}`}
+            onClick={() => setSelectedTypeId(rule.id)}
+            id={`time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-${rule.id}`}
+            data-cy={`time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-${rule.id}`}
+          >
+            <div
+              id="time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-icon"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-icon"
+              className="flex items-center justify-center mb-4 [&_.MuiSvgIcon-root]:text-[32px] [&_.MuiSvgIcon-root]:w-8 [&_.MuiSvgIcon-root]:h-8 "
+            >
+              {getIcon(rule.ruleType as AttendanceRuleType)}
+            </div>
+            <div
+              id="time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-name"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-name"
+              className="text-base font-bold text-black opacity-70 text-center"
+            >
+              {rule.name}
+            </div>
+            <div
+              id="time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-description"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-description"
+              className="mt-3 text-center text-sm font-normal text-black opacity-70 text-wrap"
+            >
+              {rule.description}
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const renderStepTwo = () => {
+    const dynamicLabel = selectedRule
+      ? `Days of ${selectedRule.name}`
+      : 'Days Absent';
+
+    return (
+      <>
+        <StepHeader currentStep={currentStep} />
+        <Row
+          gutter={[16, 16]}
+          id="time-attendance-settings-attendance-rules-create-rule-sidebar-form-row"
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-form-row"
+        >
+          <Col span={24}>
+            <Form.Item
+              label={
+                <span
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-rule-name-label"
+                  className="text-sm font-normal text-gray-900 pr-1"
+                >
+                  Rule Name
+                </span>
+              }
+              id="createRuleNameFieldId"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-field-id"
+              rules={[{ required: true, message: 'Rule name is required' }]}
+              name="name"
+            >
+              <Input
+                className={controlClass}
+                placeholder="Input"
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-title-input"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-input"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <span
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-effective-start-date-label"
+                  className="text-sm font-normal text-gray-900 pr-1"
+                >
+                  Effective Start Date
+                </span>
+              }
+              name="effectiveStartDate"
+              rules={[
+                { required: true, message: 'Effective start date is required' },
+              ]}
+            >
+              <DatePicker
+                className={controlClass}
+                placeholder="YYYY-MM-DD"
+                format="YYYY-MM-DD"
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-effective-start-date"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-effective-start-date"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              label={
+                <span
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-resets-in-label"
+                  className="text-sm font-normal text-gray-900 pr-1 inline-flex items-center gap-1"
+                >
+                  Resets in (days)
+                  <Tooltip title="Add the number of days after which the rule will reset.">
+                    <InfoOutlined
+                      sx={{ fontSize: 16 }}
+                      className="text-gray-400"
+                    />
+                  </Tooltip>
+                </span>
+              }
+              name="resetDays"
+              rules={integerFieldRules('Reset days is required')}
+            >
+              <InputNumber
+                {...integerInputNumberProps}
+                className={controlClass}
+                placeholder="30"
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-resets-in-input"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-resets-in-input"
+              />
+            </Form.Item>
+          </Col>
+
+          {selectedRule?.isBreak && (
+            <Col span={24}>
+              <Form.Item
+                label={
+                  <span
+                    data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-break-type-label"
+                    className="text-sm font-normal text-gray-900 pr-1"
+                  >
+                    Break Type
+                  </span>
+                }
+                rules={[{ required: true, message: 'Break type is required' }]}
+                name="breakType"
+              >
+                <Radio.Group
+                  options={breakTypeOptions}
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-break-type-select"
+                />
+              </Form.Item>
+            </Col>
+          )}
+
+          <Col span={24}>
+            <Form.Item
+              label={
+                <span
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-label"
+                  className="text-sm font-normal text-gray-900 pr-1 inline-flex items-center gap-1"
+                >
+                  {dynamicLabel}
+                  <Tooltip
+                    title={`Add the number of days the rule will be applied.`}
+                  >
+                    <InfoOutlined
+                      sx={{ fontSize: 16 }}
+                      className="text-gray-400"
+                    />
+                  </Tooltip>
+                </span>
+              }
+              rules={integerFieldRules(`${dynamicLabel} is required`)}
+              name="ruleAppliedDays"
+            >
+              <InputNumber
+                {...integerInputNumberProps}
+                className={controlClass}
+                placeholder="Input"
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-input"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-input"
+              />
+            </Form.Item>
+          </Col>
+          <Col span={24}>
+            <Form.Item
+              label={
+                <span
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-action-to-take-label"
+                  className="text-sm font-normal text-gray-900"
+                >
+                  Actions To Take
+                </span>
+              }
+              required
+              rules={[
+                {
+                  required: true,
+                  message: 'At least one action is required',
+                },
+              ]}
+              name="actionTypes"
+            >
+              <Checkbox.Group
+                className={actionCheckboxGroupClassName}
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-checkbox"
+              >
+                {ACTION_TYPE_OPTIONS.map((option) => (
+                  <Checkbox key={option.value} value={option.value}>
+                    <span
+                      data-cy={option.dataCy}
+                      className="text-sm font-normal text-black/70"
+                    >
+                      {option.label}
+                    </span>
+                  </Checkbox>
+                ))}
+              </Checkbox.Group>
+            </Form.Item>
+          </Col>
+          <Form.Item
+            noStyle
+            shouldUpdate={(prevValues, currentValues) =>
+              prevValues.actionTypes !== currentValues.actionTypes ||
+              prevValues.isFixed !== currentValues.isFixed
+            }
+          >
+            {({ getFieldValue }) => {
+              const actionTypesValue = getFieldValue('actionTypes') || [];
+              const actionTypesArray = Array.isArray(actionTypesValue)
+                ? actionTypesValue
+                : [actionTypesValue];
+              const isFixed = getFieldValue('isFixed');
+              const showSalaryDeductionFields = actionTypesArray.includes(
+                AttendanceActionType.SALARY_DEDUCTION,
+              );
+              const showVpDeductionField = actionTypesArray.includes(
+                AttendanceActionType.VP_DEDUCTION,
+              );
+              const showAmountInDays =
+                showSalaryDeductionFields && isFixed === false;
+              const showFixedAmount =
+                showSalaryDeductionFields && isFixed === true;
+
+              return (
+                <>
+                  {showSalaryDeductionFields && (
+                    <Col span={24}>
+                      <Form.Item
+                        label={
+                          <span
+                            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-deduction-type-label"
+                            className="text-sm font-normal text-gray-900 pr-1"
+                          >
+                            Deduction Type
+                          </span>
+                        }
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Deduction type is required',
+                          },
+                        ]}
+                        name="isFixed"
+                      >
+                        <Radio.Group
+                          className={deductionRadioGroupClassName}
+                          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-deduction-type-radio"
+                        >
+                          {DEDUCTION_TYPE_OPTIONS.map((option) => (
+                            <Radio
+                              key={String(option.value)}
+                              value={option.value}
+                            >
+                              <span
+                                data-cy={option.dataCy}
+                                className="text-sm font-normal text-black/70"
+                              >
+                                {option.label}
+                              </span>
+                            </Radio>
+                          ))}
+                        </Radio.Group>
+                      </Form.Item>
+                    </Col>
+                  )}
+                  {showAmountInDays && (
+                    <Col span={24}>
+                      <Form.Item
+                        label={
+                          <span
+                            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-deductible-amount-in-days-label"
+                            className="text-sm font-normal text-gray-900 pr-1"
+                          >
+                            Deductible Amount in Days
+                          </span>
+                        }
+                        rules={integerFieldRules(
+                          'Deductible amount is required',
+                        )}
+                        name="deductibleSalaryDays"
+                      >
+                        <InputNumber
+                          {...integerInputNumberProps}
+                          className={controlClass}
+                          placeholder="Add the number of days"
+                          id="time-attendance-settings-attendance-rules-create-rule-sidebar-deductible-amount-in-days-input"
+                          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-deductible-amount-in-days-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                  )}
+                  {showFixedAmount && (
+                    <Col span={24}>
+                      <Form.Item
+                        label={
+                          <span
+                            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-fixed-amount-label"
+                            className="text-sm font-normal text-gray-900 pr-1"
+                          >
+                            Fixed amount to be deducted
+                          </span>
+                        }
+                        rules={decimalAmountFieldRules(
+                          'Fixed amount is required',
+                        )}
+                        name="deductibleFixedAmount"
+                      >
+                        <InputNumber
+                          {...decimalAmountInputNumberProps}
+                          className={controlClass}
+                          placeholder="Add the fixed amount of money to be deducted"
+                          id="time-attendance-settings-attendance-rules-create-rule-sidebar-fixed-amount-input"
+                          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-fixed-amount-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                  )}
+                  {showVpDeductionField && (
+                    <Col span={24}>
+                      <Form.Item
+                        label={
+                          <span
+                            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-vp-deduction-amount-label"
+                            className="text-sm font-normal text-gray-900 pr-1"
+                          >
+                            VP Deduction Amount
+                          </span>
+                        }
+                        rules={decimalAmountFieldRules(
+                          'VP deduction amount is required',
+                        )}
+                        name="vpDeductionAmount"
+                      >
+                        <InputNumber
+                          {...decimalAmountInputNumberProps}
+                          className={controlClass}
+                          placeholder="Add the VP points to be deducted"
+                          id="time-attendance-settings-attendance-rules-create-rule-sidebar-vp-deduction-amount-input"
+                          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-vp-deduction-amount-input"
+                        />
+                      </Form.Item>
+                    </Col>
+                  )}
+                </>
+              );
+            }}
+          </Form.Item>
+          <Col span={24}>
+            <Form.Item
+              label={
+                <span
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-label"
+                  className="text-sm font-normal text-gray-900 pr-1"
+                >
+                  Description
+                </span>
+              }
+              name="description"
+            >
+              <Input.TextArea
+                className={controlClass}
+                placeholder="Textarea"
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-description-textarea"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-textarea"
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+      </>
+    );
+  };
+
+  const renderStepThree = () => {
+    const actionTypes = form.getFieldValue('actionTypes');
+    const letterAction = isLetterAction(actionTypes);
+
+    return (
+      <>
+        <StepHeader currentStep={currentStep} />
+        {letterAction ? (
+          <Form.Item
+            name="letterTemplate"
+            rules={[{ required: true, message: 'Letter template is required' }]}
+            id="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-editor-item"
+            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-editor-item"
+          >
+            <TextEditor placeholder="Write letter template..." />
+          </Form.Item>
+        ) : (
+          <p
+            id="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-review-text"
+            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-review-text"
+            className="text-sm text-gray-600 px-1"
+          >
+            Review your rule details and click{' '}
+            {attendanceRuleId ? 'Save' : 'Create'} to continue.
+          </p>
+        )}
+      </>
+    );
+  };
+
+  const renderFooter = () => {
+    if (currentStep === 1) {
+      return (
+        <div
+          id="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
+          className="flex justify-end gap-2"
+        >
+          <Button type="default" onClick={onClose} disabled={isPending}>
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleContinueFromType}
+            disabled={!selectedTypeId}
+          >
+            Continue
+          </Button>
+        </div>
+      );
+    }
+
+    if (currentStep === 2) {
+      return (
+        <div
+          id="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
+          className="flex justify-end gap-2"
+        >
+          <Button
+            type="default"
+            onClick={() => setCurrentStep(1)}
+            disabled={isPending}
+          >
+            Back
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleContinueFromBasicDetail}
+            disabled={isPending}
+          >
+            Continue
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        id="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
+        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
+        className="flex justify-end gap-2"
+      >
+        <Button
+          type="default"
+          onClick={() => setCurrentStep(2)}
+          disabled={isPending}
+        >
+          Back
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => form.submit()}
+          loading={isPending}
+          id="time-attendance-settings-attendance-rules-create-rule-sidebar-submit-button"
+          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-create-button"
+        >
+          {attendanceRuleId ? 'Save' : 'Create'}
+        </Button>
+      </div>
+    );
   };
 
   return (
     isShow && (
       <Modal
         open={isShow}
-        onCancel={() => onClose()}
+        onCancel={onClose}
         title={
           <div
             className="text-lg font-semibold text-[#4d4d4d]"
             id="time-attendance-settings-attendance-rules-create-rule-sidebar-header-container"
             data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-header-container"
           >
-            {attendanceRuleId ? 'Edit Rule' : 'Create Rule'}
+            Attendance Rule
           </div>
         }
-        footer={
-          <div
-            className="flex justify-end gap-2"
-            id="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
-            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-footer-container"
-          >
-            <Button
-              type="default"
-              onClick={() => onClose()}
-              id="time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button"
-              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-cancel-button"
-              className="border border-[#D9D9D9] text-base font-normal text-gray-900"
-              disabled={isFetching || isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => form.submit()}
-              loading={isFetching || isLoading}
-              id="time-attendance-settings-attendance-rules-create-rule-sidebar-submit-button"
-              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-create-button"
-            >
-              {attendanceRuleId ? 'Save' : 'Create'}
-            </Button>
-          </div>
-        }
+        footer={renderFooter()}
         data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar"
         zIndex={10002}
         centered
-        width={720}
+        width={660}
       >
         <Skeleton
-          loading={isFetching || isLoading}
+          loading={isPending && !!attendanceRuleId}
           active
           data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-spin"
         >
@@ -137,132 +1205,30 @@ const CreateRuleSidebar = () => {
             requiredMark={CustomLabel}
             autoComplete="off"
             form={form}
+            preserve
             className={itemClass}
             onFinish={onFinish}
             id="time-attendance-settings-attendance-rules-create-rule-sidebar-form"
             data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-form"
           >
-            <Row
-              gutter={[24, 24]}
-              id="time-attendance-settings-attendance-rules-create-rule-sidebar-form-row"
-              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-form-row"
+            <div
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-one"
+              className={currentStep === 1 ? 'block' : 'hidden'}
             >
-              <Col
-                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-column"
-                span={12}
-              >
-                <Form.Item
-                  label={
-                    <span
-                      className="text-sm font-normal text-gray-900 pr-1"
-                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-rule-name-label"
-                    >
-                      Rule Name
-                    </span>
-                  }
-                  id="createRuleNameFieldId"
-                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-field-id"
-                  rules={[{ required: true, message: 'Required' }]}
-                  name="title"
-                >
-                  <Input
-                    className={controlClass}
-                    id="time-attendance-settings-attendance-rules-create-rule-sidebar-title-input"
-                    data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-title-input"
-                  />
-                </Form.Item>
-              </Col>
-              <Col
-                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-column"
-                span={12}
-              >
-                <Form.Item
-                  label={
-                    <span
-                      className="text-sm font-normal text-gray-900 pr-1"
-                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-label"
-                    >
-                      Type
-                    </span>
-                  }
-                  id="createRuleTypeFieldId"
-                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-field-id"
-                  rules={[{ required: true, message: 'Required' }]}
-                  name="type"
-                >
-                  <Select
-                    className={controlClass}
-                    suffixIcon={
-                      <MdKeyboardArrowDown
-                        size={16}
-                        className="text-gray-900"
-                        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-select-icon"
-                      />
-                    }
-                    options={formatToOptions(
-                      attendanceNotificationType,
-                      'title',
-                      'id',
-                    )}
-                    id="time-attendance-settings-attendance-rules-create-rule-sidebar-type-select"
-                    data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-type-select"
-                  />
-                </Form.Item>
-              </Col>
-              <Col
-                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-column"
-                span={24}
-              >
-                <Form.Item
-                  label={
-                    <span
-                      className="text-sm font-normal text-gray-900 pr-1"
-                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-label"
-                    >
-                      Days Set
-                    </span>
-                  }
-                  id="createRuleDaysSetFieldId"
-                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-field-id"
-                  rules={[{ required: true, message: 'Required' }]}
-                  name="count"
-                >
-                  <InputNumber
-                    min={1}
-                    className="w-full py-[11px] mt-2.5"
-                    placeholder="Enter days"
-                    id="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-input"
-                    data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-days-set-input"
-                  />
-                </Form.Item>
-              </Col>
-              <Col
-                span={24}
-                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-column"
-              >
-                <Form.Item
-                  label={
-                    <span
-                      className="text-sm font-normal text-gray-900 pr-1"
-                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-label"
-                    >
-                      Description
-                    </span>
-                  }
-                  id="createRuleDescriptionFieldId"
-                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-field-id"
-                  rules={[{ required: true, message: 'Required' }]}
-                  name="description"
-                >
-                  <Input.TextArea
-                    className="w-full py-4 px-5 mt-2.5"
-                    rows={6}
-                    id="time-attendance-settings-attendance-rules-create-rule-sidebar-description-textarea"
-                    data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-description-textarea"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
+              {renderStepOne()}
+            </div>
+            <div
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-two"
+              className={currentStep === 2 ? 'block' : 'hidden'}
+            >
+              {renderStepTwo()}
+            </div>
+            <div
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-step-three"
+              className={currentStep === 3 ? 'block' : 'hidden'}
+            >
+              {renderStepThree()}
+            </div>
           </Form>
         </Skeleton>
       </Modal>

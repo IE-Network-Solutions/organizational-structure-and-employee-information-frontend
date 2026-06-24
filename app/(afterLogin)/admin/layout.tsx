@@ -3,7 +3,7 @@
 import React, { ReactNode, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Button, Divider, notification } from 'antd';
+import { Button, notification } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import { TbUserSquare } from 'react-icons/tb';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -44,15 +44,15 @@ const getBreadcrumbConfig = (pathname: string) => {
     };
   }
   return {
-    title: 'Dashboard',
-    subtitle: 'Admin Console / Dashboard',
+    title: 'Admin Console',
+    subtitle: null,
   };
 };
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { title, subtitle } = getBreadcrumbConfig(pathname || '');
+  const { title } = getBreadcrumbConfig(pathname || '');
   const tenantId = useAuthenticationStore((s) => s.tenantId);
   const [invoiceId, setInvoiceId] = useState<string | null>(null);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
@@ -132,7 +132,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="h-auto w-auto py-6" data-cy="admin-layout">
+    <div
+      className="admin-console-scope h-auto w-auto py-6"
+      data-cy="admin-layout"
+    >
       <div
         data-cy="app-afterlogin-admin-layout-tsx-layout-div-136"
         className="flex items-start justify-between gap-2 flex-nowrap"
@@ -152,25 +155,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           )}
           <CustomBreadcrumb
             title={title}
-            rootClassName="!w-auto min-w-0"
+            rootClassName="!w-full min-w-0"
             titleClassName="!text-[#000000]/[0.7]"
-            subtitle={
-              <>
-                <Link
-                  href="/admin/dashboard"
-                  className="text-slate-500 hover:text-primary"
-                >
-                  Admin Console
-                </Link>
-                {' / '}
-                <span
-                  data-cy="app-afterlogin-admin-layout-tsx-layout-span-159"
-                  className="text-[#000000]/[0.7]"
-                >
-                  {String(subtitle).replace(/^Admin Console\s*\/\s*/, '')}
-                </span>
-              </>
-            }
+            subtitle={null}
+            showBottomSeparator={false}
           />
         </div>
         {isBillingPage ? (
@@ -212,7 +200,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
           </Link>
         ) : null}
       </div>
-      <Divider className="!my-0" />
+      <div
+        className="mt-1 h-px w-[calc(100%+16px)] -ml-2 bg-[#E5E7EB] md:w-[calc(100%+48px)] md:-ml-6"
+        data-cy={
+          isDashboardPage
+            ? 'admin-dashboard-title-separator'
+            : 'admin-layout-title-separator'
+        }
+        aria-hidden
+      />
       {/* <Card className="rounded-lg" styles={{ body: { padding: 0 } }}> */}
       <InvoiceModal
         open={invoiceModalOpen}

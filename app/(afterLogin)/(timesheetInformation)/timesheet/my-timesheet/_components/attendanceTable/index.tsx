@@ -40,6 +40,7 @@ import usePagination from '@/utils/usePagination';
 import type { MenuProps } from 'antd';
 import { UseExportAttendanceData } from '@/store/server/features/timesheet/attendance/queries';
 import { PiExportLight } from 'react-icons/pi';
+import { formatAttendanceWallClockTimeOrDash } from '@/helpers/attendanceTimeHelper';
 
 export type AttendanceTableVariant = 'default' | 'myTimesheet';
 
@@ -48,6 +49,7 @@ const ATTENDANCE_STATUS_TAG_COLOR: Record<AttendanceRecordType, string> = {
   [AttendanceRecordType.LATE]: 'warning',
   [AttendanceRecordType.EARLY]: 'warning',
   [AttendanceRecordType.ABSENT]: 'error',
+  [AttendanceRecordType.clockedOut]: 'warning',
 };
 
 interface AttendanceTableProps {
@@ -159,7 +161,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           data-cy="time-attendance-attendance-table-row-clock-in-div"
           className="text-sm text-black py-2"
         >
-          {date ? dayjs(date).format('HH:mm') : '-'}
+          {formatAttendanceWallClockTimeOrDash(date)}
         </div>
       ),
     },
@@ -187,7 +189,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           data-cy="time-attendance-attendance-table-row-clock-out-div"
           className="text-sm text-black py-2"
         >
-          {date ? dayjs(date).format('HH:mm') : '-'}
+          {formatAttendanceWallClockTimeOrDash(date)}
         </div>
       ),
     },
@@ -316,7 +318,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           className="text-sm text-black py-2"
           data-cy="time-attendance-attendance-table-row-clock-in-div"
         >
-          {date ? dayjs(date).format('HH:mm') : '-'}
+          {formatAttendanceWallClockTimeOrDash(date)}
         </div>
       ),
     },
@@ -329,7 +331,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           className="text-sm text-black py-2"
           data-cy="time-attendance-attendance-table-row-clock-out-div"
         >
-          {date ? dayjs(date).format('HH:mm') : '-'}
+          {formatAttendanceWallClockTimeOrDash(date)}
         </div>
       ),
     },

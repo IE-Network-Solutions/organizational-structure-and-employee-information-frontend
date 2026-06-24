@@ -1,6 +1,15 @@
 import { setCookie } from '@/helpers/storageHelper';
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+
+const noopStorage: Storage = {
+  getItem: () => null,
+  setItem: () => undefined,
+  removeItem: () => undefined,
+  clear: () => undefined,
+  key: () => null,
+  length: 0,
+};
 
 interface StoreState {
   token: string;
@@ -38,6 +47,8 @@ interface StoreState {
   decrementCountdown: () => void;
   isCheckingPermissions: boolean;
   setIsCheckingPermissions: (isCheckingPermissions: boolean) => void;
+  hasHydrated: boolean;
+  setHasHydrated: (hasHydrated: boolean) => void;
 }
 export const useAuthenticationStore = create<StoreState>()(
   devtools(
@@ -103,21 +114,34 @@ export const useAuthenticationStore = create<StoreState>()(
         isCheckingPermissions: true,
         setIsCheckingPermissions: (isCheckingPermissions: boolean) =>
           set({ isCheckingPermissions }),
+        hasHydrated: false,
+        setHasHydrated: (hasHydrated: boolean) => set({ hasHydrated }),
       }),
       {
         name: 'workspace-auth', // Per-product key (shared origin) — do not reuse across products
         getStorage: () => localStorage, // Use localStorage for persistence
+        name: 'authentications-storage', // Unique name for the storage
+        storage: createJSONStorage(() =>
+          typeof window !== 'undefined' ? localStorage : noopStorage,
+        ),
         partialize: (state) => ({
           token: state.token,
           tenantId: state.tenantId,
           localId: state.localId,
           userId: state.userId,
-          // Persist userData without permissions so permissions always come from backend/Redis
-          userData: state.userData
-            ? { ...state.userData, userPermissions: undefined }
-            : state.userData,
+          // Persist full userData including userPermissions so they survive
+          // page reloads. The UserSessionRefresher and navBar still fetch
+          // fresh permissions from the backend on every route change / tab
+          // focus, so any backend permission changes will be picked up
+          // quickly. Keeping the cached copy prevents the race condition
+          // where the permission check runs before the fetch completes and
+          // incorrectly redirects to /unauthorized.
+          userData: state.userData,
           activeCalendar: state.activeCalendar,
         }),
+        onRehydrateStorage: () => () => {
+          useAuthenticationStore.getState().setHasHydrated(true);
+        },
         // getStorage: () => ({
         //   getItem: async (key: string) => {
         //     const storedValue = await get(key); // Get item from IndexedDB
@@ -140,3 +164,12 @@ export const useAuthenticationStore = create<StoreState>()(
     ),
   ),
 );
+
+if (typeof window !== 'undefined') {
+  useAuthenticationStore.persist.onFinishHydration(() => {
+    useAuthenticationStore.getState().setHasHydrated(true);
+  });
+  if (useAuthenticationStore.persist.hasHydrated()) {
+    useAuthenticationStore.getState().setHasHydrated(true);
+  }
+}

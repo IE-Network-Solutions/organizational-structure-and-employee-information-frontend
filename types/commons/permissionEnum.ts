@@ -179,6 +179,7 @@ export enum Permissions {
   DeleteEmployee = 'delete-employee',
   UpdateEmployeeStatus = 'update-employee-status',
   ViewEmployeeDetail = 'view-employee-detail',
+  ChangeEmployeeEmail = 'change-employee-email',
 
   AddOffloadingTasks = 'add-offloading-tasks',
   AddOffloadingTemplateTasks = 'add-offloading-template-tasks',

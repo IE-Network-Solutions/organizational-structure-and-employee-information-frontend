@@ -6,6 +6,7 @@ export enum FieldType {
   TIME = 'time',
   DROPDOWN = 'dropdown',
   RADIO = 'radio',
+  RATING = 'rating',
 }
 export enum ActionPlanStatus {
   SOLVED = 'solved',
@@ -89,6 +90,7 @@ export enum APPROVALTYPES {
   BRANCHREQUEST = 'BranchRequest',
   TNA = 'TNA',
   PAYROLL = 'Payroll',
+  CANDIDATE = 'Candidate',
 }
 
 // Enum for aggregate operators

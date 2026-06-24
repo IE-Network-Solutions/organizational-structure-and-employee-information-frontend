@@ -1,4 +1,11 @@
 import type { PlanOwner, PlanSummary } from '../types';
+import {
+  buildKrPlanningSource,
+  getKeyResultProgressPercent,
+  getKeyResultProgressRatioText,
+  isKeyResultFullyCompletedForPlanning,
+  resolveKrPlanningBlocked,
+} from '@/utils/okrKeyResultProgressDisplay';
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
 export interface KRPanelAggregatedKR {
@@ -9,7 +16,9 @@ export interface KRPanelAggregatedKR {
   metricType: string;
   targetValue: string | number;
   currentValue: string | number;
+  progressLabel: string;
   isDeleted: boolean;
+  planningBlocked: boolean;
 }
 
 export interface KRPanelOwnerGroup {
@@ -31,17 +40,29 @@ export function normalizeUserKeyResultItems(data: unknown): any[] {
   return [];
 }
 
-function apiKRToAggregated(kr: any): KRPanelAggregatedKR {
+/** Normalize any KR payload (plan, report, or user API) for the left KR panel cards. */
+export function aggregateKeyResultForPanel(
+  kr: any,
+  taskCount = 0,
+): KRPanelAggregatedKR {
+  const metricType =
+    kr?.metricType?.name || kr?.key_type || kr?.metricType || 'N/A';
   return {
     id: String(kr.id),
     title: (kr.title || kr.name || 'Untitled KR').trim() || 'Untitled KR',
-    progress: Math.min(100, Math.max(0, Number(kr.progress ?? 0))),
-    taskCount: 0,
-    metricType: kr.metricType?.name ?? 'N/A',
+    progress: getKeyResultProgressPercent(kr),
+    taskCount,
+    metricType,
     targetValue: kr.targetValue ?? 0,
     currentValue: kr.currentValue ?? 0,
+    progressLabel: getKeyResultProgressRatioText(kr),
     isDeleted: kr.deletedAt != null,
+    planningBlocked: isKeyResultFullyCompletedForPlanning(kr),
   };
+}
+
+function apiKRToAggregated(kr: any): KRPanelAggregatedKR {
+  return aggregateKeyResultForPanel(kr, 0);
 }
 
 function recalcAvgProgress(krs: KRPanelAggregatedKR[]): number {
@@ -129,6 +150,78 @@ export function mergeUserKeyResultsIntoOwnerGroups(
   });
 
   return merged;
+}
+
+/** KR ids that must not show a planning + (all cadences: daily / weekly / monthly). */
+export function buildBlockedKeyResultIdSet(
+  userKeyResultItems: any[],
+  panelKrs: Pick<
+    KRPanelAggregatedKR,
+    'id' | 'metricType' | 'progress' | 'currentValue' | 'targetValue'
+  >[] = [],
+): Set<string> {
+  const ids = new Set<string>();
+
+  const apiById = new Map(
+    userKeyResultItems
+      .filter((kr) => kr && kr.deletedAt == null)
+      .map((kr) => [String(kr.id), kr]),
+  );
+
+  for (const panelKr of panelKrs) {
+    const apiKr = apiById.get(String(panelKr.id));
+    if (resolveKrPlanningBlocked(panelKr, apiKr)) {
+      ids.add(String(panelKr.id));
+    }
+  }
+
+  for (const raw of userKeyResultItems) {
+    if (!raw || raw.deletedAt != null) continue;
+    const id = String(raw.id);
+    if (ids.has(id)) continue;
+    if (isKeyResultFullyCompletedForPlanning(raw)) {
+      ids.add(id);
+    }
+  }
+
+  return ids;
+}
+
+/** Reconcile plan-panel display with user KR API (status, milestones) for pick blocking. */
+export function enrichOwnerGroupsPlanningBlocked(
+  groups: KRPanelOwnerGroup[],
+  userKeyResultItems: any[],
+): KRPanelOwnerGroup[] {
+  const apiById = new Map(
+    userKeyResultItems
+      .filter((kr) => kr && kr.deletedAt == null)
+      .map((kr) => [String(kr.id), kr]),
+  );
+
+  return groups.map((group) => ({
+    ...group,
+    krs: group.krs.map((panelKr) => {
+      const apiKr = apiById.get(panelKr.id);
+      const planningSource = buildKrPlanningSource(panelKr, apiKr);
+      const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
+      const apiProgress = apiKr
+        ? getKeyResultProgressPercent(planningSource)
+        : 0;
+      const progress = Math.max(panelKr.progress, apiProgress);
+      const progressLabel = apiKr
+        ? getKeyResultProgressRatioText(planningSource)
+        : panelKr.progressLabel;
+
+      if (
+        planningBlocked === panelKr.planningBlocked &&
+        progress === panelKr.progress &&
+        progressLabel === panelKr.progressLabel
+      ) {
+        return panelKr;
+      }
+      return { ...panelKr, planningBlocked, progress, progressLabel };
+    }),
+  }));
 }
 
 export type ParentPlanContext = {

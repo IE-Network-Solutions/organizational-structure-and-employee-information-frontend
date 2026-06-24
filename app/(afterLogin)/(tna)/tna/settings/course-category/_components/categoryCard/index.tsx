@@ -141,8 +141,8 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
   return (
     <div
       className={[
-        'flex items-center justify-between px-3 py-2.5 lg:px-4 lg:py-3 border rounded-lg bg-white',
-        isActive ? 'border-[#1677FF]' : 'border-[#D9D9D9]',
+        'flex items-center justify-between px-3 py-2.5 lg:px-4 lg:py-3 rounded-lg transition-colors',
+        isActive ? 'bg-[#E6F4FF]' : 'bg-[#F9FAFB]',
       ].join(' ')}
       id={`tnaCourseCategoryCard${item.id}Id`}
       data-cy={dataCy ?? `tna-course-category-card-${item.id}`}
@@ -189,7 +189,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
           <Button
             type="text"
             disabled={isLoading}
-            className="!w-6 !h-6 !min-w-6 !min-h-6 !p-0 flex items-center justify-center border border-[#D9D9D9] rounded-[4px] hover:!bg-gray-50 shrink-0"
+            className="!w-6 !h-6 !min-w-6 !min-h-6 !p-0 flex items-center justify-center !bg-transparent !border-none shrink-0"
             id={`tna-course-category-card-menu-btn-${item.id}`}
             data-cy={`tna-course-category-card-menu-btn-${item.id}`}
             onClick={(e) => e.stopPropagation()}

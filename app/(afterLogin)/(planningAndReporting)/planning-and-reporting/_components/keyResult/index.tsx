@@ -1,11 +1,26 @@
 import { Progress } from 'antd';
 import { FC } from 'react';
 import { MdKey } from 'react-icons/md';
+import {
+  formatValueForMetric,
+  getKeyResultProgressPercent,
+  getKeyResultProgressRatioText,
+  getMetricTypeName,
+  getMilestoneProgressCounts,
+  getNumericMetricTargetValue,
+} from '@/utils/okrKeyResultProgressDisplay';
+
 interface KPIMetricsProps {
   keyResult?: any;
 }
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
+  const metricName = getMetricTypeName(keyResult);
+  const krProgressPercent = getKeyResultProgressPercent(keyResult);
+  const krProgressRatioText = getKeyResultProgressRatioText(keyResult);
+  const { total: msTotal } = getMilestoneProgressCounts(keyResult);
+  const numericTarget = getNumericMetricTargetValue(keyResult);
+
   return (
     <div
       className="py-3 px-2 sm:px-4 bg-white rounded-lg border"
@@ -42,14 +57,14 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
               <Progress
                 type="circle"
                 showInfo={false}
-                percent={keyResult?.progress}
+                percent={krProgressPercent}
                 size={20}
               />
               <span
                 data-cy="planning-and-reporting-components-keyresult-index-tsx-index-span-34"
                 className="text-sm"
               >
-                {keyResult?.progress || 0}%
+                {krProgressPercent}%
               </span>
             </div>
             <span
@@ -134,83 +149,77 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
           className="grid gap-4 mt-3 sm:mt-0"
         >
           <div
-            data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-69"
-            className="flex gap-4"
+            data-cy="planning-key-result-metrics-progress-wrap"
+            className="flex flex-col gap-2 w-full min-w-0"
           >
             <div
-              data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-70"
-              className="flex items-center gap-2"
+              data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-69"
+              className="flex gap-4 flex-wrap"
             >
               <div
-                data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-71"
-                className="bg-light_purple text-blue font-semibold text-[10px] p-1 w-16 sm:w-20 text-center rounded-lg"
-              >
-                {keyResult?.metricType?.name === 'Milestone'
-                  ? keyResult?.milestones?.filter(
-                      (e: any) => e.status === 'Completed',
-                    )?.length || 0
-                  : keyResult?.metricType?.name === 'Achieve'
-                    ? keyResult?.progress
-                    : (
-                        Number(keyResult?.currentValue) +
-                        Number(keyResult?.initialValue)
-                      )?.toLocaleString() || 0}
-              </div>
-              <div
-                data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-83"
-                className="flex items-center gap-1"
+                data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-70"
+                className="flex items-center gap-2"
               >
                 <div
-                  data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-84"
-                  className="text-blue text-xl"
+                  data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-71"
+                  className="bg-light_purple text-blue font-semibold text-[10px] p-1 min-w-16 sm:min-w-20 text-center rounded-lg"
                 >
-                  &#x2022;
+                  {krProgressRatioText}
                 </div>
                 <div
-                  data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-85"
-                  className="text-blue mt-1 text-[10px] flex items-center rounded-lg"
+                  data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-83"
+                  className="flex items-center gap-1"
                 >
-                  Achieved
+                  <div
+                    data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-84"
+                    className="text-blue text-xl"
+                  >
+                    &#x2022;
+                  </div>
+                  <div
+                    data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-85"
+                    className="text-blue mt-1 text-[10px] flex items-center rounded-lg"
+                  >
+                    Achieved
+                  </div>
                 </div>
               </div>
-            </div>
-            <div
-              data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-90"
-              className="text-xl"
-            >
-              |
-            </div>
-            <div
-              data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-91"
-              className="flex items-center gap-2"
-            >
               <div
-                data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-92"
-                className="bg-light_purple text-blue font-semibold text-[10px] p-1 w-16 sm:w-20 text-center  rounded-lg"
+                data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-90"
+                className="text-xl"
               >
-                {keyResult?.metricType?.name === 'Milestone'
-                  ? keyResult?.milestones?.length || 0
-                  : keyResult?.metricType?.name === 'Achieve'
-                    ? '100'
-                    : Number(keyResult?.targetValue)?.toLocaleString() || 0}
+                |
               </div>
               <div
-                data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-99"
-                className="flex items-center gap-1"
+                data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-91"
+                className="flex items-center gap-2"
               >
                 <div
-                  data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-100"
-                  className="text-blue text-xl"
+                  data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-92"
+                  className="bg-light_purple text-blue font-semibold text-[10px] p-1 w-16 sm:w-20 text-center  rounded-lg"
                 >
-                  &#x2022;
+                  {metricName === 'Milestone'
+                    ? msTotal
+                    : metricName === 'Achieve' || metricName === 'Achieved'
+                      ? '100'
+                      : formatValueForMetric(metricName, numericTarget)}
                 </div>
                 <div
-                  data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-101"
-                  className="text-blue mt-1  text-[10px] flex items-center rounded-lg"
+                  data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-99"
+                  className="flex items-center gap-1"
                 >
-                  {keyResult?.metricType?.name === 'Milestone'
-                    ? 'Milestones'
-                    : 'Target'}
+                  <div
+                    data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-100"
+                    className="text-blue text-xl"
+                  >
+                    &#x2022;
+                  </div>
+                  <div
+                    data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-101"
+                    className="text-blue mt-1  text-[10px] flex items-center rounded-lg"
+                  >
+                    {metricName === 'Milestone' ? 'Milestones' : 'Target'}
+                  </div>
                 </div>
               </div>
             </div>

@@ -125,6 +125,12 @@ interface UserState {
   bankInfoForm: any;
   setBankInfoForm: (bankInfoForm: any) => void;
 
+  /** Last saved bank fields for manage-employee view (overrides stale GET /users cache). */
+  savedBankSnapshot: Record<string, unknown> | null;
+  setSavedBankSnapshot: (
+    savedBankSnapshot: Record<string, unknown> | null,
+  ) => void;
+
   emergencyContact: any;
   setEmergencyContact: (emergencyContact: any) => void;
 
@@ -202,6 +208,16 @@ interface UserState {
 
   tempAllowances: any[];
   setTempAllowances: (tempAllowances: any[]) => void;
+
+  employeePrefillData: Record<string, unknown> | null;
+  setEmployeePrefillData: (
+    employeePrefillData: Record<string, unknown> | null,
+  ) => void;
+
+  isEmployeeModalFromCandidateMove: boolean;
+  setIsEmployeeModalFromCandidateMove: (
+    isEmployeeModalFromCandidateMove: boolean,
+  ) => void;
 
   employeeDetailActiveTab: string;
   setEmployeeDetailActiveTab: (employeeDetailActiveTab: string) => void;
@@ -291,7 +307,11 @@ export const useEmployeeManagementStore = create<UserState>()(
     setProfileFileList: (profileFileList: any) => set({ profileFileList }),
 
     bankInfoForm: {},
-    setBankInfoForm: (bankInfoForm: any) => ({ bankInfoForm }),
+    setBankInfoForm: (bankInfoForm: any) => set({ bankInfoForm }),
+
+    savedBankSnapshot: null,
+    setSavedBankSnapshot: (savedBankSnapshot: Record<string, unknown> | null) =>
+      set({ savedBankSnapshot }),
 
     emergencyContact: {},
     setEmergencyContact: (emergencyContact: any) => ({ emergencyContact }),
@@ -384,6 +404,16 @@ export const useEmployeeManagementStore = create<UserState>()(
       })),
     tempAllowances: [],
     setTempAllowances: (tempAllowances: any[]) => set({ tempAllowances }),
+
+    employeePrefillData: null,
+    setEmployeePrefillData: (
+      employeePrefillData: Record<string, unknown> | null,
+    ) => set({ employeePrefillData }),
+
+    isEmployeeModalFromCandidateMove: false,
+    setIsEmployeeModalFromCandidateMove: (
+      isEmployeeModalFromCandidateMove: boolean,
+    ) => set({ isEmployeeModalFromCandidateMove }),
 
     employeeDetailActiveTab: '1',
     setEmployeeDetailActiveTab: (employeeDetailActiveTab: string) =>

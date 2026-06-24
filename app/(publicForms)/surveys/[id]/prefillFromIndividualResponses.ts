@@ -228,6 +228,14 @@ export function buildPrefillFromIndividualResponses(
       formValues[fieldKey] = detail.map((d) => d.value);
     } else if (ft === FieldType.SHORT_TEXT || ft === FieldType.PARAGRAPH) {
       formValues[fieldKey] = detail.map((d) => d.value).join('\n');
+    } else if (ft === FieldType.RATING) {
+      const starValues = new Set(
+        (q.field ?? [])
+          .filter((f: { value?: string }) => f.value !== 'description')
+          .map((f: { value?: string }) => String(f.value)),
+      );
+      const starDetail = detail.find((d) => starValues.has(String(d.value)));
+      if (starDetail?.value) formValues[fieldKey] = starDetail.value;
     }
   }
 

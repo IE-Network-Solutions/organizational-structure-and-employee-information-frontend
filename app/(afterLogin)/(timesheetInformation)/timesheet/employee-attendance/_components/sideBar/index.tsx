@@ -8,6 +8,14 @@ import CustomRadio from '@/components/form/customRadio';
 import { useGetSingleAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import { useSetEditAttendance } from '@/store/server/features/timesheet/attendance/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import {
+  applyTimeToAttendanceDate,
+  ATTENDANCE_API_DATETIME_FORMAT,
+  formatAttendanceApiDateTime,
+  formatAttendanceRecordDateLabel,
+  getAttendanceDateBase,
+} from '../attendanceDateHelpers';
+import { parseAttendanceWallClockTime } from '@/helpers/attendanceTimeHelper';
 
 const EmployeeAttendanceSideBar = () => {
   const [form] = Form.useForm();
@@ -22,12 +30,15 @@ const EmployeeAttendanceSideBar = () => {
     setIsShowEmployeeAttendanceSidebar,
     setEmployeeAttendanceId,
     setEmployeeId,
+    attendanceRecordDate,
+    setAttendanceRecordDate,
   } = useEmployeeAttendanceStore();
   const onClose = () => {
     setIsShowEmployeeAttendanceSidebar(false);
     form.resetFields();
     setEmployeeAttendanceId('');
     setEmployeeId('');
+    setAttendanceRecordDate('');
   };
 
   const { data: currentAttendanceData } =
@@ -37,6 +48,9 @@ const EmployeeAttendanceSideBar = () => {
 
   const { mutate: updateLeaveRequest, isLoading: isLoadingRequest } =
     useSetEditAttendance();
+
+  const recordDate =
+    attendanceRecordDate || currentAttendanceData?.createdAt || '';
 
   const onChangeIsAbsent = (isAbsent: any) => {
     setIsAbsent(isAbsent);
@@ -81,7 +95,16 @@ const EmployeeAttendanceSideBar = () => {
       return;
     }
 
-    const dayOfTheWeek = value.startAt.format('dddd');
+    if (!recordDate) {
+      NotificationMessage.warning({
+        message:
+          'Attendance record date is missing. Please close and try again.',
+      });
+      return;
+    }
+
+    const attendanceDateBase = getAttendanceDateBase(recordDate);
+    const dayOfTheWeek = attendanceDateBase.format('dddd');
     const checkIn = value.startAt.format('HH.mm');
     const checkOut = value.endAt.format('HH.mm');
 
@@ -112,8 +135,8 @@ const EmployeeAttendanceSideBar = () => {
       {
         id: employeeAttendanceId,
         data: {
-          startAt: dayjs(value.startAt).format('YYYY-MM-DD HH:mm'),
-          endAt: dayjs(value.endAt).format('YYYY-MM-DD HH:mm'),
+          startAt: formatAttendanceApiDateTime(recordDate, value.startAt),
+          endAt: formatAttendanceApiDateTime(recordDate, value.endAt),
           lateByMinutes: Math.max(0, lateByMinutes),
           earlyByMinutes: Math.max(0, earlyByMinutes),
           isAbsent: false,
@@ -129,28 +152,33 @@ const EmployeeAttendanceSideBar = () => {
   };
 
   React.useEffect(() => {
-    if (currentAttendanceData) {
+    if (currentAttendanceData && recordDate) {
+      const dateBase = getAttendanceDateBase(recordDate);
       const formattedBreakType = {
         ...currentAttendanceData,
         startAt: currentAttendanceData.startAt
-          ? dayjs(currentAttendanceData.startAt, 'YYYY-MM-DD HH:mm')
-          : dayjs('00:00', 'HH:mm'),
+          ? applyTimeToAttendanceDate(
+              recordDate,
+              parseAttendanceWallClockTime(currentAttendanceData.startAt)!,
+            )
+          : dateBase,
         endAt: currentAttendanceData.endAt
-          ? dayjs(currentAttendanceData.endAt, 'YYYY-MM-DD HH:mm')
-          : dayjs('00:00', 'HH:mm'),
+          ? applyTimeToAttendanceDate(
+              recordDate,
+              parseAttendanceWallClockTime(currentAttendanceData.endAt)!,
+            )
+          : dateBase,
         status: formatToAttendanceStatuses(currentAttendanceData)?.[0]?.status,
       };
       form.setFieldsValue(formattedBreakType);
     }
-  }, [currentAttendanceData, form]);
+  }, [currentAttendanceData, form, recordDate]);
 
   const employeeFullName = `${employeeData?.firstName || ''} ${
     employeeData?.middleName || ''
   } ${employeeData?.lastName || ''}`.trim();
 
-  const editDateLabel = currentAttendanceData?.startAt
-    ? dayjs(currentAttendanceData.startAt, 'YYYY-MM-DD HH:mm').format('MMM D')
-    : '';
+  const editDateLabel = formatAttendanceRecordDateLabel(recordDate);
 
   return (
     isShowEmployeeAttendanceSidebar && (
@@ -241,7 +269,7 @@ const EmployeeAttendanceSideBar = () => {
                 <DatePicker
                   showTime
                   disabled={isAbsent}
-                  format="YYYY-MM-DD HH:mm"
+                  format={ATTENDANCE_API_DATETIME_FORMAT}
                   className={controlClass}
                   onChange={(datetime) => {
                     form.setFieldsValue({ startAt: datetime });
@@ -255,13 +283,10 @@ const EmployeeAttendanceSideBar = () => {
                   format="HH:mm"
                   className={controlClass}
                   onChange={(time) => {
-                    const currentStartAt = form.getFieldValue('startAt');
-                    const updatedStartAt = currentStartAt
-                      ? dayjs(currentStartAt)
-                          .hour(time.hour())
-                          .minute(time.minute())
-                      : dayjs().hour(time.hour()).minute(time.minute());
-                    form.setFieldsValue({ startAt: updatedStartAt });
+                    if (!time) return;
+                    form.setFieldsValue({
+                      startAt: applyTimeToAttendanceDate(recordDate, time),
+                    });
                   }}
                   id="time-attendance-employee-attendance-sidebar-clock-in-time"
                   data-cy="time-attendance-employee-attendance-sidebar-clock-in-time"
@@ -293,7 +318,7 @@ const EmployeeAttendanceSideBar = () => {
                 <DatePicker
                   showTime
                   disabled={isAbsent}
-                  format="YYYY-MM-DD HH:mm"
+                  format={ATTENDANCE_API_DATETIME_FORMAT}
                   className={controlClass}
                   onChange={(datetime) => {
                     form.setFieldsValue({ endAt: datetime });
@@ -307,13 +332,10 @@ const EmployeeAttendanceSideBar = () => {
                   disabled={isAbsent}
                   className={controlClass}
                   onChange={(time) => {
-                    const currentEndAt = form.getFieldValue('endAt');
-                    const updatedEndAt = currentEndAt
-                      ? dayjs(currentEndAt)
-                          .hour(time.hour())
-                          .minute(time.minute())
-                      : dayjs().hour(time.hour()).minute(time.minute());
-                    form.setFieldsValue({ endAt: updatedEndAt });
+                    if (!time) return;
+                    form.setFieldsValue({
+                      endAt: applyTimeToAttendanceDate(recordDate, time),
+                    });
                   }}
                   id="time-attendance-employee-attendance-sidebar-clock-out-time"
                   data-cy="time-attendance-employee-attendance-sidebar-clock-out-time"

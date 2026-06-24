@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Card, Empty, Spin, Tag, Button, Avatar } from 'antd';
+import { Card, Empty, Tag, Button, Avatar, Skeleton } from 'antd';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useRouter, useParams } from 'next/navigation';
@@ -172,13 +172,13 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
         data-cy="desktop-pep-organizational-structure-and-employee-information-frontend-previous-job-detail-page-tsx-previous_job_detail_page-div-168"
         className="flex items-center justify-center min-h-screen bg-gray-50"
       >
-        <Spin size="large" />
+        <Skeleton />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50" data-cy="ai-job-detail-page">
+    <div className="min-h-screen" data-cy="ai-job-detail-page">
       {/* Header */}
       <div
         className="bg-white px-6 py-4 border-b border-gray-200"
@@ -436,7 +436,7 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
                     data-cy="ai-candidate-detail-empty"
                   >
                     {isDetailsLoading ? (
-                      <Spin size="large" />
+                      <Skeleton />
                     ) : (
                       <>
                         <p

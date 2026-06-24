@@ -42,6 +42,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import SortableSurveyQuestionCard from './sortableQuestionCard';
 import PaletteDraggable, { PALETTE_ID_PREFIX } from './paletteDraggable';
 import { buildDraftQuestion } from './buildDraftQuestion';
+import { buildRatingFields } from './ratingFieldUtils';
 import { reorderIdsAtInsertBefore } from './surveyDropIndicatorUtils';
 
 interface Params {
@@ -70,6 +71,11 @@ const PALETTE = [
     fieldType: FieldType.PARAGRAPH,
     title: 'Paragraph',
     description: 'Text area with text input',
+  },
+  {
+    fieldType: FieldType.RATING,
+    title: 'Rating',
+    description: 'Star Rating with description',
   },
 ] as const;
 
@@ -319,6 +325,7 @@ const Questions = ({ id }: Params) => {
       const isChoice =
         fieldType === FieldType.MULTIPLE_CHOICE ||
         fieldType === FieldType.CHECKBOX;
+      const isRating = fieldType === FieldType.RATING;
       const fieldArr = (values.field as string[]) || [];
       const insertAt = draft?.insertAt ?? sortedItems.length;
       const orderValue = Math.min(insertAt + 1, sortedItems.length + 1);
@@ -333,7 +340,14 @@ const Questions = ({ id }: Params) => {
               order: orderValue,
               field: isChoice
                 ? fieldArr.map((value) => ({ value, id: uuidv4() }))
-                : [],
+                : isRating
+                  ? buildRatingFields(Number(values.ratingStarCount), {
+                      descriptionLabel: values.ratingDescription as string,
+                      descriptionRequired: Boolean(
+                        values.ratingDescriptionRequired,
+                      ),
+                    })
+                  : [],
             },
           ],
         });
