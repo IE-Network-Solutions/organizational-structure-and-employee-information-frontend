@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Form,
   Input,
@@ -21,9 +21,12 @@ import {
 import {
   useCreateVpScoring,
   useUpdateVpScoring,
+  VpScoringFailedAssignment,
+  VpScoringMutationResponse,
 } from '@/store/server/features/okrplanning/okr/criteria/mutation';
 import useCriteriaManagementStore from '@/store/uistate/features/okrplanning/okrSetting/criteriaManagmentStore';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import FailedAssignmentModal from '../failed-assignment-modal';
 
 const { Option } = Select;
 
@@ -31,13 +34,11 @@ const ScoringModal: React.FC = () => {
   const {
     mutate: updateScoring,
     isLoading: isUpdatingLoading,
-    isSuccess: isUpdateSuccess,
   } = useUpdateVpScoring();
 
   const {
     mutate: vpScoringMutate,
     isLoading: isCreateLoading,
-    isSuccess: isCreateSuccess,
   } = useCreateVpScoring();
 
   const { isDrawerVisible, closeDrawer, currentId } = useDrawerStore();
@@ -59,17 +60,41 @@ const ScoringModal: React.FC = () => {
   const { data: scoringData } = useFetchVpScoringById(currentId || '');
 
   const [form] = Form.useForm();
+  const [failedAssignments, setFailedAssignments] = useState<
+    VpScoringFailedAssignment[]
+  >([]);
+  const [isFailedAssignmentModalVisible, setIsFailedAssignmentModalVisible] =
+    useState(false);
+
+  const allDepartmentUsers = useMemo(
+    () =>
+      departmentData?.flatMap((dept: any) => dept.users || []) || [],
+    [departmentData],
+  );
+
+  const getEmployeeName = (employeeUserId: string) => {
+    const user = allDepartmentUsers.find(
+      (departmentUser: any) => departmentUser.id === employeeUserId,
+    );
+    return user
+      ? `${user.firstName} ${user.lastName}`.trim()
+      : 'Unknown Employee';
+  };
+
+  const handleMutationSuccess = (response: VpScoringMutationResponse) => {
+    handleModalClose();
+
+    const failed = response?.failed;
+    if (Array.isArray(failed) && failed.length > 0) {
+      setFailedAssignments(failed);
+      setIsFailedAssignmentModalVisible(true);
+    }
+  };
 
   // Watchers for tags display
   const watchedDepartments = Form.useWatch('department', form);
   const watchedUsers = Form.useWatch('users', form);
   const watchedCriteria = Form.useWatch('criteria', form);
-
-  useEffect(() => {
-    if (isUpdateSuccess || isCreateSuccess) {
-      handleModalClose();
-    }
-  }, [isUpdateSuccess, isCreateSuccess]);
 
   useEffect(() => {
     if (scoringData && criteriaData && departmentData) {
@@ -253,10 +278,13 @@ const ScoringModal: React.FC = () => {
     if (currentId) {
       payload.id = currentId;
       payload.updatedBy = userId;
-      updateScoring({ id: currentId, values: payload });
+      updateScoring(
+        { id: currentId, values: payload },
+        { onSuccess: handleMutationSuccess },
+      );
     } else {
       payload.createdBy = userId;
-      vpScoringMutate(payload);
+      vpScoringMutate(payload, { onSuccess: handleMutationSuccess });
     }
   };
 
@@ -285,31 +313,32 @@ const ScoringModal: React.FC = () => {
   );
 
   return (
-    <Modal
-      open={isDrawerVisible}
-      onCancel={handleModalClose}
-      title={
-        <span
-          className="text-[20px] font-bold text-[#262626]"
-          data-cy="okr-criteria-modal-title"
-        >
-          {currentId
-            ? 'Edit Scoring Configuration'
-            : 'Add Scoring Configuration'}
-        </span>
-      }
-      footer={footer}
-      width={1000}
-      centered
-      closeIcon={
-        <CloseOutlined
-          className="text-[#8c8c8c]"
-          data-cy="okr-criteria-modal-close-icon"
-        />
-      }
-      className="okr-settings-modal"
-      data-cy="okr-criteria-modal"
-    >
+    <>
+      <Modal
+        open={isDrawerVisible}
+        onCancel={handleModalClose}
+        title={
+          <span
+            className="text-[20px] font-bold text-[#262626]"
+            data-cy="okr-criteria-modal-title"
+          >
+            {currentId
+              ? 'Edit Scoring Configuration'
+              : 'Add Scoring Configuration'}
+          </span>
+        }
+        footer={footer}
+        width={1000}
+        centered
+        closeIcon={
+          <CloseOutlined
+            className="text-[#8c8c8c]"
+            data-cy="okr-criteria-modal-close-icon"
+          />
+        }
+        className="okr-settings-modal"
+        data-cy="okr-criteria-modal"
+      >
       <Form
         form={form}
         layout="vertical"
@@ -872,7 +901,18 @@ const ScoringModal: React.FC = () => {
           }
         `}</style>
       </Form>
-    </Modal>
+      </Modal>
+
+      <FailedAssignmentModal
+        open={isFailedAssignmentModalVisible}
+        failedAssignments={failedAssignments}
+        getEmployeeName={getEmployeeName}
+        onClose={() => {
+          setIsFailedAssignmentModalVisible(false);
+          setFailedAssignments([]);
+        }}
+      />
+    </>
   );
 };
 

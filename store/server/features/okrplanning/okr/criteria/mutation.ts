@@ -5,12 +5,25 @@ import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useMutation, useQueryClient } from 'react-query';
 
-const createVpScoring = async (values: any) => {
+export interface VpScoringFailedAssignment {
+  userId: string;
+  vpScoringId: string;
+  vpScoringName: string;
+}
+
+export interface VpScoringMutationResponse {
+  failed?: VpScoringFailedAssignment[];
+  [key: string]: unknown;
+}
+
+const createVpScoring = async (
+  values: any,
+): Promise<VpScoringMutationResponse> => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
-    await crudRequest({
+    const response = await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/vp-scoring`,
       method: 'POST',
       data: values,
@@ -24,6 +37,8 @@ const createVpScoring = async (values: any) => {
       message: 'Successfully Created',
       description: 'VP Scoring successfully Created.',
     });
+
+    return response;
   } catch (error) {
     throw error;
   }
@@ -84,12 +99,18 @@ export const useDeleteVpScoring = () => {
   });
 };
 
-const updateVpScoring = async ({ id, values }: { id: string; values: any }) => {
+const updateVpScoring = async ({
+  id,
+  values,
+}: {
+  id: string;
+  values: any;
+}): Promise<VpScoringMutationResponse> => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   try {
-    await crudRequest({
+    const response = await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/vp-scoring/${id}`,
       method: 'PUT',
       data: values,
@@ -103,6 +124,8 @@ const updateVpScoring = async ({ id, values }: { id: string; values: any }) => {
       message: 'Successfully Updated',
       description: 'VP Scoring successfully updated.',
     });
+
+    return response;
   } catch (error) {
     throw error;
   }
