@@ -37,6 +37,8 @@ import { useGetActiveFiscalYears } from '@/store/server/features/organizationStr
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import { PiCalendarBold } from 'react-icons/pi';
 import dayjs from 'dayjs';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const {
@@ -256,8 +258,14 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
 
+  const canManageOkr =
+    AccessGuard.checkAccess({ permissions: [Permissions.UpdateObjectives] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.DeleteObjectives] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.UpdateKeyResults] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.DeleteKeyResults] });
+
   const menu =
-    isOwner && isInActiveSession && !hideOwnTeamOkrActions ? (
+    isOwner && isInActiveSession && !hideOwnTeamOkrActions && canManageOkr ? (
       <Menu
         className="okr-actions-menu"
         items={[
