@@ -237,12 +237,12 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
             )}
           </div>
         </div>
-        <EmployeeRecognitionModal
-          visible={visibleEmployee}
-          onCancel={resetAllFields}
-          loading={createRecognitionLoading}
-        />
       </Form>
+      <EmployeeRecognitionModal
+        visible={visibleEmployee}
+        onCancel={resetAllFields}
+        loading={createRecognitionLoading}
+      />
     </Modal>
   );
 };

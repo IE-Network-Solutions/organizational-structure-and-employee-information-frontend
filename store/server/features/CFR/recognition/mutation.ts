@@ -216,9 +216,12 @@ export const useCreateRecognition = () => {
 export const useCreateEmployeeRecognition = () => {
   const queryClient = useQueryClient();
   return useMutation(createEmployeeRecognition, {
-    onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('recognitions');
-      queryClient.invalidateQueries('recognitionsByParentRecognitionType');
+    onSuccess: async (notused, variables: any) => {
+      await queryClient.invalidateQueries('recognitions');
+      await queryClient.invalidateQueries(
+        'recognitionsByParentRecognitionType',
+      );
+      await queryClient.refetchQueries('recognitionsByParentRecognitionType');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

@@ -1,5 +1,9 @@
 import { crudRequest } from '@/utils/crudRequest';
-import { OKR_URL, PAYROLL_URL, TIME_AND_ATTENDANCE_URL } from '@/utils/constants';
+import {
+  OKR_URL,
+  PAYROLL_URL,
+  TIME_AND_ATTENDANCE_URL,
+} from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import { getEmployee } from '@/store/server/features/employees/employeeDetail/queries';
@@ -378,17 +382,13 @@ export const useCreateVpDeduction = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('attendance-rule-violations');
-        handleSuccessMessage(
-          'POST',
-          'VP deductions created successfully.',
-        );
+        handleSuccessMessage('POST', 'VP deductions created successfully.');
       },
       onError: (error: any) => {
         NotificationMessage.error({
           message: 'Error',
           description:
-            error?.response?.data?.message ||
-            'Failed to create VP deductions.',
+            error?.response?.data?.message || 'Failed to create VP deductions.',
         });
       },
     },
