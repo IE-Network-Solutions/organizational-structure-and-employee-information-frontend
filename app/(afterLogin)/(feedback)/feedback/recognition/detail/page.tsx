@@ -127,7 +127,6 @@ function DetailPage() {
   const {
     data: getAllRecognition,
     isLoading,
-    isFetching,
   } = useGetRecognitionsByParentRecognitionType(allRecognitionIdsParams);
   const { data: selectedRecognition, isLoading: isSelectedRecognitionLoading } =
     useGetRecognitionById(selectedRecognitionId ?? '');
@@ -792,7 +791,7 @@ function DetailPage() {
         )}
 
         <div className="" data-cy="recognition-history-table-section">
-          {isLoading || (isFetching && !getAllRecognition) ? (
+          {isLoading && !getAllRecognition ? (
             <TableSkeleton columns={columns} />
           ) : (
             <Table<any>

@@ -64,6 +64,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
       startDate: start,
       endDate: end,
     };
+
     createRecognition(
       { value: formattedValues },
       {
@@ -79,6 +80,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
       },
     );
   }
+
   function handleCancel() {
     resetAllFields();
     onCancel();

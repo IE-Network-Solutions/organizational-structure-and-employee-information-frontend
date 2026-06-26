@@ -206,6 +206,10 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
   };
 
   const handleFinish = () => {
+    if (selectedEmployees.length === 0) {
+      return;
+    }
+
     const payload = selectedEmployees.map((employee: any) => ({
       recipientId: employee.recipientId,
       issuerId: issuerId,
@@ -224,8 +228,8 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
           setSelectedEmployees([]);
           setSelectedEmployeeId('');
           resetSelection();
-          onCancel();
           setVisible(false);
+          onCancel();
         },
       },
     );
