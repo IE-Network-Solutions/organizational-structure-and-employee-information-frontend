@@ -76,11 +76,27 @@ const ScoringModal: React.FC = () => {
       : 'Unknown Employee';
   };
 
+  const extractFailedAssignments = (
+    response: VpScoringMutationResponse | undefined,
+  ): VpScoringFailedAssignment[] => {
+    if (!response || typeof response !== 'object') return [];
+
+    const candidates = [
+      (response as any)?.failed,
+      (response as any)?.data?.failed,
+      (response as any)?.result?.failed,
+      (response as any)?.data?.data?.failed,
+    ];
+
+    const failed = candidates.find((candidate) => Array.isArray(candidate));
+    return Array.isArray(failed) ? (failed as VpScoringFailedAssignment[]) : [];
+  };
+
   const handleMutationSuccess = (response: VpScoringMutationResponse) => {
     handleModalClose();
 
-    const failed = response?.failed;
-    if (Array.isArray(failed) && failed.length > 0) {
+    const failed = extractFailedAssignments(response);
+    if (failed.length > 0) {
       setFailedAssignments(failed);
       setIsFailedAssignmentModalVisible(true);
     }
