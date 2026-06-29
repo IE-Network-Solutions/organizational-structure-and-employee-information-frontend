@@ -41,6 +41,7 @@ const deleteAttendanceRule = async (id: string) => {
 export const useCreateAttendanceRule = () => {
   const queryClient = useQueryClient();
   return useMutation(createAttendanceRule, {
+    // eslint-disable-next-line 
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries('attendance-rules');
       if (variables.backtrackEnabled) {
@@ -54,6 +55,7 @@ export const useCreateAttendanceRule = () => {
 export const useUpdateAttendanceRule = () => {
   const queryClient = useQueryClient();
   return useMutation(updateAttendanceRule, {
+    // eslint-disable-next-line 
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries('attendance-rules');
       if (variables.backtrackEnabled) {
