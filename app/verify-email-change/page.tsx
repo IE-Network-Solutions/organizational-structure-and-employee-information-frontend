@@ -143,12 +143,21 @@ const VerifyEmailChangeContent = () => {
       style={{ backgroundImage: 'url(/login-background.png)' }}
       data-cy="verify-email-change-page"
     >
-      <div data-cy="verify-email-change-page-content" className="w-full max-w-lg">
-        <div data-cy="verify-email-change-page-logo" className="flex justify-center mb-8">
+      <div
+        data-cy="verify-email-change-page-content"
+        className="w-full max-w-lg"
+      >
+        <div
+          data-cy="verify-email-change-page-logo"
+          className="flex justify-center mb-8"
+        >
           <Logo type="selamnew" />
         </div>
 
-        <div data-cy="verify-email-change-page-result" className="rounded-2xl bg-white px-6 py-8 shadow-sm">
+        <div
+          data-cy="verify-email-change-page-result"
+          className="rounded-2xl bg-white px-6 py-8 shadow-sm"
+        >
           {state === 'loading' && (
             <div
               className="flex flex-col items-center justify-center py-10"
@@ -157,7 +166,10 @@ const VerifyEmailChangeContent = () => {
               <Spin
                 indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />}
               />
-              <p data-cy="verify-email-change-page-loading-text" className="mt-4 text-sm text-gray-600">
+              <p
+                data-cy="verify-email-change-page-loading-text"
+                className="mt-4 text-sm text-gray-600"
+              >
                 Verifying your email change...
               </p>
             </div>
@@ -203,7 +215,10 @@ const VerifyEmailChangeContent = () => {
 const VerifyEmailChangePage = () => (
   <Suspense
     fallback={
-      <div data-cy="verify-email-change-page-loading" className="min-h-screen flex items-center justify-center">
+      <div
+        data-cy="verify-email-change-page-loading"
+        className="min-h-screen flex items-center justify-center"
+      >
         <Spin size="large" />
       </div>
     }

@@ -256,7 +256,8 @@ const ExpandedVPDetails = ({
   const vpDeductionChange = (totalVpDeductions - previousVpDeductions).toFixed(
     0,
   );
-  const isVpDeductionChangeNegative = totalVpDeductions - previousVpDeductions < 0;
+  const isVpDeductionChangeNegative =
+    totalVpDeductions - previousVpDeductions < 0;
 
   if (isLoading) {
     return <ExpandedVPDetailsSkeleton />;
