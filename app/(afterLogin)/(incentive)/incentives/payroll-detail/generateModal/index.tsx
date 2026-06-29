@@ -45,6 +45,14 @@ const GenerateModal: React.FC = () => {
     };
     generateIncentive(formattedValues, {
       onSuccess: () => {
+        const { setSearchParams, setCurrentPage } = useIncentiveStore.getState();
+
+        // Only clear filters that can hide newly generated rows. Keep year/session
+        // filters intact so the table query still uses valid API parameters.
+        setSearchParams('employee_name', '');
+        setSearchParams('byType', '');
+        setSearchParams('byMonth', '');
+        setCurrentPage(1);
         handleModalClose();
       },
     });
