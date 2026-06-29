@@ -92,7 +92,11 @@ export function mergeKeyResultWithUserApi(
     ...apiKr,
     metricType: apiKr.metricType ?? kr?.metricType,
     key_type: apiKr.key_type ?? kr?.key_type,
-    milestones: apiKr.milestones ?? apiKr.Milestones ?? kr?.milestones,
+    milestones: (() => {
+      const fromApi = apiKr.milestones ?? apiKr.Milestones;
+      if (Array.isArray(fromApi) && fromApi.length > 0) return fromApi;
+      return kr?.milestones ?? kr?.Milestones ?? [];
+    })(),
     progress: apiKr.progress ?? kr?.progress,
     currentValue: apiKr.currentValue ?? kr?.currentValue,
     targetValue: apiKr.targetValue ?? kr?.targetValue,
@@ -116,6 +120,7 @@ export function isKeyResultBlockedForPlanning(
       progress: getKeyResultProgressPercent(kr),
       currentValue: kr?.currentValue,
       targetValue: kr?.targetValue,
+      milestones: kr?.milestones ?? kr?.Milestones ?? [],
     },
     apiKr,
   );
@@ -158,6 +163,7 @@ export function isPlanningTargetBlocked(
         progress: apiKr ? getKeyResultProgressPercent(apiKr) : 0,
         currentValue: apiKr?.currentValue,
         targetValue: apiKr?.targetValue,
+        milestones: apiKr?.milestones ?? apiKr?.Milestones ?? [],
       },
       apiKr,
     )
