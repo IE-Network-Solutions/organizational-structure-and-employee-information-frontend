@@ -56,7 +56,10 @@ export const buildVpTimeConfigurationPayload = (
   const deductableAmount = Number(values.deductibleAmount ?? 0);
   const description = values.description?.trim() || undefined;
 
-  if (values.configType === VpTimeConfigType.CLOCKOUT && values.missedClockout) {
+  if (
+    values.configType === VpTimeConfigType.CLOCKOUT &&
+    values.missedClockout
+  ) {
     return {
       configType: VpTimeConfigType.CLOCKOUT,
       missedClockout: true,

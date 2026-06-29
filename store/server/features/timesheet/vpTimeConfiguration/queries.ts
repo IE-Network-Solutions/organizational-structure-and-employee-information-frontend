@@ -9,8 +9,6 @@ import {
   VpTimeConfigType,
 } from '@/store/server/features/timesheet/vpTimeConfiguration/interface';
 
-
-
 const getVpTimeConfigurations = async (
   query?: VpTimeConfigurationListQuery,
 ) => {

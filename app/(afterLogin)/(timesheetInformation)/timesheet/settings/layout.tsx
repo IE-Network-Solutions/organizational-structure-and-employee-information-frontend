@@ -84,12 +84,12 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       case 'allowed-areas':
         router.push('/timesheet/settings/allowed-areas');
         break;
-        case 'attendance-rules':
-          router.push('/timesheet/settings/attendance-rules');
-          break;
-          case 'configuration-vp-deduction':
-            router.push('/timesheet/settings/configuration-vp-deduction');
-            break;
+      case 'attendance-rules':
+        router.push('/timesheet/settings/attendance-rules');
+        break;
+      case 'configuration-vp-deduction':
+        router.push('/timesheet/settings/configuration-vp-deduction');
+        break;
       case 'imported-logs':
         router.push('/timesheet/settings/imported-logs');
         break;
@@ -170,7 +170,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         </div>
       ),
     },
-   
+
     {
       key: 'allowed-area-configuration',
       label: (

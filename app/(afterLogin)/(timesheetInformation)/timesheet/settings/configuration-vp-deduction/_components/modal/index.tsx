@@ -1,7 +1,17 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { Checkbox, Col, Form, Input, InputNumber, Modal, Row, Skeleton, Tooltip } from 'antd';
+import {
+  Checkbox,
+  Col,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Row,
+  Skeleton,
+  Tooltip,
+} from 'antd';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import CustomDrawerFooterButton, {
   CustomDrawerFooterButtonProps,
@@ -85,7 +95,10 @@ const ConfigureVpDeductionModal = () => {
     [activeFormKey, 'applyAdditionalRules'],
     form,
   );
-  const missedClockout = Form.useWatch(['earlyCheckout', 'missedClockout'], form);
+  const missedClockout = Form.useWatch(
+    ['earlyCheckout', 'missedClockout'],
+    form,
+  );
 
   const isEditMode = Boolean(vpDeductionConfigId);
   const isMissedClockout = activeTab === 'early_checkout' && missedClockout;
@@ -132,7 +145,7 @@ const ConfigureVpDeductionModal = () => {
 
   useEffect(() => {
     if (!isShow || !vpDeductionConfigId) return;
-    const item = (configData?.item ?? (configData as any)) ?? null;
+    const item = configData?.item ?? (configData as any) ?? null;
     if (!item || !item.configType) return;
 
     const isClockout = item.configType === VpTimeConfigType.CLOCKOUT;
@@ -212,10 +225,10 @@ const ConfigureVpDeductionModal = () => {
           id="time-attendance-settings-configuration-vp-deduction-modal-header"
           data-cy="time-attendance-settings-configuration-vp-deduction-modal-header"
         >
-          <div className="text-lg font-semibold text-[#262626]">
+          <div data-cy="time-attendance-settings-configuration-vp-deduction-modal-title" className="text-lg font-semibold text-[#262626]">
             Configure VP Deduction
           </div>
-          <p className="mb-0 mt-1 text-sm font-normal text-gray-500">
+          <p data-cy="time-attendance-settings-configuration-vp-deduction-modal-subtitle" className="mb-0 mt-1 text-sm font-normal text-gray-500">
             Configure VP deduction based on your institutions rules and
             regulations
           </p>
@@ -307,13 +320,14 @@ const ConfigureVpDeductionModal = () => {
                   data-cy="time-attendance-settings-configuration-vp-deduction-modal-missed-clockout-field"
                 >
                   <Checkbox data-cy="time-attendance-settings-configuration-vp-deduction-modal-missed-clockout-checkbox">
-                    <span className="text-sm font-medium text-[#262626]">
+                    <span data-cy="time-attendance-settings-configuration-vp-deduction-modal-missed-clockout-text" className="text-sm font-medium text-[#262626]">
                       Missed Clockout
                     </span>
                   </Checkbox>
                 </Form.Item>
-                <p className="mb-0 mt-1 pl-6 text-sm text-gray-500">
-                  Users who have missed clock out after working hours have ended.
+                <p data-cy="time-attendance-settings-configuration-vp-deduction-modal-missed-clockout-description" className="mb-0 mt-1 pl-6 text-sm text-gray-500">
+                  Users who have missed clock out after working hours have
+                  ended.
                 </p>
               </div>
             )}
@@ -322,7 +336,7 @@ const ConfigureVpDeductionModal = () => {
               <>
                 <Form.Item
                   label={
-                    <span className="inline-flex items-center gap-1 text-sm font-normal text-gray-900">
+                    <span data-cy="time-attendance-settings-configuration-vp-deduction-modal-time-range-label" className="inline-flex items-center gap-1 text-sm font-normal text-gray-900">
                       Time Range in minutes
                       <Tooltip title="Define the time range in minutes for this VP deduction rule.">
                         <InfoOutlined
@@ -388,7 +402,7 @@ const ConfigureVpDeductionModal = () => {
                   data-cy="time-attendance-settings-configuration-vp-deduction-modal-apply-additional-rules-field"
                 >
                   <Checkbox data-cy="time-attendance-settings-configuration-vp-deduction-modal-apply-additional-rules-checkbox">
-                    <span className="text-sm text-[#262626]">
+                    <span data-cy="time-attendance-settings-configuration-vp-deduction-modal-apply-additional-rules-text" className="text-sm text-[#262626]">
                       Apply additional rules when the time range exceeds this
                       amount.
                     </span>
@@ -400,7 +414,7 @@ const ConfigureVpDeductionModal = () => {
             <Form.Item
               name={[activeFormKey, 'deductibleAmount']}
               label={
-                <span className="text-sm font-normal text-gray-900">
+                <span data-cy="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount-label" className="text-sm font-normal text-gray-900">
                   Deductible amount
                 </span>
               }
@@ -422,7 +436,7 @@ const ConfigureVpDeductionModal = () => {
             <Form.Item
               name={[activeFormKey, 'description']}
               label={
-                <span className="text-sm font-normal text-gray-900">
+                <span data-cy="time-attendance-settings-configuration-vp-deduction-modal-description-label" className="text-sm font-normal text-gray-900">
                   Description
                 </span>
               }

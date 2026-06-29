@@ -9,7 +9,6 @@ import {
   UpdateVpTimeConfigurationPayload,
 } from '@/store/server/features/timesheet/vpTimeConfiguration/interface';
 
-
 const invalidateVpTimeConfigurations = async (
   queryClient: ReturnType<typeof useQueryClient>,
 ) => {
