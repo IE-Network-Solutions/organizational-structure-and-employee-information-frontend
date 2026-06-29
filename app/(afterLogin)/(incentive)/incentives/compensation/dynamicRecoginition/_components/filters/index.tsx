@@ -35,7 +35,6 @@ const DynamicIncentiveFilter: React.FC = () => {
     setSelectedSessions,
     currentPage,
     pageSize,
-    selectedYear,
     setSelectedYear,
     setCurrentPage,
     selectedRecognition,

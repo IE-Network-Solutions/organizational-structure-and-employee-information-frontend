@@ -21,14 +21,16 @@ import IncentiveDetailModal from './components/IncentiveDetailModal';
 import EmptyState from '@/components/empty';
 
 export type IncentiveTableDataParams = {
+  id: string;
+  userId: string;
   recognition: string;
   employee_name: React.ReactNode;
+  role?: string;
   criteria: React.ReactNode;
   bonus: React.ReactNode;
   status: React.ReactNode;
-  date_issued: React.ReactNode;
+  date_issued: string;
   createdAt: string;
-  id: string;
 };
 
 interface IncentiveTableDetailsProps {
@@ -223,12 +225,13 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
     },
   };
 
-  const IncentiveByRecognitionTypeTableData = responseLoading
-    ? []
-    : incentiveItems.map((item: AllIncentiveData) => {
+  const IncentiveByRecognitionTypeTableData: IncentiveTableDataParams[] =
+    responseLoading
+      ? []
+      : incentiveItems.map((item: AllIncentiveData) => {
           return {
             id: item?.id,
-            userId: item?.userId,
+            userId: item?.userId ?? '',
             recognition: item?.recognitionType || '--',
             employee_name: (
               <Tooltip
@@ -374,7 +377,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       {responseLoading ? (
         <TableSkeleton columns={columns} />
       ) : (
-        <Table
+        <Table<IncentiveTableDataParams>
           id="incentive-table-after-generate-table"
           data-cy="incentive-table-after-generate-table"
           rowSelection={{ type: 'checkbox', ...rowSelection }}
