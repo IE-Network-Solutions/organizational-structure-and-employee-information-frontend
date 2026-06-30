@@ -570,7 +570,6 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
                   value={
                     calendarType || form.getFieldValue('fiscalYearCalenderId')
                   }
-                  disabled={isEditMode}
                   className="w-full mt-2 [&_.ant-radio-wrapper]:!h-auto [&_.ant-radio-wrapper]:!py-2 [&_.ant-radio-wrapper]:!px-3 [&_.ant-radio-wrapper]:!border [&_.ant-radio-wrapper]:!border-gray-300 [&_.ant-radio-wrapper]:!rounded-md [&_.ant-radio-wrapper]:!shadow-sm [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:!w-full [&_.ant-radio-wrapper]:!flex [&_.ant-radio-wrapper]:!items-start [&_.ant-radio-wrapper:hover]:!border-primary [&_.ant-radio-wrapper-checked]:!border-primary [&_.ant-radio-wrapper-checked]:!bg-transparent [&_.ant-radio]:!mr-2 [&_.ant-radio]:!mt-0"
                   data-cy="org-settings-fiscal-year-calendar-input-value"
                   id="org-settings-fiscal-year-calendar-input-value"

@@ -65,6 +65,15 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
   const { data: fiscalYears } = useGetAllFiscalYears();
 
   useEffect(() => {
+    if (openfiscalYearDrawer && isEditMode && selectedFiscalYear?.id) {
+      setMonthRangeFormValues(null);
+      setSessionFormValues({});
+      setSessionData([]);
+      setFiscalYearFormValues({});
+    }
+  }, [openfiscalYearDrawer, isEditMode, selectedFiscalYear?.id]);
+
+  useEffect(() => {
     const formValues = form3?.getFieldsValue();
     setMonthRangeFormValues(formValues);
   }, [form3, setMonthRangeFormValues]);
@@ -189,16 +198,15 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
         .filter((month) => month !== null);
     };
 
-    // Try to extract months from form values first
+    // Prefer submitted form values; only fall back to stored range when form is empty
     let allMonths = extractMonthsFromValues(monthFormValues);
 
-    // Also try monthRangeValues - it might have more complete data
     if (
+      allMonths.length === 0 &&
       monthRangeValues &&
       Array.isArray(monthRangeValues) &&
       monthRangeValues.length > 0
     ) {
-      // Convert monthRangeValues array to form values format
       const monthRangeFormValues = monthRangeValues.reduce(
         (acc: any, month: any) => {
           const key = month.monthNumber;
@@ -210,24 +218,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
         },
         {},
       );
-      const monthsFromRange = extractMonthsFromValues(monthRangeFormValues);
-
-      // Use the one with more months, or merge them
-      if (monthsFromRange.length > allMonths.length) {
-        allMonths = monthsFromRange;
-      } else if (allMonths.length === 0 && monthsFromRange.length > 0) {
-        // If form values have no months but monthRangeValues does, use monthRangeValues
-        allMonths = monthsFromRange;
-      } else {
-        // Merge both, avoiding duplicates
-        const existingDates = new Set(
-          allMonths.map((m) => `${m.startDate}-${m.endDate}`),
-        );
-        const additionalMonths = monthsFromRange.filter(
-          (m) => !existingDates.has(`${m.startDate}-${m.endDate}`),
-        );
-        allMonths = [...allMonths, ...additionalMonths];
-      }
+      allMonths = extractMonthsFromValues(monthRangeFormValues);
     }
 
     // Sort months by start date to ensure correct order
@@ -710,9 +701,14 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
   };
 
   const handleSubmit = (monthFormValues: any) => {
+    const latestSessionValues =
+      sessionFormValues?.sessionData?.length > 0
+        ? sessionFormValues
+        : { sessionData: useFiscalYearDrawerStore.getState().sessionData };
+
     const fiscalYearData = getTransformedFiscalYear(
       monthFormValues,
-      sessionFormValues,
+      latestSessionValues,
     );
 
     const now = dayjs();

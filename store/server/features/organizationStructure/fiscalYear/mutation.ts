@@ -8,6 +8,44 @@ import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
+const formatDate = (date: any): string => {
+  if (!date) return '';
+  if (typeof date === 'string') return date;
+  if (date.format && typeof date.format === 'function') {
+    return date.format('YYYY-MM-DD');
+  }
+  if (date instanceof Date) {
+    return date.toISOString().split('T')[0];
+  }
+  return String(date);
+};
+
+const buildFiscalYearPayload = (fiscalYear: any) => ({
+  name: fiscalYear.name,
+  description: fiscalYear.description || `Fiscal year ${fiscalYear.name}`,
+  startDate: formatDate(fiscalYear.startDate),
+  endDate: formatDate(fiscalYear.endDate),
+  isActive: fiscalYear.isActive ?? false,
+  sessions:
+    fiscalYear.sessions?.map((session: any) => ({
+      ...(session.id ? { id: session.id } : {}),
+      name: session.name,
+      description: session.description || '',
+      startDate: formatDate(session.startDate),
+      endDate: formatDate(session.endDate),
+      active: session.active ?? false,
+      months:
+        session.months?.map((month: any) => ({
+          ...(month.id ? { id: month.id } : {}),
+          name: month.name,
+          description: month.description || '',
+          startDate: formatDate(month.startDate),
+          endDate: formatDate(month.endDate),
+          active: month.active ?? false,
+        })) || [],
+    })) || [],
+});
+
 const createFiscalYear = async (fiscalYear: any) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -16,48 +54,8 @@ const createFiscalYear = async (fiscalYear: any) => {
     Authorization: `Bearer ${token}`,
   };
 
-  // Helper function to convert Dayjs or date objects to ISO string format
-  const formatDate = (date: any): string => {
-    if (!date) return '';
-    // If it's already a string, return it
-    if (typeof date === 'string') return date;
-    // If it's a Dayjs object, format it
-    if (date.format && typeof date.format === 'function') {
-      return date.format('YYYY-MM-DD');
-    }
-    // If it's a Date object, convert it
-    if (date instanceof Date) {
-      return date.toISOString().split('T')[0];
-    }
-    // Fallback: try to convert to string
-    return String(date);
-  };
-
   // Clean payload: remove any undefined/null values and ensure required fields
-  // Convert all dates to strings (YYYY-MM-DD format) to match Postman format
-  const cleanedPayload = {
-    name: fiscalYear.name,
-    description: fiscalYear.description || `Fiscal year ${fiscalYear.name}`,
-    startDate: formatDate(fiscalYear.startDate),
-    endDate: formatDate(fiscalYear.endDate),
-    isActive: fiscalYear.isActive ?? false,
-    sessions:
-      fiscalYear.sessions?.map((session: any) => ({
-        name: session.name,
-        description: session.description || '',
-        startDate: formatDate(session.startDate),
-        endDate: formatDate(session.endDate),
-        active: session.active ?? false,
-        months:
-          session.months?.map((month: any) => ({
-            name: month.name,
-            description: month.description || '',
-            startDate: formatDate(month.startDate),
-            endDate: formatDate(month.endDate),
-            active: month.active ?? false,
-          })) || [],
-      })) || [],
-  };
+  const cleanedPayload = buildFiscalYearPayload(fiscalYear);
 
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars`,
@@ -77,7 +75,7 @@ const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/calendars/${id}`,
     method: 'PUT',
-    data: fiscalYear,
+    data: buildFiscalYearPayload(fiscalYear),
     headers,
   });
 };
