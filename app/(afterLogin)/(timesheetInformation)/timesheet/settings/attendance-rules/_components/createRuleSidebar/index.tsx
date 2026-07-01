@@ -104,7 +104,10 @@ const normalizeLetterTemplates = (
 const getActiveTemplateIndex = (audience: TemplateAudience) =>
   audience === 'management' ? 0 : 1;
 
-const letterTemplatesValidator = (_: unknown, value?: AttendanceRuleLetterTemplate[]) => {
+const letterTemplatesValidator = (
+  rule: unknown,
+  value?: AttendanceRuleLetterTemplate[],
+) => {
   const templates = normalizeLetterTemplates(value);
   const hasManagement = templates.some(
     (item) => item.isManagementTemplate && item.template?.trim(),
