@@ -19,6 +19,7 @@ import type {
   ViewMode,
 } from '../types';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { formatKrMetricTypeDisplayName } from '@/utils/okrKeyResultProgressDisplay';
 import {
   aggregateKeyResultForPanel,
   buildBlockedKeyResultIdSet,
@@ -73,19 +74,9 @@ function progressTextClass(p: number): string {
   return 'text-[#9CA3AF]';
 }
 
-/** KR metric name shown before task count (matches common API metricType.name values) */
+/** KR metric name shown before task / milestone metadata on panel cards. */
 function formatKrMetricTypeLabel(metricType: string): string {
-  if (!metricType || metricType === 'N/A') return '';
-  const n = metricType.trim();
-  const map: Record<string, string> = {
-    Achieve: 'Achieve',
-    Milestone: 'Milestone',
-    Percentage: 'Percent',
-    Percent: 'Percent',
-    Numeric: 'Numeric',
-    Currency: 'Currency',
-  };
-  return map[n] ?? n;
+  return formatKrMetricTypeDisplayName(metricType) || metricType?.trim() || '';
 }
 
 /** + dropdown: single title line per planning slot */
@@ -127,6 +118,7 @@ interface AggregatedKR {
   progressLabel: string;
   isDeleted: boolean;
   planningBlocked: boolean;
+  milestoneCount?: number;
 }
 
 interface OwnerKRGroup {
@@ -215,9 +207,82 @@ function KRProgressCard({
   const { isMobile, isTablet } = useIsMobile();
   const pickMenuPlacement =
     isMobile || isTablet ? ('bottomCenter' as const) : ('bottomLeft' as const);
-  const metricLabel = formatKrMetricTypeLabel(kr.metricType);
-
+  const metricLabel = formatKrMetricTypeLabel(kr.metricType) || 'Metric';
   const showTaskCount = kr.taskCount > 0;
+  const milestoneCount = kr.milestoneCount ?? 0;
+  const showMilestoneCount =
+    !showTaskCount && metricLabel === 'Milestone' && milestoneCount > 0;
+
+  const metadataSegments: Array<{ key: string; node: React.ReactNode }> = [];
+  metadataSegments.push({
+    key: 'metric',
+    node: (
+      <span
+        data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-349"
+        className="shrink-0 font-semibold text-[#64748B]"
+      >
+        {metricLabel}
+      </span>
+    ),
+  });
+  if (showTaskCount) {
+    metadataSegments.push({
+      key: 'tasks',
+      node: (
+        <span
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-357"
+          className="flex min-w-0 shrink items-center gap-1 truncate"
+        >
+          <span
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-395"
+            className="inline-block h-1 w-1 shrink-0 rounded-full"
+            style={{ backgroundColor: color }}
+          />
+          <span
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-362"
+            className="truncate"
+          >
+            {kr.taskCount} task{kr.taskCount !== 1 ? 's' : ''}
+          </span>
+        </span>
+      ),
+    });
+  } else if (showMilestoneCount) {
+    metadataSegments.push({
+      key: 'milestones',
+      node: (
+        <span
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-357"
+          className="flex min-w-0 shrink items-center gap-1 truncate"
+        >
+          <span
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-395"
+            className="inline-block h-1 w-1 shrink-0 rounded-full"
+            style={{ backgroundColor: color }}
+          />
+          <span
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-362"
+            className="truncate"
+          >
+            {milestoneCount} milestone{milestoneCount !== 1 ? 's' : ''}
+          </span>
+        </span>
+      ),
+    });
+  }
+  if (kr.progressLabel) {
+    metadataSegments.push({
+      key: 'progress',
+      node: (
+        <span
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-369"
+          className="shrink-0 tabular-nums font-medium text-[#64748B]"
+        >
+          {kr.progressLabel}
+        </span>
+      ),
+    });
+  }
 
   const rowSelected =
     inlinePickEnabled &&
@@ -359,57 +424,20 @@ function KRProgressCard({
           data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-346"
           className="flex min-w-0 flex-1 flex-nowrap items-center gap-x-1.5 overflow-hidden sm:gap-x-2"
         >
-          {metricLabel ? (
-            <>
-              <span
-                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-349"
-                className="shrink-0 font-semibold text-[#64748B]"
-              >
-                {metricLabel}
-              </span>
-              <span
-                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-352"
-                className="shrink-0 text-[#E5E7EB]"
-                aria-hidden
-              >
-                ·
-              </span>
-            </>
-          ) : null}
-          {showTaskCount ? (
-            <span
-              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-357"
-              className="flex min-w-0 shrink items-center gap-1 truncate"
-            >
-              <span
-                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-395"
-                className="inline-block h-1 w-1 shrink-0 rounded-full"
-                style={{ backgroundColor: color }}
-              />
-              <span
-                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-362"
-                className="truncate"
-              >
-                {kr.taskCount} task{kr.taskCount !== 1 ? 's' : ''}
-              </span>
-            </span>
-          ) : null}
-          {kr.progressLabel ? (
-            <>
-              <span
-                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-368"
-                className="shrink-0 text-[#E5E7EB]"
-              >
-                ·
-              </span>
-              <span
-                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-369"
-                className="shrink-0 tabular-nums font-medium text-[#64748B]"
-              >
-                {kr.progressLabel}
-              </span>
-            </>
-          ) : null}
+          {metadataSegments.map((segment, index) => (
+            <React.Fragment key={segment.key}>
+              {index > 0 ? (
+                <span
+                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-352"
+                  className="shrink-0 text-[#E5E7EB]"
+                  aria-hidden
+                >
+                  ·
+                </span>
+              ) : null}
+              {segment.node}
+            </React.Fragment>
+          ))}
         </div>
         {pickButton ? (
           <div

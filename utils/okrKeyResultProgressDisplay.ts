@@ -15,10 +15,67 @@ export type KeyResultMetricName =
   | string;
 
 export function getMetricTypeName(kr: {
-  metricType?: { name?: string };
+  metricType?: { name?: string } | string;
   key_type?: string;
+  metricTypeName?: string;
 }): KeyResultMetricName {
-  return (kr?.metricType?.name || kr?.key_type || '') as KeyResultMetricName;
+  if (typeof kr?.metricType === 'string' && kr.metricType.trim()) {
+    return kr.metricType.trim() as KeyResultMetricName;
+  }
+  const fromObject = (kr?.metricType as { name?: string } | undefined)?.name;
+  if (fromObject) return fromObject as KeyResultMetricName;
+  if (kr?.metricTypeName) return String(kr.metricTypeName) as KeyResultMetricName;
+  return (kr?.key_type || '') as KeyResultMetricName;
+}
+
+/** Display label for KR cards (Plan & Report panel, OKR-adjacent UIs). */
+export function formatKrMetricTypeDisplayName(
+  metric: string | null | undefined,
+): string {
+  if (!metric) return '';
+  const n = String(metric).trim();
+  if (!n || n === 'N/A') return '';
+  const map: Record<string, string> = {
+    Achieve: 'Achieve',
+    Achieved: 'Achieve',
+    Milestone: 'Milestone',
+    Percentage: 'Percent',
+    Percent: 'Percent',
+    Numeric: 'Numeric',
+    Currency: 'Currency',
+  };
+  return map[n] ?? n;
+}
+
+/** Count plan-linked tasks on a KR (direct, milestone, and parent-task trees). */
+export function countKeyResultPlanTasks(kr: {
+  tasks?: unknown[];
+  milestones?: Array<{
+    tasks?: unknown[];
+    parentTask?: Array<{ tasks?: unknown[] }>;
+  }>;
+  parentTask?: Array<{ tasks?: unknown[] }>;
+}): number {
+  const tasks: unknown[] = [];
+  if (kr?.tasks) tasks.push(...kr.tasks);
+  kr?.milestones?.forEach((m) => {
+    if (m?.tasks) tasks.push(...m.tasks);
+    m?.parentTask?.forEach((p) => {
+      if (p?.tasks) tasks.push(...p.tasks);
+    });
+  });
+  kr?.parentTask?.forEach((p) => {
+    if (p?.tasks) tasks.push(...p.tasks);
+  });
+  return tasks.length;
+}
+
+export function countKeyResultMilestones(kr: {
+  milestones?: Array<{ deletedAt?: string | null }>;
+  Milestones?: Array<{ deletedAt?: string | null }>;
+}): number {
+  const list = kr?.milestones ?? kr?.Milestones ?? [];
+  return list.filter((m) => m?.deletedAt == null).length;
 }
 
 export function isMilestoneCompleted(m: { status?: string }): boolean {
