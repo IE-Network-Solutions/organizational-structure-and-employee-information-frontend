@@ -44,81 +44,81 @@ const CriteriaBreakdown = () => {
           className="rounded-lg border border-[#f0f0f0] p-4"
           data-cy="vp-criteria-breakdown-attendance-card"
         >
-        <div
-          className="flex items-center justify-between gap-3"
-          data-cy="vp-criteria-breakdown-attendance-header"
-        >
-          <p
-            className="text-sm text-[#595959]"
-            data-cy="vp-criteria-breakdown-attendance-name"
+          <div
+            className="flex items-center justify-between gap-3"
+            data-cy="vp-criteria-breakdown-attendance-header"
           >
-            {attendanceCriteria?.name ?? 'Employee Attendance'}
-          </p>
-          {attendanceCriteria && (
-            <span
-              className={`rounded border px-2 py-1 text-xs ${
-                toNumber(attendanceCriteria.score) -
+            <p
+              className="text-sm text-[#595959]"
+              data-cy="vp-criteria-breakdown-attendance-name"
+            >
+              {attendanceCriteria?.name ?? 'Employee Attendance'}
+            </p>
+            {attendanceCriteria && (
+              <span
+                className={`rounded border px-2 py-1 text-xs ${
+                  toNumber(attendanceCriteria.score) -
+                    toNumber(attendanceCriteria.previousScore) >=
+                  0
+                    ? 'border-[#b7eb8f] bg-[#f6ffed] text-[#389e0d]'
+                    : 'border-[#ffa39e] bg-[#fff1f0] text-[#ff4d4f]'
+                }`}
+                data-cy="vp-criteria-breakdown-attendance-delta"
+              >
+                {toNumber(attendanceCriteria.score) -
                   toNumber(attendanceCriteria.previousScore) >=
                 0
-                  ? 'border-[#b7eb8f] bg-[#f6ffed] text-[#389e0d]'
-                  : 'border-[#ffa39e] bg-[#fff1f0] text-[#ff4d4f]'
-              }`}
-              data-cy="vp-criteria-breakdown-attendance-delta"
+                  ? '+'
+                  : ''}
+                {(
+                  toNumber(attendanceCriteria.score) -
+                  toNumber(attendanceCriteria.previousScore)
+                ).toFixed(2)}{' '}
+                vs last month
+              </span>
+            )}
+          </div>
+          {attendanceCriteria?.score == 0 ? (
+            <div
+              className="mt-2 rounded-md border border-[#389e0d] bg-[#f6ffed] p-3"
+              data-cy="vp-criteria-breakdown-attendance-positive"
             >
-              {toNumber(attendanceCriteria.score) -
-                toNumber(attendanceCriteria.previousScore) >=
-              0
-                ? '+'
-                : ''}
-              {(
-                toNumber(attendanceCriteria.score) -
-                toNumber(attendanceCriteria.previousScore)
-              ).toFixed(2)}{' '}
-              vs last month
-            </span>
+              <p
+                className="text-sm text-[#389e0d]"
+                data-cy="vp-criteria-breakdown-attendance-positive-text"
+              >
+                No Absences Recorded This month
+              </p>
+              <p
+                className="text-xs text-[#8c8c8c] mt-1"
+                data-cy="vp-criteria-breakdown-attendance-positive-points"
+              >
+                {toNumber(attendanceCriteria?.score).toFixed(2)} of{' '}
+                {toNumber(attendanceCriteria?.weight).toFixed(2)} VP points
+                deducted
+              </p>
+            </div>
+          ) : (
+            <div
+              className="mt-2 rounded-md border border-[#ffccc7] bg-[#fff1f0] p-3"
+              data-cy="vp-criteria-breakdown-attendance-negative"
+            >
+              <p
+                className="text-sm text-[#ff4d4f]"
+                data-cy="vp-criteria-breakdown-attendance-negative-text"
+              >
+                Attendance deductions impact your monthly VP.
+              </p>
+              <p
+                className="text-xs text-[#8c8c8c] mt-1"
+                data-cy="vp-criteria-breakdown-attendance-negative-points"
+              >
+                {toNumber(attendanceCriteria?.score).toFixed(2)} of{' '}
+                {toNumber(attendanceCriteria?.weight).toFixed(2)} VP points
+                deducted
+              </p>
+            </div>
           )}
-        </div>
-        {attendanceCriteria?.score == 0 ? (
-          <div
-            className="mt-2 rounded-md border border-[#389e0d] bg-[#f6ffed] p-3"
-            data-cy="vp-criteria-breakdown-attendance-positive"
-          >
-            <p
-              className="text-sm text-[#389e0d]"
-              data-cy="vp-criteria-breakdown-attendance-positive-text"
-            >
-              No Absences Recorded This month
-            </p>
-            <p
-              className="text-xs text-[#8c8c8c] mt-1"
-              data-cy="vp-criteria-breakdown-attendance-positive-points"
-            >
-              {toNumber(attendanceCriteria?.score).toFixed(2)} of{' '}
-              {toNumber(attendanceCriteria?.weight).toFixed(2)} VP points
-              deducted
-            </p>
-          </div>
-        ) : (
-          <div
-            className="mt-2 rounded-md border border-[#ffccc7] bg-[#fff1f0] p-3"
-            data-cy="vp-criteria-breakdown-attendance-negative"
-          >
-            <p
-              className="text-sm text-[#ff4d4f]"
-              data-cy="vp-criteria-breakdown-attendance-negative-text"
-            >
-              Attendance deductions impact your monthly VP.
-            </p>
-            <p
-              className="text-xs text-[#8c8c8c] mt-1"
-              data-cy="vp-criteria-breakdown-attendance-negative-points"
-            >
-              {toNumber(attendanceCriteria?.score).toFixed(2)} of{' '}
-              {toNumber(attendanceCriteria?.weight).toFixed(2)} VP points
-              deducted
-            </p>
-          </div>
-        )}
         </div>
 
         <ViolationCard userId={userId} />

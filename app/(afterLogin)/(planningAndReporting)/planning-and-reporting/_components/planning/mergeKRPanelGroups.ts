@@ -19,6 +19,7 @@ export interface KRPanelAggregatedKR {
   progressLabel: string;
   isDeleted: boolean;
   planningBlocked: boolean;
+  milestones?: Array<{ status?: string; deletedAt?: string | null }>;
 }
 
 export interface KRPanelOwnerGroup {
@@ -58,6 +59,7 @@ export function aggregateKeyResultForPanel(
     progressLabel: getKeyResultProgressRatioText(kr),
     isDeleted: kr.deletedAt != null,
     planningBlocked: isKeyResultFullyCompletedForPlanning(kr),
+    milestones: kr.milestones ?? kr.Milestones ?? [],
   };
 }
 

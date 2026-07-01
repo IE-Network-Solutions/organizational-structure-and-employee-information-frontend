@@ -21,9 +21,10 @@ export const getEmployeeDisplayName = (
   fallback: string,
 ): string => {
   if (!employee) return fallback;
-  const name = `${employee.firstName || ''} ${employee.middleName || ''} ${employee.lastName || ''}`
-    .trim()
-    .replace(/\s+/g, ' ');
+  const name =
+    `${employee.firstName || ''} ${employee.middleName || ''} ${employee.lastName || ''}`
+      .trim()
+      .replace(/\s+/g, ' ');
   return name || fallback;
 };
 
