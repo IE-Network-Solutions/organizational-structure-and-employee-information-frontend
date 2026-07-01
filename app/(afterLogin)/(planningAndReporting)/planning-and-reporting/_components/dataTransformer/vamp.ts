@@ -6,7 +6,10 @@ import {
   Cadence,
   Milestone,
 } from '../types';
-import { getKeyResultProgressPercent } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  getKeyResultProgressPercent,
+  normalizeProgressPercent,
+} from '@/utils/okrKeyResultProgressDisplay';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
 const planGroupedTaskHasContent = (task: any): boolean =>
@@ -227,6 +230,11 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     targetValue: resolvedTarget,
   };
 
+  const resolvedProgress =
+    isMilestoneMetric && hasUsableMetricValue(keyResult.progress)
+      ? normalizeProgressPercent({ progress: keyResult.progress })
+      : getKeyResultProgressPercent(progressPayload);
+
   return {
     id: keyResult.id || '',
     name: keyResult.name,
@@ -248,7 +256,7 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     targetValue: resolvedTarget,
     currentValue,
     initialValue,
-    progress: getKeyResultProgressPercent(progressPayload),
+    progress: resolvedProgress,
     status: keyResult.status,
     keyResultCompletionStatus: keyResult.keyResultCompletionStatus,
     deletedAt: keyResult.deletedAt || null, // Preserve deletedAt for visual indicators
@@ -524,6 +532,11 @@ export const transformReportToPlanSummary = (
       targetValue: resolvedTarget,
     };
 
+    const krResolvedProgress =
+      isMilestoneMetric && hasUsableMetricValue(kr.progress)
+        ? normalizeProgressPercent({ progress: kr.progress })
+        : getKeyResultProgressPercent(progressPayload);
+
     return {
       ...kr,
       // Ensure title is preserved even if keyResult is deleted
@@ -535,7 +548,7 @@ export const transformReportToPlanSummary = (
       targetValue: resolvedTarget,
       currentValue,
       initialValue,
-      progress: getKeyResultProgressPercent(progressPayload),
+      progress: krResolvedProgress,
       deletedAt: kr.deletedAt || null, // Preserve deletedAt for visual indicators
       objective: kr.objective
         ? {

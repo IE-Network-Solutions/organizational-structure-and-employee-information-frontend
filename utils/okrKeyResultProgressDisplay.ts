@@ -148,6 +148,37 @@ export function buildKrPlanningSource(
 }
 
 /**
+ * Merge plan / report KR payload with user KR API (milestones, progress).
+ * Cadence-agnostic: same OKR source of truth for daily, weekly, and monthly views.
+ */
+export function mergeKeyResultWithUserApi(
+  kr: any,
+  userKeyResultItems: any[],
+): any {
+  const apiKr = userKeyResultItems.find(
+    (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
+  );
+  if (!apiKr) return kr;
+  return {
+    ...kr,
+    ...apiKr,
+    metricType: apiKr.metricType ?? kr?.metricType,
+    key_type: apiKr.key_type ?? kr?.key_type,
+    milestones: (() => {
+      const fromApi = apiKr.milestones ?? apiKr.Milestones;
+      if (Array.isArray(fromApi) && fromApi.length > 0) return fromApi;
+      return kr?.milestones ?? kr?.Milestones ?? [];
+    })(),
+    progress: apiKr.progress ?? kr?.progress,
+    currentValue: apiKr.currentValue ?? kr?.currentValue,
+    targetValue: apiKr.targetValue ?? kr?.targetValue,
+    status: apiKr.status ?? kr?.status,
+    keyResultCompletionStatus:
+      apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
+  };
+}
+
+/**
  * Whether + / planning slots must be hidden for a panel KR.
  * Panel progress can be ahead of a stale user-KR API response until refetch completes;
  * only reopen when API shows measured progress below 100%.
@@ -353,11 +384,13 @@ export function getKeyResultProgressPercent(kr: {
     const { completed, total } = getMilestoneProgressCounts(kr);
     const fromField = normalizeProgressPercent(kr);
     if (total <= 0) return fromField;
-    const fromMilestones = Math.min(
-      100,
-      Math.max(0, Math.round((100 * completed) / total)),
-    );
-    return Math.max(fromMilestones, fromField);
+    const hasExplicitProgress =
+      kr?.progress !== undefined &&
+      kr?.progress !== null &&
+      kr?.progress !== '';
+    // OKR dashboard uses backend `progress`; prefer it when present for cross-page parity.
+    if (hasExplicitProgress) return fromField;
+    return Math.min(100, Math.max(0, Math.round((100 * completed) / total)));
   }
 
   if (metric === 'Achieve' || metric === 'Achieved') {
@@ -374,4 +407,16 @@ export function getKeyResultProgressPercent(kr: {
   }
 
   return normalizeProgressPercent(kr);
+}
+
+/** Merge with user KR API and recompute display progress (all plan cadences). */
+export function enrichKeyResultWithUserApi(
+  kr: any,
+  userKeyResultItems: any[],
+): any {
+  const merged = mergeKeyResultWithUserApi(kr, userKeyResultItems);
+  return {
+    ...merged,
+    progress: getKeyResultProgressPercent(merged),
+  };
 }
