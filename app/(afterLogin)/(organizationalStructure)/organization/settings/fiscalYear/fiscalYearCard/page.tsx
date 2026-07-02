@@ -41,8 +41,7 @@ const FiscalYearListCard: React.FC = () => {
     currentPage,
     setCurrentPage,
     setPageSize,
-    setEditMode,
-    setOpenFiscalYearDrawer,
+    prepareEditWizard,
     searchQuery,
   } = useFiscalYearDrawerStore();
 
@@ -87,9 +86,7 @@ const FiscalYearListCard: React.FC = () => {
 
   const handleMenuClick = (key: string, fYear: FiscalYear) => {
     if (key === 'edit') {
-      setSelectedFiscalYear(fYear);
-      setEditMode(true);
-      setOpenFiscalYearDrawer(true);
+      prepareEditWizard(fYear);
     } else if (key === 'delete') {
       setSelectedFiscalYear(fYear);
       setDeleteMode(true);

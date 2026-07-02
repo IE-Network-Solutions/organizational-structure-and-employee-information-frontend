@@ -128,15 +128,20 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
 
       setCalendarType(calendarType);
 
+      const startDate = dayjs(selectedFiscalYear.startDate);
+      const endDate = dayjs(selectedFiscalYear.endDate);
+      setFiscalYearStart(startDate);
+      setFiscalYearEnd(endDate);
+
       form.setFieldsValue({
         fiscalYearName: selectedFiscalYear?.name,
-        fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
-        fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
+        fiscalYearStartDate: startDate,
+        fiscalYearEndDate: endDate,
         fiscalYearCalenderId: `${calendarType}`,
         fiscalYearDescription: selectedFiscalYear?.description,
       });
     }
-  }, [isEditMode, selectedFiscalYear, setCalendarType, form]);
+  }, [isEditMode, selectedFiscalYear, setCalendarType, setFiscalYearStart, setFiscalYearEnd, form]);
 
   const handleValuesChange = (val: string) => {
     try {
@@ -229,10 +234,15 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
 
         setCalendarType(newCalendarType);
 
+        const startDate = dayjs(selectedFiscalYear.startDate);
+        const endDate = dayjs(selectedFiscalYear.endDate);
+        setFiscalYearStart(startDate);
+        setFiscalYearEnd(endDate);
+
         const formValues = {
           fiscalYearName: selectedFiscalYear?.name,
-          fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
-          fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
+          fiscalYearStartDate: startDate,
+          fiscalYearEndDate: endDate,
           fiscalYearCalenderId: newCalendarType,
           fiscalYearDescription: selectedFiscalYear?.description,
         };
@@ -241,8 +251,8 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
         // Set form validation state for edit mode
         setFormValidation({
           fiscalYearName: selectedFiscalYear?.name,
-          fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
-          fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
+          fiscalYearStartDate: startDate,
+          fiscalYearEndDate: endDate,
         });
       }
       // Priority 3: Reset form when in create mode and no stored values

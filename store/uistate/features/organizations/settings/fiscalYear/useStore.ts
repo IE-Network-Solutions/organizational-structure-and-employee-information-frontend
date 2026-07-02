@@ -48,7 +48,40 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set) => ({
   clearFormData: () => set({ formData: {} }),
 
   sessionData: [],
-  setSessionData: (value: any[]) => set({ sessionData: value }),
+  setSessionData: (value: any[] | ((prev: any[]) => any[])) =>
+    set((state) => ({
+      sessionData:
+        typeof value === 'function' ? value(state.sessionData) : value,
+    })),
+
+  prepareEditWizard: (fiscalYear: any) =>
+    set({
+      current: 0,
+      isEditMode: true,
+      selectedFiscalYear: fiscalYear,
+      fiscalYearFormValues: {},
+      sessionFormValues: {},
+      sessionData: [],
+      monthRangeValues: [],
+      hasOverlapError: false,
+      openfiscalYearDrawer: true,
+    }),
+
+  prepareCreateWizard: () =>
+    set({
+      current: 0,
+      isEditMode: false,
+      selectedFiscalYear: null,
+      calendarType: '',
+      fiscalYearStart: null,
+      fiscalYearEnd: null,
+      fiscalYearFormValues: {},
+      sessionFormValues: {},
+      sessionData: [],
+      monthRangeValues: [],
+      hasOverlapError: false,
+      openfiscalYearDrawer: true,
+    }),
 
   fiscalYearFormValues: {},
   setFiscalYearFormValues: (newData) => set({ fiscalYearFormValues: newData }),

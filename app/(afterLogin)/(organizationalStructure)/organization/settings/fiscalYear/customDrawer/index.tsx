@@ -65,15 +65,6 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
   const { data: fiscalYears } = useGetAllFiscalYears();
 
   useEffect(() => {
-    if (openfiscalYearDrawer && isEditMode && selectedFiscalYear?.id) {
-      setMonthRangeFormValues(null);
-      setSessionFormValues({});
-      setSessionData([]);
-      setFiscalYearFormValues({});
-    }
-  }, [openfiscalYearDrawer, isEditMode, selectedFiscalYear?.id]);
-
-  useEffect(() => {
     const formValues = form3?.getFieldsValue();
     setMonthRangeFormValues(formValues);
   }, [form3, setMonthRangeFormValues]);
@@ -893,6 +884,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
             setSessionFormValues({});
             setSessionData([]);
             setCurrent(0);
+            setEditMode(false);
+            setSelectedFiscalYear(null);
             setOpenFiscalYearDrawer(false);
             queryClient.refetchQueries('fiscalYears');
           },

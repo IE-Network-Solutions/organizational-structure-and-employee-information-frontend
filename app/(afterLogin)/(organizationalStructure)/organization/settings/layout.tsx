@@ -30,8 +30,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   } = useGetActiveFiscalYearsData();
 
   const { setFormOpen, setEditingBranch } = useBranchStore();
-  const { setOpenFiscalYearDrawer, setEditMode, setSelectedFiscalYear } =
-    useFiscalYearDrawerStore();
+  const { prepareCreateWizard } = useFiscalYearDrawerStore();
 
   useEffect(() => {
     refetch();
@@ -56,9 +55,7 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   };
 
   const handleFiscalYearAdd = () => {
-    setEditMode(false);
-    setSelectedFiscalYear(null);
-    setOpenFiscalYearDrawer(true);
+    prepareCreateWizard();
   };
 
   const handleTabChange = (key: string) => {

@@ -40,7 +40,10 @@ export interface DrawerState {
   setOpenFiscalYearDrawer: (isOpen: boolean) => void;
 
   sessionData: any[];
-  setSessionData: (data: any) => void;
+  setSessionData: (data: any[] | ((prev: any[]) => any[])) => void;
+
+  prepareEditWizard: (fiscalYear: any) => void;
+  prepareCreateWizard: () => void;
 
   fiscalYearFormValues: Record<string, any>;
   setFiscalYearFormValues: (newData: Record<string, any>) => void;
