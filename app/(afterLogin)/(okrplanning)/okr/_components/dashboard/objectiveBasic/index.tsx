@@ -39,6 +39,8 @@ import {
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import EditKeyResult from '../editKeyResult';
 import dayjs from 'dayjs';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const {
@@ -186,9 +188,15 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     isInlineEditing,
   ]);
 
+  const canManageOkr =
+    AccessGuard.checkAccess({ permissions: [Permissions.UpdateObjectives] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.DeleteObjectives] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.UpdateKeyResults] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.DeleteKeyResults] });
+
   // Owner-only menu - only show if objective is in active session
   const menu =
-    isOwner && isInActiveSession && !hideOwnTeamOkrActions ? (
+    isOwner && isInActiveSession && !hideOwnTeamOkrActions && canManageOkr ? (
       <Menu
         className="okr-actions-menu"
         items={[
