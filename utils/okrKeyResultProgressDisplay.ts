@@ -34,7 +34,8 @@ export function formatKrMetricTypeDisplayName(
 ): string {
   if (!metric) return '';
   const n = String(metric).trim();
-  if (!n || n === 'N/A') return '';
+  if (!n || n === 'N/A' || n.toLowerCase() === 'metric') return '';
+  const normalized = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
   const map: Record<string, string> = {
     Achieve: 'Achieve',
     Achieved: 'Achieve',
@@ -44,7 +45,52 @@ export function formatKrMetricTypeDisplayName(
     Numeric: 'Numeric',
     Currency: 'Currency',
   };
-  return map[n] ?? n;
+  return map[n] ?? map[normalized] ?? n;
+}
+
+/**
+ * Resolve the metric type label shown on Plan & Report KR cards.
+ * Merges API / plan fields and infers from structure when metadata is missing.
+ */
+export function resolveKrPanelMetricType(kr: {
+  metricType?: { name?: string } | string;
+  key_type?: string;
+  metricTypeName?: string;
+  milestones?: Array<{ deletedAt?: string | null }>;
+  Milestones?: Array<{ deletedAt?: string | null }>;
+  progress?: number | string | null;
+  targetValue?: number | string | null;
+  initialValue?: number | string | null;
+}): string {
+  const candidates = [
+    getMetricTypeName(kr),
+    kr?.metricTypeName,
+    kr?.key_type,
+    typeof kr?.metricType === 'string' ? kr.metricType : undefined,
+  ];
+
+  for (const candidate of candidates) {
+    const label = formatKrMetricTypeDisplayName(candidate);
+    if (label) return label;
+  }
+
+  const milestones = (kr?.milestones ?? kr?.Milestones ?? []).filter(
+    (m) => m?.deletedAt == null,
+  );
+  if (milestones.length > 0) return 'Milestone';
+
+  const target = getNumericMetricTargetValue(kr);
+  if (target > 0) return 'Numeric';
+
+  if (
+    kr?.progress !== undefined &&
+    kr?.progress !== null &&
+    String(kr.progress).trim() !== ''
+  ) {
+    return 'Achieve';
+  }
+
+  return '';
 }
 
 /** Count plan-linked tasks on a KR (direct, milestone, and parent-task trees). */
@@ -328,6 +374,7 @@ export function getKeyResultProgressRatioText(kr: {
 
   if (metric === 'Milestone') {
     const { completed, total } = getMilestoneProgressCounts(kr);
+    if (total <= 0) return '';
     return `${completed}/${total}`;
   }
 
@@ -346,6 +393,18 @@ export function getKeyResultProgressRatioText(kr: {
   if (percent > 0 || isPercentScaleMetric(metric)) {
     return `${percent}/100`;
   }
+
+  // Progress-only KRs (Achieve) when metric metadata was omitted on plan payloads.
+  if (
+    !metric &&
+    kr?.progress !== undefined &&
+    kr?.progress !== null &&
+    String(kr.progress).trim() !== ''
+  ) {
+    return `${percent}/100`;
+  }
+
+  if (current === 0 && target === 0) return '';
 
   return `${formatRawProgressValue(current)}/${formatRawProgressValue(target)}`;
 }

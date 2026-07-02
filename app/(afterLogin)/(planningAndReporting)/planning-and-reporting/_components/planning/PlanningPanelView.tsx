@@ -128,7 +128,10 @@ interface OwnerKRGroup {
   avgProgress: number;
 }
 
-export function buildOwnerKRGroups(plans: PlanSummary[]): OwnerKRGroup[] {
+export function buildOwnerKRGroups(
+  plans: PlanSummary[],
+  userKeyResultItems: any[] = [],
+): OwnerKRGroup[] {
   const ownerMap = new Map<
     string,
     { owner: PlanOwner; seenKRs: Set<string>; krs: AggregatedKR[] }
@@ -151,7 +154,9 @@ export function buildOwnerKRGroups(plans: PlanSummary[]): OwnerKRGroup[] {
       entry.seenKRs.add(kr.id);
 
       const allTasks = getAllKRTasks(kr);
-      entry.krs.push(aggregateKeyResultForPanel(kr, allTasks.length));
+      entry.krs.push(
+        aggregateKeyResultForPanel(kr, allTasks.length, userKeyResultItems),
+      );
     }
   }
 
@@ -207,24 +212,26 @@ function KRProgressCard({
   const { isMobile, isTablet } = useIsMobile();
   const pickMenuPlacement =
     isMobile || isTablet ? ('bottomCenter' as const) : ('bottomLeft' as const);
-  const metricLabel = formatKrMetricTypeLabel(kr.metricType) || 'Metric';
+  const metricLabel = formatKrMetricTypeLabel(kr.metricType);
   const showTaskCount = kr.taskCount > 0;
   const milestoneCount = kr.milestoneCount ?? 0;
   const showMilestoneCount =
     !showTaskCount && metricLabel === 'Milestone' && milestoneCount > 0;
 
   const metadataSegments: Array<{ key: string; node: React.ReactNode }> = [];
-  metadataSegments.push({
-    key: 'metric',
-    node: (
-      <span
-        data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-349"
-        className="shrink-0 font-semibold text-[#64748B]"
-      >
-        {metricLabel}
-      </span>
-    ),
-  });
+  if (metricLabel) {
+    metadataSegments.push({
+      key: 'metric',
+      node: (
+        <span
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-349"
+          className="shrink-0 font-semibold text-[#64748B]"
+        >
+          {metricLabel}
+        </span>
+      ),
+    });
+  }
   if (showTaskCount) {
     metadataSegments.push({
       key: 'tasks',
@@ -1012,7 +1019,7 @@ export function KRLeftPanel({
   planningPickReady = true,
 }: KRPanelProps) {
   const ownerGroups = React.useMemo(() => {
-    const base = buildOwnerKRGroups(plans);
+    const base = buildOwnerKRGroups(plans, userKeyResultItems);
     const merged = enrichOwnerGroupsPlanningBlocked(
       mergeUserKeyResultsIntoOwnerGroups(
         base,

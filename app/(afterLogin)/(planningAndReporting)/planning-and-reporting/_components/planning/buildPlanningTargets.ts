@@ -91,7 +91,16 @@ export function mergeKeyResultWithUserApi(
     ...kr,
     ...apiKr,
     metricType: apiKr.metricType ?? kr?.metricType,
-    key_type: apiKr.key_type ?? kr?.key_type,
+    key_type:
+      apiKr.key_type ??
+      kr?.key_type ??
+      apiKr.metricType?.name ??
+      kr?.metricType?.name,
+    metricTypeName:
+      apiKr.metricType?.name ??
+      apiKr.metricTypeName ??
+      kr?.metricTypeName ??
+      kr?.metricType?.name,
     milestones: (() => {
       const fromApi = apiKr.milestones ?? apiKr.Milestones;
       if (Array.isArray(fromApi) && fromApi.length > 0) return fromApi;

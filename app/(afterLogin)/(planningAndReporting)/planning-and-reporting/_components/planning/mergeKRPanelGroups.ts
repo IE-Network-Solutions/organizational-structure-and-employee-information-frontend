@@ -4,11 +4,10 @@ import {
   buildKrPlanningSource,
   countKeyResultMilestones,
   countKeyResultPlanTasks,
-  formatKrMetricTypeDisplayName,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
-  getMetricTypeName,
   isKeyResultFullyCompletedForPlanning,
+  resolveKrPanelMetricType,
   resolveKrPlanningBlocked,
 } from '@/utils/okrKeyResultProgressDisplay';
 
@@ -47,6 +46,33 @@ export function normalizeUserKeyResultItems(data: unknown): any[] {
   return [];
 }
 
+/**
+ * Apply OKR user-KR API data (metric type, milestones, progress) to plan summaries.
+ */
+export function enrichKeyResultWithUserApi(
+  kr: any,
+  userKeyResultItems: any[],
+): any {
+  const merged = mergeKeyResultWithUserApi(kr, userKeyResultItems);
+  return {
+    ...merged,
+    progress: getKeyResultProgressPercent(merged),
+  };
+}
+
+export function enrichPlanSummariesWithUserKeyResults(
+  plans: PlanSummary[],
+  userKeyResultItems: any[],
+): PlanSummary[] {
+  if (!plans?.length || !userKeyResultItems?.length) return plans;
+  return plans.map((plan) => ({
+    ...plan,
+    keyResults: (plan.keyResults ?? []).map((kr) =>
+      enrichKeyResultWithUserApi(kr, userKeyResultItems),
+    ),
+  }));
+}
+
 /** Normalize any KR payload (plan, report, or user API) for the left KR panel cards. */
 export function aggregateKeyResultForPanel(
   kr: any,
@@ -54,12 +80,7 @@ export function aggregateKeyResultForPanel(
   userKeyResultItems: any[] = [],
 ): KRPanelAggregatedKR {
   const mergedKr = mergeKeyResultWithUserApi(kr, userKeyResultItems);
-  const rawMetric = getMetricTypeName(mergedKr);
-  const metricType =
-    formatKrMetricTypeDisplayName(rawMetric) ||
-    formatKrMetricTypeDisplayName(mergedKr?.key_type) ||
-    rawMetric ||
-    'Metric';
+  const metricType = resolveKrPanelMetricType(mergedKr);
   const linkedTaskCount = Math.max(
     taskCount,
     countKeyResultPlanTasks(mergedKr),
@@ -230,7 +251,7 @@ export function enrichOwnerGroupsPlanningBlocked(
   return groups.map((group) => ({
     ...group,
     krs: group.krs.map((panelKr) => {
-      const apiKr = apiById.get(panelKr.id);
+      const apiKr = apiById.get(String(panelKr.id));
       const planningSource = buildKrPlanningSource(panelKr, apiKr);
       const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
       const apiProgress = apiKr
@@ -240,13 +261,10 @@ export function enrichOwnerGroupsPlanningBlocked(
       const progressLabel = apiKr
         ? getKeyResultProgressRatioText(planningSource)
         : panelKr.progressLabel;
-      const rawMetric = getMetricTypeName(planningSource) || panelKr.metricType;
       const metricType =
-        formatKrMetricTypeDisplayName(rawMetric) ||
-        formatKrMetricTypeDisplayName(panelKr.metricType) ||
-        rawMetric ||
-        panelKr.metricType ||
-        'Metric';
+        resolveKrPanelMetricType(planningSource) ||
+        resolveKrPanelMetricType(panelKr) ||
+        panelKr.metricType;
       const milestoneCount =
         countKeyResultMilestones(planningSource) || panelKr.milestoneCount || 0;
       const linkedTaskCount = Math.max(

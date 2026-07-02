@@ -20,6 +20,7 @@ import InlinePlanningWorkspace, {
 import { KRLeftPanel } from './_components/planning/PlanningPanelView';
 import type { CommentThreadKind } from './_components/planning/PlanningPanelView';
 import {
+  enrichPlanSummariesWithUserKeyResults,
   getActiveUnreportedParentPlanContext,
   normalizeUserKeyResultItems,
 } from './_components/planning/mergeKRPanelGroups';
@@ -202,7 +203,22 @@ function Page() {
 
   const { reportSummaries, reportingItems } = useReportingData();
 
-  const krPanelPlans = activeTab === 2 ? reportSummaries : planSummaries;
+  const enrichedPlanSummaries = useMemo(
+    () =>
+      enrichPlanSummariesWithUserKeyResults(planSummaries, userKeyResultItems),
+    [planSummaries, userKeyResultItems],
+  );
+  const enrichedReportSummaries = useMemo(
+    () =>
+      enrichPlanSummariesWithUserKeyResults(
+        reportSummaries,
+        userKeyResultItems,
+      ),
+    [reportSummaries, userKeyResultItems],
+  );
+
+  const krPanelPlans =
+    activeTab === 2 ? enrichedReportSummaries : enrichedPlanSummaries;
   const krPanelTransformedData =
     activeTab === 2 ? reportingItems : transformedData;
 
