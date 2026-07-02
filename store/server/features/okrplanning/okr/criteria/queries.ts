@@ -106,7 +106,7 @@ export function useVpScoringAssignedUsers(enabled: boolean) {
   );
 
   const detailQueries = useQueries(
-    idsNeedingFetch.map((id) => ({
+    idsNeedingFetch.map((id: string) => ({
       queryKey: ['VpScoringInformation', id],
       queryFn: () => fetchVpScoringById(id),
       enabled: enabled && idsNeedingFetch.length > 0,
