@@ -56,9 +56,8 @@ const ScoringModal: React.FC = () => {
   const { userId } = useAuthenticationStore();
 
   const { data: scoringData } = useFetchVpScoringById(currentId || '');
-  const { assignedMap: vpScoringAssignedMap } = useVpScoringAssignedUsers(
-    isDrawerVisible,
-  );
+  const { assignedMap: vpScoringAssignedMap } =
+    useVpScoringAssignedUsers(isDrawerVisible);
 
   const [form] = Form.useForm();
   const [failedAssignments, setFailedAssignments] = useState<

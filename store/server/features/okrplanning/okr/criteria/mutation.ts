@@ -63,7 +63,8 @@ function notifyVpScoringMutationResult(
   }
 
   NotificationMessage.success({
-    message: action === 'created' ? 'Successfully Created' : 'Successfully Updated',
+    message:
+      action === 'created' ? 'Successfully Created' : 'Successfully Updated',
     description:
       action === 'created'
         ? 'VP Scoring successfully Created.'

@@ -101,7 +101,7 @@ export function useVpScoringAssignedUsers(enabled: boolean) {
         ? []
         : items
             .map((item: { id?: string }) => item.id)
-            .filter((id): id is string => Boolean(id)),
+            .filter((id: string | undefined): id is string => Boolean(id)),
     [items, listIncludesUsers],
   );
 
@@ -125,7 +125,9 @@ export function useVpScoringAssignedUsers(enabled: boolean) {
   );
 
   const detailsLoading =
-    enabled && idsNeedingFetch.length > 0 && detailQueries.some((q) => q.isLoading);
+    enabled &&
+    idsNeedingFetch.length > 0 &&
+    detailQueries.some((q) => q.isLoading);
 
   return {
     assignedMap,
