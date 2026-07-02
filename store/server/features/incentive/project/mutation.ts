@@ -24,7 +24,16 @@ export const useGenerateIncentive = () => {
   const queryClient = useQueryClient();
   return useMutation(generateIncentive, {
     onSuccess: () => {
-      queryClient.invalidateQueries('incentiveFormula');
+      queryClient.invalidateQueries(['getAllIncentiveData']);
+      queryClient.invalidateQueries(['allIncentiveIds']);
+      queryClient.invalidateQueries('allIncentiveCards');
+      queryClient.invalidateQueries('useDetail');
+      queryClient.invalidateQueries('recognitionTypeDashboardStats');
+      queryClient.invalidateQueries('allChildRecognition');
+      queryClient.invalidateQueries('parentRecognition');
+      queryClient.invalidateQueries('childRecognition');
+      queryClient.invalidateQueries('recognitionTypeParentChild');
+
       NotificationMessage.success({
         message: 'Incentive generated successfully!',
         description: 'Incentive has been successfully generated',

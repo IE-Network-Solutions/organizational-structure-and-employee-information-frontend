@@ -99,10 +99,11 @@ export function isKeyResultFullyCompletedForPlanning(kr: {
     const milestones = (kr?.milestones ?? []).filter(
       (m) => m?.deletedAt == null,
     );
-    if (milestones.length === 0) {
-      return getKeyResultProgressPercent(kr) >= 100;
+    if (milestones.length > 0 && milestones.every(isMilestoneCompleted)) {
+      return true;
     }
-    return milestones.every(isMilestoneCompleted);
+    // Milestone status can lag behind measured progress (plan panel vs user KR API).
+    return getKeyResultProgressPercent(kr) >= 100;
   }
 
   // Non-milestone KRs: measured progress is the sole gate (status can lag after report updates).
@@ -116,6 +117,7 @@ export function buildKrPlanningSource(
     progress?: number;
     currentValue?: string | number;
     targetValue?: string | number;
+    milestones?: Array<{ status?: string; deletedAt?: string | null }>;
   },
   apiKr?: any | null,
 ) {
@@ -124,15 +126,21 @@ export function buildKrPlanningSource(
       metricType: { name: panelKr.metricType },
       key_type: panelKr.metricType,
       progress: panelKr.progress,
+      milestones: panelKr.milestones ?? [],
       currentValue: panelKr.currentValue,
       targetValue: panelKr.targetValue,
     };
   }
+  const apiMilestones = apiKr.milestones ?? apiKr.Milestones;
   return {
     ...apiKr,
     metricType: apiKr.metricType ?? { name: panelKr.metricType },
     key_type: apiKr.key_type ?? panelKr.metricType,
-    milestones: apiKr.milestones ?? apiKr.Milestones,
+    milestones:
+      Array.isArray(apiMilestones) && apiMilestones.length > 0
+        ? apiMilestones
+        : (panelKr.milestones ?? []),
+    progress: apiKr.progress ?? panelKr.progress,
     currentValue: apiKr.currentValue ?? panelKr.currentValue,
     targetValue: apiKr.targetValue ?? panelKr.targetValue,
     initialValue: apiKr.initialValue ?? panelKr.currentValue,
@@ -150,6 +158,7 @@ export function resolveKrPlanningBlocked(
     progress?: number;
     currentValue?: string | number;
     targetValue?: string | number;
+    milestones?: Array<{ status?: string; deletedAt?: string | null }>;
   },
   apiKr?: any | null,
 ): boolean {
@@ -159,16 +168,14 @@ export function resolveKrPlanningBlocked(
     return false;
   }
 
-  if (isMilestoneKeyResult(planningSource)) {
-    return isKeyResultFullyCompletedForPlanning(planningSource);
+  const panelProgress = Number(panelKr.progress ?? 0);
+
+  if (isKeyResultFullyCompletedForPlanning(planningSource)) {
+    return true;
   }
 
-  const panelProgress = Number(panelKr.progress ?? 0);
   if (!apiKr) {
-    return (
-      panelProgress >= 100 ||
-      isKeyResultFullyCompletedForPlanning(planningSource)
-    );
+    return panelProgress >= 100;
   }
 
   const apiProgress = getKeyResultProgressPercent(planningSource);
@@ -344,8 +351,13 @@ export function getKeyResultProgressPercent(kr: {
 
   if (metric === 'Milestone') {
     const { completed, total } = getMilestoneProgressCounts(kr);
-    if (total <= 0) return 0;
-    return Math.min(100, Math.max(0, Math.round((100 * completed) / total)));
+    const fromField = normalizeProgressPercent(kr);
+    if (total <= 0) return fromField;
+    const fromMilestones = Math.min(
+      100,
+      Math.max(0, Math.round((100 * completed) / total)),
+    );
+    return Math.max(fromMilestones, fromField);
   }
 
   if (metric === 'Achieve' || metric === 'Achieved') {
