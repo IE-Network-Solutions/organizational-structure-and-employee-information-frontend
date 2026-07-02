@@ -845,7 +845,6 @@ const InlinePlanningWorkspace = forwardRef<
       milestoneTitle: activeTarget.milestoneTitle ?? null,
     };
 
-    const newTotal = dailyEqualComposer ? 100 : totalWeight + w;
     setDraftLines((prev) => {
       const next = [line, ...prev];
       return applyEqualWeightsToDailyDraftLines(next);
@@ -1280,11 +1279,21 @@ const InlinePlanningWorkspace = forwardRef<
               data-cy="inline-plan-additional-plans-row"
               className={`flex items-center justify-between px-4 py-3 md:px-5 ${draftLines.length > 0 ? 'border-b border-[#F1F2F6]' : ''}`}
             >
-              <span className="text-[13px] text-[#575B7A]">
-                <span className="font-semibold text-[#161A2C]">{roundedTotal}%</span> weight assigned.
+              <span
+                className="text-[13px] text-[#575B7A]"
+                data-cy="inline-plan-weight-summary"
+              >
+                <span
+                  className="font-semibold text-[#161A2C]"
+                  data-cy="inline-plan-weight-total"
+                >
+                  {roundedTotal}%
+                </span>{' '}
+                weight assigned.
               </span>
               <button
                 type="button"
+                data-cy="inline-plan-add-plans-button"
                 onClick={() => setComposerCollapsed(false)}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-[#F1F2F6] px-3 py-1.5 text-[12px] font-semibold text-[#574CFF] transition-colors hover:bg-[#E0E7FF]"
               >

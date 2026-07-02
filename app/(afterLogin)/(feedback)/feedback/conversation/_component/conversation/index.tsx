@@ -30,9 +30,13 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
         flexDirection: 'column',
       }}
       className="group h-80 overflow-hidden rounded-xl transition-all duration-300 hover:shadow-lg"
-      style={{ border: '1px solid #e8e8f0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
+      style={{
+        border: '1px solid #e8e8f0',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+      }}
     >
       <div
+        data-cy={`feedback-conversation-component-conversation-body-${id}`}
         style={{
           padding: '20px 20px 16px',
           display: 'flex',
@@ -45,12 +49,18 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
           level={5}
           data-cy={`feedback-conversation-component-conversation-h3-${id}`}
           id={`feedback-conversation-component-conversation-h3-${id}`}
-          style={{ margin: '0 0 10px', color: '#1a1a2e', fontSize: 15, fontWeight: 600 }}
+          style={{
+            margin: '0 0 10px',
+            color: '#1a1a2e',
+            fontSize: 15,
+            fontWeight: 600,
+          }}
         >
           {name}
         </Title>
 
         <div
+          data-cy={`feedback-conversation-component-conversation-desc-wrap-${id}`}
           className="overflow-hidden flex-1"
           style={{
             display: '-webkit-box',
@@ -61,7 +71,12 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
           <Paragraph
             data-cy={`feedback-conversation-component-conversation-p-${id}`}
             id={`feedback-conversation-component-conversation-p-${id}`}
-            style={{ color: '#6b7280', fontSize: 13, margin: 0, lineHeight: 1.65 }}
+            style={{
+              color: '#6b7280',
+              fontSize: 13,
+              margin: 0,
+              lineHeight: 1.65,
+            }}
           >
             <Tooltip
               title={description}
@@ -74,6 +89,7 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
         </div>
 
         <div
+          data-cy={`feedback-conversation-component-conversation-footer-${id}`}
           style={{
             marginTop: 'auto',
             paddingTop: 12,

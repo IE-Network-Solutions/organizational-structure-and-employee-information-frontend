@@ -126,9 +126,10 @@ const SortableSurveyQuestionCard: React.FC<SortableSurveyQuestionCardProps> = ({
 
   const baseTransform = CSS.Transform.toString(transform);
   const style = {
-    transform: isDragging && baseTransform
-      ? `${baseTransform} scale(1.02)`
-      : baseTransform || undefined,
+    transform:
+      isDragging && baseTransform
+        ? `${baseTransform} scale(1.02)`
+        : baseTransform || undefined,
     transition,
     zIndex: isDragging ? 50 : 0,
     position: 'relative' as const,

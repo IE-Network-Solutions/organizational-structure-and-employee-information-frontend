@@ -642,15 +642,38 @@ const Questions = ({ id }: Params) => {
         className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-3 px-4 text-center lg:px-0"
         data-cy="questions-empty-text"
       >
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-dashed border-[#bfdbfe] bg-[#eff6ff]">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+        <div
+          data-cy="questions-empty-icon-wrap"
+          className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-dashed border-[#bfdbfe] bg-[#eff6ff]"
+        >
+          <svg
+            data-cy="questions-empty-icon"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#3b82f6"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path data-cy="questions-empty-icon-check" d="M9 11l3 3L22 4" />
+            <path
+              data-cy="questions-empty-icon-box"
+              d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"
+            />
           </svg>
         </div>
-        <p className="text-[15px] font-semibold text-gray-800 lg:text-[18px]">
+        <p
+          data-cy="questions-empty-title"
+          className="text-[15px] font-semibold text-gray-800 lg:text-[18px]"
+        >
           No questions yet
         </p>
-        <p className="text-[13px] text-gray-500 lg:text-[14px]">
+        <p
+          data-cy="questions-empty-subtitle"
+          className="text-[13px] text-gray-500 lg:text-[14px]"
+        >
           Click or drag a question type from the left panel to get started
         </p>
       </div>
@@ -772,14 +795,20 @@ const Questions = ({ id }: Params) => {
               className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 lg:min-h-0"
             >
               {!showEmptyState ? (
-                <div className="flex shrink-0 items-center justify-between gap-2">
+                <div
+                  data-cy="survey-builder-questions-header"
+                  className="flex shrink-0 items-center justify-between gap-2"
+                >
                   <h3
                     className="mb-0 text-base font-semibold text-gray-900"
                     data-cy="survey-builder-heading"
                   >
                     Questions
                   </h3>
-                  <span className="rounded-full bg-[#e8f0fe] px-2.5 py-0.5 text-[12px] font-semibold text-[#1d4ed8]">
+                  <span
+                    data-cy="survey-builder-questions-count"
+                    className="rounded-full bg-[#e8f0fe] px-2.5 py-0.5 text-[12px] font-semibold text-[#1d4ed8]"
+                  >
                     {sortedItems.length}
                   </span>
                 </div>

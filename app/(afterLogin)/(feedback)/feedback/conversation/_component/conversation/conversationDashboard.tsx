@@ -1,6 +1,15 @@
 /* eslint-disable local-rules/data-cy-required, @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars */
 import React from 'react';
-import { Card, Skeleton, Tabs, Typography, Tag, Space, Avatar, Divider } from 'antd';
+import {
+  Card,
+  Skeleton,
+  Tabs,
+  Typography,
+  Tag,
+  Space,
+  Avatar,
+  Divider,
+} from 'antd';
 import {
   CalendarOutlined,
   AuditOutlined,
@@ -456,7 +465,13 @@ function RecentList({
   hideHeader?: boolean;
 }) {
   return (
-    <div className={borderless ? 'mt-1' : 'mt-4 rounded-xl border border-[#e8eeff] bg-white p-3'}>
+    <div
+      className={
+        borderless
+          ? 'mt-1'
+          : 'mt-4 rounded-xl border border-[#e8eeff] bg-white p-3'
+      }
+    >
       {!hideHeader ? (
         <div className="mb-2.5 flex items-center justify-between">
           <Text className="!text-[12px] !font-semibold !text-[#1f3f8f]">
@@ -466,7 +481,12 @@ function RecentList({
             <Tag
               bordered={false}
               color="geekblue"
-              style={{ fontSize: 10, padding: '0 6px', lineHeight: '18px', borderRadius: 10 }}
+              style={{
+                fontSize: 10,
+                padding: '0 6px',
+                lineHeight: '18px',
+                borderRadius: 10,
+              }}
             >
               {items.length}
             </Tag>
@@ -516,10 +536,21 @@ function RecentList({
                         item.subtitleTag ? (
                           <Tag
                             bordered={false}
-                            color={item.subtitleTag === 'solved' ? 'success' : 'warning'}
-                            style={{ fontSize: 10, lineHeight: '16px', padding: '0 5px', margin: 0 }}
+                            color={
+                              item.subtitleTag === 'solved'
+                                ? 'success'
+                                : 'warning'
+                            }
+                            style={{
+                              fontSize: 10,
+                              lineHeight: '16px',
+                              padding: '0 5px',
+                              margin: 0,
+                            }}
                           >
-                            {item.subtitleTag === 'solved' ? 'Solved' : 'Pending'}
+                            {item.subtitleTag === 'solved'
+                              ? 'Solved'
+                              : 'Pending'}
                           </Tag>
                         ) : (
                           <Text className="!truncate !text-[11px] !text-[#6b7280]">
@@ -531,7 +562,12 @@ function RecentList({
                         <Tag
                           bordered={false}
                           color="geekblue"
-                          style={{ fontSize: 10, lineHeight: '16px', padding: '0 5px', margin: 0 }}
+                          style={{
+                            fontSize: 10,
+                            lineHeight: '16px',
+                            padding: '0 5px',
+                            margin: 0,
+                          }}
                         >
                           {item.badge}
                         </Tag>
@@ -742,7 +778,12 @@ const DashboardComponent = () => {
                 />
                 <Title
                   level={4}
-                  style={{ margin: 0, color: '#1a1a2e', fontSize: 20, fontWeight: 700 }}
+                  style={{
+                    margin: 0,
+                    color: '#1a1a2e',
+                    fontSize: 20,
+                    fontWeight: 700,
+                  }}
                 >
                   Meetings
                 </Title>
@@ -769,7 +810,11 @@ const DashboardComponent = () => {
                   Total Action Plans
                 </Text>
                 {isMeetingsSectionLoading ? (
-                  <Skeleton.Button active size="small" style={{ width: 56, height: 28, marginTop: 6 }} />
+                  <Skeleton.Button
+                    active
+                    size="small"
+                    style={{ width: 56, height: 28, marginTop: 6 }}
+                  />
                 ) : (
                   <div className="mt-1 flex items-end gap-2">
                     <span className="text-[26px] font-bold leading-none text-[#1a1a2e]">
@@ -794,13 +839,19 @@ const DashboardComponent = () => {
                 style={{ background: '#eef3ff' }}
               >
                 <div className="flex items-center gap-1.5">
-                  <ClockCircleOutlined style={{ color: '#4a6fd5', fontSize: 12 }} />
+                  <ClockCircleOutlined
+                    style={{ color: '#4a6fd5', fontSize: 12 }}
+                  />
                   <Text className="!text-[11px] !font-medium !text-[#4a6fd5]">
                     Upcoming
                   </Text>
                 </div>
                 {isMeetingsSectionLoading ? (
-                  <Skeleton.Button active size="small" style={{ width: 56, height: 28, marginTop: 6 }} />
+                  <Skeleton.Button
+                    active
+                    size="small"
+                    style={{ width: 56, height: 28, marginTop: 6 }}
+                  />
                 ) : (
                   <span className="mt-1 block text-[26px] font-bold leading-none text-[#0958d9]">
                     {userMeetings?.totalUpcomingMeetings ?? 0}
@@ -808,7 +859,6 @@ const DashboardComponent = () => {
                 )}
               </div>
             </div>
-
           </div>
 
           {/* Tabs section */}
@@ -891,7 +941,12 @@ const DashboardComponent = () => {
                 />
                 <Title
                   level={4}
-                  style={{ margin: 0, color: '#1a1a2e', fontSize: 20, fontWeight: 700 }}
+                  style={{
+                    margin: 0,
+                    color: '#1a1a2e',
+                    fontSize: 20,
+                    fontWeight: 700,
+                  }}
                 >
                   Surveys
                 </Title>
@@ -918,7 +973,11 @@ const DashboardComponent = () => {
                   Total Surveys
                 </Text>
                 {isSurveysSectionLoading ? (
-                  <Skeleton.Button active size="small" style={{ width: 56, height: 28, marginTop: 6 }} />
+                  <Skeleton.Button
+                    active
+                    size="small"
+                    style={{ width: 56, height: 28, marginTop: 6 }}
+                  />
                 ) : (
                   <span className="mt-1 block text-[26px] font-bold leading-none text-[#1a1a2e]">
                     {userMeetings?.totalSurvey ?? 0}
@@ -941,13 +1000,19 @@ const DashboardComponent = () => {
                 style={{ background: '#e6f7e9' }}
               >
                 <div className="flex items-center gap-1.5">
-                  <ClockCircleOutlined style={{ color: '#13a554', fontSize: 12 }} />
+                  <ClockCircleOutlined
+                    style={{ color: '#13a554', fontSize: 12 }}
+                  />
                   <Text className="!text-[11px] !font-medium !text-[#13a554]">
                     Upcoming
                   </Text>
                 </div>
                 {isSurveysSectionLoading ? (
-                  <Skeleton.Button active size="small" style={{ width: 56, height: 28, marginTop: 6 }} />
+                  <Skeleton.Button
+                    active
+                    size="small"
+                    style={{ width: 56, height: 28, marginTop: 6 }}
+                  />
                 ) : (
                   <span className="mt-1 block text-[26px] font-bold leading-none text-[#0e8040]">
                     {userMeetings?.totalUpcomingMeetings ?? 0}
@@ -955,7 +1020,6 @@ const DashboardComponent = () => {
                 )}
               </div>
             </div>
-
           </div>
 
           {/* Tabs section */}
