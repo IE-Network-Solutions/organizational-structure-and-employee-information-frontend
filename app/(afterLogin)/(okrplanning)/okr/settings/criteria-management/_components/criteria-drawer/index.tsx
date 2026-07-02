@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   Form,
   Input,
@@ -52,6 +52,10 @@ const ScoringModal: React.FC = () => {
     setSelectedDepartment,
     setFilteredUsers,
     setUserTypeFilter,
+    failedAssignments,
+    isFailedAssignmentModalVisible,
+    showFailedAssignments,
+    closeFailedAssignmentModal,
   } = useCriteriaManagementStore();
   const { userId } = useAuthenticationStore();
 
@@ -60,11 +64,6 @@ const ScoringModal: React.FC = () => {
     useVpScoringAssignedUsers(isDrawerVisible);
 
   const [form] = Form.useForm();
-  const [failedAssignments, setFailedAssignments] = useState<
-    VpScoringFailedAssignment[]
-  >([]);
-  const [isFailedAssignmentModalVisible, setIsFailedAssignmentModalVisible] =
-    useState(false);
 
   const allDepartmentUsers = useMemo(
     () => departmentData?.flatMap((dept: any) => dept.users || []) || [],
@@ -105,17 +104,18 @@ const ScoringModal: React.FC = () => {
       })
       .filter((item): item is VpScoringFailedAssignment => item != null);
 
-  const showFailedAssignments = (failed: VpScoringFailedAssignment[]) => {
+  const showFailedAssignmentModal = (
+    failed: VpScoringFailedAssignment[],
+  ) => {
     if (failed.length === 0) return;
-    setFailedAssignments(failed);
-    setIsFailedAssignmentModalVisible(true);
+    showFailedAssignmentModal(failed);
   };
 
   const handleMutationSuccess = (response: VpScoringMutationResponse) => {
     handleModalClose();
 
     const failed = extractVpScoringFailedAssignments(response);
-    showFailedAssignments(failed);
+    showFailedAssignmentModal(failed);
   };
 
   // Watchers for tags display
@@ -241,6 +241,7 @@ const ScoringModal: React.FC = () => {
     setSelectedCriteria([]);
     setSelectedDepartment([]);
     setFilteredUsers([]);
+    closeFailedAssignmentModal();
     closeDrawer();
   };
 
@@ -958,10 +959,7 @@ const ScoringModal: React.FC = () => {
         open={isFailedAssignmentModalVisible}
         failedAssignments={failedAssignments}
         getEmployeeName={getEmployeeName}
-        onClose={() => {
-          setIsFailedAssignmentModalVisible(false);
-          setFailedAssignments([]);
-        }}
+        onClose={closeFailedAssignmentModal}
       />
     </>
   );
