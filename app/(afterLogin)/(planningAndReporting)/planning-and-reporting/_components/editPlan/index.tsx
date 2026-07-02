@@ -3,6 +3,7 @@ import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndR
 import { Button, Form, Spin, Tooltip } from 'antd';
 import React, { useEffect, useMemo } from 'react';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { normalizeUserKeyResultItems } from '../planning/mergeKRPanelGroups';
 import { useUpdatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
@@ -32,6 +33,8 @@ function EditPlan() {
     totalWeight,
     mkAsATask,
     setMKAsATask,
+    selectedFiscalYearId,
+    selectedSessionIds,
   } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
   const [form] = Form.useForm();
@@ -47,7 +50,16 @@ function EditPlan() {
   const { mutate: updateTask, isLoading } = useUpdatePlanTasks();
 
   const { data: objective } = useFetchObjectives(userId);
-  const { data: userKeyResultsRaw } = useGetUserKeyResult(userId);
+  const { data: activeFiscalYear } = useGetActiveFiscalYears();
+  const keyResultFiscalYearId =
+    selectedFiscalYearId ?? activeFiscalYear?.id ?? undefined;
+  const keyResultSessionId =
+    selectedSessionIds.length > 0 ? selectedSessionIds[0] : undefined;
+  const { data: userKeyResultsRaw } = useGetUserKeyResult(
+    userId,
+    keyResultFiscalYearId,
+    keyResultSessionId,
+  );
   const userKeyResultItems = useMemo(
     () => normalizeUserKeyResultItems(userKeyResultsRaw),
     [userKeyResultsRaw],

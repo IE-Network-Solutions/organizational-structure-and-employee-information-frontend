@@ -8,7 +8,6 @@ import {
 } from '../types';
 import {
   getKeyResultProgressPercent,
-  normalizeProgressPercent,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
@@ -230,10 +229,7 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     targetValue: resolvedTarget,
   };
 
-  const resolvedProgress =
-    isMilestoneMetric && hasUsableMetricValue(keyResult.progress)
-      ? normalizeProgressPercent({ progress: keyResult.progress })
-      : getKeyResultProgressPercent(progressPayload);
+  const resolvedProgress = getKeyResultProgressPercent(progressPayload);
 
   return {
     id: keyResult.id || '',
@@ -532,10 +528,7 @@ export const transformReportToPlanSummary = (
       targetValue: resolvedTarget,
     };
 
-    const krResolvedProgress =
-      isMilestoneMetric && hasUsableMetricValue(kr.progress)
-        ? normalizeProgressPercent({ progress: kr.progress })
-        : getKeyResultProgressPercent(progressPayload);
+    const krResolvedProgress = getKeyResultProgressPercent(progressPayload);
 
     return {
       ...kr,

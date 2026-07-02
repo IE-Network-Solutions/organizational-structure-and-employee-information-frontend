@@ -122,17 +122,22 @@ export function buildKrPlanningSource(
   apiKr?: any | null,
 ) {
   if (!apiKr) {
-    return {
+    const source = {
       metricType: { name: panelKr.metricType },
       key_type: panelKr.metricType,
       progress: panelKr.progress,
       milestones: panelKr.milestones ?? [],
       currentValue: panelKr.currentValue,
       targetValue: panelKr.targetValue,
+      initialValue: panelKr.currentValue,
+    };
+    return {
+      ...source,
+      progress: getKeyResultProgressPercent(source),
     };
   }
   const apiMilestones = apiKr.milestones ?? apiKr.Milestones;
-  return {
+  const merged = {
     ...apiKr,
     metricType: apiKr.metricType ?? { name: panelKr.metricType },
     key_type: apiKr.key_type ?? panelKr.metricType,
@@ -144,6 +149,10 @@ export function buildKrPlanningSource(
     currentValue: apiKr.currentValue ?? panelKr.currentValue,
     targetValue: apiKr.targetValue ?? panelKr.targetValue,
     initialValue: apiKr.initialValue ?? panelKr.currentValue,
+  };
+  return {
+    ...merged,
+    progress: getKeyResultProgressPercent(merged),
   };
 }
 
@@ -159,22 +168,31 @@ export function mergeKeyResultWithUserApi(
     (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
   );
   if (!apiKr) return kr;
-  return {
+
+  const apiMilestones = apiKr.milestones ?? apiKr.Milestones;
+  const planMilestones = kr?.milestones ?? kr?.Milestones ?? [];
+  const milestones =
+    Array.isArray(apiMilestones) && apiMilestones.length > 0
+      ? apiMilestones
+      : planMilestones;
+
+  const merged = {
     ...kr,
     ...apiKr,
     metricType: apiKr.metricType ?? kr?.metricType,
     key_type: apiKr.key_type ?? kr?.key_type,
-    milestones: (() => {
-      const fromApi = apiKr.milestones ?? apiKr.Milestones;
-      if (Array.isArray(fromApi) && fromApi.length > 0) return fromApi;
-      return kr?.milestones ?? kr?.Milestones ?? [];
-    })(),
+    milestones,
     progress: apiKr.progress ?? kr?.progress,
     currentValue: apiKr.currentValue ?? kr?.currentValue,
     targetValue: apiKr.targetValue ?? kr?.targetValue,
     status: apiKr.status ?? kr?.status,
     keyResultCompletionStatus:
       apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
+  };
+
+  return {
+    ...merged,
+    progress: getKeyResultProgressPercent(merged),
   };
 }
 
@@ -209,8 +227,7 @@ export function resolveKrPlanningBlocked(
     return panelProgress >= 100;
   }
 
-  const apiProgress = getKeyResultProgressPercent(planningSource);
-  return Math.max(apiProgress, panelProgress) >= 100;
+  return getKeyResultProgressPercent(planningSource) >= 100;
 }
 
 export function getMilestoneProgressCounts(kr: {
@@ -302,6 +319,7 @@ export function getKeyResultProgressRatioText(kr: {
 
   if (metric === 'Milestone') {
     const { completed, total } = getMilestoneProgressCounts(kr);
+    if (total <= 0) return '';
     return `${completed}/${total}`;
   }
 
@@ -383,14 +401,28 @@ export function getKeyResultProgressPercent(kr: {
   if (metric === 'Milestone') {
     const { completed, total } = getMilestoneProgressCounts(kr);
     const fromField = normalizeProgressPercent(kr);
-    if (total <= 0) return fromField;
-    const hasExplicitProgress =
-      kr?.progress !== undefined &&
-      kr?.progress !== null &&
-      kr?.progress !== '';
-    // OKR dashboard uses backend `progress`; prefer it when present for cross-page parity.
-    if (hasExplicitProgress) return fromField;
-    return Math.min(100, Math.max(0, Math.round((100 * completed) / total)));
+    const fromMilestones =
+      total > 0
+        ? Math.min(100, Math.max(0, Math.round((100 * completed) / total)))
+        : null;
+
+    if (total > 0 && fromMilestones != null) {
+      const hasExplicitProgress =
+        kr?.progress !== undefined &&
+        kr?.progress !== null &&
+        kr?.progress !== '';
+      if (!hasExplicitProgress) return fromMilestones;
+      // Plan payloads can carry progress=100 while milestone rows are incomplete.
+      if (fromField >= 100 && completed < total) return fromMilestones;
+      if (completed < total && fromField > fromMilestones + 1) {
+        return fromMilestones;
+      }
+      return fromField;
+    }
+
+    // No milestone rows on this payload — do not treat plan-derived 100% as complete.
+    if (fromField >= 100 && completed === 0) return 0;
+    return fromField;
   }
 
   if (metric === 'Achieve' || metric === 'Achieved') {
@@ -414,9 +446,5 @@ export function enrichKeyResultWithUserApi(
   kr: any,
   userKeyResultItems: any[],
 ): any {
-  const merged = mergeKeyResultWithUserApi(kr, userKeyResultItems);
-  return {
-    ...merged,
-    progress: getKeyResultProgressPercent(merged),
-  };
+  return mergeKeyResultWithUserApi(kr, userKeyResultItems);
 }

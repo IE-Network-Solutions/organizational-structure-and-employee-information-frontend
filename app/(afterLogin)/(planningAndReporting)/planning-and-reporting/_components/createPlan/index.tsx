@@ -15,6 +15,7 @@ import useClickStatus from '@/store/uistate/features/planningAndReporting/planin
 import AISuggestionsModal from '@/components/ai/AISuggestionsModal';
 import { useMemo, useEffect, useRef } from 'react';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { normalizeUserKeyResultItems } from '../planning/mergeKRPanelGroups';
 
 type FailedTasksByKeyResult = Record<
@@ -34,6 +35,8 @@ function CreatePlan() {
     setMKAsATask,
     activePlanPeriodId,
     resetWeights,
+    selectedFiscalYearId,
+    selectedSessionIds,
   } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
   const [form] = Form.useForm();
@@ -49,7 +52,16 @@ function CreatePlan() {
   };
   const { mutate: createTask, isLoading } = useCreatePlanTasks();
   const { data: objective } = useFetchObjectives(userId);
-  const { data: userKeyResultsRaw } = useGetUserKeyResult(userId);
+  const { data: activeFiscalYear } = useGetActiveFiscalYears();
+  const keyResultFiscalYearId =
+    selectedFiscalYearId ?? activeFiscalYear?.id ?? undefined;
+  const keyResultSessionId =
+    selectedSessionIds.length > 0 ? selectedSessionIds[0] : undefined;
+  const { data: userKeyResultsRaw } = useGetUserKeyResult(
+    userId,
+    keyResultFiscalYearId,
+    keyResultSessionId,
+  );
   const userKeyResultItems = useMemo(
     () => normalizeUserKeyResultItems(userKeyResultsRaw),
     [userKeyResultsRaw],
