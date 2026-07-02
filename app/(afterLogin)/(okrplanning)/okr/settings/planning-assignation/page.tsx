@@ -32,7 +32,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useMemo, useCallback } from 'react';
 import { useDebounce } from '@/utils/useDebounce';
 
 const PlanAssignment: React.FC = () => {
@@ -45,8 +45,17 @@ const PlanAssignment: React.FC = () => {
     setPageSize,
   } = useOKRSettingStore();
   const { mutate: deletePlanningAssign } = useDeletePlanningUser();
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [debouncedSearch, setDebouncedSearch] = useState<string>('');
+  const {
+    searchTerm,
+    debouncedSearch,
+    setSearchTerm,
+    setDebouncedSearch,
+    open,
+    setOpen,
+    openDeleteModal,
+    setOpenDeleteModal,
+    deletedId,
+  } = usePlanningAssignationStore();
   const hasSearch = debouncedSearch.trim().length > 0;
 
   const applyDebouncedSearch = useDebounce((value: string) => {
@@ -83,14 +92,8 @@ const PlanAssignment: React.FC = () => {
       }
       applyDebouncedSearch(trimmed);
     },
-    [applyDebouncedSearch, setPage],
+    [applyDebouncedSearch, setPage, setSearchTerm, setDebouncedSearch],
   );
-
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      setDebouncedSearch('');
-    }
-  }, [searchTerm]);
 
   const userToPlanning: GroupedUserWithPlanningPeriods[] = hasSearch
     ? globalSearchGroupedByUser?.items || []
@@ -117,6 +120,10 @@ const PlanAssignment: React.FC = () => {
     };
   }, [allPlanningPeriods]);
 
+  const showDrawer = () => {
+    setOpen(true);
+  };
+
   const handleEdit = (item: any) => {
     setSelectedPlanningUser(item);
     showDrawer();
@@ -125,12 +132,6 @@ const PlanAssignment: React.FC = () => {
     deletePlanningAssign(item?.userId);
   };
 
-  const { open, setOpen, openDeleteModal, setOpenDeleteModal, deletedId } =
-    usePlanningAssignationStore();
-
-  const showDrawer = () => {
-    setOpen(true);
-  };
   const onClose = () => {
     setOpen(false);
   };
