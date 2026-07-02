@@ -17,10 +17,12 @@ import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/em
 import {
   useFetchVpScoringById,
   useGetCriteriaTargets,
+  useVpScoringAssignedUsers,
 } from '@/store/server/features/okrplanning/okr/criteria/queries';
 import {
   useCreateVpScoring,
   useUpdateVpScoring,
+  extractVpScoringFailedAssignments,
   VpScoringFailedAssignment,
   VpScoringMutationResponse,
 } from '@/store/server/features/okrplanning/okr/criteria/mutation';
@@ -54,6 +56,9 @@ const ScoringModal: React.FC = () => {
   const { userId } = useAuthenticationStore();
 
   const { data: scoringData } = useFetchVpScoringById(currentId || '');
+  const { assignedMap: vpScoringAssignedMap } = useVpScoringAssignedUsers(
+    isDrawerVisible,
+  );
 
   const [form] = Form.useForm();
   const [failedAssignments, setFailedAssignments] = useState<
@@ -69,37 +74,49 @@ const ScoringModal: React.FC = () => {
 
   const getEmployeeName = (employeeUserId: string) => {
     const user = allDepartmentUsers.find(
-      (departmentUser: any) => departmentUser.id === employeeUserId,
+      (departmentUser: any) =>
+        String(departmentUser.id) === String(employeeUserId),
     );
     return user
       ? `${user.firstName} ${user.lastName}`.trim()
       : 'Unknown Employee';
   };
 
-  const extractFailedAssignments = (
-    response: VpScoringMutationResponse | undefined,
-  ): VpScoringFailedAssignment[] => {
-    if (!response || typeof response !== 'object') return [];
+  const getUserAssignmentConflict = (employeeUserId: string) => {
+    const assignment = vpScoringAssignedMap.get(String(employeeUserId));
+    if (!assignment) return null;
+    if (currentId && String(assignment.vpScoringId) === String(currentId)) {
+      return null;
+    }
+    return assignment;
+  };
 
-    const candidates = [
-      (response as any)?.failed,
-      (response as any)?.data?.failed,
-      (response as any)?.result?.failed,
-      (response as any)?.data?.data?.failed,
-    ];
+  const collectAssignmentConflicts = (
+    userIds: string[],
+  ): VpScoringFailedAssignment[] =>
+    userIds
+      .map((userId) => {
+        const conflict = getUserAssignmentConflict(userId);
+        if (!conflict) return null;
+        return {
+          userId: String(userId),
+          vpScoringId: conflict.vpScoringId,
+          vpScoringName: conflict.vpScoringName,
+        };
+      })
+      .filter((item): item is VpScoringFailedAssignment => item != null);
 
-    const failed = candidates.find((candidate) => Array.isArray(candidate));
-    return Array.isArray(failed) ? (failed as VpScoringFailedAssignment[]) : [];
+  const showFailedAssignments = (failed: VpScoringFailedAssignment[]) => {
+    if (failed.length === 0) return;
+    setFailedAssignments(failed);
+    setIsFailedAssignmentModalVisible(true);
   };
 
   const handleMutationSuccess = (response: VpScoringMutationResponse) => {
     handleModalClose();
 
-    const failed = extractFailedAssignments(response);
-    if (failed.length > 0) {
-      setFailedAssignments(failed);
-      setIsFailedAssignmentModalVisible(true);
-    }
+    const failed = extractVpScoringFailedAssignments(response);
+    showFailedAssignments(failed);
   };
 
   // Watchers for tags display
@@ -254,6 +271,15 @@ const ScoringModal: React.FC = () => {
   const onFinish = async (values: any) => {
     if (!values.users || values.users.length === 0) {
       message.error('Please select at least one user.');
+      return;
+    }
+
+    const clientConflicts = collectAssignmentConflicts(values.users);
+    if (clientConflicts.length > 0) {
+      showFailedAssignments(clientConflicts);
+      message.error(
+        'Some selected employees are already assigned to another VP scoring configuration.',
+      );
       return;
     }
 
@@ -575,6 +601,13 @@ const ScoringModal: React.FC = () => {
                     maxTagPlaceholder={() => null}
                     value={watchedUsers}
                     onSelect={(val) => {
+                      const conflict = getUserAssignmentConflict(String(val));
+                      if (conflict) {
+                        message.warning(
+                          `${getEmployeeName(String(val))} is already assigned to "${conflict.vpScoringName}".`,
+                        );
+                        return;
+                      }
                       const current = form.getFieldValue('users') || [];
                       if (!current.includes(val))
                         form.setFieldsValue({ users: [...current, val] });
@@ -588,15 +621,23 @@ const ScoringModal: React.FC = () => {
                     dropdownClassName="custom-assignee-dropdown"
                     data-cy="okr-criteria-modal-users-select"
                   >
-                    {filteredUsers?.map((user: any) => (
-                      <Option
-                        key={user.id}
-                        value={user.id}
-                        data-cy={`okr-criteria-modal-users-option-${user.id}`}
-                      >
-                        {user.firstName} {user.lastName}
-                      </Option>
-                    ))}
+                    {filteredUsers?.map((user: any) => {
+                      const conflict = getUserAssignmentConflict(user.id);
+                      const isBlocked = Boolean(conflict);
+                      return (
+                        <Option
+                          key={user.id}
+                          value={user.id}
+                          disabled={isBlocked}
+                          data-cy={`okr-criteria-modal-users-option-${user.id}`}
+                        >
+                          {user.firstName} {user.lastName}
+                          {isBlocked
+                            ? ` (assigned to ${conflict?.vpScoringName})`
+                            : ''}
+                        </Option>
+                      );
+                    })}
                   </Select>
                   {/* Always visible placeholder overlay */}
                   <span

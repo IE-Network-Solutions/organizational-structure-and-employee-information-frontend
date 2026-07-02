@@ -16,6 +16,61 @@ export interface VpScoringMutationResponse {
   [key: string]: unknown;
 }
 
+/** Extract failed user assignments from create/update VP scoring API responses. */
+export function extractVpScoringFailedAssignments(
+  response: unknown,
+): VpScoringFailedAssignment[] {
+  if (!response || typeof response !== 'object') return [];
+
+  const normalize = (items: unknown[]): VpScoringFailedAssignment[] =>
+    items
+      .filter((item) => item && typeof item === 'object')
+      .map((item) => {
+        const row = item as Record<string, unknown>;
+        return {
+          userId: String(row.userId ?? ''),
+          vpScoringId: String(row.vpScoringId ?? ''),
+          vpScoringName: String(row.vpScoringName ?? 'Unknown configuration'),
+        };
+      })
+      .filter((item) => item.userId.length > 0);
+
+  const root = response as Record<string, unknown>;
+  const candidates = [
+    root.failed,
+    (root.data as Record<string, unknown> | undefined)?.failed,
+    (root.result as Record<string, unknown> | undefined)?.failed,
+  ];
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate)) return normalize(candidate);
+  }
+
+  return [];
+}
+
+function notifyVpScoringMutationResult(
+  response: VpScoringMutationResponse,
+  action: 'created' | 'updated',
+) {
+  const failed = extractVpScoringFailedAssignments(response);
+  if (failed.length > 0) {
+    NotificationMessage.warning({
+      message: action === 'created' ? 'Partially Created' : 'Partially Updated',
+      description: `VP Scoring was saved, but ${failed.length} employee(s) could not be assigned because they already belong to another configuration.`,
+    });
+    return;
+  }
+
+  NotificationMessage.success({
+    message: action === 'created' ? 'Successfully Created' : 'Successfully Updated',
+    description:
+      action === 'created'
+        ? 'VP Scoring successfully Created.'
+        : 'VP Scoring successfully updated.',
+  });
+}
+
 const createVpScoring = async (
   values: any,
 ): Promise<VpScoringMutationResponse> => {
@@ -33,10 +88,7 @@ const createVpScoring = async (
       },
     });
 
-    NotificationMessage.success({
-      message: 'Successfully Created',
-      description: 'VP Scoring successfully Created.',
-    });
+    notifyVpScoringMutationResult(response, 'created');
 
     return response;
   } catch (error) {
@@ -120,10 +172,7 @@ const updateVpScoring = async ({
       },
     });
 
-    NotificationMessage.success({
-      message: 'Successfully Updated',
-      description: 'VP Scoring successfully updated.',
-    });
+    notifyVpScoringMutationResult(response, 'updated');
 
     return response;
   } catch (error) {
