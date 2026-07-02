@@ -278,8 +278,8 @@ export const useGetRecognitionsByParentRecognitionType = (
         params as ByParentRecognitionTypeParams,
       ),
     {
-      enabled: params?.parentRecognitionTypeId ? true : false,
-      keepPreviousData: false,
+      enabled: !!params?.parentRecognitionTypeId,
+      keepPreviousData: true,
     },
   );
 };
@@ -390,6 +390,9 @@ export const useGetRecognitionById = (id: string) => {
   return useQuery<any>(
     ['recognitions', id], // Unique query key based on params
     () => getRecognitionsById(id),
+    {
+      enabled: !!id,
+    },
   );
 };
 export const useGetAllRecognition = ({

@@ -64,6 +64,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
       startDate: start,
       endDate: end,
     };
+
     createRecognition(
       { value: formattedValues },
       {
@@ -79,6 +80,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
       },
     );
   }
+
   function handleCancel() {
     resetAllFields();
     onCancel();
@@ -237,12 +239,12 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
             )}
           </div>
         </div>
-        <EmployeeRecognitionModal
-          visible={visibleEmployee}
-          onCancel={resetAllFields}
-          loading={createRecognitionLoading}
-        />
       </Form>
+      <EmployeeRecognitionModal
+        visible={visibleEmployee}
+        onCancel={resetAllFields}
+        loading={createRecognitionLoading}
+      />
     </Modal>
   );
 };
