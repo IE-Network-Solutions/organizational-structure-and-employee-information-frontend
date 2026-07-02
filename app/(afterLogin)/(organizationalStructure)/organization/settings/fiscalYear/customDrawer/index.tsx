@@ -157,6 +157,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
   const getTransformedFiscalYear = (
     monthFormValues: any,
     sessionFormValues: any,
+    effectiveCalendarType: string = calendarType,
   ) => {
     // Helper function to extract months from a values object
     const extractMonthsFromValues = (values: any) => {
@@ -377,7 +378,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     };
 
     const sessions = [];
-    if (calendarType === 'Quarter') {
+    if (effectiveCalendarType === 'Quarter') {
       sessions.push(
         ...sessionFormValues?.sessionData.map((session: any, index: any) => {
           // Handle both sessionDateRange and separate date fields
@@ -491,7 +492,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           };
         }),
       );
-    } else if (calendarType === 'Semester') {
+    } else if (effectiveCalendarType === 'Semester') {
       sessions.push(
         ...sessionFormValues?.sessionData.map((session: any, index: any) => {
           // Handle both sessionDateRange and separate date fields
@@ -605,7 +606,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           };
         }),
       );
-    } else if (calendarType === 'Year') {
+    } else if (effectiveCalendarType === 'Year') {
       sessions.push(
         ...sessionFormValues?.sessionData.map((session: any) => {
           // Handle both sessionDateRange and separate date fields
@@ -701,36 +702,47 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
   };
 
   const handleSubmit = (monthFormValues: any) => {
+    const mergedFyValues = {
+      ...fiscalYearFormValues,
+      ...form1.getFieldsValue(),
+    };
+    const form2Values = form2.getFieldsValue();
     const latestSessionValues =
-      sessionFormValues?.sessionData?.length > 0
-        ? sessionFormValues
-        : { sessionData: useFiscalYearDrawerStore.getState().sessionData };
+      form2Values?.sessionData?.length > 0
+        ? form2Values
+        : sessionFormValues?.sessionData?.length > 0
+          ? sessionFormValues
+          : { sessionData: useFiscalYearDrawerStore.getState().sessionData };
+
+    const effectiveCalendarType =
+      mergedFyValues.fiscalYearCalenderId || calendarType;
 
     const fiscalYearData = getTransformedFiscalYear(
       monthFormValues,
       latestSessionValues,
+      effectiveCalendarType,
     );
 
     const now = dayjs();
     // Determine if this fiscal year is active by date
-    const fyStart = fiscalYearFormValues?.fiscalYearStartDate
-      ? dayjs(fiscalYearFormValues.fiscalYearStartDate)
+    const fyStart = mergedFyValues?.fiscalYearStartDate
+      ? dayjs(mergedFyValues.fiscalYearStartDate)
       : null;
-    const fyEnd = fiscalYearFormValues?.fiscalYearEndDate
-      ? dayjs(fiscalYearFormValues.fiscalYearEndDate)
+    const fyEnd = mergedFyValues?.fiscalYearEndDate
+      ? dayjs(mergedFyValues.fiscalYearEndDate)
       : null;
     const isYearActive =
       fyStart && fyEnd && now.isBetween(fyStart, fyEnd, null, '[]');
 
     const fiscalYearPayload = {
-      name: fiscalYearFormValues?.fiscalYearName,
-      startDate: fiscalYearFormValues?.fiscalYearStartDate
-        ? dayjs(fiscalYearFormValues.fiscalYearStartDate).format('YYYY-MM-DD')
+      name: mergedFyValues?.fiscalYearName,
+      startDate: mergedFyValues?.fiscalYearStartDate
+        ? dayjs(mergedFyValues.fiscalYearStartDate).format('YYYY-MM-DD')
         : undefined,
-      endDate: fiscalYearFormValues?.fiscalYearEndDate
-        ? dayjs(fiscalYearFormValues.fiscalYearEndDate).format('YYYY-MM-DD')
+      endDate: mergedFyValues?.fiscalYearEndDate
+        ? dayjs(mergedFyValues.fiscalYearEndDate).format('YYYY-MM-DD')
         : undefined,
-      description: fiscalYearFormValues?.fiscalYearDescription,
+      description: mergedFyValues?.fiscalYearDescription,
       isActive: !!isYearActive,
       sessions: fiscalYearData?.map((session: Session, sessionIdx: number) => {
         const sessionStart = session?.startDate
@@ -843,8 +855,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       return;
     }
 
-    const newStart = dayjs(fiscalYearFormValues?.fiscalYearStartDate);
-    const newEnd = dayjs(fiscalYearFormValues?.fiscalYearEndDate);
+    const newStart = dayjs(mergedFyValues?.fiscalYearStartDate);
+    const newEnd = dayjs(mergedFyValues?.fiscalYearEndDate);
 
     const hasOverlap = fiscalYears.items.some((fy) => {
       // If editing, skip the current fiscal year
@@ -882,6 +894,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
             setSessionData([]);
             setCurrent(0);
             setOpenFiscalYearDrawer(false);
+            queryClient.refetchQueries('fiscalYears');
           },
         },
       );
@@ -906,9 +919,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
   };
 
   const formContent = (
-    <
-      // Form layout="vertical" onFinish={handleSubmit}
-    >
+    <>
       {current === 0 && (
         <FiscalYearForm
           form={form1}

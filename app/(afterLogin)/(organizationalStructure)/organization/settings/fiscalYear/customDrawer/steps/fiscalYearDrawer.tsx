@@ -133,7 +133,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
         fiscalYearStartDate: dayjs(selectedFiscalYear?.startDate),
         fiscalYearEndDate: dayjs(selectedFiscalYear?.endDate),
         fiscalYearCalenderId: `${calendarType}`,
-        fiscalYearDescription: dayjs(selectedFiscalYear?.description),
+        fiscalYearDescription: selectedFiscalYear?.description,
       });
     }
   }, [isEditMode, selectedFiscalYear, setCalendarType, form]);
