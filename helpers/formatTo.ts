@@ -199,8 +199,8 @@ export const formatBreakTypeToStatus = (
   const breakEndTime =
     +splitTime(item.endAt)[0] * 60 + +splitTime(item.endAt)[1]; // Convert to minutes
 
-  // Check if current time is within the break time window
-  if (currentTime >= breakStartTime && currentTime <= breakEndTime) {
+  // Break window is [start, end): hidden at start, visible again at end time.
+  if (currentTime >= breakStartTime && currentTime < breakEndTime) {
     return {
       status: {
         text: 'Available',
@@ -227,6 +227,44 @@ export const formatBreakTypeToStatus = (
       disabled: true,
     };
   }
+};
+
+/** Convert an "HH:mm" / "HH:mm:ss" time string into minutes since midnight. */
+const timeStringToMinutes = (time: string): number | null => {
+  const parts = time.split(':');
+  if (parts.length < 2) return null;
+  const hours = Number(parts[0]);
+  const minutes = Number(parts[1]);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+  return hours * 60 + minutes;
+};
+
+/** True when `nowMinutes` falls inside the break type's [startAt, endAt) window. */
+const isBreakTypeActiveAt = (item: BreakType, nowMinutes: number): boolean => {
+  if (!item?.startAt || !item?.endAt) return false;
+  const start = timeStringToMinutes(item.startAt);
+  const end = timeStringToMinutes(item.endAt);
+  if (start === null || end === null) return false;
+  return nowMinutes >= start && nowMinutes < end;
+};
+
+/**
+ * Returns true when the current wall-clock time is inside any configured break
+ * window. Each break type (lunch, tea break, etc.) is configured with a
+ * `startAt`/`endAt` time range using a half-open interval [start, end): the
+ * break is active at start time and ends exactly at end time.
+ *
+ * Used to hide the Check-Out button during a break period and show it again
+ * once the break ends.
+ */
+export const isWithinBreakPeriod = (
+  breakTypes: BreakType[] | null | undefined,
+  now: Date = new Date(),
+): boolean => {
+  if (!breakTypes?.length) return false;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+  return breakTypes.some((bt) => isBreakTypeActiveAt(bt, nowMinutes));
 };
 
 export const formatLinkToUploadFile = (link: string): UploadFile => {
