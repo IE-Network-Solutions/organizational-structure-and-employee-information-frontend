@@ -270,7 +270,9 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       <div
         className="flex items-center justify-center py-8"
         data-cy="org-settings-fiscal-year-session-drawer-loading"
-        style={{ display: isCreateLoading || isUpdateLoading ? 'flex' : 'none' }}
+        style={{
+          display: isCreateLoading || isUpdateLoading ? 'flex' : 'none',
+        }}
       >
         <Spin size="large" />
       </div>

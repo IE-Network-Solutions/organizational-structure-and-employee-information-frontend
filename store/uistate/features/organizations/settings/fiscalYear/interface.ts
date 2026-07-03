@@ -41,7 +41,9 @@ export interface DrawerState {
   setOpenFiscalYearDrawer: (isOpen: boolean) => void;
 
   sessionData: SessionRow[];
-  setSessionData: (data: SessionRow[] | ((prev: SessionRow[]) => SessionRow[])) => void;
+  setSessionData: (
+    data: SessionRow[] | ((prev: SessionRow[]) => SessionRow[]),
+  ) => void;
   sessionStructureKey: string | null;
   monthStructureKey: string | null;
   monthDataBySession: Record<number, MonthSessionRow[]>;

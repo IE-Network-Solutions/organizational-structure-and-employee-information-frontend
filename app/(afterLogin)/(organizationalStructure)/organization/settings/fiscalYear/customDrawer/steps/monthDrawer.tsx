@@ -31,7 +31,6 @@ const MonthDrawer: React.FC<
   const {
     fiscalYearStart,
     fiscalYearEnd,
-    isEditMode,
     monthDataBySession,
     sessionData,
     expandedMonthSession,

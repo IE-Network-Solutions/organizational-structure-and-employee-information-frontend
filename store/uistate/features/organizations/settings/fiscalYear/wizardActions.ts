@@ -1,7 +1,6 @@
 import dayjs, { Dayjs } from 'dayjs';
 import {
   buildSessionStructureKey,
-  getCalendarTypeFromSessionCount,
   shouldRegenerateFiscalStructure,
 } from './wizardUtils';
 
@@ -91,8 +90,7 @@ export const mapSessionsToFormData = (sessions: any[]): SessionRow[] =>
       : session.sessionEndDate
         ? dayjs(session.sessionEndDate)
         : null,
-    sessionDescription:
-      session.description || session.sessionDescription || '',
+    sessionDescription: session.description || session.sessionDescription || '',
     sessionDateRange:
       (session.startDate && session.endDate) ||
       (session.sessionStartDate && session.sessionEndDate)
@@ -108,10 +106,7 @@ const withSessionDateRanges = (rows: SessionRow[]): SessionRow[] =>
     ...session,
     sessionDateRange:
       session.sessionStartDate && session.sessionEndDate
-        ? ([session.sessionStartDate, session.sessionEndDate] as [
-            Dayjs,
-            Dayjs,
-          ])
+        ? ([session.sessionStartDate, session.sessionEndDate] as [Dayjs, Dayjs])
         : null,
   }));
 
@@ -168,7 +163,10 @@ const classifyMonths = (
   endMonth: number,
   calendarType: string,
 ) => {
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const months = Array.from(
+    { length: 12 },
+    (unused, monthIndex) => monthIndex + 1,
+  );
   const sections: Record<number, number[]> = {};
   let sectionSize = 12;
   if (calendarType === 'Quarter') sectionSize = 3;
@@ -191,7 +189,7 @@ const getMonthStartEndDates = (
   const totalDays = fiscalYearEnd.diff(fiscalYearStart, 'day') + 1;
   const daysPerMonth = Math.floor(totalDays / 12);
   const startDate = fiscalYearStart.add((month - 1) * daysPerMonth, 'day');
-  let endDate =
+  const endDate =
     month === 12
       ? fiscalYearEnd
       : fiscalYearStart.add(month * daysPerMonth, 'day').subtract(1, 'day');
@@ -359,7 +357,12 @@ export const resolveMonthWizardState = (state: {
 
   let monthDataBySession: Record<number, MonthSessionRow[]> = {};
 
-  if (isEditMode && selectedFiscalYear?.sessions && !regenerate && hasStoredMonthData) {
+  if (
+    isEditMode &&
+    selectedFiscalYear?.sessions &&
+    !regenerate &&
+    hasStoredMonthData
+  ) {
     monthDataBySession = monthRangeValuesToSessionData(
       monthRangeValues,
       calendarType,
@@ -374,7 +377,8 @@ export const resolveMonthWizardState = (state: {
     );
   }
 
-  const nextMonthRangeValues = monthSessionDataToRangeValues(monthDataBySession);
+  const nextMonthRangeValues =
+    monthSessionDataToRangeValues(monthDataBySession);
 
   return {
     monthDataBySession,

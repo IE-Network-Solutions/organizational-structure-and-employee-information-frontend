@@ -27,9 +27,8 @@ export const shouldRegenerateFiscalStructure = ({
   if (!isEditMode || !selectedFiscalYear) return true;
 
   const originalSessionCount = selectedFiscalYear.sessions?.length ?? 0;
-  const originalCalendarType = getCalendarTypeFromSessionCount(
-    originalSessionCount,
-  );
+  const originalCalendarType =
+    getCalendarTypeFromSessionCount(originalSessionCount);
   const calendarTypeChanged = calendarType !== originalCalendarType;
 
   const currentStart = fiscalYearStart
@@ -69,5 +68,5 @@ export const buildSessionStructureKey = ({
     ? dayjs(fiscalYearStart).format('YYYY-MM-DD')
     : '';
   const end = fiscalYearEnd ? dayjs(fiscalYearEnd).format('YYYY-MM-DD') : '';
-  return `${calendarType}|${start}|${end}|${isEditMode ? fiscalYearId ?? 'edit' : 'create'}|${regenerate ? 'regen' : 'keep'}`;
+  return `${calendarType}|${start}|${end}|${isEditMode ? (fiscalYearId ?? 'edit') : 'create'}|${regenerate ? 'regen' : 'keep'}`;
 };

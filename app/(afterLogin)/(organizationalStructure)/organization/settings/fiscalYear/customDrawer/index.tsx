@@ -67,7 +67,10 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
   const appliedSessionKeyRef = useRef<string | null>(null);
   const appliedMonthKeyRef = useRef<string | null>(null);
 
-  if (openfiscalYearDrawer && appliedWizardTokenRef.current !== wizardOpenToken) {
+  if (
+    openfiscalYearDrawer &&
+    appliedWizardTokenRef.current !== wizardOpenToken
+  ) {
     appliedWizardTokenRef.current = wizardOpenToken;
     form1.setFieldsValue(getStepFormValues(0));
     form2.resetFields();

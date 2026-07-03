@@ -106,7 +106,10 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set, get) => ({
       sessionStructureKey: state.sessionStructureKey,
     });
 
-    if (state.monthStructureKey === monthStructureKey && state.monthRangeValues.length > 0) {
+    if (
+      state.monthStructureKey === monthStructureKey &&
+      state.monthRangeValues.length > 0
+    ) {
       return;
     }
 
@@ -147,9 +150,9 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set, get) => ({
     const calendarType = values.fiscalYearCalenderId ?? get().calendarType;
     const isValid = Boolean(
       values.fiscalYearName &&
-        values.fiscalYearStartDate &&
-        values.fiscalYearEndDate &&
-        values.fiscalYearCalenderId,
+      values.fiscalYearStartDate &&
+      values.fiscalYearEndDate &&
+      values.fiscalYearCalenderId,
     );
 
     set({
@@ -168,7 +171,9 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set, get) => ({
 
   updateSessionFields: (values) => {
     const state = get();
-    const sessionData = Array.isArray(values.sessionData) ? values.sessionData : [];
+    const sessionData = Array.isArray(values.sessionData)
+      ? values.sessionData
+      : [];
     set({
       sessionData,
       sessionFormValues: {
@@ -195,7 +200,8 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set, get) => ({
         monthDescription: values[`monthDescription_${monthNumber}`] ?? '',
       }))
       .filter(
-        (month) => month.monthName && month.monthStartDate && month.monthEndDate,
+        (month) =>
+          month.monthName && month.monthStartDate && month.monthEndDate,
       );
 
     set((state) =>
