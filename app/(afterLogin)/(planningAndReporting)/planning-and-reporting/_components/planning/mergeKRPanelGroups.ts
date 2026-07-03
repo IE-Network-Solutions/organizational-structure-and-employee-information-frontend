@@ -231,7 +231,8 @@ export function enrichOwnerGroupsPlanningBlocked(
       const apiKr = apiById.get(panelKr.id);
       const planningSource = buildKrPlanningSource(panelKr, apiKr);
       const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
-      const progress = planningSource.progress ?? getKeyResultProgressPercent(planningSource);
+      const progress =
+        planningSource.progress ?? getKeyResultProgressPercent(planningSource);
       const progressLabel = getKeyResultProgressRatioText(planningSource);
       const metricType =
         getMetricTypeName(planningSource) || panelKr.metricType;

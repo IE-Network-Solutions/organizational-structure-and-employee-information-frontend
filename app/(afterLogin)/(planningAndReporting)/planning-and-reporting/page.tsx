@@ -36,7 +36,7 @@ import {
   useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
-import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
 import CreatePlan from './_components/createPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
@@ -69,8 +69,6 @@ function Page() {
     setMobilePlanComposerOpen,
     inlineEditPlanId,
     setInlineEditPlanId,
-    selectedFiscalYearId,
-    selectedSessionIds,
   } = PlanningAndReportingStore();
 
   const { data: planningPeriods } = AllPlanningPeriods();
@@ -169,13 +167,8 @@ function Page() {
     userId,
   } = usePlanningData();
 
-  const { data: activeFiscalYear } = useGetActiveFiscalYears();
-
-  /** Fiscal year / session scope for user KR API (aligns Plan & Report with OKR dashboard). */
-  const keyResultFiscalYearId =
-    selectedFiscalYearId ?? activeFiscalYear?.id ?? undefined;
-  const keyResultSessionId =
-    selectedSessionIds.length > 0 ? selectedSessionIds[0] : undefined;
+  const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
+    useOkrPlanningScope();
 
   const {
     data: userKeyResultsRaw,

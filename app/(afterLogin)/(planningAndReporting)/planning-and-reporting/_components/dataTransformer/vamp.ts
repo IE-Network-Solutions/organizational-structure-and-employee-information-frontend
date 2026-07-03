@@ -8,6 +8,7 @@ import {
 } from '../types';
 import {
   getKeyResultProgressPercent,
+  resolveOkrMilestones,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
@@ -217,12 +218,16 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   const initialValue = keyResult.initialValue;
   const resolvedTarget = keyResult.targetValue ?? targetValue;
 
+  const okrMilestonesForProgress = isMilestoneMetric
+    ? resolveOkrMilestones({
+        milestones: keyResult.milestones ?? finalMilestones,
+      })
+    : [];
+
   const progressPayload = {
     metricType: keyResult.metricType,
     key_type: keyResult.key_type,
-    milestones: isMilestoneMetric
-      ? (keyResult.milestones ?? finalMilestones)
-      : finalMilestones,
+    milestones: isMilestoneMetric ? okrMilestonesForProgress : finalMilestones,
     progress: keyResult.progress,
     currentValue,
     initialValue,

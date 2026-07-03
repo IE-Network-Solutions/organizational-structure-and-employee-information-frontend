@@ -34,7 +34,78 @@ export function isMilestoneKeyResult(kr: {
   milestones?: unknown[];
 }): boolean {
   if (getMetricTypeName(kr) === 'Milestone') return true;
-  return Array.isArray(kr?.milestones) && kr.milestones.length > 0;
+  const list = kr?.milestones;
+  if (!Array.isArray(list) || list.length === 0) return false;
+  return resolveOkrMilestones(kr).length > 0;
+}
+
+/** Plan payloads group tasks under milestone shells without OKR completion status. */
+function isPlanTaskGroupingMilestone(m: {
+  status?: string | null;
+  tasks?: unknown[];
+}): boolean {
+  const hasTasks = Array.isArray(m?.tasks) && m.tasks.length > 0;
+  const status = String(m?.status ?? '').trim();
+  return hasTasks && status.length === 0;
+}
+
+type MilestoneRowInput = {
+  status?: string | null;
+  deletedAt?: string | null;
+  tasks?: unknown[];
+};
+
+type MilestoneSourceInput = {
+  milestones?: MilestoneRowInput[] | unknown[];
+  Milestones?: MilestoneRowInput[] | unknown[];
+};
+
+function asMilestoneRows(raw: unknown): MilestoneRowInput[] {
+  if (!Array.isArray(raw)) return [];
+  return raw as MilestoneRowInput[];
+}
+
+/**
+ * OKR milestone rows only (status-bearing). Ignores plan-scoped task groupings
+ * built in planning-and-reporting data transformers.
+ */
+export function resolveOkrMilestones(
+  kr: MilestoneSourceInput,
+  apiKr?: MilestoneSourceInput | null,
+): Array<{ status?: string }> {
+  const apiList = asMilestoneRows(apiKr?.milestones ?? apiKr?.Milestones);
+  if (apiList.length > 0) {
+    return apiList.filter((m) => m?.deletedAt == null);
+  }
+
+  const krList = asMilestoneRows(kr?.milestones ?? kr?.Milestones);
+  if (krList.length === 0) return [];
+
+  const active = krList.filter((m) => m?.deletedAt == null);
+  if (active.length === 0) return [];
+
+  const okrShaped = active.filter(
+    (m) =>
+      !isPlanTaskGroupingMilestone(m) && String(m?.status ?? '').length > 0,
+  );
+  if (okrShaped.length > 0) return okrShaped;
+
+  if (active.every(isPlanTaskGroupingMilestone)) return [];
+
+  return active;
+}
+
+function withResolvedOkrMilestones<T extends Record<string, unknown>>(
+  kr: T,
+  apiKr?: Record<string, unknown> | null,
+): T & { milestones: Array<{ status?: string }> } {
+  return {
+    ...kr,
+    milestones: resolveOkrMilestones(
+      kr as Parameters<typeof resolveOkrMilestones>[0],
+      apiKr as Parameters<typeof resolveOkrMilestones>[1],
+    ),
+  };
 }
 
 function normalizeKeyResultStatus(kr: {
@@ -122,11 +193,15 @@ export function buildKrPlanningSource(
   apiKr?: any | null,
 ) {
   if (!apiKr) {
+    const milestones = resolveOkrMilestones({
+      metricType: { name: panelKr.metricType },
+      milestones: panelKr.milestones ?? [],
+    });
     const source = {
       metricType: { name: panelKr.metricType },
       key_type: panelKr.metricType,
       progress: panelKr.progress,
-      milestones: panelKr.milestones ?? [],
+      milestones,
       currentValue: panelKr.currentValue,
       targetValue: panelKr.targetValue,
       initialValue: panelKr.currentValue,
@@ -136,20 +211,18 @@ export function buildKrPlanningSource(
       progress: getKeyResultProgressPercent(source),
     };
   }
-  const apiMilestones = apiKr.milestones ?? apiKr.Milestones;
-  const merged = {
-    ...apiKr,
-    metricType: apiKr.metricType ?? { name: panelKr.metricType },
-    key_type: apiKr.key_type ?? panelKr.metricType,
-    milestones:
-      Array.isArray(apiMilestones) && apiMilestones.length > 0
-        ? apiMilestones
-        : (panelKr.milestones ?? []),
-    progress: apiKr.progress ?? panelKr.progress,
-    currentValue: apiKr.currentValue ?? panelKr.currentValue,
-    targetValue: apiKr.targetValue ?? panelKr.targetValue,
-    initialValue: apiKr.initialValue ?? panelKr.currentValue,
-  };
+  const merged = withResolvedOkrMilestones(
+    {
+      ...apiKr,
+      metricType: apiKr.metricType ?? { name: panelKr.metricType },
+      key_type: apiKr.key_type ?? panelKr.metricType,
+      progress: apiKr.progress ?? panelKr.progress,
+      currentValue: apiKr.currentValue ?? panelKr.currentValue,
+      targetValue: apiKr.targetValue ?? panelKr.targetValue,
+      initialValue: apiKr.initialValue ?? panelKr.currentValue,
+    },
+    apiKr,
+  );
   return {
     ...merged,
     progress: getKeyResultProgressPercent(merged),
@@ -167,28 +240,39 @@ export function mergeKeyResultWithUserApi(
   const apiKr = userKeyResultItems.find(
     (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
   );
-  if (!apiKr) return kr;
+  if (!apiKr) {
+    const milestones = resolveOkrMilestones(kr);
+    const fallback = {
+      ...kr,
+      milestones,
+      metricType:
+        kr?.metricType ??
+        (milestones.length > 0 ? { name: 'Milestone' } : kr?.metricType),
+      key_type:
+        kr?.key_type ?? (milestones.length > 0 ? 'Milestone' : kr?.key_type),
+    };
+    return {
+      ...fallback,
+      progress: getKeyResultProgressPercent(fallback),
+    };
+  }
 
-  const apiMilestones = apiKr.milestones ?? apiKr.Milestones;
-  const planMilestones = kr?.milestones ?? kr?.Milestones ?? [];
-  const milestones =
-    Array.isArray(apiMilestones) && apiMilestones.length > 0
-      ? apiMilestones
-      : planMilestones;
-
-  const merged = {
-    ...kr,
-    ...apiKr,
-    metricType: apiKr.metricType ?? kr?.metricType,
-    key_type: apiKr.key_type ?? kr?.key_type,
-    milestones,
-    progress: apiKr.progress ?? kr?.progress,
-    currentValue: apiKr.currentValue ?? kr?.currentValue,
-    targetValue: apiKr.targetValue ?? kr?.targetValue,
-    status: apiKr.status ?? kr?.status,
-    keyResultCompletionStatus:
-      apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
-  };
+  const merged = withResolvedOkrMilestones(
+    {
+      ...kr,
+      ...apiKr,
+      metricType: apiKr.metricType ?? kr?.metricType,
+      key_type: apiKr.key_type ?? kr?.key_type,
+      progress: apiKr.progress ?? kr?.progress,
+      currentValue: apiKr.currentValue ?? kr?.currentValue,
+      initialValue: apiKr.initialValue ?? kr?.initialValue,
+      targetValue: apiKr.targetValue ?? kr?.targetValue,
+      status: apiKr.status ?? kr?.status,
+      keyResultCompletionStatus:
+        apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
+    },
+    apiKr,
+  );
 
   return {
     ...merged,
@@ -232,8 +316,9 @@ export function resolveKrPlanningBlocked(
 
 export function getMilestoneProgressCounts(kr: {
   milestones?: Array<{ status?: string }>;
+  Milestones?: Array<{ status?: string }>;
 }): { completed: number; total: number } {
-  const list = kr?.milestones ?? [];
+  const list = resolveOkrMilestones(kr);
   const total = list.length;
   const completed = list.filter(isMilestoneCompleted).length;
   return { completed, total };
@@ -317,7 +402,7 @@ export function getKeyResultProgressRatioText(kr: {
 }): string {
   const metric = getMetricTypeName(kr);
 
-  if (metric === 'Milestone') {
+  if (isMilestoneKeyResult(kr)) {
     const { completed, total } = getMilestoneProgressCounts(kr);
     if (total <= 0) return '';
     return `${completed}/${total}`;
@@ -356,7 +441,7 @@ export function getKeyResultMetricDetailLine(kr: {
 }): string | null {
   const metric = getMetricTypeName(kr);
 
-  if (metric === 'Milestone') {
+  if (isMilestoneKeyResult(kr)) {
     const { completed, total } = getMilestoneProgressCounts(kr);
     if (total <= 0) return null;
     return `Milestones: ${completed}/${total} Completed`;
@@ -398,7 +483,7 @@ export function getKeyResultProgressPercent(kr: {
 }): number {
   const metric = getMetricTypeName(kr);
 
-  if (metric === 'Milestone') {
+  if (isMilestoneKeyResult(kr)) {
     const { completed, total } = getMilestoneProgressCounts(kr);
     const fromField = normalizeProgressPercent(kr);
     const fromMilestones =
@@ -420,7 +505,7 @@ export function getKeyResultProgressPercent(kr: {
       return fromField;
     }
 
-    // No milestone rows on this payload — do not treat plan-derived 100% as complete.
+    // No OKR milestone rows — never trust plan-derived 100% without milestone proof.
     if (fromField >= 100 && completed === 0) return 0;
     return fromField;
   }
