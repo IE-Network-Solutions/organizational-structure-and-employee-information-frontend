@@ -6,7 +6,10 @@ import {
   Cadence,
   Milestone,
 } from '../types';
-import { getKeyResultProgressPercent } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  getKeyResultProgressPercent,
+  resolveOkrMilestones,
+} from '@/utils/okrKeyResultProgressDisplay';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
 const planGroupedTaskHasContent = (task: any): boolean =>
@@ -215,12 +218,16 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   const initialValue = keyResult.initialValue;
   const resolvedTarget = keyResult.targetValue ?? targetValue;
 
+  const okrMilestonesForProgress = isMilestoneMetric
+    ? resolveOkrMilestones({
+        milestones: keyResult.milestones ?? finalMilestones,
+      })
+    : [];
+
   const progressPayload = {
     metricType: keyResult.metricType,
     key_type: keyResult.key_type,
-    milestones: isMilestoneMetric
-      ? (keyResult.milestones ?? finalMilestones)
-      : finalMilestones,
+    milestones: isMilestoneMetric ? okrMilestonesForProgress : finalMilestones,
     progress: keyResult.progress,
     currentValue,
     initialValue,
@@ -508,11 +515,11 @@ export const transformReportToPlanSummary = (
     const currentValue = getKeyResultCurrentValue(kr, allTasks, 'reporting');
     const initialValue = kr.initialValue;
     const resolvedTarget = kr.targetValue || 0;
-    const apiMilestones = kr.milestones ?? [];
-    const milestonesForMetric =
-      isMilestoneMetric && apiMilestones.length > 0
-        ? apiMilestones
-        : finalMilestones;
+    const milestonesForMetric = isMilestoneMetric
+      ? resolveOkrMilestones({
+          milestones: kr.milestones ?? finalMilestones,
+        })
+      : finalMilestones;
 
     const progressPayload = {
       metricType: kr.metricType,

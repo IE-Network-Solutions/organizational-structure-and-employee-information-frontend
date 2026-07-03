@@ -35,6 +35,7 @@ import {
   useDefaultPlanningPeriods,
   useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import CreatePlan from './_components/createPlan';
 import Reporting from './_components/reporting';
@@ -68,17 +69,11 @@ function Page() {
     setMobilePlanComposerOpen,
     inlineEditPlanId,
     setInlineEditPlanId,
-    selectedFiscalYearId,
-    selectedSessionIds,
   } = PlanningAndReportingStore();
 
-  /** Fiscal year / session apply to Reports tab and KR fetch when that tab is active; not to active plans list. */
-  const keyResultFiscalYearId =
-    activeTab === 2 ? (selectedFiscalYearId ?? undefined) : undefined;
-  const keyResultSessionId =
-    activeTab === 2 && selectedSessionIds.length > 0
-      ? selectedSessionIds[0]
-      : undefined;
+  const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
+    useOkrPlanningScope();
+
   const { data: planningPeriods } = AllPlanningPeriods();
   const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
   const { isMobile, isTablet } = useIsMobile();

@@ -1,15 +1,18 @@
 import type { PlanOwner, PlanSummary } from '../types';
-import { mergeKeyResultWithUserApi } from './buildPlanningTargets';
 import {
   buildKrPlanningSource,
   countKeyResultMilestones,
   countKeyResultPlanTasks,
+  enrichKeyResultWithUserApi,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
   isKeyResultFullyCompletedForPlanning,
+  mergeKeyResultWithUserApi,
   resolveKrPanelMetricType,
   resolveKrPlanningBlocked,
 } from '@/utils/okrKeyResultProgressDisplay';
+
+export { mergeKeyResultWithUserApi };
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
 export interface KRPanelAggregatedKR {
@@ -49,17 +52,6 @@ export function normalizeUserKeyResultItems(data: unknown): any[] {
 /**
  * Apply OKR user-KR API data (metric type, milestones, progress) to plan summaries.
  */
-export function enrichKeyResultWithUserApi(
-  kr: any,
-  userKeyResultItems: any[],
-): any {
-  const merged = mergeKeyResultWithUserApi(kr, userKeyResultItems);
-  return {
-    ...merged,
-    progress: getKeyResultProgressPercent(merged),
-  };
-}
-
 export function enrichPlanSummariesWithUserKeyResults(
   plans: PlanSummary[],
   userKeyResultItems: any[],
@@ -79,13 +71,13 @@ export function aggregateKeyResultForPanel(
   taskCount = 0,
   userKeyResultItems: any[] = [],
 ): KRPanelAggregatedKR {
+  const apiKr = userKeyResultItems.find(
+    (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
+  );
   const mergedKr = mergeKeyResultWithUserApi(kr, userKeyResultItems);
   const metricType = resolveKrPanelMetricType(mergedKr);
-  const linkedTaskCount = Math.max(
-    taskCount,
-    countKeyResultPlanTasks(mergedKr),
-  );
-  const milestoneCount = countKeyResultMilestones(mergedKr);
+  const linkedTaskCount = Math.max(taskCount, countKeyResultPlanTasks(kr));
+  const milestoneCount = countKeyResultMilestones(kr, apiKr ?? undefined);
   return {
     id: String(mergedKr.id ?? kr.id),
     title:
@@ -254,19 +246,17 @@ export function enrichOwnerGroupsPlanningBlocked(
       const apiKr = apiById.get(String(panelKr.id));
       const planningSource = buildKrPlanningSource(panelKr, apiKr);
       const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
-      const apiProgress = apiKr
-        ? getKeyResultProgressPercent(planningSource)
-        : 0;
-      const progress = Math.max(panelKr.progress, apiProgress);
-      const progressLabel = apiKr
-        ? getKeyResultProgressRatioText(planningSource)
-        : panelKr.progressLabel;
+      const progress =
+        planningSource.progress ?? getKeyResultProgressPercent(planningSource);
+      const progressLabel = getKeyResultProgressRatioText(planningSource);
       const metricType =
         resolveKrPanelMetricType(planningSource) ||
         resolveKrPanelMetricType(panelKr) ||
         panelKr.metricType;
       const milestoneCount =
-        countKeyResultMilestones(planningSource) || panelKr.milestoneCount || 0;
+        countKeyResultMilestones(planningSource, apiKr ?? undefined) ||
+        panelKr.milestoneCount ||
+        0;
       const linkedTaskCount = Math.max(
         panelKr.taskCount,
         countKeyResultPlanTasks(planningSource),
