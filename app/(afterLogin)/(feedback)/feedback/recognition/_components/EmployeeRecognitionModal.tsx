@@ -206,6 +206,10 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
   };
 
   const handleFinish = () => {
+    if (selectedEmployees.length === 0) {
+      return;
+    }
+
     const payload = selectedEmployees.map((employee: any) => ({
       recipientId: employee.recipientId,
       issuerId: issuerId,
@@ -220,14 +224,12 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
       { value: payload },
       {
         onSuccess: () => {
-          setVisibleEmployee(false);
-          setVisible(false);
           form.resetFields();
-          setRecognitionTypeId('');
-          setDateRange({ startDate: '', endDate: '' });
           setSelectedEmployees([]);
           setSelectedEmployeeId('');
           resetSelection();
+          setVisible(false);
+          onCancel();
         },
       },
     );
@@ -443,7 +445,7 @@ const EmployeeRecognitionModal: React.FC<EmployeeRecognitionModalProps> = ({
             onClick={() => form.submit()} // Manually trigger form submission
             loading={isLoading}
             type="primary"
-            htmlType="submit"
+            htmlType="button"
             disabled={selectedEmployees.length === 0}
             data-cy="employee-recognition-modal-create-button"
             id="employeeRecognitionModalCreateButton"
