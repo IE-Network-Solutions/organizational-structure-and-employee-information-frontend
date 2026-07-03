@@ -3,7 +3,7 @@ import {
   useUpdateFiscalYear,
 } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
-import React, { useEffect } from 'react';
+import React, { useRef } from 'react';
 import { FormInstance } from 'antd/lib';
 import { Form, Modal } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
@@ -49,25 +49,68 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     fiscalYearFormValues,
     sessionFormValues,
     monthRangeValues,
-    setCurrent,
     setMonthRangeFormValues,
     setFiscalYearFormValues,
     setSessionFormValues,
     openfiscalYearDrawer,
     setOpenFiscalYearDrawer,
-    resetFormState,
-    setCalendarType,
-    setFiscalYearStart,
-    setFiscalYearEnd,
     setSessionData,
+    goToStep,
+    getStepFormValues,
+    resetWizard,
+    wizardOpenToken,
+    sessionStructureKey,
+    monthStructureKey,
   } = useFiscalYearDrawerStore();
 
-  const { data: fiscalYears } = useGetAllFiscalYears();
+  const appliedWizardTokenRef = useRef(0);
+  const appliedSessionKeyRef = useRef<string | null>(null);
+  const appliedMonthKeyRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    const formValues = form3?.getFieldsValue();
-    setMonthRangeFormValues(formValues);
-  }, [form3, setMonthRangeFormValues]);
+  if (openfiscalYearDrawer && appliedWizardTokenRef.current !== wizardOpenToken) {
+    appliedWizardTokenRef.current = wizardOpenToken;
+    form1.setFieldsValue(getStepFormValues(0));
+    form2.resetFields();
+    form3.resetFields();
+    appliedSessionKeyRef.current = null;
+    appliedMonthKeyRef.current = null;
+  }
+
+  if (
+    openfiscalYearDrawer &&
+    current === 1 &&
+    sessionStructureKey &&
+    appliedSessionKeyRef.current !== sessionStructureKey
+  ) {
+    appliedSessionKeyRef.current = sessionStructureKey;
+    form2.setFieldsValue(getStepFormValues(1));
+  }
+
+  if (
+    openfiscalYearDrawer &&
+    current === 2 &&
+    monthStructureKey &&
+    appliedMonthKeyRef.current !== monthStructureKey
+  ) {
+    appliedMonthKeyRef.current = monthStructureKey;
+    form3.setFieldsValue(getStepFormValues(2));
+  }
+
+  if (!openfiscalYearDrawer) {
+    appliedWizardTokenRef.current = 0;
+    appliedSessionKeyRef.current = null;
+    appliedMonthKeyRef.current = null;
+  }
+
+  const navigateToStep = (step: number, options?: { sync?: boolean }) => {
+    goToStep(step, options);
+    const formValues = getStepFormValues(step);
+    if (step === 0) form1.setFieldsValue(formValues);
+    if (step === 1) form2.setFieldsValue(formValues);
+    if (step === 2) form3.setFieldsValue(formValues);
+  };
+
+  const { data: fiscalYears } = useGetAllFiscalYears();
 
   const { mutate: updateFiscalYear, isLoading: updateIsLoading } =
     useUpdateFiscalYear();
@@ -79,33 +122,15 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     setOpenFiscalYearDrawer(false);
     setEditMode(false);
     setSelectedFiscalYear(null);
-    setCurrent(0);
-
-    // Reset all form fields
     form1.resetFields();
     form2.resetFields();
     form3.resetFields();
-
-    // Clear all stored form values from the store
-    setFiscalYearFormValues({});
-    setSessionFormValues({});
-    setMonthRangeFormValues(null);
-
-    // Reset form validation state
-    resetFormState();
-
-    // Reset calendar type and dates
-    setCalendarType('');
-    setFiscalYearStart(null);
-    setFiscalYearEnd(null);
-
-    // Reset session data
-    setSessionData([]);
+    resetWizard();
   };
 
   const handleBack = () => {
     if (current > 0) {
-      setCurrent(current - 1);
+      navigateToStep(current - 1, { sync: false });
     }
   };
 
@@ -120,36 +145,15 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     return isEditMode ? 'Edit Fiscal Year' : 'Add New Fiscal Year';
   };
 
-  React.useEffect(() => {
-    if (
-      isEditMode &&
-      selectedFiscalYear &&
-      Array.isArray(monthRangeValues) &&
-      monthRangeValues.length > 0
-    ) {
-      form1.setFieldsValue(fiscalYearFormValues);
-      form2.setFieldsValue(sessionFormValues);
-      form3.setFieldsValue(
-        monthRangeValues.reduce(
-          (acc, month) => {
-            const key = month.monthNumber;
-            acc[`monthName_${key}`] = month.monthName;
-            acc[`monthStartDate_${key}`] = month.monthStartDate;
-            acc[`monthEndDate_${key}`] = month.monthEndDate;
-            acc[`monthDescription_${key}`] = month.monthDescription;
-            return acc;
-          },
-          {} as Record<string, any>,
-        ),
-      );
-    }
-  }, [isEditMode, selectedFiscalYear, monthRangeValues]);
-
   const getTransformedFiscalYear = (
     monthFormValues: any,
     sessionFormValues: any,
     effectiveCalendarType: string = calendarType,
   ) => {
+    const sessionRows = Array.isArray(sessionFormValues?.sessionData)
+      ? sessionFormValues.sessionData
+      : [];
+
     // Helper function to extract months from a values object
     const extractMonthsFromValues = (values: any) => {
       const monthNumbers = Object.keys(values || {})
@@ -371,7 +375,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     const sessions = [];
     if (effectiveCalendarType === 'Quarter') {
       sessions.push(
-        ...sessionFormValues?.sessionData.map((session: any, index: any) => {
+        ...sessionRows.map((session: any, index: any) => {
           // Handle both sessionDateRange and separate date fields
           let startDate = session.sessionStartDate;
           let endDate = session.sessionEndDate;
@@ -485,7 +489,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       );
     } else if (effectiveCalendarType === 'Semester') {
       sessions.push(
-        ...sessionFormValues?.sessionData.map((session: any, index: any) => {
+        ...sessionRows.map((session: any, index: any) => {
           // Handle both sessionDateRange and separate date fields
           let startDate = session.sessionStartDate;
           let endDate = session.sessionEndDate;
@@ -599,7 +603,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       );
     } else if (effectiveCalendarType === 'Year') {
       sessions.push(
-        ...sessionFormValues?.sessionData.map((session: any) => {
+        ...sessionRows.map((session: any) => {
           // Handle both sessionDateRange and separate date fields
           let startDate = session?.sessionStartDate;
           let endDate = session?.sessionEndDate;
@@ -697,13 +701,17 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       ...fiscalYearFormValues,
       ...form1.getFieldsValue(),
     };
+    setFiscalYearFormValues(mergedFyValues);
+
     const form2Values = form2.getFieldsValue();
-    const latestSessionValues =
-      form2Values?.sessionData?.length > 0
-        ? form2Values
-        : sessionFormValues?.sessionData?.length > 0
-          ? sessionFormValues
-          : { sessionData: useFiscalYearDrawerStore.getState().sessionData };
+    const sessionRows = Array.isArray(form2Values?.sessionData)
+      ? form2Values.sessionData
+      : Array.isArray(sessionFormValues?.sessionData)
+        ? sessionFormValues.sessionData
+        : Array.isArray(useFiscalYearDrawerStore.getState().sessionData)
+          ? useFiscalYearDrawerStore.getState().sessionData
+          : [];
+    const latestSessionValues = { sessionData: sessionRows };
 
     const effectiveCalendarType =
       mergedFyValues.fiscalYearCalenderId || calendarType;
@@ -849,7 +857,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     const newStart = dayjs(mergedFyValues?.fiscalYearStartDate);
     const newEnd = dayjs(mergedFyValues?.fiscalYearEndDate);
 
-    const hasOverlap = fiscalYears.items.some((fy) => {
+    const hasOverlap = (fiscalYears?.items ?? []).some((fy) => {
       // If editing, skip the current fiscal year
       if (isEditMode && fy.id === selectedFiscalYear?.id) return false;
       const fyStart = dayjs(fy.startDate);
@@ -879,13 +887,11 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
             form1.resetFields();
             form2.resetFields();
             form3.resetFields();
-            setMonthRangeFormValues(null);
+            setMonthRangeFormValues([]);
             setFiscalYearFormValues({});
             setSessionFormValues({});
             setSessionData([]);
-            setCurrent(0);
-            setEditMode(false);
-            setSelectedFiscalYear(null);
+            resetWizard();
             setOpenFiscalYearDrawer(false);
             queryClient.refetchQueries('fiscalYears');
           },
@@ -897,11 +903,11 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           form1.resetFields();
           form2.resetFields();
           form3.resetFields();
-          setMonthRangeFormValues(null);
+          setMonthRangeFormValues([]);
           setFiscalYearFormValues({});
           setSessionFormValues({});
           setSessionData([]);
-          setCurrent(0);
+          resetWizard();
           setOpenFiscalYearDrawer(false);
           // The mutation already invalidates 'fiscalYears', but explicitly refetch all matching queries
           // This ensures the list updates immediately after creation
@@ -913,29 +919,31 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
   const formContent = (
     <>
-      {current === 0 && (
+      {openfiscalYearDrawer && current === 0 && (
         <FiscalYearForm
           form={form1}
+          onNavigateToStep={navigateToStep}
           data-cy="org-settings-fiscalyear-customdrawer-index-fiscalyearform-1"
         />
       )}
-      {current === 1 && (
+      {openfiscalYearDrawer && current === 1 && (
         <SessionDrawer
           form={form2}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
+          onNavigateToStep={navigateToStep}
           isFiscalYear={true}
           data-cy="org-settings-fiscalyear-customdrawer-index-sessiondrawer-1"
         />
       )}
-      {current === 2 && (
+      {openfiscalYearDrawer && current === 2 && (
         <MonthDrawer
           form={form3}
           isCreateLoading={createIsLoading}
           isUpdateLoading={updateIsLoading}
-          onSubmit={handleSubmit} // <-- pass the handler
+          onSubmit={handleSubmit}
+          onNavigateToStep={navigateToStep}
           isFiscalYear={true}
-          open={openfiscalYearDrawer} // <-- add this
           data-cy="org-settings-fiscalyear-customdrawer-index-monthdrawer-1"
         />
       )}
@@ -985,6 +993,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       onCancel={handleCancel}
       footer={null}
       closable={false}
+      destroyOnClose
       width={isMobile ? '95%' : '35%'}
       styles={{
         body: {
@@ -999,7 +1008,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       }}
       data-cy="org-settings-fiscal-year-drawer"
     >
-      {formContent}
+      {openfiscalYearDrawer ? formContent : null}
     </Modal>
   );
 };

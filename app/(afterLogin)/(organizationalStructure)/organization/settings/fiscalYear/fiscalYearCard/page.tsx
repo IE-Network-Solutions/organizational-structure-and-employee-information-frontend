@@ -31,6 +31,7 @@ import { MdKeyboardArrowUp } from 'react-icons/md';
 import { BsThreeDots } from 'react-icons/bs';
 import { MdEdit, MdDelete, MdCalendarToday, MdBarChart } from 'react-icons/md';
 import CustomWorFiscalYearDrawer from '../customDrawer';
+import CustomDeleteFiscalYears from '../deleteModal';
 import { CloseOutlined } from '@ant-design/icons';
 
 const FiscalYearListCard: React.FC = () => {
@@ -729,6 +730,7 @@ const FiscalYearListCard: React.FC = () => {
         />
       )}
       <CustomWorFiscalYearDrawer data-cy="org-settings-fiscal-year-drawer" />
+      <CustomDeleteFiscalYears />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { Dayjs } from 'dayjs';
+import { MonthRow, MonthSessionRow, SessionRow } from './wizardActions';
 
 export interface FormValidation {
   fiscalYearName: string;
@@ -39,11 +40,25 @@ export interface DrawerState {
   openfiscalYearDrawer: boolean;
   setOpenFiscalYearDrawer: (isOpen: boolean) => void;
 
-  sessionData: any[];
-  setSessionData: (data: any[] | ((prev: any[]) => any[])) => void;
+  sessionData: SessionRow[];
+  setSessionData: (data: SessionRow[] | ((prev: SessionRow[]) => SessionRow[])) => void;
+  sessionStructureKey: string | null;
+  monthStructureKey: string | null;
+  monthDataBySession: Record<number, MonthSessionRow[]>;
+  monthFormFields: Record<string, any>;
+  expandedMonthSession: number | null;
+  setExpandedMonthSession: (index: number | null) => void;
 
   prepareEditWizard: (fiscalYear: any) => void;
   prepareCreateWizard: () => void;
+  syncSessions: () => void;
+  syncMonths: () => void;
+  goToStep: (step: number, options?: { sync?: boolean }) => void;
+  getStepFormValues: (step: number) => Record<string, any>;
+  updateFiscalYearFields: (values: Record<string, any>) => void;
+  updateSessionFields: (values: Record<string, any>) => void;
+  updateMonthFields: (values: Record<string, any>) => void;
+  resetWizard: () => void;
 
   fiscalYearFormValues: Record<string, any>;
   setFiscalYearFormValues: (newData: Record<string, any>) => void;
@@ -53,8 +68,8 @@ export interface DrawerState {
   sessionFormValues: Record<string, any>;
   setSessionFormValues: (newData: Record<string, any>) => void;
 
-  monthRangeValues: any;
-  setMonthRangeFormValues: (newData: any) => void;
+  monthRangeValues: MonthRow[];
+  setMonthRangeFormValues: (newData: MonthRow[]) => void;
 
   formValidation: FormValidation;
   setFormValidation: (newData: Partial<FormValidation>) => void;
@@ -68,6 +83,7 @@ export interface DrawerState {
   hasOverlapError: boolean;
   setHasOverlapError: (hasOverlapError: boolean) => void;
 
+  wizardOpenToken: number;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
 }
