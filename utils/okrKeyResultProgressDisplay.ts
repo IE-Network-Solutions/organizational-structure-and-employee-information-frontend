@@ -28,11 +28,7 @@ export function isMilestoneCompleted(m: { status?: string | null }): boolean {
   return s === 'completed' || s === 'done' || s === 'achieved';
 }
 
-export function isMilestoneKeyResult(kr: {
-  metricType?: { name?: string };
-  key_type?: string;
-  milestones?: unknown[];
-}): boolean {
+export function isMilestoneKeyResult(kr: KeyResultProgressInput): boolean {
   if (getMetricTypeName(kr) === 'Milestone') return true;
   const list = kr?.milestones;
   if (!Array.isArray(list) || list.length === 0) return false;
@@ -56,6 +52,21 @@ type MilestoneRowInput = {
 };
 
 type OkrMilestoneRow = Pick<MilestoneRowInput, 'status' | 'deletedAt'>;
+
+/** KR-shaped payload accepted by progress display helpers. */
+export type KeyResultProgressInput = {
+  metricType?: { name?: string };
+  key_type?: string;
+  milestones?: MilestoneRowInput[] | unknown[];
+  Milestones?: MilestoneRowInput[] | unknown[];
+  progress?: number | string | null;
+  currentValue?: number | string | null;
+  initialValue?: number | string | null;
+  targetValue?: number | string | null;
+  status?: string;
+  keyResultCompletionStatus?: string;
+  completionStatus?: string;
+};
 
 type MilestoneSourceInput = {
   milestones?: MilestoneRowInput[] | unknown[];
@@ -134,18 +145,9 @@ const IN_PROGRESS_KR_STATUSES = new Set([
 ]);
 
 /** KR was marked incomplete again (e.g. report updated from achieved → on progress). */
-export function isKeyResultReopenedForPlanning(kr: {
-  metricType?: { name?: string };
-  key_type?: string;
-  milestones?: Array<{ status?: string }>;
-  progress?: number | string | null;
-  status?: string;
-  keyResultCompletionStatus?: string;
-  completionStatus?: string;
-  currentValue?: number | string | null;
-  initialValue?: number | string | null;
-  targetValue?: number | string | null;
-}): boolean {
+export function isKeyResultReopenedForPlanning(
+  kr: KeyResultProgressInput,
+): boolean {
   const status = normalizeKeyResultStatus(kr);
   if (!status || !IN_PROGRESS_KR_STATUSES.has(status)) return false;
   // Status alone is not enough — many achieved KRs keep an in-progress status while at 100%.
@@ -156,22 +158,11 @@ export function isKeyResultReopenedForPlanning(kr: {
  * Whether planning should be blocked for the whole KR (not individual milestones).
  * Milestone KRs stay plan-eligible until every milestone is completed.
  */
-export function isKeyResultFullyCompletedForPlanning(kr: {
-  metricType?: { name?: string };
-  key_type?: string;
-  milestones?: Array<{ status?: string; deletedAt?: string | null }>;
-  progress?: number | string | null;
-  status?: string;
-  keyResultCompletionStatus?: string;
-  completionStatus?: string;
-  currentValue?: number | string | null;
-  initialValue?: number | string | null;
-  targetValue?: number | string | null;
-}): boolean {
+export function isKeyResultFullyCompletedForPlanning(
+  kr: KeyResultProgressInput,
+): boolean {
   if (isMilestoneKeyResult(kr)) {
-    const milestones = (kr?.milestones ?? []).filter(
-      (m) => m?.deletedAt == null,
-    );
+    const milestones = resolveOkrMilestones(kr);
     if (milestones.length > 0 && milestones.every(isMilestoneCompleted)) {
       return true;
     }
@@ -315,10 +306,9 @@ export function resolveKrPlanningBlocked(
   return getKeyResultProgressPercent(planningSource) >= 100;
 }
 
-export function getMilestoneProgressCounts(kr: {
-  milestones?: Array<{ status?: string }>;
-  Milestones?: Array<{ status?: string }>;
-}): { completed: number; total: number } {
+export function getMilestoneProgressCounts(
+  kr: KeyResultProgressInput,
+): { completed: number; total: number } {
   const list = resolveOkrMilestones(kr);
   const total = list.length;
   const completed = list.filter(isMilestoneCompleted).length;
@@ -392,15 +382,9 @@ function isPercentScaleMetric(metric: KeyResultMetricName): boolean {
 }
 
 /** Prominent "achieved / target" string for the KR card (Plan, Report, OKR). */
-export function getKeyResultProgressRatioText(kr: {
-  metricType?: { name?: string };
-  key_type?: string;
-  milestones?: Array<{ status?: string }>;
-  progress?: number | string | null;
-  currentValue?: number | string | null;
-  initialValue?: number | string | null;
-  targetValue?: number | string | null;
-}): string {
+export function getKeyResultProgressRatioText(
+  kr: KeyResultProgressInput,
+): string {
   const metric = getMetricTypeName(kr);
 
   if (isMilestoneKeyResult(kr)) {
@@ -431,15 +415,9 @@ export function getKeyResultProgressRatioText(kr: {
 /**
  * Compact metric summary for OKR list rows (beneath key result title).
  */
-export function getKeyResultMetricDetailLine(kr: {
-  metricType?: { name?: string };
-  key_type?: string;
-  milestones?: Array<{ status?: string }>;
-  progress?: number | string | null;
-  currentValue?: number | string | null;
-  initialValue?: number | string | null;
-  targetValue?: number | string | null;
-}): string | null {
+export function getKeyResultMetricDetailLine(
+  kr: KeyResultProgressInput,
+): string | null {
   const metric = getMetricTypeName(kr);
 
   if (isMilestoneKeyResult(kr)) {
@@ -473,15 +451,9 @@ export function getKeyResultMetricDetailLine(kr: {
  * Progress ring / summary percent (0–100).
  * Prefers a linear mapping from initial→target when possible; otherwise backend `progress`.
  */
-export function getKeyResultProgressPercent(kr: {
-  metricType?: { name?: string };
-  key_type?: string;
-  milestones?: Array<{ status?: string }>;
-  progress?: number | string | null;
-  currentValue?: number | string | null;
-  initialValue?: number | string | null;
-  targetValue?: number | string | null;
-}): number {
+export function getKeyResultProgressPercent(
+  kr: KeyResultProgressInput,
+): number {
   const metric = getMetricTypeName(kr);
 
   if (isMilestoneKeyResult(kr)) {
