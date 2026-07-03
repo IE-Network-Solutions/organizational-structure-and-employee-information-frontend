@@ -386,7 +386,9 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                       const next = selectedUserIds.filter(
                         (id: string) => id !== userId,
                       );
-                      setSelectedUsers(next.map((id: string) => ({ userId: id })));
+                      setSelectedUsers(
+                        next.map((id: string) => ({ userId: id })),
+                      );
                       form.setFieldsValue({ formPermissions: next });
                     }}
                     aria-label={`Remove ${employeeNameById.get(userId) ?? userId}`}

@@ -46,11 +46,7 @@ export function canUserViewSurveyForm(
   const normalizedUserId =
     userId != null && userId !== '' ? String(userId) : null;
   const creatorId = pickFormCreatorId(form);
-  if (
-    normalizedUserId &&
-    creatorId &&
-    normalizedUserId === String(creatorId)
-  ) {
+  if (normalizedUserId && creatorId && normalizedUserId === String(creatorId)) {
     return true;
   }
 

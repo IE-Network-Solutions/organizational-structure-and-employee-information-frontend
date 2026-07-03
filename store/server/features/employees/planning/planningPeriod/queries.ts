@@ -70,9 +70,7 @@ function buildAssignedUsersUrl(
   return url;
 }
 
-function groupAssignedUserRows(
-  items: any[],
-): GroupedUserWithPlanningPeriods[] {
+function groupAssignedUserRows(items: any[]): GroupedUserWithPlanningPeriods[] {
   const groupedData = items.reduce(
     (acc: Record<string, GroupedUserWithPlanningPeriods>, item: any) => {
       const rowUserId = item.userId;
@@ -143,7 +141,7 @@ const fetchAllAssignedUsersGroupedByUser = async (
 ): Promise<PaginatedGroupedUsers> => {
   let page = 1;
   const pageSize = ASSIGNMENT_FETCH_PAGE_SIZE;
-  let allItems: any[] = [];
+  const allItems: any[] = [];
   let meta: PaginatedGroupedUsers['meta'] = {
     totalItems: 0,
     itemCount: 0,
@@ -232,7 +230,13 @@ export const useGetAllAssignedUserGroupedByUser = (
   searchString?: string,
 ) =>
   useQuery<PaginatedGroupedUsers>(
-    ['allPlanningPeriodUserGroupedByUser', page, pageSize, userId, searchString ?? ''],
+    [
+      'allPlanningPeriodUserGroupedByUser',
+      page,
+      pageSize,
+      userId,
+      searchString ?? '',
+    ],
     () =>
       fetchPlanningPeriodWithUserGroupedByUser(
         page,

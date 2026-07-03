@@ -29,9 +29,7 @@ function Page() {
   const { data: formData, isLoading: isFormLoading } = useGetFormsByID(slug);
   const { userId } = useAuthenticationStore();
   const canViewSurvey =
-    isFormLoading || !formData
-      ? true
-      : canUserViewSurveyForm(formData, userId);
+    isFormLoading || !formData ? true : canUserViewSurveyForm(formData, userId);
 
   const {
     activeTab,
@@ -148,8 +146,16 @@ function Page() {
         data-cy="survey-detail-page-container"
         className="box-border flex min-h-[240px] w-full flex-col items-center justify-center bg-white px-4 py-16"
       >
-        <h1 className="text-lg font-semibold text-gray-900">Access denied</h1>
-        <p className="mt-2 max-w-md text-center text-sm text-slate-600">
+        <h1
+          className="text-lg font-semibold text-gray-900"
+          data-cy="survey-detail-access-denied-title"
+        >
+          Access denied
+        </h1>
+        <p
+          className="mt-2 max-w-md text-center text-sm text-slate-600"
+          data-cy="survey-detail-access-denied-message"
+        >
           You do not have permission to view this survey.
         </p>
         <Link
