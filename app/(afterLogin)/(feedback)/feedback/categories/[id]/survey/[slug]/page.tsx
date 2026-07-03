@@ -16,6 +16,8 @@ import Questions from './_components/questions';
 import SurveyInsights from './_components/surveyInsights';
 import { useGetFormsByID } from '@/store/server/features/feedback/form/queries';
 import { useParams } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { canUserViewSurveyForm } from '@/utils/surveyFormAccess';
 
 const { Option } = Select;
 
@@ -25,6 +27,11 @@ function Page() {
   const categoryId = (params?.id as string) || '';
 
   const { data: formData, isLoading: isFormLoading } = useGetFormsByID(slug);
+  const { userId } = useAuthenticationStore();
+  const canViewSurvey =
+    isFormLoading || !formData
+      ? true
+      : canUserViewSurveyForm(formData, userId);
 
   const {
     activeTab,
@@ -133,6 +140,28 @@ function Page() {
   const onClose = () => {
     setOpen(false);
   };
+
+  if (!isFormLoading && formData && !canViewSurvey) {
+    return (
+      <div
+        id="survey-detail-page-container"
+        data-cy="survey-detail-page-container"
+        className="box-border flex min-h-[240px] w-full flex-col items-center justify-center bg-white px-4 py-16"
+      >
+        <h1 className="text-lg font-semibold text-gray-900">Access denied</h1>
+        <p className="mt-2 max-w-md text-center text-sm text-slate-600">
+          You do not have permission to view this survey.
+        </p>
+        <Link
+          href={categoryHref}
+          className="mt-5 text-sm font-medium text-[#1E40AF] hover:underline"
+          data-cy="survey-detail-access-denied-back-link"
+        >
+          Back to surveys
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div

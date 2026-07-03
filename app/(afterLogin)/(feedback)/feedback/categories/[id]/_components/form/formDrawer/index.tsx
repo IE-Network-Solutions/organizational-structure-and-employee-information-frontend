@@ -29,7 +29,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
 
   const [form] = Form.useForm();
   const anonymousChecked = Form.useWatch('isAnonymous', form) ?? false;
-  const selectedUserIds = selectedUsers.map((user) => String(user.userId));
+  const selectedUserIds = Form.useWatch('formPermissions', form) ?? [];
   const employeeNameById = new Map<string, string>(
     (employees?.items ?? []).map((employee: any) => [
       String(employee.id),
@@ -66,11 +66,13 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
     } = values;
     const startDate = surveyStartDate.toISOString();
     const endDate = surveyEndDate.toISOString();
-    const normalizedPermissions: { userId: string }[] = Array.isArray(
-      formPermissions,
+    const normalizedPermissions: { userId: string }[] = (
+      Array.isArray(formPermissions) && formPermissions.length > 0
+        ? formPermissions
+        : selectedUsers.map((user) => String(user.userId))
     )
-      ? formPermissions.map((userId: string) => ({ userId }))
-      : selectedUsers;
+      .filter((userId) => userId != null && userId !== '')
+      .map((userId: string) => ({ userId: String(userId) }));
 
     addForm(
       {
@@ -328,7 +330,6 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
             popupClassName="survey-employee-select-dropdown"
             className="text-[14px] [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!rounded-md [&_.ant-select-selection-overflow]:!h-10 [&_.ant-select-selection-overflow]:!items-center [&_.ant-select-selection-item]:!hidden [&_.ant-select-selection-item-remove]:!hidden [&_.ant-select-selection-placeholder]:text-[14px] [&_.ant-select-selection-placeholder]:text-gray-500"
             placeholder="Select"
-            value={selectedUserIds}
             showSearch
             optionFilterProp="children"
             maxTagCount={0}
@@ -342,9 +343,11 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                 .toLowerCase()
                 .includes(input.toLowerCase());
             }}
-            onChange={(userIds: string[]) =>
-              setSelectedUsers(userIds.map((userId) => ({ userId })))
-            }
+            onChange={(userIds: string[]) => {
+              const next = userIds.map((userId) => String(userId));
+              form.setFieldsValue({ formPermissions: next });
+              setSelectedUsers(next.map((userId) => ({ userId })));
+            }}
           >
             {employees?.items.map((employee: any) => (
               <Select.Option
@@ -370,7 +373,7 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
           </Select>
           {selectedUserIds.length > 0 ? (
             <div className="mt-2 flex flex-wrap gap-2">
-              {selectedUserIds.map((userId) => (
+              {(selectedUserIds as string[]).map((userId: string) => (
                 <span
                   key={userId}
                   className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-gray-100 px-2.5 py-1 text-[14px] leading-none text-gray-700"
@@ -381,9 +384,9 @@ function FormDrawer({ onClose, id }: { onClose: any; id: string }) {
                     className="text-gray-500 hover:text-gray-700"
                     onClick={() => {
                       const next = selectedUserIds.filter(
-                        (id) => id !== userId,
+                        (id: string) => id !== userId,
                       );
-                      setSelectedUsers(next.map((id) => ({ userId: id })));
+                      setSelectedUsers(next.map((id: string) => ({ userId: id })));
                       form.setFieldsValue({ formPermissions: next });
                     }}
                     aria-label={`Remove ${employeeNameById.get(userId) ?? userId}`}
