@@ -196,7 +196,6 @@ export function buildKrPlanningSource(
 ) {
   if (!apiKr) {
     const milestones = resolveOkrMilestones({
-      metricType: { name: panelKr.metricType },
       milestones: panelKr.milestones ?? [],
     });
     const source = {
