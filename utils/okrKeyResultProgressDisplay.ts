@@ -21,7 +21,7 @@ export function getMetricTypeName(kr: {
   return (kr?.metricType?.name || kr?.key_type || '') as KeyResultMetricName;
 }
 
-export function isMilestoneCompleted(m: { status?: string }): boolean {
+export function isMilestoneCompleted(m: { status?: string | null }): boolean {
   const s = String(m?.status ?? '')
     .trim()
     .toLowerCase();
@@ -55,6 +55,8 @@ type MilestoneRowInput = {
   tasks?: unknown[];
 };
 
+type OkrMilestoneRow = Pick<MilestoneRowInput, 'status' | 'deletedAt'>;
+
 type MilestoneSourceInput = {
   milestones?: MilestoneRowInput[] | unknown[];
   Milestones?: MilestoneRowInput[] | unknown[];
@@ -72,7 +74,7 @@ function asMilestoneRows(raw: unknown): MilestoneRowInput[] {
 export function resolveOkrMilestones(
   kr: MilestoneSourceInput,
   apiKr?: MilestoneSourceInput | null,
-): Array<{ status?: string }> {
+): OkrMilestoneRow[] {
   const apiList = asMilestoneRows(apiKr?.milestones ?? apiKr?.Milestones);
   if (apiList.length > 0) {
     return apiList.filter((m) => m?.deletedAt == null);
@@ -98,7 +100,7 @@ export function resolveOkrMilestones(
 function withResolvedOkrMilestones<T extends Record<string, unknown>>(
   kr: T,
   apiKr?: Record<string, unknown> | null,
-): T & { milestones: Array<{ status?: string }> } {
+): T & { milestones: OkrMilestoneRow[] } {
   return {
     ...kr,
     milestones: resolveOkrMilestones(
