@@ -17,7 +17,8 @@ export const useIsWithinBreakPeriod = (): boolean => {
   useEffect(() => {
     const breakTypes = breakTypeData?.items ?? [];
 
-    const evaluate = () => setWithinBreakPeriod(isWithinBreakPeriod(breakTypes));
+    const evaluate = () =>
+      setWithinBreakPeriod(isWithinBreakPeriod(breakTypes));
 
     evaluate();
     const timer = setInterval(evaluate, 1000);

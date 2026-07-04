@@ -104,9 +104,7 @@ const ScoringModal: React.FC = () => {
       })
       .filter((item): item is VpScoringFailedAssignment => item != null);
 
-  const showFailedAssignmentModal = (
-    failed: VpScoringFailedAssignment[],
-  ) => {
+  const showFailedAssignmentModal = (failed: VpScoringFailedAssignment[]) => {
     if (failed.length === 0) return;
     showFailedAssignmentModal(failed);
   };
