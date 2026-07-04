@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import {
   createUnknownEmployeePlaceholder,
@@ -24,7 +24,7 @@ const getEmployeeBranches = async () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/branchs`,
+    url: `${CORE_API_URL}/branchs`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -42,7 +42,7 @@ const getEmployeeDepartments = async () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/departments/tenant/departments`,
+    url: `${CORE_API_URL}/departments/tenant/departments`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
