@@ -497,7 +497,7 @@ const buildAttendanceRulePayload = (
   isBreakRule: boolean,
 ): Partial<AttendanceRule> => {
   const effectiveStartDate = values.effectiveStartDate
-    ? dayjs(values.effectiveStartDate).startOf('day').toISOString()
+    ? dayjs(values.effectiveStartDate).format('YYYY-MM-DD')
     : undefined;
 
   const payload: Partial<AttendanceRule> = {
@@ -538,6 +538,10 @@ const buildAttendanceRulePayload = (
       template: item.template,
       isManagementTemplate: Boolean(item.isManagementTemplate),
     }));
+  }
+
+  if (values.backtrackEnabled === true) {
+    payload.backtrackEnabled = true;
   }
 
   return payload;
@@ -658,6 +662,7 @@ const CreateRuleSidebar = () => {
           matchingRule?.name,
           item.actionTypes,
         ),
+        backtrackEnabled: false,
       });
       setActiveTemplateAudience('management');
       setSelectedTypeId(ruleTypeId ?? null);
@@ -911,6 +916,67 @@ const CreateRuleSidebar = () => {
                 id="time-attendance-settings-attendance-rules-create-rule-sidebar-resets-in-input"
                 data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-resets-in-input"
               />
+            </Form.Item>
+          </Col>
+
+          <Col
+            span={24}
+            id="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-col"
+            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-col"
+          >
+            <Form.Item
+              noStyle
+              shouldUpdate={(prevValues, currentValues) =>
+                prevValues.resetDays !== currentValues.resetDays
+              }
+            >
+              {({ getFieldValue }) => {
+                const resetDays = Number(getFieldValue('resetDays') || 0);
+                const isBacktrackDisabled = !resetDays || resetDays <= 0;
+
+                return (
+                  <div
+                    className="rounded-lg bg-[#F3F4F6] px-4 py-3"
+                    id="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-container"
+                    data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-container"
+                  >
+                    <Form.Item
+                      name="backtrackEnabled"
+                      valuePropName="checked"
+                      initialValue={false}
+                      className="mb-0"
+                      id="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-field"
+                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-field"
+                    >
+                      <Checkbox
+                        disabled={isBacktrackDisabled}
+                        id="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-checkbox"
+                        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-checkbox"
+                      >
+                        <div
+                          className="flex flex-col"
+                          id="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-content"
+                          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-content"
+                        >
+                          <span
+                            className="text-sm font-normal text-gray-900"
+                            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-label"
+                          >
+                            Calculate violation from the effective start date
+                          </span>
+                          <span
+                            className="text-xs font-normal text-gray-500"
+                            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-backtrack-description"
+                          >
+                            Use the effective start date for violation
+                            calculations.
+                          </span>
+                        </div>
+                      </Checkbox>
+                    </Form.Item>
+                  </div>
+                );
+              }}
             </Form.Item>
           </Col>
 

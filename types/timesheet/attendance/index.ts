@@ -174,6 +174,8 @@ export interface AttendanceRule extends DateInfo {
   /** @deprecated Use letterTemplates instead */
   letterTemplate?: string;
   breakType?: string | BreakType;
+  /** Request-only flag sent on create/update to backfill historical violations. */
+  backtrackEnabled?: boolean;
 }
 
 export enum AttendanceRuleType {

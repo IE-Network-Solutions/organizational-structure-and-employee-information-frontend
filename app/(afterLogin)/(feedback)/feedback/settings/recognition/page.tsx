@@ -25,7 +25,9 @@ const Page = () => {
   const { data: recognitionType, isLoading } =
     useGetAllRecognitionWithRelations();
 
-  const listItems = recognitionType?.items ?? [];
+  const listItems = (recognitionType?.items ?? []).filter(
+    (item: any) => !item?.parentTypeId,
+  );
   const canCreateRecognition = AccessGuard.checkAccess({
     permissions: [Permissions.CreateRecognition],
   });
