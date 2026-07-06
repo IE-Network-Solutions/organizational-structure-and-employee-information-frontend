@@ -27,6 +27,11 @@ import { message } from 'antd'; // for error feedback
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useQueryClient } from 'react-query';
+import {
+  monthBelongsToSession,
+  resolveOriginalMonthId,
+  shouldRegenerateFiscalStructure,
+} from '@/store/uistate/features/organizations/settings/fiscalYear/wizardUtils';
 
 interface FiscalYearDrawerProps {
   form?: FormInstance;
@@ -152,6 +157,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     monthFormValues: any,
     sessionFormValues: any,
     effectiveCalendarType: string = calendarType,
+    preserveEntityIds = false,
   ) => {
     const sessionRows = Array.isArray(sessionFormValues?.sessionData)
       ? sessionFormValues.sessionData
@@ -231,75 +237,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
     // Track which months have been assigned to avoid duplicates
     const assignedMonthKeys = new Set<string>();
+    const usedMonthIds = new Set<string>();
 
-    // Helper function to find original month ID by matching date range
-    // Tries multiple matching strategies to ensure we find the ID
-    const findOriginalMonthId = (
-      monthStartDate: string,
-      monthEndDate: string,
-      originalSession: any,
-      monthIndex?: number,
-    ) => {
-      if (!originalSession?.months || !Array.isArray(originalSession.months)) {
-        return null;
-      }
-
-      const monthStart = dayjs(monthStartDate);
-      const monthEnd = dayjs(monthEndDate);
-
-      if (!monthStart.isValid() || !monthEnd.isValid()) {
-        return null;
-      }
-
-      // Strategy 1: Exact date match
-      let matchingMonth = originalSession.months.find((origMonth: any) => {
-        if (!origMonth.startDate || !origMonth.endDate) return false;
-        const origStart = dayjs(origMonth.startDate);
-        const origEnd = dayjs(origMonth.endDate);
-
-        if (!origStart.isValid() || !origEnd.isValid()) return false;
-
-        return (
-          origStart.format('YYYY-MM-DD') === monthStart.format('YYYY-MM-DD') &&
-          origEnd.format('YYYY-MM-DD') === monthEnd.format('YYYY-MM-DD')
-        );
-      });
-
-      // Strategy 2: Match by index if exact match fails
-      if (
-        !matchingMonth &&
-        monthIndex !== undefined &&
-        originalSession.months[monthIndex]
-      ) {
-        matchingMonth = originalSession.months[monthIndex];
-      }
-
-      // Strategy 3: Match by overlapping date range (more flexible)
-      if (!matchingMonth) {
-        matchingMonth = originalSession.months.find((origMonth: any) => {
-          if (!origMonth.startDate || !origMonth.endDate) return false;
-          const origStart = dayjs(origMonth.startDate);
-          const origEnd = dayjs(origMonth.endDate);
-
-          if (!origStart.isValid() || !origEnd.isValid()) return false;
-
-          // Check if dates overlap (within 1 day tolerance)
-          return (
-            (monthStart.isSameOrAfter(origStart, 'day') &&
-              monthStart.isSameOrBefore(origEnd, 'day')) ||
-            (monthEnd.isSameOrAfter(origStart, 'day') &&
-              monthEnd.isSameOrBefore(origEnd, 'day')) ||
-            (monthStart.isSameOrBefore(origStart, 'day') &&
-              monthEnd.isSameOrAfter(origEnd, 'day'))
-          );
-        });
-      }
-
-      return matchingMonth?.id || null;
-    };
-
-    // Helper function to match months to a session based on date ranges
-    // A month belongs to a session if its start date falls within the session's date range
     const getMonthsForSession = (
       sessionStart: string,
       sessionEnd: string,
@@ -307,70 +246,40 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     ) => {
       if (!sessionStart || !sessionEnd) return [];
 
-      const sessionStartDate = dayjs(sessionStart);
-      const sessionEndDate = dayjs(sessionEnd);
-
-      if (!sessionStartDate.isValid() || !sessionEndDate.isValid()) {
-        return [];
-      }
+      let sessionLocalMonthIndex = 0;
 
       return allMonths
-        .map((month, monthIndex) => {
+        .map((month) => {
           if (!month.startDate || !month.endDate) return null;
 
-          // Create a unique key for this month to track assignments
           const monthKey = `${month.startDate}-${month.endDate}`;
-
-          // Skip if this month has already been assigned to another session
           if (assignedMonthKeys.has(monthKey)) {
             return null;
           }
 
-          const monthStart = dayjs(month.startDate);
-
-          if (!monthStart.isValid()) {
+          if (!monthBelongsToSession(month.startDate, sessionStart, sessionEnd)) {
             return null;
           }
 
-          // A month belongs to a session if its start date falls within the session's date range
-          // Month must start on or after session start, and BEFORE session end (not on or before the end date)
-          // If a month starts exactly when a session ends, it belongs to the next session
-          // This prevents months from being assigned to multiple sessions
-          const belongsToSession =
-            monthStart.isSameOrAfter(sessionStartDate, 'day') &&
-            monthStart.isBefore(sessionEndDate, 'day');
+          assignedMonthKeys.add(monthKey);
 
-          if (belongsToSession) {
-            // Mark this month as assigned
-            assignedMonthKeys.add(monthKey);
-
-            // Find original month ID if in edit mode - try multiple strategies
-            let originalMonthId = null;
-            if (isEditMode && originalSession) {
-              // Try with index first (most reliable)
-              originalMonthId = findOriginalMonthId(
-                month.startDate,
-                month.endDate,
-                originalSession,
-                monthIndex,
-              );
-              // If still no match, try without index (uses other strategies)
-              if (!originalMonthId) {
-                originalMonthId = findOriginalMonthId(
+          const originalMonthId =
+            preserveEntityIds && originalSession
+              ? resolveOriginalMonthId(
+                  originalSession,
                   month.startDate,
                   month.endDate,
-                  originalSession,
-                );
-              }
-            }
+                  sessionLocalMonthIndex,
+                  usedMonthIds,
+                )
+              : null;
 
-            return {
-              ...month,
-              ...(originalMonthId ? { id: originalMonthId } : {}),
-            };
-          }
+          sessionLocalMonthIndex += 1;
 
-          return null;
+          return {
+            ...month,
+            ...(originalMonthId ? { id: originalMonthId } : {}),
+          };
         })
         .filter((month) => month !== null);
     };
@@ -401,7 +310,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
           // Get the original session from selectedFiscalYear (if in edit mode)
           const originalSession =
-            isEditMode && selectedFiscalYear?.sessions?.[index];
+            preserveEntityIds && selectedFiscalYear?.sessions?.[index];
 
           // Get months for this session by matching date ranges
           let sessionMonths =
@@ -421,53 +330,32 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
             sessionStartStr &&
             sessionEndStr
           ) {
-            const fallbackSessionStart = dayjs(sessionStartStr);
-            const fallbackSessionEnd = dayjs(sessionEndStr);
-
-            // Only use unassigned months for slicing fallback
             const unassignedMonths = allMonths.filter((m) => {
               const key = `${m.startDate}-${m.endDate}`;
               if (assignedMonthKeys.has(key)) return false;
 
-              // Verify the month actually belongs to this session
-              const mStart = dayjs(m.startDate);
-              if (
-                !mStart.isValid() ||
-                !fallbackSessionStart.isValid() ||
-                !fallbackSessionEnd.isValid()
-              )
-                return false;
-              return (
-                mStart.isSameOrAfter(fallbackSessionStart, 'day') &&
-                mStart.isBefore(fallbackSessionEnd, 'day')
+              return monthBelongsToSession(
+                m.startDate,
+                sessionStartStr,
+                sessionEndStr,
               );
             });
             const slicedMonths = unassignedMonths.slice(0, 3);
 
-            // Add IDs for sliced months if in edit mode
             sessionMonths = slicedMonths.map((month, monthIdx) => {
               const monthKey = `${month.startDate}-${month.endDate}`;
               assignedMonthKeys.add(monthKey);
 
-              // Find original month ID if in edit mode - try multiple strategies
-              let originalMonthId = null;
-              if (isEditMode && originalSession) {
-                // Try with index first (most reliable)
-                originalMonthId = findOriginalMonthId(
-                  month.startDate,
-                  month.endDate,
-                  originalSession,
-                  monthIdx,
-                );
-                // If still no match, try without index (uses other strategies)
-                if (!originalMonthId) {
-                  originalMonthId = findOriginalMonthId(
-                    month.startDate,
-                    month.endDate,
-                    originalSession,
-                  );
-                }
-              }
+              const originalMonthId =
+                preserveEntityIds && originalSession
+                  ? resolveOriginalMonthId(
+                      originalSession,
+                      month.startDate,
+                      month.endDate,
+                      monthIdx,
+                      usedMonthIds,
+                    )
+                  : null;
 
               return {
                 ...month,
@@ -477,7 +365,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           }
 
           return {
-            ...(isEditMode && originalSession?.id
+            ...(preserveEntityIds && originalSession?.id
               ? { id: originalSession.id }
               : {}),
             name: session.sessionName || `Session ${index + 1}`,
@@ -515,7 +403,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
           // Get the original session from selectedFiscalYear (if in edit mode)
           const originalSession =
-            isEditMode && selectedFiscalYear?.sessions?.[index];
+            preserveEntityIds && selectedFiscalYear?.sessions?.[index];
 
           // Get months for this session by matching date ranges
           let sessionMonths =
@@ -535,53 +423,32 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
             sessionStartStr &&
             sessionEndStr
           ) {
-            const fallbackSessionStart = dayjs(sessionStartStr);
-            const fallbackSessionEnd = dayjs(sessionEndStr);
-
-            // Only use unassigned months for slicing fallback
             const unassignedMonths = allMonths.filter((m) => {
               const key = `${m.startDate}-${m.endDate}`;
               if (assignedMonthKeys.has(key)) return false;
 
-              // Verify the month actually belongs to this session
-              const mStart = dayjs(m.startDate);
-              if (
-                !mStart.isValid() ||
-                !fallbackSessionStart.isValid() ||
-                !fallbackSessionEnd.isValid()
-              )
-                return false;
-              return (
-                mStart.isSameOrAfter(fallbackSessionStart, 'day') &&
-                mStart.isBefore(fallbackSessionEnd, 'day')
+              return monthBelongsToSession(
+                m.startDate,
+                sessionStartStr,
+                sessionEndStr,
               );
             });
             const slicedMonths = unassignedMonths.slice(0, 6);
 
-            // Add IDs for sliced months if in edit mode
             sessionMonths = slicedMonths.map((month, monthIdx) => {
               const monthKey = `${month.startDate}-${month.endDate}`;
               assignedMonthKeys.add(monthKey);
 
-              // Find original month ID if in edit mode - try multiple strategies
-              let originalMonthId = null;
-              if (isEditMode && originalSession) {
-                // Try with index first (most reliable)
-                originalMonthId = findOriginalMonthId(
-                  month.startDate,
-                  month.endDate,
-                  originalSession,
-                  monthIdx,
-                );
-                // If still no match, try without index (uses other strategies)
-                if (!originalMonthId) {
-                  originalMonthId = findOriginalMonthId(
-                    month.startDate,
-                    month.endDate,
-                    originalSession,
-                  );
-                }
-              }
+              const originalMonthId =
+                preserveEntityIds && originalSession
+                  ? resolveOriginalMonthId(
+                      originalSession,
+                      month.startDate,
+                      month.endDate,
+                      monthIdx,
+                      usedMonthIds,
+                    )
+                  : null;
 
               return {
                 ...month,
@@ -591,7 +458,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           }
 
           return {
-            ...(isEditMode && originalSession?.id
+            ...(preserveEntityIds && originalSession?.id
               ? { id: originalSession.id }
               : {}),
             name: session.sessionName || `Session ${index + 1}`,
@@ -629,7 +496,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
           // Get the original session from selectedFiscalYear (if in edit mode)
           const originalSession =
-            isEditMode && selectedFiscalYear?.sessions?.[0];
+            preserveEntityIds && selectedFiscalYear?.sessions?.[0];
 
           // For Year type, get all months that fall within the session date range
           let sessionMonths =
@@ -654,25 +521,16 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
               const monthKey = `${month.startDate}-${month.endDate}`;
               assignedMonthKeys.add(monthKey);
 
-              // Find original month ID if in edit mode - try multiple strategies
-              let originalMonthId = null;
-              if (isEditMode && originalSession) {
-                // Try with index first (most reliable)
-                originalMonthId = findOriginalMonthId(
-                  month.startDate,
-                  month.endDate,
-                  originalSession,
-                  monthIdx,
-                );
-                // If still no match, try without index (uses other strategies)
-                if (!originalMonthId) {
-                  originalMonthId = findOriginalMonthId(
-                    month.startDate,
-                    month.endDate,
-                    originalSession,
-                  );
-                }
-              }
+              const originalMonthId =
+                preserveEntityIds && originalSession
+                  ? resolveOriginalMonthId(
+                      originalSession,
+                      month.startDate,
+                      month.endDate,
+                      monthIdx,
+                      usedMonthIds,
+                    )
+                  : null;
 
               return {
                 ...month,
@@ -682,7 +540,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           }
 
           return {
-            ...(isEditMode && originalSession?.id
+            ...(preserveEntityIds && originalSession?.id
               ? { id: originalSession.id }
               : {}),
             name: session?.sessionName || 'Session 1',
@@ -719,31 +577,41 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     const effectiveCalendarType =
       mergedFyValues.fiscalYearCalenderId || calendarType;
 
-    const fiscalYearData = getTransformedFiscalYear(
-      monthFormValues,
-      latestSessionValues,
-      effectiveCalendarType,
-    );
-
-    const now = dayjs();
-    // Determine if this fiscal year is active by date
     const fyStart = mergedFyValues?.fiscalYearStartDate
       ? dayjs(mergedFyValues.fiscalYearStartDate)
       : null;
     const fyEnd = mergedFyValues?.fiscalYearEndDate
       ? dayjs(mergedFyValues.fiscalYearEndDate)
       : null;
-    const isYearActive =
-      fyStart && fyEnd && now.isBetween(fyStart, fyEnd, null, '[]');
+
+    const preserveEntityIds =
+      isEditMode &&
+      !!selectedFiscalYear &&
+      !shouldRegenerateFiscalStructure({
+        isEditMode,
+        selectedFiscalYear,
+        calendarType: effectiveCalendarType,
+        fiscalYearStart: fyStart,
+        fiscalYearEnd: fyEnd,
+      });
+
+    const fiscalYearData = getTransformedFiscalYear(
+      monthFormValues,
+      latestSessionValues,
+      effectiveCalendarType,
+      preserveEntityIds,
+    );
+
+    const now = dayjs();
+    const isYearActive = isEditMode
+      ? (selectedFiscalYear?.isActive ?? false)
+      : !!(fyStart && fyEnd && now.isBetween(fyStart, fyEnd, null, '[]'));
+    const submitUsedMonthIds = new Set<string>();
 
     const fiscalYearPayload = {
       name: mergedFyValues?.fiscalYearName,
-      startDate: mergedFyValues?.fiscalYearStartDate
-        ? dayjs(mergedFyValues.fiscalYearStartDate).format('YYYY-MM-DD')
-        : undefined,
-      endDate: mergedFyValues?.fiscalYearEndDate
-        ? dayjs(mergedFyValues.fiscalYearEndDate).format('YYYY-MM-DD')
-        : undefined,
+      startDate: fyStart ? fyStart.format('YYYY-MM-DD') : undefined,
+      endDate: fyEnd ? fyEnd.format('YYYY-MM-DD') : undefined,
       description: mergedFyValues?.fiscalYearDescription,
       isActive: !!isYearActive,
       sessions: fiscalYearData?.map((session: Session, sessionIdx: number) => {
@@ -756,65 +624,15 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           sessionEnd &&
           now.isBetween(sessionStart, sessionEnd, null, '[]');
 
-        // Get the original session from selectedFiscalYear (if in edit mode)
         const originalSession =
-          isEditMode && selectedFiscalYear?.sessions?.[sessionIdx];
+          preserveEntityIds && selectedFiscalYear?.sessions?.[sessionIdx];
 
-        // Helper function to find month ID if missing
-        const findMonthId = (month: Month, monthIdx: number) => {
-          // If month already has ID, use it
-          if (month.id) return month.id;
-
-          // If not in edit mode or no original session, return null
-          if (!isEditMode || !originalSession?.months) return null;
-
-          const monthStart = dayjs(month.startDate);
-          const monthEnd = dayjs(month.endDate);
-
-          if (!monthStart.isValid() || !monthEnd.isValid()) return null;
-
-          // Strategy 1: Match by index
-          if (originalSession.months[monthIdx]?.id) {
-            return originalSession.months[monthIdx].id;
-          }
-
-          // Strategy 2: Match by exact date
-          const exactMatch = originalSession.months.find((origMonth: any) => {
-            if (!origMonth.startDate || !origMonth.endDate) return false;
-            const origStart = dayjs(origMonth.startDate);
-            const origEnd = dayjs(origMonth.endDate);
-            return (
-              origStart.format('YYYY-MM-DD') ===
-                monthStart.format('YYYY-MM-DD') &&
-              origEnd.format('YYYY-MM-DD') === monthEnd.format('YYYY-MM-DD')
-            );
-          });
-          if (exactMatch?.id) return exactMatch.id;
-
-          // Strategy 3: Match by overlapping dates
-          const overlapMatch = originalSession.months.find((origMonth: any) => {
-            if (!origMonth.startDate || !origMonth.endDate) return false;
-            const origStart = dayjs(origMonth.startDate);
-            const origEnd = dayjs(origMonth.endDate);
-            return (
-              (monthStart.isSameOrAfter(origStart, 'day') &&
-                monthStart.isSameOrBefore(origEnd, 'day')) ||
-              (monthEnd.isSameOrAfter(origStart, 'day') &&
-                monthEnd.isSameOrBefore(origEnd, 'day'))
-            );
-          });
-          return overlapMatch?.id || null;
-        };
-
-        // Sessions from getTransformedFiscalYear already have IDs included
-        // Just add the active property and ensure dates are formatted
-        // Ensure months is always an array
         const sessionMonths = Array.isArray(session?.months)
           ? session.months
           : [];
 
         return {
-          ...(session.id ? { id: session.id } : {}),
+          ...(preserveEntityIds && session.id ? { id: session.id } : {}),
           name: session?.name,
           description: session?.description,
           startDate: session?.startDate
@@ -823,7 +641,9 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           endDate: session?.endDate
             ? dayjs(session.endDate).format('YYYY-MM-DD')
             : undefined,
-          active: !!isSessionActive,
+          active: preserveEntityIds
+            ? (originalSession?.active ?? !!isSessionActive)
+            : !!isSessionActive,
           months: sessionMonths.map((month: Month, monthIdx: number) => {
             const monthStart = month?.startDate ? dayjs(month.startDate) : null;
             const monthEnd = month?.endDate ? dayjs(month.endDate) : null;
@@ -831,9 +651,24 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
               monthStart &&
               monthEnd &&
               now.isBetween(monthStart, monthEnd, null, '[]');
+            const originalMonth = originalSession?.months?.[monthIdx];
 
-            // Try to find month ID if missing
-            const monthId = month.id || findMonthId(month, monthIdx);
+            let monthId: string | undefined;
+            if (preserveEntityIds) {
+              if (month.id && !submitUsedMonthIds.has(month.id)) {
+                monthId = month.id;
+                submitUsedMonthIds.add(month.id);
+              } else if (originalSession && month.startDate && month.endDate) {
+                const resolvedId = resolveOriginalMonthId(
+                  originalSession,
+                  month.startDate,
+                  month.endDate,
+                  monthIdx,
+                  submitUsedMonthIds,
+                );
+                monthId = resolvedId ?? undefined;
+              }
+            }
 
             return {
               ...(monthId ? { id: monthId } : {}),
@@ -845,7 +680,9 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
               endDate: month?.endDate
                 ? dayjs(month.endDate).format('YYYY-MM-DD')
                 : undefined,
-              active: !!isMonthActive,
+              active: preserveEntityIds
+                ? (originalMonth?.active ?? !!isMonthActive)
+                : !!isMonthActive,
             };
           }),
         };
@@ -877,6 +714,18 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           'Fiscal year start or end date overlap with an existing fiscal year.',
       });
       return; // Prevent submit
+    }
+
+    const hasEmptySessionMonths = fiscalYearPayload.sessions?.some(
+      (session) => !Array.isArray(session.months) || session.months.length === 0,
+    );
+    if (hasEmptySessionMonths) {
+      NotificationMessage.error({
+        message: 'Invalid fiscal year structure',
+        description:
+          'Each session must include at least one month. Please review session and month dates.',
+      });
+      return;
     }
 
     if (isEditMode) {

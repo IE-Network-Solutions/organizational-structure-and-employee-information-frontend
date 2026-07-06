@@ -134,6 +134,17 @@ export const useUpdateFiscalYear = () => {
         const method = variables?.method?.toUpperCase();
         handleSuccessMessage(method);
       },
+      onError: (error: any) => {
+        const errorMessage =
+          error?.response?.data?.message ||
+          error?.response?.data?.details ||
+          error?.message ||
+          'Failed to update fiscal year';
+        NotificationMessage.error({
+          message: 'Error updating fiscal year',
+          description: errorMessage,
+        });
+      },
     },
   );
 };

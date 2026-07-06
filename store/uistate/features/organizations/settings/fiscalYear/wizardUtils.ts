@@ -49,6 +49,77 @@ export const shouldRegenerateFiscalStructure = ({
   return calendarTypeChanged || datesChanged;
 };
 
+export const monthBelongsToSession = (
+  monthStartDate: string,
+  sessionStartDate: string,
+  sessionEndDate: string,
+) => {
+  const monthStart = dayjs(monthStartDate);
+  const sessionStart = dayjs(sessionStartDate);
+  const sessionEnd = dayjs(sessionEndDate);
+
+  if (
+    !monthStart.isValid() ||
+    !sessionStart.isValid() ||
+    !sessionEnd.isValid()
+  ) {
+    return false;
+  }
+
+  return (
+    monthStart.isSameOrAfter(sessionStart, 'day') &&
+    monthStart.isSameOrBefore(sessionEnd, 'day')
+  );
+};
+
+export const resolveOriginalMonthId = (
+  originalSession: { months?: Array<{ id?: string; startDate?: string; endDate?: string }> } | null | undefined,
+  monthStartDate: string,
+  monthEndDate: string,
+  sessionLocalIndex: number,
+  usedMonthIds: Set<string>,
+): string | null => {
+  const originalMonths = originalSession?.months;
+  if (!Array.isArray(originalMonths) || originalMonths.length === 0) {
+    return null;
+  }
+
+  const monthStart = dayjs(monthStartDate);
+  const monthEnd = dayjs(monthEndDate);
+  if (!monthStart.isValid() || !monthEnd.isValid()) {
+    return null;
+  }
+
+  const startKey = monthStart.format('YYYY-MM-DD');
+  const endKey = monthEnd.format('YYYY-MM-DD');
+
+  const exactMatch = originalMonths.find((originalMonth) => {
+    if (!originalMonth?.id || usedMonthIds.has(originalMonth.id)) {
+      return false;
+    }
+    if (!originalMonth.startDate || !originalMonth.endDate) {
+      return false;
+    }
+    return (
+      dayjs(originalMonth.startDate).format('YYYY-MM-DD') === startKey &&
+      dayjs(originalMonth.endDate).format('YYYY-MM-DD') === endKey
+    );
+  });
+
+  if (exactMatch?.id) {
+    usedMonthIds.add(exactMatch.id);
+    return exactMatch.id;
+  }
+
+  const indexMatch = originalMonths[sessionLocalIndex];
+  if (indexMatch?.id && !usedMonthIds.has(indexMatch.id)) {
+    usedMonthIds.add(indexMatch.id);
+    return indexMatch.id;
+  }
+
+  return null;
+};
+
 export const buildSessionStructureKey = ({
   calendarType,
   fiscalYearStart,
