@@ -4,8 +4,6 @@ import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { MoreHorizontal, X, ChevronLeft } from 'lucide-react';
 
-// ─── Types (mirror groupedMenuItems shape) ──────────────────────────────────
-
 interface SubItem {
   key: string | number | bigint;
   label: React.ReactNode;
@@ -15,7 +13,6 @@ interface NavItem {
   key: string | number | bigint;
   icon?: React.ReactNode;
   label: React.ReactNode;
-  /** Populated when the treeItem is a non-navigable parent (e.g. 'feedback-menu') */
   children?: SubItem[];
 }
 
@@ -32,12 +29,6 @@ interface MobileBottomNavProps {
   colorPrimary: string;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/**
- * Is the current pathname inside this group?
- * Checks both direct item keys and sub-item keys (mirrors NavMenuItem active logic).
- */
 function groupIsActive(group: NavGroup, pathname: string): boolean {
   return group.children.some((item) => {
     if (item.children && item.children.length > 0) {
@@ -50,8 +41,6 @@ function groupIsActive(group: NavGroup, pathname: string): boolean {
     return pathname === k || pathname.startsWith(k + '/');
   });
 }
-
-// ─── Sheet content ───────────────────────────────────────────────────────────
 
 function GroupSheet({
   group,
@@ -70,19 +59,29 @@ function GroupSheet({
         const itemKey = String(item.key);
 
         if (item.children && item.children.length > 0) {
-          // Parent node — render as section label + navigable children
           return (
-            <div key={itemKey} className="mb-4">
-              {/* Section label */}
-              <div className="flex items-center gap-2 px-3 py-1 mb-1">
-                <span className="text-[20px] leading-none flex items-center justify-center w-5 h-5 flex-shrink-0 text-[#9ca3af]">
+            <div
+              key={itemKey}
+              data-cy={`mobile-nav-section-${itemKey.replace(/\//g, '-')}`}
+              className="mb-4"
+            >
+              <div
+                data-cy={`mobile-nav-section-label-${itemKey.replace(/\//g, '-')}`}
+                className="flex items-center gap-2 px-3 py-1 mb-1"
+              >
+                <span
+                  data-cy={`mobile-nav-section-icon-${itemKey.replace(/\//g, '-')}`}
+                  className="text-[20px] leading-none flex items-center justify-center w-5 h-5 flex-shrink-0 text-[#9ca3af]"
+                >
                   {item.icon}
                 </span>
-                <span className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider">
+                <span
+                  data-cy={`mobile-nav-section-title-${itemKey.replace(/\//g, '-')}`}
+                  className="text-[11px] font-semibold text-[#9ca3af] uppercase tracking-wider"
+                >
                   {item.label}
                 </span>
               </div>
-              {/* Navigable children */}
               {item.children.map((sub) => {
                 const subKey = String(sub.key);
                 const active =
@@ -91,12 +90,11 @@ function GroupSheet({
                   <button
                     key={subKey}
                     type="button"
+                    data-cy={`mobile-nav-item-${subKey.replace(/\//g, '-')}`}
                     onClick={() => onNavigate(subKey)}
                     className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-[14px] font-medium transition-colors text-left"
                     style={{
-                      backgroundColor: active
-                        ? `${colorPrimary}18`
-                        : undefined,
+                      backgroundColor: active ? `${colorPrimary}18` : undefined,
                       color: active ? colorPrimary : '#111827',
                     }}
                   >
@@ -108,13 +106,13 @@ function GroupSheet({
           );
         }
 
-        // Leaf node — directly navigable
         const active =
           pathname === itemKey || pathname.startsWith(itemKey + '/');
         return (
           <button
             key={itemKey}
             type="button"
+            data-cy={`mobile-nav-item-${itemKey.replace(/\//g, '-')}`}
             onClick={() => onNavigate(itemKey)}
             className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-[14px] font-medium transition-colors text-left mb-1"
             style={{
@@ -122,10 +120,17 @@ function GroupSheet({
               color: active ? colorPrimary : '#111827',
             }}
           >
-            <span className="text-[20px] leading-none flex items-center justify-center w-5 h-5 flex-shrink-0">
+            <span
+              data-cy={`mobile-nav-item-icon-${itemKey.replace(/\//g, '-')}`}
+              className="text-[20px] leading-none flex items-center justify-center w-5 h-5 flex-shrink-0"
+            >
               {item.icon}
             </span>
-            <span>{item.label}</span>
+            <span
+              data-cy={`mobile-nav-item-label-${itemKey.replace(/\//g, '-')}`}
+            >
+              {item.label}
+            </span>
           </button>
         );
       })}
@@ -133,14 +138,15 @@ function GroupSheet({
   );
 }
 
-// ─── Main component ───────────────────────────────────────────────────────────
-
 type Sheet =
   | { type: 'closed' }
   | { type: 'group'; group: NavGroup }
   | { type: 'all' };
 
-export function MobileBottomNav({ groups, colorPrimary }: MobileBottomNavProps) {
+export function MobileBottomNav({
+  groups,
+  colorPrimary,
+}: MobileBottomNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [sheet, setSheet] = useState<Sheet>({ type: 'closed' });
@@ -148,6 +154,8 @@ export function MobileBottomNav({ groups, colorPrimary }: MobileBottomNavProps) 
   if (!groups.length) return null;
 
   const tabs = groups.slice(0, 4);
+  const moreActive = groups.slice(4).some((g) => groupIsActive(g, pathname));
+  const isOpen = sheet.type !== 'closed';
 
   function navigateTo(path: string) {
     router.push(path);
@@ -155,7 +163,6 @@ export function MobileBottomNav({ groups, colorPrimary }: MobileBottomNavProps) 
   }
 
   function onTabPress(group: NavGroup) {
-    // Count how many real navigable destinations this group has
     const destinations: string[] = [];
     group.children.forEach((item) => {
       if (item.children && item.children.length > 0) {
@@ -164,7 +171,6 @@ export function MobileBottomNav({ groups, colorPrimary }: MobileBottomNavProps) 
         destinations.push(String(item.key));
       }
     });
-
     if (destinations.length === 1) {
       navigateTo(destinations[0]);
     } else {
@@ -172,14 +178,8 @@ export function MobileBottomNav({ groups, colorPrimary }: MobileBottomNavProps) 
     }
   }
 
-  const moreActive =
-    groups.slice(4).some((g) => groupIsActive(g, pathname));
-
-  const isOpen = sheet.type !== 'closed';
-
   return (
     <>
-      {/* ── Tab bar ── */}
       <nav
         data-cy="mobile-bottom-nav"
         className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#E2E8F0] bg-white flex items-stretch"
@@ -193,61 +193,90 @@ export function MobileBottomNav({ groups, colorPrimary }: MobileBottomNavProps) 
             <button
               key={group.key}
               type="button"
+              data-cy={`mobile-bottom-nav-tab-${group.key}`}
               onClick={() => onTabPress(group)}
               className="flex flex-1 flex-col items-center justify-center gap-0.5 pb-1 text-[10px] font-medium transition-colors min-w-0"
               style={{ color: active ? colorPrimary : '#6b7280' }}
             >
-              <span className="text-[22px] leading-none flex items-center justify-center w-6 h-6">
+              <span
+                data-cy={`mobile-bottom-nav-tab-icon-${group.key}`}
+                className="text-[22px] leading-none flex items-center justify-center w-6 h-6"
+              >
                 {firstIcon}
               </span>
-              <span className="truncate max-w-full px-0.5">{group.label}</span>
+              <span
+                data-cy={`mobile-bottom-nav-tab-label-${group.key}`}
+                className="truncate max-w-full px-0.5"
+              >
+                {group.label}
+              </span>
             </button>
           );
         })}
 
         <button
           type="button"
+          data-cy="mobile-bottom-nav-more"
           onClick={() => setSheet({ type: 'all' })}
           className="flex flex-1 flex-col items-center justify-center gap-0.5 pb-1 text-[10px] font-medium transition-colors min-w-0"
           style={{ color: moreActive ? colorPrimary : '#6b7280' }}
         >
-          <MoreHorizontal className="w-[22px] h-[22px]" />
-          <span>More</span>
+          <MoreHorizontal
+            data-cy="mobile-bottom-nav-more-icon"
+            className="w-[22px] h-[22px]"
+          />
+          <span data-cy="mobile-bottom-nav-more-label">More</span>
         </button>
       </nav>
 
-      {/* ── Bottom sheet ── */}
       {isOpen && (
-        <div className="fixed inset-0 z-[500] flex flex-col justify-end">
-          {/* Backdrop */}
+        <div
+          data-cy="mobile-bottom-nav-sheet"
+          className="fixed inset-0 z-[500] flex flex-col justify-end"
+        >
           <div
+            data-cy="mobile-bottom-nav-backdrop"
             className="absolute inset-0 bg-black/40"
             onClick={() => setSheet({ type: 'closed' })}
           />
 
-          {/* Panel */}
-          <div className="relative bg-white rounded-t-2xl max-h-[80vh] flex flex-col shadow-xl">
-            {/* Handle */}
-            <div className="flex-shrink-0 pt-3 pb-1 flex justify-center">
-              <div className="w-10 h-1 rounded-full bg-[#e5e7eb]" />
+          <div
+            data-cy="mobile-bottom-nav-panel"
+            className="relative bg-white rounded-t-2xl max-h-[80vh] flex flex-col shadow-xl"
+          >
+            <div
+              data-cy="mobile-bottom-nav-handle"
+              className="flex-shrink-0 pt-3 pb-1 flex justify-center"
+            >
+              <div
+                data-cy="mobile-bottom-nav-handle-bar"
+                className="w-10 h-1 rounded-full bg-[#e5e7eb]"
+              />
             </div>
 
-            {/* Header */}
-            <div className="flex items-center gap-1 px-4 py-2 flex-shrink-0 border-b border-[#f3f4f6]">
+            <div
+              data-cy="mobile-bottom-nav-header"
+              className="flex items-center gap-1 px-4 py-2 flex-shrink-0 border-b border-[#f3f4f6]"
+            >
               {sheet.type === 'group' && (
                 <button
                   type="button"
+                  data-cy="mobile-bottom-nav-back"
                   onClick={() => setSheet({ type: 'all' })}
                   className="p-1.5 -ml-1 rounded-lg hover:bg-[#f3f4f6] transition-colors"
                 >
                   <ChevronLeft size={18} className="text-[#6b7280]" />
                 </button>
               )}
-              <span className="flex-1 text-[15px] font-semibold text-[#111827]">
+              <span
+                data-cy="mobile-bottom-nav-title"
+                className="flex-1 text-[15px] font-semibold text-[#111827]"
+              >
                 {sheet.type === 'group' ? sheet.group.label : 'Navigation'}
               </span>
               <button
                 type="button"
+                data-cy="mobile-bottom-nav-close"
                 onClick={() => setSheet({ type: 'closed' })}
                 className="p-1.5 rounded-lg hover:bg-[#f3f4f6] transition-colors"
               >
@@ -255,8 +284,10 @@ export function MobileBottomNav({ groups, colorPrimary }: MobileBottomNavProps) 
               </button>
             </div>
 
-            {/* Content */}
-            <div className="overflow-y-auto px-3 py-3 pb-8">
+            <div
+              data-cy="mobile-bottom-nav-content"
+              className="overflow-y-auto px-3 py-3 pb-8"
+            >
               {sheet.type === 'group' ? (
                 <GroupSheet
                   group={sheet.group}
@@ -265,10 +296,16 @@ export function MobileBottomNav({ groups, colorPrimary }: MobileBottomNavProps) 
                   onNavigate={navigateTo}
                 />
               ) : (
-                // All groups
                 groups.map((group) => (
-                  <div key={group.key} className="mb-2">
-                    <div className="px-3 py-2 text-[11px] font-semibold text-[#6b7280] uppercase tracking-widest">
+                  <div
+                    key={group.key}
+                    data-cy={`mobile-bottom-nav-group-${group.key}`}
+                    className="mb-2"
+                  >
+                    <div
+                      data-cy={`mobile-bottom-nav-group-label-${group.key}`}
+                      className="px-3 py-2 text-[11px] font-semibold text-[#6b7280] uppercase tracking-widest"
+                    >
                       {group.label}
                     </div>
                     <GroupSheet
