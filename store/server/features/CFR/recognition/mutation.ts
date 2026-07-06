@@ -199,30 +199,25 @@ export const useAddRecognitionType = () => {
   });
 };
 export const useCreateRecognition = () => {
-  const queryClient = useQueryClient();
-  return useMutation(createRecognition, {
-    onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('recognitions');
-      queryClient.invalidateQueries('recognitionsByParentRecognitionType');
-      queryClient.invalidateQueries('recognitionTypes');
-      queryClient.invalidateQueries('recognitionTypesWithRelations');
-
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
-    },
-    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
-  });
+  return useMutation(createRecognition);
 };
 export const useCreateEmployeeRecognition = () => {
   const queryClient = useQueryClient();
   return useMutation(createEmployeeRecognition, {
-    onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('recognitions');
-      queryClient.invalidateQueries('recognitionsByParentRecognitionType');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries('recognitions');
+      await queryClient.invalidateQueries(
+        'recognitionsByParentRecognitionType',
+      );
+      await queryClient.refetchQueries({
+        queryKey: 'recognitionsByParentRecognitionType',
+        active: true,
+      });
+      handleSuccessMessage(
+        'POST',
+        'Employee recognition was successfully created.',
+      );
     },
-    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
   });
 };
 export const useCreateRecognitionCriteria = () => {

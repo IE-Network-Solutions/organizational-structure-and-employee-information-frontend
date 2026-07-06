@@ -76,7 +76,11 @@
   color: #9ca3af;
 }
 
-.note-panel-quill .ql-snow .ql-picker:not(.ql-color-picker):not(.ql-icon-picker) svg .ql-stroke {
+.note-panel-quill
+  .ql-snow
+  .ql-picker:not(.ql-color-picker):not(.ql-icon-picker)
+  svg
+  .ql-stroke {
   stroke: #9ca3af;
 }
 
@@ -120,30 +124,57 @@
   content: 'Times New Roman';
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-font .ql-picker-label[data-value='times-new-roman']::before,
-.note-panel-quill .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='times-new-roman']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-font
+  .ql-picker-label[data-value='times-new-roman']::before,
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-font
+  .ql-picker-item[data-value='times-new-roman']::before {
   content: 'Times New Roman';
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-font .ql-picker-label[data-value='arial']::before,
-.note-panel-quill .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='arial']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-font
+  .ql-picker-label[data-value='arial']::before,
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-font
+  .ql-picker-item[data-value='arial']::before {
   content: 'Arial';
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-font .ql-picker-label[data-value='calibre']::before,
-.note-panel-quill .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='calibre']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-font
+  .ql-picker-label[data-value='calibre']::before,
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-font
+  .ql-picker-item[data-value='calibre']::before {
   content: 'Calibre';
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='times-new-roman']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-font
+  .ql-picker-item[data-value='times-new-roman']::before {
   font-family: 'Times New Roman', Times, serif;
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='arial']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-font
+  .ql-picker-item[data-value='arial']::before {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-font .ql-picker-item[data-value='calibre']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-font
+  .ql-picker-item[data-value='calibre']::before {
   font-family: 'Calibre', sans-serif;
 }
 
@@ -165,32 +196,68 @@
   content: '16px';
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='12px']::before,
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='12px']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-label[data-value='12px']::before,
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-item[data-value='12px']::before {
   content: '12px';
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='14px']::before,
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='14px']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-label[data-value='14px']::before,
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-item[data-value='14px']::before {
   content: '14px';
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='16px']::before,
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='16px']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-label[data-value='16px']::before,
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-item[data-value='16px']::before {
   content: '16px';
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='18px']::before,
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='18px']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-label[data-value='18px']::before,
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-item[data-value='18px']::before {
   content: '18px';
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='20px']::before,
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='20px']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-label[data-value='20px']::before,
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-item[data-value='20px']::before {
   content: '20px';
 }
 
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='24px']::before,
-.note-panel-quill .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='24px']::before {
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-label[data-value='24px']::before,
+.note-panel-quill
+  .ql-snow
+  .ql-picker.ql-size
+  .ql-picker-item[data-value='24px']::before {
   content: '24px';
 }

@@ -287,7 +287,10 @@ type IncentiveState = {
 };
 
 type IncentiveActions = {
-  setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
+  setSearchParams: <K extends keyof SearchParams>(
+    key: K,
+    value: SearchParams[K],
+  ) => void;
   setCurrentPage: (currentPage: number) => void;
   setPageSize: (pageSize: number) => void;
   setOpenIncentiveDrawer: (open: boolean) => void;

@@ -26,6 +26,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import {
+  canManageSurveyForms,
+  filterSurveyFormsForUser,
+} from '@/utils/surveyFormAccess';
 
 function pickResponseTotalFromForm(form: any): number {
   const n = Number(
@@ -121,6 +125,8 @@ function FormCardsLoadingSkeleton() {
 const FormCard: React.FC<{ id: string }> = ({ id }) => {
   const [formsListPage, setFormsListPage] = useState(1);
   const requestedFormIdsRef = React.useRef<Set<string>>(new Set());
+  const { userId } = useAuthenticationStore();
+  const canManageForms = canManageSurveyForms();
   const {
     selectedFormId,
     searchFormParams,
@@ -203,8 +209,9 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
   const formItemsSorted = useMemo(() => {
     const items = formsByCategoryId?.items;
     if (!Array.isArray(items) || items.length === 0) return [];
-    return sortFormsByCreatedAtDesc(items);
-  }, [formsByCategoryId?.items]);
+    const visibleItems = filterSurveyFormsForUser(items, userId);
+    return sortFormsByCreatedAtDesc(visibleItems);
+  }, [formsByCategoryId?.items, userId]);
 
   useEffect(() => {
     let unmounted = false;
@@ -390,52 +397,58 @@ const FormCard: React.FC<{ id: string }> = ({ id }) => {
                     </span>
                     <Dropdown
                       menu={{
-                        items: [
-                          {
-                            key: 'copy',
-                            label: (
-                              <span className="form-card-menu-item flex items-center gap-3 text-[#374151]">
-                                <Share2 className="h-5 w-5" />
-                                <span>Share Survey</span>
-                              </span>
-                            ),
-                            onClick: () => handleMenuClick('copy', form),
-                          },
-                          {
-                            key: 'edit',
-                            label: (
-                              <span className="form-card-menu-item flex items-center gap-3 text-[#374151]">
-                                <EditOutlinedIcon fontSize="small" />
-                                <span>Edit</span>
-                              </span>
-                            ),
-                            onClick: () => handleMenuClick('edit', form),
-                          },
-                          {
-                            key: 'delete',
-                            label: (
-                              <span className="form-card-menu-item form-card-menu-item-delete flex items-center gap-3 text-red-500">
-                                <DeleteOutlineOutlinedIcon fontSize="small" />
-                                <span>Delete</span>
-                              </span>
-                            ),
-                            onClick: () => handleMenuClick('delete', form),
-                          },
-                        ],
+                        items: canManageForms
+                          ? [
+                              {
+                                key: 'copy',
+                                label: (
+                                  <span className="form-card-menu-item flex items-center gap-3 text-[#374151]">
+                                    <Share2 className="h-5 w-5" />
+                                    <span>Share Survey</span>
+                                  </span>
+                                ),
+                                onClick: () => handleMenuClick('copy', form),
+                              },
+                              {
+                                key: 'edit',
+                                label: (
+                                  <span className="form-card-menu-item flex items-center gap-3 text-[#374151]">
+                                    <EditOutlinedIcon fontSize="small" />
+                                    <span>Edit</span>
+                                  </span>
+                                ),
+                                onClick: () => handleMenuClick('edit', form),
+                              },
+                              {
+                                key: 'delete',
+                                label: (
+                                  <span className="form-card-menu-item form-card-menu-item-delete flex items-center gap-3 text-red-500">
+                                    <DeleteOutlineOutlinedIcon fontSize="small" />
+                                    <span>Delete</span>
+                                  </span>
+                                ),
+                                onClick: () => handleMenuClick('delete', form),
+                              },
+                            ]
+                          : [],
                       }}
                       trigger={['click']}
                       placement="bottomRight"
                       data-cy="form-card-menu"
                       overlayClassName="form-card-menu-overlay"
                     >
-                      <button
-                        type="button"
-                        className="relative z-[2] flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-slate-200 bg-white text-[#374151] transition-colors hover:border-slate-300 hover:bg-slate-50 pointer-events-auto"
-                        data-cy="form-card-menu-trigger"
-                        aria-label="More options"
-                      >
-                        <MdMoreHoriz className="text-[24px] leading-none" />
-                      </button>
+                      {canManageForms ? (
+                        <button
+                          type="button"
+                          className="relative z-[2] flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-slate-200 bg-white text-[#374151] transition-colors hover:border-slate-300 hover:bg-slate-50 pointer-events-auto"
+                          data-cy="form-card-menu-trigger"
+                          aria-label="More options"
+                        >
+                          <MdMoreHoriz className="text-[24px] leading-none" />
+                        </button>
+                      ) : (
+                        <span className="h-8 w-8 shrink-0" aria-hidden />
+                      )}
                     </Dropdown>
                   </div>
 
