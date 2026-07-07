@@ -15,7 +15,7 @@ const addRecognitionType = async (data: any) => {
     createdByUserId: createdBy || '',
   };
   return await crudRequest({
-    url: `${ORG_DEV_URL}/recognition-type`,
+    url: `${ORG_DEV_URL}/recognition-type/bulk`,
     method: 'POST',
     data,
     headers,
