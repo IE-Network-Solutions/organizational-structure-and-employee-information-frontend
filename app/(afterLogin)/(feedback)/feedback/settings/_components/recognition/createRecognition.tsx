@@ -809,20 +809,6 @@ const RecognitionForm: React.FC<PropsData> = ({
       recognitionCriteria: mapRecognitionCriteria(),
     };
 
-    const handleClose = () => {
-      form.resetFields();
-      onClose();
-      setOpenRecognitionType(false);
-      setOpenModal(false);
-      setOpen(false);
-      setParentRecognitionTypeId('');
-      setSelectedRecognitionType('');
-      setSelectedCriteria([]);
-      setTotalWeight(0);
-      setPendingNewCriteriaId(null);
-      setEditingCriteriaId(null);
-      setEditingCriteriaName('');
-    };
 
     const finishWizard = () => {
       handleWizardClose();
@@ -1575,7 +1561,10 @@ const RecognitionForm: React.FC<PropsData> = ({
                 </div>
               ) : null}
               {!isEditingRecognition ? (
-                <div data-cy="create-recognition-bulk-add-button-container" className="flex justify-end">
+                <div
+                  data-cy="create-recognition-bulk-add-button-container"
+                  className="flex justify-end"
+                >
                   <Button
                     type="primary"
                     htmlType="button"
@@ -1616,7 +1605,10 @@ const RecognitionForm: React.FC<PropsData> = ({
                       data-cy={`create-recognition-bulk-item-${item.id}`}
                       id={`createRecognitionBulkItem${item.id}`}
                     >
-                      <div data-cy="create-recognition-bulk-item-name-container" className="min-w-0 flex-1">
+                      <div
+                        data-cy="create-recognition-bulk-item-name-container"
+                        className="min-w-0 flex-1"
+                      >
                         <div
                           className="text-sm font-medium text-gray-900 truncate"
                           data-cy={`create-recognition-bulk-item-name-${item.id}`}
@@ -1632,7 +1624,10 @@ const RecognitionForm: React.FC<PropsData> = ({
                           </div>
                         ) : null}
                       </div>
-                      <div data-cy="create-recognition-bulk-item-actions-container" className="flex items-center gap-2 shrink-0">
+                      <div
+                        data-cy="create-recognition-bulk-item-actions-container"
+                        className="flex items-center gap-2 shrink-0"
+                      >
                         <button
                           type="button"
                           className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
