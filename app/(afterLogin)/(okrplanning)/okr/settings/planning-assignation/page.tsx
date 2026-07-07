@@ -72,10 +72,8 @@ const PlanAssignment: React.FC = () => {
     undefined,
   );
 
-  const {
-    data: globalSearchGroupedByUser,
-    isLoading: globalSearchLoading,
-  } = useGetAllAssignedUsersGroupedForSearch(debouncedSearch);
+  const { data: globalSearchGroupedByUser, isLoading: globalSearchLoading } =
+    useGetAllAssignedUsersGroupedForSearch(debouncedSearch);
 
   const { data: employeeData } = useGetAllUsers();
   const { data: allPlanningPeriods } = useGetAllPlanningPeriods();
@@ -487,33 +485,33 @@ const PlanAssignment: React.FC = () => {
 
         {/* Pagination Container inside main box */}
         {!isListLoading && paginationTotal > 0 && (
-            <div
-              className="custom-pagination-container"
-              data-cy="okr-planning-assignation-pagination-container"
-            >
-              {isMobile || isTablet ? (
-                <CustomMobilePagination
-                  totalResults={paginationTotal}
-                  pageSize={pageSize}
-                  onChange={onPageChange}
-                  onShowSizeChange={onPageChange}
-                  data-cy="okr-planning-assignation-mobile-pagination"
-                />
-              ) : (
-                <CustomPagination
-                  current={page}
-                  total={paginationTotal}
-                  pageSize={pageSize}
-                  onChange={onPageChange}
-                  onShowSizeChange={(pageSize) => {
-                    setPageSize(pageSize);
-                    setPage(1);
-                  }}
-                  data-cy="okr-planning-assignation-pagination"
-                />
-              )}
-            </div>
-          )}
+          <div
+            className="custom-pagination-container"
+            data-cy="okr-planning-assignation-pagination-container"
+          >
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                totalResults={paginationTotal}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageChange}
+                data-cy="okr-planning-assignation-mobile-pagination"
+              />
+            ) : (
+              <CustomPagination
+                current={page}
+                total={paginationTotal}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={(pageSize) => {
+                  setPageSize(pageSize);
+                  setPage(1);
+                }}
+                data-cy="okr-planning-assignation-pagination"
+              />
+            )}
+          </div>
+        )}
       </div>
 
       <PlanningAssignationModal

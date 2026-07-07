@@ -30,6 +30,7 @@ import { BreakType } from '@/types/timesheet/breakType';
 import {
   AttendanceActionType,
   AttendanceRule,
+  AttendanceRuleLetterTemplate,
   AttendanceRuleType,
   AttendanceRuleTypes,
 } from '@/types/timesheet/attendance';
@@ -39,6 +40,90 @@ import TextEditor from '@/components/form/textEditor';
 import dayjs from 'dayjs';
 
 type StepType = 1 | 2 | 3;
+type TemplateAudience = 'management' | 'nonManagement';
+
+const templateAudienceButtonClass = (isActive: boolean) =>
+  `rounded-md px-6 py-2 text-sm font-medium transition-colors ${
+    isActive
+      ? 'bg-[#2155CD] text-white'
+      : 'border border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+  }`;
+
+const createDefaultLetterTemplates = (
+  ruleType?: AttendanceRuleType | string,
+  ruleName?: string,
+  actionTypes?: string | string[],
+): AttendanceRuleLetterTemplate[] => {
+  const defaultTemplate = getDefaultLetterTemplate(
+    ruleType,
+    ruleName,
+    actionTypes,
+  );
+
+  return [
+    { template: defaultTemplate, isManagementTemplate: true },
+    { template: defaultTemplate, isManagementTemplate: false },
+  ];
+};
+
+const normalizeLetterTemplates = (
+  templates: AttendanceRuleLetterTemplate[] | undefined,
+  ruleType?: AttendanceRuleType | string,
+  ruleName?: string,
+  actionTypes?: string | string[],
+): AttendanceRuleLetterTemplate[] => {
+  const defaultTemplate = getDefaultLetterTemplate(
+    ruleType,
+    ruleName,
+    actionTypes,
+  );
+
+  if (!templates?.length) {
+    return createDefaultLetterTemplates(ruleType, ruleName, actionTypes);
+  }
+
+  const managementTemplate = templates.find(
+    (item) => item.isManagementTemplate,
+  );
+  const nonManagementTemplate = templates.find(
+    (item) => !item.isManagementTemplate,
+  );
+
+  return [
+    {
+      template: managementTemplate?.template || defaultTemplate,
+      isManagementTemplate: true,
+    },
+    {
+      template: nonManagementTemplate?.template || defaultTemplate,
+      isManagementTemplate: false,
+    },
+  ];
+};
+
+const getActiveTemplateIndex = (audience: TemplateAudience) =>
+  audience === 'management' ? 0 : 1;
+
+const letterTemplatesValidator = (
+  rule: unknown,
+  value?: AttendanceRuleLetterTemplate[],
+) => {
+  const templates = normalizeLetterTemplates(value);
+  const hasManagement = templates.some(
+    (item) => item.isManagementTemplate && item.template?.trim(),
+  );
+  const hasNonManagement = templates.some(
+    (item) => !item.isManagementTemplate && item.template?.trim(),
+  );
+
+  if (!hasManagement || !hasNonManagement) {
+    return Promise.reject(
+      new Error('Both Management and Non Management templates are required'),
+    );
+  }
+
+  return Promise.resolve();
+};
 
 const ACTION_TYPE_OPTIONS = [
   {
@@ -357,7 +442,8 @@ const getDefaultLetterTemplate = (
   const closingParagraph = getLetterClosingParagraph(ruleType);
 
   return [
-    '<p>Dear {{employeeName}},</p>',
+    '<p>To : {{employeeName}}</p>',
+    '<p>{{positionName}}</p>',
     `<p><strong>Subject: ${actionLabel} – ${topic}</strong></p>`,
     `<p>${bodyParagraph}</p>`,
     `<p>${closingParagraph}</p>`,
@@ -497,7 +583,12 @@ const buildAttendanceRulePayload = (
   }
 
   if (isLetterAction(values.actionTypes)) {
-    payload.letterTemplate = values.letterTemplate;
+    payload.letterTemplates = normalizeLetterTemplates(
+      values.letterTemplates,
+    ).map((item) => ({
+      template: item.template,
+      isManagementTemplate: Boolean(item.isManagementTemplate),
+    }));
   }
 
   if (values.backtrackEnabled === true) {
@@ -564,6 +655,8 @@ const CreateRuleSidebar = () => {
   const [currentStep, setCurrentStep] = useState<StepType>(1);
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
   const hasMissedCheckout = Form.useWatch('hasMissedCheckout', form);
+  const [activeTemplateAudience, setActiveTemplateAudience] =
+    useState<TemplateAudience>('management');
 
   const selectedRule = attendanceRuleTypesData?.items?.find(
     (rule) => rule.id === selectedTypeId,
@@ -626,18 +719,25 @@ const CreateRuleSidebar = () => {
         deductibleSalaryDays: item.deductibleSalaryDays,
         deductibleFixedAmount: item.deductibleFixedAmount,
         vpDeductionAmount: item.vpDeductionAmount,
-        hasMissedCheckout: item.hasMissedCheckout ?? false,
-        letterTemplate:
-          item.letterTemplate ||
-          (isLetterAction(item.actionTypes)
-            ? getDefaultLetterTemplate(
-                matchingRule?.ruleType,
-                matchingRule?.name,
-                item.actionTypes,
-              )
-            : undefined),
+         hasMissedCheckout: item.hasMissedCheckout ?? false,
+        letterTemplates: normalizeLetterTemplates(
+          item.letterTemplates?.length
+            ? item.letterTemplates
+            : item.letterTemplate
+              ? [
+                  {
+                    template: item.letterTemplate,
+                    isManagementTemplate: false,
+                  },
+                ]
+              : undefined,
+          matchingRule?.ruleType,
+          matchingRule?.name,
+          item.actionTypes,
+        ),
         backtrackEnabled: false,
       });
+      setActiveTemplateAudience('management');
       setSelectedTypeId(ruleTypeId ?? null);
       setCurrentStep(isLetterAction(item.actionTypes) ? 3 : 2);
     }
@@ -673,6 +773,7 @@ const CreateRuleSidebar = () => {
       form.resetFields();
       setSelectedTypeId(null);
       setCurrentStep(1);
+      setActiveTemplateAudience('management');
     }
   }, [isShow, attendanceRuleId, form]);
 
@@ -734,7 +835,7 @@ const CreateRuleSidebar = () => {
     await form.validateFields(getStepTwoFieldsToValidate());
 
     if (isLetterAction(form.getFieldValue('actionTypes'))) {
-      await form.validateFields(['letterTemplate']);
+      await form.validateFields(['letterTemplates']);
     }
 
     const values = form.getFieldsValue(true);
@@ -761,6 +862,7 @@ const CreateRuleSidebar = () => {
     form.resetFields();
     setSelectedTypeId(null);
     setCurrentStep(1);
+    setActiveTemplateAudience('management');
     setAttendanceRuleId(null);
     setIsShow(false);
   };
@@ -776,13 +878,14 @@ const CreateRuleSidebar = () => {
     const actionTypes = form.getFieldValue('actionTypes');
     if (isLetterAction(actionTypes)) {
       form.setFieldValue(
-        'letterTemplate',
-        getDefaultLetterTemplate(
+        'letterTemplates',
+        createDefaultLetterTemplates(
           selectedRule?.ruleType,
           selectedRule?.name,
           actionTypes,
         ),
       );
+      setActiveTemplateAudience('management');
     }
 
     setCurrentStep(3);
@@ -1282,19 +1385,81 @@ const CreateRuleSidebar = () => {
   const renderStepThree = () => {
     const actionTypes = form.getFieldValue('actionTypes');
     const letterAction = isLetterAction(actionTypes);
+    const letterTemplates = normalizeLetterTemplates(
+      form.getFieldValue('letterTemplates'),
+      selectedRule?.ruleType,
+      selectedRule?.name,
+      actionTypes,
+    );
+    const activeTemplate =
+      letterTemplates[getActiveTemplateIndex(activeTemplateAudience)]
+        ?.template ?? '';
+
+    const updateActiveTemplate = (html: string) => {
+      const currentTemplates = normalizeLetterTemplates(
+        form.getFieldValue('letterTemplates'),
+        selectedRule?.ruleType,
+        selectedRule?.name,
+        actionTypes,
+      );
+      const index = getActiveTemplateIndex(activeTemplateAudience);
+      currentTemplates[index] = {
+        ...currentTemplates[index],
+        template: html,
+      };
+      form.setFieldValue('letterTemplates', currentTemplates);
+    };
 
     return (
       <>
         <StepHeader currentStep={currentStep} />
         {letterAction ? (
-          <Form.Item
-            name="letterTemplate"
-            rules={[{ required: true, message: 'Letter template is required' }]}
-            id="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-editor-item"
-            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-editor-item"
-          >
-            <TextEditor placeholder="Write letter template..." />
-          </Form.Item>
+          <>
+            <div
+              className="mb-4 flex justify-center gap-3"
+              id="time-attendance-settings-attendance-rules-create-rule-sidebar-template-audience-toggle"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-template-audience-toggle"
+            >
+              <button
+                type="button"
+                className={templateAudienceButtonClass(
+                  activeTemplateAudience === 'management',
+                )}
+                onClick={() => setActiveTemplateAudience('management')}
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-template-management-button"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-template-management-button"
+              >
+                Management
+              </button>
+              <button
+                type="button"
+                className={templateAudienceButtonClass(
+                  activeTemplateAudience === 'nonManagement',
+                )}
+                onClick={() => setActiveTemplateAudience('nonManagement')}
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-template-non-management-button"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-template-non-management-button"
+              >
+                Non Management
+              </button>
+            </div>
+            <Form.Item
+              name="letterTemplates"
+              rules={[{ validator: letterTemplatesValidator }]}
+              hidden
+            />
+            <div
+              id="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-editor-item"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-editor-item"
+            >
+              <TextEditor
+                key={activeTemplateAudience}
+                value={activeTemplate}
+                onChange={updateActiveTemplate}
+                placeholder="Write letter template..."
+              />
+            </div>
+          </>
         ) : (
           <p
             id="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-review-text"

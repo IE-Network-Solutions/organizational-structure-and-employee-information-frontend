@@ -124,10 +124,8 @@ function DetailPage() {
   const { data: recognitionTypes } = useGetRecognitionTypeParentChildById(
     parentRecognitionTypeId,
   );
-  const {
-    data: getAllRecognition,
-    isLoading,
-  } = useGetRecognitionsByParentRecognitionType(allRecognitionIdsParams);
+  const { data: getAllRecognition, isLoading } =
+    useGetRecognitionsByParentRecognitionType(allRecognitionIdsParams);
   const { data: selectedRecognition, isLoading: isSelectedRecognitionLoading } =
     useGetRecognitionById(selectedRecognitionId ?? '');
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
