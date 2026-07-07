@@ -246,6 +246,17 @@ const RecognitionForm: React.FC<PropsData> = ({
   };
 
   useEffect(() => {
+    if (!isWizardOpen || selectedRecognitionType) return;
+
+    setFormulaTokens([]);
+    setFormulaError('');
+    form.setFieldsValue({
+      incentiveAmountType: 'Fixed',
+      incentiveFixedAmount: undefined,
+    });
+  }, [isWizardOpen, selectedRecognitionType, form]);
+
+  useEffect(() => {
     if (!isWizardOpen) return;
     setCurrentStep(isFormulaOnlyEdit ? 2 : isCriteriaOnlyEdit ? 1 : 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -814,8 +825,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     };
 
     const finishWizard = () => {
-      setSelectedRecognitionType('');
-      handleClose();
+      handleWizardClose();
     };
 
     if (selectedRecognitionType === '') {
@@ -1152,7 +1162,13 @@ const RecognitionForm: React.FC<PropsData> = ({
     if (canUpdate) {
       updateIncentiveFormula(
         { id: formulaById.id, data: formdata },
-        { onSuccess: onDone },
+        {
+          onSuccess: () => {
+            setFormulaTokens([]);
+            setFormulaError('');
+            onDone();
+          },
+        },
       );
     } else {
       createIncentiveFormula(
