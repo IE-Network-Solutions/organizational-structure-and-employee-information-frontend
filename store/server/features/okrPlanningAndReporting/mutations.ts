@@ -174,6 +174,10 @@ export const useEditReportByReportId = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('okrReports');
+        queryClient.invalidateQueries('okrPlans');
+        queryClient.invalidateQueries('okrUserPlans');
+        queryClient.invalidateQueries('okrPlannedData');
+        queryClient.invalidateQueries('planningPeriodsHierarchy');
         queryClient.invalidateQueries('fetchObjectives');
         queryClient.invalidateQueries('ObjectiveInformation');
         NotificationMessage.success({
@@ -192,6 +196,10 @@ export const useDeletePlanById = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('okrPlans');
       queryClient.invalidateQueries('okrUserPlans');
+      queryClient.invalidateQueries('okrPlannedData');
+      queryClient.invalidateQueries('planningPeriodsHierarchy');
+      queryClient.invalidateQueries('ObjectiveInformation');
+      queryClient.invalidateQueries('fetchObjectives');
       NotificationMessage.success({
         message: 'Successfully Deleted',
         description: 'OKR plan Deleted successfully',
@@ -204,10 +212,17 @@ export const useDeleteReportById = () => {
 
   return useMutation(deleteReportById, {
     onSuccess: () => {
+      // Cancelling/deleting a report restores the plan — refresh plans + OKR KR progress.
       queryClient.invalidateQueries('okrReports');
+      queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
+      queryClient.invalidateQueries('okrPlannedData');
+      queryClient.invalidateQueries('planningPeriodsHierarchy');
+      queryClient.invalidateQueries('fetchObjectives');
+      queryClient.invalidateQueries('ObjectiveInformation');
       NotificationMessage.success({
         message: 'Successfully Deleted',
-        description: 'OKR plan Deleted successfully',
+        description: 'OKR report cancelled; plan restored',
       });
     },
   });
@@ -218,6 +233,10 @@ export const useApprovalReporting = () => {
   return useMutation(approveOrRejectReporting, {
     onSuccess: () => {
       queryClient.invalidateQueries('okrReports');
+      queryClient.invalidateQueries('okrPlans');
+      queryClient.invalidateQueries('okrUserPlans');
+      queryClient.invalidateQueries('ObjectiveInformation');
+      queryClient.invalidateQueries('fetchObjectives');
       NotificationMessage.success({
         message: 'Successfully updated',
         description: 'okr plan status successfully updated',

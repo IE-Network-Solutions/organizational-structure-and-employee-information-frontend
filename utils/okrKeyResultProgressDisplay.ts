@@ -14,11 +14,43 @@ export type KeyResultMetricName =
   | 'Percent'
   | string;
 
+/**
+ * Resolve metric name from OKR / plan / panel KR shapes.
+ * Plan panel AggregatedKR stores metricType as a plain string; OKR/API use `{ name }`.
+ */
 export function getMetricTypeName(kr: {
-  metricType?: { name?: string };
-  key_type?: string;
+  metricType?: { name?: string } | string | null;
+  key_type?: string | null;
 }): KeyResultMetricName {
-  return (kr?.metricType?.name || kr?.key_type || '') as KeyResultMetricName;
+  const raw = kr?.metricType;
+  if (typeof raw === 'string' && raw.trim()) {
+    return raw.trim() as KeyResultMetricName;
+  }
+  if (
+    raw &&
+    typeof raw === 'object' &&
+    typeof raw.name === 'string' &&
+    raw.name.trim()
+  ) {
+    return raw.name.trim() as KeyResultMetricName;
+  }
+  const keyType = kr?.key_type;
+  if (typeof keyType === 'string' && keyType.trim()) {
+    return keyType.trim() as KeyResultMetricName;
+  }
+  return '';
+}
+
+/** Normalize any metricType shape to `{ name }` for merge / display payloads. */
+export function toMetricTypeObject(
+  metricType?: { name?: string } | string | null,
+  keyType?: string | null,
+): { name: string } | undefined {
+  const name = getMetricTypeName({
+    metricType,
+    key_type: keyType ?? undefined,
+  });
+  return name ? { name } : undefined;
 }
 
 export function isMilestoneCompleted(m: { status?: string | null }): boolean {
@@ -55,8 +87,8 @@ type OkrMilestoneRow = Pick<MilestoneRowInput, 'status' | 'deletedAt'>;
 
 /** KR-shaped payload accepted by progress display helpers. */
 export type KeyResultProgressInput = {
-  metricType?: { name?: string };
-  key_type?: string;
+  metricType?: { name?: string } | string | null;
+  key_type?: string | null;
   milestones?: MilestoneRowInput[] | unknown[];
   Milestones?: MilestoneRowInput[] | unknown[];
   progress?: number | string | null;
@@ -177,41 +209,59 @@ export function isKeyResultFullyCompletedForPlanning(
 /** Merge plan-panel KR row with user KR API for eligibility (shared by panel + targets). */
 export function buildKrPlanningSource(
   panelKr: {
-    metricType?: string;
-    progress?: number;
-    currentValue?: string | number;
-    targetValue?: string | number;
+    metricType?: string | { name?: string } | null;
+    key_type?: string | null;
+    progress?: number | string | null;
+    currentValue?: string | number | null;
+    targetValue?: string | number | null;
+    initialValue?: string | number | null;
     milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+    status?: string;
+    keyResultCompletionStatus?: string;
+    completionStatus?: string;
   },
   apiKr?: any | null,
 ) {
+  const panelMetric = toMetricTypeObject(panelKr.metricType, panelKr.key_type);
+
   if (!apiKr) {
     const milestones = resolveOkrMilestones({
       milestones: panelKr.milestones ?? [],
     });
     const source = {
-      metricType: { name: panelKr.metricType },
-      key_type: panelKr.metricType,
+      metricType: panelMetric,
+      key_type: panelMetric?.name ?? panelKr.key_type,
       progress: panelKr.progress,
       milestones,
       currentValue: panelKr.currentValue,
       targetValue: panelKr.targetValue,
-      initialValue: panelKr.currentValue,
+      initialValue: panelKr.initialValue ?? panelKr.currentValue,
+      status: panelKr.status,
+      keyResultCompletionStatus: panelKr.keyResultCompletionStatus,
+      completionStatus: panelKr.completionStatus,
     };
     return {
       ...source,
       progress: getKeyResultProgressPercent(source),
     };
   }
+
+  const apiMetric = toMetricTypeObject(apiKr.metricType, apiKr.key_type);
   const merged = withResolvedOkrMilestones(
     {
       ...apiKr,
-      metricType: apiKr.metricType ?? { name: panelKr.metricType },
-      key_type: apiKr.key_type ?? panelKr.metricType,
+      metricType: apiMetric ?? panelMetric,
+      key_type: apiMetric?.name ?? panelMetric?.name ?? apiKr.key_type,
+      // OKR user-KR API is source of truth after report cancel → plan restore.
       progress: apiKr.progress ?? panelKr.progress,
       currentValue: apiKr.currentValue ?? panelKr.currentValue,
       targetValue: apiKr.targetValue ?? panelKr.targetValue,
-      initialValue: apiKr.initialValue ?? panelKr.currentValue,
+      initialValue:
+        apiKr.initialValue ?? panelKr.initialValue ?? panelKr.currentValue,
+      status: apiKr.status ?? panelKr.status,
+      keyResultCompletionStatus:
+        apiKr.keyResultCompletionStatus ?? panelKr.keyResultCompletionStatus,
+      completionStatus: apiKr.completionStatus ?? panelKr.completionStatus,
     },
     apiKr,
   );
@@ -224,6 +274,7 @@ export function buildKrPlanningSource(
 /**
  * Merge plan / report KR payload with user KR API (milestones, progress).
  * Cadence-agnostic: same OKR source of truth for daily, weekly, and monthly views.
+ * Prefer user-KR API after report cancel / plan restore (plan task shells stay non-authoritative).
  */
 export function mergeKeyResultWithUserApi(
   kr: any,
@@ -234,14 +285,14 @@ export function mergeKeyResultWithUserApi(
   );
   if (!apiKr) {
     const milestones = resolveOkrMilestones(kr);
+    const metricType =
+      toMetricTypeObject(kr?.metricType, kr?.key_type) ??
+      (milestones.length > 0 ? { name: 'Milestone' } : undefined);
     const fallback = {
       ...kr,
       milestones,
-      metricType:
-        kr?.metricType ??
-        (milestones.length > 0 ? { name: 'Milestone' } : kr?.metricType),
-      key_type:
-        kr?.key_type ?? (milestones.length > 0 ? 'Milestone' : kr?.key_type),
+      metricType: metricType ?? kr?.metricType,
+      key_type: metricType?.name ?? kr?.key_type,
     };
     return {
       ...fallback,
@@ -249,12 +300,17 @@ export function mergeKeyResultWithUserApi(
     };
   }
 
+  const apiMetric = toMetricTypeObject(apiKr.metricType, apiKr.key_type);
+  const planMetric = toMetricTypeObject(kr?.metricType, kr?.key_type);
   const merged = withResolvedOkrMilestones(
     {
       ...kr,
       ...apiKr,
-      metricType: apiKr.metricType ?? kr?.metricType,
-      key_type: apiKr.key_type ?? kr?.key_type,
+      // Keep plan task hierarchy fields; overwrite measured progress from OKR API.
+      tasks: kr?.tasks,
+      parentTask: kr?.parentTask,
+      metricType: apiMetric ?? planMetric,
+      key_type: apiMetric?.name ?? planMetric?.name ?? apiKr.key_type,
       progress: apiKr.progress ?? kr?.progress,
       currentValue: apiKr.currentValue ?? kr?.currentValue,
       initialValue: apiKr.initialValue ?? kr?.initialValue,
@@ -262,6 +318,7 @@ export function mergeKeyResultWithUserApi(
       status: apiKr.status ?? kr?.status,
       keyResultCompletionStatus:
         apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
+      completionStatus: apiKr.completionStatus ?? kr?.completionStatus,
     },
     apiKr,
   );
@@ -279,11 +336,16 @@ export function mergeKeyResultWithUserApi(
  */
 export function resolveKrPlanningBlocked(
   panelKr: {
-    metricType?: string;
-    progress?: number;
-    currentValue?: string | number;
-    targetValue?: string | number;
+    metricType?: string | { name?: string } | null;
+    key_type?: string | null;
+    progress?: number | string | null;
+    currentValue?: string | number | null;
+    targetValue?: string | number | null;
+    initialValue?: string | number | null;
     milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+    status?: string;
+    keyResultCompletionStatus?: string;
+    completionStatus?: string;
   },
   apiKr?: any | null,
 ): boolean {
@@ -306,9 +368,10 @@ export function resolveKrPlanningBlocked(
   return getKeyResultProgressPercent(planningSource) >= 100;
 }
 
-export function getMilestoneProgressCounts(
-  kr: KeyResultProgressInput,
-): { completed: number; total: number } {
+export function getMilestoneProgressCounts(kr: KeyResultProgressInput): {
+  completed: number;
+  total: number;
+} {
   const list = resolveOkrMilestones(kr);
   const total = list.length;
   const completed = list.filter(isMilestoneCompleted).length;
@@ -408,6 +471,10 @@ export function getKeyResultProgressRatioText(
   if (percent > 0 || isPercentScaleMetric(metric)) {
     return `${percent}/100`;
   }
+
+  // Avoid a misleading "0/0" when the KR has no measurable target yet
+  // (common after report cancel → plan restore before OKR metrics hydrate).
+  if (current === 0 && target === 0) return '';
 
   return `${formatRawProgressValue(current)}/${formatRawProgressValue(target)}`;
 }

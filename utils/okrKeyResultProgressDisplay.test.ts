@@ -1,6 +1,8 @@
 import {
+  buildKrPlanningSource,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
+  getMetricTypeName,
   mergeKeyResultWithUserApi,
   resolveOkrMilestones,
 } from '@/utils/okrKeyResultProgressDisplay';
@@ -82,6 +84,79 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
 
     const merged = mergeKeyResultWithUserApi(planKr, [apiKrCase1]);
 
+    expect(getKeyResultProgressPercent(merged)).toBe(34);
+    expect(getKeyResultProgressRatioText(merged)).toBe('1/3');
+  });
+
+  it('reads metricType when the plan panel stores it as a plain string', () => {
+    // AggregatedKR / buildKrPlanningSource panel rows use metricType: 'Milestone'
+    const panelKr = {
+      metricType: 'Milestone',
+      progress: 100,
+      currentValue: 0,
+      targetValue: 0,
+      milestones: [{ id: 'plan-ms', tasks: [{ id: 't1' }] }],
+    };
+
+    expect(getMetricTypeName(panelKr)).toBe('Milestone');
+    expect(getKeyResultProgressPercent(panelKr)).toBe(0);
+    // No OKR milestone rows → empty ratio (not misleading 0/0)
+    expect(getKeyResultProgressRatioText(panelKr)).toBe('');
+
+    const planningSource = buildKrPlanningSource(panelKr, apiKrCase1);
+    expect(getKeyResultProgressPercent(planningSource)).toBe(34);
+    expect(getKeyResultProgressRatioText(planningSource)).toBe('1/3');
+  });
+
+  it('restores OKR progress after report cancel returns the plan (stale plan 100%)', () => {
+    // After cancel: plan payload still has progress=100 from the cancelled report flow,
+    // while user KR API (source of truth) still shows partial milestone completion.
+    const restoredPlanKr = {
+      id: 'kr-1',
+      metricType: 'Milestone',
+      progress: 100,
+      currentValue: 0,
+      targetValue: 0,
+      milestones: [
+        { id: 'plan-ms-1', tasks: [{ id: 't1' }] },
+        { id: 'plan-ms-2', tasks: [{ id: 't2' }] },
+      ],
+      status: 'on_progress',
+    };
+
+    const merged = mergeKeyResultWithUserApi(restoredPlanKr, [apiKrCase1]);
+
+    expect(getKeyResultProgressPercent(merged)).toBe(34);
+    expect(getKeyResultProgressRatioText(merged)).toBe('1/3');
+    expect(merged.status).toBe(apiKrCase1.status ?? merged.status);
+
+    const fromPanel = buildKrPlanningSource(
+      {
+        metricType: 'Milestone',
+        progress: 100,
+        currentValue: 0,
+        targetValue: 0,
+        milestones: restoredPlanKr.milestones,
+        status: 'on_progress',
+      },
+      apiKrCase1,
+    );
+    expect(getKeyResultProgressPercent(fromPanel)).toBe(34);
+    expect(getKeyResultProgressRatioText(fromPanel)).toBe('1/3');
+  });
+
+  it('keeps plan task trees while overwriting measured progress from the user KR API', () => {
+    const planKr = {
+      id: 'kr-1',
+      metricType: { name: 'Milestone' },
+      progress: 100,
+      tasks: [{ id: 'plan-task-1', title: 'Restored task' }],
+      milestones: [{ id: 'plan-ms', tasks: [{ id: 't1' }] }],
+    };
+
+    const merged = mergeKeyResultWithUserApi(planKr, [apiKrCase1]);
+
+    expect(merged.tasks).toEqual(planKr.tasks);
     expect(getKeyResultProgressPercent(merged)).toBe(34);
     expect(getKeyResultProgressRatioText(merged)).toBe('1/3');
   });

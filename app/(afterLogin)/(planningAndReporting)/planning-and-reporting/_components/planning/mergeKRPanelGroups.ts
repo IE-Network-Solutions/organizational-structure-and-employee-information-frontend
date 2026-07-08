@@ -229,10 +229,11 @@ export function enrichOwnerGroupsPlanningBlocked(
   return groups.map((group) => {
     const krs = group.krs.map((panelKr) => {
       const apiKr = apiById.get(panelKr.id);
+      // Always rebuild from OKR API when available so cancelled-report → restored-plan
+      // cards never keep stale plan-task progress (e.g. 100% / 0/0).
       const planningSource = buildKrPlanningSource(panelKr, apiKr);
       const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
-      const progress =
-        planningSource.progress ?? getKeyResultProgressPercent(planningSource);
+      const progress = getKeyResultProgressPercent(planningSource);
       const progressLabel = getKeyResultProgressRatioText(planningSource);
       const metricType =
         getMetricTypeName(planningSource) || panelKr.metricType;
