@@ -147,7 +147,11 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set, get) => ({
   },
 
   updateFiscalYearFields: (values) => {
-    const calendarType = values.fiscalYearCalenderId ?? get().calendarType;
+    const state = get();
+    const calendarType = values.fiscalYearCalenderId ?? state.calendarType;
+    const nextFiscalYearStart =
+      values.fiscalYearStartDate ?? state.fiscalYearStart;
+    const nextFiscalYearEnd = values.fiscalYearEndDate ?? state.fiscalYearEnd;
     const isValid = Boolean(
       values.fiscalYearName &&
       values.fiscalYearStartDate &&
@@ -155,17 +159,40 @@ export const useFiscalYearDrawerStore = create<DrawerState>((set, get) => ({
       values.fiscalYearCalenderId,
     );
 
+    const structureInputsChanged =
+      calendarType !== state.calendarType ||
+      (nextFiscalYearStart &&
+        state.fiscalYearStart &&
+        !dayjs(nextFiscalYearStart).isSame(
+          dayjs(state.fiscalYearStart),
+          'day',
+        )) ||
+      (nextFiscalYearEnd &&
+        state.fiscalYearEnd &&
+        !dayjs(nextFiscalYearEnd).isSame(dayjs(state.fiscalYearEnd), 'day'));
+
     set({
       fiscalYearFormValues: values,
       calendarType,
-      fiscalYearStart: values.fiscalYearStartDate ?? get().fiscalYearStart,
-      fiscalYearEnd: values.fiscalYearEndDate ?? get().fiscalYearEnd,
+      fiscalYearStart: nextFiscalYearStart,
+      fiscalYearEnd: nextFiscalYearEnd,
       formValidation: {
         fiscalYearName: values.fiscalYearName,
         fiscalYearStartDate: values.fiscalYearStartDate ?? null,
         fiscalYearEndDate: values.fiscalYearEndDate ?? null,
       },
       isFormValid: isValid,
+      ...(structureInputsChanged
+        ? {
+            sessionStructureKey: null,
+            monthStructureKey: null,
+            sessionFormValues: {},
+            sessionData: [],
+            monthRangeValues: [],
+            monthDataBySession: {},
+            monthFormFields: {},
+          }
+        : {}),
     });
   },
 

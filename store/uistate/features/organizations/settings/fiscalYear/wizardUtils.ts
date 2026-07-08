@@ -2,10 +2,23 @@ import dayjs from 'dayjs';
 
 export type FiscalCalendarType = 'Year' | 'Quarter' | 'Semester' | '';
 
+export const getExpectedSessionCount = (calendarType: string): number => {
+  switch (calendarType) {
+    case 'Quarter':
+      return 4;
+    case 'Semester':
+      return 2;
+    case 'Year':
+      return 1;
+    default:
+      return 0;
+  }
+};
+
 export const getCalendarTypeFromSessionCount = (
   sessionCount: number,
 ): FiscalCalendarType => {
-  if (sessionCount >= 4) return 'Quarter';
+  if (sessionCount === 4) return 'Quarter';
   if (sessionCount === 2) return 'Semester';
   if (sessionCount === 1) return 'Year';
   return '';
@@ -73,7 +86,10 @@ export const monthBelongsToSession = (
 };
 
 export const resolveOriginalMonthId = (
-  originalSession: { months?: Array<{ id?: string; startDate?: string; endDate?: string }> } | null | undefined,
+  originalSession:
+    | { months?: Array<{ id?: string; startDate?: string; endDate?: string }> }
+    | null
+    | undefined,
   monthStartDate: string,
   monthEndDate: string,
   sessionLocalIndex: number,

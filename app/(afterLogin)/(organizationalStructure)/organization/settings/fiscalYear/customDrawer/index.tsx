@@ -28,6 +28,7 @@ import { useGetAllFiscalYears } from '@/store/server/features/organizationStruct
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useQueryClient } from 'react-query';
 import {
+  getExpectedSessionCount,
   monthBelongsToSession,
   resolveOriginalMonthId,
   shouldRegenerateFiscalStructure,
@@ -157,7 +158,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     monthFormValues: any,
     sessionFormValues: any,
     effectiveCalendarType: string = calendarType,
-    preserveEntityIds = false,
+    preserveMonthIds = false,
   ) => {
     const sessionRows = Array.isArray(sessionFormValues?.sessionData)
       ? sessionFormValues.sessionData
@@ -257,14 +258,16 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
             return null;
           }
 
-          if (!monthBelongsToSession(month.startDate, sessionStart, sessionEnd)) {
+          if (
+            !monthBelongsToSession(month.startDate, sessionStart, sessionEnd)
+          ) {
             return null;
           }
 
           assignedMonthKeys.add(monthKey);
 
           const originalMonthId =
-            preserveEntityIds && originalSession
+            preserveMonthIds && originalSession
               ? resolveOriginalMonthId(
                   originalSession,
                   month.startDate,
@@ -310,7 +313,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
           // Get the original session from selectedFiscalYear (if in edit mode)
           const originalSession =
-            preserveEntityIds && selectedFiscalYear?.sessions?.[index];
+            isEditMode && selectedFiscalYear?.sessions?.[index];
 
           // Get months for this session by matching date ranges
           let sessionMonths =
@@ -347,7 +350,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
               assignedMonthKeys.add(monthKey);
 
               const originalMonthId =
-                preserveEntityIds && originalSession
+                preserveMonthIds && originalSession
                   ? resolveOriginalMonthId(
                       originalSession,
                       month.startDate,
@@ -365,7 +368,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           }
 
           return {
-            ...(preserveEntityIds && originalSession?.id
+            ...(isEditMode && originalSession?.id
               ? { id: originalSession.id }
               : {}),
             name: session.sessionName || `Session ${index + 1}`,
@@ -403,7 +406,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
           // Get the original session from selectedFiscalYear (if in edit mode)
           const originalSession =
-            preserveEntityIds && selectedFiscalYear?.sessions?.[index];
+            isEditMode && selectedFiscalYear?.sessions?.[index];
 
           // Get months for this session by matching date ranges
           let sessionMonths =
@@ -440,7 +443,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
               assignedMonthKeys.add(monthKey);
 
               const originalMonthId =
-                preserveEntityIds && originalSession
+                preserveMonthIds && originalSession
                   ? resolveOriginalMonthId(
                       originalSession,
                       month.startDate,
@@ -458,7 +461,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           }
 
           return {
-            ...(preserveEntityIds && originalSession?.id
+            ...(isEditMode && originalSession?.id
               ? { id: originalSession.id }
               : {}),
             name: session.sessionName || `Session ${index + 1}`,
@@ -496,7 +499,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
           // Get the original session from selectedFiscalYear (if in edit mode)
           const originalSession =
-            preserveEntityIds && selectedFiscalYear?.sessions?.[0];
+            isEditMode && selectedFiscalYear?.sessions?.[0];
 
           // For Year type, get all months that fall within the session date range
           let sessionMonths =
@@ -522,7 +525,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
               assignedMonthKeys.add(monthKey);
 
               const originalMonthId =
-                preserveEntityIds && originalSession
+                preserveMonthIds && originalSession
                   ? resolveOriginalMonthId(
                       originalSession,
                       month.startDate,
@@ -540,7 +543,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           }
 
           return {
-            ...(preserveEntityIds && originalSession?.id
+            ...(isEditMode && originalSession?.id
               ? { id: originalSession.id }
               : {}),
             name: session?.sessionName || 'Session 1',
@@ -564,18 +567,42 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     };
     setFiscalYearFormValues(mergedFyValues);
 
+    const effectiveCalendarType =
+      mergedFyValues.fiscalYearCalenderId || calendarType;
+
     const form2Values = form2.getFieldsValue();
-    const sessionRows = Array.isArray(form2Values?.sessionData)
+    const expectedSessionCount = getExpectedSessionCount(effectiveCalendarType);
+    const storeSessionData = useFiscalYearDrawerStore.getState().sessionData;
+
+    let sessionRows = Array.isArray(form2Values?.sessionData)
       ? form2Values.sessionData
       : Array.isArray(sessionFormValues?.sessionData)
         ? sessionFormValues.sessionData
-        : Array.isArray(useFiscalYearDrawerStore.getState().sessionData)
-          ? useFiscalYearDrawerStore.getState().sessionData
+        : Array.isArray(storeSessionData)
+          ? storeSessionData
           : [];
-    const latestSessionValues = { sessionData: sessionRows };
 
-    const effectiveCalendarType =
-      mergedFyValues.fiscalYearCalenderId || calendarType;
+    if (
+      expectedSessionCount > 0 &&
+      sessionRows.length !== expectedSessionCount &&
+      Array.isArray(storeSessionData) &&
+      storeSessionData.length === expectedSessionCount
+    ) {
+      sessionRows = storeSessionData;
+    }
+
+    if (
+      expectedSessionCount > 0 &&
+      sessionRows.length !== expectedSessionCount
+    ) {
+      NotificationMessage.error({
+        message: 'Invalid session structure',
+        description: `Expected ${expectedSessionCount} session(s) for the selected breakdown, but found ${sessionRows.length}. Please go back and review the session step.`,
+      });
+      return;
+    }
+
+    const latestSessionValues = { sessionData: sessionRows };
 
     const fyStart = mergedFyValues?.fiscalYearStartDate
       ? dayjs(mergedFyValues.fiscalYearStartDate)
@@ -584,7 +611,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       ? dayjs(mergedFyValues.fiscalYearEndDate)
       : null;
 
-    const preserveEntityIds =
+    const preserveMonthIds =
       isEditMode &&
       !!selectedFiscalYear &&
       !shouldRegenerateFiscalStructure({
@@ -599,13 +626,13 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       monthFormValues,
       latestSessionValues,
       effectiveCalendarType,
-      preserveEntityIds,
+      preserveMonthIds,
     );
 
     const now = dayjs();
     const isYearActive = isEditMode
       ? (selectedFiscalYear?.isActive ?? false)
-      : !!(fyStart && fyEnd && now.isBetween(fyStart, fyEnd, null, '[]'));
+      : false;
     const submitUsedMonthIds = new Set<string>();
 
     const fiscalYearPayload = {
@@ -625,14 +652,17 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           now.isBetween(sessionStart, sessionEnd, null, '[]');
 
         const originalSession =
-          preserveEntityIds && selectedFiscalYear?.sessions?.[sessionIdx];
+          isEditMode && selectedFiscalYear?.sessions?.[sessionIdx];
 
         const sessionMonths = Array.isArray(session?.months)
           ? session.months
           : [];
 
+        const sessionId =
+          isEditMode && originalSession?.id ? originalSession.id : session.id;
+
         return {
-          ...(preserveEntityIds && session.id ? { id: session.id } : {}),
+          ...(sessionId ? { id: sessionId } : {}),
           name: session?.name,
           description: session?.description,
           startDate: session?.startDate
@@ -641,7 +671,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           endDate: session?.endDate
             ? dayjs(session.endDate).format('YYYY-MM-DD')
             : undefined,
-          active: preserveEntityIds
+          active: isEditMode
             ? (originalSession?.active ?? !!isSessionActive)
             : !!isSessionActive,
           months: sessionMonths.map((month: Month, monthIdx: number) => {
@@ -654,7 +684,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
             const originalMonth = originalSession?.months?.[monthIdx];
 
             let monthId: string | undefined;
-            if (preserveEntityIds) {
+            if (preserveMonthIds) {
               if (month.id && !submitUsedMonthIds.has(month.id)) {
                 monthId = month.id;
                 submitUsedMonthIds.add(month.id);
@@ -680,7 +710,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
               endDate: month?.endDate
                 ? dayjs(month.endDate).format('YYYY-MM-DD')
                 : undefined,
-              active: preserveEntityIds
+              active: isEditMode
                 ? (originalMonth?.active ?? !!isMonthActive)
                 : !!isMonthActive,
             };
@@ -717,7 +747,8 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
     }
 
     const hasEmptySessionMonths = fiscalYearPayload.sessions?.some(
-      (session) => !Array.isArray(session.months) || session.months.length === 0,
+      (session) =>
+        !Array.isArray(session.months) || session.months.length === 0,
     );
     if (hasEmptySessionMonths) {
       NotificationMessage.error({

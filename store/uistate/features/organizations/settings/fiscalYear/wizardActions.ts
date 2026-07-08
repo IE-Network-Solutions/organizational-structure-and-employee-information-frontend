@@ -1,6 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs';
 import {
   buildSessionStructureKey,
+  getExpectedSessionCount,
   shouldRegenerateFiscalStructure,
 } from './wizardUtils';
 
@@ -131,6 +132,8 @@ export const resolveSessionRows = (state: {
     return [];
   }
 
+  const expectedSessionCount = getExpectedSessionCount(calendarType);
+
   const regenerate = shouldRegenerateFiscalStructure({
     isEditMode,
     selectedFiscalYear,
@@ -142,15 +145,16 @@ export const resolveSessionRows = (state: {
   if (
     !regenerate &&
     Array.isArray(sessionFormValues?.sessionData) &&
-    sessionFormValues.sessionData.length > 0
+    sessionFormValues.sessionData.length === expectedSessionCount
   ) {
     return withSessionDateRanges(sessionFormValues.sessionData);
   }
 
   if (isEditMode && selectedFiscalYear?.sessions && !regenerate) {
-    return withSessionDateRanges(
-      mapSessionsToFormData(selectedFiscalYear.sessions),
-    );
+    const mappedSessions = mapSessionsToFormData(selectedFiscalYear.sessions);
+    if (mappedSessions.length === expectedSessionCount) {
+      return withSessionDateRanges(mappedSessions);
+    }
   }
 
   return withSessionDateRanges(

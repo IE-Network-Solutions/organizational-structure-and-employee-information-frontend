@@ -157,6 +157,17 @@ export const useDeleteFiscalYear = () => {
       queryClient.invalidateQueries('fiscalActiveYear');
       handleSuccessMessage('DELETE');
     },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.response?.data?.details ||
+        error?.message ||
+        'Failed to delete fiscal year';
+      NotificationMessage.error({
+        message: 'Error deleting fiscal year',
+        description: errorMessage,
+      });
+    },
   });
 };
 

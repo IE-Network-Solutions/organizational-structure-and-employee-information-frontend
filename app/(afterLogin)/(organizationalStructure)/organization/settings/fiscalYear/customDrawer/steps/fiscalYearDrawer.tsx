@@ -167,8 +167,9 @@ const FiscalYearForm: React.FC<{
           try {
             let nextValues = allValues;
 
-            // Auto-fill end date whenever start date changes (picker or typed+Enter).
+            // Auto-fill end date when start date changes in create mode only.
             if (
+              !isEditMode &&
               Object.prototype.hasOwnProperty.call(
                 changedValues,
                 'fiscalYearStartDate',
