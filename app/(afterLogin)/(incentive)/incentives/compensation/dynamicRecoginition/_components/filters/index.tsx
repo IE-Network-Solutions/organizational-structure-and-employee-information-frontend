@@ -35,7 +35,6 @@ const DynamicIncentiveFilter: React.FC = () => {
     setSelectedSessions,
     currentPage,
     pageSize,
-    selectedYear,
     setSelectedYear,
     setCurrentPage,
     selectedRecognition,
@@ -67,9 +66,23 @@ const DynamicIncentiveFilter: React.FC = () => {
     if (!parentRecognitionId) return;
     if (prevParentIdRef.current === parentRecognitionId) return;
     prevParentIdRef.current = parentRecognitionId;
+    // Reset all filters when entering a category so the table shows ALL data by
+    // default. Applying a filter afterwards will narrow the results.
     setSearchParams('byType', '');
+    setSearchParams('byYear', '');
+    setSearchParams('bySession', []);
+    setSearchParams('byMonth', '');
+    setSearchParams('employee_name', '');
+    setSelectedSessions([]);
+    setSelectedYear(null);
     setCurrentPage(1);
-  }, [parentRecognitionId, setCurrentPage, setSearchParams]);
+  }, [
+    parentRecognitionId,
+    setCurrentPage,
+    setSearchParams,
+    setSelectedSessions,
+    setSelectedYear,
+  ]);
 
   const activeFiscalYearName = activeCalender
     ? activeCalender?.name
@@ -123,19 +136,6 @@ const DynamicIncentiveFilter: React.FC = () => {
     setSelectedSessions(sessionIds);
     onSelectChange(sessionIds, 'bySession');
   };
-
-  React.useEffect(() => {
-    if (activeCalender?.sessions?.length) {
-      const defaultSessionIds = activeCalender?.sessions?.map(
-        (session: any) => session?.id,
-      );
-      setSelectedSessions(defaultSessionIds);
-      onSelectChange(defaultSessionIds, 'bySession');
-    }
-    if (!selectedYear) {
-      onSelectChange('', 'byMonth');
-    }
-  }, [activeCalender]);
 
   React.useEffect(() => {
     setDraftFilters({
