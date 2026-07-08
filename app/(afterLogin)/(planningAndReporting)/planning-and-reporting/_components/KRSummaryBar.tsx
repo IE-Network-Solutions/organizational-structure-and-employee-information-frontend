@@ -118,7 +118,7 @@ export default function KRSummaryBar({
 
   const values = calculateKeyResultValues();
   const metricType =
-    resolveKrMetricTypeLabel(keyResult ?? {}) ||
+    (keyResult ? resolveKrMetricTypeLabel(keyResult) : '') ||
     keyResult?.metricType?.name ||
     plan.milestoneLabel;
   const isMilestone = metricType === 'Milestone';

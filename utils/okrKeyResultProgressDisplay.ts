@@ -15,6 +15,44 @@ export type KeyResultMetricName =
   | 'KPI'
   | string;
 
+type MilestoneRowInput = {
+  status?: string | null;
+  deletedAt?: string | null;
+  tasks?: unknown[];
+};
+
+type OkrMilestoneRow = Pick<MilestoneRowInput, 'status' | 'deletedAt'>;
+
+type MilestoneSourceInput = {
+  milestones?: MilestoneRowInput[] | unknown[] | null;
+  Milestones?: MilestoneRowInput[] | unknown[] | null;
+};
+
+/**
+ * Loose KR payload accepted by display helpers.
+ * Call sites use many incompatible Milestone/KR shapes — keep this permissive.
+ */
+export type KeyResultLikeInput = {
+  metricType?: { name?: string } | string | null;
+  key_type?: string | null;
+  metricTypeName?: string | null;
+  previousMetricTypeName?: string | null;
+  milestones?: unknown[] | null;
+  Milestones?: unknown[] | null;
+  tasks?: unknown[] | null;
+  parentTask?: unknown[] | null;
+  progress?: number | string | null;
+  targetValue?: number | string | null;
+  currentValue?: number | string | null;
+  initialValue?: number | string | null;
+  status?: string;
+  keyResultCompletionStatus?: string;
+  completionStatus?: string;
+};
+
+/** KR-shaped payload accepted by progress display helpers. */
+export type KeyResultProgressInput = KeyResultLikeInput;
+
 /** Canonical display labels for each KR metric type on Plan & Report cards. */
 const KR_METRIC_TYPE_DISPLAY: Record<string, string> = {
   Achieve: 'Achieve',
@@ -40,18 +78,19 @@ function readMetricNameFromValue(value: unknown): string {
   return '';
 }
 
-export function getMetricTypeName(kr: {
-  metricType?: { name?: string } | string;
-  key_type?: string;
-  metricTypeName?: string;
-  previousMetricTypeName?: string;
-}): KeyResultMetricName {
+export function getMetricTypeName(
+  kr: KeyResultLikeInput | null | undefined,
+): KeyResultMetricName {
+  if (!kr) return '' as KeyResultMetricName;
+
   const candidates = [
-    typeof kr?.metricType === 'string' ? kr.metricType : undefined,
-    (kr?.metricType as { name?: string } | undefined)?.name,
-    kr?.metricTypeName,
-    kr?.key_type,
-    kr?.previousMetricTypeName,
+    typeof kr.metricType === 'string' ? kr.metricType : undefined,
+    kr.metricType && typeof kr.metricType === 'object'
+      ? kr.metricType.name
+      : undefined,
+    kr.metricTypeName,
+    kr.key_type,
+    kr.previousMetricTypeName,
   ];
 
   for (const candidate of candidates) {
@@ -81,18 +120,11 @@ export function formatKrMetricTypeDisplayName(
  * Resolve the metric type label shown on Plan & Report KR cards.
  * Merges API / plan fields and infers from structure when metadata is missing.
  */
-export function resolveKrPanelMetricType(kr: {
-  metricType?: { name?: string } | string;
-  key_type?: string;
-  metricTypeName?: string;
-  previousMetricTypeName?: string;
-  milestones?: Array<{ deletedAt?: string | null }>;
-  Milestones?: Array<{ deletedAt?: string | null }>;
-  progress?: number | string | null;
-  targetValue?: number | string | null;
-  currentValue?: number | string | null;
-  initialValue?: number | string | null;
-}): string {
+export function resolveKrPanelMetricType(
+  kr: KeyResultLikeInput | null | undefined,
+): string {
+  if (!kr) return '';
+
   const explicitMetric = getMetricTypeName(kr);
   const explicitLabel = formatKrMetricTypeDisplayName(explicitMetric);
   if (explicitLabel) return explicitLabel;
@@ -103,8 +135,8 @@ export function resolveKrPanelMetricType(kr: {
   const target = getNumericMetricTargetValue(kr);
   const current = getNumericMetricCurrentValue(kr);
   const hasProgress =
-    kr?.progress !== undefined &&
-    kr?.progress !== null &&
+    kr.progress !== undefined &&
+    kr.progress !== null &&
     String(kr.progress).trim() !== '';
 
   if (target > 0 || current > 0) {
@@ -120,39 +152,10 @@ export function resolveKrPanelMetricType(kr: {
 
 /** Resolve a display label from any KR-shaped payload (panel cards, forms, lists). */
 export function resolveKrMetricTypeLabel(
-  kr: Parameters<typeof resolveKrPanelMetricType>[0],
+  kr: KeyResultLikeInput | null | undefined,
 ): string {
   return resolveKrPanelMetricType(kr);
 }
-
-type MilestoneRowInput = {
-  status?: string | null;
-  deletedAt?: string | null;
-  tasks?: unknown[];
-};
-
-type OkrMilestoneRow = Pick<MilestoneRowInput, 'status' | 'deletedAt'>;
-
-type MilestoneSourceInput = {
-  milestones?: MilestoneRowInput[] | unknown[];
-  Milestones?: MilestoneRowInput[] | unknown[];
-};
-
-/** KR-shaped payload accepted by progress display helpers. */
-export type KeyResultProgressInput = {
-  metricType?: { name?: string } | string;
-  key_type?: string;
-  metricTypeName?: string;
-  milestones?: MilestoneRowInput[] | unknown[];
-  Milestones?: MilestoneRowInput[] | unknown[];
-  progress?: number | string | null;
-  currentValue?: number | string | null;
-  initialValue?: number | string | null;
-  targetValue?: number | string | null;
-  status?: string;
-  keyResultCompletionStatus?: string;
-  completionStatus?: string;
-};
 
 function asMilestoneRows(raw: unknown): MilestoneRowInput[] {
   if (!Array.isArray(raw)) return [];
@@ -225,25 +228,34 @@ function withResolvedOkrMilestones<T extends Record<string, unknown>>(
 }
 
 /** Count plan-linked tasks on a KR (direct, milestone, and parent-task trees). */
-export function countKeyResultPlanTasks(kr: {
-  tasks?: unknown[];
-  milestones?: Array<{
-    tasks?: unknown[];
-    parentTask?: Array<{ tasks?: unknown[] }>;
-  }>;
-  parentTask?: Array<{ tasks?: unknown[] }>;
-}): number {
+export function countKeyResultPlanTasks(
+  kr: KeyResultLikeInput | null | undefined,
+): number {
+  if (!kr) return 0;
+
   const tasks: unknown[] = [];
-  if (kr?.tasks) tasks.push(...kr.tasks);
-  kr?.milestones?.forEach((m) => {
-    if (m?.tasks) tasks.push(...m.tasks);
-    m?.parentTask?.forEach((p) => {
-      if (p?.tasks) tasks.push(...p.tasks);
-    });
+  if (Array.isArray(kr.tasks)) tasks.push(...kr.tasks);
+
+  const milestones = Array.isArray(kr.milestones) ? kr.milestones : [];
+  milestones.forEach((raw) => {
+    const m = raw as {
+      tasks?: unknown[];
+      parentTask?: Array<{ tasks?: unknown[] }>;
+    };
+    if (Array.isArray(m?.tasks)) tasks.push(...m.tasks);
+    if (Array.isArray(m?.parentTask)) {
+      m.parentTask.forEach((p) => {
+        if (Array.isArray(p?.tasks)) tasks.push(...p.tasks);
+      });
+    }
   });
-  kr?.parentTask?.forEach((p) => {
-    if (p?.tasks) tasks.push(...p.tasks);
+
+  const parents = Array.isArray(kr.parentTask) ? kr.parentTask : [];
+  parents.forEach((raw) => {
+    const p = raw as { tasks?: unknown[] };
+    if (Array.isArray(p?.tasks)) tasks.push(...p.tasks);
   });
+
   return tasks.length;
 }
 
