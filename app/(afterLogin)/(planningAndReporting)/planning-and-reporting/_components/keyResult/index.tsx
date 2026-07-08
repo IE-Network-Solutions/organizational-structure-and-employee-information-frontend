@@ -3,9 +3,11 @@ import { FC } from 'react';
 import { MdKey } from 'react-icons/md';
 import {
   formatValueForMetric,
+  formatKrMetricTypeDisplayName,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
   getMetricTypeName,
+  resolveKrMetricTypeLabel,
   getMilestoneProgressCounts,
   getNumericMetricTargetValue,
 } from '@/utils/okrKeyResultProgressDisplay';
@@ -16,6 +18,11 @@ interface KPIMetricsProps {
 
 const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
   const metricName = getMetricTypeName(keyResult);
+  const metricTypeLabel =
+    resolveKrMetricTypeLabel(keyResult) ||
+    formatKrMetricTypeDisplayName(metricName) ||
+    metricName ||
+    '-';
   const krProgressPercent = getKeyResultProgressPercent(keyResult);
   const krProgressRatioText = getKeyResultProgressRatioText(keyResult);
   const { total: msTotal } = getMilestoneProgressCounts(keyResult);
@@ -93,7 +100,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
               data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-44"
               className="bg-light_purple text-blue font-semibold text-[10px]   w-16 sm:w-20  text-center p-1  rounded-lg"
             >
-              {keyResult?.metricType?.name || '-'}
+              {metricTypeLabel}
             </div>
             <div
               data-cy="planning-and-reporting-components-keyresult-index-tsx-index-div-47"

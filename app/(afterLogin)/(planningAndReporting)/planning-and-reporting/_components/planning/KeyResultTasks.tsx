@@ -8,6 +8,7 @@ import {
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
   getMetricTypeName,
+  resolveKrMetricTypeLabel,
   getMilestoneProgressCounts,
   getNumericMetricTargetValue,
 } from '@/utils/okrKeyResultProgressDisplay';
@@ -24,6 +25,8 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
   activeTab,
 }) => {
   const metricName = getMetricTypeName(keyResult);
+  const metricTypeLabel =
+    resolveKrMetricTypeLabel(keyResult) || metricName || '';
   const krProgressPercent = getKeyResultProgressPercent(keyResult);
   const krProgressRatioText = getKeyResultProgressRatioText(keyResult);
   const { total: msTotal } = getMilestoneProgressCounts(keyResult);
@@ -60,9 +63,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
                 className="text-gray-500 font-semibold mt-1  text-[10px] flex items-center rounded-lg"
                 data-cy={`key-result-tasks-target-label-${keyResultIndex}`}
               >
-                {keyResult?.metricType?.name === 'Milestone'
-                  ? 'Milestones'
-                  : 'Target'}
+                {metricTypeLabel === 'Milestone' ? 'Milestones' : 'Target'}
               </div>
             </div>
             <Tag

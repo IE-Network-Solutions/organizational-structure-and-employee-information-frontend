@@ -12,21 +12,54 @@ export type KeyResultMetricName =
   | 'Currency'
   | 'Percentage'
   | 'Percent'
+  | 'KPI'
   | string;
+
+/** Canonical display labels for each KR metric type on Plan & Report cards. */
+const KR_METRIC_TYPE_DISPLAY: Record<string, string> = {
+  Achieve: 'Achieve',
+  Achieved: 'Achieve',
+  Milestone: 'Milestone',
+  Percentage: 'Percent',
+  Percent: 'Percent',
+  Numeric: 'Numeric',
+  Currency: 'Currency',
+  KPI: 'KPI',
+};
+
+function normalizeMetricToken(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+}
+
+function readMetricNameFromValue(value: unknown): string {
+  if (value == null) return '';
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'object' && value !== null && 'name' in value) {
+    return String((value as { name?: string }).name ?? '').trim();
+  }
+  return '';
+}
 
 export function getMetricTypeName(kr: {
   metricType?: { name?: string } | string;
   key_type?: string;
   metricTypeName?: string;
+  previousMetricTypeName?: string;
 }): KeyResultMetricName {
-  if (typeof kr?.metricType === 'string' && kr.metricType.trim()) {
-    return kr.metricType.trim() as KeyResultMetricName;
+  const candidates = [
+    typeof kr?.metricType === 'string' ? kr.metricType : undefined,
+    (kr?.metricType as { name?: string } | undefined)?.name,
+    kr?.metricTypeName,
+    kr?.key_type,
+    kr?.previousMetricTypeName,
+  ];
+
+  for (const candidate of candidates) {
+    const name = readMetricNameFromValue(candidate);
+    if (name && name !== 'N/A') return name as KeyResultMetricName;
   }
-  const fromObject = (kr?.metricType as { name?: string } | undefined)?.name;
-  if (fromObject) return fromObject as KeyResultMetricName;
-  if (kr?.metricTypeName)
-    return String(kr.metricTypeName) as KeyResultMetricName;
-  return (kr?.key_type || '') as KeyResultMetricName;
+
+  return '' as KeyResultMetricName;
 }
 
 /** Display label for KR cards (Plan & Report panel, OKR-adjacent UIs). */
@@ -36,17 +69,12 @@ export function formatKrMetricTypeDisplayName(
   if (!metric) return '';
   const n = String(metric).trim();
   if (!n || n === 'N/A' || n.toLowerCase() === 'metric') return '';
-  const normalized = n.charAt(0).toUpperCase() + n.slice(1).toLowerCase();
-  const map: Record<string, string> = {
-    Achieve: 'Achieve',
-    Achieved: 'Achieve',
-    Milestone: 'Milestone',
-    Percentage: 'Percent',
-    Percent: 'Percent',
-    Numeric: 'Numeric',
-    Currency: 'Currency',
-  };
-  return map[n] ?? map[normalized] ?? n;
+  const normalized = normalizeMetricToken(n);
+  return (
+    KR_METRIC_TYPE_DISPLAY[n] ??
+    KR_METRIC_TYPE_DISPLAY[normalized] ??
+    normalized
+  );
 }
 
 /**
@@ -57,38 +85,44 @@ export function resolveKrPanelMetricType(kr: {
   metricType?: { name?: string } | string;
   key_type?: string;
   metricTypeName?: string;
+  previousMetricTypeName?: string;
   milestones?: Array<{ deletedAt?: string | null }>;
   Milestones?: Array<{ deletedAt?: string | null }>;
   progress?: number | string | null;
   targetValue?: number | string | null;
+  currentValue?: number | string | null;
   initialValue?: number | string | null;
 }): string {
-  const candidates = [
-    getMetricTypeName(kr),
-    kr?.metricTypeName,
-    kr?.key_type,
-    typeof kr?.metricType === 'string' ? kr.metricType : undefined,
-  ];
-
-  for (const candidate of candidates) {
-    const label = formatKrMetricTypeDisplayName(candidate);
-    if (label) return label;
-  }
+  const explicitMetric = getMetricTypeName(kr);
+  const explicitLabel = formatKrMetricTypeDisplayName(explicitMetric);
+  if (explicitLabel) return explicitLabel;
 
   const milestones = resolveOkrMilestones(kr);
   if (milestones.length > 0) return 'Milestone';
 
   const target = getNumericMetricTargetValue(kr);
-  if (target > 0) {
-    const metric = getMetricTypeName(kr);
-    if (metric && metric !== 'N/A') {
-      const label = formatKrMetricTypeDisplayName(metric);
-      if (label) return label;
-    }
+  const current = getNumericMetricCurrentValue(kr);
+  const hasProgress =
+    kr?.progress !== undefined &&
+    kr?.progress !== null &&
+    String(kr.progress).trim() !== '';
+
+  if (target > 0 || current > 0) {
     return 'Numeric';
   }
 
+  if (hasProgress) {
+    return 'Achieve';
+  }
+
   return '';
+}
+
+/** Resolve a display label from any KR-shaped payload (panel cards, forms, lists). */
+export function resolveKrMetricTypeLabel(
+  kr: Parameters<typeof resolveKrPanelMetricType>[0],
+): string {
+  return resolveKrPanelMetricType(kr);
 }
 
 type MilestoneRowInput = {
@@ -617,8 +651,12 @@ export function mergeKeyResultWithUserApi(
       metricTypeName:
         apiKr.metricType?.name ??
         apiKr.metricTypeName ??
+        apiKr.key_type ??
         kr?.metricTypeName ??
-        kr?.metricType?.name,
+        kr?.key_type ??
+        (typeof kr?.metricType === 'object'
+          ? kr?.metricType?.name
+          : kr?.metricType),
       progress: apiKr.progress ?? kr?.progress,
       currentValue: apiKr.currentValue ?? kr?.currentValue,
       initialValue: apiKr.initialValue ?? kr?.initialValue,

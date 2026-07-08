@@ -75,8 +75,13 @@ export function aggregateKeyResultForPanel(
     (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
   );
   const mergedKr = mergeKeyResultWithUserApi(kr, userKeyResultItems);
-  const metricType = resolveKrPanelMetricType(mergedKr);
-  const linkedTaskCount = Math.max(taskCount, countKeyResultPlanTasks(kr));
+  const metricType =
+    resolveKrPanelMetricType(mergedKr) || resolveKrPanelMetricType(kr);
+  const linkedTaskCount = Math.max(
+    taskCount,
+    countKeyResultPlanTasks(mergedKr),
+    countKeyResultPlanTasks(kr),
+  );
   const milestoneCount = countKeyResultMilestones(kr, apiKr ?? undefined);
   return {
     id: String(mergedKr.id ?? kr.id),
@@ -251,6 +256,7 @@ export function enrichOwnerGroupsPlanningBlocked(
       const progressLabel = getKeyResultProgressRatioText(planningSource);
       const metricType =
         resolveKrPanelMetricType(planningSource) ||
+        (apiKr ? resolveKrPanelMetricType(apiKr) : '') ||
         resolveKrPanelMetricType(panelKr) ||
         panelKr.metricType;
       const milestoneCount =
@@ -260,6 +266,7 @@ export function enrichOwnerGroupsPlanningBlocked(
       const linkedTaskCount = Math.max(
         panelKr.taskCount,
         countKeyResultPlanTasks(planningSource),
+        apiKr ? countKeyResultPlanTasks(apiKr) : 0,
       );
 
       if (

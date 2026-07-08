@@ -63,20 +63,33 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
     expect(getKeyResultProgressRatioText(merged)).toBe('1/3');
   });
 
-  it('does not infer Achieve metric from progress alone', () => {
+  it('infers Achieve metric from progress when metadata is missing', () => {
     const planKr = {
       progress: 50,
       targetValue: 0,
       milestones: [],
     };
 
-    expect(resolveKrPanelMetricType(planKr)).toBe('');
+    expect(resolveKrPanelMetricType(planKr)).toBe('Achieve');
+  });
+
+  it('resolves metric type from key_type when metricType object is missing', () => {
+    expect(
+      resolveKrPanelMetricType({
+        key_type: 'Percentage',
+        progress: 25,
+        targetValue: 100,
+      }),
+    ).toBe('Percent');
   });
 
   it('formats each metric type explicitly', () => {
     expect(formatKrMetricTypeDisplayName('Numeric')).toBe('Numeric');
     expect(formatKrMetricTypeDisplayName('Achieved')).toBe('Achieve');
     expect(formatKrMetricTypeDisplayName('Percentage')).toBe('Percent');
+    expect(formatKrMetricTypeDisplayName('Currency')).toBe('Currency');
+    expect(formatKrMetricTypeDisplayName('Milestone')).toBe('Milestone');
+    expect(formatKrMetricTypeDisplayName('KPI')).toBe('KPI');
   });
 
   it('does not treat plan-only milestone shells as OKR milestones', () => {

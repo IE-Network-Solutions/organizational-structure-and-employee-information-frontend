@@ -19,7 +19,10 @@ import type {
   ViewMode,
 } from '../types';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { formatKrMetricTypeDisplayName } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  formatKrMetricTypeDisplayName,
+  resolveKrMetricTypeLabel,
+} from '@/utils/okrKeyResultProgressDisplay';
 import {
   aggregateKeyResultForPanel,
   buildBlockedKeyResultIdSet,
@@ -74,9 +77,47 @@ function progressTextClass(p: number): string {
   return 'text-[#9CA3AF]';
 }
 
+// ─── Types ──────────────────────────────────────────────────────────────
+
+interface AggregatedKR {
+  id: string;
+  title: string;
+  progress: number;
+  taskCount: number;
+  metricType: string;
+  targetValue: string | number;
+  currentValue: string | number;
+  progressLabel: string;
+  isDeleted: boolean;
+  planningBlocked: boolean;
+  milestoneCount?: number;
+}
+
+interface OwnerKRGroup {
+  ownerKey: string;
+  owner: PlanOwner;
+  krs: AggregatedKR[];
+  avgProgress: number;
+}
+
 /** KR metric name shown before task / milestone metadata on panel cards. */
-function formatKrMetricTypeLabel(metricType: string): string {
-  return formatKrMetricTypeDisplayName(metricType) || metricType?.trim() || '';
+function formatKrMetricTypeLabel(
+  metricType: string,
+  kr?: Pick<
+    AggregatedKR,
+    'id' | 'targetValue' | 'currentValue' | 'progress' | 'milestoneCount'
+  >,
+): string {
+  const fromStored =
+    formatKrMetricTypeDisplayName(metricType) || metricType?.trim();
+  if (fromStored) return fromStored;
+  if (!kr) return '';
+  return resolveKrMetricTypeLabel({
+    metricType,
+    targetValue: kr.targetValue,
+    currentValue: kr.currentValue,
+    progress: kr.progress,
+  });
 }
 
 /** + dropdown: single title line per planning slot */
@@ -103,29 +144,6 @@ function planningTargetMenuItemLabel(t: PlanningTarget): React.ReactNode {
       </p>
     </div>
   );
-}
-
-// ─── Types ──────────────────────────────────────────────────────────────
-
-interface AggregatedKR {
-  id: string;
-  title: string;
-  progress: number;
-  taskCount: number;
-  metricType: string;
-  targetValue: string | number;
-  currentValue: string | number;
-  progressLabel: string;
-  isDeleted: boolean;
-  planningBlocked: boolean;
-  milestoneCount?: number;
-}
-
-interface OwnerKRGroup {
-  ownerKey: string;
-  owner: PlanOwner;
-  krs: AggregatedKR[];
-  avgProgress: number;
 }
 
 export function buildOwnerKRGroups(
@@ -212,7 +230,7 @@ function KRProgressCard({
   const { isMobile, isTablet } = useIsMobile();
   const pickMenuPlacement =
     isMobile || isTablet ? ('bottomCenter' as const) : ('bottomLeft' as const);
-  const metricLabel = formatKrMetricTypeLabel(kr.metricType);
+  const metricLabel = formatKrMetricTypeLabel(kr.metricType, kr);
   const showTaskCount = kr.taskCount > 0;
   const milestoneCount = kr.milestoneCount ?? 0;
   const showMilestoneCount =

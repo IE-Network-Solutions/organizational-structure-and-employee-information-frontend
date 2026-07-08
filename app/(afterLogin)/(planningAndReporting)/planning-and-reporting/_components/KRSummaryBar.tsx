@@ -1,6 +1,7 @@
 import React from 'react';
 import StatPill from './StatPill';
 import { PlanSummary, KeyResult } from './types';
+import { resolveKrMetricTypeLabel } from '@/utils/okrKeyResultProgressDisplay';
 
 interface KRSummaryBarProps {
   plan: PlanSummary;
@@ -116,7 +117,10 @@ export default function KRSummaryBar({
   };
 
   const values = calculateKeyResultValues();
-  const metricType = keyResult?.metricType?.name || plan.milestoneLabel;
+  const metricType =
+    resolveKrMetricTypeLabel(keyResult ?? {}) ||
+    keyResult?.metricType?.name ||
+    plan.milestoneLabel;
   const isMilestone = metricType === 'Milestone';
 
   // Format numbers to remove trailing zeros (e.g., 100.000 -> 100, 15.00025 -> 15.00025)
@@ -134,8 +138,8 @@ export default function KRSummaryBar({
   };
 
   const toSentenceCase = (str: string): string => {
-    if (!str) return 'N/A';
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    if (!str || str === 'N/A') return 'N/A';
+    return str;
   };
 
   return (

@@ -9,6 +9,7 @@ import {
 import {
   getKeyResultProgressPercent,
   resolveOkrMilestones,
+  formatKrMetricTypeDisplayName,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
@@ -252,6 +253,11 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
         }
       : null,
     metricType: keyResult.metricType,
+    key_type: keyResult.key_type,
+    metricTypeName:
+      keyResult.metricTypeName ??
+      keyResult.metricType?.name ??
+      keyResult.key_type,
     targetValue: resolvedTarget,
     currentValue,
     initialValue,
@@ -539,6 +545,9 @@ export const transformReportToPlanSummary = (
       tasks: finalTasks.filter((t: any) => reportGroupedTaskHasContent(t)),
       milestones: milestonesForMetric,
       parentTask: finalParentTasks,
+      metricType: kr.metricType,
+      key_type: kr.key_type,
+      metricTypeName: kr.metricTypeName ?? kr.metricType?.name ?? kr.key_type,
       targetValue: resolvedTarget,
       currentValue,
       initialValue,
@@ -595,8 +604,22 @@ export const transformReportToPlanSummary = (
       updatedAt: dataItem.updatedAt || dataItem.createdAt || '',
       tone: statusTone,
     },
-    metricLabel: transformedKeyResults[0]?.metricType?.name || 'N/A',
-    milestoneLabel: transformedKeyResults[0]?.metricType?.name || 'N/A',
+    metricLabel:
+      formatKrMetricTypeDisplayName(
+        transformedKeyResults[0]?.metricType?.name ||
+          transformedKeyResults[0]?.key_type ||
+          transformedKeyResults[0]?.metricTypeName,
+      ) ||
+      transformedKeyResults[0]?.metricType?.name ||
+      'N/A',
+    milestoneLabel:
+      formatKrMetricTypeDisplayName(
+        transformedKeyResults[0]?.metricType?.name ||
+          transformedKeyResults[0]?.key_type ||
+          transformedKeyResults[0]?.metricTypeName,
+      ) ||
+      transformedKeyResults[0]?.metricType?.name ||
+      'N/A',
     target: 0, // Reports don't have targets
     achieved: achieved,
     progress: progress,
@@ -701,8 +724,22 @@ export const transformToPlanSummary = (
       updatedAt: dataItem.updatedAt || dataItem.createdAt || '',
       tone: statusTone,
     },
-    metricLabel: transformedKeyResults[0]?.metricType?.name || 'N/A',
-    milestoneLabel: transformedKeyResults[0]?.metricType?.name || 'N/A',
+    metricLabel:
+      formatKrMetricTypeDisplayName(
+        transformedKeyResults[0]?.metricType?.name ||
+          transformedKeyResults[0]?.key_type ||
+          transformedKeyResults[0]?.metricTypeName,
+      ) ||
+      transformedKeyResults[0]?.metricType?.name ||
+      'N/A',
+    milestoneLabel:
+      formatKrMetricTypeDisplayName(
+        transformedKeyResults[0]?.metricType?.name ||
+          transformedKeyResults[0]?.key_type ||
+          transformedKeyResults[0]?.metricTypeName,
+      ) ||
+      transformedKeyResults[0]?.metricType?.name ||
+      'N/A',
     target: target,
     achieved: achieved,
     progress: progress,
