@@ -20,8 +20,8 @@ import InlinePlanningWorkspace, {
 import { KRLeftPanel } from './_components/planning/PlanningPanelView';
 import type { CommentThreadKind } from './_components/planning/PlanningPanelView';
 import {
-  enrichPlanSummariesWithUserKeyResults,
   getActiveUnreportedParentPlanContext,
+  enrichPlanSummariesWithUserKeyResults,
   normalizeUserKeyResultItems,
 } from './_components/planning/mergeKRPanelGroups';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
@@ -35,8 +35,9 @@ import {
   useDefaultPlanningPeriods,
   useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
-import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
+
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
+import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
 import CreatePlan from './_components/createPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
@@ -170,6 +171,9 @@ function Page() {
     userId,
   } = usePlanningData();
 
+  const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
+    useOkrPlanningScope();
+
   const {
     data: userKeyResultsRaw,
     isLoading: userKeyResultsLoading,
@@ -177,6 +181,7 @@ function Page() {
   } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
     refetchOnMount: 'always',
     staleTime: 0,
+    keepPreviousData: false,
   });
 
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
