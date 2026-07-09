@@ -164,13 +164,13 @@ function CreateReport() {
               Weight Point:
             </span>{' '}
             <span
-              className={
+              className={`text-[20px] font-extrabold md:text-[22px] ${
                 totalWeight > 84
                   ? 'text-[#52C41A]'
                   : totalWeight >= 64
                     ? 'text-orange-500'
                     : 'text-red-500'
-              }
+              }`}
               data-cy="planningandreporting-planning-and-reporting-components-createreport-index-tsx-span-325"
             >
               {totalWeight}%
