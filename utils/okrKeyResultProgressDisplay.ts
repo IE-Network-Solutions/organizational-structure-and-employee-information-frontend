@@ -165,6 +165,19 @@ export function getMetricTypeName(
   return '' as KeyResultMetricName;
 }
 
+/** Normalize any metricType shape to `{ name }` for merge / display payloads. */
+export function toMetricTypeObject(
+  metricType?: { name?: string } | string | null,
+  keyType?: string | null,
+): { name: string } | undefined {
+  const name = getMetricTypeName({
+    metricType,
+    key_type: keyType ?? undefined,
+  });
+  return name ? { name } : undefined;
+}
+
+
 /** Display label for KR cards — same spelling as OKR metric type names. */
 export function formatKrMetricTypeDisplayName(
   metric: string | null | undefined,

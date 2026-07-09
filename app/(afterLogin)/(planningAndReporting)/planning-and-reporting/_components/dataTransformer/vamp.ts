@@ -10,6 +10,8 @@ import {
   getKeyResultProgressPercent,
   resolveOkrMilestones,
   formatKrMetricTypeDisplayName,
+  getMetricTypeName,
+  toMetricTypeObject,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
@@ -37,7 +39,7 @@ const getKeyResultCurrentValue = (
   allTasks: Array<{ achieved?: number; status?: string; weight?: number }>,
   viewMode: ViewMode,
 ) => {
-  const metricTypeName = rawKeyResult?.metricType?.name;
+  const metricTypeName = getMetricTypeName(rawKeyResult);
 
   if (metricTypeName === 'Milestone') {
     return rawKeyResult?.currentValue ?? 0;
@@ -142,7 +144,15 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
  * Transform keyResult data structure
  */
 const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
-  const isMilestoneMetric = keyResult.metricType?.name === 'Milestone';
+  const metricType = toMetricTypeObject(
+    keyResult.metricType,
+    keyResult.key_type,
+  );
+  const isMilestoneMetric =
+    getMetricTypeName({
+      metricType,
+      key_type: keyResult.key_type,
+    }) === 'Milestone';
 
   // Transform tasks - filter out empty tasks
   const transformedTasks = (keyResult.tasks || [])
@@ -226,8 +236,8 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     : [];
 
   const progressPayload = {
-    metricType: keyResult.metricType,
-    key_type: keyResult.key_type,
+    metricType: metricType ?? keyResult.metricType,
+    key_type: metricType?.name ?? keyResult.key_type,
     milestones: isMilestoneMetric ? okrMilestonesForProgress : finalMilestones,
     progress: keyResult.progress,
     currentValue,
@@ -235,15 +245,19 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     targetValue: resolvedTarget,
   };
 
+  const resolvedProgress = getKeyResultProgressPercent(progressPayload);
+
   return {
     id: keyResult.id || '',
     name: keyResult.name,
     title: keyResult.title || keyResult.name,
     tasks: finalTasks,
     milestones: isMilestoneMetric
-      ? keyResult.milestones?.length
-        ? keyResult.milestones
-        : finalMilestones
+      ? okrMilestonesForProgress.length > 0
+        ? okrMilestonesForProgress
+        : keyResult.milestones?.length
+          ? keyResult.milestones
+          : finalMilestones
       : finalMilestones,
     parentTask: finalParentTasks,
     objective: keyResult.objective
@@ -252,16 +266,11 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
           deletedAt: keyResult.objective.deletedAt || null, // Preserve objective deletedAt
         }
       : null,
-    metricType: keyResult.metricType,
-    key_type: keyResult.key_type,
-    metricTypeName:
-      keyResult.metricTypeName ??
-      keyResult.metricType?.name ??
-      keyResult.key_type,
+    metricType: metricType ?? keyResult.metricType,
     targetValue: resolvedTarget,
     currentValue,
     initialValue,
-    progress: getKeyResultProgressPercent(progressPayload),
+    progress: resolvedProgress,
     status: keyResult.status,
     keyResultCompletionStatus: keyResult.keyResultCompletionStatus,
     deletedAt: keyResult.deletedAt || null, // Preserve deletedAt for visual indicators
@@ -475,7 +484,12 @@ export const transformReportToPlanSummary = (
   });
 
   const transformedKeyResults = Object.values(keyResultsMap).map((kr: any) => {
-    const isMilestoneMetric = kr.metricType?.name === 'Milestone';
+    const metricType = toMetricTypeObject(kr.metricType, kr.key_type);
+    const isMilestoneMetric =
+      getMetricTypeName({
+        metricType,
+        key_type: kr.key_type,
+      }) === 'Milestone';
 
     // For non-milestone metric types, promote milestone parentTask groups to keyResult level
     let finalParentTasks = [...(kr.parentTask || [])];
@@ -521,15 +535,19 @@ export const transformReportToPlanSummary = (
     const currentValue = getKeyResultCurrentValue(kr, allTasks, 'reporting');
     const initialValue = kr.initialValue;
     const resolvedTarget = kr.targetValue || 0;
-    const milestonesForMetric = isMilestoneMetric
+    const okrMilestonesForProgress = isMilestoneMetric
       ? resolveOkrMilestones({
           milestones: kr.milestones ?? finalMilestones,
         })
-      : finalMilestones;
+      : [];
+    const milestonesForMetric =
+      isMilestoneMetric && okrMilestonesForProgress.length > 0
+        ? okrMilestonesForProgress
+        : finalMilestones;
 
     const progressPayload = {
-      metricType: kr.metricType,
-      key_type: kr.key_type,
+      metricType: metricType ?? kr.metricType,
+      key_type: metricType?.name ?? kr.key_type,
       milestones: milestonesForMetric,
       progress: kr.progress,
       currentValue,
@@ -537,21 +555,23 @@ export const transformReportToPlanSummary = (
       targetValue: resolvedTarget,
     };
 
+    const krResolvedProgress = getKeyResultProgressPercent(progressPayload);
+
     return {
       ...kr,
       // Ensure title is preserved even if keyResult is deleted
       title: kr.title || kr.name || 'Deleted Key Result',
       name: kr.name || kr.title || 'Deleted Key Result',
+      metricType: metricType ?? kr.metricType,
+      key_type: metricType?.name ?? kr.key_type,
       tasks: finalTasks.filter((t: any) => reportGroupedTaskHasContent(t)),
       milestones: milestonesForMetric,
       parentTask: finalParentTasks,
-      metricType: kr.metricType,
-      key_type: kr.key_type,
       metricTypeName: kr.metricTypeName ?? kr.metricType?.name ?? kr.key_type,
       targetValue: resolvedTarget,
       currentValue,
       initialValue,
-      progress: getKeyResultProgressPercent(progressPayload),
+      progress: krResolvedProgress,
       deletedAt: kr.deletedAt || null, // Preserve deletedAt for visual indicators
       objective: kr.objective
         ? {
