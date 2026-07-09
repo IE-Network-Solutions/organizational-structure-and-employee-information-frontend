@@ -1,7 +1,7 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 /** Org & employee API. Override in `.env.local` for local backend (see `.env.local.example`). */
-export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
+export const ORG_AND_EMP_URL = "http://localhost:8099/api/v1";
 export const OKR_URL = process.env.OKR_URL;
 export const PAYROLL_URL = process.env.PAYROLL_URL;
 
@@ -21,7 +21,7 @@ export const NOTIFICATION_WS_URL = NOTIFICATION_URL
   : '';
 export const NOTIFICATION_WS_PATH = '/api/v1/notifications-ws';
 export const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-export const APPROVER_URL = process.env.NEXT_PUBLIC_APPROVERS_URL;
+export const APPROVER_URL = "http://localhost:8010/api/v1";
 export const ORG_DEV = process.env.ORG_DEV;
 
 export const BASE_FRONT_URL = process.env.BASE_FRONT_URL;
@@ -31,8 +31,7 @@ export const DATETIME_FORMAT = 'DD MMM YYYY hh:mm A';
 export const TIME_FORMAT = 'hh:mm A';
 
 export const localUserID = process.env.NEXT_PUBLIC_LOCAL_USER_ID;
-export const TIME_AND_ATTENDANCE_URL =
-  process.env.NEXT_PUBLIC_TIME_AND_ATTENDANCE_URL;
+export const TIME_AND_ATTENDANCE_URL = 'http://localhost:8020/api/v1';
 export const TNA_URL = process.env.NEXT_PUBLIC_TRAIN_AND_LEARNING_URL;
 
 export const INCENTIVE_URL = process.env.INCENTIVE_URL;
@@ -47,10 +46,9 @@ export const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 export const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL;
 export const AI_REC_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL;
 
-/**
- * Copilot (direct-to-Azure).
- *
- * Set `NEXT_PUBLIC_AZURE_APP_SERVICE` to the full Copilot endpoint URL, e.g.
- * `https://<app>.azurewebsites.net/copilot`
- */
-export const AZURE_APP_SERVICE = process.env.NEXT_PUBLIC_AZURE_APP_SERVICE;
+/** Copilot API — local backend. Chat: POST {COPILOT_BASE_URL}/copilot */
+export const COPILOT_BASE_URL = 'http://localhost:8000';
+export const COPILOT_CHAT_URL = `${COPILOT_BASE_URL}/copilot`;
+
+/** @deprecated Use COPILOT_BASE_URL / COPILOT_CHAT_URL */
+export const AZURE_APP_SERVICE = COPILOT_CHAT_URL;

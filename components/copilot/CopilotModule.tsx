@@ -9,13 +9,13 @@ import React, {
 } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { message, Alert } from 'antd';
-import CopilotReportsPanelToggle from './CopilotReportsPanelToggle';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CopilotMessages, { Message } from './CopilotMessages';
 import CopilotInput from './CopilotInput';
-import CopilotIntentPanel from './CopilotIntentPanel';
-import { COPILOT_INTENTS } from './intents';
+import CopilotWorkspaceEmptyState from './CopilotWorkspaceEmptyState';
+import CopilotSavedChatsPanel from './CopilotSavedChatsPanel';
+import { COPILOT_THEME } from './copilotTheme';
 import {
   sendCopilotChatRequest,
   normalizeCopilotError,
@@ -31,26 +31,22 @@ import {
   COPILOT_SHARE_REF_QUERY,
   COPILOT_SAVED_CHATS_KEY,
   COPILOT_LEGACY_HISTORY_KEY,
-  MAX_SAVED_CHATS,
-  reviveSavedSessions,
   resolveCopilotShareUrl,
-  type SavedChatSession,
   type SharePayloadV1,
   reviveMessagesFromPayload,
 } from '@/utils/copilotShare';
 import { fetchCopilotShareById } from '@/utils/copilotApiService';
-
-function persistSavedChats(chats: SavedChatSession[]) {
-  const toStore = chats.map((s) => ({
-    ...s,
-    messages: s.messages.map((m) => ({
-      ...m,
-      timestamp:
-        m.timestamp instanceof Date ? m.timestamp.toISOString() : m.timestamp,
-    })),
-  }));
-  localStorage.setItem(COPILOT_SAVED_CHATS_KEY, JSON.stringify(toStore));
-}
+import { useGetCopilotPrompts } from '@/store/server/features/copilot/prompts/queries';
+import {
+  useCreateCopilotPrompt,
+  useUpdateCopilotPrompt,
+  useDeleteCopilotPrompt,
+} from '@/store/server/features/copilot/prompts/mutation';
+import {
+  getCopilotPromptLabel,
+  getPersonalCopilotPrompts,
+  mapPersonalCopilotPromptsToSavedSessions,
+} from '@/store/server/features/copilot/prompts/interface';
 
 /**
  * Transform raw response data into table format for display
@@ -438,41 +434,39 @@ function transformResponseDataToTable(
 const CopilotModule: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { userId } = useAuthenticationStore();
+  const { userId, tenantId } = useAuthenticationStore();
   const { data: employeeData } = useGetEmployee(userId);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isIntentPanelVisible, setIsIntentPanelVisible] = useState(true);
-  const [savedChats, setSavedChats] = useState<SavedChatSession[]>([]);
   const [sharedView, setSharedView] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const { data: copilotPromptsRaw, isLoading: savedChatsLoading } =
+    useGetCopilotPrompts(!!userId);
+  const { mutate: createSavedPrompt } = useCreateCopilotPrompt({ silent: true });
+  const { mutate: updateSavedPrompt } = useUpdateCopilotPrompt({ silent: true });
+  const { mutate: deleteSavedPrompt } = useDeleteCopilotPrompt();
 
-  const activeIntentLabel = useMemo(() => {
+  const savedChats = useMemo(() => {
+    const personal = getPersonalCopilotPrompts(
+      copilotPromptsRaw,
+      userId,
+      tenantId,
+    );
+    return mapPersonalCopilotPromptsToSavedSessions(personal);
+  }, [copilotPromptsRaw, userId, tenantId]);
+
+  const activeStarterPrompt = useMemo(() => {
     const v = inputValue.trim();
-    if (!v) return null;
-    const lower = v.toLowerCase();
-    for (const cat of COPILOT_INTENTS) {
-      const hit = cat.intents.find((i) => i.toLowerCase() === lower);
-      if (hit) return hit;
-    }
-    return null;
+    return v || null;
   }, [inputValue]);
 
   useEffect(() => {
     try {
       localStorage.removeItem(COPILOT_LEGACY_HISTORY_KEY);
+      localStorage.removeItem(COPILOT_SAVED_CHATS_KEY);
     } catch {
       /* ignore */
-    }
-    try {
-      const stored = localStorage.getItem(COPILOT_SAVED_CHATS_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as unknown;
-        setSavedChats(reviveSavedSessions(parsed).slice(0, MAX_SAVED_CHATS));
-      }
-    } catch {
-      setSavedChats([]);
     }
   }, []);
 
@@ -532,32 +526,35 @@ const CopilotModule: React.FC = () => {
     setInputValue('');
   }, [router, pathname]);
 
-  /** Save icon on user bubble: add this question to Saved immediately (no confirm step). */
-  const handleRequestSaveUserQuestion = useCallback(
+  /** Auto-save user question as a personal copilot-prompt when sending. */
+  const upsertSavedChatFromUserMessage = useCallback(
     (userMsg: Message) => {
       if (sharedView) return;
       const raw = (userMsg.text || '').trim();
       if (!raw) return;
-      const session: SavedChatSession = {
-        id: `saved_${Date.now()}`,
-        title: raw,
-        messages: [
-          {
-            ...userMsg,
-            timestamp: new Date(userMsg.timestamp),
-          },
-        ],
-        savedAt: new Date().toISOString(),
-      };
-      setSavedChats((prev) => {
-        const next = [session, ...prev].slice(0, MAX_SAVED_CHATS);
-        persistSavedChats(next);
-        return next;
-      });
-      setIsIntentPanelVisible(true);
-      message.success('Question saved to Saved reports.');
+      const lower = raw.toLowerCase();
+      const personal = getPersonalCopilotPrompts(
+        copilotPromptsRaw,
+        userId,
+        tenantId,
+      );
+      const existing = personal.find(
+        (p) => getCopilotPromptLabel(p).trim().toLowerCase() === lower,
+      );
+      if (existing) {
+        updateSavedPrompt({ id: existing.id, title: raw, content: raw });
+        return;
+      }
+      createSavedPrompt({ title: raw, content: raw });
     },
-    [sharedView],
+    [
+      copilotPromptsRaw,
+      createSavedPrompt,
+      sharedView,
+      tenantId,
+      updateSavedPrompt,
+      userId,
+    ],
   );
 
   const handleShareExchange = useCallback(
@@ -582,18 +579,19 @@ const CopilotModule: React.FC = () => {
     [],
   );
 
-  const handleRenameSavedChat = useCallback((id: string, title: string) => {
-    const trimmed = title.trim();
-    if (!trimmed) return;
-    setSavedChats((prev) => {
-      const next = prev.map((s) =>
-        s.id === id ? { ...s, title: trimmed } : s,
+  const handleRenameSavedChat = useCallback(
+    (id: string, title: string) => {
+      const trimmed = title.trim();
+      if (!trimmed) return;
+      updateSavedPrompt(
+        { id, title: trimmed, content: trimmed },
+        {
+          onSuccess: () => message.success('Saved chat renamed.'),
+        },
       );
-      persistSavedChats(next);
-      return next;
-    });
-    message.success('Saved chat renamed.');
-  }, []);
+    },
+    [updateSavedPrompt],
+  );
 
   /** Saved pill click: put the question in the composer (do not replace the chat). */
   const handleOpenSavedChat = useCallback(
@@ -619,20 +617,21 @@ const CopilotModule: React.FC = () => {
   const handleDeleteSavedChat = useCallback(
     (id: string, e?: React.MouseEvent) => {
       e?.stopPropagation();
-      setSavedChats((prev) => {
-        const next = prev.filter((s) => s.id !== id);
-        persistSavedChats(next);
-        return next;
+      deleteSavedPrompt(id, {
+        onSuccess: () => message.success('Saved chat removed'),
       });
-      message.success('Saved chat removed');
     },
-    [],
+    [deleteSavedPrompt],
   );
 
   const userInitials =
     employeeData?.firstName?.[0]?.toUpperCase() ||
     employeeData?.lastName?.[0]?.toUpperCase() ||
     'U';
+  const userAvatarUrl =
+    typeof employeeData?.profileImage === 'string'
+      ? employeeData.profileImage
+      : undefined;
 
   const addMetadata = useCallback(
     (responseText: string): Message['metadata'] => {
@@ -676,6 +675,7 @@ const CopilotModule: React.FC = () => {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, userMessage]);
+      upsertSavedChatFromUserMessage(userMessage);
       setInputValue('');
       setIsLoading(true);
       abortControllerRef.current = new AbortController();
@@ -779,7 +779,7 @@ const CopilotModule: React.FC = () => {
         setIsLoading(false);
       }
     },
-    [isLoading, addMetadata, sharedView],
+    [isLoading, addMetadata, sharedView, upsertSavedChatFromUserMessage],
   );
 
   const handleSend = useCallback(() => {
@@ -800,18 +800,23 @@ const CopilotModule: React.FC = () => {
         return;
       }
       setInputValue(intent);
+      queueMicrotask(() => {
+        const wrap = document.getElementById('copilot-input-wrapper');
+        const inner = wrap?.querySelector<HTMLInputElement>('input');
+        inner?.focus();
+      });
     },
     [sharedView],
   );
 
   const content = (
     <div
-      className="flex h-[calc(100vh-130px)] flex-col overflow-hidden bg-white px-2 pb-2 pt-2"
+      className="flex h-[calc(100vh-130px)] flex-col overflow-hidden bg-white"
       id="copilot-module"
       data-cy="copilot-module"
     >
       <div
-        className="flex min-h-0 flex-1 gap-3 overflow-hidden md:gap-4"
+        className="flex min-h-0 flex-1 overflow-hidden"
         id="copilot-module-body"
         data-cy="copilot-module-body"
       >
@@ -821,37 +826,33 @@ const CopilotModule: React.FC = () => {
           data-cy="copilot-module-chat-container"
         >
           <div
-            className="scrollbar-hide min-h-0 flex-1 overflow-y-auto bg-white px-2 py-4 md:px-3 md:py-6"
+            className={`scrollbar-hide min-h-0 flex-1 overflow-y-auto bg-white ${
+              messages.length === 0 ? 'flex flex-col' : ''
+            }`}
             id="copilot-module-chat-messages"
             data-cy="copilot-module-chat-messages"
           >
             {messages.length === 0 ? (
-              <div
-                className="flex h-full min-h-[240px] flex-col items-center justify-center px-4 text-center"
-                id="copilot-module-empty-state"
-                data-cy="copilot-module-empty-state"
-              >
-                <p
-                  className="max-w-[40rem] text-[15px] font-medium leading-7 text-black md:text-[16px] md:leading-8"
-                  id="copilot-module-empty-state-greeting"
-                  data-cy="copilot-module-empty-state-greeting"
-                >
-                  Ask your copilot to get started, Use the available Reports.
-                </p>
-              </div>
-            ) : (
-              <CopilotMessages
-                messages={messages}
-                isLoading={isLoading}
-                userInitials={userInitials}
-                readOnlyShared={sharedView}
-                onSaveUserQuestion={handleRequestSaveUserQuestion}
-                onShareExchange={handleShareExchange}
+              <CopilotWorkspaceEmptyState
+                onPromptSelect={handleIntentSelect}
+                activePrompt={activeStarterPrompt}
               />
+            ) : (
+              <div className="flex min-h-full flex-col justify-end px-6 py-4 md:px-8 md:pb-6 md:pt-4">
+                <CopilotMessages
+                  variant="workspace"
+                  messages={messages}
+                  isLoading={isLoading}
+                  userInitials={userInitials}
+                  userAvatarUrl={userAvatarUrl}
+                  readOnlyShared={sharedView}
+                  onShareExchange={handleShareExchange}
+                />
+              </div>
             )}
           </div>
           <div
-            className="flex-shrink-0 bg-white"
+            className="flex-shrink-0 border-t border-transparent bg-white"
             id="copilot-module-chat-input-container"
             data-cy="copilot-module-chat-input-container"
           >
@@ -885,74 +886,47 @@ const CopilotModule: React.FC = () => {
           </div>
         </div>
 
-        {!isIntentPanelVisible && (
-          <div
-            className="relative z-20 hidden shrink-0 flex-col items-center justify-start pt-2 md:flex"
-            id="copilot-module-reports-toggle-desktop-wrap"
-            data-cy="copilot-module-reports-toggle-desktop-wrap"
-          >
-            <CopilotReportsPanelToggle
-              expanded={false}
-              onToggle={() => setIsIntentPanelVisible(true)}
-              id="copilot-show-intents-button"
-            />
-          </div>
-        )}
-
-        {isIntentPanelVisible && (
-          <div
-            className="hidden h-full w-[318px] min-w-[318px] max-w-[318px] shrink-0 flex-col overflow-hidden md:flex"
-            id="copilot-module-intent-panel-desktop"
-            data-cy="copilot-module-intent-panel-desktop"
-          >
-            <CopilotIntentPanel
-              variant="desktop"
-              onIntentSelect={handleIntentSelect}
-              onHide={() => setIsIntentPanelVisible(false)}
-              activeIntentLabel={activeIntentLabel}
-              savedChats={savedChats}
-              onOpenSavedChat={handleOpenSavedChat}
-              onDeleteSavedChat={handleDeleteSavedChat}
-              sharedView={sharedView}
-              onRenameSavedChat={handleRenameSavedChat}
-            />
-          </div>
-        )}
-      </div>
-
-      {!isIntentPanelVisible && (
         <div
-          className="mt-2 flex shrink-0 flex-col items-center gap-2 md:hidden"
-          id="copilot-module-show-intents-mobile"
-          data-cy="copilot-module-show-intents-mobile"
+          className="hidden h-full shrink-0 md:flex md:items-stretch md:justify-end md:pr-4"
+          style={{
+            width: COPILOT_THEME.workspaceRailWidthPx,
+            minWidth: COPILOT_THEME.workspaceRailWidthPx,
+          }}
+          id="copilot-module-saved-chats-desktop"
+          data-cy="copilot-module-saved-chats-desktop"
         >
-          <CopilotReportsPanelToggle
-            expanded={false}
-            onToggle={() => setIsIntentPanelVisible(true)}
-            id="copilot-show-intents-button-mobile"
-          />
-        </div>
-      )}
-
-      {isIntentPanelVisible && (
-        <div
-          className="mt-2 flex h-[38vh] shrink-0 flex-col overflow-hidden md:hidden"
-          id="copilot-module-intent-panel-mobile"
-          data-cy="copilot-module-intent-panel-mobile"
-        >
-          <CopilotIntentPanel
-            variant="mobile"
-            onIntentSelect={handleIntentSelect}
-            onHide={() => setIsIntentPanelVisible(false)}
-            activeIntentLabel={activeIntentLabel}
+          <CopilotSavedChatsPanel
+            variant="desktop"
+            compact
             savedChats={savedChats}
+            isLoading={savedChatsLoading}
             onOpenSavedChat={handleOpenSavedChat}
             onDeleteSavedChat={handleDeleteSavedChat}
             sharedView={sharedView}
             onRenameSavedChat={handleRenameSavedChat}
           />
         </div>
-      )}
+      </div>
+
+      <div
+        className="mt-0 flex h-[32vh] shrink-0 flex-col overflow-hidden border-t md:hidden"
+        style={{
+          borderColor: COPILOT_THEME.workspaceRailBorder,
+          backgroundColor: COPILOT_THEME.workspaceRailBg,
+        }}
+        id="copilot-module-saved-chats-mobile"
+        data-cy="copilot-module-saved-chats-mobile"
+      >
+        <CopilotSavedChatsPanel
+          variant="mobile"
+          savedChats={savedChats}
+          isLoading={savedChatsLoading}
+          onOpenSavedChat={handleOpenSavedChat}
+          onDeleteSavedChat={handleDeleteSavedChat}
+          sharedView={sharedView}
+          onRenameSavedChat={handleRenameSavedChat}
+        />
+      </div>
     </div>
   );
 
