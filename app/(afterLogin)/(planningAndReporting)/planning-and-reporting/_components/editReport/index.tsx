@@ -22,10 +22,12 @@ import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
 import { FaCheckSquare, FaRegSquare, FaWindowClose } from 'react-icons/fa';
+import { useQueryClient } from 'react-query';
 
 const { TextArea } = Input;
 
 function EditReport() {
+  const queryClient = useQueryClient();
   const {
     setOpenReportModal,
 
@@ -77,6 +79,13 @@ function EditReport() {
         { values: values, selectedReportId },
         {
           onSuccess: () => {
+            queryClient.invalidateQueries('okrReports');
+            queryClient.invalidateQueries('okrPlans');
+            queryClient.invalidateQueries('okrUserPlans');
+            queryClient.invalidateQueries('okrPlannedData');
+            queryClient.invalidateQueries('planningPeriodsHierarchy');
+            queryClient.invalidateQueries('fetchObjectives');
+            queryClient.invalidateQueries('ObjectiveInformation');
             onClose();
           },
         },

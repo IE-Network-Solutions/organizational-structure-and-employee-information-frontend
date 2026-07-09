@@ -5,7 +5,6 @@ import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import type { AxiosError } from 'axios';
-import { invalidateOkrPlanningCaches } from '@/utils/invalidateOkrPlanningCaches';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -49,11 +48,25 @@ const createPlanTasks = async (values: any) => {
     },
   });
 };
+const refetchPlanningQueries = (
+  queryClient: ReturnType<typeof useQueryClient>,
+) => {
+  const opts = { refetchActive: true, refetchInactive: true };
+  return Promise.all([
+    queryClient.invalidateQueries(['okrPlans'], opts),
+    queryClient.invalidateQueries('okrUserPlans', opts),
+    queryClient.invalidateQueries('okrReports', opts),
+    queryClient.invalidateQueries('okrPlannedData', opts),
+    queryClient.invalidateQueries('planningPeriodsHierarchy', opts),
+    queryClient.invalidateQueries('fetchObjectives', opts),
+  ]);
+};
+
 export const useCreatePlanTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(createPlanTasks, {
     onSuccess: async () => {
-      await invalidateOkrPlanningCaches(queryClient);
+      await refetchPlanningQueries(queryClient);
       NotificationMessage.success({
         message: 'Successfully Created ',
         description: ' ',
@@ -84,7 +97,7 @@ export const useUpdatePlanTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(updatePlanTasks, {
     onSuccess: async () => {
-      await invalidateOkrPlanningCaches(queryClient);
+      await refetchPlanningQueries(queryClient);
       NotificationMessage.success({
         message: 'Successfully Updated ',
         description: ' ',

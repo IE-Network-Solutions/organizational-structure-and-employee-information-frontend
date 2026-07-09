@@ -6,12 +6,7 @@ import {
   Cadence,
   Milestone,
 } from '../types';
-import {
-  getKeyResultProgressPercent,
-  getMetricTypeName,
-  resolveOkrMilestones,
-  toMetricTypeObject,
-} from '@/utils/okrKeyResultProgressDisplay';
+import { getKeyResultProgressPercent } from '@/utils/okrKeyResultProgressDisplay';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
 const planGroupedTaskHasContent = (task: any): boolean =>
@@ -38,7 +33,7 @@ const getKeyResultCurrentValue = (
   allTasks: Array<{ achieved?: number; status?: string; weight?: number }>,
   viewMode: ViewMode,
 ) => {
-  const metricTypeName = getMetricTypeName(rawKeyResult);
+  const metricTypeName = rawKeyResult?.metricType?.name;
 
   if (metricTypeName === 'Milestone') {
     return rawKeyResult?.currentValue ?? 0;
@@ -143,15 +138,7 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
  * Transform keyResult data structure
  */
 const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
-  const metricType = toMetricTypeObject(
-    keyResult.metricType,
-    keyResult.key_type,
-  );
-  const isMilestoneMetric =
-    getMetricTypeName({
-      metricType,
-      key_type: keyResult.key_type,
-    }) === 'Milestone';
+  const isMilestoneMetric = keyResult.metricType?.name === 'Milestone';
 
   // Transform tasks - filter out empty tasks
   const transformedTasks = (keyResult.tasks || [])
@@ -228,23 +215,17 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   const initialValue = keyResult.initialValue;
   const resolvedTarget = keyResult.targetValue ?? targetValue;
 
-  const okrMilestonesForProgress = isMilestoneMetric
-    ? resolveOkrMilestones({
-        milestones: keyResult.milestones ?? finalMilestones,
-      })
-    : [];
-
   const progressPayload = {
-    metricType: metricType ?? keyResult.metricType,
-    key_type: metricType?.name ?? keyResult.key_type,
-    milestones: isMilestoneMetric ? okrMilestonesForProgress : finalMilestones,
+    metricType: keyResult.metricType,
+    key_type: keyResult.key_type,
+    milestones: isMilestoneMetric
+      ? (keyResult.milestones ?? finalMilestones)
+      : finalMilestones,
     progress: keyResult.progress,
     currentValue,
     initialValue,
     targetValue: resolvedTarget,
   };
-
-  const resolvedProgress = getKeyResultProgressPercent(progressPayload);
 
   return {
     id: keyResult.id || '',
@@ -252,11 +233,9 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     title: keyResult.title || keyResult.name,
     tasks: finalTasks,
     milestones: isMilestoneMetric
-      ? okrMilestonesForProgress.length > 0
-        ? okrMilestonesForProgress
-        : keyResult.milestones?.length
-          ? keyResult.milestones
-          : finalMilestones
+      ? keyResult.milestones?.length
+        ? keyResult.milestones
+        : finalMilestones
       : finalMilestones,
     parentTask: finalParentTasks,
     objective: keyResult.objective
@@ -265,11 +244,11 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
           deletedAt: keyResult.objective.deletedAt || null, // Preserve objective deletedAt
         }
       : null,
-    metricType: metricType ?? keyResult.metricType,
+    metricType: keyResult.metricType,
     targetValue: resolvedTarget,
     currentValue,
     initialValue,
-    progress: resolvedProgress,
+    progress: getKeyResultProgressPercent(progressPayload),
     status: keyResult.status,
     keyResultCompletionStatus: keyResult.keyResultCompletionStatus,
     deletedAt: keyResult.deletedAt || null, // Preserve deletedAt for visual indicators
@@ -483,12 +462,7 @@ export const transformReportToPlanSummary = (
   });
 
   const transformedKeyResults = Object.values(keyResultsMap).map((kr: any) => {
-    const metricType = toMetricTypeObject(kr.metricType, kr.key_type);
-    const isMilestoneMetric =
-      getMetricTypeName({
-        metricType,
-        key_type: kr.key_type,
-      }) === 'Milestone';
+    const isMilestoneMetric = kr.metricType?.name === 'Milestone';
 
     // For non-milestone metric types, promote milestone parentTask groups to keyResult level
     let finalParentTasks = [...(kr.parentTask || [])];
@@ -534,19 +508,15 @@ export const transformReportToPlanSummary = (
     const currentValue = getKeyResultCurrentValue(kr, allTasks, 'reporting');
     const initialValue = kr.initialValue;
     const resolvedTarget = kr.targetValue || 0;
-    const okrMilestonesForProgress = isMilestoneMetric
-      ? resolveOkrMilestones({
-          milestones: kr.milestones ?? finalMilestones,
-        })
-      : [];
+    const apiMilestones = kr.milestones ?? [];
     const milestonesForMetric =
-      isMilestoneMetric && okrMilestonesForProgress.length > 0
-        ? okrMilestonesForProgress
+      isMilestoneMetric && apiMilestones.length > 0
+        ? apiMilestones
         : finalMilestones;
 
     const progressPayload = {
-      metricType: metricType ?? kr.metricType,
-      key_type: metricType?.name ?? kr.key_type,
+      metricType: kr.metricType,
+      key_type: kr.key_type,
       milestones: milestonesForMetric,
       progress: kr.progress,
       currentValue,
@@ -554,22 +524,18 @@ export const transformReportToPlanSummary = (
       targetValue: resolvedTarget,
     };
 
-    const krResolvedProgress = getKeyResultProgressPercent(progressPayload);
-
     return {
       ...kr,
       // Ensure title is preserved even if keyResult is deleted
       title: kr.title || kr.name || 'Deleted Key Result',
       name: kr.name || kr.title || 'Deleted Key Result',
-      metricType: metricType ?? kr.metricType,
-      key_type: metricType?.name ?? kr.key_type,
       tasks: finalTasks.filter((t: any) => reportGroupedTaskHasContent(t)),
       milestones: milestonesForMetric,
       parentTask: finalParentTasks,
       targetValue: resolvedTarget,
       currentValue,
       initialValue,
-      progress: krResolvedProgress,
+      progress: getKeyResultProgressPercent(progressPayload),
       deletedAt: kr.deletedAt || null, // Preserve deletedAt for visual indicators
       objective: kr.objective
         ? {

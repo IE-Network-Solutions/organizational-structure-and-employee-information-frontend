@@ -3,6 +3,7 @@
 import classNames from 'classnames';
 import { useEffect } from 'react';
 import { Button, Form } from 'antd';
+import { useQueryClient } from 'react-query';
 import {
   useCreateReportForUnReportedtasks,
   useEditReportByReportId,
@@ -35,6 +36,7 @@ export function PlanCardInlineReportForm({
   onClose,
   reportId,
 }: PlanCardInlineReportFormProps) {
+  const queryClient = useQueryClient();
   const [form] = Form.useForm();
   const selectedStatuses = PlanningAndReportingStore((s) => s.selectedStatuses);
   const resetStatuses = PlanningAndReportingStore((s) => s.resetStatuses);
@@ -129,6 +131,13 @@ export function PlanCardInlineReportForm({
         { values, selectedReportId: reportId },
         {
           onSuccess: () => {
+            queryClient.invalidateQueries('okrReports');
+            queryClient.invalidateQueries('okrPlans');
+            queryClient.invalidateQueries('okrUserPlans');
+            queryClient.invalidateQueries('okrPlannedData');
+            queryClient.invalidateQueries('planningPeriodsHierarchy');
+            queryClient.invalidateQueries('fetchObjectives');
+            queryClient.invalidateQueries('ObjectiveInformation');
             handleClose();
           },
         },
@@ -141,6 +150,13 @@ export function PlanCardInlineReportForm({
       { values, planningPeriodId, planId },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries('okrReports');
+          queryClient.invalidateQueries('okrPlans');
+          queryClient.invalidateQueries('okrUserPlans');
+          queryClient.invalidateQueries('okrPlannedData');
+          queryClient.invalidateQueries('planningPeriodsHierarchy');
+          queryClient.invalidateQueries('fetchObjectives');
+          queryClient.invalidateQueries('ObjectiveInformation');
           handleClose();
         },
       },
