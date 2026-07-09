@@ -809,7 +809,6 @@ const RecognitionForm: React.FC<PropsData> = ({
       recognitionCriteria: mapRecognitionCriteria(),
     };
 
-
     const finishWizard = () => {
       handleWizardClose();
     };

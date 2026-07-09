@@ -107,7 +107,7 @@ const meta = {
 } as const;
 
 const metaHead =
-  'text-right text-[10px] font-medium uppercase leading-none tracking-tighter text-[#B0B3C0] sm:text-[11px] sm:tracking-wider';
+  'text-right text-[11px] font-medium uppercase leading-none tracking-tighter text-[#B0B3C0] sm:text-[12px] sm:tracking-wider';
 
 /** Priority pill: on small screens use a 3-letter label for Medium ("Med"). */
 function priorityChipText(priorityKey: string): React.ReactNode {
@@ -411,11 +411,11 @@ export default function PlanCard({
                 >
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-387"
-                    className="text-[10px] font-bold"
+                    className="text-[12px] font-bold"
                   >
                     {plan.reprimandCount}
                   </span>
-                  <FaBomb className="text-[9px]" />
+                  <FaBomb className="text-[11px]" />
                 </div>
               ) : null}
               {plan.appreciationCount && plan.appreciationCount > 0 ? (
@@ -425,11 +425,11 @@ export default function PlanCard({
                 >
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-395"
-                    className="text-[10px] font-bold"
+                    className="text-[12px] font-bold"
                   >
                     {plan.appreciationCount}
                   </span>
-                  <FaRegThumbsUp className="text-[9px]" />
+                  <FaRegThumbsUp className="text-[11px]" />
                 </div>
               ) : null}
               {plan.status && <StatusBadge status={plan.status} />}
@@ -496,19 +496,19 @@ export default function PlanCard({
                 >
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-453"
-                    className="text-[12px] font-medium text-[#8F94A3]"
+                    className="text-[13px] font-medium text-[#8F94A3]"
                   >
                     {getDateLabel()}
                   </span>
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-456"
-                    className="text-[12px] font-medium text-[#8F94A3]"
+                    className="text-[13px] font-medium text-[#8F94A3]"
                   >
                     {completedCount}/{reportTotal}
                   </span>
                   <div
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-459"
-                    className="h-[3px] w-[48px] overflow-hidden rounded-full bg-[#F1F2F6]"
+                    className="h-[4px] w-[52px] overflow-hidden rounded-full bg-[#F1F2F6]"
                   >
                     <div
                       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-512"
@@ -697,7 +697,7 @@ export default function PlanCard({
                       >
                         <span
                           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-693"
-                          className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[10px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[11px]"
+                          className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[11px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[12px]"
                           style={{ backgroundColor: pc.bg, color: pc.text }}
                         >
                           <span
@@ -715,7 +715,7 @@ export default function PlanCard({
                       >
                         <span
                           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-605"
-                          className="text-[11px] font-semibold text-[#8F94A3] tabular-nums sm:text-[12px]"
+                          className="text-[12px] font-semibold text-[#8F94A3] tabular-nums sm:text-[13px]"
                         >
                           {formatNum(task.weight)}
                         </span>
@@ -728,7 +728,7 @@ export default function PlanCard({
                         {task.achieved !== undefined ? (
                           <span
                             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-722"
-                            className={`text-[11px] font-semibold tabular-nums sm:text-[12px] ${
+                            className={`text-[12px] font-semibold tabular-nums sm:text-[13px] ${
                               isCompleted
                                 ? 'text-[#10B981]'
                                 : isFailed
@@ -881,11 +881,11 @@ export default function PlanCard({
               >
                 <span
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-740"
-                  className="text-[10px] font-bold"
+                  className="text-[12px] font-bold"
                 >
                   {plan.reprimandCount}
                 </span>
-                <FaBomb className="text-[9px]" />
+                <FaBomb className="text-[11px]" />
               </div>
             ) : null}
             {plan.appreciationCount && plan.appreciationCount > 0 ? (
@@ -895,11 +895,11 @@ export default function PlanCard({
               >
                 <span
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-748"
-                  className="text-[10px] font-bold"
+                  className="text-[12px] font-bold"
                 >
                   {plan.appreciationCount}
                 </span>
-                <FaRegThumbsUp className="text-[9px]" />
+                <FaRegThumbsUp className="text-[11px]" />
               </div>
             ) : null}
             {!inlineReportActive && showSubmitReport && onSubmitReport ? (
@@ -984,19 +984,19 @@ export default function PlanCard({
             >
               <span
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-824"
-                className="text-[12px] font-medium text-[#8F94A3]"
+                className="text-[13px] font-medium text-[#8F94A3]"
               >
                 {getDateLabel()}
               </span>
               <span
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-827"
-                className="text-[12px] font-medium text-[#8F94A3]"
+                className="text-[13px] font-medium text-[#8F94A3]"
               >
                 {checkedCount}/{totalTasks}
               </span>
               <div
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-830"
-                className="h-[3px] w-[48px] overflow-hidden rounded-full bg-[#F1F2F6]"
+                className="h-[4px] w-[52px] overflow-hidden rounded-full bg-[#F1F2F6]"
               >
                 <div
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-990"
@@ -1192,7 +1192,7 @@ export default function PlanCard({
                     >
                       <span
                         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1175"
-                        className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[10px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[11px]"
+                        className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[11px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[12px]"
                         style={{ backgroundColor: pc.bg, color: pc.text }}
                       >
                         <span
@@ -1210,7 +1210,7 @@ export default function PlanCard({
                     >
                       <span
                         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-986"
-                        className="text-[11px] font-semibold text-[#8F94A3] tabular-nums sm:text-[12px]"
+                        className="text-[12px] font-semibold text-[#8F94A3] tabular-nums sm:text-[13px]"
                       >
                         {formatNum(task.weight)}
                       </span>
