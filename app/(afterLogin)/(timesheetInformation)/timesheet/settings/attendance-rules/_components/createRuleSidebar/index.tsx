@@ -719,7 +719,7 @@ const CreateRuleSidebar = () => {
         deductibleSalaryDays: item.deductibleSalaryDays,
         deductibleFixedAmount: item.deductibleFixedAmount,
         vpDeductionAmount: item.vpDeductionAmount,
-         hasMissedCheckout: item.hasMissedCheckout ?? false,
+        hasMissedCheckout: item.hasMissedCheckout ?? false,
         letterTemplates: normalizeLetterTemplates(
           item.letterTemplates?.length
             ? item.letterTemplates
