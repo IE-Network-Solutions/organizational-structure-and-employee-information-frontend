@@ -4,8 +4,11 @@ import {
   isKeyResultFullyCompletedForPlanning,
   isMilestoneCompleted,
   isMilestoneKeyResult,
+  mergeKeyResultWithUserApi,
   resolveKrPlanningBlocked,
 } from '@/utils/okrKeyResultProgressDisplay';
+
+export { mergeKeyResultWithUserApi };
 export type PlanningTarget = {
   id: string;
   keyResultId: string;
@@ -76,34 +79,6 @@ function findMilestoneInKeyResult(kr: any, milestoneId: string | null) {
   if (!milestoneId || !kr) return null;
   const list = kr.milestones ?? kr.Milestones ?? [];
   return list.find((m: any) => String(m?.id) === String(milestoneId)) ?? null;
-}
-
-/** Merge objective / plan KR payload with user KR API for planning eligibility. */
-export function mergeKeyResultWithUserApi(
-  kr: any,
-  userKeyResultItems: any[],
-): any {
-  const apiKr = userKeyResultItems.find(
-    (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
-  );
-  if (!apiKr) return kr;
-  return {
-    ...kr,
-    ...apiKr,
-    metricType: apiKr.metricType ?? kr?.metricType,
-    key_type: apiKr.key_type ?? kr?.key_type,
-    milestones: (() => {
-      const fromApi = apiKr.milestones ?? apiKr.Milestones;
-      if (Array.isArray(fromApi) && fromApi.length > 0) return fromApi;
-      return kr?.milestones ?? kr?.Milestones ?? [];
-    })(),
-    progress: apiKr.progress ?? kr?.progress,
-    currentValue: apiKr.currentValue ?? kr?.currentValue,
-    targetValue: apiKr.targetValue ?? kr?.targetValue,
-    status: apiKr.status ?? kr?.status,
-    keyResultCompletionStatus:
-      apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
-  };
 }
 
 /** True when the whole KR must not offer planning (+ hidden everywhere). */

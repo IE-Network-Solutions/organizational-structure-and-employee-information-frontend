@@ -1,7 +1,9 @@
 import React from 'react';
-import { Card, Tooltip } from 'antd';
-import { FaLongArrowAltRight } from 'react-icons/fa';
+import { Card, Typography, Button, Tooltip } from 'antd';
+import { ArrowRightOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+
+const { Title, Paragraph } = Typography;
 
 interface CardData {
   id: string;
@@ -18,49 +20,113 @@ const ConversationCard: React.FC<ConversationCardProps> = ({ data }) => {
 
   return (
     <Card
-      className="p-4 flex flex-col items-center shadow-lg rounded-lg h-80 relative"
       data-cy={`feedback-conversation-component-conversation-card-${id}`}
       id={`feedback-conversation-component-conversation-card-${id}`}
+      bordered={false}
+      bodyStyle={{
+        padding: 0,
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+      className="group h-80 overflow-hidden rounded-xl transition-all duration-300 hover:shadow-lg"
+      style={{
+        border: '1px solid #e8e8f0',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+      }}
     >
-      <h3
-        className="text-lg font-semibold mb-2"
-        data-cy={`feedback-conversation-component-conversation-h3-${id}`}
-        id={`feedback-conversation-component-conversation-h3-${id}`}
-      >
-        {name}
-      </h3>
-      <p
-        className="text-gray-600 mb-4 overflow-hidden text-ellipsis"
+      <div
+        data-cy={`feedback-conversation-component-conversation-body-${id}`}
         style={{
-          display: '-webkit-box',
-          WebkitLineClamp: 6,
-          WebkitBoxOrient: 'vertical',
+          padding: '20px 20px 16px',
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          background: 'linear-gradient(160deg, #f8f9ff 0%, #ffffff 60%)',
         }}
-        data-cy={`feedback-conversation-component-conversation-p-${id}`}
-        id={`feedback-conversation-component-conversation-p-${id}`}
       >
-        <Tooltip
-          title={description}
-          data-cy={`feedback-conversation-component-conversation-tooltip-${id}`}
-          id={`feedback-conversation-component-conversation-tooltip-${id}`}
+        <Title
+          level={5}
+          data-cy={`feedback-conversation-component-conversation-h3-${id}`}
+          id={`feedback-conversation-component-conversation-h3-${id}`}
+          style={{
+            margin: '0 0 10px',
+            color: '#1a1a2e',
+            fontSize: 15,
+            fontWeight: 600,
+          }}
         >
-          {description}
-        </Tooltip>
-      </p>
+          {name}
+        </Title>
 
-      <Link
-        href={`/feedback/conversation/${id}`}
-        passHref
-        className="absolute bottom-4 right-4"
-        data-cy={`feedback-conversation-component-conversation-link-${id}`}
-        id={`feedback-conversation-component-conversation-link-${id}`}
-      >
-        <FaLongArrowAltRight
-          className="text-3xl cursor-pointer text-gray-600 hover:text-black"
-          data-cy={`feedback-conversation-component-conversation-icon-arrow-${id}`}
-          id={`feedback-conversation-component-conversation-icon-arrow-${id}`}
-        />
-      </Link>
+        <div
+          data-cy={`feedback-conversation-component-conversation-desc-wrap-${id}`}
+          className="overflow-hidden flex-1"
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 5,
+            WebkitBoxOrient: 'vertical',
+          }}
+        >
+          <Paragraph
+            data-cy={`feedback-conversation-component-conversation-p-${id}`}
+            id={`feedback-conversation-component-conversation-p-${id}`}
+            style={{
+              color: '#6b7280',
+              fontSize: 13,
+              margin: 0,
+              lineHeight: 1.65,
+            }}
+          >
+            <Tooltip
+              title={description}
+              data-cy={`feedback-conversation-component-conversation-tooltip-${id}`}
+              id={`feedback-conversation-component-conversation-tooltip-${id}`}
+            >
+              {description}
+            </Tooltip>
+          </Paragraph>
+        </div>
+
+        <div
+          data-cy={`feedback-conversation-component-conversation-footer-${id}`}
+          style={{
+            marginTop: 'auto',
+            paddingTop: 12,
+            borderTop: '1px solid #f0f0f0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+          }}
+        >
+          <Link
+            href={`/feedback/conversation/${id}`}
+            passHref
+            data-cy={`feedback-conversation-component-conversation-link-${id}`}
+            id={`feedback-conversation-component-conversation-link-${id}`}
+          >
+            <Button
+              type="primary"
+              ghost
+              size="small"
+              style={{
+                borderColor: '#4a6fd5',
+                color: '#4a6fd5',
+                borderRadius: 8,
+                fontWeight: 500,
+                fontSize: 12,
+              }}
+              icon={
+                <ArrowRightOutlined
+                  data-cy={`feedback-conversation-component-conversation-icon-arrow-${id}`}
+                  id={`feedback-conversation-component-conversation-icon-arrow-${id}`}
+                />
+              }
+            >
+              View
+            </Button>
+          </Link>
+        </div>
+      </div>
     </Card>
   );
 };

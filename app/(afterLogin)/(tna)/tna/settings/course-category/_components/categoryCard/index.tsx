@@ -142,7 +142,7 @@ const CourseCategoryCard: FC<CourseCategoryCardProps> = ({
     <div
       className={[
         'flex items-center justify-between px-3 py-2.5 lg:px-4 lg:py-3 rounded-lg transition-colors',
-        isActive ? 'bg-[#E6F4FF]' : 'bg-[#F9FAFB]',
+        isActive ? 'bg-[#E6F4FF]' : 'bg-transparent hover:bg-[#F9FAFB]',
       ].join(' ')}
       id={`tnaCourseCategoryCard${item.id}Id`}
       data-cy={dataCy ?? `tna-course-category-card-${item.id}`}
