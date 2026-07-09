@@ -86,11 +86,17 @@ function DetailPage() {
   const isSelectingAllRef = useRef(false);
 
   const searchParams = useSearchParams();
+  const recognitionTypeIdFromUrl = searchParams?.get('recognitionTypeId') ?? '';
+
+  // Anchor the parent type to the URL so the history table keeps its category
+  // (and rows) even if `searchValue` is briefly cleared during the create flow.
+  const parentRecognitionTypeId =
+    searchValue?.recognitionTypeId || recognitionTypeIdFromUrl || '';
 
   const allRecognitionIdsParams = useMemo(() => {
-    if (!searchValue?.recognitionTypeId) return null;
+    if (!parentRecognitionTypeId) return null;
     return {
-      parentRecognitionTypeId: searchValue.recognitionTypeId ?? '',
+      parentRecognitionTypeId,
       calendarId: searchValue?.calendarId ?? '',
       sessionId: searchValue?.sessionId ?? '',
       monthId: searchValue?.monthId ?? '',
@@ -100,7 +106,7 @@ function DetailPage() {
       pageSize,
     };
   }, [
-    searchValue?.recognitionTypeId,
+    parentRecognitionTypeId,
     searchValue?.calendarId,
     searchValue?.sessionId,
     searchValue?.monthId,
@@ -116,30 +122,27 @@ function DetailPage() {
   );
   const { data: allUserData } = useGetAllUsers();
   const { data: recognitionTypes } = useGetRecognitionTypeParentChildById(
-    searchValue?.recognitionTypeId ?? '',
+    parentRecognitionTypeId,
   );
   const { data: getAllRecognition, isLoading } =
-    useGetRecognitionsByParentRecognitionType({
-      parentRecognitionTypeId: searchValue?.recognitionTypeId ?? '',
-      calendarId: searchValue?.calendarId ?? '',
-      sessionId: searchValue?.sessionId ?? '',
-      monthId: searchValue?.monthId ?? '',
-      recognitionTypeId: searchValue?.childRecognitionTypeId ?? '',
-      userId: searchValue?.userId ?? '',
-      current,
-      pageSize,
-    });
+    useGetRecognitionsByParentRecognitionType(allRecognitionIdsParams);
   const { data: selectedRecognition, isLoading: isSelectedRecognitionLoading } =
     useGetRecognitionById(selectedRecognitionId ?? '');
   const { data: getActiveFisicalYear } = useGetActiveFiscalYears();
   const { data: getAllFisicalYear } = useGetAllFiscalYears();
 
   useEffect(() => {
-    const typeId = searchParams?.get('recognitionTypeId') ?? '';
-    setSelectedRecognitionType(typeId || '1');
-    updateSearchValue('recognitionTypeId', typeId);
+    if (!recognitionTypeIdFromUrl) return;
+
+    setSelectedRecognitionType(recognitionTypeIdFromUrl);
+    updateSearchValue('recognitionTypeId', recognitionTypeIdFromUrl);
     setCurrent(1);
-  }, [searchParams, setCurrent, setSelectedRecognitionType, updateSearchValue]);
+  }, [
+    recognitionTypeIdFromUrl,
+    setCurrent,
+    setSelectedRecognitionType,
+    updateSearchValue,
+  ]);
 
   useEffect(() => {
     if (getActiveFisicalYear) {
@@ -786,7 +789,7 @@ function DetailPage() {
         )}
 
         <div className="" data-cy="recognition-history-table-section">
-          {isLoading ? (
+          {isLoading && !getAllRecognition ? (
             <TableSkeleton columns={columns} />
           ) : (
             <Table<any>

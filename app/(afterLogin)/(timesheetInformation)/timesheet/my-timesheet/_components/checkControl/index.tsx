@@ -17,12 +17,14 @@ import {
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import RemoteAttendanceActionButton from '@/components/common/remoteAttendanceActionButton';
+import { useIsWithinBreakPeriod } from '@/hooks/useIsWithinBreakPeriod';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
   const { userId } = useAuthenticationStore();
   const { checkStatus, currentAttendance, setCurrentAttendance } =
     useMyTimesheetStore();
+  const withinBreakPeriod = useIsWithinBreakPeriod();
   const isSubmitInProgress = useRemoteAttendanceCameraStore(
     (s) => s.isSubmitInProgress,
   );
@@ -124,31 +126,33 @@ const CheckControl = () => {
                 Break Check Out
               </Button>
             </RemoteAttendanceActionButton>
-            <RemoteAttendanceActionButton action={{ isSignIn: false }}>
-              <Button
-                className="h-12 sm:h-14 text-base w-full sm:w-auto"
-                size="large"
-                id="time-attendance-check-control-check-out-button"
-                data-cy="time-attendance-check-control-check-out-button"
-                icon={
-                  <>
-                    <IoLocationOutline
-                      data-cy="time-attendance-check-control-check-out-button-icon"
-                      className="block sm:hidden"
-                      size={20}
-                    />
-                    <GoClock
-                      data-cy="time-attendance-check-control-check-out-button-clock-icon"
-                      className="hidden sm:block"
-                      size={20}
-                    />
-                  </>
-                }
-                loading={loading}
-              >
-                Check out
-              </Button>
-            </RemoteAttendanceActionButton>
+            {!withinBreakPeriod && (
+              <RemoteAttendanceActionButton action={{ isSignIn: false }}>
+                <Button
+                  className="h-12 sm:h-14 text-base w-full sm:w-auto"
+                  size="large"
+                  id="time-attendance-check-control-check-out-button"
+                  data-cy="time-attendance-check-control-check-out-button"
+                  icon={
+                    <>
+                      <IoLocationOutline
+                        data-cy="time-attendance-check-control-check-out-button-icon"
+                        className="block sm:hidden"
+                        size={20}
+                      />
+                      <GoClock
+                        data-cy="time-attendance-check-control-check-out-button-clock-icon"
+                        className="hidden sm:block"
+                        size={20}
+                      />
+                    </>
+                  }
+                  loading={loading}
+                >
+                  Check out
+                </Button>
+              </RemoteAttendanceActionButton>
+            )}
           </AccessGuard>
         </Space>
       );

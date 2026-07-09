@@ -14,6 +14,7 @@ interface JobFormValues {
   employmentType: string;
   jobDeadline: string;
   jobTitle: string;
+  hiringManagerId?: string;
   jobStatus: string;
   jobLocation: string;
   quantity: string;
@@ -30,6 +31,8 @@ interface SearchParams {
   createdDate: string;
   closedDate: string;
 }
+
+export type JobDetailActivePanel = 'chat' | 'notes' | null;
 
 interface JobState {
   addNewDrawer: boolean;
@@ -78,6 +81,9 @@ interface JobState {
 
   searchParams: SearchParams;
   setSearchParams: (key: keyof SearchParams, value: string) => void;
+
+  activePanel: JobDetailActivePanel;
+  setActivePanel: (value: JobDetailActivePanel) => void;
 }
 
 export const useJobState = create<JobState>((set) => ({
@@ -163,4 +169,7 @@ export const useJobState = create<JobState>((set) => ({
       searchParams: { ...state.searchParams, [key]: stringValue },
     }));
   },
+
+  activePanel: null,
+  setActivePanel: (value) => set({ activePanel: value }),
 }));

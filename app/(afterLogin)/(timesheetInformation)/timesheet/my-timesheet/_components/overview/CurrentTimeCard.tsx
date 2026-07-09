@@ -16,7 +16,10 @@ import {
 } from '@/store/uistate/features/timesheet/myTimesheet';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { formatBreakTypeToStatus } from '@/helpers/formatTo';
+import {
+  formatBreakTypeToStatus,
+  isWithinBreakPeriod,
+} from '@/helpers/formatTo';
 import { BreakType } from '@/types/timesheet/breakType';
 import { AttendanceRecord } from '@/types/timesheet/attendance';
 import RemoteAttendanceActionButton from '@/components/common/remoteAttendanceActionButton';
@@ -115,6 +118,12 @@ export default function CurrentTimeCard() {
     [currentAttendance, breakTypes],
   );
 
+  /** Hide the Check-Out button while any configured break period is in progress. */
+  const withinBreakPeriod = useMemo(
+    () => isWithinBreakPeriod(breakTypes, currentTime.toDate()),
+    [breakTypes, currentTime],
+  );
+
   const loading = isSubmitInProgress || isFetching;
 
   return (
@@ -209,19 +218,21 @@ export default function CurrentTimeCard() {
                       </Button>
                     </RemoteAttendanceActionButton>
                   )}
-                  <RemoteAttendanceActionButton action={{ isSignIn: false }}>
-                    <Button
-                      type="primary"
-                      size="large"
-                      icon={<CiLogin size={20} />}
-                      loading={loading}
-                      data-cy="my-timesheet-overview-check-out-button"
-                      id="my-timesheet-overview-check-out-button"
-                      className="px-8 py-6 text-lg font-medium"
-                    >
-                      Check Out
-                    </Button>
-                  </RemoteAttendanceActionButton>
+                  {!withinBreakPeriod && (
+                    <RemoteAttendanceActionButton action={{ isSignIn: false }}>
+                      <Button
+                        type="primary"
+                        size="large"
+                        icon={<CiLogin size={20} />}
+                        loading={loading}
+                        data-cy="my-timesheet-overview-check-out-button"
+                        id="my-timesheet-overview-check-out-button"
+                        className="px-8 py-6 text-lg font-medium"
+                      >
+                        Check Out
+                      </Button>
+                    </RemoteAttendanceActionButton>
+                  )}
                 </Space>
               </AccessGuard>
             )}

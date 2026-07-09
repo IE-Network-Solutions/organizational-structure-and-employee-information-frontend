@@ -5,7 +5,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
-import { IoCloseOutline } from 'react-icons/io5';
 import {
   MdPeople,
   MdPersonSearch,
@@ -103,8 +102,9 @@ interface CustomMenuItem {
 
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module, Subscription } from '@/types/tenant-management';
-import { AiOutlineRight } from 'react-icons/ai';
+import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import Link from 'next/link';
+import { MobileBottomNav } from './MobileBottomNav';
 
 interface MyComponentProps {
   children: ReactNode;
@@ -1474,10 +1474,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          // On mobile, the drawer overlays the whole viewport above header.
-          zIndex: isMobile ? 300 : 100,
+          zIndex: 100,
           backgroundColor: 'var(--nav-sider-background, #eff6ff)',
-          transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
+          // On mobile the bottom nav handles navigation — slide the sidebar fully off-screen.
+          transform: isMobile ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
         }}
         trigger={null}
@@ -1529,22 +1529,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               )}
             </div>
           </div>
-
-          {!isMobile && (
-            <button
-              type="button"
-              data-cy="nav-sider-toggle"
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              onClick={toggleCollapsed}
-              className="absolute -right-3 top-[37px] z-[101] flex h-6 w-6 min-h-6 min-w-6 shrink-0 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-[#1E40AF] text-white shadow-md transition-colors hover:bg-[#1E3A8A] hover:opacity-100"
-            >
-              {collapsed ? (
-                <AiOutlineRight size={12} />
-              ) : (
-                <AiOutlineRight size={12} className="rotate-180" />
-              )}
-            </button>
-          )}
 
           <div
             data-cy="nav-sider-menu-scroll"
@@ -1617,7 +1601,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     >
                       <div
                         data-cy="nav-sider-group-header"
-                        className="mb-2 mt-4 first:mt-2"
+                        className={`mb-2 mt-4 first:mt-2 ${collapsed ? 'text-center' : ''}`}
                       >
                         <Link
                           href={
@@ -1744,6 +1728,57 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           )}
         </div>
+
+        {!isMobile && (
+          <div
+            data-cy="nav-sider-collapse-footer"
+            className={`w-full shrink-0 bg-white/40 pb-2 ${
+              collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
+            }`}
+          >
+            <div
+              data-cy="nav-sider-collapse-inner"
+              className={`max-w-[209px] w-full ${collapsed ? '' : 'pl-2'}`}
+            >
+              <div
+                data-cy="nav-sider-collapse-wrapper"
+                className="flex flex-col w-full"
+              >
+                <div
+                  data-cy="nav-sider-toggle"
+                  role="button"
+                  aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                  onClick={toggleCollapsed}
+                  className={`group flex items-center gap-3 py-2 transition-all duration-200 rounded-[6px] font-medium hover:bg-[#E6F4FF] cursor-pointer text-black ${
+                    collapsed
+                      ? 'justify-center px-0 mx-[10px]'
+                      : 'pl-[5px] -ml-[5px]'
+                  }`}
+                >
+                  <div
+                    data-cy="nav-sider-collapse-icon"
+                    className="text-[21px] transition-colors text-black"
+                  >
+                    {collapsed ? (
+                      <ChevronsRight size={21} />
+                    ) : (
+                      <ChevronsLeft size={21} />
+                    )}
+                  </div>
+                  {!collapsed && (
+                    <span
+                      data-cy="nav-sider-collapse-label"
+                      className="flex-1 transition-colors"
+                      style={{ fontSize }}
+                    >
+                      Collapse
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </Sider>
       <Layout
         style={{
@@ -1761,7 +1796,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           style={{
             padding: 0,
             background: '#fff',
-            display: 'flex',
+            display: isMobile ? 'none' : 'flex',
             alignItems: 'center',
             position: 'fixed',
             width: isMobile
@@ -1797,30 +1832,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           <NavBar handleLogout={handleLogout} />
         </Header>
 
-        {/* Mobile drawer close button: on the right edge of the drawer, aligned with header */}
-        {isMobile && !mobileCollapsed && (
-          <button
-            type="button"
-            data-cy="nav-mobile-drawer-close"
-            onClick={toggleMobileCollapsed}
-            className="fixed z-[320] flex h-8 w-8 min-h-8 min-w-8 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-[#1E40AF] text-white shadow-md transition-colors hover:bg-[#1E3A8A]"
-            style={{
-              top: 30,
-              // Position the close button outside the right edge of the 280px drawer.
-              left: 302,
-            }}
-            aria-label="Close menu"
-          >
-            <IoCloseOutline size={20} />
-          </button>
-        )}
+        {/* Mobile drawer close button: retained for potential future use but not rendered */}
         <Content
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             paddingRight: 0,
-            paddingTop: '74px',
+            paddingTop: isMobile ? 0 : '74px',
+            paddingBottom: isMobile ? 68 : 0,
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
           }}
@@ -1872,6 +1892,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             onConfirm={handleOk}
           />
         </Content>
+
+        {/* Mobile bottom navigation — replaces the hamburger drawer on small screens */}
+        {isMobile && (
+          <MobileBottomNav
+            groups={groupedMenuItems}
+            colorPrimary={colorPrimary}
+          />
+        )}
       </Layout>
     </Layout>
   );

@@ -559,29 +559,30 @@ const EmployeeProfile = () => {
                 >
                   <Card
                     title={
-                      <Text
-                        strong
-                        style={{
-                          fontSize: '16px',
-                          color: '#262626',
-                        }}
+                      <span
+                        className="text-sm font-semibold text-[#4d4d4d]"
                         data-cy="payroll-history-card-title"
                       >
                         {period
                           ? dayjs(period.startDate).format('MMMM-YYYY')
                           : 'Unknown'}
-                      </Text>
+                      </span>
                     }
-                    bordered
+                    bordered={false}
                     style={{
-                      borderRadius: '8px',
-                      border: '1px solid #e0e0e0',
+                      borderRadius: '12px',
+                      background: '#F9FAFB',
+                      boxShadow: 'none',
                     }}
                     headStyle={{
                       borderBottom: 'none',
-                      padding: '16px 20px 0 20px',
+                      padding: '16px 20px 0',
+                      background: '#F9FAFB',
                     }}
-                    bodyStyle={{ padding: '16px 20px' }}
+                    bodyStyle={{
+                      padding: '16px 20px 20px',
+                      background: '#F9FAFB',
+                    }}
                     data-cy="payroll-history-card"
                   >
                     <Row gutter={[16, 16]}>
@@ -606,11 +607,9 @@ const EmployeeProfile = () => {
                         />
                       </Col>
                     </Row>
-                    <Divider
-                      style={{
-                        margin: '12px 0',
-                        borderColor: '#e0e0e0',
-                      }}
+                    <div
+                      className="my-3 border-t border-gray-300"
+                      data-cy="payroll-history-card-divider"
                     />
                     <InfoItem
                       label="Entitled Allowance"
@@ -623,11 +622,9 @@ const EmployeeProfile = () => {
                         value: parseFloat(a.amount || '0').toFixed(2),
                       }))}
                     />
-                    <Divider
-                      style={{
-                        margin: '12px 0',
-                        borderColor: '#e0e0e0',
-                      }}
+                    <div
+                      className="my-3 border-t border-gray-300"
+                      data-cy="payroll-history-card-divider"
                     />
                     <InfoItem
                       label="Entitled Benefit"
@@ -660,11 +657,9 @@ const EmployeeProfile = () => {
                           : []),
                       ]}
                     />
-                    <Divider
-                      style={{
-                        margin: '12px 0',
-                        borderColor: '#e0e0e0',
-                      }}
+                    <div
+                      className="my-3 border-t border-gray-300"
+                      data-cy="payroll-history-card-divider"
                     />
                     <InfoItem
                       label="Entitled Deduction"
@@ -683,11 +678,9 @@ const EmployeeProfile = () => {
                         ) || []),
                       ]}
                     />
-                    <Divider
-                      style={{
-                        margin: '12px 0',
-                        borderColor: '#e0e0e0',
-                      }}
+                    <div
+                      className="my-3 border-t border-gray-300"
+                      data-cy="payroll-history-card-divider"
                     />
                     <Row gutter={16}>
                       <Col span={12}>

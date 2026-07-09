@@ -490,7 +490,9 @@ const AllowedAreaConfigModal = () => {
               >
                 <Checkbox
                   onChange={(event) =>
-                    handleIncludeUsersWithoutDepartmentChange(event.target.checked)
+                    handleIncludeUsersWithoutDepartmentChange(
+                      event.target.checked,
+                    )
                   }
                   data-cy="time-attendance-settings-allowed-area-config-include-users-without-department-checkbox"
                 >

@@ -192,47 +192,6 @@ function getChoiceRows(
     .filter((row): row is NonNullable<typeof row> => row != null);
 }
 
-/** One row per API entry: ordered option labels the respondent selected (MC / checkbox). */
-function getPerRespondentChoiceLabels(
-  question: any,
-  entries: any[],
-  attachRespondents: boolean,
-): { key: string; respondent: string | null; labels: string[] }[] {
-  const fields: any[] = Array.isArray(question.field) ? question.field : [];
-  const keyToLabel = new Map<string, string>();
-  for (const f of fields) {
-    const k = fieldCanonicalKey(f);
-    if (!k) continue;
-    keyToLabel.set(k, f?.value != null ? String(f.value) : k);
-  }
-
-  return entries.map((entry, ei) => {
-    const entryKey =
-      entry?.id != null && String(entry.id) !== ''
-        ? String(entry.id)
-        : `entry-${ei}`;
-    const name = attachRespondents ? extractRespondentDisplayName(entry) : null;
-    const detail = entryResponseDetailArray(entry);
-    const selectedKeys = new Set<string>();
-    const collect = (raw: string) => {
-      const key = resolveAnswerToFieldKey(fields, raw);
-      if (key) selectedKeys.add(key);
-    };
-    if (detail.length === 0) {
-      for (const rawToken of normalizeAnswerValues(entry)) collect(rawToken);
-    } else {
-      for (const r of detail) {
-        for (const rawToken of normalizeAnswerValues(r)) collect(rawToken);
-      }
-    }
-    const labels = fields
-      .map((f) => fieldCanonicalKey(f))
-      .filter((k): k is string => k != null && selectedKeys.has(k))
-      .map((k) => keyToLabel.get(k) ?? k);
-    return { key: entryKey, respondent: name, labels };
-  });
-}
-
 function getFreeTextLines(
   entries: any[],
   attachRespondents: boolean,
@@ -335,7 +294,7 @@ const IndividualResponses = ({ id }: Params) => {
   };
 
   const listPanelClass =
-    'rounded-md border border-gray-200 bg-white p-4 sm:p-5';
+    'rounded-lg border border-[#d9d9d9] bg-white p-4 sm:p-5';
 
   return (
     <div
@@ -398,14 +357,6 @@ const IndividualResponses = ({ id }: Params) => {
               const choiceRows = choiceBased
                 ? getChoiceRows(question, entries, showRespondents)
                 : [];
-              const perRespondentChoices =
-                choiceBased && barSummaryChoice
-                  ? getPerRespondentChoiceLabels(
-                      question,
-                      entries,
-                      showRespondents,
-                    )
-                  : [];
               const textLines =
                 !choiceBased && !isRating
                   ? getFreeTextLines(entries, showRespondents)
@@ -416,14 +367,14 @@ const IndividualResponses = ({ id }: Params) => {
                   key={qid}
                   id={`individual-response-question-${qid}`}
                   data-cy={`individual-response-question-${qid}`}
-                  className="overflow-hidden rounded-md border border-gray-200 bg-white"
+                  className="overflow-hidden rounded-md border border-[#d9d9d9] bg-white"
                 >
                   <button
                     type="button"
                     id={`individual-response-question-${qid}-header`}
                     data-cy={`individual-response-question-${qid}-header`}
                     aria-expanded={isOpen}
-                    className="flex w-full cursor-pointer items-center justify-between gap-3 px-3 py-2.5 text-left"
+                    className="flex w-full cursor-pointer items-center justify-between gap-3 px-[13px] py-[15px] text-left"
                     onClick={() => toggleExpanded(qid)}
                   >
                     <div className="flex min-w-0 flex-1 items-center gap-2">
@@ -478,137 +429,64 @@ const IndividualResponses = ({ id }: Params) => {
                                 <div
                                   id={`individual-response-question-${qid}-bar-summary`}
                                   data-cy={`individual-response-question-${qid}-bar-summary`}
-                                  className="space-y-6"
                                 >
-                                  <div>
-                                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                      Summary
-                                    </p>
-                                    {choiceRows.map((row) => {
-                                      const pct = Math.round(
-                                        (row.count / totalCount) * 100,
-                                      );
-                                      return (
-                                        <SurveyChoiceBarRow
-                                          key={row.id}
-                                          label={row.label}
-                                          pct={pct}
-                                        />
-                                      );
-                                    })}
-                                    <p className="mt-2 text-[11px] text-gray-400">
-                                      {question.fieldType === FieldType.CHECKBOX
-                                        ? 'Each bar is % of respondents who included that option (can exceed 100% in total).'
-                                        : 'Shares add to 100% — one answer per response.'}
-                                    </p>
-                                  </div>
-                                  <div
-                                    id={`individual-response-question-${qid}-per-response`}
-                                    data-cy={`individual-response-question-${qid}-per-response`}
-                                  >
-                                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                      Each response
-                                    </p>
-                                    <div className="max-h-72 space-y-2 overflow-y-auto pr-0.5 scrollbar-hide">
-                                      {perRespondentChoices.map((pr, ri) => (
-                                        <div
-                                          key={pr.key}
-                                          id={`individual-response-question-${qid}-response-${pr.key}`}
-                                          data-cy={`individual-response-question-${qid}-response-${pr.key}`}
-                                          className="rounded-lg border border-gray-200 bg-white px-3 py-2.5"
-                                        >
-                                          {pr.respondent ? (
-                                            <div className="mb-2 text-xs font-semibold text-gray-600">
-                                              {pr.respondent}
-                                            </div>
-                                          ) : perRespondentChoices.length >
-                                            1 ? (
-                                            <div className="mb-2 text-xs font-medium text-gray-500">
-                                              Response {ri + 1}
-                                            </div>
-                                          ) : null}
-                                          {pr.labels.length === 0 ? (
-                                            <p className="text-xs italic text-gray-400">
-                                              No matching option selected
-                                            </p>
-                                          ) : (
-                                            <ul
-                                              className="m-0 flex list-none flex-wrap gap-1.5 p-0"
-                                              aria-label="Selected options"
-                                            >
-                                              {pr.labels.map((lbl, li) => (
-                                                <li key={`${pr.key}-${li}`}>
-                                                  <span
-                                                    className={
-                                                      question.fieldType ===
-                                                      FieldType.CHECKBOX
-                                                        ? 'inline-flex max-w-full items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs leading-snug text-slate-800'
-                                                        : 'inline-flex max-w-full items-center rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs leading-snug text-blue-900'
-                                                    }
-                                                  >
-                                                    {lbl}
-                                                  </span>
-                                                </li>
-                                              ))}
-                                            </ul>
-                                          )}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
+                                  {choiceRows.map((row) => {
+                                    const pct = Math.round(
+                                      (row.count / totalCount) * 100,
+                                    );
+                                    return (
+                                      <SurveyChoiceBarRow
+                                        key={row.id}
+                                        label={row.label}
+                                        pct={pct}
+                                      />
+                                    );
+                                  })}
                                 </div>
                               )
                             ) : (
-                              <>
-                                <div className="mb-2 text-xs font-semibold text-gray-700">
-                                  Choices
-                                </div>
-                                <div className="space-y-2">
-                                  {choiceRows.map((row) => (
-                                    <div
-                                      key={row.id}
-                                      id={`individual-response-question-${qid}-choice-${row.id}`}
-                                      data-cy={`individual-response-question-${qid}-choice-${row.id}`}
-                                      className="rounded border border-gray-200 bg-white px-2.5 py-1.5"
-                                    >
-                                      <div className="flex items-center justify-between gap-3">
-                                        <span className="min-w-0 flex-1 text-sm text-gray-800">
-                                          {row.label}
-                                        </span>
-                                        <span
-                                          className={
-                                            surveyResponseCountBadgeClassName
-                                          }
-                                        >
-                                          Response: {row.count}
-                                        </span>
-                                      </div>
-                                      {showRespondents &&
-                                        row.respondents.length > 0 && (
-                                          <p
-                                            className="mt-1 line-clamp-3 text-xs text-gray-500"
-                                            title={row.respondents.join(', ')}
-                                          >
-                                            {row.respondents.join(', ')}
-                                          </p>
-                                        )}
+                              <div className="space-y-2">
+                                {choiceRows.map((row) => (
+                                  <div
+                                    key={row.id}
+                                    id={`individual-response-question-${qid}-choice-${row.id}`}
+                                    data-cy={`individual-response-question-${qid}-choice-${row.id}`}
+                                    className="rounded border border-gray-200 bg-white px-2.5 py-1.5"
+                                  >
+                                    <div className="flex items-center justify-between gap-3">
+                                      <span className="min-w-0 flex-1 text-sm text-gray-800">
+                                        {row.label}
+                                      </span>
+                                      <span
+                                        className={
+                                          surveyResponseCountBadgeClassName
+                                        }
+                                      >
+                                        Response: {row.count}
+                                      </span>
                                     </div>
-                                  ))}
-                                </div>
-                              </>
+                                    {showRespondents &&
+                                      row.respondents.length > 0 && (
+                                        <p
+                                          className="mt-1 line-clamp-3 text-xs text-gray-500"
+                                          title={row.respondents.join(', ')}
+                                        >
+                                          {row.respondents.join(', ')}
+                                        </p>
+                                      )}
+                                  </div>
+                                ))}
+                              </div>
                             )}
                           </div>
                         ) : (
                           <div className="pt-3">
-                            <div className="mb-2 text-xs font-semibold text-gray-700">
-                              Responses
-                            </div>
                             {textLines.length === 0 ? (
                               <p className="text-sm text-gray-400">
                                 No responses yet.
                               </p>
                             ) : (
-                              <div className="max-h-60 space-y-2 overflow-y-auto scrollbar-hide">
+                              <div className="max-h-96 space-y-2 overflow-y-auto scrollbar-hide">
                                 {textLines.map((line) => (
                                   <div
                                     key={line.key}

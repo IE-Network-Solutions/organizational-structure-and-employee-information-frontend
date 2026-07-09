@@ -16,7 +16,7 @@ export const transformData = (data: any) => {
   const result = {
     createUserDto: {
       firstName: data.userFirstName,
-      middleName: data.userMiddleName,
+      middleName: data.userMiddleName ?? '',
       lastName: data.userLastName,
       email: data.userEmail,
       profileImage: data?.profileImage?.file?.originFileObj ?? '',
