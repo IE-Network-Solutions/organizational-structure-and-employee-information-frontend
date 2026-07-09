@@ -141,7 +141,7 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
         <div
           className="mt-1 h-px bg-[#E5E7EB]"
           style={{
-            width: 'calc(100% + 48px)',
+            width: 'calc(100% + 148px)',
             marginLeft: '-24px',
             maxWidth: 'none',
           }}

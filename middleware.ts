@@ -36,6 +36,7 @@ export function middleware(req: NextRequest) {
       '/authentication/forget-password',
       '/authentication/reset-password',
       '/authentication/2fa',
+      '/verify-email-change',
     ];
     const isPublicSurveyRoute = /^\/surveys\/[^/]+\/?$/.test(pathname);
     const isExcludedPath =

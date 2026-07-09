@@ -23,6 +23,14 @@ const CopilotFloatEntry: React.FC = () => {
   const { token, userId } = useAuthenticationStore();
   const inset = COPILOT_THEME.floatInset;
   const [showHint, setShowHint] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -53,7 +61,9 @@ const CopilotFloatEntry: React.FC = () => {
       className="pointer-events-none z-[1050]"
       style={{
         position: 'fixed',
-        bottom: inset,
+        bottom: isMobile
+          ? `calc(60px + env(safe-area-inset-bottom, 0px) + ${inset}px)`
+          : inset,
         right: showBot ? 0 : inset,
       }}
       data-cy="copilot-float-entry"

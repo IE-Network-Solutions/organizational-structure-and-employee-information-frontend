@@ -4,12 +4,14 @@ import { useGetPlanningPeriodsHierarchy } from '@/store/server/features/okrPlann
 import {
   buildPlanningTargetsFromObjectives,
   buildPlanningTargetsFromDailyHierarchy,
+  filterPlanningTargetsByBlockedKeyResults,
   type PlanningTarget,
 } from './buildPlanningTargets';
 
 export function usePlanningTargets(
   userId: string,
   planningPeriodId: string | undefined,
+  userKeyResultItems: any[] = [],
 ): {
   targets: PlanningTarget[];
   isLoading: boolean;
@@ -23,11 +25,17 @@ export function usePlanningTargets(
 
   const targets = useMemo(() => {
     if (!planningPeriodId) return [];
-    if (isDailyPeriod) {
-      return buildPlanningTargetsFromDailyHierarchy(hierarchy);
-    }
-    return buildPlanningTargetsFromObjectives(objective);
-  }, [planningPeriodId, isDailyPeriod, hierarchy, objective]);
+    const raw = isDailyPeriod
+      ? buildPlanningTargetsFromDailyHierarchy(hierarchy)
+      : buildPlanningTargetsFromObjectives(objective);
+    return filterPlanningTargetsByBlockedKeyResults(raw, userKeyResultItems);
+  }, [
+    planningPeriodId,
+    isDailyPeriod,
+    hierarchy,
+    objective,
+    userKeyResultItems,
+  ]);
 
   return {
     targets,

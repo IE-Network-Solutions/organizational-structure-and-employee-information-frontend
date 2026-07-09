@@ -86,7 +86,7 @@ export default function TaskRow({
 
       {/* Task name */}
       <p
-        className="flex-1 min-w-0 text-[11px] md:text-[13px] font-medium leading-snug text-[#5A5C80] truncate"
+        className="flex-1 min-w-0 text-[13px] md:text-[14px] font-medium leading-snug text-[#5A5C80] truncate"
         title={getTaskName()}
         data-cy="planning-reporting-task-row-title"
       >
@@ -106,7 +106,7 @@ export default function TaskRow({
         </div>
 
         <Tag
-          className="m-0 rounded-[4px] border-none px-1.5 py-0 text-[10px] md:text-[11px] font-bold leading-5"
+          className="m-0 rounded-[4px] border-none px-1.5 py-0 text-[11px] md:text-[12px] font-bold leading-5"
           style={{ backgroundColor: '#E0E7FF', color: '#574CFF' }}
         >
           {formatNumber(task.weight)}
@@ -117,7 +117,7 @@ export default function TaskRow({
           task.target !== 0 &&
           metricType !== 'Milestone' && (
             <Tag
-              className="m-0 rounded-[4px] border-none px-1.5 py-0 text-[10px] md:text-[11px] font-bold leading-5"
+              className="m-0 rounded-[4px] border-none px-1.5 py-0 text-[11px] md:text-[12px] font-bold leading-5"
               style={{ backgroundColor: '#E0E7FF', color: '#574CFF' }}
             >
               t:{formatNumber(task.target)}

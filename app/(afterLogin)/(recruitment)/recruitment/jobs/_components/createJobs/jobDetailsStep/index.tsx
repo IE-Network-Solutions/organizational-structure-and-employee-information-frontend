@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Button,
   DatePicker,
@@ -12,12 +12,23 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { LocationType } from '@/types/enumTypes';
 import { TaRequiredMark } from '../../../../_components/taRequiredMark';
 
 const { TextArea } = Input;
 
 const { Option } = Select;
+
+interface OrgUser {
+  id: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+}
+
+const getUserFullName = (user: OrgUser) =>
+  `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`.trim();
 
 interface JobDetailsStepProps {
   form: FormInstance;
@@ -35,11 +46,22 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
 
   const { data: departments, isLoading: isDepartmentLoading } =
     useGetDepartments();
+  const { data: usersData, isLoading: isUsersLoading } = useGetAllUsers();
+
+  const hiringManagerOptions = useMemo(
+    () =>
+      (usersData?.items || []).map((user: OrgUser) => ({
+        value: user.id,
+        label: getUserFullName(user),
+      })),
+    [usersData?.items],
+  );
 
   const handleContinue = async () => {
     try {
       await form.validateFields([
         'jobTitle',
+        'hiringManagerId',
         'department',
         'jobLocation',
         'jobStatus',
@@ -78,6 +100,33 @@ const JobDetailsStep: React.FC<JobDetailsStepProps> = ({
             className="h-10 rounded-md"
             allowClear
             data-cy="talent-acquisition-create-job-input-job-title"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="hiringManagerId"
+          label={
+            <span
+              className={labelClass}
+              data-cy="talent-acquisition-create-job-label-hiring-manager"
+            >
+              Hiring Manager
+              <TaRequiredMark data-cy="talent-acquisition-create-job-required-hiring-manager" />
+            </span>
+          }
+          rules={[
+            { required: true, message: 'Please select a hiring manager!' },
+          ]}
+        >
+          <Select
+            showSearch
+            placeholder="Select hiring manager"
+            optionFilterProp="label"
+            className="h-10 rounded-md [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!rounded-md [&_.ant-select-selection-item]:!leading-[38px]"
+            loading={isUsersLoading}
+            allowClear
+            options={hiringManagerOptions}
+            data-cy="talent-acquisition-create-job-select-hiring-manager"
           />
         </Form.Item>
 
