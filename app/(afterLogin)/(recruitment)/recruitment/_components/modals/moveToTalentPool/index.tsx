@@ -12,7 +12,11 @@ import React, { useEffect } from 'react';
 
 const { Option } = Select;
 
-const MoveToTalentPool: React.FC = () => {
+interface MoveToTalentPoolProps {
+  jobId?: string;
+}
+
+const MoveToTalentPool: React.FC<MoveToTalentPoolProps> = ({ jobId }) => {
   const [form] = Form.useForm();
 
   const { data: talentPool } = useGetTalentPoolCategory();
@@ -32,12 +36,13 @@ const MoveToTalentPool: React.FC = () => {
   const selectedCandidates = Array.isArray(selectedCandidate)
     ? selectedCandidate
     : [];
-  const inferredJobId =
-    selectedCandidates?.[0]?.jobCandidate?.[0]?.jobInformationId ??
-    selectedCandidates?.[0]?.jobInformationId ??
+  const resolvedJobId =
+    jobId ||
+    selectedCandidates?.[0]?.jobCandidate?.[0]?.jobInformationId ||
+    selectedCandidates?.[0]?.jobInformationId ||
     '';
   const { data: candidatesResponse } = useGetCandidates(
-    inferredJobId,
+    resolvedJobId,
     '',
     '',
     '',
@@ -45,6 +50,7 @@ const MoveToTalentPool: React.FC = () => {
     '',
     500,
     1,
+    { enabled: moveToTalentPoolModal && !!resolvedJobId },
   );
 
   const allCandidates = (candidatesResponse?.items ?? []) as any[];

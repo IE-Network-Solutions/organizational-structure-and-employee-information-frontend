@@ -11,7 +11,47 @@ import DocumentUploadForm from '../allFormData/documentUploadForm';
 import CustomFieldsForm from '../allFormData/customFieldsForm';
 import ButtonContinue from '../allFormData/SaveAndContinueButton';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
+import { useGetRolesWithPermission } from '@/store/server/features/employees/settings/role/queries';
+import { useGetPermissionGroupsWithOutPagination } from '@/store/server/features/employees/settings/groupPermission/queries';
 import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
+
+type RoleWithPermissions = {
+  id: string;
+  name: string;
+  permissions?: { id: string }[];
+};
+
+const getDefaultRole = (roles: RoleWithPermissions[] = []) => {
+  if (!roles.length) return null;
+
+  const employeeRole = roles.find(
+    (role) => role.name?.toLowerCase() === 'User',
+  );
+
+  return employeeRole ?? roles[2] ?? null;
+};
+
+const getDefaultPermissions = (
+  role: RoleWithPermissions | null,
+  groupPermissionData?: {
+    items?: { isBasic?: boolean; permissions?: { id: string }[] }[];
+  },
+) => {
+  const basicGroupPermissions =
+    groupPermissionData?.items
+      ?.filter((item) => item.isBasic)
+      .flatMap((item) => item.permissions ?? []) ?? [];
+
+  const rolePermissions =
+    role?.permissions?.map((permission) => permission.id) ?? [];
+
+  return Array.from(
+    new Set([
+      ...rolePermissions,
+      ...basicGroupPermissions.map((permission) => permission.id),
+    ]),
+  );
+};
 
 const AddEmployeeModal = (props: any) => {
   const [form] = Form.useForm();
@@ -24,10 +64,26 @@ const AddEmployeeModal = (props: any) => {
     setDocumentFileList,
     setSelectedPermissions,
     setSelectedWorkSchedule,
+    employeePrefillData,
+    setEmployeePrefillData,
+    isEmployeeModalFromCandidateMove,
+    setIsEmployeeModalFromCandidateMove,
   } = useEmployeeManagementStore();
   const { mutate: createEmployee, isLoading, isSuccess } = useAddEmployee();
+  const { data: rolesWithPermission } = useGetRolesWithPermission();
+  const { data: groupPermissionData } =
+    useGetPermissionGroupsWithOutPagination();
   const { setTempAllowances } = useEmployeeManagementStore();
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
+
+  useEffect(() => {
+    if (!open || !employeePrefillData) return;
+
+    form.resetFields();
+    form.setFieldsValue(employeePrefillData);
+    setCurrent(0);
+    setEmployeePrefillData(null);
+  }, [open, employeePrefillData, form, setCurrent, setEmployeePrefillData]);
 
   useEffect(() => {
     if (isSuccess) {
@@ -37,11 +93,13 @@ const AddEmployeeModal = (props: any) => {
       setSelectedPermissions([]);
       setSelectedWorkSchedule(null);
       setCurrent(0);
-      setTempAllowances([]); // Clear temp allowances on success
+      setTempAllowances([]);
+      setEmployeePrefillData(null);
+      setIsEmployeeModalFromCandidateMove(false);
       form.resetFields();
       setIsSuccessModalVisible(true);
     }
-  }, [isSuccess, setTempAllowances]);
+  }, [isSuccess, setTempAllowances, setEmployeePrefillData]);
 
   const modalHeader = (
     <div data-cy="add-employee-modal-header-div">
@@ -67,6 +125,63 @@ const AddEmployeeModal = (props: any) => {
     const formData = transformData(allValues);
     createEmployee(formData);
   };
+
+  const handleSkip = async () => {
+    const fieldsToValidate = ['userFirstName', 'userLastName'];
+    if (form.getFieldValue('userMiddleName')) {
+      fieldsToValidate.push('userMiddleName');
+    }
+    if (form.getFieldValue('userEmail')) {
+      fieldsToValidate.push('userEmail');
+    }
+
+    try {
+      await form.validateFields(fieldsToValidate);
+    } catch {
+      NotificationMessage.error({
+        message: 'Please ensure prefilled candidate information is valid',
+      });
+      return;
+    }
+
+    const defaultRole = getDefaultRole(rolesWithPermission);
+    if (!defaultRole) {
+      NotificationMessage.error({
+        message: 'No default role is available. Please add a role first.',
+      });
+      return;
+    }
+
+    const defaultPermissions = getDefaultPermissions(
+      defaultRole,
+      groupPermissionData,
+    );
+    if (!defaultPermissions.length) {
+      NotificationMessage.error({
+        message:
+          'No default permissions are available. Please configure role permissions first.',
+      });
+      return;
+    }
+
+    const allValues = {
+      ...form.getFieldsValue(true),
+      roleId: defaultRole.id,
+      setOfPermission: defaultPermissions,
+    };
+    const formData = transformData(allValues);
+
+    createEmployee(formData, {
+      onError: (error: any) => {
+        NotificationMessage.error({
+          message:
+            error?.response?.data?.message ||
+            error?.message ||
+            'Failed to create employee from candidate data',
+        });
+      },
+    });
+  };
   const handleContinueClick = async () => {
     if (current !== 3) {
       // await form.validateFields();
@@ -82,6 +197,7 @@ const AddEmployeeModal = (props: any) => {
     } else {
       form.resetFields();
       setCurrent(0);
+      setIsEmployeeModalFromCandidateMove(false);
       setOpen(false);
     }
   };
@@ -89,6 +205,8 @@ const AddEmployeeModal = (props: any) => {
   function handleCancel() {
     props?.onClose();
     setTempAllowances([]);
+    setEmployeePrefillData(null);
+    setIsEmployeeModalFromCandidateMove(false);
     form.resetFields();
     setProfileFileList([]);
     setCurrent(0);
@@ -174,6 +292,9 @@ const AddEmployeeModal = (props: any) => {
                 <ButtonContinue
                   handleContinueClick={handleContinueClick}
                   handleBackClick={handleBackClick}
+                  showSkip={isEmployeeModalFromCandidateMove}
+                  onSkipClick={handleSkip}
+                  isSkipLoading={isLoading}
                   data-cy="user-sidebar-button-continue"
                 />
               </>

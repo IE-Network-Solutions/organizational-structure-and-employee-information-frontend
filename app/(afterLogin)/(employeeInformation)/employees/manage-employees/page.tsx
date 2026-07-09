@@ -43,6 +43,7 @@ const ManageEmployees: React.FC<any> = () => {
     setSearchParams,
     setIsMobileFilterVisible,
     isMobileFilterVisible,
+    setIsEmployeeModalFromCandidateMove,
   } = useEmployeeManagementStore();
   const { searchParams } = useEmployeeManagementStore();
   const { mutate: downloadAllFilterData } = useDownloadEmployeeDataByFilter();
@@ -52,6 +53,7 @@ const ManageEmployees: React.FC<any> = () => {
   const { data: EmployeeStatus } = useGetEmployeeStatus();
   const { isMobile } = useIsMobile();
   const showDrawer = () => {
+    setIsEmployeeModalFromCandidateMove(false);
     setOpen(true);
   };
   const onClose = () => {

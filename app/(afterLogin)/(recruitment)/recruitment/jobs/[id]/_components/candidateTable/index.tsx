@@ -480,7 +480,7 @@ const CandidateTable: React.FC<TableProps> = ({ jobId }) => {
         />
       )}
       <EditCandidate jobId={jobId} />
-      <MoveToTalentPool />
+      <MoveToTalentPool jobId={jobId} />
       <DeleteModal
         open={isDeleteModalOpen}
         onCancel={() => setIsDeleteModalOpen(false)}

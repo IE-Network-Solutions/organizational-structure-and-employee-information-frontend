@@ -209,6 +209,16 @@ interface UserState {
   tempAllowances: any[];
   setTempAllowances: (tempAllowances: any[]) => void;
 
+  employeePrefillData: Record<string, unknown> | null;
+  setEmployeePrefillData: (
+    employeePrefillData: Record<string, unknown> | null,
+  ) => void;
+
+  isEmployeeModalFromCandidateMove: boolean;
+  setIsEmployeeModalFromCandidateMove: (
+    isEmployeeModalFromCandidateMove: boolean,
+  ) => void;
+
   employeeDetailActiveTab: string;
   setEmployeeDetailActiveTab: (employeeDetailActiveTab: string) => void;
 }
@@ -394,6 +404,16 @@ export const useEmployeeManagementStore = create<UserState>()(
       })),
     tempAllowances: [],
     setTempAllowances: (tempAllowances: any[]) => set({ tempAllowances }),
+
+    employeePrefillData: null,
+    setEmployeePrefillData: (
+      employeePrefillData: Record<string, unknown> | null,
+    ) => set({ employeePrefillData }),
+
+    isEmployeeModalFromCandidateMove: false,
+    setIsEmployeeModalFromCandidateMove: (
+      isEmployeeModalFromCandidateMove: boolean,
+    ) => set({ isEmployeeModalFromCandidateMove }),
 
     employeeDetailActiveTab: '1',
     setEmployeeDetailActiveTab: (employeeDetailActiveTab: string) =>

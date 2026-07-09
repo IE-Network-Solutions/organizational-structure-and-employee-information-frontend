@@ -14,6 +14,9 @@ import PlanningObjectiveComponent from '../planning/createPlanObjective';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 import AISuggestionsModal from '@/components/ai/AISuggestionsModal';
 import { useMemo, useEffect, useRef } from 'react';
+import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
+import { normalizeUserKeyResultItems } from '../planning/mergeKRPanelGroups';
 
 type FailedTasksByKeyResult = Record<
   string,
@@ -47,6 +50,17 @@ function CreatePlan() {
   };
   const { mutate: createTask, isLoading } = useCreatePlanTasks();
   const { data: objective } = useFetchObjectives(userId);
+  const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
+    useOkrPlanningScope();
+  const { data: userKeyResultsRaw } = useGetUserKeyResult(
+    userId,
+    keyResultFiscalYearId,
+    keyResultSessionId,
+  );
+  const userKeyResultItems = useMemo(
+    () => normalizeUserKeyResultItems(userKeyResultsRaw),
+    [userKeyResultsRaw],
+  );
   const { data: planningPeriods } = AllPlanningPeriods();
   const planningPeriodId = activePlanPeriodId;
 
@@ -647,6 +661,7 @@ function CreatePlan() {
                 handleAddName={handleAddName}
                 weights={weights}
                 failedTasksByKeyResult={failedTasksByKeyResult}
+                userKeyResultItems={userKeyResultItems}
               />
             ) : (
               <PlanningHierarchyComponent
@@ -661,6 +676,7 @@ function CreatePlan() {
                 handleAddName={handleAddName}
                 weights={weights}
                 failedTasksByKeyResult={failedTasksByKeyResult}
+                userKeyResultItems={userKeyResultItems}
               />
             )}
           </Form>

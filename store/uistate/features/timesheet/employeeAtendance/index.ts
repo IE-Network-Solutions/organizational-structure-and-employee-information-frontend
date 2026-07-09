@@ -1,6 +1,7 @@
 import { Key } from 'react';
 import { create, StateCreator } from 'zustand';
 import { RuleViolationQueryParams } from '@/store/server/features/timesheet/attendance/interface';
+import { AttendanceRuleActionStatus } from '@/types/timesheet/attendance';
 
 type EmployeeAttendanceState = {
   isShowEmployeeAttendanceSidebar: boolean;
@@ -21,7 +22,12 @@ type EmployeeAttendanceState = {
   ) => void;
   selectedViolationId: string;
   selectedViolationActionTypes: string[];
-  setSelectedViolation: (id: string, actionTypes: string[]) => void;
+  selectedViolationActionStatus?: AttendanceRuleActionStatus;
+  setSelectedViolation: (
+    id: string,
+    actionTypes: string[],
+    actionStatus?: AttendanceRuleActionStatus,
+  ) => void;
   violationFilters: Partial<RuleViolationQueryParams>;
 };
 
@@ -48,7 +54,11 @@ type EmployeeAttendanceStateAction = {
   setIsShowDeleteRuleViolationModal: (
     isShowDeleteRuleViolationModal: boolean,
   ) => void;
-  setSelectedViolation: (id: string, actionTypes: string[]) => void;
+  setSelectedViolation: (
+    id: string,
+    actionTypes: string[],
+    actionStatus?: AttendanceRuleActionStatus,
+  ) => void;
   setViolationFilters: (filters: Partial<RuleViolationQueryParams>) => void;
 };
 
@@ -112,8 +122,17 @@ const employeeAttendanceSlice: StateCreator<
   },
   selectedViolationId: '',
   selectedViolationActionTypes: [],
-  setSelectedViolation: (id: string, actionTypes: string[]) => {
-    set({ selectedViolationId: id, selectedViolationActionTypes: actionTypes });
+  selectedViolationActionStatus: undefined,
+  setSelectedViolation: (
+    id: string,
+    actionTypes: string[],
+    actionStatus?: AttendanceRuleActionStatus,
+  ) => {
+    set({
+      selectedViolationId: id,
+      selectedViolationActionTypes: actionTypes,
+      selectedViolationActionStatus: actionStatus,
+    });
   },
 });
 

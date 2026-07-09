@@ -112,6 +112,8 @@ export interface JobInformation {
   yearOfExperience: number;
   quantity: number;
   tenantId: string;
+  departmentId?: string | null;
+  hiringManagerId?: string | null;
 }
 
 export interface JobCandidateInformation {
