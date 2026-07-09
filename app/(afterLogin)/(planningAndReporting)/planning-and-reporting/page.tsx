@@ -177,6 +177,7 @@ function Page() {
   } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
     refetchOnMount: 'always',
     staleTime: 0,
+    keepPreviousData: false,
   });
 
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(

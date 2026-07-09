@@ -10,14 +10,12 @@ import {
   useGetPlannedTaskForReport,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useEffect } from 'react';
-import { useQueryClient } from 'react-query';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { CreateReportFormCollapse } from './CreateReportFormCollapse';
 import { computeReportTotalWeight } from './reportFormUtils';
 import { useCreateReportFormEffects } from './useCreateReportFormEffects';
 
 function CreateReport() {
-  const queryClient = useQueryClient();
   const {
     openReportModal,
     setOpenReportModal,
@@ -79,13 +77,6 @@ function CreateReport() {
 
         {
           onSuccess: () => {
-            queryClient.invalidateQueries('okrReports');
-            queryClient.invalidateQueries('okrPlans');
-            queryClient.invalidateQueries('okrUserPlans');
-            queryClient.invalidateQueries('okrPlannedData');
-            queryClient.invalidateQueries('planningPeriodsHierarchy');
-            queryClient.invalidateQueries('fetchObjectives');
-            queryClient.invalidateQueries('ObjectiveInformation');
             onClose();
           },
         },
