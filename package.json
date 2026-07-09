@@ -10,7 +10,9 @@
     "start:test": "pm2 start pwa.ecosystem.config.js",
     "lint": "eslint --rulesdir eslint-rules . --ext .js,.jsx,.ts,.tsx --fix --quiet",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
-    "test": "jest"
+    "test": "jest",
+    "test:okr-progress": "jest utils/okrKeyResultProgressDisplay.test.ts --runInBand",
+    "check:okr-progress": "eslint --rulesdir eslint-rules utils/okrKeyResultProgressDisplay.ts utils/okrKeyResultProgressDisplay.test.ts --ext .ts --quiet && npm run test:okr-progress"
   },
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.0.0",

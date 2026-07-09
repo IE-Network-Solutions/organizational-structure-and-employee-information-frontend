@@ -8,6 +8,8 @@ import { DownOutlined, UpOutlined } from '@ant-design/icons';
 import {
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
+  resolveKrMetricTypeLabel,
+  countKeyResultPlanTasks,
 } from '@/utils/okrKeyResultProgressDisplay';
 import {
   isKeyResultBlockedForPlanning,
@@ -26,6 +28,8 @@ interface KeyResult {
   metricType: {
     name: string;
   };
+  key_type?: string;
+  metricTypeName?: string;
   progress?: string;
   currentValue?: number;
   targetValue?: number;
@@ -121,6 +125,14 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
               const hasTargetValue =
                 kr?.metricType?.name === NAME.ACHIEVE ||
                 kr?.metricType?.name === NAME.MILESTONE;
+              const apiKr = userKeyResultItems.find(
+                (item) =>
+                  item &&
+                  item.deletedAt == null &&
+                  String(item.id) === String(kr.id),
+              );
+              const metricTypeLabel = resolveKrMetricTypeLabel(kr, apiKr);
+              const linkedTaskCount = countKeyResultPlanTasks(kr);
 
               return (
                 <div
@@ -203,17 +215,55 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         )}
                     </div>
 
-                    {/* Row 2: Progress (Left) + Weight/Actions (Right) */}
+                    {/* Row 2: Metric type, tasks, progress (left) + weight/actions (right) */}
                     <div
                       data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-154"
                       className="flex items-center justify-between flex-wrap gap-4 ml-4"
                     >
                       <div
                         data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-155"
-                        className="flex items-center gap-6"
+                        className="flex items-center flex-wrap gap-4 sm:gap-6"
                       >
+                        {metricTypeLabel ? (
+                          <div
+                            data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-metric-type"
+                            className="flex items-center gap-2"
+                          >
+                            <span
+                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-metric-type"
+                              className="rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs font-semibold text-[#574CFF]"
+                            >
+                              {metricTypeLabel}
+                            </span>
+                          </div>
+                        ) : null}
+
+                        {linkedTaskCount > 0 ? (
+                          <div
+                            data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-task-count"
+                            className="flex items-center gap-2"
+                          >
+                            <span
+                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-task-count-label"
+                              className="text-xs flex items-center gap-1.5 text-gray-400"
+                            >
+                              <span
+                                data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-task-count-bullet"
+                                className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                              />
+                              Tasks
+                            </span>
+                            <div
+                              data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-task-count-value"
+                              className="rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs font-bold text-[#574CFF]"
+                            >
+                              {linkedTaskCount}
+                            </div>
+                          </div>
+                        ) : null}
+
                         {/* Achieved / target (all metric types) */}
-                        {kr?.metricType?.name ? (
+                        {metricTypeLabel ? (
                           <div
                             data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-161"
                             className="flex items-center gap-2"

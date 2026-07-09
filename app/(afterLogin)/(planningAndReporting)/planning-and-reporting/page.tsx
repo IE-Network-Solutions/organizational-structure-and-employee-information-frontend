@@ -21,6 +21,7 @@ import { KRLeftPanel } from './_components/planning/PlanningPanelView';
 import type { CommentThreadKind } from './_components/planning/PlanningPanelView';
 import {
   getActiveUnreportedParentPlanContext,
+  enrichPlanSummariesWithUserKeyResults,
   normalizeUserKeyResultItems,
 } from './_components/planning/mergeKRPanelGroups';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
@@ -34,7 +35,9 @@ import {
   useDefaultPlanningPeriods,
   useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
+
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
+import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
 import CreatePlan from './_components/createPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
@@ -67,17 +70,11 @@ function Page() {
     setMobilePlanComposerOpen,
     inlineEditPlanId,
     setInlineEditPlanId,
-    selectedFiscalYearId,
-    selectedSessionIds,
   } = PlanningAndReportingStore();
 
-  /** Fiscal year / session apply to Reports tab and KR fetch when that tab is active; not to active plans list. */
-  const keyResultFiscalYearId =
-    activeTab === 2 ? (selectedFiscalYearId ?? undefined) : undefined;
-  const keyResultSessionId =
-    activeTab === 2 && selectedSessionIds.length > 0
-      ? selectedSessionIds[0]
-      : undefined;
+  const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
+    useOkrPlanningScope();
+
   const { data: planningPeriods } = AllPlanningPeriods();
   const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
   const { isMobile, isTablet } = useIsMobile();
@@ -181,6 +178,7 @@ function Page() {
   } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
     refetchOnMount: 'always',
     staleTime: 0,
+    keepPreviousData: false,
   });
 
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
@@ -202,7 +200,22 @@ function Page() {
 
   const { reportSummaries, reportingItems } = useReportingData();
 
-  const krPanelPlans = activeTab === 2 ? reportSummaries : planSummaries;
+  const enrichedPlanSummaries = useMemo(
+    () =>
+      enrichPlanSummariesWithUserKeyResults(planSummaries, userKeyResultItems),
+    [planSummaries, userKeyResultItems],
+  );
+  const enrichedReportSummaries = useMemo(
+    () =>
+      enrichPlanSummariesWithUserKeyResults(
+        reportSummaries,
+        userKeyResultItems,
+      ),
+    [reportSummaries, userKeyResultItems],
+  );
+
+  const krPanelPlans =
+    activeTab === 2 ? enrichedReportSummaries : enrichedPlanSummaries;
   const krPanelTransformedData =
     activeTab === 2 ? reportingItems : transformedData;
 

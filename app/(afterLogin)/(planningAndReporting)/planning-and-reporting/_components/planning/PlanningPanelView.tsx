@@ -136,7 +136,10 @@ interface OwnerKRGroup {
   avgProgress: number;
 }
 
-export function buildOwnerKRGroups(plans: PlanSummary[]): OwnerKRGroup[] {
+export function buildOwnerKRGroups(
+  plans: PlanSummary[],
+  userKeyResultItems: any[] = [],
+): OwnerKRGroup[] {
   const ownerMap = new Map<
     string,
     { owner: PlanOwner; seenKRs: Set<string>; krs: AggregatedKR[] }
@@ -159,7 +162,9 @@ export function buildOwnerKRGroups(plans: PlanSummary[]): OwnerKRGroup[] {
       entry.seenKRs.add(kr.id);
 
       const allTasks = getAllKRTasks(kr);
-      entry.krs.push(aggregateKeyResultForPanel(kr, allTasks.length));
+      entry.krs.push(
+        aggregateKeyResultForPanel(kr, allTasks.length, userKeyResultItems),
+      );
     }
   }
 
@@ -984,7 +989,7 @@ export function KRLeftPanel({
   planningPickReady = true,
 }: KRPanelProps) {
   const ownerGroups = React.useMemo(() => {
-    const base = buildOwnerKRGroups(plans);
+    const base = buildOwnerKRGroups(plans, userKeyResultItems);
     const merged = enrichOwnerGroupsPlanningBlocked(
       mergeUserKeyResultsIntoOwnerGroups(
         base,
