@@ -19,6 +19,7 @@ interface KPIMetricsProps {
 const KeyResultMetrics: FC<KPIMetricsProps> = ({ keyResult }) => {
   const metricName = getMetricTypeName(keyResult);
   const metricTypeLabel =
+    formatKrMetricTypeDisplayName(getMetricTypeName(keyResult)) ||
     resolveKrMetricTypeLabel(keyResult) ||
     formatKrMetricTypeDisplayName(metricName) ||
     metricName ||

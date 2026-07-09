@@ -19,26 +19,31 @@ type MilestoneRowInput = {
   status?: string | null;
   deletedAt?: string | null;
   tasks?: unknown[];
+  title?: string | null;
+  name?: string | null;
 };
 
 type OkrMilestoneRow = Pick<MilestoneRowInput, 'status' | 'deletedAt'>;
 
-type MilestoneSourceInput = {
-  milestones?: MilestoneRowInput[] | unknown[] | null;
-  Milestones?: MilestoneRowInput[] | unknown[] | null;
-};
+/** Milestone array fields shared by plan, OKR API, and panel KR payloads. */
+export interface KrMilestoneFields {
+  milestones?: unknown[] | null;
+  Milestones?: unknown[] | null;
+}
+
+/** Any payload that may carry plan or OKR milestone arrays. */
+export type KrMilestoneCarrier = KrMilestoneFields | null | undefined;
 
 /**
  * Loose KR payload accepted by display helpers.
  * Call sites use many incompatible Milestone/KR shapes — keep this permissive.
+ * Must extend {@link KrMilestoneFields} so milestone helpers accept panel/API/plan rows.
  */
-export type KeyResultLikeInput = {
+export type KeyResultLikeInput = KrMilestoneFields & {
   metricType?: { name?: string } | string | null;
   key_type?: string | null;
   metricTypeName?: string | null;
   previousMetricTypeName?: string | null;
-  milestones?: unknown[] | null;
-  Milestones?: unknown[] | null;
   tasks?: unknown[] | null;
   parentTask?: unknown[] | null;
   progress?: number | string | null;
@@ -53,17 +58,76 @@ export type KeyResultLikeInput = {
 /** KR-shaped payload accepted by progress display helpers. */
 export type KeyResultProgressInput = KeyResultLikeInput;
 
-/** Canonical display labels for each KR metric type on Plan & Report cards. */
-const KR_METRIC_TYPE_DISPLAY: Record<string, string> = {
+function asMilestoneRows(raw: unknown): MilestoneRowInput[] {
+  if (!Array.isArray(raw)) return [];
+  return raw as MilestoneRowInput[];
+}
+
+function isPlanTaskGroupingMilestone(m: MilestoneRowInput): boolean {
+  const hasTasks = Array.isArray(m?.tasks) && m.tasks.length > 0;
+  const status = String(m?.status ?? '').trim();
+  return hasTasks && status.length === 0;
+}
+
+/**
+ * OKR milestone rows only (status-bearing). Ignores plan-scoped task groupings.
+ */
+export function resolveOkrMilestones(
+  kr?: KrMilestoneCarrier,
+  apiKr?: KrMilestoneCarrier,
+): OkrMilestoneRow[] {
+  const apiList = asMilestoneRows(apiKr?.milestones ?? apiKr?.Milestones);
+  if (apiList.length > 0) {
+    return apiList.filter((m) => m?.deletedAt == null);
+  }
+
+  const krList = asMilestoneRows(kr?.milestones ?? kr?.Milestones);
+  if (krList.length === 0) return [];
+
+  const active = krList.filter((m) => m?.deletedAt == null);
+  if (active.length === 0) return [];
+
+  const okrShaped = active.filter(
+    (m) =>
+      !isPlanTaskGroupingMilestone(m) && String(m?.status ?? '').length > 0,
+  );
+  if (okrShaped.length > 0) return okrShaped;
+
+  if (active.every(isPlanTaskGroupingMilestone)) return [];
+
+  return active;
+}
+
+/** Plan/report milestone rows used only to group tasks (no OKR status yet). */
+export function hasPlanMilestoneTaskGroupings(
+  kr?: KrMilestoneCarrier,
+): boolean {
+  const list = asMilestoneRows(kr?.milestones ?? kr?.Milestones);
+  if (list.length === 0) return false;
+  return list.some(
+    (m) =>
+      m?.deletedAt == null &&
+      (isPlanTaskGroupingMilestone(m) ||
+        (!String(m?.status ?? '').trim() &&
+          ((Array.isArray(m?.tasks) && m.tasks.length > 0) ||
+            Boolean(m?.title) ||
+            Boolean(m?.name)))),
+  );
+}
+
+/** Canonical metric labels — must match OKR `metricType.name` values. */
+const KR_METRIC_TYPE_CANONICAL: Record<string, string> = {
   Achieve: 'Achieve',
   Achieved: 'Achieve',
   Milestone: 'Milestone',
-  Percentage: 'Percent',
-  Percent: 'Percent',
+  Percentage: 'Percentage',
+  Percent: 'Percentage',
   Numeric: 'Numeric',
   Currency: 'Currency',
   KPI: 'KPI',
 };
+
+const KNOWN_METRIC_LABELS = new Set(Object.values(KR_METRIC_TYPE_CANONICAL));
 
 function normalizeMetricToken(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
@@ -101,7 +165,7 @@ export function getMetricTypeName(
   return '' as KeyResultMetricName;
 }
 
-/** Display label for KR cards (Plan & Report panel, OKR-adjacent UIs). */
+/** Display label for KR cards — same spelling as OKR metric type names. */
 export function formatKrMetricTypeDisplayName(
   metric: string | null | undefined,
 ): string {
@@ -110,91 +174,62 @@ export function formatKrMetricTypeDisplayName(
   if (!n || n === 'N/A' || n.toLowerCase() === 'metric') return '';
   const normalized = normalizeMetricToken(n);
   return (
-    KR_METRIC_TYPE_DISPLAY[n] ??
-    KR_METRIC_TYPE_DISPLAY[normalized] ??
-    normalized
+    KR_METRIC_TYPE_CANONICAL[n] ?? KR_METRIC_TYPE_CANONICAL[normalized] ?? n
   );
+}
+
+function resolveExplicitMetricLabel(
+  kr: KeyResultLikeInput | null | undefined,
+): string {
+  const metric = getMetricTypeName(kr);
+  return formatKrMetricTypeDisplayName(metric);
 }
 
 /**
  * Resolve the metric type label shown on Plan & Report KR cards.
- * Merges API / plan fields and infers from structure when metadata is missing.
+ * OKR user-KR API is the source of truth; plan payloads only fill gaps.
  */
 export function resolveKrPanelMetricType(
   kr: KeyResultLikeInput | null | undefined,
+  apiKr?: KeyResultLikeInput | null,
 ): string {
-  if (!kr) return '';
+  // 1. OKR API metric metadata always wins.
+  const apiLabel = resolveExplicitMetricLabel(apiKr);
+  if (apiLabel) return apiLabel;
 
-  const explicitMetric = getMetricTypeName(kr);
-  const explicitLabel = formatKrMetricTypeDisplayName(explicitMetric);
-  if (explicitLabel) return explicitLabel;
+  // 2. Explicit metric on the plan/report payload.
+  const planLabel = resolveExplicitMetricLabel(kr);
+  if (planLabel) return planLabel;
 
-  const milestones = resolveOkrMilestones(kr);
-  if (milestones.length > 0) return 'Milestone';
+  // 3. OKR milestone rows (from API first, then plan KR).
+  if (resolveOkrMilestones(kr, apiKr).length > 0) return 'Milestone';
 
-  const target = getNumericMetricTargetValue(kr);
-  const current = getNumericMetricCurrentValue(kr);
-  const hasProgress =
-    kr.progress !== undefined &&
-    kr.progress !== null &&
-    String(kr.progress).trim() !== '';
-
-  if (target > 0 || current > 0) {
-    return 'Numeric';
+  // 4. Plan milestone task shells indicate a Milestone KR even without OKR status rows.
+  if (
+    hasPlanMilestoneTaskGroupings(apiKr) ||
+    hasPlanMilestoneTaskGroupings(kr)
+  ) {
+    return 'Milestone';
   }
 
-  if (hasProgress) {
-    return 'Achieve';
-  }
-
+  // Never guess Achieve/Numeric/Currency/Percentage from progress or targets alone.
   return '';
 }
 
 /** Resolve a display label from any KR-shaped payload (panel cards, forms, lists). */
 export function resolveKrMetricTypeLabel(
   kr: KeyResultLikeInput | null | undefined,
+  apiKr?: KeyResultLikeInput | null,
 ): string {
-  return resolveKrPanelMetricType(kr);
+  return resolveKrPanelMetricType(kr, apiKr);
 }
 
-function asMilestoneRows(raw: unknown): MilestoneRowInput[] {
-  if (!Array.isArray(raw)) return [];
-  return raw as MilestoneRowInput[];
-}
-
-function isPlanTaskGroupingMilestone(m: MilestoneRowInput): boolean {
-  const hasTasks = Array.isArray(m?.tasks) && m.tasks.length > 0;
-  const status = String(m?.status ?? '').trim();
-  return hasTasks && status.length === 0;
-}
-
-/**
- * OKR milestone rows only (status-bearing). Ignores plan-scoped task groupings.
- */
-export function resolveOkrMilestones(
-  kr: MilestoneSourceInput,
-  apiKr?: MilestoneSourceInput | null,
-): OkrMilestoneRow[] {
-  const apiList = asMilestoneRows(apiKr?.milestones ?? apiKr?.Milestones);
-  if (apiList.length > 0) {
-    return apiList.filter((m) => m?.deletedAt == null);
-  }
-
-  const krList = asMilestoneRows(kr?.milestones ?? kr?.Milestones);
-  if (krList.length === 0) return [];
-
-  const active = krList.filter((m) => m?.deletedAt == null);
-  if (active.length === 0) return [];
-
-  const okrShaped = active.filter(
-    (m) =>
-      !isPlanTaskGroupingMilestone(m) && String(m?.status ?? '').length > 0,
-  );
-  if (okrShaped.length > 0) return okrShaped;
-
-  if (active.every(isPlanTaskGroupingMilestone)) return [];
-
-  return active;
+/** Whether a stored panel label is a known OKR metric (vs a stale guess). */
+export function isKnownKrMetricTypeLabel(
+  label: string | null | undefined,
+): boolean {
+  if (!label) return false;
+  return KNOWN_METRIC_LABELS.has(label.trim());
 }
 
 function coerceMetricTypeObject(
@@ -214,16 +249,13 @@ function coerceMetricTypeObject(
   return undefined;
 }
 
-function withResolvedOkrMilestones<T extends Record<string, unknown>>(
+function withResolvedOkrMilestones<T extends KrMilestoneFields>(
   kr: T,
-  apiKr?: Record<string, unknown> | null,
+  apiKr?: KrMilestoneCarrier,
 ): T & { milestones: OkrMilestoneRow[] } {
   return {
     ...kr,
-    milestones: resolveOkrMilestones(
-      kr as MilestoneSourceInput,
-      apiKr as MilestoneSourceInput | null,
-    ),
+    milestones: resolveOkrMilestones(kr, apiKr),
   };
 }
 
@@ -260,8 +292,8 @@ export function countKeyResultPlanTasks(
 }
 
 export function countKeyResultMilestones(
-  kr: MilestoneSourceInput,
-  apiKr?: MilestoneSourceInput | null,
+  kr?: KrMilestoneCarrier,
+  apiKr?: KrMilestoneCarrier,
 ): number {
   return resolveOkrMilestones(kr, apiKr).length;
 }
@@ -273,9 +305,16 @@ export function isMilestoneCompleted(m: { status?: string | null }): boolean {
   return s === 'completed' || s === 'done' || s === 'achieved';
 }
 
-export function isMilestoneKeyResult(kr: KeyResultProgressInput): boolean {
+export function isMilestoneKeyResult(
+  kr?: KeyResultLikeInput | null,
+  apiKr?: KeyResultLikeInput | null,
+): boolean {
   if (getMetricTypeName(kr) === 'Milestone') return true;
-  return resolveOkrMilestones(kr).length > 0;
+  if (apiKr && getMetricTypeName(apiKr) === 'Milestone') return true;
+  if (resolveOkrMilestones(kr, apiKr).length > 0) return true;
+  return (
+    hasPlanMilestoneTaskGroupings(kr) || hasPlanMilestoneTaskGroupings(apiKr)
+  );
 }
 
 function normalizeKeyResultStatus(kr: {
@@ -346,13 +385,15 @@ export function buildKrPlanningSource(
     const milestones = resolveOkrMilestones({
       milestones: panelKr.milestones ?? [],
     });
-    const metricTypeObj = coerceMetricTypeObject(
-      panelKr.metricType,
-      panelKr.metricType,
-    );
+    const planMilestoneShells = hasPlanMilestoneTaskGroupings({
+      milestones: panelKr.milestones ?? [],
+    });
+    const metricTypeObj =
+      coerceMetricTypeObject(panelKr.metricType, panelKr.metricType) ??
+      (planMilestoneShells ? { name: 'Milestone' } : undefined);
     const source = {
-      metricType: metricTypeObj ?? { name: panelKr.metricType },
-      key_type: panelKr.metricType,
+      metricType: metricTypeObj,
+      key_type: metricTypeObj?.name ?? panelKr.metricType,
       progress: panelKr.progress,
       milestones,
       currentValue: panelKr.currentValue,
@@ -364,13 +405,17 @@ export function buildKrPlanningSource(
       progress: getKeyResultProgressPercent(source),
     };
   }
+
+  const apiMetricType = coerceMetricTypeObject(
+    apiKr.metricType,
+    apiKr.key_type,
+  );
+
   const merged = withResolvedOkrMilestones(
     {
       ...apiKr,
-      metricType:
-        coerceMetricTypeObject(apiKr.metricType, apiKr.key_type) ??
-        coerceMetricTypeObject(panelKr.metricType, panelKr.metricType),
-      key_type: apiKr.key_type ?? panelKr.metricType,
+      metricType: apiMetricType,
+      key_type: apiKr.key_type ?? apiMetricType?.name,
       progress: apiKr.progress ?? panelKr.progress,
       currentValue: apiKr.currentValue ?? panelKr.currentValue,
       targetValue: apiKr.targetValue ?? panelKr.targetValue,
@@ -636,9 +681,12 @@ export function mergeKeyResultWithUserApi(
   );
   if (!apiKr) {
     const milestones = resolveOkrMilestones(kr);
+    const planMilestoneShells = hasPlanMilestoneTaskGroupings(kr);
     const metricTypeObj =
       coerceMetricTypeObject(kr?.metricType, kr?.key_type) ??
-      (milestones.length > 0 ? { name: 'Milestone' } : undefined);
+      (milestones.length > 0 || planMilestoneShells
+        ? { name: 'Milestone' }
+        : undefined);
     const fallback = {
       ...kr,
       milestones,
@@ -652,18 +700,21 @@ export function mergeKeyResultWithUserApi(
     };
   }
 
+  const apiMetricType =
+    coerceMetricTypeObject(apiKr.metricType, apiKr.key_type) ??
+    coerceMetricTypeObject(kr?.metricType, kr?.key_type);
+
   const merged = withResolvedOkrMilestones(
     {
       ...kr,
       ...apiKr,
-      metricType:
-        coerceMetricTypeObject(apiKr.metricType, apiKr.key_type) ??
-        coerceMetricTypeObject(kr?.metricType, kr?.key_type),
-      key_type: apiKr.key_type ?? kr?.key_type,
+      metricType: apiMetricType,
+      key_type: apiKr.key_type ?? apiMetricType?.name ?? kr?.key_type,
       metricTypeName:
         apiKr.metricType?.name ??
         apiKr.metricTypeName ??
         apiKr.key_type ??
+        apiMetricType?.name ??
         kr?.metricTypeName ??
         kr?.key_type ??
         (typeof kr?.metricType === 'object'
@@ -693,3 +744,22 @@ export function enrichKeyResultWithUserApi(
 ): any {
   return mergeKeyResultWithUserApi(kr, userKeyResultItems);
 }
+
+// Compile-time guards — fail `next build` if KR/milestone types drift apart.
+type ExpectTrue<T extends true> = T;
+type AssertKeyResultExtendsMilestoneFields = ExpectTrue<
+  KeyResultLikeInput extends KrMilestoneFields ? true : false
+>;
+type AssertPanelKrAcceptedByMilestoneResolver = ExpectTrue<
+  Parameters<typeof resolveOkrMilestones>[0] extends
+    | KeyResultLikeInput
+    | null
+    | undefined
+    ? true
+    : false
+>;
+const okrProgressTypeGuards: [
+  AssertKeyResultExtendsMilestoneFields,
+  AssertPanelKrAcceptedByMilestoneResolver,
+] = [true, true];
+void okrProgressTypeGuards;

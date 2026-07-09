@@ -10,6 +10,7 @@ import {
   mergeKeyResultWithUserApi,
   resolveKrPanelMetricType,
   resolveKrPlanningBlocked,
+  isKnownKrMetricTypeLabel,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 export { mergeKeyResultWithUserApi };
@@ -76,7 +77,9 @@ export function aggregateKeyResultForPanel(
   );
   const mergedKr = mergeKeyResultWithUserApi(kr, userKeyResultItems);
   const metricType =
-    resolveKrPanelMetricType(mergedKr) || resolveKrPanelMetricType(kr);
+    resolveKrPanelMetricType(mergedKr, apiKr) ||
+    resolveKrPanelMetricType(kr, apiKr) ||
+    (apiKr ? resolveKrPanelMetricType(apiKr) : '');
   const linkedTaskCount = Math.max(
     taskCount,
     countKeyResultPlanTasks(mergedKr),
@@ -255,10 +258,12 @@ export function enrichOwnerGroupsPlanningBlocked(
         planningSource.progress ?? getKeyResultProgressPercent(planningSource);
       const progressLabel = getKeyResultProgressRatioText(planningSource);
       const metricType =
-        resolveKrPanelMetricType(planningSource) ||
         (apiKr ? resolveKrPanelMetricType(apiKr) : '') ||
-        resolveKrPanelMetricType(panelKr) ||
-        panelKr.metricType;
+        resolveKrPanelMetricType(planningSource, apiKr) ||
+        resolveKrPanelMetricType(panelKr, apiKr) ||
+        (isKnownKrMetricTypeLabel(panelKr.metricType)
+          ? panelKr.metricType
+          : '');
       const milestoneCount =
         countKeyResultMilestones(planningSource, apiKr ?? undefined) ||
         panelKr.milestoneCount ||

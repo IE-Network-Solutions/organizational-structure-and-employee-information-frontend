@@ -125,7 +125,13 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
               const hasTargetValue =
                 kr?.metricType?.name === NAME.ACHIEVE ||
                 kr?.metricType?.name === NAME.MILESTONE;
-              const metricTypeLabel = resolveKrMetricTypeLabel(kr);
+              const apiKr = userKeyResultItems.find(
+                (item) =>
+                  item &&
+                  item.deletedAt == null &&
+                  String(item.id) === String(kr.id),
+              );
+              const metricTypeLabel = resolveKrMetricTypeLabel(kr, apiKr);
               const linkedTaskCount = countKeyResultPlanTasks(kr);
 
               return (

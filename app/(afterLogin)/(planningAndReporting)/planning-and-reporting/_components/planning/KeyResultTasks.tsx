@@ -8,6 +8,7 @@ import {
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
   getMetricTypeName,
+  formatKrMetricTypeDisplayName,
   resolveKrMetricTypeLabel,
   getMilestoneProgressCounts,
   getNumericMetricTargetValue,
@@ -26,7 +27,10 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
 }) => {
   const metricName = getMetricTypeName(keyResult);
   const metricTypeLabel =
-    resolveKrMetricTypeLabel(keyResult) || metricName || '';
+    formatKrMetricTypeDisplayName(getMetricTypeName(keyResult)) ||
+    resolveKrMetricTypeLabel(keyResult) ||
+    metricName ||
+    '';
   const krProgressPercent = getKeyResultProgressPercent(keyResult);
   const krProgressRatioText = getKeyResultProgressRatioText(keyResult);
   const { total: msTotal } = getMilestoneProgressCounts(keyResult);

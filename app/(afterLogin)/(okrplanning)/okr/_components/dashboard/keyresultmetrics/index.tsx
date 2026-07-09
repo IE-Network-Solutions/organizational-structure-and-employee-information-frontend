@@ -21,7 +21,11 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Tooltip } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import RecentModesTimelineModal from '../../recentModesTimelineModal';
-import { resolveKrMetricTypeLabel } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  resolveKrMetricTypeLabel,
+  formatKrMetricTypeDisplayName,
+  getMetricTypeName,
+} from '@/utils/okrKeyResultProgressDisplay';
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -179,7 +183,9 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   };
 
   // Check if this is Basic OKR mode with AchieveOrNot metric
-  const metricTypeLabel = resolveKrMetricTypeLabel(keyResult);
+  const metricTypeLabel =
+    formatKrMetricTypeDisplayName(getMetricTypeName(keyResult)) ||
+    resolveKrMetricTypeLabel(keyResult);
   const isBasicAchieveOrNot = isBasicOkr && metricTypeLabel === 'Achieve';
   return (
     <div
@@ -268,7 +274,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
                 data-cy={`okr-key-result-metric-type-${keyResult?.id}`}
                 className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-1' : 'text-xs p-2'} flex items-center rounded-lg`}
               >
-                {metricTypeLabel || keyResult?.metricType?.name || '-'}
+                {metricTypeLabel || '-'}
               </div>
               <div
                 id={`okr-key-result-metric-label-wrapper-${keyResult?.id}`}
