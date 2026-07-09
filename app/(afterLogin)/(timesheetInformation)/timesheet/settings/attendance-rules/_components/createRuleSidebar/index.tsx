@@ -336,6 +336,44 @@ const RULE_TYPE_TOPIC_BY_TYPE: Record<AttendanceRuleType, string> = {
   [AttendanceRuleType.BREAK]: 'Break',
 };
 
+const VP_DEDUCTION_ACTION_RULE_TYPES: AttendanceRuleType[] = [
+  AttendanceRuleType.ABSENT,
+  AttendanceRuleType.MISSED_CHECK_IN_OUT,
+];
+
+const shouldShowVpDeductionAction = (
+  ruleType?: AttendanceRuleType | string,
+  hasMissedCheckout?: boolean,
+): boolean => {
+  if (VP_DEDUCTION_ACTION_RULE_TYPES.includes(ruleType as AttendanceRuleType)) {
+    return true;
+  }
+  return (
+    ruleType === AttendanceRuleType.EARLY_CLOCK_OUT &&
+    Boolean(hasMissedCheckout)
+  );
+};
+
+const filterActionTypesForRule = (
+  ruleType?: AttendanceRuleType | string,
+  actionTypes?: string | string[],
+  hasMissedCheckout?: boolean,
+) => {
+  const types = normalizeActionTypes(actionTypes);
+  if (shouldShowVpDeductionAction(ruleType, hasMissedCheckout)) return types;
+  return types.filter((type) => type !== AttendanceActionType.VP_DEDUCTION);
+};
+
+const shouldShowVpDeductionAmountField = (
+  ruleType?: AttendanceRuleType | string,
+  actionTypes?: string | string[],
+  hasMissedCheckout?: boolean,
+): boolean => {
+  const types = normalizeActionTypes(actionTypes);
+  if (!types.includes(AttendanceActionType.VP_DEDUCTION)) return false;
+  return shouldShowVpDeductionAction(ruleType, hasMissedCheckout);
+};
+
 const getRuleTopic = (
   ruleType?: AttendanceRuleType | string,
   ruleName?: string,
@@ -495,6 +533,7 @@ const buildAttendanceRulePayload = (
   values: Record<string, any>,
   selectedTypeId: string,
   isBreakRule: boolean,
+  ruleType?: AttendanceRuleType | string,
 ): Partial<AttendanceRule> => {
   const effectiveStartDate = values.effectiveStartDate
     ? dayjs(values.effectiveStartDate).format('YYYY-MM-DD')
@@ -506,7 +545,11 @@ const buildAttendanceRulePayload = (
     resetDays: Number(values.resetDays),
     ruleAppliedDays: Number(values.ruleAppliedDays),
     ruleType: resolveRuleTypeId(selectedTypeId) ?? selectedTypeId,
-    actionTypes: values.actionTypes,
+    actionTypes: filterActionTypesForRule(
+      ruleType,
+      values.actionTypes,
+      values.hasMissedCheckout,
+    ) as unknown as AttendanceActionType | string,
     description: values.description,
   };
 
@@ -515,9 +558,11 @@ const buildAttendanceRulePayload = (
     payload.breakType = breakTypeId;
   }
 
-  const actionTypesArray = Array.isArray(values.actionTypes)
-    ? values.actionTypes
-    : [values.actionTypes];
+  const actionTypesArray = filterActionTypesForRule(
+    ruleType,
+    values.actionTypes,
+    values.hasMissedCheckout,
+  );
   if (actionTypesArray.includes(AttendanceActionType.SALARY_DEDUCTION)) {
     payload.isFixed = values.isFixed;
     if (values.isFixed) {
@@ -527,7 +572,13 @@ const buildAttendanceRulePayload = (
     }
   }
 
-  if (actionTypesArray.includes(AttendanceActionType.VP_DEDUCTION)) {
+  if (
+    shouldShowVpDeductionAmountField(
+      ruleType,
+      values.actionTypes,
+      values.hasMissedCheckout,
+    )
+  ) {
     payload.vpDeductionAmount = Number(values.vpDeductionAmount);
   }
 
@@ -542,6 +593,10 @@ const buildAttendanceRulePayload = (
 
   if (values.backtrackEnabled === true) {
     payload.backtrackEnabled = true;
+  }
+
+  if (ruleType === AttendanceRuleType.EARLY_CLOCK_OUT) {
+    payload.hasMissedCheckout = Boolean(values.hasMissedCheckout);
   }
 
   return payload;
@@ -599,11 +654,24 @@ const CreateRuleSidebar = () => {
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState<StepType>(1);
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
+  const hasMissedCheckout = Form.useWatch('hasMissedCheckout', form);
   const [activeTemplateAudience, setActiveTemplateAudience] =
     useState<TemplateAudience>('management');
 
   const selectedRule = attendanceRuleTypesData?.items?.find(
     (rule) => rule.id === selectedTypeId,
+  );
+  const actionTypeOptions = useMemo(
+    () =>
+      ACTION_TYPE_OPTIONS.filter(
+        (option) =>
+          option.value !== AttendanceActionType.VP_DEDUCTION ||
+          shouldShowVpDeductionAction(
+            selectedRule?.ruleType,
+            hasMissedCheckout,
+          ),
+      ),
+    [selectedRule?.ruleType, hasMissedCheckout],
   );
   const breakTypeOptions =
     breakTypesData?.items?.map((breakType) => ({
@@ -641,12 +709,17 @@ const CreateRuleSidebar = () => {
           : undefined,
         resetDays: item.resetDays,
         ruleAppliedDays: item.ruleAppliedDays,
-        actionTypes: item.actionTypes,
+        actionTypes: filterActionTypesForRule(
+          matchingRule?.ruleType,
+          item.actionTypes,
+          item.hasMissedCheckout,
+        ),
         breakType: resolveBreakTypeId(item.breakType as string | BreakType),
         isFixed: item.isFixed,
         deductibleSalaryDays: item.deductibleSalaryDays,
         deductibleFixedAmount: item.deductibleFixedAmount,
         vpDeductionAmount: item.vpDeductionAmount,
+         hasMissedCheckout: item.hasMissedCheckout ?? false,
         letterTemplates: normalizeLetterTemplates(
           item.letterTemplates?.length
             ? item.letterTemplates
@@ -669,6 +742,31 @@ const CreateRuleSidebar = () => {
       setCurrentStep(isLetterAction(item.actionTypes) ? 3 : 2);
     }
   }, [attendanceRuleData, attendanceRuleTypesData?.items, form]);
+
+  useEffect(() => {
+    if (
+      !selectedRule?.ruleType ||
+      shouldShowVpDeductionAction(selectedRule.ruleType, hasMissedCheckout)
+    ) {
+      return;
+    }
+
+    const actionTypes = form.getFieldValue('actionTypes') || [];
+    const actionTypesArray = Array.isArray(actionTypes)
+      ? actionTypes
+      : [actionTypes];
+    if (!actionTypesArray.includes(AttendanceActionType.VP_DEDUCTION)) {
+      return;
+    }
+
+    const filteredActionTypes = actionTypesArray.filter(
+      (type) => type !== AttendanceActionType.VP_DEDUCTION,
+    );
+    form.setFieldsValue({
+      actionTypes: filteredActionTypes,
+      vpDeductionAmount: undefined,
+    });
+  }, [selectedRule?.ruleType, hasMissedCheckout, form]);
 
   useEffect(() => {
     if (isShow && !attendanceRuleId) {
@@ -717,7 +815,13 @@ const CreateRuleSidebar = () => {
       }
     }
 
-    if (actionTypesArray.includes(AttendanceActionType.VP_DEDUCTION)) {
+    if (
+      shouldShowVpDeductionAmountField(
+        selectedRule?.ruleType,
+        actionTypesArray,
+        form.getFieldValue('hasMissedCheckout'),
+      )
+    ) {
       fields.push('vpDeductionAmount');
     }
 
@@ -739,6 +843,7 @@ const CreateRuleSidebar = () => {
       values,
       ruleTypeId,
       !!selectedRule?.isBreak,
+      selectedRule?.ruleType,
     );
 
     if (attendanceRuleId) {
@@ -798,7 +903,7 @@ const CreateRuleSidebar = () => {
           <button
             key={rule.id}
             type="button"
-            className={`rounded-xl border p-6 text-left transition-all bg-[#F3F4F6] hover:border-2 hover:border-gray-200 disabled:cursor-not-allowed disabled:opacity-50 ${isSelected ? 'border-2 border-gray-200' : 'border-transparent'}`}
+            className={`rounded-xl border p-6 text-left transition-all bg-[#F3F4F6] hover:border-2 hover:border-gray-200 disabled:cursor-not-allowed disabled:opacity-50 ${isSelected ? 'border-[4px] border-gray-200' : 'border-transparent'}`}
             onClick={() => setSelectedTypeId(rule.id)}
             id={`time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-${rule.id}`}
             data-cy={`time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-${rule.id}`}
@@ -1002,6 +1107,39 @@ const CreateRuleSidebar = () => {
             </Col>
           )}
 
+          {selectedRule?.ruleType === AttendanceRuleType.EARLY_CLOCK_OUT && (
+            <Col span={24}>
+              <div
+                className="mb-4 rounded-lg border border-[#E8E8E8] bg-[#FAFAFA] p-4"
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-section"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-section"
+              >
+                <Form.Item
+                  name="hasMissedCheckout"
+                  valuePropName="checked"
+                  className="mb-0"
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-field"
+                >
+                  <Checkbox data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-checkbox">
+                    <span
+                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-text"
+                      className="text-sm font-medium text-[#262626]"
+                    >
+                      Missed Clockout
+                    </span>
+                  </Checkbox>
+                </Form.Item>
+                <p
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-description"
+                  className="mb-0 mt-1 pl-6 text-sm text-gray-500"
+                >
+                  Users who have missed clock out after working hours have
+                  ended.
+                </p>
+              </div>
+            </Col>
+          )}
+
           <Col span={24}>
             <Form.Item
               label={
@@ -1055,7 +1193,7 @@ const CreateRuleSidebar = () => {
                 className={actionCheckboxGroupClassName}
                 data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-checkbox"
               >
-                {ACTION_TYPE_OPTIONS.map((option) => (
+                {actionTypeOptions.map((option) => (
                   <Checkbox key={option.value} value={option.value}>
                     <span
                       data-cy={option.dataCy}
@@ -1072,7 +1210,8 @@ const CreateRuleSidebar = () => {
             noStyle
             shouldUpdate={(prevValues, currentValues) =>
               prevValues.actionTypes !== currentValues.actionTypes ||
-              prevValues.isFixed !== currentValues.isFixed
+              prevValues.isFixed !== currentValues.isFixed ||
+              prevValues.hasMissedCheckout !== currentValues.hasMissedCheckout
             }
           >
             {({ getFieldValue }) => {
@@ -1084,8 +1223,10 @@ const CreateRuleSidebar = () => {
               const showSalaryDeductionFields = actionTypesArray.includes(
                 AttendanceActionType.SALARY_DEDUCTION,
               );
-              const showVpDeductionField = actionTypesArray.includes(
-                AttendanceActionType.VP_DEDUCTION,
+              const showVpDeductionField = shouldShowVpDeductionAmountField(
+                selectedRule?.ruleType,
+                actionTypesArray,
+                getFieldValue('hasMissedCheckout'),
               );
               const showAmountInDays =
                 showSalaryDeductionFields && isFixed === false;

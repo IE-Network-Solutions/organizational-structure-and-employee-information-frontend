@@ -35,6 +35,14 @@ import {
   CheckOutlined,
   CloseOutlined,
 } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+
+interface BulkRecognitionItem {
+  id: string;
+  name: string;
+  description: string;
+}
 
 interface RecognitionFormValues {
   id: string;
@@ -143,6 +151,14 @@ const RecognitionForm: React.FC<PropsData> = ({
   );
   const [editingCriteriaName, setEditingCriteriaName] = useState<string>('');
   const [currentStep, setCurrentStep] = useState(0);
+  const [bulkRecognitionItems, setBulkRecognitionItems] = useState<
+    BulkRecognitionItem[]
+  >([]);
+  const [editingBulkItemId, setEditingBulkItemId] = useState<string | null>(
+    null,
+  );
+  const [bulkDraftError, setBulkDraftError] = useState('');
+  const [bulkListError, setBulkListError] = useState('');
 
   const [formulaTokens, setFormulaTokens] = useState<FormulaToken[]>([]);
   const [formulaError, setFormulaError] = useState('');
@@ -219,6 +235,10 @@ const RecognitionForm: React.FC<PropsData> = ({
     setFormulaError('');
     setEditType('');
     setEditingRecognitionCriteriaId('');
+    setBulkRecognitionItems([]);
+    setEditingBulkItemId(null);
+    setBulkDraftError('');
+    setBulkListError('');
     form.setFieldsValue({
       incentiveAmountType: 'Fixed',
       incentiveFixedAmount: undefined,
@@ -512,6 +532,209 @@ const RecognitionForm: React.FC<PropsData> = ({
       </span>
     </span>
   );
+
+  const resetBulkDraft = () => {
+    form.setFieldsValue({ name: '', description: '' });
+    setEditingBulkItemId(null);
+    setBulkDraftError('');
+  };
+
+  const handleAddBulkRecognitionItem = async () => {
+    try {
+      await form.validateFields(['name', 'description']);
+    } catch {
+      return;
+    }
+
+    const trimmedName = String(form.getFieldValue('name') ?? '').trim();
+    const trimmedDescription = String(
+      form.getFieldValue('description') ?? '',
+    ).trim();
+
+    if (!trimmedName) {
+      setBulkDraftError('Please enter the recognition name');
+      return;
+    }
+
+    const duplicateName = bulkRecognitionItems.some(
+      (item) =>
+        item.name.toLowerCase() === trimmedName.toLowerCase() &&
+        item.id !== editingBulkItemId,
+    );
+    if (duplicateName) {
+      setBulkDraftError('A recognition type with this name already exists');
+      return;
+    }
+
+    if (editingBulkItemId) {
+      setBulkRecognitionItems((prev) =>
+        prev.map((item) =>
+          item.id === editingBulkItemId
+            ? {
+                ...item,
+                name: trimmedName,
+                description: trimmedDescription,
+              }
+            : item,
+        ),
+      );
+    } else {
+      setBulkRecognitionItems((prev) => [
+        ...prev,
+        {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          name: trimmedName,
+          description: trimmedDescription,
+        },
+      ]);
+    }
+
+    setBulkListError('');
+    resetBulkDraft();
+  };
+
+  const handleEditBulkRecognitionItem = (item: BulkRecognitionItem) => {
+    form.setFieldsValue({
+      name: item.name,
+      description: item.description,
+    });
+    setEditingBulkItemId(item.id);
+    setBulkDraftError('');
+  };
+
+  const handleDeleteBulkRecognitionItem = (id: string) => {
+    setBulkRecognitionItems((prev) => prev.filter((item) => item.id !== id));
+    if (editingBulkItemId === id) {
+      resetBulkDraft();
+    }
+    setBulkListError('');
+  };
+
+  const mapRecognitionCriteria = () =>
+    selectedCriteria.map((criteria: any) => ({
+      criteriaId: criteria.criteriaId || criteria.id,
+      weight: criteria.weight,
+      operator:
+        criteria.operator && criteria.operator !== ''
+          ? criteria.operator
+          : Object.values(AggregateOperator)[0],
+      condition:
+        criteria.condition && criteria.condition !== ''
+          ? criteria.condition
+          : Object.values(ConditionOperator)[0],
+      value: criteria.value,
+      active: criteria.active !== undefined ? criteria.active : true,
+    }));
+
+  const buildRecognitionTypeEntry = (
+    name: string,
+    description: string,
+    formValues: RecognitionFormValues,
+  ) => {
+    const recognitionCriteria = mapRecognitionCriteria();
+    const parentTypeId =
+      parentRecognitionTypeId && parentRecognitionTypeId.length !== 0
+        ? parentRecognitionTypeId
+        : formValues.parentTypeId || undefined;
+
+    const entry: Record<string, unknown> = {
+      name,
+      description: description ?? '',
+      isMonetized: formValues.isMonetized ?? false,
+      requiresCertification: formValues.requiresCertification ?? false,
+      frequency: formValues.frequency,
+      departmentId: formValues.departmentId,
+    };
+
+    if (parentTypeId) {
+      entry.parentTypeId = parentTypeId;
+    }
+    if (formValues.requiresCertification && formValues.certificationData) {
+      entry.certificationData = formValues.certificationData;
+    }
+    if (recognitionCriteria.length > 0) {
+      entry.recognitionCriteria = recognitionCriteria;
+    }
+
+    return entry;
+  };
+
+  const extractCreatedRecognitionIds = (data: any): string[] => {
+    if (!data) return [];
+
+    const listCandidates = [
+      data?.recognitionTypes,
+      data?.data?.recognitionTypes,
+      data?.items,
+      data?.data?.items,
+      Array.isArray(data) ? data : null,
+      Array.isArray(data?.data) ? data.data : null,
+    ];
+
+    for (const candidate of listCandidates) {
+      if (Array.isArray(candidate)) {
+        return candidate
+          .map((item: any) => item?.id ?? item?.recognitionTypeId)
+          .filter(Boolean)
+          .map(String);
+      }
+    }
+
+    const singleId = data?.id ?? data?.data?.id;
+    return singleId ? [String(singleId)] : [];
+  };
+
+  const buildIncentiveFormulaEntry = (recognitionTypeId: string) => {
+    const amountType = form.getFieldValue('incentiveAmountType') || 'Fixed';
+    const fixedVal = form.getFieldValue('incentiveFixedAmount');
+    const cleanedExpression =
+      Array.isArray(formulaTokens) && formulaTokens.length > 0
+        ? formulaTokens
+            .map((item: FormulaToken) =>
+              item?.type === 'criteria' ? `"${item?.id}"` : item?.name,
+            )
+            .join(' ')
+        : '';
+
+    if (amountType === 'Fixed') {
+      return {
+        recognitionTypeId,
+        isComputed: false,
+        monetizedValue: Number(fixedVal),
+      };
+    }
+
+    return {
+      recognitionTypeId,
+      isComputed: true,
+      expression: cleanedExpression,
+    };
+  };
+
+  const persistIncentiveFormulasForIds = (
+    recognitionTypeIds: string[],
+    onDone: () => void,
+  ) => {
+    if (!recognitionTypeIds.length) {
+      onDone();
+      return;
+    }
+
+    createIncentiveFormula(
+      {
+        formulas: recognitionTypeIds.map((id) =>
+          buildIncentiveFormulaEntry(id),
+        ),
+      },
+      {
+        onSuccess: () => {
+          setFormulaTokens([]);
+          onDone();
+        },
+      },
+    );
+  };
+
   const onFinish = (values: RecognitionFormValues) => {
     if (isFormulaOnlyEdit && selectedRecognitionType) {
       persistIncentiveFormula(selectedRecognitionType, handleWizardClose);
@@ -570,7 +793,12 @@ const RecognitionForm: React.FC<PropsData> = ({
     const { ...rest } = values;
 
     const filteredObj = Object.fromEntries(
-      Object.entries(rest).filter(([key]) => key !== 'criteria'),
+      Object.entries(rest).filter(
+        ([key]) =>
+          !['criteria', 'incentiveAmountType', 'incentiveFixedAmount'].includes(
+            key,
+          ),
+      ),
     );
     const finalValues = {
       ...filteredObj,
@@ -578,37 +806,37 @@ const RecognitionForm: React.FC<PropsData> = ({
         parentRecognitionTypeId && parentRecognitionTypeId.length !== 0
           ? parentRecognitionTypeId
           : undefined,
-      recognitionCriteria: selectedCriteria.map((criteria: any) => ({
-        criteriaId: criteria.criteriaId || criteria.id,
-        weight: criteria.weight,
-        operator:
-          criteria.operator && criteria.operator !== ''
-            ? criteria.operator
-            : Object.values(AggregateOperator)[0],
-        condition:
-          criteria.condition && criteria.condition !== ''
-            ? criteria.condition
-            : Object.values(ConditionOperator)[0],
-        value: criteria.value,
-        active: criteria.active !== undefined ? criteria.active : true,
-      })),
+      recognitionCriteria: mapRecognitionCriteria(),
     };
+
 
     const finishWizard = () => {
       handleWizardClose();
     };
 
     if (selectedRecognitionType === '') {
-      createRecognitionType(finalValues, {
-        onSuccess: (data: any) => {
-          const newId = data?.id ?? data?.data?.id;
-          if (values.isMonetized && newId) {
-            persistIncentiveFormula(newId, finishWizard);
-          } else {
-            finishWizard();
-          }
+      const recognitionItems =
+        bulkRecognitionItems.length > 0
+          ? bulkRecognitionItems
+          : [{ name: values.name, description: values.description ?? '' }];
+
+      createRecognitionType(
+        {
+          recognitionTypes: recognitionItems.map((item) =>
+            buildRecognitionTypeEntry(item.name, item.description, values),
+          ),
         },
-      });
+        {
+          onSuccess: (data: any) => {
+            const createdIds = extractCreatedRecognitionIds(data);
+            if (values.isMonetized && createdIds.length > 0) {
+              persistIncentiveFormulasForIds(createdIds, finishWizard);
+            } else {
+              finishWizard();
+            }
+          },
+        },
+      );
     } else {
       const { ...updatedValues } = finalValues;
       const recognitionId = selectedRecognitionType;
@@ -929,13 +1157,17 @@ const RecognitionForm: React.FC<PropsData> = ({
         },
       );
     } else {
-      createIncentiveFormula(formdata, {
-        onSuccess: () => {
-          setFormulaTokens([]);
-          setFormulaError('');
-          onDone();
+      createIncentiveFormula(
+        {
+          formulas: [buildIncentiveFormulaEntry(recognitionTypeId)],
         },
-      });
+        {
+          onSuccess: () => {
+            setFormulaTokens([]);
+            onDone();
+          },
+        },
+      );
     }
   };
 
@@ -1200,22 +1432,8 @@ const RecognitionForm: React.FC<PropsData> = ({
         styles={{
           body: {
             paddingTop: 0,
-            maxHeight: isMobileViewport
-              ? 'calc(100vh - 220px)'
-              : currentStep === 0 && !isCriteriaOnlyEdit
-                ? 583
-                : showFormulaStep && currentStep === 2
-                  ? 640
-                  : currentStep === 1
-                    ? 583
-                    : 457,
-            overflowY: isMobileViewport
-              ? 'auto'
-              : showFormulaStep && currentStep === 2
-                ? 'auto'
-                : currentStep === 1
-                  ? 'auto'
-                  : 'hidden',
+            overflow: 'visible',
+            maxHeight: 'none',
           },
           content: {
             borderRadius: 12,
@@ -1265,69 +1483,180 @@ const RecognitionForm: React.FC<PropsData> = ({
             }
             data-cy="create-recognition-step-0"
           >
-            <Form.Item
-              label={
-                <span
-                  className="text-black text-sm "
-                  data-cy="create-recognition-form-name-label"
-                >
-                  Name{' '}
-                  <span
-                    style={{ color: 'red' }}
-                    data-cy="create-recognition-form-name-required"
-                  >
-                    *
-                  </span>
-                </span>
-              }
-              name="name"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please enter the recognition name',
-                },
-              ]}
-              data-cy="create-recognition-form-name-field"
-              id="createRecognitionFormNameField"
+            <div
+              className="mb-3 rounded-lg bg-[#F9FAFB] p-3"
+              data-cy="create-recognition-bulk-entry-section"
+              id="createRecognitionBulkEntrySection"
             >
-              <Input
-                placeholder="Enter recognition type name"
-                className="text-xs text-gray-950 h-10"
-                data-cy="create-recognition-form-name-input"
-                id="createRecognitionFormNameInput"
-              />
-            </Form.Item>
+              <Form.Item
+                className="mb-3"
+                label={
+                  <span
+                    className="text-black text-sm "
+                    data-cy="create-recognition-form-name-label"
+                  >
+                    Name{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="create-recognition-form-name-required"
+                    >
+                      *
+                    </span>
+                  </span>
+                }
+                name="name"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter the recognition name',
+                  },
+                ]}
+                data-cy="create-recognition-form-name-field"
+                id="createRecognitionFormNameField"
+              >
+                <Input
+                  placeholder="Enter recognition type name"
+                  className="text-xs text-gray-950 h-10"
+                  data-cy="create-recognition-form-name-input"
+                  id="createRecognitionFormNameInput"
+                />
+              </Form.Item>
 
-            <Form.Item
-              className="text-xs text-gray-950"
-              label={
-                <span
-                  className="text-black text-sm "
-                  data-cy="create-recognition-form-description-label"
-                >
-                  Description{' '}
+              <Form.Item
+                className="mb-2 text-xs text-gray-950"
+                label={
                   <span
-                    style={{ color: 'red' }}
-                    data-cy="create-recognition-form-description-required"
+                    className="text-black text-sm "
+                    data-cy="create-recognition-form-description-label"
                   >
-                    *
+                    Description{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="create-recognition-form-description-required"
+                    >
+                      *
+                    </span>
                   </span>
-                </span>
-              }
-              name="description"
-              rules={[
-                { required: true, message: 'Please enter a description' },
-              ]}
-              data-cy="create-recognition-form-description-field"
-              id="createRecognitionFormDescriptionField"
-            >
-              <SettingsTextArea
-                placeholder="Enter a detailed description"
-                className="text-xs text-gray-950"
-                data-cy="create-recognition-form-description-textarea"
-                id="createRecognitionFormDescriptionTextarea"
-              />
-            </Form.Item>
+                }
+                name="description"
+                rules={[
+                  { required: true, message: 'Please enter a description' },
+                ]}
+                data-cy="create-recognition-form-description-field"
+                id="createRecognitionFormDescriptionField"
+              >
+                <SettingsTextArea
+                  placeholder="Enter a detailed description"
+                  className="text-xs text-gray-950"
+                  data-cy="create-recognition-form-description-textarea"
+                  id="createRecognitionFormDescriptionTextarea"
+                />
+              </Form.Item>
+              {bulkDraftError ? (
+                <div
+                  className="text-red-500 text-xs mb-2"
+                  data-cy="create-recognition-bulk-draft-error"
+                >
+                  {bulkDraftError}
+                </div>
+              ) : null}
+              {!isEditingRecognition ? (
+                <div
+                  data-cy="create-recognition-bulk-add-button-container"
+                  className="flex justify-end"
+                >
+                  <Button
+                    type="primary"
+                    htmlType="button"
+                    className="mt-1 "
+                    onClick={() => void handleAddBulkRecognitionItem()}
+                    data-cy="create-recognition-bulk-add-button"
+                    id="createRecognitionBulkAddButton"
+                  >
+                    {editingBulkItemId ? 'Update' : 'Add'}
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+
+            {bulkListError ? (
+              <div
+                className="text-red-500 text-xs mb-3"
+                data-cy="create-recognition-bulk-list-error"
+              >
+                {bulkListError}
+              </div>
+            ) : null}
+
+            {!isEditingRecognition && bulkRecognitionItems.length > 0 ? (
+              <div
+                className="mb-3 rounded-lg bg-[#F9FAFB] p-2"
+                data-cy="create-recognition-bulk-items-list-wrapper"
+              >
+                <div
+                  className="flex max-h-[148px] flex-col gap-2 overflow-y-auto pr-1 scrollbar-none"
+                  data-cy="create-recognition-bulk-items-list"
+                  id="createRecognitionBulkItemsList"
+                >
+                  {bulkRecognitionItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex shrink-0 items-start justify-between gap-3 rounded-lg border border-[#D9D9D9] bg-white px-4 py-2.5"
+                      data-cy={`create-recognition-bulk-item-${item.id}`}
+                      id={`createRecognitionBulkItem${item.id}`}
+                    >
+                      <div
+                        data-cy="create-recognition-bulk-item-name-container"
+                        className="min-w-0 flex-1"
+                      >
+                        <div
+                          className="text-sm font-medium text-gray-900 truncate"
+                          data-cy={`create-recognition-bulk-item-name-${item.id}`}
+                        >
+                          {item.name}
+                        </div>
+                        {item.description ? (
+                          <div
+                            className="text-xs text-gray-500 mt-0.5 line-clamp-1"
+                            data-cy={`create-recognition-bulk-item-description-${item.id}`}
+                          >
+                            {item.description}
+                          </div>
+                        ) : null}
+                      </div>
+                      <div
+                        data-cy="create-recognition-bulk-item-actions-container"
+                        className="flex items-center gap-2 shrink-0"
+                      >
+                        <button
+                          type="button"
+                          className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
+                          onClick={() => handleEditBulkRecognitionItem(item)}
+                          data-cy={`create-recognition-bulk-item-edit-${item.id}`}
+                          id={`createRecognitionBulkItemEdit${item.id}`}
+                        >
+                          <EditOutlinedIcon
+                            fontSize="small"
+                            className="text-sm"
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          className="flex items-center justify-center text-red-500 hover:text-red-600w-6 h-6 border-[1px] border-red-500 rounded-md"
+                          onClick={() =>
+                            handleDeleteBulkRecognitionItem(item.id)
+                          }
+                          data-cy={`create-recognition-bulk-item-delete-${item.id}`}
+                          id={`createRecognitionBulkItemDelete${item.id}`}
+                        >
+                          <CloseOutlinedIcon fontSize="small" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           {!createCategory && (
@@ -1848,7 +2177,9 @@ const RecognitionForm: React.FC<PropsData> = ({
                   return (
                     <div
                       className={
-                        currentStep === 0 ? 'flex flex-col gap-3' : 'hidden'
+                        currentStep === 0
+                          ? 'mb-3 flex flex-col gap-3'
+                          : 'hidden'
                       }
                       data-cy="create-recognition-form-options"
                     >
@@ -1975,7 +2306,7 @@ const RecognitionForm: React.FC<PropsData> = ({
               <div
                 className={
                   currentStep === 0
-                    ? 'grid grid-cols-1 md:grid-cols-2 gap-4 pt-2'
+                    ? 'grid grid-cols-1 gap-4 pb-1 md:grid-cols-2'
                     : 'hidden'
                 }
                 data-cy="create-recognition-form-frequency-department-row"
@@ -2559,12 +2890,27 @@ const RecognitionForm: React.FC<PropsData> = ({
                     return;
                   }
                   if (currentStep === 0) {
-                    await form.validateFields([
-                      'name',
-                      'description',
-                      'frequency',
-                      'departmentId',
-                    ]);
+                    if (!isEditingRecognition) {
+                      if (bulkRecognitionItems.length === 0) {
+                        setBulkListError(
+                          'Please add at least one recognition type',
+                        );
+                        return;
+                      }
+                      setBulkListError('');
+                      form.setFieldsValue({
+                        name: bulkRecognitionItems[0].name,
+                        description: bulkRecognitionItems[0].description ?? '',
+                      });
+                      await form.validateFields(['frequency', 'departmentId']);
+                    } else {
+                      await form.validateFields([
+                        'name',
+                        'description',
+                        'frequency',
+                        'departmentId',
+                      ]);
+                    }
                     setCurrentStep(1);
                     return;
                   }
