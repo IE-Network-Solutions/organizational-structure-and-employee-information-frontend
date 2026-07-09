@@ -171,9 +171,6 @@ function Page() {
     userId,
   } = usePlanningData();
 
-  const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
-    useOkrPlanningScope();
-
   const {
     data: userKeyResultsRaw,
     isLoading: userKeyResultsLoading,
