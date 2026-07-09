@@ -1,11 +1,19 @@
 import type { PlanOwner, PlanSummary } from '../types';
 import {
   buildKrPlanningSource,
+  countKeyResultMilestones,
+  countKeyResultPlanTasks,
+  enrichKeyResultWithUserApi,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
   isKeyResultFullyCompletedForPlanning,
+  mergeKeyResultWithUserApi,
+  resolveKrPanelMetricType,
   resolveKrPlanningBlocked,
+  isKnownKrMetricTypeLabel,
 } from '@/utils/okrKeyResultProgressDisplay';
+
+export { mergeKeyResultWithUserApi };
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
 export interface KRPanelAggregatedKR {
@@ -20,6 +28,7 @@ export interface KRPanelAggregatedKR {
   isDeleted: boolean;
   planningBlocked: boolean;
   milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+  milestoneCount?: number;
 }
 
 export interface KRPanelOwnerGroup {
@@ -41,30 +50,69 @@ export function normalizeUserKeyResultItems(data: unknown): any[] {
   return [];
 }
 
+/**
+ * Apply OKR user-KR API data (metric type, milestones, progress) to plan summaries.
+ */
+export function enrichPlanSummariesWithUserKeyResults(
+  plans: PlanSummary[],
+  userKeyResultItems: any[],
+): PlanSummary[] {
+  if (!plans?.length || !userKeyResultItems?.length) return plans;
+  return plans.map((plan) => ({
+    ...plan,
+    keyResults: (plan.keyResults ?? []).map((kr) =>
+      enrichKeyResultWithUserApi(kr, userKeyResultItems),
+    ),
+  }));
+}
+
 /** Normalize any KR payload (plan, report, or user API) for the left KR panel cards. */
 export function aggregateKeyResultForPanel(
   kr: any,
   taskCount = 0,
+  userKeyResultItems: any[] = [],
 ): KRPanelAggregatedKR {
+  const apiKr = userKeyResultItems.find(
+    (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
+  );
+  const mergedKr = mergeKeyResultWithUserApi(kr, userKeyResultItems);
   const metricType =
-    kr?.metricType?.name || kr?.key_type || kr?.metricType || 'N/A';
-  return {
-    id: String(kr.id),
-    title: (kr.title || kr.name || 'Untitled KR').trim() || 'Untitled KR',
-    progress: getKeyResultProgressPercent(kr),
+    resolveKrPanelMetricType(mergedKr, apiKr) ||
+    resolveKrPanelMetricType(kr, apiKr) ||
+    (apiKr ? resolveKrPanelMetricType(apiKr) : '');
+  const linkedTaskCount = Math.max(
     taskCount,
+    countKeyResultPlanTasks(mergedKr),
+    countKeyResultPlanTasks(kr),
+  );
+  const milestoneCount = countKeyResultMilestones(kr, apiKr ?? undefined);
+  return {
+    id: String(mergedKr.id ?? kr.id),
+    title:
+      (mergedKr.title || mergedKr.name || 'Untitled KR').trim() ||
+      'Untitled KR',
+    progress: getKeyResultProgressPercent(mergedKr),
+    taskCount: linkedTaskCount,
     metricType,
-    targetValue: kr.targetValue ?? 0,
-    currentValue: kr.currentValue ?? 0,
-    progressLabel: getKeyResultProgressRatioText(kr),
-    isDeleted: kr.deletedAt != null,
-    planningBlocked: isKeyResultFullyCompletedForPlanning(kr),
-    milestones: kr.milestones ?? kr.Milestones ?? [],
+    targetValue: mergedKr.targetValue ?? 0,
+    currentValue: mergedKr.currentValue ?? 0,
+    progressLabel: getKeyResultProgressRatioText(mergedKr),
+    isDeleted: mergedKr.deletedAt != null,
+    planningBlocked: isKeyResultFullyCompletedForPlanning(mergedKr),
+    milestones: mergedKr.milestones ?? mergedKr.Milestones ?? [],
+    milestoneCount,
   };
 }
 
-function apiKRToAggregated(kr: any): KRPanelAggregatedKR {
-  return aggregateKeyResultForPanel(kr, 0);
+function apiKRToAggregated(
+  kr: any,
+  userKeyResultItems: any[] = [],
+): KRPanelAggregatedKR {
+  return aggregateKeyResultForPanel(
+    kr,
+    countKeyResultPlanTasks(kr),
+    userKeyResultItems,
+  );
 }
 
 function recalcAvgProgress(krs: KRPanelAggregatedKR[]): number {
@@ -117,7 +165,7 @@ export function mergeUserKeyResultsIntoOwnerGroups(
     const id = String(raw.id);
     if (seen.has(id)) continue;
     seen.add(id);
-    orphans.push(apiKRToAggregated(raw));
+    orphans.push(apiKRToAggregated(raw, userKeyResultItems));
   }
 
   if (orphans.length === 0) {
@@ -203,25 +251,51 @@ export function enrichOwnerGroupsPlanningBlocked(
   return groups.map((group) => ({
     ...group,
     krs: group.krs.map((panelKr) => {
-      const apiKr = apiById.get(panelKr.id);
+      const apiKr = apiById.get(String(panelKr.id));
       const planningSource = buildKrPlanningSource(panelKr, apiKr);
       const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
-      const apiProgress = apiKr
-        ? getKeyResultProgressPercent(planningSource)
-        : 0;
-      const progress = Math.max(panelKr.progress, apiProgress);
-      const progressLabel = apiKr
-        ? getKeyResultProgressRatioText(planningSource)
-        : panelKr.progressLabel;
+      const progress =
+        planningSource.progress ?? getKeyResultProgressPercent(planningSource);
+      const progressLabel = getKeyResultProgressRatioText(planningSource);
+      const metricType =
+        (apiKr ? resolveKrPanelMetricType(apiKr) : '') ||
+        resolveKrPanelMetricType(planningSource, apiKr) ||
+        resolveKrPanelMetricType(panelKr, apiKr) ||
+        (isKnownKrMetricTypeLabel(panelKr.metricType)
+          ? panelKr.metricType
+          : '');
+      const milestoneCount =
+        countKeyResultMilestones(planningSource, apiKr ?? undefined) ||
+        panelKr.milestoneCount ||
+        0;
+      const linkedTaskCount = Math.max(
+        panelKr.taskCount,
+        countKeyResultPlanTasks(planningSource),
+        apiKr ? countKeyResultPlanTasks(apiKr) : 0,
+      );
 
       if (
         planningBlocked === panelKr.planningBlocked &&
         progress === panelKr.progress &&
-        progressLabel === panelKr.progressLabel
+        progressLabel === panelKr.progressLabel &&
+        metricType === panelKr.metricType &&
+        linkedTaskCount === panelKr.taskCount &&
+        milestoneCount === panelKr.milestoneCount
       ) {
         return panelKr;
       }
-      return { ...panelKr, planningBlocked, progress, progressLabel };
+      return {
+        ...panelKr,
+        planningBlocked,
+        progress,
+        progressLabel,
+        metricType,
+        taskCount: linkedTaskCount,
+        milestoneCount,
+        milestones: planningSource.milestones ?? panelKr.milestones,
+        currentValue: planningSource.currentValue ?? panelKr.currentValue,
+        targetValue: planningSource.targetValue ?? panelKr.targetValue,
+      };
     }),
   }));
 }
