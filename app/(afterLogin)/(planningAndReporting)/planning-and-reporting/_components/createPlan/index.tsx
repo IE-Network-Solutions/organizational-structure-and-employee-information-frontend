@@ -15,7 +15,6 @@ import useClickStatus from '@/store/uistate/features/planningAndReporting/planin
 import AISuggestionsModal from '@/components/ai/AISuggestionsModal';
 import { useMemo, useEffect, useRef } from 'react';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
-import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
 import { normalizeUserKeyResultItems } from '../planning/mergeKRPanelGroups';
 
 type FailedTasksByKeyResult = Record<
@@ -50,13 +49,7 @@ function CreatePlan() {
   };
   const { mutate: createTask, isLoading } = useCreatePlanTasks();
   const { data: objective } = useFetchObjectives(userId);
-  const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
-    useOkrPlanningScope();
-  const { data: userKeyResultsRaw } = useGetUserKeyResult(
-    userId,
-    keyResultFiscalYearId,
-    keyResultSessionId,
-  );
+  const { data: userKeyResultsRaw } = useGetUserKeyResult(userId);
   const userKeyResultItems = useMemo(
     () => normalizeUserKeyResultItems(userKeyResultsRaw),
     [userKeyResultsRaw],

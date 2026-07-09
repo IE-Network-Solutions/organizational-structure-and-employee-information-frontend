@@ -90,7 +90,7 @@ const getKeyResultByUser = async (
 
 type UserKeyResultQueryOptions = Pick<
   UseQueryOptions<ResponseData>,
-  'refetchOnMount' | 'staleTime' | 'keepPreviousData'
+  'refetchOnMount' | 'staleTime'
 >;
 
 export const useGetUserKeyResult = (
