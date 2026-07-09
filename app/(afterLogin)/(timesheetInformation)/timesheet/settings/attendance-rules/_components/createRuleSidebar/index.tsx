@@ -354,16 +354,6 @@ const shouldShowVpDeductionAction = (
   );
 };
 
-const filterActionTypesForRule = (
-  ruleType?: AttendanceRuleType | string,
-  actionTypes?: string | string[],
-  hasMissedCheckout?: boolean,
-) => {
-  const types = normalizeActionTypes(actionTypes);
-  if (shouldShowVpDeductionAction(ruleType, hasMissedCheckout)) return types;
-  return types.filter((type) => type !== AttendanceActionType.VP_DEDUCTION);
-};
-
 const shouldShowVpDeductionAmountField = (
   ruleType?: AttendanceRuleType | string,
   actionTypes?: string | string[],
@@ -545,11 +535,9 @@ const buildAttendanceRulePayload = (
     resetDays: Number(values.resetDays),
     ruleAppliedDays: Number(values.ruleAppliedDays),
     ruleType: resolveRuleTypeId(selectedTypeId) ?? selectedTypeId,
-    actionTypes: filterActionTypesForRule(
-      ruleType,
-      values.actionTypes,
-      values.hasMissedCheckout,
-    ) as unknown as AttendanceActionType | string,
+    actionTypes: normalizeActionTypes(values.actionTypes) as unknown as
+      | AttendanceActionType
+      | string,
     description: values.description,
   };
 
@@ -558,11 +546,7 @@ const buildAttendanceRulePayload = (
     payload.breakType = breakTypeId;
   }
 
-  const actionTypesArray = filterActionTypesForRule(
-    ruleType,
-    values.actionTypes,
-    values.hasMissedCheckout,
-  );
+  const actionTypesArray = normalizeActionTypes(values.actionTypes);
   if (actionTypesArray.includes(AttendanceActionType.SALARY_DEDUCTION)) {
     payload.isFixed = values.isFixed;
     if (values.isFixed) {
@@ -661,18 +645,7 @@ const CreateRuleSidebar = () => {
   const selectedRule = attendanceRuleTypesData?.items?.find(
     (rule) => rule.id === selectedTypeId,
   );
-  const actionTypeOptions = useMemo(
-    () =>
-      ACTION_TYPE_OPTIONS.filter(
-        (option) =>
-          option.value !== AttendanceActionType.VP_DEDUCTION ||
-          shouldShowVpDeductionAction(
-            selectedRule?.ruleType,
-            hasMissedCheckout,
-          ),
-      ),
-    [selectedRule?.ruleType, hasMissedCheckout],
-  );
+  const actionTypeOptions = ACTION_TYPE_OPTIONS;
   const breakTypeOptions =
     breakTypesData?.items?.map((breakType) => ({
       label: (
@@ -709,11 +682,7 @@ const CreateRuleSidebar = () => {
           : undefined,
         resetDays: item.resetDays,
         ruleAppliedDays: item.ruleAppliedDays,
-        actionTypes: filterActionTypesForRule(
-          matchingRule?.ruleType,
-          item.actionTypes,
-          item.hasMissedCheckout,
-        ),
+        actionTypes: normalizeActionTypes(item.actionTypes),
         breakType: resolveBreakTypeId(item.breakType as string | BreakType),
         isFixed: item.isFixed,
         deductibleSalaryDays: item.deductibleSalaryDays,
@@ -745,27 +714,20 @@ const CreateRuleSidebar = () => {
 
   useEffect(() => {
     if (
-      !selectedRule?.ruleType ||
-      shouldShowVpDeductionAction(selectedRule.ruleType, hasMissedCheckout)
+      shouldShowVpDeductionAmountField(
+        selectedRule?.ruleType,
+        form.getFieldValue('actionTypes'),
+        hasMissedCheckout,
+      )
     ) {
       return;
     }
 
-    const actionTypes = form.getFieldValue('actionTypes') || [];
-    const actionTypesArray = Array.isArray(actionTypes)
-      ? actionTypes
-      : [actionTypes];
-    if (!actionTypesArray.includes(AttendanceActionType.VP_DEDUCTION)) {
+    if (form.getFieldValue('vpDeductionAmount') === undefined) {
       return;
     }
 
-    const filteredActionTypes = actionTypesArray.filter(
-      (type) => type !== AttendanceActionType.VP_DEDUCTION,
-    );
-    form.setFieldsValue({
-      actionTypes: filteredActionTypes,
-      vpDeductionAmount: undefined,
-    });
+    form.setFieldsValue({ vpDeductionAmount: undefined });
   }, [selectedRule?.ruleType, hasMissedCheckout, form]);
 
   useEffect(() => {

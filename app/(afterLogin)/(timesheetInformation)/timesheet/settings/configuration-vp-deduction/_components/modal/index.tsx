@@ -408,7 +408,7 @@ const ConfigureVpDeductionModal = () => {
             >
               <InputNumber
                 className={controlClass}
-                placeholder="Add number of Days"
+                placeholder="Add the VP points to be deducted"
                 min={0}
                 controls={false}
                 id="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount"
