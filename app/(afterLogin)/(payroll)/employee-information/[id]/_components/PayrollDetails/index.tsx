@@ -124,6 +124,14 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
                     },
                   ]
                 : []),
+              ...(activeMergedPayroll?.breakdown?.incentives
+                ? [
+                    {
+                      type: 'Incentive',
+                      amount: activeMergedPayroll?.breakdown?.incentives.amount,
+                    },
+                  ]
+                : []),
             ])}
           </div>
           <div
