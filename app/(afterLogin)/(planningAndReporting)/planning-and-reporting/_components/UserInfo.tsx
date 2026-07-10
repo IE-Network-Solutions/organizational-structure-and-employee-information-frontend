@@ -9,7 +9,6 @@ interface UserInfoProps {
 }
 
 export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
-  // Check if owner data is still loading (showing placeholder values)
   const isLoading =
     owner.name === 'Unknown User' ||
     owner.name === '' ||
@@ -17,7 +16,6 @@ export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
     owner.role === '';
 
   if (isLoading) {
-    // Show skeleton/shadow loading state
     return (
       <div
         data-cy="-planningandreporting-planning-and-reporting-components-userinfo-tsx-userinfo-div-22"
@@ -99,7 +97,7 @@ export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
           {owner.name}
         </p>
         <p
-          className="text-xs md:text-sm leading-tight text-[#8F94A3] truncate"
+          className="text-[13px] leading-tight text-[#8F94A3] truncate"
           title={owner.role}
           data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-115"
         >

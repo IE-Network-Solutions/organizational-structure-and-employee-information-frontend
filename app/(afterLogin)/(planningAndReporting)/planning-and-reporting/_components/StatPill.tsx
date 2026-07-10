@@ -21,7 +21,6 @@ const variantStyles: Record<string, { bg: string; text: string }> = {
   default: { bg: '#F4F5FB', text: '#5A5C80' },
 };
 
-// Text color for labels (always gray)
 const labelTextColor = '#8F94A3';
 
 export default function StatPill({
@@ -38,7 +37,7 @@ export default function StatPill({
     >
       {label && (
         <span
-          className="text-xs font-normal flex items-center"
+          className="text-[13px] font-normal flex items-center"
           style={{ color: labelTextColor }}
           data-cy="planningandreporting-planning-and-reporting-components-statpill-tsx-span-40"
         >
@@ -57,7 +56,7 @@ export default function StatPill({
         </span>
       )}
       <span
-        className="inline-flex items-center rounded-[6px] px-3 py-1 text-xs font-bold"
+        className="inline-flex items-center rounded-[6px] px-3 py-1.5 text-[13px] font-bold"
         style={{
           backgroundColor: styles.bg,
           color: styles.text,

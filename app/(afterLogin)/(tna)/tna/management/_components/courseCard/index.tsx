@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useMemo } from 'react';
 import { Course } from '@/types/tna/course';
 import { Spin } from 'antd';
 import ActionButton from '@/components/common/actionButton';
@@ -11,27 +11,47 @@ import { useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import Image from 'next/image';
+import { useTnaManagementCoursePageStore } from '@/store/uistate/features/tna/management/coursePage';
+import { useGetCourseRatings } from '@/store/server/features/tna/courseRating/queries';
+import StarIcon from '@mui/icons-material/Star';
 
 interface CourseCardProps {
   item: Course;
   refetch: any;
   className?: string;
 }
+const formatRating = (value: number) => value.toFixed(1);
 
 const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
   const router = useRouter();
   const { setIsShowCourseSidebar, setCourseId } = useTnaManagementStore();
+
   const {
     mutate: deleteCourse,
     isLoading,
     isSuccess,
   } = useDeleteCourseManagement();
+  const { course } = useTnaManagementCoursePageStore();
+  const { data: reviews = [] } = useGetCourseRatings(item?.id ?? '');
 
   useEffect(() => {
     if (isSuccess) {
       refetch();
     }
   }, [isSuccess, refetch]);
+  const activeReviews = useMemo(
+    () => reviews.filter((review) => !review.deletedAt),
+    [reviews],
+  );
+
+  const averageRating = useMemo(() => {
+    if (course?.rating != null && Number.isFinite(course.rating)) {
+      return course.rating;
+    }
+    if (!activeReviews.length) return null;
+    const total = activeReviews.reduce((sum, review) => sum + review.rating, 0);
+    return Math.round((total / activeReviews.length) * 10) / 10;
+  }, [course?.rating, activeReviews]);
 
   return (
     <Spin spinning={isLoading} data-cy={`tna-course-card-spinner-${item?.id}`}>
@@ -61,7 +81,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
         </div>
 
         <div
-          className="flex min-h-0 flex-1 flex-col gap-2 px-[15px] pt-3 md:gap-[8px] md:px-4 md:pt-[13px]"
+          className="flex min-h-0 flex-1 flex-col gap-2 px-[15px] pt-2 md:gap-[8px] md:px-4 md:pt-[13px]"
           id={`tnaCourseCardContent${item?.id}Id`}
           data-cy={`tna-course-card-content-${item?.id}`}
         >
@@ -70,12 +90,27 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             data-cy={`tna-course-card-category-row-${item?.id}`}
           >
             <span
-              className="text-[13px] font-bold leading-none text-gray-900 max-md:text-xs max-md:leading-5 max-md:text-black md:leading-none"
+              className="text-xs font-bold leading-none text-black max-md:text-xs max-md:leading-5 max-md:text-black md:leading-none"
               id={`tnaCourseCardCategory${item?.id}Id`}
               data-cy={`tna-course-card-category-${item?.id}`}
             >
               {item?.courseCategory?.title || 'Uncategorized'}
             </span>
+            {averageRating != null ? (
+              <div
+                className="inline-flex items-center gap-1 text-sm font-semibold text-gray-900"
+                data-cy="tna-course-feedback-and-ratings-average"
+              >
+                <StarIcon
+                  sx={{ fontSize: 12 }}
+                  className="fill-[#FAAD14] text-[#FAAD14]"
+                  aria-hidden
+                />
+                <span data-cy="tna-course-feedback-and-ratings-average-value">
+                  {formatRating(averageRating)}
+                </span>
+              </div>
+            ) : null}
             {item?.isDraft && (
               <span
                 className="text-[12px] font-medium leading-none text-[#000000]"
@@ -88,7 +123,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           </div>
 
           <h3
-            className="m-0 line-clamp-1 text-base font-bold leading-tight text-gray-900 max-md:text-sm max-md:leading-[22px] max-md:text-black"
+            className="m-0 line-clamp-1 text-sm font-bold leading-tight text-black max-md:text-sm max-md:leading-[22px] max-md:text-black"
             id={`tnaCourseCardTitle${item?.id}Id`}
             data-cy={`tna-course-card-title-${item?.id}`}
           >

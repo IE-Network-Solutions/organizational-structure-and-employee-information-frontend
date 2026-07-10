@@ -4,11 +4,12 @@ import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery, useQueryClient } from 'react-query';
 
-const getVpScore = async (id: number | string) => {
+const getVpScore = async (id: number | string, monthId?: string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const monthQuery = monthId ? `?monthId=${encodeURIComponent(monthId)}` : '';
   return crudRequest({
-    url: `${OKR_URL}/vp-score-instance/score/${id}`,
+    url: `${OKR_URL}/vp-score-instance/score/${id}${monthQuery}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -127,11 +128,27 @@ export const useGetAllMonth = () => {
   });
 };
 
-export const useGetVPScore = (userId: string, enabled: boolean = true) => {
-  return useQuery<any>(['VPScores', userId], () => getVpScore(userId), {
-    keepPreviousData: true,
-    enabled,
-  });
+type UseGetVPScoreOptions = {
+  monthId?: string;
+  enabled?: boolean;
+};
+
+export const useGetVPScore = (
+  userId: string,
+  options?: boolean | UseGetVPScoreOptions,
+) => {
+  const normalized =
+    typeof options === 'boolean' ? { enabled: options } : (options ?? {});
+  const { monthId, enabled = true } = normalized;
+
+  return useQuery<any>(
+    ['VPScores', userId, monthId],
+    () => getVpScore(userId, monthId),
+    {
+      keepPreviousData: true,
+      enabled,
+    },
+  );
 };
 
 export const useGetVpScoreCalculate = (userId: string, enabled = true) => {
@@ -170,6 +187,20 @@ export const useGetAllCalculatedVpScore = (
       keepPreviousData: true,
       enabled,
       onSuccess: async (emp) => {
+        emp?.forEach((employee: any) => {
+          if (!employee?.userId) return;
+          const currentVpScore = queryClient.getQueryData([
+            'VPScores',
+            employee.userId,
+          ]) as any;
+          if (employee.vpScore != null) {
+            queryClient.setQueryData(['VPScores', employee.userId], {
+              ...currentVpScore,
+              score: employee.vpScore,
+            });
+          }
+        });
+
         const currentVp = queryClient.getQueryData(['variablePay']) as any;
 
         if (!currentVp) {

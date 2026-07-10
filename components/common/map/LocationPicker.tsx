@@ -58,14 +58,35 @@ L.Icon.Default.mergeOptions({
 });
 
 const MIN_RADIUS_KM = 0.01;
-const MAX_RADIUS_KM = 10;
 const RADIUS_STEP_KM = 0.01;
 
 function clampRadiusKm(km: number): number {
-  return Math.min(
-    MAX_RADIUS_KM,
-    Math.max(MIN_RADIUS_KM, Number(Number(km).toFixed(3))),
-  );
+  return Math.max(MIN_RADIUS_KM, Number(Number(km).toFixed(3)));
+}
+
+function getZoomForRadiusMeters(radiusInMeters: number): number {
+  if (radiusInMeters > 50000) {
+    return 6;
+  }
+  if (radiusInMeters > 20000) {
+    return 7;
+  }
+  if (radiusInMeters > 10000) {
+    return 8;
+  }
+  if (radiusInMeters > 5000) {
+    return 10;
+  }
+  if (radiusInMeters > 2000) {
+    return 12;
+  }
+  if (radiusInMeters > 500) {
+    return 14;
+  }
+  if (radiusInMeters > 100) {
+    return 16;
+  }
+  return 18;
 }
 
 /** Point on the circle edge (east of center) for the resize handle */
@@ -126,23 +147,7 @@ const MapViewManager: React.FC<{
       const radiusInMeters = radius * 1000;
       let calculatedZoom = zoomLevel;
 
-      // Adjust zoom based on radius size
-      if (radiusInMeters > 5000) {
-        // 5km
-        calculatedZoom = 10;
-      } else if (radiusInMeters > 2000) {
-        // 2km
-        calculatedZoom = 12;
-      } else if (radiusInMeters > 500) {
-        // 500m
-        calculatedZoom = 14;
-      } else if (radiusInMeters > 100) {
-        // 100m
-        calculatedZoom = 16;
-      } else {
-        // 10m-100m
-        calculatedZoom = 18;
-      }
+      calculatedZoom = getZoomForRadiusMeters(radiusInMeters);
 
       const flyToOptions = {
         duration: smoothZoom ? 1.5 : 0, // 1.5 seconds for smooth transition
@@ -173,17 +178,10 @@ const MapViewManager: React.FC<{
         const radiusInMeters = radius * 1000;
         let targetZoom = currentZoom;
 
-        if (radiusInMeters > 5000) {
-          targetZoom = Math.max(currentZoom, 10);
-        } else if (radiusInMeters > 2000) {
-          targetZoom = Math.max(currentZoom, 12);
-        } else if (radiusInMeters > 500) {
-          targetZoom = Math.max(currentZoom, 14);
-        } else if (radiusInMeters > 100) {
-          targetZoom = Math.max(currentZoom, 16);
-        } else {
-          targetZoom = Math.max(currentZoom, 18);
-        }
+        targetZoom = Math.max(
+          currentZoom,
+          getZoomForRadiusMeters(radiusInMeters),
+        );
 
         map.flyTo(position, targetZoom, flyToOptions);
       }

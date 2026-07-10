@@ -265,7 +265,7 @@ const Questions = ({ id }: Params) => {
   );
 
   const openDraft = useCallback(
-    (fieldType: string, insertAt: number = orderedIds.length) => {
+    (fieldType: string, insertAt: number = 0) => {
       const draftId = `draft-${uuidv4()}`;
       const safeAt = Math.max(0, Math.min(insertAt, orderedIds.length));
       setDraft({ id: draftId, fieldType, insertAt: safeAt });
@@ -463,7 +463,7 @@ const Questions = ({ id }: Params) => {
             listIdsSnapshot.includes(overId);
           if (validOver) {
             lastPaletteDropAtRef.current = Date.now();
-            openDraft(fieldType, orderedIds.length);
+            openDraft(fieldType, 0);
           }
         }
         return;
@@ -633,17 +633,50 @@ const Questions = ({ id }: Params) => {
       data-cy="questions-empty"
     >
       <p
-        className="w-full shrink-0 text-left text-[15px] font-normal leading-normal text-gray-900 lg:text-[16px] lg:font-medium lg:text-gray-700"
+        className="w-full shrink-0 text-left text-[15px] font-semibold leading-normal text-gray-900 lg:text-[16px] lg:text-gray-800"
         data-cy="questions-empty-title"
       >
-        Question List
+        Questions
       </p>
-      <p
-        className="mx-auto flex min-h-0 w-full flex-1 items-center justify-center px-2 text-center text-[15px] font-bold leading-snug text-gray-900 lg:px-0 lg:text-[24px] lg:leading-normal"
+      <div
+        className="mx-auto flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-3 px-4 text-center lg:px-0"
         data-cy="questions-empty-text"
       >
-        Drag and drop a question from the question list to continue
-      </p>
+        <div
+          data-cy="questions-empty-icon-wrap"
+          className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-dashed border-[#bfdbfe] bg-[#eff6ff]"
+        >
+          <svg
+            data-cy="questions-empty-icon"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#3b82f6"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path data-cy="questions-empty-icon-check" d="M9 11l3 3L22 4" />
+            <path
+              data-cy="questions-empty-icon-box"
+              d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"
+            />
+          </svg>
+        </div>
+        <p
+          data-cy="questions-empty-title"
+          className="text-[15px] font-semibold text-gray-800 lg:text-[18px]"
+        >
+          No questions yet
+        </p>
+        <p
+          data-cy="questions-empty-subtitle"
+          className="text-[13px] text-gray-500 lg:text-[14px]"
+        >
+          Click or drag a question type from the left panel to get started
+        </p>
+      </div>
     </div>
   ) : (
     <SortableContext items={listIds} strategy={verticalListSortingStrategy}>
@@ -724,7 +757,7 @@ const Questions = ({ id }: Params) => {
           >
             <div
               data-cy="survey-questions-palette-col"
-              className="box-border flex h-fit w-full shrink-0 flex-col bg-transparent lg:w-[232px] lg:min-w-[232px] lg:max-w-[232px] lg:self-start lg:rounded-md lg:border lg:border-gray-200 lg:bg-white lg:px-3 lg:pb-3 lg:pt-3"
+              className="box-border flex h-fit w-full shrink-0 flex-col bg-transparent lg:w-[232px] lg:min-w-[232px] lg:max-w-[232px] lg:self-start lg:px-3 lg:pb-3 lg:pt-3"
             >
               <h3
                 className="mb-0 hidden text-base font-semibold text-gray-900 lg:block"
@@ -762,16 +795,27 @@ const Questions = ({ id }: Params) => {
               className="flex min-h-0 min-w-0 flex-1 flex-col gap-3 lg:min-h-0"
             >
               {!showEmptyState ? (
-                <h3
-                  className="mb-0 shrink-0 text-base font-normal text-gray-900"
-                  data-cy="survey-builder-heading"
+                <div
+                  data-cy="survey-builder-questions-header"
+                  className="flex shrink-0 items-center justify-between gap-2"
                 >
-                  Questions
-                </h3>
+                  <h3
+                    className="mb-0 text-base font-semibold text-gray-900"
+                    data-cy="survey-builder-heading"
+                  >
+                    Questions
+                  </h3>
+                  <span
+                    data-cy="survey-builder-questions-count"
+                    className="rounded-full bg-[#e8f0fe] px-2.5 py-0.5 text-[12px] font-semibold text-[#1d4ed8]"
+                  >
+                    {sortedItems.length}
+                  </span>
+                </div>
               ) : null}
               <div
                 ref={questionsScrollAreaRef}
-                className={`overflow-y-auto overscroll-y-contain rounded-md border border-[#E5E7EB] bg-white px-3 py-3 scrollbar-hide ${
+                className={`overflow-y-auto rounded-md bg-white px-3 py-3 scrollbar-hide ${
                   showEmptyState
                     ? 'flex h-[min(52vh,560px)] min-h-[min(52vh,560px)] flex-shrink-0 flex-col lg:h-[606px] lg:min-h-[606px]'
                     : 'min-h-0 flex-1'

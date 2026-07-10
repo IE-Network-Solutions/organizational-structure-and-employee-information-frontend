@@ -6,7 +6,10 @@ import {
   useDeleteRuleViolation,
   useEditRuleViolation,
 } from '@/store/server/features/timesheet/attendance/mutation';
-import { AttendanceActionType } from '@/types/timesheet/attendance';
+import {
+  AttendanceActionType,
+  AttendanceRuleActionStatus,
+} from '@/types/timesheet/attendance';
 
 const { Text, Title } = Typography;
 
@@ -29,6 +32,24 @@ const ACTION_TYPE_OPTIONS = [
   },
 ] as const;
 
+export const canRemoveViolationActionType = (
+  actionType: string,
+  actionStatus?: AttendanceRuleActionStatus,
+) => {
+  if (actionType === AttendanceActionType.VP_DEDUCTION) {
+    return actionStatus?.[AttendanceActionType.VP_DEDUCTION]?.taken !== true;
+  }
+  return true;
+};
+
+export const hasRemovableViolationActions = (
+  actionTypes: string[],
+  actionStatus?: AttendanceRuleActionStatus,
+) =>
+  actionTypes.some((actionType) =>
+    canRemoveViolationActionType(actionType, actionStatus),
+  );
+
 export default function DeleteRuleViolationModal({
   setIsShowDeleteRuleViolationModal,
 }: {
@@ -38,6 +59,7 @@ export default function DeleteRuleViolationModal({
     isShowDeleteRuleViolationModal,
     selectedViolationId,
     selectedViolationActionTypes,
+    selectedViolationActionStatus,
   } = useEmployeeAttendanceStore();
 
   const [actionsToRemove, setActionsToRemove] = useState<string[]>([]);
@@ -51,10 +73,15 @@ export default function DeleteRuleViolationModal({
 
   const activeActionOptions = useMemo(
     () =>
-      ACTION_TYPE_OPTIONS.filter((option) =>
-        selectedViolationActionTypes.includes(option.value),
+      ACTION_TYPE_OPTIONS.filter(
+        (option) =>
+          selectedViolationActionTypes.includes(option.value) &&
+          canRemoveViolationActionType(
+            option.value,
+            selectedViolationActionStatus,
+          ),
       ),
-    [selectedViolationActionTypes],
+    [selectedViolationActionTypes, selectedViolationActionStatus],
   );
 
   useEffect(() => {
@@ -157,37 +184,43 @@ export default function DeleteRuleViolationModal({
           gap: 10,
         }}
       >
-        <Checkbox.Group
-          value={actionsToRemove}
-          onChange={(values) => setActionsToRemove(values as string[])}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 10,
-            width: '100%',
-          }}
-        >
-          {activeActionOptions.map((option) => (
-            <div
-              key={option.value}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                padding: '14px 16px',
-                borderRadius: 8,
-                background: '#f5f5f5',
-              }}
-              id={`time-attendance-rule-violation-delete-modal-item-${option.value}`}
-              data-cy={`time-attendance-rule-violation-delete-modal-item-${option.value}`}
-            >
-              <Checkbox value={option.value}>
-                <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.85)' }}>
-                  {option.label}
-                </Text>
-              </Checkbox>
-            </div>
-          ))}
-        </Checkbox.Group>
+        {activeActionOptions.length === 0 ? (
+          <Text type="secondary" style={{ fontSize: 13 }}>
+            No actions can be removed while VP deduction is already sent.
+          </Text>
+        ) : (
+          <Checkbox.Group
+            value={actionsToRemove}
+            onChange={(values) => setActionsToRemove(values as string[])}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 10,
+              width: '100%',
+            }}
+          >
+            {activeActionOptions.map((option) => (
+              <div
+                key={option.value}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '14px 16px',
+                  borderRadius: 8,
+                  background: '#f5f5f5',
+                }}
+                id={`time-attendance-rule-violation-delete-modal-item-${option.value}`}
+                data-cy={`time-attendance-rule-violation-delete-modal-item-${option.value}`}
+              >
+                <Checkbox value={option.value}>
+                  <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.85)' }}>
+                    {option.label}
+                  </Text>
+                </Checkbox>
+              </div>
+            ))}
+          </Checkbox.Group>
+        )}
       </div>
 
       <div
@@ -212,7 +245,11 @@ export default function DeleteRuleViolationModal({
           danger
           onClick={handleConfirm}
           loading={isLoading}
-          disabled={!selectedViolationId || actionsToRemove.length === 0}
+          disabled={
+            !selectedViolationId ||
+            actionsToRemove.length === 0 ||
+            activeActionOptions.length === 0
+          }
           id="time-attendance-rule-violation-delete-modal-confirm-button"
           data-cy="time-attendance-rule-violation-delete-modal-confirm-button"
         >

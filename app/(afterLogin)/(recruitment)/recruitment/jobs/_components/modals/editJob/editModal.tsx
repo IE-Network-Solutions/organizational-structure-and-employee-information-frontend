@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Button,
   Form,
@@ -17,7 +17,18 @@ import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
 import { EmploymentType, LocationType } from '@/types/enumTypes';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { TaRequiredMark } from '../../../../_components/taRequiredMark';
+
+interface OrgUser {
+  id: string;
+  firstName?: string;
+  middleName?: string;
+  lastName?: string;
+}
+
+const getUserFullName = (user: OrgUser) =>
+  `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`.trim();
 
 const { Option } = Select;
 
@@ -26,6 +37,16 @@ const EditJob: React.FC = () => {
   const updatedBy = useAuthenticationStore.getState().userId;
   const { data: departments, isLoading: isDepartmentLoading } =
     useGetDepartments();
+  const { data: usersData, isLoading: isUsersLoading } = useGetAllUsers();
+
+  const hiringManagerOptions = useMemo(
+    () =>
+      (usersData?.items || []).map((user: OrgUser) => ({
+        value: user.id,
+        label: getUserFullName(user),
+      })),
+    [usersData?.items],
+  );
 
   const {
     isEditModalVisible,
@@ -51,6 +72,7 @@ const EditJob: React.FC = () => {
       quantity: formValues?.quantity,
       jobStatus: formValues?.jobStatus,
       compensation: formValues?.compensation,
+      hiringManagerId: formValues?.hiringManagerId,
     };
     updateJob(
       { data: updatedFormValues, id: selectedJob?.id || selectedJobId },
@@ -79,6 +101,7 @@ const EditJob: React.FC = () => {
         quantity: selectedJob.quantity,
         jobStatus: selectedJob.jobStatus,
         compensation: selectedJob.compensation,
+        hiringManagerId: selectedJob.hiringManagerId,
       });
     }
   }, [form, selectedJob]);
@@ -157,6 +180,36 @@ const EditJob: React.FC = () => {
               placeholder="Job title"
               className="text-sm w-full  h-10"
               allowClear
+            />
+          </Form.Item>
+          <Form.Item
+            name="hiringManagerId"
+            label={
+              <span
+                data-cy="talent-acquisition-edit-job-label-hiring-manager"
+                className="my-2 inline-flex items-center gap-1.5 text-md font-semibold text-gray-700"
+              >
+                Hiring Manager
+                <TaRequiredMark data-cy="talent-acquisition-edit-job-required-hiring-manager" />
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please select a hiring manager!',
+              },
+            ]}
+          >
+            <Select
+              id="talent-acquisition-edit-job-select-hiring-manager"
+              data-cy="talent-acquisition-edit-job-select-hiring-manager"
+              showSearch
+              placeholder="Select hiring manager"
+              optionFilterProp="label"
+              className="text-sm w-full h-10"
+              loading={isUsersLoading}
+              allowClear
+              options={hiringManagerOptions}
             />
           </Form.Item>
           <Form.Item

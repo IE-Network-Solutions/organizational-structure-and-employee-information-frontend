@@ -1,5 +1,14 @@
 import { groupParentTasks } from '../dataTransformer/plan';
+import {
+  getKeyResultProgressPercent,
+  isKeyResultFullyCompletedForPlanning,
+  isMilestoneCompleted,
+  isMilestoneKeyResult,
+  mergeKeyResultWithUserApi,
+  resolveKrPlanningBlocked,
+} from '@/utils/okrKeyResultProgressDisplay';
 
+export { mergeKeyResultWithUserApi };
 export type PlanningTarget = {
   id: string;
   keyResultId: string;
@@ -29,9 +38,12 @@ export function buildPlanningTargetsFromObjectives(
       if (kr.deletedAt) return;
       const krTitle = kr.title || kr.name || 'Key result';
       const metricTypeName = kr.metricType?.name ?? null;
-      if (kr.milestones?.length) {
-        kr.milestones.forEach((ms: any) => {
+
+      if (isMilestoneKeyResult(kr)) {
+        if (isKeyResultFullyCompletedForPlanning(kr)) return;
+        kr.milestones?.forEach((ms: any) => {
           if (ms.deletedAt) return;
+          if (isMilestoneCompleted(ms)) return;
           out.push({
             id: `okr-kr-${kr.id}-ms-${ms.id}`,
             keyResultId: String(kr.id),
@@ -43,21 +55,114 @@ export function buildPlanningTargetsFromObjectives(
             metricTypeName,
           });
         });
-      } else {
-        out.push({
-          id: `okr-kr-${kr.id}`,
-          keyResultId: String(kr.id),
-          keyResultTitle: krTitle,
-          milestoneId: null,
-          parentTaskId: null,
-          isDailySlot: false,
-          metricTypeName,
-        });
+        return;
       }
+
+      if (isKeyResultFullyCompletedForPlanning(kr)) return;
+
+      out.push({
+        id: `okr-kr-${kr.id}`,
+        keyResultId: String(kr.id),
+        keyResultTitle: krTitle,
+        milestoneId: null,
+        parentTaskId: null,
+        isDailySlot: false,
+        metricTypeName,
+      });
     });
   });
 
   return out;
+}
+
+function findMilestoneInKeyResult(kr: any, milestoneId: string | null) {
+  if (!milestoneId || !kr) return null;
+  const list = kr.milestones ?? kr.Milestones ?? [];
+  return list.find((m: any) => String(m?.id) === String(milestoneId)) ?? null;
+}
+
+/** True when the whole KR must not offer planning (+ hidden everywhere). */
+export function isKeyResultBlockedForPlanning(
+  kr: any,
+  userKeyResultItems: any[] = [],
+): boolean {
+  const apiKr = userKeyResultItems.find(
+    (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
+  );
+  return resolveKrPlanningBlocked(
+    {
+      metricType: kr?.metricType?.name ?? kr?.key_type,
+      progress: getKeyResultProgressPercent(kr),
+      currentValue: kr?.currentValue,
+      targetValue: kr?.targetValue,
+      milestones: kr?.milestones ?? kr?.Milestones ?? [],
+    },
+    apiKr,
+  );
+}
+
+/** True when a milestone row must not offer planning. */
+export function isMilestoneBlockedForPlanning(
+  kr: any,
+  milestone: any,
+  userKeyResultItems: any[] = [],
+): boolean {
+  if (isKeyResultBlockedForPlanning(kr, userKeyResultItems)) return true;
+  const source = mergeKeyResultWithUserApi(kr, userKeyResultItems);
+  const msList = source.milestones ?? source.Milestones ?? [];
+  const resolved =
+    msList.find((m: any) => String(m?.id) === String(milestone?.id)) ??
+    milestone;
+  return isMilestoneCompleted(resolved);
+}
+
+/** True when a planning target (KR / milestone / daily slot) must not show + or add UI. */
+export function isPlanningTargetBlocked(
+  target:
+    | Pick<PlanningTarget, 'keyResultId' | 'milestoneId'>
+    | null
+    | undefined,
+  userKeyResultItems: any[] = [],
+): boolean {
+  if (!target) return false;
+
+  const apiKr = userKeyResultItems.find(
+    (k) =>
+      k && k.deletedAt == null && String(k.id) === String(target.keyResultId),
+  );
+
+  if (
+    resolveKrPlanningBlocked(
+      {
+        metricType: apiKr?.metricType?.name ?? apiKr?.key_type,
+        progress: apiKr ? getKeyResultProgressPercent(apiKr) : 0,
+        currentValue: apiKr?.currentValue,
+        targetValue: apiKr?.targetValue,
+        milestones: apiKr?.milestones ?? apiKr?.Milestones ?? [],
+      },
+      apiKr,
+    )
+  ) {
+    return true;
+  }
+
+  if (!apiKr) return false;
+
+  if (target.milestoneId) {
+    const ms = findMilestoneInKeyResult(apiKr, target.milestoneId);
+    if (ms && isMilestoneCompleted(ms)) return true;
+  }
+
+  return false;
+}
+
+/** Drop slots for achieved KRs / milestones (user KR API is source of truth when present). */
+export function filterPlanningTargetsByBlockedKeyResults(
+  targets: PlanningTarget[],
+  userKeyResultItems: any[],
+): PlanningTarget[] {
+  if (!targets.length) return targets;
+  return targets.filter((t) => !isPlanningTargetBlocked(t, userKeyResultItems));
 }
 
 /** Daily: one row per weekly parent task (slot for daily sub-tasks). */
@@ -78,9 +183,14 @@ export function buildPlanningTargetsFromDailyHierarchy(
 
   groups.forEach((objective: any) => {
     objective.keyResults?.forEach((kr: any) => {
+      if (kr.deletedAt) return;
+      if (isKeyResultFullyCompletedForPlanning(kr)) return;
+
       const krTitle = kr.title || kr.name || 'Key result';
       const metricTypeName = kr.metricType?.name ?? null;
       kr.milestones?.forEach((ms: any) => {
+        if (ms.deletedAt) return;
+        if (isMilestoneCompleted(ms)) return;
         ms.tasks?.forEach((t: any) => {
           out.push({
             id: `daily-${kr.id}-${ms.id}-${t.id}`,

@@ -4,6 +4,7 @@ import { crudRequest } from '@/utils/crudRequest';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { invalidateOkrPlanningCaches } from '@/utils/invalidateOkrPlanningCaches';
 
 const approveOrRejectPlanningPeriods = async (planningData: any) => {
   const token = await getCurrentToken();
@@ -123,9 +124,8 @@ const updateStatus = async (id: string, status: string) => {
 export const useApprovalPlanningPeriods = () => {
   const queryClient = useQueryClient();
   return useMutation(approveOrRejectPlanningPeriods, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('okrPlans');
-      queryClient.invalidateQueries('okrUserPlans');
+    onSuccess: async () => {
+      await invalidateOkrPlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully updated',
         description: 'okr plan status successfully updated',
@@ -148,12 +148,8 @@ export const useCreateReportForUnReportedtasks = () => {
       planId?: string;
     }) => createReportForUnReportedtasks(values, planningPeriodId, planId),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('okrReports');
-        queryClient.invalidateQueries('okrPlans');
-        queryClient.invalidateQueries('okrUserPlans');
-        queryClient.invalidateQueries('okrPlannedData');
-        queryClient.invalidateQueries('planningPeriodsHierarchy');
+      onSuccess: async () => {
+        await invalidateOkrPlanningCaches(queryClient);
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',
@@ -170,8 +166,8 @@ export const useEditReportByReportId = () => {
     ({ values, selectedReportId }: { values: any; selectedReportId: string }) =>
       editReport(values, selectedReportId),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('okrReports');
+      onSuccess: async () => {
+        await invalidateOkrPlanningCaches(queryClient);
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',
@@ -185,9 +181,8 @@ export const useDeletePlanById = () => {
   const queryClient = useQueryClient();
 
   return useMutation(deletePlanById, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('okrPlans');
-      queryClient.invalidateQueries('okrUserPlans');
+    onSuccess: async () => {
+      await invalidateOkrPlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Deleted',
         description: 'OKR plan Deleted successfully',
@@ -199,11 +194,11 @@ export const useDeleteReportById = () => {
   const queryClient = useQueryClient();
 
   return useMutation(deleteReportById, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('okrReports');
+    onSuccess: async () => {
+      await invalidateOkrPlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Deleted',
-        description: 'OKR plan Deleted successfully',
+        description: 'OKR report cancelled; plan restored',
       });
     },
   });
@@ -212,8 +207,8 @@ export const useDeleteReportById = () => {
 export const useApprovalReporting = () => {
   const queryClient = useQueryClient();
   return useMutation(approveOrRejectReporting, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('okrReports');
+    onSuccess: async () => {
+      await invalidateOkrPlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully updated',
         description: 'okr plan status successfully updated',
@@ -238,15 +233,17 @@ export const useUpdateStatus = () => {
       planningPeriodId?: string;
     }) => updateStatus(id, status),
     {
-      onSuccess: (
+      onSuccess: async (
         /* eslint-disable-next-line @typescript-eslint/naming-convention */
         _data /* eslint-enable-next-line @typescript-eslint/naming-convention */,
         variables,
       ) => {
         const { planningPeriodId } = variables;
         queryClient.invalidateQueries('defaultPlanningPeriods');
-        queryClient.invalidateQueries('okrPlan');
-        queryClient.invalidateQueries(['okrPlannedData', planningPeriodId]);
+        await invalidateOkrPlanningCaches(queryClient);
+        if (planningPeriodId) {
+          queryClient.invalidateQueries(['okrPlannedData', planningPeriodId]);
+        }
       },
     },
   );
