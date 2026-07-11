@@ -38,6 +38,7 @@ if (branchName.contains('develop-redesign-branch')) {
                 }
             }
         }
+    }      
 
         stage('Fetch Application Variables') {
             steps {
