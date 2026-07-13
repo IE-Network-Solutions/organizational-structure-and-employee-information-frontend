@@ -34,15 +34,15 @@ if (branchName.contains('develop-redesign-branch')) {
     env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
     env.SECRET_KEY = 'pepproduction'
 
+} else if (branchName.contains('core-production')) {
+    env.REMOTE_SERVER = REMOTE_SERVER_PROD
+    env.SECRETS_PATH = '/home/ubuntu/secrets/.core-workspace-env'
+    env.SECRET_KEY = 'pepproduction'
 } else if (branchName.contains('production')) {
     env.REMOTE_SERVER = REMOTE_SERVER_PROD
     env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
     env.SECRET_KEY = 'pepproduction'
-}  else if (branchName.contains('core-production')) {
-    env.REMOTE_SERVER = REMOTE_SERVER_PROD
-    env.SECRETS_PATH = '/home/ubuntu/secrets/.core-workspace-env'
-    env.SECRET_KEY = 'pepproduction'
-}
+}  
                         
                     }
                 }
