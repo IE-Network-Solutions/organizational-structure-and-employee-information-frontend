@@ -110,6 +110,9 @@ interface MyComponentProps {
   children: ReactNode;
 }
 
+// Core host (SelamNew Core) provides its own top bar when this app is embedded inside it.
+const IS_CORE = process.env.NEXT_PUBLIC_IS_CORE === 'true';
+
 const NavMenuItem: React.FC<{
   item: any;
   collapsed: boolean;
@@ -1497,42 +1500,44 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           data-cy="nav-sider-children-wrap"
           className="relative flex flex-col flex-1 min-h-0"
         >
-          <div
-            data-cy="nav-sider-logo-wrap"
-            className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
-          >
+          {!IS_CORE && (
             <div
-              data-cy="nav-sider-logo"
-              className="relative h-10 w-full flex items-center"
+              data-cy="nav-sider-logo-wrap"
+              className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
             >
-              {collapsed ? (
-                <div
-                  data-cy="nav-sider-logo-collapsed-container"
-                  className="w-full flex justify-center"
-                >
+              <div
+                data-cy="nav-sider-logo"
+                className="relative h-10 w-full flex items-center"
+              >
+                {collapsed ? (
+                  <div
+                    data-cy="nav-sider-logo-collapsed-container"
+                    className="w-full flex justify-center"
+                  >
+                    <Image
+                      src="/image/selamnew-workspace-logo-collapsed.svg"
+                      alt="SelamNew Workspace Logo"
+                      width={32}
+                      height={32}
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </div>
+                ) : (
                   <Image
-                    src="/image/selamnew-workspace-logo-collapsed.svg"
+                    src="/image/selamnew-workspace-logo.svg"
                     alt="SelamNew Workspace Logo"
-                    width={32}
-                    height={32}
+                    width={150}
+                    height={40}
                     style={{ objectFit: 'contain' }}
                   />
-                </div>
-              ) : (
-                <Image
-                  src="/image/selamnew-workspace-logo.svg"
-                  alt="SelamNew Workspace Logo"
-                  width={150}
-                  height={40}
-                  style={{ objectFit: 'contain' }}
-                />
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div
             data-cy="nav-sider-menu-scroll"
-            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+            className={`flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide ${IS_CORE ? 'pt-6' : ''}`}
             style={{ minHeight: 0 }}
           >
             <div
@@ -1792,45 +1797,47 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           flexDirection: 'column',
         }}
       >
-        <Header
-          style={{
-            padding: 0,
-            background: '#fff',
-            display: isMobile ? 'none' : 'flex',
-            alignItems: 'center',
-            position: 'fixed',
-            width: isMobile
-              ? '100%'
-              : collapsed
-                ? 'calc(100% - 80px)'
-                : 'calc(100% - 280px)',
-            zIndex: 40,
-            top: 0,
-            left: isMobile ? 0 : collapsed ? 80 : 280,
-            transition: 'left 0.3s ease, width 0.3s ease',
-            height: '74px',
-            borderBottom: '1px solid #F1F5F9',
-            boxShadow: 'none',
-          }}
-        >
-          {isMobile && mobileCollapsed && (
-            <div
-              data-cy="nav-header-mobile-toggle-wrap"
-              className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
-            >
-              <Button
-                data-cy="nav-header-mobile-toggle"
-                type="text"
-                aria-label="Open menu"
-                className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
-                onClick={toggleMobileCollapsed}
-                icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
-              />
-            </div>
-          )}
+        {!IS_CORE && (
+          <Header
+            style={{
+              padding: 0,
+              background: '#fff',
+              display: isMobile ? 'none' : 'flex',
+              alignItems: 'center',
+              position: 'fixed',
+              width: isMobile
+                ? '100%'
+                : collapsed
+                  ? 'calc(100% - 80px)'
+                  : 'calc(100% - 280px)',
+              zIndex: 40,
+              top: 0,
+              left: isMobile ? 0 : collapsed ? 80 : 280,
+              transition: 'left 0.3s ease, width 0.3s ease',
+              height: '74px',
+              borderBottom: '1px solid #F1F5F9',
+              boxShadow: 'none',
+            }}
+          >
+            {isMobile && mobileCollapsed && (
+              <div
+                data-cy="nav-header-mobile-toggle-wrap"
+                className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
+              >
+                <Button
+                  data-cy="nav-header-mobile-toggle"
+                  type="text"
+                  aria-label="Open menu"
+                  className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
+                  onClick={toggleMobileCollapsed}
+                  icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
+                />
+              </div>
+            )}
 
-          <NavBar handleLogout={handleLogout} />
-        </Header>
+            <NavBar handleLogout={handleLogout} />
+          </Header>
+        )}
 
         {/* Mobile drawer close button: retained for potential future use but not rendered */}
         <Content
@@ -1839,7 +1846,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             paddingRight: 0,
-            paddingTop: isMobile ? 0 : '74px',
+            paddingTop: isMobile || IS_CORE ? 0 : '74px',
             paddingBottom: isMobile ? 68 : 0,
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
