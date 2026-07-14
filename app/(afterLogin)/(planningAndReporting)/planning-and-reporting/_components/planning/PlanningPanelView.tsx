@@ -19,7 +19,10 @@ import type {
   ViewMode,
 } from '../types';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { resolveKrCardMetricLabel } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  mergeKrMetricRicher,
+  resolveKrCardMetricLabel,
+} from '@/utils/okrKeyResultProgressDisplay';
 import {
   aggregateKeyResultForPanel,
   buildBlockedKeyResultIdSet,
@@ -142,7 +145,11 @@ export function buildOwnerKRGroups(
 ): OwnerKRGroup[] {
   const ownerMap = new Map<
     string,
-    { owner: PlanOwner; seenKRs: Set<string>; krs: AggregatedKR[] }
+    {
+      owner: PlanOwner;
+      krById: Map<string, AggregatedKR>;
+      rawKrById: Map<string, any>;
+    }
   >();
 
   for (const plan of plans) {
@@ -151,33 +158,40 @@ export function buildOwnerKRGroups(
     if (!ownerMap.has(ownerKey)) {
       ownerMap.set(ownerKey, {
         owner: plan.owner,
-        seenKRs: new Set(),
-        krs: [],
+        krById: new Map(),
+        rawKrById: new Map(),
       });
     }
     const entry = ownerMap.get(ownerKey)!;
 
     for (const kr of plan.keyResults) {
-      if (entry.seenKRs.has(kr.id)) continue;
-      entry.seenKRs.add(kr.id);
+      const id = String(kr.id);
+      const prevRaw = entry.rawKrById.get(id);
+      const mergedRaw = prevRaw ? mergeKrMetricRicher(prevRaw, kr) : kr;
+      entry.rawKrById.set(id, mergedRaw);
 
-      const allTasks = getAllKRTasks(kr);
-      entry.krs.push(
-        aggregateKeyResultForPanel(kr, allTasks.length, userKeyResultItems),
+      const allTasks = getAllKRTasks(mergedRaw);
+      const prevAgg = entry.krById.get(id);
+      const nextAgg = aggregateKeyResultForPanel(
+        mergedRaw,
+        Math.max(allTasks.length, prevAgg?.taskCount ?? 0),
+        userKeyResultItems,
       );
+      entry.krById.set(id, nextAgg);
     }
   }
 
   const groups: OwnerKRGroup[] = [];
   for (const [ownerKey, entry] of ownerMap) {
-    if (entry.krs.length === 0) continue;
+    const krs = [...entry.krById.values()];
+    if (krs.length === 0) continue;
     const avg = Math.round(
-      entry.krs.reduce((s, k) => s + k.progress, 0) / entry.krs.length,
+      krs.reduce((s, k) => s + k.progress, 0) / krs.length,
     );
     groups.push({
       ownerKey,
       owner: entry.owner,
-      krs: entry.krs,
+      krs,
       avgProgress: avg,
     });
   }
@@ -1044,8 +1058,7 @@ export function KRLeftPanel({
   parentPlanContext = null,
   planningPickReady = true,
 }: KRPanelProps) {
-  const panelApiItems =
-    apiKeyResultItems ?? legacyUserKeyResultItems ?? [];
+  const panelApiItems = apiKeyResultItems ?? legacyUserKeyResultItems ?? [];
   const orphanApiItems =
     orphanKeyResultItems ?? legacyUserKeyResultItems ?? panelApiItems;
 
@@ -1089,7 +1102,10 @@ export function KRLeftPanel({
     const map = new Map<string, any>();
     for (const plan of plans) {
       for (const kr of plan.keyResults ?? []) {
-        if (kr?.id != null) map.set(String(kr.id), kr);
+        if (kr?.id == null) continue;
+        const id = String(kr.id);
+        const prev = map.get(id);
+        map.set(id, prev ? mergeKrMetricRicher(prev, kr) : kr);
       }
     }
     return map;

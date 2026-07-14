@@ -1,8 +1,72 @@
+/** Prefer whichever nested task.keyResult copy already carries metric metadata. */
+function mergePlanEmbeddedKeyResult(existing: any, incoming: any): any {
+  if (!existing) return incoming;
+  if (!incoming) return existing;
+
+  const pickName = (kr: any): string => {
+    const raw =
+      (typeof kr?.metricType === 'string'
+        ? kr.metricType
+        : kr?.metricType?.name) ||
+      kr?.metricTypeName ||
+      kr?.key_type ||
+      kr?.previousMetricTypeName ||
+      '';
+    const name = String(raw).trim();
+    return name && name !== 'N/A' ? name : '';
+  };
+
+  const existingHas = Boolean(pickName(existing));
+  const incomingHas = Boolean(pickName(incoming));
+  const merged = { ...existing, ...incoming };
+
+  if (existingHas && !incomingHas) {
+    merged.metricType = existing.metricType;
+    merged.metricTypeName = existing.metricTypeName ?? merged.metricTypeName;
+    merged.key_type = existing.key_type ?? merged.key_type;
+    merged.previousMetricTypeName =
+      existing.previousMetricTypeName ?? merged.previousMetricTypeName;
+    merged.metricTypeId = existing.metricTypeId ?? merged.metricTypeId;
+  } else if (!existingHas && incomingHas) {
+    merged.metricType = incoming.metricType ?? existing.metricType;
+    merged.metricTypeName =
+      incoming.metricTypeName ??
+      (typeof incoming.metricType === 'object'
+        ? incoming.metricType?.name
+        : incoming.metricType) ??
+      incoming.key_type ??
+      merged.metricTypeName;
+    merged.key_type = incoming.key_type ?? merged.key_type;
+    merged.previousMetricTypeName =
+      incoming.previousMetricTypeName ?? merged.previousMetricTypeName;
+    merged.metricTypeId = incoming.metricTypeId ?? merged.metricTypeId;
+  }
+
+  if (!merged.metricTypeId) {
+    merged.metricTypeId =
+      existing.metricTypeId ??
+      incoming.metricTypeId ??
+      existing.metricType?.id ??
+      incoming.metricType?.id;
+  }
+
+  merged.deletedAt =
+    existing.deletedAt ?? incoming.deletedAt ?? merged.deletedAt ?? null;
+  merged.objective =
+    existing.objective?.id || existing.objective
+      ? existing.objective
+      : (incoming.objective ?? merged.objective);
+
+  return merged;
+}
+
 const groupTasksByKeyResultId = (plans: any) => {
   return plans?.map((plan: any) => {
     const keyResultMap: any = {};
     plan?.tasks?.forEach((task: any) => {
       const keyResultId = task?.keyResult?.id;
+      if (!keyResultId) return;
+
       if (!keyResultMap[keyResultId]) {
         keyResultMap[keyResultId] = {
           ...task?.keyResult,
@@ -14,6 +78,15 @@ const groupTasksByKeyResultId = (plans: any) => {
               }
             : null,
           tasks: [],
+        };
+      } else {
+        const { tasks: existingTasks } = keyResultMap[keyResultId];
+        keyResultMap[keyResultId] = {
+          ...mergePlanEmbeddedKeyResult(
+            keyResultMap[keyResultId],
+            task?.keyResult,
+          ),
+          tasks: existingTasks,
         };
       }
       keyResultMap[keyResultId].tasks.push({

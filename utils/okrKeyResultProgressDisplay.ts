@@ -40,7 +40,8 @@ export type KrMilestoneCarrier = KrMilestoneFields | null | undefined;
  * Must extend {@link KrMilestoneFields} so milestone helpers accept panel/API/plan rows.
  */
 export type KeyResultLikeInput = KrMilestoneFields & {
-  metricType?: { name?: string } | string | null;
+  metricType?: { id?: string; name?: string } | string | null;
+  metricTypeId?: string | null;
   key_type?: string | null;
   metricTypeName?: string | null;
   previousMetricTypeName?: string | null;
@@ -142,6 +143,11 @@ function readMetricNameFromValue(value: unknown): string {
   return '';
 }
 
+function isUsableMetricToken(value: unknown): boolean {
+  const name = readMetricNameFromValue(value);
+  return Boolean(name && name !== 'N/A' && name.toLowerCase() !== 'metric');
+}
+
 export function getMetricTypeName(
   kr: KeyResultLikeInput | null | undefined,
 ): KeyResultMetricName {
@@ -158,8 +164,9 @@ export function getMetricTypeName(
   ];
 
   for (const candidate of candidates) {
+    if (!isUsableMetricToken(candidate)) continue;
     const name = readMetricNameFromValue(candidate);
-    if (name && name !== 'N/A') return name as KeyResultMetricName;
+    if (name) return name as KeyResultMetricName;
   }
 
   return '' as KeyResultMetricName;
@@ -189,18 +196,65 @@ function resolveExplicitMetricLabel(
 export function hasKrMetricMetadata(kr: unknown): boolean {
   if (!kr || typeof kr !== 'object') return false;
   const row = kr as KeyResultLikeInput;
-  if (typeof row.metricType === 'string' && row.metricType.trim()) return true;
+  if (
+    isUsableMetricToken(
+      typeof row.metricType === 'string' ? row.metricType : undefined,
+    )
+  )
+    return true;
   if (
     row.metricType &&
     typeof row.metricType === 'object' &&
-    String((row.metricType as { name?: string }).name ?? '').trim()
+    isUsableMetricToken(row.metricType.name)
   ) {
     return true;
   }
-  if (String(row.key_type ?? '').trim()) return true;
-  if (String(row.metricTypeName ?? '').trim()) return true;
-  if (String(row.previousMetricTypeName ?? '').trim()) return true;
+  if (isUsableMetricToken(row.key_type)) return true;
+  if (isUsableMetricToken(row.metricTypeName)) return true;
+  if (isUsableMetricToken(row.previousMetricTypeName)) return true;
   return false;
+}
+
+/**
+ * Fill metricType.name from tenant metric catalog when only metricTypeId is present.
+ */
+export function hydrateKrMetricTypeFromCatalog(
+  kr: any,
+  metricsById: Map<string, string> | Record<string, string> | null | undefined,
+): any {
+  if (!kr || !metricsById) return kr;
+  if (hasKrMetricMetadata(kr)) return kr;
+
+  const typeId = String(
+    kr.metricTypeId ??
+      (typeof kr.metricType === 'object' ? kr.metricType?.id : '') ??
+      '',
+  ).trim();
+  if (!typeId) return kr;
+
+  const catalogName =
+    metricsById instanceof Map ? metricsById.get(typeId) : metricsById[typeId];
+  const name = String(catalogName ?? '').trim();
+  if (!name || name === 'N/A') return kr;
+
+  return {
+    ...kr,
+    metricType:
+      typeof kr.metricType === 'object' && kr.metricType
+        ? { ...kr.metricType, id: typeId, name }
+        : { id: typeId, name },
+    metricTypeName: kr.metricTypeName ?? name,
+    key_type: kr.key_type ?? name,
+    metricTypeId: kr.metricTypeId ?? typeId,
+  };
+}
+
+export function hydrateKeyResultsFromMetricCatalog(
+  items: any[],
+  metricsById: Map<string, string> | Record<string, string> | null | undefined,
+): any[] {
+  if (!items?.length || !metricsById) return items ?? [];
+  return items.map((kr) => hydrateKrMetricTypeFromCatalog(kr, metricsById));
 }
 
 /** Prefer the record that already has metric metadata when merging lookup rows. */
@@ -215,15 +269,30 @@ export function mergeKrMetricRicher(base: any, incoming: any): any {
     merged.metricType = base.metricType;
     merged.key_type = base.key_type ?? merged.key_type;
     merged.metricTypeName = base.metricTypeName ?? merged.metricTypeName;
+    merged.previousMetricTypeName =
+      base.previousMetricTypeName ?? merged.previousMetricTypeName;
   } else if (incomingHas && !baseHas) {
     merged.metricType = incoming.metricType;
     merged.key_type = incoming.key_type ?? merged.key_type;
     merged.metricTypeName = incoming.metricTypeName ?? merged.metricTypeName;
+    merged.previousMetricTypeName =
+      incoming.previousMetricTypeName ?? merged.previousMetricTypeName;
   } else if (baseHas && incomingHas) {
     merged.metricType = incoming.metricType ?? base.metricType;
     merged.key_type = incoming.key_type ?? base.key_type;
     merged.metricTypeName = incoming.metricTypeName ?? base.metricTypeName;
+    merged.previousMetricTypeName =
+      incoming.previousMetricTypeName ?? base.previousMetricTypeName;
   }
+
+  merged.metricTypeId =
+    base.metricTypeId ??
+    incoming.metricTypeId ??
+    (typeof base.metricType === 'object' ? base.metricType?.id : undefined) ??
+    (typeof incoming.metricType === 'object'
+      ? incoming.metricType?.id
+      : undefined) ??
+    merged.metricTypeId;
 
   if (
     (!Array.isArray(merged.milestones) || merged.milestones.length === 0) &&

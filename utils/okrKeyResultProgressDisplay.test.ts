@@ -3,6 +3,8 @@ import {
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
   getMetricTypeName,
+  hasKrMetricMetadata,
+  hydrateKrMetricTypeFromCatalog,
   mergeKeyResultWithUserApi,
   resolveKrCardMetricLabel,
   resolveKrPanelMetricType,
@@ -219,5 +221,24 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
     };
 
     expect(resolveKrCardMetricLabel(panelKr, apiKr)).toBe('Numeric');
+  });
+
+  it('does not treat N/A as metric metadata', () => {
+    expect(
+      hasKrMetricMetadata({
+        id: 'kr-1',
+        metricTypeName: 'N/A',
+        key_type: 'N/A',
+      }),
+    ).toBe(false);
+  });
+
+  it('hydrates metric type name from catalog by metricTypeId', () => {
+    const hydrated = hydrateKrMetricTypeFromCatalog(
+      { id: 'kr-1', metricTypeId: 'mt-numeric', progress: 50 },
+      new Map([['mt-numeric', 'Numeric']]),
+    );
+    expect(hydrated.metricType.name).toBe('Numeric');
+    expect(resolveKrCardMetricLabel(hydrated)).toBe('Numeric');
   });
 });

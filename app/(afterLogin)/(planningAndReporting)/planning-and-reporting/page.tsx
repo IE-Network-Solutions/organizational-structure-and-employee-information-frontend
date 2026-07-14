@@ -24,9 +24,15 @@ import {
   getActiveUnreportedParentPlanContext,
   normalizeUserKeyResultItems,
   buildKrMetricLookupMap,
+  collectPlanKeyResultIds,
 } from './_components/planning/mergeKRPanelGroups';
 import { usePanelKeyResultItems } from './_components/planning/usePanelKeyResultItems';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
+import {
+  hasKrMetricMetadata,
+  hydrateKeyResultsFromMetricCatalog,
+} from '@/utils/okrKeyResultProgressDisplay';
 import { usePlanningData } from './_components/planning/usePlanningData';
 import { usePlanningTargets } from './_components/planning/usePlanningTargets';
 import { isPlanningTargetBlocked } from './_components/planning/buildPlanningTargets';
@@ -198,24 +204,41 @@ function Page() {
     [planSummaries, reportSummaries],
   );
 
-  const {
-    items: panelKeyResultItems,
-    isLoading: panelKeyResultsLoading,
-  } = usePanelKeyResultItems(
-    panelSourcePlans,
-    keyResultFiscalYearId,
-    userId,
+  const { items: panelKeyResultItemsRaw, isLoading: panelKeyResultsLoading } =
+    usePanelKeyResultItems(panelSourcePlans, keyResultFiscalYearId, userId);
+
+  const { data: metricsData } = useGetMetrics();
+
+  const metricsById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const metric of metricsData?.items ?? []) {
+      if (metric?.id != null && metric?.name) {
+        map.set(String(metric.id), String(metric.name));
+      }
+    }
+    return map;
+  }, [metricsData]);
+
+  const panelKeyResultItems = useMemo(
+    () =>
+      hydrateKeyResultsFromMetricCatalog(panelKeyResultItemsRaw, metricsById),
+    [panelKeyResultItemsRaw, metricsById],
   );
 
-  const combinedApiItems = useMemo(
-    () => [
+  // Display enrichment prefers no-session panel KRs. Session-scoped list is
+  // only merged when it adds real metric metadata (avoids wiping own KRs).
+  const combinedApiItems = useMemo(() => {
+    const sessionHydrated = hydrateKeyResultsFromMetricCatalog(
+      userKeyResultItems,
+      metricsById,
+    );
+    return [
       ...buildKrMetricLookupMap(
-        [...panelKeyResultItems, ...userKeyResultItems],
+        [...panelKeyResultItems, ...sessionHydrated],
         [],
       ).values(),
-    ],
-    [panelKeyResultItems, userKeyResultItems],
-  );
+    ];
+  }, [panelKeyResultItems, userKeyResultItems, metricsById]);
 
   const planningPickReady = !userKeyResultsLoading && !userKeyResultsFetching;
 
@@ -226,18 +249,12 @@ function Page() {
 
   const enrichedPlanSummaries = useMemo(
     () =>
-      enrichPlanSummariesWithUserKeyResults(
-        planSummaries,
-        combinedApiItems,
-      ),
+      enrichPlanSummariesWithUserKeyResults(planSummaries, combinedApiItems),
     [planSummaries, combinedApiItems],
   );
   const enrichedReportSummaries = useMemo(
     () =>
-      enrichPlanSummariesWithUserKeyResults(
-        reportSummaries,
-        combinedApiItems,
-      ),
+      enrichPlanSummariesWithUserKeyResults(reportSummaries, combinedApiItems),
     [reportSummaries, combinedApiItems],
   );
 
@@ -247,11 +264,20 @@ function Page() {
     activeTab === 2 ? reportingItems : transformedData;
 
   const panelApiForDisplay = useMemo(
-    () => [
-      ...buildKrMetricLookupMap(combinedApiItems, krPanelPlans).values(),
-    ],
+    () => [...buildKrMetricLookupMap(combinedApiItems, krPanelPlans).values()],
     [combinedApiItems, krPanelPlans],
   );
+
+  const planKrIdsNeedingMetrics = useMemo(() => {
+    const ids = collectPlanKeyResultIds(
+      activeTab === 2 ? reportSummaries : planSummaries,
+    );
+    if (ids.length === 0) return [];
+    const byId = new Map(
+      combinedApiItems.map((kr) => [String(kr.id), kr] as const),
+    );
+    return ids.filter((id) => !hasKrMetricMetadata(byId.get(id)));
+  }, [activeTab, reportSummaries, planSummaries, combinedApiItems]);
 
   const krPanelBlockingLoading =
     activeTab === 2
@@ -259,7 +285,8 @@ function Page() {
         reportSummaries.length === 0 &&
         planSummaries.length === 0
       : planningLoading ||
-        (panelKeyResultsLoading && planSummaries.length === 0);
+        (panelKeyResultsLoading &&
+          (planSummaries.length === 0 || planKrIdsNeedingMetrics.length > 0));
 
   const { targets: planningTargets, isLoading: planningTargetsLoading } =
     usePlanningTargets(userId, selectedTab?.id, userKeyResultItems);

@@ -160,4 +160,59 @@ describe('mergeKRPanelGroups — per-owner panel enrichment', () => {
 
     expect(map.get('kr-n')?.metricType?.name).toBe('Numeric');
   });
+
+  it('reconciles Numeric label for own KR when only API has metricType', () => {
+    const plans = [
+      {
+        id: 'plan-daily',
+        ownerUserId: 'me',
+        keyResults: [
+          {
+            id: 'kr-numeric',
+            title: 'Conduct 6 Sprint meeting',
+            progress: 100,
+            currentValue: 6,
+            targetValue: 6,
+            milestones: [],
+          },
+        ],
+      },
+    ] as any;
+
+    const apiItems = [
+      {
+        id: 'kr-numeric',
+        metricType: { name: 'Numeric' },
+        key_type: 'Numeric',
+        progress: 100,
+        currentValue: 6,
+        targetValue: 6,
+      },
+    ];
+
+    const groups = [
+      {
+        ownerKey: 'Me',
+        owner: { name: 'Me' },
+        avgProgress: 100,
+        krs: [
+          {
+            id: 'kr-numeric',
+            title: 'Conduct 6 Sprint meeting',
+            progress: 100,
+            taskCount: 0,
+            metricType: '',
+            progressLabel: '6/6',
+            targetValue: 6,
+            currentValue: 6,
+            isDeleted: false,
+            planningBlocked: false,
+          },
+        ],
+      },
+    ] as any;
+
+    const [group] = reconcileOwnerGroupMetrics(groups, plans, apiItems);
+    expect(group.krs[0].metricType).toBe('Numeric');
+  });
 });

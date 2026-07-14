@@ -142,7 +142,20 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
  * Transform keyResult data structure
  */
 const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
-  const isMilestoneMetric = keyResult.metricType?.name === 'Milestone';
+  const explicitMetricLabel = formatKrMetricTypeDisplayName(
+    keyResult.metricType?.name ||
+      keyResult.metricTypeName ||
+      keyResult.key_type ||
+      keyResult.previousMetricTypeName,
+  );
+  // When metric metadata is missing, keep OKR-status milestones so panel can still
+  // label Milestone KRs. Plan-only task groupings alone are not enough.
+  const okrStatusMilestones = resolveOkrMilestones({
+    milestones: keyResult.milestones,
+  });
+  const isMilestoneMetric =
+    explicitMetricLabel === 'Milestone' ||
+    (!explicitMetricLabel && okrStatusMilestones.length > 0);
 
   // Transform tasks - filter out empty tasks
   const transformedTasks = (keyResult.tasks || [])
@@ -253,11 +266,19 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
         }
       : null,
     metricType: keyResult.metricType,
-    key_type: keyResult.key_type,
+    key_type:
+      keyResult.key_type ??
+      keyResult.metricTypeName ??
+      keyResult.metricType?.name ??
+      keyResult.previousMetricTypeName,
     metricTypeName:
       keyResult.metricTypeName ??
       keyResult.metricType?.name ??
-      keyResult.key_type,
+      keyResult.key_type ??
+      keyResult.previousMetricTypeName,
+    previousMetricTypeName: keyResult.previousMetricTypeName,
+    metricTypeId:
+      keyResult.metricTypeId ?? keyResult.metricType?.id ?? undefined,
     targetValue: resolvedTarget,
     currentValue,
     initialValue,
@@ -711,7 +732,7 @@ export const transformToPlanSummary = (
 
   return {
     id: dataItem.id || '',
-    ownerUserId: dataItem?.userId ?? '',
+    ownerUserId: dataItem?.userId ?? dataItem?.createdBy ?? '',
     cadence: cadence,
     owner: {
       name: fullName,

@@ -71,7 +71,10 @@ function buildPlanKeyResultById(plans: PlanSummary[]): Map<string, any> {
   const map = new Map<string, any>();
   for (const plan of plans ?? []) {
     for (const kr of plan.keyResults ?? []) {
-      if (kr?.id != null) map.set(String(kr.id), kr);
+      if (kr?.id == null) continue;
+      const id = String(kr.id);
+      const prev = map.get(id);
+      map.set(id, prev ? mergeKrMetricRicher(prev, kr) : kr);
     }
   }
   return map;
