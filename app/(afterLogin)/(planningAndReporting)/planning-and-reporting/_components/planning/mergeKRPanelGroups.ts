@@ -8,6 +8,8 @@ import {
   getKeyResultProgressRatioText,
   isKeyResultFullyCompletedForPlanning,
   mergeKeyResultWithUserApi,
+  mergeKrMetricRicher,
+  resolveKrCardMetricLabel,
   resolveKrPanelMetricType,
   resolveKrPlanningBlocked,
   isKnownKrMetricTypeLabel,
@@ -22,6 +24,7 @@ export interface KRPanelAggregatedKR {
   progress: number;
   taskCount: number;
   metricType: string;
+  key_type?: string;
   targetValue: string | number;
   currentValue: string | number;
   progressLabel: string;
@@ -36,6 +39,68 @@ export interface KRPanelOwnerGroup {
   owner: PlanOwner;
   krs: KRPanelAggregatedKR[];
   avgProgress: number;
+}
+
+/** Distinct plan-owner user ids for panel OKR enrichment (includes logged-in user). */
+export function collectPlanOwnerUserIds(
+  plans: PlanSummary[],
+  loggedInUserId?: string,
+): string[] {
+  const ids = new Set<string>();
+  if (loggedInUserId) ids.add(String(loggedInUserId));
+  for (const plan of plans ?? []) {
+    const ownerId = plan.ownerUserId?.trim();
+    if (ownerId) ids.add(ownerId);
+  }
+  return [...ids];
+}
+
+/** Every KR id referenced on visible plan/report summaries. */
+export function collectPlanKeyResultIds(plans: PlanSummary[]): string[] {
+  const ids = new Set<string>();
+  for (const plan of plans ?? []) {
+    for (const kr of plan.keyResults ?? []) {
+      const id = kr?.id != null ? String(kr.id).trim() : '';
+      if (id) ids.add(id);
+    }
+  }
+  return [...ids];
+}
+
+function buildPlanKeyResultById(plans: PlanSummary[]): Map<string, any> {
+  const map = new Map<string, any>();
+  for (const plan of plans ?? []) {
+    for (const kr of plan.keyResults ?? []) {
+      if (kr?.id != null) map.set(String(kr.id), kr);
+    }
+  }
+  return map;
+}
+
+/** Richest KR row per id for panel metric labels (API + enriched plan payloads). */
+export function buildKrMetricLookupMap(
+  apiItems: any[],
+  plans: PlanSummary[] = [],
+): Map<string, any> {
+  const map = new Map<string, any>();
+
+  for (const kr of apiItems ?? []) {
+    if (kr?.id == null || kr.deletedAt != null) continue;
+    const id = String(kr.id);
+    const prev = map.get(id);
+    map.set(id, prev ? mergeKrMetricRicher(prev, kr) : kr);
+  }
+
+  for (const plan of plans ?? []) {
+    for (const kr of plan.keyResults ?? []) {
+      if (kr?.id == null) continue;
+      const id = String(kr.id);
+      const prev = map.get(id);
+      map.set(id, prev ? mergeKrMetricRicher(prev, kr) : kr);
+    }
+  }
+
+  return map;
 }
 
 export function normalizeUserKeyResultItems(data: unknown): any[] {
@@ -77,6 +142,7 @@ export function aggregateKeyResultForPanel(
   );
   const mergedKr = mergeKeyResultWithUserApi(kr, userKeyResultItems);
   const metricType =
+    resolveKrCardMetricLabel(kr, apiKr, kr) ||
     resolveKrPanelMetricType(mergedKr, apiKr) ||
     resolveKrPanelMetricType(kr, apiKr) ||
     (apiKr ? resolveKrPanelMetricType(apiKr) : '');
@@ -94,6 +160,13 @@ export function aggregateKeyResultForPanel(
     progress: getKeyResultProgressPercent(mergedKr),
     taskCount: linkedTaskCount,
     metricType,
+    key_type:
+      mergedKr.key_type ??
+      mergedKr.metricTypeName ??
+      (typeof mergedKr.metricType === 'object'
+        ? mergedKr.metricType?.name
+        : mergedKr.metricType) ??
+      metricType,
     targetValue: mergedKr.targetValue ?? 0,
     currentValue: mergedKr.currentValue ?? 0,
     progressLabel: getKeyResultProgressRatioText(mergedKr),
@@ -137,12 +210,13 @@ function isGroupForCurrentUser(
 }
 
 /**
- * Appends KRs from GET …/key-results/user/:id that are not already present
- * in plan-backed groups (deduped by KR id). Plan-backed rows win on conflict.
+ * Appends logged-in user's API KRs that are not already on a plan-backed panel row.
+ * Uses {@link apiKeyResultItems} only for metric/progress resolution — not for orphan discovery.
  */
 export function mergeUserKeyResultsIntoOwnerGroups(
   groups: KRPanelOwnerGroup[],
-  userKeyResultItems: any[],
+  orphanKeyResultItems: any[],
+  apiKeyResultItems: any[],
   plans: PlanSummary[],
   transformedData: any[] | undefined,
   userId: string,
@@ -160,12 +234,12 @@ export function mergeUserKeyResultsIntoOwnerGroups(
   }
 
   const orphans: KRPanelAggregatedKR[] = [];
-  for (const raw of userKeyResultItems) {
+  for (const raw of orphanKeyResultItems) {
     if (!raw || raw.deletedAt != null) continue;
     const id = String(raw.id);
     if (seen.has(id)) continue;
     seen.add(id);
-    orphans.push(apiKRToAggregated(raw, userKeyResultItems));
+    orphans.push(apiKRToAggregated(raw, apiKeyResultItems));
   }
 
   if (orphans.length === 0) {
@@ -200,6 +274,54 @@ export function mergeUserKeyResultsIntoOwnerGroups(
   });
 
   return merged;
+}
+
+/**
+ * Re-aggregate plan-backed rows that still lack a known metric label after the first pass.
+ * Own KRs often miss session-scoped user API rows while teammate rows resolve from owner fetch.
+ */
+export function reconcileOwnerGroupMetrics(
+  groups: KRPanelOwnerGroup[],
+  plans: PlanSummary[],
+  apiKeyResultItems: any[],
+): KRPanelOwnerGroup[] {
+  if (!groups.length) return groups;
+
+  const planKrById = buildPlanKeyResultById(plans);
+  const apiById = buildKrMetricLookupMap(apiKeyResultItems, plans);
+
+  return groups.map((group) => ({
+    ...group,
+    krs: group.krs.map((panelKr) => {
+      if (isKnownKrMetricTypeLabel(panelKr.metricType)) return panelKr;
+
+      const planKr = planKrById.get(String(panelKr.id));
+      const lookupKr = apiById.get(String(panelKr.id));
+      const upgraded = aggregateKeyResultForPanel(
+        planKr ?? panelKr,
+        panelKr.taskCount,
+        apiKeyResultItems,
+      );
+      const metricFromLookup = resolveKrCardMetricLabel(
+        panelKr,
+        lookupKr,
+        planKr,
+      );
+      if (metricFromLookup && !isKnownKrMetricTypeLabel(upgraded.metricType)) {
+        return { ...upgraded, metricType: metricFromLookup };
+      }
+
+      if (
+        upgraded.metricType === panelKr.metricType &&
+        upgraded.progressLabel === panelKr.progressLabel &&
+        upgraded.taskCount === panelKr.taskCount
+      ) {
+        return panelKr;
+      }
+
+      return upgraded;
+    }),
+  }));
 }
 
 /** KR ids that must not show a planning + (all cadences: daily / weekly / monthly). */
@@ -258,9 +380,10 @@ export function enrichOwnerGroupsPlanningBlocked(
         planningSource.progress ?? getKeyResultProgressPercent(planningSource);
       const progressLabel = getKeyResultProgressRatioText(planningSource);
       const metricType =
-        (apiKr ? resolveKrPanelMetricType(apiKr) : '') ||
+        resolveKrCardMetricLabel(panelKr, apiKr, planningSource) ||
         resolveKrPanelMetricType(planningSource, apiKr) ||
         resolveKrPanelMetricType(panelKr, apiKr) ||
+        (apiKr ? resolveKrPanelMetricType(apiKr) : '') ||
         (isKnownKrMetricTypeLabel(panelKr.metricType)
           ? panelKr.metricType
           : '');
@@ -290,6 +413,11 @@ export function enrichOwnerGroupsPlanningBlocked(
         progress,
         progressLabel,
         metricType,
+        key_type:
+          apiKr?.key_type ??
+          planningSource.key_type ??
+          panelKr.key_type ??
+          metricType,
         taskCount: linkedTaskCount,
         milestoneCount,
         milestones: planningSource.milestones ?? panelKr.milestones,

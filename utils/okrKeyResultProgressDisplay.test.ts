@@ -2,7 +2,9 @@ import {
   formatKrMetricTypeDisplayName,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
+  getMetricTypeName,
   mergeKeyResultWithUserApi,
+  resolveKrCardMetricLabel,
   resolveKrPanelMetricType,
   resolveOkrMilestones,
   type KeyResultLikeInput,
@@ -178,5 +180,44 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
     expect(resolveOkrMilestones(planOnly)).toEqual([]);
     expect(getKeyResultProgressPercent(planOnly)).toBe(0);
     expect(resolveKrPanelMetricType(planOnly)).toBe('Milestone');
+  });
+
+  it('keeps plan metric type when API row is thin (own daily/monthly plans)', () => {
+    const planKr = {
+      id: 'kr-own',
+      metricType: { name: 'Percentage' },
+      key_type: 'Percentage',
+      progress: 40,
+      milestones: [],
+    };
+    const thinApiKr = {
+      id: 'kr-own',
+      progress: 40,
+      milestones: [],
+    };
+
+    const merged = mergeKeyResultWithUserApi(planKr, [thinApiKr]);
+
+    expect(resolveKrPanelMetricType(merged, thinApiKr)).toBe('Percentage');
+    expect(getMetricTypeName(merged)).toBe('Percentage');
+  });
+
+  it('resolveKrCardMetricLabel prefers API then enriched plan for Numeric', () => {
+    const panelKr = {
+      id: 'kr-n',
+      metricType: '',
+      progress: 100,
+      targetValue: 6,
+      currentValue: 6,
+    };
+    const apiKr = {
+      id: 'kr-n',
+      metricType: { name: 'Numeric' },
+      targetValue: 6,
+      currentValue: 6,
+      progress: 100,
+    };
+
+    expect(resolveKrCardMetricLabel(panelKr, apiKr)).toBe('Numeric');
   });
 });

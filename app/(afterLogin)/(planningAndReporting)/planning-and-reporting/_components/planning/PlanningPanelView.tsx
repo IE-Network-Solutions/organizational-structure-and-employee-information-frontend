@@ -19,15 +19,14 @@ import type {
   ViewMode,
 } from '../types';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import {
-  formatKrMetricTypeDisplayName,
-  resolveKrMetricTypeLabel,
-} from '@/utils/okrKeyResultProgressDisplay';
+import { resolveKrCardMetricLabel } from '@/utils/okrKeyResultProgressDisplay';
 import {
   aggregateKeyResultForPanel,
   buildBlockedKeyResultIdSet,
+  buildKrMetricLookupMap,
   enrichOwnerGroupsPlanningBlocked,
   mergeUserKeyResultsIntoOwnerGroups,
+  reconcileOwnerGroupMetrics,
   type KRPanelOwnerGroup,
   type ParentPlanContext,
 } from './mergeKRPanelGroups';
@@ -85,11 +84,13 @@ interface AggregatedKR {
   progress: number;
   taskCount: number;
   metricType: string;
+  key_type?: string;
   targetValue: string | number;
   currentValue: string | number;
   progressLabel: string;
   isDeleted: boolean;
   planningBlocked: boolean;
+  milestones?: Array<{ status?: string; deletedAt?: string | null }>;
   milestoneCount?: number;
 }
 
@@ -102,22 +103,11 @@ interface OwnerKRGroup {
 
 /** KR metric name shown before task / milestone metadata on panel cards. */
 function formatKrMetricTypeLabel(
-  metricType: string,
-  kr?: Pick<
-    AggregatedKR,
-    'id' | 'targetValue' | 'currentValue' | 'progress' | 'milestoneCount'
-  >,
+  kr: AggregatedKR,
+  apiKr?: any | null,
+  planKr?: any | null,
 ): string {
-  const fromStored =
-    formatKrMetricTypeDisplayName(metricType) || metricType?.trim();
-  if (fromStored) return fromStored;
-  if (!kr) return '';
-  return resolveKrMetricTypeLabel({
-    metricType,
-    targetValue: kr.targetValue,
-    currentValue: kr.currentValue,
-    progress: kr.progress,
-  });
+  return resolveKrCardMetricLabel(kr, apiKr, planKr);
 }
 
 /** + dropdown: single title line per planning slot */
@@ -211,6 +201,8 @@ const krCardStripItemClass =
 
 function KRProgressCard({
   kr,
+  apiKr,
+  planKr,
   isHighlighted,
   inlinePickEnabled = false,
   planningTargetsForKr = [],
@@ -218,6 +210,8 @@ function KRProgressCard({
   onPickPlanningTarget,
 }: {
   kr: AggregatedKR;
+  apiKr?: any | null;
+  planKr?: any | null;
   isHighlighted: boolean;
   inlinePickEnabled?: boolean;
   planningTargetsForKr?: PlanningTarget[];
@@ -230,7 +224,7 @@ function KRProgressCard({
   const { isMobile, isTablet } = useIsMobile();
   const pickMenuPlacement =
     isMobile || isTablet ? ('bottomCenter' as const) : ('bottomLeft' as const);
-  const metricLabel = formatKrMetricTypeLabel(kr.metricType, kr);
+  const metricLabel = formatKrMetricTypeLabel(kr, apiKr, planKr);
   const showTaskCount = kr.taskCount > 0;
   const milestoneCount = kr.milestoneCount ?? 0;
   const showMilestoneCount =
@@ -481,6 +475,8 @@ function KRProgressCard({
 
 function OwnerKRSection({
   group,
+  apiKrById,
+  planKrById,
   isSingleOwner,
   isCurrentUser,
   defaultExpanded,
@@ -491,6 +487,8 @@ function OwnerKRSection({
   onPickPlanningTarget,
 }: {
   group: OwnerKRGroup;
+  apiKrById?: Map<string, any>;
+  planKrById?: Map<string, any>;
   isSingleOwner: boolean;
   isCurrentUser: boolean;
   defaultExpanded: boolean;
@@ -586,6 +584,8 @@ function OwnerKRSection({
               >
                 <KRProgressCard
                   kr={kr}
+                  apiKr={apiKrById?.get(String(kr.id))}
+                  planKr={planKrById?.get(String(kr.id))}
                   isHighlighted={highlightedKRId === kr.id}
                   inlinePickEnabled={showInlinePlanningPick}
                   planningTargetsForKr={slots}
@@ -716,6 +716,8 @@ function OwnerKRSection({
               >
                 <KRProgressCard
                   kr={kr}
+                  apiKr={apiKrById?.get(String(kr.id))}
+                  planKr={planKrById?.get(String(kr.id))}
                   isHighlighted={highlightedKRId === kr.id}
                   inlinePickEnabled={showInlinePlanningPick}
                   planningTargetsForKr={slots}
@@ -1010,7 +1012,11 @@ export interface KRPanelProps {
   planningTargetsLoading?: boolean;
   selectedPlanningTargetId?: string | null;
   onPickPlanningTarget?: (target: PlanningTarget) => void;
-  /** Flat list from GET …/key-results/user/:userId (merged with plan-backed KRs, deduped by id). */
+  /** OKR API rows for every owner + plan-linked KR id (panel metric enrichment). */
+  apiKeyResultItems?: any[];
+  /** Logged-in user's API KRs only — for orphan rows not tied to a visible plan. */
+  orphanKeyResultItems?: any[];
+  /** @deprecated Use apiKeyResultItems */
   userKeyResultItems?: any[];
   /** Unreported parent plan for current cadence (planning period hierarchy). */
   parentPlanContext?: ParentPlanContext | null;
@@ -1032,22 +1038,32 @@ export function KRLeftPanel({
   planningTargetsLoading = false,
   selectedPlanningTargetId = null,
   onPickPlanningTarget,
-  userKeyResultItems = [],
+  apiKeyResultItems,
+  orphanKeyResultItems,
+  userKeyResultItems: legacyUserKeyResultItems,
   parentPlanContext = null,
   planningPickReady = true,
 }: KRPanelProps) {
+  const panelApiItems =
+    apiKeyResultItems ?? legacyUserKeyResultItems ?? [];
+  const orphanApiItems =
+    orphanKeyResultItems ?? legacyUserKeyResultItems ?? panelApiItems;
+
   const ownerGroups = React.useMemo(() => {
-    const base = buildOwnerKRGroups(plans, userKeyResultItems);
-    const merged = enrichOwnerGroupsPlanningBlocked(
+    const base = buildOwnerKRGroups(plans, panelApiItems);
+    const merged = reconcileOwnerGroupMetrics(
       mergeUserKeyResultsIntoOwnerGroups(
         base,
-        userKeyResultItems,
+        orphanApiItems,
+        panelApiItems,
         plans,
         transformedData,
         userId,
       ),
-      userKeyResultItems,
+      plans,
+      panelApiItems,
     );
+    const enriched = enrichOwnerGroupsPlanningBlocked(merged, panelApiItems);
     const currentUserOwnerKeys = new Set(
       transformedData
         ?.filter((d: any) => d?.userId === userId)
@@ -1056,13 +1072,28 @@ export function KRLeftPanel({
         ) || [],
     );
 
-    return [...merged].sort((a, b) => {
+    return [...enriched].sort((a, b) => {
       const aMine = currentUserOwnerKeys.has(a.ownerKey);
       const bMine = currentUserOwnerKeys.has(b.ownerKey);
       if (aMine === bMine) return 0;
       return aMine ? -1 : 1;
     });
-  }, [plans, userId, userKeyResultItems, transformedData]);
+  }, [plans, userId, panelApiItems, orphanApiItems, transformedData]);
+
+  const apiKrById = React.useMemo(
+    () => buildKrMetricLookupMap(panelApiItems, plans),
+    [panelApiItems, plans],
+  );
+
+  const planKrById = React.useMemo(() => {
+    const map = new Map<string, any>();
+    for (const plan of plans) {
+      for (const kr of plan.keyResults ?? []) {
+        if (kr?.id != null) map.set(String(kr.id), kr);
+      }
+    }
+    return map;
+  }, [plans]);
 
   const totalKRs = ownerGroups.reduce((s, g) => s + g.krs.length, 0);
   const isSingleOwner = ownerGroups.length <= 1;
@@ -1076,8 +1107,8 @@ export function KRLeftPanel({
 
   const blockedKrIds = React.useMemo(() => {
     const panelKrs = ownerGroups.flatMap((g) => g.krs);
-    return buildBlockedKeyResultIdSet(userKeyResultItems, panelKrs);
-  }, [ownerGroups, userKeyResultItems]);
+    return buildBlockedKeyResultIdSet(panelApiItems, panelKrs);
+  }, [ownerGroups, panelApiItems]);
 
   /** Parent-plan rows (daily-under-weekly etc.) — picked from the plan section only, not KR +. */
   const parentPlanSlots = React.useMemo(
@@ -1232,6 +1263,8 @@ export function KRLeftPanel({
                     <OwnerKRSection
                       key={group.ownerKey}
                       group={group}
+                      apiKrById={apiKrById}
+                      planKrById={planKrById}
                       isSingleOwner={isSingleOwner}
                       isCurrentUser={!!isCurrentUserGroup}
                       defaultExpanded={isSingleOwner || idx === 0}

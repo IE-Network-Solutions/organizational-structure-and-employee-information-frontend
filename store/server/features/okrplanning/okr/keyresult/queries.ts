@@ -20,7 +20,7 @@ export interface PreviousMetricResponse {
 type ResponseData = {
   items: KeyResult[];
 };
-const getKeyResultByUser = async (
+export const getKeyResultByUser = async (
   id: number | string,
   fiscalYearId?: string,
   sessionId?: string,

@@ -185,6 +185,92 @@ function resolveExplicitMetricLabel(
   return formatKrMetricTypeDisplayName(metric);
 }
 
+/** Whether a KR payload carries explicit metric metadata (any source field). */
+export function hasKrMetricMetadata(kr: unknown): boolean {
+  if (!kr || typeof kr !== 'object') return false;
+  const row = kr as KeyResultLikeInput;
+  if (typeof row.metricType === 'string' && row.metricType.trim()) return true;
+  if (
+    row.metricType &&
+    typeof row.metricType === 'object' &&
+    String((row.metricType as { name?: string }).name ?? '').trim()
+  ) {
+    return true;
+  }
+  if (String(row.key_type ?? '').trim()) return true;
+  if (String(row.metricTypeName ?? '').trim()) return true;
+  if (String(row.previousMetricTypeName ?? '').trim()) return true;
+  return false;
+}
+
+/** Prefer the record that already has metric metadata when merging lookup rows. */
+export function mergeKrMetricRicher(base: any, incoming: any): any {
+  if (!base) return incoming;
+  if (!incoming) return base;
+  const baseHas = hasKrMetricMetadata(base);
+  const incomingHas = hasKrMetricMetadata(incoming);
+  const merged = { ...base, ...incoming };
+
+  if (baseHas && !incomingHas) {
+    merged.metricType = base.metricType;
+    merged.key_type = base.key_type ?? merged.key_type;
+    merged.metricTypeName = base.metricTypeName ?? merged.metricTypeName;
+  } else if (incomingHas && !baseHas) {
+    merged.metricType = incoming.metricType;
+    merged.key_type = incoming.key_type ?? merged.key_type;
+    merged.metricTypeName = incoming.metricTypeName ?? merged.metricTypeName;
+  } else if (baseHas && incomingHas) {
+    merged.metricType = incoming.metricType ?? base.metricType;
+    merged.key_type = incoming.key_type ?? base.key_type;
+    merged.metricTypeName = incoming.metricTypeName ?? base.metricTypeName;
+  }
+
+  if (
+    (!Array.isArray(merged.milestones) || merged.milestones.length === 0) &&
+    Array.isArray(base.milestones) &&
+    base.milestones.length > 0
+  ) {
+    merged.milestones = base.milestones;
+  }
+  if (
+    (!Array.isArray(merged.milestones) || merged.milestones.length === 0) &&
+    Array.isArray(incoming.milestones) &&
+    incoming.milestones.length > 0
+  ) {
+    merged.milestones = incoming.milestones;
+  }
+
+  return merged;
+}
+
+/**
+ * Label for KR panel cards — checks API, enriched plan KR, then aggregated panel row.
+ * Fixes own-KR gaps on daily/monthly where stored panel metricType is empty.
+ */
+export function resolveKrCardMetricLabel(
+  panelKr?: KeyResultLikeInput | null,
+  apiKr?: KeyResultLikeInput | null,
+  planKr?: KeyResultLikeInput | null,
+): string {
+  const ordered: Array<KeyResultLikeInput | null | undefined> = [
+    apiKr,
+    planKr,
+    panelKr,
+  ];
+
+  for (const source of ordered) {
+    const label = resolveExplicitMetricLabel(source);
+    if (label) return label;
+  }
+
+  for (const source of ordered) {
+    const label = resolveKrPanelMetricType(source, apiKr);
+    if (label) return label;
+  }
+
+  return '';
+}
+
 /**
  * Resolve the metric type label shown on Plan & Report KR cards.
  * OKR user-KR API is the source of truth; plan payloads only fill gaps.
@@ -406,20 +492,29 @@ export function buildKrPlanningSource(
     };
   }
 
-  const apiMetricType = coerceMetricTypeObject(
-    apiKr.metricType,
-    apiKr.key_type,
+  const apiMetricType =
+    coerceMetricTypeObject(apiKr.metricType, apiKr.key_type) ??
+    coerceMetricTypeObject(apiKr.metricTypeName, apiKr.key_type);
+  const panelMetricType = coerceMetricTypeObject(
+    panelKr.metricType,
+    panelKr.metricType,
   );
+  const metricTypeObj = apiMetricType ?? panelMetricType;
 
   const merged = withResolvedOkrMilestones(
     {
       ...apiKr,
-      metricType: apiMetricType,
-      key_type: apiKr.key_type ?? apiMetricType?.name,
+      metricType: metricTypeObj,
+      key_type:
+        metricTypeObj?.name ??
+        apiKr.key_type ??
+        panelKr.metricType ??
+        apiKr.metricTypeName,
       progress: apiKr.progress ?? panelKr.progress,
       currentValue: apiKr.currentValue ?? panelKr.currentValue,
       targetValue: apiKr.targetValue ?? panelKr.targetValue,
       initialValue: apiKr.initialValue ?? panelKr.currentValue,
+      milestones: apiKr.milestones ?? apiKr.Milestones ?? panelKr.milestones,
     },
     apiKr,
   );
@@ -702,19 +797,31 @@ export function mergeKeyResultWithUserApi(
 
   const apiMetricType =
     coerceMetricTypeObject(apiKr.metricType, apiKr.key_type) ??
-    coerceMetricTypeObject(kr?.metricType, kr?.key_type);
+    coerceMetricTypeObject(apiKr.metricTypeName, apiKr.key_type);
+  const planMetricType =
+    coerceMetricTypeObject(kr?.metricType, kr?.key_type) ??
+    coerceMetricTypeObject(kr?.metricTypeName, kr?.key_type);
+  // Never let a thin API row wipe plan/OKR metric metadata (common for own daily/monthly plans).
+  const metricTypeObj = apiMetricType ?? planMetricType;
 
   const merged = withResolvedOkrMilestones(
     {
       ...kr,
       ...apiKr,
-      metricType: apiMetricType,
-      key_type: apiKr.key_type ?? apiMetricType?.name ?? kr?.key_type,
-      metricTypeName:
-        apiKr.metricType?.name ??
-        apiKr.metricTypeName ??
+      metricType: metricTypeObj ?? kr?.metricType ?? apiKr.metricType,
+      key_type:
+        metricTypeObj?.name ??
         apiKr.key_type ??
-        apiMetricType?.name ??
+        kr?.key_type ??
+        apiKr.metricTypeName ??
+        kr?.metricTypeName,
+      metricTypeName:
+        metricTypeObj?.name ??
+        apiKr.metricTypeName ??
+        (typeof apiKr.metricType === 'object'
+          ? apiKr.metricType?.name
+          : apiKr.metricType) ??
+        apiKr.key_type ??
         kr?.metricTypeName ??
         kr?.key_type ??
         (typeof kr?.metricType === 'object'

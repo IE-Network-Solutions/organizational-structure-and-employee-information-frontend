@@ -23,7 +23,9 @@ import {
   enrichPlanSummariesWithUserKeyResults,
   getActiveUnreportedParentPlanContext,
   normalizeUserKeyResultItems,
+  buildKrMetricLookupMap,
 } from './_components/planning/mergeKRPanelGroups';
+import { usePanelKeyResultItems } from './_components/planning/usePanelKeyResultItems';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import { usePlanningData } from './_components/planning/usePlanningData';
 import { usePlanningTargets } from './_components/planning/usePlanningTargets';
@@ -189,6 +191,32 @@ function Page() {
     [userKeyResultsRaw],
   );
 
+  const { reportSummaries, reportingItems } = useReportingData();
+
+  const panelSourcePlans = useMemo(
+    () => [...planSummaries, ...reportSummaries],
+    [planSummaries, reportSummaries],
+  );
+
+  const {
+    items: panelKeyResultItems,
+    isLoading: panelKeyResultsLoading,
+  } = usePanelKeyResultItems(
+    panelSourcePlans,
+    keyResultFiscalYearId,
+    userId,
+  );
+
+  const combinedApiItems = useMemo(
+    () => [
+      ...buildKrMetricLookupMap(
+        [...panelKeyResultItems, ...userKeyResultItems],
+        [],
+      ).values(),
+    ],
+    [panelKeyResultItems, userKeyResultItems],
+  );
+
   const planningPickReady = !userKeyResultsLoading && !userKeyResultsFetching;
 
   const parentPlanContext = useMemo(
@@ -196,20 +224,21 @@ function Page() {
     [planningPeriodHierarchy],
   );
 
-  const { reportSummaries, reportingItems } = useReportingData();
-
   const enrichedPlanSummaries = useMemo(
     () =>
-      enrichPlanSummariesWithUserKeyResults(planSummaries, userKeyResultItems),
-    [planSummaries, userKeyResultItems],
+      enrichPlanSummariesWithUserKeyResults(
+        planSummaries,
+        combinedApiItems,
+      ),
+    [planSummaries, combinedApiItems],
   );
   const enrichedReportSummaries = useMemo(
     () =>
       enrichPlanSummariesWithUserKeyResults(
         reportSummaries,
-        userKeyResultItems,
+        combinedApiItems,
       ),
-    [reportSummaries, userKeyResultItems],
+    [reportSummaries, combinedApiItems],
   );
 
   const krPanelPlans =
@@ -217,13 +246,20 @@ function Page() {
   const krPanelTransformedData =
     activeTab === 2 ? reportingItems : transformedData;
 
+  const panelApiForDisplay = useMemo(
+    () => [
+      ...buildKrMetricLookupMap(combinedApiItems, krPanelPlans).values(),
+    ],
+    [combinedApiItems, krPanelPlans],
+  );
+
   const krPanelBlockingLoading =
     activeTab === 2
-      ? userKeyResultsLoading &&
+      ? panelKeyResultsLoading &&
         reportSummaries.length === 0 &&
         planSummaries.length === 0
       : planningLoading ||
-        (userKeyResultsLoading && planSummaries.length === 0);
+        (panelKeyResultsLoading && planSummaries.length === 0);
 
   const { targets: planningTargets, isLoading: planningTargetsLoading } =
     usePlanningTargets(userId, selectedTab?.id, userKeyResultItems);
@@ -524,7 +560,8 @@ function Page() {
                   onPickPlanningTarget={(t) =>
                     setSelectedPlanningTargetId(t.id)
                   }
-                  userKeyResultItems={userKeyResultItems}
+                  apiKeyResultItems={panelApiForDisplay}
+                  orphanKeyResultItems={userKeyResultItems}
                   parentPlanContext={parentPlanContext}
                   planningPickReady={planningPickReady}
                 />
@@ -671,7 +708,8 @@ function Page() {
                 planningTargetsLoading={planningTargetsLoading}
                 selectedPlanningTargetId={selectedPlanningTargetId}
                 onPickPlanningTarget={(t) => setSelectedPlanningTargetId(t.id)}
-                userKeyResultItems={userKeyResultItems}
+                apiKeyResultItems={panelApiForDisplay}
+                orphanKeyResultItems={userKeyResultItems}
                 parentPlanContext={parentPlanContext}
                 planningPickReady={planningPickReady}
               />
