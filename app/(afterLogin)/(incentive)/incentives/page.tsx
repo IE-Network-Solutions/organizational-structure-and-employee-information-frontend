@@ -312,7 +312,7 @@ const Page = () => {
       return [...Array(6).keys()].map((index) => (
         <Card
           key={`recognition-skeleton-${index}`}
-          className="rounded-lg border border-[#D1D5DB] bg-white p-3"
+          className="rounded-lg bg-[#f9fafb] p-3"
           bodyStyle={{ padding: 0 }}
           data-cy={`incentive-recognition-type-card-skeleton-${index}`}
         >
@@ -335,7 +335,7 @@ const Page = () => {
     return paginatedRecognition?.map((item: any) => (
       <Card
         key={item?.id}
-        className="cursor-pointer rounded-lg border border-[#D1D5DB] bg-white p-3"
+        className="cursor-pointer rounded-lg bg-[#f9fafb] p-3"
         onClick={() => handleCardSelect(item?.id)}
         bodyStyle={{ padding: 0 }}
         data-cy={`incentive-recognition-type-card-${item?.id}`}
@@ -442,8 +442,8 @@ const Page = () => {
           />
 
           <Card
-            bordered
-            className="rounded-lg p-3"
+            bordered={false}
+            className="rounded-lg p-3 shadow-none"
             data-cy="incentive-categories-card-wrapper"
             bodyStyle={{ padding: 0 }}
           >

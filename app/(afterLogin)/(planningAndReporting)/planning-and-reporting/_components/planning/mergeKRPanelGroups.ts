@@ -1,21 +1,17 @@
-import type { PlanOwner, PlanSummary } from '../types';
 import {
   buildKrPlanningSource,
-  countKeyResultMilestones,
-  countKeyResultPlanTasks,
   enrichKeyResultWithUserApi,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
+  getMetricTypeName,
   isKeyResultFullyCompletedForPlanning,
   mergeKeyResultWithUserApi,
   mergeKrMetricRicher,
   resolveKrCardMetricLabel,
   resolveKrPanelMetricType,
   resolveKrPlanningBlocked,
-  isKnownKrMetricTypeLabel,
 } from '@/utils/okrKeyResultProgressDisplay';
-
-export { mergeKeyResultWithUserApi };
+import type { PlanOwner, PlanSummary } from '../types';
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
 export interface KRPanelAggregatedKR {
@@ -31,7 +27,6 @@ export interface KRPanelAggregatedKR {
   isDeleted: boolean;
   planningBlocked: boolean;
   milestones?: Array<{ status?: string; deletedAt?: string | null }>;
-  milestoneCount?: number;
 }
 
 export interface KRPanelOwnerGroup {
@@ -119,7 +114,8 @@ export function normalizeUserKeyResultItems(data: unknown): any[] {
 }
 
 /**
- * Apply OKR user-KR API data (metric type, milestones, progress) to plan summaries.
+ * Apply OKR API milestone/progress data to every KR inside plan summaries.
+ * Used for daily, weekly, and monthly plan types alike.
  */
 export function enrichPlanSummariesWithUserKeyResults(
   plans: PlanSummary[],
@@ -140,9 +136,6 @@ export function aggregateKeyResultForPanel(
   taskCount = 0,
   userKeyResultItems: any[] = [],
 ): KRPanelAggregatedKR {
-  const apiKr = userKeyResultItems.find(
-    (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
-  );
   const mergedKr = mergeKeyResultWithUserApi(kr, userKeyResultItems);
   const metricType =
     resolveKrCardMetricLabel(kr, apiKr, kr) ||
@@ -161,7 +154,7 @@ export function aggregateKeyResultForPanel(
       (mergedKr.title || mergedKr.name || 'Untitled KR').trim() ||
       'Untitled KR',
     progress: getKeyResultProgressPercent(mergedKr),
-    taskCount: linkedTaskCount,
+    taskCount,
     metricType,
     key_type:
       mergedKr.key_type ??
@@ -176,7 +169,6 @@ export function aggregateKeyResultForPanel(
     isDeleted: mergedKr.deletedAt != null,
     planningBlocked: isKeyResultFullyCompletedForPlanning(mergedKr),
     milestones: mergedKr.milestones ?? mergedKr.Milestones ?? [],
-    milestoneCount,
   };
 }
 
@@ -184,11 +176,7 @@ function apiKRToAggregated(
   kr: any,
   userKeyResultItems: any[] = [],
 ): KRPanelAggregatedKR {
-  return aggregateKeyResultForPanel(
-    kr,
-    countKeyResultPlanTasks(kr),
-    userKeyResultItems,
-  );
+  return aggregateKeyResultForPanel(kr, 0, userKeyResultItems);
 }
 
 function recalcAvgProgress(krs: KRPanelAggregatedKR[]): number {
@@ -373,14 +361,14 @@ export function enrichOwnerGroupsPlanningBlocked(
       .map((kr) => [String(kr.id), kr]),
   );
 
-  return groups.map((group) => ({
-    ...group,
-    krs: group.krs.map((panelKr) => {
-      const apiKr = apiById.get(String(panelKr.id));
+  return groups.map((group) => {
+    const krs = group.krs.map((panelKr) => {
+      const apiKr = apiById.get(panelKr.id);
+      // Always rebuild from OKR API when available so cancelled-report → restored-plan
+      // cards never keep stale plan-task progress (e.g. 100% / 0/0).
       const planningSource = buildKrPlanningSource(panelKr, apiKr);
       const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
-      const progress =
-        planningSource.progress ?? getKeyResultProgressPercent(planningSource);
+      const progress = getKeyResultProgressPercent(planningSource);
       const progressLabel = getKeyResultProgressRatioText(planningSource);
       const metricType =
         resolveKrCardMetricLabel(panelKr, apiKr, planningSource) ||
@@ -404,9 +392,7 @@ export function enrichOwnerGroupsPlanningBlocked(
         planningBlocked === panelKr.planningBlocked &&
         progress === panelKr.progress &&
         progressLabel === panelKr.progressLabel &&
-        metricType === panelKr.metricType &&
-        linkedTaskCount === panelKr.taskCount &&
-        milestoneCount === panelKr.milestoneCount
+        metricType === panelKr.metricType
       ) {
         return panelKr;
       }
@@ -427,8 +413,14 @@ export function enrichOwnerGroupsPlanningBlocked(
         currentValue: planningSource.currentValue ?? panelKr.currentValue,
         targetValue: planningSource.targetValue ?? panelKr.targetValue,
       };
-    }),
-  }));
+    });
+
+    return {
+      ...group,
+      krs,
+      avgProgress: recalcAvgProgress(krs),
+    };
+  });
 }
 
 export type ParentPlanContext = {
