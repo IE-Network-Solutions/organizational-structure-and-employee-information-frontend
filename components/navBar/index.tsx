@@ -24,6 +24,7 @@ import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
+import { IS_CORE } from '@/utils/constants';
 
 // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
 const isRouteMatch = (routePattern: string, pathname: string) => {
@@ -109,9 +110,6 @@ import { MobileBottomNav } from './MobileBottomNav';
 interface MyComponentProps {
   children: ReactNode;
 }
-
-// Core host (SelamNew Core) provides its own top bar when this app is embedded inside it.
-const IS_CORE = process.env.NEXT_PUBLIC_IS_CORE === 'true';
 
 const NavMenuItem: React.FC<{
   item: any;
