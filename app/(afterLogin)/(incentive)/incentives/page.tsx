@@ -3,8 +3,18 @@ import {
   useAllChildrenRecognition,
   useParentRecognition,
 } from '@/store/server/features/incentive/other/queries';
-import { Button, Card, Dropdown, Empty, Input, Skeleton, Tag } from 'antd';
+import {
+  Button,
+  Card,
+  Dropdown,
+  Empty,
+  Input,
+  Select,
+  Skeleton,
+  Tag,
+} from 'antd';
 import type { MenuProps } from 'antd';
+import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import DynamicIncentive from './compensation/dynamicRecoginition';
@@ -18,10 +28,10 @@ import { MdOutlineEmojiEvents } from 'react-icons/md';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import CustomPagination from '@/components/customPagination';
 import IncentiveStatusCards from './compensation/cards/IncentiveStatusCards';
-import { useAllIncentiveCards } from '@/store/server/features/incentive/all/queries';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import { useGetAllIncentiveData } from '@/store/server/features/incentive/other/queries';
 import { useGetRecognitionTypeDashboardStats } from '@/store/server/features/CFR/recognition/queries';
+import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
 import GenerateModal from './payroll-detail/generateModal';
@@ -58,7 +68,8 @@ const Page = () => {
 
   const { mutate: exportIncentiveData } = useExportIncentiveData();
 
-  const { searchParams } = useIncentiveStore();
+  const { searchParams, setSearchParams } = useIncentiveStore();
+  const { data: payPeriodData } = useGetPayPeriod();
   const handleExport = (values: any, generateAll: boolean) => {
     const formattedValues = {
       parentRecognitionTypeId: selectedRecognition?.id || '',
@@ -90,19 +101,27 @@ const Page = () => {
   const { data: recognitionTypeDashboardStats } =
     useGetRecognitionTypeDashboardStats();
 
-  const { data: incentiveData } = useGetAllIncentiveData(
-    searchParams?.employee_name || '',
-    searchParams?.byYear || ' ',
-    searchParams?.bySession,
-    searchParams?.byMonth || '',
-    pageSize,
-    currentPage,
+  const { data: incentiveData, isFetching: incentiveDataFetching } =
+    useGetAllIncentiveData(
+      searchParams?.employee_name || '',
+      searchParams?.byYear || ' ',
+      searchParams?.bySession,
+      searchParams?.byMonth || '',
+      pageSize,
+      currentPage,
+      searchParams?.payPeriodId || '',
+    );
+
+  const handlePayPeriodChange = useCallback(
+    (value: string) => {
+      setSearchParams('payPeriodId', value || '');
+    },
+    [setSearchParams],
   );
 
   const { mutate: sendIncentiveToPayroll, isLoading } =
     useSendIncentiveToPayroll();
 
-  const { data: allIncentiveCards } = useAllIncentiveCards();
   const [searchCategory, setSearchCategory] = useState('');
   const [categoryPage, setCategoryPage] = useState(1);
   const [categoryPageSize, setCategoryPageSize] = useState(9);
@@ -241,7 +260,12 @@ const Page = () => {
       totalIncentive: formattedAmount,
       totalRecognitionTypes: formattedTotalRecognitionTypes,
     };
-  }, [allIncentiveCards, parentRecognition]);
+  }, [
+    parentRecognition,
+    formattedCriteria,
+    formattedAmount,
+    formattedTotalRecognitionTypes,
+  ]);
 
   const dropdownMenuItems: MenuProps['items'] = [
     {
@@ -438,7 +462,7 @@ const Page = () => {
 
           <IncentiveStatusCards
             recognitionTypeDashboardStats={recognitionStats}
-            isLoading={parentResponseLoading}
+            isLoading={parentResponseLoading || incentiveDataFetching}
           />
 
           <Card
@@ -447,32 +471,59 @@ const Page = () => {
             data-cy="incentive-categories-card-wrapper"
             bodyStyle={{ padding: 0 }}
           >
-            <Input.Group
-              compact
-              className="max-w-[320px] mb-4"
-              data-cy="incentive-search-group"
+            <div
+              className="flex flex-wrap items-center justify-between gap-3 mb-4"
+              data-cy="incentive-search-and-filters-row"
             >
-              <Input
-                placeholder="Search Category"
-                value={searchCategory}
-                onChange={(e) => setSearchCategory(e.target.value)}
+              <Input.Group
+                compact
+                className="max-w-[320px]"
+                data-cy="incentive-search-group"
+              >
+                <Input
+                  placeholder="Search Category"
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                  allowClear
+                  size="large"
+                  suffix={
+                    <div
+                      data-cy="incentive-search-category-input-suffix"
+                      className="border-l border-gray-200 flex items-center justify-center h-8"
+                    >
+                      <SearchOutlined
+                        data-cy="incentive-search-category-input-suffix-icon"
+                        className="text-gray-400 ml-3"
+                      />
+                    </div>
+                  }
+                  className="w-full rounded-md h-8 md:w-[300px]"
+                  data-cy="incentive-search-category-input"
+                />
+              </Input.Group>
+
+              <Select
+                id="incentives-page-payperiod-select"
+                data-cy="incentives-page-payperiod-select"
+                placeholder="Pay Period"
+                onChange={handlePayPeriodChange}
+                value={searchParams?.payPeriodId || undefined}
                 allowClear
                 size="large"
-                suffix={
-                  <div
-                    data-cy="incentive-search-category-input-suffix"
-                    className="border-l border-gray-200 flex items-center justify-center h-8"
+                style={{ width: 260 }}
+              >
+                {payPeriodData?.map((period: any) => (
+                  <Select.Option
+                    key={period.id}
+                    value={period.id}
+                    data-cy={`incentives-page-payperiod-option-${period.id}`}
                   >
-                    <SearchOutlined
-                      data-cy="incentive-search-category-input-suffix-icon"
-                      className="text-gray-400 ml-3"
-                    />
-                  </div>
-                }
-                className="w-full rounded-md h-8 md:w-[300px]"
-                data-cy="incentive-search-category-input"
-              />
-            </Input.Group>
+                    {dayjs(period.startDate).format('MMM DD, YYYY')} --{' '}
+                    {dayjs(period.endDate).format('MMM DD, YYYY')}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
 
             <div
               className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"
