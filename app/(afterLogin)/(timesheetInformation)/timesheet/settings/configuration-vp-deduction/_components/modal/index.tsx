@@ -95,13 +95,8 @@ const ConfigureVpDeductionModal = () => {
     [activeFormKey, 'applyAdditionalRules'],
     form,
   );
-  const missedClockout = Form.useWatch(
-    ['earlyCheckout', 'missedClockout'],
-    form,
-  );
 
   const isEditMode = Boolean(vpDeductionConfigId);
-  const isMissedClockout = activeTab === 'early_checkout' && missedClockout;
 
   const { mutate: createConfiguration, isLoading: isCreating } =
     useCreateVpTimeConfiguration();
@@ -313,121 +308,88 @@ const ConfigureVpDeductionModal = () => {
             }}
             data-cy="time-attendance-settings-configuration-vp-deduction-modal-form"
           >
-            {activeTab === 'early_checkout' && (
-              <div
-                className="mb-4 rounded-lg border border-[#E8E8E8] bg-[#FAFAFA] p-4"
-                id="time-attendance-settings-configuration-vp-deduction-modal-missed-clockout-section"
-                data-cy="time-attendance-settings-configuration-vp-deduction-modal-missed-clockout-section"
+            <>
+              <Form.Item
+                label={
+                  <span
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-time-range-label"
+                    className="inline-flex items-center gap-1 text-sm font-normal text-gray-900"
+                  >
+                    Time Range in minutes
+                    <Tooltip title="Define the time range in minutes for this VP deduction rule.">
+                      <InfoOutlined
+                        sx={{ fontSize: 16 }}
+                        className="text-gray-400"
+                      />
+                    </Tooltip>
+                  </span>
+                }
+                required
+                data-cy="time-attendance-settings-configuration-vp-deduction-modal-time-range-field"
               >
-                <Form.Item
-                  name={['earlyCheckout', 'missedClockout']}
-                  valuePropName="checked"
-                  className="mb-0"
-                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-missed-clockout-field"
-                >
-                  <Checkbox data-cy="time-attendance-settings-configuration-vp-deduction-modal-missed-clockout-checkbox">
-                    <span
-                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-missed-clockout-text"
-                      className="text-sm font-medium text-[#262626]"
+                <Row gutter={12}>
+                  <Col span={12}>
+                    <Form.Item
+                      name={[activeFormKey, 'startTime']}
+                      rules={[
+                        { required: true, message: 'Start time is required' },
+                      ]}
+                      className="mb-0"
+                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-start-time-field"
                     >
-                      Missed Clockout
-                    </span>
-                  </Checkbox>
-                </Form.Item>
-                <p
-                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-missed-clockout-description"
-                  className="mb-0 mt-1 pl-6 text-sm text-gray-500"
-                >
-                  Users who have missed clock out after working hours have
-                  ended.
-                </p>
-              </div>
-            )}
+                      <InputNumber
+                        className={controlClass}
+                        placeholder="Start Time"
+                        min={0}
+                        controls={false}
+                        id="time-attendance-settings-configuration-vp-deduction-modal-start-time"
+                        data-cy="time-attendance-settings-configuration-vp-deduction-modal-start-time"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name={[activeFormKey, 'endTime']}
+                      rules={[
+                        {
+                          required: !applyAdditionalRules,
+                          message: 'End time is required',
+                        },
+                      ]}
+                      className="mb-0"
+                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-end-time-field"
+                    >
+                      <InputNumber
+                        className={controlClass}
+                        placeholder="End time"
+                        min={0}
+                        controls={false}
+                        disabled={applyAdditionalRules}
+                        id="time-attendance-settings-configuration-vp-deduction-modal-end-time"
+                        data-cy="time-attendance-settings-configuration-vp-deduction-modal-end-time"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </Form.Item>
 
-            {!isMissedClockout && (
-              <>
-                <Form.Item
-                  label={
-                    <span
-                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-time-range-label"
-                      className="inline-flex items-center gap-1 text-sm font-normal text-gray-900"
-                    >
-                      Time Range in minutes
-                      <Tooltip title="Define the time range in minutes for this VP deduction rule.">
-                        <InfoOutlined
-                          sx={{ fontSize: 16 }}
-                          className="text-gray-400"
-                        />
-                      </Tooltip>
-                    </span>
-                  }
-                  required
-                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-time-range-field"
-                >
-                  <Row gutter={12}>
-                    <Col span={12}>
-                      <Form.Item
-                        name={[activeFormKey, 'startTime']}
-                        rules={[
-                          { required: true, message: 'Start time is required' },
-                        ]}
-                        className="mb-0"
-                        data-cy="time-attendance-settings-configuration-vp-deduction-modal-start-time-field"
-                      >
-                        <InputNumber
-                          className={controlClass}
-                          placeholder="Start Time"
-                          min={0}
-                          controls={false}
-                          id="time-attendance-settings-configuration-vp-deduction-modal-start-time"
-                          data-cy="time-attendance-settings-configuration-vp-deduction-modal-start-time"
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        name={[activeFormKey, 'endTime']}
-                        rules={[
-                          {
-                            required: !applyAdditionalRules,
-                            message: 'End time is required',
-                          },
-                        ]}
-                        className="mb-0"
-                        data-cy="time-attendance-settings-configuration-vp-deduction-modal-end-time-field"
-                      >
-                        <InputNumber
-                          className={controlClass}
-                          placeholder="End time"
-                          min={0}
-                          controls={false}
-                          disabled={applyAdditionalRules}
-                          id="time-attendance-settings-configuration-vp-deduction-modal-end-time"
-                          data-cy="time-attendance-settings-configuration-vp-deduction-modal-end-time"
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                </Form.Item>
-
-                <Form.Item
-                  name={[activeFormKey, 'applyAdditionalRules']}
-                  valuePropName="checked"
-                  className="mb-4"
-                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-apply-additional-rules-field"
-                >
-                  <Checkbox data-cy="time-attendance-settings-configuration-vp-deduction-modal-apply-additional-rules-checkbox">
-                    <span
-                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-apply-additional-rules-text"
-                      className="text-sm text-[#262626]"
-                    >
-                      Apply additional rules when the time range exceeds this
-                      amount.
-                    </span>
-                  </Checkbox>
-                </Form.Item>
-              </>
-            )}
+              <Form.Item
+                name={[activeFormKey, 'applyAdditionalRules']}
+                valuePropName="checked"
+                className="mb-4"
+                data-cy="time-attendance-settings-configuration-vp-deduction-modal-apply-additional-rules-field"
+              >
+                <Checkbox data-cy="time-attendance-settings-configuration-vp-deduction-modal-apply-additional-rules-checkbox">
+                  <span
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-apply-additional-rules-text"
+                    className="text-sm text-[#262626]"
+                  >
+                    Apply additional rules when the time range exceeds this
+                    amount.
+                  </span>
+                </Checkbox>
+              </Form.Item>
+            </>
 
             <Form.Item
               name={[activeFormKey, 'deductibleAmount']}
@@ -446,7 +408,7 @@ const ConfigureVpDeductionModal = () => {
             >
               <InputNumber
                 className={controlClass}
-                placeholder="Add number of Days"
+                placeholder="Add the VP points to be deducted"
                 min={0}
                 controls={false}
                 id="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount"

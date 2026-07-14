@@ -235,7 +235,7 @@ export default function MyPayroll() {
 
     const breakdown = activeMergedPayroll?.breakdown;
 
-    // Calculate total benefit if not directly available as a single field
+    // Project Incentive lives in merits; do not also add breakdown.incentives
     const entitledBenefitTotal =
       (breakdown?.merits?.reduce(
         (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
@@ -243,9 +243,6 @@ export default function MyPayroll() {
       ) || 0) +
       (breakdown?.variablePay
         ? parseFloat(breakdown.variablePay.amount || '0')
-        : 0) +
-      (breakdown?.incentives
-        ? parseFloat(breakdown.incentives.amount || '0')
         : 0);
 
     const entitledDeductionTotal =
@@ -409,16 +406,6 @@ export default function MyPayroll() {
                         label: breakdown.variablePay.type,
                         value: parseFloat(
                           breakdown.variablePay.amount || '0',
-                        ).toFixed(2),
-                      },
-                    ]
-                  : []),
-                ...(breakdown?.incentives
-                  ? [
-                      {
-                        label: 'Incentive',
-                        value: parseFloat(
-                          breakdown.incentives.amount || '0',
                         ).toFixed(2),
                       },
                     ]
@@ -616,9 +603,6 @@ export default function MyPayroll() {
                         ) || 0) +
                         (breakdown?.variablePay
                           ? parseFloat(breakdown.variablePay.amount || '0')
-                          : 0) +
-                        (breakdown?.incentives
-                          ? parseFloat(breakdown.incentives.amount || '0')
                           : 0);
 
                       const entitledDeductionTotal =
@@ -733,16 +717,6 @@ export default function MyPayroll() {
                                         label: breakdown.variablePay.type,
                                         value: parseFloat(
                                           breakdown.variablePay.amount || '0',
-                                        ).toFixed(2),
-                                      },
-                                    ]
-                                  : []),
-                                ...(breakdown?.incentives
-                                  ? [
-                                      {
-                                        label: 'Incentive',
-                                        value: parseFloat(
-                                          breakdown.incentives.amount || '0',
                                         ).toFixed(2),
                                       },
                                     ]

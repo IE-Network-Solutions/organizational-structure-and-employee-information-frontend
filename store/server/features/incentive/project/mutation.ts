@@ -23,17 +23,15 @@ const generateIncentive = async (data: any) => {
 export const useGenerateIncentive = () => {
   const queryClient = useQueryClient();
   return useMutation(generateIncentive, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(['getAllIncentiveData']);
-      queryClient.invalidateQueries(['allIncentiveIds']);
-      queryClient.invalidateQueries('allIncentiveCards');
-      queryClient.invalidateQueries('useDetail');
-      queryClient.invalidateQueries('recognitionTypeDashboardStats');
-      queryClient.invalidateQueries('allChildRecognition');
-      queryClient.invalidateQueries('parentRecognition');
-      queryClient.invalidateQueries('childRecognition');
-      queryClient.invalidateQueries('recognitionTypeParentChild');
-
+    onSuccess: async () => {
+      const refetchOpts = { refetchActive: true, refetchInactive: false };
+      await Promise.all([
+        queryClient.invalidateQueries(['getAllIncentiveData'], refetchOpts),
+        queryClient.invalidateQueries(['allIncentiveIds'], refetchOpts),
+        queryClient.invalidateQueries('incentiveFormula', refetchOpts),
+        queryClient.invalidateQueries('allIncentiveCards', refetchOpts),
+        queryClient.invalidateQueries('useDetail', refetchOpts),
+      ]);
       NotificationMessage.success({
         message: 'Incentive generated successfully!',
         description: 'Incentive has been successfully generated',

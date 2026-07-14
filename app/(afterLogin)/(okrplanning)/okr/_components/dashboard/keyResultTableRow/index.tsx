@@ -47,7 +47,10 @@ import {
   getRemovedMilestoneIds,
   persistKeyResultMilestones,
 } from '../../../_utils/milestoneSave';
-import { getKeyResultMetricDetailLine } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  getKeyResultMetricDetailLine,
+  getKeyResultProgressPercent,
+} from '@/utils/okrKeyResultProgressDisplay';
 
 const { Option } = Select;
 
@@ -292,7 +295,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
   const isBasicAchieveOrNot =
     isBasicOkr && rowKeyResult?.metricType?.name === 'Achieve';
   const metricName = rowKeyResult?.metricType?.name || 'N/A';
-  const progress = Number(rowKeyResult?.progress) || 0;
+  const progress = getKeyResultProgressPercent(rowKeyResult);
   const canInlineEditFromObjective =
     objectiveEditMode &&
     canShowActionsMenu &&

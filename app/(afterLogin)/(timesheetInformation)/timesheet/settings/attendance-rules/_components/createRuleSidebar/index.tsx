@@ -30,6 +30,7 @@ import { BreakType } from '@/types/timesheet/breakType';
 import {
   AttendanceActionType,
   AttendanceRule,
+  AttendanceRuleLetterTemplate,
   AttendanceRuleType,
   AttendanceRuleTypes,
 } from '@/types/timesheet/attendance';
@@ -39,6 +40,90 @@ import TextEditor from '@/components/form/textEditor';
 import dayjs from 'dayjs';
 
 type StepType = 1 | 2 | 3;
+type TemplateAudience = 'management' | 'nonManagement';
+
+const templateAudienceButtonClass = (isActive: boolean) =>
+  `rounded-md px-6 py-2 text-sm font-medium transition-colors ${
+    isActive
+      ? 'bg-[#2155CD] text-white'
+      : 'border border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+  }`;
+
+const createDefaultLetterTemplates = (
+  ruleType?: AttendanceRuleType | string,
+  ruleName?: string,
+  actionTypes?: string | string[],
+): AttendanceRuleLetterTemplate[] => {
+  const defaultTemplate = getDefaultLetterTemplate(
+    ruleType,
+    ruleName,
+    actionTypes,
+  );
+
+  return [
+    { template: defaultTemplate, isManagementTemplate: true },
+    { template: defaultTemplate, isManagementTemplate: false },
+  ];
+};
+
+const normalizeLetterTemplates = (
+  templates: AttendanceRuleLetterTemplate[] | undefined,
+  ruleType?: AttendanceRuleType | string,
+  ruleName?: string,
+  actionTypes?: string | string[],
+): AttendanceRuleLetterTemplate[] => {
+  const defaultTemplate = getDefaultLetterTemplate(
+    ruleType,
+    ruleName,
+    actionTypes,
+  );
+
+  if (!templates?.length) {
+    return createDefaultLetterTemplates(ruleType, ruleName, actionTypes);
+  }
+
+  const managementTemplate = templates.find(
+    (item) => item.isManagementTemplate,
+  );
+  const nonManagementTemplate = templates.find(
+    (item) => !item.isManagementTemplate,
+  );
+
+  return [
+    {
+      template: managementTemplate?.template || defaultTemplate,
+      isManagementTemplate: true,
+    },
+    {
+      template: nonManagementTemplate?.template || defaultTemplate,
+      isManagementTemplate: false,
+    },
+  ];
+};
+
+const getActiveTemplateIndex = (audience: TemplateAudience) =>
+  audience === 'management' ? 0 : 1;
+
+const letterTemplatesValidator = (
+  rule: unknown,
+  value?: AttendanceRuleLetterTemplate[],
+) => {
+  const templates = normalizeLetterTemplates(value);
+  const hasManagement = templates.some(
+    (item) => item.isManagementTemplate && item.template?.trim(),
+  );
+  const hasNonManagement = templates.some(
+    (item) => !item.isManagementTemplate && item.template?.trim(),
+  );
+
+  if (!hasManagement || !hasNonManagement) {
+    return Promise.reject(
+      new Error('Both Management and Non Management templates are required'),
+    );
+  }
+
+  return Promise.resolve();
+};
 
 const ACTION_TYPE_OPTIONS = [
   {
@@ -251,6 +336,34 @@ const RULE_TYPE_TOPIC_BY_TYPE: Record<AttendanceRuleType, string> = {
   [AttendanceRuleType.BREAK]: 'Break',
 };
 
+const VP_DEDUCTION_ACTION_RULE_TYPES: AttendanceRuleType[] = [
+  AttendanceRuleType.ABSENT,
+  AttendanceRuleType.MISSED_CHECK_IN_OUT,
+];
+
+const shouldShowVpDeductionAction = (
+  ruleType?: AttendanceRuleType | string,
+  hasMissedCheckout?: boolean,
+): boolean => {
+  if (VP_DEDUCTION_ACTION_RULE_TYPES.includes(ruleType as AttendanceRuleType)) {
+    return true;
+  }
+  return (
+    ruleType === AttendanceRuleType.EARLY_CLOCK_OUT &&
+    Boolean(hasMissedCheckout)
+  );
+};
+
+const shouldShowVpDeductionAmountField = (
+  ruleType?: AttendanceRuleType | string,
+  actionTypes?: string | string[],
+  hasMissedCheckout?: boolean,
+): boolean => {
+  const types = normalizeActionTypes(actionTypes);
+  if (!types.includes(AttendanceActionType.VP_DEDUCTION)) return false;
+  return shouldShowVpDeductionAction(ruleType, hasMissedCheckout);
+};
+
 const getRuleTopic = (
   ruleType?: AttendanceRuleType | string,
   ruleName?: string,
@@ -319,7 +432,8 @@ const getDefaultLetterTemplate = (
   const closingParagraph = getLetterClosingParagraph(ruleType);
 
   return [
-    '<p>Dear {{employeeName}},</p>',
+    '<p>To : {{employeeName}}</p>',
+    '<p>{{positionName}}</p>',
     `<p><strong>Subject: ${actionLabel} – ${topic}</strong></p>`,
     `<p>${bodyParagraph}</p>`,
     `<p>${closingParagraph}</p>`,
@@ -409,6 +523,7 @@ const buildAttendanceRulePayload = (
   values: Record<string, any>,
   selectedTypeId: string,
   isBreakRule: boolean,
+  ruleType?: AttendanceRuleType | string,
 ): Partial<AttendanceRule> => {
   const effectiveStartDate = values.effectiveStartDate
     ? dayjs(values.effectiveStartDate).format('YYYY-MM-DD')
@@ -420,7 +535,9 @@ const buildAttendanceRulePayload = (
     resetDays: Number(values.resetDays),
     ruleAppliedDays: Number(values.ruleAppliedDays),
     ruleType: resolveRuleTypeId(selectedTypeId) ?? selectedTypeId,
-    actionTypes: values.actionTypes,
+    actionTypes: normalizeActionTypes(values.actionTypes) as unknown as
+      | AttendanceActionType
+      | string,
     description: values.description,
   };
 
@@ -429,9 +546,7 @@ const buildAttendanceRulePayload = (
     payload.breakType = breakTypeId;
   }
 
-  const actionTypesArray = Array.isArray(values.actionTypes)
-    ? values.actionTypes
-    : [values.actionTypes];
+  const actionTypesArray = normalizeActionTypes(values.actionTypes);
   if (actionTypesArray.includes(AttendanceActionType.SALARY_DEDUCTION)) {
     payload.isFixed = values.isFixed;
     if (values.isFixed) {
@@ -441,16 +556,31 @@ const buildAttendanceRulePayload = (
     }
   }
 
-  if (actionTypesArray.includes(AttendanceActionType.VP_DEDUCTION)) {
+  if (
+    shouldShowVpDeductionAmountField(
+      ruleType,
+      values.actionTypes,
+      values.hasMissedCheckout,
+    )
+  ) {
     payload.vpDeductionAmount = Number(values.vpDeductionAmount);
   }
 
   if (isLetterAction(values.actionTypes)) {
-    payload.letterTemplate = values.letterTemplate;
+    payload.letterTemplates = normalizeLetterTemplates(
+      values.letterTemplates,
+    ).map((item) => ({
+      template: item.template,
+      isManagementTemplate: Boolean(item.isManagementTemplate),
+    }));
   }
 
   if (values.backtrackEnabled === true) {
     payload.backtrackEnabled = true;
+  }
+
+  if (ruleType === AttendanceRuleType.EARLY_CLOCK_OUT) {
+    payload.hasMissedCheckout = Boolean(values.hasMissedCheckout);
   }
 
   return payload;
@@ -508,10 +638,14 @@ const CreateRuleSidebar = () => {
   const [form] = Form.useForm();
   const [currentStep, setCurrentStep] = useState<StepType>(1);
   const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
+  const hasMissedCheckout = Form.useWatch('hasMissedCheckout', form);
+  const [activeTemplateAudience, setActiveTemplateAudience] =
+    useState<TemplateAudience>('management');
 
   const selectedRule = attendanceRuleTypesData?.items?.find(
     (rule) => rule.id === selectedTypeId,
   );
+  const actionTypeOptions = ACTION_TYPE_OPTIONS;
   const breakTypeOptions =
     breakTypesData?.items?.map((breakType) => ({
       label: (
@@ -548,33 +682,60 @@ const CreateRuleSidebar = () => {
           : undefined,
         resetDays: item.resetDays,
         ruleAppliedDays: item.ruleAppliedDays,
-        actionTypes: item.actionTypes,
+        actionTypes: normalizeActionTypes(item.actionTypes),
         breakType: resolveBreakTypeId(item.breakType as string | BreakType),
         isFixed: item.isFixed,
         deductibleSalaryDays: item.deductibleSalaryDays,
         deductibleFixedAmount: item.deductibleFixedAmount,
         vpDeductionAmount: item.vpDeductionAmount,
-        letterTemplate:
-          item.letterTemplate ||
-          (isLetterAction(item.actionTypes)
-            ? getDefaultLetterTemplate(
-                matchingRule?.ruleType,
-                matchingRule?.name,
-                item.actionTypes,
-              )
-            : undefined),
+        hasMissedCheckout: item.hasMissedCheckout ?? false,
+        letterTemplates: normalizeLetterTemplates(
+          item.letterTemplates?.length
+            ? item.letterTemplates
+            : item.letterTemplate
+              ? [
+                  {
+                    template: item.letterTemplate,
+                    isManagementTemplate: false,
+                  },
+                ]
+              : undefined,
+          matchingRule?.ruleType,
+          matchingRule?.name,
+          item.actionTypes,
+        ),
         backtrackEnabled: false,
       });
+      setActiveTemplateAudience('management');
       setSelectedTypeId(ruleTypeId ?? null);
       setCurrentStep(isLetterAction(item.actionTypes) ? 3 : 2);
     }
   }, [attendanceRuleData, attendanceRuleTypesData?.items, form]);
 
   useEffect(() => {
+    if (
+      shouldShowVpDeductionAmountField(
+        selectedRule?.ruleType,
+        form.getFieldValue('actionTypes'),
+        hasMissedCheckout,
+      )
+    ) {
+      return;
+    }
+
+    if (form.getFieldValue('vpDeductionAmount') === undefined) {
+      return;
+    }
+
+    form.setFieldsValue({ vpDeductionAmount: undefined });
+  }, [selectedRule?.ruleType, hasMissedCheckout, form]);
+
+  useEffect(() => {
     if (isShow && !attendanceRuleId) {
       form.resetFields();
       setSelectedTypeId(null);
       setCurrentStep(1);
+      setActiveTemplateAudience('management');
     }
   }, [isShow, attendanceRuleId, form]);
 
@@ -616,7 +777,13 @@ const CreateRuleSidebar = () => {
       }
     }
 
-    if (actionTypesArray.includes(AttendanceActionType.VP_DEDUCTION)) {
+    if (
+      shouldShowVpDeductionAmountField(
+        selectedRule?.ruleType,
+        actionTypesArray,
+        form.getFieldValue('hasMissedCheckout'),
+      )
+    ) {
       fields.push('vpDeductionAmount');
     }
 
@@ -630,7 +797,7 @@ const CreateRuleSidebar = () => {
     await form.validateFields(getStepTwoFieldsToValidate());
 
     if (isLetterAction(form.getFieldValue('actionTypes'))) {
-      await form.validateFields(['letterTemplate']);
+      await form.validateFields(['letterTemplates']);
     }
 
     const values = form.getFieldsValue(true);
@@ -638,6 +805,7 @@ const CreateRuleSidebar = () => {
       values,
       ruleTypeId,
       !!selectedRule?.isBreak,
+      selectedRule?.ruleType,
     );
 
     if (attendanceRuleId) {
@@ -656,6 +824,7 @@ const CreateRuleSidebar = () => {
     form.resetFields();
     setSelectedTypeId(null);
     setCurrentStep(1);
+    setActiveTemplateAudience('management');
     setAttendanceRuleId(null);
     setIsShow(false);
   };
@@ -671,13 +840,14 @@ const CreateRuleSidebar = () => {
     const actionTypes = form.getFieldValue('actionTypes');
     if (isLetterAction(actionTypes)) {
       form.setFieldValue(
-        'letterTemplate',
-        getDefaultLetterTemplate(
+        'letterTemplates',
+        createDefaultLetterTemplates(
           selectedRule?.ruleType,
           selectedRule?.name,
           actionTypes,
         ),
       );
+      setActiveTemplateAudience('management');
     }
 
     setCurrentStep(3);
@@ -695,7 +865,7 @@ const CreateRuleSidebar = () => {
           <button
             key={rule.id}
             type="button"
-            className={`rounded-xl border p-6 text-left transition-all bg-[#F3F4F6] hover:border-2 hover:border-gray-200 disabled:cursor-not-allowed disabled:opacity-50 ${isSelected ? 'border-2 border-gray-200' : 'border-transparent'}`}
+            className={`rounded-xl border p-6 text-left transition-all bg-[#F3F4F6] hover:border-2 hover:border-gray-200 disabled:cursor-not-allowed disabled:opacity-50 ${isSelected ? 'border-[4px] border-gray-200' : 'border-transparent'}`}
             onClick={() => setSelectedTypeId(rule.id)}
             id={`time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-${rule.id}`}
             data-cy={`time-attendance-settings-attendance-rules-create-rule-sidebar-type-card-${rule.id}`}
@@ -899,6 +1069,39 @@ const CreateRuleSidebar = () => {
             </Col>
           )}
 
+          {selectedRule?.ruleType === AttendanceRuleType.EARLY_CLOCK_OUT && (
+            <Col span={24}>
+              <div
+                className="mb-4 rounded-lg border border-[#E8E8E8] bg-[#FAFAFA] p-4"
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-section"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-section"
+              >
+                <Form.Item
+                  name="hasMissedCheckout"
+                  valuePropName="checked"
+                  className="mb-0"
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-field"
+                >
+                  <Checkbox data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-checkbox">
+                    <span
+                      data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-text"
+                      className="text-sm font-medium text-[#262626]"
+                    >
+                      Missed Clockout
+                    </span>
+                  </Checkbox>
+                </Form.Item>
+                <p
+                  data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-missed-clockout-description"
+                  className="mb-0 mt-1 pl-6 text-sm text-gray-500"
+                >
+                  Users who have missed clock out after working hours have
+                  ended.
+                </p>
+              </div>
+            </Col>
+          )}
+
           <Col span={24}>
             <Form.Item
               label={
@@ -952,7 +1155,7 @@ const CreateRuleSidebar = () => {
                 className={actionCheckboxGroupClassName}
                 data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-checkbox"
               >
-                {ACTION_TYPE_OPTIONS.map((option) => (
+                {actionTypeOptions.map((option) => (
                   <Checkbox key={option.value} value={option.value}>
                     <span
                       data-cy={option.dataCy}
@@ -969,7 +1172,8 @@ const CreateRuleSidebar = () => {
             noStyle
             shouldUpdate={(prevValues, currentValues) =>
               prevValues.actionTypes !== currentValues.actionTypes ||
-              prevValues.isFixed !== currentValues.isFixed
+              prevValues.isFixed !== currentValues.isFixed ||
+              prevValues.hasMissedCheckout !== currentValues.hasMissedCheckout
             }
           >
             {({ getFieldValue }) => {
@@ -981,8 +1185,10 @@ const CreateRuleSidebar = () => {
               const showSalaryDeductionFields = actionTypesArray.includes(
                 AttendanceActionType.SALARY_DEDUCTION,
               );
-              const showVpDeductionField = actionTypesArray.includes(
-                AttendanceActionType.VP_DEDUCTION,
+              const showVpDeductionField = shouldShowVpDeductionAmountField(
+                selectedRule?.ruleType,
+                actionTypesArray,
+                getFieldValue('hasMissedCheckout'),
               );
               const showAmountInDays =
                 showSalaryDeductionFields && isFixed === false;
@@ -1141,19 +1347,81 @@ const CreateRuleSidebar = () => {
   const renderStepThree = () => {
     const actionTypes = form.getFieldValue('actionTypes');
     const letterAction = isLetterAction(actionTypes);
+    const letterTemplates = normalizeLetterTemplates(
+      form.getFieldValue('letterTemplates'),
+      selectedRule?.ruleType,
+      selectedRule?.name,
+      actionTypes,
+    );
+    const activeTemplate =
+      letterTemplates[getActiveTemplateIndex(activeTemplateAudience)]
+        ?.template ?? '';
+
+    const updateActiveTemplate = (html: string) => {
+      const currentTemplates = normalizeLetterTemplates(
+        form.getFieldValue('letterTemplates'),
+        selectedRule?.ruleType,
+        selectedRule?.name,
+        actionTypes,
+      );
+      const index = getActiveTemplateIndex(activeTemplateAudience);
+      currentTemplates[index] = {
+        ...currentTemplates[index],
+        template: html,
+      };
+      form.setFieldValue('letterTemplates', currentTemplates);
+    };
 
     return (
       <>
         <StepHeader currentStep={currentStep} />
         {letterAction ? (
-          <Form.Item
-            name="letterTemplate"
-            rules={[{ required: true, message: 'Letter template is required' }]}
-            id="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-editor-item"
-            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-editor-item"
-          >
-            <TextEditor placeholder="Write letter template..." />
-          </Form.Item>
+          <>
+            <div
+              className="mb-4 flex justify-center gap-3"
+              id="time-attendance-settings-attendance-rules-create-rule-sidebar-template-audience-toggle"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-template-audience-toggle"
+            >
+              <button
+                type="button"
+                className={templateAudienceButtonClass(
+                  activeTemplateAudience === 'management',
+                )}
+                onClick={() => setActiveTemplateAudience('management')}
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-template-management-button"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-template-management-button"
+              >
+                Management
+              </button>
+              <button
+                type="button"
+                className={templateAudienceButtonClass(
+                  activeTemplateAudience === 'nonManagement',
+                )}
+                onClick={() => setActiveTemplateAudience('nonManagement')}
+                id="time-attendance-settings-attendance-rules-create-rule-sidebar-template-non-management-button"
+                data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-template-non-management-button"
+              >
+                Non Management
+              </button>
+            </div>
+            <Form.Item
+              name="letterTemplates"
+              rules={[{ validator: letterTemplatesValidator }]}
+              hidden
+            />
+            <div
+              id="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-editor-item"
+              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-editor-item"
+            >
+              <TextEditor
+                key={activeTemplateAudience}
+                value={activeTemplate}
+                onChange={updateActiveTemplate}
+                placeholder="Write letter template..."
+              />
+            </div>
+          </>
         ) : (
           <p
             id="time-attendance-settings-attendance-rules-create-rule-sidebar-statement-review-text"

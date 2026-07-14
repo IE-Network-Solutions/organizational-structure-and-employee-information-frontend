@@ -21,6 +21,7 @@ import { KRLeftPanel } from './_components/planning/PlanningPanelView';
 import type { CommentThreadKind } from './_components/planning/PlanningPanelView';
 import {
   getActiveUnreportedParentPlanContext,
+  enrichPlanSummariesWithUserKeyResults,
   normalizeUserKeyResultItems,
 } from './_components/planning/mergeKRPanelGroups';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
@@ -34,7 +35,9 @@ import {
   useDefaultPlanningPeriods,
   useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
+
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
+import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
 import CreatePlan from './_components/createPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
@@ -67,17 +70,11 @@ function Page() {
     setMobilePlanComposerOpen,
     inlineEditPlanId,
     setInlineEditPlanId,
-    selectedFiscalYearId,
-    selectedSessionIds,
   } = PlanningAndReportingStore();
 
-  /** Fiscal year / session apply to Reports tab and KR fetch when that tab is active; not to active plans list. */
-  const keyResultFiscalYearId =
-    activeTab === 2 ? (selectedFiscalYearId ?? undefined) : undefined;
-  const keyResultSessionId =
-    activeTab === 2 && selectedSessionIds.length > 0
-      ? selectedSessionIds[0]
-      : undefined;
+  const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
+    useOkrPlanningScope();
+
   const { data: planningPeriods } = AllPlanningPeriods();
   const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
   const { isMobile, isTablet } = useIsMobile();
@@ -181,6 +178,7 @@ function Page() {
   } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
     refetchOnMount: 'always',
     staleTime: 0,
+    keepPreviousData: false,
   });
 
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
@@ -202,7 +200,22 @@ function Page() {
 
   const { reportSummaries, reportingItems } = useReportingData();
 
-  const krPanelPlans = activeTab === 2 ? reportSummaries : planSummaries;
+  const enrichedPlanSummaries = useMemo(
+    () =>
+      enrichPlanSummariesWithUserKeyResults(planSummaries, userKeyResultItems),
+    [planSummaries, userKeyResultItems],
+  );
+  const enrichedReportSummaries = useMemo(
+    () =>
+      enrichPlanSummariesWithUserKeyResults(
+        reportSummaries,
+        userKeyResultItems,
+      ),
+    [reportSummaries, userKeyResultItems],
+  );
+
+  const krPanelPlans =
+    activeTab === 2 ? enrichedReportSummaries : enrichedPlanSummaries;
   const krPanelTransformedData =
     activeTab === 2 ? reportingItems : transformedData;
 
@@ -379,7 +392,7 @@ function Page() {
         />
         <div
           data-cy="planning-reporting-main-card"
-          className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:border sm:border-[#F1F2F6] sm:p-4"
+          className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
         >
           <div
             data-cy="planning-reporting-toolbar-row"
@@ -427,54 +440,46 @@ function Page() {
             {(processedPlanningPeriods.length > 0 || activeTab === 1) && (
               <div
                 data-cy="planning-period-pills"
-                className="flex min-w-0 w-full flex-1 items-start justify-between overflow-visible sm:min-h-10 sm:items-center sm:justify-end"
+                className="flex min-w-0 w-full flex-1 flex-wrap items-center justify-end gap-2 overflow-visible sm:min-h-10 sm:flex-nowrap sm:gap-3"
               >
                 <div
-                  data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-400"
-                  className={classNames(
-                    'flex w-full max-w-full flex-wrap items-center content-center justify-between gap-2 overflow-visible rounded-xl border border-slate-100 bg-slate-50/70 p-1.5',
-                    'sm:flex-nowrap sm:gap-3 lg:ml-auto lg:w-[648px]',
-                  )}
+                  data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-406"
+                  role="tablist"
+                  aria-label="Planning period"
+                  className="flex min-w-0 flex-wrap items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/70 p-1.5 sm:shrink-0 sm:flex-nowrap"
                 >
-                  <div
-                    data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-406"
-                    role="tablist"
-                    aria-label="Planning period"
-                    className="flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0 sm:flex-nowrap"
-                  >
-                    {processedPlanningPeriods.map(
-                      (item: PlanningPeriod, index: number) => {
-                        const n = index + 1;
-                        const isActive = activePlanPeriod === n;
-                        return (
-                          <button
-                            key={item.planningPeriod.id}
-                            type="button"
-                            role="tab"
-                            aria-selected={isActive}
-                            data-cy={`planning-period-pill-${n}`}
-                            onClick={() => setActivePlanPeriod(n)}
-                            className={classNames(
-                              'inline-flex h-9 shrink-0 items-center rounded-md border font-medium transition-colors',
-                              'text-xs sm:text-sm',
-                              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45 focus-visible:ring-offset-2',
-                              isActive
-                                ? 'border-slate-200 bg-white px-2.5 text-slate-800 shadow-sm hover:bg-slate-100 sm:px-3'
-                                : 'border-transparent bg-transparent px-2 text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-800 sm:px-2.5',
-                            )}
-                          >
-                            {item.planningPeriod.name || 'No name available'}
-                          </button>
-                        );
-                      },
-                    )}
-                  </div>
-                  <div
-                    data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
-                    className="shrink-0 self-start sm:self-center"
-                  >
-                    <PlanningToolbarFilters />
-                  </div>
+                  {processedPlanningPeriods.map(
+                    (item: PlanningPeriod, index: number) => {
+                      const n = index + 1;
+                      const isActive = activePlanPeriod === n;
+                      return (
+                        <button
+                          key={item.planningPeriod.id}
+                          type="button"
+                          role="tab"
+                          aria-selected={isActive}
+                          data-cy={`planning-period-pill-${n}`}
+                          onClick={() => setActivePlanPeriod(n)}
+                          className={classNames(
+                            'inline-flex h-9 shrink-0 items-center rounded-md border font-medium transition-colors',
+                            'text-xs sm:text-sm',
+                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45 focus-visible:ring-offset-2',
+                            isActive
+                              ? 'border-slate-200 bg-white px-2.5 text-slate-800 shadow-sm hover:bg-slate-100 sm:px-3'
+                              : 'border-transparent bg-transparent px-2 text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-800 sm:px-2.5',
+                          )}
+                        >
+                          {item.planningPeriod.name || 'No name available'}
+                        </button>
+                      );
+                    },
+                  )}
+                </div>
+                <div
+                  data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
+                  className="shrink-0 self-center"
+                >
+                  <PlanningToolbarFilters />
                 </div>
               </div>
             )}

@@ -4,6 +4,7 @@ import { useQuery } from 'react-query';
 import { OKR_URL } from '@/utils/constants';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
 import {
+  GroupedUserWithPlanningPeriods,
   PaginatedPlanningPeriodUsers,
   PaginatedGroupedUsers,
   PlanningPeriod,
@@ -51,77 +52,136 @@ const fetchPlanningPeriodAssignedForSingleUser = async () => {
   });
 };
 
+const ASSIGNMENT_FETCH_PAGE_SIZE = 100;
+
+function buildAssignedUsersUrl(
+  page: number,
+  pageSize: number,
+  userId: string | null,
+  searchString?: string,
+): string {
+  let url = `${OKR_URL}/planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}`;
+  if (userId && userId.trim() !== '') {
+    url += `&userId=${encodeURIComponent(userId)}`;
+  }
+  if (searchString?.trim()) {
+    url += `&searchString=${encodeURIComponent(searchString.trim())}`;
+  }
+  return url;
+}
+
+function groupAssignedUserRows(items: any[]): GroupedUserWithPlanningPeriods[] {
+  const groupedData = items.reduce(
+    (acc: Record<string, GroupedUserWithPlanningPeriods>, item: any) => {
+      const rowUserId = item.userId;
+      if (!acc[rowUserId]) {
+        acc[rowUserId] = {
+          userId: rowUserId,
+          planningPeriod: [],
+        };
+      }
+      acc[rowUserId].planningPeriod.push(item);
+      return acc;
+    },
+    {},
+  );
+  return Object.values(groupedData);
+}
+
+const fetchAssignedUserRows = async (
+  page: number,
+  pageSize: number,
+  userId: string | null,
+  searchString?: string,
+) => {
+  const token = await getCurrentToken();
+  return crudRequest({
+    url: buildAssignedUsersUrl(page, pageSize, userId, searchString),
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
 const fetchPlanningPeriodWithUser = async (
   page: number,
   pageSize: number,
   userId: string | null,
-) => {
-  const token = await getCurrentToken();
+  searchString?: string,
+) => fetchAssignedUserRows(page, pageSize, userId, searchString);
 
-  // Build URL with conditional userId parameter
-  let url = `${OKR_URL}/planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}`;
-  if (userId && userId.trim() !== '') {
-    url += `&userId=${userId}`;
-  }
-
-  const response = await crudRequest({
-    url,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-  });
-
-  return response;
-};
 const fetchPlanningPeriodWithUserGroupedByUser = async (
   page: number,
   pageSize: number,
   userId: string | null,
+  searchString?: string,
 ) => {
-  const token = await getCurrentToken();
+  const response = await fetchAssignedUserRows(
+    page,
+    pageSize,
+    userId,
+    searchString,
+  );
 
-  // Build URL with conditional userId parameter - use the existing endpoint
-  let url = `${OKR_URL}/planning-periods/assignment/getAssignedUsers?page=${page}&limit=${pageSize}`;
-
-  if (userId && userId.trim() !== '') {
-    url += `&userId=${userId}`;
-  }
-
-  const response = await crudRequest({
-    url,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-  });
-
-  // Group the data by userId on the frontend
   if (response && response.items) {
-    const groupedData = response.items.reduce((acc: any, item: any) => {
-      const userId = item.userId;
-      if (!acc[userId]) {
-        acc[userId] = {
-          userId: userId,
-          planningPeriod: [],
-        };
-      }
-      acc[userId].planningPeriod.push(item);
-      return acc;
-    }, {});
-
-    // Convert to array format and add pagination metadata
-    const groupedItems = Object.values(groupedData);
-
     return {
-      items: groupedItems,
+      items: groupAssignedUserRows(response.items),
       meta: response.meta,
     };
   }
 
   return response;
+};
+
+/** Load every assignment row (paginated API) so name search can run across all assignees. */
+const fetchAllAssignedUsersGroupedByUser = async (
+  searchString?: string,
+): Promise<PaginatedGroupedUsers> => {
+  let page = 1;
+  const pageSize = ASSIGNMENT_FETCH_PAGE_SIZE;
+  const allItems: any[] = [];
+  let meta: PaginatedGroupedUsers['meta'] = {
+    totalItems: 0,
+    itemCount: 0,
+    itemsPerPage: pageSize,
+    totalPages: 0,
+    currentPage: 1,
+  };
+
+  while (true) {
+    const response = await fetchAssignedUserRows(
+      page,
+      pageSize,
+      null,
+      searchString,
+    );
+    const batch = response?.items ?? [];
+    meta = response?.meta ?? meta;
+
+    if (batch.length === 0) break;
+
+    allItems.push(...batch);
+
+    const totalItems = meta?.totalItems ?? allItems.length;
+    if (allItems.length >= totalItems || batch.length < pageSize) break;
+    page += 1;
+  }
+
+  const groupedItems = groupAssignedUserRows(allItems);
+
+  return {
+    items: groupedItems,
+    meta: {
+      ...meta,
+      totalItems: groupedItems.length,
+      itemCount: groupedItems.length,
+      itemsPerPage: groupedItems.length,
+      totalPages: 1,
+      currentPage: 1,
+    },
+  };
 };
 
 export const useGetAllPlanningPeriods = () =>
@@ -156,21 +216,46 @@ export const useGetAllAssignedUser = (
   page: number,
   pageSize: number,
   userId: string | null,
+  searchString?: string,
 ) =>
   useQuery<PaginatedPlanningPeriodUsers>(
-    ['allPlanningPeriodUser', page, pageSize, userId],
-    () => fetchPlanningPeriodWithUser(page, pageSize, userId),
+    ['allPlanningPeriodUser', page, pageSize, userId, searchString ?? ''],
+    () => fetchPlanningPeriodWithUser(page, pageSize, userId, searchString),
   );
 
 export const useGetAllAssignedUserGroupedByUser = (
   page: number,
   pageSize: number,
   userId: string | null,
+  searchString?: string,
 ) =>
   useQuery<PaginatedGroupedUsers>(
-    ['allPlanningPeriodUserGroupedByUser', page, pageSize, userId],
-    () => fetchPlanningPeriodWithUserGroupedByUser(page, pageSize, userId),
+    [
+      'allPlanningPeriodUserGroupedByUser',
+      page,
+      pageSize,
+      userId,
+      searchString ?? '',
+    ],
+    () =>
+      fetchPlanningPeriodWithUserGroupedByUser(
+        page,
+        pageSize,
+        userId,
+        searchString,
+      ),
     { keepPreviousData: true },
+  );
+
+/** Global assignee list for Planning Assignation search (all pages, grouped by user). */
+export const useGetAllAssignedUsersGroupedForSearch = (searchString: string) =>
+  useQuery<PaginatedGroupedUsers>(
+    ['allPlanningPeriodUserGroupedByUserSearch', searchString],
+    () => fetchAllAssignedUsersGroupedByUser(searchString),
+    {
+      enabled: searchString.trim().length > 0,
+      keepPreviousData: true,
+    },
   );
 // New hook to get all planning periods for all users (for unfiltered view)
 export const useGetAllUsersWithAllPlanningPeriods = () => {

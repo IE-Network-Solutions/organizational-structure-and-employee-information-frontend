@@ -3,6 +3,7 @@ import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndR
 import { Button, Form, Spin, Tooltip } from 'antd';
 import React, { useEffect, useMemo } from 'react';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
 import { normalizeUserKeyResultItems } from '../planning/mergeKRPanelGroups';
 import { useUpdatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
@@ -47,7 +48,13 @@ function EditPlan() {
   const { mutate: updateTask, isLoading } = useUpdatePlanTasks();
 
   const { data: objective } = useFetchObjectives(userId);
-  const { data: userKeyResultsRaw } = useGetUserKeyResult(userId);
+  const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
+    useOkrPlanningScope();
+  const { data: userKeyResultsRaw } = useGetUserKeyResult(
+    userId,
+    keyResultFiscalYearId,
+    keyResultSessionId,
+  );
   const userKeyResultItems = useMemo(
     () => normalizeUserKeyResultItems(userKeyResultsRaw),
     [userKeyResultsRaw],

@@ -16,4 +16,9 @@ export interface PlanningAssignationState {
   setPlanningAssignation: (
     planningAssignation: PlanningAssignation | null,
   ) => void;
+  searchTerm: string;
+  debouncedSearch: string;
+  setSearchTerm: (searchTerm: string) => void;
+  setDebouncedSearch: (debouncedSearch: string) => void;
+  resetPlanningAssignationSearch: () => void;
 }

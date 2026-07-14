@@ -152,6 +152,11 @@ export type AttendanceRuleActionStatus = Partial<
   Record<AttendanceActionType | string, AttendanceRuleActionStatusEntry>
 >;
 
+export interface AttendanceRuleLetterTemplate {
+  template: string;
+  isManagementTemplate: boolean;
+}
+
 export interface AttendanceRule extends DateInfo {
   id: string;
   name: string;
@@ -163,8 +168,11 @@ export interface AttendanceRule extends DateInfo {
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
   vpDeductionAmount?: number;
+  hasMissedCheckout?: boolean;
   ruleType: string | AttendanceRuleTypes;
   actionTypes: AttendanceActionType | string;
+  letterTemplates?: AttendanceRuleLetterTemplate[];
+  /** @deprecated Use letterTemplates instead */
   letterTemplate?: string;
   breakType?: string | BreakType;
   /** Request-only flag sent on create/update to backfill historical violations. */
@@ -199,7 +207,10 @@ export interface AttendanceRule {
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
   vpDeductionAmount?: number;
+  hasMissedCheckout?: boolean;
   actionTypes: AttendanceActionType | string;
+  letterTemplates?: AttendanceRuleLetterTemplate[];
+  /** @deprecated Use letterTemplates instead */
   letterTemplate?: string;
   breakTypeId: string;
   attendanceRuleTypeId: string;
