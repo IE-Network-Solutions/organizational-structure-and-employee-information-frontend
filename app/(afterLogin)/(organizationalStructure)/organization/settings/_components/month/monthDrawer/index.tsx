@@ -104,12 +104,14 @@ const MonthDrawer: React.FC<DrawerProps> = ({
       setCalendarType(inferredCalendarType);
 
       let updatedMonthData: Array<any> = [];
+      let monthCounter = 1;
 
       if (inferredCalendarType === 'Year') {
         updatedMonthData = sessions.flatMap(
           (session: any) =>
             session?.months?.map((month: any) => {
-              return {
+              const row = {
+                monthNumber: monthCounter++,
                 monthName: month?.name || '',
                 monthStartDate: month?.startDate
                   ? dayjs(month?.startDate)
@@ -117,12 +119,14 @@ const MonthDrawer: React.FC<DrawerProps> = ({
                 monthEndDate: month?.endDate ? dayjs(month?.endDate) : null,
                 monthDescription: month?.description || '',
               };
+              return row;
             }) || [],
         );
       } else if (['Semester', 'Quarter'].includes(inferredCalendarType)) {
         updatedMonthData = sessions.flatMap(
           (session: any, sessionIndex: number) =>
             session?.months?.map((month: any, monthIndex: number) => ({
+              monthNumber: monthCounter++,
               monthName: `Month ${monthIndex + 1} (${
                 inferredCalendarType === 'Quarter'
                   ? `Q${sessionIndex + 1}`
@@ -153,6 +157,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
     const transformedData = Object.entries(groupedMonths).flatMap(
       ([section, months]) =>
         months?.map((month, index) => ({
+          monthNumber: month,
           monthName: generateMonthName(Number(section), index),
           monthStartDate: getMonthStartEndDates(month).startDate,
           monthEndDate: getMonthStartEndDates(month).endDate,

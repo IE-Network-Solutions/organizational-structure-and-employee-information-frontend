@@ -31,7 +31,9 @@ import { MdKeyboardArrowUp } from 'react-icons/md';
 import { BsThreeDots } from 'react-icons/bs';
 import { MdEdit, MdDelete, MdCalendarToday, MdBarChart } from 'react-icons/md';
 import CustomWorFiscalYearDrawer from '../customDrawer';
+import CustomDeleteFiscalYears from '../deleteModal';
 import { CloseOutlined } from '@ant-design/icons';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const FiscalYearListCard: React.FC = () => {
   const {
@@ -41,8 +43,7 @@ const FiscalYearListCard: React.FC = () => {
     currentPage,
     setCurrentPage,
     setPageSize,
-    setEditMode,
-    setOpenFiscalYearDrawer,
+    prepareEditWizard,
     searchQuery,
   } = useFiscalYearDrawerStore();
 
@@ -87,9 +88,7 @@ const FiscalYearListCard: React.FC = () => {
 
   const handleMenuClick = (key: string, fYear: FiscalYear) => {
     if (key === 'edit') {
-      setSelectedFiscalYear(fYear);
-      setEditMode(true);
-      setOpenFiscalYearDrawer(true);
+      prepareEditWizard(fYear);
     } else if (key === 'delete') {
       setSelectedFiscalYear(fYear);
       setDeleteMode(true);
@@ -97,30 +96,46 @@ const FiscalYearListCard: React.FC = () => {
   };
 
   const handleDelete = (fYear: FiscalYear) => {
-    if (fYear && fYear.id) {
-      const fiscalYearId = String(fYear.id);
-      setDeletingFiscalYearId(fiscalYearId);
-      setIsDeleting(true);
-      deleteFiscalYear(fYear.id, {
-        onSuccess: () => {
-          refetchFiscalYears();
-          setDeletePopconfirmVisible((prev) => ({
-            ...prev,
-            [fiscalYearId]: false,
-          }));
-          setDeletingFiscalYearId(null);
-          setIsDeleting(false);
-        },
-        onError: () => {
-          setDeletePopconfirmVisible((prev) => ({
-            ...prev,
-            [fiscalYearId]: false,
-          }));
-          setDeletingFiscalYearId(null);
-          setIsDeleting(false);
-        },
+    if (!fYear?.id) {
+      NotificationMessage.error({
+        message: 'Cannot delete fiscal year',
+        description:
+          'This fiscal year record is missing an ID. Refresh the page and try again.',
       });
+      return;
     }
+
+    if (fYear.isActive) {
+      NotificationMessage.warning({
+        message: 'Cannot delete active fiscal year',
+        description:
+          'The active fiscal year cannot be deleted. Only inactive or future fiscal years can be removed.',
+      });
+      return;
+    }
+
+    const fiscalYearId = String(fYear.id);
+    setDeletingFiscalYearId(fiscalYearId);
+    setIsDeleting(true);
+    deleteFiscalYear(fiscalYearId, {
+      onSuccess: () => {
+        refetchFiscalYears();
+        setDeletePopconfirmVisible((prev) => ({
+          ...prev,
+          [fiscalYearId]: false,
+        }));
+        setDeletingFiscalYearId(null);
+        setIsDeleting(false);
+      },
+      onError: () => {
+        setDeletePopconfirmVisible((prev) => ({
+          ...prev,
+          [fiscalYearId]: false,
+        }));
+        setDeletingFiscalYearId(null);
+        setIsDeleting(false);
+      },
+    });
   };
 
   const getCalendarFrequency = (sessions?: Session[]) => {
@@ -732,6 +747,7 @@ const FiscalYearListCard: React.FC = () => {
         />
       )}
       <CustomWorFiscalYearDrawer data-cy="org-settings-fiscal-year-drawer" />
+      <CustomDeleteFiscalYears />
     </div>
   );
 };

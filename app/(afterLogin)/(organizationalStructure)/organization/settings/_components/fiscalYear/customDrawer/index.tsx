@@ -168,7 +168,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
             form1.resetFields();
             form2.resetFields();
             form3.resetFields();
-            setMonthRangeFormValues(null);
+            setMonthRangeFormValues([]);
             setFiscalYearFormValues({});
             setSessionFormValues({});
             setCurrent(0);
@@ -182,7 +182,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
           form1.resetFields();
           form2.resetFields();
           form3.resetFields();
-          setMonthRangeFormValues(null);
+          setMonthRangeFormValues([]);
           setFiscalYearFormValues({});
           setSessionFormValues({});
           setCurrent(0);

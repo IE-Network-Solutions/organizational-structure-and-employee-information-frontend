@@ -2,7 +2,7 @@ import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations
 import { Button, Col, DatePicker, Form, Input, Row } from 'antd';
 import { FormInstance } from 'antd/lib';
 import dayjs from 'dayjs';
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -12,306 +12,37 @@ interface DrawerProps {
   form: FormInstance<any> | undefined;
   isCreateLoading: boolean;
   isUpdateLoading: boolean;
-  // onNextStep: any;
   isFiscalYear?: boolean;
-  open: boolean; // <-- add this
 }
-/* eslint-disable-next-line @typescript-eslint/naming-convention */
-const classifyMonths = (
-  startMonth: number,
-  endMonth: number,
-  calendarType: string,
-) => {
-  /* eslint-disable-next-line @typescript-eslint/naming-convention */
-  const months = Array.from({ length: 12 }, (_, i) => i + 1);
-  /* eslint-enable @typescript-eslint/naming-convention */
-
-  const sections: { [key: number]: number[] } = {};
-
-  let sectionSize = 12;
-  if (calendarType === 'Quarter') sectionSize = 3;
-  else if (calendarType === 'Semester') sectionSize = 6;
-  else sectionSize = 12;
-
-  months.forEach((month, index) => {
-    const section = Math.floor(index / sectionSize) + 1;
-    if (!sections[section]) sections[section] = [];
-    sections[section].push(month);
-  });
-
-  return sections;
-};
-/* eslint-enable @typescript-eslint/naming-convention */
 
 const MonthDrawer: React.FC<
-  DrawerProps & { onSubmit: (values: any) => void }
+  DrawerProps & {
+    onSubmit: (values: any) => void;
+    onNavigateToStep: (step: number, options?: { sync?: boolean }) => void;
+  }
 > = ({
   form,
   isCreateLoading,
   isUpdateLoading,
-  // onNextStep,
-  onSubmit, // <-- destructure this
-  open, // <-- add this
+  onSubmit,
+  onNavigateToStep,
 }) => {
   const { isMobile } = useIsMobile();
   const {
-    setCurrent,
     fiscalYearStart,
     fiscalYearEnd,
-    calendarType,
-    isEditMode,
-    setMonthRangeFormValues,
-    monthRangeValues,
+    monthDataBySession,
     sessionData,
+    expandedMonthSession,
+    setExpandedMonthSession,
+    updateMonthFields,
   } = useFiscalYearDrawerStore();
 
-  // State to track expanded session (only one can be expanded at a time)
-  const [expandedSession, setExpandedSession] = useState<number | null>(null);
-
-  // State to store calculated month data grouped by session
-  const [monthDataBySession, setMonthDataBySession] = useState<
-    Record<
-      number,
-      Array<{
-        monthNumber: number;
-        monthName: string;
-        startDate: any;
-        endDate: any;
-      }>
-    >
-  >({});
-
-  // Calculate month data function
-
-  const calculateMonthDataBySession = () => {
-    if (calendarType && fiscalYearStart && fiscalYearEnd) {
-      const groupedMonths = classifyMonths(
-        fiscalYearStart.toDate().getMonth() + 1,
-        fiscalYearEnd.toDate().getMonth() + 1,
-        calendarType,
-      );
-
-      const sessionMonthData: Record<
-        number,
-        Array<{
-          monthNumber: number;
-          monthName: string;
-          startDate: any;
-          endDate: any;
-        }>
-      > = {};
-
-      Object.entries(groupedMonths).forEach(([section, months]) => {
-        const sessionIndex = Number(section) - 1;
-        sessionMonthData[sessionIndex] =
-          months?.map((month, index) => ({
-            monthNumber: month,
-            monthName: `Month ${index + 1}`,
-            startDate: getMonthStartEndDates(month).startDate,
-            endDate: getMonthStartEndDates(month).endDate,
-          })) || [];
-      });
-
-      setMonthDataBySession(sessionMonthData);
-
-      // Initialize expanded state - expand first session by default
-      if (
-        Object.keys(sessionMonthData).length > 0 &&
-        expandedSession === null
-      ) {
-        setExpandedSession(0);
-      }
-
-      return sessionMonthData;
-    }
-    return {};
-  };
-
-  const getMonthStartEndDates = (month: number) => {
-    if (!fiscalYearStart || !fiscalYearEnd) {
-      return { startDate: null, endDate: null };
-    }
-
-    const fiscalYearStartDate = dayjs(fiscalYearStart);
-    const fiscalYearEndDate = dayjs(fiscalYearEnd);
-
-    // Calculate total days in fiscal year
-    const totalDays = fiscalYearEndDate.diff(fiscalYearStartDate, 'day') + 1;
-    const daysPerMonth = Math.floor(totalDays / 12);
-
-    // Calculate start date for this month
-    const startDate = fiscalYearStartDate.add(
-      (month - 1) * daysPerMonth,
-      'day',
+  const toggleSession = (sessionIndex: number) => {
+    setExpandedMonthSession(
+      expandedMonthSession === sessionIndex ? null : sessionIndex,
     );
-
-    // Calculate end date for this month
-    let endDate;
-    if (month === 12) {
-      // Last month ends at fiscal year end
-      endDate = fiscalYearEndDate;
-    } else {
-      // Other months end at start of next month minus 1 day
-      endDate = fiscalYearStartDate
-        .add(month * daysPerMonth, 'day')
-        .subtract(1, 'day');
-    }
-
-    // Ensure dates don't exceed fiscal year boundaries
-    const finalStartDate = startDate.isBefore(fiscalYearStartDate)
-      ? fiscalYearStartDate
-      : startDate;
-    const finalEndDate = endDate.isAfter(fiscalYearEndDate)
-      ? fiscalYearEndDate
-      : endDate;
-
-    return { startDate: finalStartDate, endDate: finalEndDate };
   };
-
-  // Validation function for date ranges - user-friendly error messages
-
-  const initializedRef = useRef(false);
-
-  // Initial data calculation
-  useEffect(() => {
-    const readyToInitialize =
-      open && calendarType && fiscalYearStart && fiscalYearEnd && form;
-
-    if (readyToInitialize && !initializedRef.current) {
-      initializedRef.current = true;
-
-      const initialData = calculateMonthDataBySession();
-      if (Object.keys(initialData).length > 0) {
-        const allMonths = Object.values(initialData).flat();
-        const transformedData = allMonths.map((month) => ({
-          monthNumber: month.monthNumber,
-          monthName: month.monthName,
-          monthStartDate: month.startDate,
-          monthEndDate: month.endDate,
-          monthDescription: '',
-        }));
-
-        setMonthRangeFormValues(transformedData);
-
-        const fieldsToUpdate: { [key: string]: any } = {};
-        transformedData.forEach((month) => {
-          fieldsToUpdate[`monthName_${month.monthNumber}`] = month.monthName;
-          fieldsToUpdate[`monthStartDate_${month.monthNumber}`] =
-            month.monthStartDate;
-          fieldsToUpdate[`monthEndDate_${month.monthNumber}`] =
-            month.monthEndDate;
-          // Set date range for RangePicker
-          if (month.monthStartDate && month.monthEndDate) {
-            fieldsToUpdate[`monthDateRange_${month.monthNumber}`] = [
-              dayjs(month.monthStartDate),
-              dayjs(month.monthEndDate),
-            ];
-          }
-        });
-        form.setFieldsValue(fieldsToUpdate);
-      }
-    }
-
-    if (!open) {
-      initializedRef.current = false;
-    }
-  }, [open, calendarType, fiscalYearStart, fiscalYearEnd, form]);
-
-  // Update data when fiscal year changes
-  useEffect(() => {
-    if (calendarType && fiscalYearStart && fiscalYearEnd) {
-      const groupedMonths = classifyMonths(
-        fiscalYearStart.toDate().getMonth() + 1,
-        fiscalYearEnd.toDate().getMonth() + 1,
-        calendarType,
-      );
-      const sessionMonthData: Record<
-        number,
-        Array<{
-          monthNumber: number;
-          monthName: string;
-          startDate: any;
-          endDate: any;
-        }>
-      > = {};
-
-      Object.entries(groupedMonths).forEach(([section, months]) => {
-        const sessionIndex = Number(section) - 1;
-        sessionMonthData[sessionIndex] =
-          months?.map((month, index) => ({
-            monthNumber: month,
-            monthName: `Month ${index + 1}`,
-            startDate: getMonthStartEndDates(month).startDate,
-            endDate: getMonthStartEndDates(month).endDate,
-          })) || [];
-      });
-
-      const transformedData = Object.values(sessionMonthData)
-        .flat()
-        .map((month) => ({
-          monthNumber: month.monthNumber,
-          monthName: month.monthName,
-          monthStartDate: month.startDate,
-          monthEndDate: month.endDate,
-          monthDescription: '',
-        }));
-      setMonthRangeFormValues(transformedData);
-      setMonthDataBySession(sessionMonthData);
-    }
-  }, [calendarType, fiscalYearStart, fiscalYearEnd, setMonthRangeFormValues]);
-
-  // Only keep setFieldsValue/resetFields in the effect that runs on isEditMode/monthRangeValues
-  useEffect(() => {
-    if (isEditMode && form) {
-      if (Array.isArray(monthRangeValues) && monthRangeValues.length > 0) {
-        const fieldsToUpdate: Record<string, any> = {};
-        monthRangeValues.forEach((month) => {
-          const key = month.monthNumber; // or idx+1 if you want strict order
-          fieldsToUpdate[`monthName_${key}`] = month.monthName;
-          fieldsToUpdate[`monthStartDate_${key}`] = month.monthStartDate;
-          fieldsToUpdate[`monthEndDate_${key}`] = month.monthEndDate;
-          fieldsToUpdate[`monthDescription_${key}`] = month.monthDescription;
-          // Set date range for RangePicker
-          if (month.monthStartDate && month.monthEndDate) {
-            fieldsToUpdate[`monthDateRange_${key}`] = [
-              dayjs(month.monthStartDate),
-              dayjs(month.monthEndDate),
-            ];
-          }
-        });
-        form.setFieldsValue(fieldsToUpdate);
-      }
-    } else if (!isEditMode && form) {
-      form.resetFields();
-    }
-    // Only run this effect when edit mode or monthRangeValues change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEditMode, form, monthRangeValues]);
-
-  // Ensure form fields are populated with month values whenever monthDataBySession changes
-  useEffect(() => {
-    if (!isEditMode && form && Object.keys(monthDataBySession).length > 0) {
-      const allMonths = Object.values(monthDataBySession).flat();
-      const fieldsToUpdate = allMonths.reduce(
-        (acc: Record<string, any>, month) => {
-          const key = month.monthNumber;
-          acc[`monthName_${key}`] = month.monthName;
-          acc[`monthStartDate_${key}`] = month.startDate;
-          acc[`monthEndDate_${key}`] = month.endDate;
-          // Set date range for RangePicker
-          if (month.startDate && month.endDate) {
-            acc[`monthDateRange_${key}`] = [
-              dayjs(month.startDate),
-              dayjs(month.endDate),
-            ];
-          }
-          return acc;
-        },
-        {},
-      );
-      form.setFieldsValue(fieldsToUpdate);
-    }
-  }, [isEditMode, form, monthDataBySession]);
 
   const validateStartNoOverlap = (
     currentMonthNumber: number,
@@ -406,10 +137,6 @@ const MonthDrawer: React.FC<
     });
   };
 
-  const toggleSession = (sessionIndex: number) => {
-    setExpandedSession((prev) => (prev === sessionIndex ? null : sessionIndex));
-  };
-
   return (
     <Form
       form={form}
@@ -430,7 +157,6 @@ const MonthDrawer: React.FC<
         </>
       )}
       onFinish={(values) => {
-        // Ensure date ranges are synced to separate date fields before submission
         Object.keys(values).forEach((key) => {
           if (key.startsWith('monthDateRange_')) {
             const monthNumber = key.replace('monthDateRange_', '');
@@ -445,11 +171,15 @@ const MonthDrawer: React.FC<
             }
           }
         });
+        updateMonthFields(values);
         onSubmit(values);
       }}
       data-cy="org-settings-fiscal-year-month-drawer-form"
       id="org-settings-fiscal-year-month-drawer-form"
       className="px-0"
+      onValuesChange={(nonused, allValues) => {
+        updateMonthFields(allValues);
+      }}
     >
       <div
         className="flex-1 bg-white p-0 items-center w-full h-full"
@@ -465,7 +195,7 @@ const MonthDrawer: React.FC<
             >
               {sessionData.map((session, sessionIndex) => {
                 const sessionMonths = monthDataBySession[sessionIndex] || [];
-                const isExpanded = expandedSession === sessionIndex;
+                const isExpanded = expandedMonthSession === sessionIndex;
                 const sessionName =
                   session.sessionName ||
                   `FY${fiscalYearStart?.format('YYYY')}S${String(sessionIndex + 1).padStart(2, '0')}`;
@@ -796,28 +526,11 @@ const MonthDrawer: React.FC<
           >
             <Button
               type="default"
-              onClick={async () => {
-                // Only save current form values to store before going back in edit mode
-                if (isEditMode) {
-                  const values = await form?.getFieldsValue();
-                  const allMonths = Object.values(monthDataBySession).flat();
-                  setMonthRangeFormValues(
-                    allMonths.map((month) => ({
-                      monthNumber: month.monthNumber,
-                      monthName:
-                        values[`monthName_${month.monthNumber}`] ||
-                        month.monthName,
-                      monthStartDate:
-                        values[`monthStartDate_${month.monthNumber}`] ||
-                        month.startDate,
-                      monthEndDate:
-                        values[`monthEndDate_${month.monthNumber}`] ||
-                        month.endDate,
-                      monthDescription: '',
-                    })),
-                  );
+              onClick={() => {
+                if (form) {
+                  updateMonthFields(form.getFieldsValue());
                 }
-                setCurrent(1); // Go to previous step
+                onNavigateToStep(1, { sync: false });
               }}
               className="flex justify-center text-sm font-normal h-8 !min-h-[32px] px-6 border-gray-300 bg-transparent hover:bg-gray-50"
               data-cy="org-settings-fiscal-year-month-previous-btn"
