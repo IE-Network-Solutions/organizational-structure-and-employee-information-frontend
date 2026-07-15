@@ -3,8 +3,8 @@ import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from 'next/image';
-import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
+import NotificationBell from './NotificationBell';
 import {
   MdPeople,
   MdPersonSearch,
@@ -24,6 +24,7 @@ import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
+import { IS_CORE } from '@/utils/constants';
 
 // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
 const isRouteMatch = (routePattern: string, pathname: string) => {
@@ -109,9 +110,6 @@ import { MobileBottomNav } from './MobileBottomNav';
 interface MyComponentProps {
   children: ReactNode;
 }
-
-// Core host (SelamNew Core) provides its own top bar when this app is embedded inside it.
-const IS_CORE = process.env.NEXT_PUBLIC_IS_CORE === 'true';
 
 const NavMenuItem: React.FC<{
   item: any;
@@ -271,7 +269,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
@@ -1139,18 +1136,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   }, []);
 
   const toggleCollapsed = () => {
-    // On mobile the sidebar behaves like an off-canvas drawer.
-    // We never want the "mini collapsed" (80px) variant there.
-    if (isMobile) {
-      setMobileCollapsed((v) => !v);
-      setCollapsed(false);
-      return;
-    }
     setCollapsed(!collapsed);
-  };
-
-  const toggleMobileCollapsed = () => {
-    setMobileCollapsed(!mobileCollapsed);
   };
 
   useEffect(() => {
@@ -1491,7 +1477,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           setIsMobile(broken);
           if (broken) {
             setCollapsed(false);
-            setMobileCollapsed(true);
           }
         }}
         collapsedWidth={80}
@@ -1646,11 +1631,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                               subscriptionExpired &&
                               !String(item.key).startsWith('/admin')
                             }
-                            onNavigate={
-                              isMobile
-                                ? () => setMobileCollapsed(true)
-                                : undefined
-                            }
                           />
                         ))}
                       </div>
@@ -1714,9 +1694,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   onClick={() => {
                     triggerRouteLoaderStart();
                     router.push('/admin/dashboard');
-                    if (isMobile) {
-                      setMobileCollapsed(true);
-                    }
                   }}
                 >
                   {!collapsed && (
@@ -1802,7 +1779,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             style={{
               padding: 0,
               background: '#fff',
-              display: isMobile ? 'none' : 'flex',
+              display: 'flex',
               alignItems: 'center',
               position: 'fixed',
               width: isMobile
@@ -1819,23 +1796,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               boxShadow: 'none',
             }}
           >
-            {isMobile && mobileCollapsed && (
+            {isMobile && (
               <div
-                data-cy="nav-header-mobile-toggle-wrap"
+                data-cy="nav-header-mobile-notification-wrap"
                 className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
               >
-                <Button
-                  data-cy="nav-header-mobile-toggle"
-                  type="text"
-                  aria-label="Open menu"
-                  className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
-                  onClick={toggleMobileCollapsed}
-                  icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
-                />
+                <NotificationBell />
               </div>
             )}
 
-            <NavBar handleLogout={handleLogout} />
+            <NavBar handleLogout={handleLogout} isMobile={isMobile} />
           </Header>
         )}
 
@@ -1846,7 +1816,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             paddingRight: 0,
-            paddingTop: isMobile || IS_CORE ? 0 : '74px',
+            paddingTop: IS_CORE ? 0 : '74px',
             paddingBottom: isMobile ? 68 : 0,
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
