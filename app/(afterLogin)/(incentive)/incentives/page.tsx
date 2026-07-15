@@ -30,7 +30,6 @@ import CustomPagination from '@/components/customPagination';
 import IncentiveStatusCards from './compensation/cards/IncentiveStatusCards';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import { useGetAllIncentiveData } from '@/store/server/features/incentive/other/queries';
-import { useGetRecognitionTypeDashboardStats } from '@/store/server/features/CFR/recognition/queries';
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
@@ -98,8 +97,6 @@ const Page = () => {
     }
     return map;
   }, [allChildTypes]);
-  const { data: recognitionTypeDashboardStats } =
-    useGetRecognitionTypeDashboardStats();
 
   const { data: incentiveData, isFetching: incentiveDataFetching } =
     useGetAllIncentiveData(
@@ -111,6 +108,17 @@ const Page = () => {
       currentPage,
       searchParams?.payPeriodId || '',
     );
+
+  // Per-card category bonus totals stay pay-period-independent, unlike the KPI cards.
+  const { data: categoryBonusData } = useGetAllIncentiveData(
+    searchParams?.employee_name || '',
+    searchParams?.byYear || ' ',
+    searchParams?.bySession,
+    searchParams?.byMonth || '',
+    pageSize,
+    currentPage,
+    '',
+  );
 
   const handlePayPeriodChange = useCallback(
     (value: string) => {
@@ -223,8 +231,12 @@ const Page = () => {
     .padStart(3, '0')
     .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
+  const formattedCategories = (
+    incentiveData?.data?.totalCategories || 0
+  ).toString();
+
   const formattedTotalRecognitionTypes = (
-    recognitionTypeDashboardStats?.totalRecognitionTypes || 0
+    incentiveData?.data?.totalRecognitionTypes || 0
   ).toString();
 
   const filteredRecognition = useMemo(() => {
@@ -252,16 +264,14 @@ const Page = () => {
   }, [categoryPage, categoryPageSize, filteredRecognition, totalCategoryPages]);
 
   const recognitionStats = useMemo(() => {
-    const categories = parentRecognition?.length || 0;
-
     return {
-      categories,
+      categories: formattedCategories,
       totalCriteria: formattedCriteria,
       totalIncentive: formattedAmount,
       totalRecognitionTypes: formattedTotalRecognitionTypes,
     };
   }, [
-    parentRecognition,
+    formattedCategories,
     formattedCriteria,
     formattedAmount,
     formattedTotalRecognitionTypes,
@@ -394,7 +404,7 @@ const Page = () => {
             </p>
           </div>
           <div
-            className="flex flex-wrap items-center gap-3"
+            className="flex flex-wrap items-center justify-between gap-3"
             data-cy={`incentive-card-pills-${item?.id}`}
           >
             <Tag
@@ -404,6 +414,15 @@ const Page = () => {
               {(childTypeCountByParentId.get(item?.id) ??
                 item?.children?.length ??
                 0) + ' Types'}
+            </Tag>
+            <Tag
+              className="inline-flex rounded-[4px] border border-[#91CAFF] bg-[#E6F4FF] px-3 py-1 text-xs leading-none font-normal text-[#1677FF]"
+              data-cy={`incentive-card-bonus-pill-${item?.id}`}
+            >
+              Total Bonus:{' '}
+              {(
+                categoryBonusData?.data?.categoryAmounts?.[item?.id] || 0
+              ).toLocaleString('en-US', { maximumFractionDigits: 2 })}
             </Tag>
           </div>
         </div>
