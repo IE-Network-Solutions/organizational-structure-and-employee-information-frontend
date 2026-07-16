@@ -1148,6 +1148,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
   }, [collapsed, isMobile]);
 
+  const clearBrowserSessionArtifacts = () => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const clearStorage = (storage: Storage) => {
+        const keys = Object.keys(storage);
+        keys.forEach((key) => storage.removeItem(key));
+      };
+      clearStorage(window.localStorage);
+      clearStorage(window.sessionStorage);
+    } catch {
+      // ignore storage cleanup errors
+    }
+
+    try {
+      document.cookie.split(';').forEach((cookie) => {
+        const name = cookie.split('=')[0]?.trim();
+        if (!name) return;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+      });
+    } catch {
+      // ignore cookie cleanup errors
+    }
+  };
+
   const handleLogout = async () => {
     try {
       // Sign out of the shared Firebase session first so logout propagates to
@@ -1181,6 +1206,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setToken('');
       setTenantId('');
       setLocalId('');
+      clearBrowserSessionArtifacts();
 
       // Core owns login at the origin root, outside this app's /workspace basePath.
       window.location.assign('/login');
