@@ -11,6 +11,7 @@ import { DownloadOutlined, UserOutlined } from '@ant-design/icons';
 import { FiBell } from 'react-icons/fi';
 import { AiOutlineDown } from 'react-icons/ai';
 import { NotificationDropdownPanel } from './NotificationDropdownPanel';
+import { IS_CORE } from '@/utils/constants';
 
 interface NavBarProps {
   handleLogout: () => void;
@@ -62,22 +63,26 @@ const NavBar = ({ handleLogout }: NavBarProps) => {
       ),
       className: 'rounded-lg',
     },
-    {
-      type: 'divider' as const,
-    },
-    {
-      key: 'logout',
-      label: (
-        <div
-          data-cy="top-nav-logout-label"
-          className="text-red-500 font-medium px-1"
-        >
-          Logout
-        </div>
-      ),
-      onClick: handleLogout,
-      className: 'rounded-lg',
-    },
+    ...(IS_CORE
+      ? []
+      : [
+          {
+            type: 'divider' as const,
+          },
+          {
+            key: 'logout',
+            label: (
+              <div
+                data-cy="top-nav-logout-label"
+                className="text-red-500 font-medium px-1"
+              >
+                Logout
+              </div>
+            ),
+            onClick: handleLogout,
+            className: 'rounded-lg',
+          },
+        ]),
   ];
 
   const hasProfileImage = Boolean(employeeData?.profileImage);
