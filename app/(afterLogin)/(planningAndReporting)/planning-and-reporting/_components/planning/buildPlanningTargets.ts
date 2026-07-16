@@ -23,6 +23,8 @@ export type PlanningTarget = {
   isDailySlot: boolean;
   /** KR metric name (e.g. Achieve) for inline achieveMK UX */
   metricTypeName?: string | null;
+  /** Achieved/completed milestone — show in pick list but not selectable */
+  isCompleted?: boolean;
 };
 
 /** Weekly / monthly: one row per KR, or per milestone when KR has milestones. */
@@ -43,7 +45,7 @@ export function buildPlanningTargetsFromObjectives(
         if (isKeyResultFullyCompletedForPlanning(kr)) return;
         kr.milestones?.forEach((ms: any) => {
           if (ms.deletedAt) return;
-          if (isMilestoneCompleted(ms)) return;
+          const completed = isMilestoneCompleted(ms);
           out.push({
             id: `okr-kr-${kr.id}-ms-${ms.id}`,
             keyResultId: String(kr.id),
@@ -53,6 +55,7 @@ export function buildPlanningTargetsFromObjectives(
             parentTaskId: null,
             isDailySlot: false,
             metricTypeName,
+            isCompleted: completed,
           });
         });
         return;
@@ -156,13 +159,60 @@ export function isPlanningTargetBlocked(
   return false;
 }
 
-/** Drop slots for achieved KRs / milestones (user KR API is source of truth when present). */
+/**
+ * Drop slots for fully blocked KRs. Completed milestones are kept (marked
+ * `isCompleted`) so the pick menu can show them disabled/greyed out.
+ */
 export function filterPlanningTargetsByBlockedKeyResults(
   targets: PlanningTarget[],
   userKeyResultItems: any[],
 ): PlanningTarget[] {
   if (!targets.length) return targets;
-  return targets.filter((t) => !isPlanningTargetBlocked(t, userKeyResultItems));
+
+  return targets
+    .filter((t) => {
+      const apiKr = userKeyResultItems.find(
+        (k) =>
+          k &&
+          k.deletedAt == null &&
+          String(k.id) === String(t.keyResultId),
+      );
+      if (
+        resolveKrPlanningBlocked(
+          {
+            metricType: apiKr?.metricType?.name ?? apiKr?.key_type,
+            progress: apiKr ? getKeyResultProgressPercent(apiKr) : 0,
+            currentValue: apiKr?.currentValue,
+            targetValue: apiKr?.targetValue,
+            milestones: apiKr?.milestones ?? apiKr?.Milestones ?? [],
+          },
+          apiKr,
+        )
+      ) {
+        return false;
+      }
+      // Non-milestone KR slots: drop if blocked (no milestone list to grey out)
+      if (!t.milestoneId && isPlanningTargetBlocked(t, userKeyResultItems)) {
+        return false;
+      }
+      return true;
+    })
+    .map((t) => {
+      if (!t.milestoneId) return t;
+      const apiKr = userKeyResultItems.find(
+        (k) =>
+          k &&
+          k.deletedAt == null &&
+          String(k.id) === String(t.keyResultId),
+      );
+      const ms = apiKr
+        ? findMilestoneInKeyResult(apiKr, t.milestoneId)
+        : null;
+      const completed =
+        t.isCompleted === true ||
+        (ms != null && isMilestoneCompleted(ms));
+      return completed === t.isCompleted ? t : { ...t, isCompleted: completed };
+    });
 }
 
 /** Daily: one row per weekly parent task (slot for daily sub-tasks). */

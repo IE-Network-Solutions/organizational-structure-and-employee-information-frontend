@@ -89,7 +89,10 @@ function formatKrMetricTypeLabel(metricType: string): string {
 }
 
 /** + dropdown: single title line per planning slot */
-function planningTargetMenuItemLabel(t: PlanningTarget): React.ReactNode {
+function planningTargetMenuItemLabel(
+  t: PlanningTarget,
+  disabled = false,
+): React.ReactNode {
   let title: string;
   if (t.isDailySlot) {
     const parts = [t.milestoneTitle, t.parentTaskTitle].filter(Boolean);
@@ -106,9 +109,16 @@ function planningTargetMenuItemLabel(t: PlanningTarget): React.ReactNode {
     >
       <p
         data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-101"
-        className="text-[13px] font-semibold leading-snug text-[#161A2C] line-clamp-3"
+        className={`text-[13px] font-semibold leading-snug line-clamp-3 ${
+          disabled ? 'text-[#9CA3AF]' : 'text-[#161A2C]'
+        }`}
       >
         {title}
+        {disabled ? (
+          <span className="ml-1.5 text-[11px] font-medium text-[#9CA3AF]">
+            (Achieved)
+          </span>
+        ) : null}
       </p>
     </div>
   );
@@ -231,19 +241,29 @@ function KRProgressCard({
 
   const isFullyCompleted = kr.planningBlocked;
 
+  const hasSelectablePlanningTarget = planningTargetsForKr.some(
+    (t) => !t.isCompleted,
+  );
+
   const showPickControl =
     inlinePickEnabled &&
     !!onPickPlanningTarget &&
-    planningTargetsForKr.length > 0 &&
+    hasSelectablePlanningTarget &&
     !isFullyCompleted &&
     !kr.isDeleted;
 
   const dropdownSlotItems: MenuProps['items'] = planningTargetsForKr.map(
-    (t) => ({
-      key: t.id,
-      className: '!h-auto !py-2.5 !leading-normal',
-      label: planningTargetMenuItemLabel(t),
-    }),
+    (t) => {
+      const disabled = !!t.isCompleted;
+      return {
+        key: t.id,
+        disabled,
+        className: `!h-auto !py-2.5 !leading-normal${
+          disabled ? ' !cursor-not-allowed !opacity-60' : ''
+        }`,
+        label: planningTargetMenuItemLabel(t, disabled),
+      };
+    },
   );
 
   const dropdownMenuItems: MenuProps['items'] = [
@@ -257,40 +277,29 @@ function KRProgressCard({
 
   const pickButton =
     showPickControl && onPickPlanningTarget ? (
-      planningTargetsForKr.length === 1 ? (
+      <Dropdown
+        menu={{
+          items: dropdownMenuItems,
+          onClick: ({ key, domEvent }) => {
+            domEvent.stopPropagation();
+            const t = planningTargetsForKr.find((x) => x.id === key);
+            if (!t || t.isCompleted) return;
+            onPickPlanningTarget(t);
+          },
+        }}
+        trigger={['click']}
+        placement={pickMenuPlacement}
+        overlayClassName="planning-target-pick-menu"
+      >
         <button
-          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-273"
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-295"
           type="button"
-          title="Add tasks for this key result"
-          onClick={() => onPickPlanningTarget(planningTargetsForKr[0])}
+          title="Choose a milestone or key result to plan against"
           className={`${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`}
         >
           <PlusOutlined className="text-[13px]" />
         </button>
-      ) : (
-        <Dropdown
-          menu={{
-            items: dropdownMenuItems,
-            onClick: ({ key, domEvent }) => {
-              domEvent.stopPropagation();
-              const t = planningTargetsForKr.find((x) => x.id === key);
-              if (t) onPickPlanningTarget(t);
-            },
-          }}
-          trigger={['click']}
-          placement={pickMenuPlacement}
-          overlayClassName="planning-target-pick-menu"
-        >
-          <button
-            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-295"
-            type="button"
-            title="Choose a milestone or key result to plan against"
-            className={`${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`}
-          >
-            <PlusOutlined className="text-[13px]" />
-          </button>
-        </Dropdown>
-      )
+      </Dropdown>
     ) : null;
 
   useEffect(() => {

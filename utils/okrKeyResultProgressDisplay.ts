@@ -311,11 +311,28 @@ export function countKeyResultMilestones(
   return resolveOkrMilestones(kr, apiKr).length;
 }
 
-export function isMilestoneCompleted(m: { status?: string | null }): boolean {
+export function isMilestoneCompleted(m: {
+  status?: string | null;
+  isAchieved?: boolean | null;
+  progress?: number | string | null;
+}): boolean {
+  if (m?.isAchieved === true) return true;
   const s = String(m?.status ?? '')
     .trim()
-    .toLowerCase();
-  return s === 'completed' || s === 'done' || s === 'achieved';
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+  if (
+    s === 'completed' ||
+    s === 'complete' ||
+    s === 'done' ||
+    s === 'achieved'
+  ) {
+    return true;
+  }
+  const p = Number(m?.progress);
+  // Only treat explicit 0–100 completion; do not treat progress=1 as 100%
+  // (that would false-positive on a 0–100 scale).
+  return Number.isFinite(p) && p >= 100;
 }
 
 export function isMilestoneKeyResult(
