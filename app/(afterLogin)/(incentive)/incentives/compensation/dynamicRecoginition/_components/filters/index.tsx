@@ -411,7 +411,10 @@ const DynamicIncentiveFilter: React.FC = () => {
           }
         />
 
-        <div className="flex items-center gap-3">
+        <div
+          className="flex items-center gap-3"
+          data-cy="dynamic-incentive-total-bonus-and-filter"
+        >
           <span
             className="text-[14px] leading-none font-normal text-black/70 whitespace-nowrap"
             data-cy="dynamic-incentive-total-bonus"
