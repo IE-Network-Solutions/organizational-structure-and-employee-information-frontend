@@ -6,6 +6,7 @@ import {
   isMilestoneKeyResult,
   mergeKeyResultWithUserApi,
   resolveKrPlanningBlocked,
+  resolveOkrMilestones,
 } from '@/utils/okrKeyResultProgressDisplay';
 
 export { mergeKeyResultWithUserApi };
@@ -30,6 +31,7 @@ export type PlanningTarget = {
 /** Weekly / monthly: one row per KR, or per milestone when KR has milestones. */
 export function buildPlanningTargetsFromObjectives(
   objective: any,
+  userKeyResultItems: any[] = [],
 ): PlanningTarget[] {
   const out: PlanningTarget[] = [];
   if (!objective?.items?.length) return out;
@@ -40,12 +42,37 @@ export function buildPlanningTargetsFromObjectives(
       if (kr.deletedAt) return;
       const krTitle = kr.title || kr.name || 'Key result';
       const metricTypeName = kr.metricType?.name ?? null;
+      const apiKr = userKeyResultItems.find(
+        (k) => k && k.deletedAt == null && String(k.id) === String(kr.id),
+      );
+      const merged = mergeKeyResultWithUserApi(kr, userKeyResultItems);
 
-      if (isMilestoneKeyResult(kr)) {
-        if (isKeyResultFullyCompletedForPlanning(kr)) return;
-        kr.milestones?.forEach((ms: any) => {
-          if (ms.deletedAt) return;
-          const completed = isMilestoneCompleted(ms);
+      if (isMilestoneKeyResult(merged, apiKr)) {
+        if (isKeyResultFullyCompletedForPlanning(merged)) return;
+
+        // Prefer OKR API milestones (carry achieved status). Keep completed
+        // rows in the list so the pick menu can show them disabled.
+        const okrMilestones = resolveOkrMilestones(merged, apiKr);
+        const fallbackMilestones = (
+          merged.milestones ??
+          merged.Milestones ??
+          kr.milestones ??
+          []
+        ).filter((m: any) => m && m.deletedAt == null);
+        const milestones =
+          okrMilestones.length > 0 ? okrMilestones : fallbackMilestones;
+
+        if (
+          milestones.length > 0 &&
+          milestones.every((ms: any) => isMilestoneCompleted(ms))
+        ) {
+          // All milestones achieved — no selectable slot; + stays hidden.
+          return;
+        }
+
+        milestones.forEach((ms: any) => {
+          if (ms?.deletedAt) return;
+          if (ms?.id == null) return;
           out.push({
             id: `okr-kr-${kr.id}-ms-${ms.id}`,
             keyResultId: String(kr.id),
@@ -55,13 +82,16 @@ export function buildPlanningTargetsFromObjectives(
             parentTaskId: null,
             isDailySlot: false,
             metricTypeName,
-            isCompleted: completed,
+            isCompleted: isMilestoneCompleted(ms),
           });
         });
         return;
       }
 
-      if (isKeyResultFullyCompletedForPlanning(kr)) return;
+      if (isKeyResultFullyCompletedForPlanning(merged)) return;
+
+      const krProgressDone = getKeyResultProgressPercent(merged) >= 100;
+      if (krProgressDone) return;
 
       out.push({
         id: `okr-kr-${kr.id}`,
@@ -71,11 +101,19 @@ export function buildPlanningTargetsFromObjectives(
         parentTaskId: null,
         isDailySlot: false,
         metricTypeName,
+        isCompleted: false,
       });
     });
   });
 
   return out;
+}
+
+/** True when at least one planning slot can still be selected (+ should show). */
+export function hasSelectablePlanningTargets(
+  targets: PlanningTarget[] = [],
+): boolean {
+  return targets.some((t) => !t.isCompleted);
 }
 
 function findMilestoneInKeyResult(kr: any, milestoneId: string | null) {
@@ -196,15 +234,32 @@ export function filterPlanningTargetsByBlockedKeyResults(
       return true;
     })
     .map((t) => {
-      if (!t.milestoneId) return t;
+      if (!t.milestoneId) {
+        const apiKr = userKeyResultItems.find(
+          (k) =>
+            k && k.deletedAt == null && String(k.id) === String(t.keyResultId),
+        );
+        const completed =
+          isKeyResultFullyCompletedForPlanning(
+            apiKr ?? {
+              progress: t.isCompleted ? 100 : 0,
+            },
+          ) || (apiKr && getKeyResultProgressPercent(apiKr) >= 100);
+        return completed ? { ...t, isCompleted: true } : t;
+      }
       const apiKr = userKeyResultItems.find(
         (k) =>
           k && k.deletedAt == null && String(k.id) === String(t.keyResultId),
       );
-      const ms = apiKr ? findMilestoneInKeyResult(apiKr, t.milestoneId) : null;
+      // Prefer live OKR milestone status; also accept objective-side completion.
+      const ms = apiKr
+        ? findMilestoneInKeyResult(apiKr, t.milestoneId)
+        : null;
       const completed =
-        t.isCompleted === true || (ms != null && isMilestoneCompleted(ms));
-      return completed === t.isCompleted ? t : { ...t, isCompleted: completed };
+        t.isCompleted === true ||
+        (ms != null && isMilestoneCompleted(ms)) ||
+        (ms == null && t.isCompleted === true);
+      return { ...t, isCompleted: completed };
     });
 }
 

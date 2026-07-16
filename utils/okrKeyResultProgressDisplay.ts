@@ -314,9 +314,13 @@ export function isMilestoneCompleted(m: {
   status?: string | null;
   isAchieved?: boolean | null;
   progress?: number | string | null;
+  keyResultCompletionStatus?: string | null;
+  completionStatus?: string | null;
 }): boolean {
   if (m?.isAchieved === true) return true;
-  const s = String(m?.status ?? '')
+  const s = String(
+    m?.status ?? m?.keyResultCompletionStatus ?? m?.completionStatus ?? '',
+  )
     .trim()
     .toLowerCase()
     .replace(/[\s-]+/g, '_');

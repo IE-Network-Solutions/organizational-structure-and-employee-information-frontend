@@ -27,7 +27,7 @@ export function usePlanningTargets(
     if (!planningPeriodId) return [];
     const raw = isDailyPeriod
       ? buildPlanningTargetsFromDailyHierarchy(hierarchy)
-      : buildPlanningTargetsFromObjectives(objective);
+      : buildPlanningTargetsFromObjectives(objective, userKeyResultItems);
     return filterPlanningTargetsByBlockedKeyResults(raw, userKeyResultItems);
   }, [
     planningPeriodId,

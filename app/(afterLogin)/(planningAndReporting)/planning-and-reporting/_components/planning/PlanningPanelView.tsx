@@ -10,6 +10,7 @@ import { MessageOutlined, PlusOutlined } from '@ant-design/icons';
 import PlanCard from '../cards/PlanCard';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import type { PlanningTarget } from './buildPlanningTargets';
+import { hasSelectablePlanningTargets } from './buildPlanningTargets';
 import CommentList from '../comments/commentList';
 import type {
   PlanSummary,
@@ -244,14 +245,10 @@ function KRProgressCard({
 
   const isFullyCompleted = kr.planningBlocked;
 
-  const hasSelectablePlanningTarget = planningTargetsForKr.some(
-    (t) => !t.isCompleted,
-  );
-
   const showPickControl =
     inlinePickEnabled &&
     !!onPickPlanningTarget &&
-    hasSelectablePlanningTarget &&
+    hasSelectablePlanningTargets(planningTargetsForKr) &&
     !isFullyCompleted &&
     !kr.isDeleted;
 
