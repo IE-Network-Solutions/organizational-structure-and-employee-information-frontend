@@ -267,8 +267,11 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     const canEditDelete =
       (myOkr || objective?.userId === userId) && isInActiveSession;
     const canShowKeyResultActions = canEditDelete && !hideOwnTeamOkrActions;
+    const canUpdateKeyResult = AccessGuard.checkAccess({
+      permissions: [Permissions.UpdateKeyResults],
+    });
 
-    if (!canShowKeyResultActions) return null;
+    if (!canShowKeyResultActions || !canUpdateKeyResult) return null;
 
     return (
       <Menu
