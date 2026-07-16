@@ -41,7 +41,7 @@ if (branchName.contains('develop-redesign-branch')) {
 }  else if (branchName.contains('core-production')) {
     env.REMOTE_SERVER = REMOTE_SERVER_PROD
     env.SECRETS_PATH = '/home/ubuntu/secrets/.core-workspace-env'
-    env.SECRET_KEY = 'pepproduction
+    env.SECRET_KEY = 'pepproduction'
                         
                     }
                 }
