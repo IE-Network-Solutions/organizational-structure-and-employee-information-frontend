@@ -6,6 +6,7 @@ import AntdConfigProvider from '@/providers/antdProvider';
 import ReactQueryWrapper from '@/providers/reactQueryProvider';
 import ConditionalNav from '@/providers/conditionalNav';
 import UserSessionRefresher from '@/providers/UserSessionRefresher';
+import AuthBridge from '@/providers/AuthBridge';
 import RecaptchaProvider from '@/components/recaptcha';
 import { PWAProvider } from '@/providers/PWAProvider';
 import { NotificationSocketProvider } from '@/providers/NotificationSocketProvider';
@@ -16,6 +17,12 @@ import CopilotFloatEntry from '@/components/copilot/CopilotFloatEntry';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
+
+// Keep in sync with `basePath` in next.config.mjs. Next 14 does NOT prefix
+// metadata/manifest/icon URLs (or raw <meta> tags) with the configured basePath,
+// so we prepend it explicitly for every static asset served from public/.
+const BASE_PATH = '/workspace';
+const asset = (path: string) => `${BASE_PATH}${path}`;
 
 export const metadata: Metadata = {
   title: 'Selamnew Workspace',
@@ -38,7 +45,7 @@ export const metadata: Metadata = {
   publisher: 'Selamnew',
   applicationName: 'Selamnew Workspace',
   generator: 'Next.js',
-  manifest: '/manifest.json',
+  manifest: asset('/manifest.json'),
   themeColor: '#1890ff',
   colorScheme: 'light',
   viewport: {
@@ -64,7 +71,7 @@ export const metadata: Metadata = {
       'Complete enterprise management system for organizational structure, employee information, payroll, recruitment, and more',
     images: [
       {
-        url: '/icons/manifest-icon-512.png',
+        url: asset('/icons/manifest-icon-512.png'),
         width: 512,
         height: 512,
         alt: 'Selamnew Workspace',
@@ -76,7 +83,7 @@ export const metadata: Metadata = {
     title: 'Selamnew Workspace - Enterprise Management System',
     description:
       'Complete enterprise management system for organizational structure, employee information, payroll, recruitment, and more',
-    images: ['/icons/manifest-icon-512.png'],
+    images: [asset('/icons/manifest-icon-512.png')],
   },
   robots: {
     index: true,
@@ -92,52 +99,52 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/icons/android/android-launchericon-48-48.png',
+        url: asset('/icons/android/android-launchericon-48-48.png'),
         sizes: '48x48',
         type: 'image/png',
       },
       {
-        url: '/icons/android/android-launchericon-72-72.png',
+        url: asset('/icons/android/android-launchericon-72-72.png'),
         sizes: '72x72',
         type: 'image/png',
       },
       {
-        url: '/icons/android/android-launchericon-96-96.png',
+        url: asset('/icons/android/android-launchericon-96-96.png'),
         sizes: '96x96',
         type: 'image/png',
       },
       {
-        url: '/icons/android/android-launchericon-144-144.png',
+        url: asset('/icons/android/android-launchericon-144-144.png'),
         sizes: '144x144',
         type: 'image/png',
       },
       {
-        url: '/icons/android/android-launchericon-192-192.png',
+        url: asset('/icons/android/android-launchericon-192-192.png'),
         sizes: '192x192',
         type: 'image/png',
       },
-      { url: '/icons/ios/256.png', sizes: '256x256', type: 'image/png' },
+      { url: asset('/icons/ios/256.png'), sizes: '256x256', type: 'image/png' },
       {
-        url: '/icons/android/android-launchericon-512-512.png',
+        url: asset('/icons/android/android-launchericon-512-512.png'),
         sizes: '512x512',
         type: 'image/png',
       },
     ],
     apple: [
-      { url: '/icons/ios/57.png', sizes: '57x57', type: 'image/png' },
-      { url: '/icons/ios/60.png', sizes: '60x60', type: 'image/png' },
-      { url: '/icons/ios/72.png', sizes: '72x72', type: 'image/png' },
-      { url: '/icons/ios/76.png', sizes: '76x76', type: 'image/png' },
-      { url: '/icons/ios/114.png', sizes: '114x114', type: 'image/png' },
-      { url: '/icons/ios/120.png', sizes: '120x120', type: 'image/png' },
-      { url: '/icons/ios/144.png', sizes: '144x144', type: 'image/png' },
-      { url: '/icons/ios/152.png', sizes: '152x152', type: 'image/png' },
-      { url: '/icons/ios/180.png', sizes: '180x180', type: 'image/png' },
+      { url: asset('/icons/ios/57.png'), sizes: '57x57', type: 'image/png' },
+      { url: asset('/icons/ios/60.png'), sizes: '60x60', type: 'image/png' },
+      { url: asset('/icons/ios/72.png'), sizes: '72x72', type: 'image/png' },
+      { url: asset('/icons/ios/76.png'), sizes: '76x76', type: 'image/png' },
+      { url: asset('/icons/ios/114.png'), sizes: '114x114', type: 'image/png' },
+      { url: asset('/icons/ios/120.png'), sizes: '120x120', type: 'image/png' },
+      { url: asset('/icons/ios/144.png'), sizes: '144x144', type: 'image/png' },
+      { url: asset('/icons/ios/152.png'), sizes: '152x152', type: 'image/png' },
+      { url: asset('/icons/ios/180.png'), sizes: '180x180', type: 'image/png' },
     ],
     other: [
       {
         rel: 'apple-touch-icon-precomposed',
-        url: '/icons/ios/180.png',
+        url: asset('/icons/ios/180.png'),
       },
     ],
   },
@@ -189,7 +196,7 @@ export default function RootLayout({
         />
         <meta
           name="msapplication-config"
-          content="/icons/browserconfig.xml"
+          content={asset('/icons/browserconfig.xml')}
           data-cy="pwa-meta-msapplication-config"
         />
         <meta
@@ -271,7 +278,7 @@ export default function RootLayout({
         {/* Microsoft Edge */}
         <meta
           name="msapplication-TileImage"
-          content="/icons/manifest-icon-144.png"
+          content={asset('/icons/manifest-icon-144.png')}
           data-cy="pwa-meta-msapplication-tile-image"
         />
 
@@ -347,6 +354,7 @@ export default function RootLayout({
                   <AntdApp>
                     <NotificationSocketProvider>
                       <RecaptchaProvider>
+                        <AuthBridge />
                         <UserSessionRefresher />
                         <ConditionalNav>{children}</ConditionalNav>
                         <CopilotFloatEntry />
