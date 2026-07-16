@@ -257,8 +257,7 @@ export function filterPlanningTargetsByBlockedKeyResults(
         : null;
       const completed =
         t.isCompleted === true ||
-        (ms != null && isMilestoneCompleted(ms)) ||
-        (ms == null && t.isCompleted === true);
+        (ms != null && isMilestoneCompleted(ms));
       return { ...t, isCompleted: completed };
     });
 }
