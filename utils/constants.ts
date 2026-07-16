@@ -10,7 +10,6 @@ export const OKR_AND_PLANNING_URL =
 export const ORG_DEV_URL = process.env.ORG_DEV_URL;
 export const RECRUITMENT_URL = process.env.RECRUITMENT_URL;
 export const PUBLIC_DOMAIN = process.env.PUBLIC_DOMAIN;
-
 export const TENANT_BASE_URL = process.env.TENANT_BASE_URL;
 export const TENANT_MGMT_URL = `${TENANT_BASE_URL}/api/v1`;
 
@@ -54,3 +53,9 @@ export const AI_REC_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL;
  * `https://<app>.azurewebsites.net/copilot`
  */
 export const AZURE_APP_SERVICE = process.env.NEXT_PUBLIC_AZURE_APP_SERVICE;
+
+/**
+ * True when this app is embedded inside the SelamNew Core host, which provides
+ * its own top bar — so this app hides its own header (top nav) and sidebar logo.
+ */
+export const IS_CORE = process.env.NEXT_PUBLIC_IS_CORE === 'true';
