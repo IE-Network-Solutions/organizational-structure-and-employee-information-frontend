@@ -4,8 +4,11 @@ import {
   isKeyResultFullyCompletedForPlanning,
   isMilestoneCompleted,
   isMilestoneKeyResult,
+  mergeKeyResultWithUserApi,
   resolveKrPlanningBlocked,
 } from '@/utils/okrKeyResultProgressDisplay';
+
+export { mergeKeyResultWithUserApi };
 export type PlanningTarget = {
   id: string;
   keyResultId: string;
@@ -78,30 +81,6 @@ function findMilestoneInKeyResult(kr: any, milestoneId: string | null) {
   return list.find((m: any) => String(m?.id) === String(milestoneId)) ?? null;
 }
 
-/** Merge objective / plan KR payload with user KR API for planning eligibility. */
-export function mergeKeyResultWithUserApi(
-  kr: any,
-  userKeyResultItems: any[],
-): any {
-  const apiKr = userKeyResultItems.find(
-    (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
-  );
-  if (!apiKr) return kr;
-  return {
-    ...kr,
-    ...apiKr,
-    metricType: apiKr.metricType ?? kr?.metricType,
-    key_type: apiKr.key_type ?? kr?.key_type,
-    milestones: apiKr.milestones ?? apiKr.Milestones ?? kr?.milestones,
-    progress: apiKr.progress ?? kr?.progress,
-    currentValue: apiKr.currentValue ?? kr?.currentValue,
-    targetValue: apiKr.targetValue ?? kr?.targetValue,
-    status: apiKr.status ?? kr?.status,
-    keyResultCompletionStatus:
-      apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
-  };
-}
-
 /** True when the whole KR must not offer planning (+ hidden everywhere). */
 export function isKeyResultBlockedForPlanning(
   kr: any,
@@ -116,6 +95,7 @@ export function isKeyResultBlockedForPlanning(
       progress: getKeyResultProgressPercent(kr),
       currentValue: kr?.currentValue,
       targetValue: kr?.targetValue,
+      milestones: kr?.milestones ?? kr?.Milestones ?? [],
     },
     apiKr,
   );
@@ -158,6 +138,7 @@ export function isPlanningTargetBlocked(
         progress: apiKr ? getKeyResultProgressPercent(apiKr) : 0,
         currentValue: apiKr?.currentValue,
         targetValue: apiKr?.targetValue,
+        milestones: apiKr?.milestones ?? apiKr?.Milestones ?? [],
       },
       apiKr,
     )

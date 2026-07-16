@@ -54,3 +54,9 @@ export const AI_REC_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL;
  * `https://<app>.azurewebsites.net/copilot`
  */
 export const AZURE_APP_SERVICE = process.env.NEXT_PUBLIC_AZURE_APP_SERVICE;
+
+/**
+ * True when this app is embedded inside the SelamNew Core host, which provides
+ * its own top bar — so this app hides its own header (top nav) and sidebar logo.
+ */
+export const IS_CORE = process.env.NEXT_PUBLIC_IS_CORE === 'true';
