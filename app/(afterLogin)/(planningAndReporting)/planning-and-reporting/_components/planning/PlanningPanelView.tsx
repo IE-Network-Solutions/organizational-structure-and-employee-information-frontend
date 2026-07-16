@@ -115,7 +115,10 @@ function planningTargetMenuItemLabel(
       >
         {title}
         {disabled ? (
-          <span className="ml-1.5 text-[11px] font-medium text-[#9CA3AF]">
+          <span
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-achieved-badge"
+            className="ml-1.5 text-[11px] font-medium text-[#9CA3AF]"
+          >
             (Achieved)
           </span>
         ) : null}

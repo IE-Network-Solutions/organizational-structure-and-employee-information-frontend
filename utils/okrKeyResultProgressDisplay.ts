@@ -177,7 +177,6 @@ export function toMetricTypeObject(
   return name ? { name } : undefined;
 }
 
-
 /** Display label for KR cards — same spelling as OKR metric type names. */
 export function formatKrMetricTypeDisplayName(
   metric: string | null | undefined,

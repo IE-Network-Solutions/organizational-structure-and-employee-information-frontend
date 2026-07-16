@@ -173,9 +173,7 @@ export function filterPlanningTargetsByBlockedKeyResults(
     .filter((t) => {
       const apiKr = userKeyResultItems.find(
         (k) =>
-          k &&
-          k.deletedAt == null &&
-          String(k.id) === String(t.keyResultId),
+          k && k.deletedAt == null && String(k.id) === String(t.keyResultId),
       );
       if (
         resolveKrPlanningBlocked(
@@ -201,16 +199,11 @@ export function filterPlanningTargetsByBlockedKeyResults(
       if (!t.milestoneId) return t;
       const apiKr = userKeyResultItems.find(
         (k) =>
-          k &&
-          k.deletedAt == null &&
-          String(k.id) === String(t.keyResultId),
+          k && k.deletedAt == null && String(k.id) === String(t.keyResultId),
       );
-      const ms = apiKr
-        ? findMilestoneInKeyResult(apiKr, t.milestoneId)
-        : null;
+      const ms = apiKr ? findMilestoneInKeyResult(apiKr, t.milestoneId) : null;
       const completed =
-        t.isCompleted === true ||
-        (ms != null && isMilestoneCompleted(ms));
+        t.isCompleted === true || (ms != null && isMilestoneCompleted(ms));
       return completed === t.isCompleted ? t : { ...t, isCompleted: completed };
     });
 }
