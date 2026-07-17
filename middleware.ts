@@ -46,13 +46,29 @@ export function middleware(req: NextRequest) {
     let hasEndedFiscalYear = false;
 
     if (calendarCookie) {
-      const activeCalendar = JSON.parse(calendarCookie);
-      if (
-        activeCalendar?.isActive &&
-        activeCalendar?.endDate &&
-        new Date(activeCalendar?.endDate) < new Date()
-      ) {
-        hasEndedFiscalYear = true;
+      // The activeCalendar cookie is stored as a plain end-date string, but
+      // older data may hold a JSON object ({ isActive, endDate }). Parse it
+      // defensively so a non-JSON value never throws and silently disables the
+      // redirects below (which would leave logged-in users stranded on "/").
+      let endDate: string | number | Date | null = null;
+
+      try {
+        const parsed = JSON.parse(calendarCookie);
+        endDate =
+          parsed && typeof parsed === 'object'
+            ? parsed.isActive
+              ? parsed.endDate
+              : null
+            : parsed;
+      } catch {
+        endDate = calendarCookie;
+      }
+
+      if (endDate) {
+        const parsedEndDate = new Date(endDate);
+        if (!isNaN(parsedEndDate.getTime()) && parsedEndDate < new Date()) {
+          hasEndedFiscalYear = true;
+        }
       }
     }
 
