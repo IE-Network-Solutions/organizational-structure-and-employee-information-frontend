@@ -3,10 +3,7 @@ import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
-import {
-  normalizeCopilotPromptList,
-  type CopilotPrompt,
-} from './interface';
+import { normalizeCopilotPromptList, type CopilotPrompt } from './interface';
 
 const getAuthHeaders = async () => {
   const token = await getCurrentToken();

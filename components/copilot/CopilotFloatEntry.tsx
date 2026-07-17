@@ -121,7 +121,13 @@ const CopilotFloatEntry: React.FC = () => {
     if (!position || typeof window === 'undefined') return;
     setPosition((prev) =>
       prev
-        ? clampPosition(prev.left, prev.top, launcherWidth, launcherHeight, inset)
+        ? clampPosition(
+            prev.left,
+            prev.top,
+            launcherWidth,
+            launcherHeight,
+            inset,
+          )
         : prev,
     );
   }, [launcherWidth, launcherHeight, inset, isCollapsed]);
@@ -131,7 +137,13 @@ const CopilotFloatEntry: React.FC = () => {
     const onResize = () => {
       setPosition((prev) =>
         prev
-          ? clampPosition(prev.left, prev.top, launcherWidth, launcherHeight, inset)
+          ? clampPosition(
+              prev.left,
+              prev.top,
+              launcherWidth,
+              launcherHeight,
+              inset,
+            )
           : prev,
       );
     };
@@ -293,7 +305,11 @@ const CopilotFloatEntry: React.FC = () => {
       <div
         ref={rowRef}
         className={`pointer-events-auto flex h-full w-full items-center justify-end touch-none select-none ${
-          isDragging ? 'cursor-grabbing' : isCollapsed ? 'cursor-pointer' : 'cursor-grab'
+          isDragging
+            ? 'cursor-grabbing'
+            : isCollapsed
+              ? 'cursor-pointer'
+              : 'cursor-grab'
         }`}
         role="group"
         aria-label="Chat With Copilot"
@@ -303,7 +319,9 @@ const CopilotFloatEntry: React.FC = () => {
         {isCollapsed ? (
           <div
             className={`copilot-float-fab-shell rounded-full bg-gradient-to-br from-[#1E40AF] via-[#2563EB] to-[#60A5FA] p-[2px] ${
-              isDragging ? '' : 'transition-transform duration-300 hover:scale-[1.04] active:scale-[0.98]'
+              isDragging
+                ? ''
+                : 'transition-transform duration-300 hover:scale-[1.04] active:scale-[0.98]'
             }`}
             data-cy="copilot-float-fab-shell"
           >
@@ -335,7 +353,11 @@ const CopilotFloatEntry: React.FC = () => {
                 className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#1E40AF] to-[#3B82F6] text-white shadow-[0_4px_12px_rgba(37,99,235,0.35)]"
                 data-cy="copilot-float-trigger-icon-badge"
               >
-                <CopilotAiEditIcon size={18} className="text-white" aria-hidden />
+                <CopilotAiEditIcon
+                  size={18}
+                  className="text-white"
+                  aria-hidden
+                />
               </span>
               <span
                 className="truncate text-[13px] font-semibold tracking-[-0.01em] text-slate-800"

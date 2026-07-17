@@ -443,8 +443,12 @@ const CopilotModule: React.FC = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const { data: copilotPromptsRaw, isLoading: savedChatsLoading } =
     useGetCopilotPrompts(!!userId);
-  const { mutate: createSavedPrompt } = useCreateCopilotPrompt({ silent: true });
-  const { mutate: updateSavedPrompt } = useUpdateCopilotPrompt({ silent: true });
+  const { mutate: createSavedPrompt } = useCreateCopilotPrompt({
+    silent: true,
+  });
+  const { mutate: updateSavedPrompt } = useUpdateCopilotPrompt({
+    silent: true,
+  });
   const { mutate: deleteSavedPrompt } = useDeleteCopilotPrompt();
 
   const savedChats = useMemo(() => {
@@ -838,7 +842,10 @@ const CopilotModule: React.FC = () => {
                 activePrompt={activeStarterPrompt}
               />
             ) : (
-              <div className="flex min-h-full flex-col justify-end px-6 py-4 md:px-8 md:pb-6 md:pt-4">
+              <div
+                className="flex min-h-full flex-col justify-end px-6 py-4 md:px-8 md:pb-6 md:pt-4"
+                data-cy="copilot-module-chat-messages-list"
+              >
                 <CopilotMessages
                   variant="workspace"
                   messages={messages}

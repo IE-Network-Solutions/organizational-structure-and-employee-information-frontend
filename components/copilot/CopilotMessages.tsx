@@ -9,7 +9,6 @@ import {
   Button,
   Alert,
   Collapse,
-  Tooltip,
   Dropdown,
 } from 'antd';
 import type { MenuProps } from 'antd';

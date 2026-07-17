@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useSetCurrentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
@@ -11,7 +11,6 @@ import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesh
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 export function useRemoteAttendanceCamera() {
-  const isConfirmingCameraRef = useRef(false);
   const { userId } = useAuthenticationStore();
   const { mutateAsync: setCurrentAttendanceMutation } =
     useSetCurrentAttendance();
@@ -19,10 +18,8 @@ export function useRemoteAttendanceCamera() {
 
   const {
     pendingAction,
-    showCameraConfirm,
     showCameraCapture,
     setPendingAction,
-    setShowCameraConfirm,
     setShowCameraCapture,
     setPendingCoords,
     setCapturedAttendancePhotoUrl,
@@ -91,33 +88,17 @@ export function useRemoteAttendanceCamera() {
   const startAttendanceWithCamera = useCallback(
     (action: RemoteAttendanceAction) => {
       setPendingAction(action);
-      setShowCameraConfirm(true);
+      setShowCameraCapture(true);
+      setPendingCoords(null);
+      getCoords((pos) =>
+        setPendingCoords({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+        }),
+      );
     },
-    [setPendingAction, setShowCameraConfirm],
+    [getCoords, setPendingAction, setShowCameraCapture, setPendingCoords],
   );
-
-  const handleCameraConfirm = useCallback(() => {
-    isConfirmingCameraRef.current = true;
-    setShowCameraConfirm(false);
-    setShowCameraCapture(true);
-    setPendingCoords(null);
-    getCoords((pos) =>
-      setPendingCoords({
-        latitude: pos.coords.latitude,
-        longitude: pos.coords.longitude,
-      }),
-    );
-  }, [getCoords, setShowCameraConfirm, setShowCameraCapture, setPendingCoords]);
-
-  const handleCameraConfirmCancel = useCallback(() => {
-    if (isConfirmingCameraRef.current) {
-      isConfirmingCameraRef.current = false;
-      return;
-    }
-    setShowCameraConfirm(false);
-    setPendingAction(null);
-    useRemoteAttendanceCameraStore.getState().clearConfirmAnchor();
-  }, [setShowCameraConfirm, setPendingAction]);
 
   const handlePhotoCaptured = useCallback(
     (fileUrl: string) => {
@@ -179,11 +160,8 @@ export function useRemoteAttendanceCamera() {
 
   return {
     pendingAction,
-    showCameraConfirm,
     showCameraCapture,
     startAttendanceWithCamera,
-    handleCameraConfirm,
-    handleCameraConfirmCancel,
     handlePhotoCaptured,
     handlePhotoCaptureClose,
   };

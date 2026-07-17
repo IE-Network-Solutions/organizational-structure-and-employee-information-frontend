@@ -2,9 +2,11 @@
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
 import { useRouter, usePathname } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/utils/firebaseConfig';
 import Image from 'next/image';
-import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
+import NotificationBell from './NotificationBell';
 import {
   MdPeople,
   MdPersonSearch,
@@ -24,6 +26,7 @@ import { Layout, Button, theme, Skeleton, message } from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
+import { IS_CORE } from '@/utils/constants';
 
 // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
 const isRouteMatch = (routePattern: string, pathname: string) => {
@@ -266,7 +269,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
@@ -1130,18 +1132,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   }, []);
 
   const toggleCollapsed = () => {
-    // On mobile the sidebar behaves like an off-canvas drawer.
-    // We never want the "mini collapsed" (80px) variant there.
-    if (isMobile) {
-      setMobileCollapsed((v) => !v);
-      setCollapsed(false);
-      return;
-    }
     setCollapsed(!collapsed);
-  };
-
-  const toggleMobileCollapsed = () => {
-    setMobileCollapsed(!mobileCollapsed);
   };
 
   useEffect(() => {
@@ -1151,8 +1142,42 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
   }, [collapsed, isMobile]);
 
+  const clearBrowserSessionArtifacts = () => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const clearStorage = (storage: Storage) => {
+        const keys = Object.keys(storage);
+        keys.forEach((key) => storage.removeItem(key));
+      };
+      clearStorage(window.localStorage);
+      clearStorage(window.sessionStorage);
+    } catch {
+      // ignore storage cleanup errors
+    }
+
+    try {
+      document.cookie.split(';').forEach((cookie) => {
+        const name = cookie.split('=')[0]?.trim();
+        if (!name) return;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+      });
+    } catch {
+      // ignore cookie cleanup errors
+    }
+  };
+
   const handleLogout = async () => {
     try {
+      // Sign out of the shared Firebase session first so logout propagates to
+      // Core and the other products on this origin; otherwise AuthBridge would
+      // immediately re-populate the token from the still-active session.
+      try {
+        await signOut(auth);
+      } catch {
+        // Still clear local state if Firebase sign-out fails.
+      }
+
       setUserData({});
       setLoggedUserRole('');
       setActiveCalendar('');
@@ -1175,8 +1200,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setToken('');
       setTenantId('');
       setLocalId('');
+      clearBrowserSessionArtifacts();
 
-      router.push('/authentication/login');
+      // Core owns login at the origin root, outside this app's /workspace basePath.
+      window.location.assign('/login');
     } catch (error) {}
   };
 
@@ -1482,7 +1509,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           setIsMobile(broken);
           if (broken) {
             setCollapsed(false);
-            setMobileCollapsed(true);
           }
         }}
         collapsedWidth={80}
@@ -1491,42 +1517,44 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           data-cy="nav-sider-children-wrap"
           className="relative flex flex-col flex-1 min-h-0"
         >
-          <div
-            data-cy="nav-sider-logo-wrap"
-            className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
-          >
+          {!IS_CORE && (
             <div
-              data-cy="nav-sider-logo"
-              className="relative h-10 w-full flex items-center"
+              data-cy="nav-sider-logo-wrap"
+              className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
             >
-              {collapsed ? (
-                <div
-                  data-cy="nav-sider-logo-collapsed-container"
-                  className="w-full flex justify-center"
-                >
+              <div
+                data-cy="nav-sider-logo"
+                className="relative h-10 w-full flex items-center"
+              >
+                {collapsed ? (
+                  <div
+                    data-cy="nav-sider-logo-collapsed-container"
+                    className="w-full flex justify-center"
+                  >
+                    <Image
+                      src="/image/selamnew-workspace-logo-collapsed.svg"
+                      alt="SelamNew Workspace Logo"
+                      width={32}
+                      height={32}
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </div>
+                ) : (
                   <Image
-                    src="/image/selamnew-workspace-logo-collapsed.svg"
+                    src="/image/selamnew-workspace-logo.svg"
                     alt="SelamNew Workspace Logo"
-                    width={32}
-                    height={32}
+                    width={150}
+                    height={40}
                     style={{ objectFit: 'contain' }}
                   />
-                </div>
-              ) : (
-                <Image
-                  src="/image/selamnew-workspace-logo.svg"
-                  alt="SelamNew Workspace Logo"
-                  width={150}
-                  height={40}
-                  style={{ objectFit: 'contain' }}
-                />
-              )}
+                )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div
             data-cy="nav-sider-menu-scroll"
-            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+            className={`flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide ${IS_CORE ? 'pt-6' : ''}`}
             style={{ minHeight: 0 }}
           >
             <div
@@ -1635,11 +1663,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                               subscriptionExpired &&
                               !String(item.key).startsWith('/admin')
                             }
-                            onNavigate={
-                              isMobile
-                                ? () => setMobileCollapsed(true)
-                                : undefined
-                            }
                           />
                         ))}
                       </div>
@@ -1703,9 +1726,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   onClick={() => {
                     triggerRouteLoaderStart();
                     router.push('/admin/dashboard');
-                    if (isMobile) {
-                      setMobileCollapsed(true);
-                    }
                   }}
                 >
                   {!collapsed && (
@@ -1786,45 +1806,40 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           flexDirection: 'column',
         }}
       >
-        <Header
-          style={{
-            padding: 0,
-            background: '#fff',
-            display: isMobile ? 'none' : 'flex',
-            alignItems: 'center',
-            position: 'fixed',
-            width: isMobile
-              ? '100%'
-              : collapsed
-                ? 'calc(100% - 80px)'
-                : 'calc(100% - 280px)',
-            zIndex: 40,
-            top: 0,
-            left: isMobile ? 0 : collapsed ? 80 : 280,
-            transition: 'left 0.3s ease, width 0.3s ease',
-            height: '74px',
-            borderBottom: '1px solid #F1F5F9',
-            boxShadow: 'none',
-          }}
-        >
-          {isMobile && mobileCollapsed && (
-            <div
-              data-cy="nav-header-mobile-toggle-wrap"
-              className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
-            >
-              <Button
-                data-cy="nav-header-mobile-toggle"
-                type="text"
-                aria-label="Open menu"
-                className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
-                onClick={toggleMobileCollapsed}
-                icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
-              />
-            </div>
-          )}
+        {!IS_CORE && (
+          <Header
+            style={{
+              padding: 0,
+              background: '#fff',
+              display: 'flex',
+              alignItems: 'center',
+              position: 'fixed',
+              width: isMobile
+                ? '100%'
+                : collapsed
+                  ? 'calc(100% - 80px)'
+                  : 'calc(100% - 280px)',
+              zIndex: 40,
+              top: 0,
+              left: isMobile ? 0 : collapsed ? 80 : 280,
+              transition: 'left 0.3s ease, width 0.3s ease',
+              height: '74px',
+              borderBottom: '1px solid #F1F5F9',
+              boxShadow: 'none',
+            }}
+          >
+            {isMobile && (
+              <div
+                data-cy="nav-header-mobile-notification-wrap"
+                className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
+              >
+                <NotificationBell />
+              </div>
+            )}
 
-          <NavBar handleLogout={handleLogout} />
-        </Header>
+            <NavBar handleLogout={handleLogout} isMobile={isMobile} />
+          </Header>
+        )}
 
         {/* Mobile drawer close button: retained for potential future use but not rendered */}
         <Content
@@ -1833,7 +1848,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             paddingRight: 0,
-            paddingTop: isMobile ? 0 : '74px',
+            paddingTop: IS_CORE ? 0 : '74px',
             paddingBottom: isMobile ? 68 : 0,
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',

@@ -105,8 +105,7 @@ export function mapPersonalCopilotPromptsToSavedSessions(
       id: item.id,
       title: title || text || 'Saved prompt',
       messages: [],
-      savedAt:
-        item.updatedAt || item.createdAt || new Date().toISOString(),
+      savedAt: item.updatedAt || item.createdAt || new Date().toISOString(),
     };
   });
 }
@@ -125,5 +124,7 @@ export function mapCopilotPromptsToChips(
         text: text || label,
       };
     })
-    .filter((c): c is { key: string; label: string; text: string } => c != null);
+    .filter(
+      (c): c is { key: string; label: string; text: string } => c != null,
+    );
 }
