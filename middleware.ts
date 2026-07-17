@@ -16,7 +16,8 @@ export function middleware(req: NextRequest) {
 
     const token = getCookie('token', req);
     const calendarCookie = getCookie('activeCalendar', req);
-    const loggedUserRole = getCookie('loggedUserRole', req);
+    const canManageFiscalYear =
+      getCookie('canManageFiscalYear', req) === 'true';
 
     let hasEndedFiscalYear = false;
 
@@ -63,8 +64,6 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/authentication/login', req.url));
     }
 
-    const canManageFiscalYear =
-      loggedUserRole === 'owner' || loggedUserRole === 'admin';
     if (
       token &&
       hasEndedFiscalYear &&

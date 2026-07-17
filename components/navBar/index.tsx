@@ -1165,6 +1165,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       removeCookie('tenantId');
       removeCookie('activeCalendar');
       removeCookie('loggedUserRole');
+      removeCookie('canManageFiscalYear');
 
       // Finally clear the remaining state
       setToken('');
