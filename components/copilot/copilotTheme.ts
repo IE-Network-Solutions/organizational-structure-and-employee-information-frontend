@@ -81,19 +81,33 @@ export const COPILOT_THEME = {
   placeholder: '#9CA3AF',
   /** Composer (drawer / with chips) */
   composerRadius: 16,
-  /** Workspace composer — spans chat column; height per design */
+  /** Workspace composer — spans full chat column */
   composerMaxWidth: 980,
-  composerHeightPx: 56,
-  /** Rounded corners per design */
-  composerRadiusWorkspace: 8,
-  /** Workspace send — solid blue circle (Figma ref) */
-  workspaceSendBlue: '#1D4ED8',
-  composerChromeBorder: '#E5E7EB',
-  sendButtonPx: 40,
-  /** Main column + reports rail (SelamNew Copilot page mockup) */
+  composerHeightPx: 52,
+  /** Rounded corners per design (~12px) */
+  composerRadiusWorkspace: 12,
+  /** Workspace send — solid blue when active */
+  workspaceSendBlue: '#2A48B1',
+  workspaceSendDisabledBg: '#EBEBEB',
+  workspaceSendDisabledIcon: '#B0B0B0',
+  composerChromeBorder: '#E5E5E5',
+  sendButtonPx: 36,
+  /** Main column + saved-chats rail (SelamNew Copilot page mockup) */
   workspaceMainBg: '#FFFFFF',
-  workspaceRailBg: '#F3F4F6',
+  workspaceRailBg: '#F9FAFB',
   workspaceRailBorder: '#E5E7EB',
-  /** Send / vibrant primary in workspace */
-  workspaceAccentBlue: '#2563EB',
+  workspaceRailWidthPx: 348,
+  workspaceRailRadiusPx: 8,
+  workspaceRailGapPx: 14,
+  workspaceRailPaddingPx: 16,
+  /** Workspace user bubble (sent message) */
+  workspaceUserBubbleBg: '#E8F0FE',
+  workspaceUserBubbleText: '#2A48B1',
+  workspaceUserBubbleTime: '#2A48B1',
+  /** Landing title + chips */
+  workspaceAccentBlue: '#2A48B1',
+  workspaceSubtitle: '#8B8B8B',
+  workspaceChipBg: '#F5F5F5',
+  workspaceChipBorder: '#E5E5E5',
+  workspaceChipText: '#333333',
 } as const;

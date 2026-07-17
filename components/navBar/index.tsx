@@ -84,8 +84,6 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
-import { useCopilotStore } from '@/store/uistate/features/copilot';
-import CopilotModule from '@/components/copilot/CopilotModule';
 import { OfflineIndicator } from '@/components/PWA/OfflineIndicator';
 import {
   COPILOT_SHARE_QUERY,
@@ -293,9 +291,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = useAuthenticationStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
-    useCopilotStore();
-  const pathName = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
@@ -308,12 +303,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       params.get(COPILOT_SHARE_QUERY) ||
       params.get(COPILOT_SHARE_REF_QUERY)
     ) {
-      setCopilotOpen(true);
-      return;
+      if (pathname !== '/copilot') {
+        router.replace(`/copilot?${params.toString()}`);
+      }
     }
-    // Sidebar / in-app navigation: hide Copilot full-page workspace so main `children` render.
-    setCopilotOpen(false);
-  }, [isMounted, pathname, setCopilotOpen]);
+  }, [isMounted, pathname, router]);
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -968,12 +962,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       router.push('/onboarding');
     } else if (
       employeeData?.employeeJobInformation?.length === 0 &&
-      pathName !== `/employees/manage-employees/${userId}`
+      pathname !== `/employees/manage-employees/${userId}`
     ) {
       setIsModalOpen(true);
     } else if (
       employeeData?.employeeJobInformation?.length === 0 &&
-      pathName === `/employees/manage-employees/${userId}`
+      pathname === `/employees/manage-employees/${userId}`
     ) {
       setIsAddEmployeeJobInfoModalVisible(true);
     }
@@ -982,7 +976,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     employeeData,
     router,
     isLoadingData,
-    pathName,
+    pathname,
     userId,
     setIsAddEmployeeJobInfoModalVisible,
   ]);
@@ -1883,16 +1877,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               }}
             >
               <OfflineIndicator variant="content" showNotifications={false} />
-              {isCopilotOpen ? (
-                <div
-                  id="copilot-workspace-root"
-                  data-cy="copilot-workspace-root"
-                >
-                  <CopilotModule />
-                </div>
-              ) : (
-                children
-              )}
+              {children}
             </div>
           )}
           {/* <CreateEmployeeJobInformation

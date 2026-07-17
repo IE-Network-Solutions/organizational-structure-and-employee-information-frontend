@@ -53,6 +53,7 @@ export const AI_REC_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL;
  * `https://<app>.azurewebsites.net/copilot`
  */
 export const AZURE_APP_SERVICE = process.env.NEXT_PUBLIC_AZURE_APP_SERVICE;
+export const COPILOT_CHAT_URL = process.env.NEXT_PUBLIC_COPILOT_CHAT_URL;
 
 /**
  * True when this app is embedded inside the SelamNew Core host, which provides
