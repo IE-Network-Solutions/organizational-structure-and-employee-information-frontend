@@ -175,10 +175,12 @@ function Page() {
     data: userKeyResultsRaw,
     isLoading: userKeyResultsLoading,
     isFetching: userKeyResultsFetching,
+    refetch: refetchUserKeyResults,
   } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
     refetchOnMount: 'always',
     staleTime: 0,
     keepPreviousData: false,
+    refetchOnWindowFocus: true,
   });
 
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
@@ -191,12 +193,23 @@ function Page() {
     [userKeyResultsRaw],
   );
 
-  const planningPickReady = !userKeyResultsLoading && !userKeyResultsFetching;
-
   const parentPlanContext = useMemo(
     () => getActiveUnreportedParentPlanContext(planningPeriodHierarchy),
     [planningPeriodHierarchy],
   );
+
+  // Re-pull user KR progress/milestone status when returning to this tab
+  // (e.g. after achieving a milestone on the OKR page) without re-login.
+  useEffect(() => {
+    if (!userId || typeof document === 'undefined') return;
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        void refetchUserKeyResults();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [userId, refetchUserKeyResults]);
 
   const { reportSummaries, reportingItems } = useReportingData();
 
@@ -239,7 +252,7 @@ function Page() {
           byId.set(id, kr);
           continue;
         }
-        const prevMs = prev.milestones ?? prev.Milestones ?? [];
+        const prevMs = prev.milestones ?? [];
         if (Array.isArray(ms) && ms.length > (prevMs?.length ?? 0)) {
           byId.set(id, kr);
         }
@@ -256,6 +269,7 @@ function Page() {
   const {
     targets: planningTargets,
     isLoading: planningTargetsLoading,
+    isFetching: planningTargetsFetching,
     objectiveMilestonesByKrId,
   } = usePlanningTargets(
     userId,
@@ -263,6 +277,14 @@ function Page() {
     userKeyResultItems,
     planKeyResultsForTargets,
   );
+
+  // Hide + until user-KR + objective milestone sources have settled once.
+  // Background refetches (isFetching) after that must not blank the control.
+  const planningPickReady =
+    !userKeyResultsLoading &&
+    !planningTargetsLoading &&
+    !(userKeyResultsFetching && !userKeyResultsRaw) &&
+    !(planningTargetsFetching && planningTargets.length === 0);
 
   const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
     string | null
