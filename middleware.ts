@@ -63,9 +63,12 @@ export function middleware(req: NextRequest) {
       return NextResponse.redirect(new URL('/authentication/login', req.url));
     }
 
+    const canManageFiscalYear =
+      loggedUserRole === 'owner' || loggedUserRole === 'admin';
     if (
       token &&
       hasEndedFiscalYear &&
+      canManageFiscalYear &&
       !pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
     ) {
       return NextResponse.redirect(
@@ -88,10 +91,7 @@ export function middleware(req: NextRequest) {
     if (
       pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
     ) {
-      if (
-        !loggedUserRole ||
-        (loggedUserRole !== 'owner' && loggedUserRole !== 'admin')
-      ) {
+      if (!canManageFiscalYear) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
