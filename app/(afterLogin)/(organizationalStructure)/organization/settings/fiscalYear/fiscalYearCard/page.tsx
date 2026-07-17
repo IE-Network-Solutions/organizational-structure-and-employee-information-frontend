@@ -44,6 +44,15 @@ const FiscalYearListCard: React.FC = () => {
     setEditMode,
     setOpenFiscalYearDrawer,
     searchQuery,
+    setCurrent,
+    setFiscalYearFormValues,
+    setSessionFormValues,
+    setSessionData,
+    setMonthRangeFormValues,
+    setCalendarType,
+    setFiscalYearStart,
+    setFiscalYearEnd,
+    resetFormState,
   } = useFiscalYearDrawerStore();
 
   const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(
@@ -87,6 +96,17 @@ const FiscalYearListCard: React.FC = () => {
 
   const handleMenuClick = (key: string, fYear: FiscalYear) => {
     if (key === 'edit') {
+      // Clear any stale wizard state from a previous create/edit attempt
+      setCurrent(0);
+      setFiscalYearFormValues({});
+      setSessionFormValues({});
+      setSessionData([]);
+      setMonthRangeFormValues([]);
+      setCalendarType('');
+      setFiscalYearStart(null);
+      setFiscalYearEnd(null);
+      resetFormState();
+
       setSelectedFiscalYear(fYear);
       setEditMode(true);
       setOpenFiscalYearDrawer(true);
