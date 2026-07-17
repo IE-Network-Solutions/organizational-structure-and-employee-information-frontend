@@ -5,8 +5,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/utils/firebaseConfig';
 import Image from 'next/image';
+import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
-import NotificationBell from './NotificationBell';
 import {
   MdPeople,
   MdPersonSearch,
@@ -22,11 +22,18 @@ import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import { Layout, Button, theme, Skeleton, message } from 'antd';
+import {
+  Layout,
+  Button,
+  theme,
+  Skeleton,
+  message,
+  Popover,
+  Tooltip,
+} from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
-import { IS_CORE } from '@/utils/constants';
 
 // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
 const isRouteMatch = (routePattern: string, pathname: string) => {
@@ -111,6 +118,9 @@ interface MyComponentProps {
   children: ReactNode;
 }
 
+// Core host (SelamNew Core) provides its own top bar when this app is embedded inside it.
+const IS_CORE = process.env.NEXT_PUBLIC_IS_CORE === 'true';
+
 const NavMenuItem: React.FC<{
   item: any;
   collapsed: boolean;
@@ -148,6 +158,8 @@ const NavMenuItem: React.FC<{
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedKeys.includes(item.key);
   const isItemDisabled = Boolean(item.disabled) || Boolean(navigationDisabled);
+  const [flyoutOpen, setFlyoutOpen] = React.useState(false);
+  const showFlyout = collapsed && hasChildren;
 
   const bestMatchingChildKey = React.useMemo(() => {
     if (!hasChildren) return undefined;
@@ -165,6 +177,18 @@ const NavMenuItem: React.FC<{
   const isActive =
     isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
+  const handleChildNavigate = (child: any) => {
+    if (isItemDisabled) return;
+    const path = String(child.key);
+    if (pathname !== path) {
+      triggerRouteLoaderStart();
+      router.push(path);
+      setSelectedKeys([path]);
+    }
+    setFlyoutOpen(false);
+    onNavigate?.();
+  };
+
   const handleToggle = () => {
     if (isItemDisabled) return;
     if (hasChildren) {
@@ -180,83 +204,159 @@ const NavMenuItem: React.FC<{
     }
   };
 
-  return (
-    <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
+  const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleToggle();
+    } else if (e.key === 'Escape' && flyoutOpen) {
+      setFlyoutOpen(false);
+    }
+  };
+
+  const renderChildRow = (child: any) => {
+    const isChildSelected =
+      selectedKeys.includes(child.key) ||
+      String(child.key) === bestMatchingChildKey;
+    return (
       <div
-        data-cy="nav-menu-item"
-        onClick={handleToggle}
+        key={child.key}
+        data-cy="nav-menu-item-child"
+        role="menuitem"
+        tabIndex={isItemDisabled ? -1 : 0}
+        aria-current={isChildSelected ? 'page' : undefined}
+        aria-disabled={isItemDisabled || undefined}
+        onClick={() => handleChildNavigate(child)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleChildNavigate(child);
+          }
+        }}
         className={`
-          group flex items-center gap-3 py-2 transition-all duration-200 rounded-[6px]
+          py-2 rounded-[6px] transition-all duration-200 outline-none
+          ${collapsed ? 'px-3' : 'pl-[33px] -ml-[33px]'}
           ${
-            isActive ? 'font-bold' : 'text-black font-medium hover:bg-[#E6F4FF]'
+            isChildSelected
+              ? 'font-normal'
+              : 'text-black font-medium hover:bg-[#E6F4FF] focus-visible:bg-[#E6F4FF]'
           }
           ${isItemDisabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : 'cursor-pointer'}
-          ${collapsed ? 'justify-center px-0 mx-[10px]' : 'pl-[5px] -ml-[5px]'}
         `}
+        style={{
+          fontSize,
+          ...(isChildSelected ? { color: colorPrimary } : {}),
+        }}
+      >
+        {child.label}
+      </div>
+    );
+  };
+
+  const triggerRow = (
+    <div
+      data-cy="nav-menu-item"
+      role="button"
+      tabIndex={isItemDisabled ? -1 : 0}
+      aria-disabled={isItemDisabled || undefined}
+      aria-label={collapsed ? item.label : undefined}
+      aria-haspopup={showFlyout ? 'menu' : undefined}
+      aria-expanded={showFlyout ? flyoutOpen : undefined}
+      onClick={handleToggle}
+      onKeyDown={handleTriggerKeyDown}
+      className={`
+        group flex items-center gap-3 py-2 transition-all duration-200 rounded-[6px] outline-none
+        ${
+          isActive
+            ? 'font-bold'
+            : 'text-black font-medium hover:bg-[#E6F4FF] focus-visible:bg-[#E6F4FF]'
+        }
+        ${isItemDisabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : 'cursor-pointer'}
+        ${collapsed ? 'justify-center px-0 mx-[10px]' : 'pl-[5px] -ml-[5px]'}
+      `}
+      style={isActive ? { color: colorPrimary } : undefined}
+    >
+      <div
+        data-cy="nav-menu-item-icon"
+        className={`text-[21px] transition-colors ${
+          isActive ? '' : 'text-black'
+        }`}
         style={isActive ? { color: colorPrimary } : undefined}
       >
-        <div
-          data-cy="nav-menu-item-icon"
-          className={`text-[21px] transition-colors ${
-            isActive ? '' : 'text-black'
-          }`}
-          style={isActive ? { color: colorPrimary } : undefined}
-        >
-          {item.icon}
-        </div>
-
-        {!collapsed && (
-          <span
-            data-cy="nav-menu-item-label"
-            className="flex-1 transition-colors"
-            style={{ fontSize }}
-          >
-            {item.label}
-          </span>
-        )}
+        {item.icon}
       </div>
+
+      {!collapsed && (
+        <span
+          data-cy="nav-menu-item-label"
+          className="flex-1 transition-colors"
+          style={{ fontSize }}
+        >
+          {item.label}
+        </span>
+      )}
+    </div>
+  );
+
+  if (showFlyout) {
+    return (
+      <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
+        <Popover
+          placement="right"
+          trigger={isItemDisabled ? [] : ['hover', 'focus']}
+          open={isItemDisabled ? false : flyoutOpen}
+          onOpenChange={setFlyoutOpen}
+          arrow={false}
+          overlayClassName="nav-flyout-popover"
+          content={
+            <div
+              role="menu"
+              aria-label={String(item.label)}
+              data-cy="nav-menu-item-flyout"
+              className="min-w-[190px]"
+            >
+              <div
+                data-cy="nav-menu-item-flyout-header"
+                className="px-3 py-1.5 text-[13px] font-bold"
+                style={isActive ? { color: colorPrimary } : undefined}
+              >
+                {item.label}
+              </div>
+              <div
+                data-cy="nav-menu-item-flyout-children"
+                className="flex flex-col"
+              >
+                {item.children.map((child: any) => renderChildRow(child))}
+              </div>
+            </div>
+          }
+        >
+          {triggerRow}
+        </Popover>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
+      {collapsed ? (
+        <Tooltip
+          placement="right"
+          trigger={isItemDisabled ? [] : ['hover', 'focus']}
+          title={item.label}
+        >
+          {triggerRow}
+        </Tooltip>
+      ) : (
+        triggerRow
+      )}
 
       {hasChildren && !collapsed && isExpanded && (
         <div
           className="flex flex-col mt-1 ml-[33px] space-y-1"
           data-cy="nav-menu-item-children-container"
+          role="menu"
         >
-          {item.children.map((child: any) => {
-            const isChildSelected =
-              selectedKeys.includes(child.key) ||
-              String(child.key) === bestMatchingChildKey;
-            return (
-              <div
-                key={child.key}
-                data-cy="nav-menu-item-child"
-                onClick={() => {
-                  if (isItemDisabled) return;
-                  const path = String(child.key);
-                  if (pathname !== path) {
-                    triggerRouteLoaderStart();
-                    router.push(path);
-                    setSelectedKeys([path]);
-                  }
-                  onNavigate?.();
-                }}
-                className={`
-                  py-2 rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
-                  ${
-                    isChildSelected
-                      ? 'font-normal'
-                      : 'text-black font-medium hover:bg-[#E6F4FF]'
-                  }
-                  ${isItemDisabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : 'cursor-pointer'}
-                `}
-                style={{
-                  fontSize,
-                  ...(isChildSelected ? { color: colorPrimary } : {}),
-                }}
-              >
-                {child.label}
-              </div>
-            );
-          })}
+          {item.children.map((child: any) => renderChildRow(child))}
         </div>
       )}
     </div>
@@ -269,6 +369,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
@@ -294,6 +395,24 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const styleId = 'nav-flyout-popover-styles';
+    if (document.getElementById(styleId)) return;
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      .nav-flyout-popover .ant-popover-inner {
+        padding: 6px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+      }
+      .nav-flyout-popover .ant-popover-inner-content {
+        padding: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
   }, []);
 
   useEffect(() => {
@@ -1132,7 +1251,18 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   }, []);
 
   const toggleCollapsed = () => {
+    // On mobile the sidebar behaves like an off-canvas drawer.
+    // We never want the "mini collapsed" (80px) variant there.
+    if (isMobile) {
+      setMobileCollapsed((v) => !v);
+      setCollapsed(false);
+      return;
+    }
     setCollapsed(!collapsed);
+  };
+
+  const toggleMobileCollapsed = () => {
+    setMobileCollapsed(!mobileCollapsed);
   };
 
   useEffect(() => {
@@ -1509,6 +1639,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           setIsMobile(broken);
           if (broken) {
             setCollapsed(false);
+            setMobileCollapsed(true);
           }
         }}
         collapsedWidth={80}
@@ -1663,6 +1794,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                               subscriptionExpired &&
                               !String(item.key).startsWith('/admin')
                             }
+                            onNavigate={
+                              isMobile
+                                ? () => setMobileCollapsed(true)
+                                : undefined
+                            }
                           />
                         ))}
                       </div>
@@ -1686,58 +1822,77 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 data-cy="nav-sider-admin-inner"
                 className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
               >
-                <Button
-                  data-cy="nav-sider-admin-btn"
-                  type="text"
-                  block={!collapsed}
-                  icon={
-                    <span
-                      data-cy="nav-sider-admin-icon-wrap"
-                      className={`flex items-center justify-center text-[21px] leading-none transition-colors ${
-                        pathname.startsWith('/admin') ? '' : 'text-black'
-                      }`}
+                {(() => {
+                  const adminButton = (
+                    <Button
+                      data-cy="nav-sider-admin-btn"
+                      type="text"
+                      block={!collapsed}
+                      aria-label={collapsed ? 'Admin Console' : undefined}
+                      icon={
+                        <span
+                          data-cy="nav-sider-admin-icon-wrap"
+                          className={`flex items-center justify-center text-[21px] leading-none transition-colors ${
+                            pathname.startsWith('/admin') ? '' : 'text-black'
+                          }`}
+                          style={
+                            pathname.startsWith('/admin')
+                              ? { color: colorPrimary }
+                              : undefined
+                          }
+                        >
+                          <MdSettings size={21} />
+                        </span>
+                      }
+                      className={`
+                      !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
+                      ${
+                        pathname.startsWith('/admin')
+                          ? '!font-bold'
+                          : '!font-medium !text-black hover:!bg-[#E6F4FF]'
+                      }
+                      ${
+                        collapsed
+                          ? '!flex !w-[52px] !justify-center !px-0 !py-2 mx-[10px]'
+                          : '!w-full !max-w-none !justify-start !py-2 !pl-[5px] -ml-[5px]'
+                      }
+                    `}
                       style={
                         pathname.startsWith('/admin')
                           ? { color: colorPrimary }
                           : undefined
                       }
+                      onClick={() => {
+                        triggerRouteLoaderStart();
+                        router.push('/admin/dashboard');
+                        if (isMobile) {
+                          setMobileCollapsed(true);
+                        }
+                      }}
                     >
-                      <MdSettings size={21} />
-                    </span>
-                  }
-                  className={`
-                  !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
-                  ${
-                    pathname.startsWith('/admin')
-                      ? '!font-bold'
-                      : '!font-medium !text-black hover:!bg-[#E6F4FF]'
-                  }
-                  ${
-                    collapsed
-                      ? '!flex !w-[52px] !justify-center !px-0 !py-2 mx-[10px]'
-                      : '!w-full !max-w-none !justify-start !py-2 !pl-[5px] -ml-[5px]'
-                  }
-                `}
-                  style={
-                    pathname.startsWith('/admin')
-                      ? { color: colorPrimary }
-                      : undefined
-                  }
-                  onClick={() => {
-                    triggerRouteLoaderStart();
-                    router.push('/admin/dashboard');
-                  }}
-                >
-                  {!collapsed && (
-                    <span
-                      data-cy="nav-sider-admin-label"
-                      className="flex-1 text-left transition-colors"
-                      style={{ fontSize }}
+                      {!collapsed && (
+                        <span
+                          data-cy="nav-sider-admin-label"
+                          className="flex-1 text-left transition-colors"
+                          style={{ fontSize }}
+                        >
+                          Admin Console
+                        </span>
+                      )}
+                    </Button>
+                  );
+                  return collapsed ? (
+                    <Tooltip
+                      placement="right"
+                      trigger={['hover', 'focus']}
+                      title="Admin Console"
                     >
-                      Admin Console
-                    </span>
-                  )}
-                </Button>
+                      {adminButton}
+                    </Tooltip>
+                  ) : (
+                    adminButton
+                  );
+                })()}
               </div>
             </div>
           )}
@@ -1811,7 +1966,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             style={{
               padding: 0,
               background: '#fff',
-              display: 'flex',
+              display: isMobile ? 'none' : 'flex',
               alignItems: 'center',
               position: 'fixed',
               width: isMobile
@@ -1828,16 +1983,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               boxShadow: 'none',
             }}
           >
-            {isMobile && (
+            {isMobile && mobileCollapsed && (
               <div
-                data-cy="nav-header-mobile-notification-wrap"
+                data-cy="nav-header-mobile-toggle-wrap"
                 className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
               >
-                <NotificationBell />
+                <Button
+                  data-cy="nav-header-mobile-toggle"
+                  type="text"
+                  aria-label="Open menu"
+                  className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
+                  onClick={toggleMobileCollapsed}
+                  icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
+                />
               </div>
             )}
 
-            <NavBar handleLogout={handleLogout} isMobile={isMobile} />
+            <NavBar handleLogout={handleLogout} />
           </Header>
         )}
 
@@ -1848,7 +2010,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             paddingRight: 0,
-            paddingTop: IS_CORE ? 0 : '74px',
+            paddingTop: isMobile || IS_CORE ? 0 : '74px',
             paddingBottom: isMobile ? 68 : 0,
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
