@@ -41,7 +41,8 @@ export function middleware(req: NextRequest) {
 
     const token = getCookie('token', req);
     const calendarCookie = getCookie('activeCalendar', req);
-    const loggedUserRole = getCookie('loggedUserRole', req);
+    const canManageFiscalYear =
+      getCookie('canManageFiscalYear', req) === 'true';
 
     let hasEndedFiscalYear = false;
 
@@ -91,6 +92,7 @@ export function middleware(req: NextRequest) {
     if (
       token &&
       hasEndedFiscalYear &&
+      canManageFiscalYear &&
       !pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
     ) {
       return NextResponse.redirect(
@@ -113,11 +115,8 @@ export function middleware(req: NextRequest) {
     if (
       pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
     ) {
-      if (
-        !loggedUserRole ||
-        (loggedUserRole !== 'owner' && loggedUserRole !== 'admin')
-      ) {
-        return NextResponse.redirect(workspaceUrl(req, '/dashboard'));
+      if (!canManageFiscalYear) {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
 

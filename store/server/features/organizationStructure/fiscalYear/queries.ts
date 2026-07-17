@@ -54,6 +54,17 @@ export const useGetFiscalYearById = (id: string) =>
     keepPreviousData: true,
   });
 
+// Keeps the `activeCalendar` cookie (read by middleware.ts to decide
+// hasEndedFiscalYear) in sync with the server. Without this, the cookie is
+// only ever written at login, so creating/activating a new fiscal year
+// during a session left the cookie stale and middleware kept bouncing every
+// navigation back to the fiscal year settings page.
+const syncActiveCalendarCookie = (data?: FiscalYear) => {
+  if (data?.endDate) {
+    useAuthenticationStore.getState().setActiveCalendar(data.endDate);
+  }
+};
+
 export const useGetActiveFiscalYears = (
   options?: QueryObserverOptions<FiscalYear>,
 ) => {
@@ -62,6 +73,10 @@ export const useGetActiveFiscalYears = (
   return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
     enabled: token.length > 0 && tenantId.length > 0,
     ...options,
+    onSuccess: (data) => {
+      syncActiveCalendarCookie(data);
+      options?.onSuccess?.(data);
+    },
   });
 };
 
@@ -70,5 +85,6 @@ export const useGetActiveFiscalYearsData = () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
     enabled: token.length > 0 && tenantId.length > 0,
+    onSuccess: syncActiveCalendarCookie,
   });
 };

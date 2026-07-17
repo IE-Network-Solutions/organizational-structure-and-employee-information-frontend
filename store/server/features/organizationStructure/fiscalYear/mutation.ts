@@ -144,6 +144,7 @@ export const useCreateFiscalYear = () => {
   return useMutation(createFiscalYear, {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
+      queryClient.invalidateQueries('fiscalActiveYear');
       closeFiscalYearDrawer();
       NotificationMessage.success({
         message: 'Fiscal year created successfully!',
@@ -172,6 +173,7 @@ export const useUpdateFiscalYear = () => {
     {
       onSuccess: (variables: any) => {
         queryClient.invalidateQueries('fiscalYears');
+        queryClient.invalidateQueries('fiscalActiveYear');
 
         closeFiscalYearDrawer();
         const method = variables?.method?.toUpperCase();
