@@ -47,8 +47,8 @@ export const AI_BASE_URL = process.env.NEXT_PUBLIC_AI_BASE_URL;
 export const AI_REC_BASE_URL = process.env.NEXT_PUBLIC_AI_REC_BASE_URL;
 
 /** Copilot API — local backend. Chat: POST {COPILOT_BASE_URL}/copilot */
-export const COPILOT_BASE_URL = 'http://localhost:8000';
-export const COPILOT_CHAT_URL = `${COPILOT_BASE_URL}/copilot`;
+///export const COPILOT_BASE_URL = 'http://localhost:8000';
+export const COPILOT_CHAT_URL =  "http://localhost:8000/copilot";
 
 /** @deprecated Use COPILOT_BASE_URL / COPILOT_CHAT_URL */
 export const AZURE_APP_SERVICE = COPILOT_CHAT_URL;
