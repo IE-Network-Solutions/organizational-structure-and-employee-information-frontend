@@ -34,6 +34,15 @@ if (branchName.contains('develop-redesign-branch')) {
     env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
     env.SECRET_KEY = 'pepproduction'
 
+} else if (branchName.contains('production')) {
+    env.REMOTE_SERVER = REMOTE_SERVER_PROD
+    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+    env.SECRET_KEY = 'pepproduction'
+}  else if (branchName.contains('core-production')) {
+    env.REMOTE_SERVER = REMOTE_SERVER_PROD
+    env.SECRETS_PATH = '/home/ubuntu/secrets/.core-workspace-env'
+    env.SECRET_KEY = 'pepproduction'
+                        
                     }
                 }
             }
@@ -195,6 +204,8 @@ if (branchName.contains('develop-redesign-branch')) {
                                     docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
                                 elif [ "${BRANCH_NAME}" = "develop-redesign-branch" ]; then
                                     docker stack deploy --with-registry-auth -c redesign-docker-compose.yml redesign || { echo "Stack deploy (redesign) failed"; exit 1; }
+                                elif [ "${BRANCH_NAME}" = "core-production" ]; then
+                                    docker stack deploy --with-registry-auth -c core-docker-compose.yml service || { echo "Stack deploy (core-prod) failed"; exit 1; }    
                                 else
                                     docker stack deploy --with-registry-auth -c docker-compose.yml pep || { echo "Stack deploy (prod/develop) failed"; exit 1; }
                                 fi

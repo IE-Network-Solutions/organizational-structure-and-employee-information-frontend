@@ -13,6 +13,16 @@ export interface IntentCategory {
   intents: string[];
 }
 
+/** Starter chips shown in the workspace empty state (Selamnew Copilot landing). */
+export const COPILOT_STARTER_PROMPTS = [
+  'Attendance Report',
+  'Candidates applied for UI/UX role',
+  'Employee Learning and growth satisfaction summery',
+  'Employees under probation',
+  'Employee Resignation Report',
+  'Employee Payroll Report',
+] as const;
+
 export const COPILOT_INTENTS: IntentCategory[] = [
   {
     id: 'employee',

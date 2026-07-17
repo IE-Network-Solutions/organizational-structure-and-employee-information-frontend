@@ -7,6 +7,7 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeDetail
 import { usePWA } from '@/hooks/usePWA';
 import { DownloadOutlined, UserOutlined } from '@ant-design/icons';
 import { AiOutlineDown } from 'react-icons/ai';
+import { IS_CORE } from '@/utils/constants';
 import NotificationBell from './NotificationBell';
 
 interface NavBarProps {
@@ -47,22 +48,26 @@ const NavBar = ({ handleLogout, isMobile = false }: NavBarProps) => {
       ),
       className: 'rounded-lg',
     },
-    {
-      type: 'divider' as const,
-    },
-    {
-      key: 'logout',
-      label: (
-        <div
-          data-cy="top-nav-logout-label"
-          className="text-red-500 font-medium px-1"
-        >
-          Logout
-        </div>
-      ),
-      onClick: handleLogout,
-      className: 'rounded-lg',
-    },
+    ...(IS_CORE
+      ? []
+      : [
+          {
+            type: 'divider' as const,
+          },
+          {
+            key: 'logout',
+            label: (
+              <div
+                data-cy="top-nav-logout-label"
+                className="text-red-500 font-medium px-1"
+              >
+                Logout
+              </div>
+            ),
+            onClick: handleLogout,
+            className: 'rounded-lg',
+          },
+        ]),
   ];
 
   const hasProfileImage = Boolean(employeeData?.profileImage);
