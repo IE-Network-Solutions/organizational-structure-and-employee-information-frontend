@@ -32,9 +32,7 @@ export type PlanningTarget = {
 function objectiveMilestoneRows(kr: any): any[] {
   const list = kr?.milestones ?? kr?.Milestones ?? [];
   if (!Array.isArray(list)) return [];
-  return list.filter(
-    (m: any) => m && m.deletedAt == null && m.id != null,
-  );
+  return list.filter((m: any) => m && m.deletedAt == null && m.id != null);
 }
 
 /**
@@ -70,7 +68,7 @@ function mergeMilestoneListsForPick(...lists: any[][]): any[] {
         isAchieved:
           m.isAchieved === true || prev.isAchieved === true
             ? true
-            : m.isAchieved ?? prev.isAchieved,
+            : (m.isAchieved ?? prev.isAchieved),
         progress: m.progress ?? prev.progress,
       });
     }
@@ -93,16 +91,13 @@ function resolveMilestoneCompleted(
   const mergedList = merged?.milestones ?? merged?.Milestones ?? [];
   const live =
     (Array.isArray(mergedList)
-      ? mergedList.find(
-          (m: any) => String(m?.id) === String(objectiveMs?.id),
-        )
+      ? mergedList.find((m: any) => String(m?.id) === String(objectiveMs?.id))
       : null) ?? null;
 
   if (live && isMilestoneCompleted(live)) return true;
 
   const apiKr = userKeyResultItems.find(
-    (k) =>
-      k && k.deletedAt == null && String(k.id) === String(kr?.id),
+    (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
   );
   const apiList = apiKr?.milestones ?? apiKr?.Milestones ?? [];
   const fromApi = Array.isArray(apiList)
@@ -235,18 +230,16 @@ export function buildPickTargetsForKeyResult(params: {
       keyResultId: String(keyResultId),
       keyResultTitle,
       milestoneId: String(ms.id),
-      milestoneTitle: String(ms.title || ms.name || 'Untitled milestone').trim(),
+      milestoneTitle: String(
+        ms.title || ms.name || 'Untitled milestone',
+      ).trim(),
       parentTaskId: null,
       isDailySlot: false,
       metricTypeName: metricTypeName ?? 'Milestone',
       isCompleted: resolveMilestoneCompleted(
         ms,
         apiKr ?? syntheticKr,
-        userKeyResultItems.length
-          ? userKeyResultItems
-          : apiKr
-            ? [apiKr]
-            : [],
+        userKeyResultItems.length ? userKeyResultItems : apiKr ? [apiKr] : [],
       ),
     }));
   }
@@ -296,9 +289,7 @@ export function buildPlanningTargetsFromObjectives(
         if (seenKrIds.has(id)) return;
         seenKrIds.add(id);
         // Attach plan/panel milestones onto the objective KR when missing.
-        const extra = extraKeyResults.find(
-          (k) => k && String(k.id) === id,
-        );
+        const extra = extraKeyResults.find((k) => k && String(k.id) === id);
         const enriched =
           extra &&
           objectiveMilestoneRows(kr).length === 0 &&

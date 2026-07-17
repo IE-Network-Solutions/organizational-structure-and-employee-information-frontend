@@ -426,7 +426,10 @@ export function buildKrPlanningSource(
     progress?: number;
     currentValue?: string | number;
     targetValue?: string | number;
-    milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+    milestones?: Array<{
+      status?: string | null;
+      deletedAt?: string | null;
+    }>;
   },
   apiKr?: any | null,
 ) {
@@ -489,7 +492,10 @@ export function resolveKrPlanningBlocked(
     progress?: number;
     currentValue?: string | number;
     targetValue?: string | number;
-    milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+    milestones?: Array<{
+      status?: string | null;
+      deletedAt?: string | null;
+    }>;
   },
   apiKr?: any | null,
 ): boolean {

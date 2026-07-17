@@ -234,7 +234,7 @@ function Page() {
         if (!kr?.id) continue;
         const id = String(kr.id);
         const prev = byId.get(id);
-        const ms = kr.milestones ?? kr.Milestones ?? [];
+        const ms = kr.milestones ?? [];
         if (!prev) {
           byId.set(id, kr);
           continue;
@@ -253,13 +253,16 @@ function Page() {
     return Array.from(byId.values());
   }, [enrichedPlanSummaries, userKeyResultItems]);
 
-  const { targets: planningTargets, isLoading: planningTargetsLoading, objectiveMilestonesByKrId } =
-    usePlanningTargets(
-      userId,
-      selectedTab?.id,
-      userKeyResultItems,
-      planKeyResultsForTargets,
-    );
+  const {
+    targets: planningTargets,
+    isLoading: planningTargetsLoading,
+    objectiveMilestonesByKrId,
+  } = usePlanningTargets(
+    userId,
+    selectedTab?.id,
+    userKeyResultItems,
+    planKeyResultsForTargets,
+  );
 
   const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
     string | null
