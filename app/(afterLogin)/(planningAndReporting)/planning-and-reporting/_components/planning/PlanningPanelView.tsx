@@ -10,7 +10,10 @@ import { MessageOutlined, PlusOutlined } from '@ant-design/icons';
 import PlanCard from '../cards/PlanCard';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import type { PlanningTarget } from './buildPlanningTargets';
-import { hasSelectablePlanningTargets } from './buildPlanningTargets';
+import {
+  buildPickTargetsForKeyResult,
+  hasSelectablePlanningTargets,
+} from './buildPlanningTargets';
 import CommentList from '../comments/commentList';
 import type {
   PlanSummary,
@@ -141,6 +144,40 @@ interface AggregatedKR {
   progressLabel: string;
   isDeleted: boolean;
   planningBlocked: boolean;
+  milestones?: Array<{
+    id?: string | number;
+    title?: string | null;
+    name?: string | null;
+    status?: string | null;
+    deletedAt?: string | null;
+    isAchieved?: boolean | null;
+    progress?: number | string | null;
+  }>;
+}
+
+/**
+ * Prefer objective/API milestones for the pick modal (same as createPlanObjective).
+ * Achieved milestones stay listed but marked completed/disabled.
+ */
+function resolvePlanningSlotsForKr(
+  kr: AggregatedKR,
+  slots: PlanningTarget[],
+  userKeyResultItems: any[] = [],
+  objectiveMilestonesByKrId?: Map<string, any[]>,
+): PlanningTarget[] {
+  const apiKr = userKeyResultItems.find(
+    (k) => k && k.deletedAt == null && String(k.id) === String(kr.id),
+  );
+  return buildPickTargetsForKeyResult({
+    keyResultId: String(kr.id),
+    keyResultTitle: kr.title,
+    metricTypeName: kr.metricType,
+    objectiveMilestones: objectiveMilestonesByKrId?.get(String(kr.id)) ?? [],
+    panelMilestones: kr.milestones ?? [],
+    apiKr,
+    slots,
+    userKeyResultItems,
+  });
 }
 
 interface OwnerKRGroup {
@@ -243,13 +280,12 @@ function KRProgressCard({
     planningTargetsForKr.some((t) => t.id === selectedPlanningTargetId);
   const showPickChrome = isHighlighted || rowSelected;
 
-  const isFullyCompleted = kr.planningBlocked;
-
+  // Drive + from remaining selectable slots only. Partial milestone achievement
+  // must keep + visible; hide only when every slot is achieved (or KR deleted).
   const showPickControl =
     inlinePickEnabled &&
     !!onPickPlanningTarget &&
     hasSelectablePlanningTargets(planningTargetsForKr) &&
-    !isFullyCompleted &&
     !kr.isDeleted;
 
   const dropdownSlotItems: MenuProps['items'] = planningTargetsForKr.map(
@@ -450,6 +486,8 @@ function OwnerKRSection({
   planningTargetsByKrId,
   selectedPlanningTargetId = null,
   onPickPlanningTarget,
+  userKeyResultItems = [],
+  objectiveMilestonesByKrId,
 }: {
   group: OwnerKRGroup;
   isSingleOwner: boolean;
@@ -460,6 +498,8 @@ function OwnerKRSection({
   planningTargetsByKrId?: Map<string, PlanningTarget[]>;
   selectedPlanningTargetId?: string | null;
   onPickPlanningTarget?: (target: PlanningTarget) => void;
+  userKeyResultItems?: any[];
+  objectiveMilestonesByKrId?: Map<string, any[]>;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const headerLabel =
@@ -538,7 +578,12 @@ function OwnerKRSection({
           className={krCardListClass}
         >
           {group.krs.map((kr) => {
-            const slots = planningTargetsByKrId?.get(kr.id) ?? [];
+            const slots = resolvePlanningSlotsForKr(
+              kr,
+              planningTargetsByKrId?.get(kr.id) ?? [],
+              userKeyResultItems,
+              objectiveMilestonesByKrId,
+            );
             return (
               <div
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-454"
@@ -668,7 +713,12 @@ function OwnerKRSection({
           className={`mt-2 ${krCardListClass}`}
         >
           {group.krs.map((kr) => {
-            const slots = planningTargetsByKrId?.get(kr.id) ?? [];
+            const slots = resolvePlanningSlotsForKr(
+              kr,
+              planningTargetsByKrId?.get(kr.id) ?? [],
+              userKeyResultItems,
+              objectiveMilestonesByKrId,
+            );
             return (
               <div
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-542"
@@ -973,6 +1023,8 @@ export interface KRPanelProps {
   onPickPlanningTarget?: (target: PlanningTarget) => void;
   /** Flat list from GET …/key-results/user/:userId (merged with plan-backed KRs, deduped by id). */
   userKeyResultItems?: any[];
+  /** Objective milestones by KR id (same rows createPlanObjective lists). */
+  objectiveMilestonesByKrId?: Map<string, any[]>;
   /** Unreported parent plan for current cadence (planning period hierarchy). */
   parentPlanContext?: ParentPlanContext | null;
   /** False while user KR API is loading/refetching — hides + until eligibility is current. */
@@ -994,6 +1046,7 @@ export function KRLeftPanel({
   selectedPlanningTargetId = null,
   onPickPlanningTarget,
   userKeyResultItems = [],
+  objectiveMilestonesByKrId,
   parentPlanContext = null,
   planningPickReady = true,
 }: KRPanelProps) {
@@ -1053,14 +1106,16 @@ export function KRLeftPanel({
     const m = new Map<string, PlanningTarget[]>();
     for (const t of planningTargets) {
       if (t.isDailySlot) continue;
-      if (blockedKrIds.has(t.keyResultId)) continue;
+      // Do NOT drop by blockedKrIds here — that hid + whenever aggregate
+      // progress looked "done" while milestones remained. Card + visibility
+      // is driven by hasSelectablePlanningTargets (any non-achieved slot).
       const kid = t.keyResultId;
       const list = m.get(kid);
       if (list) list.push(t);
       else m.set(kid, [t]);
     }
     return m;
-  }, [planningTargets, blockedKrIds]);
+  }, [planningTargets]);
 
   const showKrTargetsLoadingRow =
     showInlinePick && planningTargetsLoading && !parentPlanContext;
@@ -1201,6 +1256,8 @@ export function KRLeftPanel({
                       planningTargetsByKrId={targetsByKrId}
                       selectedPlanningTargetId={selectedPlanningTargetId}
                       onPickPlanningTarget={onPickPlanningTarget}
+                      userKeyResultItems={userKeyResultItems}
+                      objectiveMilestonesByKrId={objectiveMilestonesByKrId}
                     />
                   );
                 })

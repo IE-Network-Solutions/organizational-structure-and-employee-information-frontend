@@ -227,8 +227,39 @@ function Page() {
       : planningLoading ||
         (userKeyResultsLoading && planSummaries.length === 0);
 
-  const { targets: planningTargets, isLoading: planningTargetsLoading } =
-    usePlanningTargets(userId, selectedTab?.id, userKeyResultItems);
+  const planKeyResultsForTargets = useMemo(() => {
+    const byId = new Map<string, any>();
+    for (const plan of enrichedPlanSummaries) {
+      for (const kr of plan.keyResults ?? []) {
+        if (!kr?.id) continue;
+        const id = String(kr.id);
+        const prev = byId.get(id);
+        const ms = kr.milestones ?? kr.Milestones ?? [];
+        if (!prev) {
+          byId.set(id, kr);
+          continue;
+        }
+        const prevMs = prev.milestones ?? prev.Milestones ?? [];
+        if (Array.isArray(ms) && ms.length > (prevMs?.length ?? 0)) {
+          byId.set(id, kr);
+        }
+      }
+    }
+    for (const kr of userKeyResultItems) {
+      if (!kr?.id) continue;
+      const id = String(kr.id);
+      if (!byId.has(id)) byId.set(id, kr);
+    }
+    return Array.from(byId.values());
+  }, [enrichedPlanSummaries, userKeyResultItems]);
+
+  const { targets: planningTargets, isLoading: planningTargetsLoading, objectiveMilestonesByKrId } =
+    usePlanningTargets(
+      userId,
+      selectedTab?.id,
+      userKeyResultItems,
+      planKeyResultsForTargets,
+    );
 
   const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
     string | null
@@ -519,6 +550,7 @@ function Page() {
                     setSelectedPlanningTargetId(t.id)
                   }
                   userKeyResultItems={userKeyResultItems}
+                  objectiveMilestonesByKrId={objectiveMilestonesByKrId}
                   parentPlanContext={parentPlanContext}
                   planningPickReady={planningPickReady}
                 />
@@ -666,6 +698,7 @@ function Page() {
                 selectedPlanningTargetId={selectedPlanningTargetId}
                 onPickPlanningTarget={(t) => setSelectedPlanningTargetId(t.id)}
                 userKeyResultItems={userKeyResultItems}
+                objectiveMilestonesByKrId={objectiveMilestonesByKrId}
                 parentPlanContext={parentPlanContext}
                 planningPickReady={planningPickReady}
               />

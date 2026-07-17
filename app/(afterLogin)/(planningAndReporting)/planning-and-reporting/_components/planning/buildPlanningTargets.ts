@@ -1,9 +1,9 @@
 import { groupParentTasks } from '../dataTransformer/plan';
 import {
   getKeyResultProgressPercent,
+  getMetricTypeName,
   isKeyResultFullyCompletedForPlanning,
   isMilestoneCompleted,
-  isMilestoneKeyResult,
   mergeKeyResultWithUserApi,
   resolveKrPlanningBlocked,
   resolveOkrMilestones,
@@ -28,82 +28,303 @@ export type PlanningTarget = {
   isCompleted?: boolean;
 };
 
-/** Weekly / monthly: one row per KR, or per milestone when KR has milestones. */
+/** Active OKR milestone rows from an objective KR (same source as createPlanObjective). */
+function objectiveMilestoneRows(kr: any): any[] {
+  const list = kr?.milestones ?? kr?.Milestones ?? [];
+  if (!Array.isArray(list)) return [];
+  return list.filter(
+    (m: any) => m && m.deletedAt == null && m.id != null,
+  );
+}
+
+/**
+ * Merge milestone rows from objective / API / plan by id.
+ * Prefer a real title; if any source is Completed, keep that status.
+ */
+function mergeMilestoneListsForPick(...lists: any[][]): any[] {
+  const byId = new Map<string, any>();
+  for (const list of lists) {
+    if (!Array.isArray(list)) continue;
+    for (const m of list) {
+      if (!m || m.deletedAt != null || m.id == null) continue;
+      const id = String(m.id);
+      const prev = byId.get(id);
+      if (!prev) {
+        byId.set(id, { ...m });
+        continue;
+      }
+      const completed = isMilestoneCompleted(m) || isMilestoneCompleted(prev);
+      byId.set(id, {
+        ...prev,
+        ...m,
+        // The objective is inserted first and is the display source used by
+        // createPlanObjective. API/plan rows enrich status only; they must not
+        // replace a milestone label with the parent KR title.
+        title: prev.title || prev.name || m.title || m.name,
+        name: prev.name || m.name,
+        status: completed
+          ? isMilestoneCompleted(m)
+            ? m.status || 'Completed'
+            : prev.status || 'Completed'
+          : m.status || prev.status,
+        isAchieved:
+          m.isAchieved === true || prev.isAchieved === true
+            ? true
+            : m.isAchieved ?? prev.isAchieved,
+        progress: m.progress ?? prev.progress,
+      });
+    }
+  }
+  return Array.from(byId.values());
+}
+
+/**
+ * Resolve live completion for a milestone: prefer merged user-KR API status,
+ * fall back to the objective milestone row (status: 'Completed' in OKR UI).
+ */
+function resolveMilestoneCompleted(
+  objectiveMs: any,
+  kr: any,
+  userKeyResultItems: any[],
+): boolean {
+  if (isMilestoneCompleted(objectiveMs)) return true;
+
+  const merged = mergeKeyResultWithUserApi(kr, userKeyResultItems);
+  const mergedList = merged?.milestones ?? merged?.Milestones ?? [];
+  const live =
+    (Array.isArray(mergedList)
+      ? mergedList.find(
+          (m: any) => String(m?.id) === String(objectiveMs?.id),
+        )
+      : null) ?? null;
+
+  if (live && isMilestoneCompleted(live)) return true;
+
+  const apiKr = userKeyResultItems.find(
+    (k) =>
+      k && k.deletedAt == null && String(k.id) === String(kr?.id),
+  );
+  const apiList = apiKr?.milestones ?? apiKr?.Milestones ?? [];
+  const fromApi = Array.isArray(apiList)
+    ? apiList.find((m: any) => String(m?.id) === String(objectiveMs?.id))
+    : null;
+  return fromApi != null && isMilestoneCompleted(fromApi);
+}
+
+function pushKeyResultPlanningTargets(
+  out: PlanningTarget[],
+  kr: any,
+  userKeyResultItems: any[],
+): void {
+  if (!kr || kr.deletedAt != null || kr.id == null) return;
+
+  const krTitle = kr.title || kr.name || 'Key result';
+  const apiKr = userKeyResultItems.find(
+    (k) => k && k.deletedAt == null && String(k.id) === String(kr.id),
+  );
+  const metricTypeName =
+    getMetricTypeName(apiKr) ||
+    getMetricTypeName(kr) ||
+    kr.metricType?.name ||
+    null;
+
+  // Union of objective + API + plan-embedded milestones (createPlanObjective
+  // uses objective titles; API carries Completed status).
+  const milestonesForPick = mergeMilestoneListsForPick(
+    objectiveMilestoneRows(kr),
+    objectiveMilestoneRows(apiKr),
+    resolveOkrMilestones(kr, apiKr),
+  );
+
+  const isMilestoneKr =
+    metricTypeName === 'Milestone' ||
+    String(metricTypeName).toLowerCase() === 'milestone' ||
+    milestonesForPick.length > 0;
+
+  if (isMilestoneKr && milestonesForPick.length > 0) {
+    milestonesForPick.forEach((ms: any) => {
+      if (ms?.deletedAt != null || ms?.id == null) return;
+      out.push({
+        id: `okr-kr-${kr.id}-ms-${ms.id}`,
+        keyResultId: String(kr.id),
+        keyResultTitle: krTitle,
+        milestoneId: String(ms.id),
+        milestoneTitle: ms.title || ms.name || 'Milestone',
+        parentTaskId: null,
+        isDailySlot: false,
+        metricTypeName: metricTypeName ?? 'Milestone',
+        isCompleted: resolveMilestoneCompleted(ms, kr, userKeyResultItems),
+      });
+    });
+    return;
+  }
+
+  // Non-milestone KR: single KR-level slot (modal shows the key result title).
+  const merged = mergeKeyResultWithUserApi(kr, userKeyResultItems);
+  if (isKeyResultFullyCompletedForPlanning(merged)) return;
+
+  out.push({
+    id: `okr-kr-${kr.id}`,
+    keyResultId: String(kr.id),
+    keyResultTitle: krTitle,
+    milestoneId: null,
+    parentTaskId: null,
+    isDailySlot: false,
+    metricTypeName,
+    isCompleted: false,
+  });
+}
+
+/**
+ * Build the + modal rows for one KR.
+ * Same source as createPlanObjective: objective milestones (titles) + API status.
+ * Never fall back to a KR-title-only row when any milestone exists.
+ */
+export function buildPickTargetsForKeyResult(params: {
+  keyResultId: string;
+  keyResultTitle: string;
+  metricTypeName?: string | null;
+  /** Objective / OKR milestone rows (preferred titles) */
+  objectiveMilestones?: any[];
+  /** Panel-aggregated milestones */
+  panelMilestones?: any[];
+  /** User KR API row for this KR */
+  apiKr?: any | null;
+  /** Existing planning targets for this KR */
+  slots?: PlanningTarget[];
+  userKeyResultItems?: any[];
+}): PlanningTarget[] {
+  const {
+    keyResultId,
+    keyResultTitle,
+    metricTypeName,
+    objectiveMilestones = [],
+    panelMilestones = [],
+    apiKr = null,
+    slots = [],
+    userKeyResultItems = [],
+  } = params;
+
+  const syntheticKr = {
+    id: keyResultId,
+    title: keyResultTitle,
+    metricType: metricTypeName ? { name: metricTypeName } : undefined,
+    milestones: objectiveMilestones.length
+      ? objectiveMilestones
+      : panelMilestones,
+  };
+
+  const milestones = mergeMilestoneListsForPick(
+    objectiveMilestoneRows({ milestones: objectiveMilestones }),
+    objectiveMilestoneRows({ milestones: panelMilestones }),
+    objectiveMilestoneRows(apiKr),
+    resolveOkrMilestones(syntheticKr, apiKr),
+    // Slot-derived rows last — titles only fill gaps; never overwrite objective titles.
+    slots
+      .filter((t) => t.milestoneId)
+      .map((t) => ({
+        id: t.milestoneId,
+        title: t.milestoneTitle,
+        status: t.isCompleted ? 'Completed' : undefined,
+      })),
+  );
+
+  if (milestones.length > 0) {
+    return milestones.map((ms: any) => ({
+      id: `okr-kr-${keyResultId}-ms-${ms.id}`,
+      keyResultId: String(keyResultId),
+      keyResultTitle,
+      milestoneId: String(ms.id),
+      milestoneTitle: String(ms.title || ms.name || 'Untitled milestone').trim(),
+      parentTaskId: null,
+      isDailySlot: false,
+      metricTypeName: metricTypeName ?? 'Milestone',
+      isCompleted: resolveMilestoneCompleted(
+        ms,
+        apiKr ?? syntheticKr,
+        userKeyResultItems.length
+          ? userKeyResultItems
+          : apiKr
+            ? [apiKr]
+            : [],
+      ),
+    }));
+  }
+
+  // Non-milestone KR: keep existing KR-level slots (or none).
+  return slots.filter((t) => !t.milestoneId && !t.isDailySlot);
+}
+
+/**
+ * Index objective KR milestones the same way createPlanObjective reads them.
+ */
+export function indexObjectiveMilestonesByKrId(
+  objective: any,
+): Map<string, any[]> {
+  const map = new Map<string, any[]>();
+  if (!objective?.items?.length) return map;
+  objective.items.forEach((obj: any) => {
+    if (obj?.deletedAt) return;
+    obj.keyResults?.forEach((kr: any) => {
+      if (!kr || kr.deletedAt != null || kr.id == null) return;
+      const rows = objectiveMilestoneRows(kr);
+      if (rows.length > 0) map.set(String(kr.id), rows);
+    });
+  });
+  return map;
+}
+
+/**
+ * Weekly / monthly: one row per KR, or one row per milestone when the KR has
+ * milestones. Achieved milestones stay listed but marked isCompleted.
+ * @param extraKeyResults Optional plan/panel KRs (often carry milestone titles).
+ */
 export function buildPlanningTargetsFromObjectives(
   objective: any,
   userKeyResultItems: any[] = [],
+  extraKeyResults: any[] = [],
 ): PlanningTarget[] {
   const out: PlanningTarget[] = [];
-  if (!objective?.items?.length) return out;
+  const seenKrIds = new Set<string>();
 
-  objective.items.forEach((obj: any) => {
-    if (obj.deletedAt) return;
-    obj.keyResults?.forEach((kr: any) => {
-      if (kr.deletedAt) return;
-      const krTitle = kr.title || kr.name || 'Key result';
-      const metricTypeName = kr.metricType?.name ?? null;
-      const apiKr = userKeyResultItems.find(
-        (k) => k && k.deletedAt == null && String(k.id) === String(kr.id),
-      );
-      const merged = mergeKeyResultWithUserApi(kr, userKeyResultItems);
-
-      if (isMilestoneKeyResult(merged, apiKr)) {
-        if (isKeyResultFullyCompletedForPlanning(merged)) return;
-
-        // Prefer OKR API milestones (carry achieved status). Keep completed
-        // rows in the list so the pick menu can show them disabled.
-        const okrMilestones = resolveOkrMilestones(merged, apiKr);
-        const fallbackMilestones = (
-          merged.milestones ??
-          merged.Milestones ??
-          kr.milestones ??
-          []
-        ).filter((m: any) => m && m.deletedAt == null);
-        const milestones =
-          okrMilestones.length > 0 ? okrMilestones : fallbackMilestones;
-
-        if (
-          milestones.length > 0 &&
-          milestones.every((ms: any) => isMilestoneCompleted(ms))
-        ) {
-          // All milestones achieved — no selectable slot; + stays hidden.
-          return;
-        }
-
-        milestones.forEach((ms: any) => {
-          if (ms?.deletedAt) return;
-          if (ms?.id == null) return;
-          out.push({
-            id: `okr-kr-${kr.id}-ms-${ms.id}`,
-            keyResultId: String(kr.id),
-            keyResultTitle: krTitle,
-            milestoneId: String(ms.id),
-            milestoneTitle: ms.title || 'Milestone',
-            parentTaskId: null,
-            isDailySlot: false,
-            metricTypeName,
-            isCompleted: isMilestoneCompleted(ms),
-          });
-        });
-        return;
-      }
-
-      if (isKeyResultFullyCompletedForPlanning(merged)) return;
-
-      const krProgressDone = getKeyResultProgressPercent(merged) >= 100;
-      if (krProgressDone) return;
-
-      out.push({
-        id: `okr-kr-${kr.id}`,
-        keyResultId: String(kr.id),
-        keyResultTitle: krTitle,
-        milestoneId: null,
-        parentTaskId: null,
-        isDailySlot: false,
-        metricTypeName,
-        isCompleted: false,
+  if (objective?.items?.length) {
+    objective.items.forEach((obj: any) => {
+      if (obj.deletedAt) return;
+      obj.keyResults?.forEach((kr: any) => {
+        if (kr.deletedAt) return;
+        const id = String(kr.id);
+        if (seenKrIds.has(id)) return;
+        seenKrIds.add(id);
+        // Attach plan/panel milestones onto the objective KR when missing.
+        const extra = extraKeyResults.find(
+          (k) => k && String(k.id) === id,
+        );
+        const enriched =
+          extra &&
+          objectiveMilestoneRows(kr).length === 0 &&
+          objectiveMilestoneRows(extra).length > 0
+            ? { ...kr, milestones: extra.milestones ?? extra.Milestones }
+            : kr;
+        pushKeyResultPlanningTargets(out, enriched, userKeyResultItems);
       });
     });
+  }
+
+  extraKeyResults.forEach((kr) => {
+    if (!kr || kr.deletedAt != null || kr.id == null) return;
+    const id = String(kr.id);
+    if (seenKrIds.has(id)) return;
+    seenKrIds.add(id);
+    pushKeyResultPlanningTargets(out, kr, userKeyResultItems);
+  });
+
+  // Panel may show user-KR API rows not present on objectives/plans.
+  userKeyResultItems.forEach((apiKr) => {
+    if (!apiKr || apiKr.deletedAt != null || apiKr.id == null) return;
+    const id = String(apiKr.id);
+    if (seenKrIds.has(id)) return;
+    seenKrIds.add(id);
+    pushKeyResultPlanningTargets(out, apiKr, userKeyResultItems);
   });
 
   return out;
@@ -149,12 +370,7 @@ export function isMilestoneBlockedForPlanning(
   userKeyResultItems: any[] = [],
 ): boolean {
   if (isKeyResultBlockedForPlanning(kr, userKeyResultItems)) return true;
-  const source = mergeKeyResultWithUserApi(kr, userKeyResultItems);
-  const msList = source.milestones ?? source.Milestones ?? [];
-  const resolved =
-    msList.find((m: any) => String(m?.id) === String(milestone?.id)) ??
-    milestone;
-  return isMilestoneCompleted(resolved);
+  return resolveMilestoneCompleted(milestone, kr, userKeyResultItems);
 }
 
 /** True when a planning target (KR / milestone / daily slot) must not show + or add UI. */
@@ -172,6 +388,18 @@ export function isPlanningTargetBlocked(
       k && k.deletedAt == null && String(k.id) === String(target.keyResultId),
   );
 
+  if (target.milestoneId) {
+    const ms =
+      findMilestoneInKeyResult(apiKr, target.milestoneId) ??
+      findMilestoneInKeyResult(
+        { milestones: apiKr?.milestones },
+        target.milestoneId,
+      );
+    if (ms && isMilestoneCompleted(ms)) return true;
+    // Partial milestone KR — never block the whole KR from progress alone.
+    return false;
+  }
+
   if (
     resolveKrPlanningBlocked(
       {
@@ -187,19 +415,12 @@ export function isPlanningTargetBlocked(
     return true;
   }
 
-  if (!apiKr) return false;
-
-  if (target.milestoneId) {
-    const ms = findMilestoneInKeyResult(apiKr, target.milestoneId);
-    if (ms && isMilestoneCompleted(ms)) return true;
-  }
-
   return false;
 }
 
 /**
- * Drop slots for fully blocked KRs. Completed milestones are kept (marked
- * `isCompleted`) so the pick menu can show them disabled/greyed out.
+ * Keep milestone slots; refresh isCompleted from merged OKR status.
+ * Drop only fully blocked non-milestone KR slots.
  */
 export function filterPlanningTargetsByBlockedKeyResults(
   targets: PlanningTarget[],
@@ -209,56 +430,42 @@ export function filterPlanningTargetsByBlockedKeyResults(
 
   return targets
     .filter((t) => {
-      const apiKr = userKeyResultItems.find(
-        (k) =>
-          k && k.deletedAt == null && String(k.id) === String(t.keyResultId),
-      );
-      if (
-        resolveKrPlanningBlocked(
-          {
-            metricType: apiKr?.metricType?.name ?? apiKr?.key_type,
-            progress: apiKr ? getKeyResultProgressPercent(apiKr) : 0,
-            currentValue: apiKr?.currentValue,
-            targetValue: apiKr?.targetValue,
-            milestones: apiKr?.milestones ?? apiKr?.Milestones ?? [],
-          },
-          apiKr,
-        )
-      ) {
-        return false;
-      }
-      // Non-milestone KR slots: drop if blocked (no milestone list to grey out)
-      if (!t.milestoneId && isPlanningTargetBlocked(t, userKeyResultItems)) {
-        return false;
-      }
-      return true;
+      if (t.milestoneId) return true;
+      return !isPlanningTargetBlocked(t, userKeyResultItems);
     })
     .map((t) => {
-      if (!t.milestoneId) {
-        const apiKr = userKeyResultItems.find(
-          (k) =>
-            k && k.deletedAt == null && String(k.id) === String(t.keyResultId),
-        );
-        const completed =
-          isKeyResultFullyCompletedForPlanning(
-            apiKr ?? {
-              progress: t.isCompleted ? 100 : 0,
-            },
-          ) || (apiKr && getKeyResultProgressPercent(apiKr) >= 100);
-        return completed ? { ...t, isCompleted: true } : t;
-      }
+      if (!t.milestoneId) return t;
+
       const apiKr = userKeyResultItems.find(
         (k) =>
           k && k.deletedAt == null && String(k.id) === String(t.keyResultId),
       );
-      // Prefer live OKR milestone status; also accept objective-side completion.
-      const ms = apiKr
-        ? findMilestoneInKeyResult(apiKr, t.milestoneId)
-        : null;
-      const completed =
-        t.isCompleted === true ||
-        (ms != null && isMilestoneCompleted(ms));
-      return { ...t, isCompleted: completed };
+      const syntheticKr = {
+        id: t.keyResultId,
+        milestones: apiKr?.milestones ?? [],
+        metricType: apiKr?.metricType ?? { name: t.metricTypeName },
+      };
+      const objectiveLike = {
+        id: t.keyResultId,
+        title: t.keyResultTitle,
+        milestones: [
+          {
+            id: t.milestoneId,
+            title: t.milestoneTitle,
+            status: t.isCompleted ? 'Completed' : undefined,
+          },
+        ],
+      };
+      const completed = resolveMilestoneCompleted(
+        {
+          id: t.milestoneId,
+          title: t.milestoneTitle,
+          status: t.isCompleted ? 'Completed' : undefined,
+        },
+        apiKr ?? syntheticKr ?? objectiveLike,
+        userKeyResultItems,
+      );
+      return { ...t, isCompleted: completed || t.isCompleted === true };
     });
 }
 
