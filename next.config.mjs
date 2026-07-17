@@ -20,11 +20,20 @@ try {
   );
 }
 
+// In Core mode the app is served behind the reverse proxy at `<host>/workspace`;
+// standalone (e.g. local dev) serves from the origin root. Keep this in sync with
+// IS_CORE in utils/constants.ts.
+const isCore =
+  (process.env.IS_CORE ?? process.env.NEXT_PUBLIC_IS_CORE ?? '')
+    .trim()
+    .toLowerCase() === 'true';
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Served behind the Core origin at https://<host>/workspace via the reverse proxy.
-  // basePath makes Next emit all asset and route URLs under this prefix.
-  basePath: '/workspace',
+  // Core mode: emit all asset and route URLs under /workspace (the reverse proxy
+  // prefix). Standalone: serve from the origin root. `undefined` disables the
+  // prefix entirely so `GET /` works in local/standalone dev.
+  basePath: isCore ? '/workspace' : undefined,
   // The codebase has pre-existing lint and strict-TS errors that `next dev` never
   // enforced; production builds elsewhere run `npm run lint || true`. Don't let
   // them fail `next build`.
