@@ -143,6 +143,8 @@ export const useAuthenticationStore = create<StoreState>()(
         setHasHydrated: (hasHydrated: boolean) => set({ hasHydrated }),
       }),
       {
+        name: 'workspace-auth', // Per-product key (shared origin) — do not reuse across products
+        getStorage: () => localStorage, // Use localStorage for persistence
         name: 'authentications-storage', // Unique name for the storage
         storage: createJSONStorage(() =>
           typeof window !== 'undefined' ? localStorage : noopStorage,
