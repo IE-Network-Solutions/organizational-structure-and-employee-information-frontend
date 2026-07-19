@@ -32,7 +32,7 @@ export const DATETIME_FORMAT = 'DD MMM YYYY hh:mm A';
 export const TIME_FORMAT = 'hh:mm A';
 
 export const localUserID = process.env.NEXT_PUBLIC_LOCAL_USER_ID;
-export const TIME_AND_ATTENDANCE_URL = 'https://test-api.ienetworks.co/time-attendance/api/v1';
+export const TIME_AND_ATTENDANCE_URL = 'http://localhost:8020/api/v1';
 export const TNA_URL = process.env.NEXT_PUBLIC_TRAIN_AND_LEARNING_URL;
 
 export const INCENTIVE_URL = process.env.INCENTIVE_URL;
