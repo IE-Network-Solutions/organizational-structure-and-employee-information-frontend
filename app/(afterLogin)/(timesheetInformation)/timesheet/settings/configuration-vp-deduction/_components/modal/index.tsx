@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Checkbox,
   Col,
@@ -9,7 +9,9 @@ import {
   InputNumber,
   Modal,
   Row,
+  Select,
   Skeleton,
+  Switch,
   Tooltip,
 } from 'antd';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
@@ -27,6 +29,7 @@ import {
   useUpdateVpTimeConfiguration,
 } from '@/store/server/features/timesheet/vpTimeConfiguration/mutation';
 import { useGetVpTimeConfiguration } from '@/store/server/features/timesheet/vpTimeConfiguration/queries';
+import { useGetAttendanceRules } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
 
 type DeductionType = 'late_arrival' | 'early_checkout';
 
@@ -37,6 +40,8 @@ interface VpDeductionSectionValues {
   deductibleAmount?: number;
   description?: string;
   missedClockout?: boolean;
+  isAbsent?: boolean;
+  attendanceRuleId?: string;
 }
 
 interface VpDeductionFormValues {
@@ -51,6 +56,8 @@ const DEFAULT_SECTION_VALUES: VpDeductionSectionValues = {
   deductibleAmount: undefined,
   description: undefined,
   missedClockout: false,
+  isAbsent: false,
+  attendanceRuleId: undefined,
 };
 
 const TAB_CONFIG: Record<
@@ -112,6 +119,17 @@ const ConfigureVpDeductionModal = () => {
     isFetching: isConfigFetching,
     refetch,
   } = useGetVpTimeConfiguration(vpDeductionConfigId);
+  const { data: attendanceRulesData, isLoading: isAttendanceRulesLoading } =
+    useGetAttendanceRules({ page: 1, limit: 100 });
+
+  const attendanceRuleOptions = useMemo(
+    () =>
+      (attendanceRulesData?.items ?? []).map((rule) => ({
+        value: rule.id,
+        label: rule.name,
+      })),
+    [attendanceRulesData?.items],
+  );
 
   const isSaving = isCreating || isUpdating;
 
@@ -120,6 +138,12 @@ const ConfigureVpDeductionModal = () => {
       form.setFieldValue([activeFormKey, 'endTime'], undefined);
     }
   }, [applyAdditionalRules, activeFormKey, form]);
+
+  useEffect(() => {
+    if (!isAbsent) {
+      form.setFieldValue(['lateArrival', 'attendanceRuleId'], undefined);
+    }
+  }, [isAbsent, form]);
 
   const onClose = useCallback(() => {
     form.resetFields();
@@ -161,6 +185,8 @@ const ConfigureVpDeductionModal = () => {
         deductibleAmount: item.deductableAmount ?? undefined,
         description: item.description ?? undefined,
         missedClockout: Boolean(item.missedClockout),
+        isAbsent: Boolean(item.isAbsent),
+        attendanceRuleId: item.attendanceRuleId ?? undefined,
       },
     } as Partial<VpDeductionFormValues>);
   }, [configData, isShow, vpDeductionConfigId, form]);
@@ -176,6 +202,11 @@ const ConfigureVpDeductionModal = () => {
       description: section.description,
       missedClockout:
         activeTab === 'early_checkout' ? section.missedClockout : false,
+      isAbsent: activeTab === 'late_arrival' ? section.isAbsent : false,
+      attendanceRuleId:
+        activeTab === 'late_arrival' && section.isAbsent
+          ? section.attendanceRuleId
+          : undefined,
     });
 
     if (isEditMode && vpDeductionConfigId) {
@@ -427,6 +458,87 @@ const ConfigureVpDeductionModal = () => {
                   </Checkbox>
                 </Form.Item>
               </>
+            )}
+
+            {activeTab === 'late_arrival' && (
+              <div
+                className="mb-4 rounded-lg border border-[#D9D9D9] bg-[#FAFAFA] px-4 py-3"
+                data-cy="time-attendance-settings-configuration-vp-deduction-modal-is-absent-section"
+              >
+                <div
+                  className="flex items-start justify-between gap-4"
+                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-is-absent-header"
+                >
+                  <div
+                    className="min-w-0 flex-1"
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-is-absent-copy"
+                  >
+                    <p
+                      className="mb-0 text-sm font-medium text-[#262626]"
+                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-is-absent-title"
+                    >
+                      Is Absent
+                    </p>
+                    <p
+                      className="mb-0 mt-1 text-xs text-gray-500"
+                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-is-absent-description"
+                    >
+                      Link this late-arrival deduction to an attendance rule
+                      when the employee is marked absent.
+                    </p>
+                  </div>
+                  <Form.Item
+                    name={['lateArrival', 'isAbsent']}
+                    valuePropName="checked"
+                    className="mb-0"
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-is-absent-field"
+                  >
+                    <Switch
+                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-is-absent-switch"
+                      aria-label="Is Absent"
+                    />
+                  </Form.Item>
+                </div>
+
+                {isAbsent && (
+                  <Form.Item
+                    name={['lateArrival', 'attendanceRuleId']}
+                    label={
+                      <span
+                        data-cy="time-attendance-settings-configuration-vp-deduction-modal-attendance-rule-label"
+                        className="text-sm font-normal text-gray-900"
+                      >
+                        Attendance Rule
+                      </span>
+                    }
+                    className="mb-0 mt-4"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please select an attendance rule',
+                      },
+                    ]}
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-attendance-rule-field"
+                  >
+                    <Select
+                      showSearch
+                      allowClear
+                      className="w-full"
+                      placeholder="Select attendance rule"
+                      loading={isAttendanceRulesLoading}
+                      options={attendanceRuleOptions}
+                      filterOption={(input, option) =>
+                        (option?.label ?? '')
+                          .toString()
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                      id="time-attendance-settings-configuration-vp-deduction-modal-attendance-rule"
+                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-attendance-rule"
+                    />
+                  </Form.Item>
+                )}
+              </div>
             )}
 
             <Form.Item
