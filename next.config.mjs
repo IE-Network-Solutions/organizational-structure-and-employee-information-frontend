@@ -90,6 +90,7 @@ const nextConfig = {
     NEXT_PUBLIC_COPILOT_BASE_URL: process.env.NEXT_PUBLIC_COPILOT_BASE_URL,
     NEXT_PUBLIC_ENCRYPTION_DISABLED:
       process.env.NEXT_PUBLIC_ENCRYPTION_DISABLED,
+    CORE_API_URL: process.env.CORE_API_URL,
   },
 };
 
