@@ -14,14 +14,14 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
   return (
     <div
       data-cy="-planningandreporting-planning-and-reporting-components-statusbadge-tsx-statusbadge-div-31"
-      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold ${
+      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[13px] font-semibold ${
         isClosed ? 'bg-[#D1FAE5] text-[#059669]' : 'bg-[#FEF3C7] text-[#92400E]'
       }`}
     >
       {isClosed ? (
-        <CheckOutlined className="text-[10px]" />
+        <CheckOutlined className="text-[11px]" />
       ) : (
-        <PiDotsThreeCircle className="text-sm" />
+        <PiDotsThreeCircle className="text-[14px]" />
       )}
       {displayedLabel}
     </div>

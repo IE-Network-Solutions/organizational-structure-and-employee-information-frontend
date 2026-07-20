@@ -55,13 +55,31 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
 
   return (
     <div
-      className={`bg-white ${isWorkspace ? 'px-2 pb-5 pt-3' : 'px-4 pb-5 pt-4'}`}
+      className={`bg-white ${isWorkspace ? 'px-6 pb-6 pt-2 md:px-8' : 'px-4 pb-5 pt-4'}`}
       id="copilot-input-wrapper"
       data-cy="copilot-input-wrapper"
     >
+      {isWorkspace && isLoading ? (
+        <div
+          className="copilot-loading-segments mb-3"
+          id="copilot-loading-segments"
+          data-cy="copilot-loading-segments"
+          role="status"
+          aria-live="polite"
+          aria-label="Generating response"
+        >
+          {[0, 1, 2].map((segment) => (
+            <span
+              key={segment}
+              className="copilot-loading-segment"
+              data-cy={`copilot-loading-segment-${segment}`}
+            />
+          ))}
+        </div>
+      ) : null}
       <div
-        className="mx-auto w-full"
-        style={{ maxWidth: composerW }}
+        className={`w-full ${isWorkspace ? '' : 'mx-auto'}`}
+        style={isWorkspace ? undefined : { maxWidth: composerW }}
         id="copilot-input-inner"
         data-cy="copilot-input-inner"
       >
@@ -70,7 +88,7 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
           data-cy="copilot-input-composer"
           className={`box-border flex w-full items-center border bg-white shadow-none ${
             isWorkspace
-              ? 'gap-3 border-[#E5E7EB] px-4 py-0 focus-within:border-[#E5E7EB]'
+              ? 'gap-3 px-4 py-0 focus-within:border-[#E5E5E5]'
               : 'gap-2 border-[#E5E7EB] px-2 py-0 pl-3 transition-[box-shadow,border-color] focus-within:border-[#2563EB] focus-within:shadow-[0_0_0_2px_rgba(37,99,235,0.12)] sm:px-3 sm:pl-4'
           }`}
           style={{
@@ -118,9 +136,9 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             bordered={false}
-            className={`min-w-0 flex-1 !bg-transparent text-[15px] font-medium leading-normal ${
+            className={`min-w-0 flex-1 !bg-transparent text-[15px] font-normal leading-normal ${
               isWorkspace
-                ? 'text-[#374151] placeholder:text-[#9CA3AF]'
+                ? 'text-[#333333] placeholder:text-[#B0B0B0]'
                 : 'text-[#333333] placeholder:text-[#9CA3AF]'
             }`}
             id="copilot-input"
@@ -154,21 +172,32 @@ const CopilotInput: React.FC<CopilotInputProps> = ({
                 className={`flex shrink-0 items-center justify-center rounded-full text-base transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
                   canSend
                     ? isWorkspace
-                      ? 'text-white shadow-sm active:scale-[0.97] focus-visible:ring-[#1D4ED8]/40'
+                      ? 'text-white shadow-sm active:scale-[0.97] focus-visible:ring-[#2A48B1]/40'
                       : 'text-white shadow-sm hover:brightness-105 active:scale-[0.97] focus-visible:ring-[#2563EB]/40'
-                    : 'cursor-not-allowed bg-[#F3F4F6] text-[#9CA3AF]'
+                    : 'cursor-default'
                 }`}
                 style={{
                   width: SEND_SIZE,
                   height: SEND_SIZE,
-                  ...(canSend ? { backgroundColor: sendBg } : {}),
+                  backgroundColor: canSend
+                    ? sendBg
+                    : isWorkspace
+                      ? COPILOT_THEME.workspaceSendDisabledBg
+                      : '#F3F4F6',
                 }}
                 id="copilot-send-button"
                 data-cy="copilot-send-button"
                 aria-label="Send message"
               >
                 <SendOutlined
-                  className={`text-[15px] ${canSend ? 'text-white' : '!text-[#9CA3AF]'}`}
+                  className="text-[14px]"
+                  style={{
+                    color: canSend
+                      ? '#FFFFFF'
+                      : isWorkspace
+                        ? COPILOT_THEME.workspaceSendDisabledIcon
+                        : '#9CA3AF',
+                  }}
                 />
               </button>
             </Tooltip>

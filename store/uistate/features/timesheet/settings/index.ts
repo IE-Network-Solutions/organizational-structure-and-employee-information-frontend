@@ -12,6 +12,7 @@ type TimesheetSettingsState = {
   isErrorPlan: boolean;
   isShowClosedDateSidebar: boolean;
   isShowAllowedAreaConfigModal: boolean;
+  isShowVpDeductionModal: boolean;
   isShowBreakTypeSidebar: boolean;
   isShowLeaveRequestSidebar: boolean;
 
@@ -21,6 +22,7 @@ type TimesheetSettingsState = {
   attendanceRuleId: string | null;
   allowedAreaId: string | null;
   allowedAreaConfigId: string | null;
+  vpDeductionConfigId: string | null;
   leaveRequestId: string | null;
   selectedClosedDate: any | null;
   selectedBreakType: any | null;
@@ -55,6 +57,7 @@ type TimesheetSettingsStateAction = {
   setIsShowAllowedAreaConfigModal: (
     isShowAllowedAreaConfigModal: boolean,
   ) => void;
+  setIsShowVpDeductionModal: (isShowVpDeductionModal: boolean) => void;
   setIsShowBreakTypeSidebar: (isShowBreakTypeSidebar: boolean) => void;
   setIsShowLeaveRequestSidebar: (isShowLeaveRequestSidebar: boolean) => void;
 
@@ -66,6 +69,7 @@ type TimesheetSettingsStateAction = {
   setAttendanceRuleId: (attendanceRuleId: string | null) => void;
   setAllowedAreaId: (allowedAreaId: string | null) => void;
   setAllowedAreaConfigId: (allowedAreaConfigId: string | null) => void;
+  setVpDeductionConfigId: (vpDeductionConfigId: string | null) => void;
   setLeaveRequestId: (leaveRequestId: string | null) => void;
   setSelectedClosedDate: (closedDate: any | null) => void;
   setSelectedBreakType: (breakType: any | null) => void;
@@ -146,6 +150,11 @@ const timesheetSettingsSlice: StateCreator<
     set({ isShowAllowedAreaConfigModal });
   },
 
+  isShowVpDeductionModal: false,
+  setIsShowVpDeductionModal: (isShowVpDeductionModal: boolean) => {
+    set({ isShowVpDeductionModal });
+  },
+
   isShowBreakTypeSidebar: false,
   setIsShowBreakTypeSidebar: (isShowBreakTypeSidebar: boolean) => {
     set({ isShowBreakTypeSidebar });
@@ -184,6 +193,11 @@ const timesheetSettingsSlice: StateCreator<
   allowedAreaConfigId: null,
   setAllowedAreaConfigId: (allowedAreaConfigId: string | null) => {
     set({ allowedAreaConfigId });
+  },
+
+  vpDeductionConfigId: null,
+  setVpDeductionConfigId: (vpDeductionConfigId: string | null) => {
+    set({ vpDeductionConfigId });
   },
 
   leaveRequestId: null,

@@ -47,6 +47,9 @@ export interface KeyResult {
     name: string;
     description?: string;
   };
+  key_type?: string;
+  metricTypeName?: string;
+  previousMetricTypeName?: string;
   targetValue?: string | number;
   currentValue?: string | number;
   initialValue?: string | number;

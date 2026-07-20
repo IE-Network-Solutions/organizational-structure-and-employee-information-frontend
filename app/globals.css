@@ -1997,7 +1997,7 @@ h6 {
 
 .recruitment-settings-card {
   border-radius: var(--recruitment-settings-radius);
-  background: #F9FAFB;
+  background: #f9fafb;
 }
 
 .recruitment-settings-card-title {
@@ -2053,11 +2053,16 @@ h6 {
 }
 
 @keyframes custom-fields-drop-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.35); }
-  50%       { box-shadow: 0 0 0 7px rgba(30, 64, 175, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(30, 64, 175, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(30, 64, 175, 0);
+  }
 }
 .custom-fields-drop-active {
-  border-color: #1E40AF !important;
+  border-color: #1e40af !important;
   border-style: solid !important;
   animation: custom-fields-drop-pulse 1s ease-in-out infinite;
 }
@@ -2524,6 +2529,88 @@ h6 {
 
 .copilot-generating-dots__dot:nth-child(3) {
   animation-delay: 0.4s;
+}
+
+/* Copilot workspace composer: three-bar loading indicator (cycles active bar) */
+.copilot-loading-segments {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.copilot-loading-segment {
+  display: block;
+  height: 3px;
+  width: 40px;
+  border-radius: 9999px;
+  background-color: #e5e5e5;
+  animation: copilot-loading-segment-cycle 1.2s ease-in-out infinite;
+}
+
+.copilot-loading-segment:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.copilot-loading-segment:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.copilot-loading-segment:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes copilot-loading-segment-cycle {
+  0%,
+  80%,
+  100% {
+    background-color: #e5e5e5;
+  }
+  40% {
+    background-color: #2a48b1;
+  }
+}
+
+@keyframes copilot-float-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 14px rgba(30, 64, 175, 0.22),
+      0 0 0 0 rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 8px 24px rgba(30, 64, 175, 0.32),
+      0 0 0 6px rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes copilot-float-expand-in {
+  from {
+    opacity: 0;
+    transform: translateX(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.copilot-float-fab-shell {
+  animation: copilot-float-pulse 3.2s ease-in-out infinite;
+}
+
+.copilot-float-expanded-enter {
+  animation: copilot-float-expand-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.copilot-float-surface {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(239, 246, 255, 0.95) 100%
+  );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 /* Employee attendance: image hover card popover */

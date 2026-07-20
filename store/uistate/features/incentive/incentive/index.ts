@@ -155,6 +155,7 @@ interface SearchParams {
   byYear: string;
   bySession: any;
   byMonth: string;
+  payPeriodId: string;
 }
 
 export type CertificateDetails = {
@@ -287,7 +288,10 @@ type IncentiveState = {
 };
 
 type IncentiveActions = {
-  setSearchParams: (key: keyof SearchParams, value: string | boolean) => void;
+  setSearchParams: <K extends keyof SearchParams>(
+    key: K,
+    value: SearchParams[K],
+  ) => void;
   setCurrentPage: (currentPage: number) => void;
   setPageSize: (pageSize: number) => void;
   setOpenIncentiveDrawer: (open: boolean) => void;
@@ -338,6 +342,7 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
     byYear: '',
     bySession: [],
     byMonth: '',
+    payPeriodId: '',
   },
   setSearchParams: (key, value) =>
     set((state) => ({

@@ -256,7 +256,8 @@ const ExpandedVPDetails = ({
   const vpDeductionChange = (totalVpDeductions - previousVpDeductions).toFixed(
     0,
   );
-  const isVpDeductionChangeNegative = totalVpDeductions - previousVpDeductions < 0;
+  const isVpDeductionChangeNegative =
+    totalVpDeductions - previousVpDeductions < 0;
 
   if (isLoading) {
     return <ExpandedVPDetailsSkeleton />;
@@ -287,7 +288,7 @@ const ExpandedVPDetails = ({
   const displayCriteria = criteria;
 
   return (
-    <div className="w-full" data-cy="expanded-vp-details-wrapper">
+    <div className="w-full p-3" data-cy="expanded-vp-details-wrapper">
       <style data-cy="expanded-vp-details-style">
         {`
         @keyframes slideDownCards {
@@ -301,7 +302,7 @@ const ExpandedVPDetails = ({
       </style>
       {/* Scroll only the cards strip (Total + criteria) */}
       <div
-        className="min-w-0 w-full max-w-[1100px] overflow-x-auto animate-slideDownCards"
+        className="min-w-0 w-full overflow-x-auto animate-slideDownCards"
         data-cy="expanded-vp-details-cards-grid"
       >
         <div
@@ -822,7 +823,7 @@ const VariablePayTable = () => {
 
   return (
     <div
-      className="mt-6 overflow-hidden rounded-xl border border-gray-200 bg-white text-[14px]"
+      className="mt-6 overflow-hidden rounded-xl bg-white text-[14px]"
       data-testid="variable-pay-table-container"
       id="compensation-benefit-variable-pay-table-container"
       data-cy="compensation-benefit-variable-pay-table-container"
@@ -834,7 +835,7 @@ const VariablePayTable = () => {
         data-testid="variable-pay-table-wrapper"
       >
         <div
-          className="flex items-center justify-between gap-3 border-b border-gray-200 px-4 py-4"
+          className="flex items-center justify-between gap-3 px-4 py-4"
           data-cy="compensation-benefit-variable-pay-table-toolbar"
         >
           <Select
@@ -1012,6 +1013,9 @@ const VariablePayTable = () => {
                 className="[&_.ant-table]:text-[14px] [&_.ant-table-thead>tr>th]:text-[14px]"
                 rowClassName={(record, index) =>
                   index % 2 !== 0 ? 'bg-gray-50' : 'bg-white'
+                }
+                expandedRowClassName={(record, index) =>
+                  index % 2 !== 0 ? '[&>td]:!bg-[#f9fafb]' : '[&>td]:!bg-white'
                 }
                 columns={columns}
                 dataSource={paginatedData}

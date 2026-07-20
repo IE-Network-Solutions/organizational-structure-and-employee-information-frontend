@@ -6,11 +6,12 @@ import { useMutation, useQueryClient } from 'react-query';
 
 const setIncentiveFormula = async (data: any) => {
   const requestHeaders = await requestHeader();
+  const payload = Array.isArray(data?.formulas) ? data : { formulas: [data] };
   return await crudRequest({
-    url: `${INCENTIVE_URL}/incentive-formulas`,
+    url: `${INCENTIVE_URL}/incentive-formulas/bulk`,
     method: 'POST',
     headers: requestHeaders,
-    data,
+    data: payload,
   });
 };
 
@@ -37,10 +38,15 @@ export const useSetIncentiveFormula = () => {
   const queryClient = useQueryClient();
   return useMutation(setIncentiveFormula, {
     onSuccess: (nonused, variables) => {
-      queryClient.invalidateQueries([
-        'incentiveFormula',
-        variables.recognitionTypeId,
-      ]);
+      const formulas = variables?.formulas ?? [variables];
+      formulas.forEach((formula: { recognitionTypeId?: string }) => {
+        if (formula?.recognitionTypeId) {
+          queryClient.invalidateQueries([
+            'incentiveFormula',
+            formula.recognitionTypeId,
+          ]);
+        }
+      });
       NotificationMessage.success({
         message: 'Incentive formula created successfully!',
         description: 'Incentive formula has been successfully created',

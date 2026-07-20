@@ -47,7 +47,12 @@ import {
   getRemovedMilestoneIds,
   persistKeyResultMilestones,
 } from '../../../_utils/milestoneSave';
-import { getKeyResultMetricDetailLine } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  getKeyResultMetricDetailLine,
+  getKeyResultProgressPercent,
+} from '@/utils/okrKeyResultProgressDisplay';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Option } = Select;
 
@@ -122,7 +127,16 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     (myOkr || objectiveUserId === userId) && isInActiveSession;
   const hideOwnTeamOkrActions =
     String(okrTab) === '2' && objectiveUserId === userId;
-  const canShowActionsMenu = canEditDelete && !hideOwnTeamOkrActions;
+  const canUpdateKeyResult = AccessGuard.checkAccess({
+    permissions: [Permissions.UpdateKeyResults],
+  });
+  const canDeleteKeyResult = AccessGuard.checkAccess({
+    permissions: [Permissions.DeleteKeyResults],
+  });
+  const canShowActionsMenu =
+    canEditDelete &&
+    !hideOwnTeamOkrActions &&
+    (canUpdateKeyResult || canDeleteKeyResult);
 
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
@@ -228,26 +242,34 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     setEditingMilestoneIndex(distributed.length - 1);
   };
 
-  const menu = canShowActionsMenu ? (
-    <Menu
-      className="okr-actions-menu"
-      items={[
-        {
-          key: '1',
-          icon: <EditOutlinedIcon className="text-gray-700" />,
-          label: 'Edit Key Result',
-          onClick: showDrawer,
-        },
-        {
-          key: '2',
-          icon: <DeleteOutlined className="text-red-500" />,
-          label: 'Delete Key Result',
-          danger: true,
-          onClick: showDeleteModal,
-        },
-      ]}
-    />
-  ) : null;
+  const keyResultMenuItems = [
+    ...(canUpdateKeyResult
+      ? [
+          {
+            key: '1',
+            icon: <EditOutlinedIcon className="text-gray-700" />,
+            label: 'Edit Key Result',
+            onClick: showDrawer,
+          },
+        ]
+      : []),
+    ...(canDeleteKeyResult
+      ? [
+          {
+            key: '2',
+            icon: <DeleteOutlined className="text-red-500" />,
+            label: 'Delete Key Result',
+            danger: true,
+            onClick: showDeleteModal,
+          },
+        ]
+      : []),
+  ];
+
+  const menu =
+    canShowActionsMenu && keyResultMenuItems.length > 0 ? (
+      <Menu className="okr-actions-menu" items={keyResultMenuItems} />
+    ) : null;
 
   const handleKeyResultDelete = (id: string) => {
     updateAndDelete({
@@ -292,15 +314,17 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
   const isBasicAchieveOrNot =
     isBasicOkr && rowKeyResult?.metricType?.name === 'Achieve';
   const metricName = rowKeyResult?.metricType?.name || 'N/A';
-  const progress = Number(rowKeyResult?.progress) || 0;
+  const progress = getKeyResultProgressPercent(rowKeyResult);
   const canInlineEditFromObjective =
     objectiveEditMode &&
     canShowActionsMenu &&
+    canUpdateKeyResult &&
     rowKeyResult?.isClosed === false &&
     Number(rowKeyResult?.progress ?? 0) === 0;
   const canInlineEditFromRowAction =
     rowInlineEdit &&
     canShowActionsMenu &&
+    canUpdateKeyResult &&
     rowKeyResult?.isClosed === false &&
     Number(rowKeyResult?.progress ?? 0) === 0;
   const canInlineEditNow =

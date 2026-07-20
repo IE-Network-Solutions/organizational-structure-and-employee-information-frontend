@@ -18,6 +18,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { CiLogin, CiLogout } from 'react-icons/ci';
 import RemoteAttendanceActionButton from '@/components/common/remoteAttendanceActionButton';
 import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
+import { useIsWithinBreakPeriod } from '@/hooks/useIsWithinBreakPeriod';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
@@ -29,6 +30,7 @@ const CheckControl = () => {
   );
 
   const { isMobile } = useIsMobile();
+  const withinBreakPeriod = useIsWithinBreakPeriod();
   const { data: currentAttendanceData, isFetching } =
     useGetCurrentAttendance(userId);
 
@@ -75,27 +77,32 @@ const CheckControl = () => {
         </RemoteAttendanceActionButton>
       ),
     },
-    {
-      key: 'checkout',
-      label: (
-        <RemoteAttendanceActionButton action={{ isSignIn: false }}>
-          <Button
-            type="text"
-            icon={
-              <GoClock
-                data-cy="time-attendance-check-controls-mobile-check-out-button-icon"
-                size={20}
-              />
-            }
-            loading={loading}
-            id="time-attendance-check-controls-mobile-check-out-menu-button"
-            data-cy="time-attendance-check-controls-mobile-check-out-menu-button"
-          >
-            Check Out
-          </Button>
-        </RemoteAttendanceActionButton>
-      ),
-    },
+    // Hide the Check Out option during any configured break period.
+    ...(!withinBreakPeriod
+      ? [
+          {
+            key: 'checkout',
+            label: (
+              <RemoteAttendanceActionButton action={{ isSignIn: false }}>
+                <Button
+                  type="text"
+                  icon={
+                    <GoClock
+                      data-cy="time-attendance-check-controls-mobile-check-out-button-icon"
+                      size={20}
+                    />
+                  }
+                  loading={loading}
+                  id="time-attendance-check-controls-mobile-check-out-menu-button"
+                  data-cy="time-attendance-check-controls-mobile-check-out-menu-button"
+                >
+                  Check Out
+                </Button>
+              </RemoteAttendanceActionButton>
+            ),
+          },
+        ]
+      : []),
   ];
 
   switch (checkStatus) {
@@ -167,23 +174,25 @@ const CheckControl = () => {
                       Break Check Out
                     </Button>
                   </RemoteAttendanceActionButton>
-                  <RemoteAttendanceActionButton action={{ isSignIn: false }}>
-                    <Button
-                      className="h-10 text-base"
-                      size="large"
-                      id="time-attendance-check-controls-check-out-button"
-                      data-cy="time-attendance-check-controls-check-out-button"
-                      icon={
-                        <CiLogout
-                          data-cy="time-attendance-check-controls-check-out-button-icon"
-                          size={20}
-                        />
-                      }
-                      loading={loading}
-                    >
-                      Check Out
-                    </Button>
-                  </RemoteAttendanceActionButton>
+                  {!withinBreakPeriod && (
+                    <RemoteAttendanceActionButton action={{ isSignIn: false }}>
+                      <Button
+                        className="h-10 text-base"
+                        size="large"
+                        id="time-attendance-check-controls-check-out-button"
+                        data-cy="time-attendance-check-controls-check-out-button"
+                        icon={
+                          <CiLogout
+                            data-cy="time-attendance-check-controls-check-out-button-icon"
+                            size={20}
+                          />
+                        }
+                        loading={loading}
+                      >
+                        Check Out
+                      </Button>
+                    </RemoteAttendanceActionButton>
+                  )}
                 </div>
               </AccessGuard>
             </Space>

@@ -12,5 +12,11 @@ export const usePlanningAssignationStore = create<PlanningAssignationState>(
     planningAssignation: null,
     setPlanningAssignation: (value: PlanningAssignation | null) =>
       set({ planningAssignation: value }),
+    searchTerm: '',
+    debouncedSearch: '',
+    setSearchTerm: (searchTerm: string) => set({ searchTerm }),
+    setDebouncedSearch: (debouncedSearch: string) => set({ debouncedSearch }),
+    resetPlanningAssignationSearch: () =>
+      set({ searchTerm: '', debouncedSearch: '' }),
   }),
 );
