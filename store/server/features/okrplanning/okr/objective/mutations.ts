@@ -5,6 +5,56 @@ import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import {
+  markMilestonesCompletedInOkrCaches,
+  scheduleOkrMilestoneStatusRefetch,
+} from '@/utils/invalidateOkrPlanningCaches';
+import type { QueryClient } from 'react-query';
+
+function collectMilestoneIdsForKeyResultFromCaches(
+  queryClient: QueryClient,
+  keyResultId: string,
+): string[] {
+  const ids = new Set<string>();
+  const keys = [['ObjectiveInformation'], ['fetchObjectives'], ['keyResult']];
+
+  const visitKr = (kr: any) => {
+    if (!kr || String(kr.id) !== String(keyResultId)) return;
+    const list = kr.milestones ?? kr.Milestones ?? [];
+    if (!Array.isArray(list)) return;
+    for (const m of list) {
+      if (m?.id != null) ids.add(String(m.id));
+    }
+  };
+
+  const walk = (data: unknown): void => {
+    if (data == null) return;
+    if (Array.isArray(data)) {
+      data.forEach(walk);
+      return;
+    }
+    if (typeof data !== 'object') return;
+    const obj = data as Record<string, any>;
+    if (
+      obj.id != null &&
+      (obj.milestones || obj.Milestones || obj.metricType)
+    ) {
+      visitKr(obj);
+    }
+    if (Array.isArray(obj.items)) obj.items.forEach(walk);
+    if (Array.isArray(obj.keyResults)) obj.keyResults.forEach(visitKr);
+    for (const v of Object.values(obj)) {
+      if (v && typeof v === 'object') walk(v);
+    }
+  };
+
+  for (const key of keys) {
+    for (const [, data] of queryClient.getQueriesData(key)) {
+      walk(data);
+    }
+  }
+  return Array.from(ids);
+}
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
@@ -328,7 +378,48 @@ export const useUpdateKeyResult = () => {
   return useMutation(updateKeyResult, {
     onSuccess: (data, variables) => {
       void data;
-      queryClient.invalidateQueries('ObjectiveInformation');
+
+      // Mark first (session + optimistic cache) so Plan & Report + disable
+      // does not wait on invalidate/refetch.
+      const milestoneRows = Array.isArray(variables?.milestones)
+        ? variables.milestones
+        : [];
+      const krStatus = String(variables?.status ?? '')
+        .toLowerCase()
+        .replace(/[\s-]+/g, '_');
+      const krProgress = Number(variables?.progress ?? 0);
+      const krFullyAchieved =
+        krStatus === 'achieved' ||
+        krStatus === 'completed' ||
+        krProgress >= 100;
+      let completedIds = milestoneRows
+        .filter(
+          (m: any) =>
+            m &&
+            (krFullyAchieved ||
+              m.status === 'Completed' ||
+              String(m.status ?? '')
+                .toLowerCase()
+                .replace(/[\s-]+/g, '_') === 'completed' ||
+              m.isAchieved === true),
+        )
+        .map((m: any) => m.id)
+        .filter((id: any) => id != null && String(id).length > 0);
+
+      // KR Achieved with no milestones in payload — pull IDs from OKR caches.
+      if (krFullyAchieved && completedIds.length === 0 && variables?.id) {
+        completedIds = collectMilestoneIdsForKeyResultFromCaches(
+          queryClient,
+          String(variables.id),
+        );
+      }
+
+      if (completedIds.length > 0) {
+        markMilestonesCompletedInOkrCaches(queryClient, completedIds);
+      }
+
+      queryClient.invalidateQueries(['ObjectiveInformation']);
+      queryClient.invalidateQueries(['fetchObjectives']);
       queryClient.invalidateQueries(['okrPlans']);
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
@@ -342,6 +433,8 @@ export const useUpdateKeyResult = () => {
       }
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
+      // Milestone Completed can lag the first refetch after OKR edits.
+      scheduleOkrMilestoneStatusRefetch(queryClient);
     },
   });
 };

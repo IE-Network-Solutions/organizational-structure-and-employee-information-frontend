@@ -22,6 +22,8 @@ export function usePlanningTargets(
   isLoading: boolean;
   isFetching: boolean;
   isDailyPeriod: boolean;
+  /** Refresh objective milestone Completed status (e.g. when opening + menu). */
+  refetchObjectives: () => void;
 } {
   const {
     data: objective,
@@ -54,8 +56,8 @@ export function usePlanningTargets(
   const isDailyPeriod = !!hierarchy?.parentPlan;
 
   const objectiveMilestonesByKrId = useMemo(
-    () => indexObjectiveMilestonesByKrId(objective),
-    [objective],
+    () => indexObjectiveMilestonesByKrId(objective, userKeyResultItems),
+    [objective, userKeyResultItems],
   );
 
   const targets = useMemo(() => {
@@ -83,5 +85,8 @@ export function usePlanningTargets(
     isLoading: objLoading || hierLoading,
     isFetching: objFetching,
     isDailyPeriod,
+    refetchObjectives: () => {
+      void refetchObjectives();
+    },
   };
 }

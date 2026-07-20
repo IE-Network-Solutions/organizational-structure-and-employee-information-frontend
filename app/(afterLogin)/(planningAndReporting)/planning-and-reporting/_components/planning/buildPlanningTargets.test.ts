@@ -116,4 +116,154 @@ describe('buildPickTargetsForKeyResult', () => {
     expect(targets[1]?.isCompleted).toBe(false);
     expect(hasSelectablePlanningTargets(targets)).toBe(true);
   });
+
+  it('marks every milestone disabled when planningBlocked', () => {
+    const targets = buildPickTargetsForKeyResult({
+      keyResultId: 'kr-done',
+      keyResultTitle: 'Done KR',
+      metricTypeName: 'Milestone',
+      planningBlocked: true,
+      objectiveMilestones: [
+        { id: 'm-1', title: 'A', status: 'Completed' },
+        { id: 'm-2', title: 'B', status: 'Completed' },
+      ],
+      apiKr: {
+        id: 'kr-done',
+        progress: 100,
+        milestones: [
+          { id: 'm-1', title: 'Done KR', status: 'Completed' },
+          { id: 'm-2', title: 'Done KR', status: 'Completed' },
+        ],
+      },
+    });
+
+    expect(targets.every((t) => t.isCompleted)).toBe(true);
+    expect(hasSelectablePlanningTargets(targets)).toBe(false);
+  });
+
+  it('hides selectable KR-level slot when the key result is fully achieved', () => {
+    const targets = buildPickTargetsForKeyResult({
+      keyResultId: 'kr-achieve',
+      keyResultTitle: 'Achieve KR',
+      metricTypeName: 'Achieve',
+      planningBlocked: true,
+      objectiveMilestones: [],
+      apiKr: {
+        id: 'kr-achieve',
+        progress: 100,
+        currentValue: 1,
+        targetValue: 1,
+        metricType: { name: 'Achieve' },
+      },
+      slots: [
+        {
+          id: 'okr-kr-kr-achieve',
+          keyResultId: 'kr-achieve',
+          keyResultTitle: 'Achieve KR',
+          milestoneId: null,
+          parentTaskId: null,
+          isDailySlot: false,
+        },
+      ],
+    });
+
+    expect(targets).toEqual([]);
+    expect(hasSelectablePlanningTargets(targets)).toBe(false);
+  });
+
+  it('keeps Completed from API when objective status is empty', () => {
+    const targets = buildPickTargetsForKeyResult({
+      keyResultId: 'kr-2',
+      keyResultTitle: 'Test-KR2',
+      metricTypeName: 'Milestone',
+      objectiveMilestones: [
+        { id: 'm-1', title: 'First milestone' },
+        { id: 'm-2', title: 'Second milestone' },
+      ],
+      apiKr: {
+        id: 'kr-2',
+        milestones: [
+          { id: 'm-1', title: 'Test-KR2', status: 'Completed' },
+          { id: 'm-2', title: 'Test-KR2', status: 'In Progress' },
+        ],
+      },
+    });
+
+    expect(targets[0]?.isCompleted).toBe(true);
+    expect(targets[1]?.isCompleted).toBe(false);
+    expect(targets.map((t) => t.milestoneTitle)).toEqual([
+      'First milestone',
+      'Second milestone',
+    ]);
+  });
+
+  it('disables when only the objective row carries Completed', () => {
+    const targets = buildPickTargetsForKeyResult({
+      keyResultId: 'kr-2',
+      keyResultTitle: 'Test-KR2',
+      metricTypeName: 'Milestone',
+      objectiveMilestones: [
+        { id: 'm-1', title: 'First milestone', status: 'Completed' },
+        { id: 'm-2', title: 'Second milestone', status: 'In Progress' },
+      ],
+      // Plan/API shells without status must not wipe objective Completed.
+      apiKr: {
+        id: 'kr-2',
+        milestones: [
+          { id: 'm-1', title: 'Test-KR2', tasks: [{ id: 't1' }] },
+          { id: 'm-2', title: 'Test-KR2', tasks: [{ id: 't2' }] },
+        ],
+      },
+      panelMilestones: [
+        { id: 'm-1', title: 'Test-KR2', tasks: [{ id: 't1' }] },
+        { id: 'm-2', title: 'Test-KR2', tasks: [{ id: 't2' }] },
+      ],
+    });
+
+    expect(targets.map((t) => t.milestoneTitle)).toEqual([
+      'First milestone',
+      'Second milestone',
+    ]);
+    expect(targets[0]?.isCompleted).toBe(true);
+    expect(targets[1]?.isCompleted).toBe(false);
+    expect(hasSelectablePlanningTargets(targets)).toBe(true);
+  });
+
+  it('disables when API has Completed and panel only has plan shells', () => {
+    const targets = buildPickTargetsForKeyResult({
+      keyResultId: 'kr-2',
+      keyResultTitle: 'Test-KR2',
+      metricTypeName: 'Milestone',
+      objectiveMilestones: [
+        { id: 'm-1', title: 'First milestone' },
+        { id: 'm-2', title: 'Second milestone' },
+      ],
+      panelMilestones: [
+        { id: 'm-1', title: 'First milestone', tasks: [{ id: 't1' }] },
+        { id: 'm-2', title: 'Second milestone', tasks: [{ id: 't2' }] },
+      ],
+      apiKr: {
+        id: 'kr-2',
+        metricType: { name: 'Milestone' },
+        milestones: [
+          { id: 'm-1', title: 'First milestone', status: 'completed' },
+          { id: 'm-2', title: 'Second milestone', status: 'pending' },
+        ],
+      },
+      userKeyResultItems: [
+        {
+          id: 'kr-2',
+          metricType: { name: 'Milestone' },
+          milestones: [
+            { id: 'm-1', title: 'First milestone', status: 'completed' },
+            { id: 'm-2', title: 'Second milestone', status: 'pending' },
+          ],
+        },
+      ],
+    });
+
+    expect(targets[0]?.isCompleted).toBe(true);
+    expect(targets[1]?.isCompleted).toBe(false);
+    expect(hasSelectablePlanningTargets(targets)).toBe(true);
+  });
 });

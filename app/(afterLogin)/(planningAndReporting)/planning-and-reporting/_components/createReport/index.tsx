@@ -10,6 +10,12 @@ import {
   useGetPlannedTaskForReport,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useEffect } from 'react';
+import { useQueryClient } from 'react-query';
+import { markMilestonesCompletedInOkrCaches } from '@/utils/invalidateOkrPlanningCaches';
+import {
+  collectAchievedMilestoneIdsFromReport,
+  rememberAchievedMilestones,
+} from '@/utils/recentlyAchievedMilestones';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { CreateReportFormCollapse } from './CreateReportFormCollapse';
 import { computeReportTotalWeight } from './reportFormUtils';
@@ -28,6 +34,7 @@ function CreateReport() {
     setInlineReportPlanId,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
+  const queryClient = useQueryClient();
 
   const onClose = () => {
     setOpenReportModal(false);
@@ -65,26 +72,36 @@ function CreateReport() {
     }
   }, [openReportModal, setInlineReportPlanId]);
 
-  const handleOnFinish = (values: Record<string, any>) => {
-    Object.entries(values).length > 0 &&
-      planningPeriodId &&
-      createReport(
-        {
-          values: values,
-          planningPeriodId: planningPeriodId,
-          planId: allPlannedTaskForReport?.[0]?.plan?.id,
-        },
-
-        {
-          onSuccess: () => {
-            onClose();
-          },
-        },
-      );
-  };
   const formattedData =
     allPlannedTaskForReport &&
     groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
+
+  const handleOnFinish = (values: Record<string, any>) => {
+    if (Object.entries(values).length === 0 || !planningPeriodId) return;
+
+    const achievedIds = collectAchievedMilestoneIdsFromReport(
+      Array.isArray(formattedData) ? formattedData : null,
+      selectedStatuses,
+      values,
+    );
+    // Session remember before mutate so + disable does not wait on invalidate.
+    rememberAchievedMilestones(achievedIds);
+
+    createReport(
+      {
+        values: values,
+        planningPeriodId: planningPeriodId,
+        planId: allPlannedTaskForReport?.[0]?.plan?.id,
+        achievedMilestoneIds: achievedIds,
+      },
+      {
+        onSuccess: () => {
+          markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          onClose();
+        },
+      },
+    );
+  };
 
   useCreateReportFormEffects(formattedData, form);
 

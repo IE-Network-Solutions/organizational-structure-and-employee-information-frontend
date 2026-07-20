@@ -198,19 +198,6 @@ function Page() {
     [planningPeriodHierarchy],
   );
 
-  // Re-pull user KR progress/milestone status when returning to this tab
-  // (e.g. after achieving a milestone on the OKR page) without re-login.
-  useEffect(() => {
-    if (!userId || typeof document === 'undefined') return;
-    const onVisible = () => {
-      if (document.visibilityState === 'visible') {
-        void refetchUserKeyResults();
-      }
-    };
-    document.addEventListener('visibilitychange', onVisible);
-    return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [userId, refetchUserKeyResults]);
-
   const { reportSummaries, reportingItems } = useReportingData();
 
   const enrichedPlanSummaries = useMemo(
@@ -271,12 +258,32 @@ function Page() {
     isLoading: planningTargetsLoading,
     isFetching: planningTargetsFetching,
     objectiveMilestonesByKrId,
+    refetchObjectives,
   } = usePlanningTargets(
     userId,
     selectedTab?.id,
     userKeyResultItems,
     planKeyResultsForTargets,
   );
+
+  // Re-pull user KR + objective milestone status when returning to this tab
+  // (e.g. after achieving a milestone on the OKR page) without re-login.
+  useEffect(() => {
+    if (!userId || typeof document === 'undefined') return;
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        void refetchUserKeyResults();
+        refetchObjectives();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [userId, refetchUserKeyResults, refetchObjectives]);
+
+  const handleRefreshMilestoneStatus = useCallback(() => {
+    void refetchUserKeyResults();
+    refetchObjectives();
+  }, [refetchUserKeyResults, refetchObjectives]);
 
   // Hide + until user-KR + objective milestone sources have settled once.
   // Background refetches (isFetching) after that must not blank the control.
@@ -576,6 +583,7 @@ function Page() {
                   }
                   userKeyResultItems={userKeyResultItems}
                   objectiveMilestonesByKrId={objectiveMilestonesByKrId}
+                  onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
                   parentPlanContext={parentPlanContext}
                   planningPickReady={planningPickReady}
                 />
@@ -724,6 +732,7 @@ function Page() {
                 onPickPlanningTarget={(t) => setSelectedPlanningTargetId(t.id)}
                 userKeyResultItems={userKeyResultItems}
                 objectiveMilestonesByKrId={objectiveMilestonesByKrId}
+                onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
                 parentPlanContext={parentPlanContext}
                 planningPickReady={planningPickReady}
               />

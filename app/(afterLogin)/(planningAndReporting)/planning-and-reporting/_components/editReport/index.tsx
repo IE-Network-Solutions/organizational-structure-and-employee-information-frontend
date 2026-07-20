@@ -21,7 +21,13 @@ import { useEditReportByReportId } from '@/store/server/features/okrPlanningAndR
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
+import { useQueryClient } from 'react-query';
 import { FaCheckSquare, FaRegSquare, FaWindowClose } from 'react-icons/fa';
+import { markMilestonesCompletedInOkrCaches } from '@/utils/invalidateOkrPlanningCaches';
+import {
+  collectAchievedMilestoneIdsFromReport,
+  rememberAchievedMilestones,
+} from '@/utils/recentlyAchievedMilestones';
 
 const { TextArea } = Input;
 
@@ -40,6 +46,7 @@ function EditReport() {
     resetStatuses,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
+  const queryClient = useQueryClient();
 
   const onClose = () => {
     setOpenReportModal(false);
@@ -71,23 +78,36 @@ function EditReport() {
     </div>
   );
 
-  const handleOnFinish = (values: Record<string, any>) => {
-    Object.entries(values).length > 0 &&
-      editReport(
-        { values: values, selectedReportId },
-        {
-          onSuccess: () => {
-            onClose();
-          },
-        },
-      );
-  };
-
   const formattedData =
     allReportedPlanning &&
     groupUnReportedTasksByKeyResultAndMilestone(
       allReportedPlanning?.length == 0 ? [] : allReportedPlanning,
     );
+
+  const handleOnFinish = (values: Record<string, any>) => {
+    if (Object.entries(values).length === 0) return;
+
+    const achievedIds = collectAchievedMilestoneIdsFromReport(
+      Array.isArray(formattedData) ? formattedData : null,
+      selectedStatuses,
+      values,
+    );
+    rememberAchievedMilestones(achievedIds);
+
+    editReport(
+      {
+        values,
+        selectedReportId,
+        achievedMilestoneIds: achievedIds,
+      },
+      {
+        onSuccess: () => {
+          markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          onClose();
+        },
+      },
+    );
+  };
 
   useEffect(() => {
     // Ensure there is reportedData and valid reportTask array

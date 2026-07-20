@@ -8,6 +8,7 @@ import {
   resolveKrPlanningBlocked,
   resolveOkrMilestones,
 } from '@/utils/okrKeyResultProgressDisplay';
+import { isRecentlyAchievedMilestone } from '@/utils/recentlyAchievedMilestones';
 
 export { mergeKeyResultWithUserApi };
 export type PlanningTarget = {
@@ -55,21 +56,19 @@ function mergeMilestoneListsForPick(...lists: any[][]): any[] {
       byId.set(id, {
         ...prev,
         ...m,
-        // The objective is inserted first and is the display source used by
-        // createPlanObjective. API/plan rows enrich status only; they must not
-        // replace a milestone label with the parent KR title.
+        // Keep the first meaningful title; callers re-apply objective titles.
         title: prev.title || prev.name || m.title || m.name,
         name: prev.name || m.name,
-        status: completed
-          ? isMilestoneCompleted(m)
-            ? m.status || 'Completed'
-            : prev.status || 'Completed'
-          : m.status || prev.status,
-        isAchieved:
-          m.isAchieved === true || prev.isAchieved === true
+        // Never let a later empty/In Progress status wipe Completed.
+        status: completed ? 'Completed' : m.status || prev.status,
+        isAchieved: completed
+          ? true
+          : m.isAchieved === true || prev.isAchieved === true
             ? true
             : (m.isAchieved ?? prev.isAchieved),
-        progress: m.progress ?? prev.progress,
+        progress: completed
+          ? Math.max(Number(m.progress) || 0, Number(prev.progress) || 0, 100)
+          : (m.progress ?? prev.progress),
       });
     }
   }
@@ -174,6 +173,7 @@ function pushKeyResultPlanningTargets(
  * Build the + modal rows for one KR.
  * Same source as createPlanObjective: objective milestones (titles) + API status.
  * Never fall back to a KR-title-only row when any milestone exists.
+ * Fully achieved KRs must not expose a selectable + slot.
  */
 export function buildPickTargetsForKeyResult(params: {
   keyResultId: string;
@@ -188,6 +188,8 @@ export function buildPickTargetsForKeyResult(params: {
   /** Existing planning targets for this KR */
   slots?: PlanningTarget[];
   userKeyResultItems?: any[];
+  /** Panel already marked this KR fully blocked for planning */
+  planningBlocked?: boolean;
 }): PlanningTarget[] {
   const {
     keyResultId,
@@ -198,23 +200,30 @@ export function buildPickTargetsForKeyResult(params: {
     apiKr = null,
     slots = [],
     userKeyResultItems = [],
+    planningBlocked = false,
   } = params;
+
+  const itemsForMerge =
+    userKeyResultItems.length > 0 ? userKeyResultItems : apiKr ? [apiKr] : [];
 
   const syntheticKr = {
     id: keyResultId,
     title: keyResultTitle,
-    metricType: metricTypeName ? { name: metricTypeName } : undefined,
+    metricType: metricTypeName ? { name: metricTypeName } : apiKr?.metricType,
     milestones: objectiveMilestones.length
       ? objectiveMilestones
       : panelMilestones,
+    progress: apiKr?.progress,
+    currentValue: apiKr?.currentValue,
+    targetValue: apiKr?.targetValue,
   };
 
+  // Objective first (OKR titles + Completed status), then API/panel enrich.
   const milestones = mergeMilestoneListsForPick(
     objectiveMilestoneRows({ milestones: objectiveMilestones }),
-    objectiveMilestoneRows({ milestones: panelMilestones }),
     objectiveMilestoneRows(apiKr),
-    resolveOkrMilestones(syntheticKr, apiKr),
-    // Slot-derived rows last — titles only fill gaps; never overwrite objective titles.
+    resolveOkrMilestones(apiKr ?? syntheticKr, apiKr),
+    objectiveMilestoneRows({ milestones: panelMilestones }),
     slots
       .filter((t) => t.milestoneId)
       .map((t) => ({
@@ -224,35 +233,83 @@ export function buildPickTargetsForKeyResult(params: {
       })),
   );
 
-  if (milestones.length > 0) {
-    return milestones.map((ms: any) => ({
-      id: `okr-kr-${keyResultId}-ms-${ms.id}`,
-      keyResultId: String(keyResultId),
-      keyResultTitle,
-      milestoneId: String(ms.id),
-      milestoneTitle: String(
-        ms.title || ms.name || 'Untitled milestone',
-      ).trim(),
-      parentTaskId: null,
-      isDailySlot: false,
-      metricTypeName: metricTypeName ?? 'Milestone',
-      isCompleted: resolveMilestoneCompleted(
-        ms,
-        apiKr ?? syntheticKr,
-        userKeyResultItems.length ? userKeyResultItems : apiKr ? [apiKr] : [],
-      ),
-    }));
+  // Re-apply objective titles after API-first merge (API shells often reuse KR title).
+  const titleById = new Map<string, string>();
+  for (const m of objectiveMilestones) {
+    if (m?.id == null) continue;
+    const t = String(m.title || m.name || '').trim();
+    if (t) titleById.set(String(m.id), t);
   }
 
-  // Non-milestone KR: keep existing KR-level slots (or none).
-  return slots.filter((t) => !t.milestoneId && !t.isDailySlot);
+  const krFullyDone =
+    planningBlocked ||
+    (apiKr != null &&
+      isKeyResultFullyCompletedForPlanning(
+        mergeKeyResultWithUserApi(apiKr, itemsForMerge),
+      )) ||
+    (milestones.length > 0 && milestones.every((m) => isMilestoneCompleted(m)));
+
+  if (milestones.length > 0) {
+    return milestones.map((ms: any) => {
+      const id = String(ms.id);
+      const preferredTitle = titleById.get(id);
+      const fromObjective = objectiveMilestones.find(
+        (m) => m && String(m.id) === id,
+      );
+      const fromPanel = panelMilestones.find((m) => m && String(m.id) === id);
+      const fromApi = objectiveMilestoneRows(apiKr).find(
+        (m) => m && String(m.id) === id,
+      );
+      const completed =
+        krFullyDone ||
+        isRecentlyAchievedMilestone(id) ||
+        isMilestoneCompleted(ms) ||
+        isMilestoneCompleted(fromObjective) ||
+        isMilestoneCompleted(fromPanel) ||
+        isMilestoneCompleted(fromApi) ||
+        resolveMilestoneCompleted(ms, apiKr ?? syntheticKr, itemsForMerge);
+      return {
+        id: `okr-kr-${keyResultId}-ms-${id}`,
+        keyResultId: String(keyResultId),
+        keyResultTitle,
+        milestoneId: id,
+        milestoneTitle: String(
+          preferredTitle || ms.title || ms.name || 'Untitled milestone',
+        ).trim(),
+        parentTaskId: null,
+        isDailySlot: false,
+        metricTypeName: metricTypeName ?? 'Milestone',
+        isCompleted: completed,
+      };
+    });
+  }
+
+  // Fully achieved non-milestone KR: no + / no selectable KR-level slot.
+  if (krFullyDone) return [];
+
+  if (
+    apiKr != null &&
+    isKeyResultFullyCompletedForPlanning(
+      mergeKeyResultWithUserApi(apiKr, itemsForMerge),
+    )
+  ) {
+    return [];
+  }
+
+  // Non-milestone KR: keep existing KR-level slots only when still plan-eligible.
+  return slots
+    .filter((t) => !t.milestoneId && !t.isDailySlot)
+    .map((t) => ({ ...t, isCompleted: false }));
 }
 
 /**
  * Index objective KR milestones the same way createPlanObjective reads them.
+ * Enrich each row with Completed status from the user-KR API when the objective
+ * payload omits it (common on /objective/:userId).
  */
 export function indexObjectiveMilestonesByKrId(
   objective: any,
+  userKeyResultItems: any[] = [],
 ): Map<string, any[]> {
   const map = new Map<string, any[]>();
   if (!objective?.items?.length) return map;
@@ -261,7 +318,41 @@ export function indexObjectiveMilestonesByKrId(
     obj.keyResults?.forEach((kr: any) => {
       if (!kr || kr.deletedAt != null || kr.id == null) return;
       const rows = objectiveMilestoneRows(kr);
-      if (rows.length > 0) map.set(String(kr.id), rows);
+      if (rows.length === 0) return;
+      const apiKr = userKeyResultItems.find(
+        (k) => k && k.deletedAt == null && String(k.id) === String(kr.id),
+      );
+      const apiRows = objectiveMilestoneRows(apiKr);
+      if (apiRows.length === 0) {
+        map.set(String(kr.id), rows);
+        return;
+      }
+      const apiById = new Map(
+        apiRows
+          .filter((m) => m?.id != null)
+          .map((m) => [String(m.id), m] as const),
+      );
+      map.set(
+        String(kr.id),
+        rows.map((m) => {
+          const api = apiById.get(String(m.id));
+          if (!api) return m;
+          const completed =
+            isMilestoneCompleted(m) || isMilestoneCompleted(api);
+          return {
+            ...m,
+            status: completed ? 'Completed' : m.status || api.status,
+            isAchieved: completed ? true : (m.isAchieved ?? api.isAchieved),
+            progress: completed
+              ? Math.max(
+                  Number(m.progress) || 0,
+                  Number(api.progress) || 0,
+                  100,
+                )
+              : (m.progress ?? api.progress),
+          };
+        }),
+      );
     });
   });
   return map;

@@ -2438,6 +2438,24 @@ h6 {
 .planning-target-pick-menu .ant-dropdown-menu-item-group-list {
   margin: 0;
 }
+.planning-target-pick-menu .planning-target-pick-heading {
+  margin-bottom: 2px !important;
+  pointer-events: none !important;
+}
+.planning-target-pick-menu .planning-target-pick-heading.ant-dropdown-menu-item-disabled {
+  color: #64748b !important;
+  cursor: default !important;
+  opacity: 1 !important;
+}
+.planning-target-pick-menu
+  .planning-target-pick-item--achieved.ant-dropdown-menu-item-disabled,
+.planning-target-pick-menu
+  .planning-target-pick-item.ant-dropdown-menu-item-disabled {
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+  opacity: 0.65 !important;
+  pointer-events: none !important;
+}
 
 /* Copilot: typing / generating indicator (three dots) */
 @keyframes copilot-typing-bounce {
