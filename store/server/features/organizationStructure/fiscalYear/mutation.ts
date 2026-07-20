@@ -1,6 +1,6 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL } from '@/utils/constants';
 import { ClosedDates, FiscalYear } from './interface';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -60,7 +60,7 @@ const createFiscalYear = async (fiscalYear: any) => {
   };
 
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars`,
+    url: `${CORE_API_URL}/calendars`,
     method: 'POST',
     data: cleanedPayload,
     headers,
@@ -116,7 +116,7 @@ const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
   };
 
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars/${id}`,
+    url: `${CORE_API_URL}/calendars/${id}`,
     method: 'PUT',
     data: cleanedPayload,
     headers,
@@ -132,7 +132,7 @@ const deleteFiscalYear = async (id: string) => {
   };
 
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars/${id}`,
+    url: `${CORE_API_URL}/calendars/${id}`,
     method: 'DELETE',
     headers,
   });
@@ -206,7 +206,7 @@ const updateClosedDate = async (
   };
 
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars/${fiscalYearId}`,
+    url: `${CORE_API_URL}/calendars/${fiscalYearId}`,
     method: 'PUT',
     data: { closedDates },
     headers,
@@ -236,7 +236,7 @@ const activateMonth = async (id: string): Promise<void> => {
     Authorization: `Bearer ${token}`,
   };
   await crudRequest({
-    url: `${ORG_AND_EMP_URL}/month/${id}/activate`,
+    url: `${CORE_API_URL}/month/${id}/activate`,
     method: 'PATCH',
     headers,
   });
