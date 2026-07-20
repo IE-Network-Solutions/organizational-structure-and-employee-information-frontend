@@ -12,6 +12,8 @@ import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportFo
 import { isMilestoneCompleted } from '@/utils/okrKeyResultProgressDisplay';
 import {
   isRecentlyAchievedMilestone,
+  isRecentlyReopenedKeyResult,
+  isRecentlyReopenedMilestone,
   useRecentlyAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
 import type { PlanningTarget } from './buildPlanningTargets';
@@ -202,12 +204,14 @@ function resolvePlanningSlotsForKr(
         : (kr.milestones ?? []),
   };
   const apiMilestones = apiKr?.milestones ?? apiKr?.Milestones ?? [];
+  const reopenedKr = isRecentlyReopenedKeyResult(kr.id);
 
   return targets.map((t) => {
     if (!t.milestoneId) {
       return {
         ...t,
-        isCompleted: Boolean(t.isCompleted) || kr.planningBlocked,
+        isCompleted:
+          !reopenedKr && (Boolean(t.isCompleted) || kr.planningBlocked),
       };
     }
     const id = String(t.milestoneId);
@@ -237,12 +241,14 @@ function resolvePlanningSlotsForKr(
         title: t.milestoneTitle,
         status: t.isCompleted ? 'Completed' : undefined,
       };
+    const reopened = reopenedKr || isRecentlyReopenedMilestone(t.milestoneId);
 
     const completed =
-      Boolean(t.isCompleted) ||
-      isRecentlyAchievedMilestone(t.milestoneId) ||
-      isMilestoneCompleted(ml) ||
-      isMilestoneBlockedForPlanning(krForBlock, ml, userKeyResultItems);
+      !reopened &&
+      (Boolean(t.isCompleted) ||
+        isRecentlyAchievedMilestone(t.milestoneId) ||
+        isMilestoneCompleted(ml) ||
+        isMilestoneBlockedForPlanning(krForBlock, ml, userKeyResultItems));
 
     return { ...t, isCompleted: completed };
   });
@@ -350,6 +356,13 @@ function KRProgressCard({
   // Re-render when a milestone is achieved in-session (report/OKR) so disable
   // applies immediately without a hard refresh.
   const recentlyAchievedIds = useRecentlyAchievedMilestones((s) => s.ids);
+  const reopenedMilestoneIds = useRecentlyAchievedMilestones(
+    (s) => s.reopenedMilestoneIds,
+  );
+  const reopenedKeyResultIds = useRecentlyAchievedMilestones(
+    (s) => s.reopenedKeyResultIds,
+  );
+  const reopenedKr = reopenedKeyResultIds.has(String(kr.id));
 
   const showTaskCount = kr.taskCount > 0;
 
@@ -364,6 +377,13 @@ function KRProgressCard({
     if (t.isCompleted) return false;
     if (
       t.milestoneId &&
+      (reopenedMilestoneIds.has(String(t.milestoneId)) ||
+        isRecentlyReopenedMilestone(t.milestoneId))
+    ) {
+      return true;
+    }
+    if (
+      t.milestoneId &&
       (recentlyAchievedIds.has(String(t.milestoneId)) ||
         isRecentlyAchievedMilestone(t.milestoneId))
     ) {
@@ -374,11 +394,20 @@ function KRProgressCard({
   const showPickControl =
     inlinePickEnabled &&
     !!onPickPlanningTarget &&
-    !kr.planningBlocked &&
+    (!kr.planningBlocked || reopenedKr || isRecentlyReopenedKeyResult(kr.id)) &&
     hasSelectableSlot &&
     !kr.isDeleted;
 
   const isSlotDisabled = (t: PlanningTarget): boolean => {
+    if (
+      t.milestoneId &&
+      (reopenedMilestoneIds.has(String(t.milestoneId)) ||
+        isRecentlyReopenedMilestone(t.milestoneId) ||
+        reopenedKr ||
+        isRecentlyReopenedKeyResult(kr.id))
+    ) {
+      return false;
+    }
     if (t.isCompleted) return true;
     if (!t.milestoneId) return false;
     const id = String(t.milestoneId);

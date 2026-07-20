@@ -25,7 +25,10 @@ import { useQueryClient } from 'react-query';
 import { FaCheckSquare, FaRegSquare, FaWindowClose } from 'react-icons/fa';
 import { markMilestonesCompletedInOkrCaches } from '@/utils/invalidateOkrPlanningCaches';
 import {
+  buildMilestoneKeyResultMap,
+  clearReopenedPlanningTargets,
   collectAchievedMilestoneIdsFromReport,
+  rememberReopenedPlanningTargets,
   rememberAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
 
@@ -87,11 +90,54 @@ function EditReport() {
   const handleOnFinish = (values: Record<string, any>) => {
     if (Object.entries(values).length === 0) return;
 
+    const previousStatuses = reportedData?.reportTask?.reduce(
+      (acc: Record<string, string>, task: any) => {
+        if (task?.planTaskId != null) {
+          acc[String(task.planTaskId)] = String(task?.status ?? '');
+        }
+        return acc;
+      },
+      {},
+    );
+    const previousAchievedIds = collectAchievedMilestoneIdsFromReport(
+      Array.isArray(formattedData) ? formattedData : null,
+      previousStatuses,
+    );
     const achievedIds = collectAchievedMilestoneIdsFromReport(
       Array.isArray(formattedData) ? formattedData : null,
       selectedStatuses,
       values,
     );
+    const milestoneToKrId = buildMilestoneKeyResultMap(
+      Array.isArray(formattedData) ? formattedData : null,
+    );
+    const achievedKeyResultIds = Array.from(
+      new Set(
+        achievedIds
+          .map((id) => milestoneToKrId[id])
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
+    const reopenedMilestoneIds = previousAchievedIds.filter(
+      (id) => !achievedIds.includes(id),
+    );
+    const reopenedKeyResultIds = Array.from(
+      new Set(
+        reopenedMilestoneIds
+          .map((id) => milestoneToKrId[id])
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
+    if (reopenedMilestoneIds.length > 0 || reopenedKeyResultIds.length > 0) {
+      rememberReopenedPlanningTargets({
+        milestoneIds: reopenedMilestoneIds,
+        keyResultIds: reopenedKeyResultIds,
+      });
+    }
+    clearReopenedPlanningTargets({
+      milestoneIds: achievedIds,
+      keyResultIds: achievedKeyResultIds,
+    });
     rememberAchievedMilestones(achievedIds);
 
     editReport(

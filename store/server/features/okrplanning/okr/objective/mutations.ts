@@ -10,6 +10,7 @@ import {
   scheduleOkrMilestoneStatusRefetch,
 } from '@/utils/invalidateOkrPlanningCaches';
 import type { QueryClient } from 'react-query';
+import { clearReopenedPlanningTargets } from '@/utils/recentlyAchievedMilestones';
 
 function collectMilestoneIdsForKeyResultFromCaches(
   queryClient: QueryClient,
@@ -415,6 +416,10 @@ export const useUpdateKeyResult = () => {
       }
 
       if (completedIds.length > 0) {
+        clearReopenedPlanningTargets({
+          milestoneIds: completedIds,
+          keyResultIds: variables?.id ? [variables.id] : [],
+        });
         markMilestonesCompletedInOkrCaches(queryClient, completedIds);
       }
 

@@ -8,7 +8,11 @@ import {
   resolveKrPlanningBlocked,
   resolveOkrMilestones,
 } from '@/utils/okrKeyResultProgressDisplay';
-import { isRecentlyAchievedMilestone } from '@/utils/recentlyAchievedMilestones';
+import {
+  isRecentlyAchievedMilestone,
+  isRecentlyReopenedKeyResult,
+  isRecentlyReopenedMilestone,
+} from '@/utils/recentlyAchievedMilestones';
 
 export { mergeKeyResultWithUserApi };
 export type PlanningTarget = {
@@ -242,7 +246,7 @@ export function buildPickTargetsForKeyResult(params: {
   }
 
   const krFullyDone =
-    planningBlocked ||
+    (planningBlocked && !isRecentlyReopenedKeyResult(keyResultId)) ||
     (apiKr != null &&
       isKeyResultFullyCompletedForPlanning(
         mergeKeyResultWithUserApi(apiKr, itemsForMerge),
@@ -260,14 +264,18 @@ export function buildPickTargetsForKeyResult(params: {
       const fromApi = objectiveMilestoneRows(apiKr).find(
         (m) => m && String(m.id) === id,
       );
+      const reopened =
+        isRecentlyReopenedKeyResult(keyResultId) ||
+        isRecentlyReopenedMilestone(id);
       const completed =
-        krFullyDone ||
-        isRecentlyAchievedMilestone(id) ||
-        isMilestoneCompleted(ms) ||
-        isMilestoneCompleted(fromObjective) ||
-        isMilestoneCompleted(fromPanel) ||
-        isMilestoneCompleted(fromApi) ||
-        resolveMilestoneCompleted(ms, apiKr ?? syntheticKr, itemsForMerge);
+        !reopened &&
+        (krFullyDone ||
+          isRecentlyAchievedMilestone(id) ||
+          isMilestoneCompleted(ms) ||
+          isMilestoneCompleted(fromObjective) ||
+          isMilestoneCompleted(fromPanel) ||
+          isMilestoneCompleted(fromApi) ||
+          resolveMilestoneCompleted(ms, apiKr ?? syntheticKr, itemsForMerge));
       return {
         id: `okr-kr-${keyResultId}-ms-${id}`,
         keyResultId: String(keyResultId),

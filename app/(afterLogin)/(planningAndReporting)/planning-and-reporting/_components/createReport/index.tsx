@@ -13,6 +13,8 @@ import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { markMilestonesCompletedInOkrCaches } from '@/utils/invalidateOkrPlanningCaches';
 import {
+  buildMilestoneKeyResultMap,
+  clearReopenedPlanningTargets,
   collectAchievedMilestoneIdsFromReport,
   rememberAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
@@ -84,6 +86,19 @@ function CreateReport() {
       selectedStatuses,
       values,
     );
+    const milestoneToKrId = buildMilestoneKeyResultMap(
+      Array.isArray(formattedData) ? formattedData : null,
+    );
+    clearReopenedPlanningTargets({
+      milestoneIds: achievedIds,
+      keyResultIds: Array.from(
+        new Set(
+          achievedIds
+            .map((id) => milestoneToKrId[id])
+            .filter((id): id is string => Boolean(id)),
+        ),
+      ),
+    });
     // Session remember before mutate so + disable does not wait on invalidate.
     rememberAchievedMilestones(achievedIds);
 

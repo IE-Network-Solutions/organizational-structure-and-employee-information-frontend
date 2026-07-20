@@ -6,6 +6,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import type { AxiosError } from 'axios';
 import { invalidateOkrPlanningCaches } from '@/utils/invalidateOkrPlanningCaches';
+import { rememberReopenedPlanningTargets } from '@/utils/recentlyAchievedMilestones';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -52,7 +53,22 @@ const createPlanTasks = async (values: any) => {
 export const useCreatePlanTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(createPlanTasks, {
-    onSuccess: async () => {
+    onSuccess: async (data, variables: any) => {
+      void data;
+      rememberReopenedPlanningTargets({
+        keyResultIds:
+          variables?.tasks
+            ?.filter(
+              (task: any) => !task?.achieveMK && task?.keyResultId != null,
+            )
+            .map((task: any) => task.keyResultId) ?? [],
+        milestoneIds:
+          variables?.tasks
+            ?.filter(
+              (task: any) => !task?.achieveMK && task?.milestoneId != null,
+            )
+            .map((task: any) => task.milestoneId) ?? [],
+      });
       await invalidateOkrPlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Created ',
@@ -83,7 +99,22 @@ const updatePlanTasks = async (values: any) => {
 export const useUpdatePlanTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(updatePlanTasks, {
-    onSuccess: async () => {
+    onSuccess: async (data, variables: any) => {
+      void data;
+      rememberReopenedPlanningTargets({
+        keyResultIds:
+          variables?.tasks
+            ?.filter(
+              (task: any) => !task?.achieveMK && task?.keyResultId != null,
+            )
+            .map((task: any) => task.keyResultId) ?? [],
+        milestoneIds:
+          variables?.tasks
+            ?.filter(
+              (task: any) => !task?.achieveMK && task?.milestoneId != null,
+            )
+            .map((task: any) => task.milestoneId) ?? [],
+      });
       await invalidateOkrPlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Updated ',

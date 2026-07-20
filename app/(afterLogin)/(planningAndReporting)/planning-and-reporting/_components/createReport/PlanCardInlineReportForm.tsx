@@ -16,7 +16,10 @@ import {
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { markMilestonesCompletedInOkrCaches } from '@/utils/invalidateOkrPlanningCaches';
 import {
+  buildMilestoneKeyResultMap,
+  clearReopenedPlanningTargets,
   collectAchievedMilestoneIdsFromReport,
+  rememberReopenedPlanningTargets,
   rememberAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
@@ -132,11 +135,54 @@ export function PlanCardInlineReportForm({
   const handleFinish = (values: Record<string, any>) => {
     if (Object.entries(values).length === 0) return;
 
+    const previousStatuses = reportingById?.reportTask?.reduce(
+      (acc: Record<string, string>, task: any) => {
+        if (task?.planTaskId != null) {
+          acc[String(task.planTaskId)] = String(task?.status ?? '');
+        }
+        return acc;
+      },
+      {},
+    );
+    const previousAchievedIds = collectAchievedMilestoneIdsFromReport(
+      hasReportTaskRows ? formattedData : null,
+      previousStatuses,
+    );
     const achievedIds = collectAchievedMilestoneIdsFromReport(
       hasReportTaskRows ? formattedData : null,
       selectedStatuses,
       values,
     );
+    const milestoneToKrId = buildMilestoneKeyResultMap(
+      hasReportTaskRows ? formattedData : null,
+    );
+    const achievedKeyResultIds = Array.from(
+      new Set(
+        achievedIds
+          .map((id) => milestoneToKrId[id])
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
+    const reopenedMilestoneIds = previousAchievedIds.filter(
+      (id) => !achievedIds.includes(id),
+    );
+    const reopenedKeyResultIds = Array.from(
+      new Set(
+        reopenedMilestoneIds
+          .map((id) => milestoneToKrId[id])
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
+    if (reopenedMilestoneIds.length > 0 || reopenedKeyResultIds.length > 0) {
+      rememberReopenedPlanningTargets({
+        milestoneIds: reopenedMilestoneIds,
+        keyResultIds: reopenedKeyResultIds,
+      });
+    }
+    clearReopenedPlanningTargets({
+      milestoneIds: achievedIds,
+      keyResultIds: achievedKeyResultIds,
+    });
     // Session remember before mutate so + disable does not wait on invalidate.
     rememberAchievedMilestones(achievedIds);
 

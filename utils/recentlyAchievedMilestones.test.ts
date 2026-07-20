@@ -1,7 +1,12 @@
 import {
+  clearReopenedPlanningTargets,
+  forgetAchievedMilestones,
   collectAchievedMilestoneIdsFromReport,
   isRecentlyAchievedMilestone,
+  isRecentlyReopenedKeyResult,
+  isRecentlyReopenedMilestone,
   rememberAchievedMilestones,
+  rememberReopenedPlanningTargets,
   useRecentlyAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
 
@@ -15,6 +20,29 @@ describe('recentlyAchievedMilestones', () => {
     rememberAchievedMilestones(['m-new', 'm-old']);
     expect(isRecentlyAchievedMilestone('m-new')).toBe(true);
     expect(isRecentlyAchievedMilestone('m-old')).toBe(true);
+  });
+
+  it('can reopen milestones and KRs without refresh', () => {
+    rememberAchievedMilestones(['m-new']);
+    rememberReopenedPlanningTargets({
+      milestoneIds: ['m-new'],
+      keyResultIds: ['kr-1'],
+    });
+
+    expect(isRecentlyAchievedMilestone('m-new')).toBe(false);
+    expect(isRecentlyReopenedMilestone('m-new')).toBe(true);
+    expect(isRecentlyReopenedKeyResult('kr-1')).toBe(true);
+
+    clearReopenedPlanningTargets({
+      milestoneIds: ['m-new'],
+      keyResultIds: ['kr-1'],
+    });
+    expect(isRecentlyReopenedMilestone('m-new')).toBe(false);
+    expect(isRecentlyReopenedKeyResult('kr-1')).toBe(false);
+
+    rememberAchievedMilestones(['m-new']);
+    forgetAchievedMilestones(['m-new']);
+    expect(isRecentlyAchievedMilestone('m-new')).toBe(false);
   });
 
   it('collects milestone ids from Done achieveMK report rows', () => {

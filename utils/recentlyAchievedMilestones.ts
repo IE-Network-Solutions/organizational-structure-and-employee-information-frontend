@@ -7,7 +7,24 @@ import { create } from 'zustand';
  */
 type RecentlyAchievedMilestonesState = {
   ids: ReadonlySet<string>;
+  reopenedMilestoneIds: ReadonlySet<string>;
+  reopenedKeyResultIds: ReadonlySet<string>;
   remember: (milestoneIds: Array<string | number | null | undefined>) => void;
+  forget: (milestoneIds: Array<string | number | null | undefined>) => void;
+  reopen: (payload: {
+    milestoneIds?: Array<string | number | null | undefined>;
+    keyResultIds?: Array<string | number | null | undefined>;
+  }) => void;
+  clearReopened: (payload: {
+    milestoneIds?: Array<string | number | null | undefined>;
+    keyResultIds?: Array<string | number | null | undefined>;
+  }) => void;
+  isReopenedMilestone: (
+    milestoneId: string | number | null | undefined,
+  ) => boolean;
+  isReopenedKeyResult: (
+    keyResultId: string | number | null | undefined,
+  ) => boolean;
   has: (milestoneId: string | number | null | undefined) => boolean;
   clear: () => void;
 };
@@ -15,8 +32,11 @@ type RecentlyAchievedMilestonesState = {
 export const useRecentlyAchievedMilestones =
   create<RecentlyAchievedMilestonesState>((set, get) => ({
     ids: new Set(),
+    reopenedMilestoneIds: new Set(),
+    reopenedKeyResultIds: new Set(),
     remember: (milestoneIds) => {
       const next = new Set(get().ids);
+      const reopenedMilestones = new Set(get().reopenedMilestoneIds);
       let changed = false;
       for (const id of milestoneIds) {
         if (id == null || id === '') continue;
@@ -25,14 +45,93 @@ export const useRecentlyAchievedMilestones =
           next.add(key);
           changed = true;
         }
+        if (reopenedMilestones.delete(key)) {
+          changed = true;
+        }
+      }
+      if (changed) set({ ids: next, reopenedMilestoneIds: reopenedMilestones });
+    },
+    forget: (milestoneIds) => {
+      const next = new Set(get().ids);
+      let changed = false;
+      for (const id of milestoneIds) {
+        if (id == null || id === '') continue;
+        if (next.delete(String(id))) changed = true;
       }
       if (changed) set({ ids: next });
+    },
+    reopen: ({ milestoneIds = [], keyResultIds = [] }) => {
+      const nextAchieved = new Set(get().ids);
+      const reopenedMilestones = new Set(get().reopenedMilestoneIds);
+      const reopenedKrs = new Set(get().reopenedKeyResultIds);
+      let changed = false;
+
+      for (const id of milestoneIds) {
+        if (id == null || id === '') continue;
+        const key = String(id);
+        if (nextAchieved.delete(key)) changed = true;
+        if (!reopenedMilestones.has(key)) {
+          reopenedMilestones.add(key);
+          changed = true;
+        }
+      }
+
+      for (const id of keyResultIds) {
+        if (id == null || id === '') continue;
+        const key = String(id);
+        if (!reopenedKrs.has(key)) {
+          reopenedKrs.add(key);
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        set({
+          ids: nextAchieved,
+          reopenedMilestoneIds: reopenedMilestones,
+          reopenedKeyResultIds: reopenedKrs,
+        });
+      }
+    },
+    clearReopened: ({ milestoneIds = [], keyResultIds = [] }) => {
+      const reopenedMilestones = new Set(get().reopenedMilestoneIds);
+      const reopenedKrs = new Set(get().reopenedKeyResultIds);
+      let changed = false;
+
+      for (const id of milestoneIds) {
+        if (id == null || id === '') continue;
+        if (reopenedMilestones.delete(String(id))) changed = true;
+      }
+      for (const id of keyResultIds) {
+        if (id == null || id === '') continue;
+        if (reopenedKrs.delete(String(id))) changed = true;
+      }
+
+      if (changed) {
+        set({
+          reopenedMilestoneIds: reopenedMilestones,
+          reopenedKeyResultIds: reopenedKrs,
+        });
+      }
     },
     has: (milestoneId) => {
       if (milestoneId == null || milestoneId === '') return false;
       return get().ids.has(String(milestoneId));
     },
-    clear: () => set({ ids: new Set() }),
+    isReopenedMilestone: (milestoneId) => {
+      if (milestoneId == null || milestoneId === '') return false;
+      return get().reopenedMilestoneIds.has(String(milestoneId));
+    },
+    isReopenedKeyResult: (keyResultId) => {
+      if (keyResultId == null || keyResultId === '') return false;
+      return get().reopenedKeyResultIds.has(String(keyResultId));
+    },
+    clear: () =>
+      set({
+        ids: new Set(),
+        reopenedMilestoneIds: new Set(),
+        reopenedKeyResultIds: new Set(),
+      }),
   }));
 
 export function rememberAchievedMilestones(
@@ -41,10 +140,46 @@ export function rememberAchievedMilestones(
   useRecentlyAchievedMilestones.getState().remember(milestoneIds);
 }
 
+export function forgetAchievedMilestones(
+  milestoneIds: Array<string | number | null | undefined>,
+): void {
+  useRecentlyAchievedMilestones.getState().forget(milestoneIds);
+}
+
 export function isRecentlyAchievedMilestone(
   milestoneId: string | number | null | undefined,
 ): boolean {
   return useRecentlyAchievedMilestones.getState().has(milestoneId);
+}
+
+export function rememberReopenedPlanningTargets(payload: {
+  milestoneIds?: Array<string | number | null | undefined>;
+  keyResultIds?: Array<string | number | null | undefined>;
+}): void {
+  useRecentlyAchievedMilestones.getState().reopen(payload);
+}
+
+export function clearReopenedPlanningTargets(payload: {
+  milestoneIds?: Array<string | number | null | undefined>;
+  keyResultIds?: Array<string | number | null | undefined>;
+}): void {
+  useRecentlyAchievedMilestones.getState().clearReopened(payload);
+}
+
+export function isRecentlyReopenedMilestone(
+  milestoneId: string | number | null | undefined,
+): boolean {
+  return useRecentlyAchievedMilestones
+    .getState()
+    .isReopenedMilestone(milestoneId);
+}
+
+export function isRecentlyReopenedKeyResult(
+  keyResultId: string | number | null | undefined,
+): boolean {
+  return useRecentlyAchievedMilestones
+    .getState()
+    .isReopenedKeyResult(keyResultId);
 }
 
 function resolveTaskReportStatus(
@@ -165,6 +300,25 @@ export function buildPlanTaskMilestoneMap(
         const taskId = task?.taskId ?? task?.id ?? task?.planTaskId;
         if (taskId != null) map[String(taskId)] = mid;
       });
+    });
+  });
+
+  return map;
+}
+
+/** milestoneId → keyResultId for report-edit reopen flows. */
+export function buildMilestoneKeyResultMap(
+  formattedData: any[] | null | undefined,
+): Record<string, string> {
+  const map: Record<string, string> = {};
+  if (!Array.isArray(formattedData)) return map;
+
+  eachKeyResult(formattedData, (keyresult) => {
+    const krId = keyresult?.id ?? keyresult?.keyResultId;
+    if (krId == null) return;
+    (keyresult?.milestones ?? []).forEach((milestone: any) => {
+      if (milestone?.id == null) return;
+      map[String(milestone.id)] = String(krId);
     });
   });
 
