@@ -17,6 +17,17 @@ function isLoginPath(pathname: string): boolean {
   );
 }
 
+/** PWA / push service workers must be served without auth redirects. */
+function isServiceWorkerAsset(pathname: string): boolean {
+  return (
+    pathname === '/sw.js' ||
+    pathname === '/sw-push.js' ||
+    pathname.endsWith('/sw.js') ||
+    pathname.endsWith('/sw-push.js') ||
+    /\/workbox-[^/]+\.js$/.test(pathname)
+  );
+}
+
 /**
  * Core owns the single login page at the origin root (outside this app's
  * /workspace basePath). Standalone / redesign uses this app's own login route.
@@ -58,7 +69,7 @@ export function middleware(req: NextRequest) {
     const pathname = url.pathname;
     const isPublicStaticAsset =
       pathname.startsWith('/image/') || pathname.startsWith('/icons/');
-    if (isPublicStaticAsset) {
+    if (isPublicStaticAsset || isServiceWorkerAsset(pathname)) {
       return NextResponse.next();
     }
 
@@ -161,6 +172,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|firebase-messaging-sw.js|login-background.png|icons/Logo.svg|manifest.json|manifest.webmanifest|sw.js|sw-push.js|workbox|icons/192.png|icons/512.png).*)',
+    '/((?!_next/static|_next/image|favicon.ico|firebase-messaging-sw.js|login-background.png|icons/Logo.svg|manifest.json|manifest.webmanifest|sw.js|sw-push.js|workbox|icons/192.png|icons/512.png|.*\\/sw\\.js|.*\\/sw-push\\.js|.*\\/workbox-).*)',
   ],
 };

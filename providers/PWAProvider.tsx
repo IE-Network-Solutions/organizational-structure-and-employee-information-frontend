@@ -43,9 +43,7 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
           })
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .then((registration) => {})
-          .catch((e) => {
-            alert(e);
-          });
+          .catch(() => {});
         navigator.serviceWorker
           .register('/workspace/sw-push.js', {
             scope: '/workspace/push/',
