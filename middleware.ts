@@ -2,17 +2,42 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getCookie } from './helpers/storageHelper';
 
+const isCore =
+  (process.env.IS_CORE ?? process.env.NEXT_PUBLIC_IS_CORE ?? '')
+    .trim()
+    .toLowerCase() === 'true';
+
+function isLoginPath(pathname: string): boolean {
+  return (
+    pathname === '/login' ||
+    pathname.startsWith('/authentication/login') ||
+    pathname.startsWith('/authentication/forget-password') ||
+    pathname.startsWith('/authentication/reset-password') ||
+    pathname.startsWith('/authentication/2fa')
+  );
+}
+
 /**
  * Core owns the single login page at the origin root (outside this app's
- * /workspace basePath). Send unauthenticated users there with a `redirect` back
- * to where they were headed. The shared `token` cookie means a user already
- * signed in on Core never reaches this redirect.
+ * /workspace basePath). Standalone / redesign uses this app's own login route.
+ * Never nest a login URL as the `redirect` target — that causes an infinite
+ * `/login?redirect=/login?redirect=...` loop.
  */
-function coreLoginUrl(req: NextRequest): URL {
-  const here = `${req.nextUrl.basePath}${req.nextUrl.pathname}${req.nextUrl.search}`;
-  const url = new URL('/login', req.url);
-  url.searchParams.set('redirect', here);
-  return url;
+function loginRedirectUrl(req: NextRequest): URL {
+  const pathname = req.nextUrl.pathname;
+  const search = req.nextUrl.search;
+  const here = `${req.nextUrl.basePath}${pathname}${search}`;
+
+  if (isCore) {
+    const url = new URL('/login', req.url);
+    if (!isLoginPath(pathname)) {
+      url.searchParams.set('redirect', here);
+    }
+    return url;
+  }
+
+  // In-app login uses sessionStorage for post-login return, not a query param.
+  return workspaceUrl(req, '/authentication/login');
 }
 
 /**
@@ -74,6 +99,7 @@ export function middleware(req: NextRequest) {
     }
 
     const excludedPath = [
+      '/login',
       '/authentication/login',
       '/authentication/forget-password',
       '/authentication/reset-password',
@@ -85,8 +111,15 @@ export function middleware(req: NextRequest) {
       isPublicSurveyRoute ||
       excludedPath.some((path) => pathname.startsWith(path));
     const isRootPath = pathname === '/';
+
+    // Standalone redesign has no Core `/login` page — send one clean hop to
+    // the in-app login instead of letting `/login` 404 or loop.
+    if (!isCore && pathname === '/login') {
+      return NextResponse.redirect(workspaceUrl(req, '/authentication/login'));
+    }
+
     if (!isExcludedPath && !token) {
-      return NextResponse.redirect(coreLoginUrl(req));
+      return NextResponse.redirect(loginRedirectUrl(req));
     }
 
     if (
@@ -107,7 +140,7 @@ export function middleware(req: NextRequest) {
       if (token) {
         return NextResponse.redirect(workspaceUrl(req, '/dashboard'));
       } else {
-        return NextResponse.redirect(coreLoginUrl(req));
+        return NextResponse.redirect(loginRedirectUrl(req));
       }
     }
 

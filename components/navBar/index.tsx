@@ -1333,8 +1333,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setLocalId('');
       clearBrowserSessionArtifacts();
 
-      // Core owns login at the origin root, outside this app's /workspace basePath.
-      window.location.assign('/login');
+      // Core owns login at the origin root; standalone / redesign uses in-app login.
+      window.location.assign(IS_CORE ? '/login' : '/authentication/login');
     } catch (error) {}
   };
 
