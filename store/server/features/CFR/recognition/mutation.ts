@@ -2,6 +2,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import {
+  invalidateRecognitionCascadeCaches,
+  invalidateRecognitionTypeCascadeCaches,
+} from '@/utils/invalidateRecognitionCascadeCaches';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
 
@@ -175,10 +179,8 @@ export const useDeleteRecognitionType = () => {
   return useMutation(deleteRecognitionType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
-      queryClient.invalidateQueries('recognitionTypes');
-      queryClient.invalidateQueries('recognitionTypesWithRelations');
-      queryClient.refetchQueries('recognitionTypesWithRelations');
-      queryClient.refetchQueries('recognitionTypes');
+      // Backend cascades: child types + recognitions + incentives.
+      void invalidateRecognitionTypeCascadeCaches(queryClient);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -328,8 +330,8 @@ export const useDeleteRecognition = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteRecognition, {
     onSuccess: () => {
-      queryClient.invalidateQueries('recognitions');
-      queryClient.invalidateQueries('recognitionsByParentRecognitionType');
+      // Backend cascades: linked incentive record is removed with the recognition.
+      void invalidateRecognitionCascadeCaches(queryClient);
       handleSuccessMessage('DELETE');
     },
   });
@@ -341,8 +343,7 @@ export const useDeleteBulkRecognitions = () => {
     ({ ids }: { ids: string[] }) => deleteBulkRecognitions(ids),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('recognitions');
-        queryClient.invalidateQueries('recognitionsByParentRecognitionType');
+        void invalidateRecognitionCascadeCaches(queryClient);
         handleSuccessMessage('DELETE');
       },
     },
