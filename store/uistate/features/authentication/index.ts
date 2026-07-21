@@ -1,6 +1,30 @@
 import { setCookie } from '@/helpers/storageHelper';
+import { Permissions } from '@/types/commons/permissionEnum';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
+
+const FISCAL_YEAR_MANAGE_PERMISSIONS = [
+  Permissions.CreateCalendar,
+  Permissions.UpdateCalendar,
+  Permissions.DeleteCalendar,
+];
+
+// Edge middleware can't read the zustand/localStorage-persisted userData, so
+// derive a small boolean cookie it can check instead of the full permission
+// list. Owners always pass, matching AccessGuard.checkAccess's owner bypass.
+const syncCanManageFiscalYearCookie = (userData: Record<string, any>) => {
+  const role = userData?.role?.slug || '';
+  const userPermissions = userData?.userPermissions || [];
+  const canManageFiscalYear =
+    role === 'owner' ||
+    FISCAL_YEAR_MANAGE_PERMISSIONS.some((permission) =>
+      userPermissions.some(
+        (userPermission: { permission?: { slug: string } }) =>
+          userPermission.permission?.slug === permission,
+      ),
+    );
+  setCookie('canManageFiscalYear', canManageFiscalYear ? 'true' : 'false', 30);
+};
 
 const noopStorage: Storage = {
   getItem: () => null,
@@ -73,6 +97,7 @@ export const useAuthenticationStore = create<StoreState>()(
         },
         userData: {},
         setUserData: (userData: Record<string, any>) => {
+          syncCanManageFiscalYearCookie(userData);
           set({ userData });
         },
         loggedUserRole: '',
@@ -118,6 +143,8 @@ export const useAuthenticationStore = create<StoreState>()(
         setHasHydrated: (hasHydrated: boolean) => set({ hasHydrated }),
       }),
       {
+        name: 'workspace-auth', // Per-product key (shared origin) — do not reuse across products
+        getStorage: () => localStorage, // Use localStorage for persistence
         name: 'authentications-storage', // Unique name for the storage
         storage: createJSONStorage(() =>
           typeof window !== 'undefined' ? localStorage : noopStorage,

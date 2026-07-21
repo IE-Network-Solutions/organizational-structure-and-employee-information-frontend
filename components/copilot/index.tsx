@@ -1,19 +1,27 @@
 'use client';
 
 import React from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import CopilotButton from './CopilotButton';
-import { useCopilotStore } from '@/store/uistate/features/copilot';
 
 /**
- * Copilot - Header button that opens the full Copilot module overlay
+ * Copilot - Header button that routes to the Copilot page
  *
- * On click, toggles Copilot full-width overlay (replaces main content when open).
- * No route change; sidebar remains visible.
+ * On click, navigates to `/copilot` inside the authenticated app shell.
  */
 const Copilot: React.FC = () => {
-  const { isOpen, setIsOpen } = useCopilotStore();
+  const router = useRouter();
+  const pathname = usePathname();
+  const isActive = pathname === '/copilot';
 
-  return <CopilotButton onClick={() => setIsOpen(!isOpen)} isActive={isOpen} />;
+  return (
+    <CopilotButton
+      onClick={() => {
+        if (!isActive) router.push('/copilot');
+      }}
+      isActive={isActive}
+    />
+  );
 };
 
 export default Copilot;

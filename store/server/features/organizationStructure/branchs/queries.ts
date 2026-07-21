@@ -1,7 +1,7 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { BranchResponse } from './interface';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -19,7 +19,7 @@ const getAllBranches = async () => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/branchs`,
+    url: `${CORE_API_URL}/branchs`,
     method: 'GET',
     headers,
   });
@@ -37,7 +37,7 @@ const getBranch = async (id: string) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/branches/${id}`,
+    url: `${CORE_API_URL}/branches/${id}`,
     method: 'GET',
     headers,
   });
