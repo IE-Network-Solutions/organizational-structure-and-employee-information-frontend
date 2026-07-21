@@ -62,6 +62,7 @@ interface KeyResultTableRowProps {
   updatedKeyResults: any;
   objectiveId: string;
   objectiveUserId?: string;
+  objectiveKeyResults?: any[];
   isInActiveSession?: boolean;
   objectiveEditMode?: boolean;
   editableKeyResult?: any;
@@ -82,6 +83,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
   updatedKeyResults,
   objectiveId,
   objectiveUserId,
+  objectiveKeyResults = [],
   isInActiveSession = true,
   objectiveEditMode = false,
   editableKeyResult,
@@ -395,6 +397,21 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
       message.warning('Target value must be greater than the initial value.');
       return false;
     }
+    if (objectiveKeyResults.length > 0) {
+      const weightSum = objectiveKeyResults.reduce(
+        (sum: number, item: any) =>
+          String(item?.id) === String(rowEditableKeyResult?.id)
+            ? sum + Number(rowEditableKeyResult?.weight || 0)
+            : sum + Number(item?.weight || 0),
+        0,
+      );
+      if (weightSum !== 100) {
+        message.warning(
+          `The sum of key result weights must equal 100%. Current sum: ${weightSum}%`,
+        );
+        return false;
+      }
+    }
     return true;
   };
 
@@ -616,8 +633,12 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
           {objectiveEditMode || rowInlineEdit ? (
             <InputNumber
               value={Number(rowKeyResult?.weight ?? 0)}
+              onChange={(value) => setRowField('weight', Number(value ?? 0))}
               size="middle"
-              disabled
+              min={0}
+              max={100}
+              suffix="%"
+              disabled={!canInlineEditNow}
               className="h-9 w-full max-w-[6.5rem] sm:w-[100px] sm:max-w-none"
             />
           ) : (
