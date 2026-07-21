@@ -3,7 +3,7 @@ import {
   getKeyResultProgressPercent,
   getMetricTypeName,
   isKeyResultFullyCompletedForPlanning,
-  isMilestoneCompleted,
+  isMilestoneAchievedForPlanning,
   mergeKeyResultWithUserApi,
   resolveKrPlanningBlocked,
   resolveOkrMilestones,
@@ -56,23 +56,24 @@ function mergeMilestoneListsForPick(...lists: any[][]): any[] {
         byId.set(id, { ...m });
         continue;
       }
-      const completed = isMilestoneCompleted(m) || isMilestoneCompleted(prev);
+      const completed =
+        isMilestoneAchievedForPlanning(m) ||
+        isMilestoneAchievedForPlanning(prev);
       byId.set(id, {
         ...prev,
         ...m,
         // Keep the first meaningful title; callers re-apply objective titles.
         title: prev.title || prev.name || m.title || m.name,
         name: prev.name || m.name,
-        // Never let a later empty/In Progress status wipe Completed.
+        // Never let a later empty/In Progress status wipe real Completed.
+        // Do not invent Completed from progress alone (sub-key-result Done).
         status: completed ? 'Completed' : m.status || prev.status,
         isAchieved: completed
           ? true
           : m.isAchieved === true || prev.isAchieved === true
             ? true
             : (m.isAchieved ?? prev.isAchieved),
-        progress: completed
-          ? Math.max(Number(m.progress) || 0, Number(prev.progress) || 0, 100)
-          : (m.progress ?? prev.progress),
+        progress: m.progress ?? prev.progress,
       });
     }
   }
@@ -88,25 +89,32 @@ function resolveMilestoneCompleted(
   kr: any,
   userKeyResultItems: any[],
 ): boolean {
-  if (isMilestoneCompleted(objectiveMs)) return true;
+  const milestoneId = objectiveMs?.id;
+  // Only this milestone's explicit reopen clears completed — not the whole KR.
+  if (isRecentlyReopenedMilestone(milestoneId)) {
+    return false;
+  }
+  if (isRecentlyAchievedMilestone(milestoneId)) return true;
+
+  if (isMilestoneAchievedForPlanning(objectiveMs)) return true;
 
   const merged = mergeKeyResultWithUserApi(kr, userKeyResultItems);
   const mergedList = merged?.milestones ?? merged?.Milestones ?? [];
   const live =
     (Array.isArray(mergedList)
-      ? mergedList.find((m: any) => String(m?.id) === String(objectiveMs?.id))
+      ? mergedList.find((m: any) => String(m?.id) === String(milestoneId))
       : null) ?? null;
 
-  if (live && isMilestoneCompleted(live)) return true;
+  if (live && isMilestoneAchievedForPlanning(live)) return true;
 
   const apiKr = userKeyResultItems.find(
     (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
   );
   const apiList = apiKr?.milestones ?? apiKr?.Milestones ?? [];
   const fromApi = Array.isArray(apiList)
-    ? apiList.find((m: any) => String(m?.id) === String(objectiveMs?.id))
+    ? apiList.find((m: any) => String(m?.id) === String(milestoneId))
     : null;
-  return fromApi != null && isMilestoneCompleted(fromApi);
+  return fromApi != null && isMilestoneAchievedForPlanning(fromApi);
 }
 
 function pushKeyResultPlanningTargets(
@@ -150,7 +158,12 @@ function pushKeyResultPlanningTargets(
         milestoneTitle: ms.title || ms.name || 'Milestone',
         parentTaskId: null,
         isDailySlot: false,
-        metricTypeName: metricTypeName ?? 'Milestone',
+        metricTypeName:
+          metricTypeName &&
+          String(metricTypeName).trim() &&
+          String(metricTypeName).trim().toLowerCase() !== 'n/a'
+            ? metricTypeName
+            : 'Milestone',
         isCompleted: resolveMilestoneCompleted(ms, kr, userKeyResultItems),
       });
     });
@@ -168,7 +181,12 @@ function pushKeyResultPlanningTargets(
     milestoneId: null,
     parentTaskId: null,
     isDailySlot: false,
-    metricTypeName,
+    metricTypeName:
+      metricTypeName &&
+      String(metricTypeName).trim() &&
+      String(metricTypeName).trim().toLowerCase() !== 'n/a'
+        ? metricTypeName
+        : null,
     isCompleted: false,
   });
 }
@@ -251,7 +269,8 @@ export function buildPickTargetsForKeyResult(params: {
       isKeyResultFullyCompletedForPlanning(
         mergeKeyResultWithUserApi(apiKr, itemsForMerge),
       )) ||
-    (milestones.length > 0 && milestones.every((m) => isMilestoneCompleted(m)));
+    (milestones.length > 0 &&
+      milestones.every((m) => isMilestoneAchievedForPlanning(m)));
 
   if (milestones.length > 0) {
     return milestones.map((ms: any) => {
@@ -264,17 +283,16 @@ export function buildPickTargetsForKeyResult(params: {
       const fromApi = objectiveMilestoneRows(apiKr).find(
         (m) => m && String(m.id) === id,
       );
-      const reopened =
-        isRecentlyReopenedKeyResult(keyResultId) ||
-        isRecentlyReopenedMilestone(id);
+      const reopened = isRecentlyReopenedMilestone(id);
+      // Per-milestone only — do NOT stamp every slot from krFullyDone.
+      // That hid + after weighted sub-key-result Done bumped KR progress.
       const completed =
         !reopened &&
-        (krFullyDone ||
-          isRecentlyAchievedMilestone(id) ||
-          isMilestoneCompleted(ms) ||
-          isMilestoneCompleted(fromObjective) ||
-          isMilestoneCompleted(fromPanel) ||
-          isMilestoneCompleted(fromApi) ||
+        (isRecentlyAchievedMilestone(id) ||
+          isMilestoneAchievedForPlanning(ms) ||
+          isMilestoneAchievedForPlanning(fromObjective) ||
+          isMilestoneAchievedForPlanning(fromPanel) ||
+          isMilestoneAchievedForPlanning(fromApi) ||
           resolveMilestoneCompleted(ms, apiKr ?? syntheticKr, itemsForMerge));
       return {
         id: `okr-kr-${keyResultId}-ms-${id}`,
@@ -286,7 +304,12 @@ export function buildPickTargetsForKeyResult(params: {
         ).trim(),
         parentTaskId: null,
         isDailySlot: false,
-        metricTypeName: metricTypeName ?? 'Milestone',
+        metricTypeName:
+          metricTypeName &&
+          String(metricTypeName).trim() &&
+          String(metricTypeName).trim().toLowerCase() !== 'n/a'
+            ? metricTypeName
+            : 'Milestone',
         isCompleted: completed,
       };
     });
@@ -346,18 +369,13 @@ export function indexObjectiveMilestonesByKrId(
           const api = apiById.get(String(m.id));
           if (!api) return m;
           const completed =
-            isMilestoneCompleted(m) || isMilestoneCompleted(api);
+            isMilestoneAchievedForPlanning(m) ||
+            isMilestoneAchievedForPlanning(api);
           return {
             ...m,
             status: completed ? 'Completed' : m.status || api.status,
             isAchieved: completed ? true : (m.isAchieved ?? api.isAchieved),
-            progress: completed
-              ? Math.max(
-                  Number(m.progress) || 0,
-                  Number(api.progress) || 0,
-                  100,
-                )
-              : (m.progress ?? api.progress),
+            progress: m.progress ?? api.progress,
           };
         }),
       );
@@ -473,6 +491,13 @@ export function isPlanningTargetBlocked(
 ): boolean {
   if (!target) return false;
 
+  if (target.milestoneId) {
+    if (isRecentlyReopenedMilestone(target.milestoneId)) return false;
+    if (isRecentlyAchievedMilestone(target.milestoneId)) return true;
+  } else if (isRecentlyReopenedKeyResult(target.keyResultId)) {
+    return false;
+  }
+
   const apiKr = userKeyResultItems.find(
     (k) =>
       k && k.deletedAt == null && String(k.id) === String(target.keyResultId),
@@ -485,7 +510,7 @@ export function isPlanningTargetBlocked(
         { milestones: apiKr?.milestones },
         target.milestoneId,
       );
-    if (ms && isMilestoneCompleted(ms)) return true;
+    if (ms && isMilestoneAchievedForPlanning(ms)) return true;
     // Partial milestone KR — never block the whole KR from progress alone.
     return false;
   }
@@ -555,7 +580,14 @@ export function filterPlanningTargetsByBlockedKeyResults(
         apiKr ?? syntheticKr ?? objectiveLike,
         userKeyResultItems,
       );
-      return { ...t, isCompleted: completed || t.isCompleted === true };
+      // Sticky completed: once marked (or session-achieved), do not flip back
+      // when a stale refetch briefly omits Completed.
+      const stickyCompleted =
+        completed ||
+        t.isCompleted === true ||
+        isRecentlyAchievedMilestone(t.milestoneId);
+      const reopened = isRecentlyReopenedMilestone(t.milestoneId);
+      return { ...t, isCompleted: reopened ? false : stickyCompleted };
     });
 }
 
@@ -584,7 +616,7 @@ export function buildPlanningTargetsFromDailyHierarchy(
       const metricTypeName = kr.metricType?.name ?? null;
       kr.milestones?.forEach((ms: any) => {
         if (ms.deletedAt) return;
-        if (isMilestoneCompleted(ms)) return;
+        if (isMilestoneAchievedForPlanning(ms)) return;
         ms.tasks?.forEach((t: any) => {
           out.push({
             id: `daily-${kr.id}-${ms.id}-${t.id}`,

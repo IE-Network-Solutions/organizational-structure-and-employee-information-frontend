@@ -118,6 +118,48 @@ export function isMilestoneCompleted(
   return Number.isFinite(p) && p >= 100;
 }
 
+/**
+ * Planning-only: a milestone is achieved when OKR marks it achieved/completed.
+ * Do NOT use progress≥100 or loose "done" alone — weighted sub-key-result Done
+ * often bumps progress without completing the milestone outcome (achieveMK).
+ */
+export function isMilestoneAchievedForPlanning(
+  m:
+    | {
+        status?: string | null | { name?: string | null };
+        isAchieved?: boolean | null;
+        isCompleted?: boolean | null;
+        completed?: boolean | null;
+        keyResultCompletionStatus?: string | null;
+        completionStatus?: string | null;
+      }
+    | null
+    | undefined,
+): boolean {
+  if (!m) return false;
+  if (m.isAchieved === true || m.isCompleted === true || m.completed === true) {
+    return true;
+  }
+  const rawStatus =
+    m.status != null && typeof m.status === 'object'
+      ? (m.status as { name?: string | null }).name
+      : m.status;
+  const s = String(
+    rawStatus ?? m.keyResultCompletionStatus ?? m.completionStatus ?? '',
+  )
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+  return (
+    s === 'completed' ||
+    s === 'complete' ||
+    s === 'achieved' ||
+    s === 'finished' ||
+    s === 'success' ||
+    s === 'closed'
+  );
+}
+
 function milestoneRowId(m: MilestoneRowInput): string | null {
   const id = (m as { id?: string | number | null }).id;
   if (id == null || id === '') return null;
@@ -132,9 +174,11 @@ function mergeMilestoneCompletionRow(
   secondary?: MilestoneRowInput | null,
 ): MilestoneRowInput {
   if (!secondary) return primary;
-  const completed =
-    isMilestoneCompleted(primary as any) ||
-    isMilestoneCompleted(secondary as any);
+  // Only preserve real OKR achievement — never invent Completed from progress
+  // (weighted sub-key-result Done can set progress≥100 without achieving).
+  const achieved =
+    isMilestoneAchievedForPlanning(primary as any) ||
+    isMilestoneAchievedForPlanning(secondary as any);
   const primaryTitle = String(
     (primary as any).title || (primary as any).name || '',
   ).trim();
@@ -146,19 +190,14 @@ function mergeMilestoneCompletionRow(
     ...primary,
     title: primaryTitle || secondaryTitle || (primary as any).title,
     name: (primary as any).name || (secondary as any).name,
-    status: completed
+    status: achieved
       ? 'Completed'
       : (primary as any).status || (secondary as any).status,
-    isAchieved: completed
+    isAchieved: achieved
       ? true
       : ((primary as any).isAchieved ?? (secondary as any).isAchieved),
-    progress: completed
-      ? Math.max(
-          Number((primary as any).progress) || 0,
-          Number((secondary as any).progress) || 0,
-          100,
-        )
-      : ((primary as any).progress ?? (secondary as any).progress),
+    progress:
+      (primary as any).progress ?? (secondary as any).progress,
   };
 }
 
@@ -519,10 +558,11 @@ export function isKeyResultFullyCompletedForPlanning(
   if (isMilestoneKeyResult(kr)) {
     const milestones = resolveOkrMilestones(kr);
     if (milestones.length > 0) {
-      return milestones.every(isMilestoneCompleted);
+      return milestones.every(isMilestoneAchievedForPlanning);
     }
-    // No OKR milestone rows yet — fall back to measured progress.
-    return getKeyResultProgressPercent(kr) >= 100;
+    // No OKR milestone rows yet — keep planning open; progress alone must not
+    // hide + after weighted sub-key-result reports.
+    return false;
   }
 
   // Non-milestone KRs: measured progress is the sole gate (status can lag after report updates).
@@ -616,10 +656,12 @@ export function resolveKrPlanningBlocked(
   }
 
   // Milestone KRs: only block when every OKR milestone is achieved.
-  // Do not use aggregate progress alone — that hides + while milestones remain.
+  // Never fall through to aggregate progress — sub-key-result Done can make
+  // KR progress look 100% while milestones remain plan-eligible.
   const milestoneRows = resolveOkrMilestones(planningSource, apiKr);
-  if (isMilestoneKeyResult(planningSource, apiKr) && milestoneRows.length > 0) {
-    return milestoneRows.every(isMilestoneCompleted);
+  if (isMilestoneKeyResult(planningSource, apiKr)) {
+    if (milestoneRows.length === 0) return false;
+    return milestoneRows.every(isMilestoneAchievedForPlanning);
   }
 
   if (isKeyResultFullyCompletedForPlanning(planningSource)) {

@@ -128,4 +128,33 @@ describe('recentlyAchievedMilestones', () => {
       }),
     ).toEqual(['ms-kr']);
   });
+
+  it('does not treat Done sub-key-result tasks as milestone achieved', () => {
+    const formattedData = [
+      {
+        keyResults: [
+          {
+            milestones: [
+              {
+                id: 'ms-sub',
+                tasks: [
+                  {
+                    taskId: 't-sub',
+                    achieveMK: false,
+                    milestoneId: 'ms-sub',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ];
+
+    expect(
+      collectAchievedMilestoneIdsFromReport(formattedData, {
+        't-sub': 'Done',
+      }),
+    ).toEqual([]);
+  });
 });

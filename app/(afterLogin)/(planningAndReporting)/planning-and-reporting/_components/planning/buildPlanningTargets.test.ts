@@ -3,6 +3,11 @@ import {
   buildPlanningTargetsFromObjectives,
   hasSelectablePlanningTargets,
 } from './buildPlanningTargets';
+import {
+  rememberAchievedMilestones,
+  rememberReopenedPlanningTargets,
+  useRecentlyAchievedMilestones,
+} from '@/utils/recentlyAchievedMilestones';
 
 describe('buildPlanningTargetsFromObjectives', () => {
   const objective = {
@@ -114,6 +119,33 @@ describe('buildPickTargetsForKeyResult', () => {
     ]);
     expect(targets[0]?.isCompleted).toBe(true);
     expect(targets[1]?.isCompleted).toBe(false);
+    expect(hasSelectablePlanningTargets(targets)).toBe(true);
+  });
+
+  it('keeps remaining milestones selectable when KR progress is 100 from sub-tasks', () => {
+    const targets = buildPickTargetsForKeyResult({
+      keyResultId: 'kr-partial',
+      keyResultTitle: 'Partial KR',
+      metricTypeName: 'Milestone',
+      planningBlocked: false,
+      objectiveMilestones: [
+        { id: 'm-1', title: 'First', status: 'In Progress', progress: 100 },
+        { id: 'm-2', title: 'Second', status: 'In Progress', progress: 0 },
+      ],
+      apiKr: {
+        id: 'kr-partial',
+        progress: 100,
+        metricType: { name: 'Milestone' },
+        milestones: [
+          { id: 'm-1', title: 'First', status: 'In Progress', progress: 100 },
+          { id: 'm-2', title: 'Second', status: 'In Progress', progress: 0 },
+        ],
+      },
+      userKeyResultItems: [],
+    });
+
+    expect(targets).toHaveLength(2);
+    expect(targets.every((t) => t.isCompleted)).toBe(false);
     expect(hasSelectablePlanningTargets(targets)).toBe(true);
   });
 
@@ -264,6 +296,86 @@ describe('buildPickTargetsForKeyResult', () => {
 
     expect(targets[0]?.isCompleted).toBe(true);
     expect(targets[1]?.isCompleted).toBe(false);
+    expect(hasSelectablePlanningTargets(targets)).toBe(true);
+  });
+});
+
+describe('planning completion session rules', () => {
+  const milestoneObjective = [
+    { id: 'm-1', title: 'First milestone', status: 'Completed' },
+    { id: 'm-2', title: 'Second milestone', status: 'In Progress' },
+  ];
+
+  beforeEach(() => {
+    useRecentlyAchievedMilestones.getState().clear();
+  });
+
+  it('keeps achieved siblings when only another milestone is reopened', () => {
+    rememberAchievedMilestones(['m-1']);
+    rememberReopenedPlanningTargets({ milestoneIds: ['m-2'] });
+
+    const targets = buildPickTargetsForKeyResult({
+      keyResultId: 'kr-2',
+      keyResultTitle: 'Test-KR2',
+      metricTypeName: 'Milestone',
+      objectiveMilestones: milestoneObjective,
+      apiKr: {
+        id: 'kr-2',
+        milestones: [
+          { id: 'm-1', title: 'First milestone', status: 'Completed' },
+          { id: 'm-2', title: 'Second milestone', status: 'In Progress' },
+        ],
+      },
+    });
+
+    expect(targets[0]?.isCompleted).toBe(true);
+    expect(targets[1]?.isCompleted).toBe(false);
+    expect(hasSelectablePlanningTargets(targets)).toBe(true);
+  });
+
+  it('does not clear achieved milestones when only the KR is reopened', () => {
+    rememberAchievedMilestones(['m-1']);
+    rememberReopenedPlanningTargets({ keyResultIds: ['kr-2'] });
+
+    const targets = buildPickTargetsForKeyResult({
+      keyResultId: 'kr-2',
+      keyResultTitle: 'Test-KR2',
+      metricTypeName: 'Milestone',
+      objectiveMilestones: milestoneObjective,
+      apiKr: {
+        id: 'kr-2',
+        milestones: [
+          { id: 'm-1', title: 'First milestone', status: 'Completed' },
+          { id: 'm-2', title: 'Second milestone', status: 'In Progress' },
+        ],
+      },
+    });
+
+    expect(targets[0]?.isCompleted).toBe(true);
+    expect(targets[1]?.isCompleted).toBe(false);
+  });
+
+  it('sub-key-result progress alone does not mark milestones achieved', () => {
+    const targets = buildPickTargetsForKeyResult({
+      keyResultId: 'kr-partial',
+      keyResultTitle: 'Partial KR',
+      metricTypeName: 'Milestone',
+      objectiveMilestones: [
+        { id: 'm-1', title: 'First', status: 'In Progress', progress: 100 },
+        { id: 'm-2', title: 'Second', status: 'In Progress', progress: 0 },
+      ],
+      apiKr: {
+        id: 'kr-partial',
+        progress: 100,
+        metricType: { name: 'Milestone' },
+        milestones: [
+          { id: 'm-1', title: 'First', status: 'In Progress', progress: 100 },
+          { id: 'm-2', title: 'Second', status: 'In Progress', progress: 0 },
+        ],
+      },
+    });
+
+    expect(targets.every((t) => !t.isCompleted)).toBe(true);
     expect(hasSelectablePlanningTargets(targets)).toBe(true);
   });
 });

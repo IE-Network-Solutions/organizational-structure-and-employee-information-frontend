@@ -9,7 +9,9 @@ import { IoArrowBack } from 'react-icons/io5';
 import { MessageOutlined, PlusOutlined } from '@ant-design/icons';
 import PlanCard from '../cards/PlanCard';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
-import { isMilestoneCompleted } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  isMilestoneAchievedForPlanning,
+} from '@/utils/okrKeyResultProgressDisplay';
 import {
   isRecentlyAchievedMilestone,
   isRecentlyReopenedKeyResult,
@@ -241,13 +243,13 @@ function resolvePlanningSlotsForKr(
         title: t.milestoneTitle,
         status: t.isCompleted ? 'Completed' : undefined,
       };
-    const reopened = reopenedKr || isRecentlyReopenedMilestone(t.milestoneId);
+    const reopened = isRecentlyReopenedMilestone(t.milestoneId);
 
     const completed =
       !reopened &&
       (Boolean(t.isCompleted) ||
         isRecentlyAchievedMilestone(t.milestoneId) ||
-        isMilestoneCompleted(ml) ||
+        isMilestoneAchievedForPlanning(ml) ||
         isMilestoneBlockedForPlanning(krForBlock, ml, userKeyResultItems));
 
     return { ...t, isCompleted: completed };
@@ -402,9 +404,7 @@ function KRProgressCard({
     if (
       t.milestoneId &&
       (reopenedMilestoneIds.has(String(t.milestoneId)) ||
-        isRecentlyReopenedMilestone(t.milestoneId) ||
-        reopenedKr ||
-        isRecentlyReopenedKeyResult(kr.id))
+        isRecentlyReopenedMilestone(t.milestoneId))
     ) {
       return false;
     }
@@ -434,8 +434,8 @@ function KRProgressCard({
       );
     };
     return (
-      isMilestoneCompleted(match(kr.milestones)) ||
-      isMilestoneCompleted(match(objectiveMilestones))
+      isMilestoneAchievedForPlanning(match(kr.milestones)) ||
+      isMilestoneAchievedForPlanning(match(objectiveMilestones))
     );
   };
 
@@ -1294,7 +1294,10 @@ export function KRLeftPanel({
   }, [planningTargets]);
 
   const showKrTargetsLoadingRow =
-    showInlinePick && planningTargetsLoading && !parentPlanContext;
+    showInlinePick &&
+    planningTargetsLoading &&
+    !parentPlanContext &&
+    planningTargets.length === 0;
 
   /** Child cadence on Plans tab: parent plan tasks only (hide KR list). Reports tab keeps KRs. */
   const isChildCadence = !!parentPlanContext && activeTab === 1;
@@ -1362,7 +1365,7 @@ export function KRLeftPanel({
               showPick={showInlinePick}
               selectedPlanningTargetId={selectedPlanningTargetId}
               onPickPlanningTarget={onPickPlanningTarget}
-              loading={planningTargetsLoading}
+              loading={planningTargetsLoading && parentPlanSlots.length === 0}
               blockedKrIds={blockedKrIds}
               expandToFill={isChildCadence}
             />

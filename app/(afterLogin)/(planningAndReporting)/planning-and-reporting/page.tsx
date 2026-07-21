@@ -27,7 +27,10 @@ import {
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import { usePlanningData } from './_components/planning/usePlanningData';
 import { usePlanningTargets } from './_components/planning/usePlanningTargets';
-import { isPlanningTargetBlocked } from './_components/planning/buildPlanningTargets';
+import {
+  isPlanningTargetBlocked,
+  type PlanningTarget,
+} from './_components/planning/buildPlanningTargets';
 import { useReportingData } from './_components/planning/useReportingData';
 import { KRPanelSkeleton } from './_components/cards/PlanCardSkeleton';
 import {
@@ -177,9 +180,9 @@ function Page() {
     isFetching: userKeyResultsFetching,
     refetch: refetchUserKeyResults,
   } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
-    refetchOnMount: 'always',
-    staleTime: 0,
-    keepPreviousData: false,
+    refetchOnMount: true,
+    staleTime: 30_000,
+    keepPreviousData: true,
     refetchOnWindowFocus: true,
   });
 
@@ -296,12 +299,61 @@ function Page() {
   const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
     string | null
   >(null);
+  /** Full pick payload — planningTargets lookup can omit metricTypeName / miss pick-only ids. */
+  const [pickedPlanningTarget, setPickedPlanningTarget] =
+    useState<PlanningTarget | null>(null);
 
-  const activePlanningTarget = useMemo(
-    () =>
-      planningTargets.find((t) => t.id === selectedPlanningTargetId) ?? null,
-    [planningTargets, selectedPlanningTargetId],
-  );
+  const clearSelectedPlanningTarget = useCallback(() => {
+    setSelectedPlanningTargetId(null);
+    setPickedPlanningTarget(null);
+  }, []);
+
+  const selectPlanningTarget = useCallback((t: PlanningTarget) => {
+    setSelectedPlanningTargetId(t.id);
+    setPickedPlanningTarget(t);
+  }, []);
+
+  const activePlanningTarget = useMemo(() => {
+    if (!selectedPlanningTargetId) return null;
+    const fromList =
+      planningTargets.find((t) => t.id === selectedPlanningTargetId) ?? null;
+    const fromPick =
+      pickedPlanningTarget?.id === selectedPlanningTargetId
+        ? pickedPlanningTarget
+        : null;
+
+    // Prefer the pick snapshot so list refetch thrash does not rewrite the
+    // composer (metric type, titles, milestone id) while the user is planning.
+    const base = fromPick
+      ? {
+          ...fromPick,
+          keyResultTitle:
+            fromPick.keyResultTitle || fromList?.keyResultTitle || '',
+          milestoneTitle:
+            fromPick.milestoneTitle || fromList?.milestoneTitle || null,
+          metricTypeName:
+            fromPick.metricTypeName || fromList?.metricTypeName || null,
+        }
+      : fromList;
+
+    if (!base) return null;
+    if (base.metricTypeName) return base;
+    const apiKr = userKeyResultItems.find(
+      (k) =>
+        k && k.deletedAt == null && String(k.id) === String(base.keyResultId),
+    );
+    const fromApi =
+      apiKr?.metricType?.name ??
+      (typeof apiKr?.metricType === 'string' ? apiKr.metricType : null) ??
+      apiKr?.key_type ??
+      null;
+    return fromApi ? { ...base, metricTypeName: fromApi } : base;
+  }, [
+    planningTargets,
+    selectedPlanningTargetId,
+    pickedPlanningTarget,
+    userKeyResultItems,
+  ]);
 
   const inlinePlanningPeriodLabel = useMemo(() => {
     const item = processedPlanningPeriods[activePlanPeriod - 1] as
@@ -311,14 +363,11 @@ function Page() {
   }, [processedPlanningPeriods, activePlanPeriod]);
 
   useEffect(() => {
-    if (!inlinePlanningMode) setSelectedPlanningTargetId(null);
-  }, [inlinePlanningMode]);
+    if (!inlinePlanningMode) clearSelectedPlanningTarget();
+  }, [inlinePlanningMode, clearSelectedPlanningTarget]);
 
-  useEffect(() => {
-    if (!planningPickReady && selectedPlanningTargetId) {
-      setSelectedPlanningTargetId(null);
-    }
-  }, [planningPickReady, selectedPlanningTargetId]);
+  // Do NOT clear selection when planningPickReady briefly flips during refetch —
+  // that blanked the composer and made displayed targets look unstable.
 
   useEffect(() => {
     if (
@@ -326,13 +375,18 @@ function Page() {
       activePlanningTarget &&
       isPlanningTargetBlocked(activePlanningTarget, userKeyResultItems)
     ) {
-      setSelectedPlanningTargetId(null);
+      clearSelectedPlanningTarget();
     }
-  }, [activePlanningTarget, userKeyResultItems, planningPickReady]);
+  }, [
+    activePlanningTarget,
+    userKeyResultItems,
+    planningPickReady,
+    clearSelectedPlanningTarget,
+  ]);
 
   useEffect(() => {
-    if (inlineEditPlanId) setSelectedPlanningTargetId(null);
-  }, [inlineEditPlanId]);
+    if (inlineEditPlanId) clearSelectedPlanningTarget();
+  }, [inlineEditPlanId, clearSelectedPlanningTarget]);
 
   useEffect(() => {
     if (activeTab !== 1) {
@@ -381,18 +435,18 @@ function Page() {
   const closeMobilePlanComposer = useCallback(() => {
     setMobilePlanComposerOpen(false);
     setInlinePlanningMode(false);
-    setSelectedPlanningTargetId(null);
+    clearSelectedPlanningTarget();
     setInlineEditPlanId(null);
   }, [setMobilePlanComposerOpen, setInlinePlanningMode, setInlineEditPlanId]);
 
   const handleMobileInlineExit = useCallback(() => {
-    setSelectedPlanningTargetId(null);
+    clearSelectedPlanningTarget();
     setMobilePlanComposerOpen(false);
     setInlineEditPlanId(null);
   }, [setMobilePlanComposerOpen, setInlineEditPlanId]);
 
   const handleInlineWorkspaceExit = useCallback(() => {
-    setSelectedPlanningTargetId(null);
+    clearSelectedPlanningTarget();
     setInlineEditPlanId(null);
   }, [setInlineEditPlanId]);
 
@@ -578,9 +632,7 @@ function Page() {
                   planningTargets={planningTargets}
                   planningTargetsLoading={planningTargetsLoading}
                   selectedPlanningTargetId={selectedPlanningTargetId}
-                  onPickPlanningTarget={(t) =>
-                    setSelectedPlanningTargetId(t.id)
-                  }
+                  onPickPlanningTarget={selectPlanningTarget}
                   userKeyResultItems={userKeyResultItems}
                   objectiveMilestonesByKrId={objectiveMilestonesByKrId}
                   onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
@@ -617,7 +669,7 @@ function Page() {
                       planningPeriodLabel={inlinePlanningPeriodLabel}
                       activeTarget={activePlanningTarget}
                       userKeyResultItems={userKeyResultItems}
-                      onClearTarget={() => setSelectedPlanningTargetId(null)}
+                      onClearTarget={clearSelectedPlanningTarget}
                       onExit={handleInlineWorkspaceExit}
                       editPlanId={inlineEditPlanId}
                     />
@@ -729,7 +781,7 @@ function Page() {
                 planningTargets={planningTargets}
                 planningTargetsLoading={planningTargetsLoading}
                 selectedPlanningTargetId={selectedPlanningTargetId}
-                onPickPlanningTarget={(t) => setSelectedPlanningTargetId(t.id)}
+                onPickPlanningTarget={selectPlanningTarget}
                 userKeyResultItems={userKeyResultItems}
                 objectiveMilestonesByKrId={objectiveMilestonesByKrId}
                 onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
@@ -748,7 +800,7 @@ function Page() {
               planningPeriodLabel={inlinePlanningPeriodLabel}
               activeTarget={activePlanningTarget}
               userKeyResultItems={userKeyResultItems}
-              onClearTarget={() => setSelectedPlanningTargetId(null)}
+              onClearTarget={clearSelectedPlanningTarget}
               onExit={handleMobileInlineExit}
               editPlanId={inlineEditPlanId}
             />

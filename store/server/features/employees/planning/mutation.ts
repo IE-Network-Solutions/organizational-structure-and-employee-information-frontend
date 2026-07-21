@@ -53,15 +53,9 @@ const createPlanTasks = async (values: any) => {
 export const useCreatePlanTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(createPlanTasks, {
-    onSuccess: async (data, variables: any) => {
+    onSuccess: (data, variables: any) => {
       void data;
       rememberReopenedPlanningTargets({
-        keyResultIds:
-          variables?.tasks
-            ?.filter(
-              (task: any) => !task?.achieveMK && task?.keyResultId != null,
-            )
-            .map((task: any) => task.keyResultId) ?? [],
         milestoneIds:
           variables?.tasks
             ?.filter(
@@ -69,7 +63,7 @@ export const useCreatePlanTasks = () => {
             )
             .map((task: any) => task.milestoneId) ?? [],
       });
-      await invalidateOkrPlanningCaches(queryClient);
+      void invalidateOkrPlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Created ',
         description: ' ',
@@ -99,15 +93,9 @@ const updatePlanTasks = async (values: any) => {
 export const useUpdatePlanTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(updatePlanTasks, {
-    onSuccess: async (data, variables: any) => {
+    onSuccess: (data, variables: any) => {
       void data;
       rememberReopenedPlanningTargets({
-        keyResultIds:
-          variables?.tasks
-            ?.filter(
-              (task: any) => !task?.achieveMK && task?.keyResultId != null,
-            )
-            .map((task: any) => task.keyResultId) ?? [],
         milestoneIds:
           variables?.tasks
             ?.filter(
@@ -115,7 +103,7 @@ export const useUpdatePlanTasks = () => {
             )
             .map((task: any) => task.milestoneId) ?? [],
       });
-      await invalidateOkrPlanningCaches(queryClient);
+      void invalidateOkrPlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Updated ',
         description: ' ',

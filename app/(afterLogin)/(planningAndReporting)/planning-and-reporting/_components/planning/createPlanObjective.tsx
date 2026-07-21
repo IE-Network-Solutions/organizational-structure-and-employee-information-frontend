@@ -10,7 +10,7 @@ import {
   getKeyResultProgressRatioText,
   resolveKrMetricTypeLabel,
   countKeyResultPlanTasks,
-  isMilestoneCompleted,
+  isMilestoneAchievedForPlanning,
 } from '@/utils/okrKeyResultProgressDisplay';
 import {
   isKeyResultBlockedForPlanning,
@@ -483,7 +483,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                     <Dropdown.Button
                                       type="primary"
                                       icon={<DownOutlined />}
-                                      disabled={isMilestoneCompleted(ml)}
+                                      disabled={isMilestoneAchievedForPlanning(ml)}
                                       menu={{
                                         items: [
                                           {
@@ -491,7 +491,9 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                             label: 'Plan Milestone as a Task',
                                             disabled:
                                               statuses[ml?.id] ||
-                                              isMilestoneCompleted(ml) ||
+                                              isMilestoneAchievedForPlanning(
+                                                ml,
+                                              ) ||
                                               form?.getFieldValue(
                                                 `names-${kr?.id + ml?.id}`,
                                               )?.[0]?.achieveMK,

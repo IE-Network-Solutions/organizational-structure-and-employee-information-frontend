@@ -45,6 +45,7 @@ import {
   isPlanningTargetBlocked,
   type PlanningTarget,
 } from './buildPlanningTargets';
+import { useRecentlyAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
 
 type DraftLine = {
   id: string;
@@ -174,6 +175,16 @@ const inputNumH40 =
 const inlineComposerOutlineBtnClass =
   '!rounded-lg !border !border-solid !border-[#E5E7EB] !bg-white !font-semibold !text-[#1E40AF] !shadow-sm hover:!border-[#D1D5DB] hover:!bg-[#F8FAFC] hover:!text-[#1E3A8A] [&_.anticon]:!text-[#1E40AF]';
 
+function normalizeMetricTypeName(
+  metricTypeName: string | null | undefined,
+): string {
+  const raw = String(metricTypeName ?? '')
+    .trim()
+    .toLowerCase();
+  if (!raw || raw === 'n/a') return '';
+  return raw;
+}
+
 /** Drawer parity: Achieve KRs (KR-as-task) + Milestone-metric KRs at a milestone row (milestone-as-task). */
 function canUseAchieveMK(
   metricTypeName: string | null | undefined,
@@ -181,9 +192,11 @@ function canUseAchieveMK(
   milestoneId: string | null | undefined,
 ): boolean {
   if (isDailySlot) return false;
-  if (metricTypeName === NAME.ACHIEVE) return true;
-  if (metricTypeName === NAME.MILESTONE && milestoneId) return true;
-  return false;
+  // A picked milestone row is always eligible for "Plan milestone", even when
+  // metricTypeName is missing/N/A on the cached planningTargets entry.
+  if (milestoneId) return true;
+  const metric = normalizeMetricTypeName(metricTypeName);
+  return metric === normalizeMetricTypeName(NAME.ACHIEVE);
 }
 
 /** Drawer parity: numeric target only for quantitative KR metrics (daily slots keep target). */
@@ -192,8 +205,9 @@ function shouldShowPlanningTarget(
   isDailySlot: boolean,
 ): boolean {
   if (isDailySlot) return true;
-  if (metricTypeName === NAME.ACHIEVE) return false;
-  if (metricTypeName === NAME.MILESTONE) return false;
+  const metric = normalizeMetricTypeName(metricTypeName);
+  if (metric === normalizeMetricTypeName(NAME.ACHIEVE)) return false;
+  if (metric === normalizeMetricTypeName(NAME.MILESTONE)) return false;
   return true;
 }
 
@@ -539,9 +553,23 @@ const InlinePlanningWorkspace = forwardRef<
     [draftLines],
   );
 
+  const recentlyAchievedIds = useRecentlyAchievedMilestones((s) => s.ids);
+  const reopenedMilestoneIds = useRecentlyAchievedMilestones(
+    (s) => s.reopenedMilestoneIds,
+  );
+  const reopenedKeyResultIds = useRecentlyAchievedMilestones(
+    (s) => s.reopenedKeyResultIds,
+  );
+
   const activeTargetBlocked = useMemo(
     () => isPlanningTargetBlocked(activeTarget, userKeyResultItems),
-    [activeTarget, userKeyResultItems],
+    [
+      activeTarget,
+      userKeyResultItems,
+      recentlyAchievedIds,
+      reopenedMilestoneIds,
+      reopenedKeyResultIds,
+    ],
   );
 
   useEffect(() => {

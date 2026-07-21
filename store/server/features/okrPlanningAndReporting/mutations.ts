@@ -188,8 +188,8 @@ function collectMilestoneIdsFromApprovedReport(
 export const useApprovalPlanningPeriods = () => {
   const queryClient = useQueryClient();
   return useMutation(approveOrRejectPlanningPeriods, {
-    onSuccess: async () => {
-      await invalidateOkrPlanningCaches(queryClient);
+    onSuccess: () => {
+      void invalidateOkrPlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully updated',
         description: 'okr plan status successfully updated',
@@ -214,11 +214,15 @@ export const useCreateReportForUnReportedtasks = () => {
       achievedMilestoneIds?: Array<string | number | null | undefined>;
     }) => createReportForUnReportedtasks(values, planningPeriodId, planId),
     {
-      onSuccess: async (data, variables) => {
+      onSuccess: (data, variables) => {
         void data;
         applyAchievedMilestoneIds(queryClient, variables.achievedMilestoneIds);
-        await invalidateOkrPlanningCaches(queryClient);
-        scheduleOkrMilestoneStatusRefetch(queryClient);
+        void invalidateOkrPlanningCaches(queryClient);
+        scheduleOkrMilestoneStatusRefetch(
+          queryClient,
+          750,
+          variables.achievedMilestoneIds,
+        );
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',
@@ -241,11 +245,15 @@ export const useEditReportByReportId = () => {
       achievedMilestoneIds?: Array<string | number | null | undefined>;
     }) => editReport(values, selectedReportId),
     {
-      onSuccess: async (data, variables) => {
+      onSuccess: (data, variables) => {
         void data;
         applyAchievedMilestoneIds(queryClient, variables.achievedMilestoneIds);
-        await invalidateOkrPlanningCaches(queryClient);
-        scheduleOkrMilestoneStatusRefetch(queryClient);
+        void invalidateOkrPlanningCaches(queryClient);
+        scheduleOkrMilestoneStatusRefetch(
+          queryClient,
+          750,
+          variables.achievedMilestoneIds,
+        );
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',
@@ -259,8 +267,8 @@ export const useDeletePlanById = () => {
   const queryClient = useQueryClient();
 
   return useMutation(deletePlanById, {
-    onSuccess: async () => {
-      await invalidateOkrPlanningCaches(queryClient);
+    onSuccess: () => {
+      void invalidateOkrPlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Deleted',
         description: 'OKR plan Deleted successfully',
@@ -272,8 +280,8 @@ export const useDeleteReportById = () => {
   const queryClient = useQueryClient();
 
   return useMutation(deleteReportById, {
-    onSuccess: async () => {
-      await invalidateOkrPlanningCaches(queryClient);
+    onSuccess: () => {
+      void invalidateOkrPlanningCaches(queryClient);
       scheduleOkrMilestoneStatusRefetch(queryClient);
       NotificationMessage.success({
         message: 'Successfully Deleted',
@@ -286,17 +294,18 @@ export const useDeleteReportById = () => {
 export const useApprovalReporting = () => {
   const queryClient = useQueryClient();
   return useMutation(approveOrRejectReporting, {
-    onSuccess: async (data, variables) => {
+    onSuccess: (data, variables) => {
       void data;
+      let achievedIds: string[] = [];
       if (variables?.value === true && variables?.id) {
-        const achievedIds = collectMilestoneIdsFromApprovedReport(
+        achievedIds = collectMilestoneIdsFromApprovedReport(
           queryClient,
           String(variables.id),
         );
         applyAchievedMilestoneIds(queryClient, achievedIds);
       }
-      await invalidateOkrPlanningCaches(queryClient);
-      scheduleOkrMilestoneStatusRefetch(queryClient);
+      void invalidateOkrPlanningCaches(queryClient);
+      scheduleOkrMilestoneStatusRefetch(queryClient, 750, achievedIds);
       NotificationMessage.success({
         message: 'Successfully updated',
         description: 'okr plan status successfully updated',
@@ -321,14 +330,14 @@ export const useUpdateStatus = () => {
       planningPeriodId?: string;
     }) => updateStatus(id, status),
     {
-      onSuccess: async (
+      onSuccess: (
         /* eslint-disable-next-line @typescript-eslint/naming-convention */
         _data /* eslint-enable-next-line @typescript-eslint/naming-convention */,
         variables,
       ) => {
         const { planningPeriodId } = variables;
         queryClient.invalidateQueries('defaultPlanningPeriods');
-        await invalidateOkrPlanningCaches(queryClient);
+        void invalidateOkrPlanningCaches(queryClient);
         scheduleOkrMilestoneStatusRefetch(queryClient);
         if (planningPeriodId) {
           queryClient.invalidateQueries(['okrPlannedData', planningPeriodId]);

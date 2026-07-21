@@ -388,17 +388,13 @@ export const useUpdateKeyResult = () => {
       const krStatus = String(variables?.status ?? '')
         .toLowerCase()
         .replace(/[\s-]+/g, '_');
-      const krProgress = Number(variables?.progress ?? 0);
-      const krFullyAchieved =
-        krStatus === 'achieved' ||
-        krStatus === 'completed' ||
-        krProgress >= 100;
+      const krExplicitlyAchieved =
+        krStatus === 'achieved' || krStatus === 'completed';
       let completedIds = milestoneRows
         .filter(
           (m: any) =>
             m &&
-            (krFullyAchieved ||
-              m.status === 'Completed' ||
+            (m.status === 'Completed' ||
               String(m.status ?? '')
                 .toLowerCase()
                 .replace(/[\s-]+/g, '_') === 'completed' ||
@@ -407,8 +403,9 @@ export const useUpdateKeyResult = () => {
         .map((m: any) => m.id)
         .filter((id: any) => id != null && String(id).length > 0);
 
-      // KR Achieved with no milestones in payload — pull IDs from OKR caches.
-      if (krFullyAchieved && completedIds.length === 0 && variables?.id) {
+      // Only when the KR is explicitly Achieved — never from progress≥100 alone
+      // (weighted sub-key-result reports can bump progress without completing milestones).
+      if (krExplicitlyAchieved && completedIds.length === 0 && variables?.id) {
         completedIds = collectMilestoneIdsForKeyResultFromCaches(
           queryClient,
           String(variables.id),
@@ -439,7 +436,7 @@ export const useUpdateKeyResult = () => {
       // Refetch all ObjectiveDashboard queries
       queryClient.refetchQueries('ObjectiveDashboard');
       // Milestone Completed can lag the first refetch after OKR edits.
-      scheduleOkrMilestoneStatusRefetch(queryClient);
+      scheduleOkrMilestoneStatusRefetch(queryClient, 750, completedIds);
     },
   });
 };

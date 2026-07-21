@@ -264,12 +264,10 @@ export function collectAchievedMilestoneIdsFromReport(
     (keyresult?.milestones ?? []).forEach((milestone: any) => {
       const mid = milestone?.id != null ? String(milestone.id) : null;
       if (!mid) return;
-      const tasks = milestone?.tasks ?? [];
-      const achieved = tasks.some(
-        (task: any) =>
-          isDone(task) &&
-          (isAchieveMkTask(task) ||
-            String(taskMilestoneId(task) ?? '') === mid),
+      // Only Plan-milestone / achieveMK outcome tasks complete the milestone.
+      // Regular sub-key-result Done rows must NOT hide the + pick control.
+      const achieved = (milestone?.tasks ?? []).some(
+        (task: any) => isDone(task) && isAchieveMkTask(task),
       );
       if (achieved) ids.add(mid);
     });
@@ -296,7 +294,7 @@ export function buildPlanTaskMilestoneMap(
       const mid = milestone?.id != null ? String(milestone.id) : null;
       if (!mid) return;
       (milestone?.tasks ?? []).forEach((task: any) => {
-        if (!isAchieveMkTask(task) && taskMilestoneId(task) == null) return;
+        if (!isAchieveMkTask(task)) return;
         const taskId = task?.taskId ?? task?.id ?? task?.planTaskId;
         if (taskId != null) map[String(taskId)] = mid;
       });
