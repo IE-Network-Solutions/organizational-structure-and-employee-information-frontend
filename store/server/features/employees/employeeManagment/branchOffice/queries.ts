@@ -1,4 +1,4 @@
-import { CORE_API_URL, ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { Meta } from '../../settings/groupPermission/interface';

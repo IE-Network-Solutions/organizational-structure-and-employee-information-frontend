@@ -1,7 +1,10 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { CORE_API_URL, OKR_AND_PLANNING_URL, ORG_AND_EMP_URL } from '@/utils/constants';
+import {
+  CORE_API_URL,
+  OKR_AND_PLANNING_URL
+} from '@/utils/constants';
 import { DataItem } from '@/store/uistate/features/weeklyPriority/useStore';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 

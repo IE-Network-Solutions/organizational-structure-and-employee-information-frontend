@@ -159,8 +159,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
       lastProcessedFiscalYearRef.current.end === null ||
       lastProcessedFiscalYearRef.current.calendarType === null;
     const fyStartChanged =
-      !isFirstInit &&
-      lastProcessedFiscalYearRef.current.start !== currentStart;
+      !isFirstInit && lastProcessedFiscalYearRef.current.start !== currentStart;
     const fyEndChanged =
       !isFirstInit && lastProcessedFiscalYearRef.current.end !== currentEnd;
     const calendarTypeChanged =
