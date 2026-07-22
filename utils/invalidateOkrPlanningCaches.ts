@@ -1,6 +1,5 @@
 import type { QueryClient } from 'react-query';
 import {
-  forgetAchievedMilestones,
   isRecentlyAchievedMilestone,
   rememberAchievedMilestones,
   useRecentlyAchievedMilestones,
@@ -75,13 +74,10 @@ export function reconcileAchievedMilestonesAfterStatusRefetch(
   if (ids.length === 0) return;
 
   const stillNeedPatch: string[] = [];
-  const confirmed: string[] = [];
 
   for (const id of ids) {
     if (!isRecentlyAchievedMilestone(id)) continue;
-    if (isMilestoneCompletedInOkrCaches(queryClient, id)) {
-      confirmed.push(id);
-    } else {
+    if (!isMilestoneCompletedInOkrCaches(queryClient, id)) {
       stillNeedPatch.push(id);
     }
   }
@@ -92,10 +88,9 @@ export function reconcileAchievedMilestonesAfterStatusRefetch(
       new Set(stillNeedPatch),
     );
   }
-  // Keep session achieved until API confirms — never forget on a stale read.
-  if (confirmed.length > 0) {
-    forgetAchievedMilestones(confirmed);
-  }
+  // Keep session achieved for the whole page session — forgetting here caused
+  // achieved milestones to flip back to selectable when a follow-up refetch
+  // briefly returned stale Incomplete rows.
 }
 
 /** Re-stamp Completed in cache for session-achieved ids (after stale refetch). */

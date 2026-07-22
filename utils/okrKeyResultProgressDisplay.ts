@@ -169,7 +169,7 @@ function milestoneRowId(m: MilestoneRowInput): string | null {
 /**
  * Merge two milestone rows: keep titles from either side and never lose Completed.
  */
-function mergeMilestoneCompletionRow(
+export function mergeMilestoneCompletionRow(
   primary: MilestoneRowInput,
   secondary?: MilestoneRowInput | null,
 ): MilestoneRowInput {

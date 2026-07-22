@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { rememberAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { useGetPlanningPeriodsHierarchy } from '@/store/server/features/okrPlanningAndReporting/queries';
 import {
@@ -82,6 +83,16 @@ export function usePlanningTargets(
     reopenedMilestoneIds,
     reopenedKeyResultIds,
   ]);
+
+  // Seed session memory from authoritative objective/API completed rows so a
+  // later stale refetch cannot flip achieved milestones back to selectable.
+  useEffect(() => {
+    if (!planningPeriodId) return;
+    const ids = targets
+      .filter((t) => t.milestoneId && t.isCompleted)
+      .map((t) => t.milestoneId);
+    if (ids.length > 0) rememberAchievedMilestones(ids);
+  }, [targets, planningPeriodId]);
 
   // Background invalidation/refetch must not flip buttons or panels into loading.
   const isInitialLoading =

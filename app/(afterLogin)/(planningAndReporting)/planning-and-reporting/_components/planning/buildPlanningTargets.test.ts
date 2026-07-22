@@ -378,4 +378,38 @@ describe('planning completion session rules', () => {
     expect(targets.every((t) => !t.isCompleted)).toBe(true);
     expect(hasSelectablePlanningTargets(targets)).toBe(true);
   });
+
+  it('keeps objective Completed when a later stale API row omits status', () => {
+    const targets = buildPickTargetsForKeyResult({
+      keyResultId: 'kr-2',
+      keyResultTitle: 'Test-KR2',
+      metricTypeName: 'Milestone',
+      objectiveMilestones: [
+        { id: 'm-1', title: 'First milestone', status: 'Completed' },
+        { id: 'm-2', title: 'Second milestone', status: 'In Progress' },
+      ],
+      apiKr: {
+        id: 'kr-2',
+        metricType: { name: 'Milestone' },
+        milestones: [
+          { id: 'm-1', title: 'First milestone', status: 'In Progress' },
+          { id: 'm-2', title: 'Second milestone', status: 'In Progress' },
+        ],
+      },
+      userKeyResultItems: [
+        {
+          id: 'kr-2',
+          metricType: { name: 'Milestone' },
+          milestones: [
+            { id: 'm-1', title: 'First milestone', status: 'In Progress' },
+            { id: 'm-2', title: 'Second milestone', status: 'In Progress' },
+          ],
+        },
+      ],
+    });
+
+    expect(targets[0]?.isCompleted).toBe(true);
+    expect(targets[1]?.isCompleted).toBe(false);
+    expect(hasSelectablePlanningTargets(targets)).toBe(true);
+  });
 });

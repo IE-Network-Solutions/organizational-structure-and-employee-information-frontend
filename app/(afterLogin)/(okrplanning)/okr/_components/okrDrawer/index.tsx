@@ -92,11 +92,20 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     fiscalYearId,
     sessionId,
   );
-  // Use same query as edit form for alignment dropdown so options load on mobile (edit form uses reportsToId only)
-  const { data: keyResultByUserForAlignment } =
-    useGetUserKeyResult(reportsToId);
-  const alignmentOptions =
-    keyResultByUserForAlignment?.items ?? keyResultByUser?.items ?? [];
+  // Fallback without fiscal/session (edit form parity) when scoped list is empty.
+  const { data: keyResultByUserUnscoped } = useGetUserKeyResult(
+    reportsToId,
+    undefined,
+    undefined,
+    { enabled: !!reportsToId },
+  );
+  const alignmentOptions = (() => {
+    const scoped = keyResultByUser?.items;
+    if (Array.isArray(scoped) && scoped.length > 0) return scoped;
+    const unscoped = keyResultByUserUnscoped?.items;
+    if (Array.isArray(unscoped) && unscoped.length > 0) return unscoped;
+    return [];
+  })();
   const objectiveTitle = objectiveValue?.title
     ? objectiveValue?.title
     : alignmentOptions.find(

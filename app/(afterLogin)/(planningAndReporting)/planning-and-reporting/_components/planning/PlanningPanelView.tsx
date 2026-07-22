@@ -365,6 +365,7 @@ function KRProgressCard({
     (s) => s.reopenedKeyResultIds,
   );
   const reopenedKr = reopenedKeyResultIds.has(String(kr.id));
+  const [pickMenuOpen, setPickMenuOpen] = useState(false);
 
   const showTaskCount = kr.taskCount > 0;
 
@@ -474,12 +475,14 @@ function KRProgressCard({
   const pickButton =
     showPickControl && onPickPlanningTarget ? (
       <Dropdown
+        open={pickMenuOpen}
         menu={{
           items: dropdownMenuItems,
           onClick: ({ key, domEvent }) => {
             domEvent.stopPropagation();
             const t = planningTargetsForKr.find((x) => x.id === key);
             if (!t || isSlotDisabled(t)) return;
+            setPickMenuOpen(false);
             onPickPlanningTarget(t);
           },
         }}
@@ -487,6 +490,7 @@ function KRProgressCard({
         placement={pickMenuPlacement}
         overlayClassName="planning-target-pick-menu"
         onOpenChange={(open) => {
+          setPickMenuOpen(open);
           if (open) onRefreshMilestoneStatus?.();
         }}
       >

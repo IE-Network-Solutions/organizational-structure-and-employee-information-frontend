@@ -5,6 +5,7 @@ import {
   isKeyResultFullyCompletedForPlanning,
   isMilestoneAchievedForPlanning,
   mergeKeyResultWithUserApi,
+  mergeMilestoneCompletionRow,
   resolveKrPlanningBlocked,
   resolveOkrMilestones,
 } from '@/utils/okrKeyResultProgressDisplay';
@@ -52,29 +53,7 @@ function mergeMilestoneListsForPick(...lists: any[][]): any[] {
       if (!m || m.deletedAt != null || m.id == null) continue;
       const id = String(m.id);
       const prev = byId.get(id);
-      if (!prev) {
-        byId.set(id, { ...m });
-        continue;
-      }
-      const completed =
-        isMilestoneAchievedForPlanning(m) ||
-        isMilestoneAchievedForPlanning(prev);
-      byId.set(id, {
-        ...prev,
-        ...m,
-        // Keep the first meaningful title; callers re-apply objective titles.
-        title: prev.title || prev.name || m.title || m.name,
-        name: prev.name || m.name,
-        // Never let a later empty/In Progress status wipe real Completed.
-        // Do not invent Completed from progress alone (sub-key-result Done).
-        status: completed ? 'Completed' : m.status || prev.status,
-        isAchieved: completed
-          ? true
-          : m.isAchieved === true || prev.isAchieved === true
-            ? true
-            : (m.isAchieved ?? prev.isAchieved),
-        progress: m.progress ?? prev.progress,
-      });
+      byId.set(id, prev ? mergeMilestoneCompletionRow(prev, m) : { ...m });
     }
   }
   return Array.from(byId.values());
@@ -367,16 +346,7 @@ export function indexObjectiveMilestonesByKrId(
         String(kr.id),
         rows.map((m) => {
           const api = apiById.get(String(m.id));
-          if (!api) return m;
-          const completed =
-            isMilestoneAchievedForPlanning(m) ||
-            isMilestoneAchievedForPlanning(api);
-          return {
-            ...m,
-            status: completed ? 'Completed' : m.status || api.status,
-            isAchieved: completed ? true : (m.isAchieved ?? api.isAchieved),
-            progress: m.progress ?? api.progress,
-          };
+          return api ? mergeMilestoneCompletionRow(m, api) : m;
         }),
       );
     });
