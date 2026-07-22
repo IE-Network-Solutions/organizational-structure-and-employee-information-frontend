@@ -3,6 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { InstallPrompt } from '@/components/PWA/InstallPrompt';
 import { AnimatedSplashScreen } from '@/components/PWA/AnimatedSplashScreen';
+import {
+  PUSH_SW_SCOPE,
+  PUSH_SW_SCRIPT,
+  SW_SCOPE,
+  SW_SCRIPT,
+} from '@/utils/constants';
 // import { useRouter } from 'next/navigation';
 
 interface PWAProviderProps {
@@ -33,20 +39,19 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
           registrations.forEach((r) => r.unregister());
         });
       } else if (!navigator.serviceWorker.controller) {
-        // Production: register main service worker (PWA + push).
-        // The app is served under the /workspace basePath, so the SW scripts
-        // live at /workspace/sw*.js — a root /sw.js would 404 (it is Core's origin).
+        // Production: register main + push SWs. Paths follow basePath
+        // (Core: /workspace/sw*.js, standalone/preview: /sw*.js).
         navigator.serviceWorker
-          .register('/workspace/sw.js', {
-            scope: '/workspace/',
+          .register(SW_SCRIPT, {
+            scope: SW_SCOPE,
             updateViaCache: 'imports',
           })
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .then((registration) => {})
           .catch(() => {});
         navigator.serviceWorker
-          .register('/workspace/sw-push.js', {
-            scope: '/workspace/push/',
+          .register(PUSH_SW_SCRIPT, {
+            scope: PUSH_SW_SCOPE,
             updateViaCache: 'imports',
           })
           .catch(() => {});

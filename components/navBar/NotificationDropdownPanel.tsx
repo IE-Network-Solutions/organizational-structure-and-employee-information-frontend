@@ -28,6 +28,12 @@ import {
   GlobalOutlined,
 } from '@ant-design/icons';
 import { requestAndRegisterPushSubscription } from '@/hooks/usePushSubscription';
+import {
+  PUSH_SW_SCOPE,
+  PUSH_SW_SCRIPT,
+  SW_SCOPE,
+  SW_SCRIPT,
+} from '@/utils/constants';
 import { VAPID_PUBLIC_KEY } from '@/utils/constants';
 import { getNotificationThemeClasses } from '@/store/server/features/notification/themeUtils';
 import { useCanAccessRoute } from '@/utils/routePermissions';
@@ -227,21 +233,21 @@ export function NotificationDropdownPanel({
     ) {
       return;
     }
-    // SW scripts/scopes live under the /workspace basePath (shared origin with Core).
-    navigator.serviceWorker.getRegistration('/workspace/').then((existing) => {
+    // SW paths follow basePath (Core: /workspace/..., standalone/preview: /...).
+    navigator.serviceWorker.getRegistration(SW_SCOPE).then((existing) => {
       if (!existing || !existing.active) {
-        navigator.serviceWorker.register('/workspace/sw.js', {
-          scope: '/workspace/',
+        navigator.serviceWorker.register(SW_SCRIPT, {
+          scope: SW_SCOPE,
           updateViaCache: 'imports',
         });
       }
     });
     navigator.serviceWorker
-      .getRegistration('/workspace/push/')
+      .getRegistration(PUSH_SW_SCOPE)
       .then((existing) => {
         if (!existing || !existing.active) {
-          navigator.serviceWorker.register('/workspace/sw-push.js', {
-            scope: '/workspace/push/',
+          navigator.serviceWorker.register(PUSH_SW_SCRIPT, {
+            scope: PUSH_SW_SCOPE,
             updateViaCache: 'imports',
           });
         }
