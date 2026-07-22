@@ -459,8 +459,7 @@ export function buildKrPlanningSource(
         progress: apiKr.progress ?? panelKr.progress,
         currentValue: apiKr.currentValue ?? panelKr.currentValue,
         targetValue: apiKr.targetValue ?? panelKr.targetValue,
-        initialValue:
-          apiKr.initialValue ?? panelKr.initialValue ?? 0,
+        initialValue: apiKr.initialValue ?? panelKr.initialValue ?? 0,
       },
       apiKr,
     ),

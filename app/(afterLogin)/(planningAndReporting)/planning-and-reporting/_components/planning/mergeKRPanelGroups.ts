@@ -50,8 +50,8 @@ function hasExplicitMetricMetadata(kr: any): boolean {
   if (!kr) return false;
   return Boolean(
     getMetricTypeName(kr) ||
-      resolveKrPanelMetricType(kr) ||
-      (kr.metricTypeId != null && String(kr.metricTypeId).trim() !== ''),
+    resolveKrPanelMetricType(kr) ||
+    (kr.metricTypeId != null && String(kr.metricTypeId).trim() !== ''),
   );
 }
 
@@ -115,9 +115,7 @@ export function preferRicherKeyResult(a: any, b: any): any {
 }
 
 /** Flatten objective[].keyResults (same payload shape the OKR dashboard uses). */
-export function flattenObjectiveKeyResults(
-  objectives: unknown,
-): any[] {
+export function flattenObjectiveKeyResults(objectives: unknown): any[] {
   const list = Array.isArray(objectives)
     ? objectives
     : Array.isArray((objectives as { items?: unknown } | null)?.items)

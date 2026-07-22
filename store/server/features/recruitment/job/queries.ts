@@ -1,8 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import {
-  CORE_API_URL,
-  RECRUITMENT_URL,
-} from '@/utils/constants';
+import { CORE_API_URL, RECRUITMENT_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
