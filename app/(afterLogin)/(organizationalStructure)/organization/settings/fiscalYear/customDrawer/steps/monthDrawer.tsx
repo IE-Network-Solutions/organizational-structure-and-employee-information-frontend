@@ -228,10 +228,7 @@ const MonthDrawer: React.FC<
     setMonthDataBySession(sessionMonthData);
     setMonthRangeFormValues(transformedData);
 
-    if (
-      Object.keys(sessionMonthData).length > 0 &&
-      expandedSession === null
-    ) {
+    if (Object.keys(sessionMonthData).length > 0 && expandedSession === null) {
       setExpandedSession(0);
     }
 
@@ -310,7 +307,8 @@ const MonthDrawer: React.FC<
         calendarType === 'Quarter' ? 3 : calendarType === 'Semester' ? 6 : 12;
       storedMonths.forEach((month: any, index: number) => {
         const sessionIndex = Math.floor(index / monthsPerSession);
-        if (!sessionMonthData[sessionIndex]) sessionMonthData[sessionIndex] = [];
+        if (!sessionMonthData[sessionIndex])
+          sessionMonthData[sessionIndex] = [];
         sessionMonthData[sessionIndex].push({
           monthNumber: month.monthNumber,
           monthName: month.monthName,
@@ -345,7 +343,11 @@ const MonthDrawer: React.FC<
   // Keep form fields in sync when monthRangeValues change from initialization only
   // (avoid re-applying on every keystroke by skipping when form already has matching names)
   useEffect(() => {
-    if (!form || !Array.isArray(monthRangeValues) || monthRangeValues.length === 0) {
+    if (
+      !form ||
+      !Array.isArray(monthRangeValues) ||
+      monthRangeValues.length === 0
+    ) {
       return;
     }
     const currentFormValues = form.getFieldsValue(true);
@@ -538,8 +540,7 @@ const MonthDrawer: React.FC<
           allMonths.map((month) => ({
             monthNumber: month.monthNumber,
             monthName:
-              mergedValues[`monthName_${month.monthNumber}`] ||
-              month.monthName,
+              mergedValues[`monthName_${month.monthNumber}`] || month.monthName,
             monthStartDate:
               mergedValues[`monthStartDate_${month.monthNumber}`] ||
               month.startDate,
@@ -647,243 +648,241 @@ const MonthDrawer: React.FC<
                       }`}
                       data-cy={`org-settings-fiscal-year-session-months-${sessionIndex}`}
                     >
-                        {sessionMonths.map((monthInfo) => (
-                          <div
-                            key={monthInfo.monthNumber}
-                            data-cy={`org-settings-fiscal-year-month-${monthInfo.monthNumber}`}
+                      {sessionMonths.map((monthInfo) => (
+                        <div
+                          key={monthInfo.monthNumber}
+                          data-cy={`org-settings-fiscal-year-month-${monthInfo.monthNumber}`}
+                        >
+                          <Row
+                            gutter={16}
+                            align="middle"
+                            data-cy={`org-settings-fiscal-year-month-row-${monthInfo.monthNumber}`}
                           >
-                            <Row
-                              gutter={16}
-                              align="middle"
-                              data-cy={`org-settings-fiscal-year-month-row-${monthInfo.monthNumber}`}
+                            <Col
+                              span={isMobile ? undefined : 10}
+                              flex={isMobile ? 'auto' : undefined}
+                              style={isMobile ? { minWidth: 0 } : undefined}
+                              data-cy={`org-settings-fiscal-year-month-name-col-${monthInfo.monthNumber}`}
                             >
-                              <Col
-                                span={isMobile ? undefined : 10}
-                                flex={isMobile ? 'auto' : undefined}
-                                style={isMobile ? { minWidth: 0 } : undefined}
-                                data-cy={`org-settings-fiscal-year-month-name-col-${monthInfo.monthNumber}`}
+                              <Form.Item
+                                data-cy={`org-settings-fiscal-year-month-name-${monthInfo.monthNumber}`}
+                                id={`monthNameId_${monthInfo.monthNumber}`}
+                                name={`monthName_${monthInfo.monthNumber}`}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: `Please input the month name!`,
+                                  },
+                                ]}
+                                className="mb-0"
                               >
-                                <Form.Item
-                                  data-cy={`org-settings-fiscal-year-month-name-${monthInfo.monthNumber}`}
-                                  id={`monthNameId_${monthInfo.monthNumber}`}
-                                  name={`monthName_${monthInfo.monthNumber}`}
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: `Please input the month name!`,
-                                    },
-                                  ]}
-                                  className="mb-0"
-                                >
-                                  <Input
-                                    size="middle"
-                                    className="w-full text-sm h-8"
-                                    placeholder={`Enter name for ${monthInfo.monthName}`}
-                                    data-cy={`org-settings-fiscal-year-month-name-input-${monthInfo.monthNumber}`}
-                                  />
-                                </Form.Item>
-                              </Col>
-                              <Col
-                                span={isMobile ? undefined : 14}
-                                flex={isMobile ? 'none' : undefined}
-                                data-cy={`org-settings-fiscal-year-month-date-range-col-${monthInfo.monthNumber}`}
-                              >
-                                <Form.Item
-                                  data-cy={`org-settings-fiscal-year-month-date-range-${monthInfo.monthNumber}`}
-                                  name={`monthDateRange_${monthInfo.monthNumber}`}
-                                  validateTrigger="onChange"
-                                  getValueFromEvent={(value) => {
-                                    if (
-                                      !value ||
-                                      !Array.isArray(value) ||
-                                      value.length !== 2
-                                    ) {
-                                      return null;
-                                    }
-                                    // Update the separate start and end date fields for form submission
-                                    if (form) {
-                                      form.setFieldsValue({
-                                        [`monthStartDate_${monthInfo.monthNumber}`]:
-                                          value[0],
-                                        [`monthEndDate_${monthInfo.monthNumber}`]:
-                                          value[1],
-                                      });
-                                    }
+                                <Input
+                                  size="middle"
+                                  className="w-full text-sm h-8"
+                                  placeholder={`Enter name for ${monthInfo.monthName}`}
+                                  data-cy={`org-settings-fiscal-year-month-name-input-${monthInfo.monthNumber}`}
+                                />
+                              </Form.Item>
+                            </Col>
+                            <Col
+                              span={isMobile ? undefined : 14}
+                              flex={isMobile ? 'none' : undefined}
+                              data-cy={`org-settings-fiscal-year-month-date-range-col-${monthInfo.monthNumber}`}
+                            >
+                              <Form.Item
+                                data-cy={`org-settings-fiscal-year-month-date-range-${monthInfo.monthNumber}`}
+                                name={`monthDateRange_${monthInfo.monthNumber}`}
+                                validateTrigger="onChange"
+                                getValueFromEvent={(value) => {
+                                  if (
+                                    !value ||
+                                    !Array.isArray(value) ||
+                                    value.length !== 2
+                                  ) {
+                                    return null;
+                                  }
+                                  // Update the separate start and end date fields for form submission
+                                  if (form) {
+                                    form.setFieldsValue({
+                                      [`monthStartDate_${monthInfo.monthNumber}`]:
+                                        value[0],
+                                      [`monthEndDate_${monthInfo.monthNumber}`]:
+                                        value[1],
+                                    });
+                                  }
+                                  return value;
+                                }}
+                                normalize={(value) => {
+                                  // If value is already a valid range array, return it
+                                  if (
+                                    value &&
+                                    Array.isArray(value) &&
+                                    value.length === 2 &&
+                                    value[0] &&
+                                    value[1]
+                                  ) {
                                     return value;
-                                  }}
-                                  normalize={(value) => {
-                                    // If value is already a valid range array, return it
-                                    if (
-                                      value &&
-                                      Array.isArray(value) &&
-                                      value.length === 2 &&
-                                      value[0] &&
-                                      value[1]
-                                    ) {
-                                      return value;
-                                    }
-                                    // If value is null/undefined, try to get from separate date fields
-                                    const startDate = form?.getFieldValue(
-                                      `monthStartDate_${monthInfo.monthNumber}`,
-                                    );
-                                    const endDate = form?.getFieldValue(
-                                      `monthEndDate_${monthInfo.monthNumber}`,
-                                    );
-                                    if (startDate && endDate) {
-                                      return [dayjs(startDate), dayjs(endDate)];
-                                    }
-                                    // Fallback to monthInfo dates if available
-                                    if (
-                                      monthInfo.startDate &&
-                                      monthInfo.endDate
-                                    ) {
-                                      return [
-                                        dayjs(monthInfo.startDate),
-                                        dayjs(monthInfo.endDate),
-                                      ];
-                                    }
-                                    return value;
-                                  }}
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: 'Please select the date range!',
-                                    },
-                                    {
-                                      validator: async (nonused, value) => {
-                                        if (
-                                          !value ||
-                                          !Array.isArray(value) ||
-                                          value.length !== 2
-                                        ) {
-                                          return;
-                                        }
-                                        const [startDate, endDate] = value;
+                                  }
+                                  // If value is null/undefined, try to get from separate date fields
+                                  const startDate = form?.getFieldValue(
+                                    `monthStartDate_${monthInfo.monthNumber}`,
+                                  );
+                                  const endDate = form?.getFieldValue(
+                                    `monthEndDate_${monthInfo.monthNumber}`,
+                                  );
+                                  if (startDate && endDate) {
+                                    return [dayjs(startDate), dayjs(endDate)];
+                                  }
+                                  // Fallback to monthInfo dates if available
+                                  if (
+                                    monthInfo.startDate &&
+                                    monthInfo.endDate
+                                  ) {
+                                    return [
+                                      dayjs(monthInfo.startDate),
+                                      dayjs(monthInfo.endDate),
+                                    ];
+                                  }
+                                  return value;
+                                }}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: 'Please select the date range!',
+                                  },
+                                  {
+                                    validator: async (nonused, value) => {
+                                      if (
+                                        !value ||
+                                        !Array.isArray(value) ||
+                                        value.length !== 2
+                                      ) {
+                                        return;
+                                      }
+                                      const [startDate, endDate] = value;
 
-                                        // Validate start date
-                                        const fiscalYearStartDate =
-                                          dayjs(fiscalYearStart);
-                                        if (
-                                          dayjs(startDate).isBefore(
-                                            fiscalYearStartDate,
-                                          )
-                                        ) {
-                                          throw new Error(
-                                            `Start date cannot be before fiscal year start (${fiscalYearStartDate.format('YYYY-MM-DD')})`,
-                                          );
-                                        }
-
-                                        // Validate end date
-                                        const fiscalYearEndDate =
-                                          dayjs(fiscalYearEnd);
-                                        if (
-                                          dayjs(endDate).isAfter(
-                                            fiscalYearEndDate,
-                                          )
-                                        ) {
-                                          throw new Error(
-                                            `End date cannot be after fiscal year end (${fiscalYearEndDate.format('YYYY-MM-DD')})`,
-                                          );
-                                        }
-
-                                        // Validate start before end
-                                        if (
-                                          dayjs(startDate).isAfter(
-                                            dayjs(endDate),
-                                          )
-                                        ) {
-                                          throw new Error(
-                                            'Start date must be before end date',
-                                          );
-                                        }
-
-                                        // Update separate fields for validation
-                                        if (form) {
-                                          form.setFieldsValue({
-                                            [`monthStartDate_${monthInfo.monthNumber}`]:
-                                              startDate,
-                                            [`monthEndDate_${monthInfo.monthNumber}`]:
-                                              endDate,
-                                          });
-                                        }
-                                      },
-                                    },
-                                    ...(form
-                                      ? [
-                                          {
-                                            validator: async (
-                                              nonused: any,
-                                              value: any,
-                                            ) => {
-                                              if (
-                                                !value ||
-                                                !Array.isArray(value) ||
-                                                value.length !== 2
-                                              ) {
-                                                return;
-                                              }
-                                              const [startDate] = value;
-                                              return validateStartNoOverlap(
-                                                monthInfo.monthNumber,
-                                                form,
-                                              )(nonused, startDate);
-                                            },
-                                          },
-                                          {
-                                            validator: async (
-                                              nonused: any,
-                                              value: any,
-                                            ) => {
-                                              if (
-                                                !value ||
-                                                !Array.isArray(value) ||
-                                                value.length !== 2
-                                              ) {
-                                                return;
-                                              }
-                                              const [, endDate] = value;
-                                              return validateEndNoOverlap(
-                                                monthInfo.monthNumber,
-                                                form,
-                                              )(nonused, endDate);
-                                            },
-                                          },
-                                        ]
-                                      : []),
-                                  ]}
-                                  className="mb-0"
-                                >
-                                  <RangePicker
-                                    className={
-                                      isMobile
-                                        ? 'h-10 w-11 min-w-11 px-0 justify-center [&_.ant-picker-input]:hidden [&_.ant-picker-range-separator]:hidden [&_.ant-picker-active-bar]:hidden [&_.ant-picker-suffix]:m-0'
-                                        : 'w-full h-8 [&_.ant-picker-input]:h-8'
-                                    }
-                                    size="middle"
-                                    disabledDate={(current) => {
-                                      if (!current) return false;
+                                      // Validate start date
                                       const fiscalYearStartDate =
                                         dayjs(fiscalYearStart);
+                                      if (
+                                        dayjs(startDate).isBefore(
+                                          fiscalYearStartDate,
+                                        )
+                                      ) {
+                                        throw new Error(
+                                          `Start date cannot be before fiscal year start (${fiscalYearStartDate.format('YYYY-MM-DD')})`,
+                                        );
+                                      }
+
+                                      // Validate end date
                                       const fiscalYearEndDate =
                                         dayjs(fiscalYearEnd);
-                                      return (
-                                        current.isBefore(fiscalYearStartDate) ||
-                                        current.isAfter(fiscalYearEndDate)
-                                      );
-                                    }}
-                                    onChange={() => {
-                                      clearRelatedValidationErrors(
-                                        monthInfo.monthNumber,
-                                      );
-                                    }}
-                                    data-cy={`org-settings-fiscal-year-month-date-range-input-${monthInfo.monthNumber}`}
-                                  />
-                                </Form.Item>
-                              </Col>
-                            </Row>
-                          </div>
-                        ))}
-                      </div>
+                                      if (
+                                        dayjs(endDate).isAfter(
+                                          fiscalYearEndDate,
+                                        )
+                                      ) {
+                                        throw new Error(
+                                          `End date cannot be after fiscal year end (${fiscalYearEndDate.format('YYYY-MM-DD')})`,
+                                        );
+                                      }
+
+                                      // Validate start before end
+                                      if (
+                                        dayjs(startDate).isAfter(dayjs(endDate))
+                                      ) {
+                                        throw new Error(
+                                          'Start date must be before end date',
+                                        );
+                                      }
+
+                                      // Update separate fields for validation
+                                      if (form) {
+                                        form.setFieldsValue({
+                                          [`monthStartDate_${monthInfo.monthNumber}`]:
+                                            startDate,
+                                          [`monthEndDate_${monthInfo.monthNumber}`]:
+                                            endDate,
+                                        });
+                                      }
+                                    },
+                                  },
+                                  ...(form
+                                    ? [
+                                        {
+                                          validator: async (
+                                            nonused: any,
+                                            value: any,
+                                          ) => {
+                                            if (
+                                              !value ||
+                                              !Array.isArray(value) ||
+                                              value.length !== 2
+                                            ) {
+                                              return;
+                                            }
+                                            const [startDate] = value;
+                                            return validateStartNoOverlap(
+                                              monthInfo.monthNumber,
+                                              form,
+                                            )(nonused, startDate);
+                                          },
+                                        },
+                                        {
+                                          validator: async (
+                                            nonused: any,
+                                            value: any,
+                                          ) => {
+                                            if (
+                                              !value ||
+                                              !Array.isArray(value) ||
+                                              value.length !== 2
+                                            ) {
+                                              return;
+                                            }
+                                            const [, endDate] = value;
+                                            return validateEndNoOverlap(
+                                              monthInfo.monthNumber,
+                                              form,
+                                            )(nonused, endDate);
+                                          },
+                                        },
+                                      ]
+                                    : []),
+                                ]}
+                                className="mb-0"
+                              >
+                                <RangePicker
+                                  className={
+                                    isMobile
+                                      ? 'h-10 w-11 min-w-11 px-0 justify-center [&_.ant-picker-input]:hidden [&_.ant-picker-range-separator]:hidden [&_.ant-picker-active-bar]:hidden [&_.ant-picker-suffix]:m-0'
+                                      : 'w-full h-8 [&_.ant-picker-input]:h-8'
+                                  }
+                                  size="middle"
+                                  disabledDate={(current) => {
+                                    if (!current) return false;
+                                    const fiscalYearStartDate =
+                                      dayjs(fiscalYearStart);
+                                    const fiscalYearEndDate =
+                                      dayjs(fiscalYearEnd);
+                                    return (
+                                      current.isBefore(fiscalYearStartDate) ||
+                                      current.isAfter(fiscalYearEndDate)
+                                    );
+                                  }}
+                                  onChange={() => {
+                                    clearRelatedValidationErrors(
+                                      monthInfo.monthNumber,
+                                    );
+                                  }}
+                                  data-cy={`org-settings-fiscal-year-month-date-range-input-${monthInfo.monthNumber}`}
+                                />
+                              </Form.Item>
+                            </Col>
+                          </Row>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 );
               })}
