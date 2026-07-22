@@ -1,4 +1,6 @@
+import { describe, expect, it } from '@jest/globals';
 import {
+  buildKrPlanningSource,
   formatKrMetricTypeDisplayName,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
@@ -178,5 +180,44 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
     expect(resolveOkrMilestones(planOnly)).toEqual([]);
     expect(getKeyResultProgressPercent(planOnly)).toBe(0);
     expect(resolveKrPanelMetricType(planOnly)).toBe('Milestone');
+  });
+
+  it('does not zero numeric progress when panel lacks API initialValue', () => {
+    const source = buildKrPlanningSource(
+      {
+        metricType: 'Numeric',
+        progress: 50,
+        currentValue: 50,
+        targetValue: 100,
+      },
+      null,
+    );
+    expect(getKeyResultProgressPercent(source)).toBe(50);
+  });
+
+  it('prefers API metric + progress when plan payload is thin', () => {
+    const planKr = {
+      id: 'kr-thin',
+      progress: 0,
+      targetValue: 100,
+      currentValue: 0,
+      milestones: [{ id: 'plan-ms', tasks: [{ id: 't1' }] }],
+    };
+    const apiKr = {
+      id: 'kr-thin',
+      metricType: { name: 'Milestone' },
+      progress: 25,
+      milestones: [
+        { id: 'm1', status: 'completed' },
+        { id: 'm2', status: 'pending' },
+        { id: 'm3', status: 'pending' },
+        { id: 'm4', status: 'pending' },
+      ],
+    };
+
+    const merged = mergeKeyResultWithUserApi(planKr, [apiKr]);
+    expect(resolveKrPanelMetricType(planKr, apiKr)).toBe('Milestone');
+    expect(getKeyResultProgressPercent(merged)).toBe(25);
+    expect(getKeyResultProgressRatioText(merged)).toBe('1/4');
   });
 });
