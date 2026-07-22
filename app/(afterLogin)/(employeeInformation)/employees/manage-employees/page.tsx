@@ -7,6 +7,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { SearchOutlined } from '@ant-design/icons';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import { useRouter } from 'next/navigation';
 
 import {
   Button,
@@ -35,9 +36,12 @@ import BusinessIcon from '@mui/icons-material/Business';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
+import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const ManageEmployees: React.FC<any> = () => {
+  const router = useRouter();
   const {
     setOpen,
     setSearchParams,
@@ -219,6 +223,21 @@ const ManageEmployees: React.FC<any> = () => {
               id="manage-employees-actions"
               data-cy="manage-employees-actions"
             >
+              <CustomButton
+                title={
+                  <span className="flex items-center gap-2 leading-none">
+                    <AccountTreeOutlinedIcon
+                      style={{ fontSize: 18, display: 'block' }}
+                    />
+                    <span>Succession Planning</span>
+                  </span>
+                }
+                type="default"
+                id="succession-planning-btn"
+                onClick={() => router.push('/employees/succession-planning')}
+                className="!border-[#D9D9D9] !text-[#4d4d4d]"
+                data-cy="manage-employees-succession-planning-btn"
+              />
               <AccessGuard
                 permissions={[Permissions.DownloadEmployeeDocument]}
                 id="manage-employees-download-guard"

@@ -607,6 +607,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             permissions: ['manage_employees'],
           },
           {
+            title: (
+              <span data-cy="nav-tree-succession-planning">
+                Succession Planning
+              </span>
+            ),
+            key: '/employees/succession-planning',
+            className: 'font-bold',
+            permissions: ['manage_employees'],
+          },
+          {
             title: <span data-cy="nav-tree-employees-settings">Settings</span>,
             key: '/employees/settings',
             className: 'font-bold',
