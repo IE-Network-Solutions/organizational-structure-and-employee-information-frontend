@@ -1,5 +1,8 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_AND_EMP_URL, RECRUITMENT_URL } from '@/utils/constants';
+import {
+  CORE_API_URL,
+  RECRUITMENT_URL,
+} from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
@@ -95,7 +98,7 @@ const getDepartmentById = async (depId: string) => {
     tenantId: tenantId,
   };
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/departments/${depId}`,
+    url: `${CORE_API_URL}/departments/${depId}`,
     method: 'GET',
     headers,
   });

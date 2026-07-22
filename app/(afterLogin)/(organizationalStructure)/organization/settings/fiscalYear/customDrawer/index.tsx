@@ -212,21 +212,26 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
       );
       const monthsFromRange = extractMonthsFromValues(monthRangeFormValues);
 
-      // Use the one with more months, or merge them
-      if (monthsFromRange.length > allMonths.length) {
+      // Prefer submitted form values. Use store values only to fill gaps.
+      if (allMonths.length === 0 && monthsFromRange.length > 0) {
         allMonths = monthsFromRange;
-      } else if (allMonths.length === 0 && monthsFromRange.length > 0) {
-        // If form values have no months but monthRangeValues does, use monthRangeValues
-        allMonths = monthsFromRange;
-      } else {
-        // Merge both, avoiding duplicates
-        const existingDates = new Set(
-          allMonths.map((m) => `${m.startDate}-${m.endDate}`),
+      } else if (monthsFromRange.length > 0) {
+        const formByDate = new Map(
+          allMonths.map((m) => [`${m.startDate}-${m.endDate}`, m]),
         );
-        const additionalMonths = monthsFromRange.filter(
-          (m) => !existingDates.has(`${m.startDate}-${m.endDate}`),
-        );
-        allMonths = [...allMonths, ...additionalMonths];
+        const formByIndex = allMonths;
+        allMonths = monthsFromRange.map((rangeMonth, index) => {
+          const key = `${rangeMonth.startDate}-${rangeMonth.endDate}`;
+          const fromForm = formByDate.get(key) || formByIndex[index];
+          if (!fromForm) return rangeMonth;
+          return {
+            ...rangeMonth,
+            name: fromForm.name || rangeMonth.name,
+            description: fromForm.description || rangeMonth.description,
+            startDate: fromForm.startDate || rangeMonth.startDate,
+            endDate: fromForm.endDate || rangeMonth.endDate,
+          };
+        });
       }
     }
 
@@ -241,6 +246,18 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
     // Track which months have been assigned to avoid duplicates
     const assignedMonthKeys = new Set<string>();
+
+    const originalCalendarType = (() => {
+      const sessionCount = selectedFiscalYear?.sessions?.length;
+      if (sessionCount === 4) return 'Quarter';
+      if (sessionCount === 2) return 'Semester';
+      if (sessionCount === 1) return 'Year';
+      return '';
+    })();
+    const canReuseEntityIds =
+      isEditMode &&
+      !!originalCalendarType &&
+      calendarType === originalCalendarType;
 
     // Helper function to find original month ID by matching date range
     // Tries multiple matching strategies to ensure we find the ID
@@ -356,7 +373,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
             // Find original month ID if in edit mode - try multiple strategies
             let originalMonthId = null;
-            if (isEditMode && originalSession) {
+            if (canReuseEntityIds && originalSession) {
               // Try with index first (most reliable)
               originalMonthId = findOriginalMonthId(
                 month.startDate,
@@ -411,7 +428,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
           // Get the original session from selectedFiscalYear (if in edit mode)
           const originalSession =
-            isEditMode && selectedFiscalYear?.sessions?.[index];
+            canReuseEntityIds && selectedFiscalYear?.sessions?.[index];
 
           // Get months for this session by matching date ranges
           let sessionMonths =
@@ -461,7 +478,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
               // Find original month ID if in edit mode - try multiple strategies
               let originalMonthId = null;
-              if (isEditMode && originalSession) {
+              if (canReuseEntityIds && originalSession) {
                 // Try with index first (most reliable)
                 originalMonthId = findOriginalMonthId(
                   month.startDate,
@@ -487,7 +504,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           }
 
           return {
-            ...(isEditMode && originalSession?.id
+            ...(canReuseEntityIds && originalSession?.id
               ? { id: originalSession.id }
               : {}),
             name: session.sessionName || `Session ${index + 1}`,
@@ -525,7 +542,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
           // Get the original session from selectedFiscalYear (if in edit mode)
           const originalSession =
-            isEditMode && selectedFiscalYear?.sessions?.[index];
+            canReuseEntityIds && selectedFiscalYear?.sessions?.[index];
 
           // Get months for this session by matching date ranges
           let sessionMonths =
@@ -575,7 +592,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
               // Find original month ID if in edit mode - try multiple strategies
               let originalMonthId = null;
-              if (isEditMode && originalSession) {
+              if (canReuseEntityIds && originalSession) {
                 // Try with index first (most reliable)
                 originalMonthId = findOriginalMonthId(
                   month.startDate,
@@ -601,7 +618,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           }
 
           return {
-            ...(isEditMode && originalSession?.id
+            ...(canReuseEntityIds && originalSession?.id
               ? { id: originalSession.id }
               : {}),
             name: session.sessionName || `Session ${index + 1}`,
@@ -639,7 +656,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
           // Get the original session from selectedFiscalYear (if in edit mode)
           const originalSession =
-            isEditMode && selectedFiscalYear?.sessions?.[0];
+            canReuseEntityIds && selectedFiscalYear?.sessions?.[0];
 
           // For Year type, get all months that fall within the session date range
           let sessionMonths =
@@ -666,7 +683,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
 
               // Find original month ID if in edit mode - try multiple strategies
               let originalMonthId = null;
-              if (isEditMode && originalSession) {
+              if (canReuseEntityIds && originalSession) {
                 // Try with index first (most reliable)
                 originalMonthId = findOriginalMonthId(
                   month.startDate,
@@ -692,7 +709,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           }
 
           return {
-            ...(isEditMode && originalSession?.id
+            ...(canReuseEntityIds && originalSession?.id
               ? { id: originalSession.id }
               : {}),
             name: session?.sessionName || 'Session 1',
@@ -747,8 +764,19 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           now.isBetween(sessionStart, sessionEnd, null, '[]');
 
         // Get the original session from selectedFiscalYear (if in edit mode)
+        const originalCalendarType = (() => {
+          const sessionCount = selectedFiscalYear?.sessions?.length;
+          if (sessionCount === 4) return 'Quarter';
+          if (sessionCount === 2) return 'Semester';
+          if (sessionCount === 1) return 'Year';
+          return '';
+        })();
+        const canReuseEntityIds =
+          isEditMode &&
+          !!originalCalendarType &&
+          calendarType === originalCalendarType;
         const originalSession =
-          isEditMode && selectedFiscalYear?.sessions?.[sessionIdx];
+          canReuseEntityIds && selectedFiscalYear?.sessions?.[sessionIdx];
 
         // Helper function to find month ID if missing
         const findMonthId = (month: Month, monthIdx: number) => {
@@ -756,7 +784,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
           if (month.id) return month.id;
 
           // If not in edit mode or no original session, return null
-          if (!isEditMode || !originalSession?.months) return null;
+          if (!canReuseEntityIds || !originalSession?.months) return null;
 
           const monthStart = dayjs(month.startDate);
           const monthEnd = dayjs(month.endDate);

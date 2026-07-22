@@ -1,4 +1,4 @@
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -10,7 +10,7 @@ export interface Get2FACodeProps {
 }
 const get2FACode = async (values: Get2FACodeProps) => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/multi-factor-auth`,
+    url: `${CORE_API_URL}/multi-factor-auth`,
     method: 'POST',
     data: {
       ...values,
@@ -25,7 +25,7 @@ const verify2FACode = async (values: {
   skipEncryption: boolean;
 }) => {
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/multi-factor-auth/verify`,
+    url: `${CORE_API_URL}/multi-factor-auth/verify`,
     method: 'POST',
     data: values,
     skipEncryption: true,

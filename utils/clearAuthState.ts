@@ -20,6 +20,7 @@ export const clearAuthState = () => {
   removeCookie('tenantId');
   removeCookie('activeCalendar');
   removeCookie('loggedUserRole');
+  removeCookie('canManageFiscalYear');
 
   useAuthenticationStore.persist.clearStorage();
 };
