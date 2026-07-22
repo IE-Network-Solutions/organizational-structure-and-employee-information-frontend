@@ -1,4 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useIncentiveStore } from '@/store/uistate/features/incentive/incentive';
 import { ORG_DEV_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
@@ -8,6 +9,25 @@ import {
 } from '@/utils/invalidateRecognitionCascadeCaches';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useMutation, useQueryClient } from 'react-query';
+
+/** Clear Incentive UI selection when the deleted type (or its parent) was selected. */
+function clearIncentiveSelectionForDeletedType(deletedId: string | null) {
+  if (!deletedId) return;
+  const state = useIncentiveStore.getState();
+  const selected = state.selectedRecognition;
+  if (!selected) return;
+
+  const selectedId = String(selected.id);
+  const childHit =
+    Array.isArray(selected.children) &&
+    selected.children.some((c: any) => c && String(c.id) === deletedId);
+
+  if (selectedId === deletedId || childHit) {
+    state.setSelectedRecognition(null);
+    state.setActiveKey('1');
+    state.setSelectedRowKeys([]);
+  }
+}
 
 const addRecognitionType = async (data: any) => {
   const token = await getCurrentToken();
@@ -179,8 +199,15 @@ export const useDeleteRecognitionType = () => {
   return useMutation(deleteRecognitionType, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
+      const deletedId =
+        typeof variables === 'string' || typeof variables === 'number'
+          ? String(variables)
+          : variables?.id != null
+            ? String(variables.id)
+            : null;
       // Backend cascades: child types + recognitions + incentives.
-      void invalidateRecognitionTypeCascadeCaches(queryClient);
+      clearIncentiveSelectionForDeletedType(deletedId);
+      void invalidateRecognitionTypeCascadeCaches(queryClient, deletedId);
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

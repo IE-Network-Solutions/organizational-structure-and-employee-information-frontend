@@ -62,6 +62,7 @@ export const useGetAllRecognitionWithRelations = () => {
   return useQuery<any>(
     'recognitionTypesWithRelations',
     getAllRecognitionWithRelations,
-    { keepPreviousData: true },
+    // Refetch after cascade delete must replace the tree, not keep deleted children.
+    { keepPreviousData: false },
   );
 };
