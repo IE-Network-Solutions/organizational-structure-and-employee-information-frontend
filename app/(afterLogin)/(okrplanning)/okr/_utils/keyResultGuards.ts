@@ -3,7 +3,7 @@ export const isKeyResultLockedForWeightEdit = (keyResult: any): boolean => {
     keyResult?.status ?? keyResult?.keyResultCompletionStatus ?? '',
   ).toLowerCase();
 
-  return Number(keyResult?.progress) === 100 || status === 'achieved';
+  return Number(keyResult?.progress ?? 0) > 0 || status === 'achieved';
 };
 
 export const hasCompletedKeyResult = (keyResults: any[] = []): boolean => {
