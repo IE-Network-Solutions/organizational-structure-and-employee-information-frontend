@@ -21,6 +21,24 @@ const addRecognitionType = async (data: any) => {
     headers,
   });
 };
+
+/** Single recognition category create (not bulk). */
+const addRecognitionCategory = async (data: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const createdBy = useAuthenticationStore.getState().userId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+    createdByUserId: createdBy || '',
+  };
+  return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type`,
+    method: 'POST',
+    data,
+    headers,
+  });
+};
 const updateRecognitionTypeWithCriteria = async (data: any) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -187,6 +205,21 @@ export const useDeleteRecognitionType = () => {
 export const useAddRecognitionType = () => {
   const queryClient = useQueryClient();
   return useMutation(addRecognitionType, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
+      queryClient.invalidateQueries('recognitionTypes');
+      queryClient.invalidateQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypes');
+      const method = variables?.method?.toUpperCase();
+      handleSuccessMessage(method);
+    },
+  });
+};
+
+export const useAddRecognitionCategory = () => {
+  const queryClient = useQueryClient();
+  return useMutation(addRecognitionCategory, {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');

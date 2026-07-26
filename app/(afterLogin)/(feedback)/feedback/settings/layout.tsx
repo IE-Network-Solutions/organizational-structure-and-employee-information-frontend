@@ -14,7 +14,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { Permissions } from '@/types/commons/permissionEnum';
 import {
-  useAddRecognitionType,
+  useAddRecognitionCategory,
   useUpdateRecognitionType,
 } from '@/store/server/features/CFR/recognition/mutation';
 import { useGetRecognitionTypeById } from '@/store/server/features/CFR/recognition/queries';
@@ -84,7 +84,7 @@ const CFRSettingLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
     categoryForm.resetFields();
   };
   const { mutate: createCategory, isLoading: isCreatingCategory } =
-    useAddRecognitionType();
+    useAddRecognitionCategory();
   const { mutate: updateCategory, isLoading: isUpdatingCategory } =
     useUpdateRecognitionType();
 
