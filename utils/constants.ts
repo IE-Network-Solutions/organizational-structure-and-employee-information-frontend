@@ -4,7 +4,9 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
 export const OKR_URL = process.env.OKR_URL;
 export const PAYROLL_URL = process.env.PAYROLL_URL;
-export const CORE_API_URL = process.env.CORE_API_URL;
+/** Core API (2FA, org chart, calendars, etc.). Falls back to org-emp when unset. */
+export const CORE_API_URL =
+  process.env.CORE_API_URL || process.env.ORG_AND_EMP_URL;
 
 export const OKR_AND_PLANNING_URL =
   process.env.NEXT_PUBLIC_OKR_AND_PLANNING_URL;
@@ -67,3 +69,14 @@ export const COPILOT_CHAT_URL = process.env.NEXT_PUBLIC_COPILOT_CHAT_URL;
  * its own top bar — so this app hides its own header (top nav) and sidebar logo.
  */
 export const IS_CORE = process.env.NEXT_PUBLIC_IS_CORE === 'true';
+
+/**
+ * Service worker URLs follow Next `basePath`: `/workspace` in Core mode,
+ * origin root in standalone / Preview Builder. Hardcoding `/workspace/sw.js`
+ * on a root-served preview causes a redirect and SecurityError on register.
+ */
+export const SW_BASE = IS_CORE ? '/workspace' : '';
+export const SW_SCOPE = `${SW_BASE}/`;
+export const SW_SCRIPT = `${SW_BASE}/sw.js`;
+export const PUSH_SW_SCOPE = `${SW_BASE}/push/`;
+export const PUSH_SW_SCRIPT = `${SW_BASE}/sw-push.js`;

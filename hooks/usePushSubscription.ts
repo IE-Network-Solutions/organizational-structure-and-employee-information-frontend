@@ -3,7 +3,12 @@
 import { useEffect, useRef } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { registerPushSubscription } from '@/store/server/features/notification/mutation';
-import { VAPID_PUBLIC_KEY } from '@/utils/constants';
+import {
+  VAPID_PUBLIC_KEY,
+  PUSH_SW_SCOPE,
+  PUSH_SW_SCRIPT,
+  SW_SCOPE,
+} from '@/utils/constants';
 
 /**
  * Converts a base64url-encoded VAPID public key to Uint8Array for pushManager.subscribe().
@@ -162,16 +167,13 @@ function waitForRegistrationActive(
 }
 
 /** Push-only worker: small and activates quickly so "Allow notifications" does not time out. */
-// Scoped under the /workspace basePath (the app shares its origin with Core).
-const PUSH_SW_SCOPE = '/workspace/push/';
-const PUSH_SW_SCRIPT = '/workspace/sw-push.js';
 
 /**
  * Unsubscribe any push subscription on the main app SW so the backend only uses the push-worker subscription.
  */
 async function unsubscribeMainSwPush(): Promise<void> {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
-  const reg = await navigator.serviceWorker.getRegistration('/workspace/');
+  const reg = await navigator.serviceWorker.getRegistration(SW_SCOPE);
   if (!reg?.pushManager) return;
   const subs = await reg.pushManager.getSubscription();
   if (subs) await subs.unsubscribe();

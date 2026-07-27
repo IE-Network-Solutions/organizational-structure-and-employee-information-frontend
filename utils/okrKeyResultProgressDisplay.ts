@@ -16,11 +16,14 @@ export type KeyResultMetricName =
   | string;
 
 type MilestoneRowInput = {
+  id?: string | number | null;
   status?: string | null;
   deletedAt?: string | null;
   tasks?: unknown[];
   title?: string | null;
   name?: string | null;
+  isAchieved?: boolean | null;
+  progress?: number | string | null;
 };
 
 type OkrMilestoneRow = Pick<MilestoneRowInput, 'status' | 'deletedAt'>;
@@ -69,33 +72,209 @@ function isPlanTaskGroupingMilestone(m: MilestoneRowInput): boolean {
   return hasTasks && status.length === 0;
 }
 
+/** Shared completion check — kept above resolveOkrMilestones so merges can use it. */
+export function isMilestoneCompleted(
+  m:
+    | {
+        status?: string | null | { name?: string | null };
+        isAchieved?: boolean | null;
+        isCompleted?: boolean | null;
+        completed?: boolean | null;
+        progress?: number | string | null;
+        keyResultCompletionStatus?: string | null;
+        completionStatus?: string | null;
+      }
+    | null
+    | undefined,
+): boolean {
+  if (!m) return false;
+  if (m.isAchieved === true || m.isCompleted === true || m.completed === true) {
+    return true;
+  }
+  const rawStatus =
+    m.status != null && typeof m.status === 'object'
+      ? (m.status as { name?: string | null }).name
+      : m.status;
+  const s = String(
+    rawStatus ?? m.keyResultCompletionStatus ?? m.completionStatus ?? '',
+  )
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+  if (
+    s === 'completed' ||
+    s === 'complete' ||
+    s === 'done' ||
+    s === 'achieved' ||
+    s === 'finished' ||
+    s === 'success' ||
+    s === 'closed'
+  ) {
+    return true;
+  }
+  const p = Number(m.progress);
+  // Only treat explicit 0–100 completion; do not treat progress=1 as 100%
+  // (that would false-positive on a 0–100 scale).
+  return Number.isFinite(p) && p >= 100;
+}
+
 /**
- * OKR milestone rows only (status-bearing). Ignores plan-scoped task groupings.
+ * Planning-only: a milestone is achieved when OKR marks it achieved/completed.
+ * Do NOT use progress≥100 alone — weighted sub-key-result Done often bumps
+ * progress without completing the milestone outcome (achieveMK).
+ * Includes status 'Done' (same as isMilestoneCompleted) for API variants.
+ */
+export function isMilestoneAchievedForPlanning(
+  m:
+    | {
+        status?: string | null | { name?: string | null };
+        isAchieved?: boolean | null;
+        isCompleted?: boolean | null;
+        completed?: boolean | null;
+        keyResultCompletionStatus?: string | null;
+        completionStatus?: string | null;
+      }
+    | null
+    | undefined,
+): boolean {
+  if (!m) return false;
+  if (m.isAchieved === true || m.isCompleted === true || m.completed === true) {
+    return true;
+  }
+  const rawStatus =
+    m.status != null && typeof m.status === 'object'
+      ? (m.status as { name?: string | null }).name
+      : m.status;
+  const s = String(
+    rawStatus ?? m.keyResultCompletionStatus ?? m.completionStatus ?? '',
+  )
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, '_');
+  return (
+    s === 'completed' ||
+    s === 'complete' ||
+    s === 'done' ||
+    s === 'achieved' ||
+    s === 'finished' ||
+    s === 'success' ||
+    s === 'closed'
+  );
+}
+
+function milestoneRowId(m: MilestoneRowInput): string | null {
+  const id = (m as { id?: string | number | null }).id;
+  if (id == null || id === '') return null;
+  return String(id);
+}
+
+/**
+ * Merge two milestone rows: keep titles from either side and never lose Completed.
+ */
+export function mergeMilestoneCompletionRow(
+  primary: MilestoneRowInput,
+  secondary?: MilestoneRowInput | null,
+): MilestoneRowInput {
+  if (!secondary) return primary;
+  // Only preserve real OKR achievement — never invent Completed from progress
+  // (weighted sub-key-result Done can set progress≥100 without achieving).
+  const achieved =
+    isMilestoneAchievedForPlanning(primary as any) ||
+    isMilestoneAchievedForPlanning(secondary as any);
+  const primaryTitle = String(
+    (primary as any).title || (primary as any).name || '',
+  ).trim();
+  const secondaryTitle = String(
+    (secondary as any).title || (secondary as any).name || '',
+  ).trim();
+  return {
+    ...secondary,
+    ...primary,
+    title: primaryTitle || secondaryTitle || (primary as any).title,
+    name: (primary as any).name || (secondary as any).name,
+    status: achieved
+      ? 'Completed'
+      : (primary as any).status || (secondary as any).status,
+    isAchieved: achieved
+      ? true
+      : ((primary as any).isAchieved ?? (secondary as any).isAchieved),
+    progress: (primary as any).progress ?? (secondary as any).progress,
+  };
+}
+
+/**
+ * OKR milestone rows only (status-bearing). Ignores plan-scoped task groupings
+ * when they are the only source. When both API and KR lists exist, merge by id
+ * so plan shells cannot wipe Completed from OKR rows (or the reverse).
  */
 export function resolveOkrMilestones(
   kr?: KrMilestoneCarrier,
   apiKr?: KrMilestoneCarrier,
 ): OkrMilestoneRow[] {
-  const apiList = asMilestoneRows(apiKr?.milestones ?? apiKr?.Milestones);
-  if (apiList.length > 0) {
-    return apiList.filter((m) => m?.deletedAt == null);
+  const apiList = asMilestoneRows(
+    apiKr?.milestones ?? apiKr?.Milestones,
+  ).filter((m) => m?.deletedAt == null);
+  const krList = asMilestoneRows(kr?.milestones ?? kr?.Milestones).filter(
+    (m) => m?.deletedAt == null,
+  );
+
+  if (apiList.length > 0 && krList.length > 0) {
+    const krById = new Map<string, MilestoneRowInput>();
+    const krByTitle = new Map<string, MilestoneRowInput>();
+    for (const m of krList) {
+      const id = milestoneRowId(m);
+      if (id) krById.set(id, m);
+      const title = String((m as any).title || (m as any).name || '')
+        .trim()
+        .toLowerCase();
+      if (title) krByTitle.set(title, m);
+    }
+    const usedKrIds = new Set<string>();
+    const merged = apiList.map((m) => {
+      const id = milestoneRowId(m);
+      let other = id ? krById.get(id) : undefined;
+      if (!other) {
+        const title = String((m as any).title || (m as any).name || '')
+          .trim()
+          .toLowerCase();
+        if (title) other = krByTitle.get(title);
+      }
+      if (other) {
+        const otherId = milestoneRowId(other);
+        if (otherId) usedKrIds.add(otherId);
+      }
+      return mergeMilestoneCompletionRow(m, other);
+    });
+    // Keep OKR/plan-only rows not already merged into an API row.
+    for (const m of krList) {
+      const id = milestoneRowId(m);
+      if (id && usedKrIds.has(id)) continue;
+      if (id && apiList.some((a) => milestoneRowId(a) === id)) continue;
+      if (isPlanTaskGroupingMilestone(m) && !isMilestoneCompleted(m as any)) {
+        continue;
+      }
+      if (!isPlanTaskGroupingMilestone(m) || isMilestoneCompleted(m as any)) {
+        merged.push(m);
+      }
+    }
+    return merged as OkrMilestoneRow[];
   }
 
-  const krList = asMilestoneRows(kr?.milestones ?? kr?.Milestones);
+  if (apiList.length > 0) {
+    return apiList as OkrMilestoneRow[];
+  }
+
   if (krList.length === 0) return [];
 
-  const active = krList.filter((m) => m?.deletedAt == null);
-  if (active.length === 0) return [];
-
-  const okrShaped = active.filter(
+  const okrShaped = krList.filter(
     (m) =>
       !isPlanTaskGroupingMilestone(m) && String(m?.status ?? '').length > 0,
   );
-  if (okrShaped.length > 0) return okrShaped;
+  if (okrShaped.length > 0) return okrShaped as OkrMilestoneRow[];
 
-  if (active.every(isPlanTaskGroupingMilestone)) return [];
+  if (krList.every(isPlanTaskGroupingMilestone)) return [];
 
-  return active;
+  return krList as OkrMilestoneRow[];
 }
 
 /** Plan/report milestone rows used only to group tasks (no OKR status yet). */
@@ -265,9 +444,23 @@ function withResolvedOkrMilestones<T extends KrMilestoneFields>(
   kr: T,
   apiKr?: KrMilestoneCarrier,
 ): T & { milestones: OkrMilestoneRow[] } {
+  const resolved = resolveOkrMilestones(kr, apiKr);
+  if (resolved.length > 0) {
+    return {
+      ...kr,
+      milestones: resolved,
+    };
+  }
+
+  // Do not wipe real milestone rows to [] when resolve filters them out
+  // (e.g. not-started rows without status). Prefer API, then source.
+  const fallback = asMilestoneRows(
+    apiKr?.milestones ?? apiKr?.Milestones ?? kr?.milestones ?? kr?.Milestones,
+  ).filter((m) => m?.deletedAt == null);
+
   return {
     ...kr,
-    milestones: resolveOkrMilestones(kr, apiKr),
+    milestones: fallback.length > 0 ? fallback : resolved,
   };
 }
 
@@ -308,13 +501,6 @@ export function countKeyResultMilestones(
   apiKr?: KrMilestoneCarrier,
 ): number {
   return resolveOkrMilestones(kr, apiKr).length;
-}
-
-export function isMilestoneCompleted(m: { status?: string | null }): boolean {
-  const s = String(m?.status ?? '')
-    .trim()
-    .toLowerCase();
-  return s === 'completed' || s === 'done' || s === 'achieved';
 }
 
 export function isMilestoneKeyResult(
@@ -364,18 +550,20 @@ export function isKeyResultReopenedForPlanning(
 
 /**
  * Whether planning should be blocked for the whole KR (not individual milestones).
- * Milestone KRs stay plan-eligible until every milestone is completed.
+ * Milestone KRs stay plan-eligible until every milestone is completed — partial
+ * progress (e.g. 1–2 of 5 achieved) must NOT hide planning.
  */
 export function isKeyResultFullyCompletedForPlanning(
   kr: KeyResultProgressInput,
 ): boolean {
   if (isMilestoneKeyResult(kr)) {
     const milestones = resolveOkrMilestones(kr);
-    if (milestones.length > 0 && milestones.every(isMilestoneCompleted)) {
-      return true;
+    if (milestones.length > 0) {
+      return milestones.every(isMilestoneAchievedForPlanning);
     }
-    // Milestone status can lag behind measured progress (plan panel vs user KR API).
-    return getKeyResultProgressPercent(kr) >= 100;
+    // No OKR milestone rows yet — keep planning open; progress alone must not
+    // hide + after weighted sub-key-result reports.
+    return false;
   }
 
   // Non-milestone KRs: measured progress is the sole gate (status can lag after report updates).
@@ -389,7 +577,10 @@ export function buildKrPlanningSource(
     progress?: number;
     currentValue?: string | number;
     targetValue?: string | number;
-    milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+    milestones?: Array<{
+      status?: string | null;
+      deletedAt?: string | null;
+    }>;
   },
   apiKr?: any | null,
 ) {
@@ -452,7 +643,10 @@ export function resolveKrPlanningBlocked(
     progress?: number;
     currentValue?: string | number;
     targetValue?: string | number;
-    milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+    milestones?: Array<{
+      status?: string | null;
+      deletedAt?: string | null;
+    }>;
   },
   apiKr?: any | null,
 ): boolean {
@@ -462,12 +656,20 @@ export function resolveKrPlanningBlocked(
     return false;
   }
 
-  const panelProgress = Number(panelKr.progress ?? 0);
+  // Milestone KRs: only block when every OKR milestone is achieved.
+  // Never fall through to aggregate progress — sub-key-result Done can make
+  // KR progress look 100% while milestones remain plan-eligible.
+  const milestoneRows = resolveOkrMilestones(planningSource, apiKr);
+  if (isMilestoneKeyResult(planningSource, apiKr)) {
+    if (milestoneRows.length === 0) return false;
+    return milestoneRows.every(isMilestoneAchievedForPlanning);
+  }
 
   if (isKeyResultFullyCompletedForPlanning(planningSource)) {
     return true;
   }
 
+  const panelProgress = Number(panelKr.progress ?? 0);
   if (!apiKr) {
     return panelProgress >= 100;
   }
@@ -693,15 +895,21 @@ export function mergeKeyResultWithUserApi(
   );
   if (!apiKr) {
     const milestones = resolveOkrMilestones(kr);
+    const preserved =
+      milestones.length > 0
+        ? milestones
+        : asMilestoneRows(kr?.milestones ?? kr?.Milestones).filter(
+            (m) => m?.deletedAt == null,
+          );
     const planMilestoneShells = hasPlanMilestoneTaskGroupings(kr);
     const metricTypeObj =
       coerceMetricTypeObject(kr?.metricType, kr?.key_type) ??
-      (milestones.length > 0 || planMilestoneShells
+      (preserved.length > 0 || planMilestoneShells
         ? { name: 'Milestone' }
         : undefined);
     const fallback = {
       ...kr,
-      milestones,
+      milestones: preserved,
       metricType: metricTypeObj ?? kr?.metricType,
       key_type: kr?.key_type ?? metricTypeObj?.name,
       metricTypeName: kr?.metricTypeName ?? metricTypeObj?.name ?? kr?.key_type,
@@ -716,6 +924,7 @@ export function mergeKeyResultWithUserApi(
     coerceMetricTypeObject(apiKr.metricType, apiKr.key_type) ??
     coerceMetricTypeObject(kr?.metricType, kr?.key_type);
 
+  const planMilestones = kr?.milestones ?? kr?.Milestones;
   const merged = withResolvedOkrMilestones(
     {
       ...kr,
@@ -739,6 +948,9 @@ export function mergeKeyResultWithUserApi(
       status: apiKr.status ?? kr?.status,
       keyResultCompletionStatus:
         apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
+      // Keep plan/objective rows on the `kr` side so resolveOkrMilestones can
+      // merge Completed from the API onto matching plan shells (and vice versa).
+      milestones: planMilestones ?? apiKr.milestones ?? apiKr.Milestones,
     },
     apiKr,
   );

@@ -1,7 +1,7 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { Branch } from './interface';
-import { CORE_API_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
@@ -23,7 +23,7 @@ const createBranch = async (data: Branch) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${CORE_API_URL}/branchs`,
+    url: `${ORG_AND_EMP_URL}/branchs`,
     method: 'POST',
     data,
     headers,
@@ -43,7 +43,7 @@ const updateBranch = async (id: string, data: Branch) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${CORE_API_URL}/branchs/${id}`,
+    url: `${ORG_AND_EMP_URL}/branchs/${id}`,
     method: 'PATCH',
     data,
     headers,
@@ -62,7 +62,7 @@ const deleteBranch = async (id: string) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${CORE_API_URL}/branchs/${id}`,
+    url: `${ORG_AND_EMP_URL}/branchs/${id}`,
     method: 'DELETE',
     headers,
   });

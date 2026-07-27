@@ -21,7 +21,18 @@ import { useEditReportByReportId } from '@/store/server/features/okrPlanningAndR
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
+import { useQueryClient } from 'react-query';
 import { FaCheckSquare, FaRegSquare, FaWindowClose } from 'react-icons/fa';
+import {
+  markMilestonesCompletedInOkrCaches,
+  markMilestonesReopenedInOkrCaches,
+} from '@/utils/invalidateOkrPlanningCaches';
+import {
+  buildMilestoneKeyResultMap,
+  clearReopenedPlanningTargets,
+  collectAchievedMilestoneIdsFromReport,
+  rememberAchievedMilestones,
+} from '@/utils/recentlyAchievedMilestones';
 
 const { TextArea } = Input;
 
@@ -40,6 +51,7 @@ function EditReport() {
     resetStatuses,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
+  const queryClient = useQueryClient();
 
   const onClose = () => {
     setOpenReportModal(false);
@@ -71,23 +83,79 @@ function EditReport() {
     </div>
   );
 
-  const handleOnFinish = (values: Record<string, any>) => {
-    Object.entries(values).length > 0 &&
-      editReport(
-        { values: values, selectedReportId },
-        {
-          onSuccess: () => {
-            onClose();
-          },
-        },
-      );
-  };
-
   const formattedData =
     allReportedPlanning &&
     groupUnReportedTasksByKeyResultAndMilestone(
       allReportedPlanning?.length == 0 ? [] : allReportedPlanning,
     );
+
+  const handleOnFinish = (values: Record<string, any>) => {
+    if (Object.entries(values).length === 0) return;
+
+    const previousStatuses = reportedData?.reportTask?.reduce(
+      (acc: Record<string, string>, task: any) => {
+        if (task?.planTaskId != null) {
+          acc[String(task.planTaskId)] = String(task?.status ?? '');
+        }
+        return acc;
+      },
+      {},
+    );
+    const previousAchievedIds = collectAchievedMilestoneIdsFromReport(
+      Array.isArray(formattedData) ? formattedData : null,
+      previousStatuses,
+    );
+    const achievedIds = collectAchievedMilestoneIdsFromReport(
+      Array.isArray(formattedData) ? formattedData : null,
+      selectedStatuses,
+      values,
+    );
+    const milestoneToKrId = buildMilestoneKeyResultMap(
+      Array.isArray(formattedData) ? formattedData : null,
+    );
+    const achievedKeyResultIds = Array.from(
+      new Set(
+        achievedIds
+          .map((id) => milestoneToKrId[id])
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
+    const reopenedMilestoneIds = previousAchievedIds.filter(
+      (id) => !achievedIds.includes(id),
+    );
+    const reopenedKeyResultIds = Array.from(
+      new Set(
+        reopenedMilestoneIds
+          .map((id) => milestoneToKrId[id])
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
+    if (reopenedMilestoneIds.length > 0 || reopenedKeyResultIds.length > 0) {
+      markMilestonesReopenedInOkrCaches(queryClient, {
+        milestoneIds: reopenedMilestoneIds,
+        keyResultIds: reopenedKeyResultIds,
+      });
+    }
+    clearReopenedPlanningTargets({
+      milestoneIds: achievedIds,
+      keyResultIds: achievedKeyResultIds,
+    });
+    rememberAchievedMilestones(achievedIds);
+
+    editReport(
+      {
+        values,
+        selectedReportId,
+        achievedMilestoneIds: achievedIds,
+      },
+      {
+        onSuccess: () => {
+          markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          onClose();
+        },
+      },
+    );
+  };
 
   useEffect(() => {
     // Ensure there is reportedData and valid reportTask array

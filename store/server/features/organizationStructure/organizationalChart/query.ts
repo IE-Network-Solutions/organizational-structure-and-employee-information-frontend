@@ -1,7 +1,7 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { OrgChart, DepartmentStaffUser } from './interface';
-import { CORE_API_URL, ORG_AND_EMP_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -18,7 +18,7 @@ const getAllOrgCharts = async () => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${CORE_API_URL}/departments`,
+    url: `${ORG_AND_EMP_URL}/departments`,
     method: 'GET',
     headers,
   });
@@ -37,7 +37,7 @@ const getAllOrgChartsPeople = async () => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${CORE_API_URL}/departments/user/user-tree`,
+    url: `${ORG_AND_EMP_URL}/departments/user/user-tree`,
     method: 'GET',
     headers,
   });
@@ -56,7 +56,7 @@ export const getOrgChart = async (id: string) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${CORE_API_URL}/departments/${id}`,
+    url: `${ORG_AND_EMP_URL}/departments/${id}`,
     method: 'GET',
     headers,
   });

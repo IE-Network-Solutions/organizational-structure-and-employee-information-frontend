@@ -350,13 +350,17 @@ export const useHandleSignIn = () => {
         }
       }
     } catch (err: any) {
-      message.error('Sign-in error');
-
-      if (err.code === 'auth/account-exists-with-different-credential') {
+      if (err?.code === 'auth/account-exists-with-different-credential') {
+        message.error('Sign-in error');
         await handleAccountLinking(err, attemptedProviderId);
-      } else {
+      } else if (err?.code?.startsWith?.('auth/')) {
         handleFirebaseSignInError(err);
-        setError(err);
+        setError(err?.message ?? 'Sign-in error');
+      } else {
+        message.error(
+          err?.message || 'Sign-in error. An error occurred. Please try again.',
+        );
+        setError(err?.message ?? 'Sign-in error');
       }
     } finally {
       setLoading(false);

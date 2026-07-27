@@ -9,7 +9,18 @@ import { IoArrowBack } from 'react-icons/io5';
 import { MessageOutlined, PlusOutlined } from '@ant-design/icons';
 import PlanCard from '../cards/PlanCard';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
+import { isMilestoneAchievedForPlanning } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  isRecentlyAchievedMilestone,
+  isRecentlyReopenedKeyResult,
+  isRecentlyReopenedMilestone,
+  useRecentlyAchievedMilestones,
+} from '@/utils/recentlyAchievedMilestones';
 import type { PlanningTarget } from './buildPlanningTargets';
+import {
+  buildPickTargetsForKeyResult,
+  isMilestoneBlockedForPlanning,
+} from './buildPlanningTargets';
 import CommentList from '../comments/commentList';
 import type {
   PlanSummary,
@@ -89,7 +100,10 @@ function formatKrMetricTypeLabel(metricType: string): string {
 }
 
 /** + dropdown: single title line per planning slot */
-function planningTargetMenuItemLabel(t: PlanningTarget): React.ReactNode {
+function planningTargetMenuItemLabel(
+  t: PlanningTarget,
+  disabled = false,
+): React.ReactNode {
   let title: string;
   if (t.isDailySlot) {
     const parts = [t.milestoneTitle, t.parentTaskTitle].filter(Boolean);
@@ -106,9 +120,19 @@ function planningTargetMenuItemLabel(t: PlanningTarget): React.ReactNode {
     >
       <p
         data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-101"
-        className="text-[13px] font-semibold leading-snug text-[#161A2C] line-clamp-3"
+        className={`text-[13px] font-semibold leading-snug line-clamp-3 ${
+          disabled ? 'text-[#9CA3AF]' : 'text-[#161A2C]'
+        }`}
       >
         {title}
+        {disabled ? (
+          <span
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-achieved-badge"
+            className="ml-1.5 text-[11px] font-medium text-[#9CA3AF]"
+          >
+            (Achieved)
+          </span>
+        ) : null}
       </p>
     </div>
   );
@@ -127,6 +151,107 @@ interface AggregatedKR {
   progressLabel: string;
   isDeleted: boolean;
   planningBlocked: boolean;
+  milestones?: Array<{
+    id?: string | number;
+    title?: string | null;
+    name?: string | null;
+    status?: string | null;
+    deletedAt?: string | null;
+    isAchieved?: boolean | null;
+    progress?: number | string | null;
+  }>;
+}
+
+/**
+ * Prefer objective/API milestones for the pick modal (same as createPlanObjective).
+ * Achieved milestones stay listed but marked completed/disabled.
+ */
+function resolvePlanningSlotsForKr(
+  kr: AggregatedKR,
+  slots: PlanningTarget[],
+  userKeyResultItems: any[] = [],
+  objectiveMilestonesByKrId?: Map<string, any[]>,
+): PlanningTarget[] {
+  const apiKr = userKeyResultItems.find(
+    (k) => k && k.deletedAt == null && String(k.id) === String(kr.id),
+  );
+  const objectiveMilestones =
+    objectiveMilestonesByKrId?.get(String(kr.id)) ?? [];
+  const targets = buildPickTargetsForKeyResult({
+    keyResultId: String(kr.id),
+    keyResultTitle: kr.title,
+    metricTypeName: kr.metricType,
+    objectiveMilestones,
+    panelMilestones: kr.milestones ?? [],
+    apiKr,
+    slots,
+    userKeyResultItems,
+    planningBlocked: kr.planningBlocked,
+  });
+
+  // Re-stamp disabled using the same sources createPlanObjective uses.
+  // Hide-+ can succeed via planningBlocked/progress while isCompleted was still
+  // false when status lived only on objective/panel rows.
+  const krForBlock = {
+    id: kr.id,
+    metricType: { name: kr.metricType },
+    progress: kr.progress,
+    currentValue: kr.currentValue,
+    targetValue: kr.targetValue,
+    milestones:
+      objectiveMilestones.length > 0
+        ? objectiveMilestones
+        : (kr.milestones ?? []),
+  };
+  const apiMilestones = apiKr?.milestones ?? apiKr?.Milestones ?? [];
+  const reopenedKr = isRecentlyReopenedKeyResult(kr.id);
+
+  return targets.map((t) => {
+    if (!t.milestoneId) {
+      return {
+        ...t,
+        isCompleted:
+          !reopenedKr && (Boolean(t.isCompleted) || kr.planningBlocked),
+      };
+    }
+    const id = String(t.milestoneId);
+    const titleKey = String(t.milestoneTitle || '')
+      .trim()
+      .toLowerCase();
+    const matchRow = (list: any[] | undefined | null) => {
+      if (!Array.isArray(list)) return null;
+      return (
+        list.find((m) => m && String(m.id) === id) ??
+        (titleKey
+          ? list.find(
+              (m) =>
+                m &&
+                String(m.title || m.name || '')
+                  .trim()
+                  .toLowerCase() === titleKey,
+            )
+          : null) ??
+        null
+      );
+    };
+    const ml = matchRow(objectiveMilestones) ??
+      matchRow(kr.milestones) ??
+      matchRow(apiMilestones) ?? {
+        id: t.milestoneId,
+        title: t.milestoneTitle,
+        status: t.isCompleted ? 'Completed' : undefined,
+      };
+    const reopened = isRecentlyReopenedMilestone(t.milestoneId);
+
+    const completed =
+      !reopened &&
+      (Boolean(t.isCompleted) ||
+        isRecentlyAchievedMilestone(t.milestoneId) ||
+        isMilestoneAchievedForPlanning(ml) ||
+        isMilestoneBlockedForPlanning(krForBlock, ml, userKeyResultItems));
+
+    return { ...t, isCompleted: completed };
+  });
 }
 
 interface OwnerKRGroup {
@@ -206,6 +331,8 @@ function KRProgressCard({
   planningTargetsForKr = [],
   selectedPlanningTargetId = null,
   onPickPlanningTarget,
+  objectiveMilestones = [],
+  onRefreshMilestoneStatus,
 }: {
   kr: AggregatedKR;
   isHighlighted: boolean;
@@ -213,6 +340,10 @@ function KRProgressCard({
   planningTargetsForKr?: PlanningTarget[];
   selectedPlanningTargetId?: string | null;
   onPickPlanningTarget?: (t: PlanningTarget) => void;
+  /** Objective OKR milestones (status source when panel shells omit Completed) */
+  objectiveMilestones?: any[];
+  /** Refetch OKR milestone Completed status when opening the + menu */
+  onRefreshMilestoneStatus?: () => void;
 }) {
   const color = progressColor(kr.progress);
   const pct = Math.min(kr.progress, 100);
@@ -222,6 +353,18 @@ function KRProgressCard({
     isMobile || isTablet ? ('bottomCenter' as const) : ('bottomLeft' as const);
   const metricLabel = formatKrMetricTypeLabel(kr.metricType);
 
+  // Re-render when a milestone is achieved in-session (report/OKR) so disable
+  // applies immediately without a hard refresh.
+  const recentlyAchievedIds = useRecentlyAchievedMilestones((s) => s.ids);
+  const reopenedMilestoneIds = useRecentlyAchievedMilestones(
+    (s) => s.reopenedMilestoneIds,
+  );
+  const reopenedKeyResultIds = useRecentlyAchievedMilestones(
+    (s) => s.reopenedKeyResultIds,
+  );
+  const reopenedKr = reopenedKeyResultIds.has(String(kr.id));
+  const [pickMenuOpen, setPickMenuOpen] = useState(false);
+
   const showTaskCount = kr.taskCount > 0;
 
   const rowSelected =
@@ -229,68 +372,135 @@ function KRProgressCard({
     planningTargetsForKr.some((t) => t.id === selectedPlanningTargetId);
   const showPickChrome = isHighlighted || rowSelected;
 
-  const isFullyCompleted = kr.planningBlocked;
-
+  // + only when something remains selectable. Fully achieved KRs (planningBlocked)
+  // and all-completed milestone lists must hide it — including in-session achieves.
+  const hasSelectableSlot = planningTargetsForKr.some((t) => {
+    if (t.isCompleted) return false;
+    if (
+      t.milestoneId &&
+      (reopenedMilestoneIds.has(String(t.milestoneId)) ||
+        isRecentlyReopenedMilestone(t.milestoneId))
+    ) {
+      return true;
+    }
+    if (
+      t.milestoneId &&
+      (recentlyAchievedIds.has(String(t.milestoneId)) ||
+        isRecentlyAchievedMilestone(t.milestoneId))
+    ) {
+      return false;
+    }
+    return true;
+  });
   const showPickControl =
     inlinePickEnabled &&
     !!onPickPlanningTarget &&
-    planningTargetsForKr.length > 0 &&
-    !isFullyCompleted &&
+    (!kr.planningBlocked || reopenedKr || isRecentlyReopenedKeyResult(kr.id)) &&
+    hasSelectableSlot &&
     !kr.isDeleted;
 
+  const isSlotDisabled = (t: PlanningTarget): boolean => {
+    if (
+      t.milestoneId &&
+      (reopenedMilestoneIds.has(String(t.milestoneId)) ||
+        isRecentlyReopenedMilestone(t.milestoneId))
+    ) {
+      return false;
+    }
+    if (t.isCompleted) return true;
+    if (!t.milestoneId) return false;
+    const id = String(t.milestoneId);
+    if (recentlyAchievedIds.has(id) || isRecentlyAchievedMilestone(id)) {
+      return true;
+    }
+    const titleKey = String(t.milestoneTitle || '')
+      .trim()
+      .toLowerCase();
+    const match = (list: any[] | undefined) => {
+      if (!Array.isArray(list)) return null;
+      return (
+        list.find((m) => m && String(m.id) === id) ??
+        (titleKey
+          ? list.find(
+              (m) =>
+                m &&
+                String(m.title || m.name || '')
+                  .trim()
+                  .toLowerCase() === titleKey,
+            )
+          : null) ??
+        null
+      );
+    };
+    return (
+      isMilestoneAchievedForPlanning(match(kr.milestones)) ||
+      isMilestoneAchievedForPlanning(match(objectiveMilestones))
+    );
+  };
+
   const dropdownSlotItems: MenuProps['items'] = planningTargetsForKr.map(
-    (t) => ({
-      key: t.id,
-      className: '!h-auto !py-2.5 !leading-normal',
-      label: planningTargetMenuItemLabel(t),
-    }),
+    (t) => {
+      const disabled = isSlotDisabled(t);
+      return {
+        key: t.id,
+        disabled,
+        className: `planning-target-pick-item !h-auto !py-2.5 !leading-normal${
+          disabled ? ' planning-target-pick-item--achieved' : ''
+        }`,
+        label: planningTargetMenuItemLabel(t, disabled),
+      };
+    },
   );
 
+  // Flat items (not type:group) so Ant Design reliably applies `disabled`.
   const dropdownMenuItems: MenuProps['items'] = [
     {
-      type: 'group',
-      key: 'planning-slots',
-      label: 'Select milestone to plan',
-      children: dropdownSlotItems,
+      key: 'planning-slots-heading',
+      disabled: true,
+      className: 'planning-target-pick-heading !cursor-default !opacity-100',
+      label: (
+        <span
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-pick-heading"
+          className="text-[11px] font-bold uppercase tracking-[0.02em] text-[#64748b]"
+        >
+          Select milestone to plan
+        </span>
+      ),
     },
+    ...(dropdownSlotItems ?? []),
   ];
 
   const pickButton =
     showPickControl && onPickPlanningTarget ? (
-      planningTargetsForKr.length === 1 ? (
+      <Dropdown
+        open={pickMenuOpen}
+        menu={{
+          items: dropdownMenuItems,
+          onClick: ({ key, domEvent }) => {
+            domEvent.stopPropagation();
+            const t = planningTargetsForKr.find((x) => x.id === key);
+            if (!t || isSlotDisabled(t)) return;
+            setPickMenuOpen(false);
+            onPickPlanningTarget(t);
+          },
+        }}
+        trigger={['click']}
+        placement={pickMenuPlacement}
+        overlayClassName="planning-target-pick-menu"
+        onOpenChange={(open) => {
+          setPickMenuOpen(open);
+          if (open) onRefreshMilestoneStatus?.();
+        }}
+      >
         <button
-          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-273"
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-295"
           type="button"
-          title="Add tasks for this key result"
-          onClick={() => onPickPlanningTarget(planningTargetsForKr[0])}
+          title="Choose a milestone or key result to plan against"
           className={`${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`}
         >
           <PlusOutlined className="text-[13px]" />
         </button>
-      ) : (
-        <Dropdown
-          menu={{
-            items: dropdownMenuItems,
-            onClick: ({ key, domEvent }) => {
-              domEvent.stopPropagation();
-              const t = planningTargetsForKr.find((x) => x.id === key);
-              if (t) onPickPlanningTarget(t);
-            },
-          }}
-          trigger={['click']}
-          placement={pickMenuPlacement}
-          overlayClassName="planning-target-pick-menu"
-        >
-          <button
-            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-295"
-            type="button"
-            title="Choose a milestone or key result to plan against"
-            className={`${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`}
-          >
-            <PlusOutlined className="text-[13px]" />
-          </button>
-        </Dropdown>
-      )
+      </Dropdown>
     ) : null;
 
   useEffect(() => {
@@ -441,6 +651,9 @@ function OwnerKRSection({
   planningTargetsByKrId,
   selectedPlanningTargetId = null,
   onPickPlanningTarget,
+  userKeyResultItems = [],
+  objectiveMilestonesByKrId,
+  onRefreshMilestoneStatus,
 }: {
   group: OwnerKRGroup;
   isSingleOwner: boolean;
@@ -451,6 +664,9 @@ function OwnerKRSection({
   planningTargetsByKrId?: Map<string, PlanningTarget[]>;
   selectedPlanningTargetId?: string | null;
   onPickPlanningTarget?: (target: PlanningTarget) => void;
+  userKeyResultItems?: any[];
+  objectiveMilestonesByKrId?: Map<string, any[]>;
+  onRefreshMilestoneStatus?: () => void;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const headerLabel =
@@ -529,7 +745,14 @@ function OwnerKRSection({
           className={krCardListClass}
         >
           {group.krs.map((kr) => {
-            const slots = planningTargetsByKrId?.get(kr.id) ?? [];
+            const slots = resolvePlanningSlotsForKr(
+              kr,
+              planningTargetsByKrId?.get(kr.id) ?? [],
+              userKeyResultItems,
+              objectiveMilestonesByKrId,
+            );
+            const objectiveMilestones =
+              objectiveMilestonesByKrId?.get(String(kr.id)) ?? [];
             return (
               <div
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-454"
@@ -543,6 +766,8 @@ function OwnerKRSection({
                   planningTargetsForKr={slots}
                   selectedPlanningTargetId={selectedPlanningTargetId}
                   onPickPlanningTarget={onPickPlanningTarget}
+                  objectiveMilestones={objectiveMilestones}
+                  onRefreshMilestoneStatus={onRefreshMilestoneStatus}
                 />
               </div>
             );
@@ -659,7 +884,14 @@ function OwnerKRSection({
           className={`mt-2 ${krCardListClass}`}
         >
           {group.krs.map((kr) => {
-            const slots = planningTargetsByKrId?.get(kr.id) ?? [];
+            const slots = resolvePlanningSlotsForKr(
+              kr,
+              planningTargetsByKrId?.get(kr.id) ?? [],
+              userKeyResultItems,
+              objectiveMilestonesByKrId,
+            );
+            const objectiveMilestones =
+              objectiveMilestonesByKrId?.get(String(kr.id)) ?? [];
             return (
               <div
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-542"
@@ -673,6 +905,8 @@ function OwnerKRSection({
                   planningTargetsForKr={slots}
                   selectedPlanningTargetId={selectedPlanningTargetId}
                   onPickPlanningTarget={onPickPlanningTarget}
+                  objectiveMilestones={objectiveMilestones}
+                  onRefreshMilestoneStatus={onRefreshMilestoneStatus}
                 />
               </div>
             );
@@ -964,6 +1198,10 @@ export interface KRPanelProps {
   onPickPlanningTarget?: (target: PlanningTarget) => void;
   /** Flat list from GET …/key-results/user/:userId (merged with plan-backed KRs, deduped by id). */
   userKeyResultItems?: any[];
+  /** Objective milestones by KR id (same rows createPlanObjective lists). */
+  objectiveMilestonesByKrId?: Map<string, any[]>;
+  /** Refetch milestone Completed status (user KR + objectives) when opening +. */
+  onRefreshMilestoneStatus?: () => void;
   /** Unreported parent plan for current cadence (planning period hierarchy). */
   parentPlanContext?: ParentPlanContext | null;
   /** False while user KR API is loading/refetching — hides + until eligibility is current. */
@@ -985,6 +1223,8 @@ export function KRLeftPanel({
   selectedPlanningTargetId = null,
   onPickPlanningTarget,
   userKeyResultItems = [],
+  objectiveMilestonesByKrId,
+  onRefreshMilestoneStatus,
   parentPlanContext = null,
   planningPickReady = true,
 }: KRPanelProps) {
@@ -1044,17 +1284,22 @@ export function KRLeftPanel({
     const m = new Map<string, PlanningTarget[]>();
     for (const t of planningTargets) {
       if (t.isDailySlot) continue;
-      if (blockedKrIds.has(t.keyResultId)) continue;
+      // Do NOT drop by blockedKrIds here — that hid + whenever aggregate
+      // progress looked "done" while milestones remained. Card + visibility
+      // is driven by hasSelectableSlot (any non-achieved / non-session-achieved).
       const kid = t.keyResultId;
       const list = m.get(kid);
       if (list) list.push(t);
       else m.set(kid, [t]);
     }
     return m;
-  }, [planningTargets, blockedKrIds]);
+  }, [planningTargets]);
 
   const showKrTargetsLoadingRow =
-    showInlinePick && planningTargetsLoading && !parentPlanContext;
+    showInlinePick &&
+    planningTargetsLoading &&
+    !parentPlanContext &&
+    planningTargets.length === 0;
 
   /** Child cadence on Plans tab: parent plan tasks only (hide KR list). Reports tab keeps KRs. */
   const isChildCadence = !!parentPlanContext && activeTab === 1;
@@ -1122,7 +1367,7 @@ export function KRLeftPanel({
               showPick={showInlinePick}
               selectedPlanningTargetId={selectedPlanningTargetId}
               onPickPlanningTarget={onPickPlanningTarget}
-              loading={planningTargetsLoading}
+              loading={planningTargetsLoading && parentPlanSlots.length === 0}
               blockedKrIds={blockedKrIds}
               expandToFill={isChildCadence}
             />
@@ -1192,6 +1437,9 @@ export function KRLeftPanel({
                       planningTargetsByKrId={targetsByKrId}
                       selectedPlanningTargetId={selectedPlanningTargetId}
                       onPickPlanningTarget={onPickPlanningTarget}
+                      userKeyResultItems={userKeyResultItems}
+                      objectiveMilestonesByKrId={objectiveMilestonesByKrId}
+                      onRefreshMilestoneStatus={onRefreshMilestoneStatus}
                     />
                   );
                 })

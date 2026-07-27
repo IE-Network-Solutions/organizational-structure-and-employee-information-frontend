@@ -43,8 +43,9 @@ export const handleNetworkError = (error: any) => {
 export const handleFirebaseSignInError = (error: FirebaseError): void => {
   let errorMessage: string;
 
-  switch (error.code) {
+  switch (error?.code) {
     case 'auth/invalid-credential':
+    case 'auth/invalid-login-credentials':
       errorMessage = 'Invalid email or password. Please try again.';
       break;
     case 'auth/admin-restricted-operation':
@@ -60,7 +61,11 @@ export const handleFirebaseSignInError = (error: FirebaseError): void => {
       errorMessage = 'Incorrect password. Please try again.';
       break;
     case 'auth/invalid-email':
+    case 'auth/missing-email':
       errorMessage = 'Please enter a valid email address.';
+      break;
+    case 'auth/missing-password':
+      errorMessage = 'Password is missing. Please sign in again.';
       break;
     case 'auth/user-disabled':
       errorMessage = 'This account is disabled. Contact support for help.';
@@ -91,7 +96,8 @@ export const handleFirebaseSignInError = (error: FirebaseError): void => {
         'Account already exists with different credential. Please Use previous login method.';
       break;
     default:
-      errorMessage = 'An error occurred. Please try again.';
+      errorMessage =
+        (error as any)?.message || 'An error occurred. Please try again.';
   }
 
   message.error(errorMessage);

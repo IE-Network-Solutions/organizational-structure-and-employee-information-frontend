@@ -2,8 +2,11 @@ import {
   formatKrMetricTypeDisplayName,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
+  isMilestoneAchievedForPlanning,
+  isMilestoneCompleted,
   mergeKeyResultWithUserApi,
   resolveKrPanelMetricType,
+  resolveKrPlanningBlocked,
   resolveOkrMilestones,
   type KeyResultLikeInput,
 } from '@/utils/okrKeyResultProgressDisplay';
@@ -168,15 +171,65 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
     expect(resolveKrPanelMetricType(kr)).toBe('Milestone');
   });
 
-  it('does not treat plan-only milestone shells as OKR milestones', () => {
-    const planOnly = {
+  it('merges Completed from API onto plan shells with the same id', () => {
+    const planKr = {
+      id: 'kr-2',
       metricType: { name: 'Milestone' },
-      progress: 100,
-      milestones: [{ id: 'p1', tasks: [{ id: 't1' }] }],
+      milestones: [
+        { id: 'm1', title: 'Phase 1', tasks: [{ id: 't1' }] },
+        { id: 'm2', title: 'Phase 2', tasks: [{ id: 't2' }] },
+      ],
+    };
+    const apiKr = {
+      id: 'kr-2',
+      metricType: { name: 'Milestone' },
+      progress: 50,
+      milestones: [
+        { id: 'm1', status: 'Completed' },
+        { id: 'm2', status: 'In Progress' },
+      ],
     };
 
-    expect(resolveOkrMilestones(planOnly)).toEqual([]);
-    expect(getKeyResultProgressPercent(planOnly)).toBe(0);
-    expect(resolveKrPanelMetricType(planOnly)).toBe('Milestone');
+    const merged = mergeKeyResultWithUserApi(planKr, [apiKr]);
+    const rows = resolveOkrMilestones(merged, apiKr);
+
+    expect(rows).toHaveLength(2);
+    expect(rows[0]).toMatchObject({ id: 'm1', status: 'Completed' });
+    expect(getKeyResultProgressRatioText(merged)).toBe('1/2');
+  });
+
+  it('does not treat progress≥100 alone as milestone achieved for planning', () => {
+    expect(isMilestoneCompleted({ progress: 100, status: 'In Progress' })).toBe(
+      true,
+    );
+    expect(
+      isMilestoneAchievedForPlanning({
+        progress: 100,
+        status: 'In Progress',
+      }),
+    ).toBe(false);
+    expect(isMilestoneAchievedForPlanning({ status: 'Completed' })).toBe(true);
+  });
+
+  it('does not hide + for Milestone KR when only aggregate progress is 100', () => {
+    const panelKr = {
+      metricType: 'Milestone',
+      progress: 100,
+      milestones: [
+        { id: 'm1', status: 'In Progress', progress: 100 },
+        { id: 'm2', status: 'In Progress', progress: 50 },
+      ],
+    };
+    const apiKr = {
+      id: 'kr-1',
+      metricType: { name: 'Milestone' },
+      progress: 100,
+      milestones: [
+        { id: 'm1', status: 'In Progress', progress: 100 },
+        { id: 'm2', status: 'In Progress', progress: 50 },
+      ],
+    };
+
+    expect(resolveKrPlanningBlocked(panelKr, apiKr)).toBe(false);
   });
 });

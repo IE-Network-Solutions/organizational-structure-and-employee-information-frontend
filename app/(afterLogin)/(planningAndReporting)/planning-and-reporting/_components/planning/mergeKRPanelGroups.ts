@@ -22,7 +22,15 @@ export interface KRPanelAggregatedKR {
   progressLabel: string;
   isDeleted: boolean;
   planningBlocked: boolean;
-  milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+  milestones?: Array<{
+    id?: string | number;
+    title?: string | null;
+    name?: string | null;
+    status?: string | null;
+    deletedAt?: string | null;
+    isAchieved?: boolean | null;
+    progress?: number | string | null;
+  }>;
 }
 
 export interface KRPanelOwnerGroup {
