@@ -13,6 +13,7 @@ import {
 describe('recentlyAchievedMilestones', () => {
   beforeEach(() => {
     useRecentlyAchievedMilestones.getState().clear();
+    useRecentlyAchievedMilestones.persist.clearStorage();
   });
 
   it('remembers ids so disable works before API refetch', () => {
@@ -20,6 +21,13 @@ describe('recentlyAchievedMilestones', () => {
     rememberAchievedMilestones(['m-new', 'm-old']);
     expect(isRecentlyAchievedMilestone('m-new')).toBe(true);
     expect(isRecentlyAchievedMilestone('m-old')).toBe(true);
+  });
+
+  it('persists achieved ids so refresh can keep them disabled', () => {
+    rememberAchievedMilestones(['m-persist']);
+    const raw = window.localStorage.getItem('recently-achieved-milestones');
+    expect(raw).toBeTruthy();
+    expect(raw).toContain('m-persist');
   });
 
   it('can reopen milestones and KRs without refresh', () => {

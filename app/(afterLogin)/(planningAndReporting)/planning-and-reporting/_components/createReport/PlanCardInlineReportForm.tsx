@@ -14,12 +14,14 @@ import {
   useGetReportingById,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { markMilestonesCompletedInOkrCaches } from '@/utils/invalidateOkrPlanningCaches';
+import {
+  markMilestonesCompletedInOkrCaches,
+  markMilestonesReopenedInOkrCaches,
+} from '@/utils/invalidateOkrPlanningCaches';
 import {
   buildMilestoneKeyResultMap,
   clearReopenedPlanningTargets,
   collectAchievedMilestoneIdsFromReport,
-  rememberReopenedPlanningTargets,
   rememberAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
@@ -174,7 +176,7 @@ export function PlanCardInlineReportForm({
       ),
     );
     if (reopenedMilestoneIds.length > 0 || reopenedKeyResultIds.length > 0) {
-      rememberReopenedPlanningTargets({
+      markMilestonesReopenedInOkrCaches(queryClient, {
         milestoneIds: reopenedMilestoneIds,
         keyResultIds: reopenedKeyResultIds,
       });

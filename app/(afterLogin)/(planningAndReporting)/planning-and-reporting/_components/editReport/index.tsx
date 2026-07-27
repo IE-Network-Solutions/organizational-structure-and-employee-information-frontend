@@ -23,12 +23,14 @@ import { NAME } from '@/types/enumTypes';
 import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { FaCheckSquare, FaRegSquare, FaWindowClose } from 'react-icons/fa';
-import { markMilestonesCompletedInOkrCaches } from '@/utils/invalidateOkrPlanningCaches';
+import {
+  markMilestonesCompletedInOkrCaches,
+  markMilestonesReopenedInOkrCaches,
+} from '@/utils/invalidateOkrPlanningCaches';
 import {
   buildMilestoneKeyResultMap,
   clearReopenedPlanningTargets,
   collectAchievedMilestoneIdsFromReport,
-  rememberReopenedPlanningTargets,
   rememberAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
 
@@ -129,7 +131,7 @@ function EditReport() {
       ),
     );
     if (reopenedMilestoneIds.length > 0 || reopenedKeyResultIds.length > 0) {
-      rememberReopenedPlanningTargets({
+      markMilestonesReopenedInOkrCaches(queryClient, {
         milestoneIds: reopenedMilestoneIds,
         keyResultIds: reopenedKeyResultIds,
       });

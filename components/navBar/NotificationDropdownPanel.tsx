@@ -242,16 +242,14 @@ export function NotificationDropdownPanel({
         });
       }
     });
-    navigator.serviceWorker
-      .getRegistration(PUSH_SW_SCOPE)
-      .then((existing) => {
-        if (!existing || !existing.active) {
-          navigator.serviceWorker.register(PUSH_SW_SCRIPT, {
-            scope: PUSH_SW_SCOPE,
-            updateViaCache: 'imports',
-          });
-        }
-      });
+    navigator.serviceWorker.getRegistration(PUSH_SW_SCOPE).then((existing) => {
+      if (!existing || !existing.active) {
+        navigator.serviceWorker.register(PUSH_SW_SCRIPT, {
+          scope: PUSH_SW_SCOPE,
+          updateViaCache: 'imports',
+        });
+      }
+    });
   }, [userId, pushPermission]);
 
   const handleEnablePush = async () => {

@@ -483,7 +483,9 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                                     <Dropdown.Button
                                       type="primary"
                                       icon={<DownOutlined />}
-                                      disabled={isMilestoneAchievedForPlanning(ml)}
+                                      disabled={isMilestoneAchievedForPlanning(
+                                        ml,
+                                      )}
                                       menu={{
                                         items: [
                                           {

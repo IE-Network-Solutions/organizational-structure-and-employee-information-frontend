@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { CORE_API_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
@@ -13,7 +13,7 @@ const getLevel1Departments = async () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${CORE_API_URL}/departments/level-1`,
+    url: `${ORG_AND_EMP_URL}/departments/level-1`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -31,7 +31,7 @@ const getDepartments = async () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${CORE_API_URL}/departments/tenant/departments`,
+    url: `${ORG_AND_EMP_URL}/departments/tenant/departments`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -45,7 +45,7 @@ const getDepartmentsWithUsers = async () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${CORE_API_URL}/users/all/departments`,
+    url: `${ORG_AND_EMP_URL}/users/all/departments`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -59,7 +59,7 @@ const getDepartmentUsersAllLevels = async (departmentId: string) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${CORE_API_URL}/departments/child-departments/departments/all-levels/users/${departmentId}`,
+    url: `${ORG_AND_EMP_URL}/departments/child-departments/departments/all-levels/users/${departmentId}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -83,7 +83,7 @@ const getDepartment = async (id: string) => {
       tenantId: tenantId, // Pass tenantId in the headers
     };
     const response = await crudRequest({
-      url: `${CORE_API_URL}/departments/tenant/departments/${id}`,
+      url: `${ORG_AND_EMP_URL}/departments/tenant/departments/${id}`,
       method: 'GET',
       headers,
     });
@@ -102,7 +102,7 @@ const getDepartmentLead = async (id: string | null) => {
       tenantId: tenantId, // Pass tenantId in the headers
     };
     const response = await crudRequest({
-      url: `${CORE_API_URL}/users/get-department-lead/${id}`,
+      url: `${ORG_AND_EMP_URL}/users/get-department-lead/${id}`,
       method: 'GET',
       headers,
     });

@@ -1,6 +1,6 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
-import { CORE_API_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { OrgData } from '@/types/dashboard/organization';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -43,7 +43,7 @@ const createOrgChart = async (data: OrgData) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${CORE_API_URL}/departments`,
+    url: `${ORG_AND_EMP_URL}/departments`,
     method: 'POST',
     data,
     headers,
@@ -76,7 +76,7 @@ const updateOrgChart = async (id: string, data: OrgChart) => {
       data.departmentColor !== '' && { departmentColor: data.departmentColor }),
   };
   return await crudRequest({
-    url: `${CORE_API_URL}/departments/${id}`,
+    url: `${ORG_AND_EMP_URL}/departments/${id}`,
     method: 'PATCH',
     data: patchBody,
     headers,
@@ -99,7 +99,7 @@ const deleteOrgChart = async (
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${CORE_API_URL}/departments/${departmentTobeDeletedId}`,
+    url: `${ORG_AND_EMP_URL}/departments/${departmentTobeDeletedId}`,
     method: 'DELETE',
     data: { departmentTobeShiftedId },
     headers,
@@ -147,7 +147,7 @@ const createDepartment = async (data: CreateDepartmentPayload) => {
       department: [...existingChildren, newChild],
     };
     return await crudRequest({
-      url: `${CORE_API_URL}/departments/${data.parentId}`,
+      url: `${ORG_AND_EMP_URL}/departments/${data.parentId}`,
       method: 'PATCH',
       data: patchBody,
       headers,
@@ -162,7 +162,7 @@ const createDepartment = async (data: CreateDepartmentPayload) => {
     ...(data.departmentColor && { departmentColor: data.departmentColor }),
   };
   return await crudRequest({
-    url: `${CORE_API_URL}/departments`,
+    url: `${ORG_AND_EMP_URL}/departments`,
     method: 'POST',
     data: body,
     headers,

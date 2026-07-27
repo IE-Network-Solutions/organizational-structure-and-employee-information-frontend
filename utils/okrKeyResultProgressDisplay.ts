@@ -120,8 +120,9 @@ export function isMilestoneCompleted(
 
 /**
  * Planning-only: a milestone is achieved when OKR marks it achieved/completed.
- * Do NOT use progress≥100 or loose "done" alone — weighted sub-key-result Done
- * often bumps progress without completing the milestone outcome (achieveMK).
+ * Do NOT use progress≥100 alone — weighted sub-key-result Done often bumps
+ * progress without completing the milestone outcome (achieveMK).
+ * Includes status 'Done' (same as isMilestoneCompleted) for API variants.
  */
 export function isMilestoneAchievedForPlanning(
   m:
@@ -153,6 +154,7 @@ export function isMilestoneAchievedForPlanning(
   return (
     s === 'completed' ||
     s === 'complete' ||
+    s === 'done' ||
     s === 'achieved' ||
     s === 'finished' ||
     s === 'success' ||
@@ -196,8 +198,7 @@ export function mergeMilestoneCompletionRow(
     isAchieved: achieved
       ? true
       : ((primary as any).isAchieved ?? (secondary as any).isAchieved),
-    progress:
-      (primary as any).progress ?? (secondary as any).progress,
+    progress: (primary as any).progress ?? (secondary as any).progress,
   };
 }
 

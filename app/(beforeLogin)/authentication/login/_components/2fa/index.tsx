@@ -6,7 +6,7 @@ import {
   useVerify2FACode,
 } from '@/store/server/features/authentication/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, message } from 'antd';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useEffect } from 'react';
 import { useHandleSignIn } from '../signinHandler';
@@ -20,13 +20,11 @@ const TwoFactorAuth = () => {
   const { handleSignIn } = useHandleSignIn();
 
   const {
-    localId,
     twoFactorAuthEmail,
     countdown,
     decrementCountdown,
     resetCountdown,
     setIs2FA,
-    user2FA,
     loading,
   } = useAuthenticationStore();
 
@@ -42,42 +40,82 @@ const TwoFactorAuth = () => {
   const seconds = countdown % 60;
   const formatted = `${minutes}:${seconds.toString().padStart(2, '0')}`;
 
+  const maskedEmail = (twoFactorAuthEmail || '').replace(
+    /(^.{0,3})(.*?)(@.*$)/,
+    (fullMatch: string, start: string, mid: string, domain: string) => {
+      void fullMatch;
+      return `${start}${mid.replace(/./g, '*')}${domain}`;
+    },
+  );
+
   const handleSubmit = (value: { otp: string }) => {
-    if (value.otp.length === 6) {
-      verify2FACode(
-        {
-          values: {
-            uid: localId,
-            code: value.otp,
-            skipEncryption: true,
-          },
-        },
-        {
-          onSuccess: async () => {
-            await handleSignIn(() =>
-              signInWithEmailAndPassword(
-                auth,
-                user2FA.email.toLowerCase(),
-                user2FA.pass,
-              ),
-            );
-          },
-        },
-      );
+    const otp = String(value?.otp ?? '').trim();
+    if (otp.length !== 6) {
+      message.error('Please enter the 6-digit verification code.');
+      return;
     }
+
+    // Read latest credentials from the store to avoid stale closures.
+    const { localId, user2FA } = useAuthenticationStore.getState();
+    const email = user2FA?.email?.toLowerCase()?.trim();
+    const password = user2FA?.pass;
+
+    if (!localId) {
+      message.error(
+        'Verification session expired. Please sign in again from the login page.',
+      );
+      setIs2FA(false);
+      return;
+    }
+
+    if (!email || !password) {
+      message.error(
+        'Login credentials are missing. Please sign in again from the login page.',
+      );
+      setIs2FA(false);
+      return;
+    }
+
+    verify2FACode(
+      {
+        values: {
+          uid: localId,
+          code: otp,
+        },
+      },
+      {
+        onSuccess: async () => {
+          await handleSignIn(() =>
+            signInWithEmailAndPassword(auth, email, password),
+          );
+        },
+      },
+    );
   };
 
   const handleResendCode = () => {
+    const { user2FA } = useAuthenticationStore.getState();
+    const email = user2FA?.email?.toLowerCase()?.trim();
+    const password = user2FA?.pass;
+
+    if (!email || !password) {
+      message.error(
+        'Login credentials are missing. Please sign in again from the login page.',
+      );
+      setIs2FA(false);
+      return;
+    }
+
     get2FACode(
       {
         values: {
-          email: user2FA.email.toLowerCase(),
-          pass: user2FA.pass,
-          // skipEncryption: true,
+          email,
+          pass: password,
         },
       },
       {
         onSuccess: () => {
+          resetCountdown();
           setIs2FA(true);
         },
       },
@@ -108,7 +146,7 @@ const TwoFactorAuth = () => {
           data-cy="authentication-2fa-description"
         >
           To continue, please enter the 6-digit verification code sent to your
-          email address {twoFactorAuthEmail.replace(/(?<=.{3}).(?=.*@)/g, '*')}
+          email address {maskedEmail || 'your email'}
         </p>
         <Form
           name="login-form"
@@ -123,6 +161,10 @@ const TwoFactorAuth = () => {
               {
                 required: true,
                 message: 'Please input your otp!',
+              },
+              {
+                len: 6,
+                message: 'Please enter the 6-digit code.',
               },
             ]}
             className="flex justify-center"
@@ -165,19 +207,12 @@ const TwoFactorAuth = () => {
           </Button>
         </p>
       </div>
-      {/* resend otp */}
 
       <div className="text-xs font-thin text-center" data-cy="2fa-footer">
         <span data-cy="2fa-copyright">
           © {new Date().getFullYear().toString()} Selamnew Workspace .
           All-rights reserved.
         </span>
-        {/* <span className="font-semibold ml-1 cursor-pointer">
-        Terms & Conditions
-      </span>
-      <span className="font-semibold ml-1 cursor-pointer">
-        Privacy Settings
-      </span> */}
       </div>
     </div>
   );

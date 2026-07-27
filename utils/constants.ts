@@ -4,7 +4,9 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
 export const OKR_URL = process.env.OKR_URL;
 export const PAYROLL_URL = process.env.PAYROLL_URL;
-export const CORE_API_URL = process.env.CORE_API_URL;
+/** Core API (2FA, org chart, calendars, etc.). Falls back to org-emp when unset. */
+export const CORE_API_URL =
+  process.env.CORE_API_URL || process.env.ORG_AND_EMP_URL;
 
 export const OKR_AND_PLANNING_URL =
   process.env.NEXT_PUBLIC_OKR_AND_PLANNING_URL;

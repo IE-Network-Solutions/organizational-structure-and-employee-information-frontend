@@ -1,7 +1,7 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { CORE_API_URL, OKR_AND_PLANNING_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL, OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { DataItem } from '@/store/uistate/features/weeklyPriority/useStore';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -37,7 +37,7 @@ const getDepartmentChild = async (departmentId: string) => {
   const token = await getCurrentToken();
   if (departmentId) {
     return crudRequest({
-      url: `${CORE_API_URL}/departments/child-departments/departments/all-levels/${departmentId}`,
+      url: `${ORG_AND_EMP_URL}/departments/child-departments/departments/all-levels/${departmentId}`,
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header

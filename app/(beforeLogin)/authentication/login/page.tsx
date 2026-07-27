@@ -7,7 +7,7 @@ import {
   microsoftProvider,
 } from '@/utils/firebaseConfig';
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Checkbox, Form, Input, message } from 'antd';
 import { Microsoft } from '@/components/Icons/microsoft';
 import { Google } from '@/components/Icons/google';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -32,8 +32,14 @@ const IMG = {
 } as const;
 
 const Login: FC = () => {
-  const { loading, is2FA, setIs2FA, setLocalId, setUser2FA } =
-    useAuthenticationStore();
+  const {
+    loading,
+    is2FA,
+    setIs2FA,
+    setLocalId,
+    setUser2FA,
+    setTwoFactorAuthEmail,
+  } = useAuthenticationStore();
   const { mutate: get2FACode, isLoading: isGet2FACodeLoading } =
     useGet2FACode();
   const { handleSignIn } = useHandleSignIn();
@@ -50,31 +56,36 @@ const Login: FC = () => {
   const handleEmailPasswordSignIn: FormProps<FieldType>['onFinish'] = async (
     values,
   ) => {
+    const email = values.email.toLowerCase();
+    const password = values.password;
+
     get2FACode(
       {
         values: {
-          email: values.email.toLowerCase(),
-          pass: values.password,
+          email,
+          pass: password,
         },
       },
       {
         onSuccess: async (data) => {
-          if (data?.is2FAEnabled === false) {
-            return await handleSignIn(() =>
-              signInWithEmailAndPassword(
-                auth,
-                values.email.toLowerCase(),
-                values.password,
-              ),
-            );
-          } else {
-            setUser2FA({
-              email: values.email.toLowerCase(),
-              pass: values.password,
-            });
-            setLocalId(data?.uid);
+          // Only enter 2FA when the API explicitly enables it.
+          if (data?.is2FAEnabled === true) {
+            if (!data?.uid) {
+              message.error(
+                'Verification could not be started. Missing user id from server.',
+              );
+              return;
+            }
+            setUser2FA({ email, pass: password });
+            setTwoFactorAuthEmail(email);
+            setLocalId(data.uid);
             setIs2FA(true);
+            return;
           }
+
+          await handleSignIn(() =>
+            signInWithEmailAndPassword(auth, email, password),
+          );
         },
       },
     );

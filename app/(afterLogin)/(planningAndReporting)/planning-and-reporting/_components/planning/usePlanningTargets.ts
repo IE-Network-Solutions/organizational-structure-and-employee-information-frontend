@@ -1,5 +1,10 @@
 import { useEffect, useMemo } from 'react';
-import { rememberAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
+import { useQueryClient } from 'react-query';
+import {
+  rememberAchievedMilestones,
+  useRecentlyAchievedMilestones,
+} from '@/utils/recentlyAchievedMilestones';
+import { restampSessionAchievedMilestonesInCaches } from '@/utils/invalidateOkrPlanningCaches';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { useGetPlanningPeriodsHierarchy } from '@/store/server/features/okrPlanningAndReporting/queries';
 import {
@@ -9,7 +14,6 @@ import {
   indexObjectiveMilestonesByKrId,
   type PlanningTarget,
 } from './buildPlanningTargets';
-import { useRecentlyAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
 
 export function usePlanningTargets(
   userId: string,
@@ -28,6 +32,7 @@ export function usePlanningTargets(
   /** Refresh objective milestone Completed status (e.g. when opening + menu). */
   refetchObjectives: () => void;
 } {
+  const queryClient = useQueryClient();
   const {
     data: objective,
     isLoading: objLoading,
@@ -93,6 +98,14 @@ export function usePlanningTargets(
       .map((t) => t.milestoneId);
     if (ids.length > 0) rememberAchievedMilestones(ids);
   }, [targets, planningPeriodId]);
+
+  // After browser refresh, re-stamp Completed onto RQ caches from persisted IDs
+  // so stale Incomplete API rows cannot re-enable the pick menu.
+  useEffect(() => {
+    if (!recentlyAchievedIds || recentlyAchievedIds.size === 0) return;
+    if (objective == null && userKeyResultItems.length === 0) return;
+    restampSessionAchievedMilestonesInCaches(queryClient);
+  }, [recentlyAchievedIds, objective, userKeyResultItems, queryClient]);
 
   // Background invalidation/refetch must not flip buttons or panels into loading.
   const isInitialLoading =

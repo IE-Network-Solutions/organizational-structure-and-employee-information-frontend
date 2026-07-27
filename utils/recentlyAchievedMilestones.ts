@@ -1,9 +1,10 @@
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
 /**
- * Session memory of milestones the user just achieved (report / OKR update).
- * Used so the Plan & Report + pick menu can disable them immediately even when
- * API refetch still returns stale status.
+ * Memory of milestones the user achieved (report / OKR update).
+ * Persisted so Plan & Report + pick menu keeps them disabled after browser
+ * refresh when API refetch still returns stale Incomplete status.
  */
 type RecentlyAchievedMilestonesState = {
   ids: ReadonlySet<string>;
@@ -29,110 +30,169 @@ type RecentlyAchievedMilestonesState = {
   clear: () => void;
 };
 
+type PersistedRecentlyAchievedShape = {
+  ids: string[];
+  reopenedMilestoneIds: string[];
+  reopenedKeyResultIds: string[];
+};
+
+const noopStorage: Storage = {
+  getItem: () => null,
+  setItem: () => undefined,
+  removeItem: () => undefined,
+  clear: () => undefined,
+  key: () => null,
+  length: 0,
+};
+
+function toIdSet(value: unknown): Set<string> {
+  if (value instanceof Set) {
+    return new Set(
+      Array.from(value)
+        .filter((id) => id != null && String(id).length > 0)
+        .map((id) => String(id)),
+    );
+  }
+  if (Array.isArray(value)) {
+    return new Set(
+      value
+        .filter((id) => id != null && String(id).length > 0)
+        .map((id) => String(id)),
+    );
+  }
+  return new Set();
+}
+
 export const useRecentlyAchievedMilestones =
-  create<RecentlyAchievedMilestonesState>((set, get) => ({
-    ids: new Set(),
-    reopenedMilestoneIds: new Set(),
-    reopenedKeyResultIds: new Set(),
-    remember: (milestoneIds) => {
-      const next = new Set(get().ids);
-      const reopenedMilestones = new Set(get().reopenedMilestoneIds);
-      let changed = false;
-      for (const id of milestoneIds) {
-        if (id == null || id === '') continue;
-        const key = String(id);
-        if (!next.has(key)) {
-          next.add(key);
-          changed = true;
-        }
-        if (reopenedMilestones.delete(key)) {
-          changed = true;
-        }
-      }
-      if (changed) set({ ids: next, reopenedMilestoneIds: reopenedMilestones });
-    },
-    forget: (milestoneIds) => {
-      const next = new Set(get().ids);
-      let changed = false;
-      for (const id of milestoneIds) {
-        if (id == null || id === '') continue;
-        if (next.delete(String(id))) changed = true;
-      }
-      if (changed) set({ ids: next });
-    },
-    reopen: ({ milestoneIds = [], keyResultIds = [] }) => {
-      const nextAchieved = new Set(get().ids);
-      const reopenedMilestones = new Set(get().reopenedMilestoneIds);
-      const reopenedKrs = new Set(get().reopenedKeyResultIds);
-      let changed = false;
-
-      for (const id of milestoneIds) {
-        if (id == null || id === '') continue;
-        const key = String(id);
-        if (nextAchieved.delete(key)) changed = true;
-        if (!reopenedMilestones.has(key)) {
-          reopenedMilestones.add(key);
-          changed = true;
-        }
-      }
-
-      for (const id of keyResultIds) {
-        if (id == null || id === '') continue;
-        const key = String(id);
-        if (!reopenedKrs.has(key)) {
-          reopenedKrs.add(key);
-          changed = true;
-        }
-      }
-
-      if (changed) {
-        set({
-          ids: nextAchieved,
-          reopenedMilestoneIds: reopenedMilestones,
-          reopenedKeyResultIds: reopenedKrs,
-        });
-      }
-    },
-    clearReopened: ({ milestoneIds = [], keyResultIds = [] }) => {
-      const reopenedMilestones = new Set(get().reopenedMilestoneIds);
-      const reopenedKrs = new Set(get().reopenedKeyResultIds);
-      let changed = false;
-
-      for (const id of milestoneIds) {
-        if (id == null || id === '') continue;
-        if (reopenedMilestones.delete(String(id))) changed = true;
-      }
-      for (const id of keyResultIds) {
-        if (id == null || id === '') continue;
-        if (reopenedKrs.delete(String(id))) changed = true;
-      }
-
-      if (changed) {
-        set({
-          reopenedMilestoneIds: reopenedMilestones,
-          reopenedKeyResultIds: reopenedKrs,
-        });
-      }
-    },
-    has: (milestoneId) => {
-      if (milestoneId == null || milestoneId === '') return false;
-      return get().ids.has(String(milestoneId));
-    },
-    isReopenedMilestone: (milestoneId) => {
-      if (milestoneId == null || milestoneId === '') return false;
-      return get().reopenedMilestoneIds.has(String(milestoneId));
-    },
-    isReopenedKeyResult: (keyResultId) => {
-      if (keyResultId == null || keyResultId === '') return false;
-      return get().reopenedKeyResultIds.has(String(keyResultId));
-    },
-    clear: () =>
-      set({
+  create<RecentlyAchievedMilestonesState>()(
+    persist(
+      (set, get) => ({
         ids: new Set(),
         reopenedMilestoneIds: new Set(),
         reopenedKeyResultIds: new Set(),
+        remember: (milestoneIds) => {
+          const next = new Set(get().ids);
+          const reopenedMilestones = new Set(get().reopenedMilestoneIds);
+          let changed = false;
+          for (const id of milestoneIds) {
+            if (id == null || id === '') continue;
+            const key = String(id);
+            if (!next.has(key)) {
+              next.add(key);
+              changed = true;
+            }
+            if (reopenedMilestones.delete(key)) {
+              changed = true;
+            }
+          }
+          if (changed)
+            set({ ids: next, reopenedMilestoneIds: reopenedMilestones });
+        },
+        forget: (milestoneIds) => {
+          const next = new Set(get().ids);
+          let changed = false;
+          for (const id of milestoneIds) {
+            if (id == null || id === '') continue;
+            if (next.delete(String(id))) changed = true;
+          }
+          if (changed) set({ ids: next });
+        },
+        reopen: ({ milestoneIds = [], keyResultIds = [] }) => {
+          const nextAchieved = new Set(get().ids);
+          const reopenedMilestones = new Set(get().reopenedMilestoneIds);
+          const reopenedKrs = new Set(get().reopenedKeyResultIds);
+          let changed = false;
+
+          for (const id of milestoneIds) {
+            if (id == null || id === '') continue;
+            const key = String(id);
+            if (nextAchieved.delete(key)) changed = true;
+            if (!reopenedMilestones.has(key)) {
+              reopenedMilestones.add(key);
+              changed = true;
+            }
+          }
+
+          for (const id of keyResultIds) {
+            if (id == null || id === '') continue;
+            const key = String(id);
+            if (!reopenedKrs.has(key)) {
+              reopenedKrs.add(key);
+              changed = true;
+            }
+          }
+
+          if (changed) {
+            set({
+              ids: nextAchieved,
+              reopenedMilestoneIds: reopenedMilestones,
+              reopenedKeyResultIds: reopenedKrs,
+            });
+          }
+        },
+        clearReopened: ({ milestoneIds = [], keyResultIds = [] }) => {
+          const reopenedMilestones = new Set(get().reopenedMilestoneIds);
+          const reopenedKrs = new Set(get().reopenedKeyResultIds);
+          let changed = false;
+
+          for (const id of milestoneIds) {
+            if (id == null || id === '') continue;
+            if (reopenedMilestones.delete(String(id))) changed = true;
+          }
+          for (const id of keyResultIds) {
+            if (id == null || id === '') continue;
+            if (reopenedKrs.delete(String(id))) changed = true;
+          }
+
+          if (changed) {
+            set({
+              reopenedMilestoneIds: reopenedMilestones,
+              reopenedKeyResultIds: reopenedKrs,
+            });
+          }
+        },
+        has: (milestoneId) => {
+          if (milestoneId == null || milestoneId === '') return false;
+          return get().ids.has(String(milestoneId));
+        },
+        isReopenedMilestone: (milestoneId) => {
+          if (milestoneId == null || milestoneId === '') return false;
+          return get().reopenedMilestoneIds.has(String(milestoneId));
+        },
+        isReopenedKeyResult: (keyResultId) => {
+          if (keyResultId == null || keyResultId === '') return false;
+          return get().reopenedKeyResultIds.has(String(keyResultId));
+        },
+        clear: () =>
+          set({
+            ids: new Set(),
+            reopenedMilestoneIds: new Set(),
+            reopenedKeyResultIds: new Set(),
+          }),
       }),
-  }));
+      {
+        name: 'recently-achieved-milestones',
+        storage: createJSONStorage(() =>
+          typeof window !== 'undefined' ? localStorage : noopStorage,
+        ),
+        partialize: (state): PersistedRecentlyAchievedShape => ({
+          ids: Array.from(state.ids),
+          reopenedMilestoneIds: Array.from(state.reopenedMilestoneIds),
+          reopenedKeyResultIds: Array.from(state.reopenedKeyResultIds),
+        }),
+        merge: (persistedState, currentState) => {
+          const persisted = (persistedState ??
+            {}) as Partial<PersistedRecentlyAchievedShape>;
+          return {
+            ...currentState,
+            ids: toIdSet(persisted.ids),
+            reopenedMilestoneIds: toIdSet(persisted.reopenedMilestoneIds),
+            reopenedKeyResultIds: toIdSet(persisted.reopenedKeyResultIds),
+          };
+        },
+      },
+    ),
+  );
 
 export function rememberAchievedMilestones(
   milestoneIds: Array<string | number | null | undefined>,

@@ -7,6 +7,7 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 import {
   invalidateOkrPlanningCaches,
   markMilestonesCompletedInOkrCaches,
+  markMilestonesReopenedInOkrCaches,
   scheduleOkrMilestoneStatusRefetch,
 } from '@/utils/invalidateOkrPlanningCaches';
 
@@ -138,12 +139,14 @@ function applyAchievedMilestoneIds(
 /**
  * When a report is approved, Done+achieveMK tasks on that report should disable
  * their milestones immediately (backend may finalize Completed only on approve).
+ * Also used on reject/cancel to reopen the same milestones for re-planning.
  */
 function collectMilestoneIdsFromApprovedReport(
   queryClient: ReturnType<typeof useQueryClient>,
   reportId: string,
-): string[] {
-  const ids = new Set<string>();
+): { milestoneIds: string[]; keyResultIds: string[] } {
+  const milestoneIds = new Set<string>();
+  const keyResultIds = new Set<string>();
   const entries = [
     ...queryClient.getQueriesData(['okrReports']),
     ...queryClient.getQueriesData(['okrReport']),
@@ -161,7 +164,15 @@ function collectMilestoneIdsFromApprovedReport(
       task?.milestoneId ??
       task?.milestone?.id ??
       null;
-    if (achieveMK && mid != null) ids.add(String(mid));
+    if (!(achieveMK && mid != null)) return;
+    milestoneIds.add(String(mid));
+    const krId =
+      planTask?.keyResultId ??
+      planTask?.keyResult?.id ??
+      task?.keyResultId ??
+      task?.keyResult?.id ??
+      null;
+    if (krId != null) keyResultIds.add(String(krId));
   };
 
   for (const [, data] of entries) {
@@ -182,7 +193,10 @@ function collectMilestoneIdsFromApprovedReport(
     }
   }
 
-  return Array.from(ids);
+  return {
+    milestoneIds: Array.from(milestoneIds),
+    keyResultIds: Array.from(keyResultIds),
+  };
 }
 
 export const useApprovalPlanningPeriods = () => {
@@ -280,7 +294,16 @@ export const useDeleteReportById = () => {
   const queryClient = useQueryClient();
 
   return useMutation(deleteReportById, {
-    onSuccess: () => {
+    onSuccess: (data, reportId) => {
+      void data;
+      const { milestoneIds, keyResultIds } =
+        collectMilestoneIdsFromApprovedReport(queryClient, String(reportId));
+      if (milestoneIds.length > 0 || keyResultIds.length > 0) {
+        markMilestonesReopenedInOkrCaches(queryClient, {
+          milestoneIds,
+          keyResultIds,
+        });
+      }
       void invalidateOkrPlanningCaches(queryClient);
       scheduleOkrMilestoneStatusRefetch(queryClient);
       NotificationMessage.success({
@@ -297,12 +320,22 @@ export const useApprovalReporting = () => {
     onSuccess: (data, variables) => {
       void data;
       let achievedIds: string[] = [];
-      if (variables?.value === true && variables?.id) {
-        achievedIds = collectMilestoneIdsFromApprovedReport(
-          queryClient,
-          String(variables.id),
-        );
-        applyAchievedMilestoneIds(queryClient, achievedIds);
+      if (variables?.id) {
+        const { milestoneIds, keyResultIds } =
+          collectMilestoneIdsFromApprovedReport(
+            queryClient,
+            String(variables.id),
+          );
+        if (variables?.value === true) {
+          achievedIds = milestoneIds;
+          applyAchievedMilestoneIds(queryClient, achievedIds);
+        } else {
+          // Reject / Open approved report → re-enable those milestones for planning.
+          markMilestonesReopenedInOkrCaches(queryClient, {
+            milestoneIds,
+            keyResultIds,
+          });
+        }
       }
       void invalidateOkrPlanningCaches(queryClient);
       scheduleOkrMilestoneStatusRefetch(queryClient, 750, achievedIds);

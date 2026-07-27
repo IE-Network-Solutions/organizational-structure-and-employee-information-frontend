@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { CORE_API_URL } from '@/utils/constants';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
@@ -10,7 +10,7 @@ const getDepartmentsLevels = async (): Promise<DepartmentsLevelsResponse> => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const res = await crudRequest({
-    url: `${CORE_API_URL}/departments/levels`,
+    url: `${ORG_AND_EMP_URL}/departments/levels`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

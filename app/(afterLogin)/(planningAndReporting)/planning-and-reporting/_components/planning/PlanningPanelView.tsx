@@ -9,9 +9,7 @@ import { IoArrowBack } from 'react-icons/io5';
 import { MessageOutlined, PlusOutlined } from '@ant-design/icons';
 import PlanCard from '../cards/PlanCard';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
-import {
-  isMilestoneAchievedForPlanning,
-} from '@/utils/okrKeyResultProgressDisplay';
+import { isMilestoneAchievedForPlanning } from '@/utils/okrKeyResultProgressDisplay';
 import {
   isRecentlyAchievedMilestone,
   isRecentlyReopenedKeyResult,

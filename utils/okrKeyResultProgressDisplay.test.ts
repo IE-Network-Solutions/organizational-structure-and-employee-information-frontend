@@ -199,18 +199,16 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
   });
 
   it('does not treat progress≥100 alone as milestone achieved for planning', () => {
-    expect(
-      isMilestoneCompleted({ progress: 100, status: 'In Progress' }),
-    ).toBe(true);
+    expect(isMilestoneCompleted({ progress: 100, status: 'In Progress' })).toBe(
+      true,
+    );
     expect(
       isMilestoneAchievedForPlanning({
         progress: 100,
         status: 'In Progress',
       }),
     ).toBe(false);
-    expect(
-      isMilestoneAchievedForPlanning({ status: 'Completed' }),
-    ).toBe(true);
+    expect(isMilestoneAchievedForPlanning({ status: 'Completed' })).toBe(true);
   });
 
   it('does not hide + for Milestone KR when only aggregate progress is 100', () => {

@@ -2,6 +2,7 @@ import type { QueryClient } from 'react-query';
 import {
   isRecentlyAchievedMilestone,
   rememberAchievedMilestones,
+  rememberReopenedPlanningTargets,
   useRecentlyAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
 import { isMilestoneAchievedForPlanning } from '@/utils/okrKeyResultProgressDisplay';
@@ -83,10 +84,7 @@ export function reconcileAchievedMilestonesAfterStatusRefetch(
   }
 
   if (stillNeedPatch.length > 0) {
-    patchOkrCachesForCompletedMilestones(
-      queryClient,
-      new Set(stillNeedPatch),
-    );
+    patchOkrCachesForCompletedMilestones(queryClient, new Set(stillNeedPatch));
   }
   // Keep session achieved for the whole page session — forgetting here caused
   // achieved milestones to flip back to selectable when a follow-up refetch
@@ -117,7 +115,10 @@ export function scheduleOkrMilestoneStatusRefetch(
   }, delayMs);
 }
 
-function findMilestoneInPayload(data: unknown, milestoneId: string): any | null {
+function findMilestoneInPayload(
+  data: unknown,
+  milestoneId: string,
+): any | null {
   if (data == null) return null;
   if (Array.isArray(data)) {
     for (const item of data) {
@@ -241,4 +242,91 @@ export function markMilestonesCompletedInOkrCaches(
       restampSessionAchievedMilestonesInCaches(queryClient);
     }, 1100);
   }
+}
+
+function patchOkrCachesForReopenedMilestones(
+  queryClient: QueryClient,
+  ids: Set<string>,
+): void {
+  const patchMilestoneList = (list: any[]): any[] =>
+    list.map((m) => {
+      if (!m || m.id == null || !ids.has(String(m.id))) return m;
+      return {
+        ...m,
+        status: 'In Progress',
+        isAchieved: false,
+        isCompleted: false,
+        completed: false,
+      };
+    });
+
+  const patchKr = (kr: any): any => {
+    if (!kr || typeof kr !== 'object') return kr;
+    const milestones = kr.milestones ?? kr.Milestones;
+    if (!Array.isArray(milestones)) return kr;
+    const next = patchMilestoneList(milestones);
+    return {
+      ...kr,
+      milestones: next,
+      Milestones: kr.Milestones ? next : undefined,
+    };
+  };
+
+  const patchPayload = (data: unknown): unknown => {
+    if (data == null) return data;
+    if (Array.isArray(data)) {
+      return data.map(patchKr);
+    }
+    if (typeof data !== 'object') return data;
+    const obj = data as Record<string, any>;
+    if (Array.isArray(obj.items)) {
+      const items = obj.items.map((item: any) => {
+        if (Array.isArray(item?.keyResults)) {
+          return {
+            ...item,
+            keyResults: item.keyResults.map(patchKr),
+          };
+        }
+        return patchKr(item);
+      });
+      return { ...obj, items };
+    }
+    if (Array.isArray(obj.keyResults)) {
+      return { ...obj, keyResults: obj.keyResults.map(patchKr) };
+    }
+    return patchKr(obj);
+  };
+
+  for (const key of MILESTONE_STATUS_QUERY_KEYS) {
+    const entries = queryClient.getQueriesData(key);
+    for (const [queryKey, data] of entries) {
+      if (data == null) continue;
+      queryClient.setQueryData(queryKey, patchPayload(data));
+    }
+  }
+}
+
+/**
+ * Re-enable milestones after report reject / cancel / Done→Not so the + pick
+ * menu makes them selectable again (clears persisted achieved sticky state).
+ */
+export function markMilestonesReopenedInOkrCaches(
+  queryClient: QueryClient,
+  payload: {
+    milestoneIds?: Array<string | number | null | undefined>;
+    keyResultIds?: Array<string | number | null | undefined>;
+  },
+): void {
+  const milestoneIds = payload.milestoneIds ?? [];
+  const keyResultIds = payload.keyResultIds ?? [];
+  rememberReopenedPlanningTargets({ milestoneIds, keyResultIds });
+
+  const ids = new Set(
+    milestoneIds
+      .filter((id) => id != null && String(id).length > 0)
+      .map((id) => String(id)),
+  );
+  if (ids.size === 0) return;
+
+  patchOkrCachesForReopenedMilestones(queryClient, ids);
 }

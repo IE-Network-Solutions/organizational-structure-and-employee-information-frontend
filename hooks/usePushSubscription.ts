@@ -3,7 +3,12 @@
 import { useEffect, useRef } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { registerPushSubscription } from '@/store/server/features/notification/mutation';
-import { VAPID_PUBLIC_KEY, PUSH_SW_SCOPE, PUSH_SW_SCRIPT, SW_SCOPE } from '@/utils/constants';
+import {
+  VAPID_PUBLIC_KEY,
+  PUSH_SW_SCOPE,
+  PUSH_SW_SCRIPT,
+  SW_SCOPE,
+} from '@/utils/constants';
 
 /**
  * Converts a base64url-encoded VAPID public key to Uint8Array for pushManager.subscribe().
