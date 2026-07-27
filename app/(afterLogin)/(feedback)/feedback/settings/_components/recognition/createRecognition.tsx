@@ -27,8 +27,6 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedback/settings';
-import cancelIcon from '../../../../../../../public/image/Button.svg';
-import Image from 'next/image';
 import { GoPencil } from 'react-icons/go';
 import {
   DeleteOutlined,
@@ -2225,11 +2223,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                           />
                         </Form.Item>
                         {!isCriteriaOnlyEdit && (
-                          <Image
-                            src={cancelIcon}
-                            alt="remove"
-                            width={16}
-                            height={16}
+                          <button
+                            type="button"
                             onClick={() => {
                               const updatedCriteria = selectedCriteria.filter(
                                 (nonUsed: any, i: number) => i !== index,
@@ -2247,10 +2242,13 @@ const RecognitionForm: React.FC<PropsData> = ({
                                 recognitionCriteria: updatedCriteria,
                               });
                             }}
-                            className="mb-1 shrink-0 cursor-pointer self-end"
+                            className="mb-1 shrink-0 cursor-pointer self-end text-gray-500 hover:text-red-500 border-0 bg-transparent p-0"
+                            aria-label="Remove criterion"
                             data-cy={`create-recognition-form-criteria-remove-${index}`}
                             id={`createRecognitionFormCriteriaRemove${index}`}
-                          />
+                          >
+                            <DeleteOutlined className="text-base" />
+                          </button>
                         )}
                       </div>
                     </div>
