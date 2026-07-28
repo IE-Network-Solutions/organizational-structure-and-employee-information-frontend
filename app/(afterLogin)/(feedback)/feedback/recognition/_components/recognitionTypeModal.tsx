@@ -5,7 +5,7 @@ import { DownloadOutlined } from '@ant-design/icons';
 import { useGetRecognitionTypeParentChildById } from '@/store/server/features/CFR/recognition/queries';
 import { useCreateRecognition } from '@/store/server/features/CFR/recognition/mutation';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import EmployeeRecognitionModal from './EmployeeRecognitionModal';
 import { useRecognitionEmployeesExport } from './useRecognitionEmployeesExport';
 import { useSearchParams } from 'next/navigation';
@@ -40,10 +40,21 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
     filterOption,
     selectedEmployees,
   } = useRecongnitionStore();
-  const { data: employeeData } = useGetAllUsers();
+  const { data: allEmployeesData, isLoading: isAllUsersLoading } =
+    useGetAllUsersData();
   const { exportRecognitionEmployees } = useRecognitionEmployeesExport();
 
   const isMobileSplitDateFields = useMediaQuery({ maxWidth: 767 });
+
+  const allUsers = React.useMemo(() => {
+    if (Array.isArray(allEmployeesData)) return allEmployeesData;
+    return (
+      allEmployeesData?.items ||
+      allEmployeesData?.data ||
+      allEmployeesData?.users ||
+      []
+    );
+  }, [allEmployeesData]);
 
   const filteredEmployees = React.useMemo(() => {
     const baseFilter =
@@ -87,7 +98,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
     try {
       await exportRecognitionEmployees(
         filteredEmployees as any[],
-        employeeData?.items,
+        allUsers,
         'Recognition_Employees',
       );
     } finally {
@@ -158,8 +169,13 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
             size="small"
             icon={<DownloadOutlined />}
             onClick={handleDownloadExcel}
-            loading={isExporting}
-            disabled={!visibleEmployee || !employeesList?.length}
+            loading={isExporting || isAllUsersLoading}
+            disabled={
+              !visibleEmployee ||
+              !filteredEmployees?.length ||
+              isAllUsersLoading ||
+              !allUsers.length
+            }
             className="shrink-0"
             data-cy="recognition-type-modal-download"
             id="recognitionTypeModalDownload"

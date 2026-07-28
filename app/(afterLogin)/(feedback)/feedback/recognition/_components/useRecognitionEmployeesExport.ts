@@ -20,14 +20,26 @@ interface RecognitionEmployeeRow {
   criteriaScore?: CriteriaScore[];
 }
 
+const normalizeUsers = (users: EmployeeUser[] | undefined) => {
+  if (!users) return [];
+  if (Array.isArray(users)) return users;
+  return [];
+};
+
 const getEmployeeName = (
   recipientId: string | undefined,
   users: EmployeeUser[] | undefined,
 ) => {
   if (!recipientId) return 'Unknown';
-  const user = users?.find((item) => item.id === recipientId);
+  const user = normalizeUsers(users).find(
+    (item) => String(item.id) === String(recipientId),
+  );
   if (!user) return 'Unknown';
-  return `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`.trim() || 'Unknown';
+  return (
+    `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
+      .replace(/\s+/g, ' ')
+      .trim() || 'Unknown'
+  );
 };
 
 export const useRecognitionEmployeesExport = () => {
