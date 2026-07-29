@@ -1,13 +1,19 @@
 'use client';
-import React, { useState } from 'react';
-import { Table, Empty } from 'antd';
-import type { TableColumnsType } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Button, Dropdown, Empty, Table } from 'antd';
+import type { MenuProps, TableColumnsType } from 'antd';
+import ChecklistOutlinedIcon from '@mui/icons-material/ChecklistOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import StatusBadge, {
   StatusBadgeTheme,
 } from '@/components/common/statusBadge/statusBadge';
-import ActionButtons from '@/components/common/actionButton/actionButtons';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
+import CustomPagination from '@/components/customPagination';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { CriticalRole } from '../criticalRoleModal';
 
 interface CriticalRolesTableProps {
@@ -15,6 +21,7 @@ interface CriticalRolesTableProps {
   loading?: boolean;
   onEdit: (role: CriticalRole) => void;
   onDelete: (id: string) => void;
+  onRowClick?: (role: CriticalRole) => void;
 }
 
 /** Map risk → StatusBadgeTheme */
@@ -25,14 +32,19 @@ const riskTheme: Record<CriticalRole['riskLevel'], StatusBadgeTheme> = {
 };
 
 const headerClass = 'text-[#4d4d4d] text-sm font-bold';
+const PAGE_SIZE = 10;
 
 const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
   roles,
   loading = false,
   onEdit,
   onDelete,
+  onRowClick,
 }) => {
+  const { isMobile, isTablet } = useIsMobile();
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
   const confirmDelete = () => {
     if (deleteTargetId) {
@@ -41,103 +53,206 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
     setDeleteTargetId(null);
   };
 
-  const columns: TableColumnsType<CriticalRole> = [
+  const getActionMenuItems = (record: CriticalRole): MenuProps['items'] => [
     {
-      title: <span className={headerClass}>Role Name</span>,
-      dataIndex: 'roleName',
-      key: 'roleName',
-      ellipsis: true,
-      render: (value: string) => (
-        <span
-          className="text-gray-800 text-sm font-medium"
-          data-cy="critical-role-row-name"
-        >
-          {value}
-        </span>
-      ),
-    },
-    {
-      title: <span className={headerClass}>Department</span>,
-      dataIndex: 'department',
-      key: 'department',
-      ellipsis: true,
-      render: (value: string) => (
-        <span
-          className="text-[#4d4d4d] text-sm"
-          data-cy="critical-role-row-department"
-        >
-          {value}
-        </span>
-      ),
-    },
-    {
-      title: <span className={headerClass}>Risk Level</span>,
-      dataIndex: 'riskLevel',
-      key: 'riskLevel',
-      width: 120,
-      render: (value: CriticalRole['riskLevel']) => (
-        <StatusBadge theme={riskTheme[value]}>
-          <span data-cy="critical-role-row-risk">{value}</span>
-        </StatusBadge>
-      ),
-    },
-    {
-      title: <span className={headerClass}>Successors</span>,
-      dataIndex: 'successorCount',
-      key: 'successorCount',
-      width: 120,
-      render: (value: number) => (
+      key: 'edit',
+      label: (
         <div
-          className="flex items-center gap-1.5 text-[#4d4d4d] text-sm"
-          data-cy="critical-role-row-successors"
+          className="flex items-center gap-2"
+          onClick={() => onEdit(record)}
+          data-cy={`critical-role-edit-menu-item-${record.id}`}
         >
-          <PeopleAltOutlinedIcon fontSize="small" className="text-gray-400" />
-          <span>{value}</span>
+          <EditOutlinedIcon className="text-gray-600" fontSize="small" />
+          <span className="text-sm text-gray-700">Edit</span>
         </div>
       ),
     },
     {
-      title: <span className={headerClass}>Notes</span>,
-      dataIndex: 'notes',
-      key: 'notes',
-      ellipsis: true,
-      render: (value: string) => (
-        <span
-          className="text-gray-500 text-sm"
-          data-cy="critical-role-row-notes"
+      key: 'delete',
+      label: (
+        <div
+          className="flex items-center gap-2 text-red-600"
+          onClick={() => setDeleteTargetId(record.id)}
+          data-cy={`critical-role-delete-menu-item-${record.id}`}
         >
-          {value || '—'}
-        </span>
-      ),
-    },
-    {
-      title: <span className={headerClass}>Actions</span>,
-      key: 'actions',
-      width: 100,
-      fixed: 'right' as const,
-      render: (_: unknown, record: CriticalRole) => (
-        <ActionButtons
-          id={record.id}
-          onEdit={() => onEdit(record)}
-          onDelete={() => setDeleteTargetId(record.id)}
-        />
+          <DeleteOutlineOutlinedIcon fontSize="small" />
+          <span className="text-sm">Delete</span>
+        </div>
       ),
     },
   ];
 
+  const baseColumns: TableColumnsType<CriticalRole> = useMemo(
+    () => [
+      {
+        title: <span className={headerClass}>Role Name</span>,
+        dataIndex: 'roleName',
+        key: 'roleName',
+        ellipsis: true,
+        width: isMobile ? undefined : 200,
+        render: (value: string) => (
+          <span
+            className="text-gray-800 text-sm font-medium hover:text-primary"
+            data-cy="critical-role-row-name"
+          >
+            {value}
+          </span>
+        ),
+      },
+      {
+        title: <span className={headerClass}>Department</span>,
+        dataIndex: 'department',
+        key: 'department',
+        ellipsis: true,
+        width: isMobile ? undefined : 160,
+        render: (value: string) => (
+          <span
+            className="text-[#4d4d4d] text-sm"
+            data-cy="critical-role-row-department"
+          >
+            {value}
+          </span>
+        ),
+      },
+      {
+        title: <span className={headerClass}>Risk Level</span>,
+        dataIndex: 'riskLevel',
+        key: 'riskLevel',
+        width: isMobile ? undefined : 120,
+        render: (value: CriticalRole['riskLevel']) => (
+          <StatusBadge theme={riskTheme[value]}>
+            <span data-cy="critical-role-row-risk">{value}</span>
+          </StatusBadge>
+        ),
+      },
+      {
+        title: <span className={headerClass}>Competencies</span>,
+        key: 'competencies',
+        dataIndex: 'competencies',
+        width: 130,
+        render: (_: unknown, record: CriticalRole) => (
+          <div
+            className="flex items-center gap-1.5 text-[#4d4d4d] text-sm"
+            data-cy="critical-role-row-competencies"
+          >
+            <ChecklistOutlinedIcon fontSize="small" className="text-gray-400" />
+            <span>{record.competencies?.length ?? 0}</span>
+          </div>
+        ),
+      },
+      {
+        title: <span className={headerClass}>Successors</span>,
+        key: 'successors',
+        dataIndex: 'successors',
+        width: 120,
+        render: (_: unknown, record: CriticalRole) => (
+          <div
+            className="flex items-center gap-1.5 text-[#4d4d4d] text-sm"
+            data-cy="critical-role-row-successors"
+          >
+            <PeopleAltOutlinedIcon fontSize="small" className="text-gray-400" />
+            <span>
+              {record.successors?.length ?? record.successorCount ?? 0}
+            </span>
+          </div>
+        ),
+      },
+      {
+        title: <span className={headerClass}>Notes</span>,
+        dataIndex: 'notes',
+        key: 'notes',
+        ellipsis: true,
+        render: (value: string) => (
+          <span
+            className="text-gray-500 text-sm"
+            data-cy="critical-role-row-notes"
+          >
+            {value || '—'}
+          </span>
+        ),
+      },
+      {
+        title: <span className={headerClass}>Actions</span>,
+        key: 'actions',
+        width: 72,
+        fixed: 'right' as const,
+        render: (_: unknown, record: CriticalRole) => (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            data-cy={`critical-role-actions-${record.id}`}
+          >
+            <Dropdown
+              menu={{ items: getActionMenuItems(record) }}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <Button
+                type="text"
+                icon={<MoreHorizIcon style={{ fontSize: 18 }} />}
+                className="!w-8 !h-8 !p-0 leading-none flex items-center justify-center !bg-transparent [&_.ant-btn-icon]:m-0 [&_.ant-btn-icon]:leading-none"
+                aria-label="More actions"
+                data-cy={`critical-role-menu-btn-${record.id}`}
+              />
+            </Dropdown>
+          </div>
+        ),
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isMobile, onEdit],
+  );
+
+  const columns = isMobile
+    ? baseColumns.filter((col) => {
+        if (!('dataIndex' in col) || !col.dataIndex) {
+          return col.key === 'actions';
+        }
+        return (
+          col.dataIndex === 'roleName' ||
+          col.dataIndex === 'department' ||
+          col.dataIndex === 'riskLevel'
+        );
+      })
+    : baseColumns;
+
+  const pagedRoles = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return roles.slice(start, start + pageSize);
+  }, [roles, currentPage, pageSize]);
+
+  // Reset to page 1 when filter results shrink below current page
+  React.useEffect(() => {
+    const maxPage = Math.max(1, Math.ceil(roles.length / pageSize) || 1);
+    if (currentPage > maxPage) {
+      setCurrentPage(maxPage);
+    }
+  }, [roles.length, pageSize, currentPage]);
+
+  const onPageChange = (page: number, nextPageSize?: number) => {
+    setCurrentPage(page);
+    if (nextPageSize) {
+      setPageSize(nextPageSize);
+    }
+  };
+
   return (
-    <div data-cy="critical-roles-table-wrapper">
+    <div className="mt-2" data-cy="critical-roles-table-wrapper">
       <Table
         columns={columns}
-        dataSource={roles}
+        dataSource={pagedRoles}
         rowKey="id"
         loading={loading}
-        pagination={
-          roles.length > 10
-            ? { pageSize: 10, showSizeChanger: false, size: 'small' }
-            : false
+        pagination={false}
+        scroll={{ x: isMobile ? 'max-content' : 800 }}
+        onRow={
+          onRowClick
+            ? (record) => ({
+                onClick: () => onRowClick(record),
+                className: 'cursor-pointer',
+              })
+            : undefined
         }
-        scroll={{ x: 800 }}
         locale={{
           emptyText: (
             <Empty
@@ -159,7 +274,30 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         data-cy="critical-roles-table"
       />
 
-      {/* Delete confirmation — uses the project's shared DeleteModal */}
+      {roles.length > 0 &&
+        (isMobile || isTablet ? (
+          <CustomMobilePagination
+            totalResults={roles.length}
+            pageSize={pageSize}
+            currentPage={currentPage}
+            onChange={onPageChange}
+            onShowSizeChange={onPageChange}
+            data-cy="critical-roles-mobile-pagination"
+          />
+        ) : (
+          <CustomPagination
+            current={currentPage}
+            total={roles.length}
+            pageSize={pageSize}
+            onChange={onPageChange}
+            onShowSizeChange={(size) => {
+              setPageSize(size);
+              setCurrentPage(1);
+            }}
+            data-cy="critical-roles-desktop-pagination"
+          />
+        ))}
+
       <DeleteModal
         open={deleteTargetId !== null}
         onConfirm={confirmDelete}

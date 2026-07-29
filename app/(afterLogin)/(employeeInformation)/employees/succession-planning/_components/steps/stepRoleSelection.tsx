@@ -106,49 +106,75 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
         critical role.
       </p>
 
-      <Form.Item
-        name="positionId"
-        label={
-          <span className="text-sm font-medium text-gray-700">
-            Position / Role
-          </span>
-        }
-        rules={[{ required: true, message: 'Please select a position' }]}
-        data-cy="step-role-selection-position-item"
+      <div
+        className="grid grid-cols-1 gap-4 md:grid-cols-2"
+        data-cy="step-role-selection-primary-fields"
       >
-        <Select
-          showSearch
-          placeholder="Search or select a position..."
-          className="w-full h-10"
-          optionFilterProp="label"
-          filterOption={(input, option) =>
-            (option?.label as string)
-              ?.toLowerCase()
-              .includes(input.toLowerCase())
+        <Form.Item
+          name="positionId"
+          label={
+            <span className="text-sm font-medium text-gray-700">
+              Position / Role
+            </span>
           }
-          data-cy="step-role-selection-position-select"
+          rules={[{ required: true, message: 'Please select a position' }]}
+          data-cy="step-role-selection-position-item"
         >
-          {Object.entries(groupedByDepartment).map(([dept, positions]) => (
-            <OptGroup key={dept} label={dept}>
-              {positions.map((pos) => (
-                <Option
-                  key={pos.id}
-                  value={pos.id}
-                  label={pos.title}
-                  data-cy={`position-option-${pos.id}`}
-                >
-                  <div className="flex flex-col py-0.5">
-                    <span className="text-sm font-medium text-gray-800">
-                      {pos.title}
-                    </span>
-                    <span className="text-xs text-gray-400">{pos.department}</span>
-                  </div>
-                </Option>
-              ))}
-            </OptGroup>
-          ))}
-        </Select>
-      </Form.Item>
+          <Select
+            showSearch
+            placeholder="Search or select a position..."
+            className="w-full h-10"
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label as string)
+                ?.toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            data-cy="step-role-selection-position-select"
+          >
+            {Object.entries(groupedByDepartment).map(([dept, positions]) => (
+              <OptGroup key={dept} label={dept}>
+                {positions.map((pos) => (
+                  <Option
+                    key={pos.id}
+                    value={pos.id}
+                    label={pos.title}
+                    data-cy={`position-option-${pos.id}`}
+                  >
+                    <div className="flex flex-col py-0.5">
+                      <span className="text-sm font-medium text-gray-800">
+                        {pos.title}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {pos.department}
+                      </span>
+                    </div>
+                  </Option>
+                ))}
+              </OptGroup>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item
+          name="priority"
+          label={
+            <span className="text-sm font-medium text-gray-700">Priority</span>
+          }
+          rules={[{ required: true, message: 'Please select a priority' }]}
+          data-cy="step-role-selection-priority-item"
+        >
+          <Select
+            placeholder="Select priority level"
+            className="w-full h-10"
+            data-cy="step-role-selection-priority-select"
+          >
+            <Option value="Critical">Critical</Option>
+            <Option value="High">High</Option>
+            <Option value="Medium">Medium</Option>
+          </Select>
+        </Form.Item>
+      </div>
 
       {/* Detail tags shown after a position is selected */}
       {selected && (
@@ -183,26 +209,6 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
           )}
         </div>
       )}
-
-      {/* Priority — required */}
-      <Form.Item
-        name="priority"
-        label={
-          <span className="text-sm font-medium text-gray-700">Priority</span>
-        }
-        rules={[{ required: true, message: 'Please select a priority' }]}
-        data-cy="step-role-selection-priority-item"
-      >
-        <Select
-          placeholder="Select priority level"
-          className="w-full h-10"
-          data-cy="step-role-selection-priority-select"
-        >
-          <Option value="Critical">Critical</Option>
-          <Option value="High">High</Option>
-          <Option value="Medium">Medium</Option>
-        </Select>
-      </Form.Item>
 
       {/* Notes — optional */}
       <Form.Item
