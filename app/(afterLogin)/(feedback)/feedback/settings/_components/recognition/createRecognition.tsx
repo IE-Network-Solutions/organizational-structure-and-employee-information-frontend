@@ -2225,7 +2225,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                           />
                         </Form.Item>
                         {!isCriteriaOnlyEdit && (
-                          <Image
+                          <Image unoptimized
                             src={cancelIcon}
                             alt="remove"
                             width={16}

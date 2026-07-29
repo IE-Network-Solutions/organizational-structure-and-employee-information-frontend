@@ -27,7 +27,7 @@ const EmploymentStatus: React.FC = () => {
           id="offboarding-employment-status-avatar-col"
           data-cy="offboarding-employment-status-avatar-col"
         >
-          <Image
+          <Image unoptimized
             src={employeeData?.avatar || GENDER_NEUTRAL_AVATAR_URL}
             alt={employeeData?.name || 'Employee'}
             width={40}

@@ -10,7 +10,7 @@ export default function Custom404() {
       className="flex flex-col items-center justify-center min-h-screen bg-gray-100"
       data-cy="not-found-page"
     >
-      <Image
+      <Image unoptimized
         width={200}
         height={200}
         src="/icons/404.svg"

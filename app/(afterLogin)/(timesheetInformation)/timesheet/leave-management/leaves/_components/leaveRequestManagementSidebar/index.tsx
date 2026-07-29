@@ -394,7 +394,7 @@ const LeaveRequestManagementSidebar = () => {
                   className="text-sm font-semibold text-gray-900 flex gap-2"
                 >
                   {leaveData?.items?.status}
-                  <Image
+                  <Image unoptimized
                     data-cy="time-attendance-leave-management-sidebar-overall-status-image"
                     width={24}
                     height={24}

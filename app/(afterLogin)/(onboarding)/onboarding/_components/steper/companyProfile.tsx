@@ -138,7 +138,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
             >
               {companyProfileImage ? (
                 <div className="mt-4" data-cy="company-profile-image-preview">
-                  <Image
+                  <Image unoptimized
                     width={300}
                     height={300}
                     src={getImageUrl(companyProfileImage)}
