@@ -296,7 +296,7 @@ const ApprovalListTable = () => {
                               }
 
                               return avatarSrc ? (
-                                <Image
+                                <Image unoptimized
                                   src={avatarSrc}
                                   alt={displayName || 'User profile'}
                                   fill

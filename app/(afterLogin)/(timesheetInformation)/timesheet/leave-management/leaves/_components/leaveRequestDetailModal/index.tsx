@@ -323,7 +323,7 @@ const LeaveRequestDetailModal = () => {
                               data-cy={`time-attendance-leave-request-detail-modal-approval-avatar-${approval.stepOrder}`}
                             >
                               {displayId && userImage(displayId) ? (
-                                <Image
+                                <Image unoptimized
                                   src={userImage(displayId) ?? ''}
                                   alt={userData(displayId)}
                                   width={avatarPx}
@@ -384,7 +384,7 @@ const LeaveRequestDetailModal = () => {
                             rejectorStep.userId ??
                             '',
                         ) ? (
-                          <Image
+                          <Image unoptimized
                             src={
                               userImage(
                                 rejectorStep.displayUserId ??

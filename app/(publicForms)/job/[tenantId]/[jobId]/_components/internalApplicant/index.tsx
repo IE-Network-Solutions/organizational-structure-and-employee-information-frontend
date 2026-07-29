@@ -100,7 +100,7 @@ const InternalApplicantForm: React.FC<InternalApplicantFormProps> = ({
             data-cy="-jobid-components-internalapplicant-index-tsx-index-div-94"
             className="flex items-center justify-center"
           >
-            <Image
+            <Image unoptimized
               className="flex items-center justify-center"
               src={CV_UPLOAD_IMAGE_URL}
               alt="Loading"

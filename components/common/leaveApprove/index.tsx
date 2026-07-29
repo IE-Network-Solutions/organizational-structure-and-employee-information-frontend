@@ -51,7 +51,7 @@ const LeaveApproval: React.FC<LeaveApprovalProps> = ({
         data-cy="components-common-leaveapprove-index-tsx-index-p-50"
         className="flex justify-center items-center h-[200px]"
       >
-        <Image
+        <Image unoptimized
           src="/deleteSvg.svg"
           width={300}
           height={300}

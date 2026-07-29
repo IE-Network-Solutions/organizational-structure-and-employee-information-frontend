@@ -151,7 +151,7 @@ const UserTable = () => {
 
                     if (url) {
                       return (
-                        <Image
+                        <Image unoptimized
                           src={url}
                           alt="Employee avatar"
                           layout="fill"
@@ -164,7 +164,7 @@ const UserTable = () => {
                   } catch {
                     if (item.profileImage.startsWith('http')) {
                       return (
-                        <Image
+                        <Image unoptimized
                           src={item.profileImage}
                           alt="Employee avatar"
                           layout="fill"
