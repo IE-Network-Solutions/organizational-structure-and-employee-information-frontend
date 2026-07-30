@@ -382,6 +382,24 @@ export function isKeyResultFullyCompletedForPlanning(
   return getKeyResultProgressPercent(kr) >= 100;
 }
 
+/**
+ * Attach a resolved metric label onto a KR-shaped payload so progress / ratio
+ * helpers behave the same as the OKR dashboard (metric-aware math).
+ */
+export function withResolvedMetricForDisplay<T extends KeyResultLikeInput>(
+  kr: T,
+  apiKr?: KeyResultLikeInput | null,
+): T {
+  const metricLabel = resolveKrPanelMetricType(kr, apiKr);
+  if (!metricLabel) return kr;
+  return {
+    ...kr,
+    metricType: { name: metricLabel },
+    key_type: metricLabel,
+    metricTypeName: metricLabel,
+  };
+}
+
 /** Merge plan-panel KR row with user KR API for eligibility (shared by panel + targets). */
 export function buildKrPlanningSource(
   panelKr: {
@@ -389,6 +407,7 @@ export function buildKrPlanningSource(
     progress?: number;
     currentValue?: string | number;
     targetValue?: string | number;
+    initialValue?: string | number;
     milestones?: Array<{ status?: string; deletedAt?: string | null }>;
   },
   apiKr?: any | null,
@@ -402,37 +421,48 @@ export function buildKrPlanningSource(
     });
     const metricTypeObj =
       coerceMetricTypeObject(panelKr.metricType, panelKr.metricType) ??
-      (planMilestoneShells ? { name: 'Milestone' } : undefined);
-    const source = {
+      (milestones.length > 0 || planMilestoneShells
+        ? { name: 'Milestone' }
+        : undefined);
+    const source = withResolvedMetricForDisplay({
       metricType: metricTypeObj,
       key_type: metricTypeObj?.name ?? panelKr.metricType,
+      metricTypeName: metricTypeObj?.name ?? panelKr.metricType,
       progress: panelKr.progress,
       milestones,
       currentValue: panelKr.currentValue,
       targetValue: panelKr.targetValue,
-      initialValue: panelKr.currentValue,
-    };
+      // Never seed initialValue from currentValue — that zeros numeric progress.
+      initialValue: panelKr.initialValue ?? 0,
+    });
     return {
       ...source,
       progress: getKeyResultProgressPercent(source),
     };
   }
 
-  const apiMetricType = coerceMetricTypeObject(
-    apiKr.metricType,
-    apiKr.key_type,
-  );
+  const apiMetricType =
+    coerceMetricTypeObject(apiKr.metricType, apiKr.key_type) ??
+    coerceMetricTypeObject(panelKr.metricType, panelKr.metricType);
 
-  const merged = withResolvedOkrMilestones(
-    {
-      ...apiKr,
-      metricType: apiMetricType,
-      key_type: apiKr.key_type ?? apiMetricType?.name,
-      progress: apiKr.progress ?? panelKr.progress,
-      currentValue: apiKr.currentValue ?? panelKr.currentValue,
-      targetValue: apiKr.targetValue ?? panelKr.targetValue,
-      initialValue: apiKr.initialValue ?? panelKr.currentValue,
-    },
+  const merged = withResolvedMetricForDisplay(
+    withResolvedOkrMilestones(
+      {
+        ...apiKr,
+        metricType: apiMetricType,
+        key_type: apiKr.key_type ?? apiMetricType?.name ?? panelKr.metricType,
+        metricTypeName:
+          apiKr.metricTypeName ??
+          apiMetricType?.name ??
+          apiKr.key_type ??
+          panelKr.metricType,
+        progress: apiKr.progress ?? panelKr.progress,
+        currentValue: apiKr.currentValue ?? panelKr.currentValue,
+        targetValue: apiKr.targetValue ?? panelKr.targetValue,
+        initialValue: apiKr.initialValue ?? panelKr.initialValue ?? 0,
+      },
+      apiKr,
+    ),
     apiKr,
   );
   return {
@@ -699,13 +729,13 @@ export function mergeKeyResultWithUserApi(
       (milestones.length > 0 || planMilestoneShells
         ? { name: 'Milestone' }
         : undefined);
-    const fallback = {
+    const fallback = withResolvedMetricForDisplay({
       ...kr,
       milestones,
       metricType: metricTypeObj ?? kr?.metricType,
       key_type: kr?.key_type ?? metricTypeObj?.name,
       metricTypeName: kr?.metricTypeName ?? metricTypeObj?.name ?? kr?.key_type,
-    };
+    });
     return {
       ...fallback,
       progress: getKeyResultProgressPercent(fallback),
@@ -716,30 +746,33 @@ export function mergeKeyResultWithUserApi(
     coerceMetricTypeObject(apiKr.metricType, apiKr.key_type) ??
     coerceMetricTypeObject(kr?.metricType, kr?.key_type);
 
-  const merged = withResolvedOkrMilestones(
-    {
-      ...kr,
-      ...apiKr,
-      metricType: apiMetricType,
-      key_type: apiKr.key_type ?? apiMetricType?.name ?? kr?.key_type,
-      metricTypeName:
-        apiKr.metricType?.name ??
-        apiKr.metricTypeName ??
-        apiKr.key_type ??
-        apiMetricType?.name ??
-        kr?.metricTypeName ??
-        kr?.key_type ??
-        (typeof kr?.metricType === 'object'
-          ? kr?.metricType?.name
-          : kr?.metricType),
-      progress: apiKr.progress ?? kr?.progress,
-      currentValue: apiKr.currentValue ?? kr?.currentValue,
-      initialValue: apiKr.initialValue ?? kr?.initialValue,
-      targetValue: apiKr.targetValue ?? kr?.targetValue,
-      status: apiKr.status ?? kr?.status,
-      keyResultCompletionStatus:
-        apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
-    },
+  const merged = withResolvedMetricForDisplay(
+    withResolvedOkrMilestones(
+      {
+        ...kr,
+        ...apiKr,
+        metricType: apiMetricType,
+        key_type: apiKr.key_type ?? apiMetricType?.name ?? kr?.key_type,
+        metricTypeName:
+          apiKr.metricType?.name ??
+          apiKr.metricTypeName ??
+          apiKr.key_type ??
+          apiMetricType?.name ??
+          kr?.metricTypeName ??
+          kr?.key_type ??
+          (typeof kr?.metricType === 'object'
+            ? kr?.metricType?.name
+            : kr?.metricType),
+        progress: apiKr.progress ?? kr?.progress,
+        currentValue: apiKr.currentValue ?? kr?.currentValue,
+        initialValue: apiKr.initialValue ?? kr?.initialValue ?? 0,
+        targetValue: apiKr.targetValue ?? kr?.targetValue,
+        status: apiKr.status ?? kr?.status,
+        keyResultCompletionStatus:
+          apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
+      },
+      apiKr,
+    ),
     apiKr,
   );
 

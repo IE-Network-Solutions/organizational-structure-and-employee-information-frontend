@@ -27,6 +27,7 @@ import {
   type KRPanelOwnerGroup,
   type ParentPlanContext,
 } from './mergeKRPanelGroups';
+import { formatKrMetricTypeDisplayName } from '@/utils/okrKeyResultProgressDisplay';
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
@@ -71,21 +72,6 @@ function progressTextClass(p: number): string {
   if (p >= 60) return 'text-[#1E40AF]';
   if (p > 0) return 'text-[#D97706]';
   return 'text-[#9CA3AF]';
-}
-
-/** KR metric name shown before task count (matches common API metricType.name values) */
-function formatKrMetricTypeLabel(metricType: string): string {
-  if (!metricType || metricType === 'N/A') return '';
-  const n = metricType.trim();
-  const map: Record<string, string> = {
-    Achieve: 'Achieve',
-    Milestone: 'Milestone',
-    Percentage: 'Percent',
-    Percent: 'Percent',
-    Numeric: 'Numeric',
-    Currency: 'Currency',
-  };
-  return map[n] ?? n;
 }
 
 /** + dropdown: single title line per planning slot */
@@ -220,7 +206,7 @@ function KRProgressCard({
   const { isMobile, isTablet } = useIsMobile();
   const pickMenuPlacement =
     isMobile || isTablet ? ('bottomCenter' as const) : ('bottomLeft' as const);
-  const metricLabel = formatKrMetricTypeLabel(kr.metricType);
+  const metricLabel = formatKrMetricTypeDisplayName(kr.metricType);
 
   const showTaskCount = kr.taskCount > 0;
 
