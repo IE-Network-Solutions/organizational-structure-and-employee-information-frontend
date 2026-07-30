@@ -12,7 +12,7 @@ import { PWAProvider } from '@/providers/PWAProvider';
 import { NotificationSocketProvider } from '@/providers/NotificationSocketProvider';
 import RouteTopLoader from '@/components/RouteTopLoader';
 import CopilotFloatEntry from '@/components/copilot/CopilotFloatEntry';
-
+import ProductIframeRouteReporter from '@/providers/ProductIframeRouteReporter';
 // Disable static prerendering globally; ensure all pages are rendered dynamically
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -356,6 +356,7 @@ export default function RootLayout({
                       <RecaptchaProvider>
                         <AuthBridge />
                         <UserSessionRefresher />
+                        <ProductIframeRouteReporter />
                         <ConditionalNav>{children}</ConditionalNav>
                         <CopilotFloatEntry />
                         {/* <ChatBotButton /> */}
