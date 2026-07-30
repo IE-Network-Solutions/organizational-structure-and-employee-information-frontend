@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import './globals.css';
 import { App as AntdApp } from 'antd';
@@ -356,7 +357,9 @@ export default function RootLayout({
                       <RecaptchaProvider>
                         <AuthBridge />
                         <UserSessionRefresher />
-                        <ProductIframeRouteReporter />
+                        <Suspense fallback={null}>
+                          <ProductIframeRouteReporter />
+                        </Suspense>
                         <ConditionalNav>{children}</ConditionalNav>
                         <CopilotFloatEntry />
                         {/* <ChatBotButton /> */}
