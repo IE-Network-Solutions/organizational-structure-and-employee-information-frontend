@@ -1663,7 +1663,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     data-cy="nav-sider-logo-collapsed-container"
                     className="w-full flex justify-center"
                   >
-                    <Image
+                    <Image unoptimized
                       src="/image/selamnew-workspace-logo-collapsed.svg"
                       alt="SelamNew Workspace Logo"
                       width={32}
@@ -1672,7 +1672,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     />
                   </div>
                 ) : (
-                  <Image
+                  <Image unoptimized
                     src="/image/selamnew-workspace-logo.svg"
                     alt="SelamNew Workspace Logo"
                     width={150}

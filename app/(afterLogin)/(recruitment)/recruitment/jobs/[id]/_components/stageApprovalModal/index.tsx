@@ -573,7 +573,7 @@ const StageApprovalModal = () => {
                                   data-cy={`talent-acquisition-stage-approval-modal-approval-avatar-${approval.stepOrder}`}
                                 >
                                   {displayId && userImage(displayId) ? (
-                                    <Image
+                                    <Image unoptimized
                                       src={userImage(displayId) ?? ''}
                                       alt={userData(displayId)}
                                       width={avatarPx}

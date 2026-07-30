@@ -209,7 +209,7 @@ const TaskItem: React.FC<{
             data-cy={`probation-task-avatar-${taskSlug}`}
           >
             {task.evaluatorUser?.profileImage ? (
-              <Image
+              <Image unoptimized
                 src={task.evaluatorUser.profileImage}
                 alt="avatar"
                 width={20}

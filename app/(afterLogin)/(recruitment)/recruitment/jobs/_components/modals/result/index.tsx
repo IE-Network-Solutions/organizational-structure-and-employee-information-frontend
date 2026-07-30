@@ -30,7 +30,7 @@ const AddFormResult: React.FC = () => {
               data-cy="-components-modals-result-index-tsx-index-div-29"
               className="flex items-center justify-center"
             >
-              <Image
+              <Image unoptimized
                 src={SuccessResult}
                 alt="Success result Image"
                 width={120}

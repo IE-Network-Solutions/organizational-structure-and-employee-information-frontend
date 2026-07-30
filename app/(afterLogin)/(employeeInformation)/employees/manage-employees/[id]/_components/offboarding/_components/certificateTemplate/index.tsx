@@ -206,7 +206,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
                         {task.approver?.profilePicture ||
                         task.approver?.profileImage ||
                         task.approver?.avatar ? (
-                          <Image
+                          <Image unoptimized
                             src={
                               task.approver.profilePicture ||
                               task.approver.profileImage ||
@@ -348,7 +348,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
                   data-cy="certificate-template-stamp-block-image-wrapper"
                 >
                   {tenantData?.stamp ? (
-                    <Image
+                    <Image unoptimized
                       src={tenantData.stamp}
                       alt="Company Stamp"
                       width={120}
