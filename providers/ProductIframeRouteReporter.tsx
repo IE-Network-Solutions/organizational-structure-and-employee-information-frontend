@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 type ProductRouteMessage = {
   type: "selamnew:product-route";
@@ -13,11 +14,26 @@ function buildCurrentPath() {
   return `${window.location.pathname}${window.location.search}`;
 }
 
+function parentTargetOrigin(): string {
+  // Prefer the embedding parent origin; fall back to wildcard so same-site
+  // shells still receive the message when origins differ slightly.
+  try {
+    if (document.referrer) {
+      return new URL(document.referrer).origin;
+    }
+  } catch {
+    // ignore
+  }
+  return "*";
+}
+
 /**
  * When Workspace runs inside the Core iframe, report route changes to the parent
- * so Core can mirror them into `/products/{id}#/workspace/...`.
+ * so Core can mirror them into `/products/{id}#/...`.
  */
 export default function ProductIframeRouteReporter() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const lastSentRef = useRef<string>("");
 
   useEffect(() => {
@@ -34,7 +50,7 @@ export default function ProductIframeRouteReporter() {
         title: document.title || undefined,
       };
 
-      window.parent.postMessage(message, window.location.origin);
+      window.parent.postMessage(message, parentTargetOrigin());
       lastSentRef.current = path;
     };
 
@@ -54,13 +70,16 @@ export default function ProductIframeRouteReporter() {
     history.replaceState = wrapHistory(originalReplaceState);
 
     window.addEventListener("popstate", send);
+    // Fallback: Next soft-nav can miss history patches in some cases.
+    const pollId = window.setInterval(send, 500);
 
     return () => {
       history.pushState = originalPushState;
       history.replaceState = originalReplaceState;
       window.removeEventListener("popstate", send);
+      window.clearInterval(pollId);
     };
-  }, []);
+  }, [pathname, searchParams]);
 
   return null;
 }
