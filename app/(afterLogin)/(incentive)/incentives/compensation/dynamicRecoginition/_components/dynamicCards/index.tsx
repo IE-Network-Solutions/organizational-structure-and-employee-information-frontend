@@ -74,7 +74,8 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
             data-cy="dynamic-incentive-cards-recognized-employees-icon-wrapper"
             className="flex items-center mb-5"
           >
-            <Image unoptimized
+            <Image
+              unoptimized
               id="dynamic-incentive-cards-recognized-employees-icon"
               data-cy="dynamic-incentive-cards-recognized-employees-icon"
               src={RecognizedEmployees}
@@ -123,7 +124,8 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
             data-cy="dynamic-incentive-cards-criterion-icon-wrapper"
             className="flex items-center mb-5"
           >
-            <Image unoptimized
+            <Image
+              unoptimized
               id="dynamic-incentive-cards-criterion-icon"
               data-cy="dynamic-incentive-cards-criterion-icon"
               src={Criterion}
@@ -172,7 +174,8 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
             data-cy="dynamic-incentive-cards-amount-icon-wrapper"
             className="flex items-center mb-5"
           >
-            <Image unoptimized
+            <Image
+              unoptimized
               id="dynamic-incentive-cards-amount-icon"
               data-cy="dynamic-incentive-cards-amount-icon"
               src={IncentiveAmount}
@@ -226,7 +229,8 @@ const DynamicIncentiveCards: React.FC<DynamicIncentiveCardsProps> = ({
             data-cy="dynamic-incentive-cards-projects-icon-wrapper"
             className="flex items-center mb-5"
           >
-            <Image unoptimized
+            <Image
+              unoptimized
               id="dynamic-incentive-cards-projects-icon"
               data-cy="dynamic-incentive-cards-projects-icon"
               src={Projects}

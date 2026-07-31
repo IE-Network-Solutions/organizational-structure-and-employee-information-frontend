@@ -123,7 +123,8 @@ const WorkflowCard: React.FC<WorkflowCardProps> = ({
                 data-cy="recruitment-approval-workflow-card-assignee-avatar"
                 className="relative h-5 w-5 overflow-hidden rounded-full shrink-0"
               >
-                <Image unoptimized
+                <Image
+                  unoptimized
                   src={GENDER_NEUTRAL_AVATAR_URL}
                   alt={assignee.name}
                   fill

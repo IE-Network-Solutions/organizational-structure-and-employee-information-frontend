@@ -128,7 +128,8 @@ export const ApprovalWorkflowFinalizeSummary: React.FC<
                   data-cy={`approval-payroll-workflow-final-assigned-avatar-wrap-${i}`}
                   id={`approval-payroll-workflow-final-assigned-avatar-wrap-${i}`}
                 >
-                  <Image unoptimized
+                  <Image
+                    unoptimized
                     src={Avatar}
                     alt="avatar"
                     fill

@@ -659,8 +659,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       appendScoreAdjustFields(mapped, {
         scoreAdjustOperator:
           formRow.scoreAdjustOperator ?? criteria.scoreAdjustOperator,
-        scoreAdjustValue:
-          formRow.scoreAdjustValue ?? criteria.scoreAdjustValue,
+        scoreAdjustValue: formRow.scoreAdjustValue ?? criteria.scoreAdjustValue,
       });
       return mapped;
     });
@@ -826,8 +825,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           appendScoreAdjustFields(patchPayload, {
             scoreAdjustOperator:
               rcVals.scoreAdjustOperator ?? row.scoreAdjustOperator,
-            scoreAdjustValue:
-              rcVals.scoreAdjustValue ?? row.scoreAdjustValue,
+            scoreAdjustValue: rcVals.scoreAdjustValue ?? row.scoreAdjustValue,
           });
 
           updateRecognitionCriteriaRow(patchPayload, {
@@ -2175,19 +2173,17 @@ const RecognitionForm: React.FC<PropsData> = ({
                             data-cy={`create-recognition-form-criteria-score-adjust-operator-select-${index}`}
                             id={`createRecognitionFormCriteriaScoreAdjustOperatorSelect${index}`}
                           >
-                            {SCORE_ADJUST_OPERATORS.map(
-                              (operator, opIndex) => (
-                                <Select.Option
-                                  key={`score-adjust-operator-${operator}-${opIndex}`}
-                                  value={operator}
-                                  className={commonClass}
-                                  data-cy={`create-recognition-form-criteria-score-adjust-operator-option-${index}-${opIndex}`}
-                                  id={`createRecognitionFormCriteriaScoreAdjustOperatorOption${index}${opIndex}`}
-                                >
-                                  {operator}
-                                </Select.Option>
-                              ),
-                            )}
+                            {SCORE_ADJUST_OPERATORS.map((operator, opIndex) => (
+                              <Select.Option
+                                key={`score-adjust-operator-${operator}-${opIndex}`}
+                                value={operator}
+                                className={commonClass}
+                                data-cy={`create-recognition-form-criteria-score-adjust-operator-option-${index}-${opIndex}`}
+                                id={`createRecognitionFormCriteriaScoreAdjustOperatorOption${index}${opIndex}`}
+                              >
+                                {operator}
+                              </Select.Option>
+                            ))}
                           </Select>
                         </Form.Item>
 
@@ -2200,9 +2196,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                             index,
                             'scoreAdjustValue',
                           ]}
-                          initialValue={
-                            criteria.scoreAdjustValue ?? undefined
-                          }
+                          initialValue={criteria.scoreAdjustValue ?? undefined}
                           data-cy={`create-recognition-form-criteria-score-adjust-value-field-${index}`}
                           id={`createRecognitionFormCriteriaScoreAdjustValueField${index}`}
                         >
@@ -2213,9 +2207,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                             onChange={(e) => {
                               const updated = [...selectedCriteria];
                               updated[index].scoreAdjustValue =
-                                e.target.value === ''
-                                  ? null
-                                  : e.target.value;
+                                e.target.value === '' ? null : e.target.value;
                               setSelectedCriteria(updated);
                             }}
                             data-cy={`create-recognition-form-criteria-score-adjust-value-input-${index}`}

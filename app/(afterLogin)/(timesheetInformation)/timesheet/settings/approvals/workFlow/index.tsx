@@ -827,7 +827,8 @@ const ApprovalWorkFlowModal = ({
                       className="relative h-5 w-5 overflow-hidden rounded-full"
                       data-cy={`approval-workflow-final-assigned-avatar-wrap-${idx}`}
                     >
-                      <Image unoptimized
+                      <Image
+                        unoptimized
                         src={GENDER_NEUTRAL_AVATAR_URL}
                         alt="avatar"
                         fill

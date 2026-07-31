@@ -1320,7 +1320,8 @@ const PlanPage = () => {
                           spin
                         />
                       ) : (
-                        <Image unoptimized
+                        <Image
+                          unoptimized
                           src="/icons/file-download.svg"
                           alt="Download"
                           width={25}

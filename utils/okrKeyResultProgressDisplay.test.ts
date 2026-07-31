@@ -62,8 +62,35 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
 
     const merged = mergeKeyResultWithUserApi(planKr, [apiKrCase1]);
 
-    expect(getKeyResultProgressPercent(merged)).toBe(34);
+    expect(getKeyResultProgressPercent(merged)).toBe(33);
     expect(getKeyResultProgressRatioText(merged)).toBe('1/3');
+  });
+
+  it('counts full objective milestone list for progress (not status-only subset)', () => {
+    const apiKr = {
+      id: 'kr-abdu',
+      metricType: { name: 'Milestone' },
+      progress: 20,
+      milestones: [
+        { id: 'm5', title: 'Abdu5', status: 'Completed' },
+        { id: 'm4', title: 'Abdu4', status: 'Completed' },
+      ],
+    };
+    const objectiveMilestones = [
+      { id: 'm5', title: 'Abdu5', status: 'Completed' },
+      { id: 'm4', title: 'Abdu4', status: 'Completed' },
+      { id: 'm3', title: 'Abdu3' },
+      { id: 'm2', title: 'Abdu2' },
+      { id: 'm1', title: 'Abdu1' },
+    ];
+    const source = buildKrPlanningSource(
+      { metricType: 'Milestone', progress: 20, milestones: [] },
+      apiKr,
+      objectiveMilestones,
+    );
+
+    expect(getKeyResultProgressRatioText(source)).toBe('2/5');
+    expect(getKeyResultProgressPercent(source)).toBe(40);
   });
 
   it('uses OKR API metric over plan payload for every metric type', () => {
