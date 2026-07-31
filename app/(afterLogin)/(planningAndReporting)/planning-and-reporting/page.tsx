@@ -178,6 +178,7 @@ function Page() {
     data: userKeyResultsRaw,
     isLoading: userKeyResultsLoading,
     isFetching: userKeyResultsFetching,
+    refetch: refetchUserKeyResults,
   } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
     refetchOnMount: 'always',
     staleTime: 0,
@@ -212,12 +213,6 @@ function Page() {
       ),
     [userKeyResultsRaw, userObjectives?.items],
   );
-
-  const planningPickReady =
-    !userKeyResultsLoading &&
-    !userKeyResultsFetching &&
-    !userObjectivesLoading &&
-    !userObjectivesFetching;
 
   const parentPlanContext = useMemo(
     () => getActiveUnreportedParentPlanContext(planningPeriodHierarchy),
@@ -254,8 +249,73 @@ function Page() {
         ((userKeyResultsLoading || userObjectivesLoading) &&
           planSummaries.length === 0);
 
-  const { targets: planningTargets, isLoading: planningTargetsLoading } =
-    usePlanningTargets(userId, selectedTab?.id, userKeyResultItems);
+  const planKeyResultsForTargets = useMemo(() => {
+    const byId = new Map<string, any>();
+    for (const plan of enrichedPlanSummaries) {
+      for (const kr of plan.keyResults ?? []) {
+        if (!kr?.id) continue;
+        const id = String(kr.id);
+        const prev = byId.get(id);
+        const ms = kr.milestones ?? [];
+        if (!prev) {
+          byId.set(id, kr);
+          continue;
+        }
+        const prevMs = prev.milestones ?? [];
+        if (Array.isArray(ms) && ms.length > (prevMs?.length ?? 0)) {
+          byId.set(id, kr);
+        }
+      }
+    }
+    for (const kr of userKeyResultItems) {
+      if (!kr?.id) continue;
+      const id = String(kr.id);
+      if (!byId.has(id)) byId.set(id, kr);
+    }
+    return Array.from(byId.values());
+  }, [enrichedPlanSummaries, userKeyResultItems]);
+
+  const {
+    targets: planningTargets,
+    isLoading: planningTargetsLoading,
+    isFetching: planningTargetsFetching,
+    objectiveMilestonesByKrId,
+    refetchObjectives,
+  } = usePlanningTargets(
+    userId,
+    selectedTab?.id,
+    userKeyResultItems,
+    planKeyResultsForTargets,
+  );
+
+  // Re-pull user KR + objective milestone status when returning to this tab
+  // (e.g. after achieving a milestone on the OKR page) without re-login.
+  useEffect(() => {
+    if (!userId || typeof document === 'undefined') return;
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        void refetchUserKeyResults();
+        refetchObjectives();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [userId, refetchUserKeyResults, refetchObjectives]);
+
+  const handleRefreshMilestoneStatus = useCallback(() => {
+    void refetchUserKeyResults();
+    refetchObjectives();
+  }, [refetchUserKeyResults, refetchObjectives]);
+
+  // Hide + until user-KR + objective milestone sources have settled once.
+  // Background refetches (isFetching) after that must not blank the control.
+  const planningPickReady =
+    !userKeyResultsLoading &&
+    !userObjectivesLoading &&
+    !planningTargetsLoading &&
+    !(userKeyResultsFetching && !userKeyResultsRaw) &&
+    !(userObjectivesFetching && !userObjectives) &&
+    !(planningTargetsFetching && planningTargets.length === 0);
 
   const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
     string | null
@@ -546,6 +606,8 @@ function Page() {
                     setSelectedPlanningTargetId(t.id)
                   }
                   userKeyResultItems={userKeyResultItems}
+                  objectiveMilestonesByKrId={objectiveMilestonesByKrId}
+                  onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
                   parentPlanContext={parentPlanContext}
                   planningPickReady={planningPickReady}
                 />
@@ -693,6 +755,8 @@ function Page() {
                 selectedPlanningTargetId={selectedPlanningTargetId}
                 onPickPlanningTarget={(t) => setSelectedPlanningTargetId(t.id)}
                 userKeyResultItems={userKeyResultItems}
+                objectiveMilestonesByKrId={objectiveMilestonesByKrId}
+                onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
                 parentPlanContext={parentPlanContext}
                 planningPickReady={planningPickReady}
               />

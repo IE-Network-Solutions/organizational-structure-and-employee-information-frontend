@@ -7,6 +7,7 @@ import {
   getMetricTypeName,
   isKeyResultFullyCompletedForPlanning,
   mergeKeyResultWithUserApi,
+  mergeMilestonesForProgressDisplay,
   resolveKrPanelMetricType,
   resolveKrPlanningBlocked,
   withResolvedMetricForDisplay,
@@ -25,7 +26,15 @@ export interface KRPanelAggregatedKR {
   progressLabel: string;
   isDeleted: boolean;
   planningBlocked: boolean;
-  milestones?: Array<{ status?: string; deletedAt?: string | null }>;
+  milestones?: Array<{
+    id?: string | number;
+    title?: string | null;
+    name?: string | null;
+    status?: string | null;
+    deletedAt?: string | null;
+    isAchieved?: boolean | null;
+    progress?: number | string | null;
+  }>;
 }
 
 export interface KRPanelOwnerGroup {
@@ -219,10 +228,24 @@ export function aggregateKeyResultForPanel(
   kr: any,
   taskCount = 0,
   userKeyResultItems: any[] = [],
+  objectiveMilestones: any[] = [],
 ): KRPanelAggregatedKR {
   const apiKr = findUserApiKeyResult(userKeyResultItems, kr?.id);
   const mergedKr = mergeKeyResultWithUserApi(kr, userKeyResultItems);
-  const displayKr = withResolvedMetricForDisplay(mergedKr, apiKr);
+  const withObjectiveMilestones =
+    objectiveMilestones.length > 0
+      ? {
+          ...mergedKr,
+          milestones: mergeMilestonesForProgressDisplay(
+            mergedKr,
+            objectiveMilestones,
+          ),
+        }
+      : mergedKr;
+  const displayKr = withResolvedMetricForDisplay(
+    withObjectiveMilestones,
+    apiKr,
+  );
 
   const metricType =
     resolveKrPanelMetricType(kr, apiKr) ||
@@ -389,13 +412,20 @@ export function buildBlockedKeyResultIdSet(
 export function enrichOwnerGroupsPlanningBlocked(
   groups: KRPanelOwnerGroup[],
   userKeyResultItems: any[],
+  objectiveMilestonesByKrId?: Map<string, any[]>,
 ): KRPanelOwnerGroup[] {
   return groups.map((group) => {
     const krs = group.krs.map((panelKr) => {
       const apiKr = findUserApiKeyResult(userKeyResultItems, panelKr.id);
+      const objectiveMilestones =
+        objectiveMilestonesByKrId?.get(String(panelKr.id)) ?? [];
       // Always rebuild from OKR sources when available so cancelled-report → restored-plan
       // cards never keep stale plan-task progress (e.g. 100% / 0/0).
-      const planningSource = buildKrPlanningSource(panelKr, apiKr);
+      const planningSource = buildKrPlanningSource(
+        panelKr,
+        apiKr,
+        objectiveMilestones,
+      );
       const metricType =
         resolveKrPanelMetricType(panelKr, apiKr) ||
         formatKrMetricTypeDisplayName(

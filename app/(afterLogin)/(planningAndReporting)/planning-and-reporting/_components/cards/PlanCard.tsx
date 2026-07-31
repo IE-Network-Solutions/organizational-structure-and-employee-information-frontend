@@ -23,6 +23,7 @@ import { useUpdateStatus } from '@/store/server/features/okrPlanningAndReporting
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CustomButton from '@/components/common/buttons/customButton';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
+import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 
 interface PlanCardProps {
   plan: PlanSummary;
@@ -358,6 +359,9 @@ export default function PlanCard({
   }, [plan, viewMode]);
 
   const sections = React.useMemo(() => flattenAllTasks(plan), [plan]);
+  const reportTaskOverrides = useRecentReportTaskStatuses(
+    (s) => s.byReport[String(plan.id)],
+  );
 
   if (viewMode === 'reporting') {
     const reportTasks = sections.flatMap((s) =>
@@ -367,9 +371,46 @@ export default function PlanCard({
         _metricType: s.metricType,
       })),
     );
+    const resolveStatus = (t: any): string => {
+      const override =
+        reportTaskOverrides?.[String(t.planTaskId ?? '')] ||
+        reportTaskOverrides?.[String(t.id ?? '')];
+      if (override?.status) return String(override.status);
+      return String(t.status ?? '');
+    };
+    const resolveAchieved = (t: any): boolean | undefined => {
+      const override =
+        reportTaskOverrides?.[String(t.planTaskId ?? '')] ||
+        reportTaskOverrides?.[String(t.id ?? '')];
+      if (override?.isAchieved !== undefined) return override.isAchieved;
+      if (override?.status) {
+        const s = String(override.status).trim().toLowerCase();
+        if (s === 'done' || s === 'completed' || s === 'complete' || s === 'achieved')
+          return true;
+        if (s === 'not' || s === 'failed' || s === 'not_done' || s === 'unachieved')
+          return false;
+      }
+      return t.isAchieved;
+    };
     const completedCount = reportTasks.filter((t: any) => {
-      const s = t.status;
-      return s === 'completed' || s === 'Done' || t.isAchieved === true;
+      const s = resolveStatus(t).trim().toLowerCase().replace(/[\s-]+/g, '_');
+      const achieved = resolveAchieved(t);
+      if (
+        s === 'not' ||
+        s === 'failed' ||
+        s === 'not_done' ||
+        s === 'unachieved' ||
+        achieved === false
+      ) {
+        return false;
+      }
+      return (
+        s === 'completed' ||
+        s === 'done' ||
+        s === 'complete' ||
+        s === 'achieved' ||
+        achieved === true
+      );
     }).length;
     const reportTotal = reportTasks.length;
     const reportPct =
