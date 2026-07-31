@@ -385,15 +385,28 @@ export default function PlanCard({
       if (override?.isAchieved !== undefined) return override.isAchieved;
       if (override?.status) {
         const s = String(override.status).trim().toLowerCase();
-        if (s === 'done' || s === 'completed' || s === 'complete' || s === 'achieved')
+        if (
+          s === 'done' ||
+          s === 'completed' ||
+          s === 'complete' ||
+          s === 'achieved'
+        )
           return true;
-        if (s === 'not' || s === 'failed' || s === 'not_done' || s === 'unachieved')
+        if (
+          s === 'not' ||
+          s === 'failed' ||
+          s === 'not_done' ||
+          s === 'unachieved'
+        )
           return false;
       }
       return t.isAchieved;
     };
     const completedCount = reportTasks.filter((t: any) => {
-      const s = resolveStatus(t).trim().toLowerCase().replace(/[\s-]+/g, '_');
+      const s = resolveStatus(t)
+        .trim()
+        .toLowerCase()
+        .replace(/[\s-]+/g, '_');
       const achieved = resolveAchieved(t);
       if (
         s === 'not' ||

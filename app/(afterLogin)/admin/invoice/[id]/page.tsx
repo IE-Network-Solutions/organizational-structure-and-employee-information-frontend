@@ -265,7 +265,8 @@ const InvoiceItem = () => {
                       data-cy="invoice-detail-download-button-indicator"
                     />
                   ) : (
-                    <Image unoptimized
+                    <Image
+                      unoptimized
                       src="/icons/file-download.svg"
                       alt="Download"
                       width={25}

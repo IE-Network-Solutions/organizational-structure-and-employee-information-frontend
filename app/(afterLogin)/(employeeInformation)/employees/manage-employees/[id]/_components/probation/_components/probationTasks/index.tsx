@@ -126,7 +126,8 @@ const TaskItem: React.FC<{
                 data-cy={`probation-template-task-avatar-${taskSlug}`}
               >
                 {task.approver?.avatar ? (
-                  <Image unoptimized
+                  <Image
+                    unoptimized
                     src={task.approver.avatar}
                     alt="avatar"
                     width={24}

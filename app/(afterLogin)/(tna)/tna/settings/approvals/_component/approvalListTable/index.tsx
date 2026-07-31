@@ -156,7 +156,8 @@ const ApprovalListTable = () => {
                     id={`tnaApprovalListTableAssignedImageContainer${item?.id}_${empIndex}Id`}
                     data-cy={`tna-approval-list-table-assigned-image-container-${item?.id}-${empIndex}`}
                   >
-                    <Image unoptimized
+                    <Image
+                      unoptimized
                       src={
                         getEmployeeInformation(employee?.userId)
                           ?.profileImage &&

@@ -276,16 +276,6 @@ function coerceMetricTypeObject(
   return undefined;
 }
 
-function withResolvedOkrMilestones<T extends KrMilestoneFields>(
-  kr: T,
-  apiKr?: KrMilestoneCarrier,
-): T & { milestones: OkrMilestoneRow[] } {
-  return {
-    ...kr,
-    milestones: resolveOkrMilestones(kr, apiKr),
-  };
-}
-
 /** Count plan-linked tasks on a KR (direct, milestone, and parent-task trees). */
 export function countKeyResultPlanTasks(
   kr: KeyResultLikeInput | null | undefined,
@@ -339,7 +329,9 @@ export function isMilestoneCompleted(m: { status?: string | null }): boolean {
  */
 export function mergeMilestonesForProgressDisplay(
   kr?: KrMilestoneCarrier | null,
-  ...extraLists: Array<Array<MilestoneRowInput | null | undefined> | null | undefined>
+  ...extraLists: Array<
+    Array<MilestoneRowInput | null | undefined> | null | undefined
+  >
 ): MilestoneRowInput[] {
   const byId = new Map<string, MilestoneRowInput>();
 

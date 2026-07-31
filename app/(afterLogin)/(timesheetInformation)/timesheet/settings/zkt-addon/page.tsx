@@ -174,7 +174,13 @@ const ZKTAddonPage = () => {
             data-cy="timesheet-settings-zkt-addon-page-tsx-page-div-85"
             className="flex items-end"
           >
-            <Image unoptimized src={ZK_TECO_LOGO_URL} alt="zkt" width={140} height={48} />
+            <Image
+              unoptimized
+              src={ZK_TECO_LOGO_URL}
+              alt="zkt"
+              width={140}
+              height={48}
+            />
           </div>
         </div>
         <div

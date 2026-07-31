@@ -142,7 +142,8 @@ const ApprovalTable = () => {
         id="settings-approvals-row-assignee-avatar"
         data-cy="settings-approvals-row-assignee-avatar"
       >
-        <Image unoptimized
+        <Image
+          unoptimized
           src={getImageSrc() || '/placeholder.svg'}
           alt="User avatar"
           layout="fill"
@@ -207,7 +208,8 @@ const ApprovalTable = () => {
                       id={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
                       data-cy={`settings-approvals-row-assignee-avatar-${rowSlug}-${empIndex}`}
                     >
-                      <Image unoptimized
+                      <Image
+                        unoptimized
                         src={Avatar || '/placeholder.svg'}
                         alt="Default avatar"
                         layout="fill"

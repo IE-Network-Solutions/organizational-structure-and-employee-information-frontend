@@ -173,7 +173,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
             id={`feedback-categories-components-categoriescard-categorycard-image-wrap-${category?.id}`}
           >
             {hasKnownCreator && hasCreatorProfileImage ? (
-              <Image unoptimized
+              <Image
+                unoptimized
                 src={creator.profileImage}
                 alt="Profile pic"
                 fill

@@ -41,10 +41,7 @@ function normalizeStatus(raw: unknown): string {
 function isDoneStatus(raw: unknown): boolean {
   const s = normalizeStatus(raw);
   return (
-    s === 'done' ||
-    s === 'completed' ||
-    s === 'complete' ||
-    s === 'achieved'
+    s === 'done' || s === 'completed' || s === 'complete' || s === 'achieved'
   );
 }
 
@@ -109,9 +106,7 @@ export const useRecentReportTaskStatuses =
     },
     getOverride: (reportId, planTaskId) => {
       if (reportId == null || planTaskId == null) return null;
-      return (
-        get().byReport[String(reportId)]?.[String(planTaskId)] ?? null
-      );
+      return get().byReport[String(reportId)]?.[String(planTaskId)] ?? null;
     },
     reconcile: (reportId, apiTasks) => {
       const current = get().byReport[reportId];
@@ -148,20 +143,13 @@ export function rememberReportTaskStatuses(
   reportId: string,
   statusByPlanTaskId: Record<string, ReportTaskStatusOverride>,
 ): void {
-  useRecentReportTaskStatuses
-    .getState()
-    .remember(reportId, statusByPlanTaskId);
+  useRecentReportTaskStatuses.getState().remember(reportId, statusByPlanTaskId);
 }
 
 /** Candidate ids that may key a report/plan task row. */
 export function reportTaskLookupIds(task: any): string[] {
   if (!task) return [];
-  return [
-    task.planTaskId,
-    task.planTask?.id,
-    task.taskId,
-    task.id,
-  ]
+  return [task.planTaskId, task.planTask?.id, task.taskId, task.id]
     .filter((id) => id != null && String(id).length > 0)
     .map((id) => String(id));
 }
@@ -200,9 +188,13 @@ export function buildReportTaskStatusPatches(
           ...out[key],
           ...(status ? { status } : {}),
           actualValue:
-            raw.actualValue != null ? Number(raw.actualValue) : out[key]?.actualValue,
+            raw.actualValue != null
+              ? Number(raw.actualValue)
+              : out[key]?.actualValue,
           customReason:
-            raw.customReason != null ? raw.customReason : out[key]?.customReason,
+            raw.customReason != null
+              ? raw.customReason
+              : out[key]?.customReason,
         };
       }
     }
