@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { PayrollView } from './view';
 
 interface UserState {
   currentPage: number;
@@ -7,6 +8,10 @@ interface UserState {
 
   pageSize: number;
   setPageSize: (size: number) => void;
+
+  /** List / status filter. Default = payroll-only rows. */
+  payrollView: PayrollView;
+  setPayrollView: (view: PayrollView) => void;
 }
 
 export const usePayrollStore = create<UserState>()(
@@ -16,5 +21,8 @@ export const usePayrollStore = create<UserState>()(
 
     pageSize: 10,
     setPageSize: (size: number) => set({ pageSize: size }),
+
+    payrollView: 'payroll',
+    setPayrollView: (view: PayrollView) => set({ payrollView: view }),
   })),
 );

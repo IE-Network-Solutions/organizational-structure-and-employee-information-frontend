@@ -1,6 +1,6 @@
 'use client';
 import { useGetAllUsers } from '@/store/server/features/okrplanning/okr/users/queries';
-import { Form, Select, Avatar, Modal, Tooltip, Button } from 'antd';
+import { Form, Select, Avatar, Modal, Tooltip, Button, Radio } from 'antd';
 import {
   UserOutlined,
   QuestionCircleOutlined,
@@ -14,6 +14,10 @@ import {
 } from '@/store/server/features/employees/planning/planningPeriod/mutation';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import { PlanningPeriodItem } from '@/store/uistate/features/okrplanning/okrSetting/interface';
+import { PlanningUserPayload } from '@/store/server/features/employees/planning/planningPeriod/interface';
+
+/** Empty string = no period allowed to update KR progress. */
+const CAN_PROGRESS_NONE = '';
 
 interface PlanningAssignationModalProps {
   open: boolean;
@@ -41,6 +45,10 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
 
   const userIds = Form.useWatch('userIds', form);
   const planningPeriods = Form.useWatch('planningPeriods', form);
+  const canProgressPlanningPeriodId = Form.useWatch(
+    'canProgressPlanningPeriodId',
+    form,
+  );
 
   const handleModalClose = () => {
     form.resetFields();
@@ -51,28 +59,72 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
     onClose();
   };
 
+  const clearCanProgressIfRemoved = (nextPeriodIds: string[]) => {
+    const currentProgress = form.getFieldValue('canProgressPlanningPeriodId');
+    if (
+      currentProgress &&
+      currentProgress !== CAN_PROGRESS_NONE &&
+      !nextPeriodIds.includes(currentProgress)
+    ) {
+      form.setFieldsValue({
+        canProgressPlanningPeriodId: CAN_PROGRESS_NONE,
+      });
+    }
+  };
+
+  const setPlanningPeriods = (nextPeriodIds: string[]) => {
+    form.setFieldsValue({ planningPeriods: nextPeriodIds });
+    clearCanProgressIfRemoved(nextPeriodIds);
+  };
+
   useEffect(() => {
     if (selectedPlanningUser) {
+      const periodIds = selectedPlanningUser.planningPeriod.map(
+        (item: PlanningPeriodItem) => item.planningPeriodId,
+      );
+      const progressPeriod = selectedPlanningUser.planningPeriod.find(
+        (item: PlanningPeriodItem) => item.canProgress === true,
+      );
       form.setFieldsValue({
         userIds: [selectedPlanningUser.userId],
-        planningPeriods: selectedPlanningUser.planningPeriod.map(
-          (item: PlanningPeriodItem) => item.planningPeriodId,
-        ),
+        planningPeriods: periodIds,
+        canProgressPlanningPeriodId:
+          progressPeriod?.planningPeriodId ?? CAN_PROGRESS_NONE,
       });
     } else {
       form.resetFields();
+      form.setFieldsValue({
+        canProgressPlanningPeriodId: CAN_PROGRESS_NONE,
+      });
     }
   }, [selectedPlanningUser, form, open]);
 
+  const buildPayload = (values: {
+    userIds: string[];
+    planningPeriods: string[];
+    canProgressPlanningPeriodId?: string;
+  }): PlanningUserPayload => {
+    const periodIds = values.planningPeriods || [];
+    const progressId = values.canProgressPlanningPeriodId || null;
+    return {
+      userIds: values.userIds,
+      planningPeriods: periodIds,
+      planningPeriodIds: periodIds,
+      canProgressPlanningPeriodId:
+        progressId && periodIds.includes(progressId) ? progressId : null,
+    };
+  };
+
   const onFinish = (values: any) => {
+    const payload = buildPayload(values);
     if (selectedPlanningUser) {
-      editAssign(values, {
+      editAssign(payload, {
         onSuccess: () => {
           handleModalClose();
         },
       });
     } else {
-      planAssign(values, {
+      planAssign(payload, {
         onSuccess: () => {
           handleModalClose();
         },
@@ -107,6 +159,9 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
     </div>
   );
 
+  const hasSelectedPlans =
+    Array.isArray(planningPeriods) && planningPeriods.length > 0;
+
   return (
     <Modal
       open={open}
@@ -135,6 +190,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
         form={form}
         layout="vertical"
         onFinish={onFinish}
+        initialValues={{ canProgressPlanningPeriodId: CAN_PROGRESS_NONE }}
         className=""
         id="okr-planning-assignation-modal-form"
         data-cy="okr-planning-assignation-modal-form"
@@ -457,15 +513,15 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
               onSelect={(id: string) => {
                 const current = form.getFieldValue('planningPeriods') || [];
                 if (!current.includes(id)) {
-                  form.setFieldsValue({ planningPeriods: [...current, id] });
+                  setPlanningPeriods([...current, id]);
                 }
                 setPlanSearchValue('');
               }}
               onDeselect={(id: string) => {
                 const current = form.getFieldValue('planningPeriods') || [];
-                form.setFieldsValue({
-                  planningPeriods: current.filter((pid: string) => pid !== id),
-                });
+                setPlanningPeriods(
+                  current.filter((pid: string) => pid !== id),
+                );
               }}
               filterOption={(input, option: any) =>
                 (option?.children ?? '')
@@ -500,21 +556,28 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
 
         {/* Manual Plan Tag Display */}
         <div
-          className="flex flex-wrap gap-2 mt-2"
+          className="flex flex-wrap gap-2 mt-2 mb-4"
           data-cy="okr-planning-assignation-plan-tags-container"
         >
           {planningPeriods?.map((id: string) => {
             const period = allPlanningperiod?.items?.find((p) => p.id === id);
             if (!period) return null;
+            const isProgressPlan = canProgressPlanningPeriodId === id;
             return (
               <div
                 key={id}
-                className="flex items-center gap-2 bg-white border border-[#d9d9d9] px-3 py-1 rounded-[6px]"
+                className={`flex items-center gap-2 px-3 py-1 rounded-[6px] border ${
+                  isProgressPlan
+                    ? 'bg-[#EFF6FF] border-[#2b54ad]'
+                    : 'bg-white border-[#d9d9d9]'
+                }`}
                 id={`okr-manual-plan-tag-${id}`}
                 data-cy={`okr-manual-plan-tag-${id}`}
               >
                 <span
-                  className="text-[14px] text-[#595959]"
+                  className={`text-[14px] ${
+                    isProgressPlan ? 'text-[#2b54ad]' : 'text-[#595959]'
+                  }`}
                   data-cy={`okr-manual-plan-tag-name-${id}`}
                 >
                   {period.name}
@@ -525,7 +588,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                     const newPeriods = planningPeriods.filter(
                       (pid: string) => pid !== id,
                     );
-                    form.setFieldsValue({ planningPeriods: newPeriods });
+                    setPlanningPeriods(newPeriods);
                   }}
                   data-cy={`okr-manual-plan-tag-close-${id}`}
                 />
@@ -533,6 +596,62 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
             );
           })}
         </div>
+
+        {hasSelectedPlans ? (
+          <Form.Item
+            name="canProgressPlanningPeriodId"
+            className="mb-0"
+            label={
+              <div
+                className="flex items-center gap-1"
+                data-cy="okr-planning-assignation-can-progress-label"
+              >
+                <span
+                  className="text-[14px] font-medium text-[#262626]"
+                  data-cy="okr-planning-assignation-can-progress-label-text"
+                >
+                  Allow KR Progress on
+                </span>
+                <Tooltip title="Only one planning period per user can update Key Result progress when reporting. Leave as None to report without changing KR %.">
+                  <QuestionCircleOutlined
+                    className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+                    data-cy="okr-planning-assignation-can-progress-tooltip"
+                  />
+                </Tooltip>
+              </div>
+            }
+            data-cy="okr-planning-assignation-can-progress-field"
+            id="okr-planning-assignation-can-progress-field"
+          >
+            <Radio.Group
+              className="flex flex-col gap-2"
+              data-cy="okr-planning-assignation-can-progress-radio-group"
+            >
+              <Radio
+                value={CAN_PROGRESS_NONE}
+                data-cy="okr-planning-assignation-can-progress-none"
+              >
+                <span className="text-[14px] text-[#595959]">None</span>
+              </Radio>
+              {planningPeriods.map((id: string) => {
+                const period = allPlanningperiod?.items?.find(
+                  (p) => p.id === id,
+                );
+                return (
+                  <Radio
+                    key={id}
+                    value={id}
+                    data-cy={`okr-planning-assignation-can-progress-option-${id}`}
+                  >
+                    <span className="text-[14px] text-[#595959]">
+                      {period?.name ?? id}
+                    </span>
+                  </Radio>
+                );
+              })}
+            </Radio.Group>
+          </Form.Item>
+        ) : null}
       </Form>
     </Modal>
   );

@@ -1,5 +1,5 @@
 import { requestHeader } from '@/helpers/requestHeader';
-import { INCENTIVE_URL, ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
+import { CORE_API_URL, INCENTIVE_URL, ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { FiscalYearResponseData } from './interface';
@@ -49,7 +49,7 @@ const fetchProjectIncentiveDataByID = async (projectId: string) => {
 const fetchIncentiveSessions = async () => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/session`,
+    url: `${CORE_API_URL}/session`,
     method: 'GET',
     headers: requestHeaders,
   });

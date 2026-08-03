@@ -19,7 +19,6 @@ const createPayroll = async (values: any) => {
       headers: {
         Authorization: `Bearer ${token}`,
         tenantId: tenantId,
-        withIncentives: values.includeIncentive,
       },
     });
 
@@ -30,6 +29,68 @@ const createPayroll = async (values: any) => {
   } catch (error) {
     throw error;
   }
+};
+
+/** Single-employee regenerate. `payrollItems` is one object, not an array. */
+const regeneratePayroll = async ({
+  payPeriodId,
+  data,
+}: {
+  payPeriodId: string;
+  data: {
+    includePayroll: boolean;
+    includeVariablePay: boolean;
+    includeIncentive: boolean;
+    payrollItems: { userId: string; basicSalary: number };
+  };
+}) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  await crudRequest({
+    url: `${PAYROLL_URL}/payroll/re-generate/payroll/payPeriod/${payPeriodId}`,
+    method: 'POST',
+    data,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+
+  NotificationMessage.success({
+    message: 'Successfully Regenerated',
+    description: 'Payroll successfully regenerated.',
+  });
+};
+
+const updatePayrollStatus = async ({
+  payPeriodId,
+  status,
+  queryParams = '',
+}: {
+  payPeriodId: string;
+  status: string;
+  /** e.g. `isPerformancePay=false&isIncentivePay=false` */
+  queryParams?: string;
+}) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const qs = queryParams ? `?${queryParams.replace(/^\?/, '')}` : '';
+
+  await crudRequest({
+    url: `${PAYROLL_URL}/payroll/update-payroll-status/${payPeriodId}${qs}`,
+    method: 'PUT',
+    data: { status },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+
+  NotificationMessage.success({
+    message: 'Status Updated',
+    description: 'Payroll status successfully updated.',
+  });
 };
 const sendingPayrollPaySlip = async ({ values }: { values: any }) => {
   const token = await getCurrentToken();
@@ -108,6 +169,38 @@ export const useCreatePayroll = () => {
       NotificationMessage.error({
         message: 'PayRoll Creation Failed',
         description: errorMessage,
+      });
+    },
+  });
+};
+
+export const useRegeneratePayroll = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(regeneratePayroll, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('payroll');
+    },
+    onError: (error: any) => {
+      NotificationMessage.error({
+        message: 'Payroll Regeneration Failed',
+        description: error?.response?.data?.message,
+      });
+    },
+  });
+};
+
+export const useUpdatePayrollStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(updatePayrollStatus, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('payroll');
+    },
+    onError: (error: any) => {
+      NotificationMessage.error({
+        message: 'Status Update Failed',
+        description: error?.response?.data?.message,
       });
     },
   });

@@ -167,12 +167,21 @@ const PlanAssignment: React.FC = () => {
         const planningPeriodType = firstPlanningPeriod?.planningPeriodId
           ? getPlanningPeriodType(firstPlanningPeriod.planningPeriodId)
           : 'daily';
+        const progressPeriod = item?.planningPeriod?.find(
+          (period) => period.canProgress === true,
+        );
+        const progressPeriodName = progressPeriod?.planningPeriodId
+          ? allPlanningPeriods?.items?.find(
+              (period: any) => period.id === progressPeriod.planningPeriodId,
+            )?.name
+          : undefined;
         return {
           ...item,
           employeeName: getEmployeeData(item?.userId),
           planningPeriodType:
             planningPeriodType.charAt(0).toUpperCase() +
             planningPeriodType.slice(1),
+          progressPeriodName,
           updatedAt: item?.lastUpdated,
         };
       });
@@ -461,6 +470,15 @@ const PlanAssignment: React.FC = () => {
                           >
                             {item.planningPeriodType}
                           </Tag>
+                          {item.progressPeriodName ? (
+                            <Tag
+                              className="m-0 rounded-md px-3 py-0.5 border-[#bfdbfe] bg-[#EFF6FF] text-[#1D4ED8] text-xs font-normal"
+                              id={`okr-planning-assignation-card-kr-tag-${item.userId}`}
+                              data-cy={`okr-planning-assignation-card-kr-tag-${item.userId}`}
+                            >
+                              KR: {item.progressPeriodName}
+                            </Tag>
+                          ) : null}
                           <span
                             className="flex items-center gap-1 text-xs text-gray-400"
                             data-cy={`okr-planning-assignation-card-date-${item.userId}`}

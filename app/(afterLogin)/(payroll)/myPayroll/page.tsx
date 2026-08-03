@@ -37,6 +37,7 @@ import {
   useEmployeeSettlementTracking,
 } from '@/store/server/features/payroll/settlementTracking/queries';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
+import { getPayslipEarningsSections } from '@/utils/payslipBreakdown';
 
 const { Text } = Typography;
 
@@ -234,26 +235,10 @@ export default function MyPayroll() {
       );
 
     const breakdown = activeMergedPayroll?.breakdown;
-
-    // Project Incentive lives in merits; do not also add breakdown.incentives
-    const entitledBenefitTotal =
-      (breakdown?.merits?.reduce(
-        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
-        0,
-      ) || 0) +
-      (breakdown?.variablePay
-        ? parseFloat(breakdown.variablePay.amount || '0')
-        : 0);
-
-    const entitledDeductionTotal =
-      // (breakdown?.pension?.reduce(
-      //   (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
-      //   0,
-      // ) || 0) +
-      breakdown?.totalDeductionWithPension?.reduce(
-        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
-        0,
-      ) || 0;
+    const payslipSections = getPayslipEarningsSections(breakdown);
+    const entitledBenefitTotal = payslipSections.entitledBenefitTotal;
+    const entitledIncentiveTotal = payslipSections.entitledIncentiveTotal;
+    const entitledDeductionTotal = payslipSections.entitledDeductionTotal;
 
     return (
       <Row
@@ -385,9 +370,9 @@ export default function MyPayroll() {
                 activeMergedPayroll?.totalAllowance || '0',
               ).toFixed(2)}
               large
-              tags={breakdown?.allowances?.map((a: any) => ({
+              tags={payslipSections.allowances.map((a) => ({
                 label: a.type,
-                value: parseFloat(a.amount || '0').toFixed(2),
+                value: parseFloat(String(a.amount || '0')).toFixed(2),
               }))}
             />
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
@@ -395,38 +380,30 @@ export default function MyPayroll() {
               label="Entitled Benefit"
               value={entitledBenefitTotal.toFixed(2)}
               large
-              tags={[
-                ...(breakdown?.merits?.map((m: any) => ({
-                  label: m.type,
-                  value: parseFloat(m.amount || '0').toFixed(2),
-                })) || []),
-                ...(breakdown?.variablePay
-                  ? [
-                      {
-                        label: breakdown.variablePay.type,
-                        value: parseFloat(
-                          breakdown.variablePay.amount || '0',
-                        ).toFixed(2),
-                      },
-                    ]
-                  : []),
-              ]}
+              tags={payslipSections.entitledBenefitItems.map((m) => ({
+                label: m.type,
+                value: parseFloat(String(m.amount || '0')).toFixed(2),
+              }))}
+            />
+            <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
+            <InfoItem
+              label="Incentive"
+              value={entitledIncentiveTotal.toFixed(2)}
+              large
+              tags={payslipSections.incentiveItems.map((item) => ({
+                label: item.type,
+                value: parseFloat(String(item.amount || '0')).toFixed(2),
+              }))}
             />
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
             <InfoItem
               label="Entitled Deduction"
               value={entitledDeductionTotal.toFixed(2)}
               large
-              tags={[
-                // ...(breakdown?.pension?.map((p: any) => ({
-                //   label: p.type,
-                //   value: parseFloat(p.amount || '0').toFixed(2),
-                // })) || []),
-                ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({
-                  label: d.type,
-                  value: parseFloat(d.amount || '0').toFixed(2),
-                })) || []),
-              ]}
+              tags={payslipSections.deductions.map((d) => ({
+                label: d.type,
+                value: parseFloat(String(d.amount || '0')).toFixed(2),
+              }))}
             />
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
             <Row gutter={16}>
@@ -594,28 +571,14 @@ export default function MyPayroll() {
                         (p: any) => p.id === historyItem.payPeriodId,
                       );
                       const breakdown = historyItem.breakdown;
-
+                      const payslipSections =
+                        getPayslipEarningsSections(breakdown);
                       const entitledBenefitTotal =
-                        (breakdown?.merits?.reduce(
-                          (acc: number, item: any) =>
-                            acc + parseFloat(item.amount || '0'),
-                          0,
-                        ) || 0) +
-                        (breakdown?.variablePay
-                          ? parseFloat(breakdown.variablePay.amount || '0')
-                          : 0);
-
+                        payslipSections.entitledBenefitTotal;
+                      const entitledIncentiveTotal =
+                        payslipSections.entitledIncentiveTotal;
                       const entitledDeductionTotal =
-                        // (breakdown?.pension?.reduce(
-                        //   (acc: number, item: any) =>
-                        //     acc + parseFloat(item.amount || '0'),
-                        //   0,
-                        // ) || 0) +
-                        breakdown?.totalDeductionWithPension?.reduce(
-                          (acc: number, item: any) =>
-                            acc + parseFloat(item.amount || '0'),
-                          0,
-                        ) || 0;
+                        payslipSections.entitledDeductionTotal;
 
                       return (
                         <Col
@@ -691,9 +654,11 @@ export default function MyPayroll() {
                                 historyItem.totalAllowance || '0',
                               ).toFixed(2)}
                               large
-                              tags={breakdown?.allowances?.map((a: any) => ({
+                              tags={payslipSections.allowances.map((a) => ({
                                 label: a.type,
-                                value: parseFloat(a.amount || '0').toFixed(2),
+                                value: parseFloat(
+                                  String(a.amount || '0'),
+                                ).toFixed(2),
                               }))}
                             />
                             <Divider
@@ -706,22 +671,33 @@ export default function MyPayroll() {
                               label="Entitled Benefit"
                               value={entitledBenefitTotal.toFixed(2)}
                               large
-                              tags={[
-                                ...(breakdown?.merits?.map((m: any) => ({
+                              tags={payslipSections.entitledBenefitItems.map(
+                                (m) => ({
                                   label: m.type,
-                                  value: parseFloat(m.amount || '0').toFixed(2),
-                                })) || []),
-                                ...(breakdown?.variablePay
-                                  ? [
-                                      {
-                                        label: breakdown.variablePay.type,
-                                        value: parseFloat(
-                                          breakdown.variablePay.amount || '0',
-                                        ).toFixed(2),
-                                      },
-                                    ]
-                                  : []),
-                              ]}
+                                  value: parseFloat(
+                                    String(m.amount || '0'),
+                                  ).toFixed(2),
+                                }),
+                              )}
+                            />
+                            <Divider
+                              style={{
+                                margin: '12px 0',
+                                borderColor: '#e0e0e0',
+                              }}
+                            />
+                            <InfoItem
+                              label="Incentive"
+                              value={entitledIncentiveTotal.toFixed(2)}
+                              large
+                              tags={payslipSections.incentiveItems.map(
+                                (item) => ({
+                                  label: item.type,
+                                  value: parseFloat(
+                                    String(item.amount || '0'),
+                                  ).toFixed(2),
+                                }),
+                              )}
                             />
                             <Divider
                               style={{
@@ -733,20 +709,12 @@ export default function MyPayroll() {
                               label="Entitled Deduction"
                               value={entitledDeductionTotal.toFixed(2)}
                               large
-                              tags={[
-                                // ...(breakdown?.pension?.map((p: any) => ({
-                                //   label: p.type,
-                                //   value: parseFloat(p.amount || '0').toFixed(2),
-                                // })) || []),
-                                ...(breakdown?.totalDeductionWithPension?.map(
-                                  (d: any) => ({
-                                    label: d.type,
-                                    value: parseFloat(d.amount || '0').toFixed(
-                                      2,
-                                    ),
-                                  }),
-                                ) || []),
-                              ]}
+                              tags={payslipSections.deductions.map((d) => ({
+                                label: d.type,
+                                value: parseFloat(
+                                  String(d.amount || '0'),
+                                ).toFixed(2),
+                              }))}
                             />
                             <Divider
                               style={{
@@ -1007,6 +975,14 @@ export default function MyPayroll() {
           </div>
           <PayrollDetails
             activeMergedPayroll={activeMergedPayroll || undefined}
+            bankName={
+              activeMergedPayroll?.employeeInfo?.employeeInformation
+                ?.bankInformation?.bankName
+            }
+            accountNumber={
+              activeMergedPayroll?.employeeInfo?.employeeInformation
+                ?.bankInformation?.accountNumber
+            }
           />
         </div>
       </div>

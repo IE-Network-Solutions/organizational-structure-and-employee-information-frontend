@@ -33,6 +33,7 @@ import {
   Breadcrumb,
   Dropdown,
   Typography,
+  Segmented,
 } from 'antd';
 
 const { Text } = Typography;
@@ -65,13 +66,22 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { TbFileExport } from 'react-icons/tb';
-import GeneratePayrollModal, { Incentive } from './_components/modal';
+import GeneratePayrollModal, {
+  GeneratePayrollFormValues,
+} from './_components/modal';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import PayrollTableLoadingSkeleton from './_components/PayrollTableLoadingSkeleton';
 import EmptyState from '@/components/empty';
 import PayrollSummaryCardsSkeleton from './_components/PayrollSummaryCardsSkeleton';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+import {
+  PAYROLL_VIEW_OPTIONS,
+  appendPayrollViewParams,
+  includeFlagsToPayrollView,
+  payrollViewToQueryParams,
+  PayrollView,
+} from '@/store/uistate/features/payroll/payroll/view';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
@@ -129,7 +139,7 @@ const Payroll = () => {
     setIsPayrollModalOpen,
   } = useEmployeeStore();
 
-  const { pageSize, currentPage, setCurrentPage, setPageSize } =
+  const { pageSize, currentPage, setCurrentPage, setPageSize, payrollView, setPayrollView } =
     usePayrollStore();
 
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
@@ -351,13 +361,17 @@ const Payroll = () => {
       ?.flatMap((item: FiscalYear) => item.sessions || [])
       ?.flatMap((session) => session?.months || []) || [];
 
-  const handleSearch = (partial: {
-    [key: string]: string | undefined | null;
-  }) => {
+  const handleSearch = (
+    partial: {
+      [key: string]: string | undefined | null;
+    },
+    viewOverride?: PayrollView,
+  ) => {
     const merged = mergePayrollFilterState(searchValueRef.current, partial);
     searchValueRef.current = merged;
     setSearchValue(merged);
 
+    const activeView = viewOverride ?? payrollView;
     const queryParams = new URLSearchParams();
 
     if (merged.employeeId) {
@@ -392,6 +406,9 @@ const Payroll = () => {
       queryParams.append('departmentId', merged.departmentId);
     }
 
+    // Always send view flags (default = payroll only). "All" omits both.
+    appendPayrollViewParams(queryParams, activeView);
+
     const searchParams = queryParams.toString()
       ? `&${queryParams.toString()}`
       : '';
@@ -401,7 +418,14 @@ const Payroll = () => {
     refetchExportData();
   };
 
-  const handleGeneratePayroll = async (data: Incentive) => {
+  const handlePayrollViewChange = (value: string | number) => {
+    const nextView = value as PayrollView;
+    setPayrollView(nextView);
+    setCurrentPage(1);
+    handleSearch({}, nextView);
+  };
+
+  const handleGeneratePayroll = async (data: GeneratePayrollFormValues) => {
     if (!allActiveSalary || allActiveSalary?.length === 0) {
       notification.error({
         message: 'No Active Salaries',
@@ -415,11 +439,15 @@ const Payroll = () => {
 
     try {
       const payRollData = {
+        payPeriodId: data.payPeriodId,
+        includePayroll: data.includePayroll,
+        includeVariablePay: data.includeVariablePay,
+        includeIncentive: data.includeIncentive,
         payrollItems: allActiveSalary.map((item: any) => ({
           ...item,
+          userId: item.userId || item.id,
           basicSalary: parseInt(item.basicSalary, 10),
         })),
-        includeIncentive: data.includeIncentive,
       };
 
       createPayroll(
@@ -427,6 +455,12 @@ const Payroll = () => {
         {
           onSuccess: () => {
             setIsPayrollModalOpen(false);
+            const nextView = includeFlagsToPayrollView(data);
+            setPayrollView(nextView);
+            handleSearch(
+              data.payPeriodId ? { payPeriodId: data.payPeriodId } : {},
+              nextView,
+            );
             refetchPayrollApprovalByPayPeriod();
             setTimeout(() => {
               setOpen(true);
@@ -1192,6 +1226,10 @@ const Payroll = () => {
       tenantId,
     };
 
+    const viewQuery = new URLSearchParams(
+      payrollViewToQueryParams(payrollView),
+    ).toString();
+
     const handleSuccess = () => {
       setIsApproveModalOpen(false);
       refetchPendingApprovals();
@@ -1202,7 +1240,7 @@ const Payroll = () => {
     approvePayroll(approvalData, {
       onSuccess: (data) => {
         if (data?.last === true) {
-          lastApproving(undefined, { onSuccess: handleSuccess });
+          lastApproving(viewQuery || undefined, { onSuccess: handleSuccess });
         } else {
           handleSuccess();
         }
@@ -1428,6 +1466,10 @@ const Payroll = () => {
                             onClose={() => setIsPayrollModalOpen(false)}
                             loading={isCreatingPayroll || loading}
                             isRegenerate={payroll?.items?.length > 0}
+                            payrollView={payrollView}
+                            defaultPayPeriodId={
+                              currentPayPeriodId || payPeriodId
+                            }
                           />
                         )}
                       </AccessGuard>
@@ -1568,42 +1610,63 @@ const Payroll = () => {
               : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6'
           }
         >
-          {/* Toolbar Section — Search + Filter */}
+          {/* Toolbar Section — Search + View + Filter */}
           <div
             id="payroll-filters-wrapper-view-container"
             data-cy="payroll-filters-wrapper-view-container"
-            className="flex justify-between items-center gap-2 sm:gap-0 mb-8"
+            className="flex flex-col gap-3 mb-8"
           >
-            <Select
-              id="payroll-search-employee-interact-select"
-              data-cy="payroll-search-employee-interact-select"
-              showSearch
-              allowClear
-              className="max-w-xs min-h-[40px] min-w-[240px] sm:min-w-[280px] [&_.ant-select-arrow]:!top-0 [&_.ant-select-arrow]:!bottom-0 [&_.ant-select-arrow]:!mt-0 [&_.ant-select-arrow]:!h-auto [&_.ant-select-arrow]:!flex [&_.ant-select-arrow]:!items-stretch [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!border-gray-200 [&_.ant-select-selector]:!shadow-none [&_.ant-select-selector:hover]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!shadow-none"
-              placeholder="Search Employee"
-              value={searchValue?.employeeId}
-              onChange={(value) => handleEmployeeSelect(value)}
-              filterOption={(input, option) => {
-                const label = option?.label;
-                return (
-                  typeof label === 'string' &&
-                  label.toLowerCase().includes(input.toLowerCase())
-                );
-              }}
-              options={options}
-              suffixIcon={
-                <span
-                  className="flex h-full min-h-full items-center self-stretch border-l border-gray-200 pl-3 text-gray-400"
-                  data-cy="payroll-search-employee-suffix"
-                >
-                  <SearchOutlined className="text-base" />
-                </span>
-              }
-            />
-            <FilterPopover
-              onSearch={handleSearch}
-              defaultValues={searchValue as any}
-            />
+            <div
+              className="flex justify-between items-center gap-2 sm:gap-3 flex-wrap"
+              data-cy="payroll-filters-top-row"
+            >
+              <Select
+                id="payroll-search-employee-interact-select"
+                data-cy="payroll-search-employee-interact-select"
+                showSearch
+                allowClear
+                className="max-w-xs min-h-[40px] min-w-[240px] sm:min-w-[280px] [&_.ant-select-arrow]:!top-0 [&_.ant-select-arrow]:!bottom-0 [&_.ant-select-arrow]:!mt-0 [&_.ant-select-arrow]:!h-auto [&_.ant-select-arrow]:!flex [&_.ant-select-arrow]:!items-stretch [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!border-gray-200 [&_.ant-select-selector]:!shadow-none [&_.ant-select-selector:hover]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!shadow-none"
+                placeholder="Search Employee"
+                value={searchValue?.employeeId}
+                onChange={(value) => handleEmployeeSelect(value)}
+                filterOption={(input, option) => {
+                  const label = option?.label;
+                  return (
+                    typeof label === 'string' &&
+                    label.toLowerCase().includes(input.toLowerCase())
+                  );
+                }}
+                options={options}
+                suffixIcon={
+                  <span
+                    className="flex h-full min-h-full items-center self-stretch border-l border-gray-200 pl-3 text-gray-400"
+                    data-cy="payroll-search-employee-suffix"
+                  >
+                    <SearchOutlined className="text-base" />
+                  </span>
+                }
+              />
+              <FilterPopover
+                onSearch={handleSearch}
+                defaultValues={searchValue as any}
+              />
+            </div>
+            <div
+              className="overflow-x-auto [-webkit-overflow-scrolling:touch]"
+              data-cy="payroll-view-segmented-wrapper"
+            >
+              <Segmented
+                id="payroll-view-segmented"
+                data-cy="payroll-view-segmented"
+                value={payrollView}
+                onChange={handlePayrollViewChange}
+                options={PAYROLL_VIEW_OPTIONS.map((opt) => ({
+                  value: opt.value,
+                  label: opt.label,
+                }))}
+                className="min-w-max"
+              />
+            </div>
           </div>
 
           {payrollForExportLoading ? (

@@ -13,7 +13,7 @@ interface PayrollSettingsLayoutProps {
   children: ReactNode;
 }
 
-type TabKey = 'tax-rule' | 'pension' | 'pay-period' | 'approvals';
+type TabKey = 'tax-rule' | 'pension' | 'pay-period' | 'approvals' | 'general';
 
 const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
   children,
@@ -41,6 +41,11 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
         key: 'approvals' as const,
         label: 'Approval Workflow',
         href: '/settings/approvals',
+      },
+      {
+        key: 'general' as const,
+        label: 'General',
+        href: '/settings/general',
       },
     ],
     [],
@@ -248,7 +253,7 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
                   className="ml-2 flex shrink-0 items-center self-end p-3"
                   data-cy="payroll-settings-tabs-primary-action-slot"
                 >
-                  {currentItem === 'pension' ? (
+                  {currentItem === 'pension' || currentItem === 'general' ? (
                     <div
                       className="flex h-10 min-h-10 w-10 shrink-0 items-center justify-center sm:h-10 sm:min-h-10 sm:w-auto sm:min-w-[148px]"
                       aria-hidden

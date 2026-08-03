@@ -3,13 +3,22 @@ import {
   Allowances,
 } from '@/store/uistate/features/payroll/employeeInfoStore';
 import { Space, Typography, Divider } from 'antd';
+import { getPayslipEarningsSections } from '@/utils/payslipBreakdown';
 
 const { Text } = Typography;
 type PayrollDetailsProps = {
   activeMergedPayroll?: ActiveMergedPayroll;
+  bankName?: string;
+  accountNumber?: string;
+  showBankInformation?: boolean;
 };
 
-const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
+const PayrollDetails = ({
+  activeMergedPayroll,
+  bankName,
+  accountNumber,
+  showBankInformation = true,
+}: PayrollDetailsProps) => {
   if (!activeMergedPayroll) {
     return (
       <Text
@@ -21,16 +30,22 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
       </Text>
     );
   }
+
+  const sections = getPayslipEarningsSections(activeMergedPayroll?.breakdown);
+
   const totalAmount = (items: Allowances[]) => {
     if (!items || items.length === 0) return '0.00';
     return items
       .reduce(
         (total: number, item: Allowances) =>
-          total + parseFloat(item.amount || '0'),
+          total + parseFloat(String(item.amount || '0')),
         0,
       )
       .toFixed(2);
   };
+
+  const formatAmount = (amount: string | number) =>
+    parseFloat(String(amount || '0')).toFixed(2);
 
   return (
     <Space
@@ -44,7 +59,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
         id="payroll-details-content-view-container"
         data-cy="payroll-details-content-view-container"
       >
-        {/* Total Allowance */}
+        {/* Entitled Allowance */}
         <div
           id="payroll-details-allowances-section-view-container"
           data-cy="payroll-details-allowances-section-view-container"
@@ -54,8 +69,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
             id="payroll-details-allowances-title-view-text"
             data-cy="payroll-details-allowances-title-view-text"
           >
-            Entitled Allowance{' '}
-            {totalAmount(activeMergedPayroll?.breakdown?.allowances)}
+            Entitled Allowance {sections.entitledAllowanceTotal.toFixed(2)}
           </div>
           <div
             className="flex gap-6 w-full"
@@ -67,42 +81,38 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
               id="payroll-details-allowances-types-view-column"
               data-cy="payroll-details-allowances-types-view-column"
             >
-              {activeMergedPayroll?.breakdown?.allowances?.map(
-                (item: any, index: any) => (
-                  <Text
-                    className="text-gray-600"
-                    key={`payroll-details-allowance-type-${index}`}
-                    id={`payroll-details-allowance-type-view-text-${index}`}
-                    data-cy={`payroll-details-allowance-type-view-text-${index}`}
-                  >
-                    {item.type}
-                  </Text>
-                ),
-              )}
+              {sections.allowances.map((item, index) => (
+                <Text
+                  className="text-gray-600"
+                  key={`payroll-details-allowance-type-${index}`}
+                  id={`payroll-details-allowance-type-view-text-${index}`}
+                  data-cy={`payroll-details-allowance-type-view-text-${index}`}
+                >
+                  {item.type}
+                </Text>
+              ))}
             </div>
             <div
               className="flex flex-col gap-6 text-right justify-end items-start "
               id="payroll-details-allowances-amounts-view-column"
               data-cy="payroll-details-allowances-amounts-view-column"
             >
-              {activeMergedPayroll?.breakdown?.allowances?.map(
-                (item: any, index: any) => (
-                  <Text
-                    className="font-bold"
-                    key={`payroll-details-allowance-amount-${index}`}
-                    id={`payroll-details-allowance-amount-view-text-${index}`}
-                    data-cy={`payroll-details-allowance-amount-view-text-${index}`}
-                  >
-                    {parseFloat(item.amount).toFixed(2)}
-                  </Text>
-                ),
-              )}
+              {sections.allowances.map((item, index) => (
+                <Text
+                  className="font-bold"
+                  key={`payroll-details-allowance-amount-${index}`}
+                  id={`payroll-details-allowance-amount-view-text-${index}`}
+                  data-cy={`payroll-details-allowance-amount-view-text-${index}`}
+                >
+                  {formatAmount(item.amount)}
+                </Text>
+              ))}
             </div>
           </div>
           <Divider data-cy="payroll-details-allowances-divider" />
         </div>
 
-        {/* Total Benefits */}
+        {/* Entitled Benefits (merits only — no Project Incentive / VP) */}
         <div
           id="payroll-details-benefits-section-view-container"
           data-cy="payroll-details-benefits-section-view-container"
@@ -112,19 +122,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
             id="payroll-details-benefits-title-view-text"
             data-cy="payroll-details-benefits-title-view-text"
           >
-            Entitled Benefits{' '}
-            {totalAmount([
-              ...(activeMergedPayroll?.breakdown?.merits || []),
-              ...(activeMergedPayroll?.breakdown?.variablePay
-                ? [
-                    {
-                      type: 'VP',
-                      amount:
-                        activeMergedPayroll?.breakdown?.variablePay.amount,
-                    },
-                  ]
-                : []),
-            ])}
+            Entitled Benefits {sections.entitledBenefitTotal.toFixed(2)}
           </div>
           <div
             className="flex gap-6 w-full"
@@ -136,62 +134,91 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
               id="payroll-details-benefits-types-view-column"
               data-cy="payroll-details-benefits-types-view-column"
             >
-              {activeMergedPayroll?.breakdown?.merits?.map(
-                (item: any, index: any) => (
-                  <Text
-                    className="text-gray-600"
-                    key={`payroll-details-benefit-type-${index}`}
-                    id={`payroll-details-benefit-type-view-text-${index}`}
-                    data-cy={`payroll-details-benefit-type-view-text-${index}`}
-                  >
-                    {item.type}
-                  </Text>
-                ),
-              )}
-              {activeMergedPayroll?.breakdown?.variablePay && (
+              {sections.entitledBenefitItems.map((item, index) => (
                 <Text
                   className="text-gray-600"
-                  id="payroll-details-variablepay-type-view-text"
-                  data-cy="payroll-details-variablepay-type-view-text"
+                  key={`payroll-details-benefit-type-${index}`}
+                  id={`payroll-details-benefit-type-view-text-${index}`}
+                  data-cy={`payroll-details-benefit-type-view-text-${index}`}
                 >
-                  {activeMergedPayroll?.breakdown?.variablePay?.type}
+                  {item.type}
                 </Text>
-              )}
+              ))}
             </div>
             <div
               className="flex flex-col gap-6 text-right justify-end items-start"
               id="payroll-details-benefits-amounts-view-column"
               data-cy="payroll-details-benefits-amounts-view-column"
             >
-              {activeMergedPayroll?.breakdown?.merits?.map(
-                (item: any, index: any) => (
-                  <Text
-                    className="font-bold"
-                    key={`payroll-details-benefit-amount-${index}`}
-                    id={`payroll-details-benefit-amount-view-text-${index}`}
-                    data-cy={`payroll-details-benefit-amount-view-text-${index}`}
-                  >
-                    {parseFloat(item.amount).toFixed(2)}
-                  </Text>
-                ),
-              )}
-              {activeMergedPayroll?.breakdown?.variablePay && (
+              {sections.entitledBenefitItems.map((item, index) => (
                 <Text
                   className="font-bold"
-                  id="payroll-details-variablepay-amount-view-text"
-                  data-cy="payroll-details-variablepay-amount-view-text"
+                  key={`payroll-details-benefit-amount-${index}`}
+                  id={`payroll-details-benefit-amount-view-text-${index}`}
+                  data-cy={`payroll-details-benefit-amount-view-text-${index}`}
                 >
-                  {parseFloat(
-                    activeMergedPayroll?.breakdown?.variablePay?.amount || '0',
-                  ).toFixed(2)}{' '}
+                  {formatAmount(item.amount)}
                 </Text>
-              )}
+              ))}
             </div>
           </div>
           <Divider data-cy="payroll-details-benefits-divider" />
         </div>
 
-        {/* Total Deduction */}
+        {/* Incentive: Variable Pay + Project Incentive / Incentives */}
+        <div
+          id="payroll-details-incentive-section-view-container"
+          data-cy="payroll-details-incentive-section-view-container"
+        >
+          <div
+            className="my-6 text-xl text-gray-600"
+            id="payroll-details-incentive-title-view-text"
+            data-cy="payroll-details-incentive-title-view-text"
+          >
+            Incentive {sections.entitledIncentiveTotal.toFixed(2)}
+          </div>
+          <div
+            className="flex gap-6 w-full"
+            id="payroll-details-incentive-grid-view-container"
+            data-cy="payroll-details-incentive-grid-view-container"
+          >
+            <div
+              className="flex flex-col gap-6 w-1/3 justify-center items-start pl-4"
+              id="payroll-details-incentive-types-view-column"
+              data-cy="payroll-details-incentive-types-view-column"
+            >
+              {sections.incentiveItems.map((item, index) => (
+                <Text
+                  className="text-gray-600"
+                  key={`payroll-details-incentive-type-${index}`}
+                  id={`payroll-details-incentive-type-view-text-${index}`}
+                  data-cy={`payroll-details-incentive-type-view-text-${index}`}
+                >
+                  {item.type}
+                </Text>
+              ))}
+            </div>
+            <div
+              className="flex flex-col gap-6 text-right justify-end items-start"
+              id="payroll-details-incentive-amounts-view-column"
+              data-cy="payroll-details-incentive-amounts-view-column"
+            >
+              {sections.incentiveItems.map((item, index) => (
+                <Text
+                  className="font-bold"
+                  key={`payroll-details-incentive-amount-${index}`}
+                  id={`payroll-details-incentive-amount-view-text-${index}`}
+                  data-cy={`payroll-details-incentive-amount-view-text-${index}`}
+                >
+                  {formatAmount(item.amount)}
+                </Text>
+              ))}
+            </div>
+          </div>
+          <Divider data-cy="payroll-details-incentive-divider" />
+        </div>
+
+        {/* Entitled Deduction */}
         <div
           id="payroll-details-deductions-section-view-container"
           data-cy="payroll-details-deductions-section-view-container"
@@ -202,10 +229,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
             data-cy="payroll-details-deductions-title-view-text"
           >
             Entitled Deduction{' '}
-            {totalAmount([
-              ...(activeMergedPayroll?.breakdown?.totalDeductionWithPension ||
-                []),
-            ])}
+            {totalAmount(sections.deductions as Allowances[])}
           </div>
           <div
             className="flex gap-6 w-full"
@@ -217,54 +241,48 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
               id="payroll-details-deductions-types-view-column"
               data-cy="payroll-details-deductions-types-view-column"
             >
-              {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
-                (item: any, index: any) => (
-                  <Text
-                    className="text-gray-600"
-                    key={`payroll-details-deduction-type-${index}`}
-                    id={`payroll-details-deduction-type-view-text-${index}`}
-                    data-cy={`payroll-details-deduction-type-view-text-${index}`}
-                  >
-                    {item.type}
-                  </Text>
-                ),
-              )}
+              {sections.deductions.map((item, index) => (
+                <Text
+                  className="text-gray-600"
+                  key={`payroll-details-deduction-type-${index}`}
+                  id={`payroll-details-deduction-type-view-text-${index}`}
+                  data-cy={`payroll-details-deduction-type-view-text-${index}`}
+                >
+                  {item.type}
+                </Text>
+              ))}
             </div>
             <div
               className="flex flex-col gap-6 text-right justify-end items-start"
               id="payroll-details-deductions-amounts-view-column"
               data-cy="payroll-details-deductions-amounts-view-column"
             >
-              {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
-                (item: any, index: any) => (
-                  <Text
-                    className="font-bold"
-                    key={`payroll-details-deduction-amount-${index}`}
-                    id={`payroll-details-deduction-amount-view-text-${index}`}
-                    data-cy={`payroll-details-deduction-amount-view-text-${index}`}
-                  >
-                    {parseFloat(item.amount).toFixed(2)}
-                  </Text>
-                ),
-              )}
+              {sections.deductions.map((item, index) => (
+                <Text
+                  className="font-bold"
+                  key={`payroll-details-deduction-amount-${index}`}
+                  id={`payroll-details-deduction-amount-view-text-${index}`}
+                  data-cy={`payroll-details-deduction-amount-view-text-${index}`}
+                >
+                  {formatAmount(item.amount)}
+                </Text>
+              ))}
             </div>
             <div
               className="flex flex-col gap-6 text-right justify-end items-start"
               id="payroll-details-deductions-reason-view-column"
               data-cy="payroll-details-deductions-reason-view-column"
             >
-              {activeMergedPayroll?.breakdown?.totalDeductionWithPension?.map(
-                (item: any, index: any) => (
-                  <Text
-                    className="font-bold"
-                    key={`payroll-details-deduction-reason-${index}`}
-                    id={`payroll-details-deduction-reason-view-text-${index}`}
-                    data-cy={`payroll-details-deduction-reason-view-text-${index}`}
-                  >
-                    {item.reason || '-'}
-                  </Text>
-                ),
-              )}
+              {sections.deductions.map((item, index) => (
+                <Text
+                  className="font-bold"
+                  key={`payroll-details-deduction-reason-${index}`}
+                  id={`payroll-details-deduction-reason-view-text-${index}`}
+                  data-cy={`payroll-details-deduction-reason-view-text-${index}`}
+                >
+                  {item.reason || '-'}
+                </Text>
+              ))}
             </div>
           </div>
           <Divider data-cy="payroll-details-deductions-divider" />
@@ -315,6 +333,60 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
             </Text>
           </div>
         </div>
+
+        {showBankInformation && (
+          <>
+            <Divider data-cy="payroll-details-bank-divider" />
+            <div
+              id="payroll-details-bank-section-view-container"
+              data-cy="payroll-details-bank-section-view-container"
+            >
+              <div
+                className="my-6 text-xl text-gray-600"
+                id="payroll-details-bank-title-view-text"
+                data-cy="payroll-details-bank-title-view-text"
+              >
+                Employee Bank Information
+              </div>
+              <div
+                className="flex gap-6 w-full"
+                id="payroll-details-bank-grid-view-container"
+                data-cy="payroll-details-bank-grid-view-container"
+              >
+                <div
+                  className="flex flex-col gap-4 w-1/3 pl-4 text-gray-600"
+                  id="payroll-details-bank-labels-view-column"
+                  data-cy="payroll-details-bank-labels-view-column"
+                >
+                  <Text data-cy="payroll-details-bank-label-method">
+                    Payment Method
+                  </Text>
+                  <Text data-cy="payroll-details-bank-label-name">
+                    Bank Name
+                  </Text>
+                  <Text data-cy="payroll-details-bank-label-account">
+                    Account Number
+                  </Text>
+                </div>
+                <div
+                  className="flex flex-col gap-4 font-bold"
+                  id="payroll-details-bank-values-view-column"
+                  data-cy="payroll-details-bank-values-view-column"
+                >
+                  <Text data-cy="payroll-details-bank-value-method">
+                    Bank Transfer
+                  </Text>
+                  <Text data-cy="payroll-details-bank-value-name">
+                    {bankName || '--'}
+                  </Text>
+                  <Text data-cy="payroll-details-bank-value-account">
+                    {accountNumber || '--'}
+                  </Text>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </Space>
   );

@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
-import { OKR_AND_PLANNING_URL, ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL, OKR_AND_PLANNING_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getTargetAssignment = async () => {
@@ -25,7 +25,7 @@ const getActiveSession = async () => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/session/active/session`,
+    url: `${CORE_API_URL}/session/active/session`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -56,7 +56,7 @@ const getSession = async () => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/session`,
+    url: `${CORE_API_URL}/session`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

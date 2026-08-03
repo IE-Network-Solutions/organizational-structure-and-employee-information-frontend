@@ -3,26 +3,37 @@ import {
   Modal,
   Form,
   Switch,
-  DatePicker,
   Select,
   Button,
   ConfigProvider,
+  Alert,
 } from 'antd';
 import { IoCloseOutline } from 'react-icons/io5';
 import dayjs from 'dayjs';
 
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
+import {
+  PayrollView,
+  payrollViewToIncludeFlags,
+} from '@/store/uistate/features/payroll/payroll/view';
 
 interface Props {
   onClose: () => void;
-  onGenerate: (data: Incentive) => void;
+  onGenerate: (data: GeneratePayrollFormValues) => void;
   loading?: boolean;
   /** When true, modal copy reflects regenerating existing payroll (vs first-time generate). */
   isRegenerate?: boolean;
+  /** Active list view — used to prefill include switches. */
+  payrollView?: PayrollView;
+  /** Preferred pay period when opening the modal. */
+  defaultPayPeriodId?: string;
 }
 
-export interface Incentive {
+export interface GeneratePayrollFormValues {
+  includePayroll: boolean;
+  includeVariablePay: boolean;
   includeIncentive: boolean;
+  payPeriodId: string;
 }
 
 const GeneratePayrollModal: React.FC<Props> = ({
@@ -30,30 +41,63 @@ const GeneratePayrollModal: React.FC<Props> = ({
   onGenerate,
   loading = false,
   isRegenerate = false,
+  payrollView = 'payroll',
+  defaultPayPeriodId,
 }) => {
   const [form] = Form.useForm();
+  const includePayroll = Form.useWatch('includePayroll', form);
+  const includeVariablePay = Form.useWatch('includeVariablePay', form);
+  const includeIncentive = Form.useWatch('includeIncentive', form);
 
   const { data: payPeriodData } = useGetPayPeriod();
 
+  const hasAtLeastOneInclude =
+    Boolean(includePayroll) ||
+    Boolean(includeVariablePay) ||
+    Boolean(includeIncentive);
+
+  const isTaxOnly =
+    !includePayroll && (includeVariablePay || includeIncentive);
+
   React.useEffect(() => {
-    if (payPeriodData && payPeriodData.length > 0) {
-      // Find the currently active (OPEN) pay period
-      const activePeriod =
-        payPeriodData.find((p: any) => p.status === 'OPEN') || payPeriodData[0];
-      if (activePeriod && !form.getFieldValue('payPeriod')) {
-        form.setFieldsValue({ payPeriod: activePeriod.id });
-      }
-    }
-  }, [payPeriodData, form]);
+    const flags = payrollViewToIncludeFlags(payrollView);
+    const activePeriod =
+      payPeriodData?.find((p: any) => p.id === defaultPayPeriodId) ||
+      payPeriodData?.find((p: any) => p.status === 'OPEN') ||
+      payPeriodData?.[0];
+
+    form.setFieldsValue({
+      ...flags,
+      payPeriod: defaultPayPeriodId || activePeriod?.id,
+    });
+  }, [payPeriodData, form, payrollView, defaultPayPeriodId]);
 
   const handleGenerate = () => {
     form
       .validateFields()
       .then((values) => {
-        onGenerate({ includeIncentive: values.includeIncentive });
+        if (
+          !values.includePayroll &&
+          !values.includeVariablePay &&
+          !values.includeIncentive
+        ) {
+          form.setFields([
+            {
+              name: 'includePayroll',
+              errors: ['Select at least one option to include'],
+            },
+          ]);
+          return;
+        }
+        onGenerate({
+          includePayroll: Boolean(values.includePayroll),
+          includeVariablePay: Boolean(values.includeVariablePay),
+          includeIncentive: Boolean(values.includeIncentive),
+          payPeriodId: values.payPeriod,
+        });
       })
       .catch(() => {
-        // validation errors are displayed by antd Form; no console output needed
+        // validation errors are displayed by antd Form
       });
   };
 
@@ -140,6 +184,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
             htmlType="button"
             size="large"
             loading={loading}
+            disabled={!hasAtLeastOneInclude}
             onClick={handleGenerate}
             className="px-6 !font-normal shadow-none"
           >
@@ -155,9 +200,55 @@ const GeneratePayrollModal: React.FC<Props> = ({
             form={form}
             layout="vertical"
             requiredMark={customizeRequiredMark}
-            initialValues={{ includeIncentive: true }}
+            initialValues={{
+              ...payrollViewToIncludeFlags(payrollView),
+              payPeriod: defaultPayPeriodId,
+            }}
             data-cy="payroll-generate-modal-form"
           >
+            <p
+              className="text-sm font-medium text-gray-700 mb-3"
+              data-cy="payroll-generate-modal-include-section-label"
+            >
+              Include in this run
+            </p>
+
+            <div data-cy="payroll-generate-modal-payroll-toggle-view-container">
+              <Form.Item
+                label={
+                  <span
+                    data-cy="payroll-generate-modal-payroll-label-view-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Include Payroll
+                  </span>
+                }
+                name="includePayroll"
+                valuePropName="checked"
+                className="mb-4"
+              >
+                <Switch data-cy="payroll-generate-modal-payroll-toggle-switch" />
+              </Form.Item>
+            </div>
+
+            <div data-cy="payroll-generate-modal-vp-toggle-view-container">
+              <Form.Item
+                label={
+                  <span
+                    data-cy="payroll-generate-modal-vp-label-view-text"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Include Variable Pay
+                  </span>
+                }
+                name="includeVariablePay"
+                valuePropName="checked"
+                className="mb-4"
+              >
+                <Switch data-cy="payroll-generate-modal-vp-toggle-switch" />
+              </Form.Item>
+            </div>
+
             <div data-cy="payroll-generate-modal-incentive-toggle-view-container">
               <Form.Item
                 label={
@@ -171,34 +262,20 @@ const GeneratePayrollModal: React.FC<Props> = ({
                 name="includeIncentive"
                 valuePropName="checked"
                 className="mb-5"
-                required
               >
                 <Switch data-cy="payroll-generate-modal-incentive-toggle-switch" />
               </Form.Item>
             </div>
 
-            <div data-cy="payroll-generate-modal-daterange-view-container">
-              <Form.Item
-                label={
-                  <span
-                    data-cy="payroll-generate-modal-daterange-label-view-text"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Date
-                  </span>
-                }
-                name="date"
+            {isTaxOnly ? (
+              <Alert
+                type="info"
+                showIcon
                 className="mb-5"
-                rules={[{ required: true, message: 'Please select a date' }]}
-              >
-                <DatePicker
-                  data-cy="payroll-generate-modal-daterange-view-input"
-                  style={{ width: '100%' }}
-                  placeholder="Select date"
-                  size="large"
-                />
-              </Form.Item>
-            </div>
+                data-cy="payroll-generate-modal-tax-only-alert"
+                message="VP-only or Incentive-only runs calculate tax only."
+              />
+            ) : null}
 
             <div data-cy="payroll-generate-modal-payperiod-view-container">
               <Form.Item

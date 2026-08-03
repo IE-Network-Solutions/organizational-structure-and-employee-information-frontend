@@ -25,6 +25,8 @@ export type PlanningPeriodItem = {
   tenantId: string;
   planningPeriodId: string;
   planningPeriod: PlanningPeriod;
+  /** When true, reports for this period update KR progress. At most one per user. */
+  canProgress?: boolean;
 };
 
 export type PlanningUser = {

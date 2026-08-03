@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL, OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
@@ -59,7 +59,7 @@ const getActiveMonth = async () => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/month/active/month`,
+    url: `${CORE_API_URL}/month/active/month`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,

@@ -47,14 +47,13 @@ const deletePlanningPeriod = async (id: string) => {
     },
   });
 };
-const assignPlanningPeriodToUsers = async (values: string[]) => {
+const assignPlanningPeriodToUsers = async (values: PlanningUserPayload) => {
   const token = await getCurrentToken();
 
   return crudRequest({
     url: `${OKR_URL}/planning-periods/assignUser-multiple-planning-periods`,
     method: 'post',
     data: values,
-    // data: { values, userId },
     headers: {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
@@ -134,7 +133,7 @@ export const useDeletePlanningPeriod = () => {
 export const useAssignPlanningPeriodToUsers = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (planningPeriodId: any) => assignPlanningPeriodToUsers(planningPeriodId),
+    (values: PlanningUserPayload) => assignPlanningPeriodToUsers(values),
     {
       onSuccess: () => {
         // Invalidate all queries that start with 'allPlanningPeriodUser' to catch all parameter variations

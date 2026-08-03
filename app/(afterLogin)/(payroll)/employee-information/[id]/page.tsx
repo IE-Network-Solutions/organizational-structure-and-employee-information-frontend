@@ -44,6 +44,7 @@ import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import CustomPagination from '@/components/customPagination';
 import EmptyState from '@/components/empty';
+import { getPayslipEarningsSections } from '@/utils/payslipBreakdown';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -289,26 +290,10 @@ const EmployeeProfile = () => {
       );
 
     const breakdown = activeMergedPayroll?.breakdown;
-
-    // Project Incentive lives in merits; do not also add breakdown.incentives
-    const entitledBenefitTotal =
-      (breakdown?.merits?.reduce(
-        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
-        0,
-      ) || 0) +
-      (breakdown?.variablePay
-        ? parseFloat(breakdown.variablePay.amount || '0')
-        : 0);
-
-    const entitledDeductionTotal =
-      (breakdown?.pension?.reduce(
-        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
-        0,
-      ) || 0) +
-      (breakdown?.totalDeductionWithPension?.reduce(
-        (acc: number, item: any) => acc + parseFloat(item.amount || '0'),
-        0,
-      ) || 0);
+    const payslipSections = getPayslipEarningsSections(breakdown);
+    const entitledBenefitTotal = payslipSections.entitledBenefitTotal;
+    const entitledIncentiveTotal = payslipSections.entitledIncentiveTotal;
+    const entitledDeductionTotal = payslipSections.entitledDeductionTotal;
 
     return (
       <Row gutter={[24, 24]}>
@@ -432,9 +417,9 @@ const EmployeeProfile = () => {
                 activeMergedPayroll?.totalAllowance || '0',
               ).toFixed(2)}
               large
-              tags={breakdown?.allowances?.map((a: any) => ({
+              tags={payslipSections.allowances.map((a) => ({
                 label: a.type,
-                value: parseFloat(a.amount || '0').toFixed(2),
+                value: parseFloat(String(a.amount || '0')).toFixed(2),
               }))}
             />
             <Divider style={{ margin: '8px 0', borderColor: '#f0f0f0' }} />
@@ -442,38 +427,30 @@ const EmployeeProfile = () => {
               label="Entitled Benefit"
               value={entitledBenefitTotal.toFixed(2)}
               large
-              tags={[
-                ...(breakdown?.merits?.map((m: any) => ({
-                  label: m.type,
-                  value: parseFloat(m.amount || '0').toFixed(2),
-                })) || []),
-                ...(breakdown?.variablePay
-                  ? [
-                      {
-                        label: breakdown.variablePay.type,
-                        value: parseFloat(
-                          breakdown.variablePay.amount || '0',
-                        ).toFixed(2),
-                      },
-                    ]
-                  : []),
-              ]}
+              tags={payslipSections.entitledBenefitItems.map((m) => ({
+                label: m.type,
+                value: parseFloat(String(m.amount || '0')).toFixed(2),
+              }))}
+            />
+            <Divider style={{ margin: '8px 0', borderColor: '#f0f0f0' }} />
+            <InfoItem
+              label="Incentive"
+              value={entitledIncentiveTotal.toFixed(2)}
+              large
+              tags={payslipSections.incentiveItems.map((item) => ({
+                label: item.type,
+                value: parseFloat(String(item.amount || '0')).toFixed(2),
+              }))}
             />
             <Divider style={{ margin: '8px 0', borderColor: '#f0f0f0' }} />
             <InfoItem
               label="Entitled Deduction"
               value={entitledDeductionTotal.toFixed(2)}
               large
-              tags={[
-                // ...(breakdown?.pension?.map((p: any) => ({
-                //   label: p.type,
-                //   value: parseFloat(p.amount || '0').toFixed(2),
-                // })) || []),
-                ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({
-                  label: d.type,
-                  value: parseFloat(d.amount || '0').toFixed(2),
-                })) || []),
-              ]}
+              tags={payslipSections.deductions.map((d) => ({
+                label: d.type,
+                value: parseFloat(String(d.amount || '0')).toFixed(2),
+              }))}
             />
           </Card>
         </Col>
@@ -511,28 +488,12 @@ const EmployeeProfile = () => {
                 (p: any) => p.id === historyItem.payPeriodId,
               );
               const breakdown = historyItem.breakdown;
-
-              const entitledBenefitTotal =
-                (breakdown?.merits?.reduce(
-                  (acc: number, item: any) =>
-                    acc + parseFloat(item.amount || '0'),
-                  0,
-                ) || 0) +
-                (breakdown?.variablePay
-                  ? parseFloat(breakdown.variablePay.amount || '0')
-                  : 0);
-
+              const payslipSections = getPayslipEarningsSections(breakdown);
+              const entitledBenefitTotal = payslipSections.entitledBenefitTotal;
+              const entitledIncentiveTotal =
+                payslipSections.entitledIncentiveTotal;
               const entitledDeductionTotal =
-                (breakdown?.pension?.reduce(
-                  (acc: number, item: any) =>
-                    acc + parseFloat(item.amount || '0'),
-                  0,
-                ) || 0) +
-                (breakdown?.totalDeductionWithPension?.reduce(
-                  (acc: number, item: any) =>
-                    acc + parseFloat(item.amount || '0'),
-                  0,
-                ) || 0);
+                payslipSections.entitledDeductionTotal;
 
               return (
                 <Col
@@ -602,9 +563,9 @@ const EmployeeProfile = () => {
                         historyItem.totalAllowance || '0',
                       ).toFixed(2)}
                       large
-                      tags={breakdown?.allowances?.map((a: any) => ({
+                      tags={payslipSections.allowances.map((a) => ({
                         label: a.type,
-                        value: parseFloat(a.amount || '0').toFixed(2),
+                        value: parseFloat(String(a.amount || '0')).toFixed(2),
                       }))}
                     />
                     <div
@@ -615,22 +576,25 @@ const EmployeeProfile = () => {
                       label="Entitled Benefit"
                       value={entitledBenefitTotal.toFixed(2)}
                       large
-                      tags={[
-                        ...(breakdown?.merits?.map((m: any) => ({
-                          label: m.type,
-                          value: parseFloat(m.amount || '0').toFixed(2),
-                        })) || []),
-                        ...(breakdown?.variablePay
-                          ? [
-                              {
-                                label: breakdown.variablePay.type,
-                                value: parseFloat(
-                                  breakdown.variablePay.amount || '0',
-                                ).toFixed(2),
-                              },
-                            ]
-                          : []),
-                      ]}
+                      tags={payslipSections.entitledBenefitItems.map((m) => ({
+                        label: m.type,
+                        value: parseFloat(String(m.amount || '0')).toFixed(2),
+                      }))}
+                    />
+                    <div
+                      className="my-3 border-t border-gray-300"
+                      data-cy="payroll-history-card-divider"
+                    />
+                    <InfoItem
+                      label="Incentive"
+                      value={entitledIncentiveTotal.toFixed(2)}
+                      large
+                      tags={payslipSections.incentiveItems.map((item) => ({
+                        label: item.type,
+                        value: parseFloat(String(item.amount || '0')).toFixed(
+                          2,
+                        ),
+                      }))}
                     />
                     <div
                       className="my-3 border-t border-gray-300"
@@ -640,18 +604,10 @@ const EmployeeProfile = () => {
                       label="Entitled Deduction"
                       value={entitledDeductionTotal.toFixed(2)}
                       large
-                      tags={[
-                        ...(breakdown?.pension?.map((p: any) => ({
-                          label: p.type,
-                          value: parseFloat(p.amount || '0').toFixed(2),
-                        })) || []),
-                        ...(breakdown?.totalDeductionWithPension?.map(
-                          (d: any) => ({
-                            label: d.type,
-                            value: parseFloat(d.amount || '0').toFixed(2),
-                          }),
-                        ) || []),
-                      ]}
+                      tags={payslipSections.deductions.map((d) => ({
+                        label: d.type,
+                        value: parseFloat(String(d.amount || '0')).toFixed(2),
+                      }))}
                     />
                     <div
                       className="my-3 border-t border-gray-300"
@@ -1664,6 +1620,14 @@ const EmployeeProfile = () => {
           </div>
           <PayrollDetails
             activeMergedPayroll={activeMergedPayroll || undefined}
+            bankName={
+              activeMergedPayroll?.employeeInfo?.employeeInformation
+                ?.bankInformation?.bankName
+            }
+            accountNumber={
+              activeMergedPayroll?.employeeInfo?.employeeInformation
+                ?.bankInformation?.accountNumber
+            }
           />
         </div>
       </div>
