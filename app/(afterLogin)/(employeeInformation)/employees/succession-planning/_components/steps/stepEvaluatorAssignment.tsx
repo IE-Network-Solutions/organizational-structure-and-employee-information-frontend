@@ -11,6 +11,10 @@ import {
   SuccessorCandidate,
 } from './stepEmployeeSelection';
 import { MOCK_POSITIONS } from './stepRoleSelection';
+import {
+  EVALUATOR_AVATAR_COLOR,
+  PersonIdentity,
+} from '../personRoleChrome';
 
 const { Option } = Select;
 
@@ -197,20 +201,12 @@ const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
         className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] border-b border-[#E5E7EB]"
         data-cy={`step-evaluator-employee-header-${employee.id}`}
       >
-        <Avatar
-          size={32}
-          icon={<UserOutlined />}
-          style={{ backgroundColor: '#1E40AF' }}
-          className="shrink-0"
+        <PersonIdentity
+          role="Successor"
+          name={employee.name}
+          caption={`${employee.jobTitle} · ${employee.department}`}
+          avatarSize={32}
         />
-        <div className="min-w-0 flex-1">
-          <div className="text-sm font-semibold text-gray-800 truncate">
-            {employee.name}
-          </div>
-          <div className="text-xs text-gray-500 truncate">
-            {employee.jobTitle} · {employee.department}
-          </div>
-        </div>
       </div>
 
       <div className="flex flex-col divide-y divide-[#F0F0F0]">
@@ -312,7 +308,7 @@ const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
           <Avatar
             size={20}
             icon={<UserOutlined />}
-            style={{ backgroundColor: '#1E40AF' }}
+            style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
             className="shrink-0"
           />
           <span className="text-sm text-gray-800 truncate">{selected.name}</span>
@@ -370,7 +366,7 @@ const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
               <Avatar
                 size={20}
                 icon={<UserOutlined />}
-                style={{ backgroundColor: '#1E40AF' }}
+                style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
                 className="shrink-0"
               />
               <div className="flex flex-col min-w-0">

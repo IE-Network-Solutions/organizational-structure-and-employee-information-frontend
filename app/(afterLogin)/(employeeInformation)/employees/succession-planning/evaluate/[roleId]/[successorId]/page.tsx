@@ -1,7 +1,6 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Avatar,
   Breadcrumb,
   Button,
   Empty,
@@ -13,7 +12,6 @@ import {
 } from 'antd';
 import Link from 'next/link';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { UserOutlined } from '@ant-design/icons';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
@@ -25,6 +23,10 @@ import {
   toWeightedScore,
 } from '../../../_components/steps/stepEvaluatorAssignment';
 import { MOCK_EMPLOYEES } from '../../../_components/steps/stepEmployeeSelection';
+import {
+  PersonRoleAvatar,
+  PersonRoleLabel,
+} from '../../../_components/personRoleChrome';
 
 const { TextArea } = Input;
 
@@ -238,7 +240,7 @@ const SuccessionEvaluationPage: React.FC = () => {
                 title: (
                   <Link
                     className="text-gray-600"
-                    href="/employees/succession-planning"
+                    href="/employees/succession-planning?view=evaluators"
                   >
                     Succession Planning
                   </Link>
@@ -246,7 +248,9 @@ const SuccessionEvaluationPage: React.FC = () => {
               },
               {
                 title: (
-                  <span className="text-[#4d4d4d]">Evaluation</span>
+                  <span className="text-[#4d4d4d]">
+                    {successor.name} · {role.roleName}
+                  </span>
                 ),
               },
             ]}
@@ -258,56 +262,45 @@ const SuccessionEvaluationPage: React.FC = () => {
         className="mt-4 rounded-lg border border-[#D9D9D9] bg-white p-4 sm:p-5"
         data-cy="evaluation-context-card"
       >
-        <div className="flex flex-wrap gap-6">
-          <div className="flex items-center gap-3 min-w-0">
-            <Avatar
-              size={40}
-              icon={<UserOutlined />}
-              style={{ backgroundColor: '#1E40AF' }}
-              className="shrink-0"
-            />
-            <div className="min-w-0">
-              <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold">
-                Successor
-              </div>
-              <div className="text-sm font-semibold text-gray-800 truncate">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-start gap-4 min-w-0">
+            <PersonRoleAvatar role="Successor" size={48} />
+            <div className="min-w-0 flex-1">
+              <PersonRoleLabel role="Successor" />
+              <div className="text-lg font-semibold text-gray-900 truncate">
                 {successor.name}
               </div>
-              <div className="text-xs text-gray-500 truncate">
+              <div className="text-sm text-gray-500 truncate">
                 {successor.jobTitle} · {successor.department}
               </div>
+              <div className="mt-2 text-sm text-gray-600">
+                For critical role{' '}
+                <span className="font-semibold text-gray-800">
+                  {role.roleName}
+                </span>
+                <span className="text-gray-400"> · {role.department}</span>
+              </div>
             </div>
           </div>
 
-          <div className="min-w-0">
-            <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold">
-              Critical Role
-            </div>
-            <div className="text-sm font-semibold text-gray-800">
-              {role.roleName}
-            </div>
-            <div className="text-xs text-gray-500">{role.department}</div>
-          </div>
-
-          <div className="flex items-center gap-3 min-w-0">
-            <Avatar
-              size={40}
-              icon={<UserOutlined />}
-              style={{ backgroundColor: '#64748B' }}
-              className="shrink-0"
-            />
+          <div
+            className="flex items-center gap-3 rounded-md border border-[#E5E7EB] bg-[#F8FAFC] px-3 py-2"
+            data-cy="evaluation-scoring-as"
+          >
+            <PersonRoleAvatar role="Evaluator" size={28} />
             <div className="min-w-0">
-              <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold">
-                Evaluator
+              <div className="text-xs text-gray-400 font-semibold uppercase tracking-wide">
+                Scoring as
               </div>
-              <div className="text-sm font-semibold text-gray-800 truncate">
+              <div className="text-sm font-medium text-gray-800 truncate">
                 {evaluator?.name ?? 'Evaluator'}
+                {evaluator?.jobTitle ? (
+                  <span className="text-gray-500 font-normal">
+                    {' '}
+                    · {evaluator.jobTitle}
+                  </span>
+                ) : null}
               </div>
-              {evaluator?.jobTitle ? (
-                <div className="text-xs text-gray-500 truncate">
-                  {evaluator.jobTitle}
-                </div>
-              ) : null}
             </div>
           </div>
         </div>

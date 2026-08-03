@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Input,
@@ -26,6 +26,7 @@ import StatsCard from '../manage-employees/_components/statsCard';
 import CriticalRolesTable from './_components/criticalRolesTable';
 import EvaluatorsView, {
   buildEvaluatorAssignments,
+  EvaluatorScope,
 } from './_components/evaluatorsView';
 import CriticalRoleModal, {
   CriticalRole,
@@ -43,6 +44,9 @@ const SuccessionPlanningPage: React.FC = () => {
   const { isMobile } = useIsMobile();
   const initialView =
     searchParams.get('view') === 'evaluators' ? 'evaluators' : 'roles';
+  const initialScope: EvaluatorScope =
+    searchParams.get('scope') === 'mine' ? 'mine' : 'admin';
+  const initialAs = searchParams.get('as') ?? '';
 
   const roles = useSuccessionPlanningStore((s) => s.roles);
   const addRole = useSuccessionPlanningStore((s) => s.addRole);
@@ -50,6 +54,9 @@ const SuccessionPlanningPage: React.FC = () => {
   const deleteRole = useSuccessionPlanningStore((s) => s.deleteRole);
 
   const [activeView, setActiveView] = useState<SuccessionView>(initialView);
+  const [evaluatorScope, setEvaluatorScope] =
+    useState<EvaluatorScope>(initialScope);
+  const [viewAsEvaluatorId, setViewAsEvaluatorId] = useState(initialAs);
   const [searchValue, setSearchValue] = useState('');
   const [priorityFilter, setPriorityFilter] = useState<string>('');
   const [riskFilter, setRiskFilter] = useState<string>('');
@@ -71,22 +78,67 @@ const SuccessionPlanningPage: React.FC = () => {
     () => buildEvaluatorAssignments(roles),
     [roles],
   );
+
+  const evaluatorOptions = useMemo(() => {
+    const byId = new Map<string, string>();
+    evaluatorAssignments.forEach((a) => {
+      if (!byId.has(a.evaluatorId)) {
+        byId.set(a.evaluatorId, a.evaluatorName);
+      }
+    });
+    return Array.from(byId.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [evaluatorAssignments]);
+
+  useEffect(() => {
+    if (
+      evaluatorOptions.length > 0 &&
+      !evaluatorOptions.some((e) => e.id === viewAsEvaluatorId)
+    ) {
+      setViewAsEvaluatorId(evaluatorOptions[0].id);
+    }
+  }, [evaluatorOptions, viewAsEvaluatorId]);
+
+  const scopedAssignments = useMemo(() => {
+    if (evaluatorScope !== 'mine') return evaluatorAssignments;
+    if (!viewAsEvaluatorId) return [];
+    return evaluatorAssignments.filter(
+      (a) => a.evaluatorId === viewAsEvaluatorId,
+    );
+  }, [evaluatorAssignments, evaluatorScope, viewAsEvaluatorId]);
+
   const uniqueEvaluatorCount = useMemo(
-    () => new Set(evaluatorAssignments.map((a) => a.evaluatorId)).size,
-    [evaluatorAssignments],
+    () => new Set(scopedAssignments.map((a) => a.evaluatorId)).size,
+    [scopedAssignments],
   );
-  const pendingEvaluationCount = evaluatorAssignments.filter(
+  const pendingEvaluationCount = scopedAssignments.filter(
     (a) => a.status === 'Pending',
   ).length;
-  const completedEvaluationCount = evaluatorAssignments.filter(
+  const completedEvaluationCount = scopedAssignments.filter(
     (a) => a.status === 'Evaluated',
   ).length;
   const evaluationCompletionPercent =
-    evaluatorAssignments.length > 0
+    scopedAssignments.length > 0
       ? Math.round(
-          (completedEvaluationCount / evaluatorAssignments.length) * 100,
+          (completedEvaluationCount / scopedAssignments.length) * 100,
         )
       : 0;
+
+  const syncEvaluatorsUrl = (
+    scope: EvaluatorScope,
+    asId: string = viewAsEvaluatorId,
+  ) => {
+    const params = new URLSearchParams();
+    params.set('view', 'evaluators');
+    if (scope === 'mine') {
+      params.set('scope', 'mine');
+      if (asId) params.set('as', asId);
+    }
+    router.replace(`/employees/succession-planning?${params.toString()}`, {
+      scroll: false,
+    });
+  };
 
   const filtered = roles.filter((r) => {
     const matchesSearch =
@@ -278,12 +330,13 @@ const SuccessionPlanningPage: React.FC = () => {
                 onChange={(value) => {
                   const next = value as SuccessionView;
                   setActiveView(next);
-                  router.replace(
-                    next === 'evaluators'
-                      ? '/employees/succession-planning?view=evaluators'
-                      : '/employees/succession-planning',
-                    { scroll: false },
-                  );
+                  if (next === 'evaluators') {
+                    syncEvaluatorsUrl(evaluatorScope, viewAsEvaluatorId);
+                  } else {
+                    router.replace('/employees/succession-planning', {
+                      scroll: false,
+                    });
+                  }
                 }}
                 options={[
                   {
@@ -419,8 +472,16 @@ const SuccessionPlanningPage: React.FC = () => {
                       />
                     </span>
                   }
-                  title="Active Evaluators"
-                  value={uniqueEvaluatorCount}
+                  title={
+                    evaluatorScope === 'mine'
+                      ? 'My Assignments'
+                      : 'Active Evaluators'
+                  }
+                  value={
+                    evaluatorScope === 'mine'
+                      ? scopedAssignments.length
+                      : uniqueEvaluatorCount
+                  }
                   id="sp-stats-evaluators"
                   data-cy="sp-stats-evaluators"
                 />
@@ -438,8 +499,14 @@ const SuccessionPlanningPage: React.FC = () => {
                       />
                     </span>
                   }
-                  title="Total Assignments"
-                  value={evaluatorAssignments.length}
+                  title={
+                    evaluatorScope === 'mine' ? 'My Scored' : 'Total Assignments'
+                  }
+                  value={
+                    evaluatorScope === 'mine'
+                      ? completedEvaluationCount
+                      : scopedAssignments.length
+                  }
                   id="sp-stats-assignments"
                   data-cy="sp-stats-assignments"
                 />
@@ -457,7 +524,11 @@ const SuccessionPlanningPage: React.FC = () => {
                       />
                     </span>
                   }
-                  title="Pending Evaluations"
+                  title={
+                    evaluatorScope === 'mine'
+                      ? 'My Pending'
+                      : 'Pending Evaluations'
+                  }
                   value={pendingEvaluationCount}
                   id="sp-stats-pending-evals"
                   data-cy="sp-stats-pending-evals"
@@ -565,7 +636,22 @@ const SuccessionPlanningPage: React.FC = () => {
           </>
         ) : (
           <div className="pt-3" data-cy="succession-planning-evaluators-section">
-            <EvaluatorsView roles={roles} />
+            <EvaluatorsView
+              roles={roles}
+              scope={evaluatorScope}
+              onScopeChange={(scope) => {
+                setEvaluatorScope(scope);
+                syncEvaluatorsUrl(scope, viewAsEvaluatorId);
+              }}
+              viewAsEvaluatorId={viewAsEvaluatorId}
+              onViewAsChange={(id) => {
+                setViewAsEvaluatorId(id);
+                if (evaluatorScope === 'mine') {
+                  syncEvaluatorsUrl('mine', id);
+                }
+              }}
+              evaluatorOptions={evaluatorOptions}
+            />
           </div>
         )}
       </div>

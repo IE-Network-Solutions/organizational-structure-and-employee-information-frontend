@@ -4,6 +4,7 @@ import { Avatar, Empty, Form, Input, Select, Table } from 'antd';
 import type { TableColumnsType, TableRowSelection } from 'antd';
 import { SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { MOCK_POSITIONS } from './stepRoleSelection';
+import { SUCCESSOR_AVATAR_COLOR } from '../personRoleChrome';
 
 const { Option } = Select;
 
@@ -151,7 +152,7 @@ const StepEmployeeSelection: React.FC<StepEmployeeSelectionProps> = ({
 
   const columns: TableColumnsType<SuccessorCandidate> = [
     {
-      title: <span className={th}>Employee</span>,
+      title: <span className={th}>Successor</span>,
       key: 'employee',
       ellipsis: true,
       render: (_: unknown, record) => (
@@ -162,7 +163,7 @@ const StepEmployeeSelection: React.FC<StepEmployeeSelectionProps> = ({
           <Avatar
             size={24}
             icon={<UserOutlined />}
-            style={{ backgroundColor: '#1E40AF' }}
+            style={{ backgroundColor: SUCCESSOR_AVATAR_COLOR }}
             className="shrink-0"
           />
           <span className={td}>{record.name}</span>

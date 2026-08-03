@@ -26,6 +26,10 @@ import {
   scoreAchievementPercent,
   sumWeightedScores,
 } from '../_components/steps/stepEvaluatorAssignment';
+import {
+  EVALUATOR_AVATAR_COLOR,
+  PersonIdentity,
+} from '../_components/personRoleChrome';
 
 const riskTheme: Record<string, StatusBadgeTheme> = {
   High: StatusBadgeTheme.danger,
@@ -285,20 +289,12 @@ const CriticalRoleDetailPage: React.FC = () => {
                 data-cy={'cr-detail-successor-card-' + successor.id}
               >
                 <div className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] border-b border-[#E5E7EB]">
-                  <Avatar
-                    size={32}
-                    icon={<UserOutlined />}
-                    style={{ backgroundColor: '#1E40AF' }}
-                    className="shrink-0"
+                  <PersonIdentity
+                    role="Successor"
+                    name={successor.name}
+                    caption={`${successor.jobTitle} · ${successor.department}`}
+                    avatarSize={32}
                   />
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold text-gray-800 truncate">
-                      {successor.name}
-                    </div>
-                    <div className="text-xs text-gray-500 truncate">
-                      {successor.jobTitle} · {successor.department}
-                    </div>
-                  </div>
                 </div>
 
                 <SuccessorEvaluationsTable
@@ -386,7 +382,7 @@ const SuccessorEvaluationsTable: React.FC<SuccessorEvaluationsTableProps> = ({
             <Avatar
               size={20}
               icon={<UserOutlined />}
-              style={{ backgroundColor: '#1E40AF' }}
+              style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
             />
             <span className="text-sm text-gray-800">
               {record.evaluatorName || '—'}
@@ -575,7 +571,7 @@ const EvaluationFeedbackModal: React.FC<EvaluationFeedbackModalProps> = ({
               <Avatar
                 size={20}
                 icon={<UserOutlined />}
-                style={{ backgroundColor: '#1E40AF' }}
+                style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
               />
               <span className="text-sm text-gray-800">
                 {evaluation.evaluatorName || '—'}
