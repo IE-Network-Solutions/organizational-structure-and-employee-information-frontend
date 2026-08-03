@@ -11,6 +11,7 @@ import {
 } from '@/store/uistate/features/okrplanning/okr';
 import { useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { persistKeyResultMilestones } from '../../../_utils/milestoneSave';
+import { isKeyResultLockedForWeightEdit } from '../../../_utils/keyResultGuards';
 import { useGetKeyResultForEdit } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -21,6 +22,7 @@ interface EditKeyResultProps {
   onClose: () => void;
   keyResult: any;
   inline?: boolean;
+  objectiveKeyResults?: any[];
 }
 
 // Convert the component to TypeScript
@@ -181,6 +183,23 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
               message: `Title:${keyResultForValidation.title}: Target value must be greater than the initial value.`,
             });
             return; // Stop submission if the sum is not 100
+          }
+        }
+
+        const siblingKeyResults = props.objectiveKeyResults ?? [];
+        if (siblingKeyResults.length > 0) {
+          const weightSum = siblingKeyResults.reduce(
+            (sum: number, item: any) =>
+              String(item?.id) === String(keyResultForValidation?.id)
+                ? sum + Number(keyResultForValidation?.weight || 0)
+                : sum + Number(item?.weight || 0),
+            0,
+          );
+          if (weightSum !== 100) {
+            NotificationMessage.warning({
+              message: `The sum of key result weights must equal 100%. Current sum: ${weightSum}%`,
+            });
+            return;
           }
         }
 
@@ -379,7 +398,9 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
                   removeKeyResult={() => {}}
                   addKeyResultValue={() => {}}
                   embedInOkrSheet={isMobile}
-                  disableWeightEdit={true}
+                  disableWeightEdit={isKeyResultLockedForWeightEdit(
+                    normalizedKeyItem,
+                  )}
                   disableMetricTypeEdit={
                     Number(normalizedKeyItem?.progress ?? 0) !== 0
                   }

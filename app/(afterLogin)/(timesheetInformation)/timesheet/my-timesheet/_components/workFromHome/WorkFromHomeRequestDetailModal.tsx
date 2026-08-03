@@ -306,6 +306,7 @@ export default function WorkFromHomeRequestDetailModal() {
                           >
                             {displayId && userImage(displayId) ? (
                               <Image
+                                unoptimized
                                 src={userImage(displayId) ?? ''}
                                 alt={userData(displayId)}
                                 width={avatarPx}
@@ -363,6 +364,7 @@ export default function WorkFromHomeRequestDetailModal() {
                         rejectorStep.displayUserId ?? rejectorStep.userId ?? '',
                       ) ? (
                         <Image
+                          unoptimized
                           src={
                             userImage(
                               rejectorStep.displayUserId ??

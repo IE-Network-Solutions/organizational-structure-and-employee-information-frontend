@@ -7,8 +7,9 @@ import ReactPlayer from 'react-player';
 import FileButton from '@/components/common/fileButton';
 import { formatLinkToUploadFile } from '@/helpers/formatTo';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { Modal } from 'antd';
+import { Image, Modal } from 'antd';
 import { MdPlayArrow } from 'react-icons/md';
+import LessonNotes from '../../_components/lessonNotes';
 
 const TnaLessonVideoPlayer: FC<{ url: string }> = ({ url }) => {
   const [playing, setPlaying] = useState(false);
@@ -355,7 +356,7 @@ const LessonPage = () => {
                 id="tnaLessonPageAttachmentsListId"
                 data-cy="tna-lesson-page-attachments-list"
               >
-                {lessonMaterial.attachments.map((link) => (
+                {lessonMaterial.attachments?.map((link) => (
                   <FileButton
                     key={link}
                     fileName={formatLinkToUploadFile(link).name}
@@ -366,6 +367,71 @@ const LessonPage = () => {
                 ))}
               </div>
             </div>
+
+            {lessonMaterial.referenceMaterials?.length ? (
+              <div
+                id="tnaLessonPageReferenceMaterialsContainerId"
+                data-cy="tna-lesson-page-reference-materials-container"
+              >
+                <div
+                  className="mt-3 mb-2 text-lg font-bold text-gray-900"
+                  id="tnaLessonPageReferenceMaterialsTitleId"
+                  data-cy="tna-lesson-page-reference-materials-title"
+                >
+                  Reference Materials
+                </div>
+                <div
+                  className="flex flex-wrap gap-2.5"
+                  id="tnaLessonPageReferenceMaterialsListId"
+                  data-cy="tna-lesson-page-reference-materials-list"
+                >
+                  {lessonMaterial.referenceMaterials.map((link) => (
+                    <FileButton
+                      key={link}
+                      fileName={formatLinkToUploadFile(link).name}
+                      link={link}
+                      data-cy={`tna-lesson-page-reference-material-${link}`}
+                      createdAt={lessonMaterial?.createdAt}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {lessonMaterial.images?.length ? (
+              <div
+                id="tnaLessonPageImagesContainerId"
+                data-cy="tna-lesson-page-images-container"
+              >
+                <div
+                  className="mt-3 mb-2 text-lg font-bold text-gray-900"
+                  id="tnaLessonPageImagesTitleId"
+                  data-cy="tna-lesson-page-images-title"
+                >
+                  Supplementary Images
+                </div>
+                <Image.PreviewGroup>
+                  <div
+                    className="grid grid-cols-2 gap-2.5 sm:grid-cols-3"
+                    id="tnaLessonPageImagesListId"
+                    data-cy="tna-lesson-page-images-list"
+                  >
+                    {lessonMaterial.images.map((link) => (
+                      <Image
+                        key={link}
+                        src={link}
+                        alt={formatLinkToUploadFile(link).name}
+                        className="!h-[120px] w-full rounded-lg border border-[#D9D9D9] object-cover"
+                        wrapperClassName="w-full overflow-hidden rounded-lg"
+                        data-cy={`tna-lesson-page-image-${link}`}
+                      />
+                    ))}
+                  </div>
+                </Image.PreviewGroup>
+              </div>
+            ) : null}
+
+            <LessonNotes courseLessonMaterialId={lessonMaterial.id} />
           </div>
           {!isMobile && (
             <LessonMaterialsSidebar

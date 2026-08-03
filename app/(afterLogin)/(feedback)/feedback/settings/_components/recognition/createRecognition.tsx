@@ -27,8 +27,6 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedback/settings';
-import cancelIcon from '../../../../../../../public/image/Button.svg';
-import Image from 'next/image';
 import { GoPencil } from 'react-icons/go';
 import {
   DeleteOutlined,
@@ -78,6 +76,11 @@ const FORMULA_OPERAND_OPTIONS: FormulaToken[] = [
   { id: '6', name: ')', type: 'operand' },
   { id: '7', name: 'Clear', type: 'operand' },
 ];
+
+const SCORE_ADJUST_OPERATORS = ['+', '-', '*', '/'] as const;
+
+const criteriaFieldClass =
+  '!mb-0 w-[calc(50%-0.25rem)] shrink-0 text-xs text-gray-950 sm:w-[calc(33.333%-0.35rem)] lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink';
 
 const { Option } = Select;
 interface PropsData {
@@ -518,18 +521,23 @@ const RecognitionForm: React.FC<PropsData> = ({
   };
 
   const commonClass = 'text-xs text-gray-950';
-  const getLabel = (text: string) => (
+  const getLabel = (text: string, required = true) => (
     <span
       className="text-black text-sm "
       data-cy={`create-recognition-${text}-label`}
     >
-      {text}{' '}
-      <span
-        style={{ color: 'red' }}
-        data-cy="create-recognition-label-required"
-      >
-        *
-      </span>
+      {text}
+      {required ? (
+        <>
+          {' '}
+          <span
+            style={{ color: 'red' }}
+            data-cy="create-recognition-label-required"
+          >
+            *
+          </span>
+        </>
+      ) : null}
     </span>
   );
 
@@ -610,21 +618,52 @@ const RecognitionForm: React.FC<PropsData> = ({
     setBulkListError('');
   };
 
-  const mapRecognitionCriteria = () =>
-    selectedCriteria.map((criteria: any) => ({
-      criteriaId: criteria.criteriaId || criteria.id,
-      weight: criteria.weight,
-      operator:
-        criteria.operator && criteria.operator !== ''
-          ? criteria.operator
-          : Object.values(AggregateOperator)[0],
-      condition:
-        criteria.condition && criteria.condition !== ''
-          ? criteria.condition
-          : Object.values(ConditionOperator)[0],
-      value: criteria.value,
-      active: criteria.active !== undefined ? criteria.active : true,
-    }));
+  const appendScoreAdjustFields = (
+    target: Record<string, unknown>,
+    source: {
+      scoreAdjustOperator?: unknown;
+      scoreAdjustValue?: unknown;
+    },
+  ) => {
+    const op = source.scoreAdjustOperator;
+    if (op !== undefined && op !== null && op !== '') {
+      target.scoreAdjustOperator = op;
+    }
+    const val = source.scoreAdjustValue;
+    if (val !== undefined && val !== null && val !== '') {
+      target.scoreAdjustValue = parseFloat(String(val));
+    }
+  };
+
+  const mapRecognitionCriteria = () => {
+    const formCriteria = form.getFieldValue('recognitionCriteria') || [];
+    return selectedCriteria.map((criteria: any, index: number) => {
+      const formRow = formCriteria[index] || {};
+      const mapped: Record<string, unknown> = {
+        criteriaId: criteria.criteriaId || criteria.id,
+        weight: criteria.weight,
+        operator:
+          criteria.operator && criteria.operator !== ''
+            ? criteria.operator
+            : Object.values(AggregateOperator)[0],
+        condition:
+          criteria.condition && criteria.condition !== ''
+            ? criteria.condition
+            : Object.values(ConditionOperator)[0],
+        value:
+          formRow.value !== undefined && formRow.value !== ''
+            ? parseFloat(String(formRow.value))
+            : criteria.value,
+        active: criteria.active !== undefined ? criteria.active : true,
+      };
+      appendScoreAdjustFields(mapped, {
+        scoreAdjustOperator:
+          formRow.scoreAdjustOperator ?? criteria.scoreAdjustOperator,
+        scoreAdjustValue: formRow.scoreAdjustValue ?? criteria.scoreAdjustValue,
+      });
+      return mapped;
+    });
+  };
 
   const buildRecognitionTypeEntry = (
     name: string,
@@ -700,7 +739,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       return {
         recognitionTypeId,
         isComputed: false,
-        monetizedValue: Number(fixedVal),
+        monetizedValue: String(fixedVal),
       };
     }
 
@@ -761,31 +800,37 @@ const RecognitionForm: React.FC<PropsData> = ({
           const weightRaw = rcVals.weight ?? row.weight;
           const valueRaw = rcVals.value ?? row.value;
 
-          updateRecognitionCriteriaRow(
-            {
-              id: String(editingRecognitionCriteriaId),
-              criteriaId: row.criteriaId ?? row.criteria?.id,
-              weight:
-                weightRaw !== undefined && weightRaw !== ''
-                  ? parseFloat(String(weightRaw))
-                  : row.weight,
-              operator:
-                rcVals.operator !== undefined && rcVals.operator !== ''
-                  ? rcVals.operator
-                  : row.operator,
-              condition:
-                rcVals.condition !== undefined && rcVals.condition !== ''
-                  ? rcVals.condition
-                  : row.condition,
-              value:
-                valueRaw !== undefined && valueRaw !== ''
-                  ? parseFloat(String(valueRaw))
-                  : row.value,
-              active: row.active !== undefined ? row.active : true,
-              method: 'PATCH',
-            },
-            { onSuccess: () => handleWizardClose() },
-          );
+          const patchPayload: Record<string, unknown> = {
+            id: String(editingRecognitionCriteriaId),
+            criteriaId: row.criteriaId ?? row.criteria?.id,
+            weight:
+              weightRaw !== undefined && weightRaw !== ''
+                ? parseFloat(String(weightRaw))
+                : row.weight,
+            operator:
+              rcVals.operator !== undefined && rcVals.operator !== ''
+                ? rcVals.operator
+                : row.operator,
+            condition:
+              rcVals.condition !== undefined && rcVals.condition !== ''
+                ? rcVals.condition
+                : row.condition,
+            value:
+              valueRaw !== undefined && valueRaw !== ''
+                ? parseFloat(String(valueRaw))
+                : row.value,
+            active: row.active !== undefined ? row.active : true,
+            method: 'PATCH',
+          };
+          appendScoreAdjustFields(patchPayload, {
+            scoreAdjustOperator:
+              rcVals.scoreAdjustOperator ?? row.scoreAdjustOperator,
+            scoreAdjustValue: rcVals.scoreAdjustValue ?? row.scoreAdjustValue,
+          });
+
+          updateRecognitionCriteriaRow(patchPayload, {
+            onSuccess: () => handleWizardClose(),
+          });
         });
       return;
     }
@@ -881,6 +926,7 @@ const RecognitionForm: React.FC<PropsData> = ({
         recognitionTypeById.recognitionCriteria?.map((item: any) =>
           String(item.criteriaId),
         ) || [],
+      recognitionCriteria: updatedData,
       isMonetized: recognitionTypeById.isMonetized ?? false,
       requiresCertification: recognitionTypeById.requiresCertification ?? false,
       frequency: recognitionTypeById.frequency || '',
@@ -1134,7 +1180,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       expression:
         amountType === 'Fixed' ? null : JSON.stringify(cleanedExpression),
       isComputed: amountType !== 'Fixed',
-      monetizedValue: amountType === 'Fixed' ? fixedVal : 0,
+      monetizedValue: amountType === 'Fixed' ? String(fixedVal) : '0',
     };
 
     const canUpdate =
@@ -1872,7 +1918,7 @@ const RecognitionForm: React.FC<PropsData> = ({
             data-cy="create-recognition-step-1"
           >
             <div
-              className="max-h-[180px] overflow-y-auto scrollbar-none pr-1"
+              className="max-h-[280px] overflow-y-auto scrollbar-none pr-1 sm:max-h-[220px] lg:max-h-[180px]"
               data-cy="create-recognition-criteria-items-scroll"
             >
               {isCriteriaOnlyEdit && criteriaRowsForStep.length === 0 && (
@@ -1898,11 +1944,11 @@ const RecognitionForm: React.FC<PropsData> = ({
                     id={`createRecognitionFormCriteriaItem${index}`}
                   >
                     <div
-                      className="w-full max-w-full overflow-x-auto scrollbar-none"
+                      className="w-full max-w-full"
                       data-cy={`create-recognition-form-criteria-item-scroll-${index}`}
                     >
                       <div
-                        className="mx-auto flex w-max min-w-0 flex-nowrap justify-center gap-2 lg:w-full lg:max-w-none lg:justify-start"
+                        className="flex w-full min-w-0 flex-wrap items-end justify-start gap-2 lg:flex-nowrap"
                         data-cy={`create-recognition-form-criteria-item-row-${index}`}
                       >
                         {selectedRecognitionType !== '' && (
@@ -1927,7 +1973,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                         ></Form.Item>
                         <Form.Item
                           labelAlign="left"
-                          className="!mb-0 min-w-[11rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className={`${criteriaFieldClass} min-w-[11rem] lg:min-w-0`}
                           label={getLabel('Criteria')}
                           name={['recognitionCriteria', index, 'criterionKey']}
                           initialValue={criteria.criterionKey}
@@ -1951,7 +1997,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 
                         <Form.Item
                           labelAlign="left"
-                          className="!mb-0 min-w-[6.75rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className={criteriaFieldClass}
                           label={getLabel('Weight')}
                           name={['recognitionCriteria', index, 'weight']}
                           initialValue={criteria.weight}
@@ -1991,7 +2037,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 
                         <Form.Item
                           labelAlign="left"
-                          className="!mb-0 min-w-[10.5rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className={criteriaFieldClass}
                           label={getLabel('Operator')}
                           name={['recognitionCriteria', index, 'operator']}
                           initialValue={criteria.operator}
@@ -2033,7 +2079,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 
                         <Form.Item
                           labelAlign="left"
-                          className="!mb-0 min-w-[10.5rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className={criteriaFieldClass}
                           label={getLabel('Condition')}
                           name={['recognitionCriteria', index, 'condition']}
                           initialValue={criteria.condition}
@@ -2075,7 +2121,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 
                         <Form.Item
                           labelAlign="left"
-                          className="!mb-0 min-w-[6.75rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className={criteriaFieldClass}
                           label={getLabel('Value')}
                           name={['recognitionCriteria', index, 'value']}
                           initialValue={criteria.value}
@@ -2089,16 +2135,88 @@ const RecognitionForm: React.FC<PropsData> = ({
                             type="number"
                             placeholder="Enter value"
                             className={`${commonClass} w-full min-w-0`}
+                            onChange={(e) => {
+                              const updated = [...selectedCriteria];
+                              updated[index].value = e.target.value;
+                              setSelectedCriteria(updated);
+                            }}
                             data-cy={`create-recognition-form-criteria-value-input-${index}`}
                             id={`createRecognitionFormCriteriaValueInput${index}`}
                           />
                         </Form.Item>
+
+                        <Form.Item
+                          labelAlign="left"
+                          className={criteriaFieldClass}
+                          label={getLabel('Score Adjust Op', false)}
+                          name={[
+                            'recognitionCriteria',
+                            index,
+                            'scoreAdjustOperator',
+                          ]}
+                          initialValue={
+                            criteria.scoreAdjustOperator ?? undefined
+                          }
+                          data-cy={`create-recognition-form-criteria-score-adjust-operator-field-${index}`}
+                          id={`createRecognitionFormCriteriaScoreAdjustOperatorField${index}`}
+                        >
+                          <Select
+                            allowClear
+                            placeholder="Optional"
+                            className={`${commonClass} w-full min-w-0`}
+                            onChange={(value) => {
+                              const updated = [...selectedCriteria];
+                              updated[index].scoreAdjustOperator =
+                                value ?? null;
+                              setSelectedCriteria(updated);
+                            }}
+                            data-cy={`create-recognition-form-criteria-score-adjust-operator-select-${index}`}
+                            id={`createRecognitionFormCriteriaScoreAdjustOperatorSelect${index}`}
+                          >
+                            {SCORE_ADJUST_OPERATORS.map((operator, opIndex) => (
+                              <Select.Option
+                                key={`score-adjust-operator-${operator}-${opIndex}`}
+                                value={operator}
+                                className={commonClass}
+                                data-cy={`create-recognition-form-criteria-score-adjust-operator-option-${index}-${opIndex}`}
+                                id={`createRecognitionFormCriteriaScoreAdjustOperatorOption${index}${opIndex}`}
+                              >
+                                {operator}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+
+                        <Form.Item
+                          labelAlign="left"
+                          className={criteriaFieldClass}
+                          label={getLabel('Score Adjust Val', false)}
+                          name={[
+                            'recognitionCriteria',
+                            index,
+                            'scoreAdjustValue',
+                          ]}
+                          initialValue={criteria.scoreAdjustValue ?? undefined}
+                          data-cy={`create-recognition-form-criteria-score-adjust-value-field-${index}`}
+                          id={`createRecognitionFormCriteriaScoreAdjustValueField${index}`}
+                        >
+                          <Input
+                            type="number"
+                            placeholder="Optional"
+                            className={`${commonClass} w-full min-w-0`}
+                            onChange={(e) => {
+                              const updated = [...selectedCriteria];
+                              updated[index].scoreAdjustValue =
+                                e.target.value === '' ? null : e.target.value;
+                              setSelectedCriteria(updated);
+                            }}
+                            data-cy={`create-recognition-form-criteria-score-adjust-value-input-${index}`}
+                            id={`createRecognitionFormCriteriaScoreAdjustValueInput${index}`}
+                          />
+                        </Form.Item>
                         {!isCriteriaOnlyEdit && (
-                          <Image
-                            src={cancelIcon}
-                            alt="remove"
-                            width={16}
-                            height={16}
+                          <button
+                            type="button"
                             onClick={() => {
                               const updatedCriteria = selectedCriteria.filter(
                                 (nonUsed: any, i: number) => i !== index,
@@ -2116,10 +2234,13 @@ const RecognitionForm: React.FC<PropsData> = ({
                                 recognitionCriteria: updatedCriteria,
                               });
                             }}
-                            className="mb-1 shrink-0 cursor-pointer self-end"
+                            className="mb-1 shrink-0 cursor-pointer self-end text-gray-500 hover:text-red-500 border-0 bg-transparent p-0"
+                            aria-label="Remove criterion"
                             data-cy={`create-recognition-form-criteria-remove-${index}`}
                             id={`createRecognitionFormCriteriaRemove${index}`}
-                          />
+                          >
+                            <DeleteOutlined className="text-base" />
+                          </button>
                         )}
                       </div>
                     </div>

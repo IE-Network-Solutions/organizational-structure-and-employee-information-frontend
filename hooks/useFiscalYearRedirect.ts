@@ -4,11 +4,19 @@ import { useGetActiveFiscalYears } from '@/store/server/features/organizationStr
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
-// Helper to check if user has a permission (same logic as AccessGuard)
-function hasPermission(userPermissions: any[], permission: string) {
-  return userPermissions?.some(
-    (userPermission: { permission: { slug: string } }) =>
-      userPermission.permission?.slug === permission,
+const FISCAL_YEAR_MANAGE_PERMISSIONS = [
+  Permissions.CreateCalendar,
+  Permissions.UpdateCalendar,
+  Permissions.DeleteCalendar,
+];
+
+// Helper to check if user has any of the given permissions (same logic as AccessGuard)
+function hasAnyPermission(userPermissions: any[], permissions: string[]) {
+  return permissions.some((permission) =>
+    userPermissions?.some(
+      (userPermission: { permission: { slug: string } }) =>
+        userPermission.permission?.slug === permission,
+    ),
   );
 }
 
@@ -35,7 +43,10 @@ export function useFiscalYearRedirect() {
     if (!hasEndedFiscalYear) return;
 
     // If user has permission or is owner, redirect to fiscal year settings
-    if (isOwner || hasPermission(userPermissions, Permissions.CreateCalendar)) {
+    if (
+      isOwner ||
+      hasAnyPermission(userPermissions, FISCAL_YEAR_MANAGE_PERMISSIONS)
+    ) {
       if (pathname !== '/organization/settings/fiscalYear/fiscalYearCard') {
         router.replace('/organization/settings/fiscalYear/fiscalYearCard');
       }
