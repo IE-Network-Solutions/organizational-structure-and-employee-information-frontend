@@ -229,13 +229,12 @@ function KRProgressCard({
     planningTargetsForKr.some((t) => t.id === selectedPlanningTargetId);
   const showPickChrome = isHighlighted || rowSelected;
 
-  const isFullyCompleted = kr.planningBlocked;
-
+  // + when any plan-eligible slot remains. Do not hide solely because aggregate
+  // KR progress looks complete while milestones are still open.
   const showPickControl =
     inlinePickEnabled &&
     !!onPickPlanningTarget &&
     planningTargetsForKr.length > 0 &&
-    !isFullyCompleted &&
     !kr.isDeleted;
 
   const dropdownSlotItems: MenuProps['items'] = planningTargetsForKr.map(
@@ -255,42 +254,31 @@ function KRProgressCard({
     },
   ];
 
+  // Always open the select menu — including when only one milestone remains.
   const pickButton =
     showPickControl && onPickPlanningTarget ? (
-      planningTargetsForKr.length === 1 ? (
+      <Dropdown
+        menu={{
+          items: dropdownMenuItems,
+          onClick: ({ key, domEvent }) => {
+            domEvent.stopPropagation();
+            const t = planningTargetsForKr.find((x) => x.id === key);
+            if (t) onPickPlanningTarget(t);
+          },
+        }}
+        trigger={['click']}
+        placement={pickMenuPlacement}
+        overlayClassName="planning-target-pick-menu"
+      >
         <button
-          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-273"
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-295"
           type="button"
-          title="Add tasks for this key result"
-          onClick={() => onPickPlanningTarget(planningTargetsForKr[0])}
+          title="Choose a milestone or key result to plan against"
           className={`${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`}
         >
           <PlusOutlined className="text-[13px]" />
         </button>
-      ) : (
-        <Dropdown
-          menu={{
-            items: dropdownMenuItems,
-            onClick: ({ key, domEvent }) => {
-              domEvent.stopPropagation();
-              const t = planningTargetsForKr.find((x) => x.id === key);
-              if (t) onPickPlanningTarget(t);
-            },
-          }}
-          trigger={['click']}
-          placement={pickMenuPlacement}
-          overlayClassName="planning-target-pick-menu"
-        >
-          <button
-            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-295"
-            type="button"
-            title="Choose a milestone or key result to plan against"
-            className={`${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`}
-          >
-            <PlusOutlined className="text-[13px]" />
-          </button>
-        </Dropdown>
-      )
+      </Dropdown>
     ) : null;
 
   useEffect(() => {
@@ -1044,14 +1032,15 @@ export function KRLeftPanel({
     const m = new Map<string, PlanningTarget[]>();
     for (const t of planningTargets) {
       if (t.isDailySlot) continue;
-      if (blockedKrIds.has(t.keyResultId)) continue;
+      // Do not drop by blockedKrIds — that hid + when aggregate progress looked
+      // done while milestones remained. Card + visibility uses remaining slots.
       const kid = t.keyResultId;
       const list = m.get(kid);
       if (list) list.push(t);
       else m.set(kid, [t]);
     }
     return m;
-  }, [planningTargets, blockedKrIds]);
+  }, [planningTargets]);
 
   const showKrTargetsLoadingRow =
     showInlinePick && planningTargetsLoading && !parentPlanContext;

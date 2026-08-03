@@ -364,18 +364,20 @@ export function isKeyResultReopenedForPlanning(
 
 /**
  * Whether planning should be blocked for the whole KR (not individual milestones).
- * Milestone KRs stay plan-eligible until every milestone is completed.
+ * Milestone KRs stay plan-eligible until every milestone is completed — partial
+ * progress (e.g. 1–2 of 5 achieved) must NOT hide planning / the + control.
  */
 export function isKeyResultFullyCompletedForPlanning(
   kr: KeyResultProgressInput,
 ): boolean {
   if (isMilestoneKeyResult(kr)) {
     const milestones = resolveOkrMilestones(kr);
-    if (milestones.length > 0 && milestones.every(isMilestoneCompleted)) {
-      return true;
+    if (milestones.length > 0) {
+      return milestones.every(isMilestoneCompleted);
     }
-    // Milestone status can lag behind measured progress (plan panel vs user KR API).
-    return getKeyResultProgressPercent(kr) >= 100;
+    // No milestone rows yet — keep planning open; aggregate progress alone must
+    // not hide + while milestones remain plan-eligible.
+    return false;
   }
 
   // Non-milestone KRs: measured progress is the sole gate (status can lag after report updates).
@@ -462,12 +464,20 @@ export function resolveKrPlanningBlocked(
     return false;
   }
 
-  const panelProgress = Number(panelKr.progress ?? 0);
+  // Milestone KRs: only block when every OKR milestone is completed.
+  // Never fall through to aggregate progress — weighted Done can make KR
+  // progress look 100% while milestones remain plan-eligible.
+  const milestoneRows = resolveOkrMilestones(planningSource, apiKr);
+  if (isMilestoneKeyResult(planningSource, apiKr)) {
+    if (milestoneRows.length === 0) return false;
+    return milestoneRows.every(isMilestoneCompleted);
+  }
 
   if (isKeyResultFullyCompletedForPlanning(planningSource)) {
     return true;
   }
 
+  const panelProgress = Number(panelKr.progress ?? 0);
   if (!apiKr) {
     return panelProgress >= 100;
   }
