@@ -1,21 +1,17 @@
 'use client';
 import React, { useMemo, useState } from 'react';
-import {
-  Button,
-  Dropdown,
-  Empty,
-  Segmented,
-  Select,
-  Tag,
-} from 'antd';
+import { Button, Dropdown, Empty, Input, Segmented, Select, Tag } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import StatusBadge, {
   StatusBadgeTheme,
 } from '@/components/common/statusBadge/statusBadge';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import EvaluationModal, {
+  EvaluationModalTarget,
+} from '../evaluationModal';
 import { CriticalRole } from '../criticalRoleModal';
 import { CompetencyImportance } from '../steps/stepCompetencyDefinition';
 import {
@@ -183,16 +179,18 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
   evaluatorOptions,
 }) => {
   const router = useRouter();
+  const { isMobile } = useIsMobile();
+  const [searchValue, setSearchValue] = useState('');
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'Pending' | 'Evaluated'
   >('all');
   const [evaluatorFilter, setEvaluatorFilter] = useState('');
   const [successorFilter, setSuccessorFilter] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [evaluationTarget, setEvaluationTarget] =
+    useState<EvaluationModalTarget | null>(null);
 
   const isMine = scope === 'mine';
-  const labelClassName = 'text-sm font-medium text-gray-800 mb-2 block';
-  const selectClassName = 'w-full h-10 rounded-md border-gray-300';
 
   const allRows = useMemo(() => {
     const rows = buildEvaluatorAssignments(roles);
@@ -257,117 +255,21 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
     setSuccessorFilter('');
   };
 
-  const filterPanel = (
-    <div
-      className="bg-white rounded-lg border border-gray-200 min-w-[320px] sm:max-w-[420px] overflow-hidden"
-      data-cy="evaluators-filter-panel"
-    >
-      <div className="px-6 pt-5 pb-1 relative">
-        <h3
-          className="text-xl font-semibold text-gray-900 pr-8"
-          data-cy="evaluators-filter-title"
-        >
-          Filter
-        </h3>
-        <p
-          className="text-sm text-gray-500 mt-1"
-          data-cy="evaluators-filter-description"
-        >
-          Select all filters that apply
-        </p>
-      </div>
-
-      <div className="px-6 py-4 flex flex-col gap-4">
-        <div data-cy="evaluators-filter-status">
-          <label className={labelClassName}>Status</label>
-          <Select
-            placeholder="Select status"
-            allowClear
-            size="large"
-            className={selectClassName}
-            value={statusFilter === 'all' ? undefined : statusFilter}
-            onChange={(value) =>
-              setStatusFilter((value as 'Pending' | 'Evaluated') ?? 'all')
-            }
-            options={[
-              { value: 'Pending', label: 'Not scored' },
-              { value: 'Evaluated', label: 'Scored' },
-            ]}
-            data-cy="evaluators-filter-status-select"
-          />
-        </div>
-
-        {!isMine && (
-          <div data-cy="evaluators-filter-evaluator">
-            <label className={labelClassName}>Evaluator</label>
-            <Select
-              placeholder="Select evaluator"
-              allowClear
-              showSearch
-              optionFilterProp="label"
-              size="large"
-              className={selectClassName}
-              value={evaluatorFilter || undefined}
-              onChange={(value) => setEvaluatorFilter(value ?? '')}
-              options={evaluatorOptions.map((e) => ({
-                value: e.id,
-                label: e.name,
-              }))}
-              data-cy="evaluators-filter-evaluator-select"
-            />
-          </div>
-        )}
-
-        <div data-cy="evaluators-filter-successor">
-          <label className={labelClassName}>Successor</label>
-          <Select
-            placeholder="Select successor"
-            allowClear
-            showSearch
-            optionFilterProp="label"
-            size="large"
-            className={selectClassName}
-            value={successorFilter || undefined}
-            onChange={(value) => setSuccessorFilter(value ?? '')}
-            options={successorOptions.map((s) => ({
-              value: s.id,
-              label: s.name,
-            }))}
-            data-cy="evaluators-filter-successor-select"
-          />
-        </div>
-      </div>
-
-      <div
-        className="px-6 py-4 flex justify-end gap-2"
-        data-cy="evaluators-filter-footer"
-      >
-        <Button
-          onClick={resetFilters}
-          className="h-8 border-[#d9d9d9] text-sm font-normal text-[#4d4d4d]"
-          data-cy="evaluators-filter-reset"
-        >
-          Reset
-        </Button>
-        <Button
-          type="primary"
-          className="h-8 font-normal text-sm text-white"
-          onClick={() => setFilterOpen(false)}
-          data-cy="evaluators-filter-apply"
-        >
-          Save Filter
-        </Button>
-      </div>
-    </div>
-  );
-
   const groups = useMemo(() => {
+    const q = searchValue.trim().toLowerCase();
     const filteredRows = allRows.filter((row) => {
+      const matchesSearch =
+        !q ||
+        (!isMine && row.evaluatorName.toLowerCase().includes(q)) ||
+        row.successorName.toLowerCase().includes(q) ||
+        row.roleName.toLowerCase().includes(q) ||
+        row.competencyName.toLowerCase().includes(q) ||
+        row.department.toLowerCase().includes(q);
       const matchesEvaluator =
         isMine || !evaluatorFilter || row.evaluatorId === evaluatorFilter;
       const matchesSuccessor =
         !successorFilter || row.successorId === successorFilter;
-      return matchesEvaluator && matchesSuccessor;
+      return matchesSearch && matchesEvaluator && matchesSuccessor;
     });
 
     let sessions = buildEvaluationSessions(filteredRows);
@@ -424,6 +326,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
     );
   }, [
     allRows,
+    searchValue,
     statusFilter,
     evaluatorFilter,
     successorFilter,
@@ -433,18 +336,15 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
   ]);
 
   const openEvaluation = (session: EvaluationSession) => {
-    router.push(
-      evaluationPagePath(
-        session.roleId,
-        session.successorId,
-        session.evaluatorId,
-      ),
-    );
+    setEvaluationTarget({
+      roleId: session.roleId,
+      successorId: session.successorId,
+      evaluatorId: session.evaluatorId,
+    });
   };
 
   const renderSession = (session: EvaluationSession) => {
-    const isComplete =
-      session.pendingCount === 0 && session.evaluatedCount > 0;
+    const isComplete = session.pendingCount === 0 && session.evaluatedCount > 0;
     const sessionTotal = sumWeightedScores(session.criteria);
     const sessionMaxWeight = session.criteria.reduce(
       (sum, c) => sum + Number(c.weight ?? 0),
@@ -481,10 +381,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                   >
                     {session.roleName}
                   </button>
-                  <span className="text-gray-400">
-                    {' '}
-                    · {session.department}
-                  </span>
+                  <span className="text-gray-400"> · {session.department}</span>
                 </div>
                 {!isMine && (
                   <div className="text-xs text-gray-500 mt-0.5 sm:hidden">
@@ -496,9 +393,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
           </div>
           <StatusBadge
             theme={
-              isComplete
-                ? StatusBadgeTheme.success
-                : StatusBadgeTheme.warning
+              isComplete ? StatusBadgeTheme.success : StatusBadgeTheme.warning
             }
           >
             {isComplete ? 'Session scored' : 'Not scored'}
@@ -539,15 +434,11 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                   </div>
                 </div>
                 <div className="text-sm text-[#4d4d4d] tabular-nums">
-                  {criterion.weight != null
-                    ? `${criterion.weight}%`
-                    : '—'}
+                  {criterion.weight != null ? `${criterion.weight}%` : '—'}
                 </div>
                 <div>
                   <Tag
-                    color={
-                      importanceColor[criterion.importance] ?? 'default'
-                    }
+                    color={importanceColor[criterion.importance] ?? 'default'}
                     className="m-0"
                   >
                     {criterion.importance}
@@ -561,9 +452,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                         : 'text-amber-700'
                     }`}
                   >
-                    {criterion.status === 'Evaluated'
-                      ? 'Scored'
-                      : 'Not scored'}
+                    {criterion.status === 'Evaluated' ? 'Scored' : 'Not scored'}
                   </span>
                 </div>
                 <div>
@@ -578,9 +467,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                       )}`}
                     >
                       {criterion.score}
-                      {criterion.weight != null
-                        ? ` / ${criterion.weight}`
-                        : ''}
+                      {criterion.weight != null ? ` / ${criterion.weight}` : ''}
                     </span>
                   ) : (
                     <span className="text-sm text-gray-400">—</span>
@@ -613,17 +500,11 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
           <Button
             type={isComplete ? 'default' : 'primary'}
             onClick={() => openEvaluation(session)}
-            icon={
-              isComplete ? (
-                <VisibilityOutlinedIcon style={{ fontSize: 16 }} />
-              ) : (
-                <PlayArrowOutlinedIcon style={{ fontSize: 16 }} />
-              )
-            }
+            icon={<PlayArrowOutlinedIcon style={{ fontSize: 16 }} />}
             className="inline-flex items-center"
             data-cy={`start-evaluation-btn-${session.key}`}
           >
-            {isComplete ? 'View / Edit Evaluation' : 'Start Evaluation'}
+            Evaluate
           </Button>
         </div>
       </div>
@@ -678,65 +559,28 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
       </p>
 
       <div
-        className="flex justify-between gap-3 items-center"
+        className="flex justify-between gap-3 items-start"
         data-cy="evaluators-view-filters"
       >
-        <div className="w-1/2 sm:w-1/3" data-cy="evaluators-search-select-wrap">
-          <Select
-            placeholder="Search Successor"
-            allowClear
-            showSearch
-            optionFilterProp="label"
-            className="h-8 w-full"
-            value={successorFilter || undefined}
-            onChange={(value) => setSuccessorFilter(value ?? '')}
-            options={successorOptions.map((s) => ({
-              value: s.id,
-              label: s.name,
-            }))}
-            filterOption={(input, option) =>
-              (typeof option?.label === 'string'
-                ? option.label.toLowerCase()
-                : ''
-              ).includes(input.toLowerCase())
-            }
-            suffixIcon={
-              <div className="text-gray-400 border-l p-2">
-                <SearchOutlined />
-              </div>
-            }
-            data-cy="evaluators-view-search"
-          />
-        </div>
-
+        <Input
+          placeholder={
+            isMine
+              ? 'Search successor, role, or competency'
+              : 'Search evaluator, successor, role, or competency'
+          }
+          allowClear
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          className="w-[min(100%,300px)] h-10 sm:h-8 pr-0 py-0"
+          data-cy="evaluators-view-search"
+          suffix={
+            <div className="text-gray-400 border-l border-gray-300 py-1 px-2">
+              <SearchOutlined />
+            </div>
+          }
+        />
         <div
-          className="flex items-center gap-2"
-          data-cy="evaluators-filter-actions"
-        >
-          <Dropdown
-            overlay={filterPanel}
-            trigger={['click']}
-            open={filterOpen}
-            onOpenChange={setFilterOpen}
-            placement="bottomRight"
-            data-cy="evaluators-filter-dropdown"
-          >
-            <Button
-              className="h-8 rounded-md flex items-center justify-center border border-[#d9d9d9] text-base font-normal text-[#4d4d4d]"
-              icon={
-                <FilterAltOutlinedIcon className="text-[#374151] text-base" />
-              }
-              data-cy="evaluators-filter-toggle-btn"
-            >
-              Filter
-            </Button>
-          </Dropdown>
-        </div>
-      </div>
-
-      {activeFilters.length > 0 && (
-        <div
-          className="flex items-center gap-2 flex-wrap -mt-2"
+          className="flex items-center gap-2 flex-wrap justify-end"
           data-cy="evaluators-active-filters"
         >
           {activeFilters.map((filter) => (
@@ -754,8 +598,123 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
               {filter.label}
             </Tag>
           ))}
+
+          <Dropdown
+            placement="bottomRight"
+            trigger={['click']}
+            open={filterOpen}
+            onOpenChange={setFilterOpen}
+            dropdownRender={() => (
+              <div
+                className="bg-white rounded-lg border border-gray-200 min-w-[280px] sm:min-w-[320px] overflow-hidden shadow-md"
+                data-cy="evaluators-filter-panel"
+              >
+                <div className="px-5 pt-4 pb-1">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    Filter
+                  </h3>
+                  <p className="text-sm text-gray-500 mt-0.5">
+                    Select all filters that apply
+                  </p>
+                </div>
+
+                <div className="px-5 py-3 flex flex-col gap-3">
+                  <div data-cy="evaluators-filter-status">
+                    <label className="text-sm font-medium text-gray-800 mb-1.5 block">
+                      Status
+                    </label>
+                    <Select
+                      placeholder="Select status"
+                      allowClear
+                      className="w-full"
+                      value={statusFilter === 'all' ? undefined : statusFilter}
+                      onChange={(value) =>
+                        setStatusFilter(
+                          (value as 'Pending' | 'Evaluated') ?? 'all',
+                        )
+                      }
+                      options={[
+                        { value: 'Pending', label: 'Not scored' },
+                        { value: 'Evaluated', label: 'Scored' },
+                      ]}
+                      data-cy="evaluators-filter-status-select"
+                    />
+                  </div>
+
+                  {!isMine && (
+                    <div data-cy="evaluators-filter-evaluator">
+                      <label className="text-sm font-medium text-gray-800 mb-1.5 block">
+                        Evaluator
+                      </label>
+                      <Select
+                        placeholder="Select evaluator"
+                        allowClear
+                        showSearch
+                        optionFilterProp="label"
+                        className="w-full"
+                        value={evaluatorFilter || undefined}
+                        onChange={(value) => setEvaluatorFilter(value ?? '')}
+                        options={evaluatorOptions.map((e) => ({
+                          value: e.id,
+                          label: e.name,
+                        }))}
+                        data-cy="evaluators-filter-evaluator-select"
+                      />
+                    </div>
+                  )}
+
+                  <div data-cy="evaluators-filter-successor">
+                    <label className="text-sm font-medium text-gray-800 mb-1.5 block">
+                      Successor
+                    </label>
+                    <Select
+                      placeholder="Select successor"
+                      allowClear
+                      showSearch
+                      optionFilterProp="label"
+                      className="w-full"
+                      value={successorFilter || undefined}
+                      onChange={(value) => setSuccessorFilter(value ?? '')}
+                      options={successorOptions.map((s) => ({
+                        value: s.id,
+                        label: s.name,
+                      }))}
+                      data-cy="evaluators-filter-successor-select"
+                    />
+                  </div>
+                </div>
+
+                <div className="px-5 py-3 flex justify-end gap-2 border-t border-gray-100">
+                  <Button
+                    onClick={resetFilters}
+                    className="h-8 border-[#d9d9d9] text-sm font-normal text-[#4d4d4d]"
+                    data-cy="evaluators-filter-reset"
+                  >
+                    Reset
+                  </Button>
+                  <Button
+                    type="primary"
+                    className="h-8 font-normal text-sm"
+                    onClick={() => setFilterOpen(false)}
+                    data-cy="evaluators-filter-apply"
+                  >
+                    Save Filter
+                  </Button>
+                </div>
+              </div>
+            )}
+          >
+            <Button
+              type="default"
+              className="border border-[#D9D9D9] font-normal text-[#4d4d4d] h-10 sm:h-8"
+              icon={<FilterAltOutlinedIcon className="py-1" />}
+              data-cy="evaluators-filter-toggle-btn"
+            >
+              {!isMobile && 'Filter'}
+            </Button>
+          </Dropdown>
         </div>
-      )}
+      </div>
 
       {groups.length === 0 ? (
         <Empty
@@ -817,6 +776,12 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
           ))}
         </div>
       )}
+
+      <EvaluationModal
+        open={evaluationTarget !== null}
+        target={evaluationTarget}
+        onClose={() => setEvaluationTarget(null)}
+      />
     </div>
   );
 };

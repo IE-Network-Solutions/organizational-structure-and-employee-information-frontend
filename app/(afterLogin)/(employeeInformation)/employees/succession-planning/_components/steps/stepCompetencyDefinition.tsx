@@ -29,10 +29,7 @@ export interface RoleCompetency {
 export const sumCompetencyWeights = (
   competencies: Array<{ weight?: number } | undefined> | undefined,
 ): number =>
-  (competencies ?? []).reduce(
-    (sum, c) => sum + Number(c?.weight ?? 0),
-    0,
-  );
+  (competencies ?? []).reduce((sum, c) => sum + Number(c?.weight ?? 0), 0);
 
 interface StepCompetencyDefinitionProps {
   positionId: string | null;
@@ -58,13 +55,13 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
       data-cy="step-competency-definition-container"
     >
       <p className="text-sm text-gray-500 -mt-2">
-        Define the competencies and skills required for{' '}
+        Optionally define competencies for{' '}
         {position ? (
           <span className="font-semibold text-gray-700">{position.title}</span>
         ) : (
           'this role'
         )}
-        .
+        . You can skip this and add them later from the role details page.
       </p>
 
       <Form.List name="competencies">
@@ -78,8 +75,8 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
                     className="text-gray-400 text-sm"
                     data-cy="step-competency-empty"
                   >
-                    No competencies added yet. Add skills or criteria for this
-                    role.
+                    No competencies added yet. You can skip this step and manage
+                    competencies later from the role details page.
                   </span>
                 }
               />
@@ -99,7 +96,9 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
                     type="text"
                     size="small"
                     danger
-                    icon={<DeleteOutlineOutlinedIcon style={{ fontSize: 18 }} />}
+                    icon={
+                      <DeleteOutlineOutlinedIcon style={{ fontSize: 18 }} />
+                    }
                     onClick={() => remove(name)}
                     aria-label="Remove competency"
                     data-cy={`step-competency-remove-${key}`}

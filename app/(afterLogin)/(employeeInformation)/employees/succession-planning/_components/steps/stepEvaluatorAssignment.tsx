@@ -6,15 +6,9 @@ import {
   RoleCompetency,
   CompetencyImportance,
 } from './stepCompetencyDefinition';
-import {
-  MOCK_EMPLOYEES,
-  SuccessorCandidate,
-} from './stepEmployeeSelection';
+import { MOCK_EMPLOYEES, SuccessorCandidate } from './stepEmployeeSelection';
 import { MOCK_POSITIONS } from './stepRoleSelection';
-import {
-  EVALUATOR_AVATAR_COLOR,
-  PersonIdentity,
-} from '../personRoleChrome';
+import { EVALUATOR_AVATAR_COLOR, PersonIdentity } from '../personRoleChrome';
 
 const { Option } = Select;
 
@@ -46,10 +40,7 @@ export const toWeightedScore = (rating: number, weight = 0): number => {
 };
 
 /** Recover a 0–100 rating from a stored weighted score (for edit forms). */
-export const ratingFromWeightedScore = (
-  score: number,
-  weight = 0,
-): number => {
+export const ratingFromWeightedScore = (score: number, weight = 0): number => {
   const w = Number(weight) || 0;
   if (w <= 0) return 0;
   return Math.round((Number(score) / w) * 100 * 10) / 10;
@@ -64,10 +55,7 @@ export const sumWeightedScores = (
   ) / 10;
 
 /** Achievement % of a criterion relative to its weight (for color coding). */
-export const scoreAchievementPercent = (
-  score: number,
-  weight = 0,
-): number => {
+export const scoreAchievementPercent = (score: number, weight = 0): number => {
   const w = Number(weight) || 0;
   if (w <= 0) return 0;
   return Math.min(100, Math.round((Number(score) / w) * 100));
@@ -78,8 +66,10 @@ export const competencyKey = (c: Pick<RoleCompetency, 'name' | 'category'>) =>
   `${c.name.trim()}__${c.category}`;
 
 /** Flat form field key — one evaluator slot per employee × criterion */
-export const evaluationFieldKey = (employeeId: string, competencyIndex: number) =>
-  `${employeeId}::${competencyIndex}`;
+export const evaluationFieldKey = (
+  employeeId: string,
+  competencyIndex: number,
+) => `${employeeId}::${competencyIndex}`;
 
 const importanceColor: Record<CompetencyImportance, string> = {
   Required: 'red',
@@ -143,7 +133,9 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
             className="text-gray-400 text-sm"
             data-cy="step-evaluator-no-competencies"
           >
-            No competencies defined. Go back and add at least one competency.
+            No competencies defined yet. You can finish setup now and add
+            competencies later from the role details page (with evaluator
+            assignment).
           </span>
         }
       />
@@ -162,13 +154,18 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
           <>
             {' '}
             of{' '}
-            <span className="font-semibold text-gray-700">{position.title}</span>
+            <span className="font-semibold text-gray-700">
+              {position.title}
+            </span>
           </>
         ) : null}
         . You can pick a different evaluator for every criterion.
       </p>
 
-      <div className="flex flex-col gap-4" data-cy="step-evaluator-employee-list">
+      <div
+        className="flex flex-col gap-4"
+        data-cy="step-evaluator-employee-list"
+      >
         {selectedEmployees.map((employee) => (
           <EmployeeEvaluationCard
             key={employee.id}
@@ -311,7 +308,9 @@ const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
             style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
             className="shrink-0"
           />
-          <span className="text-sm text-gray-800 truncate">{selected.name}</span>
+          <span className="text-sm text-gray-800 truncate">
+            {selected.name}
+          </span>
           <button
             type="button"
             aria-label="Clear evaluator"
@@ -370,7 +369,9 @@ const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
                 className="shrink-0"
               />
               <div className="flex flex-col min-w-0">
-                <span className="text-sm text-gray-800 truncate">{opt.name}</span>
+                <span className="text-sm text-gray-800 truncate">
+                  {opt.name}
+                </span>
                 <span className="text-xs text-gray-400 truncate">
                   {opt.jobTitle}
                 </span>

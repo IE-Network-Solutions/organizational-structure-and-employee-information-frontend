@@ -14,7 +14,6 @@ import type { TableColumnsType } from 'antd';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { UserOutlined } from '@ant-design/icons';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import StatusBadge, {
   StatusBadgeTheme,
@@ -109,55 +108,56 @@ const CriticalRoleDetailPage: React.FC = () => {
     );
   }
 
-  const competencyColumns: TableColumnsType<(typeof role.competencies)[number]> =
-    [
-      {
-        title: <span className={th}>Competency</span>,
-        dataIndex: 'name',
-        key: 'name',
-        render: (value: string) => (
-          <span className="text-sm font-medium text-gray-800">{value}</span>
-        ),
-      },
-      {
-        title: <span className={th}>Category</span>,
-        dataIndex: 'category',
-        key: 'category',
-        width: 140,
-        render: (value: string) => <span className={td}>{value}</span>,
-      },
-      {
-        title: <span className={th}>Importance</span>,
-        dataIndex: 'importance',
-        key: 'importance',
-        width: 140,
-        render: (value: CompetencyImportance) => (
-          <Tag color={importanceColor[value]} className="m-0">
-            {value}
-          </Tag>
-        ),
-      },
-      {
-        title: <span className={th}>Weight</span>,
-        dataIndex: 'weight',
-        key: 'weight',
-        width: 100,
-        render: (value?: number) => (
-          <span className={'' + td + ' tabular-nums'}>
-            {value != null ? value + '%' : '—'}
-          </span>
-        ),
-      },
-      {
-        title: <span className={th}>Description</span>,
-        dataIndex: 'description',
-        key: 'description',
-        ellipsis: true,
-        render: (value?: string) => (
-          <span className="text-sm text-gray-500">{value || '—'}</span>
-        ),
-      },
-    ];
+  const competencyColumns: TableColumnsType<
+    (typeof role.competencies)[number]
+  > = [
+    {
+      title: <span className={th}>Competency</span>,
+      dataIndex: 'name',
+      key: 'name',
+      render: (value: string) => (
+        <span className="text-sm font-medium text-gray-800">{value}</span>
+      ),
+    },
+    {
+      title: <span className={th}>Category</span>,
+      dataIndex: 'category',
+      key: 'category',
+      width: 140,
+      render: (value: string) => <span className={td}>{value}</span>,
+    },
+    {
+      title: <span className={th}>Importance</span>,
+      dataIndex: 'importance',
+      key: 'importance',
+      width: 140,
+      render: (value: CompetencyImportance) => (
+        <Tag color={importanceColor[value]} className="m-0">
+          {value}
+        </Tag>
+      ),
+    },
+    {
+      title: <span className={th}>Weight</span>,
+      dataIndex: 'weight',
+      key: 'weight',
+      width: 100,
+      render: (value?: number) => (
+        <span className={'' + td + ' tabular-nums'}>
+          {value != null ? value + '%' : '—'}
+        </span>
+      ),
+    },
+    {
+      title: <span className={th}>Description</span>,
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: true,
+      render: (value?: string) => (
+        <span className="text-sm text-gray-500">{value || '—'}</span>
+      ),
+    },
+  ];
 
   return (
     <div
@@ -261,7 +261,7 @@ const CriticalRoleDetailPage: React.FC = () => {
             emptyText: (
               <Empty
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description="No competencies defined for this role."
+                description="No competencies defined yet. Edit this role to add competencies and assign evaluators."
               />
             ),
           }}
@@ -341,14 +341,21 @@ const SuccessorEvaluationsTable: React.FC<SuccessorEvaluationsTableProps> = ({
 
   const columns: TableColumnsType<CompetencyEvaluation> = [
     {
-      title: <span className={th}>Competency</span>,
+      title: <span className={th}>Criteria</span>,
       dataIndex: 'competencyName',
       key: 'competencyName',
       render: (value: string, record) => (
-        <div className="min-w-0">
-          <div className="text-sm font-medium text-gray-800">{value}</div>
+        <button
+          type="button"
+          className="min-w-0 text-left group"
+          onClick={() => setSelectedEvaluation(record)}
+          data-cy={'cr-detail-criteria-link-' + record.competencyName}
+        >
+          <div className="text-sm font-medium text-[#1E40AF] group-hover:underline">
+            {value}
+          </div>
           <div className="text-xs text-gray-400">{record.category}</div>
-        </div>
+        </button>
       ),
     },
     {
@@ -432,28 +439,6 @@ const SuccessorEvaluationsTable: React.FC<SuccessorEvaluationsTableProps> = ({
         );
       },
     },
-    {
-      title: <span className={th}>Details</span>,
-      key: 'details',
-      width: 120,
-      render: (_: unknown, record) => {
-        const isEvaluated =
-          record.status === 'Evaluated' && record.score != null;
-        return (
-          <Button
-            type="link"
-            size="small"
-            disabled={!isEvaluated}
-            icon={<VisibilityOutlinedIcon style={{ fontSize: 16 }} />}
-            className="!px-0 inline-flex items-center gap-1"
-            onClick={() => setSelectedEvaluation(record)}
-            data-cy={'cr-detail-view-feedback-btn-' + record.competencyName}
-          >
-            View
-          </Button>
-        );
-      },
-    },
   ];
 
   return (
@@ -531,18 +516,23 @@ const EvaluationFeedbackModal: React.FC<EvaluationFeedbackModalProps> = ({
       destroyOnClose
       data-cy="evaluation-feedback-modal"
     >
-      <div className="flex flex-col gap-4 pt-1" data-cy="evaluation-feedback-body">
+      <div
+        className="flex flex-col gap-4 pt-1"
+        data-cy="evaluation-feedback-body"
+      >
         <div>
           <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
             Successor
           </div>
-          <div className="text-sm font-medium text-gray-800">{successorName}</div>
+          <div className="text-sm font-medium text-gray-800">
+            {successorName}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
-              Competency
+              Criteria
             </div>
             <div className="text-sm font-medium text-gray-800">
               {evaluation.competencyName}
@@ -587,7 +577,10 @@ const EvaluationFeedbackModal: React.FC<EvaluationFeedbackModalProps> = ({
             Rating
           </div>
           {evaluation.rating != null ? (
-            <span className="text-sm font-medium text-gray-800 tabular-nums" data-cy="eval-feedback-rating">
+            <span
+              className="text-sm font-medium text-gray-800 tabular-nums"
+              data-cy="eval-feedback-rating"
+            >
               {evaluation.rating} / 100
             </span>
           ) : (

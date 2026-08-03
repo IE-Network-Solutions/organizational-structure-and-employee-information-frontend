@@ -18,6 +18,8 @@ import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
 import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
 import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import StatsCard from '../manage-employees/_components/statsCard';
@@ -68,9 +70,7 @@ const SuccessionPlanningPage: React.FC = () => {
     (r) => (r.competencies?.length ?? 0) > 0,
   ).length;
   const coveragePercent =
-    totalRoles > 0
-      ? Math.round((rolesWithCompetencies / totalRoles) * 100)
-      : 0;
+    totalRoles > 0 ? Math.round((rolesWithCompetencies / totalRoles) * 100) : 0;
 
   const evaluatorAssignments = useMemo(
     () => buildEvaluatorAssignments(roles),
@@ -97,6 +97,29 @@ const SuccessionPlanningPage: React.FC = () => {
       setViewAsEvaluatorId(evaluatorOptions[0].id);
     }
   }, [evaluatorOptions, viewAsEvaluatorId]);
+
+  const scopedAssignments = useMemo(() => {
+    if (evaluatorScope !== 'mine') return evaluatorAssignments;
+    if (!viewAsEvaluatorId) return [];
+    return evaluatorAssignments.filter(
+      (a) => a.evaluatorId === viewAsEvaluatorId,
+    );
+  }, [evaluatorAssignments, evaluatorScope, viewAsEvaluatorId]);
+
+  const uniqueEvaluatorCount = useMemo(
+    () => new Set(scopedAssignments.map((a) => a.evaluatorId)).size,
+    [scopedAssignments],
+  );
+  const pendingEvaluationCount = scopedAssignments.filter(
+    (a) => a.status === 'Pending',
+  ).length;
+  const completedEvaluationCount = scopedAssignments.filter(
+    (a) => a.status === 'Evaluated',
+  ).length;
+  const evaluationCompletionPercent =
+    scopedAssignments.length > 0
+      ? Math.round((completedEvaluationCount / scopedAssignments.length) * 100)
+      : 0;
 
   const syncEvaluatorsUrl = (
     scope: EvaluatorScope,
@@ -346,91 +369,192 @@ const SuccessionPlanningPage: React.FC = () => {
         />
       </div>
 
-      {activeView === 'roles' && (
-        <div className="mb-6" data-cy="succession-planning-stats">
-          <div
-            className="flex gap-4 overflow-x-auto overflow-y-hidden scrollbar-hide sm:grid sm:grid-cols-2 lg:grid-cols-4"
-            data-cy="succession-planning-stats-grid"
-          >
-            <div
-              className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
-              data-cy="sp-stats-total-wrapper"
-            >
-              <StatsCard
-                icon={
-                  <span className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center">
-                    <AccountTreeOutlinedIcon
-                      className="text-blue"
-                      fontSize="small"
-                    />
-                  </span>
-                }
-                title="Total Critical Roles"
-                value={totalRoles}
-                id="sp-stats-total"
-                data-cy="sp-stats-total"
-              />
-            </div>
-            <div
-              className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
-              data-cy="sp-stats-high-risk-wrapper"
-            >
-              <StatsCard
-                icon={
-                  <span className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center">
-                    <WarningAmberOutlinedIcon
-                      className="text-error"
-                      fontSize="small"
-                    />
-                  </span>
-                }
-                title="High Risk Roles"
-                value={highRiskCount}
-                id="sp-stats-high-risk"
-                data-cy="sp-stats-high-risk"
-              />
-            </div>
-            <div
-              className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
-              data-cy="sp-stats-coverage-wrapper"
-            >
-              <StatsCard
-                icon={
-                  <span className="w-8 h-8 rounded-sm bg-[#f6ffed] flex items-center justify-center">
-                    <CheckCircleOutlineOutlinedIcon
-                      className="text-success"
-                      fontSize="small"
-                    />
-                  </span>
-                }
-                title="Coverage Rate"
-                value={`${coveragePercent}%`}
-                id="sp-stats-coverage"
-                data-cy="sp-stats-coverage"
-              />
-            </div>
-            <div
-              className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
-              data-cy="sp-stats-critical-wrapper"
-            >
-              <StatsCard
-                icon={
-                  <span className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center">
-                    <FlagOutlinedIcon
-                      className="text-orangebg"
-                      fontSize="small"
-                    />
-                  </span>
-                }
-                title="Critical Priority"
-                value={roles.filter((r) => r.priority === 'Critical').length}
-                id="sp-stats-critical"
-                data-cy="sp-stats-critical"
-              />
-            </div>
-          </div>
+      <div className="mb-6" data-cy="succession-planning-stats">
+        <div
+          className="flex gap-4 overflow-x-auto overflow-y-hidden scrollbar-hide sm:grid sm:grid-cols-2 lg:grid-cols-4"
+          data-cy="succession-planning-stats-grid"
+        >
+          {activeView === 'roles' ? (
+            <>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-total-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center">
+                      <AccountTreeOutlinedIcon
+                        className="text-blue"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title="Total Critical Roles"
+                  value={totalRoles}
+                  id="sp-stats-total"
+                  data-cy="sp-stats-total"
+                />
+              </div>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-high-risk-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center">
+                      <WarningAmberOutlinedIcon
+                        className="text-error"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title="High Risk Roles"
+                  value={highRiskCount}
+                  id="sp-stats-high-risk"
+                  data-cy="sp-stats-high-risk"
+                />
+              </div>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-coverage-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-[#f6ffed] flex items-center justify-center">
+                      <CheckCircleOutlineOutlinedIcon
+                        className="text-success"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title="Coverage Rate"
+                  value={`${coveragePercent}%`}
+                  id="sp-stats-coverage"
+                  data-cy="sp-stats-coverage"
+                />
+              </div>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-critical-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center">
+                      <FlagOutlinedIcon
+                        className="text-orangebg"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title="Critical Priority"
+                  value={roles.filter((r) => r.priority === 'Critical').length}
+                  id="sp-stats-critical"
+                  data-cy="sp-stats-critical"
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-evaluators-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center">
+                      <PeopleAltOutlinedIcon
+                        className="text-blue"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title={
+                    evaluatorScope === 'mine'
+                      ? 'My Assignments'
+                      : 'Active Evaluators'
+                  }
+                  value={
+                    evaluatorScope === 'mine'
+                      ? scopedAssignments.length
+                      : uniqueEvaluatorCount
+                  }
+                  id="sp-stats-evaluators"
+                  data-cy="sp-stats-evaluators"
+                />
+              </div>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-assignments-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center">
+                      <AssignmentOutlinedIcon
+                        className="text-orangebg"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title={
+                    evaluatorScope === 'mine'
+                      ? 'My Scored'
+                      : 'Total Assignments'
+                  }
+                  value={
+                    evaluatorScope === 'mine'
+                      ? completedEvaluationCount
+                      : scopedAssignments.length
+                  }
+                  id="sp-stats-assignments"
+                  data-cy="sp-stats-assignments"
+                />
+              </div>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-pending-evals-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center">
+                      <WarningAmberOutlinedIcon
+                        className="text-error"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title={
+                    evaluatorScope === 'mine'
+                      ? 'My Pending'
+                      : 'Pending Evaluations'
+                  }
+                  value={pendingEvaluationCount}
+                  id="sp-stats-pending-evals"
+                  data-cy="sp-stats-pending-evals"
+                />
+              </div>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-eval-completion-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-[#f6ffed] flex items-center justify-center">
+                      <CheckCircleOutlineOutlinedIcon
+                        className="text-success"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title="Completion Rate"
+                  value={`${evaluationCompletionPercent}%`}
+                  id="sp-stats-eval-completion"
+                  data-cy="sp-stats-eval-completion"
+                />
+              </div>
+            </>
+          )}
         </div>
-      )}
+      </div>
 
       <div
         className="rounded-lg"
@@ -509,7 +633,10 @@ const SuccessionPlanningPage: React.FC = () => {
             </div>
           </>
         ) : (
-          <div className="pt-3" data-cy="succession-planning-evaluators-section">
+          <div
+            className="pt-3"
+            data-cy="succession-planning-evaluators-section"
+          >
             <EvaluatorsView
               roles={roles}
               scope={evaluatorScope}

@@ -215,8 +215,7 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
         name="notes"
         label={
           <span className="text-sm font-medium text-gray-700">
-            Notes{' '}
-            <span className="text-gray-400 font-normal">(optional)</span>
+            Notes <span className="text-gray-400 font-normal">(optional)</span>
           </span>
         }
         data-cy="step-role-selection-notes-item"

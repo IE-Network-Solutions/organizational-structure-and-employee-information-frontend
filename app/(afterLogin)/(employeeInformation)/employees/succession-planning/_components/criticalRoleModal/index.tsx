@@ -1,9 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Card, Form, Modal, Steps, Button, Popconfirm } from 'antd';
-import StepRoleSelection, {
-  MOCK_POSITIONS,
-} from '../steps/stepRoleSelection';
+import StepRoleSelection, { MOCK_POSITIONS } from '../steps/stepRoleSelection';
 import StepCompetencyDefinition, {
   RoleCompetency,
   sumCompetencyWeights,
@@ -70,8 +68,7 @@ const buildAssignmentsFromRole = (
   for (const successor of role.successors ?? []) {
     competencies.forEach((comp, index) => {
       const evaluation = (successor.competencyEvaluations ?? []).find(
-        (e) =>
-          e.competencyName === comp.name && e.category === comp.category,
+        (e) => e.competencyName === comp.name && e.category === comp.category,
       );
       if (evaluation?.evaluatorId) {
         map[evaluationFieldKey(successor.id, index)] = evaluation.evaluatorId;
@@ -121,6 +118,12 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
     form.getFieldValue('positionId') ??
     null;
 
+  const watchedCompetencies: RoleCompetency[] =
+    Form.useWatch('competencies', form) ?? [];
+  const hasNamedCompetencies = watchedCompetencies.some((c) =>
+    c?.name?.trim(),
+  );
+
   const handleContinueClick = async () => {
     if (current === 0) {
       try {
@@ -133,19 +136,25 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
     }
 
     if (current === 1) {
+      const rawCompetencies: RoleCompetency[] =
+        form.getFieldValue('competencies') ?? [];
+      const competencies = rawCompetencies.filter((c) => c?.name?.trim());
+
+      // Competencies are optional during initial setup — empty list is allowed.
+      if (competencies.length === 0) {
+        form.setFieldsValue({ competencies: [] });
+        setCurrent(2);
+        return;
+      }
+
       try {
         await form.validateFields(['competencies']);
-        const competencies: RoleCompetency[] = (
-          form.getFieldValue('competencies') ?? []
-        ).filter((c: RoleCompetency | undefined) => c?.name?.trim());
-        if (competencies.length > 0) {
-          const totalWeight = sumCompetencyWeights(competencies);
-          if (totalWeight !== 100) {
-            NotificationMessage.warning({
-              message: `Competency weights must total 100. Current sum: ${totalWeight}`,
-            });
-            return;
-          }
+        const totalWeight = sumCompetencyWeights(competencies);
+        if (totalWeight !== 100) {
+          NotificationMessage.warning({
+            message: `Competency weights must total 100. Current sum: ${totalWeight}`,
+          });
+          return;
         }
         setCurrent(2);
       } catch {
@@ -260,7 +269,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
       <p className="text-sm text-black font-normal">
         {isEditing
           ? 'Update the role, competencies, successors, and evaluators.'
-          : 'Define the role, competencies, successors, and who evaluates each competency.'}
+          : 'Define the role and successors. Competencies and evaluators can be added now or managed later from the role details.'}
       </p>
     </div>
   );
@@ -308,7 +317,10 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
       zIndex={10002}
       data-cy="critical-role-modal"
     >
-      <div className="my-4 sm:my-6" data-cy="critical-role-modal-steps-container">
+      <div
+        className="my-4 sm:my-6"
+        data-cy="critical-role-modal-steps-container"
+      >
         <style>{`
           .cr-modal-steps .ant-steps-item-title {
             white-space: nowrap !important;
@@ -330,7 +342,9 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
             Step {current + 1} of {TOTAL_STEPS}
           </div>
           <div className="text-sm font-semibold text-[#1E40AF]">
-            {STEP_LABELS[current]}
+            {current === 1
+              ? 'Define Competencies (optional)'
+              : STEP_LABELS[current]}
           </div>
         </div>
         <Steps
@@ -339,7 +353,9 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
           labelPlacement="vertical"
           progressDot
           className="cr-modal-steps px-1 mx-auto max-w-3xl hidden sm:flex"
-          items={STEP_LABELS.map((label) => ({ title: label }))}
+          items={STEP_LABELS.map((label, index) => ({
+            title: index === 1 ? `${label} (optional)` : label,
+          }))}
           data-cy="critical-role-modal-steps"
         />
       </div>
@@ -389,6 +405,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
               current={current}
               totalSteps={TOTAL_STEPS}
               isEditing={isEditing}
+              continueLabel={hasNamedCompetencies ? 'Continue' : 'Skip for now'}
               onContinue={handleContinueClick}
               onBack={handleBackClick}
             />
@@ -441,6 +458,7 @@ interface StepNavButtonsProps {
   current: number;
   totalSteps: number;
   isEditing: boolean;
+  continueLabel?: string;
   onContinue: () => void;
   onBack: () => void;
 }
@@ -449,6 +467,7 @@ const StepNavButtons: React.FC<StepNavButtonsProps> = ({
   current,
   totalSteps,
   isEditing,
+  continueLabel,
   onContinue,
   onBack,
 }) => {
@@ -506,7 +525,7 @@ const StepNavButtons: React.FC<StepNavButtonsProps> = ({
           ? isEditing
             ? 'Save Changes'
             : 'Confirm & Create'
-          : 'Continue'}
+          : (continueLabel ?? 'Continue')}
       </Button>
     </div>
   );
