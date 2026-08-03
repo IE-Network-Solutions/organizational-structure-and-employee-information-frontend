@@ -70,7 +70,8 @@ function isPlanTaskGroupingMilestone(m: MilestoneRowInput): boolean {
 }
 
 /**
- * OKR milestone rows only (status-bearing). Ignores plan-scoped task groupings.
+ * OKR milestone rows (including status null / empty). Ignores plan-scoped
+ * task groupings (tasks present + empty status).
  */
 export function resolveOkrMilestones(
   kr?: KrMilestoneCarrier,
@@ -78,7 +79,9 @@ export function resolveOkrMilestones(
 ): OkrMilestoneRow[] {
   const apiList = asMilestoneRows(apiKr?.milestones ?? apiKr?.Milestones);
   if (apiList.length > 0) {
-    return apiList.filter((m) => m?.deletedAt == null);
+    return apiList.filter(
+      (m) => m?.deletedAt == null && !isPlanTaskGroupingMilestone(m),
+    );
   }
 
   const krList = asMilestoneRows(kr?.milestones ?? kr?.Milestones);
@@ -87,10 +90,9 @@ export function resolveOkrMilestones(
   const active = krList.filter((m) => m?.deletedAt == null);
   if (active.length === 0) return [];
 
-  const okrShaped = active.filter(
-    (m) =>
-      !isPlanTaskGroupingMilestone(m) && String(m?.status ?? '').length > 0,
-  );
+  // Keep OKR milestones even when status is null/empty (still plan-eligible).
+  // Drop plan-only groupings (nested tasks + no status).
+  const okrShaped = active.filter((m) => !isPlanTaskGroupingMilestone(m));
   if (okrShaped.length > 0) return okrShaped;
 
   if (active.every(isPlanTaskGroupingMilestone)) return [];
