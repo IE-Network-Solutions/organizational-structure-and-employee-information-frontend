@@ -59,7 +59,6 @@ const SuccessionPlanningPage: React.FC = () => {
   const [viewAsEvaluatorId, setViewAsEvaluatorId] = useState(initialAs);
   const [searchValue, setSearchValue] = useState('');
   const [priorityFilter, setPriorityFilter] = useState<string>('');
-  const [riskFilter, setRiskFilter] = useState<string>('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<CriticalRole | null>(null);
@@ -142,8 +141,7 @@ const SuccessionPlanningPage: React.FC = () => {
       r.roleName.toLowerCase().includes(searchValue.toLowerCase()) ||
       r.department.toLowerCase().includes(searchValue.toLowerCase());
     const matchesPriority = !priorityFilter || r.priority === priorityFilter;
-    const matchesRisk = !riskFilter || r.riskLevel === riskFilter;
-    return matchesSearch && matchesPriority && matchesRisk;
+    return matchesSearch && matchesPriority;
   });
 
   const activeFilters = useMemo(() => {
@@ -155,15 +153,8 @@ const SuccessionPlanningPage: React.FC = () => {
         clear: () => setPriorityFilter(''),
       });
     }
-    if (riskFilter) {
-      tags.push({
-        key: 'risk',
-        label: `${riskFilter} Risk`,
-        clear: () => setRiskFilter(''),
-      });
-    }
     return tags;
-  }, [priorityFilter, riskFilter]);
+  }, [priorityFilter]);
 
   const openAddModal = () => {
     setEditingRole(null);
@@ -200,16 +191,23 @@ const SuccessionPlanningPage: React.FC = () => {
 
   const filterPanel = (
     <div
-      className="bg-white rounded-lg border border-[#E5E7EB] shadow-md p-4 min-w-[260px] sm:min-w-[320px]"
+      className="bg-white rounded-lg border border-gray-200 min-w-[280px] sm:min-w-[320px] overflow-hidden shadow-md"
       data-cy="succession-planning-filter-panel"
     >
-      <div className="flex flex-col gap-3">
+      <div className="px-5 pt-4 pb-1">
+        <h3 className="text-base font-bold text-[#4d4d4d] m-0 mb-1">Filter</h3>
+        <p className="text-sm text-[#8c8c8c] m-0 font-normal">
+          Select all filters that apply
+        </p>
+      </div>
+
+      <div className="px-5 py-3 flex flex-col gap-3">
         <div>
-          <div className="text-xs font-semibold text-gray-500 mb-1">
+          <label className="text-sm font-medium text-gray-800 mb-1.5 block">
             Priority
-          </div>
+          </label>
           <Select
-            placeholder="Priority"
+            placeholder="Select priority"
             allowClear
             value={priorityFilter || undefined}
             onChange={(v) => setPriorityFilter(v ?? '')}
@@ -221,41 +219,26 @@ const SuccessionPlanningPage: React.FC = () => {
             <Option value="Medium">Medium</Option>
           </Select>
         </div>
-        <div>
-          <div className="text-xs font-semibold text-gray-500 mb-1">
-            Risk Level
-          </div>
-          <Select
-            placeholder="Risk Level"
-            allowClear
-            value={riskFilter || undefined}
-            onChange={(v) => setRiskFilter(v ?? '')}
-            className="w-full"
-            data-cy="succession-planning-risk-filter"
-          >
-            <Option value="High">High</Option>
-            <Option value="Medium">Medium</Option>
-            <Option value="Low">Low</Option>
-          </Select>
-        </div>
-        <div className="flex justify-end gap-2 pt-1">
-          <Button
-            onClick={() => {
-              setPriorityFilter('');
-              setRiskFilter('');
-            }}
-            data-cy="succession-planning-filter-reset"
-          >
-            Reset
-          </Button>
-          <Button
-            type="primary"
-            onClick={() => setFilterOpen(false)}
-            data-cy="succession-planning-filter-apply"
-          >
-            Apply
-          </Button>
-        </div>
+      </div>
+
+      <div className="px-5 py-3 flex justify-end gap-2 border-t border-gray-200">
+        <Button
+          onClick={() => {
+            setPriorityFilter('');
+          }}
+          className="h-8 border border-[#D9D9D9] text-sm font-normal text-[#4d4d4d]"
+          data-cy="succession-planning-filter-reset"
+        >
+          Reset
+        </Button>
+        <Button
+          type="primary"
+          className="h-8 font-normal text-sm"
+          onClick={() => setFilterOpen(false)}
+          data-cy="succession-planning-filter-apply"
+        >
+          Save Filter
+        </Button>
       </div>
     </div>
   );

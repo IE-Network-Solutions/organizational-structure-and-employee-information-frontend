@@ -42,7 +42,7 @@ import {
   riskLevelColor,
 } from '../_components/tagColors';
 
-const th = 'text-[#4d4d4d] text-sm font-bold';
+const th = 'text-[#4d4d4d] text-base font-bold';
 const td = 'text-[#4d4d4d] text-sm font-normal';
 
 const CriticalRoleDetailPage: React.FC = () => {
@@ -442,9 +442,7 @@ const SuccessorEvaluationsList: React.FC<SuccessorEvaluationsListProps> = ({
   const columns: TableColumnsType<CompetencyEvaluation> = [
     {
       title: (
-        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
-          Criteria
-        </span>
+        <span className="text-[#4d4d4d] text-sm font-bold">Criteria</span>
       ),
       key: 'name',
       render: (_: unknown, record) => (
@@ -454,7 +452,7 @@ const SuccessorEvaluationsList: React.FC<SuccessorEvaluationsListProps> = ({
           onClick={() => setSelectedEvaluation(record)}
           data-cy={`cr-detail-criteria-row-${record.competencyName}`}
         >
-          <div className="text-sm font-medium text-[#1E40AF] group-hover:underline truncate">
+          <div className="text-sm font-medium text-primary group-hover:underline truncate">
             {record.competencyName}
           </div>
           {record.category ? (
@@ -465,9 +463,7 @@ const SuccessorEvaluationsList: React.FC<SuccessorEvaluationsListProps> = ({
     },
     {
       title: (
-        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
-          Weight
-        </span>
+        <span className="text-[#4d4d4d] text-sm font-bold">Weight</span>
       ),
       key: 'weight',
       width: 90,
@@ -479,9 +475,7 @@ const SuccessorEvaluationsList: React.FC<SuccessorEvaluationsListProps> = ({
     },
     {
       title: (
-        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
-          Result
-        </span>
+        <span className="text-[#4d4d4d] text-sm font-bold">Result</span>
       ),
       key: 'result',
       width: 120,
@@ -504,9 +498,7 @@ const SuccessorEvaluationsList: React.FC<SuccessorEvaluationsListProps> = ({
     },
     {
       title: (
-        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
-          Evaluator
-        </span>
+        <span className="text-[#4d4d4d] text-sm font-bold">Evaluator</span>
       ),
       key: 'evaluator',
       width: 220,

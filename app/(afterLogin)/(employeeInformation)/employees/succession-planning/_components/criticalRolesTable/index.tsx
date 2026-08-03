@@ -12,7 +12,7 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CriticalRole } from '../criticalRoleModal';
-import { riskLevelColor } from '../tagColors';
+import { priorityColor } from '../tagColors';
 
 interface CriticalRolesTableProps {
   roles: CriticalRole[];
@@ -22,7 +22,7 @@ interface CriticalRolesTableProps {
   onRowClick?: (role: CriticalRole) => void;
 }
 
-const headerClass = 'text-[#4d4d4d] text-sm font-bold whitespace-nowrap';
+const headerClass = 'text-[#4d4d4d] text-base font-bold whitespace-nowrap';
 const PAGE_SIZE = 10;
 
 const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
@@ -95,7 +95,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         dataIndex: 'department',
         key: 'department',
         ellipsis: true,
-        width: '16%',
+        width: '14%',
         render: (value: string) => (
           <span
             className="text-[#4d4d4d] text-sm"
@@ -106,13 +106,13 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         ),
       },
       {
-        title: <span className={headerClass}>Risk Level</span>,
-        dataIndex: 'riskLevel',
-        key: 'riskLevel',
+        title: <span className={headerClass}>Priority</span>,
+        dataIndex: 'priority',
+        key: 'priority',
         width: '12%',
-        render: (value: CriticalRole['riskLevel']) => (
-          <Tag color={riskLevelColor[value]} className="m-0">
-            <span data-cy="critical-role-row-risk">{value}</span>
+        render: (value: CriticalRole['priority']) => (
+          <Tag color={priorityColor[value]} className="m-0">
+            <span data-cy="critical-role-row-priority">{value}</span>
           </Tag>
         ),
       },
@@ -120,7 +120,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         title: <span className={headerClass}>Competencies</span>,
         key: 'competencies',
         dataIndex: 'competencies',
-        width: '14%',
+        width: '12%',
         render: (_: unknown, record: CriticalRole) => (
           <div
             className="flex items-center gap-1.5 text-[#4d4d4d] text-sm"
@@ -217,7 +217,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         return (
           col.dataIndex === 'roleName' ||
           col.dataIndex === 'department' ||
-          col.dataIndex === 'riskLevel'
+          col.dataIndex === 'priority'
         );
       })
     : baseColumns;

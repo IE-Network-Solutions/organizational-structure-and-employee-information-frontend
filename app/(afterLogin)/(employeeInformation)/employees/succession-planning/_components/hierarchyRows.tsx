@@ -44,7 +44,7 @@ export const CriteriaLine: React.FC<{
       onClick={item.onClick}
       data-cy={dataCy ? `${dataCy}-name` : undefined}
     >
-      <div className="text-sm font-medium text-[#1E40AF] group-hover:underline truncate">
+      <div className="text-sm font-medium text-primary group-hover:underline truncate">
         {item.name}
       </div>
       {item.category ? (
@@ -124,9 +124,7 @@ export const SuccessorSessionTable: React.FC<SuccessorSessionTableProps> = ({
   const columns: TableColumnsType<CriteriaLineItem> = [
     {
       title: (
-        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
-          Criteria
-        </span>
+        <span className="text-[#4d4d4d] text-sm font-bold">Criteria</span>
       ),
       key: 'name',
       render: (_: unknown, record) =>
@@ -137,7 +135,7 @@ export const SuccessorSessionTable: React.FC<SuccessorSessionTableProps> = ({
             onClick={record.onClick}
             data-cy={`evaluation-criterion-link-${record.key}`}
           >
-            <div className="text-sm font-medium text-[#1E40AF] group-hover:underline truncate">
+            <div className="text-sm font-medium text-primary group-hover:underline truncate">
               {record.name}
             </div>
             {record.category ? (
@@ -155,9 +153,7 @@ export const SuccessorSessionTable: React.FC<SuccessorSessionTableProps> = ({
     },
     {
       title: (
-        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
-          Weight
-        </span>
+        <span className="text-[#4d4d4d] text-sm font-bold">Weight</span>
       ),
       key: 'weight',
       width: 90,
@@ -169,9 +165,7 @@ export const SuccessorSessionTable: React.FC<SuccessorSessionTableProps> = ({
     },
     {
       title: (
-        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
-          Result
-        </span>
+        <span className="text-[#4d4d4d] text-sm font-bold">Result</span>
       ),
       key: 'result',
       width: 120,
@@ -196,7 +190,7 @@ export const SuccessorSessionTable: React.FC<SuccessorSessionTableProps> = ({
 
   return (
     <div
-      className="rounded-lg border border-[#E5E7EB] overflow-hidden bg-white"
+      className="rounded-lg border border-[#D9D9D9] overflow-hidden bg-white"
       data-cy={`evaluation-session-${sessionKey}`}
     >
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-[#F8FAFC] border-b border-[#E5E7EB]">

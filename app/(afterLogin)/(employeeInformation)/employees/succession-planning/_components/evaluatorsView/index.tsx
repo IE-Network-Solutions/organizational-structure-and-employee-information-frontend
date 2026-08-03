@@ -468,10 +468,10 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                 data-cy="evaluators-filter-panel"
               >
                 <div className="px-5 pt-4 pb-1">
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-base font-bold text-[#4d4d4d] m-0 mb-1">
                     Filter
                   </h3>
-                  <p className="text-sm text-gray-500 mt-0.5">
+                  <p className="text-sm text-[#8c8c8c] m-0 font-normal">
                     Select all filters that apply
                   </p>
                 </div>
@@ -542,10 +542,10 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                   </div>
                 </div>
 
-                <div className="px-5 py-3 flex justify-end gap-2 border-t border-gray-100">
+                <div className="px-5 py-3 flex justify-end gap-2 border-t border-gray-200">
                   <Button
                     onClick={resetFilters}
-                    className="h-8 border-[#d9d9d9] text-sm font-normal text-[#4d4d4d]"
+                    className="h-8 border border-[#D9D9D9] text-sm font-normal text-[#4d4d4d]"
                     data-cy="evaluators-filter-reset"
                   >
                     Reset
