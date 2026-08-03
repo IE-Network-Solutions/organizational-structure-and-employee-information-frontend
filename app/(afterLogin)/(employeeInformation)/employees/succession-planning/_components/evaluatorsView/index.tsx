@@ -1,28 +1,28 @@
 'use client';
 import React, { useMemo, useState } from 'react';
-import { Button, Dropdown, Empty, Input, Segmented, Select, Tag } from 'antd';
+import {
+  Button,
+  Dropdown,
+  Empty,
+  Input,
+  Segmented,
+  Select,
+  Tag,
+} from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
-import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import EvaluationModal, {
   EvaluationModalTarget,
 } from '../evaluationModal';
 import { CriticalRole } from '../criticalRoleModal';
 import { CompetencyImportance } from '../steps/stepCompetencyDefinition';
+import { sumWeightedScores } from '../steps/stepEvaluatorAssignment';
 import {
-  scoreAchievementPercent,
-  sumWeightedScores,
-} from '../steps/stepEvaluatorAssignment';
-import {
-  PersonIdentity,
-  PersonRoleLabel,
-  PersonRoleAvatar,
-} from '../personRoleChrome';
+  EvaluatorContainer,
+  SuccessorSessionTable,
+} from '../hierarchyRows';
 
 export type EvaluatorScope = 'admin' | 'mine';
 
@@ -75,26 +75,12 @@ interface EvaluatorGroup {
 
 interface EvaluatorsViewProps {
   roles: CriticalRole[];
-  /** Admin sees all evaluators; mine shows only the selected evaluator's work */
   scope: EvaluatorScope;
   onScopeChange: (scope: EvaluatorScope) => void;
-  /** Prototype: which mock evaluator to treat as "logged in" */
   viewAsEvaluatorId: string;
   onViewAsChange: (evaluatorId: string) => void;
   evaluatorOptions: EvaluatorOption[];
 }
-
-const importanceColor: Record<CompetencyImportance, string> = {
-  Required: 'red',
-  Preferred: 'blue',
-  'Nice to Have': 'default',
-};
-
-const getScoreBadgeClass = (score: number) => {
-  if (score >= 80) return 'bg-green-50 border-green-200 text-green-700';
-  if (score >= 60) return 'bg-amber-50 border-amber-200 text-amber-700';
-  return 'bg-red-50 border-red-200 text-red-700';
-};
 
 /** Flatten role → successor → competencyEvaluations into evaluator-centric rows */
 export const buildEvaluatorAssignments = (
@@ -283,7 +269,6 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
     }
 
     if (isMine) {
-      // Single implicit group — layout will flatten sessions
       const pendingCount = sessions.reduce((n, s) => n + s.pendingCount, 0);
       const evaluatedCount = sessions.reduce((n, s) => n + s.evaluatedCount, 0);
       const name =
@@ -343,171 +328,44 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
     });
   };
 
-  const renderSession = (session: EvaluationSession) => {
+  const renderSessionTable = (session: EvaluationSession) => {
     const isComplete = session.pendingCount === 0 && session.evaluatedCount > 0;
     const sessionTotal = sumWeightedScores(session.criteria);
     const sessionMaxWeight = session.criteria.reduce(
       (sum, c) => sum + Number(c.weight ?? 0),
       0,
     );
+
     return (
-      <div
+      <SuccessorSessionTable
         key={session.key}
-        className="px-4 py-4 flex flex-col gap-3"
-        data-cy={`evaluation-session-${session.key}`}
-      >
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start gap-3">
-              <PersonRoleAvatar role="Successor" size={36} />
-              <div className="min-w-0 flex-1">
-                <PersonRoleLabel role="Successor" />
-                <div className="text-sm font-semibold text-gray-800 truncate">
-                  {session.successorName}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {session.successorJobTitle
-                    ? `${session.successorJobTitle} · `
-                    : ''}
-                  For{' '}
-                  <button
-                    type="button"
-                    className="font-medium text-gray-700 hover:text-primary"
-                    onClick={() =>
-                      router.push(
-                        `/employees/succession-planning/${session.roleId}`,
-                      )
-                    }
-                  >
-                    {session.roleName}
-                  </button>
-                  <span className="text-gray-400"> · {session.department}</span>
-                </div>
-                {!isMine && (
-                  <div className="text-xs text-gray-500 mt-0.5 sm:hidden">
-                    Scored by {session.evaluatorName}
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-          <StatusBadge
-            theme={
-              isComplete ? StatusBadgeTheme.success : StatusBadgeTheme.warning
-            }
-          >
-            {isComplete ? 'Session scored' : 'Not scored'}
-          </StatusBadge>
-        </div>
-
-        <div className="rounded-md border border-[#E5E7EB] overflow-x-auto">
-          <div className="min-w-[520px]">
-            <div className="grid grid-cols-[1fr_80px_120px_100px_80px] gap-2 px-3 py-2 bg-[#FAFAFA] border-b border-[#E5E7EB]">
-              <span className="text-xs font-bold text-[#4d4d4d] uppercase tracking-wide">
-                Competency
-              </span>
-              <span className="text-xs font-bold text-[#4d4d4d] uppercase tracking-wide">
-                Weight
-              </span>
-              <span className="text-xs font-bold text-[#4d4d4d] uppercase tracking-wide">
-                Importance
-              </span>
-              <span className="text-xs font-bold text-[#4d4d4d] uppercase tracking-wide">
-                Status
-              </span>
-              <span className="text-xs font-bold text-[#4d4d4d] uppercase tracking-wide">
-                Result
-              </span>
-            </div>
-            {session.criteria.map((criterion) => (
-              <div
-                key={criterion.key}
-                className="grid grid-cols-[1fr_80px_120px_100px_80px] gap-2 items-center px-3 py-2.5 border-t border-[#F0F0F0] first:border-t-0"
-                data-cy={`evaluation-criterion-row-${criterion.key}`}
-              >
-                <div className="min-w-0">
-                  <div className="text-sm text-gray-800 truncate">
-                    {criterion.competencyName}
-                  </div>
-                  <div className="text-xs text-gray-400">
-                    {criterion.category}
-                  </div>
-                </div>
-                <div className="text-sm text-[#4d4d4d] tabular-nums">
-                  {criterion.weight != null ? `${criterion.weight}%` : '—'}
-                </div>
-                <div>
-                  <Tag
-                    color={importanceColor[criterion.importance] ?? 'default'}
-                    className="m-0"
-                  >
-                    {criterion.importance}
-                  </Tag>
-                </div>
-                <div>
-                  <span
-                    className={`text-xs font-medium ${
-                      criterion.status === 'Evaluated'
-                        ? 'text-green-700'
-                        : 'text-amber-700'
-                    }`}
-                  >
-                    {criterion.status === 'Evaluated' ? 'Scored' : 'Not scored'}
-                  </span>
-                </div>
-                <div>
-                  {criterion.status === 'Evaluated' &&
-                  criterion.score != null ? (
-                    <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded border text-sm font-semibold tabular-nums ${getScoreBadgeClass(
-                        scoreAchievementPercent(
-                          criterion.score,
-                          criterion.weight ?? 0,
-                        ),
-                      )}`}
-                    >
-                      {criterion.score}
-                      {criterion.weight != null ? ` / ${criterion.weight}` : ''}
-                    </span>
-                  ) : (
-                    <span className="text-sm text-gray-400">—</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div
-          className="flex flex-wrap items-center justify-between gap-3"
-          data-cy={`evaluation-session-actions-${session.key}`}
-        >
-          <div
-            className="text-sm text-gray-600"
-            data-cy={`evaluation-session-total-${session.key}`}
-          >
-            Total score:{' '}
-            <span
-              className={`font-bold tabular-nums ${
-                sessionTotal === sessionMaxWeight && sessionMaxWeight > 0
-                  ? 'text-green-700'
-                  : 'text-gray-800'
-              }`}
-            >
-              {sessionTotal} / {sessionMaxWeight || 100}
-            </span>
-          </div>
-          <Button
-            type={isComplete ? 'default' : 'primary'}
-            onClick={() => openEvaluation(session)}
-            icon={<PlayArrowOutlinedIcon style={{ fontSize: 16 }} />}
-            className="inline-flex items-center"
-            data-cy={`start-evaluation-btn-${session.key}`}
-          >
-            Evaluate
-          </Button>
-        </div>
-      </div>
+        sessionKey={session.key}
+        successorName={session.successorName}
+        successorJobTitle={session.successorJobTitle}
+        roleName={session.roleName}
+        department={session.department}
+        isComplete={isComplete}
+        sessionTotal={sessionTotal}
+        sessionMaxWeight={sessionMaxWeight}
+        onRoleClick={() =>
+          router.push(`/employees/succession-planning/${session.roleId}`)
+        }
+        onEvaluate={!isComplete ? () => openEvaluation(session) : undefined}
+        criteria={session.criteria.map((criterion) => {
+          const canOpenEdit =
+            isComplete || criterion.status === 'Evaluated';
+          return {
+            key: criterion.key,
+            name: criterion.competencyName,
+            category: criterion.category,
+            weight: criterion.weight,
+            score: criterion.score,
+            status: criterion.status,
+            clickable: canOpenEdit,
+            onClick: canOpenEdit ? () => openEvaluation(session) : undefined,
+          };
+        })}
+      />
     );
   };
 
@@ -554,8 +412,8 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
         data-cy="evaluators-view-intro"
       >
         {isMine
-          ? 'Only your assigned successor evaluations are listed. Start an evaluation to enter scores.'
-          : 'Admin overview of every evaluator and their assignments. Switch to My assignments to preview an evaluator’s queue.'}
+          ? 'Your assigned successor evaluations. Each successor has its own criteria table.'
+          : 'Each evaluator is a container with a separate table for every successor they score.'}
       </p>
 
       <div
@@ -731,49 +589,31 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
         />
       ) : isMine ? (
         <div
-          className="rounded-lg border border-[#D9D9D9] overflow-hidden bg-white flex flex-col divide-y divide-[#F0F0F0]"
+          className="flex flex-col gap-3"
           data-cy="evaluators-my-sessions"
         >
-          {groups[0]?.sessions.map((session) => renderSession(session))}
+          {(groups[0]?.sessions ?? []).map((session) =>
+            renderSessionTable(session),
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-4" data-cy="evaluators-group-list">
-          {groups.map((group) => (
-            <div
-              key={group.evaluatorId}
-              className="rounded-lg border border-[#D9D9D9] overflow-hidden bg-white"
-              data-cy={`evaluator-group-${group.evaluatorId}`}
-            >
-              <div
-                className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-[#F8FAFC] border-b border-[#E5E7EB]"
-                data-cy={`evaluator-group-header-${group.evaluatorId}`}
+          {groups.map((group) => {
+            const pendingSessions = group.sessions.filter(
+              (s) => s.pendingCount > 0,
+            ).length;
+            return (
+              <EvaluatorContainer
+                key={group.evaluatorId}
+                evaluatorId={group.evaluatorId}
+                evaluatorName={group.evaluatorName}
+                sessionCount={group.sessions.length}
+                pendingSessionCount={pendingSessions}
               >
-                <PersonIdentity
-                  role="Evaluator"
-                  name={group.evaluatorName}
-                  caption={`${group.sessions.length} evaluation${
-                    group.sessions.length === 1 ? '' : 's'
-                  }`}
-                  avatarSize={36}
-                />
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                    {group.pendingCount} criteria not scored
-                  </span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-green-700 border border-green-200">
-                    {group.evaluatedCount} scored
-                  </span>
-                </div>
-              </div>
-
-              <div
-                className="flex flex-col divide-y divide-[#F0F0F0]"
-                data-cy={`evaluator-sessions-${group.evaluatorId}`}
-              >
-                {group.sessions.map((session) => renderSession(session))}
-              </div>
-            </div>
-          ))}
+                {group.sessions.map((session) => renderSessionTable(session))}
+              </EvaluatorContainer>
+            );
+          })}
         </div>
       )}
 

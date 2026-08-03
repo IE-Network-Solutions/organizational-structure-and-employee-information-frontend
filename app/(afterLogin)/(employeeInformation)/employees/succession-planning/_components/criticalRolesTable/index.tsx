@@ -1,20 +1,18 @@
 'use client';
 import React, { useMemo, useState } from 'react';
-import { Button, Dropdown, Empty, Table } from 'antd';
+import { Button, Dropdown, Empty, Table, Tag } from 'antd';
 import type { MenuProps, TableColumnsType } from 'antd';
 import ChecklistOutlinedIcon from '@mui/icons-material/ChecklistOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CriticalRole } from '../criticalRoleModal';
+import { riskLevelColor } from '../tagColors';
 
 interface CriticalRolesTableProps {
   roles: CriticalRole[];
@@ -24,14 +22,7 @@ interface CriticalRolesTableProps {
   onRowClick?: (role: CriticalRole) => void;
 }
 
-/** Map risk → StatusBadgeTheme */
-const riskTheme: Record<CriticalRole['riskLevel'], StatusBadgeTheme> = {
-  High: StatusBadgeTheme.danger,
-  Medium: StatusBadgeTheme.warning,
-  Low: StatusBadgeTheme.success,
-};
-
-const headerClass = 'text-[#4d4d4d] text-sm font-bold';
+const headerClass = 'text-[#4d4d4d] text-sm font-bold whitespace-nowrap';
 const PAGE_SIZE = 10;
 
 const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
@@ -89,7 +80,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         dataIndex: 'roleName',
         key: 'roleName',
         ellipsis: true,
-        width: isMobile ? undefined : 200,
+        width: '18%',
         render: (value: string) => (
           <span
             className="text-gray-800 text-sm font-medium hover:text-primary"
@@ -104,7 +95,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         dataIndex: 'department',
         key: 'department',
         ellipsis: true,
-        width: isMobile ? undefined : 160,
+        width: '16%',
         render: (value: string) => (
           <span
             className="text-[#4d4d4d] text-sm"
@@ -118,18 +109,18 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         title: <span className={headerClass}>Risk Level</span>,
         dataIndex: 'riskLevel',
         key: 'riskLevel',
-        width: isMobile ? undefined : 120,
+        width: '12%',
         render: (value: CriticalRole['riskLevel']) => (
-          <StatusBadge theme={riskTheme[value]}>
+          <Tag color={riskLevelColor[value]} className="m-0">
             <span data-cy="critical-role-row-risk">{value}</span>
-          </StatusBadge>
+          </Tag>
         ),
       },
       {
         title: <span className={headerClass}>Competencies</span>,
         key: 'competencies',
         dataIndex: 'competencies',
-        width: 130,
+        width: '14%',
         render: (_: unknown, record: CriticalRole) => (
           <div
             className="flex items-center gap-1.5 text-[#4d4d4d] text-sm"
@@ -144,7 +135,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         title: <span className={headerClass}>Successors</span>,
         key: 'successors',
         dataIndex: 'successors',
-        width: 120,
+        width: '12%',
         render: (_: unknown, record: CriticalRole) => (
           <div
             className="flex items-center gap-1.5 text-[#4d4d4d] text-sm"
@@ -172,12 +163,27 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         ),
       },
       {
-        title: <span className={headerClass}>Actions</span>,
+        title: (
+          <span
+            className="text-[#4d4d4d] text-xs font-bold whitespace-nowrap"
+            title="Actions"
+          >
+            Actions
+          </span>
+        ),
         key: 'actions',
-        width: 72,
-        fixed: 'right' as const,
+        width: 52,
+        align: 'center' as const,
+        className: 'critical-roles-actions-col',
+        onHeaderCell: () => ({
+          className: 'critical-roles-actions-col',
+        }),
+        onCell: () => ({
+          className: 'critical-roles-actions-col',
+        }),
         render: (_: unknown, record: CriticalRole) => (
           <div
+            className="flex justify-center"
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
             data-cy={`critical-role-actions-${record.id}`}
@@ -200,7 +206,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
       },
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [isMobile, onEdit],
+    [onEdit],
   );
 
   const columns = isMobile
@@ -239,12 +245,14 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
   return (
     <div className="mt-2" data-cy="critical-roles-table-wrapper">
       <Table
+        className="critical-roles-table"
         columns={columns}
         dataSource={pagedRoles}
         rowKey="id"
         loading={loading}
         pagination={false}
-        scroll={{ x: isMobile ? 'max-content' : 800 }}
+        tableLayout="fixed"
+        scroll={isMobile ? { x: 'max-content' } : undefined}
         onRow={
           onRowClick
             ? (record) => ({
@@ -273,6 +281,17 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         }
         data-cy="critical-roles-table"
       />
+      <style>{`
+        .critical-roles-table .critical-roles-actions-col {
+          width: 52px !important;
+          min-width: 52px !important;
+          max-width: 52px !important;
+          padding-left: 4px !important;
+          padding-right: 4px !important;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+      `}</style>
 
       {roles.length > 0 &&
         (isMobile || isTablet ? (

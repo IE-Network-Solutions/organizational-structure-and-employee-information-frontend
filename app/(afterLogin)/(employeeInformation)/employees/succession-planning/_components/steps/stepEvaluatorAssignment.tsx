@@ -1,6 +1,6 @@
 'use client';
 import React, { useMemo } from 'react';
-import { Avatar, Empty, Form, Select, Tag } from 'antd';
+import { Avatar, Empty, Form, Select } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import {
   RoleCompetency,
@@ -71,18 +71,15 @@ export const evaluationFieldKey = (
   competencyIndex: number,
 ) => `${employeeId}::${competencyIndex}`;
 
-const importanceColor: Record<CompetencyImportance, string> = {
-  Required: 'red',
-  Preferred: 'blue',
-  'Nice to Have': 'default',
-};
-
 interface StepEvaluatorAssignmentProps {
   positionId: string | null;
+  /** When false, evaluator selects are optional (manage-from-details flow). */
+  requireEvaluators?: boolean;
 }
 
 const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
   positionId,
+  requireEvaluators = true,
 }) => {
   const form = Form.useFormInstance();
 
@@ -163,7 +160,7 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
       </p>
 
       <div
-        className="flex flex-col gap-4"
+        className="rounded-lg border border-[#D9D9D9] overflow-hidden divide-y divide-[#E5E7EB]"
         data-cy="step-evaluator-employee-list"
       >
         {selectedEmployees.map((employee) => (
@@ -171,6 +168,7 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
             key={employee.id}
             employee={employee}
             competencies={competencies}
+            requireEvaluators={requireEvaluators}
           />
         ))}
       </div>
@@ -181,21 +179,23 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
 interface EmployeeEvaluationCardProps {
   employee: SuccessorCandidate;
   competencies: RoleCompetency[];
+  requireEvaluators?: boolean;
 }
 
 const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
   employee,
   competencies,
+  requireEvaluators = true,
 }) => {
   const evaluatorOptions = MOCK_EMPLOYEES.filter((e) => e.id !== employee.id);
 
   return (
     <div
-      className="rounded-lg border border-[#D9D9D9] overflow-hidden bg-white"
+      className="bg-white"
       data-cy={`step-evaluator-employee-card-${employee.id}`}
     >
       <div
-        className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] border-b border-[#E5E7EB]"
+        className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC]"
         data-cy={`step-evaluator-employee-header-${employee.id}`}
       >
         <PersonIdentity
@@ -207,27 +207,12 @@ const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
       </div>
 
       <div className="flex flex-col divide-y divide-[#F0F0F0]">
-        <div className="hidden sm:grid sm:grid-cols-[1fr_100px_140px_minmax(220px,1fr)] gap-3 px-4 py-2 bg-white">
-          <span className="text-xs font-bold text-[#4d4d4d] uppercase tracking-wide">
-            Competency
-          </span>
-          <span className="text-xs font-bold text-[#4d4d4d] uppercase tracking-wide">
-            Weight
-          </span>
-          <span className="text-xs font-bold text-[#4d4d4d] uppercase tracking-wide">
-            Importance
-          </span>
-          <span className="text-xs font-bold text-[#4d4d4d] uppercase tracking-wide">
-            Evaluator
-          </span>
-        </div>
-
         {competencies.map((comp, index) => {
           const fieldKey = evaluationFieldKey(employee.id, index);
           return (
             <div
               key={`${employee.id}-${index}-${competencyKey(comp)}`}
-              className="grid grid-cols-1 gap-2 px-4 py-3 sm:grid-cols-[1fr_100px_140px_minmax(220px,1fr)] sm:gap-3 sm:items-center"
+              className="grid grid-cols-1 gap-2 px-4 py-3 sm:grid-cols-[1fr_80px_minmax(220px,1fr)] sm:gap-3 sm:items-center"
               data-cy={`step-evaluator-row-${employee.id}-${index}`}
             >
               <div className="min-w-0">
@@ -241,23 +226,18 @@ const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
                 {comp.weight != null ? `${comp.weight}%` : '—'}
               </div>
 
-              <div>
-                <Tag
-                  color={importanceColor[comp.importance] ?? 'default'}
-                  className="m-0"
-                >
-                  {comp.importance}
-                </Tag>
-              </div>
-
               <Form.Item
                 name={['evaluationAssignments', fieldKey]}
-                rules={[
-                  {
-                    required: true,
-                    message: 'Select an evaluator',
-                  },
-                ]}
+                rules={
+                  requireEvaluators
+                    ? [
+                        {
+                          required: true,
+                          message: 'Select an evaluator',
+                        },
+                      ]
+                    : undefined
+                }
                 className="mb-0"
                 data-cy={`step-evaluator-select-item-${employee.id}-${index}`}
               >
@@ -275,14 +255,14 @@ const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
 };
 
 /** Searchable evaluator select; shows avatar tag after selection */
-interface EvaluatorPickerProps {
+export interface EvaluatorPickerProps {
   value?: string;
   onChange?: (value: string | undefined) => void;
   options: SuccessorCandidate[];
   dataCy?: string;
 }
 
-const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
+export const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
   value,
   onChange,
   options,

@@ -14,45 +14,33 @@ import type { TableColumnsType } from 'antd';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { UserOutlined } from '@ant-design/icons';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
-import { CompetencyImportance } from '../_components/steps/stepCompetencyDefinition';
+import {
+  CompetencyImportance,
+  RoleCompetency,
+} from '../_components/steps/stepCompetencyDefinition';
 import {
   CompetencyEvaluation,
+  EvaluatorPicker,
   scoreAchievementPercent,
   sumWeightedScores,
 } from '../_components/steps/stepEvaluatorAssignment';
+import { MOCK_EMPLOYEES } from '../_components/steps/stepEmployeeSelection';
+import ManageCompetenciesModal from '../_components/manageCompetenciesModal';
 import {
   EVALUATOR_AVATAR_COLOR,
   PersonIdentity,
 } from '../_components/personRoleChrome';
-
-const riskTheme: Record<string, StatusBadgeTheme> = {
-  High: StatusBadgeTheme.danger,
-  Medium: StatusBadgeTheme.warning,
-  Low: StatusBadgeTheme.success,
-};
-
-const priorityTheme: Record<string, StatusBadgeTheme> = {
-  Critical: StatusBadgeTheme.danger,
-  High: StatusBadgeTheme.warning,
-  Medium: StatusBadgeTheme.secondary,
-};
-
-const importanceColor: Record<CompetencyImportance, string> = {
-  Required: 'red',
-  Preferred: 'blue',
-  'Nice to Have': 'default',
-};
-
-const getScoreBadgeClass = (score: number) => {
-  if (score >= 80) return 'bg-green-50 border-green-200 text-green-700';
-  if (score >= 60) return 'bg-amber-50 border-amber-200 text-amber-700';
-  return 'bg-red-50 border-red-200 text-red-700';
-};
+import { getScoreBadgeClass } from '../_components/hierarchyRows';
+import {
+  importanceColor,
+  priorityColor,
+  riskLevelColor,
+} from '../_components/tagColors';
 
 const th = 'text-[#4d4d4d] text-sm font-bold';
 const td = 'text-[#4d4d4d] text-sm font-normal';
@@ -64,6 +52,11 @@ const CriticalRoleDetailPage: React.FC = () => {
   const role = useSuccessionPlanningStore((s) =>
     s.roles.find((r) => r.id === id),
   );
+  const updateRole = useSuccessionPlanningStore((s) => s.updateRole);
+  const assignCompetencyEvaluator = useSuccessionPlanningStore(
+    (s) => s.assignCompetencyEvaluator,
+  );
+  const [manageOpen, setManageOpen] = useState(false);
 
   if (!role) {
     return (
@@ -107,6 +100,43 @@ const CriticalRoleDetailPage: React.FC = () => {
       </div>
     );
   }
+
+  const handleManageSave = (
+    competencies: RoleCompetency[],
+    successors: typeof role.successors,
+  ) => {
+    updateRole(role.id, {
+      positionId: role.positionId,
+      roleName: role.roleName,
+      department: role.department,
+      priority: role.priority,
+      riskLevel: role.riskLevel,
+      notes: role.notes,
+      competencies,
+      successors,
+    });
+    NotificationMessage.success({
+      message: 'Competencies updated',
+      description:
+        'Criteria and evaluator assignments have been applied to all successors.',
+    });
+  };
+
+  const handleEvaluatorChange = (
+    successorId: string,
+    evaluation: CompetencyEvaluation,
+    evaluatorId: string | undefined,
+  ) => {
+    const evaluator = MOCK_EMPLOYEES.find((e) => e.id === evaluatorId);
+    assignCompetencyEvaluator(
+      role.id,
+      successorId,
+      evaluation.competencyName,
+      evaluation.category,
+      evaluatorId ?? '',
+      evaluator?.name ?? '',
+    );
+  };
 
   const competencyColumns: TableColumnsType<
     (typeof role.competencies)[number]
@@ -159,13 +189,15 @@ const CriticalRoleDetailPage: React.FC = () => {
     },
   ];
 
+  const hasCompetencies = (role.competencies?.length ?? 0) > 0;
+
   return (
     <div
       id="critical-role-detail-page"
       data-cy="critical-role-detail-page"
       className="pb-8"
     >
-      <div className="flex flex-wrap justify-between items-center pt-4">
+      <div className="flex flex-wrap justify-between items-center pt-4 gap-3">
         <CustomBreadcrumb
           onBack={() => router.push('/employees/succession-planning')}
           title={
@@ -213,12 +245,12 @@ const CriticalRoleDetailPage: React.FC = () => {
         data-cy="critical-role-detail-overview"
       >
         <div className="flex flex-wrap items-center gap-2 mb-3">
-          <StatusBadge theme={priorityTheme[role.priority]}>
+          <Tag color={priorityColor[role.priority]} className="m-0">
             {role.priority} Priority
-          </StatusBadge>
-          <StatusBadge theme={riskTheme[role.riskLevel]}>
+          </Tag>
+          <Tag color={riskLevelColor[role.riskLevel]} className="m-0">
             {role.riskLevel} Risk
-          </StatusBadge>
+          </Tag>
           <Tag className="m-0">{role.department}</Tag>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
@@ -250,7 +282,28 @@ const CriticalRoleDetailPage: React.FC = () => {
       </div>
 
       <section className="mb-6" data-cy="critical-role-detail-competencies">
-        <h3 className="text-base font-bold text-black mb-3">Competencies</h3>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <h3 className="text-base font-bold text-black mb-0">Competencies</h3>
+          <Button
+            type={hasCompetencies ? 'default' : 'primary'}
+            className={
+              hasCompetencies
+                ? 'border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8'
+                : 'font-normal h-8'
+            }
+            icon={
+              hasCompetencies ? (
+                <EditOutlinedIcon style={{ fontSize: 16 }} />
+              ) : (
+                <AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />
+              )
+            }
+            onClick={() => setManageOpen(true)}
+            data-cy="cr-detail-manage-competencies-btn"
+          >
+            {hasCompetencies ? 'Manage Competencies' : 'Add Competencies'}
+          </Button>
+        </div>
         <Table
           columns={competencyColumns}
           dataSource={role.competencies ?? []}
@@ -261,7 +314,7 @@ const CriticalRoleDetailPage: React.FC = () => {
             emptyText: (
               <Empty
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description="No competencies defined yet. Edit this role to add competencies and assign evaluators."
+                description="No competencies defined yet. Add competencies and assign evaluators to each successor."
               />
             ),
           }}
@@ -288,156 +341,183 @@ const CriticalRoleDetailPage: React.FC = () => {
                 className="rounded-lg border border-[#D9D9D9] overflow-hidden"
                 data-cy={'cr-detail-successor-card-' + successor.id}
               >
-                <div className="flex items-center gap-3 px-4 py-3 bg-[#F8FAFC] border-b border-[#E5E7EB]">
+                <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-[#F8FAFC] border-b border-[#E5E7EB]">
                   <PersonIdentity
                     role="Successor"
                     name={successor.name}
                     caption={`${successor.jobTitle} · ${successor.department}`}
                     avatarSize={32}
                   />
+                  {(successor.competencyEvaluations?.length ?? 0) > 0 ? (
+                    <span className="text-sm text-gray-600 tabular-nums">
+                      Total{' '}
+                      <span className="font-bold text-gray-800">
+                        {sumWeightedScores(
+                          successor.competencyEvaluations ?? [],
+                        )}{' '}
+                        /{' '}
+                        {(successor.competencyEvaluations ?? []).reduce(
+                          (sum, e) => sum + Number(e.weight ?? 0),
+                          0,
+                        ) || 100}
+                      </span>
+                    </span>
+                  ) : null}
                 </div>
 
-                <SuccessorEvaluationsTable
+                <SuccessorEvaluationsList
+                  successorId={successor.id}
                   successorName={successor.name}
                   evaluations={successor.competencyEvaluations ?? []}
+                  onEvaluatorChange={(evaluation, evaluatorId) =>
+                    handleEvaluatorChange(
+                      successor.id,
+                      evaluation,
+                      evaluatorId,
+                    )
+                  }
+                  onManageCompetencies={() => setManageOpen(true)}
                 />
               </div>
             ))}
           </div>
         )}
       </section>
+
+      <ManageCompetenciesModal
+        open={manageOpen}
+        role={role}
+        onClose={() => setManageOpen(false)}
+        onSave={handleManageSave}
+      />
     </div>
   );
 };
 
-interface SuccessorEvaluationsTableProps {
+interface SuccessorEvaluationsListProps {
+  successorId: string;
   successorName: string;
   evaluations: CompetencyEvaluation[];
+  onEvaluatorChange: (
+    evaluation: CompetencyEvaluation,
+    evaluatorId: string | undefined,
+  ) => void;
+  onManageCompetencies: () => void;
 }
 
-const SuccessorEvaluationsTable: React.FC<SuccessorEvaluationsTableProps> = ({
+const SuccessorEvaluationsList: React.FC<SuccessorEvaluationsListProps> = ({
+  successorId,
   successorName,
   evaluations,
+  onEvaluatorChange,
+  onManageCompetencies,
 }) => {
   const [selectedEvaluation, setSelectedEvaluation] =
     useState<CompetencyEvaluation | null>(null);
 
   if (evaluations.length === 0) {
     return (
-      <div className="px-4 py-3 text-sm text-gray-400">
-        No evaluator assignments yet.
+      <div className="px-4 py-4 flex flex-col items-start gap-2">
+        <span className="text-sm text-gray-400">
+          No evaluator assignments yet. Add competencies to assign them to this
+          successor.
+        </span>
+        <Button
+          type="link"
+          className="!px-0"
+          onClick={onManageCompetencies}
+          data-cy={`cr-detail-successor-manage-link-${successorId}`}
+        >
+          Manage competencies
+        </Button>
       </div>
     );
   }
 
-  const totalScore = sumWeightedScores(evaluations);
-  const totalWeight = evaluations.reduce(
-    (sum, e) => sum + Number(e.weight ?? 0),
-    0,
-  );
   const evaluatedCount = evaluations.filter(
     (e) => e.status === 'Evaluated' && e.score != null,
   ).length;
+  const evaluatorOptions = MOCK_EMPLOYEES.filter((e) => e.id !== successorId);
 
   const columns: TableColumnsType<CompetencyEvaluation> = [
     {
-      title: <span className={th}>Criteria</span>,
-      dataIndex: 'competencyName',
-      key: 'competencyName',
-      render: (value: string, record) => (
+      title: (
+        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
+          Criteria
+        </span>
+      ),
+      key: 'name',
+      render: (_: unknown, record) => (
         <button
           type="button"
-          className="min-w-0 text-left group"
+          className="text-left group min-w-0"
           onClick={() => setSelectedEvaluation(record)}
-          data-cy={'cr-detail-criteria-link-' + record.competencyName}
+          data-cy={`cr-detail-criteria-row-${record.competencyName}`}
         >
-          <div className="text-sm font-medium text-[#1E40AF] group-hover:underline">
-            {value}
+          <div className="text-sm font-medium text-[#1E40AF] group-hover:underline truncate">
+            {record.competencyName}
           </div>
-          <div className="text-xs text-gray-400">{record.category}</div>
+          {record.category ? (
+            <div className="text-xs text-gray-400">{record.category}</div>
+          ) : null}
         </button>
       ),
     },
     {
-      title: <span className={th}>Importance</span>,
-      dataIndex: 'importance',
-      key: 'importance',
-      width: 120,
-      render: (value: CompetencyImportance) => (
-        <Tag color={importanceColor[value]} className="m-0">
-          {value}
-        </Tag>
+      title: (
+        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
+          Weight
+        </span>
       ),
-    },
-    {
-      title: <span className={th}>Weight</span>,
-      dataIndex: 'weight',
       key: 'weight',
       width: 90,
-      render: (value?: number) => (
-        <span className={td + ' tabular-nums'}>
-          {value != null ? value + '%' : '—'}
+      render: (_: unknown, record) => (
+        <span className="text-sm text-[#4d4d4d] tabular-nums">
+          {record.weight != null ? `${record.weight}%` : '—'}
         </span>
       ),
     },
     {
-      title: <span className={th}>Evaluator</span>,
-      key: 'evaluator',
-      render: (_: unknown, record) =>
-        record.evaluatorId ? (
-          <div className="inline-flex items-center gap-1.5 bg-gray-100 px-2 py-1 rounded-lg">
-            <Avatar
-              size={20}
-              icon={<UserOutlined />}
-              style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
-            />
-            <span className="text-sm text-gray-800">
-              {record.evaluatorName || '—'}
-            </span>
-          </div>
-        ) : (
-          <span className="text-sm text-gray-400">Not assigned</span>
-        ),
-    },
-    {
-      title: <span className={th}>Result</span>,
+      title: (
+        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
+          Result
+        </span>
+      ),
       key: 'result',
-      width: 130,
+      width: 120,
       render: (_: unknown, record) => {
-        const isEvaluated =
-          record.status === 'Evaluated' && record.score != null;
-        const weight = Number(record.weight ?? 0);
-
-        if (isEvaluated) {
-          const achievement = scoreAchievementPercent(record.score!, weight);
-          return (
-            <span
-              className={
-                'inline-flex items-center justify-center px-2 py-0.5 rounded border text-sm font-semibold tabular-nums ' +
-                getScoreBadgeClass(achievement)
-              }
-              data-cy="cr-detail-eval-score"
-              title={
-                record.rating != null
-                  ? 'Rating ' + record.rating + '/100'
-                  : undefined
-              }
-            >
-              {record.score}
-              {weight > 0 ? ' / ' + weight : ''}
-            </span>
-          );
+        const scored = record.status === 'Evaluated' && record.score != null;
+        if (!scored) {
+          return <span className="text-sm text-gray-400">—</span>;
         }
-
         return (
           <span
-            className="text-sm text-gray-400 font-medium"
-            data-cy="cr-detail-eval-pending"
+            className={`inline-flex items-center px-2 py-0.5 rounded border text-sm font-semibold tabular-nums ${getScoreBadgeClass(
+              scoreAchievementPercent(record.score!, record.weight ?? 0),
+            )}`}
           >
-            Pending
+            {record.score}
+            {record.weight != null ? ` / ${record.weight}` : ''}
           </span>
         );
       },
+    },
+    {
+      title: (
+        <span className="text-[#4d4d4d] text-xs font-bold uppercase tracking-wide">
+          Evaluator
+        </span>
+      ),
+      key: 'evaluator',
+      width: 220,
+      render: (_: unknown, record) => (
+        <EvaluatorPicker
+          value={record.evaluatorId || undefined}
+          onChange={(value) => onEvaluatorChange(record, value)}
+          options={evaluatorOptions}
+          dataCy={`cr-detail-evaluator-${successorId}-${record.competencyName}`}
+        />
+      ),
     },
   ];
 
@@ -446,35 +526,20 @@ const SuccessorEvaluationsTable: React.FC<SuccessorEvaluationsTableProps> = ({
       <Table
         columns={columns}
         dataSource={evaluations}
-        rowKey={(r) => r.competencyName + '-' + r.evaluatorId}
+        rowKey={(r) => r.competencyName + '-' + r.category}
         pagination={false}
         size="small"
         rowClassName={(_, index) =>
           index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
         }
+        data-cy={`cr-detail-successor-criteria-${successorId}`}
       />
 
       <div
-        className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t border-[#E5E7EB] bg-[#F8FAFC]"
-        data-cy="cr-detail-successor-total"
+        className="px-4 py-2 border-t border-[#E5E7EB] bg-[#F8FAFC] text-xs text-gray-500"
+        data-cy="cr-detail-successor-progress"
       >
-        <span className="text-sm text-gray-600">
-          Total score
-          <span className="text-xs text-gray-400 ml-1">
-            ({evaluatedCount}/{evaluations.length} criteria evaluated)
-          </span>
-        </span>
-        <span
-          className={
-            'text-base font-bold tabular-nums ' +
-            (totalScore === totalWeight && totalWeight > 0
-              ? 'text-green-700'
-              : 'text-gray-800')
-          }
-          data-cy="cr-detail-successor-total-value"
-        >
-          {totalScore} / {totalWeight || 100}
-        </span>
+        {evaluatedCount}/{evaluations.length} criteria evaluated
       </div>
 
       <EvaluationFeedbackModal

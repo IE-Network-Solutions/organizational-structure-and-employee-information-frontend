@@ -21,14 +21,9 @@ import {
 } from '../steps/stepEvaluatorAssignment';
 import { MOCK_EMPLOYEES } from '../steps/stepEmployeeSelection';
 import { PersonRoleAvatar, PersonRoleLabel } from '../personRoleChrome';
+import { importanceColor } from '../tagColors';
 
 const { TextArea } = Input;
-
-const importanceColor: Record<CompetencyImportance, string> = {
-  Required: 'red',
-  Preferred: 'blue',
-  'Nice to Have': 'default',
-};
 
 interface CriterionFormValue {
   competencyName: string;
@@ -208,7 +203,7 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
       ) : (
         <div className="flex flex-col gap-4" data-cy="evaluation-modal-body">
           <div
-            className="rounded-lg border border-[#D9D9D9] bg-[#F8FAFC] p-3 sm:p-4"
+            className="rounded-lg bg-[#F8FAFC] px-3 sm:px-4 py-3 border-b border-[#E5E7EB]"
             data-cy="evaluation-context-card"
           >
             <div className="flex flex-wrap items-start gap-3 min-w-0">
@@ -248,7 +243,7 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
           >
             <Form.List name="criteria">
               {(fields) => (
-                <div className="flex flex-col gap-3 max-h-[45vh] overflow-y-auto pr-1">
+                <div className="max-h-[45vh] overflow-y-auto divide-y divide-[#F0F0F0] border-y border-[#F0F0F0]">
                   {fields.map((field) => {
                     const meta = assignedCriteria[field.name];
                     const weight = Number(meta?.weight ?? 0);
@@ -265,7 +260,7 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
                     return (
                       <div
                         key={field.key}
-                        className="rounded-lg border border-[#D9D9D9] bg-white p-3 sm:p-4"
+                        className="py-4 first:pt-3"
                         data-cy={`evaluation-criterion-card-${field.key}`}
                       >
                         <Form.Item name={[field.name, 'competencyName']} hidden>
@@ -372,7 +367,7 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
             </Form.List>
 
             <div
-              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#D9D9D9] bg-[#F8FAFC] px-4 py-3"
+              className="flex flex-wrap items-center justify-between gap-3 bg-[#F8FAFC] px-4 py-3 rounded-md"
               data-cy="evaluation-session-total"
             >
               <span className="text-sm text-gray-600 font-medium">

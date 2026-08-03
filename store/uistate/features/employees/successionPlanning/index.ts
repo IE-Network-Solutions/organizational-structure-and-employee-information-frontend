@@ -669,6 +669,15 @@ interface SuccessionPlanningStore {
     evaluatorId: string,
     scores: EvaluationScoreUpdate[],
   ) => void;
+  /** Assign or change evaluator for one competency on one successor */
+  assignCompetencyEvaluator: (
+    roleId: string,
+    successorId: string,
+    competencyName: string,
+    category: string,
+    evaluatorId: string,
+    evaluatorName: string,
+  ) => void;
 }
 
 export const useSuccessionPlanningStore = create<SuccessionPlanningStore>(
@@ -735,6 +744,55 @@ export const useSuccessionPlanningStore = create<SuccessionPlanningStore>(
                   score: match.score,
                   comment: match.comment,
                   status: 'Evaluated' as const,
+                };
+              });
+              return { ...successor, competencyEvaluations };
+            }),
+          };
+        }),
+      }));
+    },
+
+    assignCompetencyEvaluator: (
+      roleId,
+      successorId,
+      competencyName,
+      category,
+      evaluatorId,
+      evaluatorName,
+    ) => {
+      set((state) => ({
+        roles: state.roles.map((role) => {
+          if (role.id !== roleId) return role;
+          return {
+            ...role,
+            successors: (role.successors ?? []).map((successor) => {
+              if (successor.id !== successorId) return successor;
+              const competencyEvaluations = (
+                successor.competencyEvaluations ?? []
+              ).map((evaluation) => {
+                if (
+                  evaluation.competencyName !== competencyName ||
+                  evaluation.category !== category
+                ) {
+                  return evaluation;
+                }
+                const sameEvaluator = evaluation.evaluatorId === evaluatorId;
+                if (sameEvaluator) {
+                  return {
+                    ...evaluation,
+                    evaluatorId,
+                    evaluatorName,
+                  };
+                }
+                return {
+                  ...evaluation,
+                  evaluatorId,
+                  evaluatorName,
+                  status: 'Pending' as const,
+                  rating: undefined,
+                  score: undefined,
+                  comment: undefined,
                 };
               });
               return { ...successor, competencyEvaluations };
