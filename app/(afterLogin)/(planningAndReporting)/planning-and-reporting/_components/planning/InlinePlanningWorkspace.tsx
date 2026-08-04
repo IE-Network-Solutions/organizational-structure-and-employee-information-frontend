@@ -42,6 +42,12 @@ import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndR
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { NAME } from '@/types/enumTypes';
 import {
+  getMetricValueInputMax,
+  getMetricValueInputMin,
+  validateMetricValueAgainstInitial,
+  type MetricValueKrInput,
+} from '@/utils/okrMetricValueBounds';
+import {
   isPlanningTargetBlocked,
   type PlanningTarget,
 } from './buildPlanningTargets';
@@ -208,7 +214,31 @@ function resolvePlanningTargetValue(
   isDailySlot: boolean,
 ): number {
   if (!shouldShowPlanningTarget(metricTypeName, isDailySlot)) return 0;
-  return Number(raw) || 0;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return 0;
+  // Sanitize: never persist a negative plan target.
+  return Math.max(0, n);
+}
+
+/** Merge API KR with metric name from the planning target when API shape is thin. */
+function buildKeyResultForBounds(
+  apiKr: any | null | undefined,
+  metricTypeName?: string | null,
+): MetricValueKrInput {
+  const metric =
+    metricTypeName ??
+    apiKr?.metricType?.name ??
+    apiKr?.metricTypeName ??
+    null;
+  if (!apiKr && !metric) return null;
+  return {
+    ...(apiKr ?? {}),
+    metricType:
+      apiKr?.metricType ?? (metric ? { name: metric } : undefined),
+    metricTypeName: metric ?? apiKr?.metricTypeName,
+    initialValue: apiKr?.initialValue,
+    targetValue: apiKr?.targetValue,
+  };
 }
 
 function outcomeSwitchLabel(milestoneId: string | null | undefined): string {
@@ -349,6 +379,7 @@ function PlanningMetricsRow({
   setWeight,
   targetValue,
   setTargetValue,
+  keyResultForBounds,
 }: {
   metricTypeName: string | null | undefined;
   isDailySlot: boolean;
@@ -358,6 +389,7 @@ function PlanningMetricsRow({
   setWeight: (v: number | null) => void;
   targetValue: number | null;
   setTargetValue: (v: number | null) => void;
+  keyResultForBounds?: any | null;
 }) {
   const showTarget = shouldShowPlanningTarget(metricTypeName, isDailySlot);
   return (
@@ -385,9 +417,26 @@ function PlanningMetricsRow({
       {showTarget ? (
         <InputNumber
           placeholder="Target"
+          min={getMetricValueInputMin(keyResultForBounds)}
+          max={getMetricValueInputMax(keyResultForBounds)}
           className={`w-full min-w-0 rounded-lg ${inputNumH40} [&_.ant-input-number]:!rounded-lg`}
           value={targetValue ?? undefined}
-          onChange={(v) => setTargetValue(v ?? null)}
+          onChange={(v) => {
+            if (v == null) {
+              setTargetValue(null);
+              return;
+            }
+            const floor = getMetricValueInputMin(keyResultForBounds);
+            const ceiling = getMetricValueInputMax(keyResultForBounds);
+            let next = Number(v);
+            if (!Number.isFinite(next)) {
+              setTargetValue(null);
+              return;
+            }
+            if (next < floor) next = floor;
+            if (ceiling != null && next > ceiling) next = ceiling;
+            setTargetValue(next);
+          }}
         />
       ) : null}
     </div>
@@ -543,6 +592,30 @@ const InlinePlanningWorkspace = forwardRef<
     () => isPlanningTargetBlocked(activeTarget, userKeyResultItems),
     [activeTarget, userKeyResultItems],
   );
+
+  const activeKeyResultForBounds = useMemo(() => {
+    const draftLine = editingDraftId
+      ? draftLines.find((l) => l.id === editingDraftId)
+      : null;
+    const keyResultId =
+      draftLine?.keyResultId ?? activeTarget?.keyResultId;
+    if (!keyResultId) return null;
+    const apiKr =
+      userKeyResultItems.find(
+        (k) =>
+          k && k.deletedAt == null && String(k.id) === String(keyResultId),
+      ) ?? null;
+    return buildKeyResultForBounds(
+      apiKr,
+      draftLine?.metricTypeName ?? activeTarget?.metricTypeName,
+    );
+  }, [
+    activeTarget?.keyResultId,
+    activeTarget?.metricTypeName,
+    draftLines,
+    editingDraftId,
+    userKeyResultItems,
+  ]);
 
   useEffect(() => {
     if (activeTarget && activeTargetBlocked) {
@@ -714,6 +787,30 @@ const InlinePlanningWorkspace = forwardRef<
         resetForm();
         return;
       }
+      const krForBounds = buildKeyResultForBounds(
+        userKeyResultItems.find(
+          (k) =>
+            k &&
+            k.deletedAt == null &&
+            String(k.id) === String(existing.keyResultId),
+        ) ?? null,
+        existing.metricTypeName,
+      );
+      if (
+        shouldShowPlanningTarget(
+          existing.metricTypeName,
+          existing.isDailySlot,
+        )
+      ) {
+        const initialBoundError = validateMetricValueAgainstInitial(
+          targetValue,
+          krForBounds,
+        );
+        if (initialBoundError) {
+          message.warning(initialBoundError);
+          return;
+        }
+      }
       const weightWithout = totalWeight - existing.weight;
       if (weightWithout + w > 100) {
         message.warning(
@@ -781,6 +878,21 @@ const InlinePlanningWorkspace = forwardRef<
           : 'Choose a key result (or weekly task) above with + first.',
       );
       return;
+    }
+    if (
+      shouldShowPlanningTarget(
+        activeTarget.metricTypeName,
+        activeTarget.isDailySlot,
+      )
+    ) {
+      const initialBoundError = validateMetricValueAgainstInitial(
+        targetValue,
+        activeKeyResultForBounds,
+      );
+      if (initialBoundError) {
+        message.warning(initialBoundError);
+        return;
+      }
     }
     if (!dailyEqualComposer) {
       if (totalWeight + w > 100) {
@@ -857,6 +969,7 @@ const InlinePlanningWorkspace = forwardRef<
     }
   }, [
     activeTarget,
+    activeKeyResultForBounds,
     task,
     priority,
     weight,
@@ -866,6 +979,7 @@ const InlinePlanningWorkspace = forwardRef<
     editingDraftId,
     draftLines,
     planAsAchieve,
+    userKeyResultItems,
   ]);
 
   const removeLine = (id: string) => {
@@ -1255,6 +1369,7 @@ const InlinePlanningWorkspace = forwardRef<
                       setWeight={setWeight}
                       targetValue={targetValue}
                       setTargetValue={setTargetValue}
+                      keyResultForBounds={activeKeyResultForBounds}
                     />
                     <Button
                       type="default"
@@ -1446,6 +1561,7 @@ const InlinePlanningWorkspace = forwardRef<
                                 setWeight={setWeight}
                                 targetValue={targetValue}
                                 setTargetValue={setTargetValue}
+                                keyResultForBounds={activeKeyResultForBounds}
                               />
                               <div
                                 data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1151"

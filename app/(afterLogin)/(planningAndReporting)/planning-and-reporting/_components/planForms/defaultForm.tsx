@@ -1,6 +1,11 @@
 import { Col, Form, Input, InputNumber, Row, Select } from 'antd';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { NAME } from '@/types/enumTypes';
+import {
+  getMetricValueInputMax,
+  getMetricValueInputMin,
+  validateMetricValueAgainstInitial,
+} from '@/utils/okrMetricValueBounds';
 import { CloseCircleFilled } from '@ant-design/icons';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
@@ -430,6 +435,17 @@ function DefaultCardForm({
                                         );
                                       }
 
+                                      const initialBoundError =
+                                        validateMetricValueAgainstInitial(
+                                          numericValue,
+                                          keyResult,
+                                        );
+                                      if (initialBoundError) {
+                                        return Promise.reject(
+                                          new Error(initialBoundError),
+                                        );
+                                      }
+
                                       // Check if total exceeds key result's available target
                                       if (
                                         targetValue !== null &&
@@ -456,7 +472,8 @@ function DefaultCardForm({
                                 <InputNumber
                                   id={`default-form-target-input-${name}-${field.name}`}
                                   data-cy={`default-form-target-input-${name}-${field.name}`}
-                                  min={0}
+                                  min={getMetricValueInputMin(keyResult)}
+                                  max={getMetricValueInputMax(keyResult)}
                                   className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
                                   defaultValue={0}
                                   formatter={(value) =>

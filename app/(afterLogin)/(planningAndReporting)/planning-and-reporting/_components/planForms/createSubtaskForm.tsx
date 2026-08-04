@@ -179,6 +179,21 @@ function SubTaskComponent({
                     key={`target-${subField.key}`}
                     hidden={hasTargetValue}
                     className="mb-0"
+                    rules={[
+                      {
+                        validator: (_rule, value) => {
+                          if (value == null || value === '') {
+                            return Promise.resolve();
+                          }
+                          if (Number(value) < 0) {
+                            return Promise.reject(
+                              new Error('Value cannot be negative'),
+                            );
+                          }
+                          return Promise.resolve();
+                        },
+                      },
+                    ]}
                   >
                     <Row align="middle" gutter={8} wrap={false}>
                       <Col flex="none">
