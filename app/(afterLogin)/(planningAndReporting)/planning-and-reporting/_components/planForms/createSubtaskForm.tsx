@@ -181,7 +181,7 @@ function SubTaskComponent({
                     className="mb-0"
                     rules={[
                       {
-                        validator: (_rule, value) => {
+                        validator: (nonused, value) => {
                           if (value == null || value === '') {
                             return Promise.resolve();
                           }

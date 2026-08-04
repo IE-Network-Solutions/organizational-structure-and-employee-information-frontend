@@ -189,7 +189,8 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
         { id: 'm-done', title: '12345555', status: 'Completed' },
         {
           id: 'm-open',
-          title: 'Finalize Selamnew Collaboration New Feature  Implimentationes',
+          title:
+            'Finalize Selamnew Collaboration New Feature  Implimentationes',
           status: null,
         },
       ],

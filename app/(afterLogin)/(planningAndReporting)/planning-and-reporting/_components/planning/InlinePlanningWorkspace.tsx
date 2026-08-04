@@ -226,15 +226,11 @@ function buildKeyResultForBounds(
   metricTypeName?: string | null,
 ): MetricValueKrInput {
   const metric =
-    metricTypeName ??
-    apiKr?.metricType?.name ??
-    apiKr?.metricTypeName ??
-    null;
+    metricTypeName ?? apiKr?.metricType?.name ?? apiKr?.metricTypeName ?? null;
   if (!apiKr && !metric) return null;
   return {
     ...(apiKr ?? {}),
-    metricType:
-      apiKr?.metricType ?? (metric ? { name: metric } : undefined),
+    metricType: apiKr?.metricType ?? (metric ? { name: metric } : undefined),
     metricTypeName: metric ?? apiKr?.metricTypeName,
     initialValue: apiKr?.initialValue,
     targetValue: apiKr?.targetValue,
@@ -597,13 +593,11 @@ const InlinePlanningWorkspace = forwardRef<
     const draftLine = editingDraftId
       ? draftLines.find((l) => l.id === editingDraftId)
       : null;
-    const keyResultId =
-      draftLine?.keyResultId ?? activeTarget?.keyResultId;
+    const keyResultId = draftLine?.keyResultId ?? activeTarget?.keyResultId;
     if (!keyResultId) return null;
     const apiKr =
       userKeyResultItems.find(
-        (k) =>
-          k && k.deletedAt == null && String(k.id) === String(keyResultId),
+        (k) => k && k.deletedAt == null && String(k.id) === String(keyResultId),
       ) ?? null;
     return buildKeyResultForBounds(
       apiKr,
@@ -797,10 +791,7 @@ const InlinePlanningWorkspace = forwardRef<
         existing.metricTypeName,
       );
       if (
-        shouldShowPlanningTarget(
-          existing.metricTypeName,
-          existing.isDailySlot,
-        )
+        shouldShowPlanningTarget(existing.metricTypeName, existing.isDailySlot)
       ) {
         const initialBoundError = validateMetricValueAgainstInitial(
           targetValue,

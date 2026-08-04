@@ -16,10 +16,17 @@ const QUANTITATIVE_METRICS = new Set([
   'KPI',
 ]);
 
-export type MetricValueKrInput = Pick<
-  KeyResultLikeInput,
-  'metricType' | 'metricTypeName' | 'key_type' | 'initialValue' | 'targetValue'
-> | null | undefined;
+export type MetricValueKrInput =
+  | Pick<
+      KeyResultLikeInput,
+      | 'metricType'
+      | 'metricTypeName'
+      | 'key_type'
+      | 'initialValue'
+      | 'targetValue'
+    >
+  | null
+  | undefined;
 
 export function isQuantitativeMetricType(
   metric: string | null | undefined,
