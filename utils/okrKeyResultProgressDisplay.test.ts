@@ -4,6 +4,7 @@ import {
   formatKrMetricTypeDisplayName,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
+  isKeyResultFullyCompletedForPlanning,
   mergeKeyResultWithUserApi,
   resolveKrPanelMetricType,
   resolveOkrMilestones,
@@ -207,6 +208,42 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
     expect(resolveOkrMilestones(planOnly)).toEqual([]);
     expect(getKeyResultProgressPercent(planOnly)).toBe(0);
     expect(resolveKrPanelMetricType(planOnly)).toBe('Milestone');
+  });
+
+  it('keeps status-null OKR milestones plan-eligible alongside completed ones', () => {
+    const kr = {
+      metricType: { name: 'Milestone' },
+      progress: 50,
+      milestones: [
+        { id: 'm-done', title: '12345555', status: 'Completed' },
+        {
+          id: 'm-open',
+          title:
+            'Finalize Selamnew Collaboration New Feature  Implimentationes',
+          status: null,
+        },
+      ],
+    };
+
+    expect(resolveOkrMilestones(kr)).toHaveLength(2);
+    expect(getKeyResultProgressRatioText(kr)).toBe('1/2');
+    expect(getKeyResultProgressPercent(kr)).toBe(50);
+    expect(isKeyResultFullyCompletedForPlanning(kr)).toBe(false);
+  });
+
+  it('excludes plan-grouping rows while keeping null-status OKR milestones', () => {
+    const kr = {
+      metricType: { name: 'Milestone' },
+      progress: 50,
+      milestones: [
+        { id: 'm-done', status: 'Completed' },
+        { id: 'm-open', status: null },
+        { id: 'plan-shell', tasks: [{ id: 't1' }] },
+      ],
+    };
+
+    expect(resolveOkrMilestones(kr)).toHaveLength(2);
+    expect(isKeyResultFullyCompletedForPlanning(kr)).toBe(false);
   });
 
   it('does not zero numeric progress when panel lacks API initialValue', () => {
