@@ -20,6 +20,11 @@ import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/
 import { useEditReportByReportId } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { NAME } from '@/types/enumTypes';
+import {
+  getMetricValueInputMax,
+  getMetricValueInputMin,
+  validateMetricValueAgainstInitial,
+} from '@/utils/okrMetricValueBounds';
 import { useEffect } from 'react';
 import { FaCheckSquare, FaRegSquare, FaWindowClose } from 'react-icons/fa';
 
@@ -278,6 +283,15 @@ function EditReport() {
                           );
                         }
 
+                        const initialBoundError =
+                          validateMetricValueAgainstInitial(
+                            numericValue,
+                            keyresult,
+                          );
+                        if (initialBoundError) {
+                          return Promise.reject(new Error(initialBoundError));
+                        }
+
                         if (isDone && numericValue < task?.targetValue) {
                           return Promise.reject(
                             new Error(
@@ -301,7 +315,8 @@ function EditReport() {
                     id={`edit-report-actual-value-input-${task.taskId}`}
                     data-cy={`edit-report-actual-value-input-${task.taskId}`}
                     className="w-24 sm:w-28 rounded-md border-gray-300 h-9"
-                    min={0}
+                    min={getMetricValueInputMin(keyresult)}
+                    max={getMetricValueInputMax(keyresult)}
                     placeholder="Value"
                     formatter={(value) =>
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')

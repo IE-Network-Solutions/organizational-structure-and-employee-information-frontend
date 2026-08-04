@@ -22,6 +22,11 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { groupParentTasks } from '../dataTransformer/plan';
+import {
+  getMetricValueInputMax,
+  getMetricValueInputMin,
+  validateMetricValueAgainstInitial,
+} from '@/utils/okrMetricValueBounds';
 
 interface AddDailyPlanDrawerProps {
   open: boolean;
@@ -50,6 +55,10 @@ interface WeeklyTaskGroup {
   milestoneId?: string | null;
   parentTaskId?: string;
   targetValue?: number;
+  /** KR payload fields for absolute target bounds */
+  keyResultInitialValue?: number | null;
+  keyResultTargetValue?: number | null;
+  metricTypeName?: string | null;
 }
 
 // --- Reporting Types ---
@@ -160,6 +169,9 @@ export default function AddDailyPlanDrawer({
               milestoneId: milestone.id,
               parentTaskId: task.id,
               targetValue: task.targetValue,
+              keyResultInitialValue: keyResult.initialValue ?? null,
+              keyResultTargetValue: keyResult.targetValue ?? null,
+              metricTypeName: keyResult.metricType?.name ?? null,
               tasks: [
                 {
                   id: task.id,
@@ -184,6 +196,9 @@ export default function AddDailyPlanDrawer({
             milestoneId: null,
             parentTaskId: task.id,
             targetValue: task.targetValue,
+            keyResultInitialValue: keyResult.initialValue ?? null,
+            keyResultTargetValue: keyResult.targetValue ?? null,
+            metricTypeName: keyResult.metricType?.name ?? null,
             tasks: [
               {
                 id: task.id,
@@ -663,11 +678,55 @@ export default function AddDailyPlanDrawer({
                                     name={[field.name, 'targetValue']}
                                     initialValue={0}
                                     className="mb-0"
+                                    rules={[
+                                      {
+                                        validator: (_rule, value) => {
+                                          const err =
+                                            validateMetricValueAgainstInitial(
+                                              value,
+                                              {
+                                                metricType: {
+                                                  name:
+                                                    group.metricTypeName ??
+                                                    undefined,
+                                                },
+                                                initialValue:
+                                                  group.keyResultInitialValue,
+                                                targetValue:
+                                                  group.keyResultTargetValue,
+                                              },
+                                            );
+                                          if (err) {
+                                            return Promise.reject(
+                                              new Error(err),
+                                            );
+                                          }
+                                          return Promise.resolve();
+                                        },
+                                      },
+                                    ]}
                                   >
                                     <InputNumber<number>
                                       id={`daily-plan-target-input-${group.id}-${field.name}`}
                                       data-cy={`daily-plan-target-input-${group.id}-${field.name}`}
-                                      min={0}
+                                      min={getMetricValueInputMin({
+                                        metricType: {
+                                          name: group.metricTypeName ?? undefined,
+                                        },
+                                        initialValue:
+                                          group.keyResultInitialValue,
+                                        targetValue:
+                                          group.keyResultTargetValue,
+                                      })}
+                                      max={getMetricValueInputMax({
+                                        metricType: {
+                                          name: group.metricTypeName ?? undefined,
+                                        },
+                                        initialValue:
+                                          group.keyResultInitialValue,
+                                        targetValue:
+                                          group.keyResultTargetValue,
+                                      })}
                                       className="w-[140px] rounded-lg border-[#E5E7EB] text-right"
                                       controls={false}
                                       formatter={(value) =>
