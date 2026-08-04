@@ -680,7 +680,7 @@ export default function AddDailyPlanDrawer({
                                     className="mb-0"
                                     rules={[
                                       {
-                                        validator: (_rule, value) => {
+                                        validator: (nonused, value) => {
                                           const err =
                                             validateMetricValueAgainstInitial(
                                               value,
@@ -711,21 +711,21 @@ export default function AddDailyPlanDrawer({
                                       data-cy={`daily-plan-target-input-${group.id}-${field.name}`}
                                       min={getMetricValueInputMin({
                                         metricType: {
-                                          name: group.metricTypeName ?? undefined,
+                                          name:
+                                            group.metricTypeName ?? undefined,
                                         },
                                         initialValue:
                                           group.keyResultInitialValue,
-                                        targetValue:
-                                          group.keyResultTargetValue,
+                                        targetValue: group.keyResultTargetValue,
                                       })}
                                       max={getMetricValueInputMax({
                                         metricType: {
-                                          name: group.metricTypeName ?? undefined,
+                                          name:
+                                            group.metricTypeName ?? undefined,
                                         },
                                         initialValue:
                                           group.keyResultInitialValue,
-                                        targetValue:
-                                          group.keyResultTargetValue,
+                                        targetValue: group.keyResultTargetValue,
                                       })}
                                       className="w-[140px] rounded-lg border-[#E5E7EB] text-right"
                                       controls={false}
