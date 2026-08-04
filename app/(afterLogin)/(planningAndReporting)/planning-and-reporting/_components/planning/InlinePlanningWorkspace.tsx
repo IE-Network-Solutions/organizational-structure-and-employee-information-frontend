@@ -135,6 +135,12 @@ function applyEqualWeightsToDailyDraftLines(lines: DraftLine[]): DraftLine[] {
   return lines.map((l, i) => ({ ...l, weight: weights[i] }));
 }
 
+function applyEqualWeightsToDraftLines(lines: DraftLine[]): DraftLine[] {
+  if (lines.length === 0) return lines;
+  const weights = equalIntegerWeightsForCount(lines.length);
+  return lines.map((l, i) => ({ ...l, weight: weights[i] }));
+}
+
 const priorityOptions = [
   {
     value: 'high',
@@ -660,7 +666,14 @@ const InlinePlanningWorkspace = forwardRef<
       lines.push(apiTaskToDraftLine(e));
     });
 
-    setDraftLines(lines);
+    const hydratedLines =
+      lines.length > 1 &&
+      !lines.some((line) => line.isDailySlot) &&
+      lines.reduce((sum, line) => sum + (Number(line.weight) || 0), 0) !== 100
+        ? applyEqualWeightsToDraftLines(lines)
+        : lines;
+
+    setDraftLines(hydratedLines);
     setEditingDraftId(null);
     setComposerCollapsed(false);
     editHydratedRef.current = editPlanId;
@@ -736,13 +749,19 @@ const InlinePlanningWorkspace = forwardRef<
     const dailyEqualComposer =
       !!activeTarget.isDailySlot &&
       (draftLines.length === 0 || draftLines.every((l) => l.isDailySlot));
-    if (!dailyEqualComposer) return;
-    setWeight(equalIntegerWeightsForCount(draftLines.length + 1)[0]);
+    if (dailyEqualComposer) {
+      setWeight(equalIntegerWeightsForCount(draftLines.length + 1)[0]);
+      return;
+    }
+    if (isEditMode && draftLines.length > 0) {
+      setWeight(equalIntegerWeightsForCount(draftLines.length + 1)[0]);
+    }
   }, [
     activeTarget?.id,
     activeTarget?.isDailySlot,
     draftLines.length,
     editingDraftId,
+    isEditMode,
   ]);
 
   const cancelEditDraft = useCallback(() => {
@@ -900,7 +919,10 @@ const InlinePlanningWorkspace = forwardRef<
         return;
       }
     }
-    if (!dailyEqualComposer) {
+    const autoBalanceEditedPlan =
+      isEditMode && !activeTarget.isDailySlot && draftLines.length > 0;
+
+    if (!dailyEqualComposer && !autoBalanceEditedPlan) {
       if (totalWeight + w > 100) {
         message.warning(
           `Total weight would exceed 100 (currently ${totalWeight}).`,
@@ -965,7 +987,13 @@ const InlinePlanningWorkspace = forwardRef<
 
     setDraftLines((prev) => {
       const next = [line, ...prev];
-      return applyEqualWeightsToDailyDraftLines(next);
+      if (dailyEqualComposer) {
+        return applyEqualWeightsToDailyDraftLines(next);
+      }
+      if (autoBalanceEditedPlan) {
+        return applyEqualWeightsToDraftLines(next);
+      }
+      return next;
     });
     resetForm();
     const allDailyAfterAdd =
@@ -985,13 +1013,21 @@ const InlinePlanningWorkspace = forwardRef<
     editingDraftId,
     draftLines,
     planAsAchieve,
+    isEditMode,
     userKeyResultItems,
   ]);
 
   const removeLine = (id: string) => {
     setDraftLines((prev) => {
       const next = prev.filter((l) => l.id !== id);
-      return applyEqualWeightsToDailyDraftLines(next);
+      if (next.length === 0) return next;
+      if (next.every((l) => l.isDailySlot)) {
+        return applyEqualWeightsToDailyDraftLines(next);
+      }
+      if (isEditMode) {
+        return applyEqualWeightsToDraftLines(next);
+      }
+      return next;
     });
     setEditingDraftId((cur) => (cur === id ? null : cur));
   };
