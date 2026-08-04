@@ -149,7 +149,7 @@ function pushKeyResultPlanningTargets(
     return;
   }
 
-  // Non-milestone KR: single KR-level slot (modal shows the key result title).
+  // Non-milestone KR: single KR-level slot (picked directly on +, no menu).
   const merged = mergeKeyResultWithUserApi(kr, userKeyResultItems);
   if (isKeyResultFullyCompletedForPlanning(merged)) return;
 
