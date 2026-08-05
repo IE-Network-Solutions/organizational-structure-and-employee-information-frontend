@@ -27,11 +27,12 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
   isUpdateLoading,
 }) => {
   const { isMobile } = useIsMobile();
-  // Ref to track last processed fiscal year dates to avoid infinite loops
+  // Ref to track last processed fiscal year/calendar state to avoid infinite loops
   const lastProcessedFiscalYearRef = useRef<{
     start: string | null;
     end: string | null;
-  }>({ start: null, end: null });
+    calendarType: string | null;
+  }>({ start: null, end: null, calendarType: null });
 
   const {
     calendarType,
@@ -39,6 +40,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
     fiscalYearEnd,
     fiscalYearStart,
     setSessionFormValues,
+    sessionFormValues,
     isEditMode,
     selectedFiscalYear,
     sessionData,
@@ -62,6 +64,52 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         return 0;
     }
   }, [calendarType]);
+
+  const getOriginalCalendarType = useCallback(() => {
+    const sessionCount = selectedFiscalYear?.sessions?.length;
+    if (sessionCount === 4) return 'Quarter';
+    if (sessionCount === 2) return 'Semester';
+    if (sessionCount === 1) return 'Year';
+    return '';
+  }, [selectedFiscalYear]);
+
+  const normalizeSessionFormValues = useCallback((sessions: any[]) => {
+    return sessions.map((session) => ({
+      ...session,
+      sessionStartDate: session.sessionStartDate
+        ? dayjs(session.sessionStartDate)
+        : null,
+      sessionEndDate: session.sessionEndDate
+        ? dayjs(session.sessionEndDate)
+        : null,
+      sessionDateRange:
+        session.sessionDateRange &&
+        Array.isArray(session.sessionDateRange) &&
+        session.sessionDateRange.length === 2
+          ? [
+              dayjs(session.sessionDateRange[0]),
+              dayjs(session.sessionDateRange[1]),
+            ]
+          : session.sessionStartDate && session.sessionEndDate
+            ? [dayjs(session.sessionStartDate), dayjs(session.sessionEndDate)]
+            : null,
+    }));
+  }, []);
+
+  const mapSessionsFromSelectedFiscalYear = useCallback(() => {
+    if (!selectedFiscalYear?.sessions) return [];
+    return selectedFiscalYear.sessions.map((session: any) => ({
+      id: session?.id,
+      sessionName: session.name || '',
+      sessionStartDate: session.startDate ? dayjs(session.startDate) : null,
+      sessionEndDate: session.endDate ? dayjs(session.endDate) : null,
+      sessionDescription: session.description || '',
+      sessionDateRange:
+        session.startDate && session.endDate
+          ? [dayjs(session.startDate), dayjs(session.endDate)]
+          : null,
+    }));
+  }, [selectedFiscalYear]);
 
   // Generate session data based on fiscal year dates and session count
   const generateSessionData = useCallback((): SessionData[] => {
@@ -96,93 +144,92 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
     return sessions;
   }, [fiscalYearStart, fiscalYearEnd, getSessionCount]);
 
-  // Initialize sessions when component mounts or calendar type changes
+  // Initialize sessions when component mounts or calendar type / dates change
   useEffect(() => {
-    // Priority 1: Check if fiscal year dates have changed and regenerate
-    if (calendarType && fiscalYearStart && fiscalYearEnd) {
-      const currentStart = dayjs(fiscalYearStart).format('YYYY-MM-DD');
-      const currentEnd = dayjs(fiscalYearEnd).format('YYYY-MM-DD');
-      const fyStartChanged =
-        lastProcessedFiscalYearRef.current.start !== null &&
-        lastProcessedFiscalYearRef.current.start !== currentStart;
-      const fyEndChanged =
-        lastProcessedFiscalYearRef.current.end !== null &&
-        lastProcessedFiscalYearRef.current.end !== currentEnd;
-
-      if (
-        fyStartChanged ||
-        fyEndChanged ||
-        lastProcessedFiscalYearRef.current.start === null ||
-        lastProcessedFiscalYearRef.current.end === null
-      ) {
-        const newSessionData = generateSessionData();
-        setSessionData(newSessionData);
-        // Set form values including date ranges
-        const formValues = newSessionData.map((session) => ({
-          ...session,
-          sessionDateRange:
-            session.sessionStartDate && session.sessionEndDate
-              ? [session.sessionStartDate, session.sessionEndDate]
-              : null,
-        }));
-        form.setFieldsValue({ sessionData: formValues });
-        form.validateFields();
-
-        // Update the ref to track the processed dates
-        lastProcessedFiscalYearRef.current = {
-          start: currentStart,
-          end: currentEnd,
-        };
-
-        setSessionFormValues({
-          sessionData: newSessionData,
-          fiscalYearStart,
-          fiscalYearEnd,
-          lastGeneratedFiscalYearStart: fiscalYearStart,
-          lastGeneratedFiscalYearEnd: fiscalYearEnd,
-        });
-      }
+    if (!calendarType || !fiscalYearStart || !fiscalYearEnd) {
+      setSessionData([]);
+      form.setFieldsValue({ sessionData: [] });
+      return;
     }
-    // Priority 2: Edit mode with API data
-    else if (isEditMode && selectedFiscalYear && selectedFiscalYear.sessions) {
-      const sessions = selectedFiscalYear.sessions;
-      const updatedSessionData = sessions.map((session: any) => ({
-        id: session?.id,
-        sessionName: session.name || '',
-        sessionStartDate: session.startDate ? dayjs(session.startDate) : null,
-        sessionEndDate: session.endDate ? dayjs(session.endDate) : null,
-        sessionDescription: session.description || '',
-        sessionDateRange:
-          session.startDate && session.endDate
-            ? [dayjs(session.startDate), dayjs(session.endDate)]
-            : null,
-      }));
-      setSessionData(updatedSessionData);
-      form.setFieldsValue({ sessionData: updatedSessionData });
+
+    const currentStart = dayjs(fiscalYearStart).format('YYYY-MM-DD');
+    const currentEnd = dayjs(fiscalYearEnd).format('YYYY-MM-DD');
+    const isFirstInit =
+      lastProcessedFiscalYearRef.current.start === null ||
+      lastProcessedFiscalYearRef.current.end === null ||
+      lastProcessedFiscalYearRef.current.calendarType === null;
+    const fyStartChanged =
+      !isFirstInit && lastProcessedFiscalYearRef.current.start !== currentStart;
+    const fyEndChanged =
+      !isFirstInit && lastProcessedFiscalYearRef.current.end !== currentEnd;
+    const calendarTypeChanged =
+      !isFirstInit &&
+      lastProcessedFiscalYearRef.current.calendarType !== calendarType;
+
+    if (
+      !isFirstInit &&
+      !fyStartChanged &&
+      !fyEndChanged &&
+      !calendarTypeChanged
+    ) {
+      return;
+    }
+
+    const applySessions = (sessions: any[]) => {
+      const normalized = normalizeSessionFormValues(sessions);
+      setSessionData(normalized);
+      form.setFieldsValue({ sessionData: normalized });
       form.validateFields();
-
-      // Update the ref to track the processed dates
       lastProcessedFiscalYearRef.current = {
-        start: fiscalYearStart
-          ? dayjs(fiscalYearStart).format('YYYY-MM-DD')
-          : null,
-        end: fiscalYearEnd ? dayjs(fiscalYearEnd).format('YYYY-MM-DD') : null,
+        start: currentStart,
+        end: currentEnd,
+        calendarType,
       };
-
       setSessionFormValues({
-        sessionData: updatedSessionData,
+        sessionData: normalized,
         fiscalYearStart,
         fiscalYearEnd,
         lastGeneratedFiscalYearStart: fiscalYearStart,
         lastGeneratedFiscalYearEnd: fiscalYearEnd,
       });
+    };
+
+    const expectedCount = getSessionCount();
+    const storedSessions = sessionFormValues?.sessionData;
+    const storedCount = Array.isArray(storedSessions)
+      ? storedSessions.length
+      : 0;
+    const originalCalendarType = getOriginalCalendarType();
+    const structureMatchesOriginal =
+      isEditMode &&
+      !!originalCalendarType &&
+      calendarType === originalCalendarType;
+
+    // Prefer already-edited session values when remounting (e.g. back from months)
+    if (
+      isFirstInit &&
+      storedCount === expectedCount &&
+      storedCount > 0 &&
+      !fyStartChanged &&
+      !fyEndChanged &&
+      !calendarTypeChanged
+    ) {
+      applySessions(storedSessions);
+      return;
     }
-    // Priority 3: Reset session data when missing required data
-    else if (!calendarType || !fiscalYearStart || !fiscalYearEnd) {
-      setSessionData([]);
-      form.setFieldsValue({ sessionData: [] });
-      form.validateFields();
+
+    // Edit mode with unchanged breakdown: load persisted session names/dates
+    if (
+      isFirstInit &&
+      structureMatchesOriginal &&
+      selectedFiscalYear?.sessions?.length
+    ) {
+      applySessions(mapSessionsFromSelectedFiscalYear());
+      return;
     }
+
+    // Create mode, or breakdown/dates changed: regenerate structure
+    applySessions(generateSessionData());
   }, [
     calendarType,
     fiscalYearStart,
@@ -193,6 +240,11 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
     setSessionData,
     generateSessionData,
     setSessionFormValues,
+    sessionFormValues,
+    getSessionCount,
+    getOriginalCalendarType,
+    mapSessionsFromSelectedFiscalYear,
+    normalizeSessionFormValues,
   ]);
 
   // Session validation function
@@ -525,6 +577,13 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         )}
         onValuesChange={(nonused, allValues) => {
           setSessionData(allValues.sessionData);
+          setSessionFormValues({
+            ...allValues,
+            fiscalYearStart,
+            fiscalYearEnd,
+            lastGeneratedFiscalYearStart: fiscalYearStart,
+            lastGeneratedFiscalYearEnd: fiscalYearEnd,
+          });
         }}
         onFieldsChange={updateErrorState}
         data-cy="org-settings-fiscal-year-session-drawer-form"

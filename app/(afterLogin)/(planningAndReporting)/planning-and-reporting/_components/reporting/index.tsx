@@ -21,6 +21,7 @@ import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence } from '../types';
 import { formatPlanningReportDate } from '../utils';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
+import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 
 function Reporting({
   onHoverKR,
@@ -130,12 +131,14 @@ function Reporting({
     [allReporting?.items],
   );
 
+  const reportTaskOverrides = useRecentReportTaskStatuses((s) => s.byReport);
+
   const reportSummaries = useMemo(() => {
     if (!allReporting?.items) return [];
     return allReporting.items.map((dataItem: any) =>
       transformReportToPlanSummary(dataItem, cadence, employeeData),
     );
-  }, [allReporting?.items, cadence, employeeData]);
+  }, [allReporting?.items, cadence, employeeData, reportTaskOverrides]);
 
   const totalReportingItems = allReporting?.meta?.totalItems ?? 0;
   const showReportingPagination = totalReportingItems > pageSizeReporting;

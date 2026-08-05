@@ -33,20 +33,20 @@ export const PWAProvider: React.FC<PWAProviderProps> = ({
           registrations.forEach((r) => r.unregister());
         });
       } else if (!navigator.serviceWorker.controller) {
-        // Production: register main service worker (PWA + push)
+        // Production: register main service worker (PWA + push).
+        // The app is served under the /workspace basePath, so the SW scripts
+        // live at /workspace/sw*.js — a root /sw.js would 404 (it is Core's origin).
         navigator.serviceWorker
-          .register('/sw.js', {
-            scope: '/',
+          .register('/workspace/sw.js', {
+            scope: '/workspace/',
             updateViaCache: 'imports',
           })
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           .then((registration) => {})
-          .catch((e) => {
-            alert(e);
-          });
+          .catch(() => {});
         navigator.serviceWorker
-          .register('/sw-push.js', {
-            scope: '/push/',
+          .register('/workspace/sw-push.js', {
+            scope: '/workspace/push/',
             updateViaCache: 'imports',
           })
           .catch(() => {});

@@ -51,6 +51,7 @@ import {
   isPlanningTargetBlocked,
   type PlanningTarget,
 } from './buildPlanningTargets';
+import { useRecentlyAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
 
 type DraftLine = {
   id: string;
@@ -584,9 +585,23 @@ const InlinePlanningWorkspace = forwardRef<
     [draftLines],
   );
 
+  const recentlyAchievedIds = useRecentlyAchievedMilestones((s) => s.ids);
+  const reopenedMilestoneIds = useRecentlyAchievedMilestones(
+    (s) => s.reopenedMilestoneIds,
+  );
+  const reopenedKeyResultIds = useRecentlyAchievedMilestones(
+    (s) => s.reopenedKeyResultIds,
+  );
+
   const activeTargetBlocked = useMemo(
     () => isPlanningTargetBlocked(activeTarget, userKeyResultItems),
-    [activeTarget, userKeyResultItems],
+    [
+      activeTarget,
+      userKeyResultItems,
+      recentlyAchievedIds,
+      reopenedMilestoneIds,
+      reopenedKeyResultIds,
+    ],
   );
 
   const activeKeyResultForBounds = useMemo(() => {

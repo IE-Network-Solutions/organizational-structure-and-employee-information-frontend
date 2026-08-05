@@ -169,6 +169,7 @@ const ApprovalTable = () => {
         data-cy="settings-payroll-approvals-row-assignee-avatar"
       >
         <Image
+          unoptimized
           src={getImageSrc() || '/placeholder.svg'}
           alt="User avatar"
           layout="fill"
@@ -271,6 +272,7 @@ const ApprovalTable = () => {
                     className="relative w-6 h-6 rounded-full overflow-hidden bg-[#f0f0f0]"
                   >
                     <Image
+                      unoptimized
                       src={GENDER_NEUTRAL_AVATAR_URL}
                       alt="Default avatar"
                       layout="fill"

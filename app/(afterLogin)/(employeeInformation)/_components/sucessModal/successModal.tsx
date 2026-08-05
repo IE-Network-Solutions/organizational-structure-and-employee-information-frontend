@@ -69,6 +69,7 @@ const CustomModal: React.FC<CustomModalProps> = ({
           data-cy={`success-modal-image-wrapper-${modalSlug}`}
         >
           <Image
+            unoptimized
             className=""
             src="/icons/success.svg"
             alt="Success"

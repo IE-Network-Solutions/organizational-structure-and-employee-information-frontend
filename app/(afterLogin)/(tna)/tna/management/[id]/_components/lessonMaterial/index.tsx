@@ -11,6 +11,8 @@ import {
   CourseMaterialArticleFormItem,
   CourseMaterialAttachmentsFormItem,
   CourseMaterialDescriptionFormItem,
+  CourseMaterialImagesFormItem,
+  CourseMaterialReferenceMaterialsFormItem,
   CourseMaterialTimeFormItem,
   CourseMaterialTitleFormItem,
   CourseMaterialVideosFormItem,
@@ -73,6 +75,14 @@ const CourseLessonMaterial = () => {
               formatLinkToUploadFile(attachment),
             )
           : undefined,
+        referenceMaterials: item.referenceMaterials?.length
+          ? item.referenceMaterials.map((reference) =>
+              formatLinkToUploadFile(reference),
+            )
+          : undefined,
+        images: item.images?.length
+          ? item.images.map((image) => formatLinkToUploadFile(image))
+          : undefined,
       });
     }
   }, [lessonMaterialData]);
@@ -102,7 +112,9 @@ const CourseLessonMaterial = () => {
         isLoading ||
         isLoadingMaterial ||
         isFileUploadLoading?.video ||
-        isFileUploadLoading?.attachment,
+        isFileUploadLoading?.attachment ||
+        isFileUploadLoading?.reference ||
+        isFileUploadLoading?.image,
       onClick: () => {
         form.submit();
       },
@@ -168,6 +180,11 @@ const CourseLessonMaterial = () => {
         attachments:
           values.attachments?.map((attachment: any) => attachment.response) ??
           [],
+        referenceMaterials:
+          values.referenceMaterials?.map(
+            (reference: any) => reference.response,
+          ) ?? [],
+        images: values.images?.map((image: any) => image.response) ?? [],
       },
     ]);
   };
@@ -275,6 +292,36 @@ const CourseLessonMaterial = () => {
             uploadTitle="Upload Your Attachment"
             uploadDataCy="tna-lesson-material-attachment-upload"
             uploadId="tnaLessonMaterialAttachmentUploadId"
+          />
+        </Spin>
+        <Spin
+          spinning={isFileUploadLoading.reference}
+          data-cy="tna-lesson-material-reference-spinner"
+        >
+          <CourseMaterialReferenceMaterialsFormItem
+            itemDataCy="tna-lesson-material-reference-item"
+            formItemClassName="form-item"
+            formItemProps={{ id: 'tnaLessonMaterialReferenceItemId' }}
+            uploadClassName="w-full mt-3"
+            uploadTitle="Upload Reference Material"
+            uploadSubtitle="Optional. Reading material, slide decks or external links."
+            uploadDataCy="tna-lesson-material-reference-upload"
+            uploadId="tnaLessonMaterialReferenceUploadId"
+          />
+        </Spin>
+        <Spin
+          spinning={isFileUploadLoading.image}
+          data-cy="tna-lesson-material-image-spinner"
+        >
+          <CourseMaterialImagesFormItem
+            itemDataCy="tna-lesson-material-image-item"
+            formItemClassName="form-item"
+            formItemProps={{ id: 'tnaLessonMaterialImageItemId' }}
+            uploadClassName="w-full mt-3"
+            uploadTitle="Upload Supplementary Images"
+            uploadSubtitle="Optional. Diagrams or screenshots shown alongside the session."
+            uploadDataCy="tna-lesson-material-image-upload"
+            uploadId="tnaLessonMaterialImageUploadId"
           />
         </Spin>
         <CourseMaterialTimeFormItem
