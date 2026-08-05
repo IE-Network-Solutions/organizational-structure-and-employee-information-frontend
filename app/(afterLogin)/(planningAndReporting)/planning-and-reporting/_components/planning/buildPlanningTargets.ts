@@ -14,6 +14,7 @@ import {
   isRecentlyReopenedKeyResult,
   isRecentlyReopenedMilestone,
 } from '@/utils/recentlyAchievedMilestones';
+import { getParentRemainingCapacity } from '@/utils/parentTaskCapacity';
 
 export { mergeKeyResultWithUserApi };
 export type PlanningTarget = {
@@ -32,6 +33,13 @@ export type PlanningTarget = {
   metricTypeName?: string | null;
   /** Achieved/completed milestone — show in pick list but not selectable */
   isCompleted?: boolean;
+  /** KR absolute target (ceiling for child plan targets) */
+  keyResultTargetValue?: number | null;
+  /** Remaining parent capacity: parent target − child *actuals* (achievement) */
+  remainingCapacity?: number | null;
+  parentTargetValue?: number | null;
+  /** True when parent is fully achieved — block new planning */
+  isParentCapacityFull?: boolean;
 };
 
 /** Active OKR milestone rows from an objective KR (same source as createPlanObjective). */
@@ -575,47 +583,102 @@ export function buildPlanningTargetsFromDailyHierarchy(
   if (!tasks.length) return out;
 
   const parentPlanId = plan?.id ? String(plan.id) : null;
+
+  // Existing child-period tasks (capacity from *achieved* actuals, not planned targets)
+  const existingChildTasks: {
+    id?: string;
+    parentTaskId?: string | null;
+    targetValue?: string | number | null;
+    actualValue?: string | number | null;
+    isAchieved?: boolean | null;
+    status?: string | null;
+  }[] = [];
+  const planData = Array.isArray(hierarchy.planData) ? hierarchy.planData : [];
+  for (const childPlan of planData) {
+    const childTasks = Array.isArray(childPlan?.tasks) ? childPlan.tasks : [];
+    for (const ct of childTasks) {
+      if (ct?.parentTaskId) {
+        existingChildTasks.push({
+          id: ct.id ? String(ct.id) : undefined,
+          parentTaskId: String(ct.parentTaskId),
+          targetValue: ct.targetValue,
+          actualValue: ct.actualValue,
+          isAchieved: ct.isAchieved,
+          status: ct.status,
+        });
+      }
+    }
+  }
+
   const groups = groupParentTasks(tasks);
+
+      const pushSlot = (
+    kr: any,
+    t: any,
+    milestoneId: string | null,
+    milestoneTitle?: string | null,
+    milestoneRow?: any,
+  ) => {
+    const krTitle = kr.title || kr.name || 'Key result';
+    const metricTypeName = kr.metricType?.name ?? null;
+    const parentTarget = Number(t.targetValue);
+    const krTarget = Number(kr.targetValue);
+    const capacity = getParentRemainingCapacity(
+      t.targetValue,
+      existingChildTasks,
+      String(t.id),
+      {
+        metricTypeName,
+        parentAlreadyAchieved:
+          (milestoneId != null &&
+            (isMilestoneAchievedForPlanning(milestoneRow ?? t?.milestone) ||
+              isRecentlyAchievedMilestone(milestoneId))) ||
+          isKeyResultFullyCompletedForPlanning(kr),
+      },
+    );
+    const remainingCapacity = capacity?.remaining ?? null;
+    const isParentCapacityFull = capacity?.isFullyUsed === true;
+
+    out.push({
+      id: milestoneId
+        ? `daily-${kr.id}-${milestoneId}-${t.id}`
+        : `daily-${kr.id}-t-${t.id}`,
+      keyResultId: String(kr.id),
+      keyResultTitle: krTitle,
+      milestoneId,
+      milestoneTitle: milestoneTitle ?? null,
+      parentTaskId: String(t.id),
+      parentTaskTitle: t.task || 'Task',
+      parentPlanId,
+      targetValueHint: t.targetValue ?? null,
+      isDailySlot: true,
+      metricTypeName,
+      keyResultTargetValue: Number.isFinite(krTarget) ? krTarget : null,
+      remainingCapacity,
+      parentTargetValue:
+        capacity != null
+          ? capacity.parentTarget
+          : Number.isFinite(parentTarget) && parentTarget > 0
+            ? parentTarget
+            : null,
+      isParentCapacityFull,
+    });
+  };
 
   groups.forEach((objective: any) => {
     objective.keyResults?.forEach((kr: any) => {
       if (kr.deletedAt) return;
       if (isKeyResultFullyCompletedForPlanning(kr)) return;
 
-      const krTitle = kr.title || kr.name || 'Key result';
-      const metricTypeName = kr.metricType?.name ?? null;
       kr.milestones?.forEach((ms: any) => {
         if (ms.deletedAt) return;
         if (isMilestoneAchievedForPlanning(ms)) return;
         ms.tasks?.forEach((t: any) => {
-          out.push({
-            id: `daily-${kr.id}-${ms.id}-${t.id}`,
-            keyResultId: String(kr.id),
-            keyResultTitle: krTitle,
-            milestoneId: String(ms.id),
-            milestoneTitle: ms.title || 'Milestone',
-            parentTaskId: String(t.id),
-            parentTaskTitle: t.task || 'Task',
-            parentPlanId,
-            targetValueHint: t.targetValue ?? null,
-            isDailySlot: true,
-            metricTypeName,
-          });
+          pushSlot(kr, t, String(ms.id), ms.title || 'Milestone', ms);
         });
       });
       kr.tasks?.forEach((t: any) => {
-        out.push({
-          id: `daily-${kr.id}-t-${t.id}`,
-          keyResultId: String(kr.id),
-          keyResultTitle: krTitle,
-          milestoneId: null,
-          parentTaskId: String(t.id),
-          parentTaskTitle: t.task || 'Task',
-          parentPlanId,
-          targetValueHint: t.targetValue ?? null,
-          isDailySlot: true,
-          metricTypeName,
-        });
+        pushSlot(kr, t, null);
       });
     });
   });

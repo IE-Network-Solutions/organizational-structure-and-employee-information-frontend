@@ -27,6 +27,7 @@ import {
   getMetricValueInputMin,
   validateMetricValueAgainstInitial,
 } from '@/utils/okrMetricValueBounds';
+import { validatePlanTargetAgainstCeilings, getParentRemainingCapacity } from '@/utils/parentTaskCapacity';
 
 interface AddDailyPlanDrawerProps {
   open: boolean;
@@ -59,6 +60,8 @@ interface WeeklyTaskGroup {
   keyResultInitialValue?: number | null;
   keyResultTargetValue?: number | null;
   metricTypeName?: string | null;
+  remainingCapacity?: number | null;
+  isParentCapacityFull?: boolean;
 }
 
 // --- Reporting Types ---
@@ -153,7 +156,42 @@ export default function AddDailyPlanDrawer({
   const transformedWeeklyTasks = useMemo(() => {
     if (!weeklyPlanTasks || weeklyPlanTasks.length === 0) return [];
 
+    const existingChildTasks: {
+      parentTaskId?: string | null;
+      actualValue?: string | number | null;
+      isAchieved?: boolean | null;
+      status?: string | null;
+    }[] = [];
+    const planData = Array.isArray(planningPeriodHierarchy?.planData)
+      ? planningPeriodHierarchy.planData
+      : [];
+    for (const childPlan of planData) {
+      const childTasks = Array.isArray(childPlan?.tasks) ? childPlan.tasks : [];
+      for (const ct of childTasks) {
+        if (ct?.parentTaskId) {
+          existingChildTasks.push({
+            parentTaskId: String(ct.parentTaskId),
+            actualValue: ct.actualValue,
+            isAchieved: ct.isAchieved,
+            status: ct.status,
+          });
+        }
+      }
+    }
+
     const groups: WeeklyTaskGroup[] = [];
+
+    const capacityFor = (
+      parentTaskId: string,
+      parentTarget: unknown,
+      metricTypeName?: string | null,
+    ) =>
+      getParentRemainingCapacity(
+        parentTarget,
+        existingChildTasks,
+        parentTaskId,
+        { metricTypeName },
+      );
 
     weeklyPlanTasks.forEach((objective: any) => {
       objective.keyResults?.forEach((keyResult: any) => {
@@ -161,6 +199,12 @@ export default function AddDailyPlanDrawer({
         keyResult.milestones?.forEach((milestone: any) => {
           milestone.tasks?.forEach((task: any) => {
             const groupId = buildKey(keyResult.id, milestone.id, task.id);
+            const metricTypeName = keyResult.metricType?.name ?? null;
+            const capacity = capacityFor(
+              String(task.id),
+              task.targetValue,
+              metricTypeName,
+            );
             groups.push({
               id: groupId,
               title: `${keyResult.title} - ${milestone.title || 'Milestone'}`,
@@ -171,7 +215,9 @@ export default function AddDailyPlanDrawer({
               targetValue: task.targetValue,
               keyResultInitialValue: keyResult.initialValue ?? null,
               keyResultTargetValue: keyResult.targetValue ?? null,
-              metricTypeName: keyResult.metricType?.name ?? null,
+              metricTypeName,
+              remainingCapacity: capacity?.remaining ?? null,
+              isParentCapacityFull: capacity?.isFullyUsed === true,
               tasks: [
                 {
                   id: task.id,
@@ -188,6 +234,12 @@ export default function AddDailyPlanDrawer({
         // Handle tasks without milestones
         keyResult.tasks?.forEach((task: any) => {
           const groupId = buildKey(keyResult.id, undefined, task.id);
+          const metricTypeName = keyResult.metricType?.name ?? null;
+          const capacity = capacityFor(
+            String(task.id),
+            task.targetValue,
+            metricTypeName,
+          );
           groups.push({
             id: groupId,
             title: keyResult.title || 'Key Result',
@@ -198,7 +250,9 @@ export default function AddDailyPlanDrawer({
             targetValue: task.targetValue,
             keyResultInitialValue: keyResult.initialValue ?? null,
             keyResultTargetValue: keyResult.targetValue ?? null,
-            metricTypeName: keyResult.metricType?.name ?? null,
+            metricTypeName,
+            remainingCapacity: capacity?.remaining ?? null,
+            isParentCapacityFull: capacity?.isFullyUsed === true,
             tasks: [
               {
                 id: task.id,
@@ -214,7 +268,7 @@ export default function AddDailyPlanDrawer({
     });
 
     return groups;
-  }, [weeklyPlanTasks]);
+  }, [weeklyPlanTasks, planningPeriodHierarchy?.planData]);
 
   // --- Planning State ---
   const [planningTasks, setPlanningTasks] = useState<WeeklyTaskGroup[]>([]);
@@ -493,6 +547,18 @@ export default function AddDailyPlanDrawer({
                   >
                     {group.title}
                   </span>
+                  {group.isParentCapacityFull ? (
+                    <p className="m-0 mt-1 text-[11px] font-medium text-[#8F94A3]">
+                      Parent fully achieved — nothing left to plan
+                    </p>
+                  ) : group.remainingCapacity != null &&
+                    group.targetValue != null ? (
+                    <p className="m-0 mt-1 text-[11px] text-[#8F94A3]">
+                      {group.remainingCapacity.toLocaleString()} of{' '}
+                      {Number(group.targetValue).toLocaleString()} left to
+                      achieve
+                    </p>
+                  ) : null}
                 </div>
                 {group.collapsed ? <DownOutlined /> : <UpOutlined />}
               </div>
@@ -699,6 +765,53 @@ export default function AddDailyPlanDrawer({
                                           if (err) {
                                             return Promise.reject(
                                               new Error(err),
+                                            );
+                                          }
+                                          const parentTarget = Number(
+                                            group.targetValue,
+                                          );
+                                          const remaining =
+                                            group.remainingCapacity != null
+                                              ? group.remainingCapacity
+                                              : Number.isFinite(parentTarget) &&
+                                                  parentTarget > 0
+                                                ? parentTarget
+                                                : null;
+                                          const ceilingErr =
+                                            validatePlanTargetAgainstCeilings({
+                                              targetValue: value,
+                                              keyResultTargetValue:
+                                                group.keyResultTargetValue,
+                                              parentRemaining:
+                                                remaining != null &&
+                                                Number.isFinite(parentTarget) &&
+                                                parentTarget > 0
+                                                  ? {
+                                                      parentTarget,
+                                                      consumed:
+                                                        parentTarget -
+                                                        remaining,
+                                                      remaining,
+                                                      isFullyUsed:
+                                                        group.isParentCapacityFull ===
+                                                          true ||
+                                                        remaining <= 0,
+                                                    }
+                                                  : group.isParentCapacityFull
+                                                    ? {
+                                                        parentTarget:
+                                                          parentTarget > 0
+                                                            ? parentTarget
+                                                            : 1,
+                                                        consumed: 1,
+                                                        remaining: 0,
+                                                        isFullyUsed: true,
+                                                      }
+                                                    : null,
+                                            });
+                                          if (ceilingErr) {
+                                            return Promise.reject(
+                                              new Error(ceilingErr),
                                             );
                                           }
                                           return Promise.resolve();

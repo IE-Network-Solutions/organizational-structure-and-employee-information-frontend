@@ -22,6 +22,7 @@ import { Cadence } from '../types';
 import { formatPlanningReportDate } from '../utils';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
+import { resolveActivePlanningPeriodId } from '@/utils/resolveActivePlanningPeriodId';
 
 function Reporting({
   onHoverKR,
@@ -54,8 +55,11 @@ function Reporting({
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
-  const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId = resolveActivePlanningPeriodId(
+    activePlanPeriodId,
+    userPlanningPeriods,
+    activePlanPeriod,
+  );
 
   const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
     userId: selectedUser,

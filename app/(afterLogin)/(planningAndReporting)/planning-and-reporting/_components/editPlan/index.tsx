@@ -16,6 +16,7 @@ import {
 import PlanningObjectiveComponent from '../planning/createPlanObjective';
 import PlanningHierarchyComponent from '../planning/createPlanHierarchy';
 import AISuggestionsModal from '@/components/ai/AISuggestionsModal';
+import { resolveActivePlanningPeriodId } from '@/utils/resolveActivePlanningPeriodId';
 
 function EditPlan() {
   const {
@@ -63,8 +64,11 @@ function EditPlan() {
   const { data: planGroupData, isLoading: loadingPlanGroupData } =
     useGetPlanningById(selectedPlanId);
 
-  const planningPeriodId =
-    activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId = resolveActivePlanningPeriodId(
+    activePlanPeriodId,
+    planningPeriods,
+    activePlanPeriod,
+  );
 
   const safePlanningPeriods = Array.isArray(planningPeriods)
     ? planningPeriods

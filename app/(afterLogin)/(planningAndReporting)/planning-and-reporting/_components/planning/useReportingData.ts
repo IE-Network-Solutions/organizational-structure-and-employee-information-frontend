@@ -6,6 +6,7 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { resolveActivePlanningPeriodId } from '@/utils/resolveActivePlanningPeriodId';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence, PlanSummary } from '../types';
 
@@ -24,8 +25,11 @@ export function useReportingData() {
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
 
-  const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId = resolveActivePlanningPeriodId(
+    activePlanPeriodId,
+    userPlanningPeriods,
+    activePlanPeriod,
+  );
 
   const { data: allReporting } = useGetReporting({
     userId: selectedUser,

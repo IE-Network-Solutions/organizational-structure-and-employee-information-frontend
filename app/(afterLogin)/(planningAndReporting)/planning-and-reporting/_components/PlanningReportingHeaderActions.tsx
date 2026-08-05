@@ -12,6 +12,7 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { resolveActivePlanningPeriodId } from '@/utils/resolveActivePlanningPeriodId';
 
 /**
  * Create Plan / Submit {period} primary actions for the page header (aligned with breadcrumb title).
@@ -34,8 +35,11 @@ export function PlanningReportingHeaderActions() {
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
 
-  const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId = resolveActivePlanningPeriodId(
+    activePlanPeriodId,
+    userPlanningPeriods,
+    activePlanPeriod,
+  );
   const userPlanningPeriodId = userPlanningPeriods?.find(
     (item) => item?.planningPeriodId === planningPeriodId,
   )?.planningPeriodId;

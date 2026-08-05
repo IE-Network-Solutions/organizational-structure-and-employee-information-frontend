@@ -33,6 +33,10 @@ export interface PlanningAndReporting {
   activePlanPeriodId: string;
   setActivePlanPeriodId: (activePlanPeriodId: string) => void;
 
+  /** Active planning period assignment allows KR progress on report */
+  canProgressForActivePeriod: boolean;
+  setCanProgressForActivePeriod: (value: boolean) => void;
+
   selectedUser: string[];
   setSelectedUser: (selectedUser: string[]) => void;
   weights: Record<string, number>;
@@ -136,6 +140,10 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     activePlanPeriodId: '',
     setActivePlanPeriodId: (activePlanPeriodId: string) =>
       set({ activePlanPeriodId }),
+
+    canProgressForActivePeriod: false,
+    setCanProgressForActivePeriod: (canProgressForActivePeriod: boolean) =>
+      set({ canProgressForActivePeriod }),
 
     selectedUser: ['all'],
     setSelectedUser: (selectedUser: string[]) => set({ selectedUser }),

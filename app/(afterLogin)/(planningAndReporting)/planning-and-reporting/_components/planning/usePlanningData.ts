@@ -8,6 +8,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { resolveActivePlanningPeriodId } from '@/utils/resolveActivePlanningPeriodId';
 import { transformToPlanSummary } from '../dataTransformer/vamp';
 import { ViewMode, Cadence, PlanSummary } from '../types';
 
@@ -19,8 +20,11 @@ export function usePlanningData() {
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
 
-  const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId = resolveActivePlanningPeriodId(
+    activePlanPeriodId,
+    userPlanningPeriods,
+    activePlanPeriod,
+  );
 
   const { data: allPlanning, isLoading } = useGetPlanning({
     userId: selectedUser,

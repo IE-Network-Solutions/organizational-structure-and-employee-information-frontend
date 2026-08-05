@@ -9,9 +9,20 @@ function isPreAchievedStatus(status: unknown): boolean {
   return status === 'pre_achieved' || status === 'pre-achieved';
 }
 
+function isLockedFromChildren(task: any): boolean {
+  return Boolean(task?.lockedFromChildren);
+}
+
+function rollupStatusForTask(task: any): 'Done' | 'Not' | null {
+  const status = task?.rollupStatus ?? task?.status;
+  if (status === 'Done' || status === 'Not') return status;
+  return null;
+}
+
 /**
  * Syncs store + form for create-report flow (drawer or inline card).
  * Mirrors the effects previously only in CreateReport.
+ * Also prefills + locks parent rows derived from child plan reports.
  */
 export function useCreateReportFormEffects(
   formattedData: any[] | null | undefined | false,
@@ -25,28 +36,30 @@ export function useCreateReportFormEffects(
     const newStatuses: Record<string, string> = {};
     let hasChanges = false;
 
+    const considerTask = (task: any) => {
+      if (selectedStatuses[task.taskId] !== undefined) return;
+
+      if (isLockedFromChildren(task)) {
+        const rollup = rollupStatusForTask(task);
+        if (rollup) {
+          newStatuses[task.taskId] = rollup;
+          hasChanges = true;
+        }
+        return;
+      }
+
+      if (isPreAchievedStatus(task?.status)) {
+        newStatuses[task.taskId] = 'Done';
+        hasChanges = true;
+      }
+    };
+
     formattedData.forEach((objective: any) => {
       objective?.keyResults?.forEach((keyresult: any) => {
         keyresult?.milestones?.forEach((milestone: any) => {
-          milestone?.tasks?.forEach((task: any) => {
-            if (
-              isPreAchievedStatus(task?.status) &&
-              selectedStatuses[task.taskId] === undefined
-            ) {
-              newStatuses[task.taskId] = 'Done';
-              hasChanges = true;
-            }
-          });
+          milestone?.tasks?.forEach(considerTask);
         });
-        keyresult?.tasks?.forEach((task: any) => {
-          if (
-            isPreAchievedStatus(task?.status) &&
-            selectedStatuses[task.taskId] === undefined
-          ) {
-            newStatuses[task.taskId] = 'Done';
-            hasChanges = true;
-          }
-        });
+        keyresult?.tasks?.forEach(considerTask);
       });
     });
 
@@ -64,40 +77,47 @@ export function useCreateReportFormEffects(
 
     const initialValues: Record<string, any> = {};
 
+    const applyTaskValues = (task: any) => {
+      if (!selectedStatuses[task.taskId]) return;
+
+      if (isLockedFromChildren(task)) {
+        const status = selectedStatuses[task.taskId];
+        const actual = Number(
+          task?.rollupActualValue ?? task?.actualValue ?? 0,
+        );
+        initialValues[task.taskId] = {
+          status,
+          actualValue: actual,
+          ...(status === 'Not'
+            ? {
+                customReason:
+                  task?.rollupCustomReason ||
+                  'Failed based on child plan reports',
+              }
+            : {}),
+        };
+        return;
+      }
+
+      if (selectedStatuses[task.taskId] === 'Done') {
+        initialValues[task.taskId] = {
+          status: selectedStatuses[task.taskId],
+          actualValue: Number(task?.targetValue ?? 0),
+        };
+      } else if (selectedStatuses[task.taskId] === 'Not') {
+        initialValues[task.taskId] = {
+          status: selectedStatuses[task.taskId],
+          actualValue: Number(task?.actualValue ?? 0),
+        };
+      }
+    };
+
     formattedData.forEach((objective: any) => {
       objective?.keyResults?.forEach((keyresult: any) => {
         keyresult?.milestones?.forEach((milestone: any) => {
-          milestone?.tasks?.forEach((task: any) => {
-            if (selectedStatuses[task.taskId]) {
-              if (selectedStatuses[task.taskId] === 'Done') {
-                initialValues[task.taskId] = {
-                  status: selectedStatuses[task.taskId],
-                  actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
-                };
-              } else if (selectedStatuses[task.taskId] === 'Not') {
-                initialValues[task.taskId] = {
-                  status: selectedStatuses[task.taskId],
-                  actualValue: Number(task?.actualValue ?? 0)?.toLocaleString(),
-                };
-              }
-            }
-          });
+          milestone?.tasks?.forEach(applyTaskValues);
         });
-        keyresult?.tasks?.forEach((task: any) => {
-          if (selectedStatuses[task.taskId]) {
-            if (selectedStatuses[task.taskId] === 'Done') {
-              initialValues[task.taskId] = {
-                status: selectedStatuses[task.taskId],
-                actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
-              };
-            } else if (selectedStatuses[task.taskId] === 'Not') {
-              initialValues[task.taskId] = {
-                status: selectedStatuses[task.taskId],
-                actualValue: 0,
-              };
-            }
-          }
-        });
+        keyresult?.tasks?.forEach(applyTaskValues);
       });
     });
 

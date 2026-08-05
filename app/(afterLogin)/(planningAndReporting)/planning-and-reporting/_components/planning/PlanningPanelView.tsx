@@ -1119,10 +1119,17 @@ function ParentPlanTasksSection({
           >
             {slots.map((slot) => {
               const selected = selectedPlanningTargetId === slot.id;
+              const capacityFull = slot.isParentCapacityFull === true;
               const canPick =
                 showPick &&
                 !!onPickPlanningTarget &&
-                !blockedKrIds?.has(slot.keyResultId);
+                !blockedKrIds?.has(slot.keyResultId) &&
+                !capacityFull;
+              const remainingLabel =
+                slot.remainingCapacity != null &&
+                slot.parentTargetValue != null
+                  ? `${slot.remainingCapacity.toLocaleString()} of ${slot.parentTargetValue.toLocaleString()} left`
+                  : null;
               return (
                 <li
                   data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-li-710"
@@ -1132,17 +1139,30 @@ function ParentPlanTasksSection({
                   <div
                     data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-900"
                     className={`flex w-full items-center justify-between gap-2 rounded-xl border bg-white px-3 py-2.5 transition-all duration-200 ${
-                      selected
-                        ? 'border-[#1E40AF]/40 shadow-[0_0_0_2px_rgba(30,64,175,0.08),0_2px_12px_rgba(30,64,175,0.06)]'
-                        : 'border-[#F1F2F6] hover:border-[#1E40AF]/15 hover:shadow-[0_2px_12px_rgba(30,64,175,0.05)]'
+                      capacityFull
+                        ? 'border-[#F1F2F6] opacity-70'
+                        : selected
+                          ? 'border-[#1E40AF]/40 shadow-[0_0_0_2px_rgba(30,64,175,0.08),0_2px_12px_rgba(30,64,175,0.06)]'
+                          : 'border-[#F1F2F6] hover:border-[#1E40AF]/15 hover:shadow-[0_2px_12px_rgba(30,64,175,0.05)]'
                     }`}
                   >
-                    <p
-                      data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-718"
-                      className="line-clamp-3 min-w-0 flex-1 text-left text-[12px] font-normal leading-snug text-[#161A2C] sm:text-[13px]"
-                    >
-                      {rowLabel(slot)}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-718"
+                        className="line-clamp-3 text-left text-[12px] font-normal leading-snug text-[#161A2C] sm:text-[13px]"
+                      >
+                        {rowLabel(slot)}
+                      </p>
+                      {capacityFull ? (
+                        <p className="mt-0.5 text-[10px] font-medium text-[#8F94A3]">
+                          Parent fully achieved — nothing left to plan
+                        </p>
+                      ) : remainingLabel ? (
+                        <p className="mt-0.5 text-[10px] text-[#8F94A3]">
+                          {remainingLabel} to achieve
+                        </p>
+                      ) : null}
+                    </div>
                     {canPick ? (
                       <button
                         data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-914"

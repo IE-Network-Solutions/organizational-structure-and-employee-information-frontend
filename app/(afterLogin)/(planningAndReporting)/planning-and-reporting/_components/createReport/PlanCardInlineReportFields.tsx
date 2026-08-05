@@ -68,10 +68,13 @@ export function PlanCardInlineReportFields({
     return null;
   }
 
-  const actualValueRules = (task: any, keyresult: any) => [
+  const actualValueRules = (task: any, keyresult: any, locked: boolean) => [
     {
       validator(rule: unknown, value: unknown) {
         void rule;
+        if (locked) {
+          return Promise.resolve();
+        }
         if (!keyresult || keyresult.targetValue == null) {
           return Promise.reject(new Error('Key result data is incomplete.'));
         }
@@ -111,6 +114,7 @@ export function PlanCardInlineReportFields({
   ];
 
   const renderTaskRow = (task: any, keyresult: any) => {
+    const lockedFromChildren = Boolean(task?.lockedFromChildren);
     const isDone = selectedStatuses[task.taskId] === 'Done';
     const isNot = selectedStatuses[task.taskId] === 'Not';
     const hasChoice = isDone || isNot;
@@ -118,6 +122,9 @@ export function PlanCardInlineReportFields({
       hasChoice &&
       keyresult?.metricType?.name !== NAME.ACHIEVE &&
       keyresult?.metricType?.name !== NAME.MILESTONE;
+    const childHeldActual = Number(
+      task?.rollupActualValue ?? task?.actualValue ?? 0,
+    );
 
     return (
       <div
@@ -129,6 +136,7 @@ export function PlanCardInlineReportFields({
           !hasChoice && 'hover:bg-[#FAFBFC]',
           isDone && 'bg-[#2563EB]/[0.03]',
           isNot && 'bg-[#FEF2F2]/40',
+          lockedFromChildren && 'opacity-95',
         )}
       >
         {/* Single row when achieved fields show: task truncates (ellipsis) so controls stay inline */}
@@ -158,13 +166,19 @@ export function PlanCardInlineReportFields({
                 id={`inline-report-done-${task.taskId}`}
                 aria-label="Done"
                 aria-pressed={isDone}
+                disabled={lockedFromChildren}
                 className={classNames(
                   'flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200',
+                  lockedFromChildren && 'cursor-not-allowed',
                   isDone
                     ? 'border-[#2563EB] bg-[#2563EB] text-white shadow-[0_0_0_2px_rgba(37,99,235,0.10)]'
                     : 'border-[#D1D5DB] bg-white text-[#94A3B8] hover:border-[#2563EB]/45 hover:shadow-[0_0_0_2px_rgba(37,99,235,0.07)]',
+                  lockedFromChildren &&
+                    !isDone &&
+                    'hover:border-[#D1D5DB] hover:shadow-none',
                 )}
                 onClick={() => {
+                  if (lockedFromChildren) return;
                   setStatus(task.taskId, 'Done');
                   form.setFieldsValue({
                     [task.taskId]: {
@@ -182,13 +196,19 @@ export function PlanCardInlineReportFields({
                 id={`inline-report-not-${task.taskId}`}
                 aria-label="Not completed"
                 aria-pressed={isNot}
+                disabled={lockedFromChildren}
                 className={classNames(
                   'flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200',
+                  lockedFromChildren && 'cursor-not-allowed',
                   isNot
                     ? 'border-[#DC2626] bg-[#DC2626] text-white shadow-[0_0_0_2px_rgba(220,38,38,0.12)]'
                     : 'border-[#D1D5DB] bg-white text-[#94A3B8] hover:border-[#F87171]/55 hover:shadow-[0_0_0_2px_rgba(248,113,113,0.08)]',
+                  lockedFromChildren &&
+                    !isNot &&
+                    'hover:border-[#D1D5DB] hover:shadow-none',
                 )}
                 onClick={() => {
+                  if (lockedFromChildren) return;
                   setStatus(task.taskId, 'Not');
                   form.setFieldsValue({
                     [task.taskId]: {
@@ -229,20 +249,34 @@ export function PlanCardInlineReportFields({
                   'hidden min-[380px]:inline shrink-0 leading-none',
                 )}
               >
-                Achieved
+                {lockedFromChildren ? 'From child' : 'Achieved'}
               </span>
               <Form.Item
                 name={[task.taskId, 'actualValue']}
                 className="mb-0 inline-flex shrink-0 items-center [&_.ant-form-item-row]:mb-0"
-                initialValue={Number(task?.actualValue ?? 0)}
-                rules={actualValueRules(task, keyresult)}
+                initialValue={
+                  lockedFromChildren
+                    ? childHeldActual
+                    : Number(task?.actualValue ?? 0)
+                }
+                rules={actualValueRules(task, keyresult, lockedFromChildren)}
               >
                 <InputNumber
                   id={`inline-report-actual-${task.taskId}`}
                   min={getMetricValueInputMin(keyresult)}
                   max={getMetricValueInputMax(keyresult)}
                   placeholder="0"
-                  aria-label="Achieved value"
+                  aria-label={
+                    lockedFromChildren
+                      ? 'Achieved value from child plans'
+                      : 'Achieved value'
+                  }
+                  disabled={lockedFromChildren}
+                  title={
+                    lockedFromChildren
+                      ? 'Progress from child plans (read-only)'
+                      : undefined
+                  }
                   addonAfter={
                     <span
                       data-cy="planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-plancardinlinereportfields-span-228"
@@ -282,6 +316,15 @@ export function PlanCardInlineReportFields({
           ) : null}
         </div>
 
+        {lockedFromChildren && hasChoice ? (
+          <p
+            className="m-0 mt-1 text-[10px] leading-tight text-[#94A3B8]"
+            data-cy={`inline-report-child-hint-${task.taskId}`}
+          >
+            From child reports (read-only)
+          </p>
+        ) : null}
+
         {/* Row 3: reason when Not */}
         <div
           data-cy="planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-plancardinlinereportfields-div-266"
@@ -303,6 +346,12 @@ export function PlanCardInlineReportFields({
                 <Form.Item
                   name={[task.taskId, 'customReason']}
                   className="mb-0"
+                  initialValue={
+                    lockedFromChildren
+                      ? task?.rollupCustomReason ||
+                        'Failed based on child plan reports'
+                      : undefined
+                  }
                   rules={[
                     { required: true, message: 'Please provide a reason!' },
                   ]}
@@ -312,7 +361,8 @@ export function PlanCardInlineReportFields({
                     rows={2}
                     placeholder="What blocked completion?"
                     aria-label="Reason task was not completed"
-                    className="!min-h-[3rem] rounded-md !border-[#E5E7EB] bg-white !px-2.5 !py-1.5 !text-[12px] !leading-snug !text-[#2D2F45] placeholder:!text-[#94A3B8] hover:!border-[#FECACA] focus:!border-[#F87171] focus:!shadow-[0_0_0_2px_rgba(248,113,113,0.12)]"
+                    disabled={lockedFromChildren}
+                    className="!min-h-[3rem] rounded-md !border-[#E5E7EB] bg-white !px-2.5 !py-1.5 !text-[12px] !leading-snug !text-[#2D2F45] placeholder:!text-[#94A3B8] hover:!border-[#FECACA] focus:!border-[#F87171] focus:!shadow-[0_0_0_2px_rgba(248,113,113,0.12)] disabled:!bg-[#F8FAFC] disabled:!text-[#64748B]"
                     style={{ resize: 'none' }}
                   />
                 </Form.Item>

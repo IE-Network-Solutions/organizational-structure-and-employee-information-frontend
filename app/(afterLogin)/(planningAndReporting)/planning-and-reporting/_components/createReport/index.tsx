@@ -8,10 +8,12 @@ import { useCreateReportForUnReportedtasks } from '@/store/server/features/okrPl
 import {
   useDefaultPlanningPeriods,
   useGetPlannedTaskForReport,
+  AllPlanningPeriods,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
 import { markMilestonesCompletedInOkrCaches } from '@/utils/invalidateOkrPlanningCaches';
+import { resolveActivePlanningPeriodId } from '@/utils/resolveActivePlanningPeriodId';
 import {
   buildMilestoneKeyResultMap,
   clearReopenedPlanningTargets,
@@ -46,6 +48,7 @@ function CreateReport() {
   };
 
   const { data: planningPeriods } = useDefaultPlanningPeriods();
+  const { data: userPlanningPeriods } = AllPlanningPeriods();
 
   const { mutate: createReport, isLoading: createReportLoading } =
     useCreateReportForUnReportedtasks();
@@ -56,8 +59,11 @@ function CreateReport() {
     );
     return planningPeriodDetail || {};
   };
-  const planningPeriodId =
-    activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId = resolveActivePlanningPeriodId(
+    activePlanPeriodId,
+    userPlanningPeriods,
+    activePlanPeriod,
+  );
   const {
     data: allPlannedTaskForReport,
     isLoading: plannedTaskForReportLoading,

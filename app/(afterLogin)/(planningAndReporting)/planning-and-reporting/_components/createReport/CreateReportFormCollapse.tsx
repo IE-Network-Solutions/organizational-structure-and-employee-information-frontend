@@ -38,6 +38,7 @@ export function CreateReportFormCollapse({
   }
 
   const renderTaskRow = (task: any, keyresult: any) => {
+    const lockedFromChildren = Boolean(task?.lockedFromChildren);
     const isDone = selectedStatuses[task.taskId] === 'Done';
     const isNot = selectedStatuses[task.taskId] === 'Not';
     const metricSymbol = metricAddonSymbol(keyresult);
@@ -45,6 +46,9 @@ export function CreateReportFormCollapse({
       (isDone || isNot) &&
       keyresult?.metricType?.name !== NAME.ACHIEVE &&
       keyresult?.metricType?.name !== NAME.MILESTONE;
+    const childHeldActual = Number(
+      task?.rollupActualValue ?? task?.actualValue ?? 0,
+    );
 
     return (
       <div
@@ -65,6 +69,11 @@ export function CreateReportFormCollapse({
             >
               {task.taskName}
             </p>
+            {lockedFromChildren ? (
+              <p className="m-0 mt-0.5 text-[10px] text-gray-400">
+                From child reports (read-only)
+              </p>
+            ) : null}
           </Col>
 
           <Col
@@ -80,12 +89,13 @@ export function CreateReportFormCollapse({
                 <Form.Item
                   name={[task.taskId, 'actualValue']}
                   className="mb-0"
-                  initialValue={
-                    Number(task?.actualValue)?.toLocaleString() || 0
-                  }
+                  initialValue={childHeldActual}
                   rules={[
                     {
                       validator(unusedRule, value) {
+                        if (lockedFromChildren) {
+                          return Promise.resolve();
+                        }
                         if (!keyresult || !keyresult.targetValue) {
                           return Promise.reject(
                             new Error('Key result data is incomplete.'),
@@ -138,6 +148,7 @@ export function CreateReportFormCollapse({
                     min={getMetricValueInputMin(keyresult)}
                     max={getMetricValueInputMax(keyresult)}
                     placeholder="Value"
+                    disabled={lockedFromChildren}
                     formatter={(value) =>
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                     }
@@ -161,13 +172,14 @@ export function CreateReportFormCollapse({
               >
                 <div
                   data-cy="planning-and-reporting-components-createreport-createreportformcollapse-tsx-createreportformcollapse-div-138"
-                  className="flex items-center gap-2 border-none bg-transparent p-0 sm:gap-4"
+                  className={`flex items-center gap-2 border-none bg-transparent p-0 sm:gap-4 ${lockedFromChildren ? 'pointer-events-none opacity-80' : ''}`}
                 >
                   <div
                     id={`create-report-status-done-${task.taskId}`}
                     data-cy={`create-report-status-done-${task.taskId}`}
-                    className="flex cursor-pointer items-center gap-1 px-0 py-0 opacity-100 transition hover:opacity-80"
+                    className={`flex items-center gap-1 px-0 py-0 opacity-100 transition ${lockedFromChildren ? 'cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}`}
                     onClick={() => {
+                      if (lockedFromChildren) return;
                       setStatus(task.taskId, 'Done');
                       form.setFieldsValue({
                         [task.taskId]: {
@@ -196,8 +208,9 @@ export function CreateReportFormCollapse({
                   <div
                     id={`create-report-status-not-${task.taskId}`}
                     data-cy={`create-report-status-not-${task.taskId}`}
-                    className="flex cursor-pointer items-center gap-1 px-0 py-0 opacity-100 transition hover:opacity-80"
+                    className={`flex items-center gap-1 px-0 py-0 opacity-100 transition ${lockedFromChildren ? 'cursor-not-allowed' : 'cursor-pointer hover:opacity-80'}`}
                     onClick={() => {
+                      if (lockedFromChildren) return;
                       setStatus(task.taskId, 'Not');
                       form.setFieldsValue({
                         [task.taskId]: {
@@ -236,6 +249,12 @@ export function CreateReportFormCollapse({
             <Form.Item
               name={[task.taskId, 'customReason']}
               className="mb-0"
+              initialValue={
+                lockedFromChildren
+                  ? task?.rollupCustomReason ||
+                    'Failed based on child plan reports'
+                  : undefined
+              }
               rules={[{ required: true, message: 'Please provide a reason!' }]}
             >
               <TextArea
@@ -243,6 +262,7 @@ export function CreateReportFormCollapse({
                 data-cy={`create-report-comment-textarea-${task.taskId}`}
                 rows={embedded ? 2 : 3}
                 placeholder="Please describe why this task was not completed..."
+                disabled={lockedFromChildren}
                 className="w-full rounded-lg border-gray-200 bg-white p-2 text-sm transition focus:bg-white"
                 style={{ resize: 'none' }}
               />

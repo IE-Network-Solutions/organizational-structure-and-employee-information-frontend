@@ -44,7 +44,7 @@ const PayrollSettingsLayout: FC<PayrollSettingsLayoutProps> = ({
       },
       {
         key: 'general' as const,
-        label: 'General',
+        label: 'Working Day Configuration on VP',
         href: '/settings/general',
       },
     ],

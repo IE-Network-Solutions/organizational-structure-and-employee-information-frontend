@@ -20,6 +20,7 @@ import PlanningPanelView from './PlanningPanelView';
 import { transformToPlanSummary } from '../dataTransformer/vamp';
 import { ViewMode, Cadence, PlanSummary } from '../types';
 import { formatPlanningReportDate } from '../utils';
+import { resolveActivePlanningPeriodId } from '@/utils/resolveActivePlanningPeriodId';
 
 export interface PlanningExposedData {
   planSummaries: PlanSummary[];
@@ -136,8 +137,11 @@ function Planning({
     return planningPeriodDetail || {};
   };
 
-  const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+  const planningPeriodId = resolveActivePlanningPeriodId(
+    activePlanPeriodId,
+    userPlanningPeriods,
+    activePlanPeriod,
+  );
   const { data: allPlanning, isLoading: getPlanningLoading } = useGetPlanning({
     userId: effectiveSelectedUsers,
     planPeriodId: planningPeriodId ?? '',
