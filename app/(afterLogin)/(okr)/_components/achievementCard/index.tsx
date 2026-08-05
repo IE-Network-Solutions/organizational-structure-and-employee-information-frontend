@@ -36,6 +36,7 @@ const ProgressCard: React.FC<ProgressCardParams> = ({
           data-cy={`okr-achievement-card-icon-wrapper-${title}`}
         >
           <Image
+            unoptimized
             src={Receipt.src}
             alt="icon"
             width={20}
@@ -67,6 +68,7 @@ const ProgressCard: React.FC<ProgressCardParams> = ({
             data-cy={`okr-achievement-card-cycle-icon-wrapper-${title}`}
           >
             <Image
+              unoptimized
               src={Cycle.src}
               alt="icon"
               width={15}

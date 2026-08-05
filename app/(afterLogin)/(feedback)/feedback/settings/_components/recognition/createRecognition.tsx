@@ -27,8 +27,6 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedback/settings';
-import cancelIcon from '../../../../../../../public/image/Button.svg';
-import Image from 'next/image';
 import { GoPencil } from 'react-icons/go';
 import {
   DeleteOutlined,
@@ -661,8 +659,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       appendScoreAdjustFields(mapped, {
         scoreAdjustOperator:
           formRow.scoreAdjustOperator ?? criteria.scoreAdjustOperator,
-        scoreAdjustValue:
-          formRow.scoreAdjustValue ?? criteria.scoreAdjustValue,
+        scoreAdjustValue: formRow.scoreAdjustValue ?? criteria.scoreAdjustValue,
       });
       return mapped;
     });
@@ -828,8 +825,7 @@ const RecognitionForm: React.FC<PropsData> = ({
           appendScoreAdjustFields(patchPayload, {
             scoreAdjustOperator:
               rcVals.scoreAdjustOperator ?? row.scoreAdjustOperator,
-            scoreAdjustValue:
-              rcVals.scoreAdjustValue ?? row.scoreAdjustValue,
+            scoreAdjustValue: rcVals.scoreAdjustValue ?? row.scoreAdjustValue,
           });
 
           updateRecognitionCriteriaRow(patchPayload, {
@@ -2177,19 +2173,17 @@ const RecognitionForm: React.FC<PropsData> = ({
                             data-cy={`create-recognition-form-criteria-score-adjust-operator-select-${index}`}
                             id={`createRecognitionFormCriteriaScoreAdjustOperatorSelect${index}`}
                           >
-                            {SCORE_ADJUST_OPERATORS.map(
-                              (operator, opIndex) => (
-                                <Select.Option
-                                  key={`score-adjust-operator-${operator}-${opIndex}`}
-                                  value={operator}
-                                  className={commonClass}
-                                  data-cy={`create-recognition-form-criteria-score-adjust-operator-option-${index}-${opIndex}`}
-                                  id={`createRecognitionFormCriteriaScoreAdjustOperatorOption${index}${opIndex}`}
-                                >
-                                  {operator}
-                                </Select.Option>
-                              ),
-                            )}
+                            {SCORE_ADJUST_OPERATORS.map((operator, opIndex) => (
+                              <Select.Option
+                                key={`score-adjust-operator-${operator}-${opIndex}`}
+                                value={operator}
+                                className={commonClass}
+                                data-cy={`create-recognition-form-criteria-score-adjust-operator-option-${index}-${opIndex}`}
+                                id={`createRecognitionFormCriteriaScoreAdjustOperatorOption${index}${opIndex}`}
+                              >
+                                {operator}
+                              </Select.Option>
+                            ))}
                           </Select>
                         </Form.Item>
 
@@ -2202,9 +2196,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                             index,
                             'scoreAdjustValue',
                           ]}
-                          initialValue={
-                            criteria.scoreAdjustValue ?? undefined
-                          }
+                          initialValue={criteria.scoreAdjustValue ?? undefined}
                           data-cy={`create-recognition-form-criteria-score-adjust-value-field-${index}`}
                           id={`createRecognitionFormCriteriaScoreAdjustValueField${index}`}
                         >
@@ -2215,9 +2207,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                             onChange={(e) => {
                               const updated = [...selectedCriteria];
                               updated[index].scoreAdjustValue =
-                                e.target.value === ''
-                                  ? null
-                                  : e.target.value;
+                                e.target.value === '' ? null : e.target.value;
                               setSelectedCriteria(updated);
                             }}
                             data-cy={`create-recognition-form-criteria-score-adjust-value-input-${index}`}
@@ -2225,11 +2215,8 @@ const RecognitionForm: React.FC<PropsData> = ({
                           />
                         </Form.Item>
                         {!isCriteriaOnlyEdit && (
-                          <Image
-                            src={cancelIcon}
-                            alt="remove"
-                            width={16}
-                            height={16}
+                          <button
+                            type="button"
                             onClick={() => {
                               const updatedCriteria = selectedCriteria.filter(
                                 (nonUsed: any, i: number) => i !== index,
@@ -2247,10 +2234,13 @@ const RecognitionForm: React.FC<PropsData> = ({
                                 recognitionCriteria: updatedCriteria,
                               });
                             }}
-                            className="mb-1 shrink-0 cursor-pointer self-end"
+                            className="mb-1 shrink-0 cursor-pointer self-end text-gray-500 hover:text-red-500 border-0 bg-transparent p-0"
+                            aria-label="Remove criterion"
                             data-cy={`create-recognition-form-criteria-remove-${index}`}
                             id={`createRecognitionFormCriteriaRemove${index}`}
-                          />
+                          >
+                            <DeleteOutlined className="text-base" />
+                          </button>
                         )}
                       </div>
                     </div>

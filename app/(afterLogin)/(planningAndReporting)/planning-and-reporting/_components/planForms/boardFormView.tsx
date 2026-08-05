@@ -2,6 +2,11 @@ import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndR
 import { Button, Col, Form, Input, InputNumber, Row, Select } from 'antd';
 import { MdCancel } from 'react-icons/md';
 import { NAME } from '@/types/enumTypes';
+import {
+  getMetricValueInputMax,
+  getMetricValueInputMin,
+  validateMetricValueAgainstInitial,
+} from '@/utils/okrMetricValueBounds';
 import useClickStatus from '@/store/uistate/features/planningAndReporting/planingState';
 
 interface BoardCardInterface {
@@ -301,6 +306,17 @@ function BoardCardForm({
                                     );
                                   }
 
+                                  const initialBoundError =
+                                    validateMetricValueAgainstInitial(
+                                      numericValue,
+                                      keyResult,
+                                    );
+                                  if (initialBoundError) {
+                                    return Promise.reject(
+                                      new Error(initialBoundError),
+                                    );
+                                  }
+
                                   // Check if total exceeds key result's available target
                                   if (
                                     targetValue !== null &&
@@ -327,7 +343,8 @@ function BoardCardForm({
                             <InputNumber
                               id={`board-form-target-input-${name}-${subName}`}
                               data-cy={`board-form-target-input-${name}-${subName}`}
-                              min={0}
+                              min={getMetricValueInputMin(keyResult)}
+                              max={getMetricValueInputMax(keyResult)}
                               className="w-full text-xs h-10 [&_.ant-input-number]:h-full [&_.ant-input-number-input-wrap]:h-full [&_.ant-input-number-input-wrap]:flex [&_.ant-input-number-input-wrap]:items-center [&_.ant-input-number-input]:h-full"
                               defaultValue={0}
                               formatter={(value) =>

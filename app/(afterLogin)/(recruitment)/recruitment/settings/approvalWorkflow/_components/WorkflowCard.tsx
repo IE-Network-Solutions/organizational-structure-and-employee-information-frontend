@@ -124,6 +124,7 @@ const WorkflowCard: React.FC<WorkflowCardProps> = ({
                 className="relative h-5 w-5 overflow-hidden rounded-full shrink-0"
               >
                 <Image
+                  unoptimized
                   src={GENDER_NEUTRAL_AVATAR_URL}
                   alt={assignee.name}
                   fill
