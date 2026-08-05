@@ -7,6 +7,7 @@ import {
 } from '@/store/uistate/features/incentive/incentive';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useFetchIncentiveSessions } from '@/store/server/features/incentive/project/queries';
+import { useGetIncentiveDataByRecognitionId } from '@/store/server/features/incentive/other/queries';
 import {
   useGetActiveFiscalYears,
   useGetAllFiscalYears,
@@ -50,6 +51,18 @@ const DynamicIncentiveFilter: React.FC = () => {
   const parentRecognitionId = selectedRecognition?.id ?? '';
   const { data: recognitionTypesRaw } =
     useGetRecognitionTypeParentChildById(parentRecognitionId);
+
+  const { data: dynamicRecognitionData } = useGetIncentiveDataByRecognitionId(
+    parentRecognitionId,
+    searchParams?.employee_name || '',
+    searchParams?.byType || '',
+    searchParams?.byYear || ' ',
+    searchParams?.bySession,
+    searchParams?.byMonth || '',
+    pageSize,
+    currentPage,
+  );
+  const tableTotalBonus = dynamicRecognitionData?.data?.totalAmount || 0;
   const childTypeOptions = React.useMemo(() => {
     const fromApi = normalizeChildRecognitionTypes(recognitionTypesRaw);
     if (fromApi.length > 0) return fromApi;
@@ -398,34 +411,46 @@ const DynamicIncentiveFilter: React.FC = () => {
           }
         />
 
-        <Popover
-          trigger="click"
-          placement="bottomRight"
-          open={filterPopoverOpen}
-          onOpenChange={(open) => {
-            setFilterPopoverOpen(open);
-            if (open) {
-              setDraftFilters({
-                byYear: (searchParams?.byYear as string) || undefined,
-                bySession: Array.isArray(searchParams?.bySession)
-                  ? (searchParams?.bySession as string[])
-                  : [],
-                byMonth: (searchParams?.byMonth as string) || undefined,
-                childRecognitionTypeId: searchParams?.byType || undefined,
-              });
-            }
-          }}
-          content={filterPopoverContent}
+        <div
+          className="flex items-center gap-3"
+          data-cy="dynamic-incentive-total-bonus-and-filter"
         >
-          <button
-            type="button"
-            className="inline-flex h-8 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 text-sm font-normal text-black/70 hover:border-gray-300 hover:bg-gray-50"
-            data-cy="dynamic-incentive-filter-trigger"
+          <span
+            className="text-[14px] leading-none font-normal text-black/70 whitespace-nowrap"
+            data-cy="dynamic-incentive-total-bonus"
           >
-            <MdOutlineFilterAlt className="text-lg text-black/55" />
-            Filter
-          </button>
-        </Popover>
+            Total Bonus: {tableTotalBonus.toLocaleString()}
+          </span>
+
+          <Popover
+            trigger="click"
+            placement="bottomRight"
+            open={filterPopoverOpen}
+            onOpenChange={(open) => {
+              setFilterPopoverOpen(open);
+              if (open) {
+                setDraftFilters({
+                  byYear: (searchParams?.byYear as string) || undefined,
+                  bySession: Array.isArray(searchParams?.bySession)
+                    ? (searchParams?.bySession as string[])
+                    : [],
+                  byMonth: (searchParams?.byMonth as string) || undefined,
+                  childRecognitionTypeId: searchParams?.byType || undefined,
+                });
+              }
+            }}
+            content={filterPopoverContent}
+          >
+            <button
+              type="button"
+              className="inline-flex h-8 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 text-sm font-normal text-black/70 hover:border-gray-300 hover:bg-gray-50"
+              data-cy="dynamic-incentive-filter-trigger"
+            >
+              <MdOutlineFilterAlt className="text-lg text-black/55" />
+              Filter
+            </button>
+          </Popover>
+        </div>
       </div>
     </div>
   );

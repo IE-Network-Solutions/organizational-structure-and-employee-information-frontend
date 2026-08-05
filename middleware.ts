@@ -2,17 +2,53 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getCookie } from './helpers/storageHelper';
 
+const isCore =
+  (process.env.IS_CORE ?? process.env.NEXT_PUBLIC_IS_CORE ?? '')
+    .trim()
+    .toLowerCase() === 'true';
+
+function isLoginPath(pathname: string): boolean {
+  return (
+    pathname === '/login' ||
+    pathname.startsWith('/authentication/login') ||
+    pathname.startsWith('/authentication/forget-password') ||
+    pathname.startsWith('/authentication/reset-password') ||
+    pathname.startsWith('/authentication/2fa')
+  );
+}
+
+/** PWA / push service workers must be served without auth redirects. */
+function isServiceWorkerAsset(pathname: string): boolean {
+  return (
+    pathname === '/sw.js' ||
+    pathname === '/sw-push.js' ||
+    pathname.endsWith('/sw.js') ||
+    pathname.endsWith('/sw-push.js') ||
+    /\/workbox-[^/]+\.js$/.test(pathname)
+  );
+}
+
 /**
  * Core owns the single login page at the origin root (outside this app's
- * /workspace basePath). Send unauthenticated users there with a `redirect` back
- * to where they were headed. The shared `token` cookie means a user already
- * signed in on Core never reaches this redirect.
+ * /workspace basePath). Standalone / redesign uses this app's own login route.
+ * Never nest a login URL as the `redirect` target — that causes an infinite
+ * `/login?redirect=/login?redirect=...` loop.
  */
-function coreLoginUrl(req: NextRequest): URL {
-  const here = `${req.nextUrl.basePath}${req.nextUrl.pathname}${req.nextUrl.search}`;
-  const url = new URL('/login', req.url);
-  url.searchParams.set('redirect', here);
-  return url;
+function loginRedirectUrl(req: NextRequest): URL {
+  const pathname = req.nextUrl.pathname;
+  const search = req.nextUrl.search;
+  const here = `${req.nextUrl.basePath}${pathname}${search}`;
+
+  if (isCore) {
+    const url = new URL('/login', req.url);
+    if (!isLoginPath(pathname)) {
+      url.searchParams.set('redirect', here);
+    }
+    return url;
+  }
+
+  // In-app login uses sessionStorage for post-login return, not a query param.
+  return workspaceUrl(req, '/authentication/login');
 }
 
 /**
@@ -33,7 +69,7 @@ export function middleware(req: NextRequest) {
     const pathname = url.pathname;
     const isPublicStaticAsset =
       pathname.startsWith('/image/') || pathname.startsWith('/icons/');
-    if (isPublicStaticAsset) {
+    if (isPublicStaticAsset || isServiceWorkerAsset(pathname)) {
       return NextResponse.next();
     }
 
@@ -41,22 +77,40 @@ export function middleware(req: NextRequest) {
 
     const token = getCookie('token', req);
     const calendarCookie = getCookie('activeCalendar', req);
-    const loggedUserRole = getCookie('loggedUserRole', req);
+    const canManageFiscalYear =
+      getCookie('canManageFiscalYear', req) === 'true';
 
     let hasEndedFiscalYear = false;
 
     if (calendarCookie) {
-      const activeCalendar = JSON.parse(calendarCookie);
-      if (
-        activeCalendar?.isActive &&
-        activeCalendar?.endDate &&
-        new Date(activeCalendar?.endDate) < new Date()
-      ) {
-        hasEndedFiscalYear = true;
+      // The activeCalendar cookie is stored as a plain end-date string, but
+      // older data may hold a JSON object ({ isActive, endDate }). Parse it
+      // defensively so a non-JSON value never throws and silently disables the
+      // redirects below (which would leave logged-in users stranded on "/").
+      let endDate: string | number | Date | null = null;
+
+      try {
+        const parsed = JSON.parse(calendarCookie);
+        endDate =
+          parsed && typeof parsed === 'object'
+            ? parsed.isActive
+              ? parsed.endDate
+              : null
+            : parsed;
+      } catch {
+        endDate = calendarCookie;
+      }
+
+      if (endDate) {
+        const parsedEndDate = new Date(endDate);
+        if (!isNaN(parsedEndDate.getTime()) && parsedEndDate < new Date()) {
+          hasEndedFiscalYear = true;
+        }
       }
     }
 
     const excludedPath = [
+      '/login',
       '/authentication/login',
       '/authentication/forget-password',
       '/authentication/reset-password',
@@ -68,13 +122,21 @@ export function middleware(req: NextRequest) {
       isPublicSurveyRoute ||
       excludedPath.some((path) => pathname.startsWith(path));
     const isRootPath = pathname === '/';
+
+    // Standalone redesign has no Core `/login` page — send one clean hop to
+    // the in-app login instead of letting `/login` 404 or loop.
+    if (!isCore && pathname === '/login') {
+      return NextResponse.redirect(workspaceUrl(req, '/authentication/login'));
+    }
+
     if (!isExcludedPath && !token) {
-      return NextResponse.redirect(coreLoginUrl(req));
+      return NextResponse.redirect(loginRedirectUrl(req));
     }
 
     if (
       token &&
       hasEndedFiscalYear &&
+      canManageFiscalYear &&
       !pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
     ) {
       return NextResponse.redirect(
@@ -89,7 +151,7 @@ export function middleware(req: NextRequest) {
       if (token) {
         return NextResponse.redirect(workspaceUrl(req, '/dashboard'));
       } else {
-        return NextResponse.redirect(coreLoginUrl(req));
+        return NextResponse.redirect(loginRedirectUrl(req));
       }
     }
 
@@ -97,11 +159,8 @@ export function middleware(req: NextRequest) {
     if (
       pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
     ) {
-      if (
-        !loggedUserRole ||
-        (loggedUserRole !== 'owner' && loggedUserRole !== 'admin')
-      ) {
-        return NextResponse.redirect(workspaceUrl(req, '/dashboard'));
+      if (!canManageFiscalYear) {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
       }
     }
 
@@ -113,6 +172,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|firebase-messaging-sw.js|login-background.png|icons/Logo.svg|manifest.json|manifest.webmanifest|sw.js|sw-push.js|workbox|icons/192.png|icons/512.png).*)',
+    '/((?!_next/static|_next/image|favicon.ico|firebase-messaging-sw.js|login-background.png|icons/Logo.svg|manifest.json|manifest.webmanifest|sw.js|sw-push.js|workbox|icons/192.png|icons/512.png|.*\\/sw\\.js|.*\\/sw-push\\.js|.*\\/workbox-).*)',
   ],
 };

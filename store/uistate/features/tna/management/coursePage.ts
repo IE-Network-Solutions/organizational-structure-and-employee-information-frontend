@@ -33,6 +33,12 @@ type TnaManagementCoursePageAction = {
   fileAttachmentList: UploadFile[];
   setFileAttachmentList: (fileAttachmentList: UploadFile[]) => void;
 
+  fileReferenceList: UploadFile[];
+  setFileReferenceList: (fileReferenceList: UploadFile[]) => void;
+
+  fileImageList: UploadFile[];
+  setFileImageList: (fileImageList: UploadFile[]) => void;
+
   isFileUploadLoading: Record<string, boolean>;
   setIsFileUploadLoading: (
     isFileUploadLoading: Record<string, boolean>,
@@ -55,6 +61,8 @@ const tnaManagementCoursePageSlice: StateCreator<
   isFileUploadLoading: {
     video: false,
     attachment: false,
+    reference: false,
+    image: false,
   },
   setIsFileUploadLoading: (isFileUploadLoading: Record<string, boolean>) => {
     set({ isFileUploadLoading });
@@ -68,6 +76,16 @@ const tnaManagementCoursePageSlice: StateCreator<
   fileAttachmentList: [],
   setFileAttachmentList: (fileAttachmentList: UploadFile[]) => {
     set({ fileAttachmentList });
+  },
+
+  fileReferenceList: [],
+  setFileReferenceList: (fileReferenceList: UploadFile[]) => {
+    set({ fileReferenceList });
+  },
+
+  fileImageList: [],
+  setFileImageList: (fileImageList: UploadFile[]) => {
+    set({ fileImageList });
   },
 
   fileList: [],

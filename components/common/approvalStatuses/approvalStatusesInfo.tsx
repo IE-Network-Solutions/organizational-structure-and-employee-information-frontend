@@ -27,7 +27,7 @@ const ApprovalStatusesInfo = () => {
           className="flex items-center gap-[5px]"
           data-cy="approval-status-item"
         >
-          <Image width={24} height={24} src={status.img} alt="" />
+          <Image unoptimized width={24} height={24} src={status.img} alt="" />
           <span
             data-cy="components-common-approvalstatuses-approvalstatusesinfo-tsx-approvalstatusesinfo-span-31"
             className="text-xs font-medium text-gray-900"

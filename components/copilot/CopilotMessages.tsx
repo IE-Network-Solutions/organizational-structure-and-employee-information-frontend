@@ -9,7 +9,6 @@ import {
   Button,
   Alert,
   Collapse,
-  Tooltip,
   Dropdown,
 } from 'antd';
 import type { MenuProps } from 'antd';
@@ -24,7 +23,6 @@ import CopilotGeneratingDotsIcon from './CopilotGeneratingDotsIcon';
 import {
   WarningOutlined,
   InfoCircleOutlined,
-  DownloadOutlined,
   ShareAltOutlined,
   LinkOutlined,
   FileExcelOutlined,
@@ -69,10 +67,10 @@ interface CopilotMessagesProps {
   messages: Message[];
   isLoading: boolean;
   userInitials?: string;
-  /** Shared read-only thread: hide save/share on answers */
+  userAvatarUrl?: string;
+  variant?: 'default' | 'workspace';
+  /** Shared read-only thread: hide share on answers */
   readOnlyShared?: boolean;
-  /** User clicked save on their question — sidebar shows draft to confirm */
-  onSaveUserQuestion?: (userMessage: Message) => void;
   /** Share link for this Q&A pair only */
   onShareExchange?: (
     userMessage: Message,
@@ -109,10 +107,13 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
   messages,
   isLoading,
   userInitials = 'U',
+  userAvatarUrl,
+  variant = 'default',
   readOnlyShared = false,
-  onSaveUserQuestion,
   onShareExchange,
 }) => {
+  const isWorkspace = variant === 'workspace';
+  const showThreadLoading = isLoading && !isWorkspace;
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -706,7 +707,11 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
 
   return (
     <div
-      className="scrollbar-hide mx-auto h-full w-full max-w-[980px] space-y-6 overflow-y-auto px-1 py-2 sm:px-2"
+      className={
+        isWorkspace
+          ? 'flex min-h-full w-full flex-col justify-end space-y-4'
+          : 'scrollbar-hide mx-auto h-full w-full max-w-[980px] space-y-6 overflow-y-auto px-1 py-2 sm:px-2'
+      }
       id="copilot-messages"
       data-cy="copilot-messages"
     >
@@ -721,10 +726,68 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
             : 'border border-[#E0E0E0] bg-white';
 
         if (isUser) {
-          const canSaveQuestion =
-            !readOnlyShared && onSaveUserQuestion && message.text?.trim();
           const mid = safeInstanceKey(message.id);
           const reportAccent = COPILOT_THEME.userReportCardAccent;
+
+          if (isWorkspace) {
+            return (
+              <div
+                key={message.id}
+                className="flex items-end justify-end gap-3"
+                id={`copilot-message-${mid}`}
+                data-cy={`copilot-message-${message.id}`}
+              >
+                <div
+                  className="max-w-[min(75%,22rem)] min-w-0 rounded-xl px-4 py-3"
+                  style={{
+                    backgroundColor: COPILOT_THEME.workspaceUserBubbleBg,
+                  }}
+                  id={`copilot-message-bubble-user-${mid}`}
+                  data-cy={`copilot-message-bubble-user-${mid}`}
+                >
+                  <p
+                    className="text-left text-[15px] font-medium leading-snug text-[#1F2937] whitespace-pre-wrap"
+                    id={`copilot-user-prompt-text-${mid}`}
+                    data-cy={`copilot-user-prompt-text-${mid}`}
+                  >
+                    {message.text}
+                  </p>
+                  <span
+                    className="mt-2 block text-left text-[12px] font-medium tabular-nums"
+                    style={{ color: COPILOT_THEME.workspaceUserBubbleTime }}
+                    id={`copilot-user-message-time-${mid}`}
+                    data-cy={`copilot-user-message-time-${mid}`}
+                  >
+                    {formatMessageTime(message.timestamp)}
+                  </span>
+                </div>
+                <span
+                  id={`copilot-message-avatar-user-${mid}`}
+                  data-cy={`copilot-message-avatar-user-${mid}`}
+                  className="inline-flex shrink-0"
+                >
+                  <Avatar
+                    size={36}
+                    src={userAvatarUrl || undefined}
+                    icon={
+                      !userAvatarUrl ? (
+                        <UserOutlined
+                          className="text-[15px]"
+                          style={{ color: COPILOT_THEME.userMessageAvatarIcon }}
+                        />
+                      ) : undefined
+                    }
+                    className="border-0"
+                    style={{
+                      backgroundColor: COPILOT_THEME.userMessageAvatarBg,
+                    }}
+                    aria-label={`User (${userInitials})`}
+                  />
+                </span>
+              </div>
+            );
+          }
+
           return (
             <div
               key={message.id}
@@ -755,21 +818,6 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
                   >
                     {formatMessageTime(message.timestamp)}
                   </span>
-                  {canSaveQuestion ? (
-                    <Tooltip title="Save this question to Saved reports">
-                      <button
-                        type="button"
-                        onClick={() => onSaveUserQuestion(message)}
-                        className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]/35"
-                        style={{ color: reportAccent }}
-                        aria-label="Save question to Saved reports"
-                        id={`copilot-user-message-save-${mid}`}
-                        data-cy={`copilot-user-message-save-${mid}`}
-                      >
-                        <DownloadOutlined className="text-lg" />
-                      </button>
-                    </Tooltip>
-                  ) : null}
                 </div>
                 <div
                   className="px-3 pb-3 pt-2.5"
@@ -931,7 +979,7 @@ const CopilotMessages: React.FC<CopilotMessagesProps> = ({
           </div>
         );
       })}
-      {isLoading && (
+      {showThreadLoading && (
         <div
           className="flex justify-start items-start gap-4"
           id="copilot-loading"

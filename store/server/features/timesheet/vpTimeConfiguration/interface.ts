@@ -11,6 +11,8 @@ export interface VpTimeConfiguration {
   deductableAmount: number;
   description?: string | null;
   missedClockout?: boolean;
+  isAbsent?: boolean;
+  attendanceRuleId?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -26,6 +28,8 @@ export interface CreateVpTimeConfigurationPayload {
   deductableAmount: number;
   description?: string;
   missedClockout?: boolean;
+  isAbsent?: boolean;
+  attendanceRuleId?: string;
 }
 
 export type UpdateVpTimeConfigurationPayload =
@@ -39,6 +43,8 @@ interface VpTimeConfigurationFormValues {
   deductibleAmount?: number;
   description?: string;
   missedClockout?: boolean;
+  isAbsent?: boolean;
+  attendanceRuleId?: string;
 }
 
 /**
@@ -49,6 +55,8 @@ interface VpTimeConfigurationFormValues {
  *   send `missedClockout: true`.
  * - When "apply additional rules" is checked, the range is open-ended so
  *   `toMinutes` is sent as `null`.
+ * - When `isAbsent` is checked (CLOCKIN only), include `isAbsent` and
+ *   `attendanceRuleId` alongside the time range.
  */
 export const buildVpTimeConfigurationPayload = (
   values: VpTimeConfigurationFormValues,
@@ -68,6 +76,9 @@ export const buildVpTimeConfigurationPayload = (
     };
   }
 
+  const isAbsent =
+    values.configType === VpTimeConfigType.CLOCKIN && Boolean(values.isAbsent);
+
   return {
     configType: values.configType,
     fromMinutes: Number(values.startTime ?? 0),
@@ -78,12 +89,27 @@ export const buildVpTimeConfigurationPayload = (
         : null,
     deductableAmount,
     ...(description ? { description } : {}),
+    ...(isAbsent
+      ? {
+          isAbsent: true,
+          ...(values.attendanceRuleId
+            ? { attendanceRuleId: values.attendanceRuleId }
+            : {}),
+        }
+      : {}),
   };
 };
 
 export const getVpTimeConfigTitle = (item: VpTimeConfiguration): string => {
   if (item.missedClockout) {
     return 'Missed Clockout Configuration';
+  }
+  if (item.isAbsent) {
+    const from = item.fromMinutes ?? 0;
+    if (item.toMinutes == null) {
+      return `${from}+ Minute Absent Configuration`;
+    }
+    return `${from}-${item.toMinutes} Minute Absent Configuration`;
   }
   const from = item.fromMinutes ?? 0;
   if (item.toMinutes == null) {
