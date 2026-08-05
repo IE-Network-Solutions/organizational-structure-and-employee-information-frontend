@@ -218,6 +218,10 @@ const BreakTypeSidebar = () => {
                 data-cy="time-attendance-settings-break-type-sidebar-start-at-picker"
               />
             </Form.Item>
+            <div
+              id="time-attendance-settings-break-type-sidebar-start-window"
+              data-cy="time-attendance-settings-break-type-sidebar-start-window"
+            >
             <Collapse
               ghost
               size="small"
@@ -230,8 +234,6 @@ const BreakTypeSidebar = () => {
                 )
               }
               className="bg-[#FAFAFA] rounded-md border border-[#E8E8E8] overflow-hidden [&_.ant-collapse-header]:!py-2 [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-2"
-              id="time-attendance-settings-break-type-sidebar-start-window"
-              data-cy="time-attendance-settings-break-type-sidebar-start-window"
               items={[
                 {
                   key: 'start-window',
@@ -305,6 +307,7 @@ const BreakTypeSidebar = () => {
                 },
               ]}
             />
+            </div>
           </div>
 
           <div
@@ -341,6 +344,10 @@ const BreakTypeSidebar = () => {
                 data-cy="time-attendance-settings-break-type-sidebar-end-at-picker"
               />
             </Form.Item>
+            <div
+              id="time-attendance-settings-break-type-sidebar-end-window"
+              data-cy="time-attendance-settings-break-type-sidebar-end-window"
+            >
             <Collapse
               ghost
               size="small"
@@ -351,8 +358,6 @@ const BreakTypeSidebar = () => {
                 )
               }
               className="bg-[#FAFAFA] rounded-md border border-[#E8E8E8] overflow-hidden [&_.ant-collapse-header]:!py-2 [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-2"
-              id="time-attendance-settings-break-type-sidebar-end-window"
-              data-cy="time-attendance-settings-break-type-sidebar-end-window"
               items={[
                 {
                   key: 'end-window',
@@ -426,6 +431,7 @@ const BreakTypeSidebar = () => {
                 },
               ]}
             />
+            </div>
           </div>
           <Form.Item
             id="BreakTypeDescriptionFieldId"
