@@ -17,6 +17,11 @@ const TABS = [
     label: 'Course Category',
     href: '/tna/settings/course-category',
   },
+  {
+    key: 'tna-officer',
+    label: 'TNA Officers',
+    href: '/tna/settings/tna-officer',
+  },
 ];
 
 const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
