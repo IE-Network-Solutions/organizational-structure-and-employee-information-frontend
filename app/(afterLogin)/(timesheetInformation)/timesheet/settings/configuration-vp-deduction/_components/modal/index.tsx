@@ -102,6 +102,7 @@ const ConfigureVpDeductionModal = () => {
     [activeFormKey, 'applyAdditionalRules'],
     form,
   );
+  const isAbsent = Form.useWatch(['lateArrival', 'isAbsent'], form);
 
   const isEditMode = Boolean(vpDeductionConfigId);
 
