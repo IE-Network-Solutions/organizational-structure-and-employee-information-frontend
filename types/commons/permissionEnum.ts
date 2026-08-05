@@ -121,6 +121,16 @@ export enum Permissions {
   UpdateTna = 'update-tna',
   DeleteTna = 'delete-tna',
 
+  // External TNA (Learning Needs Analysis) Permissions
+  CreateExternalTna = 'create-external-tna',
+  UpdateExternalTna = 'update-external-tna',
+  DeleteExternalTna = 'delete-external-tna',
+  ViewAllTna = 'view-all-tna', // HR / L&D admins — every request and commitment
+  ApproveTnaAsManager = 'approve-tna-as-manager',
+  ApproveTnaAsOfficer = 'approve-tna-as-officer', // TNA Officer: payment + commitment
+  ManageTnaOfficer = 'manage-tna-officer',
+  ExportTnaReport = 'export-tna-report',
+
   // TNA Category Permissions
   CreateTnaCategory = 'create-tna-category',
   UpdateTnaCategory = 'update-tna-category',

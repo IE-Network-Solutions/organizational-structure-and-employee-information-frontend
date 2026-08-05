@@ -21,10 +21,28 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import TnaManagementSkeleton from './_components/tnaManagementSkeleton';
 import EmptyState from '@/components/empty';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import ExternalTnaCard from '@/app/(afterLogin)/(tna)/tna/management/_components/externalTnaCard';
+import MyCommitmentsPanel from '@/app/(afterLogin)/(tna)/tna/management/_components/myCommitmentsPanel';
+import { useExternalTrainingStore } from '@/store/uistate/features/tna/externalTraining';
+import {
+  useGetExternalTrainings,
+  useGetExternalTrainingsByUser,
+} from '@/store/server/features/tna/externalTraining/queries';
+import { TnaSourceType } from '@/types/tna/externalTna';
 
 const TnaManagementPage = () => {
-  const { setIsShowCourseSidebar, isShowCourseSidebar, setCourseCategory } =
-    useTnaManagementStore();
+  const {
+    setIsShowCourseSidebar,
+    isShowCourseSidebar,
+    setCourseCategory,
+    setCourseId,
+  } = useTnaManagementStore();
+  const {
+    sourceTypeFilter,
+    setSourceTypeFilter,
+    setCreateModalTab,
+    setExternalTrainingId,
+  } = useExternalTrainingStore();
   const { userId } = useAuthenticationStore();
   const { data: categoryData, isFetching } = useGetCourseCategory({});
   const [filter, setFilter] = useState<Partial<CourseManagementRequestBody>>(
@@ -69,23 +87,87 @@ const TnaManagementPage = () => {
       ? myCoursesData
       : (myCoursesData?.items ?? []);
 
+  // External (non-catalogue) TNAs: admins see everything, employees see their own.
+  const hasViewAllTnaPermission = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewAllTna],
+  });
+
+  const canCreateExternalTna = AccessGuard.checkAccess({
+    permissions: [Permissions.CreateExternalTna],
+  });
+
+  const externalSearch = filter.modifiers?.search
+    ? { modifiers: { search: filter.modifiers.search } }
+    : {};
+
+  const {
+    data: allExternalData,
+    isLoading: isLoadingAllExternal,
+    refetch: refetchAllExternal,
+  } = useGetExternalTrainings(
+    { page: 1, limit: 200 },
+    externalSearch,
+    hasViewAllTnaPermission,
+  );
+
+  const {
+    data: myExternalData,
+    isLoading: isLoadingMyExternal,
+    refetch: refetchMyExternal,
+  } = useGetExternalTrainingsByUser(
+    userId ?? '',
+    { page: 1, limit: 200 },
+    externalSearch,
+    !hasViewAllTnaPermission,
+  );
+
+  const externalData = hasViewAllTnaPermission
+    ? allExternalData
+    : myExternalData;
+  const isLoadingExternal = hasViewAllTnaPermission
+    ? isLoadingAllExternal
+    : isLoadingMyExternal;
+  const refetchExternal = hasViewAllTnaPermission
+    ? refetchAllExternal
+    : refetchMyExternal;
+
   const displayCourses = useMemo(() => {
+    if (sourceTypeFilter === TnaSourceType.EXTERNAL) return [];
     return normalizedCourses.filter((item) => {
       if (hasViewAllCoursePermission) return true;
       if (item.isDraft) return item.preparedBy === localUserID;
       return true;
     });
-  }, [normalizedCourses, hasViewAllCoursePermission]);
+  }, [normalizedCourses, hasViewAllCoursePermission, sourceTypeFilter]);
+
+  const displayExternalTnas = useMemo(() => {
+    if (sourceTypeFilter === TnaSourceType.INTERNAL) return [];
+    // Course categories are a catalogue concept, so that filter excludes externals.
+    if (filter.filter?.courseCategoryId?.length) return [];
+    return externalData?.items ?? [];
+  }, [externalData, sourceTypeFilter, filter.filter?.courseCategoryId]);
+
+  const totalResults = displayCourses.length + displayExternalTnas.length;
 
   const hasActiveFilters = Boolean(
-    filter.modifiers?.search || filter.filter?.courseCategoryId?.length,
+    filter.modifiers?.search ||
+    filter.filter?.courseCategoryId?.length ||
+    sourceTypeFilter,
   );
+
+  const openCreateModal = (tab: TnaSourceType) => {
+    setCourseId(null);
+    setExternalTrainingId(null);
+    setCreateModalTab(tab);
+    setIsShowCourseSidebar(true);
+  };
 
   useEffect(() => {
     if (!isShowCourseSidebar) {
       refetch();
+      refetchExternal();
     }
-  }, [isShowCourseSidebar, refetch]);
+  }, [isShowCourseSidebar, refetch, refetchExternal]);
 
   useEffect(() => {
     if (categoryData?.items) {
@@ -172,7 +254,10 @@ const TnaManagementPage = () => {
                     data-cy="tna-management-page-header-actions"
                   >
                     <AccessGuard
-                      permissions={[Permissions.CreateCourse]}
+                      permissions={[
+                        Permissions.CreateCourse,
+                        Permissions.CreateExternalTna,
+                      ]}
                       data-cy="tna-management-create-course-guard"
                       id="tna-management-create-course-guard"
                     >
@@ -184,7 +269,13 @@ const TnaManagementPage = () => {
                         className="!flex !h-10 !w-10 !min-w-10 !items-center !justify-center !rounded-lg !border-none !bg-[#1E40AF] !p-0 !text-white shadow-none md:!h-10 md:!min-w-[135px] md:!w-auto md:!px-[15px] font-[Calibri,sans-serif] [&_.ant-btn-icon]:text-white md:text-base md:font-normal md:leading-6"
                         icon={<LuPlus size={18} className="text-white" />}
                         loading={isFetching}
-                        onClick={() => setIsShowCourseSidebar(true)}
+                        onClick={() =>
+                          openCreateModal(
+                            canCreateCourse
+                              ? TnaSourceType.INTERNAL
+                              : TnaSourceType.EXTERNAL,
+                          )
+                        }
                       >
                         <span
                           className="hidden md:inline"
@@ -205,14 +296,18 @@ const TnaManagementPage = () => {
           className="box-border flex w-full max-w-[404px] flex-col gap-4 md:max-w-none"
           data-cy="tna-management-main-panel"
         >
+          <MyCommitmentsPanel data-cy="tna-management-my-commitments" />
+
           <div className="w-full" data-cy="tna-management-filter-wrap">
             <CourseFilter
               onChange={onFilterChange}
+              sourceType={sourceTypeFilter}
+              onSourceTypeChange={setSourceTypeFilter}
               data-cy="tna-management-filter"
             />
           </div>
 
-          {isLoading ? (
+          {isLoading || isLoadingExternal ? (
             <div
               className="w-full"
               id="tnaManagementLoadingId"
@@ -220,23 +315,32 @@ const TnaManagementPage = () => {
             >
               <TnaManagementSkeleton />
             </div>
-          ) : displayCourses.length === 0 ? (
+          ) : totalResults === 0 ? (
             <div
               className="w-full"
               data-cy="tna-management-courses-empty"
               id="tnaManagementCoursesEmptyId"
             >
               <EmptyState
-                title="No courses found"
+                title="No TNAs found"
                 description={
                   hasActiveFilters
-                    ? 'Try adjusting your search or category filter.'
-                    : 'When courses are available, they will appear here.'
+                    ? 'Try adjusting your search, type or category filter.'
+                    : 'When courses and training requests are available, they will appear here.'
                 }
-                actionText={canCreateCourse ? 'New Course' : undefined}
+                actionText={
+                  canCreateCourse || canCreateExternalTna
+                    ? 'New TNA'
+                    : undefined
+                }
                 onAction={
-                  canCreateCourse
-                    ? () => setIsShowCourseSidebar(true)
+                  canCreateCourse || canCreateExternalTna
+                    ? () =>
+                        openCreateModal(
+                          canCreateCourse
+                            ? TnaSourceType.INTERNAL
+                            : TnaSourceType.EXTERNAL,
+                        )
                     : undefined
                 }
               />
@@ -251,6 +355,18 @@ const TnaManagementPage = () => {
                 className="grid w-full max-w-[380px] grid-cols-1 gap-[32px] md:max-w-none md:grid-cols-2 xl:grid-cols-3"
                 data-cy="settings-recognition-grid"
               >
+                {displayExternalTnas.map((item) => (
+                  <ExternalTnaCard
+                    item={item}
+                    key={item.id}
+                    refetch={refetchExternal}
+                    onEdit={(request) => {
+                      setExternalTrainingId(request.id);
+                      setCreateModalTab(TnaSourceType.EXTERNAL);
+                      setIsShowCourseSidebar(true);
+                    }}
+                  />
+                ))}
                 {displayCourses.map((item) => (
                   <CourseCard
                     item={item}

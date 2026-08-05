@@ -113,6 +113,7 @@ const MENU_ROUTES: MenuRouteNode[] = [
     permissions: ['view_learning_growth'],
     children: [
       { key: '/tna/management', permissions: ['manage_training'] },
+      { key: '/tna/tna-management', permissions: ['manage_tna'] },
       {
         key: '/tna/settings/course-category',
         permissions: ['manage_tna_settings'],
