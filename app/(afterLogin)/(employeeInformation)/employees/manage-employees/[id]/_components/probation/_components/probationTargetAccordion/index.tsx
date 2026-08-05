@@ -210,6 +210,7 @@ const TaskItem: React.FC<{
           >
             {task.evaluatorUser?.profileImage ? (
               <Image
+                unoptimized
                 src={task.evaluatorUser.profileImage}
                 alt="avatar"
                 width={20}

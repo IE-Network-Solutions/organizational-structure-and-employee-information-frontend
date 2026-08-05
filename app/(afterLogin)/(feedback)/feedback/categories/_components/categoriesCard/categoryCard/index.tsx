@@ -174,6 +174,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
           >
             {hasKnownCreator && hasCreatorProfileImage ? (
               <Image
+                unoptimized
                 src={creator.profileImage}
                 alt="Profile pic"
                 fill

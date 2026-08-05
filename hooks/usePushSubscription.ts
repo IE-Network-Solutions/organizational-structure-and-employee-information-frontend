@@ -162,15 +162,16 @@ function waitForRegistrationActive(
 }
 
 /** Push-only worker: small and activates quickly so "Allow notifications" does not time out. */
-const PUSH_SW_SCOPE = '/push/';
-const PUSH_SW_SCRIPT = '/sw-push.js';
+// Scoped under the /workspace basePath (the app shares its origin with Core).
+const PUSH_SW_SCOPE = '/workspace/push/';
+const PUSH_SW_SCRIPT = '/workspace/sw-push.js';
 
 /**
  * Unsubscribe any push subscription on the main app SW so the backend only uses the push-worker subscription.
  */
 async function unsubscribeMainSwPush(): Promise<void> {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
-  const reg = await navigator.serviceWorker.getRegistration('/');
+  const reg = await navigator.serviceWorker.getRegistration('/workspace/');
   if (!reg?.pushManager) return;
   const subs = await reg.pushManager.getSubscription();
   if (subs) await subs.unsubscribe();

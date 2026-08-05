@@ -25,7 +25,10 @@ const handleTenantIdError = (error: any): boolean => {
   const errorCode = error?.response?.data?.code;
 
   if (errorCode === 'TENANT_ID_MISSING') {
-    window.location.href = '/authentication/login';
+    // Core owns login at the origin root; standalone / redesign uses in-app login.
+    const isCore =
+      (process.env.NEXT_PUBLIC_IS_CORE ?? '').trim().toLowerCase() === 'true';
+    window.location.href = isCore ? '/login' : '/authentication/login';
     return true;
   }
   return false;
