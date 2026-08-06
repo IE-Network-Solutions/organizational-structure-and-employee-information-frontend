@@ -34,10 +34,20 @@ import { TnaSourceType } from '@/types/tna/externalTna';
 import { useExternalTrainingStore } from '@/store/uistate/features/tna/externalTraining';
 import ExternalTnaForm from '@/app/(afterLogin)/(tna)/tna/management/_components/externalTnaForm';
 
-const TAB_BASE_CLASS =
-  'flex h-8 min-w-[104px] flex-1 items-center justify-center rounded-[6px] px-4 text-sm font-normal leading-[22px] transition-colors font-[Calibri,sans-serif] md:flex-none';
-const TAB_ACTIVE_CLASS = 'bg-[#1E40AF] text-white shadow-sm';
-const TAB_INACTIVE_CLASS = 'bg-transparent text-black/70 hover:bg-black/[0.04]';
+/** Matches the "Select Type" toggles in the Add Feedback modal. */
+const TYPE_TOGGLE_BASE_CLASS =
+  'box-border flex h-8 min-w-0 shrink-0 items-center justify-center px-[15px] text-sm font-normal leading-[22px] transition-colors';
+const TYPE_TOGGLE_SELECTED_CLASS =
+  'rounded-md border border-solid border-[#1E40AF] bg-[#1E40AF] text-white shadow-[0px_2px_0px_rgba(5,145,255,0.1)]';
+const TYPE_TOGGLE_DEFAULT_CLASS =
+  'rounded-md border border-solid border-[#D9D9D9] bg-white text-black/[0.7] shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:border-[#bfbfbf]';
+
+const TYPE_DESCRIPTIONS: Record<TnaSourceType, string> = {
+  [TnaSourceType.INTERNAL]:
+    'Build a course from the internal catalogue with lessons, materials and assigned employees.',
+  [TnaSourceType.EXTERNAL]:
+    'Request a training that is not in the catalogue. It goes to your manager, then to the TNA Officer.',
+};
 
 const CourseCategorySidebar = () => {
   const {
@@ -577,37 +587,57 @@ const CourseCategorySidebar = () => {
             data-cy="tna-course-sidebar-tabs-wrap"
           >
             <div
-              className="flex w-full gap-1 rounded-[8px] border border-[#D9D9D9] bg-black/[0.02] p-1 md:w-max"
-              role="tablist"
-              aria-label="TNA type"
-              data-cy="tna-course-sidebar-tabs"
+              className="mx-auto flex w-full max-w-[747px] flex-col items-center gap-1"
+              data-cy="tna-course-sidebar-type-section"
             >
-              <button
-                type="button"
-                role="tab"
-                aria-selected={!isExternalTab}
-                className={classNames(TAB_BASE_CLASS, {
-                  [TAB_ACTIVE_CLASS]: !isExternalTab,
-                  [TAB_INACTIVE_CLASS]: isExternalTab,
-                })}
-                onClick={() => setCreateModalTab(TnaSourceType.INTERNAL)}
-                data-cy="tna-course-sidebar-tab-internal"
+              <div
+                className="w-full text-center text-sm font-normal leading-[22px] text-black"
+                data-cy="tna-course-sidebar-type-label"
               >
-                Internal
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={isExternalTab}
-                className={classNames(TAB_BASE_CLASS, {
-                  [TAB_ACTIVE_CLASS]: isExternalTab,
-                  [TAB_INACTIVE_CLASS]: !isExternalTab,
-                })}
-                onClick={() => setCreateModalTab(TnaSourceType.EXTERNAL)}
-                data-cy="tna-course-sidebar-tab-external"
+                Select Type
+              </div>
+              <div
+                className="flex w-full flex-row flex-wrap items-center justify-center gap-3"
+                role="tablist"
+                aria-label="TNA type"
+                data-cy="tna-course-sidebar-tabs"
               >
-                External
-              </button>
+                {[
+                  { type: TnaSourceType.INTERNAL, label: 'Internal' },
+                  { type: TnaSourceType.EXTERNAL, label: 'External' },
+                ].map(({ type, label }) => {
+                  const selected =
+                    (type === TnaSourceType.EXTERNAL) === isExternalTab;
+                  return (
+                    <button
+                      key={type}
+                      type="button"
+                      role="tab"
+                      aria-selected={selected}
+                      onClick={() => setCreateModalTab(type)}
+                      className={classNames(TYPE_TOGGLE_BASE_CLASS, {
+                        [TYPE_TOGGLE_SELECTED_CLASS]: selected,
+                        [TYPE_TOGGLE_DEFAULT_CLASS]: !selected,
+                      })}
+                      data-cy={`tna-course-sidebar-tab-${type}`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p
+                className="m-0 w-full text-center text-sm font-normal leading-[22px] text-black"
+                data-cy="tna-course-sidebar-type-description"
+              >
+                {
+                  TYPE_DESCRIPTIONS[
+                    isExternalTab
+                      ? TnaSourceType.EXTERNAL
+                      : TnaSourceType.INTERNAL
+                  ]
+                }
+              </p>
             </div>
           </div>
         )}
