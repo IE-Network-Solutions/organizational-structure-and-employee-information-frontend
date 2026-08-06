@@ -543,6 +543,7 @@ export function withResolvedMetricForDisplay<T extends KeyResultLikeInput>(
 
 /** Plan-panel KR row accepted by planning eligibility helpers. */
 type KrPlanningPanelInput = {
+  id?: string | number;
   metricType?: string;
   progress?: number;
   currentValue?: string | number;
