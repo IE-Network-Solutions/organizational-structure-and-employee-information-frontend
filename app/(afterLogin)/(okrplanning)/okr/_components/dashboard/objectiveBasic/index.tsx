@@ -38,11 +38,18 @@ import {
 } from '@/store/server/features/okrplanning/okr/objective/mutations';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import EditKeyResult from '../editKeyResult';
+import EditObjective from '../editObjective';
 import dayjs from 'dayjs';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { hasAnyProgress } from '../../../_utils/keyResultGuards';
 
 const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const {
     setObjectiveValue,
+    setObjective,
+    setDeletedKeyResultIds,
+    setDeletedMilestoneIds,
     objectiveValue,
     keyResultValue,
     setKeyResultValue,
@@ -59,6 +66,9 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     closeDeleteModal,
     openEditKeyResult,
     closeEditKeyResult,
+    editObjectiveModalObjectiveId,
+    openEditObjective,
+    closeEditObjective,
   } = useObjectiveBasicStore();
   const { mutate: deleteObjective, isLoading: isDeletingObjective } =
     useDeleteObjective();
@@ -117,12 +127,28 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     setObjectiveValue(defaultObjective);
   };
 
-  const showDrawer = () => {
-    setEditableTitle(objective?.title || '');
-    setEditableDeadline(objective?.deadline || null);
-    setEditableAlignmentId(objective?.allignedKeyResultId || null);
-    setEditableMetricTypeId(objective?.metricTypeId || null);
-    setIsInlineEditing(true);
+  // Editing (add/edit/delete key results) is only allowed while the objective has no progress.
+  const objectiveHasProgress =
+    Number(objective?.objectiveProgress ?? 0) > 0 ||
+    hasAnyProgress(objective?.keyResults ?? []);
+  const isEditModalOpen = editObjectiveModalObjectiveId === objectiveIdStr;
+
+  // Open the Create-OKR-style modal pre-filled with this objective's data.
+  const showEditModal = () => {
+    setObjectiveValue({
+      ...objective,
+      keyResults: (objective?.keyResults ?? []).map((kr: any) => ({
+        ...kr,
+        milestones: Array.isArray(kr?.milestones)
+          ? kr.milestones.map((m: any) => ({ ...m }))
+          : [],
+      })),
+    });
+    // Reset the "new key results" container and any pending deletions.
+    setObjective({ ...defaultObjective, keyResults: [] });
+    setDeletedKeyResultIds([]);
+    setDeletedMilestoneIds([]);
+    openEditObjective(objectiveIdStr);
   };
 
   const onCancelInlineEdit = () => {
@@ -186,9 +212,15 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     isInlineEditing,
   ]);
 
+  const canManageOkr =
+    AccessGuard.checkAccess({ permissions: [Permissions.UpdateObjectives] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.DeleteObjectives] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.UpdateKeyResults] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.DeleteKeyResults] });
+
   // Owner-only menu - only show if objective is in active session
   const menu =
-    isOwner && isInActiveSession && !hideOwnTeamOkrActions ? (
+    isOwner && isInActiveSession && !hideOwnTeamOkrActions && canManageOkr ? (
       <Menu
         className="okr-actions-menu"
         items={[
@@ -196,7 +228,8 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
             key: '1',
             icon: <EditOutlinedIcon className="text-gray-700" />,
             label: 'Edit OKR',
-            onClick: showDrawer,
+            disabled: objectiveHasProgress,
+            onClick: showEditModal,
           },
           {
             key: '2',
@@ -259,8 +292,11 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     const canEditDelete =
       (myOkr || objective?.userId === userId) && isInActiveSession;
     const canShowKeyResultActions = canEditDelete && !hideOwnTeamOkrActions;
+    const canUpdateKeyResult = AccessGuard.checkAccess({
+      permissions: [Permissions.UpdateKeyResults],
+    });
 
-    if (!canShowKeyResultActions) return null;
+    if (!canShowKeyResultActions || !canUpdateKeyResult) return null;
 
     return (
       <Menu
@@ -856,6 +892,16 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
           open={openKeyResultEdit}
           onClose={handleCloseKeyResultEdit}
           keyResult={keyResultValue}
+          objectiveKeyResults={objective?.keyResults ?? []}
+        />
+      )}
+
+      {isEditModalOpen && (
+        <EditObjective
+          open={isEditModalOpen}
+          onClose={closeEditObjective}
+          objective={objective}
+          isClosed={Boolean(objective?.isClosed)}
         />
       )}
     </div>

@@ -7,10 +7,12 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 const fetchForms = async (pageSize: number, currentPage: number) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId || '';
 
   const headers = {
     Authorization: `Bearer ${token}`,
     tenantId: tenantId,
+    createdById: userId,
   };
   return crudRequest({
     url: `${ORG_DEV_URL}/forms?limit=${pageSize}&page=${currentPage}`,
@@ -29,10 +31,12 @@ const getFormsByCategoryId = async (
 ) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const userId = useAuthenticationStore.getState().userId || '';
 
   const headers = {
     Authorization: `Bearer ${token}`,
     tenantId: tenantId,
+    createdById: userId,
   };
   const sortParams = 'sortBy=createdAt&sortOrder=desc';
   return crudRequest({

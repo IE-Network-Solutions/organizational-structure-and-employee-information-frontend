@@ -21,6 +21,13 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { Tooltip } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import RecentModesTimelineModal from '../../recentModesTimelineModal';
+import {
+  resolveKrMetricTypeLabel,
+  formatKrMetricTypeDisplayName,
+  getMetricTypeName,
+} from '@/utils/okrKeyResultProgressDisplay';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface KPIMetricsProps {
   keyResult: any;
@@ -72,6 +79,12 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   // Only owner can edit/delete key results (check if objective belongs to current user)
   const canEditDelete =
     (myOkr || objectiveUserId === userId) && isInActiveSession;
+  const canUpdateKeyResult = AccessGuard.checkAccess({
+    permissions: [Permissions.UpdateKeyResults],
+  });
+  const canDeleteKeyResult = AccessGuard.checkAccess({
+    permissions: [Permissions.DeleteKeyResults],
+  });
   const showDeleteModal = () => {
     openDeleteModal(String(keyResult?.id ?? ''));
     setKeyResultValue(keyResult);
@@ -93,27 +106,35 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
     closeEditModal();
   };
 
-  // Only show edit/delete menu if user can edit/delete this key result
-  const menu = canEditDelete ? (
-    <Menu
-      className="okr-actions-menu"
-      items={[
-        {
-          key: '1',
-          icon: <EditOutlinedIcon className="text-gray-700" />,
-          label: 'Edit Key Result',
-          onClick: showDrawer,
-        },
-        {
-          key: '2',
-          icon: <DeleteOutlined className="text-red-500" />,
-          label: 'Delete Key Result',
-          danger: true,
-          onClick: showDeleteModal,
-        },
-      ]}
-    />
-  ) : null;
+  // Only show edit/delete menu if user can edit/delete this key result and has permissions
+  const keyResultMenuItems = [
+    ...(canUpdateKeyResult
+      ? [
+          {
+            key: '1',
+            icon: <EditOutlinedIcon className="text-gray-700" />,
+            label: 'Edit Key Result',
+            onClick: showDrawer,
+          },
+        ]
+      : []),
+    ...(canDeleteKeyResult
+      ? [
+          {
+            key: '2',
+            icon: <DeleteOutlined className="text-red-500" />,
+            label: 'Delete Key Result',
+            danger: true,
+            onClick: showDeleteModal,
+          },
+        ]
+      : []),
+  ];
+
+  const menu =
+    canEditDelete && keyResultMenuItems.length > 0 ? (
+      <Menu className="okr-actions-menu" items={keyResultMenuItems} />
+    ) : null;
 
   function handleKeyResultDelete(id: string) {
     updateAndDelete({
@@ -178,8 +199,10 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
   };
 
   // Check if this is Basic OKR mode with AchieveOrNot metric
-  const isBasicAchieveOrNot =
-    isBasicOkr && keyResult?.metricType?.name === 'Achieve';
+  const metricTypeLabel =
+    formatKrMetricTypeDisplayName(getMetricTypeName(keyResult)) ||
+    resolveKrMetricTypeLabel(keyResult);
+  const isBasicAchieveOrNot = isBasicOkr && metricTypeLabel === 'Achieve';
   return (
     <div
       id={`key-result-metrics-${keyResult?.id}`}
@@ -267,7 +290,7 @@ const KeyResultMetrics: FC<KPIMetricsProps> = ({
                 data-cy={`okr-key-result-metric-type-${keyResult?.id}`}
                 className={`bg-light_purple text-[#3636f0] font-semibold ${isMobile ? 'text-[6px] p-1' : 'text-xs p-2'} flex items-center rounded-lg`}
               >
-                {keyResult?.metricType?.name}
+                {metricTypeLabel || '-'}
               </div>
               <div
                 id={`okr-key-result-metric-label-wrapper-${keyResult?.id}`}

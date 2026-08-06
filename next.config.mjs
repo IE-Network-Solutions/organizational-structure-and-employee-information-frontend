@@ -1,24 +1,54 @@
-import withPWA from 'next-pwa';
+import { createRequire } from 'node:module';
+
+// next-pwa is loaded defensively. The Core docker stack installs deps with
+// `npm install --no-package-lock`, and next-pwa@5 peer-conflicts with next@14,
+// so it can be absent from the container's node_modules. A bare
+// `import withPWA from 'next-pwa'` then fails at config load and crash-loops the
+// whole app. Instead, require it optionally and fall back to a no-op wrapper
+// (build/run without the service worker) so the app always comes up — matching
+// how the other products stay up. Install next-pwa (see package.json) to
+// re-enable the PWA/service worker.
+const require = createRequire(import.meta.url);
+let withPWA = () => (config) => config;
+try {
+  const mod = require('next-pwa');
+  const init = mod && mod.default ? mod.default : mod;
+  if (typeof init === 'function') withPWA = init;
+} catch {
+ 
+}
+
+// In Core mode the app is served behind the reverse proxy at `<host>/workspace`;
+// standalone (e.g. local dev) serves from the origin root. Keep this in sync with
+// IS_CORE in utils/constants.ts.
+const isCore =
+  (process.env.IS_CORE ?? process.env.NEXT_PUBLIC_IS_CORE ?? '')
+    .trim()
+    .toLowerCase() === 'true';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Served behind the Core origin at https://<host>/workspace via the reverse proxy.
-  // basePath makes Next emit all asset and route URLs under this prefix.
-  basePath: '/workspace',
+  // Core mode: emit all asset and route URLs under /workspace (the reverse proxy
+  // prefix). Standalone: serve from the origin root. `undefined` disables the
+  // prefix entirely so `GET /` works in local/standalone dev.
+  basePath: isCore ? '/workspace' : undefined,
   // The codebase has pre-existing lint and strict-TS errors that `next dev` never
   // enforced; production builds elsewhere run `npm run lint || true`. Don't let
   // them fail `next build`.
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+ 
   experimental: {
     // This can help reduce memory usage during builds on servers with many cores.
     cpus: 1,
   },
   images: {
+    // The workspace logo (and other brand assets) are SVGs. next/image refuses
+    // to optimize SVGs unless this is enabled, otherwise the optimizer returns
+    // `400 "url" parameter is valid but image type is not allowed` and the logo
+    // fails to render. Constrain what an SVG can do via CSP since SVGs can carry
+    // scripts.
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     domains: [
       'cdn.prod.website-files.com',
       'files.ienetworks.co',
@@ -50,8 +80,10 @@ const nextConfig = {
     AI_BASE_URL: process.env.NEXT_PUBLIC_AI_BASE_URL,
     AI_REC_BASE_URL: process.env.NEXT_PUBLIC_AI_REC_BASE_URL,
     NEXT_PUBLIC_AZURE_APP_SERVICE: process.env.NEXT_PUBLIC_AZURE_APP_SERVICE,
+    NEXT_PUBLIC_COPILOT_BASE_URL: process.env.NEXT_PUBLIC_COPILOT_BASE_URL,
     NEXT_PUBLIC_ENCRYPTION_DISABLED:
       process.env.NEXT_PUBLIC_ENCRYPTION_DISABLED,
+    CORE_API_URL: process.env.CORE_API_URL,
   },
 };
 

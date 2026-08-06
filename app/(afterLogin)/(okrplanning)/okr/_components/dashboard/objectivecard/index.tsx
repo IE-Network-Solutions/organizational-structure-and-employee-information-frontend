@@ -10,10 +10,12 @@ import {
   message,
 } from 'antd';
 import KeyResultTableRow from '../keyResultTableRow';
+import EditObjective from '../editObjective';
 import {
   useOKRStore,
   useObjectiveBasicStore,
 } from '@/store/uistate/features/okrplanning/okr';
+import { hasAnyProgress } from '../../../_utils/keyResultGuards';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import {
   useDeleteObjective,
@@ -37,10 +39,15 @@ import { useGetActiveFiscalYears } from '@/store/server/features/organizationStr
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
 import { PiCalendarBold } from 'react-icons/pi';
 import dayjs from 'dayjs';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const {
     setObjectiveValue,
+    setObjective,
+    setDeletedKeyResultIds,
+    setDeletedMilestoneIds,
     objectiveValue,
     keyResultId,
     objectiveId,
@@ -50,8 +57,14 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const { data: userData } = useGetEmployee(userId);
   const reportsToId = userData?.delegatedTo?.id || userData?.reportingTo?.id;
   const { data: keyResultByUser } = useGetUserKeyResult(reportsToId);
-  const { deleteModalObjectiveId, openDeleteModal, closeDeleteModal } =
-    useObjectiveBasicStore();
+  const {
+    deleteModalObjectiveId,
+    openDeleteModal,
+    closeDeleteModal,
+    editObjectiveModalObjectiveId,
+    openEditObjective,
+    closeEditObjective,
+  } = useObjectiveBasicStore();
   const { mutate: deleteObjective, isLoading: isDeletingObjective } =
     useDeleteObjective();
   const { mutate: updateObjective, isLoading: isUpdatingObjective } =
@@ -92,15 +105,29 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     setObjectiveValue(defaultObjective);
   };
 
-  const showDrawer = () => {
+  // Editing (add/edit/delete key results) is only allowed while the objective has no progress.
+  const objectiveHasProgress =
+    Number(objective?.objectiveProgress ?? 0) > 0 ||
+    hasAnyProgress(objective?.keyResults ?? []);
+  const isEditModalOpen = editObjectiveModalObjectiveId === objectiveIdStr;
+
+  // Open the Create-OKR-style modal pre-filled with this objective's data.
+  const showEditModal = () => {
     setActiveInlineKeyResultId(null);
-    setEditableTitle(objective?.title || '');
-    setEditableDeadline(objective?.deadline || null);
-    setEditableAlignmentId(objective?.allignedKeyResultId || null);
-    setEditableKeyResults(
-      (objective?.keyResults || []).map((kr: any) => ({ ...kr })),
-    );
-    setIsInlineEditing(true);
+    setObjectiveValue({
+      ...objective,
+      keyResults: (objective?.keyResults ?? []).map((kr: any) => ({
+        ...kr,
+        milestones: Array.isArray(kr?.milestones)
+          ? kr.milestones.map((m: any) => ({ ...m }))
+          : [],
+      })),
+    });
+    // Reset the "new key results" container and any pending deletions.
+    setObjective({ ...defaultObjective, keyResults: [] });
+    setDeletedKeyResultIds([]);
+    setDeletedMilestoneIds([]);
+    openEditObjective(objectiveIdStr);
   };
 
   const onCancelInlineEdit = () => {
@@ -179,6 +206,16 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         }
       }
     }
+    const weightSum = editableKeyResults.reduce(
+      (sum: number, kr: any) => sum + Number(kr?.weight || 0),
+      0,
+    );
+    if (weightSum !== 100) {
+      message.warning(
+        `The sum of key result weights must equal 100%. Current sum: ${weightSum}%`,
+      );
+      return false;
+    }
     return true;
   };
 
@@ -256,8 +293,14 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
 
+  const canManageOkr =
+    AccessGuard.checkAccess({ permissions: [Permissions.UpdateObjectives] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.DeleteObjectives] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.UpdateKeyResults] }) ||
+    AccessGuard.checkAccess({ permissions: [Permissions.DeleteKeyResults] });
+
   const menu =
-    isOwner && isInActiveSession && !hideOwnTeamOkrActions ? (
+    isOwner && isInActiveSession && !hideOwnTeamOkrActions && canManageOkr ? (
       <Menu
         className="okr-actions-menu"
         items={[
@@ -265,7 +308,8 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
             key: '1',
             icon: <EditOutlinedIcon className="text-gray-700" />,
             label: 'Edit OKR',
-            onClick: showDrawer,
+            disabled: objectiveHasProgress,
+            onClick: showEditModal,
           },
           {
             key: '2',
@@ -724,6 +768,11 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                     updatedKeyResults={updatedKeyResults}
                     objectiveId={objective?.id ?? ''}
                     objectiveUserId={objective?.userId}
+                    objectiveKeyResults={
+                      isInlineEditing
+                        ? editableKeyResults
+                        : objective?.keyResults
+                    }
                     isInActiveSession={isInActiveSession}
                     objectiveEditMode={isInlineEditing}
                     editableKeyResult={keyResult}
@@ -752,6 +801,15 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
         onCancel={onCloseDeleteModal}
         loading={isDeletingObjective}
       />
+
+      {isEditModalOpen && (
+        <EditObjective
+          open={isEditModalOpen}
+          onClose={closeEditObjective}
+          objective={objective}
+          isClosed={Boolean(objective?.isClosed)}
+        />
+      )}
     </div>
   );
 };

@@ -28,6 +28,7 @@ const ApprovalStatusCard = ({
       >
         <div data-cy="approval-status-card-level">Level {data?.stepOrder}</div>
         <Image
+          unoptimized
           width={24}
           height={24}
           src={

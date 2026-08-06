@@ -38,6 +38,8 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     setIsShowCarryOverRuleSidebar,
     setIsShowAllowedAreaConfigModal,
     setAllowedAreaConfigId,
+    setIsShowVpDeductionModal,
+    setVpDeductionConfigId,
   } = useTimesheetSettingsStore();
 
   const { setOpenModal } = useApprovalStore();
@@ -50,6 +52,8 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     if (pathname.includes('/allowed-area-configuration'))
       return 'allowed-area-configuration';
     if (pathname.includes('/allowed-areas')) return 'allowed-areas';
+    if (pathname.includes('/configuration-vp-deduction'))
+      return 'configuration-vp-deduction';
     if (pathname.includes('/attendance-rules')) return 'attendance-rules';
     // if (pathname.includes('/imported-logs')) return 'imported-logs';
     if (pathname.includes('/accrual-rule')) return 'accrual-rule';
@@ -82,6 +86,9 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         break;
       case 'attendance-rules':
         router.push('/timesheet/settings/attendance-rules');
+        break;
+      case 'configuration-vp-deduction':
+        router.push('/timesheet/settings/configuration-vp-deduction');
         break;
       case 'imported-logs':
         router.push('/timesheet/settings/imported-logs');
@@ -160,6 +167,31 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
           id="time-attendance-settings-allowed-areas-tab-label"
         >
           Allowed Areas
+        </div>
+      ),
+    },
+
+    {
+      key: 'allowed-area-configuration',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'allowed-area-configuration' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-allowed-area-configuration-tab-label"
+          id="time-attendance-settings-allowed-area-configuration-tab-label"
+        >
+          Allowed Area Configuration
+        </div>
+      ),
+    },
+    {
+      key: 'configuration-vp-deduction',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'configuration-vp-deduction' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-configuration-vp-deduction-tab-label"
+          id="time-attendance-settings-configuration-vp-deduction-tab-label"
+        >
+          Configuration VP Deduction
         </div>
       ),
     },
@@ -460,6 +492,33 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
                         className="hidden md:inline"
                       >
                         {!isMobile && 'Add Allowed Area Configuration'}
+                      </span>
+                    </Button>
+                  </AccessGuard>
+                ) : activeKey === 'configuration-vp-deduction' ? (
+                  <AccessGuard
+                    permissions={[Permissions.CreateAllowedArea]}
+                    data-cy="time-attendance-settings-configuration-vp-deduction-add-button-access-guard"
+                  >
+                    <Button
+                      icon={
+                        <AddIcon data-cy="time-attendance-settings-configuration-vp-deduction-add-button-icon" />
+                      }
+                      className="h-10 w-10 sm:w-auto"
+                      type="primary"
+                      id="time-attendance-settings-configuration-vp-deduction-add-button"
+                      data-cy="time-attendance-settings-configuration-vp-deduction-add-button"
+                      onClick={() => {
+                        setVpDeductionConfigId(null);
+                        setIsShowVpDeductionModal(true);
+                      }}
+                    >
+                      <span
+                        id="time-attendance-settings-configuration-vp-deduction-add-button-label"
+                        data-cy="time-attendance-settings-configuration-vp-deduction-add-button-label"
+                        className="hidden md:inline"
+                      >
+                        {!isMobile && 'Add Configuration'}
                       </span>
                     </Button>
                   </AccessGuard>

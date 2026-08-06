@@ -1,10 +1,13 @@
-import React from 'react';
-import { Modal, Select, DatePicker, Form } from 'antd';
+import React, { useState } from 'react';
+import { Modal, Select, DatePicker, Form, Button } from 'antd';
 import type { FC } from 'react';
+import { DownloadOutlined } from '@ant-design/icons';
 import { useGetRecognitionTypeParentChildById } from '@/store/server/features/CFR/recognition/queries';
 import { useCreateRecognition } from '@/store/server/features/CFR/recognition/mutation';
 import { useRecongnitionStore } from '@/store/uistate/features/conversation/recognition';
+import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import EmployeeRecognitionModal from './EmployeeRecognitionModal';
+import { useRecognitionEmployeesExport } from './useRecognitionEmployeesExport';
 import { useSearchParams } from 'next/navigation';
 import { useMediaQuery } from 'react-responsive';
 
@@ -19,6 +22,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
   onCancel,
 }) => {
   const [form] = Form.useForm();
+  const [isExporting, setIsExporting] = useState(false);
   const searchParams = useSearchParams();
   const recognitionTypeId = searchParams?.get('recognitionTypeId');
   const { data: recognitionTypesParentChild } =
@@ -31,9 +35,76 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
     setEmployeesList,
     setDateRange,
     visibleEmployee,
+    employeesList,
+    selectedEmployeeId,
+    filterOption,
+    selectedEmployees,
   } = useRecongnitionStore();
+  const { data: allEmployeesData, isLoading: isAllUsersLoading } =
+    useGetAllUsersData();
+  const { exportRecognitionEmployees } = useRecognitionEmployeesExport();
 
   const isMobileSplitDateFields = useMediaQuery({ maxWidth: 767 });
+
+  const allUsers = React.useMemo(() => {
+    if (Array.isArray(allEmployeesData)) return allEmployeesData;
+    return (
+      allEmployeesData?.items ||
+      allEmployeesData?.data ||
+      allEmployeesData?.users ||
+      []
+    );
+  }, [allEmployeesData]);
+
+  const filteredEmployees = React.useMemo(() => {
+    const baseFilter =
+      employeesList?.filter((employee: any) => {
+        if (selectedEmployeeId) {
+          return employee?.recipientId === selectedEmployeeId;
+        }
+
+        if (filterOption === 'selected') {
+          return selectedEmployees.some(
+            (selected: any) => selected.recipientId === employee.recipientId,
+          );
+        }
+
+        if (filterOption === 'notSelected') {
+          return !selectedEmployees.some(
+            (selected: any) => selected.recipientId === employee.recipientId,
+          );
+        }
+
+        return true;
+      }) || [];
+
+    const missingSelected = selectedEmployees.filter(
+      (selected: any) =>
+        !baseFilter.some(
+          (employee: any) => employee.recipientId === selected.recipientId,
+        ),
+    );
+
+    return [...baseFilter, ...missingSelected].map((employee: any) => ({
+      ...employee,
+      recipientId: employee.recipientId ?? employee.id,
+      criteriaScore: employee.criteriaScore ?? [],
+      totalPoints: employee.totalPoints ?? 0,
+    }));
+  }, [employeesList, selectedEmployeeId, filterOption, selectedEmployees]);
+
+  const handleDownloadExcel = async () => {
+    setIsExporting(true);
+    try {
+      await exportRecognitionEmployees(
+        filteredEmployees as any[],
+        allUsers,
+        'Recognition_Employees',
+      );
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   function resetAllFields() {
     form.resetFields();
@@ -64,6 +135,7 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
       startDate: start,
       endDate: end,
     };
+
     createRecognition(
       { value: formattedValues },
       {
@@ -79,13 +151,39 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
       },
     );
   }
+
   function handleCancel() {
     resetAllFields();
     onCancel();
   }
   return (
     <Modal
-      title="Recognition Type"
+      title={
+        <div
+          className="flex items-center justify-between gap-3 pr-8"
+          data-cy="recognition-type-modal-title-row"
+        >
+          <span data-cy="recognition-type-modal-title">Recognition Type</span>
+          <Button
+            type="default"
+            size="small"
+            icon={<DownloadOutlined />}
+            onClick={handleDownloadExcel}
+            loading={isExporting || isAllUsersLoading}
+            disabled={
+              !visibleEmployee ||
+              !filteredEmployees?.length ||
+              isAllUsersLoading ||
+              !allUsers.length
+            }
+            className="shrink-0"
+            data-cy="recognition-type-modal-download"
+            id="recognitionTypeModalDownload"
+          >
+            Download
+          </Button>
+        </div>
+      }
       open={visible}
       footer={null}
       centered={false}
@@ -237,12 +335,12 @@ const RecognitionTypeModal: FC<RecognitionModalProps> = ({
             )}
           </div>
         </div>
-        <EmployeeRecognitionModal
-          visible={visibleEmployee}
-          onCancel={resetAllFields}
-          loading={createRecognitionLoading}
-        />
       </Form>
+      <EmployeeRecognitionModal
+        visible={visibleEmployee}
+        onCancel={resetAllFields}
+        loading={createRecognitionLoading}
+      />
     </Modal>
   );
 };

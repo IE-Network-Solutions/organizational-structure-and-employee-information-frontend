@@ -1,6 +1,6 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL } from '@/utils/constants';
 import { ClosedDates, FiscalYear } from './interface';
 import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -60,7 +60,7 @@ const createFiscalYear = async (fiscalYear: any) => {
   };
 
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars`,
+    url: `${CORE_API_URL}/calendars`,
     method: 'POST',
     data: cleanedPayload,
     headers,
@@ -74,10 +74,51 @@ const updateFiscalYear = async (id: string, fiscalYear: FiscalYear) => {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
   };
+
+  const formatDate = (date: any): string => {
+    if (!date) return '';
+    if (typeof date === 'string') return date;
+    if (date.format && typeof date.format === 'function') {
+      return date.format('YYYY-MM-DD');
+    }
+    if (date instanceof Date) {
+      return date.toISOString().split('T')[0];
+    }
+    return String(date);
+  };
+
+  const cleanedPayload = {
+    name: (fiscalYear as any).name,
+    description:
+      (fiscalYear as any).description ||
+      `Fiscal year ${(fiscalYear as any).name}`,
+    startDate: formatDate((fiscalYear as any).startDate),
+    endDate: formatDate((fiscalYear as any).endDate),
+    isActive: (fiscalYear as any).isActive ?? false,
+    sessions:
+      (fiscalYear as any).sessions?.map((session: any) => ({
+        ...(session.id ? { id: session.id } : {}),
+        name: session.name,
+        description: session.description || '',
+        startDate: formatDate(session.startDate),
+        endDate: formatDate(session.endDate),
+        active: session.active ?? false,
+        months:
+          session.months?.map((month: any) => ({
+            ...(month.id ? { id: month.id } : {}),
+            name: month.name,
+            description: month.description || '',
+            startDate: formatDate(month.startDate),
+            endDate: formatDate(month.endDate),
+            active: month.active ?? false,
+          })) || [],
+      })) || [],
+  };
+
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars/${id}`,
+    url: `${CORE_API_URL}/calendars/${id}`,
     method: 'PUT',
-    data: fiscalYear,
+    data: cleanedPayload,
     headers,
   });
 };
@@ -91,7 +132,7 @@ const deleteFiscalYear = async (id: string) => {
   };
 
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars/${id}`,
+    url: `${CORE_API_URL}/calendars/${id}`,
     method: 'DELETE',
     headers,
   });
@@ -103,6 +144,7 @@ export const useCreateFiscalYear = () => {
   return useMutation(createFiscalYear, {
     onSuccess: () => {
       queryClient.invalidateQueries('fiscalYears');
+      queryClient.invalidateQueries('fiscalActiveYear');
       closeFiscalYearDrawer();
       NotificationMessage.success({
         message: 'Fiscal year created successfully!',
@@ -131,6 +173,7 @@ export const useUpdateFiscalYear = () => {
     {
       onSuccess: (variables: any) => {
         queryClient.invalidateQueries('fiscalYears');
+        queryClient.invalidateQueries('fiscalActiveYear');
 
         closeFiscalYearDrawer();
         const method = variables?.method?.toUpperCase();
@@ -163,7 +206,7 @@ const updateClosedDate = async (
   };
 
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars/${fiscalYearId}`,
+    url: `${CORE_API_URL}/calendars/${fiscalYearId}`,
     method: 'PUT',
     data: { closedDates },
     headers,
@@ -193,7 +236,7 @@ const activateMonth = async (id: string): Promise<void> => {
     Authorization: `Bearer ${token}`,
   };
   await crudRequest({
-    url: `${ORG_AND_EMP_URL}/month/${id}/activate`,
+    url: `${CORE_API_URL}/month/${id}/activate`,
     method: 'PATCH',
     headers,
   });

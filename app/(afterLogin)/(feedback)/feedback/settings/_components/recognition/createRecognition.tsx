@@ -27,14 +27,20 @@ import { ConversationStore } from '@/store/uistate/features/conversation';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useCustomQuestionTemplateStore } from '@/store/uistate/features/feedback/settings';
-import cancelIcon from '../../../../../../../public/image/Button.svg';
-import Image from 'next/image';
 import { GoPencil } from 'react-icons/go';
 import {
   DeleteOutlined,
   CheckOutlined,
   CloseOutlined,
 } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+
+interface BulkRecognitionItem {
+  id: string;
+  name: string;
+  description: string;
+}
 
 interface RecognitionFormValues {
   id: string;
@@ -70,6 +76,11 @@ const FORMULA_OPERAND_OPTIONS: FormulaToken[] = [
   { id: '6', name: ')', type: 'operand' },
   { id: '7', name: 'Clear', type: 'operand' },
 ];
+
+const SCORE_ADJUST_OPERATORS = ['+', '-', '*', '/'] as const;
+
+const criteriaFieldClass =
+  '!mb-0 w-[calc(50%-0.25rem)] shrink-0 text-xs text-gray-950 sm:w-[calc(33.333%-0.35rem)] lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink';
 
 const { Option } = Select;
 interface PropsData {
@@ -143,6 +154,14 @@ const RecognitionForm: React.FC<PropsData> = ({
   );
   const [editingCriteriaName, setEditingCriteriaName] = useState<string>('');
   const [currentStep, setCurrentStep] = useState(0);
+  const [bulkRecognitionItems, setBulkRecognitionItems] = useState<
+    BulkRecognitionItem[]
+  >([]);
+  const [editingBulkItemId, setEditingBulkItemId] = useState<string | null>(
+    null,
+  );
+  const [bulkDraftError, setBulkDraftError] = useState('');
+  const [bulkListError, setBulkListError] = useState('');
 
   const [formulaTokens, setFormulaTokens] = useState<FormulaToken[]>([]);
   const [formulaError, setFormulaError] = useState('');
@@ -219,11 +238,26 @@ const RecognitionForm: React.FC<PropsData> = ({
     setFormulaError('');
     setEditType('');
     setEditingRecognitionCriteriaId('');
+    setBulkRecognitionItems([]);
+    setEditingBulkItemId(null);
+    setBulkDraftError('');
+    setBulkListError('');
     form.setFieldsValue({
       incentiveAmountType: 'Fixed',
       incentiveFixedAmount: undefined,
     });
   };
+
+  useEffect(() => {
+    if (!isWizardOpen || selectedRecognitionType) return;
+
+    setFormulaTokens([]);
+    setFormulaError('');
+    form.setFieldsValue({
+      incentiveAmountType: 'Fixed',
+      incentiveFixedAmount: undefined,
+    });
+  }, [isWizardOpen, selectedRecognitionType, form]);
 
   useEffect(() => {
     if (!isWizardOpen) return;
@@ -487,20 +521,259 @@ const RecognitionForm: React.FC<PropsData> = ({
   };
 
   const commonClass = 'text-xs text-gray-950';
-  const getLabel = (text: string) => (
+  const getLabel = (text: string, required = true) => (
     <span
       className="text-black text-sm "
       data-cy={`create-recognition-${text}-label`}
     >
-      {text}{' '}
-      <span
-        style={{ color: 'red' }}
-        data-cy="create-recognition-label-required"
-      >
-        *
-      </span>
+      {text}
+      {required ? (
+        <>
+          {' '}
+          <span
+            style={{ color: 'red' }}
+            data-cy="create-recognition-label-required"
+          >
+            *
+          </span>
+        </>
+      ) : null}
     </span>
   );
+
+  const resetBulkDraft = () => {
+    form.setFieldsValue({ name: '', description: '' });
+    setEditingBulkItemId(null);
+    setBulkDraftError('');
+  };
+
+  const handleAddBulkRecognitionItem = async () => {
+    try {
+      await form.validateFields(['name', 'description']);
+    } catch {
+      return;
+    }
+
+    const trimmedName = String(form.getFieldValue('name') ?? '').trim();
+    const trimmedDescription = String(
+      form.getFieldValue('description') ?? '',
+    ).trim();
+
+    if (!trimmedName) {
+      setBulkDraftError('Please enter the recognition name');
+      return;
+    }
+
+    const duplicateName = bulkRecognitionItems.some(
+      (item) =>
+        item.name.toLowerCase() === trimmedName.toLowerCase() &&
+        item.id !== editingBulkItemId,
+    );
+    if (duplicateName) {
+      setBulkDraftError('A recognition type with this name already exists');
+      return;
+    }
+
+    if (editingBulkItemId) {
+      setBulkRecognitionItems((prev) =>
+        prev.map((item) =>
+          item.id === editingBulkItemId
+            ? {
+                ...item,
+                name: trimmedName,
+                description: trimmedDescription,
+              }
+            : item,
+        ),
+      );
+    } else {
+      setBulkRecognitionItems((prev) => [
+        ...prev,
+        {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          name: trimmedName,
+          description: trimmedDescription,
+        },
+      ]);
+    }
+
+    setBulkListError('');
+    resetBulkDraft();
+  };
+
+  const handleEditBulkRecognitionItem = (item: BulkRecognitionItem) => {
+    form.setFieldsValue({
+      name: item.name,
+      description: item.description,
+    });
+    setEditingBulkItemId(item.id);
+    setBulkDraftError('');
+  };
+
+  const handleDeleteBulkRecognitionItem = (id: string) => {
+    setBulkRecognitionItems((prev) => prev.filter((item) => item.id !== id));
+    if (editingBulkItemId === id) {
+      resetBulkDraft();
+    }
+    setBulkListError('');
+  };
+
+  const appendScoreAdjustFields = (
+    target: Record<string, unknown>,
+    source: {
+      scoreAdjustOperator?: unknown;
+      scoreAdjustValue?: unknown;
+    },
+  ) => {
+    const op = source.scoreAdjustOperator;
+    if (op !== undefined && op !== null && op !== '') {
+      target.scoreAdjustOperator = op;
+    }
+    const val = source.scoreAdjustValue;
+    if (val !== undefined && val !== null && val !== '') {
+      target.scoreAdjustValue = parseFloat(String(val));
+    }
+  };
+
+  const mapRecognitionCriteria = () => {
+    const formCriteria = form.getFieldValue('recognitionCriteria') || [];
+    return selectedCriteria.map((criteria: any, index: number) => {
+      const formRow = formCriteria[index] || {};
+      const mapped: Record<string, unknown> = {
+        criteriaId: criteria.criteriaId || criteria.id,
+        weight: criteria.weight,
+        operator:
+          criteria.operator && criteria.operator !== ''
+            ? criteria.operator
+            : Object.values(AggregateOperator)[0],
+        condition:
+          criteria.condition && criteria.condition !== ''
+            ? criteria.condition
+            : Object.values(ConditionOperator)[0],
+        value:
+          formRow.value !== undefined && formRow.value !== ''
+            ? parseFloat(String(formRow.value))
+            : criteria.value,
+        active: criteria.active !== undefined ? criteria.active : true,
+      };
+      appendScoreAdjustFields(mapped, {
+        scoreAdjustOperator:
+          formRow.scoreAdjustOperator ?? criteria.scoreAdjustOperator,
+        scoreAdjustValue: formRow.scoreAdjustValue ?? criteria.scoreAdjustValue,
+      });
+      return mapped;
+    });
+  };
+
+  const buildRecognitionTypeEntry = (
+    name: string,
+    description: string,
+    formValues: RecognitionFormValues,
+  ) => {
+    const recognitionCriteria = mapRecognitionCriteria();
+    const parentTypeId =
+      parentRecognitionTypeId && parentRecognitionTypeId.length !== 0
+        ? parentRecognitionTypeId
+        : formValues.parentTypeId || undefined;
+
+    const entry: Record<string, unknown> = {
+      name,
+      description: description ?? '',
+      isMonetized: formValues.isMonetized ?? false,
+      requiresCertification: formValues.requiresCertification ?? false,
+      frequency: formValues.frequency,
+      departmentId: formValues.departmentId,
+    };
+
+    if (parentTypeId) {
+      entry.parentTypeId = parentTypeId;
+    }
+    if (formValues.requiresCertification && formValues.certificationData) {
+      entry.certificationData = formValues.certificationData;
+    }
+    if (recognitionCriteria.length > 0) {
+      entry.recognitionCriteria = recognitionCriteria;
+    }
+
+    return entry;
+  };
+
+  const extractCreatedRecognitionIds = (data: any): string[] => {
+    if (!data) return [];
+
+    const listCandidates = [
+      data?.recognitionTypes,
+      data?.data?.recognitionTypes,
+      data?.items,
+      data?.data?.items,
+      Array.isArray(data) ? data : null,
+      Array.isArray(data?.data) ? data.data : null,
+    ];
+
+    for (const candidate of listCandidates) {
+      if (Array.isArray(candidate)) {
+        return candidate
+          .map((item: any) => item?.id ?? item?.recognitionTypeId)
+          .filter(Boolean)
+          .map(String);
+      }
+    }
+
+    const singleId = data?.id ?? data?.data?.id;
+    return singleId ? [String(singleId)] : [];
+  };
+
+  const buildIncentiveFormulaEntry = (recognitionTypeId: string) => {
+    const amountType = form.getFieldValue('incentiveAmountType') || 'Fixed';
+    const fixedVal = form.getFieldValue('incentiveFixedAmount');
+    const cleanedExpression =
+      Array.isArray(formulaTokens) && formulaTokens.length > 0
+        ? formulaTokens
+            .map((item: FormulaToken) =>
+              item?.type === 'criteria' ? `"${item?.id}"` : item?.name,
+            )
+            .join(' ')
+        : '';
+
+    if (amountType === 'Fixed') {
+      return {
+        recognitionTypeId,
+        isComputed: false,
+        monetizedValue: String(fixedVal),
+      };
+    }
+
+    return {
+      recognitionTypeId,
+      isComputed: true,
+      expression: cleanedExpression,
+    };
+  };
+
+  const persistIncentiveFormulasForIds = (
+    recognitionTypeIds: string[],
+    onDone: () => void,
+  ) => {
+    if (!recognitionTypeIds.length) {
+      onDone();
+      return;
+    }
+
+    createIncentiveFormula(
+      {
+        formulas: recognitionTypeIds.map((id) =>
+          buildIncentiveFormulaEntry(id),
+        ),
+      },
+      {
+        onSuccess: () => {
+          setFormulaTokens([]);
+          onDone();
+        },
+      },
+    );
+  };
+
   const onFinish = (values: RecognitionFormValues) => {
     if (isFormulaOnlyEdit && selectedRecognitionType) {
       persistIncentiveFormula(selectedRecognitionType, handleWizardClose);
@@ -527,31 +800,37 @@ const RecognitionForm: React.FC<PropsData> = ({
           const weightRaw = rcVals.weight ?? row.weight;
           const valueRaw = rcVals.value ?? row.value;
 
-          updateRecognitionCriteriaRow(
-            {
-              id: String(editingRecognitionCriteriaId),
-              criteriaId: row.criteriaId ?? row.criteria?.id,
-              weight:
-                weightRaw !== undefined && weightRaw !== ''
-                  ? parseFloat(String(weightRaw))
-                  : row.weight,
-              operator:
-                rcVals.operator !== undefined && rcVals.operator !== ''
-                  ? rcVals.operator
-                  : row.operator,
-              condition:
-                rcVals.condition !== undefined && rcVals.condition !== ''
-                  ? rcVals.condition
-                  : row.condition,
-              value:
-                valueRaw !== undefined && valueRaw !== ''
-                  ? parseFloat(String(valueRaw))
-                  : row.value,
-              active: row.active !== undefined ? row.active : true,
-              method: 'PATCH',
-            },
-            { onSuccess: () => handleWizardClose() },
-          );
+          const patchPayload: Record<string, unknown> = {
+            id: String(editingRecognitionCriteriaId),
+            criteriaId: row.criteriaId ?? row.criteria?.id,
+            weight:
+              weightRaw !== undefined && weightRaw !== ''
+                ? parseFloat(String(weightRaw))
+                : row.weight,
+            operator:
+              rcVals.operator !== undefined && rcVals.operator !== ''
+                ? rcVals.operator
+                : row.operator,
+            condition:
+              rcVals.condition !== undefined && rcVals.condition !== ''
+                ? rcVals.condition
+                : row.condition,
+            value:
+              valueRaw !== undefined && valueRaw !== ''
+                ? parseFloat(String(valueRaw))
+                : row.value,
+            active: row.active !== undefined ? row.active : true,
+            method: 'PATCH',
+          };
+          appendScoreAdjustFields(patchPayload, {
+            scoreAdjustOperator:
+              rcVals.scoreAdjustOperator ?? row.scoreAdjustOperator,
+            scoreAdjustValue: rcVals.scoreAdjustValue ?? row.scoreAdjustValue,
+          });
+
+          updateRecognitionCriteriaRow(patchPayload, {
+            onSuccess: () => handleWizardClose(),
+          });
         });
       return;
     }
@@ -559,7 +838,12 @@ const RecognitionForm: React.FC<PropsData> = ({
     const { ...rest } = values;
 
     const filteredObj = Object.fromEntries(
-      Object.entries(rest).filter(([key]) => key !== 'criteria'),
+      Object.entries(rest).filter(
+        ([key]) =>
+          !['criteria', 'incentiveAmountType', 'incentiveFixedAmount'].includes(
+            key,
+          ),
+      ),
     );
     const finalValues = {
       ...filteredObj,
@@ -567,53 +851,36 @@ const RecognitionForm: React.FC<PropsData> = ({
         parentRecognitionTypeId && parentRecognitionTypeId.length !== 0
           ? parentRecognitionTypeId
           : undefined,
-      recognitionCriteria: selectedCriteria.map((criteria: any) => ({
-        criteriaId: criteria.criteriaId || criteria.id,
-        weight: criteria.weight,
-        operator:
-          criteria.operator && criteria.operator !== ''
-            ? criteria.operator
-            : Object.values(AggregateOperator)[0],
-        condition:
-          criteria.condition && criteria.condition !== ''
-            ? criteria.condition
-            : Object.values(ConditionOperator)[0],
-        value: criteria.value,
-        active: criteria.active !== undefined ? criteria.active : true,
-      })),
-    };
-
-    const handleClose = () => {
-      form.resetFields();
-      onClose();
-      setOpenRecognitionType(false);
-      setOpenModal(false);
-      setOpen(false);
-      setParentRecognitionTypeId('');
-      setSelectedRecognitionType('');
-      setSelectedCriteria([]);
-      setTotalWeight(0);
-      setPendingNewCriteriaId(null);
-      setEditingCriteriaId(null);
-      setEditingCriteriaName('');
+      recognitionCriteria: mapRecognitionCriteria(),
     };
 
     const finishWizard = () => {
-      setSelectedRecognitionType('');
-      handleClose();
+      handleWizardClose();
     };
 
     if (selectedRecognitionType === '') {
-      createRecognitionType(finalValues, {
-        onSuccess: (data: any) => {
-          const newId = data?.id ?? data?.data?.id;
-          if (values.isMonetized && newId) {
-            persistIncentiveFormula(newId, finishWizard);
-          } else {
-            finishWizard();
-          }
+      const recognitionItems =
+        bulkRecognitionItems.length > 0
+          ? bulkRecognitionItems
+          : [{ name: values.name, description: values.description ?? '' }];
+
+      createRecognitionType(
+        {
+          recognitionTypes: recognitionItems.map((item) =>
+            buildRecognitionTypeEntry(item.name, item.description, values),
+          ),
         },
-      });
+        {
+          onSuccess: (data: any) => {
+            const createdIds = extractCreatedRecognitionIds(data);
+            if (values.isMonetized && createdIds.length > 0) {
+              persistIncentiveFormulasForIds(createdIds, finishWizard);
+            } else {
+              finishWizard();
+            }
+          },
+        },
+      );
     } else {
       const { ...updatedValues } = finalValues;
       const recognitionId = selectedRecognitionType;
@@ -659,6 +926,7 @@ const RecognitionForm: React.FC<PropsData> = ({
         recognitionTypeById.recognitionCriteria?.map((item: any) =>
           String(item.criteriaId),
         ) || [],
+      recognitionCriteria: updatedData,
       isMonetized: recognitionTypeById.isMonetized ?? false,
       requiresCertification: recognitionTypeById.requiresCertification ?? false,
       frequency: recognitionTypeById.frequency || '',
@@ -912,7 +1180,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       expression:
         amountType === 'Fixed' ? null : JSON.stringify(cleanedExpression),
       isComputed: amountType !== 'Fixed',
-      monetizedValue: amountType === 'Fixed' ? fixedVal : 0,
+      monetizedValue: amountType === 'Fixed' ? String(fixedVal) : '0',
     };
 
     const canUpdate =
@@ -925,15 +1193,26 @@ const RecognitionForm: React.FC<PropsData> = ({
     if (canUpdate) {
       updateIncentiveFormula(
         { id: formulaById.id, data: formdata },
-        { onSuccess: onDone },
+        {
+          onSuccess: () => {
+            setFormulaTokens([]);
+            setFormulaError('');
+            onDone();
+          },
+        },
       );
     } else {
-      createIncentiveFormula(formdata, {
-        onSuccess: () => {
-          setFormulaTokens([]);
-          onDone();
+      createIncentiveFormula(
+        {
+          formulas: [buildIncentiveFormulaEntry(recognitionTypeId)],
         },
-      });
+        {
+          onSuccess: () => {
+            setFormulaTokens([]);
+            onDone();
+          },
+        },
+      );
     }
   };
 
@@ -1198,22 +1477,8 @@ const RecognitionForm: React.FC<PropsData> = ({
         styles={{
           body: {
             paddingTop: 0,
-            maxHeight: isMobileViewport
-              ? 'calc(100vh - 220px)'
-              : currentStep === 0 && !isCriteriaOnlyEdit
-                ? 583
-                : showFormulaStep && currentStep === 2
-                  ? 640
-                  : currentStep === 1
-                    ? 583
-                    : 457,
-            overflowY: isMobileViewport
-              ? 'auto'
-              : showFormulaStep && currentStep === 2
-                ? 'auto'
-                : currentStep === 1
-                  ? 'auto'
-                  : 'hidden',
+            overflow: 'visible',
+            maxHeight: 'none',
           },
           content: {
             borderRadius: 12,
@@ -1263,69 +1528,180 @@ const RecognitionForm: React.FC<PropsData> = ({
             }
             data-cy="create-recognition-step-0"
           >
-            <Form.Item
-              label={
-                <span
-                  className="text-black text-sm "
-                  data-cy="create-recognition-form-name-label"
-                >
-                  Name{' '}
-                  <span
-                    style={{ color: 'red' }}
-                    data-cy="create-recognition-form-name-required"
-                  >
-                    *
-                  </span>
-                </span>
-              }
-              name="name"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please enter the recognition name',
-                },
-              ]}
-              data-cy="create-recognition-form-name-field"
-              id="createRecognitionFormNameField"
+            <div
+              className="mb-3 rounded-lg bg-[#F9FAFB] p-3"
+              data-cy="create-recognition-bulk-entry-section"
+              id="createRecognitionBulkEntrySection"
             >
-              <Input
-                placeholder="Enter recognition type name"
-                className="text-xs text-gray-950 h-10"
-                data-cy="create-recognition-form-name-input"
-                id="createRecognitionFormNameInput"
-              />
-            </Form.Item>
+              <Form.Item
+                className="mb-3"
+                label={
+                  <span
+                    className="text-black text-sm "
+                    data-cy="create-recognition-form-name-label"
+                  >
+                    Name{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="create-recognition-form-name-required"
+                    >
+                      *
+                    </span>
+                  </span>
+                }
+                name="name"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter the recognition name',
+                  },
+                ]}
+                data-cy="create-recognition-form-name-field"
+                id="createRecognitionFormNameField"
+              >
+                <Input
+                  placeholder="Enter recognition type name"
+                  className="text-xs text-gray-950 h-10"
+                  data-cy="create-recognition-form-name-input"
+                  id="createRecognitionFormNameInput"
+                />
+              </Form.Item>
 
-            <Form.Item
-              className="text-xs text-gray-950"
-              label={
-                <span
-                  className="text-black text-sm "
-                  data-cy="create-recognition-form-description-label"
-                >
-                  Description{' '}
+              <Form.Item
+                className="mb-2 text-xs text-gray-950"
+                label={
                   <span
-                    style={{ color: 'red' }}
-                    data-cy="create-recognition-form-description-required"
+                    className="text-black text-sm "
+                    data-cy="create-recognition-form-description-label"
                   >
-                    *
+                    Description{' '}
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="create-recognition-form-description-required"
+                    >
+                      *
+                    </span>
                   </span>
-                </span>
-              }
-              name="description"
-              rules={[
-                { required: true, message: 'Please enter a description' },
-              ]}
-              data-cy="create-recognition-form-description-field"
-              id="createRecognitionFormDescriptionField"
-            >
-              <SettingsTextArea
-                placeholder="Enter a detailed description"
-                className="text-xs text-gray-950"
-                data-cy="create-recognition-form-description-textarea"
-                id="createRecognitionFormDescriptionTextarea"
-              />
-            </Form.Item>
+                }
+                name="description"
+                rules={[
+                  { required: true, message: 'Please enter a description' },
+                ]}
+                data-cy="create-recognition-form-description-field"
+                id="createRecognitionFormDescriptionField"
+              >
+                <SettingsTextArea
+                  placeholder="Enter a detailed description"
+                  className="text-xs text-gray-950"
+                  data-cy="create-recognition-form-description-textarea"
+                  id="createRecognitionFormDescriptionTextarea"
+                />
+              </Form.Item>
+              {bulkDraftError ? (
+                <div
+                  className="text-red-500 text-xs mb-2"
+                  data-cy="create-recognition-bulk-draft-error"
+                >
+                  {bulkDraftError}
+                </div>
+              ) : null}
+              {!isEditingRecognition ? (
+                <div
+                  data-cy="create-recognition-bulk-add-button-container"
+                  className="flex justify-end"
+                >
+                  <Button
+                    type="primary"
+                    htmlType="button"
+                    className="mt-1 "
+                    onClick={() => void handleAddBulkRecognitionItem()}
+                    data-cy="create-recognition-bulk-add-button"
+                    id="createRecognitionBulkAddButton"
+                  >
+                    {editingBulkItemId ? 'Update' : 'Add'}
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+
+            {bulkListError ? (
+              <div
+                className="text-red-500 text-xs mb-3"
+                data-cy="create-recognition-bulk-list-error"
+              >
+                {bulkListError}
+              </div>
+            ) : null}
+
+            {!isEditingRecognition && bulkRecognitionItems.length > 0 ? (
+              <div
+                className="mb-3 rounded-lg bg-[#F9FAFB] p-2"
+                data-cy="create-recognition-bulk-items-list-wrapper"
+              >
+                <div
+                  className="flex max-h-[148px] flex-col gap-2 overflow-y-auto pr-1 scrollbar-none"
+                  data-cy="create-recognition-bulk-items-list"
+                  id="createRecognitionBulkItemsList"
+                >
+                  {bulkRecognitionItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex shrink-0 items-start justify-between gap-3 rounded-lg border border-[#D9D9D9] bg-white px-4 py-2.5"
+                      data-cy={`create-recognition-bulk-item-${item.id}`}
+                      id={`createRecognitionBulkItem${item.id}`}
+                    >
+                      <div
+                        data-cy="create-recognition-bulk-item-name-container"
+                        className="min-w-0 flex-1"
+                      >
+                        <div
+                          className="text-sm font-medium text-gray-900 truncate"
+                          data-cy={`create-recognition-bulk-item-name-${item.id}`}
+                        >
+                          {item.name}
+                        </div>
+                        {item.description ? (
+                          <div
+                            className="text-xs text-gray-500 mt-0.5 line-clamp-1"
+                            data-cy={`create-recognition-bulk-item-description-${item.id}`}
+                          >
+                            {item.description}
+                          </div>
+                        ) : null}
+                      </div>
+                      <div
+                        data-cy="create-recognition-bulk-item-actions-container"
+                        className="flex items-center gap-2 shrink-0"
+                      >
+                        <button
+                          type="button"
+                          className="w-6 h-6 border-[1px] border-[#D9D9D9] rounded-md"
+                          onClick={() => handleEditBulkRecognitionItem(item)}
+                          data-cy={`create-recognition-bulk-item-edit-${item.id}`}
+                          id={`createRecognitionBulkItemEdit${item.id}`}
+                        >
+                          <EditOutlinedIcon
+                            fontSize="small"
+                            className="text-sm"
+                          />
+                        </button>
+                        <button
+                          type="button"
+                          className="flex items-center justify-center text-red-500 hover:text-red-600w-6 h-6 border-[1px] border-red-500 rounded-md"
+                          onClick={() =>
+                            handleDeleteBulkRecognitionItem(item.id)
+                          }
+                          data-cy={`create-recognition-bulk-item-delete-${item.id}`}
+                          id={`createRecognitionBulkItemDelete${item.id}`}
+                        >
+                          <CloseOutlinedIcon fontSize="small" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
 
           {!createCategory && (
@@ -1542,7 +1918,7 @@ const RecognitionForm: React.FC<PropsData> = ({
             data-cy="create-recognition-step-1"
           >
             <div
-              className="max-h-[180px] overflow-y-auto scrollbar-none pr-1"
+              className="max-h-[280px] overflow-y-auto scrollbar-none pr-1 sm:max-h-[220px] lg:max-h-[180px]"
               data-cy="create-recognition-criteria-items-scroll"
             >
               {isCriteriaOnlyEdit && criteriaRowsForStep.length === 0 && (
@@ -1568,11 +1944,11 @@ const RecognitionForm: React.FC<PropsData> = ({
                     id={`createRecognitionFormCriteriaItem${index}`}
                   >
                     <div
-                      className="w-full max-w-full overflow-x-auto scrollbar-none"
+                      className="w-full max-w-full"
                       data-cy={`create-recognition-form-criteria-item-scroll-${index}`}
                     >
                       <div
-                        className="mx-auto flex w-max min-w-0 flex-nowrap justify-center gap-2 lg:w-full lg:max-w-none lg:justify-start"
+                        className="flex w-full min-w-0 flex-wrap items-end justify-start gap-2 lg:flex-nowrap"
                         data-cy={`create-recognition-form-criteria-item-row-${index}`}
                       >
                         {selectedRecognitionType !== '' && (
@@ -1597,7 +1973,7 @@ const RecognitionForm: React.FC<PropsData> = ({
                         ></Form.Item>
                         <Form.Item
                           labelAlign="left"
-                          className="!mb-0 min-w-[11rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className={`${criteriaFieldClass} min-w-[11rem] lg:min-w-0`}
                           label={getLabel('Criteria')}
                           name={['recognitionCriteria', index, 'criterionKey']}
                           initialValue={criteria.criterionKey}
@@ -1621,7 +1997,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 
                         <Form.Item
                           labelAlign="left"
-                          className="!mb-0 min-w-[6.75rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className={criteriaFieldClass}
                           label={getLabel('Weight')}
                           name={['recognitionCriteria', index, 'weight']}
                           initialValue={criteria.weight}
@@ -1661,7 +2037,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 
                         <Form.Item
                           labelAlign="left"
-                          className="!mb-0 min-w-[10.5rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className={criteriaFieldClass}
                           label={getLabel('Operator')}
                           name={['recognitionCriteria', index, 'operator']}
                           initialValue={criteria.operator}
@@ -1703,7 +2079,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 
                         <Form.Item
                           labelAlign="left"
-                          className="!mb-0 min-w-[10.5rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className={criteriaFieldClass}
                           label={getLabel('Condition')}
                           name={['recognitionCriteria', index, 'condition']}
                           initialValue={criteria.condition}
@@ -1745,7 +2121,7 @@ const RecognitionForm: React.FC<PropsData> = ({
 
                         <Form.Item
                           labelAlign="left"
-                          className="!mb-0 min-w-[6.75rem] shrink-0 text-xs text-gray-950 lg:min-w-0 lg:w-0 lg:flex-1 lg:basis-0 lg:shrink"
+                          className={criteriaFieldClass}
                           label={getLabel('Value')}
                           name={['recognitionCriteria', index, 'value']}
                           initialValue={criteria.value}
@@ -1759,16 +2135,88 @@ const RecognitionForm: React.FC<PropsData> = ({
                             type="number"
                             placeholder="Enter value"
                             className={`${commonClass} w-full min-w-0`}
+                            onChange={(e) => {
+                              const updated = [...selectedCriteria];
+                              updated[index].value = e.target.value;
+                              setSelectedCriteria(updated);
+                            }}
                             data-cy={`create-recognition-form-criteria-value-input-${index}`}
                             id={`createRecognitionFormCriteriaValueInput${index}`}
                           />
                         </Form.Item>
+
+                        <Form.Item
+                          labelAlign="left"
+                          className={criteriaFieldClass}
+                          label={getLabel('Score Adjust Op', false)}
+                          name={[
+                            'recognitionCriteria',
+                            index,
+                            'scoreAdjustOperator',
+                          ]}
+                          initialValue={
+                            criteria.scoreAdjustOperator ?? undefined
+                          }
+                          data-cy={`create-recognition-form-criteria-score-adjust-operator-field-${index}`}
+                          id={`createRecognitionFormCriteriaScoreAdjustOperatorField${index}`}
+                        >
+                          <Select
+                            allowClear
+                            placeholder="Optional"
+                            className={`${commonClass} w-full min-w-0`}
+                            onChange={(value) => {
+                              const updated = [...selectedCriteria];
+                              updated[index].scoreAdjustOperator =
+                                value ?? null;
+                              setSelectedCriteria(updated);
+                            }}
+                            data-cy={`create-recognition-form-criteria-score-adjust-operator-select-${index}`}
+                            id={`createRecognitionFormCriteriaScoreAdjustOperatorSelect${index}`}
+                          >
+                            {SCORE_ADJUST_OPERATORS.map((operator, opIndex) => (
+                              <Select.Option
+                                key={`score-adjust-operator-${operator}-${opIndex}`}
+                                value={operator}
+                                className={commonClass}
+                                data-cy={`create-recognition-form-criteria-score-adjust-operator-option-${index}-${opIndex}`}
+                                id={`createRecognitionFormCriteriaScoreAdjustOperatorOption${index}${opIndex}`}
+                              >
+                                {operator}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+
+                        <Form.Item
+                          labelAlign="left"
+                          className={criteriaFieldClass}
+                          label={getLabel('Score Adjust Val', false)}
+                          name={[
+                            'recognitionCriteria',
+                            index,
+                            'scoreAdjustValue',
+                          ]}
+                          initialValue={criteria.scoreAdjustValue ?? undefined}
+                          data-cy={`create-recognition-form-criteria-score-adjust-value-field-${index}`}
+                          id={`createRecognitionFormCriteriaScoreAdjustValueField${index}`}
+                        >
+                          <Input
+                            type="number"
+                            placeholder="Optional"
+                            className={`${commonClass} w-full min-w-0`}
+                            onChange={(e) => {
+                              const updated = [...selectedCriteria];
+                              updated[index].scoreAdjustValue =
+                                e.target.value === '' ? null : e.target.value;
+                              setSelectedCriteria(updated);
+                            }}
+                            data-cy={`create-recognition-form-criteria-score-adjust-value-input-${index}`}
+                            id={`createRecognitionFormCriteriaScoreAdjustValueInput${index}`}
+                          />
+                        </Form.Item>
                         {!isCriteriaOnlyEdit && (
-                          <Image
-                            src={cancelIcon}
-                            alt="remove"
-                            width={16}
-                            height={16}
+                          <button
+                            type="button"
                             onClick={() => {
                               const updatedCriteria = selectedCriteria.filter(
                                 (nonUsed: any, i: number) => i !== index,
@@ -1786,10 +2234,13 @@ const RecognitionForm: React.FC<PropsData> = ({
                                 recognitionCriteria: updatedCriteria,
                               });
                             }}
-                            className="mb-1 shrink-0 cursor-pointer self-end"
+                            className="mb-1 shrink-0 cursor-pointer self-end text-gray-500 hover:text-red-500 border-0 bg-transparent p-0"
+                            aria-label="Remove criterion"
                             data-cy={`create-recognition-form-criteria-remove-${index}`}
                             id={`createRecognitionFormCriteriaRemove${index}`}
-                          />
+                          >
+                            <DeleteOutlined className="text-base" />
+                          </button>
                         )}
                       </div>
                     </div>
@@ -1846,7 +2297,9 @@ const RecognitionForm: React.FC<PropsData> = ({
                   return (
                     <div
                       className={
-                        currentStep === 0 ? 'flex flex-col gap-3' : 'hidden'
+                        currentStep === 0
+                          ? 'mb-3 flex flex-col gap-3'
+                          : 'hidden'
                       }
                       data-cy="create-recognition-form-options"
                     >
@@ -1973,7 +2426,7 @@ const RecognitionForm: React.FC<PropsData> = ({
               <div
                 className={
                   currentStep === 0
-                    ? 'grid grid-cols-1 md:grid-cols-2 gap-4 pt-2'
+                    ? 'grid grid-cols-1 gap-4 pb-1 md:grid-cols-2'
                     : 'hidden'
                 }
                 data-cy="create-recognition-form-frequency-department-row"
@@ -2557,12 +3010,27 @@ const RecognitionForm: React.FC<PropsData> = ({
                     return;
                   }
                   if (currentStep === 0) {
-                    await form.validateFields([
-                      'name',
-                      'description',
-                      'frequency',
-                      'departmentId',
-                    ]);
+                    if (!isEditingRecognition) {
+                      if (bulkRecognitionItems.length === 0) {
+                        setBulkListError(
+                          'Please add at least one recognition type',
+                        );
+                        return;
+                      }
+                      setBulkListError('');
+                      form.setFieldsValue({
+                        name: bulkRecognitionItems[0].name,
+                        description: bulkRecognitionItems[0].description ?? '',
+                      });
+                      await form.validateFields(['frequency', 'departmentId']);
+                    } else {
+                      await form.validateFields([
+                        'name',
+                        'description',
+                        'frequency',
+                        'departmentId',
+                      ]);
+                    }
                     setCurrentStep(1);
                     return;
                   }

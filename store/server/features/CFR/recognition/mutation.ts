@@ -15,6 +15,24 @@ const addRecognitionType = async (data: any) => {
     createdByUserId: createdBy || '',
   };
   return await crudRequest({
+    url: `${ORG_DEV_URL}/recognition-type/bulk`,
+    method: 'POST',
+    data,
+    headers,
+  });
+};
+
+/** Single recognition category create (not bulk). */
+const addRecognitionCategory = async (data: any) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  const createdBy = useAuthenticationStore.getState().userId;
+  const headers = {
+    tenantId: tenantId,
+    Authorization: `Bearer ${token}`,
+    createdByUserId: createdBy || '',
+  };
+  return await crudRequest({
     url: `${ORG_DEV_URL}/recognition-type`,
     method: 'POST',
     data,
@@ -198,31 +216,41 @@ export const useAddRecognitionType = () => {
     },
   });
 };
-export const useCreateRecognition = () => {
+
+export const useAddRecognitionCategory = () => {
   const queryClient = useQueryClient();
-  return useMutation(createRecognition, {
-    onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('recognitions');
-      queryClient.invalidateQueries('recognitionsByParentRecognitionType');
+  return useMutation(addRecognitionCategory, {
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    onSuccess: (_, variables: any) => {
       queryClient.invalidateQueries('recognitionTypes');
       queryClient.invalidateQueries('recognitionTypesWithRelations');
-
+      queryClient.refetchQueries('recognitionTypesWithRelations');
+      queryClient.refetchQueries('recognitionTypes');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
-    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
   });
+};
+export const useCreateRecognition = () => {
+  return useMutation(createRecognition);
 };
 export const useCreateEmployeeRecognition = () => {
   const queryClient = useQueryClient();
   return useMutation(createEmployeeRecognition, {
-    onSuccess: (notused, variables: any) => {
-      queryClient.invalidateQueries('recognitions');
-      queryClient.invalidateQueries('recognitionsByParentRecognitionType');
-      const method = variables?.method?.toUpperCase();
-      handleSuccessMessage(method);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries('recognitions');
+      await queryClient.invalidateQueries(
+        'recognitionsByParentRecognitionType',
+      );
+      await queryClient.refetchQueries({
+        queryKey: 'recognitionsByParentRecognitionType',
+        active: true,
+      });
+      handleSuccessMessage(
+        'POST',
+        'Employee recognition was successfully created.',
+      );
     },
-    // enabled: value !== '1' && value !== '' && value !== null && value !== undefined,
   });
 };
 export const useCreateRecognitionCriteria = () => {

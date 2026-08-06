@@ -6,7 +6,14 @@ import {
   Cadence,
   Milestone,
 } from '../types';
-import { getKeyResultProgressPercent } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  getKeyResultProgressPercent,
+  resolveOkrMilestones,
+  formatKrMetricTypeDisplayName,
+  getMetricTypeName,
+  toMetricTypeObject,
+} from '@/utils/okrKeyResultProgressDisplay';
+import { applyReportTaskStatusOverride } from '@/utils/recentReportTaskStatuses';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
 const planGroupedTaskHasContent = (task: any): boolean =>
@@ -33,7 +40,7 @@ const getKeyResultCurrentValue = (
   allTasks: Array<{ achieved?: number; status?: string; weight?: number }>,
   viewMode: ViewMode,
 ) => {
-  const metricTypeName = rawKeyResult?.metricType?.name;
+  const metricTypeName = getMetricTypeName(rawKeyResult);
 
   if (metricTypeName === 'Milestone') {
     return rawKeyResult?.currentValue ?? 0;
@@ -77,6 +84,28 @@ const getTaskStatus = (
   viewMode: ViewMode,
 ): 'completed' | 'pending' | 'failed' | undefined => {
   if (viewMode === 'reporting') {
+    // Prefer explicit report status over isAchieved — backend can lag and keep
+    // isAchieved=true after the user sets Done → Not (unachieved).
+    const raw = String(task?.status ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/[\s-]+/g, '_');
+    if (
+      raw === 'not' ||
+      raw === 'failed' ||
+      raw === 'not_done' ||
+      raw === 'unachieved'
+    ) {
+      return 'failed';
+    }
+    if (
+      raw === 'done' ||
+      raw === 'completed' ||
+      raw === 'complete' ||
+      raw === 'achieved'
+    ) {
+      return 'completed';
+    }
     if (task.isAchieved === true) return 'completed';
     if (task.isAchieved === false) return 'failed';
     return task.status || 'pending';
@@ -138,7 +167,15 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
  * Transform keyResult data structure
  */
 const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
-  const isMilestoneMetric = keyResult.metricType?.name === 'Milestone';
+  const metricType = toMetricTypeObject(
+    keyResult.metricType,
+    keyResult.key_type,
+  );
+  const isMilestoneMetric =
+    getMetricTypeName({
+      metricType,
+      key_type: keyResult.key_type,
+    }) === 'Milestone';
 
   // Transform tasks - filter out empty tasks
   const transformedTasks = (keyResult.tasks || [])
@@ -215,17 +252,23 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   const initialValue = keyResult.initialValue;
   const resolvedTarget = keyResult.targetValue ?? targetValue;
 
+  const okrMilestonesForProgress = isMilestoneMetric
+    ? resolveOkrMilestones({
+        milestones: keyResult.milestones ?? finalMilestones,
+      })
+    : [];
+
   const progressPayload = {
-    metricType: keyResult.metricType,
-    key_type: keyResult.key_type,
-    milestones: isMilestoneMetric
-      ? (keyResult.milestones ?? finalMilestones)
-      : finalMilestones,
+    metricType: metricType ?? keyResult.metricType,
+    key_type: metricType?.name ?? keyResult.key_type,
+    milestones: isMilestoneMetric ? okrMilestonesForProgress : finalMilestones,
     progress: keyResult.progress,
     currentValue,
     initialValue,
     targetValue: resolvedTarget,
   };
+
+  const resolvedProgress = getKeyResultProgressPercent(progressPayload);
 
   return {
     id: keyResult.id || '',
@@ -233,9 +276,11 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     title: keyResult.title || keyResult.name,
     tasks: finalTasks,
     milestones: isMilestoneMetric
-      ? keyResult.milestones?.length
-        ? keyResult.milestones
-        : finalMilestones
+      ? okrMilestonesForProgress.length > 0
+        ? okrMilestonesForProgress
+        : keyResult.milestones?.length
+          ? keyResult.milestones
+          : finalMilestones
       : finalMilestones,
     parentTask: finalParentTasks,
     objective: keyResult.objective
@@ -244,11 +289,11 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
           deletedAt: keyResult.objective.deletedAt || null, // Preserve objective deletedAt
         }
       : null,
-    metricType: keyResult.metricType,
+    metricType: metricType ?? keyResult.metricType,
     targetValue: resolvedTarget,
     currentValue,
     initialValue,
-    progress: getKeyResultProgressPercent(progressPayload),
+    progress: resolvedProgress,
     status: keyResult.status,
     keyResultCompletionStatus: keyResult.keyResultCompletionStatus,
     deletedAt: keyResult.deletedAt || null, // Preserve deletedAt for visual indicators
@@ -280,7 +325,9 @@ export const transformReportToPlanSummary = (
     employee?.employeeJobInformation?.[0]?.department?.name || 'N/A';
 
   // Transform keyResults from reportTask data
-  const reportTasks = dataItem?.reportTask || [];
+  const reportTasks = (dataItem?.reportTask || []).map((task: any) =>
+    applyReportTaskStatusOverride(dataItem?.id, task),
+  );
   const keyResultsMap: Record<string, any> = {};
 
   reportTasks.forEach((task: any) => {
@@ -330,7 +377,7 @@ export const transformReportToPlanSummary = (
         : '') ||
       'Untitled Task';
 
-    const taskObj: PlanTask & { parentTask?: any } = {
+    const taskObj: PlanTask & { parentTask?: any; planTaskId?: string } = {
       id: task.id || task.taskId || '',
       title,
       priority: normalizePriority(task.planTask?.priority || task.priority),
@@ -342,6 +389,13 @@ export const transformReportToPlanSummary = (
       parentTask: task?.planTask?.parentTask, // Include parentTask reference for grouping
       customReason:
         typeof task.customReason === 'string' ? task.customReason.trim() : '',
+      planTaskId:
+        task.planTaskId != null
+          ? String(task.planTaskId)
+          : task.planTask?.id != null
+            ? String(task.planTask.id)
+            : undefined,
+      isAchieved: task.isAchieved === true,
     };
     if (achieveMK) {
       taskObj.achieveMK = true;
@@ -462,7 +516,12 @@ export const transformReportToPlanSummary = (
   });
 
   const transformedKeyResults = Object.values(keyResultsMap).map((kr: any) => {
-    const isMilestoneMetric = kr.metricType?.name === 'Milestone';
+    const metricType = toMetricTypeObject(kr.metricType, kr.key_type);
+    const isMilestoneMetric =
+      getMetricTypeName({
+        metricType,
+        key_type: kr.key_type,
+      }) === 'Milestone';
 
     // For non-milestone metric types, promote milestone parentTask groups to keyResult level
     let finalParentTasks = [...(kr.parentTask || [])];
@@ -508,15 +567,19 @@ export const transformReportToPlanSummary = (
     const currentValue = getKeyResultCurrentValue(kr, allTasks, 'reporting');
     const initialValue = kr.initialValue;
     const resolvedTarget = kr.targetValue || 0;
-    const apiMilestones = kr.milestones ?? [];
+    const okrMilestonesForProgress = isMilestoneMetric
+      ? resolveOkrMilestones({
+          milestones: kr.milestones ?? finalMilestones,
+        })
+      : [];
     const milestonesForMetric =
-      isMilestoneMetric && apiMilestones.length > 0
-        ? apiMilestones
+      isMilestoneMetric && okrMilestonesForProgress.length > 0
+        ? okrMilestonesForProgress
         : finalMilestones;
 
     const progressPayload = {
-      metricType: kr.metricType,
-      key_type: kr.key_type,
+      metricType: metricType ?? kr.metricType,
+      key_type: metricType?.name ?? kr.key_type,
       milestones: milestonesForMetric,
       progress: kr.progress,
       currentValue,
@@ -524,18 +587,23 @@ export const transformReportToPlanSummary = (
       targetValue: resolvedTarget,
     };
 
+    const krResolvedProgress = getKeyResultProgressPercent(progressPayload);
+
     return {
       ...kr,
       // Ensure title is preserved even if keyResult is deleted
       title: kr.title || kr.name || 'Deleted Key Result',
       name: kr.name || kr.title || 'Deleted Key Result',
+      metricType: metricType ?? kr.metricType,
+      key_type: metricType?.name ?? kr.key_type,
       tasks: finalTasks.filter((t: any) => reportGroupedTaskHasContent(t)),
       milestones: milestonesForMetric,
       parentTask: finalParentTasks,
+      metricTypeName: kr.metricTypeName ?? kr.metricType?.name ?? kr.key_type,
       targetValue: resolvedTarget,
       currentValue,
       initialValue,
-      progress: getKeyResultProgressPercent(progressPayload),
+      progress: krResolvedProgress,
       deletedAt: kr.deletedAt || null, // Preserve deletedAt for visual indicators
       objective: kr.objective
         ? {
@@ -588,8 +656,22 @@ export const transformReportToPlanSummary = (
       updatedAt: dataItem.updatedAt || dataItem.createdAt || '',
       tone: statusTone,
     },
-    metricLabel: transformedKeyResults[0]?.metricType?.name || 'N/A',
-    milestoneLabel: transformedKeyResults[0]?.metricType?.name || 'N/A',
+    metricLabel:
+      formatKrMetricTypeDisplayName(
+        transformedKeyResults[0]?.metricType?.name ||
+          transformedKeyResults[0]?.key_type ||
+          transformedKeyResults[0]?.metricTypeName,
+      ) ||
+      transformedKeyResults[0]?.metricType?.name ||
+      'N/A',
+    milestoneLabel:
+      formatKrMetricTypeDisplayName(
+        transformedKeyResults[0]?.metricType?.name ||
+          transformedKeyResults[0]?.key_type ||
+          transformedKeyResults[0]?.metricTypeName,
+      ) ||
+      transformedKeyResults[0]?.metricType?.name ||
+      'N/A',
     target: 0, // Reports don't have targets
     achieved: achieved,
     progress: progress,
@@ -694,8 +776,22 @@ export const transformToPlanSummary = (
       updatedAt: dataItem.updatedAt || dataItem.createdAt || '',
       tone: statusTone,
     },
-    metricLabel: transformedKeyResults[0]?.metricType?.name || 'N/A',
-    milestoneLabel: transformedKeyResults[0]?.metricType?.name || 'N/A',
+    metricLabel:
+      formatKrMetricTypeDisplayName(
+        transformedKeyResults[0]?.metricType?.name ||
+          transformedKeyResults[0]?.key_type ||
+          transformedKeyResults[0]?.metricTypeName,
+      ) ||
+      transformedKeyResults[0]?.metricType?.name ||
+      'N/A',
+    milestoneLabel:
+      formatKrMetricTypeDisplayName(
+        transformedKeyResults[0]?.metricType?.name ||
+          transformedKeyResults[0]?.key_type ||
+          transformedKeyResults[0]?.metricTypeName,
+      ) ||
+      transformedKeyResults[0]?.metricType?.name ||
+      'N/A',
     target: target,
     achieved: achieved,
     progress: progress,

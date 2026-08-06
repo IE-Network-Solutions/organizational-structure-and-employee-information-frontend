@@ -21,18 +21,45 @@ import IncentiveDetailModal from './components/IncentiveDetailModal';
 import EmptyState from '@/components/empty';
 
 export type IncentiveTableDataParams = {
+  id: string;
+  userId: string;
   recognition: string;
   employee_name: React.ReactNode;
+  role?: string;
   criteria: React.ReactNode;
   bonus: React.ReactNode;
   status: React.ReactNode;
-  date_issued: React.ReactNode;
+  date_issued: string;
   createdAt: string;
-  id: string;
 };
 
 interface IncentiveTableDetailsProps {
   id: string;
+}
+
+function getIncentiveListItems(response: unknown): AllIncentiveData[] {
+  if (!response || typeof response !== 'object') return [];
+  const payload = response as Record<string, unknown>;
+  const nestedData = payload.data;
+  const items =
+    payload.items ??
+    (nestedData && typeof nestedData === 'object'
+      ? (nestedData as Record<string, unknown>).items
+      : undefined);
+
+  return Array.isArray(items) ? (items as AllIncentiveData[]) : [];
+}
+
+function getIncentiveListMeta(response: unknown) {
+  if (!response || typeof response !== 'object') return undefined;
+  const payload = response as Record<string, unknown>;
+  const nestedData = payload.data;
+  return (
+    payload.meta ??
+    (nestedData && typeof nestedData === 'object'
+      ? (nestedData as Record<string, unknown>).meta
+      : undefined)
+  );
 }
 
 const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
@@ -102,6 +129,7 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       title: 'Date Issued',
       dataIndex: 'date_issued',
       width: 133,
+      defaultSortOrder: 'descend',
       sorter: (a, b) =>
         new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     },
@@ -184,7 +212,10 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
   };
   const { isMobile, isTablet } = useIsMobile();
 
-  const totalResultCount = dynamicRecognitionData?.meta?.totalItems ?? 0;
+  const incentiveItems = getIncentiveListItems(dynamicRecognitionData);
+  const incentiveMeta = getIncentiveListMeta(dynamicRecognitionData);
+  const totalResultCount =
+    (incentiveMeta as { totalItems?: number } | undefined)?.totalItems ?? 0;
   const showPagination = !responseLoading && totalResultCount > 0;
 
   const rowSelection = {
@@ -194,13 +225,13 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
     },
   };
 
-  const IncentiveByRecognitionTypeTableData =
-    responseLoading || dynamicRecognitionData?.items?.length < 0
+  const IncentiveByRecognitionTypeTableData: IncentiveTableDataParams[] =
+    responseLoading
       ? []
-      : dynamicRecognitionData?.items?.map((item: AllIncentiveData) => {
+      : incentiveItems.map((item: AllIncentiveData) => {
           return {
             id: item?.id,
-            userId: item?.userId,
+            userId: item?.userId ?? '',
             recognition: item?.recognitionType || '--',
             employee_name: (
               <Tooltip
@@ -330,6 +361,13 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
           };
         });
 
+  // Show the most recently generated incentives first.
+  const sortedTableData = [...IncentiveByRecognitionTypeTableData].sort(
+    (a, b) =>
+      new Date(b?.createdAt || 0).getTime() -
+      new Date(a?.createdAt || 0).getTime(),
+  );
+
   return (
     <div
       id="incentive-table-after-generate-container"
@@ -339,14 +377,14 @@ const IncentiveTableAfterGenerate: React.FC<IncentiveTableDetailsProps> = ({
       {responseLoading ? (
         <TableSkeleton columns={columns} />
       ) : (
-        <Table
+        <Table<IncentiveTableDataParams>
           id="incentive-table-after-generate-table"
           data-cy="incentive-table-after-generate-table"
           rowSelection={{ type: 'checkbox', ...rowSelection }}
           rowKey="id"
           className="w-full cursor-pointer"
           columns={columns}
-          dataSource={IncentiveByRecognitionTypeTableData}
+          dataSource={sortedTableData}
           pagination={false}
           locale={{
             emptyText: (

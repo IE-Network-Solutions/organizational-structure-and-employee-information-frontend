@@ -7,7 +7,6 @@ import { auth } from '@/utils/firebaseConfig';
 import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
-import { IoCloseOutline } from 'react-icons/io5';
 import {
   MdPeople,
   MdPersonSearch,
@@ -23,7 +22,15 @@ import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import { Layout, Button, theme, Skeleton, message } from 'antd';
+import {
+  Layout,
+  Button,
+  theme,
+  Skeleton,
+  message,
+  Popover,
+  Tooltip,
+} from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
@@ -84,8 +91,6 @@ import { useEmployeeManagementStore } from '@/store/uistate/features/employees/e
 import JobInfoAccessModal from '@/app/(afterLogin)/dashboard/_components/modal';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
-import { useCopilotStore } from '@/store/uistate/features/copilot';
-import CopilotModule from '@/components/copilot/CopilotModule';
 import { OfflineIndicator } from '@/components/PWA/OfflineIndicator';
 import {
   COPILOT_SHARE_QUERY,
@@ -105,12 +110,16 @@ interface CustomMenuItem {
 
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module, Subscription } from '@/types/tenant-management';
-import { AiOutlineRight } from 'react-icons/ai';
+import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import Link from 'next/link';
+import { MobileBottomNav } from './MobileBottomNav';
 
 interface MyComponentProps {
   children: ReactNode;
 }
+
+// Core host (SelamNew Core) provides its own top bar when this app is embedded inside it.
+const IS_CORE = process.env.NEXT_PUBLIC_IS_CORE === 'true';
 
 const NavMenuItem: React.FC<{
   item: any;
@@ -149,6 +158,8 @@ const NavMenuItem: React.FC<{
   const hasChildren = item.children && item.children.length > 0;
   const isExpanded = expandedKeys.includes(item.key);
   const isItemDisabled = Boolean(item.disabled) || Boolean(navigationDisabled);
+  const [flyoutOpen, setFlyoutOpen] = React.useState(false);
+  const showFlyout = collapsed && hasChildren;
 
   const bestMatchingChildKey = React.useMemo(() => {
     if (!hasChildren) return undefined;
@@ -166,6 +177,18 @@ const NavMenuItem: React.FC<{
   const isActive =
     isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
+  const handleChildNavigate = (child: any) => {
+    if (isItemDisabled) return;
+    const path = String(child.key);
+    if (pathname !== path) {
+      triggerRouteLoaderStart();
+      router.push(path);
+      setSelectedKeys([path]);
+    }
+    setFlyoutOpen(false);
+    onNavigate?.();
+  };
+
   const handleToggle = () => {
     if (isItemDisabled) return;
     if (hasChildren) {
@@ -181,83 +204,159 @@ const NavMenuItem: React.FC<{
     }
   };
 
-  return (
-    <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
+  const handleTriggerKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleToggle();
+    } else if (e.key === 'Escape' && flyoutOpen) {
+      setFlyoutOpen(false);
+    }
+  };
+
+  const renderChildRow = (child: any) => {
+    const isChildSelected =
+      selectedKeys.includes(child.key) ||
+      String(child.key) === bestMatchingChildKey;
+    return (
       <div
-        data-cy="nav-menu-item"
-        onClick={handleToggle}
+        key={child.key}
+        data-cy="nav-menu-item-child"
+        role="menuitem"
+        tabIndex={isItemDisabled ? -1 : 0}
+        aria-current={isChildSelected ? 'page' : undefined}
+        aria-disabled={isItemDisabled || undefined}
+        onClick={() => handleChildNavigate(child)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleChildNavigate(child);
+          }
+        }}
         className={`
-          group flex items-center gap-3 py-2 transition-all duration-200 rounded-[6px]
+          py-2 rounded-[6px] transition-all duration-200 outline-none
+          ${collapsed ? 'px-3' : 'pl-[33px] -ml-[33px]'}
           ${
-            isActive ? 'font-bold' : 'text-black font-medium hover:bg-[#E6F4FF]'
+            isChildSelected
+              ? 'font-normal'
+              : 'text-black font-medium hover:bg-[#E6F4FF] focus-visible:bg-[#E6F4FF]'
           }
           ${isItemDisabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : 'cursor-pointer'}
-          ${collapsed ? 'justify-center px-0 mx-[10px]' : 'pl-[5px] -ml-[5px]'}
         `}
+        style={{
+          fontSize,
+          ...(isChildSelected ? { color: colorPrimary } : {}),
+        }}
+      >
+        {child.label}
+      </div>
+    );
+  };
+
+  const triggerRow = (
+    <div
+      data-cy="nav-menu-item"
+      role="button"
+      tabIndex={isItemDisabled ? -1 : 0}
+      aria-disabled={isItemDisabled || undefined}
+      aria-label={collapsed ? item.label : undefined}
+      aria-haspopup={showFlyout ? 'menu' : undefined}
+      aria-expanded={showFlyout ? flyoutOpen : undefined}
+      onClick={handleToggle}
+      onKeyDown={handleTriggerKeyDown}
+      className={`
+        group flex items-center gap-3 py-2 transition-all duration-200 rounded-[6px] outline-none
+        ${
+          isActive
+            ? 'font-bold'
+            : 'text-black font-medium hover:bg-[#E6F4FF] focus-visible:bg-[#E6F4FF]'
+        }
+        ${isItemDisabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : 'cursor-pointer'}
+        ${collapsed ? 'justify-center px-0 mx-[10px]' : 'pl-[5px] -ml-[5px]'}
+      `}
+      style={isActive ? { color: colorPrimary } : undefined}
+    >
+      <div
+        data-cy="nav-menu-item-icon"
+        className={`text-[21px] transition-colors ${
+          isActive ? '' : 'text-black'
+        }`}
         style={isActive ? { color: colorPrimary } : undefined}
       >
-        <div
-          data-cy="nav-menu-item-icon"
-          className={`text-[21px] transition-colors ${
-            isActive ? '' : 'text-black'
-          }`}
-          style={isActive ? { color: colorPrimary } : undefined}
-        >
-          {item.icon}
-        </div>
-
-        {!collapsed && (
-          <span
-            data-cy="nav-menu-item-label"
-            className="flex-1 transition-colors"
-            style={{ fontSize }}
-          >
-            {item.label}
-          </span>
-        )}
+        {item.icon}
       </div>
+
+      {!collapsed && (
+        <span
+          data-cy="nav-menu-item-label"
+          className="flex-1 transition-colors"
+          style={{ fontSize }}
+        >
+          {item.label}
+        </span>
+      )}
+    </div>
+  );
+
+  if (showFlyout) {
+    return (
+      <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
+        <Popover
+          placement="right"
+          trigger={isItemDisabled ? [] : ['hover', 'focus']}
+          open={isItemDisabled ? false : flyoutOpen}
+          onOpenChange={setFlyoutOpen}
+          arrow={false}
+          overlayClassName="nav-flyout-popover"
+          content={
+            <div
+              role="menu"
+              aria-label={String(item.label)}
+              data-cy="nav-menu-item-flyout"
+              className="min-w-[190px]"
+            >
+              <div
+                data-cy="nav-menu-item-flyout-header"
+                className="px-3 py-1.5 text-[13px] font-bold"
+                style={isActive ? { color: colorPrimary } : undefined}
+              >
+                {item.label}
+              </div>
+              <div
+                data-cy="nav-menu-item-flyout-children"
+                className="flex flex-col"
+              >
+                {item.children.map((child: any) => renderChildRow(child))}
+              </div>
+            </div>
+          }
+        >
+          {triggerRow}
+        </Popover>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
+      {collapsed ? (
+        <Tooltip
+          placement="right"
+          trigger={isItemDisabled ? [] : ['hover', 'focus']}
+          title={item.label}
+        >
+          {triggerRow}
+        </Tooltip>
+      ) : (
+        triggerRow
+      )}
 
       {hasChildren && !collapsed && isExpanded && (
         <div
           className="flex flex-col mt-1 ml-[33px] space-y-1"
           data-cy="nav-menu-item-children-container"
+          role="menu"
         >
-          {item.children.map((child: any) => {
-            const isChildSelected =
-              selectedKeys.includes(child.key) ||
-              String(child.key) === bestMatchingChildKey;
-            return (
-              <div
-                key={child.key}
-                data-cy="nav-menu-item-child"
-                onClick={() => {
-                  if (isItemDisabled) return;
-                  const path = String(child.key);
-                  if (pathname !== path) {
-                    triggerRouteLoaderStart();
-                    router.push(path);
-                    setSelectedKeys([path]);
-                  }
-                  onNavigate?.();
-                }}
-                className={`
-                  py-2 rounded-[6px] transition-all duration-200 pl-[33px] -ml-[33px]
-                  ${
-                    isChildSelected
-                      ? 'font-normal'
-                      : 'text-black font-medium hover:bg-[#E6F4FF]'
-                  }
-                  ${isItemDisabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent' : 'cursor-pointer'}
-                `}
-                style={{
-                  fontSize,
-                  ...(isChildSelected ? { color: colorPrimary } : {}),
-                }}
-              >
-                {child.label}
-              </div>
-            );
-          })}
+          {item.children.map((child: any) => renderChildRow(child))}
         </div>
       )}
     </div>
@@ -293,12 +392,27 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   } = useAuthenticationStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-  const { isOpen: isCopilotOpen, setIsOpen: setCopilotOpen } =
-    useCopilotStore();
-  const pathName = usePathname();
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const styleId = 'nav-flyout-popover-styles';
+    if (document.getElementById(styleId)) return;
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      .nav-flyout-popover .ant-popover-inner {
+        padding: 6px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+      }
+      .nav-flyout-popover .ant-popover-inner-content {
+        padding: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
   }, []);
 
   useEffect(() => {
@@ -308,12 +422,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       params.get(COPILOT_SHARE_QUERY) ||
       params.get(COPILOT_SHARE_REF_QUERY)
     ) {
-      setCopilotOpen(true);
-      return;
+      if (pathname !== '/copilot') {
+        router.replace(`/copilot?${params.toString()}`);
+      }
     }
-    // Sidebar / in-app navigation: hide Copilot full-page workspace so main `children` render.
-    setCopilotOpen(false);
-  }, [isMounted, pathname, setCopilotOpen]);
+  }, [isMounted, pathname, router]);
 
   const triggerRouteLoaderStart = () => {
     if (typeof window !== 'undefined') {
@@ -968,12 +1081,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       router.push('/onboarding');
     } else if (
       employeeData?.employeeJobInformation?.length === 0 &&
-      pathName !== `/employees/manage-employees/${userId}`
+      pathname !== `/employees/manage-employees/${userId}`
     ) {
       setIsModalOpen(true);
     } else if (
       employeeData?.employeeJobInformation?.length === 0 &&
-      pathName === `/employees/manage-employees/${userId}`
+      pathname === `/employees/manage-employees/${userId}`
     ) {
       setIsAddEmployeeJobInfoModalVisible(true);
     }
@@ -982,7 +1095,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     employeeData,
     router,
     isLoadingData,
-    pathName,
+    pathname,
     userId,
     setIsAddEmployeeJobInfoModalVisible,
   ]);
@@ -1159,6 +1272,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
   }, [collapsed, isMobile]);
 
+  const clearBrowserSessionArtifacts = () => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const clearStorage = (storage: Storage) => {
+        const keys = Object.keys(storage);
+        keys.forEach((key) => storage.removeItem(key));
+      };
+      clearStorage(window.localStorage);
+      clearStorage(window.sessionStorage);
+    } catch {
+      // ignore storage cleanup errors
+    }
+
+    try {
+      document.cookie.split(';').forEach((cookie) => {
+        const name = cookie.split('=')[0]?.trim();
+        if (!name) return;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+      });
+    } catch {
+      // ignore cookie cleanup errors
+    }
+  };
+
   const handleLogout = async () => {
     try {
       // Sign out of the shared Firebase session first so logout propagates to
@@ -1187,14 +1325,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       removeCookie('tenantId');
       removeCookie('activeCalendar');
       removeCookie('loggedUserRole');
+      removeCookie('canManageFiscalYear');
 
       // Finally clear the remaining state
       setToken('');
       setTenantId('');
       setLocalId('');
+      clearBrowserSessionArtifacts();
 
-      // Core owns login at the origin root, outside this app's /workspace basePath.
-      window.location.assign('/login');
+      // Core owns login at the origin root; standalone / redesign uses in-app login.
+      window.location.assign(IS_CORE ? '/login' : '/authentication/login');
     } catch (error) {}
   };
 
@@ -1486,10 +1626,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          // On mobile, the drawer overlays the whole viewport above header.
-          zIndex: isMobile ? 300 : 100,
+          zIndex: 100,
           backgroundColor: 'var(--nav-sider-background, #eff6ff)',
-          transform: isMobile && mobileCollapsed ? 'translateX(-100%)' : 'none',
+          // On mobile the bottom nav handles navigation — slide the sidebar fully off-screen.
+          transform: isMobile ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
         }}
         trigger={null}
@@ -1509,58 +1649,46 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           data-cy="nav-sider-children-wrap"
           className="relative flex flex-col flex-1 min-h-0"
         >
-          <div
-            data-cy="nav-sider-logo-wrap"
-            className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
-          >
+          {!IS_CORE && (
             <div
-              data-cy="nav-sider-logo"
-              className="relative h-10 w-full flex items-center"
+              data-cy="nav-sider-logo-wrap"
+              className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
             >
-              {collapsed ? (
-                <div
-                  data-cy="nav-sider-logo-collapsed-container"
-                  className="w-full flex justify-center"
-                >
+              <div
+                data-cy="nav-sider-logo"
+                className="relative h-10 w-full flex items-center"
+              >
+                {collapsed ? (
+                  <div
+                    data-cy="nav-sider-logo-collapsed-container"
+                    className="w-full flex justify-center"
+                  >
+                    <Image
+                      unoptimized
+                      src="/image/selamnew-workspace-logo-collapsed.svg"
+                      alt="SelamNew Workspace Logo"
+                      width={32}
+                      height={32}
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </div>
+                ) : (
                   <Image
-                    src="/image/selamnew-workspace-logo-collapsed.svg"
+                    unoptimized
+                    src="/image/selamnew-workspace-logo.svg"
                     alt="SelamNew Workspace Logo"
-                    width={32}
-                    height={32}
+                    width={150}
+                    height={40}
                     style={{ objectFit: 'contain' }}
                   />
-                </div>
-              ) : (
-                <Image
-                  src="/image/selamnew-workspace-logo.svg"
-                  alt="SelamNew Workspace Logo"
-                  width={150}
-                  height={40}
-                  style={{ objectFit: 'contain' }}
-                />
-              )}
+                )}
+              </div>
             </div>
-          </div>
-
-          {!isMobile && (
-            <button
-              type="button"
-              data-cy="nav-sider-toggle"
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              onClick={toggleCollapsed}
-              className="absolute -right-3 top-[37px] z-[101] flex h-6 w-6 min-h-6 min-w-6 shrink-0 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-[#1E40AF] text-white shadow-md transition-colors hover:bg-[#1E3A8A] hover:opacity-100"
-            >
-              {collapsed ? (
-                <AiOutlineRight size={12} />
-              ) : (
-                <AiOutlineRight size={12} className="rotate-180" />
-              )}
-            </button>
           )}
 
           <div
             data-cy="nav-sider-menu-scroll"
-            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+            className={`flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide ${IS_CORE ? 'pt-6' : ''}`}
             style={{ minHeight: 0 }}
           >
             <div
@@ -1629,7 +1757,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     >
                       <div
                         data-cy="nav-sider-group-header"
-                        className="mb-2 mt-4 first:mt-2"
+                        className={`mb-2 mt-4 first:mt-2 ${collapsed ? 'text-center' : ''}`}
                       >
                         <Link
                           href={
@@ -1697,65 +1825,132 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 data-cy="nav-sider-admin-inner"
                 className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
               >
-                <Button
-                  data-cy="nav-sider-admin-btn"
-                  type="text"
-                  block={!collapsed}
-                  icon={
-                    <span
-                      data-cy="nav-sider-admin-icon-wrap"
-                      className={`flex items-center justify-center text-[21px] leading-none transition-colors ${
-                        pathname.startsWith('/admin') ? '' : 'text-black'
-                      }`}
+                {(() => {
+                  const adminButton = (
+                    <Button
+                      data-cy="nav-sider-admin-btn"
+                      type="text"
+                      block={!collapsed}
+                      aria-label={collapsed ? 'Admin Console' : undefined}
+                      icon={
+                        <span
+                          data-cy="nav-sider-admin-icon-wrap"
+                          className={`flex items-center justify-center text-[21px] leading-none transition-colors ${
+                            pathname.startsWith('/admin') ? '' : 'text-black'
+                          }`}
+                          style={
+                            pathname.startsWith('/admin')
+                              ? { color: colorPrimary }
+                              : undefined
+                          }
+                        >
+                          <MdSettings size={21} />
+                        </span>
+                      }
+                      className={`
+                      !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
+                      ${
+                        pathname.startsWith('/admin')
+                          ? '!font-bold'
+                          : '!font-medium !text-black hover:!bg-[#E6F4FF]'
+                      }
+                      ${
+                        collapsed
+                          ? '!flex !w-[52px] !justify-center !px-0 !py-2 mx-[10px]'
+                          : '!w-full !max-w-none !justify-start !py-2 !pl-[5px] -ml-[5px]'
+                      }
+                    `}
                       style={
                         pathname.startsWith('/admin')
                           ? { color: colorPrimary }
                           : undefined
                       }
+                      onClick={() => {
+                        triggerRouteLoaderStart();
+                        router.push('/admin/dashboard');
+                        if (isMobile) {
+                          setMobileCollapsed(true);
+                        }
+                      }}
                     >
-                      <MdSettings size={21} />
-                    </span>
-                  }
-                  className={`
-                  !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
-                  ${
-                    pathname.startsWith('/admin')
-                      ? '!font-bold'
-                      : '!font-medium !text-black hover:!bg-[#E6F4FF]'
-                  }
-                  ${
-                    collapsed
-                      ? '!flex !w-[52px] !justify-center !px-0 !py-2 mx-[10px]'
-                      : '!w-full !max-w-none !justify-start !py-2 !pl-[5px] -ml-[5px]'
-                  }
-                `}
-                  style={
-                    pathname.startsWith('/admin')
-                      ? { color: colorPrimary }
-                      : undefined
-                  }
-                  onClick={() => {
-                    triggerRouteLoaderStart();
-                    router.push('/admin/dashboard');
-                    if (isMobile) {
-                      setMobileCollapsed(true);
-                    }
-                  }}
-                >
-                  {!collapsed && (
-                    <span
-                      data-cy="nav-sider-admin-label"
-                      className="flex-1 text-left transition-colors"
-                      style={{ fontSize }}
+                      {!collapsed && (
+                        <span
+                          data-cy="nav-sider-admin-label"
+                          className="flex-1 text-left transition-colors"
+                          style={{ fontSize }}
+                        >
+                          Admin Console
+                        </span>
+                      )}
+                    </Button>
+                  );
+                  return collapsed ? (
+                    <Tooltip
+                      placement="right"
+                      trigger={['hover', 'focus']}
+                      title="Admin Console"
                     >
-                      Admin Console
-                    </span>
-                  )}
-                </Button>
+                      {adminButton}
+                    </Tooltip>
+                  ) : (
+                    adminButton
+                  );
+                })()}
               </div>
             </div>
           )}
         </div>
+
+        {!isMobile && (
+          <div
+            data-cy="nav-sider-collapse-footer"
+            className={`w-full shrink-0 bg-white/40 pb-2 ${
+              collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
+            }`}
+          >
+            <div
+              data-cy="nav-sider-collapse-inner"
+              className={`max-w-[209px] w-full ${collapsed ? '' : 'pl-2'}`}
+            >
+              <div
+                data-cy="nav-sider-collapse-wrapper"
+                className="flex flex-col w-full"
+              >
+                <div
+                  data-cy="nav-sider-toggle"
+                  role="button"
+                  aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                  onClick={toggleCollapsed}
+                  className={`group flex items-center gap-3 py-2 transition-all duration-200 rounded-[6px] font-medium hover:bg-[#E6F4FF] cursor-pointer text-black ${
+                    collapsed
+                      ? 'justify-center px-0 mx-[10px]'
+                      : 'pl-[5px] -ml-[5px]'
+                  }`}
+                >
+                  <div
+                    data-cy="nav-sider-collapse-icon"
+                    className="text-[21px] transition-colors text-black"
+                  >
+                    {collapsed ? (
+                      <ChevronsRight size={21} />
+                    ) : (
+                      <ChevronsLeft size={21} />
+                    )}
+                  </div>
+                  {!collapsed && (
+                    <span
+                      data-cy="nav-sider-collapse-label"
+                      className="flex-1 transition-colors"
+                      style={{ fontSize }}
+                    >
+                      Collapse
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </Sider>
       <Layout
         style={{
@@ -1769,70 +1964,57 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           flexDirection: 'column',
         }}
       >
-        <Header
-          style={{
-            padding: 0,
-            background: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            position: 'fixed',
-            width: isMobile
-              ? '100%'
-              : collapsed
-                ? 'calc(100% - 80px)'
-                : 'calc(100% - 280px)',
-            zIndex: 40,
-            top: 0,
-            left: isMobile ? 0 : collapsed ? 80 : 280,
-            transition: 'left 0.3s ease, width 0.3s ease',
-            height: '74px',
-            borderBottom: '1px solid #F1F5F9',
-            boxShadow: 'none',
-          }}
-        >
-          {isMobile && mobileCollapsed && (
-            <div
-              data-cy="nav-header-mobile-toggle-wrap"
-              className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
-            >
-              <Button
-                data-cy="nav-header-mobile-toggle"
-                type="text"
-                aria-label="Open menu"
-                className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
-                onClick={toggleMobileCollapsed}
-                icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
-              />
-            </div>
-          )}
-
-          <NavBar handleLogout={handleLogout} />
-        </Header>
-
-        {/* Mobile drawer close button: on the right edge of the drawer, aligned with header */}
-        {isMobile && !mobileCollapsed && (
-          <button
-            type="button"
-            data-cy="nav-mobile-drawer-close"
-            onClick={toggleMobileCollapsed}
-            className="fixed z-[320] flex h-8 w-8 min-h-8 min-w-8 shrink-0 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-0 bg-[#1E40AF] text-white shadow-md transition-colors hover:bg-[#1E3A8A]"
+        {!IS_CORE && (
+          <Header
             style={{
-              top: 30,
-              // Position the close button outside the right edge of the 280px drawer.
-              left: 302,
+              padding: 0,
+              background: '#fff',
+              display: isMobile ? 'none' : 'flex',
+              alignItems: 'center',
+              position: 'fixed',
+              width: isMobile
+                ? '100%'
+                : collapsed
+                  ? 'calc(100% - 80px)'
+                  : 'calc(100% - 280px)',
+              zIndex: 40,
+              top: 0,
+              left: isMobile ? 0 : collapsed ? 80 : 280,
+              transition: 'left 0.3s ease, width 0.3s ease',
+              height: '74px',
+              borderBottom: '1px solid #F1F5F9',
+              boxShadow: 'none',
             }}
-            aria-label="Close menu"
           >
-            <IoCloseOutline size={20} />
-          </button>
+            {isMobile && mobileCollapsed && (
+              <div
+                data-cy="nav-header-mobile-toggle-wrap"
+                className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
+              >
+                <Button
+                  data-cy="nav-header-mobile-toggle"
+                  type="text"
+                  aria-label="Open menu"
+                  className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
+                  onClick={toggleMobileCollapsed}
+                  icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
+                />
+              </div>
+            )}
+
+            <NavBar handleLogout={handleLogout} />
+          </Header>
         )}
+
+        {/* Mobile drawer close button: retained for potential future use but not rendered */}
         <Content
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
           style={{
             paddingInline: 0,
             paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             paddingRight: 0,
-            paddingTop: '74px',
+            paddingTop: isMobile || IS_CORE ? 0 : '74px',
+            paddingBottom: isMobile ? 68 : 0,
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
           }}
@@ -1860,16 +2042,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               }}
             >
               <OfflineIndicator variant="content" showNotifications={false} />
-              {isCopilotOpen ? (
-                <div
-                  id="copilot-workspace-root"
-                  data-cy="copilot-workspace-root"
-                >
-                  <CopilotModule />
-                </div>
-              ) : (
-                children
-              )}
+              {children}
             </div>
           )}
           {/* <CreateEmployeeJobInformation
@@ -1884,6 +2057,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             onConfirm={handleOk}
           />
         </Content>
+
+        {/* Mobile bottom navigation — replaces the hamburger drawer on small screens */}
+        {isMobile && (
+          <MobileBottomNav
+            groups={groupedMenuItems}
+            colorPrimary={colorPrimary}
+          />
+        )}
       </Layout>
     </Layout>
   );

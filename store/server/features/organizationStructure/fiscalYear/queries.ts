@@ -1,6 +1,6 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery, QueryObserverOptions } from 'react-query';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL } from '@/utils/constants';
 import { FiscalYear, FiscalYearResponse } from './interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { requestHeader } from '@/helpers/requestHeader';
@@ -14,7 +14,7 @@ const getAllFiscalYears = async (pageSize?: number, currentPage?: number) => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars?limit=${pageSize ?? 10}&&page=${currentPage ?? 1}`,
+    url: `${CORE_API_URL}/calendars?limit=${pageSize ?? 10}&&page=${currentPage ?? 1}`,
     method: 'GET',
     headers,
   });
@@ -29,7 +29,7 @@ const getActiveFiscalYear = async () => {
     Authorization: `Bearer ${token}`,
   };
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars/active/calendar`,
+    url: `${CORE_API_URL}/calendars/active/calendar`,
     method: 'GET',
     headers,
   });
@@ -38,7 +38,7 @@ const getActiveFiscalYear = async () => {
 const getFiscalYear = async (id: string) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/calendars/${id}`,
+    url: `${CORE_API_URL}/calendars/${id}`,
     method: 'GET',
     headers: requestHeaders,
   });
@@ -54,6 +54,17 @@ export const useGetFiscalYearById = (id: string) =>
     keepPreviousData: true,
   });
 
+// Keeps the `activeCalendar` cookie (read by middleware.ts to decide
+// hasEndedFiscalYear) in sync with the server. Without this, the cookie is
+// only ever written at login, so creating/activating a new fiscal year
+// during a session left the cookie stale and middleware kept bouncing every
+// navigation back to the fiscal year settings page.
+const syncActiveCalendarCookie = (data?: FiscalYear) => {
+  if (data?.endDate) {
+    useAuthenticationStore.getState().setActiveCalendar(data.endDate);
+  }
+};
+
 export const useGetActiveFiscalYears = (
   options?: QueryObserverOptions<FiscalYear>,
 ) => {
@@ -62,6 +73,10 @@ export const useGetActiveFiscalYears = (
   return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
     enabled: token.length > 0 && tenantId.length > 0,
     ...options,
+    onSuccess: (data) => {
+      syncActiveCalendarCookie(data);
+      options?.onSuccess?.(data);
+    },
   });
 };
 
@@ -70,5 +85,6 @@ export const useGetActiveFiscalYearsData = () => {
   const tenantId = useAuthenticationStore.getState().tenantId;
   return useQuery<FiscalYear>('fiscalActiveYear', getActiveFiscalYear, {
     enabled: token.length > 0 && tenantId.length > 0,
+    onSuccess: syncActiveCalendarCookie,
   });
 };

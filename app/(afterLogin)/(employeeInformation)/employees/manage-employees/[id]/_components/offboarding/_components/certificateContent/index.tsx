@@ -128,6 +128,7 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
                         task.approver?.profileImage ||
                         task.approver?.avatar ? (
                           <Image
+                            unoptimized
                             src={
                               task.approver.profilePicture ||
                               task.approver.profileImage ||
@@ -288,6 +289,7 @@ const CertificateContent: React.FC<CertificateContentProps> = ({
             >
               {tenantData?.stamp && (
                 <Image
+                  unoptimized
                   src={tenantData.stamp}
                   alt="Company Stamp"
                   fill

@@ -11,13 +11,19 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useEffect } from 'react';
 import { useQueryClient } from 'react-query';
+import { markMilestonesCompletedInOkrCaches } from '@/utils/invalidateOkrPlanningCaches';
+import {
+  buildMilestoneKeyResultMap,
+  clearReopenedPlanningTargets,
+  collectAchievedMilestoneIdsFromReport,
+  rememberAchievedMilestones,
+} from '@/utils/recentlyAchievedMilestones';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { CreateReportFormCollapse } from './CreateReportFormCollapse';
 import { computeReportTotalWeight } from './reportFormUtils';
 import { useCreateReportFormEffects } from './useCreateReportFormEffects';
 
 function CreateReport() {
-  const queryClient = useQueryClient();
   const {
     openReportModal,
     setOpenReportModal,
@@ -30,6 +36,7 @@ function CreateReport() {
     setInlineReportPlanId,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
+  const queryClient = useQueryClient();
 
   const onClose = () => {
     setOpenReportModal(false);
@@ -67,33 +74,49 @@ function CreateReport() {
     }
   }, [openReportModal, setInlineReportPlanId]);
 
-  const handleOnFinish = (values: Record<string, any>) => {
-    Object.entries(values).length > 0 &&
-      planningPeriodId &&
-      createReport(
-        {
-          values: values,
-          planningPeriodId: planningPeriodId,
-          planId: allPlannedTaskForReport?.[0]?.plan?.id,
-        },
-
-        {
-          onSuccess: () => {
-            queryClient.invalidateQueries('okrReports');
-            queryClient.invalidateQueries('okrPlans');
-            queryClient.invalidateQueries('okrUserPlans');
-            queryClient.invalidateQueries('okrPlannedData');
-            queryClient.invalidateQueries('planningPeriodsHierarchy');
-            queryClient.invalidateQueries('fetchObjectives');
-            queryClient.invalidateQueries('ObjectiveInformation');
-            onClose();
-          },
-        },
-      );
-  };
   const formattedData =
     allPlannedTaskForReport &&
     groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
+
+  const handleOnFinish = (values: Record<string, any>) => {
+    if (Object.entries(values).length === 0 || !planningPeriodId) return;
+
+    const achievedIds = collectAchievedMilestoneIdsFromReport(
+      Array.isArray(formattedData) ? formattedData : null,
+      selectedStatuses,
+      values,
+    );
+    const milestoneToKrId = buildMilestoneKeyResultMap(
+      Array.isArray(formattedData) ? formattedData : null,
+    );
+    clearReopenedPlanningTargets({
+      milestoneIds: achievedIds,
+      keyResultIds: Array.from(
+        new Set(
+          achievedIds
+            .map((id) => milestoneToKrId[id])
+            .filter((id): id is string => Boolean(id)),
+        ),
+      ),
+    });
+    // Session remember before mutate so + disable does not wait on invalidate.
+    rememberAchievedMilestones(achievedIds);
+
+    createReport(
+      {
+        values: values,
+        planningPeriodId: planningPeriodId,
+        planId: allPlannedTaskForReport?.[0]?.plan?.id,
+        achievedMilestoneIds: achievedIds,
+      },
+      {
+        onSuccess: () => {
+          markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          onClose();
+        },
+      },
+    );
+  };
 
   useCreateReportFormEffects(formattedData, form);
 
@@ -173,13 +196,13 @@ function CreateReport() {
               Weight Point:
             </span>{' '}
             <span
-              className={
+              className={`text-[20px] font-extrabold md:text-[22px] ${
                 totalWeight > 84
                   ? 'text-[#52C41A]'
                   : totalWeight >= 64
                     ? 'text-orange-500'
                     : 'text-red-500'
-              }
+              }`}
               data-cy="planningandreporting-planning-and-reporting-components-createreport-index-tsx-span-325"
             >
               {totalWeight}%

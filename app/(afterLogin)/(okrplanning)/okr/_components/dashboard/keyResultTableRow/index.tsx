@@ -47,7 +47,12 @@ import {
   getRemovedMilestoneIds,
   persistKeyResultMilestones,
 } from '../../../_utils/milestoneSave';
-import { getKeyResultMetricDetailLine } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  getKeyResultMetricDetailLine,
+  getKeyResultProgressPercent,
+} from '@/utils/okrKeyResultProgressDisplay';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const { Option } = Select;
 
@@ -57,6 +62,7 @@ interface KeyResultTableRowProps {
   updatedKeyResults: any;
   objectiveId: string;
   objectiveUserId?: string;
+  objectiveKeyResults?: any[];
   isInActiveSession?: boolean;
   objectiveEditMode?: boolean;
   editableKeyResult?: any;
@@ -77,6 +83,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
   updatedKeyResults,
   objectiveId,
   objectiveUserId,
+  objectiveKeyResults = [],
   isInActiveSession = true,
   objectiveEditMode = false,
   editableKeyResult,
@@ -122,7 +129,16 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     (myOkr || objectiveUserId === userId) && isInActiveSession;
   const hideOwnTeamOkrActions =
     String(okrTab) === '2' && objectiveUserId === userId;
-  const canShowActionsMenu = canEditDelete && !hideOwnTeamOkrActions;
+  const canUpdateKeyResult = AccessGuard.checkAccess({
+    permissions: [Permissions.UpdateKeyResults],
+  });
+  const canDeleteKeyResult = AccessGuard.checkAccess({
+    permissions: [Permissions.DeleteKeyResults],
+  });
+  const canShowActionsMenu =
+    canEditDelete &&
+    !hideOwnTeamOkrActions &&
+    (canUpdateKeyResult || canDeleteKeyResult);
 
   const showDeleteModal = () => {
     setOpenDeleteModal(true);
@@ -228,26 +244,34 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     setEditingMilestoneIndex(distributed.length - 1);
   };
 
-  const menu = canShowActionsMenu ? (
-    <Menu
-      className="okr-actions-menu"
-      items={[
-        {
-          key: '1',
-          icon: <EditOutlinedIcon className="text-gray-700" />,
-          label: 'Edit Key Result',
-          onClick: showDrawer,
-        },
-        {
-          key: '2',
-          icon: <DeleteOutlined className="text-red-500" />,
-          label: 'Delete Key Result',
-          danger: true,
-          onClick: showDeleteModal,
-        },
-      ]}
-    />
-  ) : null;
+  const keyResultMenuItems = [
+    ...(canUpdateKeyResult
+      ? [
+          {
+            key: '1',
+            icon: <EditOutlinedIcon className="text-gray-700" />,
+            label: 'Edit Key Result',
+            onClick: showDrawer,
+          },
+        ]
+      : []),
+    ...(canDeleteKeyResult
+      ? [
+          {
+            key: '2',
+            icon: <DeleteOutlined className="text-red-500" />,
+            label: 'Delete Key Result',
+            danger: true,
+            onClick: showDeleteModal,
+          },
+        ]
+      : []),
+  ];
+
+  const menu =
+    canShowActionsMenu && keyResultMenuItems.length > 0 ? (
+      <Menu className="okr-actions-menu" items={keyResultMenuItems} />
+    ) : null;
 
   const handleKeyResultDelete = (id: string) => {
     updateAndDelete({
@@ -292,15 +316,17 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
   const isBasicAchieveOrNot =
     isBasicOkr && rowKeyResult?.metricType?.name === 'Achieve';
   const metricName = rowKeyResult?.metricType?.name || 'N/A';
-  const progress = Number(rowKeyResult?.progress) || 0;
+  const progress = getKeyResultProgressPercent(rowKeyResult);
   const canInlineEditFromObjective =
     objectiveEditMode &&
     canShowActionsMenu &&
+    canUpdateKeyResult &&
     rowKeyResult?.isClosed === false &&
     Number(rowKeyResult?.progress ?? 0) === 0;
   const canInlineEditFromRowAction =
     rowInlineEdit &&
     canShowActionsMenu &&
+    canUpdateKeyResult &&
     rowKeyResult?.isClosed === false &&
     Number(rowKeyResult?.progress ?? 0) === 0;
   const canInlineEditNow =
@@ -370,6 +396,21 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
     ) {
       message.warning('Target value must be greater than the initial value.');
       return false;
+    }
+    if (objectiveKeyResults.length > 0) {
+      const weightSum = objectiveKeyResults.reduce(
+        (sum: number, item: any) =>
+          String(item?.id) === String(rowEditableKeyResult?.id)
+            ? sum + Number(rowEditableKeyResult?.weight || 0)
+            : sum + Number(item?.weight || 0),
+        0,
+      );
+      if (weightSum !== 100) {
+        message.warning(
+          `The sum of key result weights must equal 100%. Current sum: ${weightSum}%`,
+        );
+        return false;
+      }
     }
     return true;
   };
@@ -592,8 +633,12 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
           {objectiveEditMode || rowInlineEdit ? (
             <InputNumber
               value={Number(rowKeyResult?.weight ?? 0)}
+              onChange={(value) => setRowField('weight', Number(value ?? 0))}
               size="middle"
-              disabled
+              min={0}
+              max={100}
+              suffix="%"
+              disabled={!canInlineEditNow}
               className="h-9 w-full max-w-[6.5rem] sm:w-[100px] sm:max-w-none"
             />
           ) : (

@@ -12,6 +12,7 @@ const fetchAllIncentiveData = async (
   month: string,
   page: number,
   current: number,
+  payPeriodId?: string,
 ) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -28,6 +29,7 @@ const fetchAllIncentiveData = async (
       year: year,
       sessionId: session,
       monthId: month,
+      payPeriodId: payPeriodId || undefined,
     },
   });
 };
@@ -214,11 +216,29 @@ export const useGetAllIncentiveData = (
   month: string,
   page: number,
   current: number,
+  payPeriodId?: string,
 ) => {
   return useQuery<any>(
-    ['getAllIncentiveData', employeeName, year, session, month, page, current],
+    [
+      'getAllIncentiveData',
+      employeeName,
+      year,
+      session,
+      month,
+      page,
+      current,
+      payPeriodId,
+    ],
     () =>
-      fetchAllIncentiveData(employeeName, year, session, month, page, current),
+      fetchAllIncentiveData(
+        employeeName,
+        year,
+        session,
+        month,
+        page,
+        current,
+        payPeriodId,
+      ),
   );
 };
 

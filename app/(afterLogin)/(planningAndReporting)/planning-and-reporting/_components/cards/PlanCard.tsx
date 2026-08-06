@@ -23,6 +23,7 @@ import { useUpdateStatus } from '@/store/server/features/okrPlanningAndReporting
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import CustomButton from '@/components/common/buttons/customButton';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
+import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 
 interface PlanCardProps {
   plan: PlanSummary;
@@ -100,14 +101,14 @@ function formatNum(v: number | string | null | undefined): string {
 
 /** Tighter meta columns on small screens; align header + task rows. */
 const meta = {
-  pri: 'w-[38px] sm:w-[52px]',
-  wt: 'w-[22px] sm:w-[32px]',
-  tgt: 'w-[28px] sm:w-[40px]',
+  pri: 'w-[52px] sm:w-[68px]',
+  wt: 'w-[28px] sm:w-[38px]',
+  tgt: 'w-[32px] sm:w-[46px]',
   out: 'w-[13px] sm:w-[18px]',
 } as const;
 
 const metaHead =
-  'text-right text-[9px] font-medium uppercase leading-none tracking-tighter text-[#B0B3C0] sm:text-[10px] sm:tracking-wider';
+  'text-right text-[11px] font-medium uppercase leading-none tracking-tighter text-[#B0B3C0] sm:text-[12px] sm:tracking-wider';
 
 /** Priority pill: on small screens use a 3-letter label for Medium ("Med"). */
 function priorityChipText(priorityKey: string): React.ReactNode {
@@ -358,6 +359,9 @@ export default function PlanCard({
   }, [plan, viewMode]);
 
   const sections = React.useMemo(() => flattenAllTasks(plan), [plan]);
+  const reportTaskOverrides = useRecentReportTaskStatuses(
+    (s) => s.byReport[String(plan.id)],
+  );
 
   if (viewMode === 'reporting') {
     const reportTasks = sections.flatMap((s) =>
@@ -367,9 +371,59 @@ export default function PlanCard({
         _metricType: s.metricType,
       })),
     );
+    const resolveStatus = (t: any): string => {
+      const override =
+        reportTaskOverrides?.[String(t.planTaskId ?? '')] ||
+        reportTaskOverrides?.[String(t.id ?? '')];
+      if (override?.status) return String(override.status);
+      return String(t.status ?? '');
+    };
+    const resolveAchieved = (t: any): boolean | undefined => {
+      const override =
+        reportTaskOverrides?.[String(t.planTaskId ?? '')] ||
+        reportTaskOverrides?.[String(t.id ?? '')];
+      if (override?.isAchieved !== undefined) return override.isAchieved;
+      if (override?.status) {
+        const s = String(override.status).trim().toLowerCase();
+        if (
+          s === 'done' ||
+          s === 'completed' ||
+          s === 'complete' ||
+          s === 'achieved'
+        )
+          return true;
+        if (
+          s === 'not' ||
+          s === 'failed' ||
+          s === 'not_done' ||
+          s === 'unachieved'
+        )
+          return false;
+      }
+      return t.isAchieved;
+    };
     const completedCount = reportTasks.filter((t: any) => {
-      const s = t.status;
-      return s === 'completed' || s === 'Done' || t.isAchieved === true;
+      const s = resolveStatus(t)
+        .trim()
+        .toLowerCase()
+        .replace(/[\s-]+/g, '_');
+      const achieved = resolveAchieved(t);
+      if (
+        s === 'not' ||
+        s === 'failed' ||
+        s === 'not_done' ||
+        s === 'unachieved' ||
+        achieved === false
+      ) {
+        return false;
+      }
+      return (
+        s === 'completed' ||
+        s === 'done' ||
+        s === 'complete' ||
+        s === 'achieved' ||
+        achieved === true
+      );
     }).length;
     const reportTotal = reportTasks.length;
     const reportPct =
@@ -411,11 +465,11 @@ export default function PlanCard({
                 >
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-387"
-                    className="text-[10px] font-bold"
+                    className="text-[12px] font-bold"
                   >
                     {plan.reprimandCount}
                   </span>
-                  <FaBomb className="text-[9px]" />
+                  <FaBomb className="text-[11px]" />
                 </div>
               ) : null}
               {plan.appreciationCount && plan.appreciationCount > 0 ? (
@@ -425,11 +479,11 @@ export default function PlanCard({
                 >
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-395"
-                    className="text-[10px] font-bold"
+                    className="text-[12px] font-bold"
                   >
                     {plan.appreciationCount}
                   </span>
-                  <FaRegThumbsUp className="text-[9px]" />
+                  <FaRegThumbsUp className="text-[11px]" />
                 </div>
               ) : null}
               {plan.status && <StatusBadge status={plan.status} />}
@@ -496,19 +550,19 @@ export default function PlanCard({
                 >
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-453"
-                    className="text-[10px] font-medium text-[#8F94A3]"
+                    className="text-[13px] font-medium text-[#8F94A3]"
                   >
                     {getDateLabel()}
                   </span>
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-456"
-                    className="text-[10px] font-medium text-[#8F94A3]"
+                    className="text-[13px] font-medium text-[#8F94A3]"
                   >
                     {completedCount}/{reportTotal}
                   </span>
                   <div
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-459"
-                    className="h-[3px] w-[48px] overflow-hidden rounded-full bg-[#F1F2F6]"
+                    className="h-[4px] w-[52px] overflow-hidden rounded-full bg-[#F1F2F6]"
                   >
                     <div
                       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-512"
@@ -675,7 +729,7 @@ export default function PlanCard({
 
                     <p
                       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-672"
-                      className={`min-w-0 flex-1 break-words text-[12.5px] leading-snug line-clamp-2 transition-all duration-200 ${
+                      className={`min-w-0 flex-1 break-words text-[14px] leading-snug line-clamp-2 transition-all duration-200 ${
                         isCompleted
                           ? 'line-through text-[#B0B3C0]'
                           : isFailed
@@ -697,12 +751,12 @@ export default function PlanCard({
                       >
                         <span
                           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-693"
-                          className="inline-flex max-w-full items-center gap-0.5 rounded-full px-1 py-[3px] text-[8px] font-bold leading-none sm:gap-1 sm:px-1.5 sm:py-0.5 sm:text-[9px]"
+                          className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[11px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[12px]"
                           style={{ backgroundColor: pc.bg, color: pc.text }}
                         >
                           <span
                             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-697"
-                            className="inline-block h-1.5 w-1.5 shrink-0 rounded-full max-sm:h-1 max-sm:w-1"
+                            className="inline-block h-2 w-2 shrink-0 rounded-full"
                             style={{ backgroundColor: pc.dot }}
                           />
                           {priorityChipText(priorityKey)}
@@ -715,7 +769,7 @@ export default function PlanCard({
                       >
                         <span
                           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-605"
-                          className="text-[9px] font-semibold text-[#8F94A3] tabular-nums sm:text-[10px]"
+                          className="text-[12px] font-semibold text-[#8F94A3] tabular-nums sm:text-[13px]"
                         >
                           {formatNum(task.weight)}
                         </span>
@@ -728,7 +782,7 @@ export default function PlanCard({
                         {task.achieved !== undefined ? (
                           <span
                             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-722"
-                            className={`text-[9px] font-semibold tabular-nums sm:text-[10px] ${
+                            className={`text-[12px] font-semibold tabular-nums sm:text-[13px] ${
                               isCompleted
                                 ? 'text-[#10B981]'
                                 : isFailed
@@ -881,11 +935,11 @@ export default function PlanCard({
               >
                 <span
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-740"
-                  className="text-[10px] font-bold"
+                  className="text-[12px] font-bold"
                 >
                   {plan.reprimandCount}
                 </span>
-                <FaBomb className="text-[9px]" />
+                <FaBomb className="text-[11px]" />
               </div>
             ) : null}
             {plan.appreciationCount && plan.appreciationCount > 0 ? (
@@ -895,12 +949,23 @@ export default function PlanCard({
               >
                 <span
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-748"
-                  className="text-[10px] font-bold"
+                  className="text-[12px] font-bold"
                 >
                   {plan.appreciationCount}
                 </span>
-                <FaRegThumbsUp className="text-[9px]" />
+                <FaRegThumbsUp className="text-[11px]" />
               </div>
+            ) : null}
+            {!inlineReportActive && showSubmitReport && onSubmitReport ? (
+              <CustomButton
+                title="Report"
+                id={`plan-card-${plan.id}-submit-report`}
+                size="small"
+                textClassName="text-[11px] font-semibold leading-tight sm:text-xs"
+                style={{ paddingInline: 10 }}
+                onClick={onSubmitReport}
+                className="!h-7 !min-h-7 !w-auto !min-w-0 !shrink-0 !rounded-md !px-2.5 !py-0 !bg-[#1E40AF] !text-white hover:!bg-[#1E3A8A]"
+              />
             ) : null}
             {plan.status && <StatusBadge status={plan.status} />}
             {inlineReportActive && onCloseInlineReport ? (
@@ -914,17 +979,6 @@ export default function PlanCard({
               >
                 <CloseOutlined className="text-[14px]" />
               </button>
-            ) : null}
-            {!inlineReportActive && showSubmitReport && onSubmitReport ? (
-              <CustomButton
-                title="Report"
-                id={`plan-card-${plan.id}-submit-report`}
-                size="small"
-                textClassName="text-[11px] font-semibold leading-tight sm:text-xs"
-                style={{ paddingInline: 10 }}
-                onClick={onSubmitReport}
-                className="!h-7 !min-h-7 !w-auto !min-w-0 !shrink-0 !rounded-md !px-2.5 !py-0 !bg-[#1E40AF] !text-white hover:!bg-[#1E3A8A]"
-              />
             ) : null}
             {canApprove && (
               <Dropdown menu={{ items: approvalMenuItems }} trigger={['click']}>
@@ -984,19 +1038,19 @@ export default function PlanCard({
             >
               <span
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-824"
-                className="text-[10px] font-medium text-[#8F94A3]"
+                className="text-[13px] font-medium text-[#8F94A3]"
               >
                 {getDateLabel()}
               </span>
               <span
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-827"
-                className="text-[10px] font-medium text-[#8F94A3]"
+                className="text-[13px] font-medium text-[#8F94A3]"
               >
                 {checkedCount}/{totalTasks}
               </span>
               <div
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-830"
-                className="h-[3px] w-[48px] overflow-hidden rounded-full bg-[#F1F2F6]"
+                className="h-[4px] w-[52px] overflow-hidden rounded-full bg-[#F1F2F6]"
               >
                 <div
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-990"
@@ -1169,7 +1223,7 @@ export default function PlanCard({
 
                   <p
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-1153"
-                    className={`min-w-0 flex-1 break-words text-[12.5px] leading-snug line-clamp-2 transition-all duration-200 ${
+                    className={`min-w-0 flex-1 break-words text-[14px] leading-snug line-clamp-2 transition-all duration-200 ${
                       isChecked
                         ? 'line-through text-[#B0B3C0]'
                         : isCompleted
@@ -1192,12 +1246,12 @@ export default function PlanCard({
                     >
                       <span
                         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1175"
-                        className="inline-flex max-w-full items-center gap-0.5 rounded-full px-1 py-[3px] text-[8px] font-bold leading-none sm:gap-1 sm:px-1.5 sm:py-0.5 sm:text-[9px]"
+                        className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[11px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[12px]"
                         style={{ backgroundColor: pc.bg, color: pc.text }}
                       >
                         <span
                           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1179"
-                          className="inline-block h-1.5 w-1.5 shrink-0 rounded-full max-sm:h-1 max-sm:w-1"
+                          className="inline-block h-2 w-2 shrink-0 rounded-full"
                           style={{ backgroundColor: pc.dot }}
                         />
                         {priorityChipText(priorityKey)}
@@ -1210,7 +1264,7 @@ export default function PlanCard({
                     >
                       <span
                         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-986"
-                        className="text-[9px] font-semibold text-[#8F94A3] tabular-nums sm:text-[10px]"
+                        className="text-[12px] font-semibold text-[#8F94A3] tabular-nums sm:text-[13px]"
                       >
                         {formatNum(task.weight)}
                       </span>
@@ -1223,7 +1277,7 @@ export default function PlanCard({
                       {showTarget ? (
                         <span
                           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-993"
-                          className="text-[9px] font-semibold text-[#10B981] tabular-nums sm:text-[10px]"
+                          className="text-[11px] font-semibold text-[#10B981] tabular-nums sm:text-[12px]"
                         >
                           {formatNum(task.target)}
                         </span>

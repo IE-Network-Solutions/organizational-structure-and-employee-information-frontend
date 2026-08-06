@@ -18,6 +18,7 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { usePlanningAssignationStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer';
 import {
   useGetAllAssignedUserGroupedByUser,
+  useGetAllAssignedUsersGroupedForSearch,
   useGetAllPlanningPeriods,
 } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import { GroupedUserWithPlanningPeriods } from '@/store/server/features/employees/planning/planningPeriod/interface';
@@ -31,7 +32,8 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
-import { useState, useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
+import { useDebounce } from '@/utils/useDebounce';
 
 const PlanAssignment: React.FC = () => {
   const {
@@ -44,17 +46,56 @@ const PlanAssignment: React.FC = () => {
   } = useOKRSettingStore();
   const { mutate: deletePlanningAssign } = useDeletePlanningUser();
   const {
+    searchTerm,
+    debouncedSearch,
+    setSearchTerm,
+    setDebouncedSearch,
+    open,
+    setOpen,
+    openDeleteModal,
+    setOpenDeleteModal,
+    deletedId,
+  } = usePlanningAssignationStore();
+  const hasSearch = debouncedSearch.trim().length > 0;
+
+  const applyDebouncedSearch = useDebounce((value: string) => {
+    setDebouncedSearch(value);
+  }, 400);
+
+  const {
     data: allUserWithPlanningPeriodGroupedByUser,
     isLoading: allUserPlanningPeriodGroupedByUserLoading,
-  } = useGetAllAssignedUserGroupedByUser(page, pageSize, userId || '');
+  } = useGetAllAssignedUserGroupedByUser(
+    page,
+    pageSize,
+    userId || '',
+    undefined,
+  );
+
+  const { data: globalSearchGroupedByUser, isLoading: globalSearchLoading } =
+    useGetAllAssignedUsersGroupedForSearch(debouncedSearch);
 
   const { data: employeeData } = useGetAllUsers();
   const { data: allPlanningPeriods } = useGetAllPlanningPeriods();
   const { isMobile, isTablet } = useIsMobile();
-  const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const userToPlanning: GroupedUserWithPlanningPeriods[] =
-    allUserWithPlanningPeriodGroupedByUser?.items || [];
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearchTerm(value);
+      setPage(1);
+      const trimmed = value.trim();
+      if (!trimmed) {
+        setDebouncedSearch('');
+        return;
+      }
+      applyDebouncedSearch(trimmed);
+    },
+    [applyDebouncedSearch, setPage, setSearchTerm, setDebouncedSearch],
+  );
+
+  const userToPlanning: GroupedUserWithPlanningPeriods[] = hasSearch
+    ? globalSearchGroupedByUser?.items || []
+    : allUserWithPlanningPeriodGroupedByUser?.items || [];
 
   const getEmployeeData = useMemo(() => {
     return (userId: string) => {
@@ -77,6 +118,10 @@ const PlanAssignment: React.FC = () => {
     };
   }, [allPlanningPeriods]);
 
+  const showDrawer = () => {
+    setOpen(true);
+  };
+
   const handleEdit = (item: any) => {
     setSelectedPlanningUser(item);
     showDrawer();
@@ -85,12 +130,6 @@ const PlanAssignment: React.FC = () => {
     deletePlanningAssign(item?.userId);
   };
 
-  const { open, setOpen, openDeleteModal, setOpenDeleteModal, deletedId } =
-    usePlanningAssignationStore();
-
-  const showDrawer = () => {
-    setOpen(true);
-  };
   const onClose = () => {
     setOpen(false);
   };
@@ -105,6 +144,8 @@ const PlanAssignment: React.FC = () => {
     });
   }
   const filteredData = useMemo(() => {
+    const searchLower = debouncedSearch.trim().toLowerCase();
+
     return userToPlanning
       ?.filter((item: GroupedUserWithPlanningPeriods) => {
         if (!employeeData?.items) return true;
@@ -116,11 +157,10 @@ const PlanAssignment: React.FC = () => {
           (employee.deletedAt === null || employee.deletedAt === undefined) &&
           employee.employee_status !== 'inactive' &&
           employee.employee_status !== 'terminated';
-        if (searchTerm) {
-          const employeeName = getEmployeeData(item?.userId).toLowerCase();
-          return isActive && employeeName.includes(searchTerm.toLowerCase());
-        }
-        return isActive;
+        if (!isActive) return false;
+        if (!searchLower) return true;
+        const employeeName = getEmployeeData(item?.userId).toLowerCase();
+        return employeeName.includes(searchLower);
       })
       ?.map((item: GroupedUserWithPlanningPeriods) => {
         const firstPlanningPeriod = item?.planningPeriod?.[0];
@@ -139,18 +179,31 @@ const PlanAssignment: React.FC = () => {
   }, [
     userToPlanning,
     employeeData,
-    searchTerm,
+    debouncedSearch,
     allPlanningPeriods,
     getEmployeeData,
     getPlanningPeriodType,
   ]);
 
+  const paginatedData = useMemo(() => {
+    if (!hasSearch) return filteredData;
+    const start = (page - 1) * pageSize;
+    return filteredData.slice(start, start + pageSize);
+  }, [filteredData, hasSearch, page, pageSize]);
+
   const rawApiCount = userToPlanning.length;
-  const hasSearch = searchTerm.trim().length > 0;
   const isSearchFilteredEmpty =
     filteredData.length === 0 && hasSearch && rawApiCount > 0;
   const isInactiveFilteredEmpty =
     filteredData.length === 0 && !hasSearch && rawApiCount > 0;
+
+  const paginationTotal = hasSearch
+    ? filteredData.length
+    : (allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0);
+
+  const isListLoading = hasSearch
+    ? globalSearchLoading
+    : allUserPlanningPeriodGroupedByUserLoading;
 
   const canAssignPlanningPeriod = AccessGuard.checkAccess({
     permissions: [Permissions.AssignPlanningPeriod],
@@ -254,7 +307,8 @@ const PlanAssignment: React.FC = () => {
             placeholder="Search Employee"
             addonAfter={<SearchOutlined className="text-[#8c8c8c]" />}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            allowClear
             className="w-full max-w-md h-11 custom-search-input"
             id="okr-planning-assignation-search-input"
             data-cy="okr-planning-assignation-search-input"
@@ -266,7 +320,7 @@ const PlanAssignment: React.FC = () => {
           className="flex-1 overflow-y-auto pr-2 custom-scrollbar"
           data-cy="okr-planning-assignation-cards-scroll-container"
         >
-          {allUserPlanningPeriodGroupedByUserLoading ? (
+          {isListLoading ? (
             <PlanningAssignationPageSkeleton />
           ) : filteredData.length === 0 ? (
             <div
@@ -307,7 +361,7 @@ const PlanAssignment: React.FC = () => {
               id="okr-planning-assignation-cards-grid"
               data-cy="okr-planning-assignation-cards-grid"
             >
-              {filteredData.map((item: any) => {
+              {paginatedData.map((item: any) => {
                 const initials = item.employeeName
                   .split(' ')
                   .map((name: string) => name[0]?.toUpperCase())
@@ -430,42 +484,34 @@ const PlanAssignment: React.FC = () => {
         </div>
 
         {/* Pagination Container inside main box */}
-        {!allUserPlanningPeriodGroupedByUserLoading &&
-          (allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ?? 0) >
-            0 && (
-            <div
-              className="custom-pagination-container"
-              data-cy="okr-planning-assignation-pagination-container"
-            >
-              {isMobile || isTablet ? (
-                <CustomMobilePagination
-                  totalResults={
-                    allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ??
-                    0
-                  }
-                  pageSize={pageSize}
-                  onChange={onPageChange}
-                  onShowSizeChange={onPageChange}
-                  data-cy="okr-planning-assignation-mobile-pagination"
-                />
-              ) : (
-                <CustomPagination
-                  current={page}
-                  total={
-                    allUserWithPlanningPeriodGroupedByUser?.meta?.totalItems ??
-                    0
-                  }
-                  pageSize={pageSize}
-                  onChange={onPageChange}
-                  onShowSizeChange={(pageSize) => {
-                    setPageSize(pageSize);
-                    setPage(1);
-                  }}
-                  data-cy="okr-planning-assignation-pagination"
-                />
-              )}
-            </div>
-          )}
+        {!isListLoading && paginationTotal > 0 && (
+          <div
+            className="custom-pagination-container"
+            data-cy="okr-planning-assignation-pagination-container"
+          >
+            {isMobile || isTablet ? (
+              <CustomMobilePagination
+                totalResults={paginationTotal}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={onPageChange}
+                data-cy="okr-planning-assignation-mobile-pagination"
+              />
+            ) : (
+              <CustomPagination
+                current={page}
+                total={paginationTotal}
+                pageSize={pageSize}
+                onChange={onPageChange}
+                onShowSizeChange={(pageSize) => {
+                  setPageSize(pageSize);
+                  setPage(1);
+                }}
+                data-cy="okr-planning-assignation-pagination"
+              />
+            )}
+          </div>
+        )}
       </div>
 
       <PlanningAssignationModal

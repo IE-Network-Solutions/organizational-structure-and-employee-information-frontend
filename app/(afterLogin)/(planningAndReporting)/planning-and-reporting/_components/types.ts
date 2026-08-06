@@ -23,6 +23,10 @@ export interface PlanTask {
   achieveMK?: boolean;
   /** When set with achieveMK, outcome is tied to this milestone (vs key-result level). */
   outcomeMilestoneId?: string | null;
+  /** Underlying plan-task id (report rows use a separate reportTask id). */
+  planTaskId?: string;
+  /** Raw API achieved flag (reporting); prefer status when both disagree. */
+  isAchieved?: boolean;
 }
 
 export interface Milestone {
@@ -47,6 +51,9 @@ export interface KeyResult {
     name: string;
     description?: string;
   };
+  key_type?: string;
+  metricTypeName?: string;
+  previousMetricTypeName?: string;
   targetValue?: string | number;
   currentValue?: string | number;
   initialValue?: string | number;

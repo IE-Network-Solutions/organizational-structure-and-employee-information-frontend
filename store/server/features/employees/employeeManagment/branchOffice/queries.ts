@@ -1,4 +1,4 @@
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useQuery } from 'react-query';
 import { Meta } from '../../settings/groupPermission/interface';
@@ -31,7 +31,7 @@ type ResponseData = {
 const getBranches = async () => {
   const token = await getCurrentToken();
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/branchs`,
+    url: `${CORE_API_URL}/branchs`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
@@ -54,7 +54,7 @@ const getBranch = async (id: number) => {
       tenantId: tenantId, // Pass tenantId in the headers
     };
     const response = await crudRequest({
-      url: `${ORG_AND_EMP_URL}/branchs/${id}`,
+      url: `${CORE_API_URL}/branchs/${id}`,
       method: 'GET',
       headers,
     });
