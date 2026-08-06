@@ -41,6 +41,7 @@ import {
 
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
+import { useRecentOkrMetricOverrides } from '@/utils/recentOkrMetricOverrides';
 import CreatePlan from './_components/createPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
@@ -220,11 +221,14 @@ function Page() {
   );
 
   const { reportSummaries, reportingItems } = useReportingData();
+  const stickyOkrCurrentByKrId = useRecentOkrMetricOverrides(
+    (s) => s.currentByKrId,
+  );
 
   const enrichedPlanSummaries = useMemo(
     () =>
       enrichPlanSummariesWithUserKeyResults(planSummaries, userKeyResultItems),
-    [planSummaries, userKeyResultItems],
+    [planSummaries, userKeyResultItems, stickyOkrCurrentByKrId],
   );
   const enrichedReportSummaries = useMemo(
     () =>
@@ -232,7 +236,7 @@ function Page() {
         reportSummaries,
         userKeyResultItems,
       ),
-    [reportSummaries, userKeyResultItems],
+    [reportSummaries, userKeyResultItems, stickyOkrCurrentByKrId],
   );
 
   const krPanelPlans =

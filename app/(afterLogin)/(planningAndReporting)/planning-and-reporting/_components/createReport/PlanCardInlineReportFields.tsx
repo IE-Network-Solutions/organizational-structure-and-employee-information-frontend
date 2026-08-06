@@ -255,6 +255,9 @@ export function PlanCardInlineReportFields({
                   formatter={(value) =>
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   }
+                  parser={(value) =>
+                    value ? value.replace(/,/g, '') : ('' as unknown as number)
+                  }
                   controls={false}
                 />
               </Form.Item>

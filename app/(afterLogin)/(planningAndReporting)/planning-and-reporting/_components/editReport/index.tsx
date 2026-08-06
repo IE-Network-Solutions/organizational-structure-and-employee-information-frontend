@@ -40,7 +40,10 @@ import {
   mergePreviousAchievedWithSession,
   rememberAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
-import { buildReportTaskStatusPatches } from '@/utils/recentReportTaskStatuses';
+import {
+  attachKeyResultIdsToReportPatches,
+  buildReportTaskStatusPatches,
+} from '@/utils/recentReportTaskStatuses';
 
 const { TextArea } = Input;
 
@@ -153,9 +156,9 @@ function EditReport() {
     });
     rememberAchievedMilestones(achievedIds);
 
-    const statusByPlanTaskId = buildReportTaskStatusPatches(
-      values,
-      selectedStatuses,
+    const statusByPlanTaskId = attachKeyResultIdsToReportPatches(
+      buildReportTaskStatusPatches(values, selectedStatuses),
+      Array.isArray(formattedData) ? formattedData : null,
     );
     if (selectedReportId) {
       patchReportTaskStatusesInCaches(
@@ -407,6 +410,9 @@ function EditReport() {
                     placeholder="Value"
                     formatter={(value) =>
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                    }
+                    parser={(value) =>
+                      value ? value.replace(/,/g, '') : ('' as unknown as number)
                     }
                     addonAfter={
                       <span

@@ -12,6 +12,7 @@ import {
   resolveKrPlanningBlocked,
   withResolvedMetricForDisplay,
 } from '@/utils/okrKeyResultProgressDisplay';
+import { getStickyOkrCurrentValue } from '@/utils/recentOkrMetricOverrides';
 import type { PlanOwner, PlanSummary } from '../types';
 
 /** Matches AggregatedKR in PlanningPanelView (structural merge). */
@@ -441,9 +442,15 @@ export function enrichOwnerGroupsPlanningBlocked(
           }
         : planningSource;
 
+      const stickyCurrent = getStickyOkrCurrentValue(panelKr.id);
+      const progressSource =
+        stickyCurrent !== undefined
+          ? { ...displaySource, currentValue: stickyCurrent }
+          : displaySource;
+
       const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
-      const progress = getKeyResultProgressPercent(displaySource);
-      const progressLabel = getKeyResultProgressRatioText(displaySource);
+      const progress = getKeyResultProgressPercent(progressSource);
+      const progressLabel = getKeyResultProgressRatioText(progressSource);
 
       if (
         planningBlocked === panelKr.planningBlocked &&
@@ -460,7 +467,10 @@ export function enrichOwnerGroupsPlanningBlocked(
         progressLabel,
         metricType,
         milestones: displaySource.milestones ?? panelKr.milestones,
-        currentValue: displaySource.currentValue ?? panelKr.currentValue,
+        currentValue:
+          stickyCurrent !== undefined
+            ? stickyCurrent
+            : (displaySource.currentValue ?? panelKr.currentValue),
         targetValue: displaySource.targetValue ?? panelKr.targetValue,
       };
     });

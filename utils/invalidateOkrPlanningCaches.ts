@@ -5,13 +5,20 @@ import {
   rememberReopenedPlanningTargets,
   useRecentlyAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
-import { isMilestoneAchievedForPlanning } from '@/utils/okrKeyResultProgressDisplay';
+import {
+  getKeyResultProgressPercent,
+  isMilestoneAchievedForPlanning,
+} from '@/utils/okrKeyResultProgressDisplay';
 import {
   rememberReportTaskStatuses,
   reconcileReportTaskStatusOverrides,
   useRecentReportTaskStatuses,
   type ReportTaskStatusOverride,
 } from '@/utils/recentReportTaskStatuses';
+import {
+  rememberOkrCurrentValue,
+  useRecentOkrMetricOverrides,
+} from '@/utils/recentOkrMetricOverrides';
 
 const REFETCH_OPTS = { refetchActive: true, refetchInactive: true } as const;
 
@@ -343,6 +350,8 @@ type ReportTaskStatusPatch = ReportTaskStatusOverride;
  * Optimistically update reportTask rows in okrReports / okrReport caches so
  * the report card progress bar reflects Done→Not (or Not→Done) before refetch.
  * Sticky overrides survive stale refetch until the API catches up.
+ * Also adjusts OKR key-result currentValue (absolute sticky) so the left
+ * panel progress % updates when Achieved is edited (e.g. 9 → 5).
  */
 export function patchReportTaskStatusesInCaches(
   queryClient: QueryClient,
@@ -354,13 +363,16 @@ export function patchReportTaskStatusesInCaches(
   if (keys.length === 0) return;
 
   rememberReportTaskStatuses(reportId, statusByPlanTaskId);
-  applyReportTaskStatusPatchesToQueryCaches(
+  const krDeltas = applyReportTaskStatusPatchesToQueryCaches(
     queryClient,
     reportId,
     statusByPlanTaskId,
   );
+  if (Object.keys(krDeltas).length > 0) {
+    applyOkrCurrentValueDeltasAsAbsolute(queryClient, krDeltas);
+  }
 
-  // Refetch often returns stale Done/isAchieved — restamp a few times.
+  // Refetch often returns stale Done/isAchieved / currentValue — restamp.
   if (typeof window !== 'undefined') {
     for (const delay of [400, 1000, 2000, 4000]) {
       window.setTimeout(() => {
@@ -370,11 +382,155 @@ export function patchReportTaskStatusesInCaches(
   }
 }
 
+/** Read a KR's currentValue from any OKR-bearing query cache. */
+function readOkrCurrentValueFromCaches(
+  queryClient: QueryClient,
+  krId: string,
+): number | undefined {
+  let found: number | undefined;
+  const visit = (kr: any) => {
+    if (!kr || String(kr.id) !== krId) return;
+    if (kr.currentValue === undefined || kr.currentValue === null) return;
+    const n = Number(kr.currentValue);
+    if (Number.isFinite(n)) found = n;
+  };
+  const walk = (data: unknown): void => {
+    if (data == null || found !== undefined) return;
+    if (Array.isArray(data)) {
+      data.forEach((item) => {
+        visit(item);
+        if (Array.isArray(item?.keyResults)) item.keyResults.forEach(visit);
+      });
+      return;
+    }
+    if (typeof data !== 'object') return;
+    const obj = data as Record<string, any>;
+    if (Array.isArray(obj.items)) walk(obj.items);
+    if (Array.isArray(obj.keyResults)) obj.keyResults.forEach(visit);
+    visit(obj);
+  };
+
+  for (const key of [
+    ...MILESTONE_STATUS_QUERY_KEYS,
+    ['keyResult'] as const,
+    ['ObjectiveInformation'] as const,
+    ['teamObjectiveInformation'] as const,
+    ['companyObjectiveInformation'] as const,
+  ]) {
+    for (const [, data] of queryClient.getQueriesData(key)) {
+      walk(data);
+      if (found !== undefined) return found;
+    }
+  }
+  return found;
+}
+
+/**
+ * Apply deltas once, store absolute sticky currentValue, write absolute into caches.
+ * Restamp always re-writes the absolute sticky value (never re-applies deltas).
+ */
+function applyOkrCurrentValueDeltasAsAbsolute(
+  queryClient: QueryClient,
+  deltasByKrId: Record<string, number>,
+): void {
+  const absoluteByKrId: Record<string, number> = {};
+  for (const [krId, delta] of Object.entries(deltasByKrId)) {
+    if (!delta || !Number.isFinite(delta)) continue;
+    const sticky = useRecentOkrMetricOverrides.getState().get(krId);
+    const cached = readOkrCurrentValueFromCaches(queryClient, krId);
+    const baseline =
+      sticky !== undefined
+        ? sticky
+        : cached !== undefined
+          ? cached
+          : 0;
+    const next = baseline + delta;
+    absoluteByKrId[krId] = next;
+    rememberOkrCurrentValue(krId, next);
+  }
+  if (Object.keys(absoluteByKrId).length > 0) {
+    applyAbsoluteOkrCurrentValuesToCaches(queryClient, absoluteByKrId);
+  }
+}
+
+/** Set absolute currentValue (+ recomputed progress) on cached OKR key results. */
+function applyAbsoluteOkrCurrentValuesToCaches(
+  queryClient: QueryClient,
+  currentByKrId: Record<string, number>,
+): void {
+  const ids = Object.keys(currentByKrId);
+  if (ids.length === 0) return;
+
+  const patchKr = (kr: any): any => {
+    if (!kr || kr.id == null) return kr;
+    const nextCurrent = currentByKrId[String(kr.id)];
+    if (nextCurrent === undefined || !Number.isFinite(nextCurrent)) return kr;
+    const next = {
+      ...kr,
+      currentValue: nextCurrent,
+    };
+    return {
+      ...next,
+      progress: getKeyResultProgressPercent(next),
+    };
+  };
+
+  const patchPayload = (data: unknown): unknown => {
+    if (data == null) return data;
+    if (Array.isArray(data)) return data.map(patchKr);
+    if (typeof data !== 'object') return data;
+    const obj = data as Record<string, any>;
+    if (Array.isArray(obj.items)) {
+      const items = obj.items.map((item: any) => {
+        if (Array.isArray(item?.keyResults)) {
+          return {
+            ...item,
+            keyResults: item.keyResults.map(patchKr),
+          };
+        }
+        return patchKr(item);
+      });
+      return { ...obj, items };
+    }
+    if (Array.isArray(obj.keyResults)) {
+      return { ...obj, keyResults: obj.keyResults.map(patchKr) };
+    }
+    return patchKr(obj);
+  };
+
+  for (const key of [
+    ...MILESTONE_STATUS_QUERY_KEYS,
+    ['keyResult'] as const,
+    ['ObjectiveInformation'] as const,
+    ['teamObjectiveInformation'] as const,
+    ['companyObjectiveInformation'] as const,
+  ]) {
+    const entries = queryClient.getQueriesData(key);
+    for (const [queryKey, data] of entries) {
+      if (data == null) continue;
+      queryClient.setQueryData(queryKey, patchPayload(data));
+    }
+  }
+}
+
+/** Re-apply absolute sticky OKR metrics after stale ObjectiveInformation refetch. */
+export function restampStickyOkrMetricOverrides(
+  queryClient: QueryClient,
+): void {
+  const currentByKrId = useRecentOkrMetricOverrides.getState().currentByKrId;
+  if (!currentByKrId || Object.keys(currentByKrId).length === 0) return;
+  // Always re-write absolute sticky values — do not clear on API match.
+  // Clearing raced with a later stale refetch and snapped progress back.
+  applyAbsoluteOkrCurrentValuesToCaches(queryClient, currentByKrId);
+}
+
 function applyReportTaskStatusPatchesToQueryCaches(
   queryClient: QueryClient,
   reportId: string,
   statusByPlanTaskId: Record<string, ReportTaskStatusPatch>,
-): void {
+): Record<string, number> {
+  const krDeltas: Record<string, number> = {};
+
   const findPatch = (task: any): ReportTaskStatusPatch | null => {
     for (const id of [
       task?.planTaskId,
@@ -407,12 +563,57 @@ function applyReportTaskStatusPatchesToQueryCaches(
       normalized === 'failed' ||
       normalized === 'not_done' ||
       normalized === 'unachieved';
+
+    const nextActual =
+      patch.actualValue !== undefined ? patch.actualValue : task.actualValue;
+
+    if (patch.actualValue !== undefined) {
+      const newVal = Number(patch.actualValue);
+      if (Number.isFinite(newVal)) {
+        const planTaskKey = String(
+          task?.planTaskId ??
+            task?.planTask?.id ??
+            task?.taskId ??
+            task?.id ??
+            '',
+        );
+        const store = useRecentReportTaskStatuses.getState();
+        const prevApplied =
+          planTaskKey.length > 0
+            ? store.getOkrAppliedActual(planTaskKey)
+            : undefined;
+        const oldVal =
+          prevApplied !== undefined
+            ? prevApplied
+            : Number(task.actualValue ?? 0);
+        const delta = newVal - (Number.isFinite(oldVal) ? oldVal : 0);
+        const planTask = task?.planTask ?? task;
+        const rawKrId =
+          patch.keyResultId ??
+          planTask?.keyResultId ??
+          planTask?.keyResult?.id ??
+          task?.keyResultId ??
+          task?.keyResult?.id ??
+          task?.planTask?.keyResultId ??
+          task?.planTask?.keyResult?.id;
+        const krId =
+          rawKrId != null && String(rawKrId) !== '' ? String(rawKrId) : null;
+        if (krId && delta !== 0) {
+          krDeltas[krId] = (krDeltas[krId] ?? 0) + delta;
+          // Only mark applied when OKR sticky can be updated — otherwise a
+          // missing keyResultId permanently burns the delta to 0.
+          if (planTaskKey.length > 0) {
+            store.markOkrActualApplied(planTaskKey, newVal);
+          }
+        }
+      }
+    }
+
     return {
       ...task,
       status: nextStatus,
       isAchieved: isDone ? true : isNot ? false : task.isAchieved,
-      actualValue:
-        patch.actualValue !== undefined ? patch.actualValue : task.actualValue,
+      actualValue: nextActual,
       customReason:
         patch.customReason !== undefined
           ? patch.customReason
@@ -450,6 +651,8 @@ function applyReportTaskStatusPatchesToQueryCaches(
       queryClient.setQueryData(queryKey, patchPayload(data));
     }
   }
+
+  return krDeltas;
 }
 
 /** Re-apply session overrides after a stale okrReports refetch. */
@@ -487,7 +690,10 @@ export function restampStickyReportTaskStatuses(
 
     const still = useRecentReportTaskStatuses.getState().byReport[id];
     if (still && Object.keys(still).length > 0) {
+      // Report rows only — OKR metrics use absolute sticky restamp below.
       applyReportTaskStatusPatchesToQueryCaches(queryClient, id, still);
     }
   }
+
+  restampStickyOkrMetricOverrides(queryClient);
 }

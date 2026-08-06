@@ -19,6 +19,7 @@ import {
   isRecentlyReopenedMilestone,
   useRecentlyAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
+import { useRecentOkrMetricOverrides } from '@/utils/recentOkrMetricOverrides';
 import type { PlanningTarget } from './buildPlanningTargets';
 import {
   buildPickTargetsForKeyResult,
@@ -1220,6 +1221,9 @@ export function KRLeftPanel({
   const reopenedMilestoneIds = useRecentlyAchievedMilestones(
     (s) => s.reopenedMilestoneIds,
   );
+  const stickyOkrCurrentByKrId = useRecentOkrMetricOverrides(
+    (s) => s.currentByKrId,
+  );
 
   const ownerGroups = React.useMemo(() => {
     const base = buildOwnerKRGroups(plans, userKeyResultItems);
@@ -1256,6 +1260,7 @@ export function KRLeftPanel({
     objectiveMilestonesByKrId,
     recentlyAchievedIds,
     reopenedMilestoneIds,
+    stickyOkrCurrentByKrId,
   ]);
 
   const totalKRs = ownerGroups.reduce((s, g) => s + g.krs.length, 0);

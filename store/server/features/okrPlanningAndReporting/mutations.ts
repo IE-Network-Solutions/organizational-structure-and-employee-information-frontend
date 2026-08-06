@@ -9,6 +9,7 @@ import {
   markMilestonesCompletedInOkrCaches,
   markMilestonesReopenedInOkrCaches,
   patchReportTaskStatusesInCaches,
+  restampStickyOkrMetricOverrides,
   scheduleOkrMilestoneStatusRefetch,
 } from '@/utils/invalidateOkrPlanningCaches';
 import { useRecentlyAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
@@ -356,7 +357,7 @@ export const useEditReportByReportId = () => {
           );
         }
         await invalidateOkrPlanningCaches(queryClient);
-        // Stale refetch often lands with old Done — re-apply sticky overrides.
+        // Stale refetch often lands with old Done / currentValue — re-apply sticky.
         if (variables.selectedReportId && variables.reportTaskStatuses) {
           patchReportTaskStatusesInCaches(
             queryClient,
@@ -364,6 +365,7 @@ export const useEditReportByReportId = () => {
             variables.reportTaskStatuses,
           );
         }
+        restampStickyOkrMetricOverrides(queryClient);
         scheduleOkrMilestoneStatusRefetch(
           queryClient,
           750,

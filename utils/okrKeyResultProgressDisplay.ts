@@ -4,6 +4,8 @@
  * remaining budget uses `targetValue - currentValue`).
  */
 
+import { getStickyOkrCurrentValue } from '@/utils/recentOkrMetricOverrides';
+
 export type KeyResultMetricName =
   | 'Milestone'
   | 'Achieve'
@@ -613,7 +615,11 @@ export function buildKrPlanningSource(
         apiKr.key_type ??
         panelKr.metricType,
       progress: apiKr.progress ?? panelKr.progress,
-      currentValue: apiKr.currentValue ?? panelKr.currentValue,
+      // Sticky / panel (report-derived) beat stale API until refetch catches up.
+      currentValue:
+        getStickyOkrCurrentValue(apiKr?.id ?? panelKr?.id) ??
+        panelKr.currentValue ??
+        apiKr.currentValue,
       targetValue: apiKr.targetValue ?? panelKr.targetValue,
       initialValue: apiKr.initialValue ?? panelKr.initialValue ?? 0,
       milestones: mergedMilestones,
@@ -680,9 +686,12 @@ export function getMilestoneProgressCounts(
 
 /** Current reading for numeric / currency / % KRs (absolute scale, same as target). */
 export function getNumericMetricCurrentValue(kr: {
+  id?: string | number | null;
   currentValue?: number | string | null;
   initialValue?: number | string | null;
 }): number {
+  const sticky = getStickyOkrCurrentValue(kr?.id);
+  if (sticky !== undefined) return sticky;
   const raw = kr?.currentValue;
   if (raw !== undefined && raw !== null && raw !== '') {
     const n = Number(raw);
@@ -910,7 +919,12 @@ export function mergeKeyResultWithUserApi(
           ? kr?.metricType?.name
           : kr?.metricType),
       progress: apiKr.progress ?? kr?.progress,
-      currentValue: apiKr.currentValue ?? kr?.currentValue,
+      // Sticky, then report/plan-local (task sums), then API — never let stale
+      // API currentValue wipe a just-edited Achieved amount.
+      currentValue:
+        getStickyOkrCurrentValue(apiKr.id ?? kr?.id) ??
+        kr?.currentValue ??
+        apiKr.currentValue,
       initialValue: apiKr.initialValue ?? kr?.initialValue ?? 0,
       targetValue: apiKr.targetValue ?? kr?.targetValue,
       status: apiKr.status ?? kr?.status,

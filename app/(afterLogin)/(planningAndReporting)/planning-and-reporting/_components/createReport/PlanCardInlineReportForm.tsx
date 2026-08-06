@@ -1,7 +1,7 @@
 'use client';
 
 import classNames from 'classnames';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Button, Form } from 'antd';
 import { useQueryClient } from 'react-query';
 import {
@@ -26,7 +26,10 @@ import {
   mergePreviousAchievedWithSession,
   rememberAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
-import { buildReportTaskStatusPatches } from '@/utils/recentReportTaskStatuses';
+import {
+  attachKeyResultIdsToReportPatches,
+  buildReportTaskStatusPatches,
+} from '@/utils/recentReportTaskStatuses';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { PlanCardInlineReportFields } from './PlanCardInlineReportFields';
 import { computeReportTotalWeight } from './reportFormUtils';
@@ -76,10 +79,14 @@ export function PlanCardInlineReportForm({
   const sourceTasks = isEditMode
     ? allReportedPlanning
     : allPlannedTaskForReport;
-  const formattedData =
-    sourceTasks != null
-      ? groupUnReportedTasksByKeyResultAndMilestone(sourceTasks)
-      : null;
+  // Stable reference — regrouping every render re-triggered form sync and wiped Achieved.
+  const formattedData = useMemo(
+    () =>
+      sourceTasks != null
+        ? groupUnReportedTasksByKeyResultAndMilestone(sourceTasks)
+        : null,
+    [sourceTasks],
+  );
 
   const hasReportTaskRows =
     Array.isArray(formattedData) && formattedData.length > 0;
@@ -196,9 +203,9 @@ export function PlanCardInlineReportForm({
     // Session remember before mutate so + disable does not wait on invalidate.
     rememberAchievedMilestones(achievedIds);
 
-    const statusByPlanTaskId = buildReportTaskStatusPatches(
-      values,
-      selectedStatuses,
+    const statusByPlanTaskId = attachKeyResultIdsToReportPatches(
+      buildReportTaskStatusPatches(values, selectedStatuses),
+      formData,
     );
 
     if (isEditMode && reportId) {
