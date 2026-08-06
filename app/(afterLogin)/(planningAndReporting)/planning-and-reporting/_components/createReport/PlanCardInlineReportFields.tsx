@@ -256,7 +256,7 @@ export function PlanCardInlineReportFields({
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   }
                   parser={(value) =>
-                    value ? value.replace(/,/g, '') : ('' as unknown as number)
+                    value ? Number(value.replace(/,/g, '')) : 0
                   }
                   controls={false}
                 />
