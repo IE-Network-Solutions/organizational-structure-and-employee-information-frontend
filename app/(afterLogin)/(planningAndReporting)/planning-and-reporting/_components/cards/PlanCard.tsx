@@ -180,14 +180,22 @@ export default function PlanCard({
 }: PlanCardProps) {
   const { mutate: updateStatus } = useUpdateStatus();
   const viewerUserId = useAuthenticationStore((s) => s.userId);
-  const isTeammatePlan =
+  // Anyone viewing another person's plan/report: view only (no edit / plan-into)
+  const isOwnPlan =
+    !viewerUserId ||
+    !plan.ownerUserId ||
+    String(plan.ownerUserId) === String(viewerUserId);
+  const allowEdit = Boolean(canEdit && isOwnPlan);
+  const isOthersPlan =
     viewMode === 'planning' &&
     Boolean(
-      plan.ownerUserId && viewerUserId && plan.ownerUserId !== viewerUserId,
+      plan.ownerUserId &&
+        viewerUserId &&
+        String(plan.ownerUserId) !== String(viewerUserId),
     );
   const isPlanReadOnly =
     viewMode === 'planning' &&
-    (!canEdit || Boolean(plan.isReported) || plan.status?.label !== 'Open');
+    (!allowEdit || Boolean(plan.isReported) || plan.status?.label !== 'Open');
   const [optimisticStatuses, setOptimisticStatuses] = useState<
     Record<string, string>
   >({});
@@ -515,7 +523,7 @@ export default function PlanCard({
                   />
                 </Dropdown>
               )}
-              {canEdit && plan.status?.label === 'Open' && (
+              {allowEdit && plan.status?.label === 'Open' && (
                 <Dropdown menu={{ items: editMenuItems }} trigger={['click']}>
                   <Button
                     id={`plan-card-edit-dropdown-button-${plan.id}`}
@@ -993,7 +1001,7 @@ export default function PlanCard({
                 />
               </Dropdown>
             )}
-            {canEdit && plan.status?.label === 'Open' && (
+            {allowEdit && plan.status?.label === 'Open' && (
               <Dropdown menu={{ items: editMenuItems }} trigger={['click']}>
                 <Button
                   id={`plan-card-edit-dropdown-button-${plan.id}`}
@@ -1168,7 +1176,7 @@ export default function PlanCard({
                   onMouseLeave={() => onHoverKR?.(null)}
                 >
                   {/* Pre-achieve: owner uses interactive control; teammates see same visuals, read-only */}
-                  {isTeammatePlan ? (
+                  {isOthersPlan ? (
                     <span
                       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1104"
                       className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${

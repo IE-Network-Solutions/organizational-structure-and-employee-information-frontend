@@ -37,6 +37,7 @@ import {
   aggregateKeyResultForPanel,
   buildBlockedKeyResultIdSet,
   enrichOwnerGroupsPlanningBlocked,
+  isGroupForCurrentUser,
   mergeUserKeyResultsIntoOwnerGroups,
   type KRPanelOwnerGroup,
   type ParentPlanContext,
@@ -667,6 +668,9 @@ function OwnerKRSection({
   const avgPct = Math.min(group.avgProgress, 100);
   const color = progressColor(group.avgProgress);
 
+  // showInlinePlanningPick is already limited to the logged-in user's owner group
+  // so their own create/edit-from-scratch KR "+" stays available.
+
   if (isSingleOwner) {
     return (
       <div
@@ -1236,15 +1240,20 @@ export function KRLeftPanel({
     );
     const currentUserOwnerKeys = new Set(
       transformedData
-        ?.filter((d: any) => d?.userId === userId)
+        ?.filter((d: any) => String(d?.userId) === String(userId))
         ?.map(
           (d: any) => plans.find((p) => p.id === d?.id)?.owner?.name || '',
         ) || [],
     );
+    currentUserOwnerKeys.add(`__user_key_results_${userId}`);
 
     return [...merged].sort((a, b) => {
-      const aMine = currentUserOwnerKeys.has(a.ownerKey);
-      const bMine = currentUserOwnerKeys.has(b.ownerKey);
+      const aMine =
+        currentUserOwnerKeys.has(a.ownerKey) ||
+        isGroupForCurrentUser(a, plans, transformedData, userId);
+      const bMine =
+        currentUserOwnerKeys.has(b.ownerKey) ||
+        isGroupForCurrentUser(b, plans, transformedData, userId);
       if (aMine === bMine) return 0;
       return aMine ? -1 : 1;
     });
@@ -1415,27 +1424,37 @@ export function KRLeftPanel({
                 </div>
               ) : (
                 ownerGroups.map((group, idx) => {
-                  const isCurrentUserGroup =
-                    isSingleOwner &&
-                    transformedData?.some(
+                  const allVisiblePlansAreMine =
+                    !!transformedData?.length &&
+                    transformedData.every(
                       (d: any) =>
-                        d.userId === userId &&
-                        plans.some(
-                          (p) =>
-                            p.id === d.id &&
-                            p.owner?.name === group.owner?.name,
-                        ),
+                        String(d?.userId ?? d?.createdBy ?? '') ===
+                        String(userId),
                     );
+                  const isCurrentUserGroup =
+                    isGroupForCurrentUser(
+                      group,
+                      plans,
+                      transformedData,
+                      userId,
+                    ) ||
+                    // Own create/edit: if this view only has the logged-in user's plans,
+                    // treat the sole owner group as theirs even if name matching fails.
+                    (isSingleOwner && allVisiblePlansAreMine);
 
                   return (
                     <OwnerKRSection
                       key={group.ownerKey}
                       group={group}
                       isSingleOwner={isSingleOwner}
-                      isCurrentUser={!!isCurrentUserGroup}
-                      defaultExpanded={isSingleOwner || idx === 0}
+                      isCurrentUser={isCurrentUserGroup}
+                      defaultExpanded={
+                        isSingleOwner || isCurrentUserGroup || idx === 0
+                      }
                       highlightedKRId={highlightedKRId}
-                      showInlinePlanningPick={showInlinePick}
+                      showInlinePlanningPick={
+                        showInlinePick && isCurrentUserGroup
+                      }
                       planningTargetsByKrId={targetsByKrId}
                       selectedPlanningTargetId={selectedPlanningTargetId}
                       onPickPlanningTarget={onPickPlanningTarget}
@@ -1531,7 +1550,7 @@ export default function PlanningPanelView({
                   getEmployeeData(ownerUserId)?.delegatedTo?.id)
               }
               canEdit={
-                userId === ownerUserId &&
+                String(userId ?? '') === String(ownerUserId ?? '') &&
                 originalDataItem?.plan?.isReportValidated == false &&
                 isDataFromActiveSession(originalDataItem?.createdAt)
               }
@@ -1575,7 +1594,7 @@ export default function PlanningPanelView({
                 getEmployeeData(originalDataItem?.userId)?.reportingTo?.id)
             }
             canEdit={
-              userId === originalDataItem?.userId &&
+              String(userId ?? '') === String(originalDataItem?.userId ?? '') &&
               originalDataItem?.isValidated == false &&
               originalDataItem?.isReported == false &&
               isDataFromActiveSession(originalDataItem?.createdAt)
@@ -1586,14 +1605,14 @@ export default function PlanningPanelView({
             planningPeriodId={planningPeriodId}
             onOpenThread={onOpenThread}
             onSubmitReport={
-              ownerUserId === userId &&
+              String(ownerUserId ?? '') === String(userId ?? '') &&
               originalDataItem?.isReported == false &&
               onStartInlineReport
                 ? () => onStartInlineReport(originalDataItem.id)
                 : undefined
             }
             showSubmitReport={
-              ownerUserId === userId &&
+              String(ownerUserId ?? '') === String(userId ?? '') &&
               originalDataItem?.isReported == false &&
               !!ownerCanOpenSubmitReport
             }
