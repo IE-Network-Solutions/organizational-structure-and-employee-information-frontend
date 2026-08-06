@@ -18,7 +18,7 @@ pipeline {
                             script: "git rev-parse --abbrev-ref HEAD",
                             returnStdout: true
                         ).trim()
-
+echo "Current Branch: ${branchName}"
 if (branchName.contains('develop-redesign-branch')) {
     env.REMOTE_SERVER = REMOTE_SERVER_TEST
     env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env-redesign'
@@ -44,6 +44,18 @@ if (branchName.contains('develop-redesign-branch')) {
     env.SECRET_KEY = 'pepproduction'
                         
                     }
+                    else {
+                    error "No matching environment found for branch: ${branchName}"
+                }
+
+                echo """
+                Deployment Configuration:
+                -------------------------
+                Branch        : ${branchName}
+                Remote Server : ${env.REMOTE_SERVER}
+                Secrets Path  : ${env.SECRETS_PATH}
+                Secret Key    : ${env.SECRET_KEY}
+                """
                 }
             }
         }
