@@ -4,21 +4,16 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import { RequestCommonQueryData } from '@/types/commons/requesTypes';
-import {
-  ExternalTrainingApproval,
-  ExternalTrainingEmployeeSummary,
-  ExternalTrainingReport,
-  ExternalTrainingRequest,
-} from '@/types/tna/externalTna';
-import { ExternalTrainingRequestBody } from './interface';
+import { TrainingRequest } from '@/types/tna/externalTna';
+import { TrainingRequestBody } from './interface';
 
-const getExternalTrainings = async (
+const getTrainingRequests = async (
   query: Partial<RequestCommonQueryData>,
-  data: Partial<ExternalTrainingRequestBody>,
+  data: Partial<TrainingRequestBody>,
 ) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TNA_URL}/external-training`,
+    url: `${TNA_URL}/training-request`,
     method: 'POST',
     headers: requestHeaders,
     data,
@@ -26,173 +21,54 @@ const getExternalTrainings = async (
   });
 };
 
-const getExternalTrainingsByUser = async (
-  userId: string,
-  query: Partial<RequestCommonQueryData>,
-  data: Partial<ExternalTrainingRequestBody>,
-) => {
+const getTrainingRequestsByUser = async (userId: string) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TNA_URL}/external-training/by-user/${userId}`,
-    method: 'POST',
-    headers: requestHeaders,
-    data,
-    params: query,
-  });
-};
-
-const getExternalTrainingById = async (id: string) => {
-  const requestHeaders = await requestHeader();
-  return await crudRequest({
-    url: `${TNA_URL}/external-training/${id}`,
+    url: `${TNA_URL}/training-request/by-user/${userId}`,
     method: 'GET',
     headers: requestHeaders,
   });
 };
 
-const getExternalTrainingApprovals = async (id: string) => {
+const getTrainingRequestById = async (id: string) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TNA_URL}/external-training/${id}/approvals`,
+    url: `${TNA_URL}/training-request/${id}`,
     method: 'GET',
     headers: requestHeaders,
   });
 };
 
-const getPendingForManager = async (
-  managerId: string,
-  query: Partial<RequestCommonQueryData>,
-) => {
-  const requestHeaders = await requestHeader();
-  return await crudRequest({
-    url: `${TNA_URL}/external-training/pending/manager/${managerId}`,
-    method: 'GET',
-    headers: requestHeaders,
-    params: query,
-  });
-};
-
-const getPendingForTnaOfficer = async (
-  query: Partial<RequestCommonQueryData>,
-) => {
-  const requestHeaders = await requestHeader();
-  return await crudRequest({
-    url: `${TNA_URL}/external-training/pending/tna-officer`,
-    method: 'GET',
-    headers: requestHeaders,
-    params: query,
-  });
-};
-
-const getEmployeeTnaSummary = async (userId: string) => {
-  const requestHeaders = await requestHeader();
-  return await crudRequest({
-    url: `${TNA_URL}/external-training/employee/${userId}/summary`,
-    method: 'GET',
-    headers: requestHeaders,
-  });
-};
-
-const getExternalTrainingReport = async (
-  data: Partial<ExternalTrainingRequestBody>,
-) => {
-  const requestHeaders = await requestHeader();
-  return await crudRequest({
-    url: `${TNA_URL}/external-training/report`,
-    method: 'POST',
-    headers: requestHeaders,
-    data,
-  });
-};
-
-export const useGetExternalTrainings = (
+export const useGetTrainingRequests = (
   query: Partial<RequestCommonQueryData> = {},
-  data: Partial<ExternalTrainingRequestBody> = {},
+  data: Partial<TrainingRequestBody> = {},
   isEnabled: boolean = true,
 ) => {
-  return useQuery<ApiResponse<ExternalTrainingRequest>>(
-    ['external-training', query, data],
-    () => getExternalTrainings(query, data),
+  return useQuery<ApiResponse<TrainingRequest>>(
+    ['training-request', query, data],
+    () => getTrainingRequests(query, data),
     { keepPreviousData: true, enabled: isEnabled },
   );
 };
 
-export const useGetExternalTrainingsByUser = (
+export const useGetTrainingRequestsByUser = (
   userId: string,
-  query: Partial<RequestCommonQueryData> = {},
-  data: Partial<ExternalTrainingRequestBody> = {},
   isEnabled: boolean = true,
 ) => {
-  return useQuery<ApiResponse<ExternalTrainingRequest>>(
-    ['external-training-by-user', userId, query, data],
-    () => getExternalTrainingsByUser(userId, query, data),
+  return useQuery<TrainingRequest[]>(
+    ['training-request-by-user', userId],
+    () => getTrainingRequestsByUser(userId),
     { keepPreviousData: true, enabled: isEnabled && !!userId },
   );
 };
 
-export const useGetExternalTrainingById = (
+export const useGetTrainingRequestById = (
   id: string,
   isEnabled: boolean = true,
 ) => {
-  return useQuery<ExternalTrainingRequest>(
-    ['external-training-detail', id],
-    () => getExternalTrainingById(id),
+  return useQuery<TrainingRequest>(
+    ['training-request-detail', id],
+    () => getTrainingRequestById(id),
     { enabled: isEnabled && !!id },
-  );
-};
-
-export const useGetExternalTrainingApprovals = (
-  id: string,
-  isEnabled: boolean = true,
-) => {
-  return useQuery<ExternalTrainingApproval[]>(
-    ['external-training-approvals', id],
-    () => getExternalTrainingApprovals(id),
-    { enabled: isEnabled && !!id },
-  );
-};
-
-export const useGetPendingForManager = (
-  managerId: string,
-  query: Partial<RequestCommonQueryData> = {},
-  isEnabled: boolean = true,
-) => {
-  return useQuery<ApiResponse<ExternalTrainingRequest>>(
-    ['external-training-pending-manager', managerId, query],
-    () => getPendingForManager(managerId, query),
-    { keepPreviousData: true, enabled: isEnabled && !!managerId },
-  );
-};
-
-export const useGetPendingForTnaOfficer = (
-  query: Partial<RequestCommonQueryData> = {},
-  isEnabled: boolean = true,
-) => {
-  return useQuery<ApiResponse<ExternalTrainingRequest>>(
-    ['external-training-pending-officer', query],
-    () => getPendingForTnaOfficer(query),
-    { keepPreviousData: true, enabled: isEnabled },
-  );
-};
-
-export const useGetEmployeeTnaSummary = (
-  userId: string,
-  isEnabled: boolean = true,
-) => {
-  return useQuery<ExternalTrainingEmployeeSummary>(
-    ['external-training-employee-summary', userId],
-    () => getEmployeeTnaSummary(userId),
-    { enabled: isEnabled && !!userId },
-  );
-};
-
-export const useGetExternalTrainingReport = (
-  data: Partial<ExternalTrainingRequestBody> = {},
-  isEnabled: boolean = true,
-) => {
-  return useQuery<ExternalTrainingReport>(
-    ['external-training-report', data],
-    () => getExternalTrainingReport(data),
-    { keepPreviousData: true, enabled: isEnabled },
   );
 };

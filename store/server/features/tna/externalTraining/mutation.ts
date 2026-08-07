@@ -4,157 +4,208 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
-  ManagerDecisionPayload,
-  SaveExternalTrainingRequestPayload,
-  TnaOfficerDecisionPayload,
+  CloseTrainingRequestPayload,
+  SaveTrainingRequestPayload,
+  TrainingRequestDecisionPayload,
+  TrainingRequestPaymentPayload,
 } from './interface';
+import { TrainingRequestApprovalStatus } from '@/types/tna/externalTna';
 
-const setExternalTraining = async (
-  items: SaveExternalTrainingRequestPayload[],
-) => {
+const setTrainingRequest = async (data: SaveTrainingRequestPayload) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TNA_URL}/external-training`,
+    url: `${TNA_URL}/training-request`,
     method: 'PUT',
     headers: requestHeaders,
-    data: { items },
+    data,
   });
 };
 
-const deleteExternalTraining = async (id: string[]) => {
+const deleteTrainingRequest = async (id: string) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TNA_URL}/external-training`,
+    url: `${TNA_URL}/training-request/${id}`,
     method: 'DELETE',
     headers: requestHeaders,
-    data: { id },
   });
 };
 
-const setManagerDecision = async ({ id, ...data }: ManagerDecisionPayload) => {
-  const requestHeaders = await requestHeader();
-  return await crudRequest({
-    url: `${TNA_URL}/external-training/${id}/manager-decision`,
-    method: 'PATCH',
-    headers: requestHeaders,
-    data,
-  });
-};
-
-const setTnaOfficerDecision = async ({
+const setTrainingRequestDecision = async ({
   id,
   ...data
-}: TnaOfficerDecisionPayload) => {
+}: TrainingRequestDecisionPayload) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TNA_URL}/external-training/${id}/tna-officer-decision`,
+    url: `${TNA_URL}/training-request/${id}/decision`,
     method: 'PATCH',
     headers: requestHeaders,
     data,
   });
 };
 
-const cancelExternalTraining = async ({
+const setTrainingRequestPayment = async ({
   id,
-  remark,
-}: {
-  id: string;
-  remark?: string;
-}) => {
+  isPaid = true,
+}: TrainingRequestPaymentPayload) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TNA_URL}/external-training/${id}/cancel`,
+    url: `${TNA_URL}/training-request/${id}/payment`,
     method: 'PATCH',
     headers: requestHeaders,
-    data: { remark },
+    data: { isPaid },
   });
 };
 
-/** Every external-training list/detail cache key shares this prefix set. */
-const invalidateExternalTrainingCaches = (queryClient: any) => {
+/**
+ * Closes a request as passed or failed. The proof goes up as multipart so the
+ * backend can push it to the file server, which means encryption must be
+ * skipped or the body would be rewritten into JSON.
+ */
+const closeTrainingRequest = async (
+  outcome: 'complete' | 'fail',
+  { id, endDate, description, file }: CloseTrainingRequestPayload,
+) => {
+  const requestHeaders = await requestHeader();
+  const formData = new FormData();
+
+  formData.append('file', file);
+  formData.append('endDate', endDate);
+  if (description) {
+    formData.append('description', description);
+  }
+
+  return await crudRequest({
+    url: `${TNA_URL}/training-request/${id}/${outcome}`,
+    method: 'PATCH',
+    headers: { ...requestHeaders, 'Content-Type': 'multipart/form-data' },
+    data: formData,
+    skipEncryption: true,
+  });
+};
+
+const confirmTrainingRequest = async (id: string) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TNA_URL}/training-request/${id}/confirm`,
+    method: 'PATCH',
+    headers: requestHeaders,
+  });
+};
+
+/** Confirmation writes a commitment, so both caches have to be dropped. */
+const invalidateTrainingCaches = (queryClient: any) => {
   [
-    'external-training',
-    'external-training-by-user',
-    'external-training-detail',
-    'external-training-approvals',
-    'external-training-pending-manager',
-    'external-training-pending-officer',
-    'external-training-employee-summary',
-    'external-training-report',
-    'training-commitment',
-    'training-commitment-by-user',
-    'training-commitment-detail',
+    'training-request',
+    'training-request-by-user',
+    'training-request-detail',
+    'user-training-commitment',
+    'user-training-commitment-detail',
+    'user-training-commitment-active',
   ].forEach((key) => queryClient.invalidateQueries(key));
 };
 
-export const useSetExternalTraining = () => {
+export const useSetTrainingRequest = () => {
   const queryClient = useQueryClient();
-  return useMutation(setExternalTraining, {
+  return useMutation(setTrainingRequest, {
     onSuccess: () => {
-      invalidateExternalTrainingCaches(queryClient);
+      invalidateTrainingCaches(queryClient);
       NotificationMessage.success({
         message: 'Success',
-        description: 'External training request saved.',
+        description: 'Training request saved.',
       });
     },
   });
 };
 
-export const useDeleteExternalTraining = () => {
+export const useDeleteTrainingRequest = () => {
   const queryClient = useQueryClient();
-  return useMutation(deleteExternalTraining, {
+  return useMutation(deleteTrainingRequest, {
     onSuccess: () => {
-      invalidateExternalTrainingCaches(queryClient);
+      invalidateTrainingCaches(queryClient);
       NotificationMessage.success({
         message: 'Success',
-        description: 'External training request deleted.',
+        description: 'Training request deleted.',
       });
     },
   });
 };
 
-export const useSetManagerDecision = () => {
+export const useSetTrainingRequestDecision = () => {
   const queryClient = useQueryClient();
-  return useMutation(setManagerDecision, {
+  return useMutation(setTrainingRequestDecision, {
     onSuccess: (unusedData, variables) => {
       void unusedData;
-      invalidateExternalTrainingCaches(queryClient);
+      invalidateTrainingCaches(queryClient);
       NotificationMessage.success({
         message: 'Success',
         description:
-          variables.decision === 'approve'
-            ? 'Request approved and forwarded to the TNA Officer.'
-            : 'Request rejected.',
+          variables.approvalStatus === TrainingRequestApprovalStatus.APPROVED
+            ? 'Training request approved.'
+            : `Training request ${variables.approvalStatus}.`,
       });
     },
   });
 };
 
-export const useSetTnaOfficerDecision = () => {
+export const useSetTrainingRequestPayment = () => {
   const queryClient = useQueryClient();
-  return useMutation(setTnaOfficerDecision, {
+  return useMutation(setTrainingRequestPayment, {
     onSuccess: (unusedData, variables) => {
       void unusedData;
-      invalidateExternalTrainingCaches(queryClient);
+      invalidateTrainingCaches(queryClient);
       NotificationMessage.success({
         message: 'Success',
         description:
-          variables.decision === 'approve'
-            ? 'Request approved, payment confirmed and commitment activated.'
-            : 'Request rejected.',
+          variables.isPaid === false
+            ? 'Payment mark removed.'
+            : 'Payment recorded.',
       });
     },
   });
 };
 
-export const useCancelExternalTraining = () => {
+export const useCompleteTrainingRequest = () => {
   const queryClient = useQueryClient();
-  return useMutation(cancelExternalTraining, {
+  return useMutation(
+    (payload: CloseTrainingRequestPayload) =>
+      closeTrainingRequest('complete', payload),
+    {
+      onSuccess: () => {
+        invalidateTrainingCaches(queryClient);
+        NotificationMessage.success({
+          message: 'Success',
+          description: 'Certificate uploaded and training marked as completed.',
+        });
+      },
+    },
+  );
+};
+
+export const useFailTrainingRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (payload: CloseTrainingRequestPayload) =>
+      closeTrainingRequest('fail', payload),
+    {
+      onSuccess: () => {
+        invalidateTrainingCaches(queryClient);
+        NotificationMessage.success({
+          message: 'Success',
+          description: 'Failure proof uploaded and training marked as failed.',
+        });
+      },
+    },
+  );
+};
+
+export const useConfirmTrainingRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation(confirmTrainingRequest, {
     onSuccess: () => {
-      invalidateExternalTrainingCaches(queryClient);
+      invalidateTrainingCaches(queryClient);
       NotificationMessage.success({
         message: 'Success',
-        description: 'External training request cancelled.',
+        description: 'Request confirmed — the commitment has started.',
       });
     },
   });

@@ -118,6 +118,14 @@ const MENU_ROUTES: MenuRouteNode[] = [
         key: '/tna/settings/course-category',
         permissions: ['manage_tna_settings'],
       },
+      {
+        key: '/tna/settings/approvals',
+        permissions: ['manage_tna_settings'],
+      },
+      {
+        key: '/tna/settings/commitment-configuration',
+        permissions: ['manage_tna_settings'],
+      },
     ],
   },
   {

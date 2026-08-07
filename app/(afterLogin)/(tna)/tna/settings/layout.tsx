@@ -18,9 +18,14 @@ const TABS = [
     href: '/tna/settings/course-category',
   },
   {
-    key: 'tna-officer',
-    label: 'TNA Officers',
-    href: '/tna/settings/tna-officer',
+    key: 'approvals',
+    label: 'Approval Workflow',
+    href: '/tna/settings/approvals',
+  },
+  {
+    key: 'commitment-configuration',
+    label: 'Commitment Configuration',
+    href: '/tna/settings/commitment-configuration',
   },
 ];
 

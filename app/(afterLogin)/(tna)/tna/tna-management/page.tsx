@@ -1,24 +1,19 @@
 'use client';
-import React, { useState } from 'react';
-import { Input, Tabs } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
+import React from 'react';
+import { Tabs } from 'antd';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import RequestsTab from './_components/requestsTab';
 import CommitmentsTab from './_components/commitmentsTab';
-import ApprovalsTab from './_components/approvalsTab';
-import ReportsTab from './_components/reportsTab';
+import ConfirmationTab from './_components/confirmationTab';
+import TrainingApprovalTable from '@/app/(afterLogin)/(tna)/tna/_components/trainingApprovalTable';
 
 /**
  * Centralised TNA administration for HR, L&D admins and TNA Officers: every
- * request and commitment in the organisation, approval queues and reporting.
+ * request and commitment in the organisation, plus the confirmation queue.
  */
 const TnaManagementAdminPage = () => {
-  const router = useRouter();
-  const [employeeLookup, setEmployeeLookup] = useState('');
-
   const canViewAll = AccessGuard.checkAccess({
     permissions: [Permissions.ViewAllTna],
   });
@@ -28,7 +23,9 @@ const TnaManagementAdminPage = () => {
       ? [
           {
             key: 'requests',
-            label: <span data-cy="tna-admin-tab-requests">TNA Requests</span>,
+            label: (
+              <span data-cy="tna-admin-tab-requests">Training Requests</span>
+            ),
             children: <RequestsTab />,
           },
           {
@@ -41,17 +38,15 @@ const TnaManagementAdminPage = () => {
     {
       key: 'approvals',
       label: <span data-cy="tna-admin-tab-approvals">My Approvals</span>,
-      children: <ApprovalsTab />,
+      children: <TrainingApprovalTable />,
     },
-    ...(canViewAll
-      ? [
-          {
-            key: 'reports',
-            label: <span data-cy="tna-admin-tab-reports">Reports</span>,
-            children: <ReportsTab />,
-          },
-        ]
-      : []),
+    {
+      key: 'confirmation',
+      label: (
+        <span data-cy="tna-admin-tab-confirmation">Awaiting Confirmation</span>
+      ),
+      children: <ConfirmationTab />,
+    },
   ];
 
   return (
@@ -84,25 +79,6 @@ const TnaManagementAdminPage = () => {
               TNA Management
             </span>
           </nav>
-        }
-        titleExtra={
-          canViewAll ? (
-            <Input
-              allowClear
-              prefix={<SearchOutlined className="text-black/45" />}
-              placeholder="Open employee TNA history (paste employee ID)"
-              className="h-10 w-full rounded-[6px] md:w-[340px]"
-              value={employeeLookup}
-              onChange={(e) => setEmployeeLookup(e.target.value)}
-              onPressEnter={() => {
-                const value = employeeLookup.trim();
-                if (value) {
-                  router.push(`/tna/tna-management/employee/${value}`);
-                }
-              }}
-              data-cy="tna-admin-employee-lookup"
-            />
-          ) : undefined
         }
       />
 

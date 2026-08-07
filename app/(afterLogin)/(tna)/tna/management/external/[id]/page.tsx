@@ -1,7 +1,7 @@
 'use client';
 import React, { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Button, Skeleton, Space, Tooltip } from 'antd';
+import { Button, Popconfirm, Skeleton, Space, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { LuExternalLink } from 'react-icons/lu';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -11,20 +11,25 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { DATE_FORMAT } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useGetExternalTrainingById } from '@/store/server/features/tna/externalTraining/queries';
-import { useCancelExternalTraining } from '@/store/server/features/tna/externalTraining/mutation';
-import { useCurrency } from '@/store/server/features/tna/review/queries';
-import { useGetIsTnaOfficer } from '@/store/server/features/tna/tnaOfficer/queries';
+import { useGetTrainingRequestById } from '@/store/server/features/tna/externalTraining/queries';
 import {
-  ExternalTrainingStatus,
-  ExternalTrainingStatusBadgeTheme,
-  ExternalTrainingStatusLabel,
+  useConfirmTrainingRequest,
+  useSetTrainingRequestDecision,
+  useSetTrainingRequestPayment,
+} from '@/store/server/features/tna/externalTraining/mutation';
+import { useCurrency } from '@/store/server/features/tna/review/queries';
+import {
+  TrainingRequestApprovalStatus,
+  TrainingRequestApprovalStatusBadgeTheme,
+  TrainingRequestApprovalStatusLabel,
+  TrainingRequestStageBadgeTheme,
+  TrainingRequestStageLabel,
+  getTrainingRequestStage,
+  isTrainingRequestConfirmable,
 } from '@/types/tna/externalTna';
 import CommitmentProgressBar from '@/app/(afterLogin)/(tna)/tna/_components/commitmentProgressBar';
-import ApprovalTimeline from '@/app/(afterLogin)/(tna)/tna/_components/approvalTimeline';
 import EmployeeName from '@/app/(afterLogin)/(tna)/tna/_components/employeeName';
-import ManagerDecisionModal from '@/app/(afterLogin)/(tna)/tna/_components/decisionModals/managerDecisionModal';
-import TnaOfficerDecisionModal from '@/app/(afterLogin)/(tna)/tna/_components/decisionModals/tnaOfficerDecisionModal';
+import CloseOutcomeModal from '@/app/(afterLogin)/(tna)/tna/_components/closeOutcomeModal';
 
 const DetailRow = ({
   label,
@@ -57,14 +62,19 @@ const ExternalTnaDetailPage = () => {
   const id = String(params?.id ?? '');
 
   const { userId } = useAuthenticationStore();
-  const { data: request, isLoading } = useGetExternalTrainingById(id);
+  const { data: request, isLoading } = useGetTrainingRequestById(id);
   const { data: currencies } = useCurrency();
-  const { data: officerCheck } = useGetIsTnaOfficer(userId ?? '');
-  const { mutate: cancelRequest, isLoading: isCancelling } =
-    useCancelExternalTraining();
 
-  const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
-  const [isOfficerModalOpen, setIsOfficerModalOpen] = useState(false);
+  const { mutate: decide, isLoading: isDeciding } =
+    useSetTrainingRequestDecision();
+  const { mutate: setPayment, isLoading: isSettingPayment } =
+    useSetTrainingRequestPayment();
+  const { mutate: confirmRequest, isLoading: isConfirming } =
+    useConfirmTrainingRequest();
+
+  const [closeOutcome, setCloseOutcome] = useState<'complete' | 'fail' | null>(
+    null,
+  );
 
   const currencyCode = useMemo(() => {
     const list = Array.isArray(currencies)
@@ -83,28 +93,24 @@ const ExternalTnaDetailPage = () => {
           currencyCode ? ` ${currencyCode}` : ''
         }`;
 
-  const isRequester = request?.requestedBy === userId;
-  const isAssignedManager = request?.managerId === userId;
-  const isTnaOfficer = Boolean(officerCheck?.isOfficer);
+  const stage = useMemo(() => getTrainingRequestStage(request), [request]);
+  const isOwner = request?.userId === userId;
+  const isApproved =
+    request?.approvalStatus === TrainingRequestApprovalStatus.APPROVED;
 
-  const canDecideAsManager =
-    request?.status === ExternalTrainingStatus.PENDING_MANAGER &&
-    (isAssignedManager ||
-      AccessGuard.checkAccess({
-        permissions: [Permissions.ApproveTnaAsManager],
-      }));
+  const canRecordPayment =
+    isApproved &&
+    !request?.isConfirmed &&
+    AccessGuard.checkAccess({
+      permissions: [Permissions.ConfirmTnaCommitment],
+    });
 
-  const canDecideAsOfficer =
-    request?.status === ExternalTrainingStatus.PENDING_TNA_OFFICER &&
-    (isTnaOfficer ||
-      AccessGuard.checkAccess({
-        permissions: [Permissions.ApproveTnaAsOfficer],
-      }));
-
-  const canCancel =
-    isRequester &&
-    request?.status !== ExternalTrainingStatus.APPROVED &&
-    request?.status !== ExternalTrainingStatus.CANCELLED;
+  const canClose = isApproved && !request?.isConfirmed && Boolean(request);
+  const canConfirm =
+    isTrainingRequestConfirmable(request) &&
+    AccessGuard.checkAccess({
+      permissions: [Permissions.ConfirmTnaCommitment],
+    });
 
   if (isLoading) {
     return (
@@ -119,7 +125,7 @@ const ExternalTnaDetailPage = () => {
       <div className="page-wrap" data-cy="tna-external-detail-not-found">
         <EmptyState
           title="Request not found"
-          description="This external training request no longer exists."
+          description="This training request no longer exists."
           actionText="Back to Learning Management"
           onAction={() => router.push('/tna/management')}
         />
@@ -135,7 +141,9 @@ const ExternalTnaDetailPage = () => {
     >
       <CustomBreadcrumb
         title={
-          <span data-cy="tna-external-detail-title">{request.courseName}</span>
+          <span data-cy="tna-external-detail-title">
+            {request.courseName || 'External training'}
+          </span>
         }
         subtitle={
           <nav
@@ -177,33 +185,69 @@ const ExternalTnaDetailPage = () => {
         }
         href="/tna/management"
         titleExtra={
-          <Space data-cy="tna-external-detail-actions">
-            {canDecideAsManager ? (
+          <Space wrap data-cy="tna-external-detail-actions">
+            {canClose ? (
+              <>
+                <Button
+                  className="h-10 rounded-md border-[#D9D9D9] px-4"
+                  onClick={() => setCloseOutcome('complete')}
+                  data-cy="tna-external-detail-mark-complete"
+                >
+                  {request.hasCompleted
+                    ? 'Replace certificate'
+                    : 'Mark completed'}
+                </Button>
+                <Button
+                  className="h-10 rounded-md border-[#D9D9D9] px-4"
+                  onClick={() => setCloseOutcome('fail')}
+                  data-cy="tna-external-detail-mark-failed"
+                >
+                  {request.hasFailed ? 'Replace failure proof' : 'Mark failed'}
+                </Button>
+              </>
+            ) : null}
+
+            {canRecordPayment && !request.isPaid ? (
               <Button
-                type="primary"
-                className="h-10 rounded-lg border-[#1E40AF] bg-[#1E40AF] px-4"
-                onClick={() => setIsManagerModalOpen(true)}
-                data-cy="tna-external-detail-manager-review"
+                className="h-10 rounded-md border-[#D9D9D9] px-4"
+                loading={isSettingPayment}
+                onClick={() => setPayment({ id: request.id, isPaid: true })}
+                data-cy="tna-external-detail-record-payment"
               >
-                Review as Manager
+                Record payment
               </Button>
             ) : null}
-            {canDecideAsOfficer ? (
-              <Button
-                type="primary"
-                className="h-10 rounded-lg border-[#1E40AF] bg-[#1E40AF] px-4"
-                onClick={() => setIsOfficerModalOpen(true)}
-                data-cy="tna-external-detail-officer-review"
+
+            {canConfirm ? (
+              <Popconfirm
+                title="Confirm this request?"
+                description="This starts the employee's commitment period."
+                okText="Confirm"
+                cancelText="Cancel"
+                onConfirm={() => confirmRequest(request.id)}
               >
-                Review as TNA Officer
-              </Button>
+                <Button
+                  type="primary"
+                  className="h-10 rounded-lg border-[#1E40AF] bg-[#1E40AF] px-4"
+                  loading={isConfirming}
+                  data-cy="tna-external-detail-confirm"
+                >
+                  Confirm &amp; start commitment
+                </Button>
+              </Popconfirm>
             ) : null}
-            {canCancel ? (
+
+            {isOwner &&
+            request.approvalStatus === TrainingRequestApprovalStatus.PENDING ? (
               <Button
-                danger
-                className="h-10 rounded-md px-4"
-                loading={isCancelling}
-                onClick={() => cancelRequest({ id: request.id })}
+                className="h-10 rounded-md border-[#D9D9D9] px-4"
+                loading={isDeciding}
+                onClick={() =>
+                  decide({
+                    id: request.id,
+                    approvalStatus: TrainingRequestApprovalStatus.CANCELLED,
+                  })
+                }
                 data-cy="tna-external-detail-cancel"
               >
                 Cancel request
@@ -235,49 +279,49 @@ const ExternalTnaDetailPage = () => {
               >
                 External
               </span>
-              <StatusBadge
-                theme={ExternalTrainingStatusBadgeTheme[request.status]}
-              >
-                {ExternalTrainingStatusLabel[request.status] ?? request.status}
+              <StatusBadge theme={TrainingRequestStageBadgeTheme[stage]}>
+                {TrainingRequestStageLabel[stage]}
               </StatusBadge>
-              {request.isPaymentConfirmed ? (
+              <StatusBadge
+                theme={
+                  TrainingRequestApprovalStatusBadgeTheme[
+                    request.approvalStatus
+                  ]
+                }
+              >
+                {TrainingRequestApprovalStatusLabel[request.approvalStatus] ??
+                  request.approvalStatus}
+              </StatusBadge>
+              {request.hasCompleted ? (
                 <span
                   className="rounded-[4px] border border-[#B7EB8F] bg-[#F6FFED] px-2 py-px text-xs leading-5 text-[#389E0D]"
-                  data-cy="tna-external-detail-payment-pill"
+                  data-cy="tna-external-detail-passed-pill"
                 >
-                  Payment confirmed
+                  Passed
                 </span>
-              ) : (
+              ) : null}
+              {request.hasFailed ? (
                 <span
-                  className="rounded-[4px] border border-[#FFE58F] bg-[#FFFBE6] px-2 py-px text-xs leading-5 text-[#AD8B00]"
-                  data-cy="tna-external-detail-payment-pill"
+                  className="rounded-[4px] border border-[#FFA39E] bg-[#FFF1F0] px-2 py-px text-xs leading-5 text-[#CF1322]"
+                  data-cy="tna-external-detail-failed-pill"
                 >
-                  Payment pending
+                  Failed
                 </span>
-              )}
+              ) : null}
             </div>
 
             <div
               className="grid grid-cols-2 gap-4 md:grid-cols-3"
               data-cy="tna-external-detail-fields"
             >
-              <DetailRow
-                label="Requested by"
-                dataCy="tna-external-detail-requester"
-              >
-                <EmployeeName userId={request.requestedBy} />
+              <DetailRow label="Employee" dataCy="tna-external-detail-employee">
+                <EmployeeName userId={request.userId} />
               </DetailRow>
-              <DetailRow label="Manager" dataCy="tna-external-detail-manager">
-                <EmployeeName
-                  userId={request.managerId}
-                  fallback="Not assigned"
-                />
+              <DetailRow label="Cost" dataCy="tna-external-detail-amount">
+                {formatMoney(request.amount)}
               </DetailRow>
-              <DetailRow label="Cost" dataCy="tna-external-detail-cost">
-                {formatMoney(request.cost)}
-              </DetailRow>
-              <DetailRow label="Provider" dataCy="tna-external-detail-provider">
-                {request.trainingProvider || '-'}
+              <DetailRow label="Provider" dataCy="tna-external-detail-source">
+                {request.source || '-'}
               </DetailRow>
               <DetailRow
                 label="Requested on"
@@ -285,57 +329,56 @@ const ExternalTnaDetailPage = () => {
               >
                 {dayjs(request.createdAt).format(DATE_FORMAT)}
               </DetailRow>
-              <DetailRow
-                label="Training period"
-                dataCy="tna-external-detail-period"
-              >
-                {request.trainingStartDate && request.trainingEndDate
-                  ? `${dayjs(request.trainingStartDate).format(DATE_FORMAT)} → ${dayjs(
-                      request.trainingEndDate,
-                    ).format(DATE_FORMAT)}`
+              <DetailRow label="Start date" dataCy="tna-external-detail-start">
+                {request.startDate
+                  ? dayjs(request.startDate).format(DATE_FORMAT)
                   : '-'}
               </DetailRow>
-              <DetailRow label="Course link" dataCy="tna-external-detail-link">
-                {request.courseLink ? (
-                  <Tooltip title={request.courseLink}>
-                    <a
-                      href={request.courseLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[#1E40AF]"
-                      data-cy="tna-external-detail-link-anchor"
-                    >
-                      Open course <LuExternalLink size={12} />
-                    </a>
-                  </Tooltip>
-                ) : (
-                  '-'
-                )}
+              <DetailRow
+                label={request.hasFailed ? 'Failure date' : 'Completion date'}
+                dataCy="tna-external-detail-end"
+              >
+                {request.endDate
+                  ? dayjs(request.endDate).format(DATE_FORMAT)
+                  : '-'}
               </DetailRow>
             </div>
 
-            <div data-cy="tna-external-detail-justification">
+            <div data-cy="tna-external-detail-description">
               <span
-                data-cy="tna-external-detail-justification-label"
+                data-cy="tna-external-detail-description-label"
                 className="text-[11px] uppercase leading-4 tracking-wide text-black/45"
               >
-                Business justification
+                Description
               </span>
               <p
-                data-cy="tna-external-detail-justification-text"
+                data-cy="tna-external-detail-description-text"
                 className="m-0 mt-1 text-sm leading-[22px] text-black/70"
               >
-                {request.businessJustification ||
-                  'No business justification provided.'}
+                {request.description || 'No description provided.'}
               </p>
             </div>
+
+            {request.reason ? (
+              <div data-cy="tna-external-detail-reason">
+                <span
+                  data-cy="tna-external-detail-reason-label"
+                  className="text-[11px] uppercase leading-4 tracking-wide text-black/45"
+                >
+                  Reason
+                </span>
+                <p
+                  data-cy="tna-external-detail-reason-text"
+                  className="m-0 mt-1 text-sm leading-[22px] text-black/70"
+                >
+                  {request.reason}
+                </p>
+              </div>
+            ) : null}
           </div>
 
           {request.commitment ? (
-            <CommitmentProgressBar
-              commitment={request.commitment}
-              data-cy="tna-external-detail-commitment"
-            />
+            <CommitmentProgressBar commitment={request.commitment} />
           ) : (
             <div
               className="box-border rounded-[8px] border border-[#D9D9D9] bg-white p-4"
@@ -344,23 +387,10 @@ const ExternalTnaDetailPage = () => {
               <EmptyState
                 compact
                 title="No commitment yet"
-                description="A commitment is created once the TNA Officer approves this request and confirms payment."
+                description="A commitment starts once the request is approved, closed out with proof, paid for and confirmed."
               />
             </div>
           )}
-
-          <div
-            className="box-border rounded-[8px] border border-[#D9D9D9] bg-white p-4"
-            data-cy="tna-external-detail-approvals"
-          >
-            <h2
-              data-cy="tna-external-detail-approvals-title"
-              className="m-0 mb-3 text-sm font-bold leading-[22px] text-black"
-            >
-              Approval History
-            </h2>
-            <ApprovalTimeline approvals={request.approvals} />
-          </div>
         </section>
 
         <aside
@@ -369,101 +399,81 @@ const ExternalTnaDetailPage = () => {
         >
           <div
             className="box-border flex flex-col gap-3 rounded-[8px] border border-[#D9D9D9] bg-white p-4"
-            data-cy="tna-external-detail-payment"
+            data-cy="tna-external-detail-checklist"
           >
             <h2
-              data-cy="tna-external-detail-payment-title"
+              data-cy="tna-external-detail-checklist-title"
               className="m-0 text-sm font-bold leading-[22px] text-black"
             >
-              Payment Confirmation
+              Confirmation Checklist
             </h2>
             <DetailRow
-              label="Status"
-              dataCy="tna-external-detail-payment-status"
+              label="Approved"
+              dataCy="tna-external-detail-check-approved"
             >
-              {request.isPaymentConfirmed ? 'Confirmed' : 'Not confirmed'}
+              {isApproved ? 'Yes' : 'Not yet'}
             </DetailRow>
             <DetailRow
-              label="Reference"
-              dataCy="tna-external-detail-payment-ref"
+              label="End date recorded"
+              dataCy="tna-external-detail-check-end"
             >
-              {request.paymentReference || '-'}
-            </DetailRow>
-            <DetailRow label="Amount paid" dataCy="tna-external-detail-paid">
-              {formatMoney(request.paidAmount)}
-            </DetailRow>
-            <DetailRow
-              label="Confirmed by"
-              dataCy="tna-external-detail-payment-by"
-            >
-              <EmployeeName
-                userId={request.paymentConfirmedBy}
-                fallback="Not confirmed"
-              />
+              {request.endDate
+                ? dayjs(request.endDate).format(DATE_FORMAT)
+                : 'Not yet'}
             </DetailRow>
             <DetailRow
-              label="Confirmed on"
-              dataCy="tna-external-detail-payment-at"
+              label="Proof attached"
+              dataCy="tna-external-detail-check-proof"
             >
-              {request.paymentConfirmedAt
-                ? dayjs(request.paymentConfirmedAt).format(DATE_FORMAT)
-                : '-'}
+              {request.certificatePath ? (
+                <Tooltip title="Open certificate">
+                  <a
+                    href={request.certificatePath}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[#1E40AF]"
+                    data-cy="tna-external-detail-certificate-link"
+                  >
+                    Certificate <LuExternalLink size={12} />
+                  </a>
+                </Tooltip>
+              ) : request.failureFilePath ? (
+                <Tooltip title="Open failure proof">
+                  <a
+                    href={request.failureFilePath}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[#CF1322]"
+                    data-cy="tna-external-detail-failure-link"
+                  >
+                    Failure proof <LuExternalLink size={12} />
+                  </a>
+                </Tooltip>
+              ) : (
+                'Not yet'
+              )}
             </DetailRow>
-          </div>
-
-          <div
-            className="box-border flex flex-col gap-3 rounded-[8px] border border-[#D9D9D9] bg-white p-4"
-            data-cy="tna-external-detail-workflow"
-          >
-            <h2
-              data-cy="tna-external-detail-workflow-title"
-              className="m-0 text-sm font-bold leading-[22px] text-black"
-            >
-              Workflow
-            </h2>
             <DetailRow
-              label="Manager decision"
-              dataCy="tna-external-detail-manager-decision"
+              label="Payment"
+              dataCy="tna-external-detail-check-payment"
             >
-              {request.managerApprovedAt
-                ? `${dayjs(request.managerApprovedAt).format(DATE_FORMAT)}${
-                    request.managerRemark ? ` — ${request.managerRemark}` : ''
-                  }`
-                : 'Pending'}
+              {request.isPaid ? 'Completed' : 'Not yet'}
             </DetailRow>
             <DetailRow
-              label="TNA Officer decision"
-              dataCy="tna-external-detail-officer-decision"
+              label="Confirmed"
+              dataCy="tna-external-detail-check-confirmed"
             >
-              {request.tnaOfficerApprovedAt
-                ? `${dayjs(request.tnaOfficerApprovedAt).format(DATE_FORMAT)}${
-                    request.tnaOfficerRemark
-                      ? ` — ${request.tnaOfficerRemark}`
-                      : ''
-                  }`
-                : 'Pending'}
+              {request.isConfirmed ? 'Yes' : 'Not yet'}
             </DetailRow>
-            {request.rejectionReason ? (
-              <DetailRow
-                label="Rejection reason"
-                dataCy="tna-external-detail-rejection"
-              >
-                {request.rejectionReason}
-              </DetailRow>
-            ) : null}
           </div>
         </aside>
       </div>
 
-      <ManagerDecisionModal
-        open={isManagerModalOpen}
+      <CloseOutcomeModal
+        open={closeOutcome !== null}
+        outcome={closeOutcome ?? 'complete'}
         request={request}
-        onClose={() => setIsManagerModalOpen(false)}
-      />
-      <TnaOfficerDecisionModal
-        open={isOfficerModalOpen}
-        request={request}
-        onClose={() => setIsOfficerModalOpen(false)}
+        onClose={() => setCloseOutcome(null)}
       />
     </div>
   );

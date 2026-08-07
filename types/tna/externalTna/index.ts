@@ -2,262 +2,238 @@ import { StatusBadgeTheme } from '@/components/common/statusBadge';
 import { DateInfo } from '@/types/commons/dateInfo';
 import { Meta } from '@/store/server/features/okrPlanningAndReporting/interface';
 
-/** Distinguishes catalogue-backed TNAs from free-text external requests. */
+/**
+ * Distinguishes catalogue-backed courses from free-text training requests.
+ * Internal = a `Course` from the learning catalogue, External = a
+ * `TrainingRequest`.
+ */
 export enum TnaSourceType {
   INTERNAL = 'internal',
   EXTERNAL = 'external',
 }
 
-export enum ExternalTrainingStatus {
-  PENDING_MANAGER = 'pending-manager',
-  PENDING_TNA_OFFICER = 'pending-tna-officer',
+export enum TrainingRequestApprovalStatus {
+  PENDING = 'pending',
   APPROVED = 'approved',
   REJECTED = 'rejected',
   CANCELLED = 'cancelled',
 }
 
-export const ExternalTrainingStatusLabel: Record<
-  ExternalTrainingStatus,
+export const TrainingRequestApprovalStatusLabel: Record<
+  TrainingRequestApprovalStatus,
   string
 > = {
-  [ExternalTrainingStatus.PENDING_MANAGER]: 'Pending Manager',
-  [ExternalTrainingStatus.PENDING_TNA_OFFICER]: 'Pending TNA Officer',
-  [ExternalTrainingStatus.APPROVED]: 'Approved',
-  [ExternalTrainingStatus.REJECTED]: 'Rejected',
-  [ExternalTrainingStatus.CANCELLED]: 'Cancelled',
+  [TrainingRequestApprovalStatus.PENDING]: 'Pending',
+  [TrainingRequestApprovalStatus.APPROVED]: 'Approved',
+  [TrainingRequestApprovalStatus.REJECTED]: 'Rejected',
+  [TrainingRequestApprovalStatus.CANCELLED]: 'Cancelled',
 };
 
-export const ExternalTrainingStatusBadgeTheme: Record<
-  ExternalTrainingStatus,
+export const TrainingRequestApprovalStatusBadgeTheme: Record<
+  TrainingRequestApprovalStatus,
   StatusBadgeTheme
 > = {
-  [ExternalTrainingStatus.PENDING_MANAGER]: StatusBadgeTheme.secondary,
-  [ExternalTrainingStatus.PENDING_TNA_OFFICER]: StatusBadgeTheme.warning,
-  [ExternalTrainingStatus.APPROVED]: StatusBadgeTheme.success,
-  [ExternalTrainingStatus.REJECTED]: StatusBadgeTheme.danger,
-  [ExternalTrainingStatus.CANCELLED]: StatusBadgeTheme.danger,
+  [TrainingRequestApprovalStatus.PENDING]: StatusBadgeTheme.warning,
+  [TrainingRequestApprovalStatus.APPROVED]: StatusBadgeTheme.success,
+  [TrainingRequestApprovalStatus.REJECTED]: StatusBadgeTheme.danger,
+  [TrainingRequestApprovalStatus.CANCELLED]: StatusBadgeTheme.secondary,
 };
 
-export const externalTrainingStatusOptions: {
+export const trainingRequestApprovalStatusOptions: {
   label: string;
-  value: ExternalTrainingStatus;
-}[] = Object.values(ExternalTrainingStatus).map((value) => ({
+  value: TrainingRequestApprovalStatus;
+}[] = Object.values(TrainingRequestApprovalStatus).map((value) => ({
   value,
-  label: ExternalTrainingStatusLabel[value],
+  label: TrainingRequestApprovalStatusLabel[value],
 }));
 
-export enum TrainingCommitmentStatus {
-  ACTIVE = 'active',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled',
-  BREACHED = 'breached',
-}
-
-export const TrainingCommitmentStatusLabel: Record<
-  TrainingCommitmentStatus,
-  string
-> = {
-  [TrainingCommitmentStatus.ACTIVE]: 'Active',
-  [TrainingCommitmentStatus.COMPLETED]: 'Completed',
-  [TrainingCommitmentStatus.CANCELLED]: 'Cancelled',
-  [TrainingCommitmentStatus.BREACHED]: 'Breached',
-};
-
-export const TrainingCommitmentStatusBadgeTheme: Record<
-  TrainingCommitmentStatus,
-  StatusBadgeTheme
-> = {
-  [TrainingCommitmentStatus.ACTIVE]: StatusBadgeTheme.warning,
-  [TrainingCommitmentStatus.COMPLETED]: StatusBadgeTheme.success,
-  [TrainingCommitmentStatus.CANCELLED]: StatusBadgeTheme.secondary,
-  [TrainingCommitmentStatus.BREACHED]: StatusBadgeTheme.danger,
-};
-
-export const trainingCommitmentStatusOptions: {
-  label: string;
-  value: TrainingCommitmentStatus;
-}[] = Object.values(TrainingCommitmentStatus).map((value) => ({
-  value,
-  label: TrainingCommitmentStatusLabel[value],
-}));
-
-export enum ExternalTrainingApprovalStage {
-  EMPLOYEE = 'employee',
-  MANAGER = 'manager',
-  TNA_OFFICER = 'tna-officer',
-}
-
-export const ExternalTrainingApprovalStageLabel: Record<
-  ExternalTrainingApprovalStage,
-  string
-> = {
-  [ExternalTrainingApprovalStage.EMPLOYEE]: 'Employee',
-  [ExternalTrainingApprovalStage.MANAGER]: 'Manager',
-  [ExternalTrainingApprovalStage.TNA_OFFICER]: 'TNA Officer',
-};
-
-export enum ExternalTrainingApprovalAction {
-  SUBMITTED = 'submitted',
-  APPROVED = 'approved',
+/**
+ * Where a request sits in its lifecycle, derived from the flags rather than
+ * stored. Approval status alone does not say whether the training has been
+ * closed out, paid for or confirmed.
+ */
+export enum TrainingRequestStage {
+  PENDING_APPROVAL = 'pending-approval',
   REJECTED = 'rejected',
   CANCELLED = 'cancelled',
-  PAYMENT_CONFIRMED = 'payment-confirmed',
-  COMMITMENT_ACTIVATED = 'commitment-activated',
-  COMMITMENT_COMPLETED = 'commitment-completed',
+  AWAITING_OUTCOME = 'awaiting-outcome',
+  AWAITING_PAYMENT = 'awaiting-payment',
+  AWAITING_CONFIRMATION = 'awaiting-confirmation',
+  CONFIRMED = 'confirmed',
 }
 
-export const ExternalTrainingApprovalActionLabel: Record<
-  ExternalTrainingApprovalAction,
-  string
-> = {
-  [ExternalTrainingApprovalAction.SUBMITTED]: 'Submitted',
-  [ExternalTrainingApprovalAction.APPROVED]: 'Approved',
-  [ExternalTrainingApprovalAction.REJECTED]: 'Rejected',
-  [ExternalTrainingApprovalAction.CANCELLED]: 'Cancelled',
-  [ExternalTrainingApprovalAction.PAYMENT_CONFIRMED]: 'Payment Confirmed',
-  [ExternalTrainingApprovalAction.COMMITMENT_ACTIVATED]: 'Commitment Activated',
-  [ExternalTrainingApprovalAction.COMMITMENT_COMPLETED]: 'Commitment Completed',
+export const TrainingRequestStageLabel: Record<TrainingRequestStage, string> = {
+  [TrainingRequestStage.PENDING_APPROVAL]: 'Pending Approval',
+  [TrainingRequestStage.REJECTED]: 'Rejected',
+  [TrainingRequestStage.CANCELLED]: 'Cancelled',
+  [TrainingRequestStage.AWAITING_OUTCOME]: 'Awaiting Outcome',
+  [TrainingRequestStage.AWAITING_PAYMENT]: 'Awaiting Payment',
+  [TrainingRequestStage.AWAITING_CONFIRMATION]: 'Awaiting Confirmation',
+  [TrainingRequestStage.CONFIRMED]: 'Confirmed',
 };
 
-/** Progress fields the backend derives for every commitment it returns. */
-export interface TrainingCommitmentProgress {
-  totalDays: number;
-  daysElapsed: number;
-  daysRemaining: number;
-  progressPercentage: number;
-  isExpired: boolean;
-}
+export const TrainingRequestStageBadgeTheme: Record<
+  TrainingRequestStage,
+  StatusBadgeTheme
+> = {
+  [TrainingRequestStage.PENDING_APPROVAL]: StatusBadgeTheme.warning,
+  [TrainingRequestStage.REJECTED]: StatusBadgeTheme.danger,
+  [TrainingRequestStage.CANCELLED]: StatusBadgeTheme.secondary,
+  [TrainingRequestStage.AWAITING_OUTCOME]: StatusBadgeTheme.secondary,
+  [TrainingRequestStage.AWAITING_PAYMENT]: StatusBadgeTheme.warning,
+  [TrainingRequestStage.AWAITING_CONFIRMATION]: StatusBadgeTheme.warning,
+  [TrainingRequestStage.CONFIRMED]: StatusBadgeTheme.success,
+};
 
-export interface TrainingCommitment
-  extends DateInfo, Partial<TrainingCommitmentProgress> {
+export interface TrainingRequest extends DateInfo {
   id: string;
-  externalTrainingRequestId: string;
-  externalTrainingRequest?: ExternalTrainingRequest;
   userId: string;
-  departmentId: string | null;
-  startDate: string;
-  endDate: string;
-  durationDays: number;
-  status: TrainingCommitmentStatus;
-  completedAt: string | null;
-  remark: string | null;
   courseName: string | null;
-  cost: number | null;
+  amount: number;
   currencyId: string | null;
+  startDate: string | null;
+  /** Completion date when passed, failure date when failed. */
+  endDate: string | null;
+  /** Training provider / where the training came from. */
+  source: string | null;
+  reason: string | null;
+  description: string | null;
+  hasCompleted: boolean;
+  hasFailed: boolean;
+  /** Workflow the request is routed through in the shared approver service. */
+  approvalWorkflowId: string | null;
+  approvalStatus: TrainingRequestApprovalStatus;
+  isPaid: boolean;
+  certificatePath: string | null;
+  failureFilePath: string | null;
+  isConfirmed: boolean;
+  commitment?: UserTrainingCommitment | null;
   tenantId?: string;
 }
 
-export interface ExternalTrainingApproval extends DateInfo {
-  id: string;
-  externalTrainingRequestId: string;
-  stage: ExternalTrainingApprovalStage;
-  action: ExternalTrainingApprovalAction;
-  actedBy: string | null;
-  actedAt: string | null;
-  remark: string | null;
-  metadata: Record<string, any> | null;
-  tenantId?: string;
-}
-
-export interface ExternalTrainingRequest extends DateInfo {
-  id: string;
-  courseName: string;
-  cost: number;
-  currencyId: string | null;
-  trainingProvider: string | null;
-  courseLink: string | null;
-  businessJustification: string | null;
-  trainingNeedCategoryId: string | null;
-  trainingStartDate: string | null;
-  trainingEndDate: string | null;
-  requestedBy: string;
-  departmentId: string | null;
-  managerId: string | null;
-  status: ExternalTrainingStatus;
-  managerApprovedBy: string | null;
-  managerApprovedAt: string | null;
-  managerRemark: string | null;
-  tnaOfficerApprovedBy: string | null;
-  tnaOfficerApprovedAt: string | null;
-  tnaOfficerRemark: string | null;
-  isPaymentConfirmed: boolean;
-  paymentConfirmedAt: string | null;
-  paymentConfirmedBy: string | null;
-  paymentReference: string | null;
-  paidAmount: number | null;
-  commitmentPeriodDays: number | null;
-  commitmentStartDate: string | null;
-  commitmentEndDate: string | null;
-  rejectedAt: string | null;
-  rejectedBy: string | null;
-  rejectionReason: string | null;
-  commitment?: TrainingCommitment | null;
-  approvals?: ExternalTrainingApproval[];
-  tenantId?: string;
-}
-
-export interface ExternalTrainingRequestRecord {
-  items: ExternalTrainingRequest[];
+export interface TrainingRequestRecord {
+  items: TrainingRequest[];
   meta: Meta;
 }
 
-export interface ExternalTrainingEmployeeSummary {
-  userId: string;
-  requests: ExternalTrainingRequest[];
-  commitments: TrainingCommitment[];
-  activeCommitments: TrainingCommitment[];
-  completedCommitments: TrainingCommitment[];
-  stats: {
-    totalRequests: number;
-    pendingRequests: number;
-    approvedRequests: number;
-    rejectedRequests: number;
-    totalApprovedCost: number;
-    paymentsConfirmed: number;
-  };
-}
-
-export interface ExternalTrainingReportRow {
+export interface UserTrainingCommitment extends DateInfo {
   id: string;
-  courseName: string;
-  trainingProvider: string | null;
-  cost: number;
-  currencyId: string | null;
-  requestedBy: string;
-  departmentId: string | null;
-  managerId: string | null;
-  status: ExternalTrainingStatus;
-  requestedAt: string;
-  managerApprovedAt: string | null;
-  tnaOfficerApprovedAt: string | null;
-  isPaymentConfirmed: boolean;
-  paymentReference: string | null;
-  paidAmount: number | null;
-  commitmentStartDate: string | null;
-  commitmentEndDate: string | null;
-  commitmentStatus: TrainingCommitmentStatus | null;
-  commitmentProgress: number | null;
-  commitmentDaysRemaining: number | null;
-}
-
-export interface ExternalTrainingReport {
-  summary: {
-    totalRequests: number;
-    byStatus: Record<string, number>;
-    paymentsConfirmed: number;
-    paymentsPending: number;
-    totalRequestedCost: number;
-    totalPaidAmount: number;
-    activeCommitments: number;
-    completedCommitments: number;
-  };
-  rows: ExternalTrainingReportRow[];
-}
-
-export interface TnaOfficer extends DateInfo {
-  id: string;
+  commitmentConfigurationId: string | null;
+  commitmentConfiguration?: CommitmentConfiguration | null;
+  trainingRequestId: string;
+  trainingRequest?: TrainingRequest | null;
   userId: string;
-  isActive: boolean;
-  note: string | null;
+  startDate: string;
+  endDate: string;
+  daysLeft: number;
+  amountLeft: number;
+  completedCommitment: boolean;
   tenantId?: string;
 }
+
+export interface CommitmentConfiguration extends DateInfo {
+  id: string;
+  currencyId: string | null;
+  amountFrom: number;
+  /** Null when the band is open-ended — see `applyAboveAmount`. */
+  amountTo: number | null;
+  /** When true the band covers every amount at or above `amountFrom`. */
+  applyAboveAmount: boolean;
+  commitmentInDays: number;
+  tenantId?: string;
+}
+
+/** Human-readable band, e.g. "1,000 – 5,000" or "5,000 and above". */
+export const formatCommitmentBand = (
+  configuration?: Partial<CommitmentConfiguration> | null,
+): string => {
+  if (!configuration) return '-';
+
+  const from = Number(configuration.amountFrom ?? 0).toLocaleString();
+
+  if (
+    configuration.applyAboveAmount ||
+    configuration.amountTo === null ||
+    configuration.amountTo === undefined
+  ) {
+    return `${from} and above`;
+  }
+
+  return `${from} – ${Number(configuration.amountTo).toLocaleString()}`;
+};
+
+/**
+ * Reduces the request flags to the single stage worth showing. Order matters:
+ * a terminal approval outcome wins, then the outstanding pre-condition that
+ * blocks confirmation.
+ */
+export const getTrainingRequestStage = (
+  request?: Partial<TrainingRequest> | null,
+): TrainingRequestStage => {
+  if (!request) return TrainingRequestStage.PENDING_APPROVAL;
+
+  if (request.approvalStatus === TrainingRequestApprovalStatus.REJECTED) {
+    return TrainingRequestStage.REJECTED;
+  }
+  if (request.approvalStatus === TrainingRequestApprovalStatus.CANCELLED) {
+    return TrainingRequestStage.CANCELLED;
+  }
+  if (request.approvalStatus !== TrainingRequestApprovalStatus.APPROVED) {
+    return TrainingRequestStage.PENDING_APPROVAL;
+  }
+  if (request.isConfirmed) {
+    return TrainingRequestStage.CONFIRMED;
+  }
+  if (
+    !request.endDate ||
+    (!request.certificatePath && !request.failureFilePath)
+  ) {
+    return TrainingRequestStage.AWAITING_OUTCOME;
+  }
+  if (!request.isPaid) {
+    return TrainingRequestStage.AWAITING_PAYMENT;
+  }
+
+  return TrainingRequestStage.AWAITING_CONFIRMATION;
+};
+
+/** Mirrors the backend's `assertConfirmable` so the UI can gate the button. */
+export const isTrainingRequestConfirmable = (
+  request?: Partial<TrainingRequest> | null,
+): boolean =>
+  Boolean(
+    request &&
+    !request.isConfirmed &&
+    request.approvalStatus === TrainingRequestApprovalStatus.APPROVED &&
+    request.endDate &&
+    (request.certificatePath || request.failureFilePath) &&
+    request.isPaid,
+  );
+
+/** Share of the commitment already served, from the persisted counters. */
+export const getCommitmentProgress = (
+  commitment?: Partial<UserTrainingCommitment> | null,
+): number => {
+  if (!commitment) return 0;
+  if (commitment.completedCommitment) return 100;
+
+  const start = commitment.startDate
+    ? new Date(commitment.startDate).getTime()
+    : null;
+  const end = commitment.endDate
+    ? new Date(commitment.endDate).getTime()
+    : null;
+
+  if (start === null || end === null || end <= start) return 0;
+
+  const totalDays = Math.max(
+    1,
+    Math.round((end - start) / (24 * 60 * 60 * 1000)),
+  );
+  const daysLeft = Math.max(0, Number(commitment.daysLeft ?? 0));
+
+  return Math.min(
+    100,
+    Math.max(0, Math.round(((totalDays - daysLeft) / totalDays) * 100)),
+  );
+};

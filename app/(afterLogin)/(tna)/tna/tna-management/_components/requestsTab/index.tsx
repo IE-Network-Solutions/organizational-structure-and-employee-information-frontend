@@ -12,45 +12,39 @@ import { TableColumnsType } from '@/types/table/table';
 import { DATE_FORMAT } from '@/utils/constants';
 import { useDebounce } from '@/utils/useDebounce';
 import {
-  ExternalTrainingRequest,
-  ExternalTrainingStatus,
-  ExternalTrainingStatusBadgeTheme,
-  ExternalTrainingStatusLabel,
-  externalTrainingStatusOptions,
+  TrainingRequest,
+  TrainingRequestApprovalStatus,
+  TrainingRequestStageBadgeTheme,
+  TrainingRequestStageLabel,
+  getTrainingRequestStage,
+  trainingRequestApprovalStatusOptions,
 } from '@/types/tna/externalTna';
-import { ExternalTrainingRequestBody } from '@/store/server/features/tna/externalTraining/interface';
-import { useGetExternalTrainings } from '@/store/server/features/tna/externalTraining/queries';
+import { TrainingRequestBody } from '@/store/server/features/tna/externalTraining/interface';
+import { useGetTrainingRequests } from '@/store/server/features/tna/externalTraining/queries';
 import { useCurrency } from '@/store/server/features/tna/review/queries';
 import EmployeeName from '@/app/(afterLogin)/(tna)/tna/_components/employeeName';
-import ManagerDecisionModal from '@/app/(afterLogin)/(tna)/tna/_components/decisionModals/managerDecisionModal';
-import TnaOfficerDecisionModal from '@/app/(afterLogin)/(tna)/tna/_components/decisionModals/tnaOfficerDecisionModal';
 
 /**
- * Every external TNA request in the organisation, with search, status and date
- * filters plus the review actions the current user is allowed to take.
+ * Every training request in the organisation, with search, status and date
+ * filters. Actions live on the detail page where the full context is visible.
  */
 const RequestsTab: FC = () => {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
-  const [statuses, setStatuses] = useState<ExternalTrainingStatus[]>([]);
+  const [statuses, setStatuses] = useState<TrainingRequestApprovalStatus[]>([]);
   const [dateRange, setDateRange] = useState<{ from?: string; to?: string }>(
     {},
-  );
-  const [activeRequest, setActiveRequest] =
-    useState<ExternalTrainingRequest | null>(null);
-  const [openModal, setOpenModal] = useState<'manager' | 'officer' | null>(
-    null,
   );
 
   const { data: currencies } = useCurrency();
 
-  const filterBody: Partial<ExternalTrainingRequestBody> = useMemo(() => {
-    const body: Partial<ExternalTrainingRequestBody> = {};
-    const filter: ExternalTrainingRequestBody['filter'] = {};
+  const filterBody: Partial<TrainingRequestBody> = useMemo(() => {
+    const body: Partial<TrainingRequestBody> = {};
+    const filter: TrainingRequestBody['filter'] = {};
 
-    if (statuses.length) filter.status = statuses;
+    if (statuses.length) filter.approvalStatus = statuses;
     if (dateRange.from || dateRange.to) filter.createdAt = dateRange;
     if (Object.keys(filter).length) body.filter = filter;
     if (search.trim()) body.modifiers = { search: search.trim() };
@@ -58,7 +52,7 @@ const RequestsTab: FC = () => {
     return body;
   }, [statuses, dateRange, search]);
 
-  const { data, isLoading } = useGetExternalTrainings(
+  const { data, isLoading } = useGetTrainingRequests(
     { page, limit },
     filterBody,
   );
@@ -77,46 +71,40 @@ const RequestsTab: FC = () => {
     );
   };
 
-  const columns: TableColumnsType<ExternalTrainingRequest> = [
+  const columns: TableColumnsType<TrainingRequest> = [
     {
       title: 'Course',
       dataIndex: 'courseName',
       key: 'courseName',
-      render: (unusedValue: string, record: ExternalTrainingRequest) => {
-        void unusedValue;
-        return (
-          <div
-            className="flex flex-col"
-            data-cy={`tna-admin-request-course-${record.id}`}
+      render: (value: string, record: TrainingRequest) => (
+        <div data-cy="tna-admin-requests-course-cell" className="flex flex-col">
+          <span
+            data-cy="tna-admin-requests-course-name"
+            className="text-sm font-bold text-black"
           >
-            <span
-              data-cy="tna-admin-requests-course-name"
-              className="text-sm font-bold text-black"
-            >
-              {record.courseName}
-            </span>
-            <span
-              data-cy="tna-admin-requests-course-provider"
-              className="text-xs text-black/45"
-            >
-              {record.trainingProvider || 'External training'}
-            </span>
-          </div>
-        );
-      },
+            {value || 'Untitled training'}
+          </span>
+          <span
+            data-cy="tna-admin-requests-course-provider"
+            className="text-xs text-black/45"
+          >
+            {record.source || 'External training'}
+          </span>
+        </div>
+      ),
     },
     {
       title: 'Employee',
-      dataIndex: 'requestedBy',
-      key: 'requestedBy',
+      dataIndex: 'userId',
+      key: 'userId',
       render: (value: string) => <EmployeeName userId={value} />,
     },
     {
-      title: 'Cost',
-      dataIndex: 'cost',
-      key: 'cost',
-      render: (value: number, record: ExternalTrainingRequest) => (
-        <span data-cy={`tna-admin-request-cost-${record.id}`}>
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
+      render: (value: number, record: TrainingRequest) => (
+        <span data-cy={`tna-admin-requests-amount-${record.id}`}>
           {Number(value ?? 0).toLocaleString()}{' '}
           {currencyCode(record.currencyId)}
         </span>
@@ -130,25 +118,28 @@ const RequestsTab: FC = () => {
         value ? dayjs(value).format(DATE_FORMAT) : '-',
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (value: ExternalTrainingStatus) => (
-        <StatusBadge theme={ExternalTrainingStatusBadgeTheme[value]}>
-          {ExternalTrainingStatusLabel[value] ?? value}
-        </StatusBadge>
-      ),
+      title: 'Stage',
+      key: 'stage',
+      render: (unusedValue: unknown, record: TrainingRequest) => {
+        void unusedValue;
+        const stage = getTrainingRequestStage(record);
+        return (
+          <StatusBadge theme={TrainingRequestStageBadgeTheme[stage]}>
+            {TrainingRequestStageLabel[stage]}
+          </StatusBadge>
+        );
+      },
     },
     {
       title: 'Payment',
-      dataIndex: 'isPaymentConfirmed',
-      key: 'isPaymentConfirmed',
+      dataIndex: 'isPaid',
+      key: 'isPaid',
       render: (value: boolean) => (
         <span
           data-cy="tna-admin-requests-payment-state"
           className={value ? 'text-[#389E0D]' : 'text-[#AD8B00]'}
         >
-          {value ? 'Confirmed' : 'Pending'}
+          {value ? 'Paid' : 'Pending'}
         </span>
       ),
     },
@@ -156,10 +147,10 @@ const RequestsTab: FC = () => {
       title: 'Commitment',
       dataIndex: 'commitment',
       key: 'commitment',
-      render: (unusedValue: unknown, record: ExternalTrainingRequest) => {
+      render: (unusedValue: unknown, record: TrainingRequest) => {
         void unusedValue;
         const commitment = record.commitment;
-        if (!commitment)
+        if (!commitment) {
           return (
             <span
               data-cy="tna-admin-requests-commitment-empty"
@@ -168,10 +159,12 @@ const RequestsTab: FC = () => {
               -
             </span>
           );
+        }
         return (
-          <span data-cy={`tna-admin-request-commitment-${record.id}`}>
-            {commitment.progressPercentage ?? 0}% ·{' '}
-            {commitment.daysRemaining ?? 0} day(s) left
+          <span data-cy={`tna-admin-requests-commitment-${record.id}`}>
+            {commitment.completedCommitment
+              ? 'Served'
+              : `${commitment.daysLeft ?? 0} day(s) left`}
           </span>
         );
       },
@@ -179,38 +172,10 @@ const RequestsTab: FC = () => {
     {
       title: '',
       key: 'action',
-      render: (unusedValue: unknown, record: ExternalTrainingRequest) => {
+      render: (unusedValue: unknown, record: TrainingRequest) => {
         void unusedValue;
         return (
-          <Space data-cy={`tna-admin-request-actions-${record.id}`}>
-            {record.status === ExternalTrainingStatus.PENDING_MANAGER ? (
-              <Button
-                size="small"
-                type="link"
-                className="!px-0 !text-[#1E40AF]"
-                onClick={() => {
-                  setActiveRequest(record);
-                  setOpenModal('manager');
-                }}
-                data-cy={`tna-admin-request-manager-review-${record.id}`}
-              >
-                Manager review
-              </Button>
-            ) : null}
-            {record.status === ExternalTrainingStatus.PENDING_TNA_OFFICER ? (
-              <Button
-                size="small"
-                type="link"
-                className="!px-0 !text-[#1E40AF]"
-                onClick={() => {
-                  setActiveRequest(record);
-                  setOpenModal('officer');
-                }}
-                data-cy={`tna-admin-request-officer-review-${record.id}`}
-              >
-                Officer review
-              </Button>
-            ) : null}
+          <Space data-cy={`tna-admin-requests-actions-${record.id}`}>
             <Button
               size="small"
               type="link"
@@ -218,7 +183,7 @@ const RequestsTab: FC = () => {
               onClick={() =>
                 router.push(`/tna/management/external/${record.id}`)
               }
-              data-cy={`tna-admin-request-open-${record.id}`}
+              data-cy={`tna-admin-requests-open-${record.id}`}
             >
               Open
             </Button>
@@ -237,8 +202,8 @@ const RequestsTab: FC = () => {
         <Input
           allowClear
           prefix={<SearchOutlined className="text-black/45" />}
-          placeholder="Search course or provider"
-          className="h-10 w-full rounded-[6px] md:max-w-[320px]"
+          placeholder="Search course, provider or description"
+          className="h-10 w-full rounded-[6px] md:max-w-[340px]"
           onChange={(e) => onSearchChange(e.target.value)}
           data-cy="tna-admin-requests-search"
         />
@@ -246,9 +211,9 @@ const RequestsTab: FC = () => {
           <Select
             mode="multiple"
             allowClear
-            placeholder="Status"
+            placeholder="Approval status"
             className="min-w-[220px]"
-            options={externalTrainingStatusOptions}
+            options={trainingRequestApprovalStatusOptions}
             value={statuses}
             onChange={(value) => {
               setStatuses(value);
@@ -283,7 +248,7 @@ const RequestsTab: FC = () => {
       ) : !data?.items?.length ? (
         <EmptyState
           compact
-          title="No TNA requests found"
+          title="No training requests found"
           description="Adjust the filters, or wait for employees to submit requests."
           data-cy="tna-admin-requests-empty"
         />
@@ -313,17 +278,6 @@ const RequestsTab: FC = () => {
           />
         </>
       )}
-
-      <ManagerDecisionModal
-        open={openModal === 'manager'}
-        request={activeRequest}
-        onClose={() => setOpenModal(null)}
-      />
-      <TnaOfficerDecisionModal
-        open={openModal === 'officer'}
-        request={activeRequest}
-        onClose={() => setOpenModal(null)}
-      />
     </div>
   );
 };

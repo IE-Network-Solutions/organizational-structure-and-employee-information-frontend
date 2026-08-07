@@ -14,63 +14,63 @@ import { AiOutlineDollarCircle } from 'react-icons/ai';
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { formatToOptions } from '@/helpers/formatTo';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useGetTnaCategory } from '@/store/server/features/tna/category/queries';
 import { useCurrency } from '@/store/server/features/tna/review/queries';
-import { useGetExternalTrainingById } from '@/store/server/features/tna/externalTraining/queries';
-import { useSetExternalTraining } from '@/store/server/features/tna/externalTraining/mutation';
-import { ExternalTrainingStatus } from '@/types/tna/externalTna';
+import { useGetTrainingRequestById } from '@/store/server/features/tna/externalTraining/queries';
+import { useSetTrainingRequest } from '@/store/server/features/tna/externalTraining/mutation';
+import { TrainingRequestApprovalStatus } from '@/types/tna/externalTna';
+import { useAllApproval } from '@/store/server/features/approver/queries';
+import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
+import { APPROVALTYPES } from '@/types/enumTypes';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 interface ExternalTnaFormProps {
-  externalTrainingId?: string | null;
+  trainingRequestId?: string | null;
   onClose: () => void;
 }
 
 /**
  * Free-text request for a training that is not in the course catalogue. Only
- * the course name and cost are mandatory; the rest helps the manager and the
- * TNA Officer decide.
+ * the course name and cost are mandatory; the rest is context for the approver.
  */
 const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
-  externalTrainingId,
+  trainingRequestId,
   onClose,
 }) => {
   const [form] = Form.useForm();
   const { userId } = useAuthenticationStore();
 
-  const { data: employeeData } = useGetEmployee(userId);
-  const { data: departmentData } = useGetDepartments();
   const { data: currencies } = useCurrency();
-  const { data: tnaCategoryData } = useGetTnaCategory({});
-  const { data: existingRequest, isFetching } = useGetExternalTrainingById(
-    externalTrainingId ?? '',
-    !!externalTrainingId,
+  const { data: existingRequest, isFetching } = useGetTrainingRequestById(
+    trainingRequestId ?? '',
+    !!trainingRequestId,
   );
 
-  const { mutate: saveExternalTraining, isLoading } = useSetExternalTraining();
+  const { mutate: saveTrainingRequest, isLoading } = useSetTrainingRequest();
 
-  const managerId = useMemo(
+  // The approver service resolves a workflow either per-user or per-department;
+  // whichever it returns first is the one the request gets routed through.
+  const { data: employeeData } = useGetEmployee(userId ?? '');
+  const departmentId =
+    employeeData?.employeeJobInformation?.[0]?.departmentId ?? '';
+
+  const { data: userApprovalData, refetch: refetchUserApproval } =
+    useAllApproval(userId ?? '', APPROVALTYPES.TNA);
+  const { data: departmentApprovalData, refetch: refetchDepartmentApproval } =
+    useAllApproval(departmentId, APPROVALTYPES.TNA);
+
+  useEffect(() => {
+    if (userId) refetchUserApproval();
+  }, [userId, refetchUserApproval]);
+
+  useEffect(() => {
+    if (departmentId) refetchDepartmentApproval();
+  }, [departmentId, refetchDepartmentApproval]);
+
+  const resolvedWorkflowId = useMemo(
     () =>
-      employeeData?.delegatedTo?.id ??
-      employeeData?.reportingTo?.id ??
-      employeeData?.employeeJobInformation?.[0]?.reportingToId ??
-      null,
-    [employeeData],
+      userApprovalData?.[0]?.id ?? departmentApprovalData?.[0]?.id ?? undefined,
+    [userApprovalData, departmentApprovalData],
   );
-
-  const managerName = useMemo(() => {
-    const manager = employeeData?.delegatedTo ?? employeeData?.reportingTo;
-    if (!manager) return null;
-    return (
-      [manager.firstName, manager.middleName, manager.lastName]
-        .filter(Boolean)
-        .join(' ') || null
-    );
-  }, [employeeData]);
-
-  const defaultDepartmentId =
-    employeeData?.employeeJobInformation?.[0]?.departmentId ?? undefined;
 
   const currencyOptions = useMemo(() => {
     const list = Array.isArray(currencies)
@@ -80,58 +80,53 @@ const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
   }, [currencies]);
 
   const isRejected =
-    existingRequest?.status === ExternalTrainingStatus.REJECTED;
+    existingRequest?.approvalStatus === TrainingRequestApprovalStatus.REJECTED;
 
   useEffect(() => {
-    if (externalTrainingId && existingRequest) {
+    if (trainingRequestId && existingRequest) {
       form.setFieldsValue({
-        courseName: existingRequest.courseName,
-        cost: existingRequest.cost,
+        courseName: existingRequest.courseName ?? undefined,
+        amount: existingRequest.amount,
         currencyId: existingRequest.currencyId ?? undefined,
-        trainingProvider: existingRequest.trainingProvider ?? undefined,
-        courseLink: existingRequest.courseLink ?? undefined,
-        trainingNeedCategoryId:
-          existingRequest.trainingNeedCategoryId ?? undefined,
-        departmentId: existingRequest.departmentId ?? defaultDepartmentId,
-        businessJustification:
-          existingRequest.businessJustification ?? undefined,
-        trainingPeriod:
-          existingRequest.trainingStartDate && existingRequest.trainingEndDate
-            ? [
-                dayjs(existingRequest.trainingStartDate),
-                dayjs(existingRequest.trainingEndDate),
-              ]
-            : undefined,
+        source: existingRequest.source ?? undefined,
+        reason: existingRequest.reason ?? undefined,
+        description: existingRequest.description ?? undefined,
+        startDate: existingRequest.startDate
+          ? dayjs(existingRequest.startDate)
+          : undefined,
       });
-    } else if (!externalTrainingId) {
+    } else if (!trainingRequestId) {
       form.resetFields();
-      form.setFieldsValue({ departmentId: defaultDepartmentId });
     }
-  }, [externalTrainingId, existingRequest, defaultDepartmentId, form]);
+  }, [trainingRequestId, existingRequest, form]);
 
   const onFinish = () => {
     const value = form.getFieldsValue();
-    const [start, end] = value.trainingPeriod ?? [];
+    const approvalWorkflowId =
+      existingRequest?.approvalWorkflowId ?? resolvedWorkflowId;
 
-    saveExternalTraining(
-      [
-        {
-          ...(externalTrainingId ? { id: externalTrainingId } : {}),
-          courseName: value.courseName?.trim(),
-          cost: Number(value.cost),
-          currencyId: value.currencyId ?? null,
-          trainingProvider: value.trainingProvider?.trim() || null,
-          courseLink: value.courseLink?.trim() || null,
-          businessJustification: value.businessJustification?.trim() || null,
-          trainingNeedCategoryId: value.trainingNeedCategoryId ?? null,
-          trainingStartDate: start ? start.toISOString() : null,
-          trainingEndDate: end ? end.toISOString() : null,
-          requestedBy: existingRequest?.requestedBy ?? userId ?? undefined,
-          departmentId: value.departmentId ?? null,
-          managerId: existingRequest?.managerId ?? managerId,
-          ...(isRejected ? { resubmit: true } : {}),
-        },
-      ],
+    if (!approvalWorkflowId) {
+      NotificationMessage.warning({
+        message: 'No approver assigned',
+        description:
+          'You have no TNA approval workflow assigned. Ask HR to set one up under Learning & Growth settings.',
+      });
+      return;
+    }
+
+    saveTrainingRequest(
+      {
+        ...(trainingRequestId ? { id: trainingRequestId } : {}),
+        userId: existingRequest?.userId ?? userId ?? '',
+        courseName: value.courseName?.trim(),
+        amount: Number(value.amount),
+        currencyId: value.currencyId || undefined,
+        approvalWorkflowId,
+        startDate: value.startDate ? value.startDate.toISOString() : undefined,
+        source: value.source?.trim() || undefined,
+        reason: value.reason?.trim() || undefined,
+        description: value.description?.trim() || undefined,
+      },
       { onSuccess: () => onClose() },
     );
   };
@@ -149,17 +144,6 @@ const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
           className="box-border w-full max-w-full rounded-[8px] border border-[#D9D9D9] p-4 md:w-[607px]"
           data-cy="tna-external-form-frame"
         >
-          {!managerId && !externalTrainingId ? (
-            <Alert
-              type="warning"
-              showIcon
-              className="mb-4"
-              message="No direct manager on file"
-              description="Your request will go straight to the TNA Officer queue once a manager is assigned. Contact HR if this looks wrong."
-              data-cy="tna-external-form-no-manager-alert"
-            />
-          ) : null}
-
           {isRejected ? (
             <Alert
               type="info"
@@ -167,9 +151,9 @@ const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
               className="mb-4"
               message="This request was rejected"
               description={
-                existingRequest?.rejectionReason
-                  ? `Reason: ${existingRequest.rejectionReason}. Saving will resubmit it to your manager.`
-                  : 'Saving will resubmit it to your manager.'
+                existingRequest?.reason
+                  ? `Reason: ${existingRequest.reason}`
+                  : 'Update the details and save to have it reviewed again.'
               }
               data-cy="tna-external-form-rejected-alert"
             />
@@ -212,10 +196,10 @@ const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
               data-cy="tna-external-form-cost-row"
             >
               <Form.Item
-                name="cost"
+                name="amount"
                 label={
                   <span
-                    data-cy="tna-external-form-cost-label"
+                    data-cy="tna-external-form-amount-label"
                     className="text-[14px] font-normal"
                   >
                     Cost
@@ -223,15 +207,15 @@ const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
                 }
                 rules={[{ required: true, message: 'Required' }]}
                 className="form-item"
-                data-cy="tna-external-form-cost-item"
+                data-cy="tna-external-form-amount-item"
               >
                 <InputNumber
                   min={0}
                   className="control-number h-10 w-full"
                   suffix={<AiOutlineDollarCircle />}
                   placeholder="0.00"
-                  id="tnaExternalCostFieldId"
-                  data-cy="tna-external-form-cost"
+                  id="tnaExternalAmountFieldId"
+                  data-cy="tna-external-form-amount"
                 />
               </Form.Item>
 
@@ -259,143 +243,93 @@ const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
               </Form.Item>
             </div>
 
-            <Form.Item
-              name="trainingProvider"
-              label={
-                <span
-                  data-cy="tna-external-form-provider-label"
-                  className="text-[14px] font-normal"
-                >
-                  Training provider
-                </span>
-              }
-              className="form-item"
-              data-cy="tna-external-form-provider-item"
-            >
-              <Input
-                className="h-[40px] rounded-[6px]"
-                placeholder="Institution or vendor (optional)"
-                id="tnaExternalProviderFieldId"
-                data-cy="tna-external-form-provider"
-              />
-            </Form.Item>
-
-            <Form.Item
-              name="courseLink"
-              label={
-                <span
-                  data-cy="tna-external-form-link-label"
-                  className="text-[14px] font-normal"
-                >
-                  Course link
-                </span>
-              }
-              rules={[{ type: 'url', message: 'Enter a valid URL' }]}
-              className="form-item"
-              data-cy="tna-external-form-link-item"
-            >
-              <Input
-                className="h-[40px] rounded-[6px]"
-                placeholder="https://... (optional)"
-                id="tnaExternalLinkFieldId"
-                data-cy="tna-external-form-link"
-              />
-            </Form.Item>
-
             <div
               className="grid grid-cols-1 gap-x-4 md:grid-cols-2"
               data-cy="tna-external-form-meta-row"
             >
               <Form.Item
-                name="trainingNeedCategoryId"
+                name="source"
                 label={
                   <span
-                    data-cy="tna-external-form-category-label"
+                    data-cy="tna-external-form-source-label"
                     className="text-[14px] font-normal"
                   >
-                    Training category
+                    Training provider
                   </span>
                 }
                 className="form-item"
-                data-cy="tna-external-form-category-item"
+                data-cy="tna-external-form-source-item"
               >
-                <Select
-                  className="h-[40px] [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!rounded-[8px]"
-                  placeholder="Select category"
-                  allowClear
-                  options={formatToOptions(
-                    tnaCategoryData?.items ?? [],
-                    'name',
-                    'id',
-                  )}
-                  id="tnaExternalCategoryFieldId"
-                  data-cy="tna-external-form-category"
+                <Input
+                  className="h-[40px] rounded-[6px]"
+                  placeholder="Institution or vendor (optional)"
+                  id="tnaExternalSourceFieldId"
+                  data-cy="tna-external-form-source"
                 />
               </Form.Item>
 
               <Form.Item
-                name="departmentId"
+                name="startDate"
                 label={
                   <span
-                    data-cy="tna-external-form-department-label"
+                    data-cy="tna-external-form-start-label"
                     className="text-[14px] font-normal"
                   >
-                    Department
+                    Training start date
                   </span>
                 }
                 className="form-item"
-                data-cy="tna-external-form-department-item"
+                data-cy="tna-external-form-start-item"
               >
-                <Select
-                  className="h-[40px] [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!rounded-[8px]"
-                  placeholder="Select department"
-                  allowClear
-                  options={formatToOptions(departmentData ?? [], 'name', 'id')}
-                  id="tnaExternalDepartmentFieldId"
-                  data-cy="tna-external-form-department"
+                <DatePicker
+                  className="h-10 w-full rounded-[6px]"
+                  id="tnaExternalStartFieldId"
+                  data-cy="tna-external-form-start"
                 />
               </Form.Item>
             </div>
 
             <Form.Item
-              name="trainingPeriod"
+              name="reason"
               label={
                 <span
-                  data-cy="tna-external-form-period-label"
+                  data-cy="tna-external-form-reason-label"
                   className="text-[14px] font-normal"
                 >
-                  Training period
+                  Reason
                 </span>
               }
               className="form-item"
-              data-cy="tna-external-form-period-item"
+              data-cy="tna-external-form-reason-item"
             >
-              <DatePicker.RangePicker
-                className="h-10 w-full rounded-[6px]"
-                id="tnaExternalPeriodFieldId"
-                data-cy="tna-external-form-period"
+              <Input
+                className="h-[40px] rounded-[6px]"
+                placeholder="Why this training is needed (optional)"
+                maxLength={255}
+                id="tnaExternalReasonFieldId"
+                data-cy="tna-external-form-reason"
               />
             </Form.Item>
 
             <Form.Item
-              name="businessJustification"
+              name="description"
               label={
                 <span
-                  data-cy="tna-external-form-justification-label"
+                  data-cy="tna-external-form-description-label"
                   className="text-[14px] font-normal"
                 >
-                  Business justification
+                  Description
                 </span>
               }
               className="form-item"
-              data-cy="tna-external-form-justification-item"
+              data-cy="tna-external-form-description-item"
             >
               <Input.TextArea
                 rows={3}
                 className="min-h-[72px] rounded-[6px]"
-                placeholder="Why does the business need this training? (optional)"
-                id="tnaExternalJustificationFieldId"
-                data-cy="tna-external-form-justification"
+                placeholder="Business justification or extra detail (optional)"
+                id="tnaExternalDescriptionFieldId"
+                data-cy="tna-external-form-description"
               />
             </Form.Item>
 
@@ -403,9 +337,9 @@ const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
               className="rounded-[6px] bg-black/[0.02] px-3 py-2 text-xs leading-5 text-black/45"
               data-cy="tna-external-form-workflow-hint"
             >
-              Approval flow:{' '}
-              {managerName ? `${managerName} (Manager)` : 'Manager'} &rarr; TNA
-              Officer (confirms payment and sets your commitment period).
+              {resolvedWorkflowId || existingRequest?.approvalWorkflowId
+                ? 'Your request goes to your assigned TNA approvers. After approval, upload your certificate (or failure proof) and record the end date. Once payment is recorded, a TNA Officer confirms it and your commitment period begins.'
+                : 'No TNA approval workflow is assigned to you yet. Ask HR to configure one before submitting.'}
             </div>
           </Form>
         </div>
@@ -431,11 +365,7 @@ const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
           onClick={() => form.submit()}
           data-cy="tna-external-form-submit"
         >
-          {externalTrainingId
-            ? isRejected
-              ? 'Resubmit'
-              : 'Save'
-            : 'Submit Request'}
+          {trainingRequestId ? 'Save' : 'Submit Request'}
         </Button>
       </div>
     </div>

@@ -1,25 +1,19 @@
 import { create, StateCreator } from 'zustand';
 import { TnaSourceType } from '@/types/tna/externalTna';
-import { ExternalTrainingRequest } from '@/types/tna/externalTna';
 
 type ExternalTrainingState = {
   /** Which tab the "New Course / New TNA" modal opens on. */
   createModalTab: TnaSourceType;
   /** Internal / External / all filter on the Learning Management grid. */
   sourceTypeFilter: TnaSourceType | null;
-  externalTrainingId: string | null;
-  isShowManagerDecisionModal: boolean;
-  isShowTnaOfficerDecisionModal: boolean;
-  activeRequest: ExternalTrainingRequest | null;
+  /** Training request being edited in the modal, if any. */
+  trainingRequestId: string | null;
 };
 
 type ExternalTrainingAction = {
   setCreateModalTab: (createModalTab: TnaSourceType) => void;
   setSourceTypeFilter: (sourceTypeFilter: TnaSourceType | null) => void;
-  setExternalTrainingId: (externalTrainingId: string | null) => void;
-  setIsShowManagerDecisionModal: (isShow: boolean) => void;
-  setIsShowTnaOfficerDecisionModal: (isShow: boolean) => void;
-  setActiveRequest: (activeRequest: ExternalTrainingRequest | null) => void;
+  setTrainingRequestId: (trainingRequestId: string | null) => void;
   resetExternalTrainingState: () => void;
 };
 
@@ -32,27 +26,10 @@ const externalTrainingSlice: StateCreator<
   sourceTypeFilter: null,
   setSourceTypeFilter: (sourceTypeFilter) => set({ sourceTypeFilter }),
 
-  externalTrainingId: null,
-  setExternalTrainingId: (externalTrainingId) => set({ externalTrainingId }),
+  trainingRequestId: null,
+  setTrainingRequestId: (trainingRequestId) => set({ trainingRequestId }),
 
-  isShowManagerDecisionModal: false,
-  setIsShowManagerDecisionModal: (isShowManagerDecisionModal) =>
-    set({ isShowManagerDecisionModal }),
-
-  isShowTnaOfficerDecisionModal: false,
-  setIsShowTnaOfficerDecisionModal: (isShowTnaOfficerDecisionModal) =>
-    set({ isShowTnaOfficerDecisionModal }),
-
-  activeRequest: null,
-  setActiveRequest: (activeRequest) => set({ activeRequest }),
-
-  resetExternalTrainingState: () =>
-    set({
-      externalTrainingId: null,
-      isShowManagerDecisionModal: false,
-      isShowTnaOfficerDecisionModal: false,
-      activeRequest: null,
-    }),
+  resetExternalTrainingState: () => set({ trainingRequestId: null }),
 });
 
 export const useExternalTrainingStore = create<

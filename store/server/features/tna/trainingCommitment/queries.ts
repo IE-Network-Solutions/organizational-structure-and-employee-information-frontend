@@ -4,19 +4,16 @@ import { requestHeader } from '@/helpers/requestHeader';
 import { useQuery } from 'react-query';
 import { ApiResponse } from '@/types/commons/responseTypes';
 import { RequestCommonQueryData } from '@/types/commons/requesTypes';
-import {
-  TrainingCommitment,
-  TrainingCommitmentStatus,
-} from '@/types/tna/externalTna';
-import { TrainingCommitmentRequestBody } from '@/store/server/features/tna/externalTraining/interface';
+import { UserTrainingCommitment } from '@/types/tna/externalTna';
+import { UserTrainingCommitmentBody } from '@/store/server/features/tna/externalTraining/interface';
 
-const getTrainingCommitments = async (
+const getUserTrainingCommitments = async (
   query: Partial<RequestCommonQueryData>,
-  data: Partial<TrainingCommitmentRequestBody>,
+  data: Partial<UserTrainingCommitmentBody>,
 ) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TNA_URL}/training-commitment`,
+    url: `${TNA_URL}/user-training-commitment`,
     method: 'POST',
     headers: requestHeaders,
     data,
@@ -24,99 +21,54 @@ const getTrainingCommitments = async (
   });
 };
 
-const getTrainingCommitmentsByUser = async (
-  userId: string,
-  status?: TrainingCommitmentStatus,
-) => {
+const getActiveCommitmentsByUser = async (userId: string) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TNA_URL}/training-commitment/by-user/${userId}`,
-    method: 'GET',
-    headers: requestHeaders,
-    ...(status ? { params: { status } } : {}),
-  });
-};
-
-const getActiveTrainingCommitmentsByUser = async (userId: string) => {
-  const requestHeaders = await requestHeader();
-  return await crudRequest({
-    url: `${TNA_URL}/training-commitment/active/by-user/${userId}`,
+    url: `${TNA_URL}/user-training-commitment/active/by-user/${userId}`,
     method: 'GET',
     headers: requestHeaders,
   });
 };
 
-const getTrainingCommitmentById = async (id: string) => {
+const getUserTrainingCommitmentById = async (id: string) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
-    url: `${TNA_URL}/training-commitment/${id}`,
+    url: `${TNA_URL}/user-training-commitment/${id}`,
     method: 'GET',
     headers: requestHeaders,
   });
 };
 
-const getTrainingCommitmentByRequest = async (requestId: string) => {
-  const requestHeaders = await requestHeader();
-  return await crudRequest({
-    url: `${TNA_URL}/training-commitment/by-request/${requestId}`,
-    method: 'GET',
-    headers: requestHeaders,
-  });
-};
-
-export const useGetTrainingCommitments = (
+export const useGetUserTrainingCommitments = (
   query: Partial<RequestCommonQueryData> = {},
-  data: Partial<TrainingCommitmentRequestBody> = {},
+  data: Partial<UserTrainingCommitmentBody> = {},
   isEnabled: boolean = true,
 ) => {
-  return useQuery<ApiResponse<TrainingCommitment>>(
-    ['training-commitment', query, data],
-    () => getTrainingCommitments(query, data),
+  return useQuery<ApiResponse<UserTrainingCommitment>>(
+    ['user-training-commitment', query, data],
+    () => getUserTrainingCommitments(query, data),
     { keepPreviousData: true, enabled: isEnabled },
   );
 };
 
-export const useGetTrainingCommitmentsByUser = (
-  userId: string,
-  status?: TrainingCommitmentStatus,
-  isEnabled: boolean = true,
-) => {
-  return useQuery<TrainingCommitment[]>(
-    ['training-commitment-by-user', userId, status],
-    () => getTrainingCommitmentsByUser(userId, status),
-    { enabled: isEnabled && !!userId, keepPreviousData: true },
-  );
-};
-
-export const useGetActiveTrainingCommitmentsByUser = (
+export const useGetActiveCommitmentsByUser = (
   userId: string,
   isEnabled: boolean = true,
 ) => {
-  return useQuery<TrainingCommitment[]>(
-    ['training-commitment-by-user', userId, 'active'],
-    () => getActiveTrainingCommitmentsByUser(userId),
-    { enabled: isEnabled && !!userId, keepPreviousData: true },
+  return useQuery<UserTrainingCommitment[]>(
+    ['user-training-commitment-active', userId],
+    () => getActiveCommitmentsByUser(userId),
+    { keepPreviousData: true, enabled: isEnabled && !!userId },
   );
 };
 
-export const useGetTrainingCommitmentById = (
+export const useGetUserTrainingCommitmentById = (
   id: string,
   isEnabled: boolean = true,
 ) => {
-  return useQuery<TrainingCommitment>(
-    ['training-commitment-detail', id],
-    () => getTrainingCommitmentById(id),
+  return useQuery<UserTrainingCommitment>(
+    ['user-training-commitment-detail', id],
+    () => getUserTrainingCommitmentById(id),
     { enabled: isEnabled && !!id },
-  );
-};
-
-export const useGetTrainingCommitmentByRequest = (
-  requestId: string,
-  isEnabled: boolean = true,
-) => {
-  return useQuery<TrainingCommitment | null>(
-    ['training-commitment-detail', 'by-request', requestId],
-    () => getTrainingCommitmentByRequest(requestId),
-    { enabled: isEnabled && !!requestId },
   );
 };
