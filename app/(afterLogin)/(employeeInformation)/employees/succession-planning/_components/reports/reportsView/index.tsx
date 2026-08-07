@@ -8,20 +8,20 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import type { CriticalRole } from '../criticalRoleModal';
+import type { CriticalRole } from '../../criticalRoleModal';
 import {
   gapSeverityColor,
   importanceColor,
   readinessColor,
-} from '../tagColors';
+} from '../../tagColors';
 import type {
   CompetencyImportance,
-} from '../steps/stepCompetencyDefinition';
+} from '../../steps/stepCompetencyDefinition';
 import type {
   GapSeverity,
   SuccessorReadiness,
-} from '../successionTypes';
-import { exportSuccessionReport } from './exportReports';
+} from '../../successionTypes';
+import { exportSuccessionReport } from '../exportReports';
 import {
   buildDevelopmentPlanProgressRows,
   buildSkillGapAnalysisRows,
@@ -31,7 +31,7 @@ import {
   type IdpReportRow,
   type ReadinessReportRow,
   type SuccessionReportKey,
-} from './reportData';
+} from '../reportData';
 
 const headerClass = 'text-[#4d4d4d] text-base font-bold whitespace-nowrap';
 const cellClass = 'text-sm text-[#4d4d4d]';
