@@ -13,6 +13,7 @@ import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CriticalRole } from '../criticalRoleModal';
 import { priorityColor } from '../tagColors';
+import { roleSuccessorCount } from '../successionKpis';
 
 interface CriticalRolesTableProps {
   roles: CriticalRole[];
@@ -143,7 +144,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
           >
             <PeopleAltOutlinedIcon fontSize="small" className="text-gray-400" />
             <span>
-              {record.successors?.length ?? record.successorCount ?? 0}
+              {roleSuccessorCount(record)}
             </span>
           </div>
         ),

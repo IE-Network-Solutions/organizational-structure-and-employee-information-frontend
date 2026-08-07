@@ -736,6 +736,45 @@ const RAW_ROLES: CriticalRole[] = [
       },
     ],
   },
+  {
+    id: '6',
+    positionId: 'pos-5',
+    roleName: 'Head of Product',
+    department: 'Product',
+    priority: 'High',
+    riskLevel: 'Medium',
+    successorCount: 0,
+    notes: 'Critical product leadership role — successors not yet nominated.',
+    requiredEducationLevel: 'Bachelor',
+    requiredEducationField: 'Any',
+    requiredRelevantExperience: 8,
+    requiredCurrentPositionIds: ['pos-19', 'pos-18'],
+    requiredCurrentPositions: [
+      'Senior Product Manager',
+      'Product Manager',
+    ],
+    competencies: [
+      {
+        name: 'Product strategy',
+        category: 'Knowledge',
+        importance: 'Required',
+        weight: 40,
+      },
+      {
+        name: 'Stakeholder alignment',
+        category: 'Behavior',
+        importance: 'Required',
+        weight: 35,
+      },
+      {
+        name: 'Delivery ownership',
+        category: 'Experience',
+        importance: 'Preferred',
+        weight: 25,
+      },
+    ],
+    successors: [],
+  },
 ];
 
 const seedDemoExtras = (
@@ -876,6 +915,7 @@ const enrichRoles = (roles: CriticalRole[]): CriticalRole[] =>
       requiredRelevantExperience,
       requiredCurrentPositionIds,
       requiredCurrentPositions,
+      successorCount: (role.successors ?? []).length,
       successors: (role.successors ?? []).map((successor) => {
         const mock = MOCK_EMPLOYEES.find((e) => e.id === successor.id);
         const educationLevel =
@@ -1106,8 +1146,7 @@ export const useSuccessionPlanningStore = create<SuccessionPlanningStore>(
           ),
         developmentActions: successor.developmentActions ?? [],
       }));
-      const successorCount =
-        values.successorCount ?? successors.length ?? 0;
+      const successorCount = successors.length;
       const id = String(get().nextId);
       const newRole: CriticalRole = {
         ...values,

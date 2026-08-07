@@ -41,6 +41,10 @@ import {
   buildSuccessorReadinessRows,
   type SuccessionReportKey,
 } from './_components/reports/reportData';
+import {
+  computeCriticalRoleKpis,
+  computeEvaluatorKpis,
+} from './_components/successionKpis';
 import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -85,24 +89,13 @@ const SuccessionPlanningPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<CriticalRole | null>(null);
 
-  const totalRoles = roles.length;
-  const positionsWithSuccessors = roles.filter(
-    (r) => (r.successors?.length ?? 0) >= 1,
-  ).length;
-  const positionsWithoutSuccessors = roles.filter(
-    (r) => (r.successors?.length ?? 0) === 0,
-  ).length;
-  const allSuccessors = roles.flatMap((r) => r.successors ?? []);
-  const readyNowCount = allSuccessors.filter(
-    (s) => s.readiness === 'Ready Now',
-  ).length;
-  const readyWithinOneYearCount = allSuccessors.filter(
-    (s) => s.readiness === 'Ready within 1 Year',
-  ).length;
-  const successionCoveragePercent =
-    totalRoles > 0
-      ? Math.round((positionsWithSuccessors / totalRoles) * 100)
-      : 0;
+  const {
+    positionsWithSuccessors,
+    positionsWithoutSuccessors,
+    readyNowCount,
+    readyWithinOneYearCount,
+    successionCoveragePercent,
+  } = useMemo(() => computeCriticalRoleKpis(roles), [roles]);
 
   const evaluatorAssignments = useMemo(
     () => buildEvaluatorAssignments(roles),
@@ -142,16 +135,15 @@ const SuccessionPlanningPage: React.FC = () => {
     () => new Set(scopedAssignments.map((a) => a.evaluatorId)).size,
     [scopedAssignments],
   );
-  const pendingEvaluationCount = scopedAssignments.filter(
-    (a) => a.status === 'Pending',
-  ).length;
-  const completedEvaluationCount = scopedAssignments.filter(
-    (a) => a.status === 'Evaluated',
-  ).length;
-  const evaluationCompletionPercent =
-    scopedAssignments.length > 0
-      ? Math.round((completedEvaluationCount / scopedAssignments.length) * 100)
-      : 0;
+  const {
+    pendingEvaluationCount,
+    completedEvaluationCount,
+    evaluationCompletionPercent,
+    sessionCount: evaluatorSessionCount,
+  } = useMemo(
+    () => computeEvaluatorKpis(scopedAssignments),
+    [scopedAssignments],
+  );
 
   const syncEvaluatorsUrl = (
     scope: EvaluatorScope,
@@ -581,7 +573,7 @@ const SuccessionPlanningPage: React.FC = () => {
                   }
                   value={
                     evaluatorScope === 'mine'
-                      ? scopedAssignments.length
+                      ? evaluatorSessionCount
                       : uniqueEvaluatorCount
                   }
                   id="sp-stats-evaluators"
@@ -609,7 +601,7 @@ const SuccessionPlanningPage: React.FC = () => {
                   value={
                     evaluatorScope === 'mine'
                       ? completedEvaluationCount
-                      : scopedAssignments.length
+                      : evaluatorSessionCount
                   }
                   id="sp-stats-assignments"
                   data-cy="sp-stats-assignments"
