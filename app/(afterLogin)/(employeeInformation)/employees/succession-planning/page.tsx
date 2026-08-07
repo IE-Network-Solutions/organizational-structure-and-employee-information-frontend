@@ -15,12 +15,15 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { SearchOutlined } from '@ant-design/icons';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
-import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
-import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
+import PersonOffOutlinedIcon from '@mui/icons-material/PersonOffOutlined';
+import BoltOutlinedIcon from '@mui/icons-material/BoltOutlined';
+import ScheduleOutlinedIcon from '@mui/icons-material/ScheduleOutlined';
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import StatsCard from '../manage-employees/_components/statsCard';
 import CriticalRolesTable from './_components/criticalRolesTable';
@@ -31,6 +34,12 @@ import EvaluatorsView, {
 import CriticalRoleModal, {
   CriticalRole,
 } from './_components/criticalRoleModal';
+import {
+  exportDevelopmentPlanProgressReport,
+  exportSkillGapAnalysisReport,
+  exportSuccessorReadinessReport,
+} from './_components/reports/exportReports';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -64,12 +73,23 @@ const SuccessionPlanningPage: React.FC = () => {
   const [editingRole, setEditingRole] = useState<CriticalRole | null>(null);
 
   const totalRoles = roles.length;
-  const highRiskCount = roles.filter((r) => r.riskLevel === 'High').length;
-  const rolesWithCompetencies = roles.filter(
-    (r) => (r.competencies?.length ?? 0) > 0,
+  const positionsWithSuccessors = roles.filter(
+    (r) => (r.successors?.length ?? 0) >= 1,
   ).length;
-  const coveragePercent =
-    totalRoles > 0 ? Math.round((rolesWithCompetencies / totalRoles) * 100) : 0;
+  const positionsWithoutSuccessors = roles.filter(
+    (r) => (r.successors?.length ?? 0) === 0,
+  ).length;
+  const allSuccessors = roles.flatMap((r) => r.successors ?? []);
+  const readyNowCount = allSuccessors.filter(
+    (s) => s.readiness === 'Ready Now',
+  ).length;
+  const readyWithinOneYearCount = allSuccessors.filter(
+    (s) => s.readiness === 'Ready within 1 Year',
+  ).length;
+  const successionCoveragePercent =
+    totalRoles > 0
+      ? Math.round((positionsWithSuccessors / totalRoles) * 100)
+      : 0;
 
   const evaluatorAssignments = useMemo(
     () => buildEvaluatorAssignments(roles),
@@ -329,6 +349,76 @@ const SuccessionPlanningPage: React.FC = () => {
                 ]}
                 data-cy="succession-planning-view-selector"
               />
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'readiness',
+                      label: 'Successor Readiness Report',
+                      onClick: async () => {
+                        try {
+                          await exportSuccessorReadinessReport(roles);
+                          NotificationMessage.success({
+                            message: 'Report downloaded',
+                          });
+                        } catch {
+                          NotificationMessage.error({
+                            message: 'Export failed',
+                          });
+                        }
+                      },
+                    },
+                    {
+                      key: 'gaps',
+                      label: 'Skill Gap Analysis Report',
+                      onClick: async () => {
+                        try {
+                          await exportSkillGapAnalysisReport(roles);
+                          NotificationMessage.success({
+                            message: 'Report downloaded',
+                          });
+                        } catch {
+                          NotificationMessage.error({
+                            message: 'Export failed',
+                          });
+                        }
+                      },
+                    },
+                    {
+                      key: 'idp',
+                      label: 'Development Plan Progress Report',
+                      onClick: async () => {
+                        try {
+                          await exportDevelopmentPlanProgressReport(roles);
+                          NotificationMessage.success({
+                            message: 'Report downloaded',
+                          });
+                        } catch {
+                          NotificationMessage.error({
+                            message: 'Export failed',
+                          });
+                        }
+                      },
+                    },
+                  ],
+                }}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <Button
+                  type="default"
+                  size="large"
+                  className="h-10 border border-[#D9D9D9] text-[#4d4d4d] font-normal"
+                  icon={
+                    <FileDownloadOutlinedIcon
+                      style={{ fontSize: 18, display: 'block' }}
+                    />
+                  }
+                  data-cy="succession-reports-btn"
+                >
+                  <span className="hidden sm:inline">Reports</span>
+                </Button>
+              </Dropdown>
               <Button
                 type="primary"
                 size="large"
@@ -354,14 +444,14 @@ const SuccessionPlanningPage: React.FC = () => {
 
       <div className="mb-6" data-cy="succession-planning-stats">
         <div
-          className="flex gap-4 overflow-x-auto overflow-y-hidden scrollbar-hide sm:grid sm:grid-cols-2 lg:grid-cols-4"
+          className="flex gap-4 overflow-x-auto overflow-y-hidden scrollbar-hide sm:grid sm:grid-cols-2 xl:grid-cols-5"
           data-cy="succession-planning-stats-grid"
         >
           {activeView === 'roles' ? (
             <>
               <div
                 className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
-                data-cy="sp-stats-total-wrapper"
+                data-cy="sp-stats-with-successors-wrapper"
               >
                 <StatsCard
                   icon={
@@ -372,29 +462,67 @@ const SuccessionPlanningPage: React.FC = () => {
                       />
                     </span>
                   }
-                  title="Total Critical Roles"
-                  value={totalRoles}
-                  id="sp-stats-total"
-                  data-cy="sp-stats-total"
+                  title="Positions with Successors"
+                  value={positionsWithSuccessors}
+                  id="sp-stats-with-successors"
+                  data-cy="sp-stats-with-successors"
                 />
               </div>
               <div
                 className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
-                data-cy="sp-stats-high-risk-wrapper"
+                data-cy="sp-stats-without-successors-wrapper"
               >
                 <StatsCard
                   icon={
                     <span className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center">
-                      <WarningAmberOutlinedIcon
+                      <PersonOffOutlinedIcon
                         className="text-error"
                         fontSize="small"
                       />
                     </span>
                   }
-                  title="High Risk Roles"
-                  value={highRiskCount}
-                  id="sp-stats-high-risk"
-                  data-cy="sp-stats-high-risk"
+                  title="Positions without Successors"
+                  value={positionsWithoutSuccessors}
+                  id="sp-stats-without-successors"
+                  data-cy="sp-stats-without-successors"
+                />
+              </div>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-ready-now-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-[#f6ffed] flex items-center justify-center">
+                      <BoltOutlinedIcon
+                        className="text-success"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title="Ready Now Successors"
+                  value={readyNowCount}
+                  id="sp-stats-ready-now"
+                  data-cy="sp-stats-ready-now"
+                />
+              </div>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-ready-one-year-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center">
+                      <ScheduleOutlinedIcon
+                        className="text-orangebg"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title="Ready within One Year"
+                  value={readyWithinOneYearCount}
+                  id="sp-stats-ready-one-year"
+                  data-cy="sp-stats-ready-one-year"
                 />
               </div>
               <div
@@ -403,36 +531,17 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-[#f6ffed] flex items-center justify-center">
+                    <span className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center">
                       <CheckCircleOutlineOutlinedIcon
-                        className="text-success"
+                        className="text-blue"
                         fontSize="small"
                       />
                     </span>
                   }
-                  title="Coverage Rate"
-                  value={`${coveragePercent}%`}
+                  title="Succession Coverage"
+                  value={`${successionCoveragePercent}%`}
                   id="sp-stats-coverage"
                   data-cy="sp-stats-coverage"
-                />
-              </div>
-              <div
-                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
-                data-cy="sp-stats-critical-wrapper"
-              >
-                <StatsCard
-                  icon={
-                    <span className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center">
-                      <FlagOutlinedIcon
-                        className="text-orangebg"
-                        fontSize="small"
-                      />
-                    </span>
-                  }
-                  title="Critical Priority"
-                  value={roles.filter((r) => r.priority === 'Critical').length}
-                  id="sp-stats-critical"
-                  data-cy="sp-stats-critical"
                 />
               </div>
             </>

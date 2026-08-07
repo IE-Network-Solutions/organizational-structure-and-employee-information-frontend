@@ -13,6 +13,10 @@ import StepEvaluatorAssignment, {
   evaluationFieldKey,
 } from '../steps/stepEvaluatorAssignment';
 import { MOCK_EMPLOYEES } from '../steps/stepEmployeeSelection';
+import {
+  MOCK_POSITIONS,
+  resolvePositionTitles,
+} from '../steps/stepRoleSelection';
 
 interface ManageCompetenciesModalProps {
   open: boolean;
@@ -21,6 +25,14 @@ interface ManageCompetenciesModalProps {
   onSave: (
     competencies: RoleCompetency[],
     successors: CriticalRole['successors'],
+    qualifications?: {
+      requiredEducationLevel: CriticalRole['requiredEducationLevel'];
+      requiredEducationField: CriticalRole['requiredEducationField'];
+      allowRelatedEducationFields?: boolean;
+      requiredRelevantExperience: CriticalRole['requiredRelevantExperience'];
+      requiredCurrentPositionIds: string[];
+      requiredCurrentPositions: string[];
+    },
   ) => void;
 }
 
@@ -98,6 +110,17 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
       competencies: role.competencies?.length ? role.competencies : [],
       successorIds: (role.successors ?? []).map((s) => s.id),
       evaluationAssignments: buildAssignmentsFromRole(role),
+      requiredEducationLevel: role.requiredEducationLevel,
+      requiredEducationField: role.requiredEducationField,
+      allowRelatedEducationFields: Boolean(role.allowRelatedEducationFields),
+      requiredRelevantExperience: role.requiredRelevantExperience,
+      requiredCurrentPositionIds: role.requiredCurrentPositionIds ?? [],
+      requiredCurrentDepartment:
+        role.requiredCurrentPositionIds?.length === 1
+          ? MOCK_POSITIONS.find(
+              (p) => p.id === role.requiredCurrentPositionIds[0],
+            )?.department
+          : undefined,
     });
     setCurrent(0);
   }, [open, role, form]);
@@ -110,14 +133,42 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
 
   const handleContinue = async () => {
     if (current === 0) {
+      try {
+        await form.validateFields([
+          'requiredEducationLevel',
+          'requiredEducationField',
+          'requiredRelevantExperience',
+          'requiredCurrentDepartment',
+          'requiredCurrentPositionIds',
+        ]);
+      } catch {
+        return;
+      }
+
       const raw: RoleCompetency[] = form.getFieldValue('competencies') ?? [];
       const competencies = raw.filter((c) => c?.name?.trim());
+      const positionIds: string[] =
+        form.getFieldValue('requiredCurrentPositionIds') ?? [];
+      const qualificationValues = {
+        requiredEducationLevel: form.getFieldValue('requiredEducationLevel'),
+        requiredEducationField:
+          form.getFieldValue('requiredEducationField') ?? 'Any',
+        allowRelatedEducationFields: Boolean(
+          form.getFieldValue('allowRelatedEducationFields') &&
+            form.getFieldValue('requiredEducationField') &&
+            form.getFieldValue('requiredEducationField') !== 'Any',
+        ),
+        requiredRelevantExperience:
+          form.getFieldValue('requiredRelevantExperience') ?? 0,
+        requiredCurrentPositionIds: positionIds,
+        requiredCurrentPositions: resolvePositionTitles(positionIds),
+      };
 
       if (competencies.length === 0) {
         form.setFieldsValue({ competencies: [] });
         // Still allow advancing to assign step (empty) or save empty
         if ((role.successors ?? []).length === 0) {
-          onSave([], role.successors ?? []);
+          onSave([], role.successors ?? [], qualificationValues);
           onClose();
           return;
         }
@@ -190,7 +241,22 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
         assignments,
       );
 
-      onSave(competencies, successors);
+      onSave(competencies, successors, {
+        requiredEducationLevel: values.requiredEducationLevel,
+        requiredEducationField: values.requiredEducationField ?? 'Any',
+        allowRelatedEducationFields: Boolean(
+          values.allowRelatedEducationFields &&
+            values.requiredEducationField &&
+            values.requiredEducationField !== 'Any',
+        ),
+        requiredRelevantExperience: Number(
+          values.requiredRelevantExperience ?? 0,
+        ),
+        requiredCurrentPositionIds: values.requiredCurrentPositionIds ?? [],
+        requiredCurrentPositions: resolvePositionTitles(
+          values.requiredCurrentPositionIds ?? [],
+        ),
+      });
       onClose();
     } catch {
       // inline errors

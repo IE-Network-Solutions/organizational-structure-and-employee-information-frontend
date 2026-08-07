@@ -1,7 +1,10 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Card, Form, Modal, Steps, Button, Popconfirm } from 'antd';
-import StepRoleSelection, { MOCK_POSITIONS } from '../steps/stepRoleSelection';
+import StepRoleSelection, {
+  MOCK_POSITIONS,
+  resolvePositionTitles,
+} from '../steps/stepRoleSelection';
 import StepCompetencyDefinition, {
   RoleCompetency,
   sumCompetencyWeights,
@@ -16,6 +19,17 @@ import StepEvaluatorAssignment, {
 } from '../steps/stepEvaluatorAssignment';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import type {
+  CompetencyGap,
+  DevelopmentAction,
+  IndividualDevelopmentPlan,
+} from '../successionTypes';
+import { deriveSuccessorGaps } from '../successionTypes';
+import type {
+  EducationField,
+  EducationLevel,
+} from '../educationCatalog';
+import { formatEducationLabel } from '../educationCatalog';
 
 // ── Public type ───────────────────────────────────────────────────────────────
 export interface CriticalRole {
@@ -27,13 +41,43 @@ export interface CriticalRole {
   riskLevel: 'High' | 'Medium' | 'Low';
   successorCount: number;
   notes: string;
+  /** Role-level mandatory qualifications (wizard step 2). */
+  requiredEducationLevel: EducationLevel;
+  requiredEducationField: EducationField;
+  /**
+   * When true, PMs may mark a successor’s non-exact field of study as related
+   * on the successor Assessment (free-text acceptance).
+   */
+  allowRelatedEducationFields?: boolean;
+  requiredRelevantExperience: number;
+  /** Org position ids for acceptable feeder / current positions. */
+  requiredCurrentPositionIds: string[];
+  /** Display titles resolved from the org position catalog. */
+  requiredCurrentPositions: string[];
   competencies: RoleCompetency[];
   successors: Array<
     SuccessorCandidate & {
       competencyEvaluations?: CompetencyEvaluation[];
+      gaps?: CompetencyGap[];
+      developmentActions?: DevelopmentAction[];
+      idp?: IndividualDevelopmentPlan;
+      /** PM accepted this successor’s field as related for the role. */
+      educationRelatedAccepted?: boolean;
+      /** Snapshot of field when marked related. */
+      educationRelatedAcceptedField?: string;
     }
   >;
 }
+
+/** Display helper for role education requirement. */
+export const roleRequiredEducationLabel = (role: {
+  requiredEducationLevel?: EducationLevel;
+  requiredEducationField?: EducationField;
+}): string =>
+  formatEducationLabel(
+    role.requiredEducationLevel,
+    role.requiredEducationField,
+  );
 
 interface CriticalRoleModalProps {
   open: boolean;
@@ -100,6 +144,16 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
             : [],
           successorIds: (editingRole.successors ?? []).map((s) => s.id),
           evaluationAssignments: buildAssignmentsFromRole(editingRole),
+          requiredCurrentPositionIds:
+            editingRole.requiredCurrentPositionIds?.length
+              ? editingRole.requiredCurrentPositionIds
+              : [],
+          requiredCurrentDepartment:
+            editingRole.requiredCurrentPositionIds?.length === 1
+              ? MOCK_POSITIONS.find(
+                  (p) => p.id === editingRole.requiredCurrentPositionIds[0],
+                )?.department
+              : undefined,
         });
       } else {
         form.resetFields();
@@ -107,6 +161,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
           competencies: [],
           successorIds: [],
           evaluationAssignments: {},
+          allowRelatedEducationFields: false,
         });
       }
       setCurrent(0);
@@ -136,6 +191,18 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
     }
 
     if (current === 1) {
+      try {
+        await form.validateFields([
+          'requiredEducationLevel',
+          'requiredEducationField',
+          'requiredRelevantExperience',
+          'requiredCurrentDepartment',
+          'requiredCurrentPositionIds',
+        ]);
+      } catch {
+        return;
+      }
+
       const rawCompetencies: RoleCompetency[] =
         form.getFieldValue('competencies') ?? [];
       const competencies = rawCompetencies.filter((c) => c?.name?.trim());
@@ -217,7 +284,39 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
         );
         return {
           ...employee,
+          currentPosition: employee.currentPosition ?? employee.jobTitle,
+          education:
+            employee.education ??
+            formatEducationLabel(
+              employee.educationLevel,
+              employee.educationField,
+            ),
           competencyEvaluations,
+          gaps: deriveSuccessorGaps(
+            competencies,
+            competencyEvaluations,
+            [],
+            {
+              level: values.requiredEducationLevel,
+              field: values.requiredEducationField ?? 'Any',
+            },
+            {
+              level: employee.educationLevel,
+              field: employee.educationField,
+            },
+            Number(values.requiredRelevantExperience ?? 0),
+            employee.relevantExperience,
+            {
+              allowRelated: Boolean(
+                values.allowRelatedEducationFields &&
+                  values.requiredEducationField &&
+                  values.requiredEducationField !== 'Any',
+              ),
+              relatedAccepted: false,
+            },
+          ),
+          developmentActions: [],
+          educationRelatedAccepted: false,
         };
       });
 
@@ -235,6 +334,20 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
         priority,
         riskLevel: deriveRiskLevel(priority),
         notes: values.notes ?? '',
+        requiredEducationLevel: values.requiredEducationLevel,
+        requiredEducationField: values.requiredEducationField ?? 'Any',
+        allowRelatedEducationFields: Boolean(
+          values.allowRelatedEducationFields &&
+            values.requiredEducationField &&
+            values.requiredEducationField !== 'Any',
+        ),
+        requiredRelevantExperience: Number(
+          values.requiredRelevantExperience ?? 0,
+        ),
+        requiredCurrentPositionIds: values.requiredCurrentPositionIds ?? [],
+        requiredCurrentPositions: resolvePositionTitles(
+          values.requiredCurrentPositionIds ?? [],
+        ),
         competencies,
         successors,
       });

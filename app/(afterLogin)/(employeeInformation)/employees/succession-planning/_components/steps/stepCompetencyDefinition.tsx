@@ -1,9 +1,15 @@
 'use client';
 import React, { useMemo } from 'react';
-import { Button, Empty, Form, Input, InputNumber, Select } from 'antd';
+import { Button, Empty, Form, Input, InputNumber, Select, Switch } from 'antd';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { MOCK_POSITIONS } from './stepRoleSelection';
+import {
+  educationLevelOptions,
+  getRelatedEducationFields,
+} from '../educationCatalog';
+import DepartmentPositionSelect from '../departmentPositionSelect';
+import EducationFieldSelect from '../educationFieldSelect';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -35,6 +41,62 @@ interface StepCompetencyDefinitionProps {
   positionId: string | null;
 }
 
+/** Opt-in: PM may later mark non-exact successor fields as related on Assessment. */
+const RelatedEducationFieldsSwitch: React.FC = () => {
+  const form = Form.useFormInstance();
+  const field = Form.useWatch('requiredEducationField', form) as
+    | string
+    | undefined;
+  const allowRelated = Form.useWatch('allowRelatedEducationFields', form) as
+    | boolean
+    | undefined;
+  const isAny = !field || field === 'Any';
+  const relatedExamples = getRelatedEducationFields(field);
+
+  return (
+    <div
+      className="rounded-md border border-[#F0F0F0] bg-[#FAFAFA] px-3 py-2"
+      data-cy="step-allow-related-education-wrap"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="min-w-0">
+          <div className="text-sm font-medium text-gray-700">
+            Allow related fields of study
+          </div>
+          <div className="text-xs text-gray-500 mt-0.5">
+            {isAny
+              ? 'Not needed when field of study is Any.'
+              : 'When on, you can mark a successor’s non-exact field as related on their Assessment. Until marked, mismatched fields stay as Field mismatch.'}
+          </div>
+        </div>
+        <Form.Item
+          name="allowRelatedEducationFields"
+          valuePropName="checked"
+          className="mb-0"
+          initialValue={false}
+        >
+          <Switch
+            disabled={isAny}
+            onChange={(checked) => {
+              if (isAny) {
+                form.setFieldsValue({ allowRelatedEducationFields: false });
+                return;
+              }
+              form.setFieldsValue({ allowRelatedEducationFields: checked });
+            }}
+            data-cy="step-allow-related-education-switch"
+          />
+        </Form.Item>
+      </div>
+      {!isAny && allowRelated && relatedExamples.length > 0 ? (
+        <div className="text-xs text-gray-500 mt-2">
+          Common related examples: {relatedExamples.join(', ')}
+        </div>
+      ) : null}
+    </div>
+  );
+};
+
 const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
   positionId,
 }) => {
@@ -55,14 +117,127 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
       data-cy="step-competency-definition-container"
     >
       <p className="text-sm text-gray-500 -mt-2">
-        Optionally define competencies for{' '}
+        Define mandatory qualifications for{' '}
         {position ? (
           <span className="font-semibold text-gray-700">{position.title}</span>
         ) : (
           'this role'
         )}
-        . You can skip this and add them later from the role details page.
+        , then optionally add competency criteria. Competencies can also be
+        managed later from the role details page.
       </p>
+
+      <div className="text-sm font-semibold text-gray-800">
+        Mandatory qualifications
+      </div>
+
+      <div
+        className="rounded-lg border border-[#D9D9D9] p-3 bg-white flex flex-col gap-3"
+        data-cy="step-mandatory-qualifications"
+      >
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+          Qualifications
+        </span>
+
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <Form.Item
+            name="requiredEducationLevel"
+            label={
+              <span className="text-sm font-medium text-gray-700">
+                Education level
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please select required education level',
+              },
+            ]}
+            className="mb-0"
+            data-cy="step-required-education-level-item"
+          >
+            <Select
+              placeholder="Select education level"
+              className="w-full h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selection-item]:!leading-8 [&_.ant-select-selection-placeholder]:!leading-8"
+              options={educationLevelOptions}
+              data-cy="step-required-education-level-select"
+            />
+          </Form.Item>
+          <Form.Item
+            name="requiredEducationField"
+            label={
+              <span className="text-sm font-medium text-gray-700">
+                Field of study
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please select required field of study',
+              },
+            ]}
+            className="mb-0"
+            data-cy="step-required-education-field-item"
+          >
+            <EducationFieldSelect
+              includeAny
+              placeholder="Select field (or Any)"
+              data-cy="step-required-education-field-select"
+            />
+          </Form.Item>
+          <Form.Item
+            name="requiredRelevantExperience"
+            label={
+              <span className="text-sm font-medium text-gray-700">
+                Experience (years)
+              </span>
+            }
+            rules={[
+              {
+                required: true,
+                message: 'Please enter required years of experience',
+              },
+              {
+                type: 'number',
+                min: 0,
+                message: 'Years must be 0 or greater',
+              },
+            ]}
+            className="mb-0"
+            data-cy="step-required-experience-item"
+          >
+            <InputNumber
+              min={0}
+              max={50}
+              precision={0}
+              className="w-full h-10 [&_.ant-input-number]:h-10 [&_.ant-input-number-input]:h-10 [&_.ant-input-number-group-addon]:h-10 [&_.ant-input-number-group-addon]:leading-10"
+              placeholder="e.g. 8"
+              addonAfter="years"
+              data-cy="step-required-experience-input"
+            />
+          </Form.Item>
+        </div>
+
+        <RelatedEducationFieldsSwitch />
+
+        <div data-cy="step-required-position-fields">
+          <DepartmentPositionSelect
+            departmentFieldName="requiredCurrentDepartment"
+            positionFieldName="requiredCurrentPositionIds"
+            departmentLabel="Department"
+            positionLabel="Required current positions"
+            multiple
+            className="grid grid-cols-1 gap-3 md:grid-cols-2"
+            departmentDataCy="step-required-position-department"
+            positionDataCy="step-required-position-select"
+          />
+        </div>
+      </div>
+
+      <div className="text-sm font-semibold text-gray-800">
+        Competency criteria{' '}
+        <span className="text-xs font-normal text-gray-400">(optional)</span>
+      </div>
 
       <Form.List name="competencies">
         {(fields, { add, remove }) => (

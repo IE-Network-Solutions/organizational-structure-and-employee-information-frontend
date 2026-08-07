@@ -5,6 +5,9 @@ import type { TableColumnsType, TableRowSelection } from 'antd';
 import { SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { MOCK_POSITIONS } from './stepRoleSelection';
 import { SUCCESSOR_AVATAR_COLOR } from '../personRoleChrome';
+import type { SuccessorReadiness } from '../successionTypes';
+import type { EducationField, EducationLevel } from '../educationCatalog';
+import { formatEducationLabel } from '../educationCatalog';
 
 const { Option } = Select;
 
@@ -13,95 +16,186 @@ export interface SuccessorCandidate {
   name: string;
   jobTitle: string;
   department: string;
-  readiness?: 'Ready Now' | '1-2 Years' | '3+ Years';
+  readiness?: SuccessorReadiness;
+  educationLevel?: EducationLevel;
+  educationField?: EducationField;
+  /** Derived display label from level + field. */
+  education?: string;
+  /** Years of relevant experience (from employee record / mock). */
+  relevantExperience?: number;
+  /** Org position id for the employee's current role (from system). */
+  currentPositionId?: string;
+  currentPosition?: string;
 }
 
-export const MOCK_EMPLOYEES: SuccessorCandidate[] = [
-  {
-    id: 'emp-1',
-    name: 'Lena Fischer',
-    jobTitle: 'Senior Software Engineer',
-    department: 'Engineering',
-    readiness: 'Ready Now',
-  },
-  {
-    id: 'emp-2',
-    name: 'Marcus Webb',
-    jobTitle: 'Engineering Manager',
-    department: 'Engineering',
-    readiness: '1-2 Years',
-  },
-  {
-    id: 'emp-3',
-    name: 'Aiko Yamamoto',
-    jobTitle: 'Principal Engineer',
-    department: 'Engineering',
-    readiness: 'Ready Now',
-  },
-  {
-    id: 'emp-4',
-    name: 'Daniel Mensah',
-    jobTitle: 'Finance Manager',
-    department: 'Finance',
-    readiness: '1-2 Years',
-  },
-  {
-    id: 'emp-5',
-    name: 'Priya Nair',
-    jobTitle: 'Financial Analyst',
-    department: 'Finance',
-    readiness: '3+ Years',
-  },
-  {
-    id: 'emp-6',
-    name: 'Amara Diallo',
-    jobTitle: 'HR Business Partner',
-    department: 'Human Resources',
-    readiness: 'Ready Now',
-  },
-  {
-    id: 'emp-7',
-    name: 'Ravi Sharma',
-    jobTitle: 'Talent Acquisition Lead',
-    department: 'Human Resources',
-    readiness: '1-2 Years',
-  },
-  {
-    id: 'emp-8',
-    name: 'Kwame Asante',
-    jobTitle: 'Sales Manager',
-    department: 'Sales',
-    readiness: 'Ready Now',
-  },
-  {
-    id: 'emp-9',
-    name: 'Nina Kovacs',
-    jobTitle: 'Account Executive',
-    department: 'Sales',
-    readiness: '1-2 Years',
-  },
-  {
-    id: 'emp-10',
-    name: 'Carlos Rivera',
-    jobTitle: 'Product Manager',
-    department: 'Product',
-    readiness: '1-2 Years',
-  },
-  {
-    id: 'emp-11',
-    name: 'Sofia Johansson',
-    jobTitle: 'Senior Product Manager',
-    department: 'Product',
-    readiness: 'Ready Now',
-  },
-  {
-    id: 'emp-12',
-    name: 'Helen Park',
-    jobTitle: 'Operations Lead',
-    department: 'Operations',
-    readiness: '3+ Years',
-  },
-];
+/**
+ * Experience years aligned to seeded critical-role requirements so readiness
+ * matches shortfalls (never e.g. 5-year gap labeled "Ready within 1 Year"):
+ * - CEO (11y): Marcus 10 → Ready within 1 Year
+ * - VP Eng (10y): Lena 9 / Marcus 10 / Aiko 12
+ * - Head of Finance (8y): Daniel 9
+ * - Director of People (8y): Amara 11 / Ravi 7
+ * - Head of Sales (8y): Kwame 10 / Nina 7 / Sofia 9
+ */
+export const MOCK_EMPLOYEES: SuccessorCandidate[] = (
+  [
+    {
+      id: 'emp-1',
+      name: 'Lena Fischer',
+      jobTitle: 'Senior Software Engineer',
+      department: 'Engineering',
+      readiness: 'Ready within 1 Year',
+      educationLevel: 'Master',
+      educationField: 'Computer Science',
+      relevantExperience: 9,
+      currentPositionId: 'pos-11',
+      currentPosition: 'Senior Software Engineer',
+    },
+    {
+      id: 'emp-2',
+      name: 'Marcus Webb',
+      jobTitle: 'Engineering Manager',
+      department: 'Engineering',
+      readiness: 'Ready within 1 Year',
+      educationLevel: 'Bachelor',
+      educationField: 'Software Engineering',
+      relevantExperience: 10,
+      currentPositionId: 'pos-9',
+      currentPosition: 'Engineering Manager',
+    },
+    {
+      id: 'emp-3',
+      name: 'Aiko Yamamoto',
+      jobTitle: 'Principal Engineer',
+      department: 'Engineering',
+      readiness: 'Ready Now',
+      educationLevel: 'Master',
+      educationField: 'Electrical Engineering',
+      relevantExperience: 12,
+      currentPositionId: 'pos-12',
+      currentPosition: 'Principal Engineer',
+    },
+    {
+      id: 'emp-4',
+      name: 'Daniel Mensah',
+      jobTitle: 'Finance Manager',
+      department: 'Finance',
+      readiness: 'Ready Now',
+      educationLevel: 'Master',
+      educationField: 'Business Administration',
+      relevantExperience: 9,
+      currentPositionId: 'pos-13',
+      currentPosition: 'Finance Manager',
+    },
+    {
+      id: 'emp-5',
+      name: 'Priya Nair',
+      jobTitle: 'Financial Analyst',
+      department: 'Finance',
+      readiness: 'Ready within 3+ Years',
+      educationLevel: 'Bachelor',
+      educationField: 'Accounting',
+      relevantExperience: 4,
+      currentPositionId: 'pos-14',
+      currentPosition: 'Financial Analyst',
+    },
+    {
+      id: 'emp-6',
+      name: 'Amara Diallo',
+      jobTitle: 'HR Business Partner',
+      department: 'Human Resources',
+      readiness: 'Ready Now',
+      educationLevel: 'Master',
+      educationField: 'Human Resource Management',
+      relevantExperience: 11,
+      currentPositionId: 'pos-15',
+      currentPosition: 'HR Business Partner',
+    },
+    {
+      id: 'emp-7',
+      name: 'Ravi Sharma',
+      jobTitle: 'Talent Acquisition Lead',
+      department: 'Human Resources',
+      readiness: 'Ready within 1 Year',
+      educationLevel: 'Bachelor',
+      educationField: 'Psychology',
+      relevantExperience: 7,
+      currentPositionId: 'pos-16',
+      currentPosition: 'Talent Acquisition Lead',
+    },
+    {
+      id: 'emp-8',
+      name: 'Kwame Asante',
+      jobTitle: 'Sales Manager',
+      department: 'Sales',
+      readiness: 'Ready Now',
+      educationLevel: 'Bachelor',
+      educationField: 'Business Administration',
+      relevantExperience: 10,
+      currentPositionId: 'pos-10',
+      currentPosition: 'Sales Manager',
+    },
+    {
+      id: 'emp-9',
+      name: 'Nina Kovacs',
+      jobTitle: 'Account Executive',
+      department: 'Sales',
+      readiness: 'Ready within 1 Year',
+      educationLevel: 'Bachelor',
+      educationField: 'Marketing',
+      relevantExperience: 7,
+      currentPositionId: 'pos-17',
+      currentPosition: 'Account Executive',
+    },
+    {
+      id: 'emp-10',
+      name: 'Carlos Rivera',
+      jobTitle: 'Product Manager',
+      department: 'Product',
+      readiness: 'Ready within 1 Year',
+      educationLevel: 'Bachelor',
+      educationField: 'Information Systems',
+      relevantExperience: 7,
+      currentPositionId: 'pos-18',
+      currentPosition: 'Product Manager',
+    },
+    {
+      id: 'emp-11',
+      name: 'Sofia Johansson',
+      jobTitle: 'Senior Product Manager',
+      department: 'Product',
+      readiness: 'Ready Now',
+      educationLevel: 'Master',
+      educationField: 'Business Administration',
+      relevantExperience: 9,
+      currentPositionId: 'pos-19',
+      currentPosition: 'Senior Product Manager',
+    },
+    {
+      id: 'emp-12',
+      name: 'Helen Park',
+      jobTitle: 'Operations Lead',
+      department: 'Operations',
+      readiness: 'Ready Now',
+      educationLevel: 'Bachelor',
+      educationField: 'Operations Management',
+      relevantExperience: 8,
+      currentPositionId: 'pos-20',
+      currentPosition: 'Operations Lead',
+    },
+  ] as const satisfies ReadonlyArray<
+    Omit<SuccessorCandidate, 'education' | 'readiness'> & {
+      educationLevel: EducationLevel;
+      educationField: EducationField;
+      relevantExperience: number;
+      currentPositionId: string;
+      readiness: SuccessorReadiness;
+    }
+  >
+).map((emp) => ({
+  ...emp,
+  education: formatEducationLabel(emp.educationLevel, emp.educationField),
+}));
 
 const DEPARTMENT_OPTIONS = Array.from(
   new Set(MOCK_EMPLOYEES.map((e) => e.department)),

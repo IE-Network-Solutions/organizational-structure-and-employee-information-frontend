@@ -1,19 +1,18 @@
 ﻿'use client';
 import React, { useState } from 'react';
 import {
-  Avatar,
   Breadcrumb,
   Button,
+  Card,
   Empty,
-  Modal,
   Table,
+  Tabs,
   Tag,
   Typography,
 } from 'antd';
 import type { TableColumnsType } from 'antd';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { UserOutlined } from '@ant-design/icons';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -23,27 +22,28 @@ import {
   CompetencyImportance,
   RoleCompetency,
 } from '../_components/steps/stepCompetencyDefinition';
-import {
-  CompetencyEvaluation,
-  EvaluatorPicker,
-  scoreAchievementPercent,
-  sumWeightedScores,
-} from '../_components/steps/stepEvaluatorAssignment';
-import { MOCK_EMPLOYEES } from '../_components/steps/stepEmployeeSelection';
 import ManageCompetenciesModal from '../_components/manageCompetenciesModal';
-import {
-  EVALUATOR_AVATAR_COLOR,
-  PersonIdentity,
-} from '../_components/personRoleChrome';
-import { getScoreBadgeClass } from '../_components/hierarchyRows';
+import { SuccessorSummaryCard } from '../_components/successorCard';
 import {
   importanceColor,
   priorityColor,
   riskLevelColor,
 } from '../_components/tagColors';
+import { roleRequiredEducationLabel } from '../_components/criticalRoleModal';
+import { formatYearsLabel } from '../_components/educationCatalog';
 
 const th = 'text-[#4d4d4d] text-base font-bold';
 const td = 'text-[#4d4d4d] text-sm font-normal';
+
+const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({
+  label,
+  children,
+}) => (
+  <div>
+    <p className="text-sm text-[#bababa] font-normal m-0 mb-0.5">{label}</p>
+    <div className="text-sm font-normal text-[#4d4d4d]">{children}</div>
+  </div>
+);
 
 const CriticalRoleDetailPage: React.FC = () => {
   const router = useRouter();
@@ -53,10 +53,8 @@ const CriticalRoleDetailPage: React.FC = () => {
     s.roles.find((r) => r.id === id),
   );
   const updateRole = useSuccessionPlanningStore((s) => s.updateRole);
-  const assignCompetencyEvaluator = useSuccessionPlanningStore(
-    (s) => s.assignCompetencyEvaluator,
-  );
   const [manageOpen, setManageOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('successors');
 
   if (!role) {
     return (
@@ -104,6 +102,14 @@ const CriticalRoleDetailPage: React.FC = () => {
   const handleManageSave = (
     competencies: RoleCompetency[],
     successors: typeof role.successors,
+    qualifications?: {
+      requiredEducationLevel: typeof role.requiredEducationLevel;
+      requiredEducationField: typeof role.requiredEducationField;
+      allowRelatedEducationFields?: boolean;
+      requiredRelevantExperience: number;
+      requiredCurrentPositionIds: string[];
+      requiredCurrentPositions: string[];
+    },
   ) => {
     updateRole(role.id, {
       positionId: role.positionId,
@@ -112,6 +118,22 @@ const CriticalRoleDetailPage: React.FC = () => {
       priority: role.priority,
       riskLevel: role.riskLevel,
       notes: role.notes,
+      requiredEducationLevel:
+        qualifications?.requiredEducationLevel ?? role.requiredEducationLevel,
+      requiredEducationField:
+        qualifications?.requiredEducationField ?? role.requiredEducationField,
+      allowRelatedEducationFields:
+        qualifications?.allowRelatedEducationFields ??
+        role.allowRelatedEducationFields,
+      requiredRelevantExperience:
+        qualifications?.requiredRelevantExperience ??
+        role.requiredRelevantExperience,
+      requiredCurrentPositionIds:
+        qualifications?.requiredCurrentPositionIds ??
+        role.requiredCurrentPositionIds,
+      requiredCurrentPositions:
+        qualifications?.requiredCurrentPositions ??
+        role.requiredCurrentPositions,
       competencies,
       successors,
     });
@@ -120,22 +142,6 @@ const CriticalRoleDetailPage: React.FC = () => {
       description:
         'Criteria and evaluator assignments have been applied to all successors.',
     });
-  };
-
-  const handleEvaluatorChange = (
-    successorId: string,
-    evaluation: CompetencyEvaluation,
-    evaluatorId: string | undefined,
-  ) => {
-    const evaluator = MOCK_EMPLOYEES.find((e) => e.id === evaluatorId);
-    assignCompetencyEvaluator(
-      role.id,
-      successorId,
-      evaluation.competencyName,
-      evaluation.category,
-      evaluatorId ?? '',
-      evaluator?.name ?? '',
-    );
   };
 
   const competencyColumns: TableColumnsType<
@@ -173,7 +179,7 @@ const CriticalRoleDetailPage: React.FC = () => {
       key: 'weight',
       width: 100,
       render: (value?: number) => (
-        <span className={'' + td + ' tabular-nums'}>
+        <span className={td + ' tabular-nums'}>
           {value != null ? value + '%' : '—'}
         </span>
       ),
@@ -190,6 +196,95 @@ const CriticalRoleDetailPage: React.FC = () => {
   ];
 
   const hasCompetencies = (role.competencies?.length ?? 0) > 0;
+  const successorCount = role.successors?.length ?? role.successorCount ?? 0;
+
+  const openSuccessor = (successorId: string) => {
+    router.push(
+      `/employees/succession-planning/${role.id}/successors/${successorId}`,
+    );
+  };
+
+  const tabItems = [
+    {
+      key: 'successors',
+      label: `Successors (${successorCount})`,
+      children: (
+        <div className="pt-2" data-cy="critical-role-detail-successors">
+          {(role.successors?.length ?? 0) === 0 ? (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="No successors selected for this role."
+              data-cy="cr-detail-successors-empty"
+            />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+              {role.successors.map((successor) => (
+                <SuccessorSummaryCard
+                  key={successor.id}
+                  successor={successor}
+                  onOpen={() => openSuccessor(successor.id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: 'competencies',
+      label: `Competencies (${role.competencies?.length ?? 0})`,
+      children: (
+        <div className="pt-2" data-cy="critical-role-detail-competencies">
+          <div className="flex flex-wrap items-center justify-end gap-2 mb-3">
+            <Button
+              type={hasCompetencies ? 'default' : 'primary'}
+              className={
+                hasCompetencies
+                  ? 'border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8'
+                  : 'font-normal h-8'
+              }
+              icon={
+                hasCompetencies ? (
+                  <EditOutlinedIcon style={{ fontSize: 16 }} />
+                ) : (
+                  <AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />
+                )
+              }
+              onClick={() => setManageOpen(true)}
+              data-cy="cr-detail-manage-competencies-btn"
+            >
+              {hasCompetencies ? 'Manage Competencies' : 'Add Competencies'}
+            </Button>
+          </div>
+          <Card
+            bordered={false}
+            className="rounded-lg bg-[#F9FAFB]"
+            styles={{ body: { padding: 0 } }}
+          >
+            <Table
+              columns={competencyColumns}
+              dataSource={role.competencies ?? []}
+              rowKey={(r) => r.name + '-' + r.category}
+              pagination={false}
+              size="small"
+              locale={{
+                emptyText: (
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description="No competencies defined yet. Add competencies and assign evaluators to each successor."
+                  />
+                ),
+              }}
+              rowClassName={(_, index) =>
+                index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+              }
+              data-cy="cr-detail-competencies-table"
+            />
+          </Card>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div
@@ -240,149 +335,87 @@ const CriticalRoleDetailPage: React.FC = () => {
         />
       </div>
 
-      <div
-        className="rounded-lg border border-[#D9D9D9] p-4 mb-6"
+      <Card
+        className="mb-3 rounded-lg bg-[#F9FAFB]"
+        bordered={false}
+        styles={{ body: { padding: 16 } }}
         data-cy="critical-role-detail-overview"
       >
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <Tag color={priorityColor[role.priority]} className="m-0">
-            {role.priority} Priority
-          </Tag>
-          <Tag color={riskLevelColor[role.riskLevel]} className="m-0">
-            {role.riskLevel} Risk
-          </Tag>
-          <Tag className="m-0">{role.department}</Tag>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-          <div>
-            <div className="text-xs text-gray-400 mb-0.5">Department</div>
-            <div className="text-gray-800 font-medium">{role.department}</div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-400 mb-0.5">Competencies</div>
-            <div className="text-gray-800 font-medium">
-              {role.competencies?.length ?? 0}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-400 mb-0.5">Successors</div>
-            <div className="text-gray-800 font-medium">
-              {role.successors?.length ?? role.successorCount ?? 0}
-            </div>
-          </div>
-        </div>
-        {role.notes ? (
-          <div className="mt-4 pt-3 border-t border-[#F0F0F0]">
-            <div className="text-xs text-gray-400 mb-1">Notes</div>
-            <p className="text-sm text-gray-700 mb-0" data-cy="cr-detail-notes">
-              {role.notes}
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+          <div className="min-w-0">
+            <h5 className="text-sm font-normal text-[#4d4d4d] m-0">
+              {role.roleName}
+            </h5>
+            <p className="text-sm text-[#bababa] font-normal m-0">
+              {role.department}
             </p>
           </div>
-        ) : null}
-      </div>
-
-      <section className="mb-6" data-cy="critical-role-detail-competencies">
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <h3 className="text-base font-bold text-black mb-0">Competencies</h3>
-          <Button
-            type={hasCompetencies ? 'default' : 'primary'}
-            className={
-              hasCompetencies
-                ? 'border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8'
-                : 'font-normal h-8'
-            }
-            icon={
-              hasCompetencies ? (
-                <EditOutlinedIcon style={{ fontSize: 16 }} />
-              ) : (
-                <AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />
-              )
-            }
-            onClick={() => setManageOpen(true)}
-            data-cy="cr-detail-manage-competencies-btn"
-          >
-            {hasCompetencies ? 'Manage Competencies' : 'Add Competencies'}
-          </Button>
-        </div>
-        <Table
-          columns={competencyColumns}
-          dataSource={role.competencies ?? []}
-          rowKey={(r) => r.name + '-' + r.category}
-          pagination={false}
-          size="small"
-          locale={{
-            emptyText: (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description="No competencies defined yet. Add competencies and assign evaluators to each successor."
-              />
-            ),
-          }}
-          rowClassName={(_, index) =>
-            index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
-          }
-          data-cy="cr-detail-competencies-table"
-        />
-      </section>
-
-      <section data-cy="critical-role-detail-successors">
-        <h3 className="text-base font-bold text-black mb-3">Successors</h3>
-        {(role.successors?.length ?? 0) === 0 ? (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description="No successors selected for this role."
-            data-cy="cr-detail-successors-empty"
-          />
-        ) : (
-          <div className="flex flex-col gap-4">
-            {role.successors.map((successor) => (
-              <div
-                key={successor.id}
-                className="rounded-lg border border-[#D9D9D9] overflow-hidden"
-                data-cy={'cr-detail-successor-card-' + successor.id}
-              >
-                <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-[#F8FAFC] border-b border-[#E5E7EB]">
-                  <PersonIdentity
-                    role="Successor"
-                    name={successor.name}
-                    caption={`${successor.jobTitle} · ${successor.department}`}
-                    avatarSize={32}
-                  />
-                  {(successor.competencyEvaluations?.length ?? 0) > 0 ? (
-                    <span className="text-sm text-gray-600 tabular-nums">
-                      Total{' '}
-                      <span className="font-bold text-gray-800">
-                        {sumWeightedScores(
-                          successor.competencyEvaluations ?? [],
-                        )}{' '}
-                        /{' '}
-                        {(successor.competencyEvaluations ?? []).reduce(
-                          (sum, e) => sum + Number(e.weight ?? 0),
-                          0,
-                        ) || 100}
-                      </span>
-                    </span>
-                  ) : null}
-                </div>
-
-                <SuccessorEvaluationsList
-                  successorId={successor.id}
-                  successorName={successor.name}
-                  evaluations={successor.competencyEvaluations ?? []}
-                  onEvaluatorChange={(evaluation, evaluatorId) =>
-                    handleEvaluatorChange(
-                      successor.id,
-                      evaluation,
-                      evaluatorId,
-                    )
-                  }
-                  onManageCompetencies={() => setManageOpen(true)}
-                />
-              </div>
-            ))}
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <Tag color={priorityColor[role.priority]} className="m-0">
+              {role.priority} Priority
+            </Tag>
+            <Tag color={riskLevelColor[role.riskLevel]} className="m-0">
+              {role.riskLevel} Risk
+            </Tag>
           </div>
-        )}
-      </section>
+        </div>
+
+        <div
+          className="grid grid-cols-2 sm:grid-cols-4 gap-6"
+          data-cy="cr-detail-meta-row"
+        >
+          <MetaField label="Department">{role.department}</MetaField>
+          <MetaField label="Competencies">
+            {role.competencies?.length ?? 0}
+          </MetaField>
+          <MetaField label="Successors">{successorCount}</MetaField>
+          <MetaField label="Required Experience">
+            {formatYearsLabel(role.requiredRelevantExperience)}
+          </MetaField>
+        </div>
+
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 mt-4 border-t border-gray-100"
+          data-cy="cr-detail-mandatory-qualifications"
+        >
+          <MetaField label="Required Education">
+            <div>
+              {roleRequiredEducationLabel(role)}
+              {role.allowRelatedEducationFields &&
+              role.requiredEducationField &&
+              role.requiredEducationField !== 'Any' ? (
+                <div className="text-xs text-gray-500 mt-0.5">
+                  Related fields allowed
+                </div>
+              ) : null}
+            </div>
+          </MetaField>
+          <MetaField label="Required Current Positions">
+            {(role.requiredCurrentPositions ?? []).length > 0
+              ? role.requiredCurrentPositions.join(', ')
+              : '—'}
+          </MetaField>
+        </div>
+
+        {role.notes ? (
+          <div className="pt-4 mt-4 border-t border-gray-100">
+            <MetaField label="Notes">
+              <p className="m-0" data-cy="cr-detail-notes">
+                {role.notes}
+              </p>
+            </MetaField>
+          </div>
+        ) : null}
+      </Card>
+
+      <Tabs
+        size="small"
+        tabBarGutter={16}
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        items={tabItems}
+        data-cy="critical-role-detail-tabs"
+      />
 
       <ManageCompetenciesModal
         open={manageOpen}
@@ -391,307 +424,6 @@ const CriticalRoleDetailPage: React.FC = () => {
         onSave={handleManageSave}
       />
     </div>
-  );
-};
-
-interface SuccessorEvaluationsListProps {
-  successorId: string;
-  successorName: string;
-  evaluations: CompetencyEvaluation[];
-  onEvaluatorChange: (
-    evaluation: CompetencyEvaluation,
-    evaluatorId: string | undefined,
-  ) => void;
-  onManageCompetencies: () => void;
-}
-
-const SuccessorEvaluationsList: React.FC<SuccessorEvaluationsListProps> = ({
-  successorId,
-  successorName,
-  evaluations,
-  onEvaluatorChange,
-  onManageCompetencies,
-}) => {
-  const [selectedEvaluation, setSelectedEvaluation] =
-    useState<CompetencyEvaluation | null>(null);
-
-  if (evaluations.length === 0) {
-    return (
-      <div className="px-4 py-4 flex flex-col items-start gap-2">
-        <span className="text-sm text-gray-400">
-          No evaluator assignments yet. Add competencies to assign them to this
-          successor.
-        </span>
-        <Button
-          type="link"
-          className="!px-0"
-          onClick={onManageCompetencies}
-          data-cy={`cr-detail-successor-manage-link-${successorId}`}
-        >
-          Manage competencies
-        </Button>
-      </div>
-    );
-  }
-
-  const evaluatedCount = evaluations.filter(
-    (e) => e.status === 'Evaluated' && e.score != null,
-  ).length;
-  const evaluatorOptions = MOCK_EMPLOYEES.filter((e) => e.id !== successorId);
-
-  const columns: TableColumnsType<CompetencyEvaluation> = [
-    {
-      title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Criteria</span>
-      ),
-      key: 'name',
-      render: (_: unknown, record) => (
-        <button
-          type="button"
-          className="text-left group min-w-0"
-          onClick={() => setSelectedEvaluation(record)}
-          data-cy={`cr-detail-criteria-row-${record.competencyName}`}
-        >
-          <div className="text-sm font-medium text-primary group-hover:underline truncate">
-            {record.competencyName}
-          </div>
-          {record.category ? (
-            <div className="text-xs text-gray-400">{record.category}</div>
-          ) : null}
-        </button>
-      ),
-    },
-    {
-      title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Weight</span>
-      ),
-      key: 'weight',
-      width: 90,
-      render: (_: unknown, record) => (
-        <span className="text-sm text-[#4d4d4d] tabular-nums">
-          {record.weight != null ? `${record.weight}%` : '—'}
-        </span>
-      ),
-    },
-    {
-      title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Result</span>
-      ),
-      key: 'result',
-      width: 120,
-      render: (_: unknown, record) => {
-        const scored = record.status === 'Evaluated' && record.score != null;
-        if (!scored) {
-          return <span className="text-sm text-gray-400">—</span>;
-        }
-        return (
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded border text-sm font-semibold tabular-nums ${getScoreBadgeClass(
-              scoreAchievementPercent(record.score!, record.weight ?? 0),
-            )}`}
-          >
-            {record.score}
-            {record.weight != null ? ` / ${record.weight}` : ''}
-          </span>
-        );
-      },
-    },
-    {
-      title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Evaluator</span>
-      ),
-      key: 'evaluator',
-      width: 220,
-      render: (_: unknown, record) => (
-        <EvaluatorPicker
-          value={record.evaluatorId || undefined}
-          onChange={(value) => onEvaluatorChange(record, value)}
-          options={evaluatorOptions}
-          dataCy={`cr-detail-evaluator-${successorId}-${record.competencyName}`}
-        />
-      ),
-    },
-  ];
-
-  return (
-    <>
-      <Table
-        columns={columns}
-        dataSource={evaluations}
-        rowKey={(r) => r.competencyName + '-' + r.category}
-        pagination={false}
-        size="small"
-        rowClassName={(_, index) =>
-          index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
-        }
-        data-cy={`cr-detail-successor-criteria-${successorId}`}
-      />
-
-      <div
-        className="px-4 py-2 border-t border-[#E5E7EB] bg-[#F8FAFC] text-xs text-gray-500"
-        data-cy="cr-detail-successor-progress"
-      >
-        {evaluatedCount}/{evaluations.length} criteria evaluated
-      </div>
-
-      <EvaluationFeedbackModal
-        open={selectedEvaluation !== null}
-        evaluation={selectedEvaluation}
-        successorName={successorName}
-        onClose={() => setSelectedEvaluation(null)}
-      />
-    </>
-  );
-};
-
-interface EvaluationFeedbackModalProps {
-  open: boolean;
-  evaluation: CompetencyEvaluation | null;
-  successorName: string;
-  onClose: () => void;
-}
-
-const EvaluationFeedbackModal: React.FC<EvaluationFeedbackModalProps> = ({
-  open,
-  evaluation,
-  successorName,
-  onClose,
-}) => {
-  if (!evaluation) return null;
-
-  return (
-    <Modal
-      open={open}
-      onCancel={onClose}
-      footer={
-        <Button type="primary" onClick={onClose} data-cy="eval-feedback-close">
-          Close
-        </Button>
-      }
-      title="Evaluation Details"
-      width={520}
-      destroyOnClose
-      data-cy="evaluation-feedback-modal"
-    >
-      <div
-        className="flex flex-col gap-4 pt-1"
-        data-cy="evaluation-feedback-body"
-      >
-        <div>
-          <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
-            Successor
-          </div>
-          <div className="text-sm font-medium text-gray-800">
-            {successorName}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
-              Criteria
-            </div>
-            <div className="text-sm font-medium text-gray-800">
-              {evaluation.competencyName}
-            </div>
-            <div className="text-xs text-gray-400 mt-0.5">
-              {evaluation.category}
-              {evaluation.weight != null ? ' · ' + evaluation.weight + '%' : ''}
-            </div>
-          </div>
-          <div>
-            <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
-              Importance
-            </div>
-            <Tag color={importanceColor[evaluation.importance]} className="m-0">
-              {evaluation.importance}
-            </Tag>
-          </div>
-        </div>
-
-        <div>
-          <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
-            Evaluator
-          </div>
-          {evaluation.evaluatorId ? (
-            <div className="inline-flex items-center gap-1.5 bg-gray-100 px-2 py-1 rounded-lg">
-              <Avatar
-                size={20}
-                icon={<UserOutlined />}
-                style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
-              />
-              <span className="text-sm text-gray-800">
-                {evaluation.evaluatorName || '—'}
-              </span>
-            </div>
-          ) : (
-            <span className="text-sm text-gray-400">Not assigned</span>
-          )}
-        </div>
-
-        <div>
-          <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
-            Rating
-          </div>
-          {evaluation.rating != null ? (
-            <span
-              className="text-sm font-medium text-gray-800 tabular-nums"
-              data-cy="eval-feedback-rating"
-            >
-              {evaluation.rating} / 100
-            </span>
-          ) : (
-            <span className="text-sm text-gray-400">—</span>
-          )}
-        </div>
-
-        <div>
-          <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
-            Weighted result
-          </div>
-          {evaluation.score != null ? (
-            <span
-              className={
-                'inline-flex items-center justify-center min-w-[2.75rem] px-2.5 py-1 rounded border text-base font-semibold tabular-nums ' +
-                getScoreBadgeClass(
-                  scoreAchievementPercent(
-                    evaluation.score,
-                    evaluation.weight ?? 0,
-                  ),
-                )
-              }
-              data-cy="eval-feedback-score"
-            >
-              {evaluation.score}
-              {evaluation.weight != null ? ' / ' + evaluation.weight : ''}
-            </span>
-          ) : (
-            <span className="text-sm text-gray-400">—</span>
-          )}
-        </div>
-
-        <div>
-          <div className="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">
-            Notes
-          </div>
-          {evaluation.comment?.trim() ? (
-            <p
-              className="text-sm text-gray-700 mb-0 whitespace-pre-wrap rounded-md border border-[#E5E7EB] bg-[#FAFAFA] px-3 py-2"
-              data-cy="eval-feedback-notes"
-            >
-              {evaluation.comment}
-            </p>
-          ) : (
-            <p
-              className="text-sm text-gray-400 mb-0"
-              data-cy="eval-feedback-notes-empty"
-            >
-              No notes provided for this competency.
-            </p>
-          )}
-        </div>
-      </div>
-    </Modal>
   );
 };
 

@@ -5,8 +5,16 @@ import { Form, Select, Input, Tag } from 'antd';
 const { Option, OptGroup } = Select;
 const { TextArea } = Input;
 
+export interface MockOrgPosition {
+  id: string;
+  title: string;
+  department: string;
+  currentEmployee: string | null;
+  reportingTo: string | null;
+}
+
 // ── Mock org positions pulled from the org & emp module ──────────────────────
-export const MOCK_POSITIONS = [
+export const MOCK_POSITIONS: MockOrgPosition[] = [
   {
     id: 'pos-1',
     title: 'Chief Executive Officer',
@@ -77,11 +85,108 @@ export const MOCK_POSITIONS = [
     currentEmployee: 'Abebe Demeke',
     reportingTo: 'Head of Sales',
   },
+  {
+    id: 'pos-11',
+    title: 'Senior Software Engineer',
+    department: 'Engineering',
+    currentEmployee: null,
+    reportingTo: 'Engineering Manager',
+  },
+  {
+    id: 'pos-12',
+    title: 'Principal Engineer',
+    department: 'Engineering',
+    currentEmployee: null,
+    reportingTo: 'VP of Engineering',
+  },
+  {
+    id: 'pos-13',
+    title: 'Finance Manager',
+    department: 'Finance',
+    currentEmployee: null,
+    reportingTo: 'Head of Finance',
+  },
+  {
+    id: 'pos-14',
+    title: 'Financial Analyst',
+    department: 'Finance',
+    currentEmployee: null,
+    reportingTo: 'Finance Manager',
+  },
+  {
+    id: 'pos-15',
+    title: 'HR Business Partner',
+    department: 'Human Resources',
+    currentEmployee: null,
+    reportingTo: 'Director of People',
+  },
+  {
+    id: 'pos-16',
+    title: 'Talent Acquisition Lead',
+    department: 'Human Resources',
+    currentEmployee: null,
+    reportingTo: 'Director of People',
+  },
+  {
+    id: 'pos-17',
+    title: 'Account Executive',
+    department: 'Sales',
+    currentEmployee: null,
+    reportingTo: 'Sales Manager',
+  },
+  {
+    id: 'pos-18',
+    title: 'Product Manager',
+    department: 'Product',
+    currentEmployee: null,
+    reportingTo: 'Head of Product',
+  },
+  {
+    id: 'pos-19',
+    title: 'Senior Product Manager',
+    department: 'Product',
+    currentEmployee: null,
+    reportingTo: 'Head of Product',
+  },
+  {
+    id: 'pos-20',
+    title: 'Operations Lead',
+    department: 'Operations',
+    currentEmployee: null,
+    reportingTo: 'Chief Operating Officer',
+  },
 ];
 
-// Group positions by department for the OptGroup select
-const groupedByDepartment = MOCK_POSITIONS.reduce<
-  Record<string, typeof MOCK_POSITIONS>
+export const MOCK_DEPARTMENTS = Array.from(
+  new Set(MOCK_POSITIONS.map((p) => p.department)),
+).sort();
+
+export const resolvePositionTitle = (
+  positionId?: string | null,
+): string | undefined =>
+  MOCK_POSITIONS.find((p) => p.id === positionId)?.title;
+
+export const resolvePositionTitles = (
+  positionIds?: string[] | null,
+): string[] =>
+  (positionIds ?? [])
+    .map((id) => resolvePositionTitle(id))
+    .filter((t): t is string => Boolean(t));
+
+export const resolvePositionDepartment = (
+  positionId?: string | null,
+): string | undefined =>
+  MOCK_POSITIONS.find((p) => p.id === positionId)?.department;
+
+export const findPositionByTitle = (
+  title?: string | null,
+): MockOrgPosition | undefined =>
+  MOCK_POSITIONS.find(
+    (p) => p.title.toLowerCase() === (title ?? '').trim().toLowerCase(),
+  );
+
+export const groupedPositionsByDepartment = MOCK_POSITIONS.reduce<
+  Record<string, MockOrgPosition[]>
 >((acc, pos) => {
   if (!acc[pos.department]) acc[pos.department] = [];
   acc[pos.department].push(pos);
@@ -132,27 +237,29 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
             }
             data-cy="step-role-selection-position-select"
           >
-            {Object.entries(groupedByDepartment).map(([dept, positions]) => (
-              <OptGroup key={dept} label={dept}>
-                {positions.map((pos) => (
-                  <Option
-                    key={pos.id}
-                    value={pos.id}
-                    label={pos.title}
-                    data-cy={`position-option-${pos.id}`}
-                  >
-                    <div className="flex flex-col py-0.5">
-                      <span className="text-sm font-medium text-gray-800">
-                        {pos.title}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        {pos.department}
-                      </span>
-                    </div>
-                  </Option>
-                ))}
-              </OptGroup>
-            ))}
+            {Object.entries(groupedPositionsByDepartment).map(
+              ([dept, positions]) => (
+                <OptGroup key={dept} label={dept}>
+                  {positions.map((pos) => (
+                    <Option
+                      key={pos.id}
+                      value={pos.id}
+                      label={pos.title}
+                      data-cy={`position-option-${pos.id}`}
+                    >
+                      <div className="flex flex-col py-0.5">
+                        <span className="text-sm font-medium text-gray-800">
+                          {pos.title}
+                        </span>
+                        <span className="text-xs text-gray-400">
+                          {pos.department}
+                        </span>
+                      </div>
+                    </Option>
+                  ))}
+                </OptGroup>
+              ),
+            )}
           </Select>
         </Form.Item>
 
@@ -176,13 +283,11 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
         </Form.Item>
       </div>
 
-      {/* Detail tags shown after a position is selected */}
       {selected && (
         <div
-          className="flex flex-wrap gap-2"
+          className="flex flex-wrap items-center gap-2"
           data-cy="step-role-selection-preview-tags"
         >
-          {/* Department */}
           <Tag
             className="text-[#1677ff] text-sm font-normal px-3 bg-[#e6f4ff] border border-[#91caff] h-[26px] flex items-center"
             data-cy="preview-tag-department"
@@ -190,27 +295,26 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
             {selected.department}
           </Tag>
 
-          {/* Current Employee */}
-          <Tag
-            className="text-[#1677ff] text-sm font-normal px-3 bg-[#e6f4ff] border border-[#91caff] h-[26px] flex items-center"
-            data-cy="preview-tag-current-employee"
-          >
-            {selected.currentEmployee}
-          </Tag>
+          {selected.currentEmployee ? (
+            <Tag
+              className="text-[#1677ff] text-sm font-normal px-3 bg-[#e6f4ff] border border-[#91caff] h-[26px] flex items-center"
+              data-cy="preview-tag-current-employee"
+            >
+              {selected.currentEmployee}
+            </Tag>
+          ) : null}
 
-          {/* Reports To — only when present */}
-          {selected.reportingTo && (
+          {selected.reportingTo ? (
             <Tag
               className="text-[#1677ff] text-sm font-normal px-3 bg-[#e6f4ff] border border-[#91caff] h-[26px] flex items-center"
               data-cy="preview-tag-reporting"
             >
               Reports to: {selected.reportingTo}
             </Tag>
-          )}
+          ) : null}
         </div>
       )}
 
-      {/* Notes — optional */}
       <Form.Item
         name="notes"
         label={
