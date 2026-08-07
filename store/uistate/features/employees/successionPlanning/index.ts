@@ -1498,7 +1498,6 @@ export const useSuccessionPlanningStore = create<SuccessionPlanningStore>(
         roles: mapSuccessors(state.roles, roleId, successorId, (successor) => ({
           ...successor,
           idp: {
-            objectives: plan.objectives,
             status: plan.status,
             activities: plan.activities ?? successor.idp?.activities ?? [],
           },
@@ -1512,7 +1511,6 @@ export const useSuccessionPlanningStore = create<SuccessionPlanningStore>(
         nextIdpActivityId: state.nextIdpActivityId + 1,
         roles: mapSuccessors(state.roles, roleId, successorId, (successor) => {
           const idp = successor.idp ?? {
-            objectives: '',
             status: 'Draft' as const,
             activities: [],
           };

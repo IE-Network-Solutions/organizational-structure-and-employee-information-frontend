@@ -23,30 +23,20 @@ import type {
   IndividualDevelopmentPlan,
 } from '../successionTypes';
 import { idpActivityStatusColor } from '../tagColors';
+import IdpActivityTypeSelect from '../idpActivityTypeSelect';
 
 interface IdpPanelProps {
   idp?: IndividualDevelopmentPlan;
-  onUpsertPlan: (plan: {
-    objectives: string;
-    status: IdpPlanStatus;
-  }) => void;
+  onUpsertPlan: (plan: { status: IdpPlanStatus }) => void;
   onAddActivity: (activity: Omit<IdpActivity, 'id'>) => void;
   onUpdateActivity: (activityId: string, patch: Partial<IdpActivity>) => void;
   /** Hide plan/activity buttons when parent renders them in the tab bar. */
   hideToolbarButtons?: boolean;
-  /** Increment to open the plan modal from outside. */
+  /** Increment to open the plan status modal from outside. */
   openPlanKey?: number;
   /** Increment to open the add-activity modal from outside. */
   openActivityKey?: number;
 }
-
-const ACTIVITY_TYPES: IdpActivityType[] = [
-  'Leadership Training',
-  'Technical Training',
-  'Certification',
-  'Delegation / Acting Assignment',
-  'Other',
-];
 
 const IdpPanel: React.FC<IdpPanelProps> = ({
   idp,
@@ -67,7 +57,6 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
 
   const openPlan = () => {
     planForm.setFieldsValue({
-      objectives: idp?.objectives ?? '',
       status: idp?.status ?? 'Draft',
     });
     setPlanOpen(true);
@@ -124,7 +113,9 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
       dataIndex: 'targetDate',
       width: 110,
       render: (value?: string) => (
-        <span className="text-sm text-[#4d4d4d] tabular-nums">{value || '—'}</span>
+        <span className="text-sm text-[#4d4d4d] tabular-nums">
+          {value || '—'}
+        </span>
       ),
     },
     {
@@ -141,38 +132,30 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
 
   return (
     <div className="flex flex-col gap-3" data-cy="idp-panel">
-      <div className="rounded-lg border border-[#E5E7EB] bg-[#F8FAFC] px-4 py-3">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <div className="text-xs text-gray-400 mb-1">Objectives</div>
-            <p className="text-sm text-gray-800 mb-2">
-              {idp?.objectives || 'No IDP created yet for this successor.'}
-            </p>
-            {idp ? (
-              <Tag className="m-0">{idp.status}</Tag>
-            ) : null}
-          </div>
-          {!hideToolbarButtons ? (
-            <Button
-              type="primary"
-              size="small"
-              icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
-              onClick={openPlan}
-              className="h-8 font-normal"
-              data-cy="edit-idp-plan-btn"
-            >
-              {idp ? 'Edit plan' : 'Create IDP'}
-            </Button>
-          ) : null}
+      {idp ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-gray-500">Plan status</span>
+          <Tag className="m-0" data-cy="idp-plan-status-tag">
+            {idp.status}
+          </Tag>
         </div>
-      </div>
+      ) : null}
 
       {!hideToolbarButtons ? (
-        <div className="flex justify-end">
+        <div className="flex flex-wrap justify-end gap-2">
           <Button
             type="primary"
             size="small"
-            disabled={!idp}
+            icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
+            onClick={openPlan}
+            className="h-8 font-normal"
+            data-cy="edit-idp-plan-btn"
+          >
+            {idp ? 'Edit status' : 'Create IDP'}
+          </Button>
+          <Button
+            type="primary"
+            size="small"
             icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
             onClick={() => openActivity()}
             className="h-8 font-normal"
@@ -193,11 +176,7 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
           emptyText: (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description={
-                idp
-                  ? 'No IDP activities yet.'
-                  : 'Create an IDP to add development activities.'
-              }
+              description="No IDP activities yet. Add an activity to get started."
             />
           ),
         }}
@@ -209,11 +188,11 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
 
       <Modal
         open={planOpen}
-        title="Individual Development Plan"
+        title={idp ? 'Edit IDP status' : 'Create IDP'}
         onCancel={() => setPlanOpen(false)}
         onOk={async () => {
           const values = await planForm.validateFields();
-          onUpsertPlan(values);
+          onUpsertPlan({ status: values.status as IdpPlanStatus });
           setPlanOpen(false);
         }}
         okText="Save"
@@ -221,13 +200,6 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
         data-cy="idp-plan-modal"
       >
         <Form form={planForm} layout="vertical" className="mt-2">
-          <Form.Item
-            name="objectives"
-            label="Objectives"
-            rules={[{ required: true, message: 'Required' }]}
-          >
-            <Input.TextArea rows={3} data-cy="idp-objectives" />
-          </Form.Item>
           <Form.Item name="status" label="Status" rules={[{ required: true }]}>
             <Select
               options={[
@@ -268,11 +240,12 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
         data-cy="idp-activity-modal"
       >
         <Form form={activityForm} layout="vertical" className="mt-2">
-          <Form.Item name="type" label="Type" rules={[{ required: true }]}>
-            <Select
-              options={ACTIVITY_TYPES.map((value) => ({ value, label: value }))}
-              data-cy="idp-activity-type"
-            />
+          <Form.Item
+            name="type"
+            label="Type"
+            rules={[{ required: true, message: 'Required' }]}
+          >
+            <IdpActivityTypeSelect data-cy="idp-activity-type" />
           </Form.Item>
           <Form.Item
             name="title"

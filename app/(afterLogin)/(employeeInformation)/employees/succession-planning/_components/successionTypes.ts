@@ -55,12 +55,40 @@ export type DevelopmentActionStatus =
   | 'Completed'
   | 'Overdue';
 
-export type IdpActivityType =
-  | 'Leadership Training'
-  | 'Technical Training'
-  | 'Certification'
-  | 'Delegation / Acting Assignment'
-  | 'Other';
+export type IdpActivityType = string;
+
+/** Built-in activity types; users can add custom types in the activity form. */
+export const IDP_ACTIVITY_TYPE_PRESETS = [
+  'Leadership Training',
+  'Technical Training',
+  'Certification',
+  'Delegation / Acting Assignment',
+  'Other',
+] as const;
+
+const customIdpActivityTypes: string[] = [];
+
+export const addCustomIdpActivityType = (raw: string): string | null => {
+  const name = raw.trim();
+  if (!name) return null;
+  const exists = [...IDP_ACTIVITY_TYPE_PRESETS, ...customIdpActivityTypes].some(
+    (t) => t.toLowerCase() === name.toLowerCase(),
+  );
+  if (!exists) {
+    customIdpActivityTypes.push(name);
+  }
+  return (
+    [...IDP_ACTIVITY_TYPE_PRESETS, ...customIdpActivityTypes].find(
+      (t) => t.toLowerCase() === name.toLowerCase(),
+    ) ?? name
+  );
+};
+
+export const idpActivityTypeOptions = () =>
+  [...IDP_ACTIVITY_TYPE_PRESETS, ...customIdpActivityTypes].map((value) => ({
+    value,
+    label: value,
+  }));
 
 export type IdpActivityStatus =
   | 'Not Started'
@@ -103,7 +131,8 @@ export interface IdpActivity {
 }
 
 export interface IndividualDevelopmentPlan {
-  objectives: string;
+  /** @deprecated Kept optional for older seed/store data; UI no longer collects this. */
+  objectives?: string;
   status: IdpPlanStatus;
   activities: IdpActivity[];
 }

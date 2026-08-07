@@ -282,12 +282,11 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             className={tabBtnClass}
             data-cy={`edit-idp-plan-tab-${successor.id}`}
           >
-            {successor.idp ? 'Edit plan' : 'Create IDP'}
+            {successor.idp ? 'Edit status' : 'Create IDP'}
           </Button>
           <Button
             type="primary"
             size="small"
-            disabled={!successor.idp}
             icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
             onClick={() => setIdpActivityKey((key) => key + 1)}
             className={tabBtnClass}
