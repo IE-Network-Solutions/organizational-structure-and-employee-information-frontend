@@ -257,7 +257,7 @@ const SuccessorDetailPage: React.FC = () => {
       <Card
         bordered={false}
         className="rounded-lg bg-white border border-[#D9D9D9]"
-        styles={{ body: { padding: '8px 16px 16px' } }}
+        styles={{ body: { padding: '4px 16px 16px' } }}
       >
         <SuccessorDetailPanel
           roleId={role.id}

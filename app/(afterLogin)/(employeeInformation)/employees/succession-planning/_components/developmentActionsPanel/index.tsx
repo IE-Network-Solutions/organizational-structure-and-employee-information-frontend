@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Empty, Select, Table } from 'antd';
 import type { TableColumnsType } from 'antd';
 import dayjs from 'dayjs';
@@ -31,6 +31,10 @@ interface DevelopmentActionsPanelProps {
   onAdd: (action: Omit<DevelopmentAction, 'id'>) => void;
   onUpdate: (actionId: string, patch: Partial<DevelopmentAction>) => void;
   onDelete: (actionId: string) => void;
+  /** Hide the in-panel Add button when the parent renders it in the tab bar. */
+  hideAddButton?: boolean;
+  /** Increment to open the create modal from outside (e.g. tab bar). */
+  openCreateKey?: number;
 }
 
 const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
@@ -39,6 +43,8 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
   onAdd,
   onUpdate,
   onDelete,
+  hideAddButton = false,
+  openCreateKey = 0,
 }) => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<DevelopmentAction | null>(null);
@@ -48,6 +54,12 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
     setEditing(null);
     setOpen(true);
   };
+
+  useEffect(() => {
+    if (openCreateKey > 0) {
+      openCreate();
+    }
+  }, [openCreateKey]);
 
   const openEdit = (action: DevelopmentAction) => {
     setEditing(action);
@@ -189,18 +201,20 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
 
   return (
     <div className="flex flex-col gap-3" data-cy="development-actions-panel">
-      <div className="flex justify-end">
-        <Button
-          type="primary"
-          size="small"
-          icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
-          onClick={openCreate}
-          className="h-8 font-normal"
-          data-cy="add-development-action-btn"
-        >
-          Add action
-        </Button>
-      </div>
+      {!hideAddButton ? (
+        <div className="flex justify-end">
+          <Button
+            type="primary"
+            size="small"
+            icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
+            onClick={openCreate}
+            className="h-8 font-normal"
+            data-cy="add-development-action-btn"
+          >
+            Add action
+          </Button>
+        </div>
+      ) : null}
       <Table
         columns={columns}
         dataSource={actions}

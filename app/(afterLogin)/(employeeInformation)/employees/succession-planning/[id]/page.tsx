@@ -209,7 +209,7 @@ const CriticalRoleDetailPage: React.FC = () => {
       key: 'successors',
       label: `Successors (${successorCount})`,
       children: (
-        <div className="pt-2" data-cy="critical-role-detail-successors">
+        <div data-cy="critical-role-detail-successors">
           {(role.successors?.length ?? 0) === 0 ? (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -234,28 +234,7 @@ const CriticalRoleDetailPage: React.FC = () => {
       key: 'competencies',
       label: `Competencies (${role.competencies?.length ?? 0})`,
       children: (
-        <div className="pt-2" data-cy="critical-role-detail-competencies">
-          <div className="flex flex-wrap items-center justify-end gap-2 mb-3">
-            <Button
-              type={hasCompetencies ? 'default' : 'primary'}
-              className={
-                hasCompetencies
-                  ? 'border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8'
-                  : 'font-normal h-8'
-              }
-              icon={
-                hasCompetencies ? (
-                  <EditOutlinedIcon style={{ fontSize: 16 }} />
-                ) : (
-                  <AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />
-                )
-              }
-              onClick={() => setManageOpen(true)}
-              data-cy="cr-detail-manage-competencies-btn"
-            >
-              {hasCompetencies ? 'Manage Competencies' : 'Add Competencies'}
-            </Button>
-          </div>
+        <div data-cy="critical-role-detail-competencies">
           <Card
             bordered={false}
             className="rounded-lg bg-[#F9FAFB]"
@@ -271,7 +250,7 @@ const CriticalRoleDetailPage: React.FC = () => {
                 emptyText: (
                   <Empty
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description="No competencies defined yet. Add competencies and assign evaluators to each successor."
+                    description="No competencies defined yet. Use Add Competencies above to define criteria and assign evaluators."
                   />
                 ),
               }}
@@ -285,6 +264,30 @@ const CriticalRoleDetailPage: React.FC = () => {
       ),
     },
   ];
+
+  const tabBarExtra =
+    activeTab === 'competencies' ? (
+      <Button
+        type={hasCompetencies ? 'default' : 'primary'}
+        size="small"
+        className={
+          hasCompetencies
+            ? 'border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8'
+            : 'font-normal h-8'
+        }
+        icon={
+          hasCompetencies ? (
+            <EditOutlinedIcon style={{ fontSize: 16 }} />
+          ) : (
+            <AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />
+          )
+        }
+        onClick={() => setManageOpen(true)}
+        data-cy="cr-detail-manage-competencies-btn"
+      >
+        {hasCompetencies ? 'Manage Competencies' : 'Add Competencies'}
+      </Button>
+    ) : null;
 
   return (
     <div
@@ -414,6 +417,8 @@ const CriticalRoleDetailPage: React.FC = () => {
         activeKey={activeTab}
         onChange={setActiveTab}
         items={tabItems}
+        tabBarExtraContent={tabBarExtra}
+        className="[&_.ant-tabs-nav]:mb-2"
         data-cy="critical-role-detail-tabs"
       />
 

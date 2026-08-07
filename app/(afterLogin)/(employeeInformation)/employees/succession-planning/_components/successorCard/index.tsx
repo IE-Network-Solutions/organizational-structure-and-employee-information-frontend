@@ -1,9 +1,10 @@
 'use client';
 import React, { useState } from 'react';
-import { Avatar, Button, Card, Modal, Table, Tabs, Tag } from 'antd';
+import { Avatar, Button, Card, Empty, Modal, Table, Tabs, Tag } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import type { CriticalRole } from '../criticalRoleModal';
 import { roleRequiredEducationLabel } from '../criticalRoleModal';
@@ -196,6 +197,64 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
   const [selectedEvaluation, setSelectedEvaluation] =
     useState<CompetencyEvaluation | null>(null);
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [actionCreateKey, setActionCreateKey] = useState(0);
+
+  const hasCompetencies = (role.competencies?.length ?? 0) > 0;
+
+  const tabBarExtra = (() => {
+    if (activeTab === 'assessment') {
+      return (
+        <Button
+          size="small"
+          icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
+          onClick={() => setAssessmentOpen(true)}
+          className="border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8"
+          data-cy={`edit-assessment-${successor.id}`}
+        >
+          Edit assessment
+        </Button>
+      );
+    }
+    if (activeTab === 'competencies') {
+      return (
+        <Button
+          type={hasCompetencies ? 'default' : 'primary'}
+          size="small"
+          icon={
+            hasCompetencies ? (
+              <EditOutlinedIcon style={{ fontSize: 16 }} />
+            ) : (
+              <AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />
+            )
+          }
+          onClick={onManageCompetencies}
+          className={
+            hasCompetencies
+              ? 'border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8'
+              : 'font-normal h-8'
+          }
+          data-cy={`manage-competencies-${successor.id}`}
+        >
+          {hasCompetencies ? 'Manage Competencies' : 'Add Competencies'}
+        </Button>
+      );
+    }
+    if (activeTab === 'actions') {
+      return (
+        <Button
+          type="primary"
+          size="small"
+          icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
+          onClick={() => setActionCreateKey((key) => key + 1)}
+          className="h-8 font-normal"
+          data-cy={`add-development-action-tab-${successor.id}`}
+        >
+          Add action
+        </Button>
+      );
+    }
+    return null;
+  })();
 
   const evaluations = successor.competencyEvaluations ?? [];
   const gaps = successor.gaps ?? [];
@@ -339,23 +398,14 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
         activeKey={activeTab}
         onChange={setActiveTab}
         tabBarGutter={16}
+        tabBarExtraContent={tabBarExtra}
+        className="[&_.ant-tabs-nav]:mb-2"
         items={[
           {
             key: 'assessment',
             label: 'Assessment',
             children: (
-              <div className="pt-2 flex flex-col gap-3">
-                <div className="flex justify-end">
-                  <Button
-                    size="small"
-                    icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
-                    onClick={() => setAssessmentOpen(true)}
-                    className="border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8"
-                    data-cy={`edit-assessment-${successor.id}`}
-                  >
-                    Edit assessment
-                  </Button>
-                </div>
+              <div className="flex flex-col gap-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div>
                     <div className="text-xs text-gray-400 mb-0.5">
@@ -550,20 +600,14 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             label: 'Competencies',
             children:
               evaluations.length === 0 ? (
-                <div className="py-4 flex flex-col items-start gap-2">
-                  <span className="text-sm text-gray-400">
-                    No evaluator assignments yet.
-                  </span>
-                  <Button
-                    type="link"
-                    className="!px-0"
-                    onClick={onManageCompetencies}
-                  >
-                    Manage competencies
-                  </Button>
+                <div className="py-2">
+                  <Empty
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description="No competencies defined yet. Use Add Competencies above to define criteria and assign evaluators."
+                  />
                 </div>
               ) : (
-                <div className="pt-2">
+                <div>
                   <Table
                     columns={competencyColumns}
                     dataSource={evaluations}
@@ -584,7 +628,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             key: 'gaps',
             label: `Gaps${openGaps ? ` (${openGaps})` : ''}`,
             children: (
-              <div className="pt-2">
+              <div>
                 <SuccessorGapsPanel
                   gaps={gaps}
                   actions={actions}
@@ -613,10 +657,12 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             key: 'actions',
             label: `Actions${actions.length ? ` (${actions.length})` : ''}`,
             children: (
-              <div className="pt-2">
+              <div>
                 <DevelopmentActionsPanel
                   actions={actions}
                   gaps={gaps}
+                  hideAddButton
+                  openCreateKey={actionCreateKey}
                   onAdd={(action) =>
                     addDevelopmentAction(roleId, successor.id, action)
                   }
@@ -639,7 +685,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             key: 'idp',
             label: 'IDP',
             children: (
-              <div className="pt-2">
+              <div>
                 <IdpPanel
                   idp={successor.idp}
                   onUpsertPlan={(plan) => upsertIdp(roleId, successor.id, plan)}
