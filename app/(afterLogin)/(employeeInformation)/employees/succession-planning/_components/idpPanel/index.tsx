@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Button,
   DatePicker,
@@ -32,6 +32,12 @@ interface IdpPanelProps {
   }) => void;
   onAddActivity: (activity: Omit<IdpActivity, 'id'>) => void;
   onUpdateActivity: (activityId: string, patch: Partial<IdpActivity>) => void;
+  /** Hide plan/activity buttons when parent renders them in the tab bar. */
+  hideToolbarButtons?: boolean;
+  /** Increment to open the plan modal from outside. */
+  openPlanKey?: number;
+  /** Increment to open the add-activity modal from outside. */
+  openActivityKey?: number;
 }
 
 const ACTIVITY_TYPES: IdpActivityType[] = [
@@ -47,6 +53,9 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
   onUpsertPlan,
   onAddActivity,
   onUpdateActivity,
+  hideToolbarButtons = false,
+  openPlanKey = 0,
+  openActivityKey = 0,
 }) => {
   const [planOpen, setPlanOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
@@ -78,6 +87,14 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
     );
     setActivityOpen(true);
   };
+
+  useEffect(() => {
+    if (openPlanKey > 0) openPlan();
+  }, [openPlanKey]);
+
+  useEffect(() => {
+    if (openActivityKey > 0) openActivity();
+  }, [openActivityKey]);
 
   const columns: TableColumnsType<IdpActivity> = [
     {
@@ -135,31 +152,36 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
               <Tag className="m-0">{idp.status}</Tag>
             ) : null}
           </div>
-          <Button
-            size="small"
-            icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
-            onClick={openPlan}
-            className="border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8"
-            data-cy="edit-idp-plan-btn"
-          >
-            {idp ? 'Edit plan' : 'Create IDP'}
-          </Button>
+          {!hideToolbarButtons ? (
+            <Button
+              type="primary"
+              size="small"
+              icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
+              onClick={openPlan}
+              className="h-8 font-normal"
+              data-cy="edit-idp-plan-btn"
+            >
+              {idp ? 'Edit plan' : 'Create IDP'}
+            </Button>
+          ) : null}
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button
-          type="primary"
-          size="small"
-          disabled={!idp}
-          icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
-          onClick={() => openActivity()}
-          className="h-8 font-normal"
-          data-cy="add-idp-activity-btn"
-        >
-          Add activity
-        </Button>
-      </div>
+      {!hideToolbarButtons ? (
+        <div className="flex justify-end">
+          <Button
+            type="primary"
+            size="small"
+            disabled={!idp}
+            icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
+            onClick={() => openActivity()}
+            className="h-8 font-normal"
+            data-cy="add-idp-activity-btn"
+          >
+            Add activity
+          </Button>
+        </div>
+      ) : null}
 
       <Table
         columns={columns}

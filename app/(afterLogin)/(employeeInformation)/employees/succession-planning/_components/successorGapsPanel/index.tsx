@@ -20,6 +20,8 @@ interface SuccessorGapsPanelProps {
   onRecalculate: () => void;
   onStatusChange: (gapId: string, status: GapStatus) => void;
   onAddAction?: (action: Omit<DevelopmentAction, 'id'>) => void;
+  /** Hide Recalculate when parent renders it in the tab bar. */
+  hideRecalculateButton?: boolean;
 }
 
 const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
@@ -28,6 +30,7 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
   onRecalculate,
   onStatusChange,
   onAddAction,
+  hideRecalculateButton = false,
 }) => {
   const [actionModalOpen, setActionModalOpen] = useState(false);
   const [lockedGapId, setLockedGapId] = useState<string | undefined>();
@@ -150,15 +153,18 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
         <p className="text-sm text-gray-500 mb-0">
           {openCount} open gap{openCount === 1 ? '' : 's'} vs role requirements
         </p>
-        <Button
-          size="small"
-          icon={<RefreshOutlinedIcon style={{ fontSize: 16 }} />}
-          onClick={onRecalculate}
-          className="border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8"
-          data-cy="recalculate-gaps-btn"
-        >
-          Recalculate gaps
-        </Button>
+        {!hideRecalculateButton ? (
+          <Button
+            type="primary"
+            size="small"
+            icon={<RefreshOutlinedIcon style={{ fontSize: 16 }} />}
+            onClick={onRecalculate}
+            className="h-8 font-normal"
+            data-cy="recalculate-gaps-btn"
+          >
+            Recalculate gaps
+          </Button>
+        ) : null}
       </div>
       <Table
         columns={columns}

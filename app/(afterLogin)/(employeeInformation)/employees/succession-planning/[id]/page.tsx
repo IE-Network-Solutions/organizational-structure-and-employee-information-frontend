@@ -267,26 +267,24 @@ const CriticalRoleDetailPage: React.FC = () => {
 
   const tabBarExtra =
     activeTab === 'competencies' ? (
-      <Button
-        type={hasCompetencies ? 'default' : 'primary'}
-        size="small"
-        className={
-          hasCompetencies
-            ? 'border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8'
-            : 'font-normal h-8'
-        }
-        icon={
-          hasCompetencies ? (
-            <EditOutlinedIcon style={{ fontSize: 16 }} />
-          ) : (
-            <AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />
-          )
-        }
-        onClick={() => setManageOpen(true)}
-        data-cy="cr-detail-manage-competencies-btn"
-      >
-        {hasCompetencies ? 'Manage Competencies' : 'Add Competencies'}
-      </Button>
+      <div className="flex items-center py-2">
+        <Button
+          type="primary"
+          size="small"
+          className="h-8 font-normal"
+          icon={
+            hasCompetencies ? (
+              <EditOutlinedIcon style={{ fontSize: 16 }} />
+            ) : (
+              <AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />
+            )
+          }
+          onClick={() => setManageOpen(true)}
+          data-cy="cr-detail-manage-competencies-btn"
+        >
+          {hasCompetencies ? 'Manage Competencies' : 'Add Competencies'}
+        </Button>
+      </div>
     ) : null;
 
   return (
@@ -418,7 +416,7 @@ const CriticalRoleDetailPage: React.FC = () => {
         onChange={setActiveTab}
         items={tabItems}
         tabBarExtraContent={tabBarExtra}
-        className="[&_.ant-tabs-nav]:mb-2"
+        className="[&_.ant-tabs-nav]:mb-2 [&_.ant-tabs-nav]:mt-1 [&_.ant-tabs-nav]:min-h-[52px] [&_.ant-tabs-nav]:items-center"
         data-cy="critical-role-detail-tabs"
       />
 

@@ -5,6 +5,7 @@ import type { TableColumnsType } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import RefreshOutlinedIcon from '@mui/icons-material/RefreshOutlined';
 import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
 import type { CriticalRole } from '../criticalRoleModal';
 import { roleRequiredEducationLabel } from '../criticalRoleModal';
@@ -198,17 +199,21 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
     useState<CompetencyEvaluation | null>(null);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [actionCreateKey, setActionCreateKey] = useState(0);
+  const [idpPlanKey, setIdpPlanKey] = useState(0);
+  const [idpActivityKey, setIdpActivityKey] = useState(0);
 
   const hasCompetencies = (role.competencies?.length ?? 0) > 0;
+  const tabBtnClass = 'h-8 font-normal';
 
   const tabBarExtra = (() => {
     if (activeTab === 'assessment') {
       return (
         <Button
+          type="primary"
           size="small"
           icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
           onClick={() => setAssessmentOpen(true)}
-          className="border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8"
+          className={tabBtnClass}
           data-cy={`edit-assessment-${successor.id}`}
         >
           Edit assessment
@@ -218,7 +223,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
     if (activeTab === 'competencies') {
       return (
         <Button
-          type={hasCompetencies ? 'default' : 'primary'}
+          type="primary"
           size="small"
           icon={
             hasCompetencies ? (
@@ -228,14 +233,27 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             )
           }
           onClick={onManageCompetencies}
-          className={
-            hasCompetencies
-              ? 'border border-[#D9D9D9] text-[#4d4d4d] font-normal h-8'
-              : 'font-normal h-8'
-          }
+          className={tabBtnClass}
           data-cy={`manage-competencies-${successor.id}`}
         >
           {hasCompetencies ? 'Manage Competencies' : 'Add Competencies'}
+        </Button>
+      );
+    }
+    if (activeTab === 'gaps') {
+      return (
+        <Button
+          type="primary"
+          size="small"
+          icon={<RefreshOutlinedIcon style={{ fontSize: 16 }} />}
+          onClick={() => {
+            recomputeGaps(roleId, successor.id);
+            NotificationMessage.success({ message: 'Gaps recalculated' });
+          }}
+          className={tabBtnClass}
+          data-cy={`recalculate-gaps-tab-${successor.id}`}
+        >
+          Recalculate gaps
         </Button>
       );
     }
@@ -246,11 +264,38 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
           size="small"
           icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
           onClick={() => setActionCreateKey((key) => key + 1)}
-          className="h-8 font-normal"
+          className={tabBtnClass}
           data-cy={`add-development-action-tab-${successor.id}`}
         >
           Add action
         </Button>
+      );
+    }
+    if (activeTab === 'idp') {
+      return (
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            type="primary"
+            size="small"
+            icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
+            onClick={() => setIdpPlanKey((key) => key + 1)}
+            className={tabBtnClass}
+            data-cy={`edit-idp-plan-tab-${successor.id}`}
+          >
+            {successor.idp ? 'Edit plan' : 'Create IDP'}
+          </Button>
+          <Button
+            type="primary"
+            size="small"
+            disabled={!successor.idp}
+            icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
+            onClick={() => setIdpActivityKey((key) => key + 1)}
+            className={tabBtnClass}
+            data-cy={`add-idp-activity-tab-${successor.id}`}
+          >
+            Add activity
+          </Button>
+        </div>
       );
     }
     return null;
@@ -398,8 +443,12 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
         activeKey={activeTab}
         onChange={setActiveTab}
         tabBarGutter={16}
-        tabBarExtraContent={tabBarExtra}
-        className="[&_.ant-tabs-nav]:mb-2"
+        tabBarExtraContent={
+          tabBarExtra ? (
+            <div className="flex items-center py-2">{tabBarExtra}</div>
+          ) : null
+        }
+        className="[&_.ant-tabs-nav]:mb-2 [&_.ant-tabs-nav]:mt-1 [&_.ant-tabs-nav]:min-h-[52px] [&_.ant-tabs-nav]:items-center"
         items={[
           {
             key: 'assessment',
@@ -632,6 +681,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                 <SuccessorGapsPanel
                   gaps={gaps}
                   actions={actions}
+                  hideRecalculateButton
                   onRecalculate={() => {
                     recomputeGaps(roleId, successor.id);
                     NotificationMessage.success({
@@ -688,6 +738,9 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
               <div>
                 <IdpPanel
                   idp={successor.idp}
+                  hideToolbarButtons
+                  openPlanKey={idpPlanKey}
+                  openActivityKey={idpActivityKey}
                   onUpsertPlan={(plan) => upsertIdp(roleId, successor.id, plan)}
                   onAddActivity={(activity) =>
                     addIdpActivity(roleId, successor.id, activity)
