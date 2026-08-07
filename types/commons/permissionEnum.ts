@@ -248,15 +248,6 @@ export enum Permissions {
   SubmitLeaveRequest = 'submit-leave-request',
   GenerateAttendanceReports = 'generate-attendance-reports',
 
-  CreateShiftTemplate = 'create-shift-template',
-  UpdateShiftTemplate = 'update-shift-template',
-  DeleteShiftTemplate = 'delete-shift-template',
-  AssignShift = 'assign-shift',
-  ManageShiftSwap = 'manage-shift-swap',
-  SubmitShiftSwapRequest = 'submit-shift-swap-request',
-  ApproveShiftSwapRequest = 'approve-shift-swap-request',
-  ViewShiftReports = 'view-shift-reports',
-
   // OKR Permissions
   ViewTeamOkr = 'view-team-okr',
   ViewCompanyOkr = 'view-company-okr',

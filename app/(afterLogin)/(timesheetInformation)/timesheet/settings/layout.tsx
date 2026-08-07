@@ -13,7 +13,6 @@ import AddIcon from '@mui/icons-material/Add';
 import { useGetAttendanceNotificationTypes } from '@/store/server/features/timesheet/attendanceNotificationType/queries';
 import { useApprovalStore } from '@/store/uistate/features/approval';
 import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
-import { useShiftSwapStore } from '@/store/uistate/features/timesheet/shiftSwap';
 
 interface TimesheetSettingsLayoutProps {
   children: ReactNode;
@@ -26,7 +25,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
   const router = useRouter();
   const { isMobile } = useIsMobile();
   const { openDrawer } = useScheduleStore();
-  const { setIsTemplateModalOpen, setActiveSection } = useShiftSwapStore();
 
   const {
     setIsShowClosedDateSidebar,
@@ -63,8 +61,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     if (pathname.includes('/approvals')) return 'approvals';
     if (pathname.includes('/time-zone')) return 'time-zone';
     if (pathname.includes('/workSchedule')) return 'workSchedule';
-    if (pathname.includes('/shift-and-swap-management'))
-      return 'shift-and-swap-management';
     if (pathname.includes('/zkt-addon')) return 'zkt-addon';
     return 'closed-date';
   };
@@ -111,9 +107,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         break;
       case 'workSchedule':
         router.push('/timesheet/settings/workSchedule');
-        break;
-      case 'shift-and-swap-management':
-        router.push('/timesheet/settings/shift-and-swap-management');
         break;
       case 'zkt-addon':
         router.push('/timesheet/settings/zkt-addon');
@@ -283,18 +276,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
           id="time-attendance-settings-workschedule-tab-label"
         >
           Work Schedule
-        </div>
-      ),
-    },
-    {
-      key: 'shift-and-swap-management',
-      label: (
-        <div
-          className={`text-base font-normal m-0 ${activeKey === 'shift-and-swap-management' ? 'text-primary font-semibold' : 'text-gray-800'}`}
-          data-cy="time-attendance-settings-shift-and-swap-management-tab-label"
-          id="time-attendance-settings-shift-and-swap-management-tab-label"
-        >
-          Shift & Swap Management
         </div>
       ),
     },
@@ -652,30 +633,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
                         id="org-settings-work-schedule-create-btn-text"
                       >
                         Create work Schedule
-                      </span>
-                    </Button>
-                  </AccessGuard>
-                ) : activeKey === 'shift-and-swap-management' ? (
-                  <AccessGuard
-                    permissions={[Permissions.CreateShiftTemplate]}
-                    data-cy="time-attendance-settings-shift-swap-add-template-access-guard"
-                  >
-                    <Button
-                      type="primary"
-                      className="h-10 w-10 sm:w-auto"
-                      icon={<AddIcon />}
-                      onClick={() => {
-                        setActiveSection('templates');
-                        setIsTemplateModalOpen(true, null);
-                      }}
-                      data-cy="time-attendance-settings-shift-swap-layout-add-template"
-                      id="time-attendance-settings-shift-swap-layout-add-template"
-                    >
-                      <span
-                        className="hidden md:inline"
-                        data-cy="time-attendance-settings-shift-swap-layout-add-template-label"
-                      >
-                        {!isMobile && 'Add Shift Template'}
                       </span>
                     </Button>
                   </AccessGuard>
