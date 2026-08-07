@@ -12,6 +12,7 @@ import {
 import {
   rememberReportTaskStatuses,
   reconcileReportTaskStatusOverrides,
+  reportTaskLookupIds,
   useRecentReportTaskStatuses,
   type ReportTaskStatusOverride,
 } from '@/utils/recentReportTaskStatuses';
@@ -363,7 +364,14 @@ export function patchReportTaskStatusesInCaches(
   if (keys.length === 0) return;
 
   rememberReportTaskStatuses(reportId, statusByPlanTaskId);
-  const krDeltas = applyReportTaskStatusPatchesToQueryCaches(
+  // Compute OKR deltas ONCE from a single report snapshot — never while
+  // walking every query-cache copy (that double-counted 10→7 as −6).
+  const krDeltas = computeOkrDeltasFromPatches(
+    queryClient,
+    reportId,
+    statusByPlanTaskId,
+  );
+  applyReportTaskStatusPatchesToQueryCaches(
     queryClient,
     reportId,
     statusByPlanTaskId,
@@ -380,6 +388,107 @@ export function patchReportTaskStatusesInCaches(
       }, delay);
     }
   }
+}
+
+/** Locate one report payload in react-query caches. */
+function findReportInCaches(
+  queryClient: QueryClient,
+  reportId: string,
+): any | null {
+  for (const key of [['okrReports'], ['okrReport']] as const) {
+    for (const [, data] of queryClient.getQueriesData(key)) {
+      const reports = Array.isArray(data)
+        ? data
+        : Array.isArray((data as any)?.items)
+          ? (data as any).items
+          : data
+            ? [data]
+            : [];
+      for (const report of reports) {
+        if (report && String(report.id) === String(reportId)) return report;
+      }
+    }
+  }
+  return null;
+}
+
+function resolvePatchKeyResultId(
+  patch: ReportTaskStatusPatch,
+  task: any | null,
+): string | null {
+  const planTask = task?.planTask ?? task;
+  const raw =
+    patch.keyResultId ??
+    planTask?.keyResultId ??
+    planTask?.keyResult?.id ??
+    task?.keyResultId ??
+    task?.keyResult?.id ??
+    task?.planTask?.keyResultId ??
+    task?.planTask?.keyResult?.id;
+  return raw != null && String(raw) !== '' ? String(raw) : null;
+}
+
+/**
+ * Build KR currentValue deltas once per edit (keyed by plan-task), using
+ * sticky "already applied" actuals so repeat patch calls are no-ops.
+ */
+function computeOkrDeltasFromPatches(
+  queryClient: QueryClient,
+  reportId: string,
+  statusByPlanTaskId: Record<string, ReportTaskStatusPatch>,
+): Record<string, number> {
+  const report = findReportInCaches(queryClient, reportId);
+  const tasks: any[] = Array.isArray(report?.reportTask)
+    ? report.reportTask
+    : Array.isArray(report?.reportTasks)
+      ? report.reportTasks
+      : [];
+  const store = useRecentReportTaskStatuses.getState();
+  const deltas: Record<string, number> = {};
+  const seenPatchKeys = new Set<string>();
+
+  for (const [patchKey, patch] of Object.entries(statusByPlanTaskId)) {
+    if (!patchKey || seenPatchKeys.has(patchKey)) continue;
+    seenPatchKeys.add(patchKey);
+    if (patch.actualValue === undefined) continue;
+    const newVal = Number(patch.actualValue);
+    if (!Number.isFinite(newVal)) continue;
+
+    const task =
+      tasks.find((t) => {
+        const ids = reportTaskLookupIds(t);
+        return ids.includes(String(patchKey));
+      }) ?? null;
+
+    const ids = new Set<string>([String(patchKey)]);
+    if (task) {
+      for (const id of reportTaskLookupIds(task)) ids.add(id);
+    }
+
+    let prevApplied: number | undefined;
+    for (const id of ids) {
+      const v = store.getOkrAppliedActual(id);
+      if (v !== undefined) {
+        prevApplied = v;
+        break;
+      }
+    }
+
+    const oldVal =
+      prevApplied !== undefined
+        ? prevApplied
+        : Number(task?.actualValue ?? 0);
+    const delta = newVal - (Number.isFinite(oldVal) ? oldVal : 0);
+    const krId = resolvePatchKeyResultId(patch, task);
+    if (!krId || delta === 0) continue;
+
+    deltas[krId] = (deltas[krId] ?? 0) + delta;
+    for (const id of ids) {
+      store.markOkrActualApplied(id, newVal);
+    }
+  }
+
+  return deltas;
 }
 
 /** Read a KR's currentValue from any OKR-bearing query cache. */
@@ -528,18 +637,10 @@ function applyReportTaskStatusPatchesToQueryCaches(
   queryClient: QueryClient,
   reportId: string,
   statusByPlanTaskId: Record<string, ReportTaskStatusPatch>,
-): Record<string, number> {
-  const krDeltas: Record<string, number> = {};
-
+): void {
   const findPatch = (task: any): ReportTaskStatusPatch | null => {
-    for (const id of [
-      task?.planTaskId,
-      task?.planTask?.id,
-      task?.taskId,
-      task?.id,
-    ]) {
-      if (id == null) continue;
-      const patch = statusByPlanTaskId[String(id)];
+    for (const id of reportTaskLookupIds(task)) {
+      const patch = statusByPlanTaskId[id];
       if (patch?.status) return patch;
     }
     return null;
@@ -564,56 +665,12 @@ function applyReportTaskStatusPatchesToQueryCaches(
       normalized === 'not_done' ||
       normalized === 'unachieved';
 
-    const nextActual =
-      patch.actualValue !== undefined ? patch.actualValue : task.actualValue;
-
-    if (patch.actualValue !== undefined) {
-      const newVal = Number(patch.actualValue);
-      if (Number.isFinite(newVal)) {
-        const planTaskKey = String(
-          task?.planTaskId ??
-            task?.planTask?.id ??
-            task?.taskId ??
-            task?.id ??
-            '',
-        );
-        const store = useRecentReportTaskStatuses.getState();
-        const prevApplied =
-          planTaskKey.length > 0
-            ? store.getOkrAppliedActual(planTaskKey)
-            : undefined;
-        const oldVal =
-          prevApplied !== undefined
-            ? prevApplied
-            : Number(task.actualValue ?? 0);
-        const delta = newVal - (Number.isFinite(oldVal) ? oldVal : 0);
-        const planTask = task?.planTask ?? task;
-        const rawKrId =
-          patch.keyResultId ??
-          planTask?.keyResultId ??
-          planTask?.keyResult?.id ??
-          task?.keyResultId ??
-          task?.keyResult?.id ??
-          task?.planTask?.keyResultId ??
-          task?.planTask?.keyResult?.id;
-        const krId =
-          rawKrId != null && String(rawKrId) !== '' ? String(rawKrId) : null;
-        if (krId && delta !== 0) {
-          krDeltas[krId] = (krDeltas[krId] ?? 0) + delta;
-          // Only mark applied when OKR sticky can be updated — otherwise a
-          // missing keyResultId permanently burns the delta to 0.
-          if (planTaskKey.length > 0) {
-            store.markOkrActualApplied(planTaskKey, newVal);
-          }
-        }
-      }
-    }
-
     return {
       ...task,
       status: nextStatus,
       isAchieved: isDone ? true : isNot ? false : task.isAchieved,
-      actualValue: nextActual,
+      actualValue:
+        patch.actualValue !== undefined ? patch.actualValue : task.actualValue,
       customReason:
         patch.customReason !== undefined
           ? patch.customReason
@@ -651,8 +708,6 @@ function applyReportTaskStatusPatchesToQueryCaches(
       queryClient.setQueryData(queryKey, patchPayload(data));
     }
   }
-
-  return krDeltas;
 }
 
 /** Re-apply session overrides after a stale okrReports refetch. */

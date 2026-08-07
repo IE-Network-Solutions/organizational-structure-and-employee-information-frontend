@@ -220,7 +220,7 @@ function Page() {
     [planningPeriodHierarchy],
   );
 
-  const { reportSummaries, reportingItems } = useReportingData();
+  const { reportSummaries } = useReportingData();
   const stickyOkrCurrentByKrId = useRecentOkrMetricOverrides(
     (s) => s.currentByKrId,
   );
@@ -230,19 +230,14 @@ function Page() {
       enrichPlanSummariesWithUserKeyResults(planSummaries, userKeyResultItems),
     [planSummaries, userKeyResultItems, stickyOkrCurrentByKrId],
   );
-  const enrichedReportSummaries = useMemo(
-    () =>
-      enrichPlanSummariesWithUserKeyResults(
-        reportSummaries,
-        userKeyResultItems,
-      ),
-    [reportSummaries, userKeyResultItems, stickyOkrCurrentByKrId],
-  );
 
-  const krPanelPlans =
-    activeTab === 2 ? enrichedReportSummaries : enrichedPlanSummaries;
-  const krPanelTransformedData =
-    activeTab === 2 ? reportingItems : transformedData;
+  // Left KR panel must show the same overall OKR progress on both tabs.
+  // Report summaries carry per-report Achieved scores (e.g. 7, 20) which must
+  // not replace KR currentValue in the panel — that caused Plans vs Reports flicker.
+  // Use plan summaries + plan rows for ownership matching so the logged-in user
+  // is always one "Your key results" group on both tabs.
+  const krPanelPlans = enrichedPlanSummaries;
+  const krPanelTransformedData = transformedData;
 
   const krPanelBlockingLoading =
     activeTab === 2

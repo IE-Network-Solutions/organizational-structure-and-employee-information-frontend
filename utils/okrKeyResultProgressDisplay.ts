@@ -616,11 +616,12 @@ export function buildKrPlanningSource(
         apiKr.key_type ??
         panelKr.metricType,
       progress: apiKr.progress ?? panelKr.progress,
-      // Sticky / panel (report-derived) beat stale API until refetch catches up.
+      // Left-panel progress must match Active Plans and Reports: overall OKR
+      // currentValue (sticky optimistic), never a single report's Achieved score.
       currentValue:
         getStickyOkrCurrentValue(apiKr?.id ?? panelKr?.id) ??
-        panelKr.currentValue ??
-        apiKr.currentValue,
+        apiKr.currentValue ??
+        panelKr.currentValue,
       targetValue: apiKr.targetValue ?? panelKr.targetValue,
       initialValue: apiKr.initialValue ?? panelKr.initialValue ?? 0,
       milestones: mergedMilestones,
@@ -920,12 +921,12 @@ export function mergeKeyResultWithUserApi(
           ? kr?.metricType?.name
           : kr?.metricType),
       progress: apiKr.progress ?? kr?.progress,
-      // Sticky, then report/plan-local (task sums), then API — never let stale
-      // API currentValue wipe a just-edited Achieved amount.
+      // Overall OKR currentValue first (same on Active Plans + Reports).
+      // Report-local task sums must not replace KR progress in the left panel.
       currentValue:
         getStickyOkrCurrentValue(apiKr.id ?? kr?.id) ??
-        kr?.currentValue ??
-        apiKr.currentValue,
+        apiKr.currentValue ??
+        kr?.currentValue,
       initialValue: apiKr.initialValue ?? kr?.initialValue ?? 0,
       targetValue: apiKr.targetValue ?? kr?.targetValue,
       status: apiKr.status ?? kr?.status,

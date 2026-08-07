@@ -298,6 +298,24 @@ function isGroupForCurrentUser(
   transformedData: any[] | undefined,
   userId: string,
 ): boolean {
+  if (!userId) return false;
+  if (group.ownerKey === `__user_key_results_${userId}`) return true;
+  if (group.owner?.name === 'Your key results') return true;
+
+  // Prefer ownerUserId — works even when transformedData ids don't match plan ids
+  // (e.g. Reports tab feeding report rows while the panel uses plan summaries).
+  if (
+    plans.some(
+      (p) =>
+        p.ownerUserId === userId &&
+        (p.owner?.name === group.ownerKey ||
+          p.owner?.name === group.owner?.name ||
+          p.id === group.ownerKey),
+    )
+  ) {
+    return true;
+  }
+
   if (!transformedData?.length || !plans.length) return false;
   return transformedData.some((d: any) => {
     if (d.userId !== userId) return false;
@@ -311,6 +329,8 @@ function isGroupForCurrentUser(
 /**
  * Appends KRs from GET …/key-results/user/:id that are not already present
  * in plan-backed groups (deduped by KR id). Plan-backed rows win on conflict.
+ * Ensures the logged-in user has a single group (never both a named group and
+ * a separate "Your key results" orphan group).
  */
 export function mergeUserKeyResultsIntoOwnerGroups(
   groups: KRPanelOwnerGroup[],
@@ -319,7 +339,7 @@ export function mergeUserKeyResultsIntoOwnerGroups(
   transformedData: any[] | undefined,
   userId: string,
 ): KRPanelOwnerGroup[] {
-  const merged: KRPanelOwnerGroup[] = groups.map((g) => ({
+  let merged: KRPanelOwnerGroup[] = groups.map((g) => ({
     ...g,
     krs: [...g.krs],
   }));
@@ -340,36 +360,78 @@ export function mergeUserKeyResultsIntoOwnerGroups(
     orphans.push(apiKRToAggregated(raw, userKeyResultItems));
   }
 
-  if (orphans.length === 0) {
-    return merged;
-  }
+  const syntheticKey = `__user_key_results_${userId}`;
 
   const targetIdx = merged.findIndex((g) =>
     isGroupForCurrentUser(g, plans, transformedData, userId),
   );
 
-  if (targetIdx >= 0) {
-    const g = merged[targetIdx]!;
-    const nextKrs = [...g.krs, ...orphans];
-    merged[targetIdx] = {
-      ...g,
+  if (orphans.length > 0) {
+    if (targetIdx >= 0) {
+      const g = merged[targetIdx]!;
+      const nextKrs = [...g.krs, ...orphans];
+      merged[targetIdx] = {
+        ...g,
+        krs: nextKrs,
+        avgProgress: recalcAvgProgress(nextKrs),
+      };
+    } else {
+      merged.unshift({
+        ownerKey: syntheticKey,
+        owner: {
+          name: 'Your key results',
+          role: '',
+          avatarInitials: 'KR',
+          avatar: undefined,
+        },
+        krs: orphans,
+        avgProgress: recalcAvgProgress(orphans),
+      });
+    }
+  }
+
+  // Collapse duplicate current-user groups (named plan owner + synthetic).
+  const mineIdxs = merged
+    .map((g, i) =>
+      isGroupForCurrentUser(g, plans, transformedData, userId) ? i : -1,
+    )
+    .filter((i) => i >= 0);
+
+  if (mineIdxs.length > 1) {
+    const primaryIdx = mineIdxs[0]!;
+    const primary = merged[primaryIdx]!;
+    const krMap = new Map(primary.krs.map((kr) => [String(kr.id), kr]));
+    for (const i of mineIdxs.slice(1)) {
+      for (const kr of merged[i]!.krs) {
+        if (!krMap.has(String(kr.id))) krMap.set(String(kr.id), kr);
+      }
+    }
+    const nextKrs = Array.from(krMap.values());
+    const consolidated: KRPanelOwnerGroup = {
+      ...primary,
+      ownerKey: syntheticKey,
+      owner: {
+        ...primary.owner,
+        name: 'Your key results',
+      },
       krs: nextKrs,
       avgProgress: recalcAvgProgress(nextKrs),
     };
-    return merged;
+    merged = merged.filter((_, i) => !mineIdxs.includes(i));
+    merged.unshift(consolidated);
+  } else if (mineIdxs.length === 1) {
+    const i = mineIdxs[0]!;
+    const g = merged[i]!;
+    if (g.owner?.name !== 'Your key results') {
+      merged[i] = {
+        ...g,
+        owner: {
+          ...g.owner,
+          name: 'Your key results',
+        },
+      };
+    }
   }
-
-  merged.unshift({
-    ownerKey: `__user_key_results_${userId}`,
-    owner: {
-      name: 'Your key results',
-      role: '',
-      avatarInitials: 'KR',
-      avatar: undefined,
-    },
-    krs: orphans,
-    avgProgress: recalcAvgProgress(orphans),
-  });
 
   return merged;
 }
@@ -442,11 +504,18 @@ export function enrichOwnerGroupsPlanningBlocked(
           }
         : planningSource;
 
+      // Prefer OKR API (via displaySource). Sticky only for optimistic overall
+      // edits — never fall back to report-card Achieved as KR progress.
       const stickyCurrent = getStickyOkrCurrentValue(panelKr.id);
-      const progressSource =
+      const apiCurrent = displaySource.currentValue ?? apiKr?.currentValue;
+      const resolvedCurrent =
         stickyCurrent !== undefined
-          ? { ...displaySource, currentValue: stickyCurrent }
-          : displaySource;
+          ? stickyCurrent
+          : (apiCurrent ?? panelKr.currentValue);
+      const progressSource = {
+        ...displaySource,
+        currentValue: resolvedCurrent,
+      };
 
       const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
       const progress = getKeyResultProgressPercent(progressSource);
@@ -456,7 +525,8 @@ export function enrichOwnerGroupsPlanningBlocked(
         planningBlocked === panelKr.planningBlocked &&
         progress === panelKr.progress &&
         progressLabel === panelKr.progressLabel &&
-        metricType === panelKr.metricType
+        metricType === panelKr.metricType &&
+        resolvedCurrent === panelKr.currentValue
       ) {
         return panelKr;
       }
@@ -467,10 +537,7 @@ export function enrichOwnerGroupsPlanningBlocked(
         progressLabel,
         metricType,
         milestones: displaySource.milestones ?? panelKr.milestones,
-        currentValue:
-          stickyCurrent !== undefined
-            ? stickyCurrent
-            : (displaySource.currentValue ?? panelKr.currentValue),
+        currentValue: resolvedCurrent,
         targetValue: displaySource.targetValue ?? panelKr.targetValue,
       };
     });
