@@ -19,6 +19,7 @@ import {
   isRecentlyReopenedMilestone,
   useRecentlyAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
+import { useRecentOkrMetricOverrides } from '@/utils/recentOkrMetricOverrides';
 import type { PlanningTarget } from './buildPlanningTargets';
 import {
   buildPickTargetsForKeyResult,
@@ -657,10 +658,9 @@ function OwnerKRSection({
   onRefreshMilestoneStatus?: () => void;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const headerLabel =
-    isCurrentUser && isSingleOwner
-      ? 'Your Key Results'
-      : group.owner?.name || 'Unknown';
+  const headerLabel = isCurrentUser
+    ? 'Your key results'
+    : group.owner?.name || 'Unknown';
 
   const completedCount = group.krs.filter((k) => k.progress >= 100).length;
   const totalTasks = group.krs.reduce((s, k) => s + k.taskCount, 0);
@@ -1220,6 +1220,9 @@ export function KRLeftPanel({
   const reopenedMilestoneIds = useRecentlyAchievedMilestones(
     (s) => s.reopenedMilestoneIds,
   );
+  const stickyOkrCurrentByKrId = useRecentOkrMetricOverrides(
+    (s) => s.currentByKrId,
+  );
 
   const ownerGroups = React.useMemo(() => {
     const base = buildOwnerKRGroups(plans, userKeyResultItems);
@@ -1234,17 +1237,38 @@ export function KRLeftPanel({
       userKeyResultItems,
       objectiveMilestonesByKrId,
     );
-    const currentUserOwnerKeys = new Set(
-      transformedData
-        ?.filter((d: any) => d?.userId === userId)
-        ?.map(
-          (d: any) => plans.find((p) => p.id === d?.id)?.owner?.name || '',
-        ) || [],
-    );
+    const currentUserOwnerKeys = new Set<string>([
+      `__user_key_results_${userId}`,
+    ]);
+    for (const p of plans) {
+      if (p.ownerUserId === userId) {
+        if (p.owner?.name) currentUserOwnerKeys.add(p.owner.name);
+        if (p.id) currentUserOwnerKeys.add(p.id);
+      }
+    }
+    for (const d of transformedData ?? []) {
+      if (d?.userId !== userId) continue;
+      const p = plans.find((pl) => pl.id === d.id);
+      if (p?.owner?.name) currentUserOwnerKeys.add(p.owner.name);
+      if (p?.id) currentUserOwnerKeys.add(p.id);
+    }
+    // Groups already normalized to "Your key results" for the logged-in user.
+    for (const g of merged) {
+      if (
+        g.owner?.name === 'Your key results' ||
+        g.ownerKey === `__user_key_results_${userId}`
+      ) {
+        currentUserOwnerKeys.add(g.ownerKey);
+      }
+    }
 
     return [...merged].sort((a, b) => {
-      const aMine = currentUserOwnerKeys.has(a.ownerKey);
-      const bMine = currentUserOwnerKeys.has(b.ownerKey);
+      const aMine =
+        currentUserOwnerKeys.has(a.ownerKey) ||
+        a.owner?.name === 'Your key results';
+      const bMine =
+        currentUserOwnerKeys.has(b.ownerKey) ||
+        b.owner?.name === 'Your key results';
       if (aMine === bMine) return 0;
       return aMine ? -1 : 1;
     });
@@ -1256,6 +1280,7 @@ export function KRLeftPanel({
     objectiveMilestonesByKrId,
     recentlyAchievedIds,
     reopenedMilestoneIds,
+    stickyOkrCurrentByKrId,
   ]);
 
   const totalKRs = ownerGroups.reduce((s, g) => s + g.krs.length, 0);
@@ -1416,16 +1441,25 @@ export function KRLeftPanel({
               ) : (
                 ownerGroups.map((group, idx) => {
                   const isCurrentUserGroup =
-                    isSingleOwner &&
-                    transformedData?.some(
+                    group.ownerKey === `__user_key_results_${userId}` ||
+                    group.owner?.name === 'Your key results' ||
+                    plans.some(
+                      (p) =>
+                        p.ownerUserId === userId &&
+                        (p.owner?.name === group.ownerKey ||
+                          p.owner?.name === group.owner?.name ||
+                          p.id === group.ownerKey),
+                    ) ||
+                    (!!transformedData?.some(
                       (d: any) =>
                         d.userId === userId &&
                         plans.some(
                           (p) =>
                             p.id === d.id &&
-                            p.owner?.name === group.owner?.name,
+                            (p.owner?.name === group.owner?.name ||
+                              p.owner?.name === group.ownerKey),
                         ),
-                    );
+                    ));
 
                   return (
                     <OwnerKRSection
@@ -1433,7 +1467,9 @@ export function KRLeftPanel({
                       group={group}
                       isSingleOwner={isSingleOwner}
                       isCurrentUser={!!isCurrentUserGroup}
-                      defaultExpanded={isSingleOwner || idx === 0}
+                      defaultExpanded={
+                        isSingleOwner || idx === 0 || !!isCurrentUserGroup
+                      }
                       highlightedKRId={highlightedKRId}
                       showInlinePlanningPick={showInlinePick}
                       planningTargetsByKrId={targetsByKrId}

@@ -9,7 +9,7 @@ import {
   useDefaultPlanningPeriods,
   useGetPlannedTaskForReport,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQueryClient } from 'react-query';
 import { markMilestonesCompletedInOkrCaches } from '@/utils/invalidateOkrPlanningCaches';
 import {
@@ -74,9 +74,13 @@ function CreateReport() {
     }
   }, [openReportModal, setInlineReportPlanId]);
 
-  const formattedData =
-    allPlannedTaskForReport &&
-    groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
+  const formattedData = useMemo(
+    () =>
+      allPlannedTaskForReport
+        ? groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport)
+        : null,
+    [allPlannedTaskForReport],
+  );
 
   const handleOnFinish = (values: Record<string, any>) => {
     if (Object.entries(values).length === 0 || !planningPeriodId) return;

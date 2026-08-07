@@ -6,6 +6,7 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence, PlanSummary } from '../types';
 
@@ -23,6 +24,7 @@ export function useReportingData() {
   const { data: employeeData } = useGetAllUsers();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
+  const reportTaskOverrides = useRecentReportTaskStatuses((s) => s.byReport);
 
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
@@ -52,7 +54,7 @@ export function useReportingData() {
     return allReporting.items.map((dataItem: any) =>
       transformReportToPlanSummary(dataItem, cadence, employeeData),
     );
-  }, [allReporting?.items, cadence, employeeData]);
+  }, [allReporting?.items, cadence, employeeData, reportTaskOverrides]);
 
   return {
     reportSummaries,
