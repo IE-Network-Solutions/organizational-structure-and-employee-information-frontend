@@ -4,74 +4,35 @@ import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
 import { classNames } from '@/utils/classNames';
 import {
-  TrainingCommitment,
-  TrainingCommitmentStatus,
-  TrainingCommitmentStatusLabel,
+  UserTrainingCommitment,
+  getCommitmentProgress,
 } from '@/types/tna/externalTna';
 
 interface CommitmentProgressBarProps {
-  commitment: TrainingCommitment;
+  commitment: UserTrainingCommitment;
   /** Card-sized variant: bar plus a single line of context. */
   compact?: boolean;
   className?: string;
 }
 
-const STROKE_BY_STATUS: Record<TrainingCommitmentStatus, string> = {
-  [TrainingCommitmentStatus.ACTIVE]: '#1E40AF',
-  [TrainingCommitmentStatus.COMPLETED]: '#52C41A',
-  [TrainingCommitmentStatus.CANCELLED]: '#A6A6A6',
-  [TrainingCommitmentStatus.BREACHED]: '#F5222D',
-};
-
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
 /**
- * Renders how far an employee is through their training commitment. Uses the
- * numbers the API derives, and falls back to a local calculation so the bar
- * still works for payloads that predate them.
+ * How far an employee is through their commitment. `daysLeft` and `amountLeft`
+ * are maintained by the nightly cron, so this only renders them.
  */
 const CommitmentProgressBar: FC<CommitmentProgressBarProps> = ({
   commitment,
   compact = false,
   className = '',
 }) => {
-  const { percent, daysRemaining, totalDays } = useMemo(() => {
-    const start = commitment?.startDate
-      ? new Date(commitment.startDate).getTime()
-      : null;
-    const end = commitment?.endDate
-      ? new Date(commitment.endDate).getTime()
-      : null;
+  const percent = useMemo(
+    () => getCommitmentProgress(commitment),
+    [commitment],
+  );
 
-    const fallback = (() => {
-      if (start === null || end === null || end <= start) {
-        return {
-          percent: 0,
-          daysRemaining: commitment?.durationDays ?? 0,
-          totalDays: commitment?.durationDays ?? 0,
-        };
-      }
-      const now = Date.now();
-      const elapsed = Math.min(Math.max(now - start, 0), end - start);
-      return {
-        percent: Math.round((elapsed / (end - start)) * 100),
-        daysRemaining: Math.max(0, Math.ceil((end - now) / MS_PER_DAY)),
-        totalDays: Math.max(1, Math.round((end - start) / MS_PER_DAY)),
-      };
-    })();
-
-    return {
-      percent: commitment?.progressPercentage ?? fallback.percent,
-      daysRemaining: commitment?.daysRemaining ?? fallback.daysRemaining,
-      totalDays:
-        commitment?.totalDays ?? commitment?.durationDays ?? fallback.totalDays,
-    };
-  }, [commitment]);
-
-  const isCompleted = commitment?.status === TrainingCommitmentStatus.COMPLETED;
-  const strokeColor =
-    STROKE_BY_STATUS[commitment?.status] ??
-    STROKE_BY_STATUS[TrainingCommitmentStatus.ACTIVE];
+  const isCompleted = Boolean(commitment?.completedCommitment);
+  const strokeColor = isCompleted ? '#52C41A' : '#1E40AF';
+  const daysLeft = Number(commitment?.daysLeft ?? 0);
+  const amountLeft = Number(commitment?.amountLeft ?? 0);
 
   if (compact) {
     return (
@@ -87,9 +48,7 @@ const CommitmentProgressBar: FC<CommitmentProgressBarProps> = ({
             Commitment
           </span>
           <span data-cy="tna-commitment-progress-compact-value">
-            {isCompleted
-              ? 'Completed'
-              : `${daysRemaining} of ${totalDays} day(s) left`}
+            {isCompleted ? 'Completed' : `${daysLeft} day(s) left`}
           </span>
         </div>
         <Progress
@@ -127,8 +86,7 @@ const CommitmentProgressBar: FC<CommitmentProgressBarProps> = ({
           className="rounded-[4px] border border-[#D9D9D9] bg-black/[0.02] px-2 py-px text-xs leading-5 text-black/70"
           data-cy="tna-commitment-progress-status"
         >
-          {TrainingCommitmentStatusLabel[commitment?.status] ??
-            commitment?.status}
+          {isCompleted ? 'Completed' : 'Active'}
         </span>
       </div>
 
@@ -175,32 +133,34 @@ const CommitmentProgressBar: FC<CommitmentProgressBarProps> = ({
               : '-'}
           </div>
         </div>
-        <div data-cy="tna-commitment-progress-total">
-          <div
-            data-cy="tna-commitment-progress-total-label"
-            className="text-[11px] uppercase leading-4 tracking-wide text-black/45"
-          >
-            Total duration
-          </div>
-          <div
-            data-cy="tna-commitment-progress-total-value"
-            className="text-sm font-medium leading-[22px] text-black/70"
-          >
-            {totalDays} day(s)
-          </div>
-        </div>
         <div data-cy="tna-commitment-progress-remaining">
           <div
             data-cy="tna-commitment-progress-remaining-label"
             className="text-[11px] uppercase leading-4 tracking-wide text-black/45"
           >
-            Remaining
+            Days left
           </div>
           <div
             data-cy="tna-commitment-progress-remaining-value"
             className="text-sm font-medium leading-[22px] text-black/70"
           >
-            {isCompleted ? 'Completed' : `${daysRemaining} day(s)`}
+            {isCompleted ? 'Completed' : `${daysLeft} day(s)`}
+          </div>
+        </div>
+        <div data-cy="tna-commitment-progress-amount">
+          <div
+            data-cy="tna-commitment-progress-amount-label"
+            className="text-[11px] uppercase leading-4 tracking-wide text-black/45"
+          >
+            Amount left
+          </div>
+          <div
+            data-cy="tna-commitment-progress-amount-value"
+            className="text-sm font-medium leading-[22px] text-black/70"
+          >
+            {amountLeft.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}
           </div>
         </div>
       </div>

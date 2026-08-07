@@ -25,8 +25,8 @@ import ExternalTnaCard from '@/app/(afterLogin)/(tna)/tna/management/_components
 import MyCommitmentsPanel from '@/app/(afterLogin)/(tna)/tna/management/_components/myCommitmentsPanel';
 import { useExternalTrainingStore } from '@/store/uistate/features/tna/externalTraining';
 import {
-  useGetExternalTrainings,
-  useGetExternalTrainingsByUser,
+  useGetTrainingRequests,
+  useGetTrainingRequestsByUser,
 } from '@/store/server/features/tna/externalTraining/queries';
 import { TnaSourceType } from '@/types/tna/externalTna';
 
@@ -41,7 +41,7 @@ const TnaManagementPage = () => {
     sourceTypeFilter,
     setSourceTypeFilter,
     setCreateModalTab,
-    setExternalTrainingId,
+    setTrainingRequestId,
   } = useExternalTrainingStore();
   const { userId } = useAuthenticationStore();
   const { data: categoryData, isFetching } = useGetCourseCategory({});
@@ -104,7 +104,7 @@ const TnaManagementPage = () => {
     data: allExternalData,
     isLoading: isLoadingAllExternal,
     refetch: refetchAllExternal,
-  } = useGetExternalTrainings(
+  } = useGetTrainingRequests(
     { page: 1, limit: 200 },
     externalSearch,
     hasViewAllTnaPermission,
@@ -114,16 +114,12 @@ const TnaManagementPage = () => {
     data: myExternalData,
     isLoading: isLoadingMyExternal,
     refetch: refetchMyExternal,
-  } = useGetExternalTrainingsByUser(
-    userId ?? '',
-    { page: 1, limit: 200 },
-    externalSearch,
-    !hasViewAllTnaPermission,
-  );
+  } = useGetTrainingRequestsByUser(userId ?? '', !hasViewAllTnaPermission);
 
-  const externalData = hasViewAllTnaPermission
-    ? allExternalData
-    : myExternalData;
+  // `by-user` returns a bare array; the paginated list returns `{ items }`.
+  const externalItems = hasViewAllTnaPermission
+    ? (allExternalData?.items ?? [])
+    : (myExternalData ?? []);
   const isLoadingExternal = hasViewAllTnaPermission
     ? isLoadingAllExternal
     : isLoadingMyExternal;
@@ -144,8 +140,8 @@ const TnaManagementPage = () => {
     if (sourceTypeFilter === TnaSourceType.INTERNAL) return [];
     // Course categories are a catalogue concept, so that filter excludes externals.
     if (filter.filter?.courseCategoryId?.length) return [];
-    return externalData?.items ?? [];
-  }, [externalData, sourceTypeFilter, filter.filter?.courseCategoryId]);
+    return externalItems;
+  }, [externalItems, sourceTypeFilter, filter.filter?.courseCategoryId]);
 
   const totalResults = displayCourses.length + displayExternalTnas.length;
 
@@ -157,7 +153,7 @@ const TnaManagementPage = () => {
 
   const openCreateModal = (tab: TnaSourceType) => {
     setCourseId(null);
-    setExternalTrainingId(null);
+    setTrainingRequestId(null);
     setCreateModalTab(tab);
     setIsShowCourseSidebar(true);
   };
@@ -361,7 +357,7 @@ const TnaManagementPage = () => {
                     key={item.id}
                     refetch={refetchExternal}
                     onEdit={(request) => {
-                      setExternalTrainingId(request.id);
+                      setTrainingRequestId(request.id);
                       setCreateModalTab(TnaSourceType.EXTERNAL);
                       setIsShowCourseSidebar(true);
                     }}

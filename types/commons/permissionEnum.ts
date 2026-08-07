@@ -126,10 +126,10 @@ export enum Permissions {
   UpdateExternalTna = 'update-external-tna',
   DeleteExternalTna = 'delete-external-tna',
   ViewAllTna = 'view-all-tna', // HR / L&D admins — every request and commitment
-  ApproveTnaAsManager = 'approve-tna-as-manager',
-  ApproveTnaAsOfficer = 'approve-tna-as-officer', // TNA Officer: payment + commitment
-  ManageTnaOfficer = 'manage-tna-officer',
-  ExportTnaReport = 'export-tna-report',
+  ApproveTna = 'approve-tna', // Move a request through the approval workflow
+  /** Matches the slug the training-and-learning service checks server-side. */
+  ConfirmTnaCommitment = 'CONFIRM_TNA_COMMITMENT',
+  ManageCommitmentConfiguration = 'manage-commitment-configuration',
 
   // TNA Category Permissions
   CreateTnaCategory = 'create-tna-category',

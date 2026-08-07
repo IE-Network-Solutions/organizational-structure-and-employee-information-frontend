@@ -1,84 +1,67 @@
 'use client';
 import React, { FC, useMemo, useState } from 'react';
-import {
-  Button,
-  Input,
-  Popconfirm,
-  Progress,
-  Select,
-  Space,
-  Table,
-} from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import { Button, Progress, Select, Space, Table } from 'antd';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
+import { StatusBadgeTheme } from '@/components/common/statusBadge';
 import CustomPagination from '@/components/customPagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import EmptyState from '@/components/empty';
 import { TableColumnsType } from '@/types/table/table';
 import { DATE_FORMAT } from '@/utils/constants';
-import { useDebounce } from '@/utils/useDebounce';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import {
-  TrainingCommitment,
-  TrainingCommitmentStatus,
-  TrainingCommitmentStatusBadgeTheme,
-  TrainingCommitmentStatusLabel,
-  trainingCommitmentStatusOptions,
+  UserTrainingCommitment,
+  getCommitmentProgress,
 } from '@/types/tna/externalTna';
-import { TrainingCommitmentRequestBody } from '@/store/server/features/tna/externalTraining/interface';
-import { useGetTrainingCommitments } from '@/store/server/features/tna/trainingCommitment/queries';
-import {
-  useCompleteTrainingCommitment,
-  useRefreshTrainingCommitmentStatuses,
-} from '@/store/server/features/tna/trainingCommitment/mutation';
+import { UserTrainingCommitmentBody } from '@/store/server/features/tna/externalTraining/interface';
+import { useGetUserTrainingCommitments } from '@/store/server/features/tna/trainingCommitment/queries';
+import { useRecalculateCommitments } from '@/store/server/features/tna/trainingCommitment/mutation';
 import EmployeeName from '@/app/(afterLogin)/(tna)/tna/_components/employeeName';
 
-/** Organisation-wide commitment register with live progress. */
+const STATUS_OPTIONS = [
+  { label: 'Active', value: 'active' },
+  { label: 'Completed', value: 'completed' },
+];
+
+/** Organisation-wide commitment register, driven by the cron-maintained counters. */
 const CommitmentsTab: FC = () => {
   const router = useRouter();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [search, setSearch] = useState('');
-  const [statuses, setStatuses] = useState<TrainingCommitmentStatus[]>([]);
+  const [status, setStatus] = useState<string | undefined>(undefined);
 
-  const { mutate: completeCommitment, isLoading: isCompleting } =
-    useCompleteTrainingCommitment();
-  const { mutate: refreshStatuses, isLoading: isRefreshing } =
-    useRefreshTrainingCommitmentStatuses();
+  const { mutate: recalculate, isLoading: isRecalculating } =
+    useRecalculateCommitments();
 
-  const filterBody: Partial<TrainingCommitmentRequestBody> = useMemo(() => {
-    const body: Partial<TrainingCommitmentRequestBody> = {};
-    if (statuses.length) body.filter = { status: statuses };
-    if (search.trim()) body.modifiers = { search: search.trim() };
-    return body;
-  }, [statuses, search]);
+  const filterBody: Partial<UserTrainingCommitmentBody> = useMemo(() => {
+    if (!status) return {};
+    return { filter: { completedCommitment: status === 'completed' } };
+  }, [status]);
 
-  const { data, isLoading } = useGetTrainingCommitments(
+  const { data, isLoading } = useGetUserTrainingCommitments(
     { page, limit },
     filterBody,
   );
 
-  const onSearchChange = useDebounce((value: string) => {
-    setSearch(value);
-    setPage(1);
-  }, 500);
-
-  const columns: TableColumnsType<TrainingCommitment> = [
+  const columns: TableColumnsType<UserTrainingCommitment> = [
     {
       title: 'Training',
-      dataIndex: 'courseName',
+      dataIndex: ['trainingRequest', 'courseName'],
       key: 'courseName',
-      render: (value: string) => (
-        <span
-          data-cy="tna-admin-commitments-course-name"
-          className="text-sm font-bold text-black"
-        >
-          {value || 'External training'}
-        </span>
-      ),
+      render: (unusedValue: unknown, record: UserTrainingCommitment) => {
+        void unusedValue;
+        return (
+          <span
+            data-cy="tna-admin-commitments-course-name"
+            className="text-sm font-bold text-black"
+          >
+            {record.trainingRequest?.courseName || 'External training'}
+          </span>
+        );
+      },
     },
     {
       title: 'Employee',
@@ -101,83 +84,68 @@ const CommitmentsTab: FC = () => {
         value ? dayjs(value).format(DATE_FORMAT) : '-',
     },
     {
-      title: 'Remaining',
-      dataIndex: 'daysRemaining',
-      key: 'daysRemaining',
-      render: (value: number, record: TrainingCommitment) =>
-        record.status === TrainingCommitmentStatus.COMPLETED
-          ? 'Completed'
-          : `${value ?? 0} day(s)`,
+      title: 'Days left',
+      dataIndex: 'daysLeft',
+      key: 'daysLeft',
+      render: (value: number, record: UserTrainingCommitment) =>
+        record.completedCommitment ? 'Served' : `${value ?? 0} day(s)`,
+    },
+    {
+      title: 'Amount left',
+      dataIndex: 'amountLeft',
+      key: 'amountLeft',
+      render: (value: number) =>
+        Number(value ?? 0).toLocaleString(undefined, {
+          maximumFractionDigits: 2,
+        }),
     },
     {
       title: 'Progress',
-      dataIndex: 'progressPercentage',
-      key: 'progressPercentage',
-      render: (value: number, record: TrainingCommitment) => (
-        <Progress
-          percent={value ?? 0}
-          size="small"
-          className="!mb-0 min-w-[120px]"
-          strokeColor={
-            record.status === TrainingCommitmentStatus.COMPLETED
-              ? '#52C41A'
-              : '#1E40AF'
-          }
-          data-cy={`tna-admin-commitment-progress-${record.id}`}
-        />
-      ),
+      key: 'progress',
+      render: (unusedValue: unknown, record: UserTrainingCommitment) => {
+        void unusedValue;
+        return (
+          <Progress
+            percent={getCommitmentProgress(record)}
+            size="small"
+            className="!mb-0 min-w-[120px]"
+            strokeColor={record.completedCommitment ? '#52C41A' : '#1E40AF'}
+            data-cy={`tna-admin-commitment-progress-${record.id}`}
+          />
+        );
+      },
     },
     {
       title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (value: TrainingCommitmentStatus) => (
-        <StatusBadge theme={TrainingCommitmentStatusBadgeTheme[value]}>
-          {TrainingCommitmentStatusLabel[value] ?? value}
+      dataIndex: 'completedCommitment',
+      key: 'completedCommitment',
+      render: (value: boolean) => (
+        <StatusBadge
+          theme={value ? StatusBadgeTheme.success : StatusBadgeTheme.warning}
+        >
+          {value ? 'Completed' : 'Active'}
         </StatusBadge>
       ),
     },
     {
       title: '',
       key: 'action',
-      render: (unusedValue: unknown, record: TrainingCommitment) => {
+      render: (unusedValue: unknown, record: UserTrainingCommitment) => {
         void unusedValue;
         return (
-          <Space data-cy={`tna-admin-commitment-actions-${record.id}`}>
-            {record.status === TrainingCommitmentStatus.ACTIVE ? (
-              <AccessGuard permissions={[Permissions.ApproveTnaAsOfficer]}>
-                <Popconfirm
-                  title="Complete this commitment?"
-                  onConfirm={() => completeCommitment({ id: record.id })}
-                  okText="Complete"
-                  cancelText="Cancel"
-                >
-                  <Button
-                    size="small"
-                    type="link"
-                    className="!px-0 !text-[#1E40AF]"
-                    loading={isCompleting}
-                    data-cy={`tna-admin-commitment-complete-${record.id}`}
-                  >
-                    Complete
-                  </Button>
-                </Popconfirm>
-              </AccessGuard>
-            ) : null}
-            <Button
-              size="small"
-              type="link"
-              className="!px-0 !text-[#1E40AF]"
-              onClick={() =>
-                router.push(
-                  `/tna/management/external/${record.externalTrainingRequestId}`,
-                )
-              }
-              data-cy={`tna-admin-commitment-open-${record.id}`}
-            >
-              Open
-            </Button>
-          </Space>
+          <Button
+            size="small"
+            type="link"
+            className="!px-0 !text-[#1E40AF]"
+            onClick={() =>
+              router.push(
+                `/tna/management/external/${record.trainingRequestId}`,
+              )
+            }
+            data-cy={`tna-admin-commitment-open-${record.id}`}
+          >
+            Open
+          </Button>
         );
       },
     },
@@ -186,39 +154,30 @@ const CommitmentsTab: FC = () => {
   return (
     <div className="flex flex-col gap-4" data-cy="tna-admin-commitments-tab">
       <div
-        className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+        className="flex flex-col gap-2 md:flex-row md:items-center md:justify-end"
         data-cy="tna-admin-commitments-filters"
       >
-        <Input
-          allowClear
-          prefix={<SearchOutlined className="text-black/45" />}
-          placeholder="Search training"
-          className="h-10 w-full rounded-[6px] md:max-w-[320px]"
-          onChange={(e) => onSearchChange(e.target.value)}
-          data-cy="tna-admin-commitments-search"
-        />
         <Space wrap data-cy="tna-admin-commitments-filter-controls">
           <Select
-            mode="multiple"
             allowClear
             placeholder="Status"
-            className="min-w-[220px]"
-            options={trainingCommitmentStatusOptions}
-            value={statuses}
+            className="min-w-[180px]"
+            options={STATUS_OPTIONS}
+            value={status}
             onChange={(value) => {
-              setStatuses(value);
+              setStatus(value);
               setPage(1);
             }}
             data-cy="tna-admin-commitments-status-filter"
           />
-          <AccessGuard permissions={[Permissions.ApproveTnaAsOfficer]}>
+          <AccessGuard permissions={[Permissions.ConfirmTnaCommitment]}>
             <Button
               className="h-10 rounded-md border-[#D9D9D9] px-4"
-              loading={isRefreshing}
-              onClick={() => refreshStatuses()}
-              data-cy="tna-admin-commitments-refresh"
+              loading={isRecalculating}
+              onClick={() => recalculate()}
+              data-cy="tna-admin-commitments-recalculate"
             >
-              Reconcile elapsed
+              Recalculate now
             </Button>
           </AccessGuard>
         </Space>
@@ -233,7 +192,7 @@ const CommitmentsTab: FC = () => {
         <EmptyState
           compact
           title="No commitments found"
-          description="Commitments appear once the TNA Officer approves a paid external training."
+          description="Commitments appear once a paid, closed-out request is confirmed."
           data-cy="tna-admin-commitments-empty"
         />
       ) : (

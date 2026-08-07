@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react';
-import { Spin, Tooltip } from 'antd';
+import { Spin } from 'antd';
 import { useRouter } from 'next/navigation';
-import { LuCalendarClock, LuExternalLink } from 'react-icons/lu';
+import { LuCalendarClock } from 'react-icons/lu';
 import { MdOutlineSchool } from 'react-icons/md';
 import { TbCoin } from 'react-icons/tb';
 import ActionButton from '@/components/common/actionButton';
@@ -10,20 +10,20 @@ import { classNames } from '@/utils/classNames';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import {
-  ExternalTrainingRequest,
-  ExternalTrainingStatus,
-  ExternalTrainingStatusBadgeTheme,
-  ExternalTrainingStatusLabel,
-  TrainingCommitmentStatus,
+  TrainingRequest,
+  TrainingRequestApprovalStatus,
+  TrainingRequestStageBadgeTheme,
+  TrainingRequestStageLabel,
+  getTrainingRequestStage,
 } from '@/types/tna/externalTna';
-import { useDeleteExternalTraining } from '@/store/server/features/tna/externalTraining/mutation';
+import { useDeleteTrainingRequest } from '@/store/server/features/tna/externalTraining/mutation';
 import { useCurrency } from '@/store/server/features/tna/review/queries';
 import CommitmentProgressBar from '@/app/(afterLogin)/(tna)/tna/_components/commitmentProgressBar';
 
 interface ExternalTnaCardProps {
-  item: ExternalTrainingRequest;
+  item: TrainingRequest;
   refetch?: () => void;
-  onEdit?: (item: ExternalTrainingRequest) => void;
+  onEdit?: (item: TrainingRequest) => void;
   className?: string;
 }
 
@@ -39,8 +39,8 @@ const ExternalTnaCard: FC<ExternalTnaCardProps> = ({
 }) => {
   const router = useRouter();
   const { data: currencies } = useCurrency();
-  const { mutate: deleteExternalTraining, isLoading } =
-    useDeleteExternalTraining();
+  const { mutate: deleteTrainingRequest, isLoading } =
+    useDeleteTrainingRequest();
 
   const currencyCode = useMemo(() => {
     const list = Array.isArray(currencies)
@@ -53,16 +53,17 @@ const ExternalTnaCard: FC<ExternalTnaCardProps> = ({
   }, [currencies, item?.currencyId]);
 
   const commitment = item?.commitment ?? null;
-  const isEditable =
-    item?.status === ExternalTrainingStatus.PENDING_MANAGER ||
-    item?.status === ExternalTrainingStatus.REJECTED;
+  const stage = getTrainingRequestStage(item);
 
-  const formattedCost = useMemo(() => {
-    const value = Number(item?.cost ?? 0);
+  /** Only an unconfirmed request is still the employee's to change. */
+  const isEditable = !item?.isConfirmed;
+
+  const formattedAmount = useMemo(() => {
+    const value = Number(item?.amount ?? 0);
     return `${value.toLocaleString(undefined, { maximumFractionDigits: 2 })}${
       currencyCode ? ` ${currencyCode}` : ''
     }`;
-  }, [item?.cost, currencyCode]);
+  }, [item?.amount, currencyCode]);
 
   return (
     <Spin
@@ -96,10 +97,10 @@ const ExternalTnaCard: FC<ExternalTnaCardProps> = ({
               External
             </span>
             <StatusBadge
-              theme={ExternalTrainingStatusBadgeTheme[item?.status]}
+              theme={TrainingRequestStageBadgeTheme[stage]}
               className="!bg-white/90 shrink-0"
             >
-              {ExternalTrainingStatusLabel[item?.status] ?? item?.status}
+              {TrainingRequestStageLabel[stage]}
             </StatusBadge>
           </div>
 
@@ -127,7 +128,7 @@ const ExternalTnaCard: FC<ExternalTnaCardProps> = ({
                 className="text-base font-bold leading-6 text-white"
                 data-cy={`tna-external-card-cost-${item?.id}`}
               >
-                {formattedCost}
+                {formattedAmount}
               </div>
             </div>
           </div>
@@ -146,21 +147,22 @@ const ExternalTnaCard: FC<ExternalTnaCardProps> = ({
               className="min-w-0 truncate text-xs font-bold leading-none text-black max-md:leading-5"
               data-cy={`tna-external-card-provider-${item?.id}`}
             >
-              {item?.trainingProvider || 'External Training'}
+              {item?.source || 'External Training'}
             </span>
-            {item?.courseLink ? (
-              <Tooltip title="Open course link">
-                <a
-                  href={item.courseLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="shrink-0 text-[#1E40AF]"
-                  data-cy={`tna-external-card-link-${item?.id}`}
-                >
-                  <LuExternalLink size={14} />
-                </a>
-              </Tooltip>
+            {item?.hasFailed ? (
+              <span
+                className="shrink-0 rounded-[4px] border border-[#FFA39E] bg-[#FFF1F0] px-2 py-px text-[11px] leading-4 text-[#CF1322]"
+                data-cy={`tna-external-card-failed-${item?.id}`}
+              >
+                Failed
+              </span>
+            ) : item?.hasCompleted ? (
+              <span
+                className="shrink-0 rounded-[4px] border border-[#B7EB8F] bg-[#F6FFED] px-2 py-px text-[11px] leading-4 text-[#389E0D]"
+                data-cy={`tna-external-card-passed-${item?.id}`}
+              >
+                Passed
+              </span>
             ) : null}
           </div>
 
@@ -169,7 +171,7 @@ const ExternalTnaCard: FC<ExternalTnaCardProps> = ({
             id={`tnaExternalCardTitle${item?.id}Id`}
             data-cy={`tna-external-card-title-${item?.id}`}
           >
-            {item?.courseName}
+            {item?.courseName || 'Untitled training'}
           </h3>
 
           {commitment ? (
@@ -177,10 +179,9 @@ const ExternalTnaCard: FC<ExternalTnaCardProps> = ({
           ) : (
             <p
               className="m-0 line-clamp-2 text-[13px] leading-[18px] text-[#A6A6A6] max-md:text-xs max-md:leading-5 max-md:text-black/45"
-              data-cy={`tna-external-card-justification-${item?.id}`}
+              data-cy={`tna-external-card-description-${item?.id}`}
             >
-              {item?.businessJustification ||
-                'No business justification provided.'}
+              {item?.description || item?.reason || 'No description provided.'}
             </p>
           )}
 
@@ -195,9 +196,7 @@ const ExternalTnaCard: FC<ExternalTnaCardProps> = ({
             >
               <TbCoin size={14} aria-hidden />
               <span data-cy={`tna-external-card-payment-value-${item?.id}`}>
-                {item?.isPaymentConfirmed
-                  ? 'Payment confirmed'
-                  : 'Payment pending'}
+                {item?.isPaid ? 'Paid' : 'Payment pending'}
               </span>
             </div>
             <div
@@ -207,9 +206,9 @@ const ExternalTnaCard: FC<ExternalTnaCardProps> = ({
               <LuCalendarClock size={14} aria-hidden />
               <span data-cy={`tna-external-card-commitment-value-${item?.id}`}>
                 {commitment
-                  ? commitment.status === TrainingCommitmentStatus.ACTIVE
-                    ? `${commitment.daysRemaining ?? 0} day(s) left`
-                    : `Commitment ${commitment.status}`
+                  ? commitment.completedCommitment
+                    ? 'Commitment served'
+                    : `${commitment.daysLeft ?? 0} day(s) left`
                   : 'No commitment yet'}
               </span>
             </div>
@@ -233,11 +232,17 @@ const ExternalTnaCard: FC<ExternalTnaCardProps> = ({
               id={item?.id ?? null}
               triggerSizePx={24}
               moreMenuIconPx={14}
-              onEdit={isEditable && onEdit ? () => onEdit(item) : undefined}
+              onEdit={
+                isEditable &&
+                onEdit &&
+                item?.approvalStatus === TrainingRequestApprovalStatus.PENDING
+                  ? () => onEdit(item)
+                  : undefined
+              }
               onDelete={
                 isEditable
                   ? () => {
-                      deleteExternalTraining([item?.id], {
+                      deleteTrainingRequest(item?.id, {
                         onSuccess: () => refetch?.(),
                       });
                     }

@@ -72,8 +72,8 @@ const CourseCategorySidebar = () => {
   const {
     createModalTab,
     setCreateModalTab,
-    externalTrainingId,
-    setExternalTrainingId,
+    trainingRequestId,
+    setTrainingRequestId,
   } = useExternalTrainingStore();
   const { userId, tenantId } = useAuthenticationStore();
   const { mutate: setCourse, isLoading, isSuccess } = useSetCourseManagement();
@@ -85,7 +85,7 @@ const CourseCategorySidebar = () => {
     permissions: [Permissions.CreateExternalTna],
   });
   // Editing pins the modal to the matching tab — you cannot switch mid-edit.
-  const editingExternalId = courseId ? null : externalTrainingId;
+  const editingExternalId = courseId ? null : trainingRequestId;
   const isEditing = Boolean(courseId || editingExternalId);
   const showTabs = !isEditing && canCreateCourse && canCreateExternalTna;
   const isExternalTab = courseId
@@ -376,7 +376,7 @@ const CourseCategorySidebar = () => {
 
   const onClose = useCallback(() => {
     setCourseId(null);
-    setExternalTrainingId(null);
+    setTrainingRequestId(null);
     form.resetFields();
     resetCourseSidebarForm();
     setIsShow(false);
@@ -384,7 +384,7 @@ const CourseCategorySidebar = () => {
     form,
     resetCourseSidebarForm,
     setCourseId,
-    setExternalTrainingId,
+    setTrainingRequestId,
     setIsShow,
   ]);
 
@@ -644,7 +644,7 @@ const CourseCategorySidebar = () => {
 
         {isExternalTab ? (
           <ExternalTnaForm
-            externalTrainingId={editingExternalId}
+            trainingRequestId={editingExternalId}
             onClose={onClose}
           />
         ) : (
