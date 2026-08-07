@@ -12,6 +12,8 @@ import {
   CourseMaterialArticleFormItem,
   CourseMaterialAttachmentsFormItem,
   CourseMaterialDescriptionFormItem,
+  CourseMaterialImagesFormItem,
+  CourseMaterialReferenceMaterialsFormItem,
   CourseMaterialTimeFormItem,
   CourseMaterialTitleFormItem,
   CourseMaterialVideosFormItem,
@@ -25,6 +27,8 @@ const STEP_LABELS = [
   'Article',
   'Video',
   'Attachments',
+  'References',
+  'Images',
 ] as const;
 
 /** Payload shape for nested `courseLessonMaterials` on lesson create/update. */
@@ -34,6 +38,8 @@ export type NestedLessonMaterialDraftPayload = {
   article: string | null;
   videos: string[];
   attachments: string[];
+  referenceMaterials: string[];
+  images: string[];
   order: number;
   timeToFinishMinutes: number;
 };
@@ -115,6 +121,14 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
         attachments: editingMaterial.attachments?.length
           ? editingMaterial.attachments.map((a) => formatLinkToUploadFile(a))
           : undefined,
+        referenceMaterials: editingMaterial.referenceMaterials?.length
+          ? editingMaterial.referenceMaterials.map((r) =>
+              formatLinkToUploadFile(r),
+            )
+          : undefined,
+        images: editingMaterial.images?.length
+          ? editingMaterial.images.map((i) => formatLinkToUploadFile(i))
+          : undefined,
       });
     } else if (editingDraft) {
       form.setFieldsValue({
@@ -127,6 +141,14 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
           : undefined,
         attachments: editingDraft.attachments?.length
           ? editingDraft.attachments.map((a) => formatLinkToUploadFile(a))
+          : undefined,
+        referenceMaterials: editingDraft.referenceMaterials?.length
+          ? editingDraft.referenceMaterials.map((r) =>
+              formatLinkToUploadFile(r),
+            )
+          : undefined,
+        images: editingDraft.images?.length
+          ? editingDraft.images.map((i) => formatLinkToUploadFile(i))
           : undefined,
       });
     }
@@ -161,11 +183,15 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
         ? editingDraft.order
         : getNewMaterialOrderForTop(ordersForNew);
 
-    const videos =
-      values.videos?.map((video: { response?: string }) => video.response) ??
-      [];
-    const attachments =
-      values.attachments?.map((a: { response?: string }) => a.response) ?? [];
+    const toLinks = (files: { response?: string }[] | undefined): string[] =>
+      files
+        ?.map((file) => file.response)
+        .filter((link): link is string => !!link) ?? [];
+
+    const videos = toLinks(values.videos);
+    const attachments = toLinks(values.attachments);
+    const referenceMaterials = toLinks(values.referenceMaterials);
+    const images = toLinks(values.images);
 
     if (draftMode) {
       const strOrNull = (v: unknown) => {
@@ -181,6 +207,8 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
           order,
           videos,
           attachments,
+          referenceMaterials,
+          images,
         },
         draftEditingClientId ?? undefined,
       );
@@ -201,6 +229,8 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
           courseLessonId: lesson.id,
           videos,
           attachments,
+          referenceMaterials,
+          images,
         },
       ],
       {
@@ -236,6 +266,8 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
     1: ['article'],
     2: ['videos'],
     3: ['attachments'],
+    4: ['referenceMaterials'],
+    5: ['images'],
   };
 
   const handleContinue = async () => {
@@ -462,6 +494,32 @@ const InlineAddCourseMaterialWizard: FC<InlineAddCourseMaterialWizardProps> = ({
               uploadTitle="Click or drag file to this area to upload"
               uploadSubtitle="Support for a single or bulk upload."
               uploadDataCy="tna-inline-add-material-attachment-upload"
+              uploadIcon={courseMaterialVideoUploadIcon}
+            />
+          </Spin>
+        ) : null}
+
+        {step === 4 ? (
+          <Spin spinning={!!isFileUploadLoading?.reference}>
+            <CourseMaterialReferenceMaterialsFormItem
+              itemDataCy="tna-inline-add-material-reference"
+              uploadClassName="mt-3 w-full"
+              uploadTitle="Click or drag file to this area to upload"
+              uploadSubtitle="Optional. Add reading material, slide decks or external links."
+              uploadDataCy="tna-inline-add-material-reference-upload"
+              uploadIcon={courseMaterialVideoUploadIcon}
+            />
+          </Spin>
+        ) : null}
+
+        {step === 5 ? (
+          <Spin spinning={!!isFileUploadLoading?.image}>
+            <CourseMaterialImagesFormItem
+              itemDataCy="tna-inline-add-material-image"
+              uploadClassName="mt-3 w-full"
+              uploadTitle="Click or drag an image to this area to upload"
+              uploadSubtitle="Optional. Diagrams or screenshots shown alongside the session."
+              uploadDataCy="tna-inline-add-material-image-upload"
               uploadIcon={courseMaterialVideoUploadIcon}
             />
           </Spin>

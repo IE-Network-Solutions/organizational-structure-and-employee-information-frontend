@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { AZURE_APP_SERVICE } from './constants';
+import { COPILOT_CHAT_URL } from './constants';
 
 /** User-facing error messages for consistent Copilot UX */
 export const COPILOT_ERROR_MESSAGES = {
@@ -69,12 +69,12 @@ export function normalizeCopilotError(error: unknown): string {
   return COPILOT_ERROR_MESSAGES.UNEXPECTED;
 }
 
-// Returns the full Azure App Service URL for copilot from constants (env variable)
-const getCopilotUrl = () => AZURE_APP_SERVICE || '';
-// Backend mounts /copilot as the app; main chat is POST /copilot, export is POST /copilot/export
-// AZURE_APP_SERVICE already points to ".../copilot", so we just append "/export".
+const trimTrailingSlash = (url: string) => url.replace(/\/+$/, '');
+
+/** POST {COPILOT_BASE_URL}/copilot */
+const getCopilotUrl = () => COPILOT_CHAT_URL || '';
 const getCopilotExportUrl = () =>
-  `${(AZURE_APP_SERVICE || '').replace(/\/+$/, '')}/export`;
+  COPILOT_CHAT_URL ? `${trimTrailingSlash(COPILOT_CHAT_URL)}/export` : '';
 
 interface CopilotChatRequest {
   prompt: string;
@@ -429,12 +429,11 @@ export interface CopilotSharePayloadV1 {
 export async function createCopilotShareOnBackend(
   payload: CopilotSharePayloadV1,
 ): Promise<string | null> {
-  const base = (AZURE_APP_SERVICE || '').replace(/\/+$/, '');
-  if (!base) return null;
+  if (!COPILOT_CHAT_URL) return null;
   const token = await getCurrentToken();
   const { tenantId, userId } = useAuthenticationStore.getState();
   if (!tenantId || !token) return null;
-  const shareUrl = `${base}/share`;
+  const shareUrl = `${trimTrailingSlash(COPILOT_CHAT_URL)}/share`;
   try {
     const res = await axios.post<{ shareId: string }>(shareUrl, payload, {
       headers: {
@@ -458,9 +457,8 @@ export async function createCopilotShareOnBackend(
 export async function fetchCopilotShareById(
   shareId: string,
 ): Promise<CopilotSharePayloadV1 | null> {
-  const base = (AZURE_APP_SERVICE || '').replace(/\/+$/, '');
-  if (!base || !shareId?.trim()) return null;
-  const url = `${base}/share/${encodeURIComponent(shareId.trim())}`;
+  if (!COPILOT_CHAT_URL || !shareId?.trim()) return null;
+  const url = `${trimTrailingSlash(COPILOT_CHAT_URL)}/share/${encodeURIComponent(shareId.trim())}`;
   try {
     const res = await axios.get<CopilotSharePayloadV1>(url, { timeout: 20000 });
     const d = res.data;
@@ -523,6 +521,10 @@ export const sendCopilotChatRequest = async (
   }
 
   const copilotUrl = getCopilotUrl();
+  if (!copilotUrl) {
+    throw new Error(COPILOT_ERROR_MESSAGES.SERVICE_UNAVAILABLE);
+  }
+
   // Log the URL being used in development
   if (process.env.NODE_ENV === 'development') {
     /* eslint-disable no-console */

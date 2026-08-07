@@ -145,6 +145,7 @@ const ActionPlanDrawer: React.FC<ActionPlanDrawerProps> = ({
                             data-cy={`action-plan-drawer-assignee-option-${item.id}`}
                           >
                             <Image
+                              unoptimized
                               src={item?.profileImage ?? '/default-avatar.png'}
                               alt="profile"
                               className="rounded-full w-4 h-4 mt-2"

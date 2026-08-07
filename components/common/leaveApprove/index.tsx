@@ -52,6 +52,7 @@ const LeaveApproval: React.FC<LeaveApprovalProps> = ({
         className="flex justify-center items-center h-[200px]"
       >
         <Image
+          unoptimized
           src="/deleteSvg.svg"
           width={300}
           height={300}

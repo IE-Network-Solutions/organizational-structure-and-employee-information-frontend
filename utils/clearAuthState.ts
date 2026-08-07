@@ -1,5 +1,7 @@
 import { removeCookie } from '@/helpers/storageHelper';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useRecentlyAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
+import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 
 export const clearAuthState = () => {
   const store = useAuthenticationStore.getState();
@@ -20,6 +22,10 @@ export const clearAuthState = () => {
   removeCookie('tenantId');
   removeCookie('activeCalendar');
   removeCookie('loggedUserRole');
+  removeCookie('canManageFiscalYear');
 
   useAuthenticationStore.persist.clearStorage();
+  useRecentlyAchievedMilestones.getState().clear();
+  useRecentlyAchievedMilestones.persist.clearStorage();
+  useRecentReportTaskStatuses.getState().clear();
 };

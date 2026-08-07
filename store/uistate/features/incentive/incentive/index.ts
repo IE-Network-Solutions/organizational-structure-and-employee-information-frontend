@@ -155,6 +155,7 @@ interface SearchParams {
   byYear: string;
   bySession: any;
   byMonth: string;
+  payPeriodId: string;
 }
 
 export type CertificateDetails = {
@@ -341,6 +342,7 @@ const incentiveSlice: StateCreator<IncentiveState & IncentiveActions> = (
     byYear: '',
     bySession: [],
     byMonth: '',
+    payPeriodId: '',
   },
   setSearchParams: (key, value) =>
     set((state) => ({

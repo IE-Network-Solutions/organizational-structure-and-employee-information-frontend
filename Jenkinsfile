@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     options {
-        timeout(time: 20, unit: 'MINUTES')
+        timeout(time: 45, unit: 'MINUTES')
     }
 
     stages {
@@ -41,7 +41,7 @@ if (branchName.contains('develop-redesign-branch')) {
 }  else if (branchName.contains('core-production')) {
     env.REMOTE_SERVER = REMOTE_SERVER_PROD
     env.SECRETS_PATH = '/home/ubuntu/secrets/.core-workspace-env'
-    env.SECRET_KEY = 'pepproduction
+    env.SECRET_KEY = 'pepproduction'
                         
                     }
                 }
@@ -311,7 +311,7 @@ if (branchName.contains('develop-redesign-branch')) {
                 """,
                 from: 'selamnew@ienetworksolutions.com',
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'yonas.t@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
+                to: 'biniyam.l@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
             )
         }
     }
