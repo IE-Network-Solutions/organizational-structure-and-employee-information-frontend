@@ -20,8 +20,8 @@ import { CriticalRole } from '../criticalRoleModal';
 import { CompetencyImportance } from '../steps/stepCompetencyDefinition';
 import { sumWeightedScores } from '../steps/stepEvaluatorAssignment';
 import {
+  EvaluationSessionCard,
   EvaluatorContainer,
-  SuccessorSessionTable,
 } from '../hierarchyRows';
 
 export type EvaluatorScope = 'admin' | 'mine';
@@ -328,7 +328,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
     });
   };
 
-  const renderSessionTable = (session: EvaluationSession) => {
+  const renderSessionCard = (session: EvaluationSession) => {
     const isComplete = session.pendingCount === 0 && session.evaluatedCount > 0;
     const sessionTotal = sumWeightedScores(session.criteria);
     const sessionMaxWeight = session.criteria.reduce(
@@ -337,7 +337,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
     );
 
     return (
-      <SuccessorSessionTable
+      <EvaluationSessionCard
         key={session.key}
         sessionKey={session.key}
         successorName={session.successorName}
@@ -347,24 +347,13 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
         isComplete={isComplete}
         sessionTotal={sessionTotal}
         sessionMaxWeight={sessionMaxWeight}
+        criteriaCount={session.criteria.length}
+        evaluatedCount={session.evaluatedCount}
+        pendingCount={session.pendingCount}
+        onOpen={() => openEvaluation(session)}
         onRoleClick={() =>
           router.push(`/employees/succession-planning/${session.roleId}`)
         }
-        onEvaluate={!isComplete ? () => openEvaluation(session) : undefined}
-        criteria={session.criteria.map((criterion) => {
-          const canOpenEdit =
-            isComplete || criterion.status === 'Evaluated';
-          return {
-            key: criterion.key,
-            name: criterion.competencyName,
-            category: criterion.category,
-            weight: criterion.weight,
-            score: criterion.score,
-            status: criterion.status,
-            clickable: canOpenEdit,
-            onClick: canOpenEdit ? () => openEvaluation(session) : undefined,
-          };
-        })}
       />
     );
   };
@@ -412,8 +401,8 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
         data-cy="evaluators-view-intro"
       >
         {isMine
-          ? 'Your assigned successor evaluations. Each successor has its own criteria table.'
-          : 'Each evaluator is a container with a separate table for every successor they score.'}
+          ? 'Your assigned successor evaluations as tiles — open a card to score or review.'
+          : 'Each evaluator groups their successor tiles — same layout as critical role detail.'}
       </p>
 
       <div
@@ -589,11 +578,11 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
         />
       ) : isMine ? (
         <div
-          className="flex flex-col gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
           data-cy="evaluators-my-sessions"
         >
           {(groups[0]?.sessions ?? []).map((session) =>
-            renderSessionTable(session),
+            renderSessionCard(session),
           )}
         </div>
       ) : (
@@ -610,7 +599,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                 sessionCount={group.sessions.length}
                 pendingSessionCount={pendingSessions}
               >
-                {group.sessions.map((session) => renderSessionTable(session))}
+                {group.sessions.map((session) => renderSessionCard(session))}
               </EvaluatorContainer>
             );
           })}

@@ -1,16 +1,9 @@
 'use client';
 import React from 'react';
-import { Button, Table } from 'antd';
-import type { TableColumnsType } from 'antd';
+import { Button, Card, Tag } from 'antd';
 import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
-import StatusBadge, {
-  StatusBadgeTheme,
-} from '@/components/common/statusBadge/statusBadge';
-import {
-  PersonIdentity,
-  PersonRoleAvatar,
-  PersonRoleLabel,
-} from './personRoleChrome';
+import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
+import { PersonIdentity } from './personRoleChrome';
 import { scoreAchievementPercent } from './steps/stepEvaluatorAssignment';
 
 export const getScoreBadgeClass = (score: number) => {
@@ -90,7 +83,7 @@ export const CriteriaLine: React.FC<{
   );
 };
 
-export interface SuccessorSessionTableProps {
+export interface EvaluationSessionCardProps {
   sessionKey: string;
   successorName: string;
   successorJobTitle?: string;
@@ -99,16 +92,17 @@ export interface SuccessorSessionTableProps {
   isComplete: boolean;
   sessionTotal: number;
   sessionMaxWeight: number;
-  criteria: CriteriaLineItem[];
-  onRoleClick: () => void;
-  onEvaluate?: () => void;
+  criteriaCount: number;
+  evaluatedCount: number;
+  pendingCount: number;
+  onOpen: () => void;
+  onRoleClick?: () => void;
 }
 
 /**
- * One successor = one small table (header + criteria rows).
- * Used inside a larger evaluator container on the admin view.
+ * Compact successor evaluation tile — same chrome as role-detail SuccessorSummaryCard.
  */
-export const SuccessorSessionTable: React.FC<SuccessorSessionTableProps> = ({
+export const EvaluationSessionCard: React.FC<EvaluationSessionCardProps> = ({
   sessionKey,
   successorName,
   successorJobTitle,
@@ -117,155 +111,128 @@ export const SuccessorSessionTable: React.FC<SuccessorSessionTableProps> = ({
   isComplete,
   sessionTotal,
   sessionMaxWeight,
-  criteria,
+  criteriaCount,
+  evaluatedCount,
+  pendingCount,
+  onOpen,
   onRoleClick,
-  onEvaluate,
 }) => {
-  const columns: TableColumnsType<CriteriaLineItem> = [
-    {
-      title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Criteria</span>
-      ),
-      key: 'name',
-      render: (_: unknown, record) =>
-        record.clickable ? (
-          <button
-            type="button"
-            className="text-left group min-w-0"
-            onClick={record.onClick}
-            data-cy={`evaluation-criterion-link-${record.key}`}
-          >
-            <div className="text-sm font-medium text-primary group-hover:underline truncate">
-              {record.name}
-            </div>
-            {record.category ? (
-              <div className="text-xs text-gray-400">{record.category}</div>
-            ) : null}
-          </button>
-        ) : (
-          <div className="min-w-0">
-            <div className="text-sm text-gray-800 truncate">{record.name}</div>
-            {record.category ? (
-              <div className="text-xs text-gray-400">{record.category}</div>
-            ) : null}
-          </div>
-        ),
-    },
-    {
-      title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Weight</span>
-      ),
-      key: 'weight',
-      width: 90,
-      render: (_: unknown, record) => (
-        <span className="text-sm text-[#4d4d4d] tabular-nums">
-          {record.weight != null ? `${record.weight}%` : '—'}
-        </span>
-      ),
-    },
-    {
-      title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Result</span>
-      ),
-      key: 'result',
-      width: 120,
-      render: (_: unknown, record) => {
-        const scored = record.status === 'Evaluated' && record.score != null;
-        if (!scored) {
-          return <span className="text-sm text-gray-400">—</span>;
-        }
-        return (
-          <span
-            className={`inline-flex items-center px-2 py-0.5 rounded border text-sm font-semibold tabular-nums ${getScoreBadgeClass(
-              scoreAchievementPercent(record.score!, record.weight ?? 0),
-            )}`}
-          >
-            {record.score}
-            {record.weight != null ? ` / ${record.weight}` : ''}
-          </span>
-        );
-      },
-    },
-  ];
+  const maxWeight = sessionMaxWeight || 100;
 
   return (
-    <div
-      className="rounded-lg border border-[#D9D9D9] overflow-hidden bg-white"
-      data-cy={`evaluation-session-${sessionKey}`}
+    <Card
+      hoverable
+      bordered={false}
+      className="rounded-lg border border-[#D9D9D9] bg-white h-full cursor-pointer shadow-none hover:border-primary"
+      styles={{ body: { padding: 16 } }}
+      onClick={onOpen}
+      data-cy={`evaluation-session-card-${sessionKey}`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-[#F8FAFC] border-b border-[#E5E7EB]">
-        <div className="flex items-start gap-3 min-w-0 flex-1">
-          <PersonRoleAvatar role="Successor" size={32} />
-          <div className="min-w-0 flex-1">
-            <PersonRoleLabel role="Successor" />
-            <div className="text-sm font-semibold text-gray-800 truncate">
-              {successorName}
-            </div>
-            <div className="text-xs text-gray-500 truncate">
+      <div className="flex flex-col gap-3 h-full">
+        <PersonIdentity
+          role="Successor"
+          name={successorName}
+          caption={
+            <span className="text-xs text-gray-500">
               {successorJobTitle ? `${successorJobTitle} · ` : ''}
               For{' '}
-              <button
-                type="button"
-                className="font-medium text-gray-700 hover:text-primary"
-                onClick={onRoleClick}
-              >
-                {roleName}
-              </button>
+              {onRoleClick ? (
+                <button
+                  type="button"
+                  className="font-medium text-gray-700 hover:text-primary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRoleClick();
+                  }}
+                  data-cy={`evaluation-session-role-link-${sessionKey}`}
+                >
+                  {roleName}
+                </button>
+              ) : (
+                <span className="font-medium text-gray-700">{roleName}</span>
+              )}
               <span className="text-gray-400"> · {department}</span>
-            </div>
+            </span>
+          }
+          avatarSize={40}
+        />
+
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Tag
+            className="m-0"
+            color={isComplete ? 'green' : 'orange'}
+            data-cy={`evaluation-session-status-${sessionKey}`}
+          >
+            {isComplete ? 'Session scored' : 'Not scored'}
+          </Tag>
+          {!isComplete && pendingCount > 0 ? (
+            <Tag className="m-0" color="default">
+              {pendingCount} pending
+            </Tag>
+          ) : null}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 pt-1 border-t border-[#F0F0F0]">
+          <div>
+            <p className="text-sm text-[#bababa] font-normal m-0 mb-0.5">
+              Score
+            </p>
+            <p
+              className={`text-sm font-normal m-0 tabular-nums ${
+                isComplete && sessionTotal === maxWeight && maxWeight > 0
+                  ? 'text-green-700'
+                  : 'text-[#4d4d4d]'
+              }`}
+              data-cy={`evaluation-session-total-${sessionKey}`}
+            >
+              {criteriaCount > 0 ? `${sessionTotal} / ${maxWeight}` : '—'}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm text-[#bababa] font-normal m-0 mb-0.5">
+              Criteria
+            </p>
+            <p className="text-sm font-normal text-[#4d4d4d] m-0 tabular-nums">
+              {criteriaCount > 0
+                ? `${evaluatedCount}/${criteriaCount}`
+                : '—'}
+            </p>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <StatusBadge
-            theme={
-              isComplete ? StatusBadgeTheme.success : StatusBadgeTheme.warning
-            }
+        {isComplete ? (
+          <button
+            type="button"
+            className="mt-auto self-start inline-flex items-center gap-1 text-sm font-medium !text-primary hover:underline bg-transparent border-0 p-0 cursor-pointer"
+            style={{ color: '#3636F0' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen();
+            }}
+            data-cy={`review-evaluation-btn-${sessionKey}`}
           >
-            {isComplete ? 'Session scored' : 'Not scored'}
-          </StatusBadge>
-          <span
-            className="text-sm text-gray-600 tabular-nums"
-            data-cy={`evaluation-session-total-${sessionKey}`}
+            Review scores
+            <ArrowForwardOutlinedIcon
+              style={{ fontSize: 16, color: '#3636F0' }}
+            />
+          </button>
+        ) : (
+          <Button
+            type="primary"
+            size="small"
+            className="mt-auto self-start h-8 font-normal inline-flex items-center gap-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen();
+            }}
+            data-cy={`start-evaluation-btn-${sessionKey}`}
           >
-            Total{' '}
-            <span
-              className={`font-bold ${
-                sessionTotal === sessionMaxWeight && sessionMaxWeight > 0
-                  ? 'text-green-700'
-                  : 'text-gray-800'
-              }`}
-            >
-              {sessionTotal} / {sessionMaxWeight || 100}
-            </span>
-          </span>
-          {!isComplete && onEvaluate ? (
-            <Button
-              type="primary"
-              size="small"
-              onClick={onEvaluate}
-              icon={<PlayArrowOutlinedIcon style={{ fontSize: 16 }} />}
-              className="inline-flex items-center"
-              data-cy={`start-evaluation-btn-${sessionKey}`}
-            >
-              Evaluate
-            </Button>
-          ) : null}
-        </div>
+            <PlayArrowOutlinedIcon style={{ fontSize: 16 }} />
+            Evaluate
+          </Button>
+        )}
       </div>
-
-      <Table
-        columns={columns}
-        dataSource={criteria}
-        rowKey="key"
-        pagination={false}
-        size="small"
-        rowClassName={(_, index) =>
-          index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
-        }
-        data-cy={`evaluation-session-table-${sessionKey}`}
-      />
-    </div>
+    </Card>
   );
 };
 
@@ -277,7 +244,7 @@ export interface EvaluatorContainerProps {
   children: React.ReactNode;
 }
 
-/** Large white container for an evaluator; successor tables live inside. */
+/** Evaluator header + tile grid for successor sessions. */
 export const EvaluatorContainer: React.FC<EvaluatorContainerProps> = ({
   evaluatorId,
   evaluatorName,
@@ -303,7 +270,7 @@ export const EvaluatorContainer: React.FC<EvaluatorContainerProps> = ({
       />
     </div>
     <div
-      className="flex flex-col gap-3"
+      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
       data-cy={`evaluator-sessions-${evaluatorId}`}
     >
       {children}

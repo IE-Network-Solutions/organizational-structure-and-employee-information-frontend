@@ -127,9 +127,10 @@ export const SuccessorSummaryCard: React.FC<SuccessorSummaryCardProps> = ({
           </div>
         </div>
 
-        <Button
-          type="link"
-          className="!px-0 !h-auto self-start mt-auto inline-flex items-center gap-1"
+        <button
+          type="button"
+          className="mt-auto self-start inline-flex items-center gap-1 text-sm font-medium !text-primary hover:underline bg-transparent border-0 p-0 cursor-pointer"
+          style={{ color: '#3636F0' }}
           onClick={(e) => {
             e.stopPropagation();
             onOpen();
@@ -137,8 +138,10 @@ export const SuccessorSummaryCard: React.FC<SuccessorSummaryCardProps> = ({
           data-cy={`view-successor-details-${successor.id}`}
         >
           View details
-          <ArrowForwardOutlinedIcon style={{ fontSize: 16 }} />
-        </Button>
+          <ArrowForwardOutlinedIcon
+            style={{ fontSize: 16, color: '#3636F0' }}
+          />
+        </button>
       </div>
     </Card>
   );
