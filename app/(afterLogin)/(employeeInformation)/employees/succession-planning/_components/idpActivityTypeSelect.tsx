@@ -6,7 +6,7 @@ import {
   addCustomIdpActivityType,
   idpActivityTypeOptions,
   type IdpActivityType,
-} from '../successionTypes';
+} from './successionTypes';
 
 interface IdpActivityTypeSelectProps {
   value?: IdpActivityType;
