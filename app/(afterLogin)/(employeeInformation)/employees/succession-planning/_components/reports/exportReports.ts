@@ -1,7 +1,12 @@
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import type { CriticalRole } from '../criticalRoleModal';
-import { formatYearsLabel } from '../educationCatalog';
+import {
+  buildDevelopmentPlanProgressRows,
+  buildSkillGapAnalysisRows,
+  buildSuccessorReadinessRows,
+  type SuccessionReportKey,
+} from './reportData';
 
 const downloadWorkbook = async (
   workbook: ExcelJS.Workbook,
@@ -28,17 +33,15 @@ export const exportSuccessorReadinessReport = async (roles: CriticalRole[]) => {
     { header: 'Education', key: 'education', width: 28 },
     { header: 'Relevant Experience', key: 'experience', width: 36 },
   ];
-  roles.forEach((role) => {
-    (role.successors ?? []).forEach((successor) => {
-      sheet.addRow({
-        role: role.roleName,
-        department: role.department,
-        successor: successor.name,
-        position: successor.currentPosition ?? successor.jobTitle,
-        readiness: successor.readiness ?? '',
-        education: successor.education ?? '',
-        experience: formatYearsLabel(successor.relevantExperience),
-      });
+  buildSuccessorReadinessRows(roles).forEach((row) => {
+    sheet.addRow({
+      role: row.role,
+      department: row.department,
+      successor: row.successor,
+      position: row.position,
+      readiness: row.readiness,
+      education: row.education,
+      experience: row.experience,
     });
   });
   await downloadWorkbook(workbook, 'successor-readiness-report.xlsx');
@@ -58,21 +61,17 @@ export const exportSkillGapAnalysisReport = async (roles: CriticalRole[]) => {
     { header: 'Severity', key: 'severity', width: 12 },
     { header: 'Status', key: 'status', width: 14 },
   ];
-  roles.forEach((role) => {
-    (role.successors ?? []).forEach((successor) => {
-      (successor.gaps ?? []).forEach((gap) => {
-        sheet.addRow({
-          role: role.roleName,
-          successor: successor.name,
-          competency: gap.competencyName,
-          category: gap.category,
-          importance: gap.importance,
-          required: gap.requiredLevel,
-          current: gap.currentLevel,
-          severity: gap.gapSeverity,
-          status: gap.status,
-        });
-      });
+  buildSkillGapAnalysisRows(roles).forEach((row) => {
+    sheet.addRow({
+      role: row.role,
+      successor: row.successor,
+      competency: row.competency,
+      category: row.category,
+      importance: row.importance,
+      required: row.required,
+      current: row.current,
+      severity: row.severity,
+      status: row.status,
     });
   });
   await downloadWorkbook(workbook, 'skill-gap-analysis-report.xlsx');
@@ -95,58 +94,35 @@ export const exportDevelopmentPlanProgressReport = async (
     { header: 'Completed Actions', key: 'completedActions', width: 16 },
     { header: 'Progress %', key: 'progress', width: 12 },
   ];
-  roles.forEach((role) => {
-    (role.successors ?? []).forEach((successor) => {
-      const actions = successor.developmentActions ?? [];
-      const completedActions = actions.filter(
-        (a) => a.status === 'Completed',
-      ).length;
-      const openActions = actions.filter(
-        (a) => a.status !== 'Completed',
-      ).length;
-      const progress =
-        actions.length > 0
-          ? Math.round((completedActions / actions.length) * 100)
-          : successor.idp?.activities?.length
-            ? Math.round(
-                ((successor.idp.activities.filter((a) => a.status === 'Completed')
-                  .length || 0) /
-                  successor.idp.activities.length) *
-                  100,
-              )
-            : 0;
-
-      if (!successor.idp?.activities?.length) {
-        sheet.addRow({
-          role: role.roleName,
-          successor: successor.name,
-          idpStatus: successor.idp?.status ?? 'None',
-          type: '',
-          activity: '',
-          target: '',
-          activityStatus: '',
-          openActions,
-          completedActions,
-          progress,
-        });
-        return;
-      }
-
-      successor.idp.activities.forEach((activity) => {
-        sheet.addRow({
-          role: role.roleName,
-          successor: successor.name,
-          idpStatus: successor.idp?.status ?? '',
-          type: activity.type,
-          activity: activity.title,
-          target: activity.targetDate ?? '',
-          activityStatus: activity.status,
-          openActions,
-          completedActions,
-          progress,
-        });
-      });
+  buildDevelopmentPlanProgressRows(roles).forEach((row) => {
+    sheet.addRow({
+      role: row.role,
+      successor: row.successor,
+      idpStatus: row.idpStatus,
+      type: row.type,
+      activity: row.activity,
+      target: row.target,
+      activityStatus: row.activityStatus,
+      openActions: row.openActions,
+      completedActions: row.completedActions,
+      progress: row.progress,
     });
   });
   await downloadWorkbook(workbook, 'development-plan-progress-report.xlsx');
+};
+
+export const exportSuccessionReport = async (
+  roles: CriticalRole[],
+  reportKey: SuccessionReportKey,
+) => {
+  switch (reportKey) {
+    case 'readiness':
+      return exportSuccessorReadinessReport(roles);
+    case 'gaps':
+      return exportSkillGapAnalysisReport(roles);
+    case 'idp':
+      return exportDevelopmentPlanProgressReport(roles);
+    default:
+      return exportSuccessorReadinessReport(roles);
+  }
 };

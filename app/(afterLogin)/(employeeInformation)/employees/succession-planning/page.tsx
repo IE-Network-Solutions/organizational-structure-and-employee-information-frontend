@@ -34,28 +34,39 @@ import EvaluatorsView, {
 import CriticalRoleModal, {
   CriticalRole,
 } from './_components/criticalRoleModal';
+import ReportsView from './_components/reports/reportsView';
 import {
-  exportDevelopmentPlanProgressReport,
-  exportSkillGapAnalysisReport,
-  exportSuccessorReadinessReport,
-} from './_components/reports/exportReports';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
+  buildDevelopmentPlanProgressRows,
+  buildSkillGapAnalysisRows,
+  buildSuccessorReadinessRows,
+  type SuccessionReportKey,
+} from './_components/reports/reportData';
 import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
 
-type SuccessionView = 'roles' | 'evaluators';
+type SuccessionView = 'roles' | 'evaluators' | 'reports';
+
+const parseReportKey = (value: string | null): SuccessionReportKey => {
+  if (value === 'gaps' || value === 'idp' || value === 'readiness') return value;
+  return 'readiness';
+};
+
+const parseView = (value: string | null): SuccessionView => {
+  if (value === 'evaluators' || value === 'reports') return value;
+  return 'roles';
+};
 
 const SuccessionPlanningPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isMobile } = useIsMobile();
-  const initialView =
-    searchParams.get('view') === 'evaluators' ? 'evaluators' : 'roles';
+  const initialView = parseView(searchParams.get('view'));
   const initialScope: EvaluatorScope =
     searchParams.get('scope') === 'mine' ? 'mine' : 'admin';
   const initialAs = searchParams.get('as') ?? '';
+  const initialReportKey = parseReportKey(searchParams.get('report'));
 
   const roles = useSuccessionPlanningStore((s) => s.roles);
   const addRole = useSuccessionPlanningStore((s) => s.addRole);
@@ -63,6 +74,8 @@ const SuccessionPlanningPage: React.FC = () => {
   const deleteRole = useSuccessionPlanningStore((s) => s.deleteRole);
 
   const [activeView, setActiveView] = useState<SuccessionView>(initialView);
+  const [reportKey, setReportKey] =
+    useState<SuccessionReportKey>(initialReportKey);
   const [evaluatorScope, setEvaluatorScope] =
     useState<EvaluatorScope>(initialScope);
   const [viewAsEvaluatorId, setViewAsEvaluatorId] = useState(initialAs);
@@ -154,6 +167,34 @@ const SuccessionPlanningPage: React.FC = () => {
       scroll: false,
     });
   };
+
+  const syncReportsUrl = (key: SuccessionReportKey = reportKey) => {
+    const params = new URLSearchParams();
+    params.set('view', 'reports');
+    params.set('report', key);
+    router.replace(`/employees/succession-planning?${params.toString()}`, {
+      scroll: false,
+    });
+  };
+
+  const openReportsView = (key: SuccessionReportKey) => {
+    setReportKey(key);
+    setActiveView('reports');
+    syncReportsUrl(key);
+  };
+
+  const readinessRowCount = useMemo(
+    () => buildSuccessorReadinessRows(roles).length,
+    [roles],
+  );
+  const gapRowCount = useMemo(
+    () => buildSkillGapAnalysisRows(roles).length,
+    [roles],
+  );
+  const idpRowCount = useMemo(
+    () => buildDevelopmentPlanProgressRows(roles).length,
+    [roles],
+  );
 
   const filtered = roles.filter((r) => {
     const matchesSearch =
@@ -331,6 +372,8 @@ const SuccessionPlanningPage: React.FC = () => {
                   setActiveView(next);
                   if (next === 'evaluators') {
                     syncEvaluatorsUrl(evaluatorScope, viewAsEvaluatorId);
+                  } else if (next === 'reports') {
+                    syncReportsUrl(reportKey);
                   } else {
                     router.replace('/employees/succession-planning', {
                       scroll: false,
@@ -346,6 +389,10 @@ const SuccessionPlanningPage: React.FC = () => {
                     label: isMobile ? 'Evals' : 'Evaluators',
                     value: 'evaluators',
                   },
+                  {
+                    label: 'Reports',
+                    value: 'reports',
+                  },
                 ]}
                 data-cy="succession-planning-view-selector"
               />
@@ -355,50 +402,17 @@ const SuccessionPlanningPage: React.FC = () => {
                     {
                       key: 'readiness',
                       label: 'Successor Readiness Report',
-                      onClick: async () => {
-                        try {
-                          await exportSuccessorReadinessReport(roles);
-                          NotificationMessage.success({
-                            message: 'Report downloaded',
-                          });
-                        } catch {
-                          NotificationMessage.error({
-                            message: 'Export failed',
-                          });
-                        }
-                      },
+                      onClick: () => openReportsView('readiness'),
                     },
                     {
                       key: 'gaps',
                       label: 'Skill Gap Analysis Report',
-                      onClick: async () => {
-                        try {
-                          await exportSkillGapAnalysisReport(roles);
-                          NotificationMessage.success({
-                            message: 'Report downloaded',
-                          });
-                        } catch {
-                          NotificationMessage.error({
-                            message: 'Export failed',
-                          });
-                        }
-                      },
+                      onClick: () => openReportsView('gaps'),
                     },
                     {
                       key: 'idp',
                       label: 'Development Plan Progress Report',
-                      onClick: async () => {
-                        try {
-                          await exportDevelopmentPlanProgressReport(roles);
-                          NotificationMessage.success({
-                            message: 'Report downloaded',
-                          });
-                        } catch {
-                          NotificationMessage.error({
-                            message: 'Export failed',
-                          });
-                        }
-                      },
+                      onClick: () => openReportsView('idp'),
                     },
                   ],
                 }}
@@ -545,7 +559,7 @@ const SuccessionPlanningPage: React.FC = () => {
                 />
               </div>
             </>
-          ) : (
+          ) : activeView === 'evaluators' ? (
             <>
               <div
                 className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
@@ -644,6 +658,66 @@ const SuccessionPlanningPage: React.FC = () => {
                 />
               </div>
             </>
+          ) : (
+            <>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-report-readiness-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center">
+                      <BoltOutlinedIcon
+                        className="text-blue"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title="Readiness Rows"
+                  value={readinessRowCount}
+                  id="sp-stats-report-readiness"
+                  data-cy="sp-stats-report-readiness"
+                />
+              </div>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-report-gaps-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center">
+                      <WarningAmberOutlinedIcon
+                        className="text-error"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title="Skill Gap Rows"
+                  value={gapRowCount}
+                  id="sp-stats-report-gaps"
+                  data-cy="sp-stats-report-gaps"
+                />
+              </div>
+              <div
+                className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
+                data-cy="sp-stats-report-idp-wrapper"
+              >
+                <StatsCard
+                  icon={
+                    <span className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center">
+                      <AssignmentOutlinedIcon
+                        className="text-orangebg"
+                        fontSize="small"
+                      />
+                    </span>
+                  }
+                  title="Development Plan Rows"
+                  value={idpRowCount}
+                  id="sp-stats-report-idp"
+                  data-cy="sp-stats-report-idp"
+                />
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -724,7 +798,7 @@ const SuccessionPlanningPage: React.FC = () => {
               />
             </div>
           </>
-        ) : (
+        ) : activeView === 'evaluators' ? (
           <div
             className="pt-3"
             data-cy="succession-planning-evaluators-section"
@@ -746,6 +820,15 @@ const SuccessionPlanningPage: React.FC = () => {
               evaluatorOptions={evaluatorOptions}
             />
           </div>
+        ) : (
+          <ReportsView
+            roles={roles}
+            reportKey={reportKey}
+            onReportKeyChange={(key) => {
+              setReportKey(key);
+              syncReportsUrl(key);
+            }}
+          />
         )}
       </div>
 
