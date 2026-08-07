@@ -86,12 +86,12 @@ const ScoringModal: React.FC = () => {
   };
 
   const handleMutationSuccess = (response: VpScoringMutationResponse) => {
-    closeScoringForm();
-
     const failed = extractVpScoringFailedAssignments(response);
     if (failed.length > 0) {
       showFailedAssignments(failed);
+      return;
     }
+    closeScoringForm();
   };
 
   // Watchers for tags display
