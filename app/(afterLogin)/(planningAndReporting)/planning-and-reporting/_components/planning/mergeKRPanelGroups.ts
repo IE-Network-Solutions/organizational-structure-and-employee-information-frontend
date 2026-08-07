@@ -417,7 +417,10 @@ export function mergeUserKeyResultsIntoOwnerGroups(
       krs: nextKrs,
       avgProgress: recalcAvgProgress(nextKrs),
     };
-    merged = merged.filter((_, i) => !mineIdxs.includes(i));
+    merged = merged.reduce<KRPanelOwnerGroup[]>((kept, group, index) => {
+      if (!mineIdxs.includes(index)) kept.push(group);
+      return kept;
+    }, []);
     merged.unshift(consolidated);
   } else if (mineIdxs.length === 1) {
     const i = mineIdxs[0]!;
