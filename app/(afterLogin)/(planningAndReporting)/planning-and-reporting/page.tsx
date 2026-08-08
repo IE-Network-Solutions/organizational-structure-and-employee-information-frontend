@@ -180,9 +180,8 @@ function Page() {
     isFetching: userKeyResultsFetching,
     refetch: refetchUserKeyResults,
   } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
-    refetchOnMount: 'always',
-    staleTime: 0,
-    keepPreviousData: false,
+    staleTime: 30_000,
+    keepPreviousData: true,
   });
 
   // Same objective payload the OKR dashboard uses — fills metricType / milestones
@@ -219,7 +218,7 @@ function Page() {
     [planningPeriodHierarchy],
   );
 
-  const { reportSummaries, reportingItems } = useReportingData();
+  const { reportSummaries, reportingItems } = useReportingData(activeTab === 2);
 
   const enrichedPlanSummaries = useMemo(
     () =>
@@ -288,15 +287,19 @@ function Page() {
     planKeyResultsForTargets,
   );
 
-  // Re-pull user KR + objective milestone status when returning to this tab
-  // (e.g. after achieving a milestone on the OKR page) without re-login.
+  // Soft refresh KR/objective milestone status when returning to this tab
+  // (throttled to avoid refetch storms under concurrent usage).
   useEffect(() => {
     if (!userId || typeof document === 'undefined') return;
+    let lastRefreshAt = 0;
+    const MIN_INTERVAL_MS = 60_000;
     const onVisible = () => {
-      if (document.visibilityState === 'visible') {
-        void refetchUserKeyResults();
-        refetchObjectives();
-      }
+      if (document.visibilityState !== 'visible') return;
+      const now = Date.now();
+      if (now - lastRefreshAt < MIN_INTERVAL_MS) return;
+      lastRefreshAt = now;
+      void refetchUserKeyResults();
+      refetchObjectives();
     };
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);

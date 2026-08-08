@@ -70,17 +70,21 @@ function CreatePlan() {
     refetch: refetchHierarchy,
   } = useGetPlanningPeriodsHierarchy(
     userId,
-    planningPeriodId || '', // Provide a default string value if undefined
+    planningPeriodId || '',
+    { enabled: open && !!planningPeriodId },
   );
 
   // Fetch the last report to get failed tasks
-  const { data: lastReportData, refetch: refetchLastReport } = useGetReporting({
-    userId: [userId],
-    planPeriodId: planningPeriodId || '',
-    pageReporting: 1,
-    pageSizeReporting: 1, // Get only the first (most recent) report
-    sessionId: [],
-  });
+  const { data: lastReportData, refetch: refetchLastReport } = useGetReporting(
+    {
+      userId: [userId],
+      planPeriodId: planningPeriodId || '',
+      pageReporting: 1,
+      pageSizeReporting: 1,
+      sessionId: [],
+    },
+    { enabled: open && !!planningPeriodId },
+  );
 
   // Refetch data when drawer opens to ensure we have the latest failed tasks
   useEffect(() => {
