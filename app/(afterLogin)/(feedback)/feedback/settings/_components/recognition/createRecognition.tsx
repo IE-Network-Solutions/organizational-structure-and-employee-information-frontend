@@ -1013,9 +1013,15 @@ const RecognitionForm: React.FC<PropsData> = ({
   const validateFormulaString = (formulaStr: string): string => {
     if (!formulaStr || !formulaStr.trim()) return 'Formula cannot be empty.';
 
+    // Longest first so e.g. "Total Deal Won Of Company" is not
+    // partially consumed by shorter "Total Deal Won".
+    const criteriaByLength = [...(allowedCriteriaNames || [])].sort(
+      (a, b) => b.length - a.length,
+    );
+
     const criteriaPattern =
-      allowedCriteriaNames?.length > 0
-        ? allowedCriteriaNames
+      criteriaByLength.length > 0
+        ? criteriaByLength
             .map((name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
             .join('|')
         : '';
@@ -1030,15 +1036,13 @@ const RecognitionForm: React.FC<PropsData> = ({
 
     let remainingFormula = formulaStr;
 
-    if (allowedCriteriaNames && allowedCriteriaNames.length > 0) {
-      allowedCriteriaNames.forEach((criteria: string) => {
-        const criteriaRegex = new RegExp(
-          criteria.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-          'g',
-        );
-        remainingFormula = remainingFormula.replace(criteriaRegex, '');
-      });
-    }
+    criteriaByLength.forEach((criteria: string) => {
+      const criteriaRegex = new RegExp(
+        criteria.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+        'g',
+      );
+      remainingFormula = remainingFormula.replace(criteriaRegex, '');
+    });
 
     remainingFormula = remainingFormula.replace(/\d+(?:\.\d+)?/g, '');
     remainingFormula = remainingFormula.replace(/[()+\-*/]/g, '');
