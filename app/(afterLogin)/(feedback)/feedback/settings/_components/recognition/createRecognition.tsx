@@ -300,12 +300,13 @@ const RecognitionForm: React.FC<PropsData> = ({
     />
   );
 
-  // This function will calculate the total weight of all criteria
+  // Round to 2 decimals to avoid float drift (e.g. 10 * 0.1 !== 1 in JS)
   const calculateTotalWeight = (criteria: any[]) => {
-    return criteria.reduce(
-      (acc, criterion) => acc + (criterion.weight || 0),
+    const sum = criteria.reduce(
+      (acc, criterion) => acc + (Number(criterion.weight) || 0),
       0,
     );
+    return parseFloat(sum.toFixed(2));
   };
 
   // Helper function to distribute weights evenly and ensure they sum to 1
@@ -375,13 +376,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     });
 
     setSelectedCriteria(updatedCriteria);
-
-    const updatedTotalWeight = updatedCriteria.reduce(
-      (sum, criteria) => sum + criteria.weight,
-      0,
-    );
-
-    setTotalWeight(updatedTotalWeight);
+    setTotalWeight(calculateTotalWeight(updatedCriteria));
 
     // Update form fields while preserving existing values
     form.setFieldsValue({
@@ -907,11 +902,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     if (!recognitionTypeById) return; // Ensure data exists before setting fields
 
     const criteria = recognitionTypeById.recognitionCriteria || [];
-    const totalWeight = criteria.reduce(
-      (sum: number, criterion: any) => sum + (criterion.weight || 0),
-      0,
-    );
-    setTotalWeight(totalWeight);
+    setTotalWeight(calculateTotalWeight(criteria));
     const updatedData = criteria.map((item: any) => ({
       ...item,
       criterionKey: item.criteria?.criteriaName ?? null,
