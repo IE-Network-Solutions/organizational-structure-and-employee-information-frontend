@@ -108,6 +108,7 @@ export default function OkrTab({
     fiscalYearId,
     sessionIds,
     keyResultDeadlineFilter,
+    { enabled: String(activeKey) === '1' },
   );
   const {
     data: teamObjective,
@@ -121,6 +122,8 @@ export default function OkrTab({
     searchObjParams?.metricTypeId || '', // Provide empty string as fallback
     fiscalYearId,
     sessionIds,
+    undefined,
+    { enabled: String(activeKey) === '2' },
   );
 
   const {
@@ -136,6 +139,8 @@ export default function OkrTab({
     searchObjParams?.metricTypeId,
     fiscalYearId,
     sessionIds,
+    undefined,
+    { enabled: String(activeKey) === '3' },
   );
 
   const isUserLoading = isLoading;
@@ -585,7 +590,7 @@ export default function OkrTab({
         className={tabsClassName}
         data-cy="okr-tabs"
         id="okr-tabs"
-        destroyInactiveTabPane={false}
+        destroyInactiveTabPane
       />
     </div>
   );

@@ -13,7 +13,7 @@ import {
   type ReportTaskStatusOverride,
 } from '@/utils/recentReportTaskStatuses';
 
-const REFETCH_OPTS = { refetchActive: true, refetchInactive: true } as const;
+const REFETCH_OPTS = { refetchActive: true, refetchInactive: false } as const;
 
 /** Query keys that carry per-milestone Completed status for the plan + modal. */
 const MILESTONE_STATUS_QUERY_KEYS = [
