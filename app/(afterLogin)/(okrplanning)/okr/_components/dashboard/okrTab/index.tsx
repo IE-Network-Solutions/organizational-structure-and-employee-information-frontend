@@ -159,29 +159,29 @@ export default function OkrTab({
   }, []);
 
   useEffect(() => {
-    if (isMounted) {
+    if (isMounted && String(activeKey) === '1') {
       userRefetch();
     }
-  }, [pageSize, currentPage, isMounted]);
+  }, [pageSize, currentPage, isMounted, activeKey]);
 
   useEffect(() => {
-    if (isMounted) {
+    if (isMounted && String(activeKey) === '2') {
       refetch();
     }
-  }, [teamPageSize, teamCurrentPage, isMounted]);
+  }, [teamPageSize, teamCurrentPage, isMounted, activeKey]);
 
   // Refetch Team OKR when year/session filters change
   useEffect(() => {
-    if (isMounted) {
+    if (isMounted && String(activeKey) === '2') {
       refetch();
     }
-  }, [fiscalYearId, sessionIds, isMounted]);
+  }, [fiscalYearId, sessionIds, isMounted, activeKey]);
 
   useEffect(() => {
-    if (isMounted) {
+    if (isMounted && String(activeKey) === '3') {
       CompanyRefetch();
     }
-  }, [companyPageSize, companyCurrentPage, isMounted]);
+  }, [companyPageSize, companyCurrentPage, isMounted, activeKey]);
 
   useEffect(() => {
     setActiveKey(String(okrTab));

@@ -172,7 +172,7 @@ function Page() {
     transformedData,
     isLoading: planningLoading,
     userId,
-  } = usePlanningData();
+  } = usePlanningData(activeTab === 1);
 
   const {
     data: userKeyResultsRaw,
@@ -653,6 +653,9 @@ function Page() {
                 <Planning
                   onHoverKR={setHighlightedKRId}
                   onOpenThread={handleOpenThread}
+                  planSummaries={planSummaries}
+                  transformedData={transformedData}
+                  isLoading={planningLoading}
                 />
               </div>
               <div
