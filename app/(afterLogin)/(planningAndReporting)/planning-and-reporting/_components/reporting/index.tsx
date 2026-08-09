@@ -57,18 +57,21 @@ function Reporting({
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
 
-  const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
-    userId: selectedUser,
-    planPeriodId: planningPeriodId ?? '',
-    pageReporting,
-    pageSizeReporting,
-    sessionId:
-      selectedSessionIds.length > 0
-        ? selectedSessionIds
-        : allSessionsOfYear.length > 0
-          ? allSessionsOfYear
-          : [],
-  });
+  const { data: allReporting, isLoading: getReportLoading } = useGetReporting(
+    {
+      userId: selectedUser,
+      planPeriodId: planningPeriodId ?? '',
+      pageReporting,
+      pageSizeReporting,
+      sessionId:
+        selectedSessionIds.length > 0
+          ? selectedSessionIds
+          : allSessionsOfYear.length > 0
+            ? allSessionsOfYear
+            : [],
+    },
+    { enabled: activeTab === 2 && !!planningPeriodId },
+  );
 
   const getPlanningPeriodDetail = (id: string) => {
     return planningPeriods?.items?.find((p: any) => p?.id === id) || {};
