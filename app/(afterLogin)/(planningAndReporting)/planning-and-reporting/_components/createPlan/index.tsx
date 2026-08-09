@@ -49,11 +49,13 @@ function CreatePlan() {
     hasAutoPopulated.current = false;
   };
   const { mutate: createTask, isLoading } = useCreatePlanTasks();
-  const { data: objective } = useFetchObjectives(userId);
+  const { data: objective } = useFetchObjectives(userId, {
+    enabled: open && !!userId,
+  });
   const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
     useOkrPlanningScope();
   const { data: userKeyResultsRaw } = useGetUserKeyResult(
-    userId,
+    open ? userId : null,
     keyResultFiscalYearId,
     keyResultSessionId,
   );
