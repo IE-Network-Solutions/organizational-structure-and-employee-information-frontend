@@ -183,11 +183,7 @@ function Page() {
     const periodId = selectedTab?.id;
     if (!periodId) return false;
     const fromTyped = Array.isArray(planningPeriodForUserId)
-      ? planningPeriodForUserId.find(
-          (p) =>
-            p.planningPeriodId === periodId ||
-            p.planningPeriod?.id === periodId,
-        )
+      ? planningPeriodForUserId.find((p) => p.planningPeriodId === periodId)
       : undefined;
     if (fromTyped?.canProgress === true) return true;
     const fromTabs = processedPlanningPeriods.find(

@@ -82,7 +82,14 @@ const VariablePayModal: React.FC = () => {
     (session) => session.value === selectedSessionId,
   );
 
-  const monthOptions = useMemo(
+  const monthOptions = useMemo<
+    {
+      label: string;
+      value: string;
+      startDate?: string;
+      endDate?: string;
+    }[]
+  >(
     () =>
       selectedSession?.months?.map((month: any) => ({
         label: month?.name,
