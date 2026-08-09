@@ -366,7 +366,9 @@ export const getUser = async (id: string) => {
 };
 
 export const useGetAllUsers = () =>
-  useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination);
+  useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination, {
+    staleTime: 5 * 60_000,
+  });
 
 const getAllUsersDataWithOutPagination = async () => {
   const token = await getCurrentToken();
