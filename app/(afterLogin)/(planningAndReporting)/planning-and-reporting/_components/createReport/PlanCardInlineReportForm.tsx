@@ -77,8 +77,7 @@ export function PlanCardInlineReportForm({
     ? allReportedPlanning
     : Array.isArray(allPlannedTaskForReport)
       ? allPlannedTaskForReport.filter(
-          (t: any) =>
-            String(t?.plan?.id ?? t?.planId ?? '') === String(planId),
+          (t: any) => String(t?.plan?.id ?? t?.planId ?? '') === String(planId),
         )
       : allPlannedTaskForReport;
   const formattedData =

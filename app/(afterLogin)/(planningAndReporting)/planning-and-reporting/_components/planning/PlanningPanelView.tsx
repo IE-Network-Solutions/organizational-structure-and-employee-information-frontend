@@ -1126,8 +1126,7 @@ function ParentPlanTasksSection({
                 !blockedKrIds?.has(slot.keyResultId) &&
                 !capacityFull;
               const remainingLabel =
-                slot.remainingCapacity != null &&
-                slot.parentTargetValue != null
+                slot.remainingCapacity != null && slot.parentTargetValue != null
                   ? `${slot.remainingCapacity.toLocaleString()} of ${slot.parentTargetValue.toLocaleString()} left`
                   : null;
               return (
@@ -1146,7 +1145,10 @@ function ParentPlanTasksSection({
                           : 'border-[#F1F2F6] hover:border-[#1E40AF]/15 hover:shadow-[0_2px_12px_rgba(30,64,175,0.05)]'
                     }`}
                   >
-                    <div className="min-w-0 flex-1">
+                    <div
+                      className="min-w-0 flex-1"
+                      data-cy="planning-and-reporting-planning-panel-view-parent-slot-content"
+                    >
                       <p
                         data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-718"
                         className="line-clamp-3 text-left text-[12px] font-normal leading-snug text-[#161A2C] sm:text-[13px]"
@@ -1154,11 +1156,17 @@ function ParentPlanTasksSection({
                         {rowLabel(slot)}
                       </p>
                       {capacityFull ? (
-                        <p className="mt-0.5 text-[10px] font-medium text-[#8F94A3]">
+                        <p
+                          className="mt-0.5 text-[10px] font-medium text-[#8F94A3]"
+                          data-cy="planning-and-reporting-planning-panel-view-parent-capacity-full"
+                        >
                           Parent fully achieved — nothing left to plan
                         </p>
                       ) : remainingLabel ? (
-                        <p className="mt-0.5 text-[10px] text-[#8F94A3]">
+                        <p
+                          className="mt-0.5 text-[10px] text-[#8F94A3]"
+                          data-cy="planning-and-reporting-planning-panel-view-parent-capacity-remaining"
+                        >
                           {remainingLabel} to achieve
                         </p>
                       ) : null}

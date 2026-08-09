@@ -1,7 +1,12 @@
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
-import { CORE_API_URL, OKR_URL, ORG_AND_EMP_URL, PAYROLL_URL } from '@/utils/constants';
+import {
+  CORE_API_URL,
+  OKR_URL,
+  ORG_AND_EMP_URL,
+  PAYROLL_URL,
+} from '@/utils/constants';
 import { requestHeader } from '@/helpers/requestHeader';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -244,9 +249,19 @@ export const useFetchActiveFiscalYearPayPeriods = (
   );
 };
 
-export const useGetVariablePay = (monthIds: any) => {
-  return useQuery(['variablePay', monthIds], () => getVariablePay(monthIds), {
+export const useGetVariablePay = (
+  payload: any,
+  options?: { enabled?: boolean },
+) => {
+  const monthIds = Array.isArray(payload?.monthIds)
+    ? payload.monthIds
+    : Array.isArray(payload)
+      ? payload
+      : [];
+
+  return useQuery(['variablePay', payload], () => getVariablePay(payload), {
     keepPreviousData: true,
+    enabled: monthIds.filter(Boolean).length > 0 && (options?.enabled ?? true),
   });
 };
 

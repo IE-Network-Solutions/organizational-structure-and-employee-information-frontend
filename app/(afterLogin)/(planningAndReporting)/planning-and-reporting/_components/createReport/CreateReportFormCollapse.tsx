@@ -70,7 +70,10 @@ export function CreateReportFormCollapse({
               {task.taskName}
             </p>
             {lockedFromChildren ? (
-              <p className="m-0 mt-0.5 text-[10px] text-gray-400">
+              <p
+                className="m-0 mt-0.5 text-[10px] text-gray-400"
+                data-cy="planning-and-reporting-create-report-form-collapse-locked-from-children"
+              >
                 From child reports (read-only)
               </p>
             ) : null}

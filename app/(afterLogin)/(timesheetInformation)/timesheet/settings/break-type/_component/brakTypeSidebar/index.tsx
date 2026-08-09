@@ -218,93 +218,96 @@ const BreakTypeSidebar = () => {
                 data-cy="time-attendance-settings-break-type-sidebar-start-at-picker"
               />
             </Form.Item>
-            <Collapse
-              ghost
-              size="small"
-              activeKey={startWindowOpen ? ['start-window'] : []}
-              onChange={(keys) =>
-                setStartWindowOpen(
-                  (Array.isArray(keys) ? keys : [keys]).includes(
-                    'start-window',
-                  ),
-                )
-              }
-              className="bg-[#FAFAFA] rounded-md border border-[#E8E8E8] overflow-hidden [&_.ant-collapse-header]:!py-2 [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-2"
+            <div
               id="time-attendance-settings-break-type-sidebar-start-window"
               data-cy="time-attendance-settings-break-type-sidebar-start-window"
-              items={[
-                {
-                  key: 'start-window',
-                  label: (
-                    <span
-                      className="text-xs font-medium text-gray-500"
-                      id="time-attendance-settings-break-type-sidebar-start-window-title"
-                      data-cy="time-attendance-settings-break-type-sidebar-start-window-title"
-                    >
-                      Allowed start window (optional)
-                    </span>
-                  ),
-                  children: (
-                    <Row gutter={12}>
-                      <Col span={12}>
-                        <Form.Item
-                          id="startAtFromFieldId"
-                          data-cy="time-attendance-settings-break-type-sidebar-start-at-from-field-id"
-                          label={
-                            <span
-                              id="time-attendance-settings-break-type-sidebar-start-at-from-label"
-                              data-cy="time-attendance-settings-break-type-sidebar-start-at-from-label"
-                              className="text-xs font-normal text-gray-700 pr-1"
-                            >
-                              From
-                            </span>
-                          }
-                          name="startAtFrom"
-                          className="mb-2"
-                        >
-                          <TimePicker
-                            className={controlClass}
-                            format="HH:mm"
-                            id="time-attendance-settings-break-type-sidebar-start-at-from-picker"
-                            data-cy="time-attendance-settings-break-type-sidebar-start-at-from-picker"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item
-                          id="startAtToFieldId"
-                          data-cy="time-attendance-settings-break-type-sidebar-start-at-to-field-id"
-                          label={
-                            <span
-                              id="time-attendance-settings-break-type-sidebar-start-at-to-label"
-                              data-cy="time-attendance-settings-break-type-sidebar-start-at-to-label"
-                              className="text-xs font-normal text-gray-700 pr-1"
-                            >
-                              To
-                            </span>
-                          }
-                          name="startAtTo"
-                          className="mb-2"
-                          rules={[
-                            windowAfterValidator(
-                              'startAtFrom',
-                              'Start window to must be after start window from.',
-                            ),
-                          ]}
-                        >
-                          <TimePicker
-                            className={controlClass}
-                            format="HH:mm"
-                            id="time-attendance-settings-break-type-sidebar-start-at-to-picker"
-                            data-cy="time-attendance-settings-break-type-sidebar-start-at-to-picker"
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  ),
-                },
-              ]}
-            />
+            >
+              <Collapse
+                ghost
+                size="small"
+                activeKey={startWindowOpen ? ['start-window'] : []}
+                onChange={(keys) =>
+                  setStartWindowOpen(
+                    (Array.isArray(keys) ? keys : [keys]).includes(
+                      'start-window',
+                    ),
+                  )
+                }
+                className="bg-[#FAFAFA] rounded-md border border-[#E8E8E8] overflow-hidden [&_.ant-collapse-header]:!py-2 [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-2"
+                items={[
+                  {
+                    key: 'start-window',
+                    label: (
+                      <span
+                        className="text-xs font-medium text-gray-500"
+                        id="time-attendance-settings-break-type-sidebar-start-window-title"
+                        data-cy="time-attendance-settings-break-type-sidebar-start-window-title"
+                      >
+                        Allowed start window (optional)
+                      </span>
+                    ),
+                    children: (
+                      <Row gutter={12}>
+                        <Col span={12}>
+                          <Form.Item
+                            id="startAtFromFieldId"
+                            data-cy="time-attendance-settings-break-type-sidebar-start-at-from-field-id"
+                            label={
+                              <span
+                                id="time-attendance-settings-break-type-sidebar-start-at-from-label"
+                                data-cy="time-attendance-settings-break-type-sidebar-start-at-from-label"
+                                className="text-xs font-normal text-gray-700 pr-1"
+                              >
+                                From
+                              </span>
+                            }
+                            name="startAtFrom"
+                            className="mb-2"
+                          >
+                            <TimePicker
+                              className={controlClass}
+                              format="HH:mm"
+                              id="time-attendance-settings-break-type-sidebar-start-at-from-picker"
+                              data-cy="time-attendance-settings-break-type-sidebar-start-at-from-picker"
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                          <Form.Item
+                            id="startAtToFieldId"
+                            data-cy="time-attendance-settings-break-type-sidebar-start-at-to-field-id"
+                            label={
+                              <span
+                                id="time-attendance-settings-break-type-sidebar-start-at-to-label"
+                                data-cy="time-attendance-settings-break-type-sidebar-start-at-to-label"
+                                className="text-xs font-normal text-gray-700 pr-1"
+                              >
+                                To
+                              </span>
+                            }
+                            name="startAtTo"
+                            className="mb-2"
+                            rules={[
+                              windowAfterValidator(
+                                'startAtFrom',
+                                'Start window to must be after start window from.',
+                              ),
+                            ]}
+                          >
+                            <TimePicker
+                              className={controlClass}
+                              format="HH:mm"
+                              id="time-attendance-settings-break-type-sidebar-start-at-to-picker"
+                              data-cy="time-attendance-settings-break-type-sidebar-start-at-to-picker"
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    ),
+                  },
+                ]}
+              />
+            </div>
           </div>
 
           <div
@@ -341,91 +344,96 @@ const BreakTypeSidebar = () => {
                 data-cy="time-attendance-settings-break-type-sidebar-end-at-picker"
               />
             </Form.Item>
-            <Collapse
-              ghost
-              size="small"
-              activeKey={endWindowOpen ? ['end-window'] : []}
-              onChange={(keys) =>
-                setEndWindowOpen(
-                  (Array.isArray(keys) ? keys : [keys]).includes('end-window'),
-                )
-              }
-              className="bg-[#FAFAFA] rounded-md border border-[#E8E8E8] overflow-hidden [&_.ant-collapse-header]:!py-2 [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-2"
+            <div
               id="time-attendance-settings-break-type-sidebar-end-window"
               data-cy="time-attendance-settings-break-type-sidebar-end-window"
-              items={[
-                {
-                  key: 'end-window',
-                  label: (
-                    <span
-                      className="text-xs font-medium text-gray-500"
-                      id="time-attendance-settings-break-type-sidebar-end-window-title"
-                      data-cy="time-attendance-settings-break-type-sidebar-end-window-title"
-                    >
-                      Allowed end window (optional)
-                    </span>
-                  ),
-                  children: (
-                    <Row gutter={12}>
-                      <Col span={12}>
-                        <Form.Item
-                          id="endAtFromFieldId"
-                          data-cy="time-attendance-settings-break-type-sidebar-end-at-from-field-id"
-                          label={
-                            <span
-                              id="time-attendance-settings-break-type-sidebar-end-at-from-label"
-                              data-cy="time-attendance-settings-break-type-sidebar-end-at-from-label"
-                              className="text-xs font-normal text-gray-700 pr-1"
-                            >
-                              From
-                            </span>
-                          }
-                          name="endAtFrom"
-                          className="mb-2"
-                        >
-                          <TimePicker
-                            className={controlClass}
-                            format="HH:mm"
-                            id="time-attendance-settings-break-type-sidebar-end-at-from-picker"
-                            data-cy="time-attendance-settings-break-type-sidebar-end-at-from-picker"
-                          />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item
-                          id="endAtToFieldId"
-                          data-cy="time-attendance-settings-break-type-sidebar-end-at-to-field-id"
-                          label={
-                            <span
-                              id="time-attendance-settings-break-type-sidebar-end-at-to-label"
-                              data-cy="time-attendance-settings-break-type-sidebar-end-at-to-label"
-                              className="text-xs font-normal text-gray-700 pr-1"
-                            >
-                              To
-                            </span>
-                          }
-                          name="endAtTo"
-                          className="mb-2"
-                          rules={[
-                            windowAfterValidator(
-                              'endAtFrom',
-                              'End window to must be after end window from.',
-                            ),
-                          ]}
-                        >
-                          <TimePicker
-                            className={controlClass}
-                            format="HH:mm"
-                            id="time-attendance-settings-break-type-sidebar-end-at-to-picker"
-                            data-cy="time-attendance-settings-break-type-sidebar-end-at-to-picker"
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                  ),
-                },
-              ]}
-            />
+            >
+              <Collapse
+                ghost
+                size="small"
+                activeKey={endWindowOpen ? ['end-window'] : []}
+                onChange={(keys) =>
+                  setEndWindowOpen(
+                    (Array.isArray(keys) ? keys : [keys]).includes(
+                      'end-window',
+                    ),
+                  )
+                }
+                className="bg-[#FAFAFA] rounded-md border border-[#E8E8E8] overflow-hidden [&_.ant-collapse-header]:!py-2 [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-2"
+                items={[
+                  {
+                    key: 'end-window',
+                    label: (
+                      <span
+                        className="text-xs font-medium text-gray-500"
+                        id="time-attendance-settings-break-type-sidebar-end-window-title"
+                        data-cy="time-attendance-settings-break-type-sidebar-end-window-title"
+                      >
+                        Allowed end window (optional)
+                      </span>
+                    ),
+                    children: (
+                      <Row gutter={12}>
+                        <Col span={12}>
+                          <Form.Item
+                            id="endAtFromFieldId"
+                            data-cy="time-attendance-settings-break-type-sidebar-end-at-from-field-id"
+                            label={
+                              <span
+                                id="time-attendance-settings-break-type-sidebar-end-at-from-label"
+                                data-cy="time-attendance-settings-break-type-sidebar-end-at-from-label"
+                                className="text-xs font-normal text-gray-700 pr-1"
+                              >
+                                From
+                              </span>
+                            }
+                            name="endAtFrom"
+                            className="mb-2"
+                          >
+                            <TimePicker
+                              className={controlClass}
+                              format="HH:mm"
+                              id="time-attendance-settings-break-type-sidebar-end-at-from-picker"
+                              data-cy="time-attendance-settings-break-type-sidebar-end-at-from-picker"
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                          <Form.Item
+                            id="endAtToFieldId"
+                            data-cy="time-attendance-settings-break-type-sidebar-end-at-to-field-id"
+                            label={
+                              <span
+                                id="time-attendance-settings-break-type-sidebar-end-at-to-label"
+                                data-cy="time-attendance-settings-break-type-sidebar-end-at-to-label"
+                                className="text-xs font-normal text-gray-700 pr-1"
+                              >
+                                To
+                              </span>
+                            }
+                            name="endAtTo"
+                            className="mb-2"
+                            rules={[
+                              windowAfterValidator(
+                                'endAtFrom',
+                                'End window to must be after end window from.',
+                              ),
+                            ]}
+                          >
+                            <TimePicker
+                              className={controlClass}
+                              format="HH:mm"
+                              id="time-attendance-settings-break-type-sidebar-end-at-to-picker"
+                              data-cy="time-attendance-settings-break-type-sidebar-end-at-to-picker"
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                    ),
+                  },
+                ]}
+              />
+            </div>
           </div>
           <Form.Item
             id="BreakTypeDescriptionFieldId"

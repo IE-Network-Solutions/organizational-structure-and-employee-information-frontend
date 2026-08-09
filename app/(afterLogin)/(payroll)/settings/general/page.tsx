@@ -11,9 +11,7 @@ const GeneralPayrollSettings = () => {
   const { mutate: updateSettings, isLoading: isUpdating } =
     useUpdatePayrollSettings();
 
-  const applyWorkingDaysToVpOnly = Boolean(
-    settings?.applyWorkingDaysToVpOnly,
-  );
+  const applyWorkingDaysToVpOnly = Boolean(settings?.applyWorkingDaysToVpOnly);
 
   const handleToggle = (checked: boolean) => {
     updateSettings({ applyWorkingDaysToVpOnly: checked });
@@ -34,7 +32,10 @@ const GeneralPayrollSettings = () => {
           className="flex items-start justify-between gap-4"
           data-cy="payroll-settings-general-vp-row"
         >
-          <div className="min-w-0 flex-1">
+          <div
+            className="min-w-0 flex-1"
+            data-cy="payroll-settings-general-vp-content"
+          >
             <div
               className="flex items-center gap-1.5"
               data-cy="payroll-settings-general-vp-title-row"

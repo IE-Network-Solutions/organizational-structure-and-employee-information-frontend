@@ -612,7 +612,7 @@ export function buildPlanningTargetsFromDailyHierarchy(
 
   const groups = groupParentTasks(tasks);
 
-      const pushSlot = (
+  const pushSlot = (
     kr: any,
     t: any,
     milestoneId: string | null,

@@ -10,8 +10,8 @@ import { resolveActivePlanningPeriodId } from '@/utils/resolveActivePlanningPeri
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence, PlanSummary } from '../types';
 
-/** Same query as Reporting tab — React Query dedupes with the hidden Reporting tree. */
-export function useReportingData() {
+/** Fetches reports only when enabled (e.g. Reports tab active). */
+export function useReportingData(enabled = true) {
   const {
     selectedUser,
     activePlanPeriod,
@@ -31,18 +31,21 @@ export function useReportingData() {
     activePlanPeriod,
   );
 
-  const { data: allReporting } = useGetReporting({
-    userId: selectedUser,
-    planPeriodId: planningPeriodId ?? '',
-    pageReporting,
-    pageSizeReporting,
-    sessionId:
-      selectedSessionIds.length > 0
-        ? selectedSessionIds
-        : allSessionsOfYear.length > 0
-          ? allSessionsOfYear
-          : [],
-  });
+  const { data: allReporting } = useGetReporting(
+    {
+      userId: selectedUser,
+      planPeriodId: planningPeriodId ?? '',
+      pageReporting,
+      pageSizeReporting,
+      sessionId:
+        selectedSessionIds.length > 0
+          ? selectedSessionIds
+          : allSessionsOfYear.length > 0
+            ? allSessionsOfYear
+            : [],
+    },
+    { enabled: enabled && !!planningPeriodId },
+  );
 
   const getPlanningPeriodDetail = (id: string) => {
     return planningPeriods?.items?.find((p: any) => p?.id === id) || {};

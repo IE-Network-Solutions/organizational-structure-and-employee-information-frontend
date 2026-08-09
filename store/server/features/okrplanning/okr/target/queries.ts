@@ -1,7 +1,7 @@
 import { useQuery } from 'react-query';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { crudRequest } from '@/utils/crudRequest';
-import { CORE_API_URL, OKR_AND_PLANNING_URL, ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL, OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getTargetAssignment = async () => {

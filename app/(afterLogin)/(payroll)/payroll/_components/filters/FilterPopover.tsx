@@ -23,6 +23,10 @@ import { useGetLevel1Departments } from '@/store/server/features/employees/emplo
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
+import {
+  PAYROLL_VIEW_OPTIONS,
+  PayrollView,
+} from '@/store/uistate/features/payroll/payroll/view';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
@@ -35,6 +39,7 @@ interface FilterValues {
   departmentId?: string;
   payPeriodId?: string;
   monthId?: string;
+  payrollView?: PayrollView;
 }
 
 interface FilterPopoverProps {
@@ -111,6 +116,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
             yearId: selectedYear.id || '',
             sessionId: selectedSession?.id || '',
             monthId: selectedMonth?.id || '',
+            payrollView: defaultValues?.payrollView || 'payroll',
           });
 
           if (!initialSearchTriggered.current) {
@@ -215,6 +221,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
         departmentId: undefined,
         payPeriodId: undefined,
         monthId: undefined,
+        payrollView: 'payroll',
       });
       return;
     }
@@ -245,6 +252,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       payPeriodId: defaultPayPeriodId,
       divisionId: undefined,
       departmentId: undefined,
+      payrollView: 'payroll',
     };
 
     form.setFieldsValue(nextValues);
@@ -260,10 +268,20 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       payPeriodId: defaultPayPeriodId,
       divisionId: undefined,
       departmentId: undefined,
+      payrollView: 'payroll',
+    });
+  };
+
+  const syncFormWithDefaults = () => {
+    form.setFieldsValue({
+      payrollView: defaultValues?.payrollView || 'payroll',
     });
   };
 
   const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
+      syncFormWithDefaults();
+    }
     setOpen(newOpen);
   };
 
@@ -320,6 +338,27 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           requiredMark={false}
           data-cy="payroll-filter-popover-form"
         >
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={24} data-cy="payroll-filter-popover-view-col">
+              <Form.Item
+                name="payrollView"
+                label={<CustomLabel title="Payroll Type" />}
+                initialValue={defaultValues?.payrollView || 'payroll'}
+                data-cy="payroll-filter-popover-view"
+              >
+                <Select
+                  size="large"
+                  placeholder="Select type"
+                  data-cy="payroll-filter-popover-view-select"
+                  options={PAYROLL_VIEW_OPTIONS.map((opt) => ({
+                    value: opt.value,
+                    label: opt.label,
+                  }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+
           <Row gutter={[16, 16]} data-cy="payroll-filter-popover-form-row">
             <Col xs={12} sm={12} data-cy="payroll-filter-popover-form-col">
               <Form.Item
@@ -534,7 +573,10 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           icon={
             <FilterAltOutlinedIcon className="text-gray-600" fontSize="small" />
           }
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            syncFormWithDefaults();
+            setOpen(true);
+          }}
         >
           <span
             className="hidden sm:inline"

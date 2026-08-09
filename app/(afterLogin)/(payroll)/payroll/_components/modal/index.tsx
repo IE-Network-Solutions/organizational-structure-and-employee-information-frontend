@@ -7,6 +7,7 @@ import {
   Button,
   ConfigProvider,
   Alert,
+  Card,
 } from 'antd';
 import { IoCloseOutline } from 'react-icons/io5';
 import dayjs from 'dayjs';
@@ -36,6 +37,27 @@ export interface GeneratePayrollFormValues {
   payPeriodId: string;
 }
 
+const INCLUDE_OPTIONS = [
+  {
+    name: 'includePayroll' as const,
+    title: 'Payroll',
+    description: 'Include regular salary and standard payroll calculations.',
+    dataCy: 'payroll',
+  },
+  {
+    name: 'includeVariablePay' as const,
+    title: 'Variable Pay',
+    description: 'Include VP amounts for this pay period in the run.',
+    dataCy: 'vp',
+  },
+  {
+    name: 'includeIncentive' as const,
+    title: 'Incentive',
+    description: 'Include incentive payouts for this pay period in the run.',
+    dataCy: 'incentive',
+  },
+];
+
 const GeneratePayrollModal: React.FC<Props> = ({
   onClose,
   onGenerate,
@@ -56,8 +78,7 @@ const GeneratePayrollModal: React.FC<Props> = ({
     Boolean(includeVariablePay) ||
     Boolean(includeIncentive);
 
-  const isTaxOnly =
-    !includePayroll && (includeVariablePay || includeIncentive);
+  const isTaxOnly = !includePayroll && (includeVariablePay || includeIncentive);
 
   React.useEffect(() => {
     const flags = payrollViewToIncludeFlags(payrollView);
@@ -206,65 +227,50 @@ const GeneratePayrollModal: React.FC<Props> = ({
             }}
             data-cy="payroll-generate-modal-form"
           >
-            <p
-              className="text-sm font-medium text-gray-700 mb-3"
-              data-cy="payroll-generate-modal-include-section-label"
+            <div
+              className="flex flex-col gap-3 mb-5"
+              data-cy="payroll-generate-modal-include-cards-view-container"
             >
-              Include in this run
-            </p>
-
-            <div data-cy="payroll-generate-modal-payroll-toggle-view-container">
-              <Form.Item
-                label={
-                  <span
-                    data-cy="payroll-generate-modal-payroll-label-view-text"
-                    className="text-sm font-medium text-gray-700"
+              {INCLUDE_OPTIONS.map((option) => (
+                <Card
+                  key={option.name}
+                  className="w-full border border-[#D9D9D9] shadow-none rounded-lg"
+                  bodyStyle={{ padding: '12px 16px' }}
+                  data-cy={`payroll-generate-modal-${option.dataCy}-toggle-view-container`}
+                >
+                  <div
+                    className="flex items-start justify-between gap-4"
+                    data-cy={`payroll-generate-modal-${option.dataCy}-card-row`}
                   >
-                    Include Payroll
-                  </span>
-                }
-                name="includePayroll"
-                valuePropName="checked"
-                className="mb-4"
-              >
-                <Switch data-cy="payroll-generate-modal-payroll-toggle-switch" />
-              </Form.Item>
-            </div>
-
-            <div data-cy="payroll-generate-modal-vp-toggle-view-container">
-              <Form.Item
-                label={
-                  <span
-                    data-cy="payroll-generate-modal-vp-label-view-text"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Include Variable Pay
-                  </span>
-                }
-                name="includeVariablePay"
-                valuePropName="checked"
-                className="mb-4"
-              >
-                <Switch data-cy="payroll-generate-modal-vp-toggle-switch" />
-              </Form.Item>
-            </div>
-
-            <div data-cy="payroll-generate-modal-incentive-toggle-view-container">
-              <Form.Item
-                label={
-                  <span
-                    data-cy="payroll-generate-modal-incentive-label-view-text"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    Include Incentive
-                  </span>
-                }
-                name="includeIncentive"
-                valuePropName="checked"
-                className="mb-5"
-              >
-                <Switch data-cy="payroll-generate-modal-incentive-toggle-switch" />
-              </Form.Item>
+                    <div
+                      className="min-w-0 flex-1"
+                      data-cy={`payroll-generate-modal-${option.dataCy}-card-content`}
+                    >
+                      <span
+                        className="text-sm font-medium text-[#262626]"
+                        data-cy={`payroll-generate-modal-${option.dataCy}-label-view-text`}
+                      >
+                        {option.title}
+                      </span>
+                      <p
+                        className="mt-1 mb-0 text-xs text-[#8c8c8c] leading-relaxed"
+                        data-cy={`payroll-generate-modal-${option.dataCy}-description-view-text`}
+                      >
+                        {option.description}
+                      </p>
+                    </div>
+                    <Form.Item
+                      name={option.name}
+                      valuePropName="checked"
+                      className="mb-0"
+                    >
+                      <Switch
+                        data-cy={`payroll-generate-modal-${option.dataCy}-toggle-switch`}
+                      />
+                    </Form.Item>
+                  </div>
+                </Card>
+              ))}
             </div>
 
             {isTaxOnly ? (

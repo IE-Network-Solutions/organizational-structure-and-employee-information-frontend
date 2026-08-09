@@ -68,7 +68,9 @@ function CreateReport() {
     data: allPlannedTaskForReport,
     isLoading: plannedTaskForReportLoading,
     refetch: refetchPlannedTasks,
-  } = useGetPlannedTaskForReport(planningPeriodId);
+  } = useGetPlannedTaskForReport(planningPeriodId, {
+    enabled: !!openReportModal && !!planningPeriodId,
+  });
 
   const planningPeriodName = getPlanningPeriodDetail(
     planningPeriodId ?? '',

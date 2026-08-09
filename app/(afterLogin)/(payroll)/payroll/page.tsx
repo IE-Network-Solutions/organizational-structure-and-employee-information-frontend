@@ -33,7 +33,6 @@ import {
   Breadcrumb,
   Dropdown,
   Typography,
-  Segmented,
 } from 'antd';
 
 const { Text } = Typography;
@@ -76,7 +75,6 @@ import EmptyState from '@/components/empty';
 import PayrollSummaryCardsSkeleton from './_components/PayrollSummaryCardsSkeleton';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import {
-  PAYROLL_VIEW_OPTIONS,
   appendPayrollViewParams,
   includeFlagsToPayrollView,
   payrollViewToQueryParams,
@@ -139,8 +137,14 @@ const Payroll = () => {
     setIsPayrollModalOpen,
   } = useEmployeeStore();
 
-  const { pageSize, currentPage, setCurrentPage, setPageSize, payrollView, setPayrollView } =
-    usePayrollStore();
+  const {
+    pageSize,
+    currentPage,
+    setCurrentPage,
+    setPageSize,
+    payrollView,
+    setPayrollView,
+  } = usePayrollStore();
 
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
@@ -367,11 +371,32 @@ const Payroll = () => {
     },
     viewOverride?: PayrollView,
   ) => {
-    const merged = mergePayrollFilterState(searchValueRef.current, partial);
+    const validViews: PayrollView[] = [
+      'payroll',
+      'vp',
+      'incentive',
+      'vp_incentive',
+      'all',
+    ];
+    const viewFromFilter =
+      typeof partial.payrollView === 'string' &&
+      validViews.includes(partial.payrollView as PayrollView)
+        ? (partial.payrollView as PayrollView)
+        : undefined;
+
+    const nextView = viewOverride ?? viewFromFilter ?? payrollView;
+    if (nextView !== payrollView) {
+      setPayrollView(nextView);
+    }
+
+    const merged = mergePayrollFilterState(searchValueRef.current, {
+      ...partial,
+      payrollView: nextView,
+    });
     searchValueRef.current = merged;
     setSearchValue(merged);
 
-    const activeView = viewOverride ?? payrollView;
+    const activeView = nextView;
     const queryParams = new URLSearchParams();
 
     if (merged.employeeId) {
@@ -414,15 +439,9 @@ const Payroll = () => {
       : '';
     setSearchQuery(searchParams);
     setSelectedRowKeys([]);
+    setCurrentPage(1);
     refetch();
     refetchExportData();
-  };
-
-  const handlePayrollViewChange = (value: string | number) => {
-    const nextView = value as PayrollView;
-    setPayrollView(nextView);
-    setCurrentPage(1);
-    handleSearch({}, nextView);
   };
 
   const handleGeneratePayroll = async (data: GeneratePayrollFormValues) => {
@@ -1610,7 +1629,7 @@ const Payroll = () => {
               : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6'
           }
         >
-          {/* Toolbar Section — Search + View + Filter */}
+          {/* Toolbar Section — Search + Filter */}
           <div
             id="payroll-filters-wrapper-view-container"
             data-cy="payroll-filters-wrapper-view-container"
@@ -1648,23 +1667,12 @@ const Payroll = () => {
               />
               <FilterPopover
                 onSearch={handleSearch}
-                defaultValues={searchValue as any}
-              />
-            </div>
-            <div
-              className="overflow-x-auto [-webkit-overflow-scrolling:touch]"
-              data-cy="payroll-view-segmented-wrapper"
-            >
-              <Segmented
-                id="payroll-view-segmented"
-                data-cy="payroll-view-segmented"
-                value={payrollView}
-                onChange={handlePayrollViewChange}
-                options={PAYROLL_VIEW_OPTIONS.map((opt) => ({
-                  value: opt.value,
-                  label: opt.label,
-                }))}
-                className="min-w-max"
+                defaultValues={
+                  {
+                    ...searchValue,
+                    payrollView,
+                  } as any
+                }
               />
             </div>
           </div>

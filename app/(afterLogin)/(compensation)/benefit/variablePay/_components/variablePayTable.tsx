@@ -1085,10 +1085,7 @@ const VariablePayTable = () => {
             />
           )}
 
-          <VariablePayModal
-            data-cy="compensation-benefit-variable-pay-modal"
-            data={filteredDataSource}
-          />
+          <VariablePayModal data-cy="compensation-benefit-variable-pay-modal" />
         </>
       </div>
     </div>

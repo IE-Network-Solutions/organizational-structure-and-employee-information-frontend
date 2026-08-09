@@ -1,16 +1,16 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 /** Org & employee API. Override in `.env.local` for local backend (see `.env.local.example`). */
-export const ORG_AND_EMP_URL = "https://test-api.ienetworks.co/org-emp/api/v1";
-export const OKR_URL = "http://localhost:8007/api/v1";
-export const PAYROLL_URL = "http://localhost:8099/api/v1";
+export const ORG_AND_EMP_URL = 'https://test-api.ienetworks.co/org-emp/api/v1';
+export const OKR_URL = 'http://localhost:8007/api/v1';
+export const PAYROLL_URL = 'http://localhost:8099/api/v1';
 export const CORE_API_URL = process.env.CORE_API_URL;
 
-export const OKR_AND_PLANNING_URL = "http://localhost:8007/api/v1";
+export const OKR_AND_PLANNING_URL = 'http://localhost:8007/api/v1';
 export const ORG_DEV_URL = process.env.ORG_DEV_URL;
 export const RECRUITMENT_URL = process.env.RECRUITMENT_URL;
 export const PUBLIC_DOMAIN = process.env.PUBLIC_DOMAIN;
-export const TENANT_BASE_URL = "https://test-api.ienetworks.co/tenant-backend";
+export const TENANT_BASE_URL = 'https://test-api.ienetworks.co/tenant-backend';
 export const TENANT_MGMT_URL = `${TENANT_BASE_URL}/api/v1`;
 
 // Notification: NOTIFICATION_URL for REST and WebSocket (WS URL = origin). Push: NEXT_PUBLIC_VAPID_PUBLIC_KEY.
@@ -36,8 +36,7 @@ export const DATETIME_FORMAT = 'DD MMM YYYY hh:mm A';
 export const TIME_FORMAT = 'hh:mm A';
 
 export const localUserID = process.env.NEXT_PUBLIC_LOCAL_USER_ID;
-export const TIME_AND_ATTENDANCE_URL =
-  process.env.TIME_AND_ATTENDANCE_URL;
+export const TIME_AND_ATTENDANCE_URL = process.env.TIME_AND_ATTENDANCE_URL;
 export const TNA_URL = process.env.NEXT_PUBLIC_TRAIN_AND_LEARNING_URL;
 
 export const INCENTIVE_URL = process.env.PAYROLL_URL;

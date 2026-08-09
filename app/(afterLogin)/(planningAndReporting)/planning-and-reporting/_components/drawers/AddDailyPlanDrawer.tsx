@@ -27,7 +27,10 @@ import {
   getMetricValueInputMin,
   validateMetricValueAgainstInitial,
 } from '@/utils/okrMetricValueBounds';
-import { validatePlanTargetAgainstCeilings, getParentRemainingCapacity } from '@/utils/parentTaskCapacity';
+import {
+  validatePlanTargetAgainstCeilings,
+  getParentRemainingCapacity,
+} from '@/utils/parentTaskCapacity';
 
 interface AddDailyPlanDrawerProps {
   open: boolean;
@@ -548,12 +551,18 @@ export default function AddDailyPlanDrawer({
                     {group.title}
                   </span>
                   {group.isParentCapacityFull ? (
-                    <p className="m-0 mt-1 text-[11px] font-medium text-[#8F94A3]">
+                    <p
+                      className="m-0 mt-1 text-[11px] font-medium text-[#8F94A3]"
+                      data-cy="planning-and-reporting-add-daily-plan-drawer-parent-capacity-full"
+                    >
                       Parent fully achieved — nothing left to plan
                     </p>
                   ) : group.remainingCapacity != null &&
                     group.targetValue != null ? (
-                    <p className="m-0 mt-1 text-[11px] text-[#8F94A3]">
+                    <p
+                      className="m-0 mt-1 text-[11px] text-[#8F94A3]"
+                      data-cy="planning-and-reporting-add-daily-plan-drawer-parent-capacity-remaining"
+                    >
                       {group.remainingCapacity.toLocaleString()} of{' '}
                       {Number(group.targetValue).toLocaleString()} left to
                       achieve

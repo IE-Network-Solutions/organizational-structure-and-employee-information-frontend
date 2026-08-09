@@ -61,7 +61,6 @@ export function sumChildActualsTowardParent(
 export function sumChildTargetsTowardParent(
   children: ParentCapacityTask[],
   parentTaskId: string,
-  _excludeTaskId?: string | null,
 ): number {
   return sumChildActualsTowardParent(children, parentTaskId);
 }

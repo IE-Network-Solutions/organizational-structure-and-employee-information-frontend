@@ -519,9 +519,7 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
               }}
               onDeselect={(id: string) => {
                 const current = form.getFieldValue('planningPeriods') || [];
-                setPlanningPeriods(
-                  current.filter((pid: string) => pid !== id),
-                );
+                setPlanningPeriods(current.filter((pid: string) => pid !== id));
               }}
               filterOption={(input, option: any) =>
                 (option?.children ?? '')
@@ -631,7 +629,12 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                 value={CAN_PROGRESS_NONE}
                 data-cy="okr-planning-assignation-can-progress-none"
               >
-                <span className="text-[14px] text-[#595959]">None</span>
+                <span
+                  className="text-[14px] text-[#595959]"
+                  data-cy="okr-planning-assignation-can-progress-none-label"
+                >
+                  None
+                </span>
               </Radio>
               {planningPeriods.map((id: string) => {
                 const period = allPlanningperiod?.items?.find(
@@ -643,7 +646,10 @@ const PlanningAssignationModal: React.FC<PlanningAssignationModalProps> = ({
                     value={id}
                     data-cy={`okr-planning-assignation-can-progress-option-${id}`}
                   >
-                    <span className="text-[14px] text-[#595959]">
+                    <span
+                      className="text-[14px] text-[#595959]"
+                      data-cy={`okr-planning-assignation-can-progress-option-label-${id}`}
+                    >
                       {period?.name ?? id}
                     </span>
                   </Radio>

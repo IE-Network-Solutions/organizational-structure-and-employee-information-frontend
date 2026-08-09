@@ -196,6 +196,18 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
       ),
     },
     {
+      key: 'allowed-area-configuration',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'allowed-area-configuration' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-allowed-area-configuration-tab-label"
+          id="time-attendance-settings-allowed-area-configuration-tab-label"
+        >
+          Allowed Area Configuration
+        </div>
+      ),
+    },
+    {
       key: 'attendance-rules',
       label: (
         <div

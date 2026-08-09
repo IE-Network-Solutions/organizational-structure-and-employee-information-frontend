@@ -16,9 +16,5 @@ export function resolveActivePlanningPeriodId(
 ): string {
   if (activePlanPeriodId) return activePlanPeriodId;
   const item = assignedPeriods?.[activePlanPeriodIndex - 1];
-  return (
-    item?.planningPeriodId ||
-    item?.planningPeriod?.id ||
-    ''
-  );
+  return item?.planningPeriodId || item?.planningPeriod?.id || '';
 }
