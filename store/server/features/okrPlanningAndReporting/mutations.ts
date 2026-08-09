@@ -5,7 +5,8 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import {
-  invalidateOkrPlanningCaches,
+  invalidatePlanningCaches,
+  invalidateReportingCaches,
   markMilestonesCompletedInOkrCaches,
   markMilestonesReopenedInOkrCaches,
   patchReportTaskStatusesInCaches,
@@ -281,7 +282,7 @@ export const useApprovalPlanningPeriods = () => {
   const queryClient = useQueryClient();
   return useMutation(approveOrRejectPlanningPeriods, {
     onSuccess: () => {
-      void invalidateOkrPlanningCaches(queryClient);
+      void invalidatePlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully updated',
         description: 'okr plan status successfully updated',
@@ -309,7 +310,8 @@ export const useCreateReportForUnReportedtasks = () => {
       onSuccess: (data, variables) => {
         void data;
         applyAchievedMilestoneIds(queryClient, variables.achievedMilestoneIds);
-        void invalidateOkrPlanningCaches(queryClient);
+        void invalidateReportingCaches(queryClient);
+        void invalidatePlanningCaches(queryClient);
         scheduleOkrMilestoneStatusRefetch(
           queryClient,
           750,
@@ -355,7 +357,7 @@ export const useEditReportByReportId = () => {
             variables.reportTaskStatuses,
           );
         }
-        await invalidateOkrPlanningCaches(queryClient);
+        await invalidateReportingCaches(queryClient);
         // Stale refetch often lands with old Done — re-apply sticky overrides.
         if (variables.selectedReportId && variables.reportTaskStatuses) {
           patchReportTaskStatusesInCaches(
@@ -383,7 +385,7 @@ export const useDeletePlanById = () => {
 
   return useMutation(deletePlanById, {
     onSuccess: () => {
-      void invalidateOkrPlanningCaches(queryClient);
+      void invalidatePlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Deleted',
         description: 'OKR plan Deleted successfully',
@@ -409,7 +411,8 @@ export const useDeleteReportById = () => {
           keyResultIds,
         });
       }
-      void invalidateOkrPlanningCaches(queryClient);
+      void invalidateReportingCaches(queryClient);
+      void invalidatePlanningCaches(queryClient);
       scheduleOkrMilestoneStatusRefetch(queryClient);
       NotificationMessage.success({
         message: 'Successfully Deleted',
@@ -442,7 +445,7 @@ export const useApprovalReporting = () => {
           });
         }
       }
-      void invalidateOkrPlanningCaches(queryClient);
+      void invalidateReportingCaches(queryClient);
       scheduleOkrMilestoneStatusRefetch(queryClient, 750, achievedIds);
       NotificationMessage.success({
         message: 'Successfully updated',
@@ -475,7 +478,7 @@ export const useUpdateStatus = () => {
       ) => {
         const { planningPeriodId } = variables;
         queryClient.invalidateQueries('defaultPlanningPeriods');
-        void invalidateOkrPlanningCaches(queryClient);
+        void invalidatePlanningCaches(queryClient);
         scheduleOkrMilestoneStatusRefetch(queryClient);
         if (planningPeriodId) {
           queryClient.invalidateQueries(['okrPlannedData', planningPeriodId]);
