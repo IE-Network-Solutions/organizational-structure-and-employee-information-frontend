@@ -268,38 +268,44 @@ const CourseFilter: FC<CourseFilterProps> = ({
           <Input />
         </Form.Item>
 
-        {/* Row 0: internal vs external TNAs — scrolls horizontally on mobile. */}
-        <div
-          className="scrollbar-hide -mx-1 flex w-[calc(100%+0.5rem)] flex-nowrap items-center gap-[8px] overflow-x-auto overflow-y-hidden overscroll-x-contain px-1 pb-2 touch-pan-x md:mx-0 md:w-full md:overflow-visible md:pb-1"
-          data-cy="tna-course-filter-source-type-row"
-        >
-          {sourceTypeChips}
-        </div>
-
-        {/* Row 1: mobile collapsed = search + All + View More | mobile expanded = All + chips + View Less (no search) | md+ = search + desktop chips */}
+        {/* Row 1: search sits beside the internal/external chips; category chips
+            and the view/clear actions stay on the trailing edge. On mobile the
+            row wraps so the leading actions drop to their own line rather than
+            squeezing the search. */}
         <div
           className={classNames(
             'flex min-h-[32px] w-full flex-row items-center gap-[10px] md:min-h-[32px] md:justify-between',
             {
               'md:justify-end max-md:flex-nowrap max-md:items-center max-md:gap-2':
                 filtersExpanded,
-              'max-md:flex-nowrap max-md:justify-between': !filtersExpanded,
+              'max-md:flex-wrap max-md:justify-between': !filtersExpanded,
             },
           )}
           data-cy="tna-course-filter-toolbar-row"
         >
-          <Form.Item
-            name="search"
+          <div
             className={classNames(
-              'mb-0 min-w-0 max-w-[319px] max-md:flex-1 max-md:min-w-0 md:shrink-0 md:flex-none',
+              'flex min-w-0 items-center gap-[8px] max-md:w-full md:shrink-0',
               {},
-              [filtersExpanded ? '!hidden' : 'md:w-[319px] md:max-w-full'],
+              [filtersExpanded ? '!hidden' : ''],
             )}
-            id="tnaCourseFilterSearchItemId"
-            data-cy="tna-course-filter-search-item"
+            data-cy="tna-course-filter-search-group"
           >
-            {searchField}
-          </Form.Item>
+            <Form.Item
+              name="search"
+              className="mb-0 min-w-0 max-w-[319px] flex-1 md:w-[319px] md:max-w-full md:flex-none md:shrink-0"
+              id="tnaCourseFilterSearchItemId"
+              data-cy="tna-course-filter-search-item"
+            >
+              {searchField}
+            </Form.Item>
+            <div
+              className="scrollbar-hide flex min-w-0 flex-nowrap items-center gap-[8px] overflow-x-auto overflow-y-hidden overscroll-x-contain touch-pan-x md:overflow-visible"
+              data-cy="tna-course-filter-source-type-row"
+            >
+              {sourceTypeChips}
+            </div>
+          </div>
 
           <div
             className={classNames('items-center gap-2 md:hidden', {

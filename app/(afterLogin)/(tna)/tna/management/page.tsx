@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from 'antd';
 import { LuPlus } from 'react-icons/lu';
 import CourseCategorySidebar from './_components/courseSidebar';
@@ -28,6 +28,7 @@ import {
   useGetTrainingRequests,
   useGetTrainingRequestsByUser,
 } from '@/store/server/features/tna/externalTraining/queries';
+import { useGetTrainingApprovalsAllStatus } from '@/store/server/features/tna/trainingApproval/queries';
 import { TnaSourceType } from '@/types/tna/externalTna';
 
 const TnaManagementPage = () => {
@@ -116,16 +117,56 @@ const TnaManagementPage = () => {
     refetch: refetchMyExternal,
   } = useGetTrainingRequestsByUser(userId ?? '', !hasViewAllTnaPermission);
 
+  /**
+   * Requests routed to this user as an approver. Approval duty is workflow
+   * data, not a permission, so this is the only thing that decides whether an
+   * approver may see someone else's external TNA. The all-status feed keeps
+   * returning a request after it has been decided, so an approver retains a
+   * read-only view of their own decisions.
+   */
+  const { data: approverExternalData, refetch: refetchApproverExternal } =
+    useGetTrainingApprovalsAllStatus(userId ?? '', 1, 200);
+
   // `by-user` returns a bare array; the paginated list returns `{ items }`.
-  const externalItems = hasViewAllTnaPermission
-    ? (allExternalData?.items ?? [])
-    : (myExternalData ?? []);
+  const externalItems = useMemo(() => {
+    if (hasViewAllTnaPermission) return allExternalData?.items ?? [];
+
+    const own = myExternalData ?? [];
+    const toApprove =
+      approverExternalData?.data?.items ?? approverExternalData?.items ?? [];
+
+    // A user can be both requester and approver on different requests.
+    const byId = new Map<string, any>();
+    [...own, ...toApprove].forEach((item: any) => {
+      if (item?.id && !byId.has(item.id)) byId.set(item.id, item);
+    });
+    return Array.from(byId.values());
+  }, [
+    hasViewAllTnaPermission,
+    allExternalData?.items,
+    myExternalData,
+    approverExternalData,
+  ]);
   const isLoadingExternal = hasViewAllTnaPermission
     ? isLoadingAllExternal
     : isLoadingMyExternal;
-  const refetchExternal = hasViewAllTnaPermission
-    ? refetchAllExternal
-    : refetchMyExternal;
+  // Memoised: an effect below depends on this, so a fresh function identity
+  // each render would put it into a refetch loop.
+  const refetchExternal = useCallback(() => {
+    if (hasViewAllTnaPermission) {
+      refetchAllExternal();
+      return;
+    }
+    // Non-admins draw on two feeds — their own requests and the ones they
+    // approve — so both have to be refreshed.
+    refetchMyExternal();
+    refetchApproverExternal();
+  }, [
+    hasViewAllTnaPermission,
+    refetchAllExternal,
+    refetchMyExternal,
+    refetchApproverExternal,
+  ]);
 
   const displayCourses = useMemo(() => {
     if (sourceTypeFilter === TnaSourceType.EXTERNAL) return [];

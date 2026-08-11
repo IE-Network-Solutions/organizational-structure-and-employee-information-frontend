@@ -77,6 +77,7 @@ const setAllTrainingRequestFinalStatuses = async (
 const invalidateApprovalCaches = (queryClient: any) => {
   [
     'training-request-approvals',
+    'training-request-approvals-all-status',
     'training-request',
     'training-request-by-user',
     'training-request-detail',

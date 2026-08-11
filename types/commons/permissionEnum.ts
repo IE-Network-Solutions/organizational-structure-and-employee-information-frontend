@@ -129,6 +129,8 @@ export enum Permissions {
   ApproveTna = 'approve-tna', // Move a request through the approval workflow
   /** Matches the slug the training-and-learning service checks server-side. */
   ConfirmTnaCommitment = 'CONFIRM_TNA_COMMITMENT',
+  /** Also checked server-side; lets a user record a training as paid. */
+  MarkTrainingAsPaid = 'MARK_TRAINING_AS_PAID',
   ManageCommitmentConfiguration = 'manage-commitment-configuration',
 
   // TNA Category Permissions

@@ -1,28 +1,39 @@
-import ApproverListTableComponent from '@/components/Approval/ApprovalListTable';
-import React from 'react';
-import { useRouter } from 'next/navigation';
+'use client';
+import Image from 'next/image';
+import { RiDeleteBin6Line } from 'react-icons/ri';
+import { Avatar, Button, Dropdown, Tooltip } from 'antd';
+import { FaPencil } from 'react-icons/fa6';
+import { FaPlus } from 'react-icons/fa';
+import { UserOutlined } from '@ant-design/icons';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useApprovalFilter } from '@/store/server/features/approver/queries';
+import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
 import { useApprovalTNAStore } from '@/store/uistate/features/tna/settings/approval';
-import { APPROVALTYPES } from '@/types/enumTypes';
+import { useApprovalStore } from '@/store/uistate/features/approval';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import Image from 'next/image';
-import { GENDER_NEUTRAL_AVATAR_URL } from '@/constants/publicImageUrls';
-import { Button, Tooltip } from 'antd';
+import DeleteModal from '@/components/common/deleteConfirmationModal';
+import ApproverListTable from '@/components/Approval/ApprovalListTable';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { FaPencil } from 'react-icons/fa6';
-import { RiDeleteBin6Line } from 'react-icons/ri';
-import { FaPlus } from 'react-icons/fa';
-import DeleteModal from '@/components/common/deleteConfirmationModal';
-import { useDeleteApprovalWorkFLow } from '@/store/server/features/approver/mutation';
+import { APPROVALTYPES } from '@/types/enumTypes';
+import {
+  findDepartmentById,
+  isDepartmentEntityType,
+  isUserEntityType,
+} from '@/utils/approval/departmentHelpers';
+import EmptyState from '@/components/empty';
 import EditWorkFLow from '../editWorkFlow';
 import AddApprover from '../addApprover';
-import EmptyState from '@/components/empty';
 import TnaApprovalsPageSkeleton from '../tnaApprovalsPageSkeleton';
 
+const MAX_NAME_LENGTH = 40;
+
 const ApprovalListTable = () => {
-  const router = useRouter();
+  const { data: employeeData, isLoading: isEmployeeDataLoading } =
+    useGetAllUsers();
+  const { data: department, isLoading: isDepartmentLoading } =
+    useGetDepartments();
   const {
     userCurrentPage,
     pageSize,
@@ -42,15 +53,7 @@ const ApprovalListTable = () => {
     setDeletedItem,
     setApproverType,
   } = useApprovalTNAStore();
-  const { data: employeeData } = useGetAllUsers();
-  const { data: department } = useGetDepartments();
-  const MAX_NAME_LENGTH = 10;
-  const MAX_EMAIL_LENGTH = 5;
-  const getEmployeeInformation = (id: string) => {
-    const user = employeeData?.items?.find((item: any) => item.id === id);
-    return user;
-  };
-  const { mutate: deleteApproval } = useDeleteApprovalWorkFLow();
+  const { setOpenModal } = useApprovalStore();
 
   const { data: allFilterData, isLoading: isApprovalListLoading } =
     useApprovalFilter(
@@ -62,7 +65,21 @@ const ApprovalListTable = () => {
       APPROVALTYPES.TNA,
     );
 
-  const listItems = allFilterData?.items ?? [];
+  const { mutate: deleteApproval, isLoading: deleteLoading } =
+    useDeleteApprovalWorkFLow();
+
+  const isDataLoading =
+    isApprovalListLoading || isEmployeeDataLoading || isDepartmentLoading;
+
+  const getEmployeeInformation = (id: string) => {
+    if (!employeeData?.items || isEmployeeDataLoading) return null;
+    return employeeData.items.find((item: any) => item.id === id);
+  };
+  const getDepartmentInformation = (id: string) => {
+    if (!department || isDepartmentLoading) return null;
+    return findDepartmentById(department, id);
+  };
+
   const hasActiveFilters = Boolean(
     searchParams.name?.trim() ||
     searchParams.entityType ||
@@ -72,8 +89,8 @@ const ApprovalListTable = () => {
     permissions: [Permissions.CreateApprovalWorkFlow],
   });
   const goToWorkflowSetup = () => {
-    router.push('/tna/settings/approvals/workFlow');
     setApproverType('');
+    setOpenModal(true);
   };
 
   const onPageChange = (page: number, pageSize?: number) => {
@@ -82,248 +99,412 @@ const ApprovalListTable = () => {
       setPageSize(pageSize);
     }
   };
-  const getDepartmentInformation = (id: string) => {
-    const departments = department?.find((item: any) => item.id === id);
-    return departments;
-  };
   const handleDeleteConfirm = (id: string) => {
-    setDeleteModal(false);
-    deleteApproval(id);
+    deleteApproval(id, { onSuccess: () => setDeleteModal(false) });
   };
-  const data = listItems.map((item: any, index: number) => {
-    return {
-      key: index,
-      workflow_name: item?.name ? item?.name : '-',
-      applied_to: item?.entityId
-        ? item?.entityType === 'Department'
-          ? getDepartmentInformation(item?.entityId)?.name
-          : item?.entityType === 'Hierarchy'
-            ? getDepartmentInformation(item?.entityId)?.name
-            : item?.entityType === 'User'
-              ? getEmployeeInformation(item?.entityId)?.firstName +
-                '  ' +
-                getEmployeeInformation(item?.entityId)?.middleName
-              : item?.entityId
-        : '-',
 
-      assigned: (
-        <div
-          className="flex flex-col gap-2 max-h-20 overflow-y-auto"
-          style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
-            overflow: 'hidden',
-            overflowY: 'scroll',
-          }}
-          id={`tnaApprovalListTableAssignedCell${item?.id}Id`}
-          data-cy={`tna-approval-list-table-assigned-cell-${item?.id}`}
-        >
-          {item?.approvers?.map((employee: any, empIndex: number) => {
-            const fullName =
-              getEmployeeInformation(employee?.userId)?.firstName +
-              '  ' +
-              getEmployeeInformation(employee?.userId)?.middleName;
-            const shortEmail = getEmployeeInformation(employee?.userId)?.email;
-            const displayName =
-              fullName?.length > MAX_NAME_LENGTH
-                ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
-                : fullName;
-            const displayEmail =
-              shortEmail?.length > MAX_EMAIL_LENGTH
-                ? shortEmail.slice(0, MAX_EMAIL_LENGTH) + '...'
-                : shortEmail;
+  /**
+   * One card per entity, every workflow that targets it nested inside — the
+   * same grouping timesheet uses, so a department with several workflows reads
+   * as one row rather than several near-identical cards.
+   */
+  const groupedWorkflowItems =
+    !isDataLoading && allFilterData?.items
+      ? Object.values(
+          allFilterData.items.reduce((acc: Record<string, any>, item: any) => {
+            const key = `${item?.entityType || ''}::${item?.entityId || ''}`;
+            const existingGroup = acc[key];
+            if (!existingGroup) {
+              acc[key] = { ...item, workflows: [item] };
+              return acc;
+            }
+            const existingUpdatedAt = new Date(
+              existingGroup?.updatedAt || existingGroup?.createdAt || 0,
+            ).getTime();
+            const currentUpdatedAt = new Date(
+              item?.updatedAt || item?.createdAt || 0,
+            ).getTime();
+            existingGroup.workflows = [
+              ...(existingGroup.workflows || []),
+              item,
+            ];
+            // Keep base group fields from the most recently updated workflow.
+            if (currentUpdatedAt >= existingUpdatedAt) {
+              acc[key] = {
+                ...existingGroup,
+                ...item,
+                workflows: existingGroup.workflows,
+              };
+            }
+
+            return acc;
+          }, {}),
+        )
+      : [];
+
+  const data =
+    !isDataLoading && groupedWorkflowItems
+      ? groupedWorkflowItems.map((item: any, index: number) => {
+          const employeeInfo = getEmployeeInformation(item?.entityId);
+          const departmentInfo = getDepartmentInformation(item?.entityId);
+
+          let appliedToValue = '-';
+          if (item?.entityId) {
+            if (isDepartmentEntityType(item?.entityType)) {
+              appliedToValue = departmentInfo?.name || '-';
+            } else if (isUserEntityType(item?.entityType)) {
+              const firstName = employeeInfo?.firstName || '';
+              const middleName = employeeInfo?.middleName || '';
+              appliedToValue =
+                firstName && middleName
+                  ? `${firstName} ${middleName}`
+                  : firstName || middleName || '-';
+            } else {
+              appliedToValue = item?.entityId;
+            }
+          }
+
+          const workflowsForCard =
+            Array.isArray(item?.workflows) && item.workflows.length > 0
+              ? item.workflows
+              : [item];
+
+          const renderApproverPills = (
+            workflowItem: any,
+            workflowIdx: number,
+          ) => {
+            const sortedApprovers = [...(workflowItem?.approvers ?? [])].sort(
+              (a, b) => a.stepOrder - b.stepOrder,
+            );
+            // Parallel approvers have no order, so they get dots, not arrows.
+            const showTimelineConnector =
+              workflowItem?.approvalWorkflowType !== 'Parallel';
 
             return (
-              <Tooltip
-                key={empIndex}
-                title={
-                  <div data-cy="approvals-component-approvallisttable-index-tsx-index-div-122">
-                    {fullName}
-                    <br data-cy="approvals-component-approvallisttable-index-tsx-index-br-124" />
-                    {getEmployeeInformation(employee?.userId)?.email}
-                  </div>
-                }
-                id={`tnaApprovalListTableAssignedTooltip${item?.id}_${empIndex}Id`}
-                data-cy={`tna-approval-list-table-assigned-tooltip-${item?.id}-${empIndex}`}
+              <div
+                data-cy={`tna-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-approvers`}
+                className="w-full overflow-x-auto"
               >
                 <div
-                  className="flex items-center flex-wrap sm:flex-row gap-2"
-                  id={`tnaApprovalListTableAssignedItem${item?.id}_${empIndex}Id`}
-                  data-cy={`tna-approval-list-table-assigned-item-${item?.id}-${empIndex}`}
+                  className="flex min-w-max items-center gap-1.5 py-1"
+                  data-cy={`tna-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-approvers-row`}
                 >
-                  <div
-                    className="relative w-6 h-6 rounded-full overflow-hidden"
-                    id={`tnaApprovalListTableAssignedImageContainer${item?.id}_${empIndex}Id`}
-                    data-cy={`tna-approval-list-table-assigned-image-container-${item?.id}-${empIndex}`}
-                  >
-                    <Image
-                      unoptimized
-                      src={
-                        getEmployeeInformation(employee?.userId)
-                          ?.profileImage &&
-                        typeof getEmployeeInformation(employee?.userId)
-                          ?.profileImage === 'string'
-                          ? (() => {
-                              try {
-                                const parsed = JSON.parse(
-                                  getEmployeeInformation(employee?.userId)
-                                    ?.profileImage,
-                                );
-                                return parsed.url &&
-                                  parsed.url.startsWith('http')
-                                  ? parsed.url
-                                  : GENDER_NEUTRAL_AVATAR_URL;
-                              } catch {
-                                return getEmployeeInformation(
-                                  employee?.userId,
-                                )?.profileImage.startsWith('http')
-                                  ? getEmployeeInformation(employee?.userId)
-                                      ?.profileImage
-                                  : GENDER_NEUTRAL_AVATAR_URL;
+                  {sortedApprovers?.map((employee: any, empIndex: number) => {
+                    const approverInfo = getEmployeeInformation(
+                      employee?.userId,
+                    );
+                    const firstName = approverInfo?.firstName || '';
+                    const middleName = approverInfo?.middleName || '';
+
+                    const fullName =
+                      firstName && middleName
+                        ? `${firstName} ${middleName}`
+                        : firstName || middleName || 'Unknown User';
+
+                    const displayName =
+                      fullName?.length > MAX_NAME_LENGTH
+                        ? fullName.slice(0, MAX_NAME_LENGTH) + '...'
+                        : fullName;
+
+                    return (
+                      <div
+                        key={empIndex}
+                        className="flex items-center"
+                        data-cy={`tna-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-flow-item`}
+                      >
+                        {empIndex > 0 && (
+                          <>
+                            {showTimelineConnector ? (
+                              <div
+                                className="mx-0.5 inline-flex h-5 min-w-6 items-center justify-center rounded-full border border-[#E3E7FF] bg-[#F7F8FF] px-1 text-[11px] font-semibold text-[#5B67D9]"
+                                data-cy={`tna-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-connector-arrow`}
+                              >
+                                →
+                              </div>
+                            ) : (
+                              <div
+                                className="mx-0.5 inline-flex h-2 w-2 rounded-full bg-[#D9DEF8]"
+                                data-cy={`tna-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-connector-dot`}
+                              />
+                            )}
+                          </>
+                        )}
+                        <Tooltip
+                          title={displayName}
+                          placement="top"
+                          data-cy={`tna-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-tooltip`}
+                        >
+                          <div
+                            className="relative h-9 w-9 rounded-full overflow-hidden ring-2 ring-[#EEF0FF] hover:ring-[#C9D0FF] transition-colors cursor-pointer shadow-[0_1px_2px_rgba(16,24,40,0.08)]"
+                            id={`tna-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-avatar-container`}
+                            data-cy={`tna-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-avatar-container`}
+                          >
+                            {(() => {
+                              const raw = approverInfo?.profileImage;
+                              let avatarSrc: string | null = null;
+
+                              if (typeof raw === 'string' && raw.trim()) {
+                                try {
+                                  const parsed = JSON.parse(raw);
+                                  if (
+                                    parsed?.url &&
+                                    typeof parsed.url === 'string' &&
+                                    parsed.url.startsWith('http')
+                                  ) {
+                                    avatarSrc = parsed.url;
+                                  }
+                                } catch {
+                                  if (raw.startsWith('http')) avatarSrc = raw;
+                                }
                               }
-                            })()
-                          : GENDER_NEUTRAL_AVATAR_URL
-                      }
-                      alt="Description of image"
-                      layout="fill"
-                      className="object-cover"
-                      id={`tnaApprovalListTableAssignedImage${item?.id}_${empIndex}Id`}
-                      data-cy={`tna-approval-list-table-assigned-image-${item?.id}-${empIndex}`}
-                    />
-                  </div>
-                  <div
-                    className="flex flex-wrap flex-col justify-center"
-                    id={`tnaApprovalListTableAssignedTextContainer${item?.id}_${empIndex}Id`}
-                    data-cy={`tna-approval-list-table-assigned-text-container-${item?.id}-${empIndex}`}
-                  >
-                    <p
-                      id={`tnaApprovalListTableAssignedTextName${item?.id}_${empIndex}Id`}
-                      data-cy={`tnaApprovalListTableAssignedTextContainer${item?.id}_${empIndex}Id`}
-                    >
-                      {displayName}
-                    </p>
-                    <p
-                      className="font-extralight text-[12px]"
-                      id={`tnaApprovalListTableAssignedTextEmail${item?.id}_${empIndex}Id`}
-                      data-cy={`tna-approval-list-table-assigned-text-email-${item?.id}-${empIndex}`}
-                    >
-                      {displayEmail}
-                    </p>
-                  </div>
+
+                              return avatarSrc ? (
+                                <Image
+                                  src={avatarSrc}
+                                  alt={displayName || 'User profile'}
+                                  fill
+                                  className="object-cover"
+                                  data-cy={`tna-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-avatar`}
+                                />
+                              ) : (
+                                <div
+                                  data-cy={`tna-settings-approvals-table-row-${index}-assigned-${workflowIdx}-${empIndex}-avatar-default-container`}
+                                  className="h-full w-full flex items-center justify-center bg-[#f0f0f0]"
+                                >
+                                  <Avatar size={30} icon={<UserOutlined />} />
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </Tooltip>
+                      </div>
+                    );
+                  })}
                 </div>
-              </Tooltip>
+              </div>
             );
-          })}
-        </div>
-      ),
-      level: item?.approvers ? item?.approvers?.length : '-',
-      action: (
-        <div
-          className="flex gap-4 text-white"
-          id={`tnaApprovalListTableActionButtons${item?.id}Id`}
-          data-cy={`tna-approval-list-table-action-buttons-${item?.id}`}
-        >
-          <AccessGuard
-            permissions={[Permissions.CreateApprover]}
-            data-cy="tna-approval-list-table-add-approver-guard"
-            id="tnaApprovalListTableAddApproverGuardId"
-          >
-            <Tooltip
-              title={'Add Approver'}
-              data-cy="tna-approval-list-table-add-approver-tooltip"
-              id="tnaApprovalListTableAddApproverTooltipId"
-            >
-              <Button
-                id={`editUserButton${item?.id}`}
-                className="bg-green-500 px-[8%] text-white disabled:bg-gray-400 border-none w-7 h-7"
-                onClick={() => {
-                  setAddModal(true);
-                  setSelectedItem(item);
-                  setLevel(1);
-                  setApproverType(
-                    item?.approvalWorkflowType
-                      ? item?.approvalWorkflowType
-                      : '-',
-                  );
-                }}
-                data-cy={`tna-approval-list-table-add-approver-button-${item?.id}`}
-              >
-                <FaPlus
-                  id={`tnaApprovalListTableAddApproverIcon${item?.id}Id`}
-                  data-cy={`tna-approval-list-table-add-approver-icon-${item?.id}`}
+          };
+
+          const renderWorkflowAction = (
+            workflowItem: any,
+            workflowIdx: number,
+          ) => {
+            const canAdd = AccessGuard.checkAccess({
+              permissions: [Permissions.CreateApprover],
+            });
+            const canEdit = AccessGuard.checkAccess({
+              permissions: [Permissions.UpdateApprover],
+            });
+            const canDelete = AccessGuard.checkAccess({
+              permissions: [Permissions.DeleteApprover],
+            });
+
+            const menuItems = [
+              canAdd
+                ? {
+                    key: 'add',
+                    label: (
+                      <span
+                        data-cy={`tna-settings-approvals-table-row-${index}-workflow-${workflowIdx}-add-approver-label`}
+                      >
+                        Add Approver
+                      </span>
+                    ),
+                    icon: (
+                      <FaPlus
+                        data-cy={`tna-settings-approvals-table-row-${index}-workflow-${workflowIdx}-add-approver-icon`}
+                      />
+                    ),
+                  }
+                : null,
+              canEdit
+                ? {
+                    key: 'edit',
+                    label: (
+                      <span
+                        data-cy={`tna-settings-approvals-table-row-${index}-workflow-${workflowIdx}-edit-approver-label`}
+                      >
+                        Edit Approver
+                      </span>
+                    ),
+                    icon: (
+                      <FaPencil
+                        data-cy={`tna-settings-approvals-table-row-${index}-workflow-${workflowIdx}-edit-approver-icon`}
+                      />
+                    ),
+                  }
+                : null,
+              canDelete
+                ? {
+                    key: 'delete',
+                    label: (
+                      <span
+                        data-cy={`tna-settings-approvals-table-row-${index}-workflow-${workflowIdx}-delete-approver-label`}
+                      >
+                        Delete Workflow
+                      </span>
+                    ),
+                    icon: (
+                      <RiDeleteBin6Line
+                        data-cy={`tna-settings-approvals-table-row-${index}-workflow-${workflowIdx}-delete-approver-icon`}
+                      />
+                    ),
+                  }
+                : null,
+            ].filter(Boolean);
+
+            if (!menuItems.length) {
+              return (
+                <span
+                  data-cy={`tna-settings-approvals-table-row-${index}-workflow-${workflowIdx}-no-actions`}
                 />
-              </Button>
-            </Tooltip>
-          </AccessGuard>
-          <AccessGuard
-            permissions={[Permissions.UpdateApprover]}
-            data-cy="tna-approval-list-table-edit-approver-guard"
-            id="tnaApprovalListTableEditApproverGuardId"
-          >
-            <Tooltip
-              title={'Edit Approver'}
-              data-cy="tna-approval-list-table-edit-approver-tooltip"
-              id="tnaApprovalListTableEditApproverTooltipId"
-            >
-              <Button
-                id={`editUserButton${item?.id}`}
-                className="bg-sky-600 px-[8%] text-white disabled:bg-gray-400 border-none w-7 h-7"
-                onClick={() => {
-                  setEditModal(true);
-                  setSelectedItem(item);
-                  setLevel(item?.approvers ? item?.approvers?.length : '-');
-                  setWorkflowApplies(item?.entityType ? item?.entityType : '-');
-                  setApproverType(
-                    item?.approvalWorkflowType
-                      ? item?.approvalWorkflowType
-                      : '-',
-                  );
+              );
+            }
+
+            return (
+              <Dropdown
+                trigger={['click']}
+                placement="bottomRight"
+                menu={{
+                  items: menuItems as any,
+                  onClick: ({ key }) => {
+                    if (key === 'add') {
+                      setAddModal(true);
+                      setSelectedItem(workflowItem);
+                      setLevel(1);
+                      setApproverType(
+                        workflowItem?.approvalWorkflowType
+                          ? workflowItem?.approvalWorkflowType
+                          : '-',
+                      );
+                    }
+
+                    if (key === 'edit') {
+                      setEditModal(true);
+                      setSelectedItem(workflowItem);
+                      setLevel(
+                        workflowItem?.approvers
+                          ? workflowItem?.approvers?.length
+                          : '-',
+                      );
+                      setWorkflowApplies(
+                        workflowItem?.entityType
+                          ? workflowItem?.entityType
+                          : '-',
+                      );
+                      setApproverType(
+                        workflowItem?.approvalWorkflowType
+                          ? workflowItem?.approvalWorkflowType
+                          : '-',
+                      );
+                    }
+
+                    if (key === 'delete') {
+                      setDeleteModal(true);
+                      setDeletedItem(workflowItem?.id);
+                    }
+                  },
                 }}
-                data-cy={`tna-approval-list-table-edit-approver-button-${item?.id}`}
+                data-cy={`tna-settings-approvals-table-row-${index}-workflow-${workflowIdx}-actions-dropdown`}
               >
-                <FaPencil
-                  id={`tnaApprovalListTableEditApproverIcon${item?.id}Id`}
-                  data-cy={`tna-approval-list-table-edit-approver-icon-${item?.id}`}
-                />
-              </Button>
-            </Tooltip>
-          </AccessGuard>
-          <AccessGuard
-            permissions={[Permissions.DeleteApprover]}
-            data-cy="tna-approval-list-table-delete-approver-guard"
-            id="tnaApprovalListTableDeleteApproverGuardId"
-          >
-            <Tooltip
-              title={'Delete Employee'}
-              data-cy="tna-approval-list-table-delete-approver-tooltip"
-              id="tnaApprovalListTableDeleteApproverTooltipId"
-            >
-              <Button
-                id={`deleteUserButton${item?.id}`}
-                className="bg-red-600 px-[8%] text-white disabled:bg-gray-400 border-none w-7 h-7"
-                onClick={() => {
-                  setDeleteModal(true);
-                  setDeletedItem(item?.id);
-                }}
-                data-cy={`tna-approval-list-table-delete-approver-button-${item?.id}`}
+                <Button
+                  type="default"
+                  className="h-8 w-8 border-0 bg-[#FAFAFA] shadow-none hover:!bg-[#F2F2F2]"
+                  data-cy={`tna-settings-approvals-table-row-${index}-workflow-${workflowIdx}-actions-trigger`}
+                >
+                  <MoreHorizIcon />
+                </Button>
+              </Dropdown>
+            );
+          };
+
+          return {
+            key: index,
+            workflow_name: '',
+            applied_to: appliedToValue,
+
+            assigned: (
+              <div
+                className="flex flex-col gap-3"
+                id={`tna-settings-approvals-table-row-${index}-assigned-container`}
+                data-cy={`tna-settings-approvals-table-row-${index}-assigned-container`}
               >
-                <RiDeleteBin6Line
-                  id={`tnaApprovalListTableDeleteApproverIcon${item?.id}Id`}
-                  data-cy={`tna-approval-list-table-delete-approver-icon-${item?.id}`}
-                />
-              </Button>
-            </Tooltip>
-          </AccessGuard>
-        </div>
-      ),
-    };
-  });
+                {workflowsForCard.map(
+                  (workflowItem: any, workflowIdx: number) => (
+                    <div
+                      key={workflowItem?.id || workflowIdx}
+                      data-cy={`tna-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-section`}
+                      className="w-full rounded-lg p-3 bg-[#FAFAFA] flex flex-col gap-2"
+                    >
+                      <div
+                        className="flex items-start justify-between gap-2"
+                        data-cy={`tna-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-section-header`}
+                      >
+                        <div
+                          className="flex flex-col"
+                          data-cy={`tna-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-titles`}
+                        >
+                          <span
+                            data-cy={`tna-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-label`}
+                            className="text-xs text-gray-500"
+                          >
+                            {workflowItem?.approvalType || '-'}
+                          </span>
+                          <span
+                            data-cy={`tna-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-workflow-name`}
+                            className="text-xs font-medium text-[#2f2f2f]"
+                          >
+                            {workflowItem?.name || '-'}
+                          </span>
+                        </div>
+                        <div
+                          className="flex justify-end"
+                          data-cy={`tna-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-actions`}
+                        >
+                          {renderWorkflowAction(workflowItem, workflowIdx)}
+                        </div>
+                      </div>
+                      {renderApproverPills(workflowItem, workflowIdx)}
+                    </div>
+                  ),
+                )}
+              </div>
+            ),
+            level:
+              workflowsForCard.length > 0
+                ? Math.max(
+                    ...workflowsForCard.map((workflowItem: any) =>
+                      workflowItem?.approvers
+                        ? workflowItem?.approvalWorkflowType == 'Parallel'
+                          ? (workflowItem?.approvers ?? []).length > 0
+                            ? Math.max(
+                                ...(workflowItem?.approvers ?? []).map(
+                                  (approverItem: any) => approverItem.stepOrder,
+                                ),
+                              )
+                            : 0
+                          : workflowItem?.approvers?.length
+                        : 0,
+                    ),
+                  )
+                : 0,
+            action: (
+              <span
+                data-cy={`tna-settings-approvals-table-row-${index}-no-header-action`}
+              />
+            ),
+          };
+        })
+      : [];
+
   return (
     <div
+      className="mt-2"
       id="tnaApprovalListTableContainerId"
       data-cy="tna-approval-list-table-container"
     >
       <DeleteModal
+        loading={deleteLoading}
         open={deleteModal}
         onConfirm={() => handleDeleteConfirm(deletedItem)}
         onCancel={() => setDeleteModal(false)}
@@ -333,9 +514,10 @@ const ApprovalListTable = () => {
         <EditWorkFLow data-cy="tna-approval-list-table-edit-modal" />
       )}
       {addModal && <AddApprover data-cy="tna-approval-list-table-add-modal" />}
-      {isApprovalListLoading ? (
+
+      {isDataLoading ? (
         <TnaApprovalsPageSkeleton />
-      ) : listItems.length === 0 ? (
+      ) : data.length === 0 ? (
         <div
           className="w-full min-h-[240px] flex items-center justify-center mt-2"
           id="tnaApprovalsPageEmptyId"
@@ -357,9 +539,9 @@ const ApprovalListTable = () => {
           />
         </div>
       ) : (
-        <ApproverListTableComponent
+        <ApproverListTable
           data={data}
-          isEmployeeLoading={false}
+          isEmployeeLoading={isDataLoading}
           allFilterData={allFilterData}
           onPageChange={onPageChange}
           pageSize={pageSize}
