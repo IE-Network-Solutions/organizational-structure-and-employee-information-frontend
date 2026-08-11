@@ -25,10 +25,10 @@ import {
   TrainingRequestStageBadgeTheme,
   TrainingRequestStageLabel,
   getTrainingRequestStage,
-  isTrainingRequestConfirmable,
 } from '@/types/tna/externalTna';
 import CommitmentProgressBar from '@/app/(afterLogin)/(tna)/tna/_components/commitmentProgressBar';
 import EmployeeName from '@/app/(afterLogin)/(tna)/tna/_components/employeeName';
+import TrainingApprovalActions from '@/app/(afterLogin)/(tna)/tna/_components/trainingApprovalActions';
 import CloseOutcomeModal from '@/app/(afterLogin)/(tna)/tna/_components/closeOutcomeModal';
 
 const DetailRow = ({
@@ -98,19 +98,46 @@ const ExternalTnaDetailPage = () => {
   const isApproved =
     request?.approvalStatus === TrainingRequestApprovalStatus.APPROVED;
 
-  const canRecordPayment =
-    isApproved &&
-    !request?.isConfirmed &&
-    AccessGuard.checkAccess({
-      permissions: [Permissions.ConfirmTnaCommitment],
-    });
+  /**
+   * Permission decides whether these buttons are shown at all; the request's
+   * state only decides whether they are enabled. Hiding a button from someone
+   * who holds the permission just reads as "the feature is missing", so the
+   * reason is surfaced in a tooltip instead.
+   */
+  const hasPaymentPermission = AccessGuard.checkAccess({
+    permissions: [Permissions.MarkTrainingAsPaid],
+  });
+  const hasConfirmPermission = AccessGuard.checkAccess({
+    permissions: [Permissions.ConfirmTnaCommitment],
+  });
 
-  const canClose = isApproved && !request?.isConfirmed && Boolean(request);
-  const canConfirm =
-    isTrainingRequestConfirmable(request) &&
-    AccessGuard.checkAccess({
-      permissions: [Permissions.ConfirmTnaCommitment],
-    });
+  const paymentBlockedReason = !isApproved
+    ? 'The request has to be approved before payment can be recorded.'
+    : request?.isPaid
+      ? 'Payment has already been recorded.'
+      : request?.isConfirmed
+        ? 'The commitment has already started.'
+        : null;
+
+  const confirmBlockedReason = request?.isConfirmed
+    ? 'This request is already confirmed.'
+    : !isApproved
+      ? 'The request has to be approved first.'
+      : !request?.endDate
+        ? 'Record the training end date first.'
+        : !request?.certificatePath && !request?.failureFilePath
+          ? 'A certificate or failure document has to be attached first.'
+          : !request?.isPaid
+            ? 'Payment has to be recorded first.'
+            : null;
+
+  /**
+   * Uploading the certificate or the failure proof belongs to the employee who
+   * took the training and nobody else — an approver is only here to approve,
+   * so this must never key off "can open the page".
+   */
+  const canClose =
+    isApproved && !request?.isConfirmed && Boolean(request) && isOwner;
 
   if (isLoading) {
     return (
@@ -186,6 +213,9 @@ const ExternalTnaDetailPage = () => {
         href="/tna/management"
         titleExtra={
           <Space wrap data-cy="tna-external-detail-actions">
+            {/* Only renders while this user is the workflow's current step. */}
+            <TrainingApprovalActions requestId={request.id} size="middle" />
+
             {canClose ? (
               <>
                 <Button
@@ -207,33 +237,46 @@ const ExternalTnaDetailPage = () => {
               </>
             ) : null}
 
-            {canRecordPayment && !request.isPaid ? (
-              <Button
-                className="h-10 rounded-md border-[#D9D9D9] px-4"
-                loading={isSettingPayment}
-                onClick={() => setPayment({ id: request.id, isPaid: true })}
-                data-cy="tna-external-detail-record-payment"
-              >
-                Record payment
-              </Button>
+            {hasPaymentPermission ? (
+              <Tooltip title={paymentBlockedReason ?? ''}>
+                {/* Disabled buttons swallow mouse events, so the tooltip needs
+                    a wrapper to hang off. */}
+                <span data-cy="tna-external-detail-record-payment-wrap">
+                  <Button
+                    className="h-10 rounded-md border-[#D9D9D9] px-4"
+                    loading={isSettingPayment}
+                    disabled={Boolean(paymentBlockedReason)}
+                    onClick={() => setPayment({ id: request.id, isPaid: true })}
+                    data-cy="tna-external-detail-record-payment"
+                  >
+                    {request.isPaid ? 'Payment recorded' : 'Mark as paid'}
+                  </Button>
+                </span>
+              </Tooltip>
             ) : null}
 
-            {canConfirm ? (
+            {hasConfirmPermission ? (
               <Popconfirm
                 title="Confirm this request?"
                 description="This starts the employee's commitment period."
                 okText="Confirm"
                 cancelText="Cancel"
+                disabled={Boolean(confirmBlockedReason)}
                 onConfirm={() => confirmRequest(request.id)}
               >
-                <Button
-                  type="primary"
-                  className="h-10 rounded-lg border-[#1E40AF] bg-[#1E40AF] px-4"
-                  loading={isConfirming}
-                  data-cy="tna-external-detail-confirm"
-                >
-                  Confirm &amp; start commitment
-                </Button>
+                <Tooltip title={confirmBlockedReason ?? ''}>
+                  <span data-cy="tna-external-detail-confirm-wrap">
+                    <Button
+                      type="primary"
+                      className="h-10 rounded-lg border-[#1E40AF] bg-[#1E40AF] px-4"
+                      loading={isConfirming}
+                      disabled={Boolean(confirmBlockedReason)}
+                      data-cy="tna-external-detail-confirm"
+                    >
+                      Confirm &amp; start commitment
+                    </Button>
+                  </span>
+                </Tooltip>
               </Popconfirm>
             ) : null}
 

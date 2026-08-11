@@ -33,3 +33,52 @@ export const useGetTrainingRequestsForApprover = (
     { keepPreviousData: true, enabled: isEnabled && !!userId },
   );
 };
+
+/**
+ * The approver inbox across every status — what is waiting on this user plus
+ * what they already decided — so the table can offer a status filter. Same
+ * shape as the leave-request all-status feed.
+ */
+const getTrainingApprovalsAllStatus = async (
+  userId: string,
+  page: number,
+  limit: number,
+  requestUserId?: string,
+  status?: string,
+) => {
+  const requestHeaders = await requestHeader();
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+  if (requestUserId) params.set('requestUserId', requestUserId);
+  if (status) params.set('status', status);
+
+  return await crudRequest({
+    url: `${TNA_URL}/training-request/approval/current-approver/all-status/${userId}?${params.toString()}`,
+    method: 'GET',
+    headers: requestHeaders,
+  });
+};
+
+export const useGetTrainingApprovalsAllStatus = (
+  userId: string,
+  page: number,
+  limit: number,
+  requestUserId?: string,
+  status?: string,
+) => {
+  return useQuery<any>(
+    [
+      'training-request-approvals-all-status',
+      userId,
+      page,
+      limit,
+      requestUserId ?? '',
+      status ?? '',
+    ],
+    () =>
+      getTrainingApprovalsAllStatus(userId, page, limit, requestUserId, status),
+    { keepPreviousData: true, enabled: !!userId },
+  );
+};

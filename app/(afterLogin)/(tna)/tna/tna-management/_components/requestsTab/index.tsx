@@ -23,10 +23,12 @@ import { TrainingRequestBody } from '@/store/server/features/tna/externalTrainin
 import { useGetTrainingRequests } from '@/store/server/features/tna/externalTraining/queries';
 import { useCurrency } from '@/store/server/features/tna/review/queries';
 import EmployeeName from '@/app/(afterLogin)/(tna)/tna/_components/employeeName';
+import TrainingApprovalActions from '@/app/(afterLogin)/(tna)/tna/_components/trainingApprovalActions';
 
 /**
  * Every training request in the organisation, with search, status and date
- * filters. Actions live on the detail page where the full context is visible.
+ * filters. Approvers can act on a row directly; the detail page carries the
+ * same actions alongside the full context.
  */
 const RequestsTab: FC = () => {
   const router = useRouter();
@@ -176,6 +178,8 @@ const RequestsTab: FC = () => {
         void unusedValue;
         return (
           <Space data-cy={`tna-admin-requests-actions-${record.id}`}>
+            {/* Only renders while this user is the workflow's current step. */}
+            <TrainingApprovalActions requestId={record.id} />
             <Button
               size="small"
               type="link"
