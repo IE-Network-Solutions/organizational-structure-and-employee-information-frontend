@@ -189,7 +189,6 @@ const ApprovalListTable = () => {
                   className="flex min-w-max items-center gap-1.5 py-1"
                   data-cy={`tna-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-approvers-row`}
                 >
-<<<<<<< HEAD
                   {sortedApprovers?.map((employee: any, empIndex: number) => {
                     const approverInfo = getEmployeeInformation(
                       employee?.userId,
@@ -257,41 +256,11 @@ const ApprovalListTable = () => {
                                 } catch {
                                   if (raw.startsWith('http')) avatarSrc = raw;
                                 }
-=======
-                  <div
-                    className="relative w-6 h-6 rounded-full overflow-hidden"
-                    id={`tnaApprovalListTableAssignedImageContainer${item?.id}_${empIndex}Id`}
-                    data-cy={`tna-approval-list-table-assigned-image-container-${item?.id}-${empIndex}`}
-                  >
-                    <Image
-                      unoptimized
-                      src={
-                        getEmployeeInformation(employee?.userId)
-                          ?.profileImage &&
-                        typeof getEmployeeInformation(employee?.userId)
-                          ?.profileImage === 'string'
-                          ? (() => {
-                              try {
-                                const parsed = JSON.parse(
-                                  getEmployeeInformation(employee?.userId)
-                                    ?.profileImage,
-                                );
-                                return parsed.url &&
-                                  parsed.url.startsWith('http')
-                                  ? parsed.url
-                                  : GENDER_NEUTRAL_AVATAR_URL;
-                              } catch {
-                                return getEmployeeInformation(
-                                  employee?.userId,
-                                )?.profileImage.startsWith('http')
-                                  ? getEmployeeInformation(employee?.userId)
-                                      ?.profileImage
-                                  : GENDER_NEUTRAL_AVATAR_URL;
->>>>>>> f563c9fb3ad6783a745f2097bffbd9f8f246d7ab
                               }
 
                               return avatarSrc ? (
                                 <Image
+                                  unoptimized
                                   src={avatarSrc}
                                   alt={displayName || 'User profile'}
                                   fill

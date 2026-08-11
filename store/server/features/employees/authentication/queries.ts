@@ -1,5 +1,9 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { CORE_API_URL, ORG_AND_EMP_URL, TENANT_MGMT_URL } from '@/utils/constants';
+import {
+  CORE_API_URL,
+  ORG_AND_EMP_URL,
+  TENANT_MGMT_URL,
+} from '@/utils/constants';
 import { useMutation, useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
