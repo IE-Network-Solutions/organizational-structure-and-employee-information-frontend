@@ -1,6 +1,6 @@
 import { crudRequest } from '@/utils/crudRequest';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useQuery } from 'react-query';
+import { useQuery, UseQueryOptions } from 'react-query';
 import { OKR_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -18,5 +18,20 @@ const fetchObjectives = async (id: string) => {
   });
 };
 
-export const useFetchObjectives = (id: string) =>
-  useQuery<any>(['fetchObjectives', id], () => fetchObjectives(id));
+type FetchObjectivesQueryOptions = Pick<
+  UseQueryOptions<any>,
+  | 'refetchOnMount'
+  | 'staleTime'
+  | 'keepPreviousData'
+  | 'refetchOnWindowFocus'
+  | 'enabled'
+>;
+
+export const useFetchObjectives = (
+  id: string,
+  queryOptions?: FetchObjectivesQueryOptions,
+) =>
+  useQuery<any>(['fetchObjectives', id], () => fetchObjectives(id), {
+    enabled: !!id,
+    ...queryOptions,
+  });

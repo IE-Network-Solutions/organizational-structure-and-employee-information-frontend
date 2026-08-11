@@ -101,6 +101,7 @@ const InternalApplicantForm: React.FC<InternalApplicantFormProps> = ({
             className="flex items-center justify-center"
           >
             <Image
+              unoptimized
               className="flex items-center justify-center"
               src={CV_UPLOAD_IMAGE_URL}
               alt="Loading"

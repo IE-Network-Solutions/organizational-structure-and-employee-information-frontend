@@ -1,7 +1,16 @@
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useSetBreakType } from '@/store/server/features/timesheet/breakType/mutation';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import { Button, Col, Collapse, Form, Input, Modal, Row, TimePicker } from 'antd';
+import {
+  Button,
+  Col,
+  Collapse,
+  Form,
+  Input,
+  Modal,
+  Row,
+  TimePicker,
+} from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import React from 'react';
 
@@ -13,7 +22,11 @@ const formatTime = (value?: Dayjs | null) =>
 
 const windowAfterValidator =
   (fromField: string, message: string) =>
-  ({ getFieldValue }: { getFieldValue: (name: string) => Dayjs | undefined }) => ({
+  ({
+    getFieldValue,
+  }: {
+    getFieldValue: (name: string) => Dayjs | undefined;
+  }) => ({
     /* eslint-disable @typescript-eslint/naming-convention */
     validator(_: unknown, value: Dayjs | undefined) {
       /* eslint-enable @typescript-eslint/naming-convention */
@@ -205,18 +218,22 @@ const BreakTypeSidebar = () => {
                 data-cy="time-attendance-settings-break-type-sidebar-start-at-picker"
               />
             </Form.Item>
+            <div
+              id="time-attendance-settings-break-type-sidebar-start-window"
+              data-cy="time-attendance-settings-break-type-sidebar-start-window"
+            >
             <Collapse
               ghost
               size="small"
               activeKey={startWindowOpen ? ['start-window'] : []}
               onChange={(keys) =>
                 setStartWindowOpen(
-                  (Array.isArray(keys) ? keys : [keys]).includes('start-window'),
+                  (Array.isArray(keys) ? keys : [keys]).includes(
+                    'start-window',
+                  ),
                 )
               }
               className="bg-[#FAFAFA] rounded-md border border-[#E8E8E8] overflow-hidden [&_.ant-collapse-header]:!py-2 [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-2"
-              id="time-attendance-settings-break-type-sidebar-start-window"
-              data-cy="time-attendance-settings-break-type-sidebar-start-window"
               items={[
                 {
                   key: 'start-window',
@@ -290,6 +307,7 @@ const BreakTypeSidebar = () => {
                 },
               ]}
             />
+            </div>
           </div>
 
           <div
@@ -326,6 +344,10 @@ const BreakTypeSidebar = () => {
                 data-cy="time-attendance-settings-break-type-sidebar-end-at-picker"
               />
             </Form.Item>
+            <div
+              id="time-attendance-settings-break-type-sidebar-end-window"
+              data-cy="time-attendance-settings-break-type-sidebar-end-window"
+            >
             <Collapse
               ghost
               size="small"
@@ -336,8 +358,6 @@ const BreakTypeSidebar = () => {
                 )
               }
               className="bg-[#FAFAFA] rounded-md border border-[#E8E8E8] overflow-hidden [&_.ant-collapse-header]:!py-2 [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-2"
-              id="time-attendance-settings-break-type-sidebar-end-window"
-              data-cy="time-attendance-settings-break-type-sidebar-end-window"
               items={[
                 {
                   key: 'end-window',
@@ -411,6 +431,7 @@ const BreakTypeSidebar = () => {
                 },
               ]}
             />
+            </div>
           </div>
           <Form.Item
             id="BreakTypeDescriptionFieldId"

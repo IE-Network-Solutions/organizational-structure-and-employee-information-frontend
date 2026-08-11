@@ -22,9 +22,12 @@ import type { CommentThreadKind } from './_components/planning/PlanningPanelView
 import {
   getActiveUnreportedParentPlanContext,
   enrichPlanSummariesWithUserKeyResults,
+  flattenObjectiveKeyResults,
+  mergeUserKeyResultSources,
   normalizeUserKeyResultItems,
 } from './_components/planning/mergeKRPanelGroups';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import { useGetUserObjective } from '@/store/server/features/okrplanning/okr/objective/queries';
 import { usePlanningData } from './_components/planning/usePlanningData';
 import { usePlanningTargets } from './_components/planning/usePlanningTargets';
 import { isPlanningTargetBlocked } from './_components/planning/buildPlanningTargets';
@@ -169,17 +172,32 @@ function Page() {
     transformedData,
     isLoading: planningLoading,
     userId,
-  } = usePlanningData();
+  } = usePlanningData(activeTab === 1);
 
   const {
     data: userKeyResultsRaw,
     isLoading: userKeyResultsLoading,
     isFetching: userKeyResultsFetching,
+    refetch: refetchUserKeyResults,
   } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
-    refetchOnMount: 'always',
-    staleTime: 0,
-    keepPreviousData: false,
+    staleTime: 30_000,
+    keepPreviousData: true,
   });
+
+  // Same objective payload the OKR dashboard uses — fills metricType / milestones
+  // when key-results/user returns thinner rows (daily / weekly / monthly alike).
+  const {
+    data: userObjectives,
+    isLoading: userObjectivesLoading,
+    isFetching: userObjectivesFetching,
+  } = useGetUserObjective(
+    userId,
+    100,
+    1,
+    '',
+    keyResultFiscalYearId,
+    keyResultSessionId ? [keyResultSessionId] : undefined,
+  );
 
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
     userId,
@@ -187,18 +205,20 @@ function Page() {
   );
 
   const userKeyResultItems = useMemo(
-    () => normalizeUserKeyResultItems(userKeyResultsRaw),
-    [userKeyResultsRaw],
+    () =>
+      mergeUserKeyResultSources(
+        normalizeUserKeyResultItems(userKeyResultsRaw),
+        flattenObjectiveKeyResults(userObjectives?.items),
+      ),
+    [userKeyResultsRaw, userObjectives?.items],
   );
-
-  const planningPickReady = !userKeyResultsLoading && !userKeyResultsFetching;
 
   const parentPlanContext = useMemo(
     () => getActiveUnreportedParentPlanContext(planningPeriodHierarchy),
     [planningPeriodHierarchy],
   );
 
-  const { reportSummaries, reportingItems } = useReportingData();
+  const { reportSummaries, reportingItems } = useReportingData(activeTab === 2);
 
   const enrichedPlanSummaries = useMemo(
     () =>
@@ -221,14 +241,84 @@ function Page() {
 
   const krPanelBlockingLoading =
     activeTab === 2
-      ? userKeyResultsLoading &&
+      ? (userKeyResultsLoading || userObjectivesLoading) &&
         reportSummaries.length === 0 &&
         planSummaries.length === 0
       : planningLoading ||
-        (userKeyResultsLoading && planSummaries.length === 0);
+        ((userKeyResultsLoading || userObjectivesLoading) &&
+          planSummaries.length === 0);
 
-  const { targets: planningTargets, isLoading: planningTargetsLoading } =
-    usePlanningTargets(userId, selectedTab?.id, userKeyResultItems);
+  const planKeyResultsForTargets = useMemo(() => {
+    const byId = new Map<string, any>();
+    for (const plan of enrichedPlanSummaries) {
+      for (const kr of plan.keyResults ?? []) {
+        if (!kr?.id) continue;
+        const id = String(kr.id);
+        const prev = byId.get(id);
+        const ms = kr.milestones ?? [];
+        if (!prev) {
+          byId.set(id, kr);
+          continue;
+        }
+        const prevMs = prev.milestones ?? [];
+        if (Array.isArray(ms) && ms.length > (prevMs?.length ?? 0)) {
+          byId.set(id, kr);
+        }
+      }
+    }
+    for (const kr of userKeyResultItems) {
+      if (!kr?.id) continue;
+      const id = String(kr.id);
+      if (!byId.has(id)) byId.set(id, kr);
+    }
+    return Array.from(byId.values());
+  }, [enrichedPlanSummaries, userKeyResultItems]);
+
+  const {
+    targets: planningTargets,
+    isLoading: planningTargetsLoading,
+    isFetching: planningTargetsFetching,
+    objectiveMilestonesByKrId,
+    refetchObjectives,
+  } = usePlanningTargets(
+    userId,
+    selectedTab?.id,
+    userKeyResultItems,
+    planKeyResultsForTargets,
+  );
+
+  // Soft refresh KR/objective milestone status when returning to this tab
+  // (throttled to avoid refetch storms under concurrent usage).
+  useEffect(() => {
+    if (!userId || typeof document === 'undefined') return;
+    let lastRefreshAt = 0;
+    const MIN_INTERVAL_MS = 60_000;
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      const now = Date.now();
+      if (now - lastRefreshAt < MIN_INTERVAL_MS) return;
+      lastRefreshAt = now;
+      void refetchUserKeyResults();
+      refetchObjectives();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [userId, refetchUserKeyResults, refetchObjectives]);
+
+  const handleRefreshMilestoneStatus = useCallback(() => {
+    void refetchUserKeyResults();
+    refetchObjectives();
+  }, [refetchUserKeyResults, refetchObjectives]);
+
+  // Hide + until user-KR + objective milestone sources have settled once.
+  // Background refetches (isFetching) after that must not blank the control.
+  const planningPickReady =
+    !userKeyResultsLoading &&
+    !userObjectivesLoading &&
+    !planningTargetsLoading &&
+    !(userKeyResultsFetching && !userKeyResultsRaw) &&
+    !(userObjectivesFetching && !userObjectives) &&
+    !(planningTargetsFetching && planningTargets.length === 0);
 
   const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
     string | null
@@ -519,6 +609,8 @@ function Page() {
                     setSelectedPlanningTargetId(t.id)
                   }
                   userKeyResultItems={userKeyResultItems}
+                  objectiveMilestonesByKrId={objectiveMilestonesByKrId}
+                  onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
                   parentPlanContext={parentPlanContext}
                   planningPickReady={planningPickReady}
                 />
@@ -561,6 +653,9 @@ function Page() {
                 <Planning
                   onHoverKR={setHighlightedKRId}
                   onOpenThread={handleOpenThread}
+                  planSummaries={planSummaries}
+                  transformedData={transformedData}
+                  isLoading={planningLoading}
                 />
               </div>
               <div
@@ -666,6 +761,8 @@ function Page() {
                 selectedPlanningTargetId={selectedPlanningTargetId}
                 onPickPlanningTarget={(t) => setSelectedPlanningTargetId(t.id)}
                 userKeyResultItems={userKeyResultItems}
+                objectiveMilestonesByKrId={objectiveMilestonesByKrId}
+                onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
                 parentPlanContext={parentPlanContext}
                 planningPickReady={planningPickReady}
               />

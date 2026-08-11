@@ -5,7 +5,8 @@ import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import type { AxiosError } from 'axios';
-import { invalidateOkrPlanningCaches } from '@/utils/invalidateOkrPlanningCaches';
+import { invalidatePlanningCaches } from '@/utils/invalidateOkrPlanningCaches';
+import { rememberReopenedPlanningTargets } from '@/utils/recentlyAchievedMilestones';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
@@ -52,8 +53,17 @@ const createPlanTasks = async (values: any) => {
 export const useCreatePlanTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(createPlanTasks, {
-    onSuccess: async () => {
-      await invalidateOkrPlanningCaches(queryClient);
+    onSuccess: (data, variables: any) => {
+      void data;
+      rememberReopenedPlanningTargets({
+        milestoneIds:
+          variables?.tasks
+            ?.filter(
+              (task: any) => !task?.achieveMK && task?.milestoneId != null,
+            )
+            .map((task: any) => task.milestoneId) ?? [],
+      });
+      void invalidatePlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Created ',
         description: ' ',
@@ -83,8 +93,17 @@ const updatePlanTasks = async (values: any) => {
 export const useUpdatePlanTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(updatePlanTasks, {
-    onSuccess: async () => {
-      await invalidateOkrPlanningCaches(queryClient);
+    onSuccess: (data, variables: any) => {
+      void data;
+      rememberReopenedPlanningTargets({
+        milestoneIds:
+          variables?.tasks
+            ?.filter(
+              (task: any) => !task?.achieveMK && task?.milestoneId != null,
+            )
+            .map((task: any) => task.milestoneId) ?? [],
+      });
+      void invalidatePlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Updated ',
         description: ' ',

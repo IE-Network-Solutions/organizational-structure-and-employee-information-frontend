@@ -127,6 +127,7 @@ const TaskItem: React.FC<{
               >
                 {task.approver?.avatar ? (
                   <Image
+                    unoptimized
                     src={task.approver.avatar}
                     alt="avatar"
                     width={24}

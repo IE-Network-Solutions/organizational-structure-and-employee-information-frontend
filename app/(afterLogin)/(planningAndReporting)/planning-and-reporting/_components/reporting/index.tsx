@@ -21,6 +21,7 @@ import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence } from '../types';
 import { formatPlanningReportDate } from '../utils';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
+import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 
 function Reporting({
   onHoverKR,
@@ -56,18 +57,21 @@ function Reporting({
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
 
-  const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
-    userId: selectedUser,
-    planPeriodId: planningPeriodId ?? '',
-    pageReporting,
-    pageSizeReporting,
-    sessionId:
-      selectedSessionIds.length > 0
-        ? selectedSessionIds
-        : allSessionsOfYear.length > 0
-          ? allSessionsOfYear
-          : [],
-  });
+  const { data: allReporting, isLoading: getReportLoading } = useGetReporting(
+    {
+      userId: selectedUser,
+      planPeriodId: planningPeriodId ?? '',
+      pageReporting,
+      pageSizeReporting,
+      sessionId:
+        selectedSessionIds.length > 0
+          ? selectedSessionIds
+          : allSessionsOfYear.length > 0
+            ? allSessionsOfYear
+            : [],
+    },
+    { enabled: activeTab === 2 && !!planningPeriodId },
+  );
 
   const getPlanningPeriodDetail = (id: string) => {
     return planningPeriods?.items?.find((p: any) => p?.id === id) || {};
@@ -130,12 +134,14 @@ function Reporting({
     [allReporting?.items],
   );
 
+  const reportTaskOverrides = useRecentReportTaskStatuses((s) => s.byReport);
+
   const reportSummaries = useMemo(() => {
     if (!allReporting?.items) return [];
     return allReporting.items.map((dataItem: any) =>
       transformReportToPlanSummary(dataItem, cadence, employeeData),
     );
-  }, [allReporting?.items, cadence, employeeData]);
+  }, [allReporting?.items, cadence, employeeData, reportTaskOverrides]);
 
   const totalReportingItems = allReporting?.meta?.totalItems ?? 0;
   const showReportingPagination = totalReportingItems > pageSizeReporting;
