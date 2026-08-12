@@ -127,10 +127,13 @@ export enum Permissions {
   DeleteExternalTna = 'delete-external-tna',
   ViewAllTna = 'view-all-tna', // HR / L&D admins — every request and commitment
   ApproveTna = 'approve-tna', // Move a request through the approval workflow
-  /** Matches the slug the training-and-learning service checks server-side. */
-  ConfirmTnaCommitment = 'CONFIRM_TNA_COMMITMENT',
-  /** Also checked server-side; lets a user record a training as paid. */
-  MarkTrainingAsPaid = 'MARK_TRAINING_AS_PAID',
+  /**
+   * Both are also checked server-side by the training-and-learning service.
+   * These must match the seeded slugs byte for byte — AccessGuard compares
+   * `permission.slug === value`, so casing differences silently hide buttons.
+   */
+  ConfirmTnaCommitment = 'confirm_tna_commitment',
+  MarkTrainingAsPaid = 'mark_training_as_paid',
   ManageCommitmentConfiguration = 'manage-commitment-configuration',
 
   // TNA Category Permissions

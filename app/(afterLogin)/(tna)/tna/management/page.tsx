@@ -88,10 +88,21 @@ const TnaManagementPage = () => {
       ? myCoursesData
       : (myCoursesData?.items ?? []);
 
-  // External (non-catalogue) TNAs: admins see everything, employees see their own.
-  const hasViewAllTnaPermission = AccessGuard.checkAccess({
-    permissions: [Permissions.ViewAllTna],
-  });
+  /**
+   * External (non-catalogue) TNAs: employees see their own, approvers also see
+   * what is routed to them, and anyone who can act on a request org-wide sees
+   * everything. Recording payment and confirming are permission-driven rather
+   * than tied to the workflow, so those holders need the whole list to reach
+   * the requests they are meant to act on.
+   */
+  const hasViewAllTnaPermission =
+    AccessGuard.checkAccess({ permissions: [Permissions.ViewAllTna] }) ||
+    AccessGuard.checkAccess({
+      permissions: [Permissions.MarkTrainingAsPaid],
+    }) ||
+    AccessGuard.checkAccess({
+      permissions: [Permissions.ConfirmTnaCommitment],
+    });
 
   const canCreateExternalTna = AccessGuard.checkAccess({
     permissions: [Permissions.CreateExternalTna],

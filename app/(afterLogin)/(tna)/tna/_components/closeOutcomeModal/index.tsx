@@ -76,6 +76,8 @@ const CloseOutcomeModal: FC<CloseOutcomeModalProps> = ({
       onCancel={onClose}
       centered
       width={520}
+      // Never let the dialog exceed the viewport on a phone.
+      className="!max-w-[calc(100vw-2rem)]"
       footer={null}
       title={
         <span

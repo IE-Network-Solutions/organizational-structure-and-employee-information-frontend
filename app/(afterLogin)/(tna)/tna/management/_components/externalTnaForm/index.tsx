@@ -66,11 +66,36 @@ const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
     if (departmentId) refetchDepartmentApproval();
   }, [departmentId, refetchDepartmentApproval]);
 
-  const resolvedWorkflowId = useMemo(
-    () =>
-      userApprovalData?.[0]?.id ?? departmentApprovalData?.[0]?.id ?? undefined,
-    [userApprovalData, departmentApprovalData],
-  );
+  /**
+   * Every TNA workflow that applies to this requester — their own plus their
+   * department's. More than one can be configured, so they are all offered and
+   * the requester picks; taking `[0]` silently routed through whichever the
+   * approver service happened to return first.
+   */
+  const workflowOptions = useMemo(() => {
+    const seen = new Map<string, { value: string; label: string }>();
+
+    const collect = (list: any, scope: string) => {
+      (Array.isArray(list) ? list : []).forEach((workflow: any) => {
+        if (!workflow?.id || seen.has(workflow.id)) return;
+        seen.set(workflow.id, {
+          value: workflow.id,
+          label: `${workflow.name || 'Unnamed workflow'} (${scope})`,
+        });
+      });
+    };
+
+    collect(userApprovalData, 'you');
+    collect(departmentApprovalData, 'department');
+
+    return Array.from(seen.values());
+  }, [userApprovalData, departmentApprovalData]);
+
+  const hasWorkflowChoice = workflowOptions.length > 1;
+  const selectedWorkflowId = Form.useWatch('approvalWorkflowId', form);
+  const resolvedWorkflowId = hasWorkflowChoice
+    ? (selectedWorkflowId ?? workflowOptions[0]?.value)
+    : workflowOptions[0]?.value;
 
   const currencyOptions = useMemo(() => {
     const list = Array.isArray(currencies)
@@ -332,6 +357,35 @@ const ExternalTnaForm: FC<ExternalTnaFormProps> = ({
                 data-cy="tna-external-form-description"
               />
             </Form.Item>
+
+            {/* Only worth asking when there is genuinely more than one. */}
+            {hasWorkflowChoice && !existingRequest?.approvalWorkflowId ? (
+              <Form.Item
+                name="approvalWorkflowId"
+                initialValue={workflowOptions[0]?.value}
+                label={
+                  <span
+                    data-cy="tna-external-form-workflow-label"
+                    className="text-[14px] font-normal"
+                  >
+                    Approval workflow
+                  </span>
+                }
+                className="form-item"
+                rules={[
+                  { required: true, message: 'Select an approval workflow' },
+                ]}
+                data-cy="tna-external-form-workflow-item"
+              >
+                <Select
+                  options={workflowOptions}
+                  placeholder="Select approval workflow"
+                  className="h-[54px] w-full"
+                  id="tnaExternalWorkflowFieldId"
+                  data-cy="tna-external-form-workflow"
+                />
+              </Form.Item>
+            ) : null}
 
             <div
               className="rounded-[6px] bg-black/[0.02] px-3 py-2 text-xs leading-5 text-black/45"

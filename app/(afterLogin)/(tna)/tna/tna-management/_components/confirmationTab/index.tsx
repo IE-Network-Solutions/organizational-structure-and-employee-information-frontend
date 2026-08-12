@@ -5,8 +5,10 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { LuExternalLink } from 'react-icons/lu';
 import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import EmptyState from '@/components/empty';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { TableColumnsType } from '@/types/table/table';
 import { DATE_FORMAT } from '@/utils/constants';
 import AccessGuard from '@/utils/permissionGuard';
@@ -22,6 +24,7 @@ import EmployeeName from '@/app/(afterLogin)/(tna)/tna/_components/employeeName'
  */
 const ConfirmationTab: FC = () => {
   const router = useRouter();
+  const { isMobile, isTablet } = useIsMobile();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
@@ -33,9 +36,11 @@ const ConfirmationTab: FC = () => {
     { filter: { awaitingConfirmation: true } },
   );
 
-  const canConfirm = AccessGuard.checkAccess({
-    permissions: [Permissions.ConfirmTnaCommitment],
-  });
+  // Strict check, no owner short-circuit — the backend guards confirm on the
+  // real permission list, so an owner without the slug would get a 403.
+  const canConfirm = AccessGuard.hasExplicitPermission(
+    Permissions.ConfirmTnaCommitment,
+  );
 
   const columns: TableColumnsType<TrainingRequest> = [
     {
@@ -124,7 +129,7 @@ const ConfirmationTab: FC = () => {
                 <Button
                   type="primary"
                   size="small"
-                  className="rounded-md border-[#1E40AF] bg-[#1E40AF]"
+                  className="rounded-md !border-[#1E40AF] !bg-[#1E40AF] !text-white"
                   loading={isConfirming}
                   data-cy={`tna-admin-confirm-button-${record.id}`}
                 >
@@ -178,20 +183,38 @@ const ConfirmationTab: FC = () => {
             scroll={{ x: 'max-content' }}
             data-cy="tna-admin-confirm-table"
           />
-          <CustomPagination
-            current={page}
-            total={data?.meta?.totalItems ?? 0}
-            pageSize={limit}
-            onChange={(nextPage, nextSize) => {
-              setPage(nextPage);
-              if (nextSize) setLimit(nextSize);
-            }}
-            onShowSizeChange={(size) => {
-              setLimit(size);
-              setPage(1);
-            }}
-            data-cy="tna-admin-confirm-pagination"
-          />
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={data?.meta?.totalItems ?? 0}
+              pageSize={limit}
+              currentPage={page}
+              onChange={(nextPage, nextSize) => {
+                setPage(nextPage);
+                if (nextSize) setLimit(nextSize);
+              }}
+              onShowSizeChange={(unusedCurrent, size) => {
+                void unusedCurrent;
+                setLimit(size);
+                setPage(1);
+              }}
+              data-cy="tna-admin-confirm-mobile-pagination"
+            />
+          ) : (
+            <CustomPagination
+              current={page}
+              total={data?.meta?.totalItems ?? 0}
+              pageSize={limit}
+              onChange={(nextPage, nextSize) => {
+                setPage(nextPage);
+                if (nextSize) setLimit(nextSize);
+              }}
+              onShowSizeChange={(size) => {
+                setLimit(size);
+                setPage(1);
+              }}
+              data-cy="tna-admin-confirm-pagination"
+            />
+          )}
         </>
       )}
     </div>
