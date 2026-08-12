@@ -2,9 +2,11 @@
 import { FC, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { PlusOutlined } from '@ant-design/icons';
+import { Button } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useTnaSettingsStore } from '@/store/uistate/features/tna/settings';
+import { useApprovalStore } from '@/store/uistate/features/approval';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 
 interface TnaSettingsLayoutProps {
@@ -35,6 +37,10 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
   const requestOpenCourseCategoryCreate = useTnaSettingsStore(
     (s) => s.requestOpenCourseCategoryCreate,
   );
+  // The approvals page renders the workflow modal off this same store, so the
+  // tab strip can open it without extra plumbing.
+  const { setOpenModal: setOpenApprovalModal, setApproverType } =
+    useApprovalStore();
 
   const activeTabKey =
     TABS.find((t) => pathname.includes(t.key))?.key ?? TABS[0].key;
@@ -125,6 +131,28 @@ const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {
               })}
             </div>
           </div>
+          {activeTabKey === 'approvals' && (
+            <AccessGuard permissions={[Permissions.CreateApprovalWorkFlow]}>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setApproverType('');
+                  setOpenApprovalModal(true);
+                }}
+                className="shrink-0 mb-[6px] h-8 rounded-md border-none bg-primary"
+                data-cy="tna-settings-approvals-create"
+                id="tnaSettingsApprovalsCreateId"
+              >
+                <span
+                  className="hidden sm:inline"
+                  data-cy="tna-settings-approvals-create-text"
+                >
+                  Create Approval Workflow
+                </span>
+              </Button>
+            </AccessGuard>
+          )}
           {activeTabKey === 'course-category' && (
             <AccessGuard permissions={[Permissions.CreateCourseCategory]}>
               <button

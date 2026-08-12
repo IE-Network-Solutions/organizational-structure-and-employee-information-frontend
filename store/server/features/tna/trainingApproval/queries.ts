@@ -79,6 +79,14 @@ export const useGetTrainingApprovalsAllStatus = (
     ],
     () =>
       getTrainingApprovalsAllStatus(userId, page, limit, requestUserId, status),
-    { keepPreviousData: true, enabled: !!userId },
+    {
+      keepPreviousData: true,
+      enabled: !!userId,
+      // The feed round-trips to the approval service, so it is slow. Several
+      // components read it (the list, and the buttons on every row), and this
+      // keeps them on one shared result instead of refetching per mount.
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+    },
   );
 };

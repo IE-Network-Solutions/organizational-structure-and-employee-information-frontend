@@ -34,6 +34,11 @@ const TrainingApprovalActions: FC<TrainingApprovalActionsProps> = ({
   const { userId, userData, tenantId } = useAuthenticationStore();
   const approverRoleId = userData?.roleId;
   const [rejectComment, setRejectComment] = useState('');
+  // One mutation drives both buttons, so the action in flight has to be
+  // tracked separately or clicking Approve also spins Reject.
+  const [pendingAction, setPendingAction] = useState<
+    'Approved' | 'Rejected' | null
+  >(null);
 
   // Same arguments the management list uses, so both share one cache entry.
   const { data, refetch } = useGetTrainingApprovalsAllStatus(
@@ -69,6 +74,7 @@ const TrainingApprovalActions: FC<TrainingApprovalActionsProps> = ({
   });
 
   const onApprove = () => {
+    setPendingAction('Approved');
     logDecision(buildPayload('Approved'), {
       onSuccess: (response: any) => {
         // Earlier steps only advance the workflow; the last one settles it.
@@ -81,12 +87,14 @@ const TrainingApprovalActions: FC<TrainingApprovalActionsProps> = ({
           finish();
         }
       },
+      onSettled: () => setPendingAction(null),
     });
   };
 
   const onReject = () => {
     const comment = rejectComment.trim();
 
+    setPendingAction('Rejected');
     logDecision(
       {
         ...buildPayload('Rejected'),
@@ -109,6 +117,7 @@ const TrainingApprovalActions: FC<TrainingApprovalActionsProps> = ({
             { onSuccess: finish },
           );
         },
+        onSettled: () => setPendingAction(null),
       },
     );
   };
@@ -131,7 +140,8 @@ const TrainingApprovalActions: FC<TrainingApprovalActionsProps> = ({
         <Button
           type="primary"
           size={size}
-          loading={isLogging}
+          loading={isLogging && pendingAction === 'Approved'}
+          disabled={isLogging && pendingAction === 'Rejected'}
           data-cy={`tna-approval-actions-approve-${requestId}`}
         >
           Approve
@@ -158,7 +168,8 @@ const TrainingApprovalActions: FC<TrainingApprovalActionsProps> = ({
         <Button
           danger
           size={size}
-          loading={isLogging}
+          loading={isLogging && pendingAction === 'Rejected'}
+          disabled={isLogging && pendingAction === 'Approved'}
           data-cy={`tna-approval-actions-reject-${requestId}`}
         >
           Reject

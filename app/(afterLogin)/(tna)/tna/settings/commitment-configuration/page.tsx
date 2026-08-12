@@ -196,7 +196,7 @@ const CommitmentConfigurationSettingsPage = () => {
           <Button
             type="primary"
             icon={<LuPlus size={16} />}
-            className="h-10 shrink-0 rounded-lg border-[#1E40AF] bg-[#1E40AF] px-4"
+            className="h-10 w-full shrink-0 rounded-lg border-[#1E40AF] bg-[#1E40AF] px-4 md:w-auto"
             onClick={() => {
               setEditing(null);
               setIsModalOpen(true);
@@ -231,6 +231,8 @@ const CommitmentConfigurationSettingsPage = () => {
         onCancel={() => setIsModalOpen(false)}
         centered
         width={480}
+        // Never let the dialog exceed the viewport on a phone.
+        className="!max-w-[calc(100vw-2rem)]"
         okText="Save"
         okButtonProps={{ loading: isSaving }}
         onOk={onSubmit}

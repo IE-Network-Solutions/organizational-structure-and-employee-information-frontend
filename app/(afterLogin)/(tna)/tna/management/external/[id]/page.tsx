@@ -1,7 +1,7 @@
 'use client';
 import React, { useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Button, Popconfirm, Skeleton, Space, Tooltip } from 'antd';
+import { Button, Popconfirm, Skeleton, Tooltip } from 'antd';
 import dayjs from 'dayjs';
 import { LuExternalLink } from 'react-icons/lu';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -104,12 +104,14 @@ const ExternalTnaDetailPage = () => {
    * who holds the permission just reads as "the feature is missing", so the
    * reason is surfaced in a tooltip instead.
    */
-  const hasPaymentPermission = AccessGuard.checkAccess({
-    permissions: [Permissions.MarkTrainingAsPaid],
-  });
-  const hasConfirmPermission = AccessGuard.checkAccess({
-    permissions: [Permissions.ConfirmTnaCommitment],
-  });
+  // Strict check, no owner short-circuit: the backend guards these two on the
+  // real permission list, so an owner without the slug would get a 403.
+  const hasPaymentPermission = AccessGuard.hasExplicitPermission(
+    Permissions.MarkTrainingAsPaid,
+  );
+  const hasConfirmPermission = AccessGuard.hasExplicitPermission(
+    Permissions.ConfirmTnaCommitment,
+  );
 
   const paymentBlockedReason = !isApproved
     ? 'The request has to be approved before payment can be recorded.'
@@ -212,14 +214,17 @@ const ExternalTnaDetailPage = () => {
         }
         href="/tna/management"
         titleExtra={
-          <Space wrap data-cy="tna-external-detail-actions">
+          <div
+            className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center"
+            data-cy="tna-external-detail-actions"
+          >
             {/* Only renders while this user is the workflow's current step. */}
             <TrainingApprovalActions requestId={request.id} size="middle" />
 
             {canClose ? (
               <>
                 <Button
-                  className="h-10 rounded-md border-[#D9D9D9] px-4"
+                  className="h-10 w-full rounded-md border-[#D9D9D9] px-4 sm:w-auto"
                   onClick={() => setCloseOutcome('complete')}
                   data-cy="tna-external-detail-mark-complete"
                 >
@@ -228,7 +233,7 @@ const ExternalTnaDetailPage = () => {
                     : 'Mark completed'}
                 </Button>
                 <Button
-                  className="h-10 rounded-md border-[#D9D9D9] px-4"
+                  className="h-10 w-full rounded-md border-[#D9D9D9] px-4 sm:w-auto"
                   onClick={() => setCloseOutcome('fail')}
                   data-cy="tna-external-detail-mark-failed"
                 >
@@ -241,9 +246,12 @@ const ExternalTnaDetailPage = () => {
               <Tooltip title={paymentBlockedReason ?? ''}>
                 {/* Disabled buttons swallow mouse events, so the tooltip needs
                     a wrapper to hang off. */}
-                <span data-cy="tna-external-detail-record-payment-wrap">
+                <span
+                  className="block w-full sm:w-auto"
+                  data-cy="tna-external-detail-record-payment-wrap"
+                >
                   <Button
-                    className="h-10 rounded-md border-[#D9D9D9] px-4"
+                    className="h-10 w-full rounded-md border-[#D9D9D9] px-4 sm:w-auto"
                     loading={isSettingPayment}
                     disabled={Boolean(paymentBlockedReason)}
                     onClick={() => setPayment({ id: request.id, isPaid: true })}
@@ -265,10 +273,20 @@ const ExternalTnaDetailPage = () => {
                 onConfirm={() => confirmRequest(request.id)}
               >
                 <Tooltip title={confirmBlockedReason ?? ''}>
-                  <span data-cy="tna-external-detail-confirm-wrap">
+                  <span
+                    className="block w-full sm:w-auto"
+                    data-cy="tna-external-detail-confirm-wrap"
+                  >
                     <Button
                       type="primary"
-                      className="h-10 rounded-lg border-[#1E40AF] bg-[#1E40AF] px-4"
+                      // White label always. When blocked, the fill is dimmed
+                      // rather than handed to antd's grey disabled palette,
+                      // which would leave white text on near-white.
+                      className={`h-10 w-full rounded-lg px-4 !text-white sm:w-auto ${
+                        confirmBlockedReason
+                          ? '!border-[#1E40AF]/50 !bg-[#1E40AF]/50'
+                          : '!border-[#1E40AF] !bg-[#1E40AF]'
+                      }`}
                       loading={isConfirming}
                       disabled={Boolean(confirmBlockedReason)}
                       data-cy="tna-external-detail-confirm"
@@ -283,7 +301,7 @@ const ExternalTnaDetailPage = () => {
             {isOwner &&
             request.approvalStatus === TrainingRequestApprovalStatus.PENDING ? (
               <Button
-                className="h-10 rounded-md border-[#D9D9D9] px-4"
+                className="h-10 w-full rounded-md border-[#D9D9D9] px-4 sm:w-auto"
                 loading={isDeciding}
                 onClick={() =>
                   decide({
@@ -296,7 +314,7 @@ const ExternalTnaDetailPage = () => {
                 Cancel request
               </Button>
             ) : null}
-          </Space>
+          </div>
         }
       />
 
@@ -354,7 +372,7 @@ const ExternalTnaDetailPage = () => {
             </div>
 
             <div
-              className="grid grid-cols-2 gap-4 md:grid-cols-3"
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3"
               data-cy="tna-external-detail-fields"
             >
               <DetailRow label="Employee" dataCy="tna-external-detail-employee">

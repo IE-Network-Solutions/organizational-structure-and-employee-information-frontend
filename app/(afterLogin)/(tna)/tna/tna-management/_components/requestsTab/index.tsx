@@ -6,8 +6,10 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import EmptyState from '@/components/empty';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { TableColumnsType } from '@/types/table/table';
 import { DATE_FORMAT } from '@/utils/constants';
 import { useDebounce } from '@/utils/useDebounce';
@@ -32,6 +34,7 @@ import TrainingApprovalActions from '@/app/(afterLogin)/(tna)/tna/_components/tr
  */
 const RequestsTab: FC = () => {
   const router = useRouter();
+  const { isMobile, isTablet } = useIsMobile();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
@@ -211,12 +214,16 @@ const RequestsTab: FC = () => {
           onChange={(e) => onSearchChange(e.target.value)}
           data-cy="tna-admin-requests-search"
         />
-        <Space wrap data-cy="tna-admin-requests-filter-controls">
+        {/* Controls go full width and stack on mobile; inline from md up. */}
+        <div
+          className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center"
+          data-cy="tna-admin-requests-filter-controls"
+        >
           <Select
             mode="multiple"
             allowClear
             placeholder="Approval status"
-            className="min-w-[220px]"
+            className="w-full md:w-auto md:min-w-[220px]"
             options={trainingRequestApprovalStatusOptions}
             value={statuses}
             onChange={(value) => {
@@ -227,7 +234,7 @@ const RequestsTab: FC = () => {
           />
           <DatePicker.RangePicker
             format={DATE_FORMAT}
-            className="h-10"
+            className="h-10 w-full md:w-auto"
             onChange={(value) => {
               if (value && value[0] && value[1]) {
                 setDateRange({
@@ -241,7 +248,7 @@ const RequestsTab: FC = () => {
             }}
             data-cy="tna-admin-requests-date-filter"
           />
-        </Space>
+        </div>
       </div>
 
       {isLoading ? (
@@ -266,20 +273,38 @@ const RequestsTab: FC = () => {
             scroll={{ x: 'max-content' }}
             data-cy="tna-admin-requests-table"
           />
-          <CustomPagination
-            current={page}
-            total={data?.meta?.totalItems ?? 0}
-            pageSize={limit}
-            onChange={(nextPage, nextSize) => {
-              setPage(nextPage);
-              if (nextSize) setLimit(nextSize);
-            }}
-            onShowSizeChange={(size) => {
-              setLimit(size);
-              setPage(1);
-            }}
-            data-cy="tna-admin-requests-pagination"
-          />
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={data?.meta?.totalItems ?? 0}
+              pageSize={limit}
+              currentPage={page}
+              onChange={(nextPage, nextSize) => {
+                setPage(nextPage);
+                if (nextSize) setLimit(nextSize);
+              }}
+              onShowSizeChange={(unusedCurrent, size) => {
+                void unusedCurrent;
+                setLimit(size);
+                setPage(1);
+              }}
+              data-cy="tna-admin-requests-mobile-pagination"
+            />
+          ) : (
+            <CustomPagination
+              current={page}
+              total={data?.meta?.totalItems ?? 0}
+              pageSize={limit}
+              onChange={(nextPage, nextSize) => {
+                setPage(nextPage);
+                if (nextSize) setLimit(nextSize);
+              }}
+              onShowSizeChange={(size) => {
+                setLimit(size);
+                setPage(1);
+              }}
+              data-cy="tna-admin-requests-pagination"
+            />
+          )}
         </>
       )}
     </div>

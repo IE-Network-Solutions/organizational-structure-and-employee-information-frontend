@@ -1,13 +1,15 @@
 'use client';
 import React, { FC, useMemo, useState } from 'react';
-import { Button, Progress, Select, Space, Table } from 'antd';
+import { Button, Progress, Select, Table } from 'antd';
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import { StatusBadgeTheme } from '@/components/common/statusBadge';
 import CustomPagination from '@/components/customPagination';
+import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import EmptyState from '@/components/empty';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { TableColumnsType } from '@/types/table/table';
 import { DATE_FORMAT } from '@/utils/constants';
 import AccessGuard from '@/utils/permissionGuard';
@@ -29,6 +31,7 @@ const STATUS_OPTIONS = [
 /** Organisation-wide commitment register, driven by the cron-maintained counters. */
 const CommitmentsTab: FC = () => {
   const router = useRouter();
+  const { isMobile, isTablet } = useIsMobile();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [status, setStatus] = useState<string | undefined>(undefined);
@@ -157,11 +160,15 @@ const CommitmentsTab: FC = () => {
         className="flex flex-col gap-2 md:flex-row md:items-center md:justify-end"
         data-cy="tna-admin-commitments-filters"
       >
-        <Space wrap data-cy="tna-admin-commitments-filter-controls">
+        {/* Controls go full width and stack on mobile; inline from md up. */}
+        <div
+          className="flex w-full flex-col gap-2 md:w-auto md:flex-row md:items-center"
+          data-cy="tna-admin-commitments-filter-controls"
+        >
           <Select
             allowClear
             placeholder="Status"
-            className="min-w-[180px]"
+            className="w-full md:w-auto md:min-w-[180px]"
             options={STATUS_OPTIONS}
             value={status}
             onChange={(value) => {
@@ -172,7 +179,7 @@ const CommitmentsTab: FC = () => {
           />
           <AccessGuard permissions={[Permissions.ConfirmTnaCommitment]}>
             <Button
-              className="h-10 rounded-md border-[#D9D9D9] px-4"
+              className="h-10 w-full rounded-md border-[#D9D9D9] px-4 md:w-auto"
               loading={isRecalculating}
               onClick={() => recalculate()}
               data-cy="tna-admin-commitments-recalculate"
@@ -180,7 +187,7 @@ const CommitmentsTab: FC = () => {
               Recalculate now
             </Button>
           </AccessGuard>
-        </Space>
+        </div>
       </div>
 
       {isLoading ? (
@@ -205,20 +212,38 @@ const CommitmentsTab: FC = () => {
             scroll={{ x: 'max-content' }}
             data-cy="tna-admin-commitments-table"
           />
-          <CustomPagination
-            current={page}
-            total={data?.meta?.totalItems ?? 0}
-            pageSize={limit}
-            onChange={(nextPage, nextSize) => {
-              setPage(nextPage);
-              if (nextSize) setLimit(nextSize);
-            }}
-            onShowSizeChange={(size) => {
-              setLimit(size);
-              setPage(1);
-            }}
-            data-cy="tna-admin-commitments-pagination"
-          />
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              totalResults={data?.meta?.totalItems ?? 0}
+              pageSize={limit}
+              currentPage={page}
+              onChange={(nextPage, nextSize) => {
+                setPage(nextPage);
+                if (nextSize) setLimit(nextSize);
+              }}
+              onShowSizeChange={(unusedCurrent, size) => {
+                void unusedCurrent;
+                setLimit(size);
+                setPage(1);
+              }}
+              data-cy="tna-admin-commitments-mobile-pagination"
+            />
+          ) : (
+            <CustomPagination
+              current={page}
+              total={data?.meta?.totalItems ?? 0}
+              pageSize={limit}
+              onChange={(nextPage, nextSize) => {
+                setPage(nextPage);
+                if (nextSize) setLimit(nextSize);
+              }}
+              onShowSizeChange={(size) => {
+                setLimit(size);
+                setPage(1);
+              }}
+              data-cy="tna-admin-commitments-pagination"
+            />
+          )}
         </>
       )}
     </div>
