@@ -1,15 +1,16 @@
 'use client';
 
-import { Avatar, Table, Tag, Typography } from 'antd';
+import { Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { UserOutlined } from '@ant-design/icons';
 import { PrototypeAuditEvent } from './types';
 import AuditSeverityTag from './AuditSeverityTag';
+import AuditPersonAvatar from './AuditPersonAvatar';
 import {
   formatEventRemark,
   formatEventTimestamp,
   formatFullName,
   formatShortName,
+  humanizeAuditLabel,
 } from './utils';
 
 interface AuditLogTableProps {
@@ -31,11 +32,9 @@ const PersonCell = ({
     className="flex items-center gap-2 min-w-[140px]"
     data-cy={`audit-log-${kind}-${eventId}`}
   >
-    <Avatar
-      size={32}
-      src={person.profileImage}
-      icon={!person.profileImage ? <UserOutlined /> : undefined}
-      data-cy={`audit-log-${kind}-avatar-${eventId}`}
+    <AuditPersonAvatar
+      person={person}
+      dataCy={`audit-log-${kind}-avatar-${eventId}`}
     />
     <span
       className="text-sm text-gray-900 truncate"
@@ -115,7 +114,7 @@ const AuditLogTable = ({
             className="font-semibold"
             data-cy={`audit-log-summary-field-${record.id}`}
           >
-            {record.fieldOrResource}
+            {humanizeAuditLabel(record.fieldOrResource)}
           </span>
           {` for `}
           <span

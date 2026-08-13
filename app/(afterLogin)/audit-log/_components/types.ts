@@ -6,6 +6,7 @@ export interface PrototypeAuditPerson {
   lastName: string;
   profileImage?: string;
   role?: string;
+  isSystem?: boolean;
 }
 
 export interface PrototypeAuditChange {
@@ -92,6 +93,9 @@ export const AUDIT_MODULE_FIELDS: Record<string, string[]> = {
     'Marital Status',
     'Address',
     'Emergency Contact',
+    'Bank Information',
+    'Additional Information',
+    'Employee Information',
     'Profile Image',
     'Department',
     'Position',
@@ -129,6 +133,7 @@ export const AUDIT_MODULE_FIELDS: Record<string, string[]> = {
     'Check-in Time',
     'Check-out Time',
     'Attendance Record',
+    'Attendance Violation',
     'Break Time',
     'Overtime Hours',
     'Leave Request',

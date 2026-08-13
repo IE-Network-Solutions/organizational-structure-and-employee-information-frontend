@@ -16,8 +16,12 @@ export const SENSITIVE_MASK = '••••••••';
 export const AUDIT_SELECT_CLASS =
   'w-full h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!max-h-10 [&_.ant-select-selector]:!flex [&_.ant-select-selector]:!items-center [&_.ant-select-selector]:!py-0 [&_.ant-select-selection-wrap]:!h-full [&_.ant-select-selection-wrap]:!flex [&_.ant-select-selection-wrap]:!items-center [&_.ant-select-selection-overflow]:!h-full [&_.ant-select-selection-overflow]:!flex [&_.ant-select-selection-overflow]:!items-center [&_.ant-select-selection-overflow]:!flex-nowrap [&_.ant-select-selection-item]:!my-0 [&_.ant-select-selection-item]:!leading-[22px] [&_.ant-select-selection-search]:!ml-0 [&_.ant-select-selection-search]:!h-full [&_.ant-select-selection-search]:!flex [&_.ant-select-selection-search]:!items-center [&_.ant-select-selection-search-input]:!h-8 [&.ant-select-multiple_.ant-select-selection-placeholder]:!m-0 [&.ant-select-multiple_.ant-select-selection-placeholder]:!top-1/2 [&.ant-select-multiple_.ant-select-selection-placeholder]:!-translate-y-1/2 [&.ant-select-multiple_.ant-select-selection-placeholder]:!leading-none';
 
+export const isSystemActor = (person?: PrototypeAuditPerson | null) =>
+  Boolean(person?.isSystem || person?.id === 'user-system');
+
 export const formatFullName = (person?: PrototypeAuditPerson | null) => {
   if (!person) return 'Unknown User';
+  if (isSystemActor(person)) return 'System';
   return (
     `${person.firstName || ''} ${person.lastName || ''}`.trim() ||
     'Unknown User'
@@ -26,6 +30,7 @@ export const formatFullName = (person?: PrototypeAuditPerson | null) => {
 
 export const formatShortName = (person?: PrototypeAuditPerson | null) => {
   if (!person) return 'Unknown';
+  if (isSystemActor(person)) return 'System';
   const lastInitial = person.lastName?.charAt(0);
   if (lastInitial) return `${person.firstName} ${lastInitial}.`;
   return person.firstName || 'Unknown';
@@ -74,6 +79,129 @@ export const formatEventTimestamp = (dateString?: string) => {
   if (!dateString) return '--';
   const parsed = dayjs(dateString);
   return parsed.isValid() ? parsed.format('MMM DD, YYYY HH:mm') : '--';
+};
+
+const AUDIT_FIELD_LABELS: Record<string, string> = {
+  gender: 'Gender',
+  addresses: 'Address',
+  address: 'Address',
+  'joined date': 'Joined Date',
+  joineddate: 'Joined Date',
+  'date of birth': 'Date of Birth',
+  dateofbirth: 'Date of Birth',
+  'marital status': 'Marital Status',
+  maritalstatus: 'Marital Status',
+  'bank information': 'Bank Information',
+  bankinformation: 'Bank Information',
+  'emergency contact': 'Emergency Contact',
+  emergencycontact: 'Emergency Contact',
+  'additional information': 'Additional Information',
+  additionalinformation: 'Additional Information',
+  city: 'City',
+  country: 'Country',
+  subcity: 'Sub-city',
+  phonenumber: 'Phone Number',
+  branch: 'Branch',
+  bankname: 'Bank Name',
+  accountname: 'Account Name',
+  custombank: 'Bank',
+  accountnumber: 'Account Number',
+  firstname: 'First Name',
+  lastname: 'Last Name',
+  nationality: 'Nationality',
+  employeeinformation: 'Employee Information',
+};
+
+const labelKey = (value: string) =>
+  value
+    .replace(/[_-]+/g, ' ')
+    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '');
+
+export const humanizeAuditLabel = (value?: string) => {
+  if (!value) return '--';
+  const known = AUDIT_FIELD_LABELS[labelKey(value)];
+  if (known) return known;
+  return value
+    .replace(/[_-]+/g, ' ')
+    .replace(/([a-z\d])([A-Z])/g, '$1 $2')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+export const formatAuditScalarValue = (value: unknown): string => {
+  if (value === null || value === undefined || value === '') return '--';
+  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+  if (typeof value === 'number') return String(value);
+
+  const text = String(value).trim();
+  if (!text || text === '--') return '--';
+
+  const isDateOnly =
+    /^\d{4}-\d{2}-\d{2}$/.test(text) ||
+    /^\d{4}-\d{2}-\d{2}T00:00:00(?:\.\d+)?Z?$/.test(text);
+  const parsedDate = dayjs(text);
+  if (isDateOnly && parsedDate.isValid()) {
+    return parsedDate.format('MMM DD, YYYY');
+  }
+
+  if (
+    /^(male|female|single|married|divorced|widowed)$/i.test(text) ||
+    (/^[A-Z][A-Z_]+$/.test(text) && text.length > 3)
+  ) {
+    return text
+      .toLowerCase()
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  return text;
+};
+
+export type ParsedAuditValue =
+  | { kind: 'empty' }
+  | { kind: 'text'; text: string }
+  | { kind: 'object'; entries: { label: string; value: string }[] };
+
+export const parseAuditFieldValue = (raw?: string | null): ParsedAuditValue => {
+  if (raw === null || raw === undefined) return { kind: 'empty' };
+  const text = String(raw).trim();
+  if (!text || text === '--') return { kind: 'empty' };
+
+  if (
+    (text.startsWith('{') && text.endsWith('}')) ||
+    (text.startsWith('[') && text.endsWith(']'))
+  ) {
+    try {
+      const parsed = JSON.parse(text);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return {
+          kind: 'object',
+          entries: Object.entries(parsed).map(([key, value]) => ({
+            label: humanizeAuditLabel(key),
+            value: formatAuditScalarValue(value),
+          })),
+        };
+      }
+      if (Array.isArray(parsed)) {
+        return {
+          kind: 'text',
+          text: parsed.map((item) => formatAuditScalarValue(item)).join(', '),
+        };
+      }
+    } catch {
+      return { kind: 'text', text: formatAuditScalarValue(text) };
+    }
+  }
+
+  return { kind: 'text', text: formatAuditScalarValue(text) };
 };
 
 export const getSeverityTagColor = (severity: AuditSeverity) => {

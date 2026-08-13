@@ -1,10 +1,15 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { Avatar, Card, Tag } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
+import { Card, Tag } from 'antd';
 import { PrototypeAuditEvent } from './types';
-import { formatEventTimestamp, formatFullName } from './utils';
+import AuditPersonAvatar from './AuditPersonAvatar';
+import {
+  formatEventTimestamp,
+  formatFullName,
+  humanizeAuditLabel,
+  parseAuditFieldValue,
+} from './utils';
 
 const MetadataItem = ({
   label,
@@ -32,6 +37,69 @@ const MetadataItem = ({
   );
 };
 
+const AuditValueDisplay = ({
+  value,
+  fieldKey,
+  side,
+}: {
+  value?: string;
+  fieldKey: string;
+  side: 'previous' | 'current';
+}) => {
+  const parsed = parseAuditFieldValue(value);
+  const slug = fieldKey.toLowerCase().replace(/\s+/g, '-');
+
+  if (parsed.kind === 'empty') {
+    return (
+      <span
+        className="text-sm text-gray-800"
+        data-cy={`audit-event-diff-${side}-empty-${slug}`}
+      >
+        --
+      </span>
+    );
+  }
+
+  if (parsed.kind === 'object') {
+    return (
+      <div
+        className="flex flex-col gap-2"
+        data-cy={`audit-event-diff-${side}-object-${slug}`}
+      >
+        {parsed.entries.map((entry) => (
+          <div
+            key={entry.label}
+            className="flex flex-col gap-0.5"
+            data-cy={`audit-event-diff-${side}-row-${slug}-${entry.label.toLowerCase().replace(/\s+/g, '-')}`}
+          >
+            <span
+              className="text-xs text-gray-500"
+              data-cy={`audit-event-diff-${side}-row-label-${slug}-${entry.label.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              {entry.label}
+            </span>
+            <span
+              className="text-sm text-gray-800 break-words"
+              data-cy={`audit-event-diff-${side}-row-value-${slug}-${entry.label.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              {entry.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <span
+      className="text-sm text-gray-800 break-words"
+      data-cy={`audit-event-diff-${side}-text-${slug}`}
+    >
+      {parsed.text}
+    </span>
+  );
+};
+
 const AuditEventDetailContent = ({ event }: { event: PrototypeAuditEvent }) => (
   <div className="space-y-6 pb-6" data-cy="audit-event-detail-body">
     <section data-cy="audit-event-metadata-section">
@@ -50,11 +118,9 @@ const AuditEventDetailContent = ({ event }: { event: PrototypeAuditEvent }) => (
             className="flex items-center gap-2"
             data-cy="audit-event-actor-cell"
           >
-            <Avatar
-              size={32}
-              src={event.actor.profileImage}
-              icon={!event.actor.profileImage ? <UserOutlined /> : undefined}
-              data-cy="audit-event-actor-avatar"
+            <AuditPersonAvatar
+              person={event.actor}
+              dataCy="audit-event-actor-avatar"
             />
             <div data-cy="audit-event-actor-identity">
               <div className="font-medium" data-cy="audit-event-actor-name">
@@ -78,11 +144,9 @@ const AuditEventDetailContent = ({ event }: { event: PrototypeAuditEvent }) => (
             className="flex items-center gap-2"
             data-cy="audit-event-target-cell"
           >
-            <Avatar
-              size={32}
-              src={event.target.profileImage}
-              icon={!event.target.profileImage ? <UserOutlined /> : undefined}
-              data-cy="audit-event-target-avatar"
+            <AuditPersonAvatar
+              person={event.target}
+              dataCy="audit-event-target-avatar"
             />
             <span className="font-medium" data-cy="audit-event-target-name">
               {formatFullName(event.target)}
@@ -109,7 +173,7 @@ const AuditEventDetailContent = ({ event }: { event: PrototypeAuditEvent }) => (
               className="font-semibold"
               data-cy="audit-event-activity-field"
             >
-              {event.fieldOrResource}
+              {humanizeAuditLabel(event.fieldOrResource)}
             </span>
           </span>
         </MetadataItem>
@@ -138,7 +202,7 @@ const AuditEventDetailContent = ({ event }: { event: PrototypeAuditEvent }) => (
                   className="text-sm font-semibold text-gray-800"
                   data-cy={`audit-event-diff-title-${change.field}`}
                 >
-                  {change.field}
+                  {humanizeAuditLabel(change.field)}
                 </span>
               }
               className="rounded-lg"
@@ -162,7 +226,11 @@ const AuditEventDetailContent = ({ event }: { event: PrototypeAuditEvent }) => (
                     className="text-gray-800"
                     data-cy={`audit-event-diff-previous-value-${change.field}`}
                   >
-                    {change.previous || '--'}
+                    <AuditValueDisplay
+                      value={change.previous}
+                      fieldKey={change.field}
+                      side="previous"
+                    />
                   </div>
                 </div>
                 <div
@@ -179,7 +247,11 @@ const AuditEventDetailContent = ({ event }: { event: PrototypeAuditEvent }) => (
                     className="text-gray-800"
                     data-cy={`audit-event-diff-current-value-${change.field}`}
                   >
-                    {change.next || '--'}
+                    <AuditValueDisplay
+                      value={change.next}
+                      fieldKey={change.field}
+                      side="current"
+                    />
                   </div>
                 </div>
               </div>

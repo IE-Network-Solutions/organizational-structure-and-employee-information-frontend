@@ -61,6 +61,12 @@ export const MOCK_AUDIT_PEOPLE = {
     lastName: 'Kebede',
     role: 'System Admin',
   },
+  system: {
+    id: 'user-system',
+    firstName: 'System',
+    lastName: '',
+    isSystem: true,
+  },
 } as const satisfies Record<string, PrototypeAuditPerson>;
 
 const session = (
@@ -78,6 +84,131 @@ const session = (
 });
 
 export const MOCK_AUDIT_EVENTS: PrototypeAuditEvent[] = [
+  {
+    id: 'EVT-10023',
+    eventId: 'EVT-10023',
+    performedAt: '2026-08-13T11:05:00.000Z',
+    severity: 'HIGH',
+    actor: MOCK_AUDIT_PEOPLE.system,
+    target: MOCK_AUDIT_PEOPLE.abel,
+    actionVerb: 'created',
+    fieldOrResource: 'Attendance Violation',
+    module: 'TimesheetAuditLog',
+    moduleLabel: 'Time and attendance',
+    ...session(
+      'sess_sys001aa',
+      'Internal',
+      'Selamnew System',
+      'System',
+      'System',
+    ),
+    changes: [
+      {
+        field: 'Violation Type',
+        previous: '--',
+        next: 'Late check-in',
+      },
+      {
+        field: 'Check-in Time',
+        previous: '--',
+        next: '09:42',
+      },
+      {
+        field: 'Scheduled Start',
+        previous: '--',
+        next: '08:30',
+      },
+    ],
+  },
+  {
+    id: 'EVT-10022',
+    eventId: 'EVT-10022',
+    performedAt: '2026-08-13T10:18:00.000Z',
+    severity: 'HIGH',
+    actor: MOCK_AUDIT_PEOPLE.wongel,
+    target: MOCK_AUDIT_PEOPLE.abel,
+    actionVerb: 'updated',
+    fieldOrResource: 'Employee Information',
+    module: 'OrgAndEmpAuditLog',
+    moduleLabel: 'Employee Management',
+    ...session('sess_e21f90aa'),
+    changes: [
+      {
+        field: 'Gender',
+        previous: 'female',
+        next: 'male',
+      },
+      {
+        field: 'Address',
+        previous: JSON.stringify({
+          city: 'Bole',
+          country: 'Ethiopia',
+          subCity: 'Bole',
+          phoneNumber: '0911223344',
+        }),
+        next: JSON.stringify({
+          city: 'Addis Abeba',
+          country: 'Ethiopia',
+          subCity: 'Addis Abeba',
+          phoneNumber: '0994867231',
+        }),
+      },
+      {
+        field: 'Joined Date',
+        previous: '2025-01-10T00:00:00.000Z',
+        next: '2026-04-20T00:00:00.000Z',
+      },
+      {
+        field: 'Date of Birth',
+        previous: '2001-10-18T00:00:00.000Z',
+        next: '2001-10-19T00:00:00.000Z',
+      },
+      {
+        field: 'Marital Status',
+        previous: 'MARRIED',
+        next: 'SINGLE',
+      },
+      {
+        field: 'Bank Information',
+        previous: JSON.stringify({
+          branch: 'Bole',
+          bankName: 'CBE',
+          accountName: 'Abel Tesfaye',
+          custom_bank: '',
+          accountNumber: '1000123456789',
+        }),
+        next: JSON.stringify({
+          branch: '',
+          bankName: 'Enat Bank',
+          accountName: '',
+          custom_bank: 'Enat',
+          accountNumber: '1271141184513001',
+        }),
+      },
+      {
+        field: 'Emergency Contact',
+        previous: JSON.stringify({
+          gender: 'male',
+          firstName: 'Dawit Bekele',
+          nationality: 'Ethiopian',
+          phoneNumber: '0911002233',
+          maritalStatus: 'married',
+        }),
+        next: JSON.stringify({
+          gender: 'female',
+          firstName: 'Melak Asamaraw',
+          nationality: 'Ethiopian',
+          phoneNumber: '0980542697',
+          maritalStatus: 'single',
+        }),
+      },
+      {
+        field: 'Additional Information',
+        previous: 'Relocation pending',
+        next: '--',
+      },
+    ],
+  },
   {
     id: 'EVT-10021',
     eventId: 'EVT-10021',
