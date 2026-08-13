@@ -21,12 +21,10 @@ interface AuditLogTableProps {
 const PersonCell = ({
   eventId,
   person,
-  showRole = false,
   kind,
 }: {
   eventId: string;
   person: PrototypeAuditEvent['actor'];
-  showRole?: boolean;
   kind: 'actor' | 'target';
 }) => (
   <div
@@ -38,16 +36,9 @@ const PersonCell = ({
       src={person.profileImage}
       icon={!person.profileImage ? <UserOutlined /> : undefined}
     />
-    <div className="flex flex-col min-w-0">
-      <span className="text-sm text-gray-900 truncate">
-        {formatFullName(person)}
-      </span>
-      {showRole && person.role ? (
-        <Tag className="m-0 w-max mt-0.5 text-[10px]" color="default">
-          {person.role}
-        </Tag>
-      ) : null}
-    </div>
+    <span className="text-sm text-gray-900 truncate">
+      {formatFullName(person)}
+    </span>
   </div>
 );
 
@@ -86,7 +77,6 @@ const AuditLogTable = ({
         <PersonCell
           eventId={record.id}
           person={record.actor}
-          showRole
           kind="actor"
         />
       ),

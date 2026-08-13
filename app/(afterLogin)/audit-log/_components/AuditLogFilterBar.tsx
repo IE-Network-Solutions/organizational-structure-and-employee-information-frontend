@@ -243,7 +243,7 @@ const AuditLogFilterBar = ({
     >
       <Input
         allowClear
-        placeholder="Search by actor (e.g., Wongel) or target (e.g., Abel)..."
+        placeholder="Search"
         value={filters.search}
         onChange={(event) =>
           onFiltersChange({ ...filters, search: event.target.value })
