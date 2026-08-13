@@ -60,6 +60,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
     if (pathname.includes('/overview')) return 'overview';
     if (pathname.includes('/attendance')) return 'attendance';
     if (pathname.includes('/leave')) return 'leave';
+    if (pathname.includes('/schedule')) return 'schedule';
     if (pathname.includes('/my-approvals')) return 'my-approvals';
     return 'overview';
   };
@@ -74,6 +75,9 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
         break;
       case 'leave':
         router.push(`${MY_TIMESHEET_BASE}/leave`);
+        break;
+      case 'schedule':
+        router.push(`${MY_TIMESHEET_BASE}/schedule`);
         break;
       case 'my-approvals':
         router.push(`${MY_TIMESHEET_BASE}/my-approvals`);
@@ -154,6 +158,18 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
           id="my-timesheet-leave-tab-label"
         >
           Leave
+        </div>
+      ),
+    },
+    {
+      key: 'schedule',
+      label: (
+        <div
+          className={`text-base m-0 ${activeKey === 'schedule' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="my-timesheet-schedule-tab-label"
+          id="my-timesheet-schedule-tab-label"
+        >
+          My Schedule
         </div>
       ),
     },

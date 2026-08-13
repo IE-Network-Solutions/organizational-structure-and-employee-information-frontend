@@ -12,7 +12,7 @@ import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/se
 import AddIcon from '@mui/icons-material/Add';
 import { useGetAttendanceNotificationTypes } from '@/store/server/features/timesheet/attendanceNotificationType/queries';
 import { useApprovalStore } from '@/store/uistate/features/approval';
-import useScheduleStore from '@/store/uistate/features/organizationStructure/workSchedule/useStore';
+import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workSchedule';
 
 interface TimesheetSettingsLayoutProps {
   children: ReactNode;
@@ -24,7 +24,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
   const pathname = usePathname();
   const router = useRouter();
   const { isMobile } = useIsMobile();
-  const { openDrawer } = useScheduleStore();
+  const { innerView, openCreateBlueprintModal } = useWorkScheduleUiStore();
 
   const {
     setIsShowClosedDateSidebar,
@@ -620,31 +620,32 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
                       </span>
                     </Button>
                   </AccessGuard>
-                ) : activeKey === 'workSchedule' ? (
+                ) : activeKey === 'workSchedule' &&
+                  innerView === 'blueprints' ? (
                   <AccessGuard
                     permissions={[Permissions.CreateWorkingSchedule]}
-                    data-cy="org-settings-work-schedule-create-btn"
-                    id="org-settings-work-schedule-create-btn"
+                    data-cy="time-attendance-settings-work-schedule-create-btn"
+                    id="time-attendance-settings-work-schedule-create-btn"
                   >
                     <Button
                       type="primary"
                       className="h-10 w-10 sm:w-auto"
                       icon={
                         <FaPlus
-                          data-cy="org-organization-settings-workschedule-page-faplus-1"
-                          id="org-organization-settings-workschedule-page-faplus-1"
+                          data-cy="time-attendance-settings-work-schedule-create-btn-icon"
+                          id="time-attendance-settings-work-schedule-create-btn-icon"
                         />
                       }
-                      onClick={openDrawer}
-                      data-cy="org-settings-work-schedule-create-btn"
-                      id="org-settings-work-schedule-create-btn"
+                      onClick={openCreateBlueprintModal}
+                      data-cy="time-attendance-settings-work-schedule-create-btn"
+                      id="time-attendance-settings-work-schedule-create-btn"
                     >
                       <span
                         className="hidden lg:inline"
-                        data-cy="org-settings-work-schedule-create-btn-text"
-                        id="org-settings-work-schedule-create-btn-text"
+                        data-cy="time-attendance-settings-work-schedule-create-btn-text"
+                        id="time-attendance-settings-work-schedule-create-btn-text"
                       >
-                        Create work Schedule
+                        Create Work Schedule
                       </span>
                     </Button>
                   </AccessGuard>
