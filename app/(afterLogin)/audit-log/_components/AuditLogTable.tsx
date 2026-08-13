@@ -7,10 +7,11 @@ import AuditSeverityTag from './AuditSeverityTag';
 import AuditPersonAvatar from './AuditPersonAvatar';
 import {
   formatEventRemark,
+  formatEventSummary,
   formatEventTimestamp,
   formatFullName,
-  formatShortName,
-  humanizeAuditLabel,
+  getActionLabel,
+  getActionTagColor,
 } from './utils';
 
 interface AuditLogTableProps {
@@ -103,36 +104,21 @@ const AuditLogTable = ({
           className="text-sm text-gray-800"
           data-cy={`audit-log-summary-${record.id}`}
         >
-          <span
-            className="font-semibold"
-            data-cy={`audit-log-summary-actor-${record.id}`}
-          >
-            {formatShortName(record.actor)}
-          </span>
-          {` ${record.actionVerb} `}
-          <span
-            className="font-semibold"
-            data-cy={`audit-log-summary-field-${record.id}`}
-          >
-            {humanizeAuditLabel(record.fieldOrResource)}
-          </span>
-          {` for `}
-          <span
-            className="font-semibold"
-            data-cy={`audit-log-summary-target-${record.id}`}
-          >
-            {formatShortName(record.target)}
-          </span>
+          {formatEventSummary(record)}
         </span>
       ),
     },
     {
-      title: 'Module',
-      dataIndex: 'moduleLabel',
-      key: 'module',
-      render: (label: string, record) => (
-        <Tag className="m-0" data-cy={`audit-log-module-${record.id}`}>
-          {label}
+      title: 'Action',
+      dataIndex: 'actionVerb',
+      key: 'action',
+      render: (actionVerb: string, record) => (
+        <Tag
+          className="m-0 font-semibold"
+          color={getActionTagColor(actionVerb)}
+          data-cy={`audit-log-action-${record.id}`}
+        >
+          {getActionLabel(actionVerb)}
         </Tag>
       ),
     },

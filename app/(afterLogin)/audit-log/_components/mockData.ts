@@ -85,6 +85,38 @@ const session = (
 
 export const MOCK_AUDIT_EVENTS: PrototypeAuditEvent[] = [
   {
+    id: 'EVT-10024',
+    eventId: 'EVT-10024',
+    performedAt: '2026-08-13T12:20:00.000Z',
+    severity: 'INFO',
+    actor: MOCK_AUDIT_PEOPLE.abel,
+    target: MOCK_AUDIT_PEOPLE.abel,
+    actionVerb: 'created',
+    fieldOrResource: 'Remote Check-in',
+    module: 'TimesheetAuditLog',
+    moduleLabel: 'Time and attendance',
+    eventSummary: 'Checked in remotely',
+    ...session(
+      'sess_att10024',
+      '196.188.50.11',
+      'Addis Ababa, ET',
+      'Chrome 126',
+      'Android 15',
+    ),
+    changes: [
+      {
+        field: 'Check-in Time',
+        previous: '--',
+        next: '08:14',
+      },
+      {
+        field: 'Check-in Type',
+        previous: '--',
+        next: 'Remote',
+      },
+    ],
+  },
+  {
     id: 'EVT-10023',
     eventId: 'EVT-10023',
     performedAt: '2026-08-13T11:05:00.000Z',
@@ -576,18 +608,30 @@ export const MOCK_AUDIT_EVENTS: PrototypeAuditEvent[] = [
     eventId: 'EVT-10005',
     performedAt: '2026-08-05T07:40:00.000Z',
     severity: 'INFO',
-    actor: MOCK_AUDIT_PEOPLE.helen,
+    actor: MOCK_AUDIT_PEOPLE.system,
     target: MOCK_AUDIT_PEOPLE.selam,
     actionVerb: 'created',
     fieldOrResource: 'Attendance Record',
     module: 'TimesheetAuditLog',
     moduleLabel: 'Time and attendance',
-    ...session('sess_aa1001c2'),
+    eventSummary: 'Attendance Record created',
+    ...session(
+      'sess_aa1001c2',
+      'Internal',
+      'Selamnew System',
+      'System',
+      'System',
+    ),
     changes: [
       {
         field: 'Check-in',
         previous: '--',
         next: '08:32',
+      },
+      {
+        field: 'Source',
+        previous: '--',
+        next: 'Bulk import',
       },
     ],
   },

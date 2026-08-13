@@ -34,6 +34,7 @@ export interface PrototypeAuditEvent {
   sessionId: string;
   changes: PrototypeAuditChange[];
   remarks?: string;
+  eventSummary?: string;
 }
 
 export interface AuditLogFilters {
@@ -76,9 +77,9 @@ export const AUDIT_LOG_MODULE_OPTIONS = [
 ];
 
 export const AUDIT_ACTION_OPTIONS = [
-  { label: 'Created', value: 'created' },
-  { label: 'Updated', value: 'updated' },
-  { label: 'Deleted', value: 'deleted' },
+  { label: 'Create', value: 'created' },
+  { label: 'Update', value: 'updated' },
+  { label: 'Delete', value: 'deleted' },
 ];
 
 export const AUDIT_MODULE_FIELDS: Record<string, string[]> = {
@@ -133,6 +134,7 @@ export const AUDIT_MODULE_FIELDS: Record<string, string[]> = {
     'Shift',
     'Check-in Time',
     'Check-out Time',
+    'Remote Check-in',
     'Attendance Record',
     'Attendance Violation',
     'Break Time',

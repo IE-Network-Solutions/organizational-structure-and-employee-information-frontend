@@ -234,6 +234,36 @@ export const getActionLabel = (actionVerb?: string) =>
     ? actionVerb.charAt(0).toUpperCase() + actionVerb.slice(1)
     : '--');
 
+export const getActionTagColor = (actionVerb?: string) => {
+  switch (normalizeKey(actionVerb)) {
+    case 'created':
+    case 'create':
+      return 'green';
+    case 'updated':
+    case 'update':
+      return 'blue';
+    case 'deleted':
+    case 'delete':
+      return 'red';
+    default:
+      return 'default';
+  }
+};
+
+export const formatEventSummary = (event: PrototypeAuditEvent) => {
+  if (event.eventSummary) return event.eventSummary;
+
+  const field = normalizeKey(event.fieldOrResource);
+  const action = normalizeKey(event.actionVerb);
+
+  if (field.includes('remote check')) return 'Checked in remotely';
+  if (field === 'attendance record' && action === 'created') {
+    return 'Attendance Record created';
+  }
+
+  return `${formatShortName(event.actor)} ${event.actionVerb} ${humanizeAuditLabel(event.fieldOrResource)} for ${formatShortName(event.target)}`;
+};
+
 export const SEVERITY_RULES_STORAGE_KEY = 'audit-log-severity-rules-v5';
 
 const SEVERITY_RANK: Record<AuditSeverity, number> = {
@@ -398,6 +428,7 @@ export const filterAuditEvents = (
           event.moduleLabel,
           event.eventId,
           formatEventRemark(event),
+          formatEventSummary(event),
         ]
           .join(' ')
           .toLowerCase();
@@ -450,6 +481,7 @@ export const exportAuditEventsCsv = (events: PrototypeAuditEvent[]) => {
     'Field',
     'Module',
     'Remarks',
+    'Event Summary',
   ];
   const rows = events.map((event) =>
     [
@@ -463,6 +495,7 @@ export const exportAuditEventsCsv = (events: PrototypeAuditEvent[]) => {
       event.fieldOrResource,
       event.moduleLabel,
       formatEventRemark(event),
+      formatEventSummary(event),
     ]
       .map(csvCell)
       .join(','),
