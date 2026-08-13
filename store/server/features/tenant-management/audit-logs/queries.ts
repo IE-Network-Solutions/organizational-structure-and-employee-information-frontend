@@ -87,6 +87,9 @@ const getAggregateAuditLogs = async (
   if (params.endDate) {
     queryParams.endDate = params.endDate;
   }
+  if (params.remarks) {
+    queryParams.remarks = params.remarks;
+  }
 
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/core/audit-log/aggregate`,
@@ -163,6 +166,9 @@ const getAggregateAuditPostLogs = async (
   if (params.endDate) {
     queryParams.endDate = params.endDate;
   }
+  if (params.remarks) {
+    queryParams.remarks = params.remarks;
+  }
 
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/core/audit-log/aggregate`,
@@ -174,6 +180,7 @@ const getAggregateAuditPostLogs = async (
     params: queryParams,
     data: {
       modules: modulesFromParam,
+      ...(params.remarks ? { remarks: params.remarks } : {}),
     },
   });
 };
