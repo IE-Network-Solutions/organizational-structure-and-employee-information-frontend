@@ -40,6 +40,7 @@ export interface AuditLogFilters {
   search: string;
   actorId?: string;
   targetId?: string;
+  action?: string;
   severities: AuditSeverity[];
   module?: string;
   dateFrom: string | null;

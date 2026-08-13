@@ -5,6 +5,7 @@ import { Button, DatePicker, Input, Popover, Select } from 'antd';
 import { DownloadOutlined, SearchOutlined } from '@ant-design/icons';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import {
+  AUDIT_ACTION_OPTIONS,
   AUDIT_LOG_MODULE_OPTIONS,
   AUDIT_SEVERITIES,
   AuditLogFilters,
@@ -18,6 +19,7 @@ type FilterDraft = Omit<AuditLogFilters, 'search'>;
 const emptyDraft = (): FilterDraft => ({
   actorId: undefined,
   targetId: undefined,
+  action: undefined,
   severities: [],
   module: undefined,
   dateFrom: null,
@@ -27,6 +29,7 @@ const emptyDraft = (): FilterDraft => ({
 const toDraft = (filters: AuditLogFilters): FilterDraft => ({
   actorId: filters.actorId,
   targetId: filters.targetId,
+  action: filters.action,
   severities: [...filters.severities],
   module: filters.module,
   dateFrom: filters.dateFrom,
@@ -168,6 +171,29 @@ const AuditLogFilterBar = ({
             />
           </div>
         )}
+
+        <div data-cy="audit-log-action-filter">
+          <div
+            className="text-sm font-semibold text-gray-900 mb-2"
+            data-cy="audit-log-action-filter-label"
+          >
+            Action
+          </div>
+          <Select
+            allowClear
+            placeholder="Select action"
+            value={draft.action}
+            className={AUDIT_SELECT_CLASS}
+            options={AUDIT_ACTION_OPTIONS}
+            onChange={(value) =>
+              setDraft((current) => ({
+                ...current,
+                action: value || undefined,
+              }))
+            }
+            data-cy="audit-log-action-select"
+          />
+        </div>
 
         <div data-cy="audit-log-severity-filter">
           <div

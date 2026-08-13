@@ -361,6 +361,7 @@ export const createEmptyAuditFilters = (): AuditLogFilters => ({
   search: '',
   actorId: undefined,
   targetId: undefined,
+  action: undefined,
   severities: [],
   module: undefined,
   dateFrom: null,
@@ -406,6 +407,12 @@ export const filterAuditEvents = (
       if (filters.actorId && event.actor.id !== filters.actorId) return false;
       if (filters.targetId && event.target.id !== filters.targetId)
         return false;
+      if (
+        filters.action &&
+        normalizeKey(event.actionVerb) !== normalizeKey(filters.action)
+      ) {
+        return false;
+      }
       if (
         filters.severities.length > 0 &&
         !filters.severities.includes(event.severity)
