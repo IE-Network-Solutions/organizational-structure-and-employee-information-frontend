@@ -10,6 +10,7 @@ import Documents from './_components/documents';
 import RolePermission from './_components/rolePermission';
 import OffboardingTask from './_components/offboarding';
 import ProbationTask from './_components/probation';
+import AuditHistory from './_components/auditHistory';
 import { useOffboardingStore } from '@/store/uistate/features/offboarding';
 import OffboardingFormControl from './_components/offboarding/_components/offboardingFormControl';
 import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
@@ -243,6 +244,11 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
           <ProbationTask id={id} data-cy="employee-detail-probation-task" />
         </AccessGuard>
       ),
+    },
+    {
+      key: '7',
+      label: 'Audit History',
+      children: <AuditHistory id={id} />,
     },
   ];
 
