@@ -18,7 +18,10 @@ export const AUDIT_SELECT_CLASS =
 
 export const formatFullName = (person?: PrototypeAuditPerson | null) => {
   if (!person) return 'Unknown User';
-  return `${person.firstName || ''} ${person.lastName || ''}`.trim() || 'Unknown User';
+  return (
+    `${person.firstName || ''} ${person.lastName || ''}`.trim() ||
+    'Unknown User'
+  );
 };
 
 export const formatShortName = (person?: PrototypeAuditPerson | null) => {
@@ -184,7 +187,10 @@ export const loadSeverityRules = (): AuditSeverityRule[] => {
 
 export const saveSeverityRules = (rules: AuditSeverityRule[]) => {
   if (typeof window === 'undefined') return;
-  window.localStorage.setItem(SEVERITY_RULES_STORAGE_KEY, JSON.stringify(rules));
+  window.localStorage.setItem(
+    SEVERITY_RULES_STORAGE_KEY,
+    JSON.stringify(rules),
+  );
 };
 
 const normalizeName = (value?: string) =>
@@ -239,7 +245,9 @@ export const filterAuditEvents = (
   scope?: { targetId?: string; targetName?: string },
 ) => {
   const search = filters.search.trim().toLowerCase();
-  const dateFrom = filters.dateFrom ? dayjs(filters.dateFrom).startOf('day') : null;
+  const dateFrom = filters.dateFrom
+    ? dayjs(filters.dateFrom).startOf('day')
+    : null;
   const dateTo = filters.dateTo ? dayjs(filters.dateTo).endOf('day') : null;
 
   return events
@@ -268,7 +276,8 @@ export const filterAuditEvents = (
       }
 
       if (filters.actorId && event.actor.id !== filters.actorId) return false;
-      if (filters.targetId && event.target.id !== filters.targetId) return false;
+      if (filters.targetId && event.target.id !== filters.targetId)
+        return false;
       if (
         filters.severities.length > 0 &&
         !filters.severities.includes(event.severity)

@@ -113,7 +113,10 @@ const AuditLogDetailPage = () => {
         title={event ? `Event Details - #${event.eventId}` : 'Event Details'}
         subtitle={subtitle}
         titleExtra={
-          <div className="flex items-center gap-3">
+          <div
+            className="flex items-center gap-3"
+            data-cy="audit-log-detail-title-extra"
+          >
             {event ? <AuditSeverityTag severity={event.severity} /> : null}
             <Button
               type="primary"
@@ -130,13 +133,26 @@ const AuditLogDetailPage = () => {
         }
       />
 
-      <div className="border border-gray-200 rounded-md p-4 md:p-6">
+      <div
+        className="border border-gray-200 rounded-md p-4 md:p-6"
+        data-cy="audit-log-detail-content"
+      >
         {isLoading ? (
-          <p className="text-sm text-gray-500">Loading event details...</p>
+          <p
+            className="text-sm text-gray-500"
+            data-cy="audit-log-detail-loading"
+          >
+            Loading event details...
+          </p>
         ) : event ? (
           <AuditEventDetailContent event={event} />
         ) : (
-          <p className="text-sm text-gray-500">Event not found.</p>
+          <p
+            className="text-sm text-gray-500"
+            data-cy="audit-log-detail-not-found"
+          >
+            Event not found.
+          </p>
         )}
       </div>
     </div>

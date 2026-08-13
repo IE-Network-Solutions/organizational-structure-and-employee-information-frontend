@@ -45,9 +45,8 @@ const AuditLogView = ({
   );
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [severityRules, setSeverityRules] = useState<AuditSeverityRule[]>(
-    loadSeverityRules,
-  );
+  const [severityRules, setSeverityRules] =
+    useState<AuditSeverityRule[]>(loadSeverityRules);
 
   const eventsWithSeverity = useMemo(
     () => applySeverityRules(MOCK_AUDIT_EVENTS, severityRules),

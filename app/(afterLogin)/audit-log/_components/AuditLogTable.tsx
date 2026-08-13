@@ -35,8 +35,12 @@ const PersonCell = ({
       size={32}
       src={person.profileImage}
       icon={!person.profileImage ? <UserOutlined /> : undefined}
+      data-cy={`audit-log-${kind}-avatar-${eventId}`}
     />
-    <span className="text-sm text-gray-900 truncate">
+    <span
+      className="text-sm text-gray-900 truncate"
+      data-cy={`audit-log-${kind}-name-${eventId}`}
+    >
       {formatFullName(person)}
     </span>
   </div>
@@ -73,12 +77,8 @@ const AuditLogTable = ({
     {
       title: 'Actor',
       key: 'actor',
-      render: (_, record) => (
-        <PersonCell
-          eventId={record.id}
-          person={record.actor}
-          kind="actor"
-        />
+      render: (unused, record) => (
+        <PersonCell eventId={record.id} person={record.actor} kind="actor" />
       ),
     },
     ...(!hideTargetColumn
@@ -86,7 +86,7 @@ const AuditLogTable = ({
           {
             title: 'Recipient',
             key: 'target',
-            render: (_: unknown, record: PrototypeAuditEvent) => (
+            render: (unused: unknown, record: PrototypeAuditEvent) => (
               <PersonCell
                 eventId={record.id}
                 person={record.target}
@@ -99,16 +99,31 @@ const AuditLogTable = ({
     {
       title: 'Event Summary',
       key: 'summary',
-      render: (_, record) => (
+      render: (unused, record) => (
         <span
           className="text-sm text-gray-800"
           data-cy={`audit-log-summary-${record.id}`}
         >
-          <span className="font-semibold">{formatShortName(record.actor)}</span>
+          <span
+            className="font-semibold"
+            data-cy={`audit-log-summary-actor-${record.id}`}
+          >
+            {formatShortName(record.actor)}
+          </span>
           {` ${record.actionVerb} `}
-          <span className="font-semibold">{record.fieldOrResource}</span>
+          <span
+            className="font-semibold"
+            data-cy={`audit-log-summary-field-${record.id}`}
+          >
+            {record.fieldOrResource}
+          </span>
           {` for `}
-          <span className="font-semibold">{formatShortName(record.target)}</span>
+          <span
+            className="font-semibold"
+            data-cy={`audit-log-summary-target-${record.id}`}
+          >
+            {formatShortName(record.target)}
+          </span>
         </span>
       ),
     },
@@ -117,10 +132,7 @@ const AuditLogTable = ({
       dataIndex: 'moduleLabel',
       key: 'module',
       render: (label: string, record) => (
-        <Tag
-          className="m-0"
-          data-cy={`audit-log-module-${record.id}`}
-        >
+        <Tag className="m-0" data-cy={`audit-log-module-${record.id}`}>
           {label}
         </Tag>
       ),
@@ -128,7 +140,7 @@ const AuditLogTable = ({
     {
       title: 'Remarks',
       key: 'remarks',
-      render: (_, record) => (
+      render: (unused, record) => (
         <span
           className="text-sm text-gray-800"
           data-cy={`audit-log-remarks-${record.id}`}
@@ -154,7 +166,7 @@ const AuditLogTable = ({
         'data-cy': `audit-log-table-row-${record.id}`,
         id: `audit-log-table-row-${record.id}`,
       })}
-      rowClassName={(_, index) =>
+      rowClassName={(unused, index) =>
         index % 2 === 1 ? 'bg-gray-50 [&>td]:bg-gray-50' : ''
       }
       locale={{ emptyText: 'No data available' }}

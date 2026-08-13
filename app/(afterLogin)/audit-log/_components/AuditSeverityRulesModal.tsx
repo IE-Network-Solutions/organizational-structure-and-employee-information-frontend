@@ -63,10 +63,16 @@ const AuditSeverityRulesModal = ({
 
   const handleAddRule = () => {
     const selectedFields = newFields.filter(Boolean);
-    if (!newModule || !newAction || !newSeverity || selectedFields.length === 0) {
+    if (
+      !newModule ||
+      !newAction ||
+      !newSeverity ||
+      selectedFields.length === 0
+    ) {
       NotificationMessage.warning({
         message: 'Incomplete rule',
-        description: 'Select a module, action, fields, and severity before adding.',
+        description:
+          'Select a module, action, fields, and severity before adding.',
       });
       return;
     }
@@ -112,7 +118,9 @@ const AuditSeverityRulesModal = ({
 
   const handleSeverityChange = (ruleId: string, severity: AuditSeverity) => {
     setDraftRules((current) =>
-      current.map((rule) => (rule.id === ruleId ? { ...rule, severity } : rule)),
+      current.map((rule) =>
+        rule.id === ruleId ? { ...rule, severity } : rule,
+      ),
     );
   };
 
@@ -136,13 +144,29 @@ const AuditSeverityRulesModal = ({
     {
       title: 'Fields',
       key: 'fields',
-      render: (_, record) => {
+      render: (unused, record) => {
         const fields = getRuleFields(record);
-        if (fields.length === 0) return <Tag className="m-0">Any field</Tag>;
+        if (fields.length === 0) {
+          return (
+            <Tag
+              className="m-0"
+              data-cy={`audit-severity-rule-any-field-${record.id}`}
+            >
+              Any field
+            </Tag>
+          );
+        }
         return (
-          <div className="flex flex-wrap gap-1">
+          <div
+            className="flex flex-wrap gap-1"
+            data-cy={`audit-severity-rule-fields-${record.id}`}
+          >
             {fields.map((field) => (
-              <Tag key={field} className="m-0">
+              <Tag
+                key={field}
+                className="m-0"
+                data-cy={`audit-severity-rule-field-${record.id}-${field}`}
+              >
                 {field}
               </Tag>
             ))}
@@ -172,7 +196,7 @@ const AuditSeverityRulesModal = ({
       title: '',
       key: 'delete',
       width: 56,
-      render: (_, record) => (
+      render: (unused, record) => (
         <Button
           type="text"
           danger
@@ -188,7 +212,10 @@ const AuditSeverityRulesModal = ({
   return (
     <Modal
       title={
-        <span className="font-bold text-base text-black opacity-70">
+        <span
+          className="font-bold text-base text-black opacity-70"
+          data-cy="audit-severity-rules-title"
+        >
           Severity Rules
         </span>
       }
@@ -198,7 +225,10 @@ const AuditSeverityRulesModal = ({
       centered
       destroyOnClose
       footer={
-        <div className="flex justify-end gap-2">
+        <div
+          className="flex justify-end gap-2"
+          data-cy="audit-severity-rules-footer"
+        >
           <Button onClick={onCancel} data-cy="audit-severity-rules-cancel">
             Cancel
           </Button>
@@ -213,17 +243,29 @@ const AuditSeverityRulesModal = ({
       }
       data-cy="audit-severity-rules-modal"
     >
-      <p className="text-sm text-black opacity-70 mb-4">
+      <p
+        className="text-sm text-black opacity-70 mb-4"
+        data-cy="audit-severity-rules-helper"
+      >
         Unassigned fields stay INFO. Add rules only for fields that need a
         higher severity.
       </p>
 
       <Form layout="vertical" requiredMark={false}>
-        <fieldset className="border border-gray-200 rounded-xl p-4 mb-4">
-          <legend className="px-1 text-sm font-semibold text-[#4d4d4d]">
+        <fieldset
+          className="border border-gray-200 rounded-xl p-4 mb-4"
+          data-cy="audit-severity-rules-add-fieldset"
+        >
+          <legend
+            className="px-1 text-sm font-semibold text-[#4d4d4d]"
+            data-cy="audit-severity-rules-add-legend"
+          >
             Add Rule
           </legend>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            data-cy="audit-severity-rules-add-grid"
+          >
             <Form.Item label="Module" className="mb-0">
               <Select
                 allowClear
@@ -284,7 +326,10 @@ const AuditSeverityRulesModal = ({
               />
             </Form.Item>
           </div>
-          <div className="flex justify-end mt-4">
+          <div
+            className="flex justify-end mt-4"
+            data-cy="audit-severity-rules-add-actions"
+          >
             <Button
               type="primary"
               onClick={handleAddRule}
@@ -295,8 +340,14 @@ const AuditSeverityRulesModal = ({
           </div>
         </fieldset>
 
-        <fieldset className="border border-gray-200 rounded-xl p-4 mb-0">
-          <legend className="px-1 text-sm font-semibold text-[#4d4d4d]">
+        <fieldset
+          className="border border-gray-200 rounded-xl p-4 mb-0"
+          data-cy="audit-severity-rules-configured-fieldset"
+        >
+          <legend
+            className="px-1 text-sm font-semibold text-[#4d4d4d]"
+            data-cy="audit-severity-rules-configured-legend"
+          >
             Configured Rules
           </legend>
           <Table

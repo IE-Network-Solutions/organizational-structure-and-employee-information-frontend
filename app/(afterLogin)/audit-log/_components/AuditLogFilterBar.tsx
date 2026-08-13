@@ -82,9 +82,17 @@ const AuditLogFilterBar = ({
         className="flex justify-between items-start mb-1"
         data-cy="audit-log-filter-popover-header"
       >
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 m-0">Filter</h3>
-          <p className="text-sm text-gray-500 mt-1 mb-0">
+        <div data-cy="audit-log-filter-popover-title-group">
+          <h3
+            className="text-lg font-semibold text-gray-900 m-0"
+            data-cy="audit-log-filter-popover-title"
+          >
+            Filter
+          </h3>
+          <p
+            className="text-sm text-gray-500 mt-1 mb-0"
+            data-cy="audit-log-filter-popover-subtitle"
+          >
             Select All filters that apply
           </p>
         </div>
@@ -99,9 +107,15 @@ const AuditLogFilterBar = ({
         </button>
       </div>
 
-      <div className="mt-4 flex flex-col gap-5" data-cy="audit-log-filter-fields">
-        <div>
-          <div className="text-sm font-semibold text-gray-900 mb-2">
+      <div
+        className="mt-4 flex flex-col gap-5"
+        data-cy="audit-log-filter-fields"
+      >
+        <div data-cy="audit-log-actor-filter">
+          <div
+            className="text-sm font-semibold text-gray-900 mb-2"
+            data-cy="audit-log-actor-filter-label"
+          >
             Performed By
           </div>
           <Select
@@ -126,8 +140,11 @@ const AuditLogFilterBar = ({
         </div>
 
         {!hideTargetFilter && (
-          <div>
-            <div className="text-sm font-semibold text-gray-900 mb-2">
+          <div data-cy="audit-log-target-filter">
+            <div
+              className="text-sm font-semibold text-gray-900 mb-2"
+              data-cy="audit-log-target-filter-label"
+            >
               Affected Person
             </div>
             <Select
@@ -152,8 +169,11 @@ const AuditLogFilterBar = ({
           </div>
         )}
 
-        <div>
-          <div className="text-sm font-semibold text-gray-900 mb-2">
+        <div data-cy="audit-log-severity-filter">
+          <div
+            className="text-sm font-semibold text-gray-900 mb-2"
+            data-cy="audit-log-severity-filter-label"
+          >
             Severity Level
           </div>
           <Select
@@ -177,8 +197,13 @@ const AuditLogFilterBar = ({
           />
         </div>
 
-        <div>
-          <div className="text-sm font-semibold text-gray-900 mb-2">Module</div>
+        <div data-cy="audit-log-module-filter">
+          <div
+            className="text-sm font-semibold text-gray-900 mb-2"
+            data-cy="audit-log-module-filter-label"
+          >
+            Module
+          </div>
           <Select
             allowClear
             showSearch
@@ -197,8 +222,13 @@ const AuditLogFilterBar = ({
           />
         </div>
 
-        <div>
-          <div className="text-sm font-semibold text-gray-900 mb-2">Date</div>
+        <div data-cy="audit-log-date-filter">
+          <div
+            className="text-sm font-semibold text-gray-900 mb-2"
+            data-cy="audit-log-date-filter-label"
+          >
+            Date
+          </div>
           <DatePicker.RangePicker
             value={[dateFrom, dateTo]}
             format="YYYY-MM-DD"
@@ -216,7 +246,10 @@ const AuditLogFilterBar = ({
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 mt-6">
+      <div
+        className="flex justify-end gap-3 mt-6"
+        data-cy="audit-log-filter-actions"
+      >
         <Button
           onClick={handleReset}
           className="transition-colors hover:bg-gray-100 hover:border-gray-300"
@@ -250,7 +283,10 @@ const AuditLogFilterBar = ({
         }
         className="w-full sm:w-[320px] h-10"
         suffix={
-          <div className="text-gray-400 border-l border-gray-300 py-1 pl-2">
+          <div
+            className="text-gray-400 border-l border-gray-300 py-1 pl-2"
+            data-cy="audit-log-search-suffix"
+          >
             <SearchOutlined />
           </div>
         }
@@ -258,7 +294,10 @@ const AuditLogFilterBar = ({
         id="audit-log-search-input"
       />
 
-      <div className="flex items-center gap-2 ml-auto">
+      <div
+        className="flex items-center gap-2 ml-auto"
+        data-cy="audit-log-filter-bar-actions"
+      >
         <Popover
           content={filterContent}
           trigger="click"

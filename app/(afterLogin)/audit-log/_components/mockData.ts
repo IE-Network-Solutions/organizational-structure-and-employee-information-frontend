@@ -1,7 +1,4 @@
-import {
-  PrototypeAuditEvent,
-  PrototypeAuditPerson,
-} from './types';
+import { PrototypeAuditEvent, PrototypeAuditPerson } from './types';
 
 export const MOCK_AUDIT_PEOPLE = {
   wongel: {
@@ -189,7 +186,13 @@ export const MOCK_AUDIT_EVENTS: PrototypeAuditEvent[] = [
     fieldOrResource: 'Work Schedule',
     module: 'TimesheetAuditLog',
     moduleLabel: 'Time and attendance',
-    ...session('sess_c3e88110', '197.156.64.22', 'Addis Ababa, ET', 'Edge 125', 'Windows 11'),
+    ...session(
+      'sess_c3e88110',
+      '197.156.64.22',
+      'Addis Ababa, ET',
+      'Edge 125',
+      'Windows 11',
+    ),
     changes: [
       {
         field: 'Work Schedule',
@@ -229,7 +232,13 @@ export const MOCK_AUDIT_EVENTS: PrototypeAuditEvent[] = [
     fieldOrResource: 'User Account',
     module: 'OrgAndEmpAuditLog',
     moduleLabel: 'Employee Management',
-    ...session('sess_0ab33e77', '10.0.12.4', 'Internal Network', 'Chrome 126', 'macOS 14'),
+    ...session(
+      'sess_0ab33e77',
+      '10.0.12.4',
+      'Internal Network',
+      'Chrome 126',
+      'macOS 14',
+    ),
     changes: [
       {
         field: 'Status',
@@ -314,7 +323,13 @@ export const MOCK_AUDIT_EVENTS: PrototypeAuditEvent[] = [
     fieldOrResource: 'OKR Progress',
     module: 'OKRAuditLog',
     moduleLabel: 'OKR',
-    ...session('sess_91aa2201', '196.188.42.17', 'Addis Ababa, ET', 'Firefox 128', 'Ubuntu 24.04'),
+    ...session(
+      'sess_91aa2201',
+      '196.188.42.17',
+      'Addis Ababa, ET',
+      'Firefox 128',
+      'Ubuntu 24.04',
+    ),
     changes: [
       {
         field: 'Progress',
@@ -622,7 +637,13 @@ export const MOCK_AUDIT_EVENTS: PrototypeAuditEvent[] = [
     fieldOrResource: 'Emergency Contact',
     module: 'OrgAndEmpAuditLog',
     moduleLabel: 'Employee Management',
-    ...session('sess_99d60077', '196.188.50.11', 'Addis Ababa, ET', 'Chrome 126', 'Android 15'),
+    ...session(
+      'sess_99d60077',
+      '196.188.50.11',
+      'Addis Ababa, ET',
+      'Chrome 126',
+      'Android 15',
+    ),
     changes: [
       {
         field: 'Emergency Contact',
