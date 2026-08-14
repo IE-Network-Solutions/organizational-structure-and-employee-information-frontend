@@ -87,6 +87,12 @@ const getAggregateAuditLogs = async (
   if (params.endDate) {
     queryParams.endDate = params.endDate;
   }
+  if (params.remarks) {
+    queryParams.remarks = params.remarks;
+  }
+  if (params.search) {
+    queryParams.search = params.search;
+  }
 
   return await crudRequest({
     url: `${ORG_AND_EMP_URL}/core/audit-log/aggregate`,
@@ -139,15 +145,17 @@ const getAggregateAuditPostLogs = async (
     return ['RecruitmentAuditLog', 'OKRAuditLog'];
   })();
 
-  // Build query parameters
+  const requestedPage = params.page || 1;
+  const requestedLimit = params.limit || 10;
+  const remarksSearch = (params.remarks || '').trim();
+
   const queryParams: Record<string, any> = {
-    page: params.page || 1,
-    limit: params.limit || 5,
+    page: remarksSearch && !params.performedBy ? 1 : requestedPage,
+    limit: remarksSearch && !params.performedBy ? 100 : requestedLimit,
     orderBy: params.orderBy || 'performedAt',
     orderDirection: params.orderDirection || 'DESC',
   };
 
-  // Add optional filters
   if (params.action) {
     queryParams.action = params.action;
   }
@@ -163,19 +171,80 @@ const getAggregateAuditPostLogs = async (
   if (params.endDate) {
     queryParams.endDate = params.endDate;
   }
+  if (params.remarks) {
+    queryParams.remarks = params.remarks;
+  }
 
-  return await crudRequest({
-    url: `${ORG_AND_EMP_URL}/core/audit-log/aggregate`,
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-    params: queryParams,
-    data: {
-      modules: modulesFromParam,
-    },
+  const requestAuditLogs = async (requestParams: Record<string, any>) => {
+    return await crudRequest({
+      url: `${ORG_AND_EMP_URL}/core/audit-log/aggregate`,
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        tenantId: tenantId,
+      },
+      params: requestParams,
+      data: {
+        modules: modulesFromParam,
+      },
+    });
+  };
+
+  let response: ApiResponse<AuditLog>;
+  try {
+    response = await requestAuditLogs(queryParams);
+  } catch (error) {
+    if (!remarksSearch) {
+      throw error;
+    }
+    const fallbackParams = { ...queryParams };
+    delete fallbackParams.remarks;
+    response = await requestAuditLogs(fallbackParams);
+  }
+
+  if (!remarksSearch || params.performedBy) {
+    return response;
+  }
+
+  const query = remarksSearch.toLowerCase();
+  const matched = (response?.items ?? []).filter((log) => {
+    const user = log?.performedByUser;
+    const fullName = user
+      ? `${user.firstName || ''} ${user.lastName || ''}`.trim().toLowerCase()
+      : '';
+    const remarks = [
+      log?.remarks,
+      (log as any)?.remark,
+      log?.metadata && typeof log.metadata === 'object'
+        ? (log.metadata as any).remarks
+        : '',
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    return (
+      remarks.includes(query) ||
+      fullName.includes(query) ||
+      (log?.performedBy || '').toString().toLowerCase().includes(query)
+    );
   });
+
+  const start = (requestedPage - 1) * requestedLimit;
+  const pageItems = matched.slice(start, start + requestedLimit);
+
+  return {
+    ...response,
+    items: pageItems,
+    meta: {
+      ...response.meta,
+      totalItems: matched.length,
+      itemCount: pageItems.length,
+      itemsPerPage: requestedLimit,
+      totalPages: Math.max(1, Math.ceil(matched.length / requestedLimit) || 1),
+      currentPage: requestedPage,
+    },
+  };
 };
 
 export const useGetAggregateAuditPostLogs = (

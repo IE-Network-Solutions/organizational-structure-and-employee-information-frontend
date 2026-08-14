@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Select,
+  AutoComplete,
   Tag,
   Avatar,
   Popover,
@@ -86,6 +87,10 @@ const AuditLogPage = () => {
   const [employeeOrRemarksSearch, setEmployeeOrRemarksSearch] = useState<
     string
   >(() => searchParams.get('q') || '');
+  const [debouncedRemarksSearch, setDebouncedRemarksSearch] = useState(
+    employeeOrRemarksSearch,
+  );
+  const isSelectingEmployeeRef = useRef(false);
   const [orderDirection, setOrderDirection] = useState<'ASC' | 'DESC'>('DESC');
   const { isMobile, isTablet } = useIsMobile();
   const { data: allUsers, isLoading: isLoadingUsers } = useGetAllUsers();
@@ -99,7 +104,36 @@ const AuditLogPage = () => {
     return endDate ? dayjs(endDate, 'YYYY-MM-DD') : null;
   });
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedRemarksSearch(employeeOrRemarksSearch);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [employeeOrRemarksSearch]);
+
+  const selectedUserName = useMemo(() => {
+    if (!selectedUserId || !allUsers?.items) return '';
+    const user = allUsers.items.find((item: any) => item.id === selectedUserId);
+    if (!user) return '';
+    return `${user.firstName || ''} ${user.lastName || ''}`.trim();
+  }, [selectedUserId, allUsers]);
+
+  const employeeSearchOptions = useMemo(() => {
+    if (!allUsers?.items || !Array.isArray(allUsers.items)) return [];
+    return allUsers.items.map((user: any) => {
+      const fullName =
+        `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+        'Unknown User';
+      return {
+        value: fullName,
+        label: fullName,
+        userId: user.id,
+      };
+    });
+  }, [allUsers]);
+
   const queryParams = useMemo(() => {
+    const remarksQuery = debouncedRemarksSearch.trim();
     const params: AggregateAuditLogParams = {
       modules: selectedModule ? [selectedModule] : ALL_AUDIT_LOG_MODULE_VALUES,
       page: currentPage,
@@ -108,6 +142,8 @@ const AuditLogPage = () => {
       orderDirection: orderDirection,
       ...(selectedAction && { action: selectedAction }),
       ...(selectedUserId && { performedBy: selectedUserId }),
+      ...(!selectedUserId &&
+        remarksQuery && { remarks: remarksQuery, search: remarksQuery }),
       ...(dateFrom && { startDate: dateFrom.format('YYYY-MM-DD') }),
       ...(dateTo && { endDate: dateTo.format('YYYY-MM-DD') }),
     };
@@ -121,6 +157,7 @@ const AuditLogPage = () => {
     orderDirection,
     dateFrom,
     dateTo,
+    debouncedRemarksSearch,
   ]);
 
   // Fetch audit logs from API
@@ -132,54 +169,10 @@ const AuditLogPage = () => {
   const auditLogsData = useMemo(() => {
     return auditLogsResponse?.items ?? [];
   }, [auditLogsResponse]);
-  const filteredAuditLogsData = useMemo(() => {
-    const q = employeeOrRemarksSearch.trim().toLowerCase();
-    return auditLogsData.filter((log: AuditLog) => {
-      const performedAtValue = log?.performedAt || (log as any)?.createdAt;
-      if (dateFrom || dateTo) {
-        // When filtering by date, exclude rows that have no date value.
-        if (!performedAtValue) return false;
 
-        const performedAt = dayjs(performedAtValue);
-        if (dateFrom && performedAt.isBefore(dateFrom.startOf('day')))
-          return false;
-        if (dateTo && performedAt.isAfter(dateTo.endOf('day')))
-          return false;
-      }
+  const filteredAuditLogsData = auditLogsData;
 
-      const user = log?.performedByUser;
-      const fullName = user
-        ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
-        : '';
-      const remarks = (log?.remarks || '').toString().toLowerCase();
-      if (!q) return true;
-      return (
-        remarks.includes(q) ||
-        fullName.toLowerCase().includes(q) ||
-        (log?.performedBy || '').toString().toLowerCase().includes(q)
-      );
-    });
-  }, [auditLogsData, employeeOrRemarksSearch, dateFrom, dateTo]);
-
-  const totalItems = useMemo(() => {
-    // When searching client-side, we can only count matches within the
-    // currently fetched page of results.
-    if (
-      employeeOrRemarksSearch.trim() ||
-      dateFrom !== null ||
-      dateTo !== null
-    ) {
-      return filteredAuditLogsData.length;
-    }
-    // within the currently fetched page of results.
-    return auditLogsResponse?.meta?.totalItems || 0;
-  }, [
-    auditLogsResponse,
-    filteredAuditLogsData.length,
-    employeeOrRemarksSearch,
-    dateFrom,
-    dateTo,
-  ]);
+  const totalItems = auditLogsResponse?.meta?.totalItems || 0;
 
   const actions = useMemo(() => {
     const defaultActions = ['CREATE', 'UPDATE', 'DELETE'];
@@ -381,7 +374,7 @@ const AuditLogPage = () => {
     selectedModule,
     selectedAction,
     selectedUserId,
-    employeeOrRemarksSearch,
+    debouncedRemarksSearch,
     orderDirection,
     dateFrom,
     dateTo,
@@ -543,6 +536,7 @@ const AuditLogPage = () => {
             setDateTo(null);
             setSelectedModule(undefined);
             setSelectedAction(undefined);
+            setSelectedUserId(undefined);
             setEmployeeOrRemarksSearch('');
             setCurrentPage(1);
           }}
@@ -588,8 +582,11 @@ const AuditLogPage = () => {
     if (selectedUserId) next.set('performedBy', selectedUserId);
     else next.delete('performedBy');
 
-    if (employeeOrRemarksSearch.trim()) next.set('q', employeeOrRemarksSearch);
-    else next.delete('q');
+    if (debouncedRemarksSearch.trim() && !selectedUserId) {
+      next.set('q', debouncedRemarksSearch);
+    } else {
+      next.delete('q');
+    }
 
     next.set('page', String(currentPage));
     next.set('limit', String(pageSize));
@@ -605,7 +602,7 @@ const AuditLogPage = () => {
     selectedAction,
     selectedModule,
     selectedUserId,
-    employeeOrRemarksSearch,
+    debouncedRemarksSearch,
     dateFrom,
     dateTo,
     currentPage,
@@ -642,21 +639,42 @@ const AuditLogPage = () => {
             data-cy="audit-log-filters-row"
             id="audit-log-filters-row"
           >
-            <Select
+            <AutoComplete
               placeholder="Search Employee / Remarks"
-              value={selectedUserId}
+              value={
+                selectedUserId ? selectedUserName : employeeOrRemarksSearch
+              }
+              options={employeeSearchOptions}
               onChange={(value) => {
-                setSelectedUserId(value || undefined);
+                if (isSelectingEmployeeRef.current) {
+                  isSelectingEmployeeRef.current = false;
+                  return;
+                }
+                setSelectedUserId(undefined);
+                setEmployeeOrRemarksSearch(value ?? '');
+                setCurrentPage(1);
+              }}
+              onSelect={(unusedValue, option) => {
+                isSelectingEmployeeRef.current = true;
+                setSelectedUserId((option as { userId?: string }).userId);
                 setEmployeeOrRemarksSearch('');
                 setCurrentPage(1);
               }}
-              onSearch={(value) => {
-                setEmployeeOrRemarksSearch(value);
-                setCurrentPage(1);
-              }}
               allowClear
-              showSearch
-              loading={isLoadingUsers}
+              filterOption={(input, option) => {
+                const label = String(option?.label ?? option?.value ?? '');
+                return label.toLowerCase().includes(input.toLowerCase());
+              }}
+              className="md:w-80 w-full h-8"
+              data-cy="audit-log-search-person-select"
+              id="audit-log-search-person-select"
+              notFoundContent={
+                employeeOrRemarksSearch.trim()
+                  ? 'No matching employees — searching remarks'
+                  : isLoadingUsers
+                    ? 'Loading...'
+                    : 'No users found'
+              }
               suffixIcon={
                 <div
                   className="border-l border-gray-200 h-8 flex items-center justify-center"
@@ -669,43 +687,7 @@ const AuditLogPage = () => {
                   />
                 </div>
               }
-              filterOption={(input, option) => {
-                const label = String(option?.children ?? '');
-                return label.toLowerCase().includes(input.toLowerCase());
-              }}
-              className="md:w-80 w-full h-8"
-              data-cy="audit-log-search-person-select"
-              id="audit-log-search-person-select"
-            >
-              {allUsers?.items &&
-              Array.isArray(allUsers.items) &&
-              allUsers.items.length > 0
-                ? allUsers.items.map((user: any) => {
-                    const fullName =
-                      `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
-                      'Unknown User';
-                    return (
-                      <Option
-                        key={user.id}
-                        value={user.id}
-                        data-cy={`audit-log-user-option-${user.id}`}
-                        id={`audit-log-user-option-${user.id}`}
-                      >
-                        {fullName}
-                      </Option>
-                    );
-                  })
-                : !isLoadingUsers && (
-                    <Option
-                      disabled
-                      value=""
-                      data-cy="audit-log-no-users-option"
-                      id="audit-log-no-users-option"
-                    >
-                      No users found
-                    </Option>
-                  )}
-            </Select>
+            />
 
             <Popover
               content={filterPopoverContent}
@@ -755,7 +737,7 @@ const AuditLogPage = () => {
           data-cy="audit-log-table-container"
           id="audit-log-table-container"
         >
-          {isLoading ? (
+          {isLoading && !auditLogsResponse ? (
             <TableSkeleton columns={columns} />
           ) : (
             <Table
@@ -794,6 +776,7 @@ const AuditLogPage = () => {
           >
             {isMobile || isTablet ? (
               <CustomMobilePagination
+                currentPage={currentPage}
                 totalResults={totalItems}
                 pageSize={pageSize}
                 onChange={onPageChange}
