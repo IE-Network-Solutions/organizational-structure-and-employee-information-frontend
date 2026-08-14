@@ -1,23 +1,26 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { Select } from 'antd';
+import { useMemo } from 'react';
+import { Button, Select, Tag } from 'antd';
 import dayjs from 'dayjs';
-import CurrentScheduleSection from './_components/currentScheduleSection';
-import AvailableShiftsSection from './_components/availableShiftsSection';
-import IncomingSwapsInbox from './_components/incomingSwapsInbox';
 import RequestSwapModal from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/workSchedule/_components/requestSwapModal';
 import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workSchedule';
 import {
   useGetMockEmployees,
   useGetShiftInstances,
   useGetSwapRequests,
-  useGetUserShiftAssignments,
 } from '@/store/server/features/timesheet/workSchedule/queries';
-import { DATE_FORMAT } from '@/store/server/features/timesheet/workSchedule/helpers';
-import { getEmployeeDisplayName } from '@/store/server/features/timesheet/workSchedule/mockService';
 import {
+  DATE_FORMAT,
+  formatTimeRange,
+  shiftLabel,
+} from '@/store/server/features/timesheet/workSchedule/helpers';
+import { getEmployeeDisplayName } from '@/store/server/features/timesheet/workSchedule/mockService';
+import { usePeerRespondToSwap } from '@/store/server/features/timesheet/workSchedule/mutation';
+import {
+  SHIFT_TYPE_LABEL,
   ShiftInstanceView,
+  SWAP_STATUS_LABEL,
   SwapRequestView,
 } from '@/types/timesheet/workSchedule';
 
@@ -26,50 +29,28 @@ const EMPTY_EMPLOYEES: NonNullable<
 > = [];
 const EMPTY_INSTANCES: ShiftInstanceView[] = [];
 const EMPTY_SWAPS: SwapRequestView[] = [];
-const EMPTY_ASSIGNMENTS: NonNullable<
-  ReturnType<typeof useGetUserShiftAssignments>['data']
-> = [];
 
 const PENDING_OUTGOING_STATUSES = new Set(['PENDING_PEER', 'PENDING_ADMIN']);
 
 const MySchedulePage = () => {
   const { demoPersonaId, setDemoPersonaId, openSwapModal } =
     useWorkScheduleUiStore();
-  const [selectedMyShiftId, setSelectedMyShiftId] = useState<
-    string | undefined
-  >();
+  const { mutate: respondToSwap, isLoading: isResponding } =
+    usePeerRespondToSwap();
 
   const from = dayjs().format(DATE_FORMAT);
   const to = dayjs().add(6, 'week').format(DATE_FORMAT);
 
   const { data: employeesData } = useGetMockEmployees();
   const employees = employeesData ?? EMPTY_EMPLOYEES;
-  const { data: assignmentsData } = useGetUserShiftAssignments(demoPersonaId);
-  const assignments = assignmentsData ?? EMPTY_ASSIGNMENTS;
   const { data: myInstancesData } = useGetShiftInstances({
     from,
     to,
     userId: demoPersonaId,
   });
   const myInstances = myInstancesData ?? EMPTY_INSTANCES;
-  const { data: allInstancesData } = useGetShiftInstances({ from, to });
-  const allInstances = allInstancesData ?? EMPTY_INSTANCES;
   const { data: swapsData } = useGetSwapRequests({ userId: demoPersonaId });
   const swaps = swapsData ?? EMPTY_SWAPS;
-
-  const availableShifts = useMemo(
-    () =>
-      allInstances
-        .filter(
-          (item) =>
-            item.assignedUserId !== demoPersonaId &&
-            item.isSwappable &&
-            !item.isCancelled &&
-            !dayjs(item.date).isBefore(dayjs(), 'day'),
-        )
-        .sort((a, b) => a.date.localeCompare(b.date)),
-    [allInstances, demoPersonaId],
-  );
 
   const myUpcomingShifts = useMemo(
     () =>
@@ -78,19 +59,53 @@ const MySchedulePage = () => {
           (item) =>
             !item.isCancelled && !dayjs(item.date).isBefore(dayjs(), 'day'),
         )
-        .sort((a, b) => a.date.localeCompare(b.date)),
+        .sort((a, b) => {
+          const byDate = a.date.localeCompare(b.date);
+          if (byDate !== 0) return byDate;
+          return a.startTime.localeCompare(b.startTime);
+        }),
     [myInstances],
   );
 
-  const incoming = swaps.filter(
-    (item) =>
-      item.targetUserId === demoPersonaId && item.status === 'PENDING_PEER',
-  );
-  const outgoing = swaps.filter(
-    (item) =>
-      item.requesterId === demoPersonaId &&
-      PENDING_OUTGOING_STATUSES.has(item.status),
-  );
+  const shiftsByDay = useMemo(() => {
+    const map = new Map<string, ShiftInstanceView[]>();
+    for (const shift of myUpcomingShifts) {
+      const list = map.get(shift.date) || [];
+      list.push(shift);
+      map.set(shift.date, list);
+    }
+    return Array.from(map.entries());
+  }, [myUpcomingShifts]);
+
+  const incomingByTargetShiftId = useMemo(() => {
+    const map = new Map<string, SwapRequestView[]>();
+    for (const swap of swaps) {
+      if (
+        swap.targetUserId === demoPersonaId &&
+        swap.status === 'PENDING_PEER'
+      ) {
+        const list = map.get(swap.targetShiftId) || [];
+        list.push(swap);
+        map.set(swap.targetShiftId, list);
+      }
+    }
+    return map;
+  }, [swaps, demoPersonaId]);
+
+  const outgoingByRequesterShiftId = useMemo(() => {
+    const map = new Map<string, SwapRequestView[]>();
+    for (const swap of swaps) {
+      if (
+        swap.requesterId === demoPersonaId &&
+        PENDING_OUTGOING_STATUSES.has(swap.status)
+      ) {
+        const list = map.get(swap.requesterShiftId) || [];
+        list.push(swap);
+        map.set(swap.requesterShiftId, list);
+      }
+    }
+    return map;
+  }, [swaps, demoPersonaId]);
 
   const persona = employees.find((item) => item.id === demoPersonaId);
 
@@ -115,17 +130,14 @@ const MySchedulePage = () => {
             className="text-sm text-gray-500 mb-0"
             data-cy="time-attendance-my-schedule-subtitle"
           >
-            Current schedule, available shifts, and swap approvals for{' '}
+            Daily shifts for{' '}
             {persona ? getEmployeeDisplayName(persona) : 'demo persona'}.
           </p>
         </div>
         <Select
           className="w-full sm:w-64"
           value={demoPersonaId}
-          onChange={(value) => {
-            setDemoPersonaId(value);
-            setSelectedMyShiftId(undefined);
-          }}
+          onChange={setDemoPersonaId}
           options={employees.map((item) => ({
             value: item.id,
             label: `${getEmployeeDisplayName(item)} · ${item.jobTitle}`,
@@ -134,26 +146,155 @@ const MySchedulePage = () => {
         />
       </div>
 
-      <div className="flex flex-col gap-4" data-cy="time-attendance-my-schedule-body">
-        <CurrentScheduleSection assignments={assignments} />
+      {shiftsByDay.length === 0 ? (
+        <p
+          className="text-sm text-gray-500 mb-0"
+          data-cy="time-attendance-my-schedule-empty"
+        >
+          No upcoming shifts assigned.
+        </p>
+      ) : (
+        <div
+          className="flex flex-col gap-6"
+          data-cy="time-attendance-my-schedule-days"
+        >
+          {shiftsByDay.map(([date, dayShifts]) => (
+            <div
+              key={date}
+              data-cy={`time-attendance-my-schedule-day-${date}`}
+            >
+              <p
+                className="mb-3 text-sm font-semibold text-[#4d4d4d]"
+                data-cy={`time-attendance-my-schedule-day-label-${date}`}
+              >
+                {dayjs(date).format('dddd, MMM D')}
+              </p>
+              <div
+                className="flex flex-col gap-3"
+                data-cy={`time-attendance-my-schedule-day-shifts-${date}`}
+              >
+                {dayShifts.map((shift) => {
+                  const incoming = incomingByTargetShiftId.get(shift.id) || [];
+                  const outgoing =
+                    outgoingByRequesterShiftId.get(shift.id) || [];
 
-        <AvailableShiftsSection
-          myShifts={myUpcomingShifts}
-          availableShifts={availableShifts}
-          selectedMyShiftId={selectedMyShiftId}
-          onSelectMyShift={setSelectedMyShiftId}
-          onRequestSwap={(myShiftId) => openSwapModal(myShiftId)}
-          onSwapForAvailable={(myShiftId, targetShiftId) =>
-            openSwapModal(myShiftId, targetShiftId)
-          }
-        />
+                  return (
+                    <div
+                      key={shift.id}
+                      className="rounded-lg border border-gray-200 p-3"
+                      data-cy={`time-attendance-my-schedule-shift-${shift.id}`}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div>
+                          <p className="mb-1 text-sm font-semibold text-[#4d4d4d]">
+                            {formatTimeRange(shift.startTime, shift.endTime)}
+                            {shift.shiftName
+                              ? ` · ${shift.shiftName}`
+                              : ` · ${SHIFT_TYPE_LABEL[shift.shiftType]}`}
+                          </p>
+                          <p className="mb-2 text-xs text-gray-500">
+                            {shift.blueprintTitle} · {shiftLabel(shift)}
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            <Tag
+                              color={
+                                shift.isSwappable ? 'success' : 'default'
+                              }
+                            >
+                              {shift.isSwappable ? 'Swappable' : 'Fixed'}
+                            </Tag>
+                            {outgoing.map((swap) => (
+                              <Tag key={swap.id} color="processing">
+                                {SWAP_STATUS_LABEL[swap.status]}
+                              </Tag>
+                            ))}
+                          </div>
+                        </div>
 
-        <IncomingSwapsInbox
-          personaId={demoPersonaId}
-          incoming={incoming}
-          outgoing={outgoing}
-        />
-      </div>
+                        {shift.isSwappable && (
+                          <Button
+                            type="primary"
+                            size="small"
+                            onClick={() => openSwapModal(shift.id)}
+                            data-cy={`time-attendance-my-schedule-shift-swap-${shift.id}`}
+                          >
+                            Request Swap
+                          </Button>
+                        )}
+                      </div>
+
+                      {outgoing.map((swap) => (
+                        <p
+                          key={swap.id}
+                          className="mt-3 mb-0 text-xs text-gray-500"
+                          data-cy={`time-attendance-my-schedule-shift-outgoing-${swap.id}`}
+                        >
+                          Swap pending with{' '}
+                          {getEmployeeDisplayName(swap.target)} for{' '}
+                          {swap.targetShift.date} (
+                          {formatTimeRange(
+                            swap.targetShift.startTime,
+                            swap.targetShift.endTime,
+                          )}
+                          )
+                        </p>
+                      ))}
+
+                      {incoming.map((swap) => (
+                        <div
+                          key={swap.id}
+                          className="mt-3 pt-3 border-t border-gray-100"
+                          data-cy={`time-attendance-my-schedule-shift-incoming-${swap.id}`}
+                        >
+                          <p className="mb-2 text-xs text-[#4d4d4d]">
+                            {getEmployeeDisplayName(swap.requester)} wants to
+                            swap their {swap.requesterShift.date} (
+                            {formatTimeRange(
+                              swap.requesterShift.startTime,
+                              swap.requesterShift.endTime,
+                            )}
+                            ) for this shift
+                            {swap.reason ? ` — “${swap.reason}”` : ''}
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              type="primary"
+                              size="small"
+                              loading={isResponding}
+                              onClick={() =>
+                                respondToSwap({
+                                  id: swap.id,
+                                  accept: true,
+                                  actorUserId: demoPersonaId,
+                                })
+                              }
+                            >
+                              Accept
+                            </Button>
+                            <Button
+                              size="small"
+                              loading={isResponding}
+                              onClick={() =>
+                                respondToSwap({
+                                  id: swap.id,
+                                  accept: false,
+                                  actorUserId: demoPersonaId,
+                                })
+                              }
+                            >
+                              Reject
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <RequestSwapModal />
     </div>
