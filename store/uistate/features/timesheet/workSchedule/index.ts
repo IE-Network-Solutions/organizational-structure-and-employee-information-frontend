@@ -9,6 +9,7 @@ type WorkScheduleUiState = {
   isDeleteModalOpen: boolean;
   isSwapModalOpen: boolean;
   selectedSwapRequesterShiftId: string | null;
+  selectedSwapTargetShiftId: string | null;
   demoPersonaId: string;
   searchQuery: string;
 };
@@ -21,7 +22,10 @@ type WorkScheduleUiActions = {
   closeAssignDrawer: () => void;
   openDeleteModal: (blueprintId: string) => void;
   closeDeleteModal: () => void;
-  openSwapModal: (requesterShiftId: string) => void;
+  openSwapModal: (
+    requesterShiftId: string,
+    targetShiftId?: string | null,
+  ) => void;
   closeSwapModal: () => void;
   setDemoPersonaId: (id: string) => void;
   setSearchQuery: (query: string) => void;
@@ -37,6 +41,7 @@ export const useWorkScheduleUiStore = create<
   isDeleteModalOpen: false,
   isSwapModalOpen: false,
   selectedSwapRequesterShiftId: null,
+  selectedSwapTargetShiftId: null,
   demoPersonaId: DEMO_LOGGED_IN_EMPLOYEE_ID,
   searchQuery: '',
 
@@ -76,15 +81,17 @@ export const useWorkScheduleUiStore = create<
     set({
       isDeleteModalOpen: false,
     }),
-  openSwapModal: (requesterShiftId) =>
+  openSwapModal: (requesterShiftId, targetShiftId = null) =>
     set({
       isSwapModalOpen: true,
       selectedSwapRequesterShiftId: requesterShiftId,
+      selectedSwapTargetShiftId: targetShiftId,
     }),
   closeSwapModal: () =>
     set({
       isSwapModalOpen: false,
       selectedSwapRequesterShiftId: null,
+      selectedSwapTargetShiftId: null,
     }),
   setDemoPersonaId: (demoPersonaId) => set({ demoPersonaId }),
   setSearchQuery: (searchQuery) => set({ searchQuery }),

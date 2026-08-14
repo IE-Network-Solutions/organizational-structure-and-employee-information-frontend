@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button, Input, Modal, Select } from 'antd';
 import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workSchedule';
 import {
@@ -13,16 +13,30 @@ import { formatTimeRange } from '@/store/server/features/timesheet/workSchedule/
 import { getEmployeeDisplayName } from '@/store/server/features/timesheet/workSchedule/mockService';
 import ShiftCard from '../shiftCard';
 import dayjs from 'dayjs';
+import { ShiftInstanceView } from '@/types/timesheet/workSchedule';
+
+const EMPTY_INSTANCES: ShiftInstanceView[] = [];
+const EMPTY_EMPLOYEES: NonNullable<
+  ReturnType<typeof useGetMockEmployees>['data']
+> = [];
+const EMPTY_TARGETS: ShiftInstanceView[] = [];
 
 const RequestSwapModal = () => {
-  const { isSwapModalOpen, selectedSwapRequesterShiftId, closeSwapModal } =
-    useWorkScheduleUiStore();
-  const { data: allInstances = [] } = useGetShiftInstances({
+  const {
+    isSwapModalOpen,
+    selectedSwapRequesterShiftId,
+    selectedSwapTargetShiftId,
+    closeSwapModal,
+  } = useWorkScheduleUiStore();
+  const { data: allInstancesData } = useGetShiftInstances({
     includeCancelled: true,
   });
-  const { data: employees = [] } = useGetMockEmployees();
-  const { data: eligibleTargets = [], isLoading: isLoadingTargets } =
+  const allInstances = allInstancesData ?? EMPTY_INSTANCES;
+  const { data: employeesData } = useGetMockEmployees();
+  const employees = employeesData ?? EMPTY_EMPLOYEES;
+  const { data: eligibleTargetsData, isLoading: isLoadingTargets } =
     useGetEligibleSwapTargets(selectedSwapRequesterShiftId);
+  const eligibleTargets = eligibleTargetsData ?? EMPTY_TARGETS;
   const { mutate: createSwap, isLoading } = useCreateSwapRequest();
 
   const [peerId, setPeerId] = useState<string | undefined>();
@@ -32,6 +46,26 @@ const RequestSwapModal = () => {
   const requesterShift = allInstances.find(
     (item) => item.id === selectedSwapRequesterShiftId,
   );
+
+  useEffect(() => {
+    if (!isSwapModalOpen) return;
+    if (!selectedSwapTargetShiftId) {
+      setPeerId(undefined);
+      setTargetShiftId(undefined);
+      setReason('');
+      return;
+    }
+    const preset = eligibleTargets.find(
+      (item) => item.id === selectedSwapTargetShiftId,
+    );
+    if (preset) {
+      setPeerId(preset.assignedUserId);
+      setTargetShiftId(preset.id);
+    } else {
+      setTargetShiftId(selectedSwapTargetShiftId);
+    }
+    setReason('');
+  }, [isSwapModalOpen, selectedSwapTargetShiftId, eligibleTargets]);
 
   const peers = useMemo(() => {
     const ids = new Set(eligibleTargets.map((item) => item.assignedUserId));

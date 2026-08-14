@@ -1,119 +1,98 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Calendar, CalendarProps, Select } from 'antd';
-import dayjs, { Dayjs } from 'dayjs';
+import { Select } from 'antd';
+import dayjs from 'dayjs';
+import CurrentScheduleSection from './_components/currentScheduleSection';
+import AvailableShiftsSection from './_components/availableShiftsSection';
 import IncomingSwapsInbox from './_components/incomingSwapsInbox';
-import EmployeeShiftDrawer from './_components/employeeShiftDrawer';
-import ShiftCard from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/workSchedule/_components/shiftCard';
 import RequestSwapModal from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/workSchedule/_components/requestSwapModal';
 import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workSchedule';
 import {
-  useGetBaselineBands,
   useGetMockEmployees,
   useGetShiftInstances,
   useGetSwapRequests,
+  useGetUserShiftAssignments,
 } from '@/store/server/features/timesheet/workSchedule/queries';
-import {
-  DATE_FORMAT,
-  formatTimeRange,
-} from '@/store/server/features/timesheet/workSchedule/helpers';
+import { DATE_FORMAT } from '@/store/server/features/timesheet/workSchedule/helpers';
 import { getEmployeeDisplayName } from '@/store/server/features/timesheet/workSchedule/mockService';
-import { ShiftInstanceView } from '@/types/timesheet/workSchedule';
+import {
+  ShiftInstanceView,
+  SwapRequestView,
+} from '@/types/timesheet/workSchedule';
+
+const EMPTY_EMPLOYEES: NonNullable<
+  ReturnType<typeof useGetMockEmployees>['data']
+> = [];
+const EMPTY_INSTANCES: ShiftInstanceView[] = [];
+const EMPTY_SWAPS: SwapRequestView[] = [];
+const EMPTY_ASSIGNMENTS: NonNullable<
+  ReturnType<typeof useGetUserShiftAssignments>['data']
+> = [];
+
+const PENDING_OUTGOING_STATUSES = new Set(['PENDING_PEER', 'PENDING_ADMIN']);
 
 const MySchedulePage = () => {
   const { demoPersonaId, setDemoPersonaId, openSwapModal } =
     useWorkScheduleUiStore();
-  const [month, setMonth] = useState(dayjs().startOf('month'));
-  const [selectedInstance, setSelectedInstance] =
-    useState<ShiftInstanceView | null>(null);
+  const [selectedMyShiftId, setSelectedMyShiftId] = useState<
+    string | undefined
+  >();
 
-  const from = month.startOf('month').format(DATE_FORMAT);
-  const to = month.endOf('month').format(DATE_FORMAT);
-  const filters = { from, to, userId: demoPersonaId };
+  const from = dayjs().format(DATE_FORMAT);
+  const to = dayjs().add(6, 'week').format(DATE_FORMAT);
 
-  const { data: employees = [] } = useGetMockEmployees();
-  const { data: instances = [] } = useGetShiftInstances(filters);
-  const { data: baselineBands = [] } = useGetBaselineBands(filters);
-  const { data: swaps = [] } = useGetSwapRequests({ userId: demoPersonaId });
+  const { data: employeesData } = useGetMockEmployees();
+  const employees = employeesData ?? EMPTY_EMPLOYEES;
+  const { data: assignmentsData } = useGetUserShiftAssignments(demoPersonaId);
+  const assignments = assignmentsData ?? EMPTY_ASSIGNMENTS;
+  const { data: myInstancesData } = useGetShiftInstances({
+    from,
+    to,
+    userId: demoPersonaId,
+  });
+  const myInstances = myInstancesData ?? EMPTY_INSTANCES;
+  const { data: allInstancesData } = useGetShiftInstances({ from, to });
+  const allInstances = allInstancesData ?? EMPTY_INSTANCES;
+  const { data: swapsData } = useGetSwapRequests({ userId: demoPersonaId });
+  const swaps = swapsData ?? EMPTY_SWAPS;
+
+  const availableShifts = useMemo(
+    () =>
+      allInstances
+        .filter(
+          (item) =>
+            item.assignedUserId !== demoPersonaId &&
+            item.isSwappable &&
+            !item.isCancelled &&
+            !dayjs(item.date).isBefore(dayjs(), 'day'),
+        )
+        .sort((a, b) => a.date.localeCompare(b.date)),
+    [allInstances, demoPersonaId],
+  );
+
+  const myUpcomingShifts = useMemo(
+    () =>
+      myInstances
+        .filter(
+          (item) =>
+            !item.isCancelled && !dayjs(item.date).isBefore(dayjs(), 'day'),
+        )
+        .sort((a, b) => a.date.localeCompare(b.date)),
+    [myInstances],
+  );
 
   const incoming = swaps.filter(
     (item) =>
       item.targetUserId === demoPersonaId && item.status === 'PENDING_PEER',
   );
-  const outgoing = swaps.filter((item) => item.requesterId === demoPersonaId);
-
-  const instancesByDate = useMemo(() => {
-    const map = new Map<string, ShiftInstanceView[]>();
-    for (const instance of instances) {
-      const list = map.get(instance.date) || [];
-      list.push(instance);
-      map.set(instance.date, list);
-    }
-    return map;
-  }, [instances]);
-
-  const bandsByDate = useMemo(() => {
-    const map = new Map<string, typeof baselineBands>();
-    for (const band of baselineBands) {
-      const list = map.get(band.date) || [];
-      list.push(band);
-      map.set(band.date, list);
-    }
-    return map;
-  }, [baselineBands]);
+  const outgoing = swaps.filter(
+    (item) =>
+      item.requesterId === demoPersonaId &&
+      PENDING_OUTGOING_STATUSES.has(item.status),
+  );
 
   const persona = employees.find((item) => item.id === demoPersonaId);
-
-  const cellRender: CalendarProps<Dayjs>['cellRender'] = (current, info) => {
-    if (info.type !== 'date') return null;
-    const key = current.format(DATE_FORMAT);
-    const dayInstances = instancesByDate.get(key) || [];
-    const dayBands = bandsByDate.get(key) || [];
-    if (!dayInstances.length && !dayBands.length) return null;
-
-    return (
-      <div
-        className="flex flex-col gap-1 max-h-28 overflow-auto"
-        data-cy={`time-attendance-my-schedule-cell-${key}`}
-      >
-        {dayInstances.map((instance) => (
-          <ShiftCard
-            key={instance.id}
-            instance={instance}
-            compact
-            onClick={() => setSelectedInstance(instance)}
-          />
-        ))}
-        {dayBands.map((band) => (
-          <div
-            key={`${band.blueprint.id}-${band.date}`}
-            className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-1.5"
-            data-cy={`time-attendance-my-schedule-baseline-${band.blueprint.id}-${band.date}`}
-          >
-            <div
-              className="text-[10px] font-semibold text-[#4d4d4d]"
-              data-cy={`time-attendance-my-schedule-baseline-time-${band.date}`}
-            >
-              {formatTimeRange(band.startTime, band.endTime)}
-            </div>
-            <div
-              className="text-[10px] text-gray-500 truncate"
-              data-cy={`time-attendance-my-schedule-baseline-title-${band.date}`}
-            >
-              {band.blueprint.title}
-            </div>
-            <div
-              className="text-[10px] text-gray-400"
-              data-cy={`time-attendance-my-schedule-baseline-label-${band.date}`}
-            >
-              Baseline · Fixed
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  };
 
   return (
     <div
@@ -136,14 +115,17 @@ const MySchedulePage = () => {
             className="text-sm text-gray-500 mb-0"
             data-cy="time-attendance-my-schedule-subtitle"
           >
-            Mock personal calendar for{' '}
+            Current schedule, available shifts, and swap approvals for{' '}
             {persona ? getEmployeeDisplayName(persona) : 'demo persona'}.
           </p>
         </div>
         <Select
           className="w-full sm:w-64"
           value={demoPersonaId}
-          onChange={setDemoPersonaId}
+          onChange={(value) => {
+            setDemoPersonaId(value);
+            setSelectedMyShiftId(undefined);
+          }}
           options={employees.map((item) => ({
             value: item.id,
             label: `${getEmployeeDisplayName(item)} · ${item.jobTitle}`,
@@ -152,28 +134,27 @@ const MySchedulePage = () => {
         />
       </div>
 
-      <IncomingSwapsInbox
-        personaId={demoPersonaId}
-        incoming={incoming}
-        outgoing={outgoing}
-      />
+      <div className="flex flex-col gap-4" data-cy="time-attendance-my-schedule-body">
+        <CurrentScheduleSection assignments={assignments} />
 
-      <Calendar
-        value={month}
-        onPanelChange={(value) => setMonth(value.startOf('month'))}
-        onChange={(value) => setMonth(value.startOf('month'))}
-        cellRender={cellRender}
-      />
+        <AvailableShiftsSection
+          myShifts={myUpcomingShifts}
+          availableShifts={availableShifts}
+          selectedMyShiftId={selectedMyShiftId}
+          onSelectMyShift={setSelectedMyShiftId}
+          onRequestSwap={(myShiftId) => openSwapModal(myShiftId)}
+          onSwapForAvailable={(myShiftId, targetShiftId) =>
+            openSwapModal(myShiftId, targetShiftId)
+          }
+        />
 
-      <EmployeeShiftDrawer
-        open={Boolean(selectedInstance)}
-        instance={selectedInstance}
-        onClose={() => setSelectedInstance(null)}
-        onRequestSwap={(instanceId) => {
-          setSelectedInstance(null);
-          openSwapModal(instanceId);
-        }}
-      />
+        <IncomingSwapsInbox
+          personaId={demoPersonaId}
+          incoming={incoming}
+          outgoing={outgoing}
+        />
+      </div>
+
       <RequestSwapModal />
     </div>
   );
