@@ -170,8 +170,6 @@ const AuditLogPage = () => {
     return auditLogsResponse?.items ?? [];
   }, [auditLogsResponse]);
 
-  // Date / action / remarks / employee matching is handled in the query
-  // layer across all API pages, then the current table page is sliced.
   const filteredAuditLogsData = auditLogsData;
 
   const totalItems = auditLogsResponse?.meta?.totalItems || 0;
@@ -739,7 +737,7 @@ const AuditLogPage = () => {
           data-cy="audit-log-table-container"
           id="audit-log-table-container"
         >
-          {isLoading ? (
+          {isLoading && !auditLogsResponse ? (
             <TableSkeleton columns={columns} />
           ) : (
             <Table
