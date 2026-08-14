@@ -48,7 +48,10 @@ export function invalidateReportingCaches(
     queryClient.invalidateQueries(['fetchObjectives'], REFETCH_OPTS),
     queryClient.invalidateQueries(['ObjectiveInformation'], REFETCH_OPTS),
     queryClient.invalidateQueries(['teamObjectiveInformation'], REFETCH_OPTS),
-    queryClient.invalidateQueries(['companyObjectiveInformation'], REFETCH_OPTS),
+    queryClient.invalidateQueries(
+      ['companyObjectiveInformation'],
+      REFETCH_OPTS,
+    ),
     queryClient.invalidateQueries(['keyResult'], REFETCH_OPTS),
     queryClient.invalidateQueries(['ObjectiveDashboard'], REFETCH_OPTS),
     queryClient.invalidateQueries(['VPScores'], REFETCH_OPTS),

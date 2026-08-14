@@ -268,7 +268,9 @@ const BlueprintFormModal = () => {
       width={920}
       centered
       destroyOnClose
-      styles={{ body: { maxHeight: '70vh', overflowY: 'auto', paddingTop: 12 } }}
+      styles={{
+        body: { maxHeight: '70vh', overflowY: 'auto', paddingTop: 12 },
+      }}
       footer={
         <div
           className="flex justify-end gap-3 pt-2"

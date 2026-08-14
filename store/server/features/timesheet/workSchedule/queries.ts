@@ -29,42 +29,52 @@ export const workScheduleQueryKeys = {
 };
 
 export const useGetMockEmployees = () =>
-  useQuery(workScheduleQueryKeys.employees, () => listMockEmployees());
+  useQuery(workScheduleQueryKeys.employees, async () => listMockEmployees());
 
 export const useGetMockEmployee = (id: string) =>
-  useQuery(workScheduleQueryKeys.employee(id), () => getMockEmployee(id), {
-    enabled: Boolean(id),
-  });
+  useQuery(
+    workScheduleQueryKeys.employee(id),
+    async () => getMockEmployee(id),
+    {
+      enabled: Boolean(id),
+    },
+  );
 
 export const useGetBlueprints = () =>
-  useQuery(workScheduleQueryKeys.blueprints, () => listBlueprints());
+  useQuery(workScheduleQueryKeys.blueprints, async () => listBlueprints());
 
 export const useGetBlueprint = (id: string | null) =>
-  useQuery(workScheduleQueryKeys.blueprint(id ?? ''), () => getBlueprint(id!), {
-    enabled: Boolean(id),
-  });
+  useQuery(
+    workScheduleQueryKeys.blueprint(id ?? ''),
+    async () => getBlueprint(id!),
+    {
+      enabled: Boolean(id),
+    },
+  );
 
 export const useGetAssignments = (blueprintId?: string) =>
-  useQuery(workScheduleQueryKeys.assignments(blueprintId), () =>
+  useQuery(workScheduleQueryKeys.assignments(blueprintId), async () =>
     listAssignments(blueprintId),
   );
 
 export const useGetShiftInstances = (filters: InstanceFilters = {}) =>
-  useQuery(workScheduleQueryKeys.instances(filters), () =>
+  useQuery(workScheduleQueryKeys.instances(filters), async () =>
     listInstances(filters),
   );
 
 export const useGetBaselineBands = (filters: InstanceFilters = {}) =>
-  useQuery(workScheduleQueryKeys.baselineBands(filters), () =>
+  useQuery(workScheduleQueryKeys.baselineBands(filters), async () =>
     listBaselineBands(filters),
   );
 
 export const useGetSwapRequests = (filters: SwapFilters = {}) =>
-  useQuery(workScheduleQueryKeys.swaps(filters), () => listSwaps(filters));
+  useQuery(workScheduleQueryKeys.swaps(filters), async () =>
+    listSwaps(filters),
+  );
 
 export const useGetEligibleSwapTargets = (requesterShiftId: string | null) =>
   useQuery(
     workScheduleQueryKeys.eligibleTargets(requesterShiftId ?? ''),
-    () => listEligibleSwapTargets(requesterShiftId!),
+    async () => listEligibleSwapTargets(requesterShiftId!),
     { enabled: Boolean(requesterShiftId) },
   );

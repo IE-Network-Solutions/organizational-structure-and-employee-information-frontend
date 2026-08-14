@@ -44,22 +44,25 @@ const notifyError = (error: unknown) => {
 
 export const useCreateBlueprint = () => {
   const queryClient = useQueryClient();
-  return useMutation((input: CreateBlueprintInput) => createBlueprint(input), {
-    onSuccess: () => {
-      invalidateWorkSchedule(queryClient);
-      NotificationMessage.success({
-        message: 'Work schedule created',
-        description: 'Work schedule was created successfully.',
-      });
+  return useMutation(
+    async (input: CreateBlueprintInput) => createBlueprint(input),
+    {
+      onSuccess: () => {
+        invalidateWorkSchedule(queryClient);
+        NotificationMessage.success({
+          message: 'Work schedule created',
+          description: 'Work schedule was created successfully.',
+        });
+      },
+      onError: notifyError,
     },
-    onError: notifyError,
-  });
+  );
 };
 
 export const useUpdateBlueprint = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (params: { id: string; input: UpdateBlueprintInput }) =>
+    async (params: { id: string; input: UpdateBlueprintInput }) =>
       updateBlueprint(params.id, params.input),
     {
       onSuccess: () => {
@@ -76,7 +79,7 @@ export const useUpdateBlueprint = () => {
 
 export const useDeleteBlueprint = () => {
   const queryClient = useQueryClient();
-  return useMutation((id: string) => deleteBlueprint(id), {
+  return useMutation(async (id: string) => deleteBlueprint(id), {
     onSuccess: () => {
       invalidateWorkSchedule(queryClient);
       NotificationMessage.success({
@@ -90,25 +93,33 @@ export const useDeleteBlueprint = () => {
 
 export const useAssignEmployees = () => {
   const queryClient = useQueryClient();
-  return useMutation(assignEmployees, {
-    onSuccess: (created) => {
-      invalidateWorkSchedule(queryClient);
-      NotificationMessage.success({
-        message: 'Employees assigned',
-        description:
-          created.length > 0
-            ? `${created.length} employee(s) assigned to the blueprint.`
-            : 'Selected employees were already assigned.',
-      });
+  return useMutation(
+    async (params: {
+      blueprintId: string;
+      userIds: string[];
+      assignedFrom?: string;
+      assignedTo?: string;
+    }) => assignEmployees(params),
+    {
+      onSuccess: (created) => {
+        invalidateWorkSchedule(queryClient);
+        NotificationMessage.success({
+          message: 'Employees assigned',
+          description:
+            created.length > 0
+              ? `${created.length} employee(s) assigned to the blueprint.`
+              : 'Selected employees were already assigned.',
+        });
+      },
+      onError: notifyError,
     },
-    onError: notifyError,
-  });
+  );
 };
 
 export const useUnassignEmployee = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (params: { blueprintId: string; userId: string }) =>
+    async (params: { blueprintId: string; userId: string }) =>
       unassignEmployee(params.blueprintId, params.userId),
     {
       onSuccess: () => {
@@ -127,7 +138,7 @@ export const useUnassignEmployee = () => {
 export const useUpdateShiftInstance = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (params: {
+    async (params: {
       id: string;
       input: {
         startTime?: string;
@@ -152,22 +163,29 @@ export const useUpdateShiftInstance = () => {
 
 export const useCreateSwapRequest = () => {
   const queryClient = useQueryClient();
-  return useMutation(createSwapRequest, {
-    onSuccess: () => {
-      invalidateWorkSchedule(queryClient);
-      NotificationMessage.success({
-        message: 'Swap requested',
-        description: 'The peer will review this swap request.',
-      });
+  return useMutation(
+    async (params: {
+      requesterShiftId: string;
+      targetShiftId: string;
+      reason?: string;
+    }) => createSwapRequest(params),
+    {
+      onSuccess: () => {
+        invalidateWorkSchedule(queryClient);
+        NotificationMessage.success({
+          message: 'Swap requested',
+          description: 'The peer will review this swap request.',
+        });
+      },
+      onError: notifyError,
     },
-    onError: notifyError,
-  });
+  );
 };
 
 export const usePeerRespondToSwap = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (params: { id: string; accept: boolean; actorUserId: string }) =>
+    async (params: { id: string; accept: boolean; actorUserId: string }) =>
       peerRespondToSwap(params.id, params.accept, params.actorUserId),
     {
       onSuccess: (unusedResult, variables) => {
@@ -187,7 +205,7 @@ export const usePeerRespondToSwap = () => {
 export const useAdminRespondToSwap = () => {
   const queryClient = useQueryClient();
   return useMutation(
-    (params: { id: string; accept: boolean; rejectionReason?: string }) =>
+    async (params: { id: string; accept: boolean; rejectionReason?: string }) =>
       adminRespondToSwap(params.id, params.accept, params.rejectionReason),
     {
       onSuccess: (unusedResult, variables) => {
@@ -206,7 +224,7 @@ export const useAdminRespondToSwap = () => {
 
 export const useResetMockWorkSchedule = () => {
   const queryClient = useQueryClient();
-  return useMutation(() => resetMockWorkScheduleDb(), {
+  return useMutation(async () => resetMockWorkScheduleDb(), {
     onSuccess: () => {
       invalidateWorkSchedule(queryClient);
       NotificationMessage.success({
