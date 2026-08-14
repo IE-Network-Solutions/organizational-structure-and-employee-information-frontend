@@ -142,7 +142,8 @@ const AuditLogPage = () => {
       orderDirection: orderDirection,
       ...(selectedAction && { action: selectedAction }),
       ...(selectedUserId && { performedBy: selectedUserId }),
-      ...(!selectedUserId && remarksQuery && { remarks: remarksQuery }),
+      ...(!selectedUserId &&
+        remarksQuery && { remarks: remarksQuery, search: remarksQuery }),
       ...(dateFrom && { startDate: dateFrom.format('YYYY-MM-DD') }),
       ...(dateTo && { endDate: dateTo.format('YYYY-MM-DD') }),
     };
@@ -168,64 +169,12 @@ const AuditLogPage = () => {
   const auditLogsData = useMemo(() => {
     return auditLogsResponse?.items ?? [];
   }, [auditLogsResponse]);
-  const filteredAuditLogsData = useMemo(() => {
-    const q = employeeOrRemarksSearch.trim().toLowerCase();
-    return auditLogsData.filter((log: AuditLog) => {
-      const performedAtValue = log?.performedAt || (log as any)?.createdAt;
-      if (dateFrom || dateTo) {
-        // When filtering by date, exclude rows that have no date value.
-        if (!performedAtValue) return false;
 
-        const performedAt = dayjs(performedAtValue);
-        if (dateFrom && performedAt.isBefore(dateFrom.startOf('day')))
-          return false;
-        if (dateTo && performedAt.isAfter(dateTo.endOf('day')))
-          return false;
-      }
+  // Date / action / module / remarks filtering is handled in the query layer
+  // (cross-page match + local pagination), so the table uses those results.
+  const filteredAuditLogsData = auditLogsData;
 
-      if (selectedUserId || !q) return true;
-
-      const user = log?.performedByUser;
-      const fullName = user
-        ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
-        : '';
-      const remarks = [
-        log?.remarks,
-        (log as any)?.remark,
-        log?.metadata && typeof log.metadata === 'object'
-          ? (log.metadata as any).remarks
-          : '',
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-      return (
-        remarks.includes(q) ||
-        fullName.toLowerCase().includes(q) ||
-        (log?.performedBy || '').toString().toLowerCase().includes(q)
-      );
-    });
-  }, [
-    auditLogsData,
-    employeeOrRemarksSearch,
-    dateFrom,
-    dateTo,
-    selectedUserId,
-  ]);
-
-  const totalItems = useMemo(() => {
-    // When searching client-side, we can only count matches within the
-    // currently fetched page of results.
-    if (dateFrom !== null || dateTo !== null) {
-      return filteredAuditLogsData.length;
-    }
-    return auditLogsResponse?.meta?.totalItems || 0;
-  }, [
-    auditLogsResponse,
-    filteredAuditLogsData.length,
-    dateFrom,
-    dateTo,
-  ]);
+  const totalItems = auditLogsResponse?.meta?.totalItems || 0;
 
   const actions = useMemo(() => {
     const defaultActions = ['CREATE', 'UPDATE', 'DELETE'];
