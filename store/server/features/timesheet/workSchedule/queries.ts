@@ -4,6 +4,7 @@ import {
   getBlueprint,
   getMockEmployee,
   listAssignments,
+  listAssignmentsForUser,
   listBaselineBands,
   listBlueprints,
   listEligibleSwapTargets,
@@ -19,6 +20,8 @@ export const workScheduleQueryKeys = {
   blueprint: (id: string) => ['workScheduleBlueprint', id] as const,
   assignments: (blueprintId?: string) =>
     ['workScheduleAssignments', blueprintId ?? 'all'] as const,
+  userAssignments: (userId: string) =>
+    ['workScheduleUserAssignments', userId] as const,
   instances: (filters: InstanceFilters) =>
     ['workScheduleInstances', filters] as const,
   baselineBands: (filters: InstanceFilters) =>
@@ -55,6 +58,13 @@ export const useGetBlueprint = (id: string | null) =>
 export const useGetAssignments = (blueprintId?: string) =>
   useQuery(workScheduleQueryKeys.assignments(blueprintId), async () =>
     listAssignments(blueprintId),
+  );
+
+export const useGetUserShiftAssignments = (userId: string | null) =>
+  useQuery(
+    workScheduleQueryKeys.userAssignments(userId ?? ''),
+    async () => listAssignmentsForUser(userId!),
+    { enabled: Boolean(userId) },
   );
 
 export const useGetShiftInstances = (filters: InstanceFilters = {}) =>

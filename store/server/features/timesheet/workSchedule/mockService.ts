@@ -38,7 +38,7 @@ import {
   SEED_BLUEPRINTS,
 } from './mockData';
 
-export const MOCK_STORAGE_KEY = 'tna-work-schedule-blueprint-mock-v3';
+export const MOCK_STORAGE_KEY = 'tna-work-schedule-blueprint-mock-v4';
 
 export class MockWorkScheduleError extends Error {
   code: string;
@@ -70,6 +70,12 @@ function generateInstancesForAssignment(
 ): ShiftInstance[] {
   if (!blueprint.hasShifts || !(blueprint.shifts || []).length) return [];
 
+  const allowedShiftIds = new Set(
+    (assignment.shiftIds || []).length
+      ? assignment.shiftIds
+      : blueprint.shifts.map((shift) => shift.id),
+  );
+
   const { from, to } = rollingScheduleWindow({
     assignedFrom: assignment.assignedFrom,
     assignedTo: assignment.assignedTo,
@@ -81,6 +87,7 @@ function generateInstancesForAssignment(
     if (!blueprint.activeWeekdays.includes(weekday)) continue;
 
     for (const shift of shiftsForWeekday(blueprint, weekday)) {
+      if (!allowedShiftIds.has(shift.id)) continue;
       const startTime = formatTime(shift.startTime);
       const endTime = formatTime(shift.endTime);
       const instanceId = makeInstanceId(
@@ -239,6 +246,32 @@ function requireEmployee(id: string): MockEmployee {
   return employee;
 }
 
+function ensureEmployee(
+  id: string,
+  profile?: Partial<Omit<MockEmployee, 'id'>>,
+): MockEmployee {
+  const db = getDb();
+  const existing = db.employees.find((item) => item.id === id);
+  if (existing) {
+    if (profile) {
+      existing.firstName = profile.firstName ?? existing.firstName;
+      existing.lastName = profile.lastName ?? existing.lastName;
+      existing.email = profile.email ?? existing.email;
+      existing.jobTitle = profile.jobTitle ?? existing.jobTitle;
+    }
+    return existing;
+  }
+  const created: MockEmployee = {
+    id,
+    firstName: profile?.firstName || 'Employee',
+    lastName: profile?.lastName || '',
+    email: profile?.email || '',
+    jobTitle: profile?.jobTitle || '',
+  };
+  db.employees.push(created);
+  return created;
+}
+
 function requireBlueprint(id: string): WorkScheduleBlueprint {
   const blueprint = getDb().blueprints.find((item) => item.id === id);
   if (!blueprint) {
@@ -295,7 +328,9 @@ function expireStaleSwaps(db: MockWorkScheduleDb): boolean {
 }
 
 function toInstanceView(instance: ShiftInstance): ShiftInstanceView {
-  const employee = requireEmployee(instance.assignedUserId);
+  const employee =
+    getDb().employees.find((item) => item.id === instance.assignedUserId) ||
+    ensureEmployee(instance.assignedUserId);
   const blueprint = requireBlueprint(instance.blueprintId);
   return {
     ...instance,
@@ -668,27 +703,99 @@ export function listAssignments(blueprintId?: string): BlueprintAssignment[] {
   return clone(items);
 }
 
+export function listAssignmentsForUser(userId: string): Array<
+  BlueprintAssignment & {
+    blueprint: WorkScheduleBlueprint;
+    shifts: WorkScheduleBlueprint['shifts'];
+  }
+> {
+  const db = getDb();
+  return db.assignments
+    .filter((item) => item.userId === userId)
+    .map((assignment) => {
+      const blueprint = requireBlueprint(assignment.blueprintId);
+      const shiftIds = assignment.shiftIds || [];
+      const shifts = blueprint.hasShifts
+        ? blueprint.shifts.filter((shift) => shiftIds.includes(shift.id))
+        : [];
+      return {
+        ...clone(assignment),
+        blueprint: clone(blueprint),
+        shifts: clone(shifts),
+      };
+    });
+}
+
 export function assignEmployees(params: {
   blueprintId: string;
   userIds: string[];
+  shiftIds?: string[];
   assignedFrom?: string;
   assignedTo?: string;
+  employees?: Array<Partial<MockEmployee> & { id: string }>;
 }): BlueprintAssignment[] {
   const db = getDb();
   const blueprint = requireBlueprint(params.blueprintId);
+  const shiftIds = params.shiftIds || [];
+
+  if (blueprint.hasShifts) {
+    if (!shiftIds.length) {
+      throw new MockWorkScheduleError(
+        'SHIFT_REQUIRED',
+        'Select at least one shift for this work schedule.',
+      );
+    }
+    const invalid = shiftIds.find(
+      (id) => !blueprint.shifts.some((shift) => shift.id === id),
+    );
+    if (invalid) {
+      throw new MockWorkScheduleError(
+        'INVALID_SHIFT',
+        'One or more selected shifts do not belong to this work schedule.',
+      );
+    }
+  }
+
   const created: BlueprintAssignment[] = [];
 
   for (const userId of params.userIds) {
-    requireEmployee(userId);
+    const profile = params.employees?.find((item) => item.id === userId);
+    ensureEmployee(userId, profile);
     const existing = db.assignments.find(
       (item) => item.blueprintId === blueprint.id && item.userId === userId,
     );
-    if (existing) continue;
+    if (existing) {
+      existing.shiftIds = blueprint.hasShifts ? [...shiftIds] : [];
+      existing.assignedFrom = params.assignedFrom;
+      existing.assignedTo = params.assignedTo;
+      if (blueprint.hasShifts) {
+        for (const instance of db.instances) {
+          if (
+            instance.blueprintId !== blueprint.id ||
+            instance.assignedUserId !== userId ||
+            instance.isCancelled ||
+            instance.swappedAt ||
+            isInstanceInPast(instance)
+          ) {
+            continue;
+          }
+          if (instance.shiftId && !shiftIds.includes(instance.shiftId)) {
+            instance.isCancelled = true;
+          }
+        }
+        db.instances.push(
+          ...generateInstancesForAssignment(blueprint, existing, db.instances),
+        );
+      }
+      created.push(clone(existing));
+      continue;
+    }
 
     const assignment: BlueprintAssignment = {
       id: uuidv4(),
       blueprintId: blueprint.id,
       userId,
+      shiftIds: blueprint.hasShifts ? [...shiftIds] : [],
       assignedFrom: params.assignedFrom,
       assignedTo: params.assignedTo,
     };
@@ -784,7 +891,7 @@ export function listBaselineBands(filters: {
   for (const assignment of assignments) {
     const blueprint = requireBlueprint(assignment.blueprintId);
     if (blueprint.hasShifts) continue;
-    const employee = requireEmployee(assignment.userId);
+    const employee = ensureEmployee(assignment.userId);
     const window = rollingScheduleWindow({
       assignedFrom: assignment.assignedFrom,
       assignedTo: assignment.assignedTo,

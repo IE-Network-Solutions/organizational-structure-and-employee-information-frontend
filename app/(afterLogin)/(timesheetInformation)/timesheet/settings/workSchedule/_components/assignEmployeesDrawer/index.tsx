@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Form, Select, Tag } from 'antd';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import CustomDrawerHeader from '@/components/common/customDrawer/customDrawerHeader';
@@ -18,12 +18,15 @@ import {
   useUnassignEmployee,
 } from '@/store/server/features/timesheet/workSchedule/mutation';
 import { getEmployeeDisplayName } from '@/store/server/features/timesheet/workSchedule/mockService';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { formatTimeRange } from '@/store/server/features/timesheet/workSchedule/helpers';
 
 const AssignEmployeesDrawer = () => {
   const { isAssignDrawerOpen, selectedBlueprintId, closeAssignDrawer } =
     useWorkScheduleUiStore();
   const [form] = Form.useForm();
-  const { data: employees = [] } = useGetMockEmployees();
+  const { data: mockEmployees = [] } = useGetMockEmployees();
+  const { data: allUsers } = useGetAllUsers();
   const { data: blueprint } = useGetBlueprint(selectedBlueprintId);
   const { data: assignments = [] } = useGetAssignments(
     selectedBlueprintId ?? undefined,
@@ -32,15 +35,56 @@ const AssignEmployeesDrawer = () => {
     useAssignEmployees();
   const { mutate: unassignEmployee, isLoading: isUnassigning } =
     useUnassignEmployee();
+  const selectedShiftIds = Form.useWatch('shiftIds', form) || [];
+
+  useEffect(() => {
+    if (!isAssignDrawerOpen) {
+      form.resetFields();
+      return;
+    }
+    form.setFieldsValue({
+      userIds: undefined,
+      shiftIds: blueprint?.hasShifts
+        ? (blueprint.shifts || []).map((shift) => shift.id)
+        : [],
+    });
+  }, [isAssignDrawerOpen, blueprint, form]);
 
   const assignedUserIds = useMemo(
     () => assignments.map((item) => item.userId),
     [assignments],
   );
 
-  const availableEmployees = employees.filter(
-    (item) => !assignedUserIds.includes(item.id),
-  );
+  const employeeOptions = useMemo(() => {
+    const liveUsers = Array.isArray(allUsers) ? allUsers : [];
+    if (liveUsers.length) {
+      return liveUsers
+        .filter((user: any) => user?.id && !assignedUserIds.includes(user.id))
+        .map((user: any) => ({
+          value: user.id,
+          label:
+            `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
+              .replace(/\s+/g, ' ')
+              .trim() ||
+            user.email ||
+            user.id,
+          profile: {
+            id: user.id,
+            firstName: user.firstName || 'Employee',
+            lastName: user.lastName || '',
+            email: user.email || '',
+            jobTitle: user.employeeJobInformation?.[0]?.position?.name || '',
+          },
+        }));
+    }
+    return mockEmployees
+      .filter((item) => !assignedUserIds.includes(item.id))
+      .map((item) => ({
+        value: item.id,
+        label: `${getEmployeeDisplayName(item)} · ${item.jobTitle}`,
+        profile: item,
+      }));
+  }, [allUsers, mockEmployees, assignedUserIds]);
 
   const onClose = () => {
     form.resetFields();
@@ -70,16 +114,21 @@ const AssignEmployeesDrawer = () => {
     },
   ];
 
-  const handleFinish = (values: { userIds: string[] }) => {
+  const handleFinish = (values: { userIds: string[]; shiftIds?: string[] }) => {
     if (!selectedBlueprintId) return;
+    const selectedProfiles = employeeOptions
+      .filter((item) => (values.userIds || []).includes(item.value))
+      .map((item) => item.profile);
     assignEmployees(
       {
         blueprintId: selectedBlueprintId,
         userIds: values.userIds || [],
+        shiftIds: blueprint?.hasShifts ? values.shiftIds || [] : [],
+        employees: selectedProfiles,
       },
       {
         onSuccess: () => {
-          form.resetFields();
+          form.resetFields(['userIds']);
         },
       },
     );
@@ -109,8 +158,8 @@ const AssignEmployeesDrawer = () => {
           data-cy="time-attendance-settings-work-schedule-assign-help"
         >
           {blueprint?.hasShifts
-            ? 'Assigning employees will generate shift cards for every configured shift on each active weekday.'
-            : 'No shifts configured. Employees keep the day hours only — no swappable shift cards will be generated.'}
+            ? 'Choose which shifts each employee should work. Only selected shifts will be generated.'
+            : 'No shifts configured. Employees keep the day hours only.'}
         </p>
         <Form layout="vertical" form={form} onFinish={handleFinish}>
           <Form.Item
@@ -122,14 +171,42 @@ const AssignEmployeesDrawer = () => {
           >
             <Select
               mode="multiple"
-              placeholder="Select mock employees"
-              options={availableEmployees.map((item) => ({
-                value: item.id,
-                label: `${getEmployeeDisplayName(item)} · ${item.jobTitle}`,
+              placeholder="Select employees"
+              optionFilterProp="label"
+              options={employeeOptions.map((item) => ({
+                value: item.value,
+                label: item.label,
               }))}
               data-cy="time-attendance-settings-work-schedule-assign-select"
             />
           </Form.Item>
+          {blueprint?.hasShifts && (
+            <Form.Item
+              name="shiftIds"
+              label="Shifts"
+              rules={[
+                {
+                  required: true,
+                  message: 'Select at least one shift',
+                },
+              ]}
+              extra={
+                selectedShiftIds.length
+                  ? `${selectedShiftIds.length} of ${(blueprint.shifts || []).length} shifts selected`
+                  : undefined
+              }
+            >
+              <Select
+                mode="multiple"
+                placeholder="Select shifts"
+                options={(blueprint.shifts || []).map((shift) => ({
+                  value: shift.id,
+                  label: `${shift.name} · ${formatTimeRange(shift.startTime, shift.endTime)}`,
+                }))}
+                data-cy="time-attendance-settings-work-schedule-assign-shifts"
+              />
+            </Form.Item>
+          )}
         </Form>
 
         <div
@@ -155,40 +232,62 @@ const AssignEmployeesDrawer = () => {
             data-cy="time-attendance-settings-work-schedule-assign-list"
           >
             {assignments.map((assignment) => {
-              const employee = employees.find(
-                (item) => item.id === assignment.userId,
+              const employee =
+                mockEmployees.find((item) => item.id === assignment.userId) ||
+                (Array.isArray(allUsers)
+                  ? allUsers.find((item: any) => item.id === assignment.userId)
+                  : null);
+              const name = employee
+                ? 'firstName' in employee
+                  ? getEmployeeDisplayName(employee as any)
+                  : `${(employee as any).firstName || ''} ${(employee as any).lastName || ''}`.trim()
+                : assignment.userId;
+              const assignedShifts = (blueprint?.shifts || []).filter((shift) =>
+                (assignment.shiftIds || []).includes(shift.id),
               );
-              if (!employee) return null;
               return (
                 <div
                   key={assignment.id}
-                  className="flex items-center justify-between border border-gray-200 rounded-lg px-3 py-2"
+                  className="flex items-center justify-between gap-2 border border-gray-200 rounded-lg px-3 py-2"
                   data-cy={`time-attendance-settings-work-schedule-assign-item-${assignment.id}`}
                 >
                   <div
+                    className="min-w-0"
                     data-cy={`time-attendance-settings-work-schedule-assign-item-info-${assignment.id}`}
                   >
                     <p
-                      className="mb-0 text-sm font-medium text-[#4d4d4d]"
+                      className="mb-1 text-sm font-medium text-[#4d4d4d]"
                       data-cy={`time-attendance-settings-work-schedule-assign-item-name-${assignment.id}`}
                     >
-                      {getEmployeeDisplayName(employee)}
+                      {name}
                     </p>
-                    <p
-                      className="mb-0 text-xs text-gray-500"
-                      data-cy={`time-attendance-settings-work-schedule-assign-item-role-${assignment.id}`}
+                    <div
+                      className="flex flex-wrap gap-1"
+                      data-cy={`time-attendance-settings-work-schedule-assign-item-shifts-${assignment.id}`}
                     >
-                      {employee.jobTitle}
-                    </p>
+                      {assignedShifts.length > 0 ? (
+                        assignedShifts.map((shift) => (
+                          <Tag
+                            key={shift.id}
+                            color="blue"
+                            className="!m-0 !text-[11px]"
+                          >
+                            {shift.name}
+                          </Tag>
+                        ))
+                      ) : (
+                        <Tag className="!m-0 !text-[11px]">Day hours only</Tag>
+                      )}
+                    </div>
                   </div>
                   <Tag
-                    className="cursor-pointer"
+                    className="cursor-pointer shrink-0"
                     color="error"
                     onClick={() =>
                       selectedBlueprintId &&
                       unassignEmployee({
                         blueprintId: selectedBlueprintId,
-                        userId: employee.id,
+                        userId: assignment.userId,
                       })
                     }
                   >

@@ -25,6 +25,12 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import {
+  useGetBlueprints,
+  useGetUserShiftAssignments,
+} from '@/store/server/features/timesheet/workSchedule/queries';
+import { useAssignEmployees } from '@/store/server/features/timesheet/workSchedule/mutation';
+import { formatTimeRange } from '@/store/server/features/timesheet/workSchedule/helpers';
 
 const { Option } = Select;
 
@@ -49,25 +55,55 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
     useUpdateEmployeeJobInformation();
   const { data: employeeData, isLoading, refetch } = useGetEmployee(userId);
   const { data: workSchedules } = useGetWorkSchedules();
+  const { data: shiftSchedules = [] } = useGetBlueprints();
+  const { data: userShiftAssignments = [] } =
+    useGetUserShiftAssignments(userId);
+  const { mutate: assignShiftSchedule } = useAssignEmployees();
   const [form] = Form.useForm();
   const [dailySchedule, setDailySchedule] = React.useState<any[]>([]);
+  const selectedShiftScheduleId = Form.useWatch('shiftScheduleId', form);
+  const selectedShiftSchedule = shiftSchedules.find(
+    (item) => item.id === selectedShiftScheduleId,
+  );
 
   const handleSaveChanges = (editKey: keyof EditState) => {
     form
       .validateFields()
       .then((values) => {
+        const persistShiftAssignment = () => {
+          if (values.shiftScheduleId) {
+            assignShiftSchedule({
+              blueprintId: values.shiftScheduleId,
+              userIds: [userId],
+              shiftIds: values.assignedShiftIds || [],
+              employees: [
+                {
+                  id: userId,
+                  firstName: employeeData?.firstName,
+                  lastName: employeeData?.lastName,
+                  email: employeeData?.email,
+                  jobTitle:
+                    employeeData?.employeeJobInformation?.[0]?.position?.name,
+                },
+              ],
+            });
+          }
+        };
+
         updateEmployeeJobInformation(
           {
             id: employeeData?.employeeJobInformation[0]?.id,
-            values,
+            values: {
+              workScheduleId: values.workScheduleId,
+            },
             changeMakerUserId: loggedInUserId,
           },
           {
             onSuccess: async () => {
-              await refetch(); // Refresh data after successful update
-              // Clear selectedWorkSchedule when exiting edit mode to ensure fresh data is used
+              persistShiftAssignment();
+              await refetch();
               setSelectedWorkSchedule(null);
-              setEdit(editKey); // Turn off edit mode AFTER refetch completes
+              setEdit(editKey);
             },
           },
         );
@@ -247,7 +283,12 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
 
     // Always update form fields with employeeData (for initial load)
     if (!edit.workSchedule) {
-      form.setFieldsValue(employeeDataInfo);
+      const primaryShiftAssignment = userShiftAssignments[0];
+      form.setFieldsValue({
+        ...employeeDataInfo,
+        shiftScheduleId: primaryShiftAssignment?.blueprintId,
+        assignedShiftIds: primaryShiftAssignment?.shiftIds || [],
+      });
     }
 
     // Initialize daily schedule - use selectedWorkSchedule if available, otherwise use employeeData
@@ -278,6 +319,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
     selectedWorkSchedule,
     workSchedules,
     edit.workSchedule,
+    userShiftAssignments,
   ]);
 
   // Find the active job's work schedule
@@ -456,6 +498,70 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
               </div>
             </Col>
           </Row>
+          {userShiftAssignments.length > 0 && (
+            <Row
+              gutter={[24, 0]}
+              id="job-work-schedule-shifts-row"
+              data-cy="job-work-schedule-shifts-row"
+            >
+              <Col span={24} className="flex flex-col">
+                <div
+                  className="mb-2"
+                  data-cy="job-work-schedule-assigned-shifts"
+                >
+                  <p
+                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-2"
+                    data-cy="job-work-schedule-assigned-shifts-label"
+                  >
+                    Assigned Shifts
+                  </p>
+                  <div
+                    className="flex flex-col gap-2"
+                    data-cy="job-work-schedule-assigned-shifts-list"
+                  >
+                    {userShiftAssignments.map((assignment) => (
+                      <div
+                        key={assignment.id}
+                        className="rounded-lg border border-gray-200 bg-white px-3 py-2"
+                        data-cy={`job-work-schedule-assigned-shift-card-${assignment.id}`}
+                      >
+                        <p
+                          className="mb-1 text-sm font-medium text-[#4d4d4d]"
+                          data-cy={`job-work-schedule-assigned-shift-title-${assignment.id}`}
+                        >
+                          {assignment.blueprint.title}
+                        </p>
+                        <div
+                          className="flex flex-wrap gap-1.5"
+                          data-cy={`job-work-schedule-assigned-shift-tags-${assignment.id}`}
+                        >
+                          {assignment.shifts.length > 0 ? (
+                            assignment.shifts.map((shift) => (
+                              <Tag
+                                key={shift.id}
+                                color="blue"
+                                className="!m-0 !text-[11px] !leading-5"
+                              >
+                                {shift.name} ·{' '}
+                                {formatTimeRange(
+                                  shift.startTime,
+                                  shift.endTime,
+                                )}
+                              </Tag>
+                            ))
+                          ) : (
+                            <Tag className="!m-0 !text-[11px] !leading-5">
+                              Day hours only
+                            </Tag>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          )}
         </div>
       ) : (
         <div
@@ -568,6 +674,76 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                 ))}
               </Select>
             </Form.Item>
+
+            <Form.Item
+              className="font-semibold text-xs mb-4"
+              name="shiftScheduleId"
+              label={
+                <span
+                  className="text-sm font-normal text-[#4d4d4d]"
+                  data-cy="job-work-schedule-edit-shift-schedule-label"
+                >
+                  Shift Schedule
+                </span>
+              }
+            >
+              <Select
+                placeholder="Select shift schedule (optional)"
+                className="mt-2"
+                allowClear
+                size="large"
+                onChange={(value: string | undefined) => {
+                  const schedule = shiftSchedules.find(
+                    (item) => item.id === value,
+                  );
+                  form.setFieldsValue({
+                    assignedShiftIds: schedule?.hasShifts
+                      ? (schedule.shifts || []).map((shift) => shift.id)
+                      : [],
+                  });
+                }}
+                options={shiftSchedules.map((schedule) => ({
+                  value: schedule.id,
+                  label: schedule.title,
+                }))}
+                data-cy="job-work-schedule-edit-shift-schedule"
+              />
+            </Form.Item>
+
+            {selectedShiftSchedule?.hasShifts && (
+              <Form.Item
+                className="font-semibold text-xs mb-4"
+                name="assignedShiftIds"
+                label={
+                  <span
+                    className="text-sm font-normal text-[#4d4d4d]"
+                    data-cy="job-work-schedule-edit-shifts-label"
+                  >
+                    Shifts
+                  </span>
+                }
+                rules={[
+                  {
+                    required: true,
+                    message: 'Select at least one shift',
+                  },
+                ]}
+              >
+                <Select
+                  mode="multiple"
+                  placeholder="Select shifts"
+                  className="mt-2"
+                  size="large"
+                  options={(selectedShiftSchedule.shifts || []).map(
+                    (shift) => ({
+                      value: shift.id,
+                      label: `${shift.name} · ${formatTimeRange(shift.startTime, shift.endTime)}`,
+                    }),
+                  )}
+                  data-cy="job-work-schedule-edit-shifts"
+                />
+              </Form.Item>
+            )}
 
             {/* Working Days Section */}
             <div

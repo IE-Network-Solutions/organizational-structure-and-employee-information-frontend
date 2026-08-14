@@ -69,6 +69,7 @@ export interface BlueprintAssignment {
   id: string;
   blueprintId: string;
   userId: string;
+  shiftIds: string[];
   assignedFrom?: string;
   assignedTo?: string;
 }

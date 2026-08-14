@@ -97,8 +97,16 @@ export const useAssignEmployees = () => {
     async (params: {
       blueprintId: string;
       userIds: string[];
+      shiftIds?: string[];
       assignedFrom?: string;
       assignedTo?: string;
+      employees?: Array<{
+        id: string;
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        jobTitle?: string;
+      }>;
     }) => assignEmployees(params),
     {
       onSuccess: (created) => {

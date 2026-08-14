@@ -124,26 +124,31 @@ export const SEED_ASSIGNMENTS: BlueprintAssignment[] = [
     id: 'asg-office-marta',
     blueprintId: 'bp-office-standard',
     userId: 'emp-4',
+    shiftIds: [],
   },
   {
     id: 'asg-morning-abebe',
     blueprintId: 'bp-morning-shift',
     userId: DEMO_LOGGED_IN_EMPLOYEE_ID,
+    shiftIds: ['sh-morning', 'sh-afternoon'],
   },
   {
     id: 'asg-morning-sara',
     blueprintId: 'bp-morning-shift',
     userId: 'emp-2',
+    shiftIds: ['sh-morning'],
   },
   {
     id: 'asg-morning-daniel',
     blueprintId: 'bp-morning-shift',
     userId: 'emp-3',
+    shiftIds: ['sh-afternoon'],
   },
   {
     id: 'asg-afternoon-yonas',
     blueprintId: 'bp-afternoon-shift',
     userId: 'emp-5',
+    shiftIds: ['sh-evening'],
   },
 ];
 

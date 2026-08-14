@@ -8,6 +8,7 @@ import { useParams } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 import { useEffect } from 'react';
+import { useAssignEmployees } from '@/store/server/features/timesheet/workSchedule/mutation';
 
 interface Ids {
   id?: string;
@@ -41,6 +42,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
   const { data: employeeData } = useGetEmployee(userId);
 
   const { mutate: createJobInformation, isLoading } = useCreateJobInformation();
+  const { mutate: assignShiftSchedule } = useAssignEmployees();
 
   const handleClose = () => {
     setIsAddEmployeeJobInfoModalVisible(false);
@@ -62,8 +64,28 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
     // Include allowances from form state
     values.allowances = form.getFieldValue('allowances') || [];
 
+    const shiftScheduleId = form.getFieldValue('shiftScheduleId');
+    const assignedShiftIds = form.getFieldValue('assignedShiftIds') || [];
+
     createJobInformation(values, {
       onSuccess: () => {
+        if (shiftScheduleId) {
+          assignShiftSchedule({
+            blueprintId: shiftScheduleId,
+            userIds: [userId],
+            shiftIds: assignedShiftIds,
+            employees: [
+              {
+                id: userId,
+                firstName: employeeData?.firstName,
+                lastName: employeeData?.lastName,
+                email: employeeData?.email,
+                jobTitle:
+                  employeeData?.employeeJobInformation?.[0]?.position?.name,
+              },
+            ],
+          });
+        }
         setTempAllowances([]); // Clear temp allowances on successful submit
         handleClose();
 

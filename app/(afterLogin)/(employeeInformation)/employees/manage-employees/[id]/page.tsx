@@ -29,6 +29,7 @@ import Link from 'next/link';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
 import AirplanemodeInactiveIcon from '@mui/icons-material/AirplanemodeInactive';
+import { useAssignEmployees } from '@/store/server/features/timesheet/workSchedule/mutation';
 
 interface Params {
   id: string;
@@ -60,6 +61,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const { mutate: employeeDeleteMutation } = useDeleteEmployee();
   const { mutate: rehireEmployee, isLoading: rehireLoading } =
     useRehireTerminatedEmployee();
+  const { mutate: assignShiftSchedule } = useAssignEmployees();
 
   const handleEndEmploymentClick = () => {
     setIsEmploymentFormVisible(true);
@@ -104,8 +106,25 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
     values.departmentLeadOrNot = !values.departmentLeadOrNot
       ? false
       : values.departmentLeadOrNot;
+    const shiftScheduleId = values.shiftScheduleId;
+    const assignedShiftIds = values.assignedShiftIds || [];
     rehireEmployee(values, {
       onSuccess: () => {
+        if (shiftScheduleId) {
+          assignShiftSchedule({
+            blueprintId: shiftScheduleId,
+            userIds: [id],
+            shiftIds: assignedShiftIds,
+            employees: [
+              {
+                id,
+                firstName: employeeData?.firstName,
+                lastName: employeeData?.lastName,
+                email: employeeData?.email,
+              },
+            ],
+          });
+        }
         setReHireModalVisible(false);
         form.resetFields();
         refetchEmployee();
@@ -426,7 +445,10 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
             form={form}
             data-cy="employee-detail-rehire-job-time-line-form"
           />
-          <WorkScheduleForm data-cy="employee-detail-rehire-work-schedule-form" />
+          <WorkScheduleForm
+            form={form}
+            data-cy="employee-detail-rehire-work-schedule-form"
+          />
           <Form.Item
             id="employee-detail-rehire-form-actions"
             data-cy="employee-detail-rehire-form-actions"

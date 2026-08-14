@@ -19,6 +19,7 @@ import ButtonContinue from '../allFormData/SaveAndContinueButton';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import CustomModal from '@/app/(afterLogin)/(employeeInformation)/_components/sucessModal/successModal';
+import { useAssignEmployees } from '@/store/server/features/timesheet/workSchedule/mutation';
 
 const { Step } = Steps;
 
@@ -35,6 +36,7 @@ const UserSidebar = (props: any) => {
     setSelectedWorkSchedule,
   } = useEmployeeManagementStore();
   const { mutate: createEmployee, isLoading, isSuccess } = useAddEmployee();
+  const { mutate: assignShiftSchedule } = useAssignEmployees();
   const { setTempAllowances } = useEmployeeManagementStore();
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
 
@@ -67,7 +69,29 @@ const UserSidebar = (props: any) => {
     const allValues = form.getFieldsValue(true);
 
     const formData = transformData(allValues);
-    createEmployee(formData);
+    const shiftScheduleId = allValues.shiftScheduleId;
+    const assignedShiftIds = allValues.assignedShiftIds || [];
+    createEmployee(formData, {
+      onSuccess: (created: any) => {
+        const createdUserId =
+          created?.id || created?.userId || created?.data?.id;
+        if (shiftScheduleId && createdUserId) {
+          assignShiftSchedule({
+            blueprintId: shiftScheduleId,
+            userIds: [createdUserId],
+            shiftIds: assignedShiftIds,
+            employees: [
+              {
+                id: createdUserId,
+                firstName: allValues.firstName,
+                lastName: allValues.lastName,
+                email: allValues.email,
+              },
+            ],
+          });
+        }
+      },
+    });
   };
   const handleContinueClick = async () => {
     if (current !== 2) {
@@ -204,7 +228,10 @@ const UserSidebar = (props: any) => {
                   form={form}
                   data-cy="user-sidebar-role-permission-form"
                 />
-                <WorkScheduleForm data-cy="user-sidebar-work-schedule-form" />
+                <WorkScheduleForm
+                  form={form}
+                  data-cy="user-sidebar-work-schedule-form"
+                />
                 <ButtonContinue
                   handleContinueClick={handleContinueClick}
                   handleBackClick={handleBackClick}
