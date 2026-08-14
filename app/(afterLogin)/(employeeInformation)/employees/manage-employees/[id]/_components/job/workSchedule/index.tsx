@@ -34,6 +34,13 @@ import { formatTimeRange } from '@/store/server/features/timesheet/workSchedule/
 
 const { Option } = Select;
 
+const EMPTY_SHIFT_SCHEDULES: NonNullable<
+  ReturnType<typeof useGetBlueprints>['data']
+> = [];
+const EMPTY_USER_SHIFT_ASSIGNMENTS: NonNullable<
+  ReturnType<typeof useGetUserShiftAssignments>['data']
+> = [];
+
 type WorkScheduleComponentProps = {
   employeeId: string;
 };
@@ -55,9 +62,12 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
     useUpdateEmployeeJobInformation();
   const { data: employeeData, isLoading, refetch } = useGetEmployee(userId);
   const { data: workSchedules } = useGetWorkSchedules();
-  const { data: shiftSchedules = [] } = useGetBlueprints();
-  const { data: userShiftAssignments = [] } =
+  const { data: shiftSchedulesData } = useGetBlueprints();
+  const shiftSchedules = shiftSchedulesData ?? EMPTY_SHIFT_SCHEDULES;
+  const { data: userShiftAssignmentsData } =
     useGetUserShiftAssignments(userId);
+  const userShiftAssignments =
+    userShiftAssignmentsData ?? EMPTY_USER_SHIFT_ASSIGNMENTS;
   const { mutate: assignShiftSchedule } = useAssignEmployees();
   const [form] = Form.useForm();
   const [dailySchedule, setDailySchedule] = React.useState<any[]>([]);
@@ -255,22 +265,19 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
   }, 0);
 
   useEffect(() => {
-    const employeeDataInfo = {
-      ...employeeData,
-      workScheduleId: employeeData?.employeeJobInformation?.find(
+    const activeWorkScheduleIdFromEmployee =
+      employeeData?.employeeJobInformation?.find(
         (e: any) => e.isPositionActive === true,
-      )?.workScheduleId,
-    };
+      )?.workScheduleId;
 
-    // CRITICAL: Don't update state when in edit mode - let user's selection persist
-    // Only update state when NOT in edit mode (displaying saved data)
     if (!edit.workSchedule) {
-      setWorkSchedule(employeeDataInfo?.workScheduleId);
+      if (workSchedule !== activeWorkScheduleIdFromEmployee) {
+        setWorkSchedule(activeWorkScheduleIdFromEmployee);
+      }
 
-      // Update selectedWorkSchedule to match the new workScheduleId from employeeData
-      if (employeeDataInfo?.workScheduleId && workSchedules?.items) {
+      if (activeWorkScheduleIdFromEmployee && workSchedules?.items) {
         const newSelectedSchedule = workSchedules.items.find(
-          (schedule: any) => schedule.id === employeeDataInfo.workScheduleId,
+          (schedule: any) => schedule.id === activeWorkScheduleIdFromEmployee,
         );
         if (
           newSelectedSchedule &&
@@ -279,24 +286,36 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
           setSelectedWorkSchedule(newSelectedSchedule);
         }
       }
-    }
 
-    // Always update form fields with employeeData (for initial load)
-    if (!edit.workSchedule) {
       const primaryShiftAssignment = userShiftAssignments[0];
-      form.setFieldsValue({
-        ...employeeDataInfo,
-        shiftScheduleId: primaryShiftAssignment?.blueprintId,
-        assignedShiftIds: primaryShiftAssignment?.shiftIds || [],
-      });
+      const nextShiftScheduleId = primaryShiftAssignment?.blueprintId;
+      const nextAssignedShiftIds = primaryShiftAssignment?.shiftIds || [];
+      const currentValues = form.getFieldsValue([
+        'workScheduleId',
+        'shiftScheduleId',
+        'assignedShiftIds',
+      ]);
+      const assignedShiftIdsChanged =
+        JSON.stringify(currentValues.assignedShiftIds || []) !==
+        JSON.stringify(nextAssignedShiftIds);
+      if (
+        currentValues.workScheduleId !== activeWorkScheduleIdFromEmployee ||
+        currentValues.shiftScheduleId !== nextShiftScheduleId ||
+        assignedShiftIdsChanged
+      ) {
+        form.setFieldsValue({
+          workScheduleId: activeWorkScheduleIdFromEmployee,
+          shiftScheduleId: nextShiftScheduleId,
+          assignedShiftIds: nextAssignedShiftIds,
+        });
+      }
     }
 
-    // Initialize daily schedule - use selectedWorkSchedule if available, otherwise use employeeData
     const scheduleToUse =
-      selectedWorkSchedule ||
-      (employeeDataInfo?.workScheduleId &&
+      (edit.workSchedule ? selectedWorkSchedule : null) ||
+      (activeWorkScheduleIdFromEmployee &&
         workSchedules?.items?.find(
-          (schedule: any) => schedule.id === employeeDataInfo.workScheduleId,
+          (schedule: any) => schedule.id === activeWorkScheduleIdFromEmployee,
         ));
 
     if (scheduleToUse?.detail) {
@@ -310,7 +329,21 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
           duration: day.duration || 0,
         }),
       );
-      setDailySchedule(scheduleData);
+      setDailySchedule((prev) => {
+        const prevSignature = prev
+          .map(
+            (day) =>
+              `${day.day}-${day.workDay}-${day.duration}-${day.startTime?.format?.('HH:mm') || ''}-${day.endTime?.format?.('HH:mm') || ''}`,
+          )
+          .join('|');
+        const nextSignature = scheduleData
+          .map(
+            (day: any) =>
+              `${day.day}-${day.workDay}-${day.duration}-${day.startTime?.format?.('HH:mm') || ''}-${day.endTime?.format?.('HH:mm') || ''}`,
+          )
+          .join('|');
+        return prevSignature === nextSignature ? prev : scheduleData;
+      });
     }
   }, [
     form,
@@ -320,6 +353,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
     workSchedules,
     edit.workSchedule,
     userShiftAssignments,
+    workSchedule,
   ]);
 
   // Find the active job's work schedule

@@ -20,9 +20,18 @@ import {
 } from '@/store/server/features/timesheet/workSchedule/helpers';
 import { useMemo } from 'react';
 
+const EMPTY_BLUEPRINTS: NonNullable<
+  ReturnType<typeof useGetBlueprints>['data']
+> = [];
+const EMPTY_ASSIGNMENTS: NonNullable<
+  ReturnType<typeof useGetAssignments>['data']
+> = [];
+
 const BlueprintList = () => {
-  const { data: blueprints = [], isLoading } = useGetBlueprints();
-  const { data: assignments = [] } = useGetAssignments();
+  const { data: blueprintsData, isLoading } = useGetBlueprints();
+  const blueprints = blueprintsData ?? EMPTY_BLUEPRINTS;
+  const { data: assignmentsData } = useGetAssignments();
+  const assignments = assignmentsData ?? EMPTY_ASSIGNMENTS;
   const {
     searchQuery,
     setSearchQuery,

@@ -21,21 +21,32 @@ import { getEmployeeDisplayName } from '@/store/server/features/timesheet/workSc
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { formatTimeRange } from '@/store/server/features/timesheet/workSchedule/helpers';
 
+const EMPTY_MOCK_EMPLOYEES: NonNullable<
+  ReturnType<typeof useGetMockEmployees>['data']
+> = [];
+const EMPTY_ASSIGNMENTS: NonNullable<
+  ReturnType<typeof useGetAssignments>['data']
+> = [];
+const EMPTY_SHIFT_IDS: string[] = [];
+
 const AssignEmployeesDrawer = () => {
   const { isAssignDrawerOpen, selectedBlueprintId, closeAssignDrawer } =
     useWorkScheduleUiStore();
   const [form] = Form.useForm();
-  const { data: mockEmployees = [] } = useGetMockEmployees();
+  const { data: mockEmployeesData } = useGetMockEmployees();
+  const mockEmployees = mockEmployeesData ?? EMPTY_MOCK_EMPLOYEES;
   const { data: allUsers } = useGetAllUsers();
   const { data: blueprint } = useGetBlueprint(selectedBlueprintId);
-  const { data: assignments = [] } = useGetAssignments(
+  const { data: assignmentsData } = useGetAssignments(
     selectedBlueprintId ?? undefined,
   );
+  const assignments = assignmentsData ?? EMPTY_ASSIGNMENTS;
   const { mutate: assignEmployees, isLoading: isAssigning } =
     useAssignEmployees();
   const { mutate: unassignEmployee, isLoading: isUnassigning } =
     useUnassignEmployee();
-  const selectedShiftIds = Form.useWatch('shiftIds', form) || [];
+  const selectedShiftIds =
+    Form.useWatch('shiftIds', form) ?? EMPTY_SHIFT_IDS;
 
   useEffect(() => {
     if (!isAssignDrawerOpen) {

@@ -13,6 +13,8 @@ import {
   listSwaps,
 } from './mockService';
 
+const isBrowser = typeof window !== 'undefined';
+
 export const workScheduleQueryKeys = {
   employees: ['workScheduleMockEmployees'] as const,
   employee: (id: string) => ['workScheduleMockEmployee', id] as const,
@@ -32,59 +34,71 @@ export const workScheduleQueryKeys = {
 };
 
 export const useGetMockEmployees = () =>
-  useQuery(workScheduleQueryKeys.employees, async () => listMockEmployees());
+  useQuery(workScheduleQueryKeys.employees, async () => listMockEmployees(), {
+    enabled: isBrowser,
+  });
 
 export const useGetMockEmployee = (id: string) =>
   useQuery(
     workScheduleQueryKeys.employee(id),
     async () => getMockEmployee(id),
     {
-      enabled: Boolean(id),
+      enabled: isBrowser && Boolean(id),
     },
   );
 
 export const useGetBlueprints = () =>
-  useQuery(workScheduleQueryKeys.blueprints, async () => listBlueprints());
+  useQuery(workScheduleQueryKeys.blueprints, async () => listBlueprints(), {
+    enabled: isBrowser,
+  });
 
 export const useGetBlueprint = (id: string | null) =>
   useQuery(
     workScheduleQueryKeys.blueprint(id ?? ''),
     async () => getBlueprint(id!),
     {
-      enabled: Boolean(id),
+      enabled: isBrowser && Boolean(id),
     },
   );
 
 export const useGetAssignments = (blueprintId?: string) =>
-  useQuery(workScheduleQueryKeys.assignments(blueprintId), async () =>
-    listAssignments(blueprintId),
+  useQuery(
+    workScheduleQueryKeys.assignments(blueprintId),
+    async () => listAssignments(blueprintId),
+    { enabled: isBrowser },
   );
 
 export const useGetUserShiftAssignments = (userId: string | null) =>
   useQuery(
     workScheduleQueryKeys.userAssignments(userId ?? ''),
     async () => listAssignmentsForUser(userId!),
-    { enabled: Boolean(userId) },
+    { enabled: isBrowser && Boolean(userId) },
   );
 
 export const useGetShiftInstances = (filters: InstanceFilters = {}) =>
-  useQuery(workScheduleQueryKeys.instances(filters), async () =>
-    listInstances(filters),
+  useQuery(
+    workScheduleQueryKeys.instances(filters),
+    async () => listInstances(filters),
+    { enabled: isBrowser },
   );
 
 export const useGetBaselineBands = (filters: InstanceFilters = {}) =>
-  useQuery(workScheduleQueryKeys.baselineBands(filters), async () =>
-    listBaselineBands(filters),
+  useQuery(
+    workScheduleQueryKeys.baselineBands(filters),
+    async () => listBaselineBands(filters),
+    { enabled: isBrowser },
   );
 
 export const useGetSwapRequests = (filters: SwapFilters = {}) =>
-  useQuery(workScheduleQueryKeys.swaps(filters), async () =>
-    listSwaps(filters),
+  useQuery(
+    workScheduleQueryKeys.swaps(filters),
+    async () => listSwaps(filters),
+    { enabled: isBrowser },
   );
 
 export const useGetEligibleSwapTargets = (requesterShiftId: string | null) =>
   useQuery(
     workScheduleQueryKeys.eligibleTargets(requesterShiftId ?? ''),
     async () => listEligibleSwapTargets(requesterShiftId!),
-    { enabled: Boolean(requesterShiftId) },
+    { enabled: isBrowser && Boolean(requesterShiftId) },
   );

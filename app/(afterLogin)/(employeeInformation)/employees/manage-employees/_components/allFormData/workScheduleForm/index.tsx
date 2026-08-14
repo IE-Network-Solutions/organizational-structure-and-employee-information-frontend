@@ -12,9 +12,14 @@ interface WorkScheduleFormProps {
   form?: any;
 }
 
+const EMPTY_SHIFT_SCHEDULES: NonNullable<
+  ReturnType<typeof useGetBlueprints>['data']
+> = [];
+
 const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
   const { data: workSchedules } = useGetWorkSchedules();
-  const { data: shiftSchedules = [] } = useGetBlueprints();
+  const { data: shiftSchedulesData } = useGetBlueprints();
+  const shiftSchedules = shiftSchedulesData ?? EMPTY_SHIFT_SCHEDULES;
   const { setSelectedWorkSchedule, workSchedule, setWorkSchedule } =
     useEmployeeManagementStore();
   const selectedShiftScheduleId = Form.useWatch('shiftScheduleId', form);
