@@ -11,7 +11,6 @@ import {
   useGetAssignments,
   useGetBlueprints,
 } from '@/store/server/features/timesheet/workSchedule/queries';
-import { useResetMockWorkSchedule } from '@/store/server/features/timesheet/workSchedule/mutation';
 import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workSchedule';
 import {
   formatHours,
@@ -24,7 +23,6 @@ import { useMemo } from 'react';
 const BlueprintList = () => {
   const { data: blueprints = [], isLoading } = useGetBlueprints();
   const { data: assignments = [] } = useGetAssignments();
-  const { mutate: resetDemo } = useResetMockWorkSchedule();
   const {
     searchQuery,
     setSearchQuery,
@@ -114,14 +112,6 @@ const BlueprintList = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
           data-cy="time-attendance-settings-work-schedule-search"
         />
-        <Button
-          type="link"
-          className="px-0"
-          onClick={() => resetDemo()}
-          data-cy="time-attendance-settings-work-schedule-reset-demo"
-        >
-          Reset demo data
-        </Button>
       </div>
 
       {!isLoading && filtered.length === 0 && (
@@ -225,54 +215,61 @@ const BlueprintList = () => {
                   data-cy={`time-attendance-settings-work-schedule-blueprint-day-${blueprint.id}-${day}`}
                 >
                   <div
-                    className="text-sm font-semibold text-[#4d4d4d] mb-2"
-                    data-cy={`time-attendance-settings-work-schedule-blueprint-day-name-${blueprint.id}-${day}`}
+                    className="flex items-center justify-between gap-2 mb-2"
+                    data-cy={`time-attendance-settings-work-schedule-blueprint-day-header-${blueprint.id}-${day}`}
                   >
-                    {day}
-                  </div>
-                  <div
-                    className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-gray-50 px-2 py-1 text-xs text-gray-600 mb-2"
-                    data-cy={`time-attendance-settings-work-schedule-blueprint-day-time-wrap-${blueprint.id}-${day}`}
-                  >
-                    <CalendarOutlined />
                     <span
+                      className="text-sm font-semibold text-[#4d4d4d]"
+                      data-cy={`time-attendance-settings-work-schedule-blueprint-day-name-${blueprint.id}-${day}`}
+                    >
+                      {day}
+                    </span>
+                    <Tag
+                      className="!m-0 !text-[11px] !leading-5"
                       data-cy={`time-attendance-settings-work-schedule-blueprint-day-time-${blueprint.id}-${day}`}
                     >
+                      <CalendarOutlined className="mr-1" />
                       {formatTimeRange(
                         blueprint.defaultStartTime,
                         blueprint.defaultEndTime,
                       )}
-                    </span>
+                    </Tag>
                   </div>
-                  {dayShifts.length === 0 ? (
-                    <div
-                      className="text-[11px] text-gray-500"
-                      data-cy={`time-attendance-settings-work-schedule-blueprint-day-baseline-${blueprint.id}-${day}`}
-                    >
-                      Day hours only
-                    </div>
-                  ) : (
-                    dayShifts.map((shift) => (
-                      <div
-                        key={`${blueprint.id}-${day}-${shift.id}`}
-                        className="text-[11px] text-primary mb-1"
-                        data-cy={`time-attendance-settings-work-schedule-blueprint-day-shift-${blueprint.id}-${day}-${shift.id}`}
+                  <div
+                    className="flex flex-wrap gap-1.5"
+                    data-cy={`time-attendance-settings-work-schedule-blueprint-day-tags-${blueprint.id}-${day}`}
+                  >
+                    {dayShifts.length === 0 ? (
+                      <Tag
+                        className="!m-0 !text-[11px] !leading-5"
+                        data-cy={`time-attendance-settings-work-schedule-blueprint-day-baseline-${blueprint.id}-${day}`}
                       >
-                        {shift.name} ·{' '}
-                        {formatTimeRange(shift.startTime, shift.endTime)}
-                      </div>
-                    ))
-                  )}
-                  {blueprint.hasShifts && (
-                    <div
-                      className="mt-1 text-[11px] text-gray-500"
-                      data-cy={`time-attendance-settings-work-schedule-blueprint-day-remaining-${blueprint.id}-${day}`}
-                    >
-                      {remaining > 0
-                        ? `${formatHours(remaining)} remaining`
-                        : 'Fully allocated'}
-                    </div>
-                  )}
+                        Day hours only
+                      </Tag>
+                    ) : (
+                      dayShifts.map((shift) => (
+                        <Tag
+                          key={`${blueprint.id}-${day}-${shift.id}`}
+                          color="blue"
+                          className="!m-0 !text-[11px] !leading-5"
+                          data-cy={`time-attendance-settings-work-schedule-blueprint-day-shift-${blueprint.id}-${day}-${shift.id}`}
+                        >
+                          {shift.name} ·{' '}
+                          {formatTimeRange(shift.startTime, shift.endTime)}
+                        </Tag>
+                      ))
+                    )}
+                    {blueprint.hasShifts && (
+                      <Tag
+                        className="!m-0 !text-[11px] !leading-5"
+                        data-cy={`time-attendance-settings-work-schedule-blueprint-day-remaining-${blueprint.id}-${day}`}
+                      >
+                        {remaining > 0
+                          ? `${formatHours(remaining)} left`
+                          : 'Full'}
+                      </Tag>
+                    )}
+                  </div>
                 </div>
               );
             })}

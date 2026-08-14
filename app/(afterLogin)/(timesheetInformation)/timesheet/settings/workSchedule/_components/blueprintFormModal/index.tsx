@@ -9,6 +9,7 @@ import {
   Modal,
   Radio,
   Select,
+  Tag,
   TimePicker,
 } from 'antd';
 import dayjs from 'dayjs';
@@ -264,9 +265,10 @@ const BlueprintFormModal = () => {
       }
       open={isBlueprintModalOpen}
       onCancel={closeBlueprintModal}
-      width={760}
+      width={920}
       centered
       destroyOnClose
+      styles={{ body: { maxHeight: '70vh', overflowY: 'auto', paddingTop: 12 } }}
       footer={
         <div
           className="flex justify-end gap-3 pt-2"
@@ -298,151 +300,164 @@ const BlueprintFormModal = () => {
         className="w-full"
         data-cy="time-attendance-settings-work-schedule-blueprint-form"
       >
-        <fieldset
-          className="border border-gray-200 rounded-xl p-4 mb-4"
-          data-cy="time-attendance-settings-work-schedule-blueprint-general"
+        <div
+          className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3"
+          data-cy="time-attendance-settings-work-schedule-blueprint-top"
         >
-          <legend
-            className="px-1 text-sm font-semibold text-[#4d4d4d]"
-            data-cy="time-attendance-settings-work-schedule-blueprint-general-legend"
+          <fieldset
+            className="border border-gray-200 rounded-xl p-3"
+            data-cy="time-attendance-settings-work-schedule-blueprint-general"
           >
-            General Info
-          </legend>
-          <Form.Item
-            name="title"
-            label={
-              <span
-                className="text-sm font-medium"
-                data-cy="time-attendance-settings-work-schedule-blueprint-title-label"
-              >
-                Title
-              </span>
-            }
-            rules={[
-              { required: true, message: 'Please enter a work schedule name' },
-            ]}
-          >
-            <Input
-              size="large"
-              placeholder="Office Hours"
-              className="h-10"
-              data-cy="time-attendance-settings-work-schedule-blueprint-title"
-            />
-          </Form.Item>
-          <p
-            className="text-xs text-gray-500 mb-0"
-            data-cy="time-attendance-settings-work-schedule-blueprint-permanent-note"
-          >
-            This work schedule is permanent. It applies indefinitely until you
-            edit or delete it.
-          </p>
-        </fieldset>
-
-        <fieldset
-          className="border border-gray-200 rounded-xl p-4 mb-4"
-          data-cy="time-attendance-settings-work-schedule-blueprint-days"
-        >
-          <legend
-            className="px-1 text-sm font-semibold text-[#4d4d4d]"
-            data-cy="time-attendance-settings-work-schedule-blueprint-days-legend"
-          >
-            Work Days
-          </legend>
-          <Form.Item
-            name="activeWeekdays"
-            label={
-              <span
-                className="text-sm font-medium"
-                data-cy="time-attendance-settings-work-schedule-blueprint-weekdays-label"
-              >
-                Active days
-              </span>
-            }
-            rules={[
-              { required: true, message: 'Select at least one weekday' },
-              {
-                validator: (rule, value: Weekday[]) =>
-                  value?.length
-                    ? Promise.resolve()
-                    : Promise.reject(new Error('Select at least one weekday')),
-              },
-            ]}
-          >
-            <Select
-              mode="multiple"
-              options={weekdayOptions}
-              className="w-full"
-              placeholder="Select days"
-              data-cy="time-attendance-settings-work-schedule-blueprint-weekdays"
-            />
-          </Form.Item>
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 gap-3"
-            data-cy="time-attendance-settings-work-schedule-blueprint-default-times"
-          >
-            <Form.Item
-              name="defaultStartTime"
-              label={
-                <span
-                  className="text-sm font-medium"
-                  data-cy="time-attendance-settings-work-schedule-blueprint-start-label"
-                >
-                  Day start time
-                </span>
-              }
-              rules={[{ required: true, message: 'Start time is required' }]}
+            <legend
+              className="px-1 text-sm font-semibold text-[#4d4d4d]"
+              data-cy="time-attendance-settings-work-schedule-blueprint-general-legend"
             >
-              <TimePicker
-                format={TIME_FORMAT}
-                className="w-full h-10"
-                data-cy="time-attendance-settings-work-schedule-blueprint-start"
-              />
-            </Form.Item>
+              General Info
+            </legend>
             <Form.Item
-              name="defaultEndTime"
+              name="title"
+              className="mb-2"
               label={
                 <span
                   className="text-sm font-medium"
-                  data-cy="time-attendance-settings-work-schedule-blueprint-end-label"
+                  data-cy="time-attendance-settings-work-schedule-blueprint-title-label"
                 >
-                  Day end time
+                  Title
                 </span>
               }
               rules={[
-                { required: true, message: 'End time is required' },
-                ({ getFieldValue }) => ({
-                  validator(rule, value) {
-                    const start = getFieldValue('defaultStartTime');
-                    if (!value || !start || value.isAfter(start)) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error('End time must be after start time'),
-                    );
-                  },
-                }),
+                {
+                  required: true,
+                  message: 'Please enter a work schedule name',
+                },
               ]}
             >
-              <TimePicker
-                format={TIME_FORMAT}
-                className="w-full h-10"
-                data-cy="time-attendance-settings-work-schedule-blueprint-end"
+              <Input
+                size="large"
+                placeholder="Office Hours"
+                className="h-10"
+                data-cy="time-attendance-settings-work-schedule-blueprint-title"
               />
             </Form.Item>
-          </div>
-          {dayWindowHours > 0 && (
             <p
               className="text-xs text-gray-500 mb-0"
-              data-cy="time-attendance-settings-work-schedule-blueprint-window-hours"
+              data-cy="time-attendance-settings-work-schedule-blueprint-permanent-note"
             >
-              {formatHours(dayWindowHours)} available on each selected day for
-              shift setup.
+              Permanent schedule — applies until you edit or delete it.
             </p>
-          )}
-        </fieldset>
+          </fieldset>
+
+          <fieldset
+            className="border border-gray-200 rounded-xl p-3"
+            data-cy="time-attendance-settings-work-schedule-blueprint-days"
+          >
+            <legend
+              className="px-1 text-sm font-semibold text-[#4d4d4d]"
+              data-cy="time-attendance-settings-work-schedule-blueprint-days-legend"
+            >
+              Work Days
+            </legend>
+            <Form.Item
+              name="activeWeekdays"
+              className="mb-2"
+              label={
+                <span
+                  className="text-sm font-medium"
+                  data-cy="time-attendance-settings-work-schedule-blueprint-weekdays-label"
+                >
+                  Active days
+                </span>
+              }
+              rules={[
+                { required: true, message: 'Select at least one weekday' },
+                {
+                  validator: (rule, value: Weekday[]) =>
+                    value?.length
+                      ? Promise.resolve()
+                      : Promise.reject(
+                          new Error('Select at least one weekday'),
+                        ),
+                },
+              ]}
+            >
+              <Select
+                mode="multiple"
+                options={weekdayOptions}
+                className="w-full"
+                placeholder="Select days"
+                maxTagCount="responsive"
+                data-cy="time-attendance-settings-work-schedule-blueprint-weekdays"
+              />
+            </Form.Item>
+            <div
+              className="grid grid-cols-2 gap-2"
+              data-cy="time-attendance-settings-work-schedule-blueprint-default-times"
+            >
+              <Form.Item
+                name="defaultStartTime"
+                className="mb-0"
+                label={
+                  <span
+                    className="text-sm font-medium"
+                    data-cy="time-attendance-settings-work-schedule-blueprint-start-label"
+                  >
+                    Day start
+                  </span>
+                }
+                rules={[{ required: true, message: 'Required' }]}
+              >
+                <TimePicker
+                  format={TIME_FORMAT}
+                  className="w-full h-10"
+                  data-cy="time-attendance-settings-work-schedule-blueprint-start"
+                />
+              </Form.Item>
+              <Form.Item
+                name="defaultEndTime"
+                className="mb-0"
+                label={
+                  <span
+                    className="text-sm font-medium"
+                    data-cy="time-attendance-settings-work-schedule-blueprint-end-label"
+                  >
+                    Day end
+                  </span>
+                }
+                rules={[
+                  { required: true, message: 'Required' },
+                  ({ getFieldValue }) => ({
+                    validator(rule, value) {
+                      const start = getFieldValue('defaultStartTime');
+                      if (!value || !start || value.isAfter(start)) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        new Error('End must be after start'),
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <TimePicker
+                  format={TIME_FORMAT}
+                  className="w-full h-10"
+                  data-cy="time-attendance-settings-work-schedule-blueprint-end"
+                />
+              </Form.Item>
+            </div>
+            {dayWindowHours > 0 && (
+              <p
+                className="text-xs text-gray-500 mb-0 mt-2"
+                data-cy="time-attendance-settings-work-schedule-blueprint-window-hours"
+              >
+                {formatHours(dayWindowHours)} available per day for shifts.
+              </p>
+            )}
+          </fieldset>
+        </div>
 
         <fieldset
-          className="border border-gray-200 rounded-xl p-4"
+          className="border border-gray-200 rounded-xl p-3"
           data-cy="time-attendance-settings-work-schedule-blueprint-shifts"
         >
           <legend
@@ -451,52 +466,31 @@ const BlueprintFormModal = () => {
           >
             Shifts
           </legend>
-          <p
-            className="text-xs text-gray-500 mb-3"
-            data-cy="time-attendance-settings-work-schedule-blueprint-shifts-help"
-          >
-            Add Morning, Afternoon, or custom shifts inside the day window.
-            Apply a shift to all work days or mark specific days only.
-          </p>
 
           {remainingByDay.length > 0 && (
             <div
-              className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4"
+              className="flex flex-wrap gap-1.5 mb-3"
               data-cy="time-attendance-settings-work-schedule-blueprint-remaining"
             >
               {remainingByDay.map((item) => (
-                <div
+                <Tag
                   key={item.weekday}
-                  className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                  color={item.remaining > 0 ? 'blue' : 'default'}
+                  className="!m-0 !text-[11px] !leading-5"
                   data-cy={`time-attendance-settings-work-schedule-blueprint-remaining-${item.weekday}`}
                 >
-                  <div
-                    className="text-xs font-semibold text-[#4d4d4d]"
-                    data-cy={`time-attendance-settings-work-schedule-blueprint-remaining-day-${item.weekday}`}
-                  >
-                    {item.weekday.slice(0, 3)}
-                  </div>
-                  <div
-                    className="text-xs text-gray-600"
-                    data-cy={`time-attendance-settings-work-schedule-blueprint-remaining-hours-${item.weekday}`}
-                  >
-                    {item.remaining > 0
-                      ? `${formatHours(item.remaining)} remaining`
-                      : 'Fully allocated'}
-                  </div>
-                  {item.gaps.length > 0 && (
-                    <div
-                      className="text-[11px] text-gray-500"
-                      data-cy={`time-attendance-settings-work-schedule-blueprint-remaining-gaps-${item.weekday}`}
-                    >
-                      {item.gaps
+                  {item.weekday.slice(0, 3)} ·{' '}
+                  {item.remaining > 0
+                    ? `${formatHours(item.remaining)} left`
+                    : 'Full'}
+                  {item.gaps.length > 0
+                    ? ` (${item.gaps
                         .map((gap) =>
                           formatTimeRange(gap.startTime, gap.endTime),
                         )
-                        .join(' · ')}
-                    </div>
-                  )}
-                </div>
+                        .join(', ')})`
+                    : ''}
+                </Tag>
               ))}
             </div>
           )}
@@ -554,7 +548,7 @@ const BlueprintFormModal = () => {
             {(fields, { add, remove }, { errors }) => (
               <div data-cy="time-attendance-settings-work-schedule-blueprint-shift-list">
                 <div
-                  className="flex justify-between items-center mb-3"
+                  className="flex justify-between items-center mb-2"
                   data-cy="time-attendance-settings-work-schedule-blueprint-shift-list-header"
                 >
                   <span
@@ -565,6 +559,7 @@ const BlueprintFormModal = () => {
                   </span>
                   <Button
                     type="dashed"
+                    size="small"
                     disabled={!activeWeekdays.length || !defaultStartTime}
                     onClick={() => {
                       const existingNames = (form.getFieldValue('shifts') || [])
@@ -604,21 +599,22 @@ const BlueprintFormModal = () => {
                 {fields.map((field, index) => (
                   <div
                     key={field.key}
-                    className="border border-gray-200 rounded-lg p-3 mb-3"
+                    className="border border-gray-200 rounded-lg p-2.5 mb-2"
                     data-cy={`time-attendance-settings-work-schedule-blueprint-shift-${index}`}
                   >
                     <Form.Item {...field} name={[field.name, 'id']} hidden>
                       <Input />
                     </Form.Item>
                     <div
-                      className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+                      className="grid grid-cols-1 md:grid-cols-12 gap-2 items-start"
                       data-cy={`time-attendance-settings-work-schedule-blueprint-shift-fields-${index}`}
                     >
                       <Form.Item
                         {...field}
                         name={[field.name, 'namePreset']}
                         label="Shift"
-                        rules={[{ required: true, message: 'Select a shift' }]}
+                        className="mb-0 md:col-span-3"
+                        rules={[{ required: true, message: 'Required' }]}
                       >
                         <Select
                           options={presetOptions}
@@ -631,6 +627,7 @@ const BlueprintFormModal = () => {
                         {...field}
                         name={[field.name, 'startTime']}
                         label="Start"
+                        className="mb-0 md:col-span-2"
                         rules={[
                           { required: true, message: 'Required' },
                           ({ getFieldValue }) => ({
@@ -673,6 +670,7 @@ const BlueprintFormModal = () => {
                         {...field}
                         name={[field.name, 'endTime']}
                         label="End"
+                        className="mb-0 md:col-span-2"
                         rules={[
                           { required: true, message: 'Required' },
                           ({ getFieldValue }) => ({
@@ -711,6 +709,34 @@ const BlueprintFormModal = () => {
                       >
                         <TimePicker format={TIME_FORMAT} className="w-full" />
                       </Form.Item>
+                      <Form.Item
+                        {...field}
+                        name={[field.name, 'applyTo']}
+                        label="Apply to"
+                        className="mb-0 md:col-span-4"
+                        rules={[{ required: true, message: 'Required' }]}
+                      >
+                        <Radio.Group
+                          className="flex flex-wrap gap-x-3"
+                          data-cy={`time-attendance-settings-work-schedule-blueprint-shift-apply-${index}`}
+                        >
+                          <Radio value="all">All days</Radio>
+                          <Radio value="specific">Specific</Radio>
+                        </Radio.Group>
+                      </Form.Item>
+                      <div
+                        className="md:col-span-1 flex md:justify-end md:pt-7"
+                        data-cy={`time-attendance-settings-work-schedule-blueprint-shift-remove-wrap-${index}`}
+                      >
+                        <Button
+                          size="small"
+                          danger
+                          onClick={() => remove(field.name)}
+                          data-cy={`time-attendance-settings-work-schedule-blueprint-shift-remove-${index}`}
+                        >
+                          Remove
+                        </Button>
+                      </div>
                     </div>
                     <Form.Item
                       noStyle
@@ -726,6 +752,7 @@ const BlueprintFormModal = () => {
                             {...field}
                             name={[field.name, 'customName']}
                             label="Custom name"
+                            className="mb-0 mt-2"
                             rules={[
                               {
                                 required: true,
@@ -737,19 +764,6 @@ const BlueprintFormModal = () => {
                           </Form.Item>
                         ) : null
                       }
-                    </Form.Item>
-                    <Form.Item
-                      {...field}
-                      name={[field.name, 'applyTo']}
-                      label="Apply to"
-                      rules={[{ required: true, message: 'Required' }]}
-                    >
-                      <Radio.Group
-                        data-cy={`time-attendance-settings-work-schedule-blueprint-shift-apply-${index}`}
-                      >
-                        <Radio value="all">All selected days</Radio>
-                        <Radio value="specific">Specific days</Radio>
-                      </Radio.Group>
                     </Form.Item>
                     <Form.Item
                       noStyle
@@ -766,6 +780,7 @@ const BlueprintFormModal = () => {
                             {...field}
                             name={[field.name, 'weekdays']}
                             label="Mark days"
+                            className="mb-0 mt-2"
                             rules={[
                               {
                                 required: true,
@@ -783,14 +798,6 @@ const BlueprintFormModal = () => {
                         ) : null
                       }
                     </Form.Item>
-                    <Button
-                      size="small"
-                      danger
-                      onClick={() => remove(field.name)}
-                      data-cy={`time-attendance-settings-work-schedule-blueprint-shift-remove-${index}`}
-                    >
-                      Remove
-                    </Button>
                   </div>
                 ))}
                 <Form.ErrorList errors={errors} />
@@ -799,8 +806,8 @@ const BlueprintFormModal = () => {
                     className="text-xs text-gray-500 mb-0"
                     data-cy="time-attendance-settings-work-schedule-blueprint-no-shifts"
                   >
-                    No shifts yet. Leave empty to keep day hours only, or add
-                    shifts such as Morning and Afternoon.
+                    No shifts yet. Leave empty for day hours only, or add
+                    Morning / Afternoon shifts.
                   </p>
                 )}
               </div>
@@ -811,7 +818,7 @@ const BlueprintFormModal = () => {
             <Form.Item
               name="isSwappable"
               valuePropName="checked"
-              className="mb-0 mt-3"
+              className="mb-0 mt-2"
             >
               <Checkbox data-cy="time-attendance-settings-work-schedule-blueprint-swappable">
                 Enable Peer Swapping
