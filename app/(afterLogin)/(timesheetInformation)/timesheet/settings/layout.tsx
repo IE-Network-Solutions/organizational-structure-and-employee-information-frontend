@@ -24,7 +24,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
   const pathname = usePathname();
   const router = useRouter();
   const { isMobile } = useIsMobile();
-  const { innerView, openCreateBlueprintModal } = useWorkScheduleUiStore();
+  const { openCreateBlueprintModal } = useWorkScheduleUiStore();
 
   const {
     setIsShowClosedDateSidebar,
@@ -620,8 +620,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
                       </span>
                     </Button>
                   </AccessGuard>
-                ) : activeKey === 'workSchedule' &&
-                  innerView === 'blueprints' ? (
+                ) : activeKey === 'workSchedule' ? (
                   <AccessGuard
                     permissions={[Permissions.CreateWorkingSchedule]}
                     data-cy="time-attendance-settings-work-schedule-create-btn"

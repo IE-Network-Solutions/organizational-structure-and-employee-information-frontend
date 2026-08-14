@@ -31,8 +31,6 @@ export type SwapRequestStatus =
   | 'EXPIRED'
   | 'CANCELLED';
 
-export type WorkScheduleInnerView = 'blueprints' | 'roster' | 'swaps';
-
 export interface MockEmployee {
   id: string;
   firstName: string;

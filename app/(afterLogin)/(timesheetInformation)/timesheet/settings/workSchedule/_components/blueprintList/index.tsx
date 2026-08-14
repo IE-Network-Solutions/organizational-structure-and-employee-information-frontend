@@ -30,8 +30,6 @@ const BlueprintList = () => {
     openAssignDrawer,
     openDeleteModal,
     openCreateBlueprintModal,
-    setInnerView,
-    setRosterBlueprintId,
   } = useWorkScheduleUiStore();
 
   const filtered = useMemo(() => {
@@ -61,14 +59,6 @@ const BlueprintList = () => {
         key: 'assign',
         label: 'Assign employees',
         onClick: () => openAssignDrawer(blueprint.id),
-      });
-      items.push({
-        key: 'roster',
-        label: 'View roster',
-        onClick: () => {
-          setRosterBlueprintId(blueprint.id);
-          setInnerView('roster');
-        },
       });
     }
     if (
