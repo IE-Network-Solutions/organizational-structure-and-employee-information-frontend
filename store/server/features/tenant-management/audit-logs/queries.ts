@@ -3,6 +3,7 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 import { AuditLog } from '@/types/tenant-management';
 import { TENANT_MGMT_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import { useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { AuditLogRequestBody, AggregateAuditLogParams } from './interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
@@ -122,6 +123,58 @@ export const useGetAggregateAuditLogs = (
     },
   );
 };
+const getClientFilterKey = (params: AggregateAuditLogParams) => {
+  const searchText = (params.remarks || params.search || '').trim();
+  return {
+    modules: params.modules,
+    module: params.module,
+    orderBy: params.orderBy,
+    orderDirection: params.orderDirection,
+    action: params.action,
+    performedBy: params.performedBy,
+    startDate: params.startDate,
+    endDate: params.endDate,
+    remarks: searchText,
+    search: searchText,
+  };
+};
+
+const hasClientSideFilters = (params: AggregateAuditLogParams) => {
+  const searchText = (params.remarks || params.search || '').trim();
+  return Boolean(
+    searchText ||
+      params.action ||
+      params.startDate ||
+      params.endDate ||
+      params.performedBy,
+  );
+};
+
+const paginateAuditLogs = (
+  response: ApiResponse<AuditLog>,
+  allItems: AuditLog[],
+  page: number,
+  limit: number,
+): ApiResponse<AuditLog> => {
+  const requestedPage = page || 1;
+  const requestedLimit = limit || 10;
+  const start = (requestedPage - 1) * requestedLimit;
+  const pageItems = allItems.slice(start, start + requestedLimit);
+
+  return {
+    ...response,
+    items: pageItems,
+    meta: {
+      ...response.meta,
+      totalItems: allItems.length,
+      itemCount: pageItems.length,
+      itemsPerPage: requestedLimit,
+      totalPages: Math.max(1, Math.ceil(allItems.length / requestedLimit) || 1),
+      currentPage: requestedPage,
+    },
+  };
+};
+
 const getAggregateAuditPostLogs = async (
   params: AggregateAuditLogParams,
 ): Promise<ApiResponse<AuditLog>> => {
@@ -146,16 +199,9 @@ const getAggregateAuditPostLogs = async (
   })();
 
   const searchText = (params.remarks || params.search || '').trim();
-  const selectedModules = modulesFromParam;
-  const hasSingleModuleFilter = selectedModules.length === 1;
-  const hasActiveFilters = Boolean(
-    searchText ||
-      params.action ||
-      params.startDate ||
-      params.endDate ||
-      params.performedBy ||
-      hasSingleModuleFilter,
-  );
+  const clientFiltered = hasClientSideFilters(params);
+  const requestedPage = params.page || 1;
+  const requestedLimit = params.limit || 10;
 
   const buildQueryParams = (page: number, limit: number) => {
     const queryParams: Record<string, any> = {
@@ -165,24 +211,29 @@ const getAggregateAuditPostLogs = async (
       orderDirection: params.orderDirection || 'DESC',
     };
 
-    if (params.action) {
-      queryParams.action = params.action;
-    }
-    if (params.performedBy) {
-      queryParams.performedBy = params.performedBy;
-    }
-    if (params.entityType) {
-      queryParams.entityType = params.entityType;
-    }
-    if (params.startDate) {
-      queryParams.startDate = params.startDate;
-    }
-    if (params.endDate) {
-      queryParams.endDate = params.endDate;
-    }
-    if (searchText) {
-      queryParams.remarks = searchText;
-      queryParams.search = searchText;
+    // When matching client-side, do not send remarks/action/date/employee
+    // filters. The aggregate API paginates first, so those filters would
+    // only apply to the current page and report totalPages as 1.
+    if (!clientFiltered) {
+      if (params.action) {
+        queryParams.action = params.action;
+      }
+      if (params.performedBy) {
+        queryParams.performedBy = params.performedBy;
+      }
+      if (params.entityType) {
+        queryParams.entityType = params.entityType;
+      }
+      if (params.startDate) {
+        queryParams.startDate = params.startDate;
+      }
+      if (params.endDate) {
+        queryParams.endDate = params.endDate;
+      }
+      if (searchText) {
+        queryParams.remarks = searchText;
+        queryParams.search = searchText;
+      }
     }
 
     return queryParams;
@@ -190,11 +241,6 @@ const getAggregateAuditPostLogs = async (
 
   const requestBody = {
     modules: modulesFromParam,
-    ...(searchText ? { remarks: searchText, search: searchText } : {}),
-    ...(params.action ? { action: params.action } : {}),
-    ...(params.startDate ? { startDate: params.startDate } : {}),
-    ...(params.endDate ? { endDate: params.endDate } : {}),
-    ...(params.performedBy ? { performedBy: params.performedBy } : {}),
   };
 
   const fetchPage = async (page: number, limit: number) => {
@@ -248,11 +294,6 @@ const getAggregateAuditPostLogs = async (
       if (performedById !== params.performedBy) return false;
     }
 
-    if (hasSingleModuleFilter) {
-      const moduleValue = (log.module || '').toString();
-      if (moduleValue && moduleValue !== selectedModules[0]) return false;
-    }
-
     if (params.startDate || params.endDate) {
       const performedAtValue = log.performedAt || log.createdAt;
       if (!performedAtValue) return false;
@@ -273,49 +314,70 @@ const getAggregateAuditPostLogs = async (
     return true;
   };
 
-  const requestedPage = params.page || 1;
-  const requestedLimit = params.limit || 5;
-
-  // No filters: use normal server pagination.
-  if (!hasActiveFilters) {
+  // No text/date/action/employee filters: use normal server pagination.
+  // Module scope is already applied via the request body.
+  if (!clientFiltered) {
     return await fetchPage(requestedPage, requestedLimit);
   }
 
-  // Active filters (date / action / module / remarks / employee):
-  // load across pages, match locally, then paginate matches so results
-  // are not limited to the first API page.
+  // Load unfiltered pages, match remarks/employee/action/date locally,
+  // and return every match. The hook paginates the cached match list so
+  // changing table page does not rescan the API.
   const fetchLimit = 100;
-  const maxPages = 50;
+  const maxPages = 100;
   const matched: AuditLog[] = [];
-  let page = 1;
-  let totalPages = 1;
-  let firstResponse: ApiResponse<AuditLog> | null = null;
+  const seenIds = new Set<string>();
 
-  while (page <= totalPages && page <= maxPages) {
-    const response: ApiResponse<AuditLog> = await fetchPage(page, fetchLimit);
-    if (!firstResponse) firstResponse = response;
+  const collectMatches = (items: AuditLog[]) => {
+    items.filter(matchesFilters).forEach((log) => {
+      const key = String(log?.id ?? '');
+      if (key) {
+        if (seenIds.has(key)) return;
+        seenIds.add(key);
+      }
+      matched.push(log);
+    });
+  };
 
-    const items = response?.items ?? [];
-    totalPages =
-      response?.meta?.totalPages ||
-      Math.ceil((response?.meta?.totalItems || 0) / fetchLimit) ||
-      1;
+  const firstResponse: ApiResponse<AuditLog> = await fetchPage(1, fetchLimit);
+  const firstItems = firstResponse?.items ?? [];
+  collectMatches(firstItems);
 
-    matched.push(...items.filter((log) => matchesFilters(log)));
+  const pageSizeUsed =
+    firstResponse?.meta?.itemsPerPage ||
+    (firstItems.length > 0 ? firstItems.length : fetchLimit);
+  const unfilteredTotalPages = Math.min(
+    maxPages,
+    firstResponse?.meta?.totalPages ||
+      Math.ceil((firstResponse?.meta?.totalItems || 0) / pageSizeUsed) ||
+      1,
+  );
 
-    if (!items.length) break;
-    page += 1;
+  if (firstItems.length > 0 && unfilteredTotalPages > 1) {
+    const remainingPages: number[] = [];
+    for (let page = 2; page <= unfilteredTotalPages; page += 1) {
+      remainingPages.push(page);
+    }
+
+    const batchSize = 5;
+    for (let i = 0; i < remainingPages.length; i += batchSize) {
+      const batch = remainingPages.slice(i, i + batchSize);
+      const responses: ApiResponse<AuditLog>[] = await Promise.all(
+        batch.map((page) => fetchPage(page, fetchLimit)),
+      );
+      responses.forEach((response) => {
+        collectMatches(response?.items ?? []);
+      });
+    }
   }
 
-  const start = (requestedPage - 1) * requestedLimit;
-  const pageItems = matched.slice(start, start + requestedLimit);
-
   return {
-    ...(firstResponse as ApiResponse<AuditLog>),
-    items: pageItems,
+    ...firstResponse,
+    items: matched,
     meta: {
+      ...firstResponse.meta,
       totalItems: matched.length,
-      itemCount: pageItems.length,
+      itemCount: matched.length,
       itemsPerPage: requestedLimit,
       totalPages: Math.max(1, Math.ceil(matched.length / requestedLimit) || 1),
       currentPage: requestedPage,
@@ -327,19 +389,35 @@ export const useGetAggregateAuditPostLogs = (
   params: AggregateAuditLogParams = {},
   isEnabled: boolean = true,
 ) => {
-  const shouldKeepPreviousData =
-    (params.module !== null && params.module !== undefined) ||
-    (Array.isArray(params.modules) && params.modules.length > 0) ||
-    (typeof params.modules === 'string' &&
-      params.modules.length > 0 &&
-      params.modules !== 'all');
+  const clientFiltered = hasClientSideFilters(params);
+  const queryKey = clientFiltered
+    ? ['aggregate-audit-post-logs', getClientFilterKey(params)]
+    : ['aggregate-audit-post-logs', params];
 
-  return useQuery<ApiResponse<AuditLog>>(
-    ['aggregate-audit-post-logs', params],
+  const query = useQuery<ApiResponse<AuditLog>>(
+    queryKey,
     () => getAggregateAuditPostLogs(params),
     {
       enabled: isEnabled,
-      keepPreviousData: shouldKeepPreviousData,
+      keepPreviousData: !clientFiltered,
     },
   );
+
+  const paginatedData = useMemo(() => {
+    if (!clientFiltered || !query.data) {
+      return query.data;
+    }
+
+    return paginateAuditLogs(
+      query.data,
+      query.data.items ?? [],
+      params.page || 1,
+      params.limit || 10,
+    );
+  }, [clientFiltered, query.data, params.page, params.limit]);
+
+  return {
+    ...query,
+    data: paginatedData,
+  };
 };

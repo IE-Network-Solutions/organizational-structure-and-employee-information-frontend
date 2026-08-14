@@ -170,8 +170,8 @@ const AuditLogPage = () => {
     return auditLogsResponse?.items ?? [];
   }, [auditLogsResponse]);
 
-  // Date / action / module / remarks filtering is handled in the query layer
-  // (cross-page match + local pagination), so the table uses those results.
+  // Date / action / remarks / employee matching is handled in the query
+  // layer across all API pages, then the current table page is sliced.
   const filteredAuditLogsData = auditLogsData;
 
   const totalItems = auditLogsResponse?.meta?.totalItems || 0;
@@ -376,7 +376,7 @@ const AuditLogPage = () => {
     selectedModule,
     selectedAction,
     selectedUserId,
-    employeeOrRemarksSearch,
+    debouncedRemarksSearch,
     orderDirection,
     dateFrom,
     dateTo,
@@ -778,6 +778,7 @@ const AuditLogPage = () => {
           >
             {isMobile || isTablet ? (
               <CustomMobilePagination
+                currentPage={currentPage}
                 totalResults={totalItems}
                 pageSize={pageSize}
                 onChange={onPageChange}
