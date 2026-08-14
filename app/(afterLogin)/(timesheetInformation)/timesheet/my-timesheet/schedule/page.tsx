@@ -13,12 +13,10 @@ import {
 import {
   DATE_FORMAT,
   formatTimeRange,
-  shiftLabel,
 } from '@/store/server/features/timesheet/workSchedule/helpers';
 import { getEmployeeDisplayName } from '@/store/server/features/timesheet/workSchedule/mockService';
 import { usePeerRespondToSwap } from '@/store/server/features/timesheet/workSchedule/mutation';
 import {
-  SHIFT_TYPE_LABEL,
   ShiftInstanceView,
   SWAP_STATUS_LABEL,
   SwapRequestView,
@@ -155,144 +153,178 @@ const MySchedulePage = () => {
         </p>
       ) : (
         <div
-          className="flex flex-col gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3"
           data-cy="time-attendance-my-schedule-days"
         >
-          {shiftsByDay.map(([date, dayShifts]) => (
-            <div
-              key={date}
-              data-cy={`time-attendance-my-schedule-day-${date}`}
-            >
-              <p
-                className="mb-3 text-sm font-semibold text-[#4d4d4d]"
-                data-cy={`time-attendance-my-schedule-day-label-${date}`}
-              >
-                {dayjs(date).format('dddd, MMM D')}
-              </p>
-              <div
-                className="flex flex-col gap-3"
-                data-cy={`time-attendance-my-schedule-day-shifts-${date}`}
-              >
-                {dayShifts.map((shift) => {
-                  const incoming = incomingByTargetShiftId.get(shift.id) || [];
-                  const outgoing =
-                    outgoingByRequesterShiftId.get(shift.id) || [];
+          {shiftsByDay.map(([date, dayShifts]) => {
+            const day = dayjs(date);
+            const isToday = day.isSame(dayjs(), 'day');
+            const pendingCount = dayShifts.reduce((count, shift) => {
+              return (
+                count +
+                (incomingByTargetShiftId.get(shift.id)?.length || 0) +
+                (outgoingByRequesterShiftId.get(shift.id)?.length || 0)
+              );
+            }, 0);
 
-                  return (
-                    <div
-                      key={shift.id}
-                      className="rounded-lg border border-gray-200 p-3"
-                      data-cy={`time-attendance-my-schedule-shift-${shift.id}`}
+            return (
+              <div
+                key={date}
+                className={`rounded-xl border p-3 flex flex-col gap-2 ${
+                  isToday
+                    ? 'border-primary/40 bg-primary/[0.03]'
+                    : 'border-gray-200 bg-white'
+                }`}
+                data-cy={`time-attendance-my-schedule-day-${date}`}
+              >
+                <div
+                  className="flex items-start justify-between gap-2"
+                  data-cy={`time-attendance-my-schedule-day-header-${date}`}
+                >
+                  <div>
+                    <p
+                      className="mb-0 text-sm font-semibold text-[#4d4d4d]"
+                      data-cy={`time-attendance-my-schedule-day-label-${date}`}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                        <div>
-                          <p className="mb-1 text-sm font-semibold text-[#4d4d4d]">
-                            {formatTimeRange(shift.startTime, shift.endTime)}
-                            {shift.shiftName
-                              ? ` · ${shift.shiftName}`
-                              : ` · ${SHIFT_TYPE_LABEL[shift.shiftType]}`}
-                          </p>
-                          <p className="mb-2 text-xs text-gray-500">
-                            {shift.blueprintTitle} · {shiftLabel(shift)}
-                          </p>
-                          <div className="flex flex-wrap gap-1">
-                            <Tag
-                              color={
-                                shift.isSwappable ? 'success' : 'default'
-                              }
-                            >
-                              {shift.isSwappable ? 'Swappable' : 'Fixed'}
-                            </Tag>
+                      {day.format('ddd, MMM D')}
+                    </p>
+                    <p className="mb-0 text-[11px] text-gray-500">
+                      {dayShifts.length} shift
+                      {dayShifts.length === 1 ? '' : 's'}
+                      {isToday ? ' · Today' : ''}
+                    </p>
+                  </div>
+                  {pendingCount > 0 && (
+                    <Tag color="processing" className="!m-0 !text-[10px]">
+                      {pendingCount} pending
+                    </Tag>
+                  )}
+                </div>
+
+                <div
+                  className="flex flex-col gap-1.5"
+                  data-cy={`time-attendance-my-schedule-day-shifts-${date}`}
+                >
+                  {dayShifts.map((shift) => {
+                    const incoming =
+                      incomingByTargetShiftId.get(shift.id) || [];
+                    const outgoing =
+                      outgoingByRequesterShiftId.get(shift.id) || [];
+
+                    return (
+                      <div
+                        key={shift.id}
+                        className="rounded-lg border border-gray-100 bg-gray-50/80 px-2.5 py-2"
+                        data-cy={`time-attendance-my-schedule-shift-${shift.id}`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="mb-0 text-xs font-semibold text-[#4d4d4d] truncate">
+                              {formatTimeRange(shift.startTime, shift.endTime)}
+                              {shift.shiftName ? ` · ${shift.shiftName}` : ''}
+                            </p>
+                            <p className="mb-0 text-[11px] text-gray-500 truncate">
+                              {shift.blueprintTitle}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {!shift.isSwappable && (
+                              <Tag className="!m-0 !text-[10px] !leading-5 !px-1.5">
+                                Fixed
+                              </Tag>
+                            )}
                             {outgoing.map((swap) => (
-                              <Tag key={swap.id} color="processing">
+                              <Tag
+                                key={swap.id}
+                                color="processing"
+                                className="!m-0 !text-[10px] !leading-5 !px-1.5"
+                              >
                                 {SWAP_STATUS_LABEL[swap.status]}
                               </Tag>
                             ))}
-                          </div>
-                        </div>
-
-                        {shift.isSwappable && (
-                          <Button
-                            type="primary"
-                            size="small"
-                            onClick={() => openSwapModal(shift.id)}
-                            data-cy={`time-attendance-my-schedule-shift-swap-${shift.id}`}
-                          >
-                            Request Swap
-                          </Button>
-                        )}
-                      </div>
-
-                      {outgoing.map((swap) => (
-                        <p
-                          key={swap.id}
-                          className="mt-3 mb-0 text-xs text-gray-500"
-                          data-cy={`time-attendance-my-schedule-shift-outgoing-${swap.id}`}
-                        >
-                          Swap pending with{' '}
-                          {getEmployeeDisplayName(swap.target)} for{' '}
-                          {swap.targetShift.date} (
-                          {formatTimeRange(
-                            swap.targetShift.startTime,
-                            swap.targetShift.endTime,
-                          )}
-                          )
-                        </p>
-                      ))}
-
-                      {incoming.map((swap) => (
-                        <div
-                          key={swap.id}
-                          className="mt-3 pt-3 border-t border-gray-100"
-                          data-cy={`time-attendance-my-schedule-shift-incoming-${swap.id}`}
-                        >
-                          <p className="mb-2 text-xs text-[#4d4d4d]">
-                            {getEmployeeDisplayName(swap.requester)} wants to
-                            swap their {swap.requesterShift.date} (
-                            {formatTimeRange(
-                              swap.requesterShift.startTime,
-                              swap.requesterShift.endTime,
+                            {shift.isSwappable && (
+                              <Button
+                                type="link"
+                                size="small"
+                                className="!px-1 !h-auto !text-xs"
+                                onClick={() => openSwapModal(shift.id)}
+                                data-cy={`time-attendance-my-schedule-shift-swap-${shift.id}`}
+                              >
+                                Swap
+                              </Button>
                             )}
-                            ) for this shift
-                            {swap.reason ? ` — “${swap.reason}”` : ''}
-                          </p>
-                          <div className="flex gap-2">
-                            <Button
-                              type="primary"
-                              size="small"
-                              loading={isResponding}
-                              onClick={() =>
-                                respondToSwap({
-                                  id: swap.id,
-                                  accept: true,
-                                  actorUserId: demoPersonaId,
-                                })
-                              }
-                            >
-                              Accept
-                            </Button>
-                            <Button
-                              size="small"
-                              loading={isResponding}
-                              onClick={() =>
-                                respondToSwap({
-                                  id: swap.id,
-                                  accept: false,
-                                  actorUserId: demoPersonaId,
-                                })
-                              }
-                            >
-                              Reject
-                            </Button>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  );
-                })}
+
+                        {outgoing.map((swap) => (
+                          <p
+                            key={swap.id}
+                            className="mt-1.5 mb-0 text-[11px] text-gray-500"
+                            data-cy={`time-attendance-my-schedule-shift-outgoing-${swap.id}`}
+                          >
+                            With {getEmployeeDisplayName(swap.target)} ·{' '}
+                            {dayjs(swap.targetShift.date).format('MMM D')}{' '}
+                            {formatTimeRange(
+                              swap.targetShift.startTime,
+                              swap.targetShift.endTime,
+                            )}
+                          </p>
+                        ))}
+
+                        {incoming.map((swap) => (
+                          <div
+                            key={swap.id}
+                            className="mt-1.5 pt-1.5 border-t border-gray-200"
+                            data-cy={`time-attendance-my-schedule-shift-incoming-${swap.id}`}
+                          >
+                            <p className="mb-1.5 text-[11px] text-[#4d4d4d]">
+                              {getEmployeeDisplayName(swap.requester)} →{' '}
+                              {dayjs(swap.requesterShift.date).format('MMM D')}{' '}
+                              {formatTimeRange(
+                                swap.requesterShift.startTime,
+                                swap.requesterShift.endTime,
+                              )}
+                            </p>
+                            <div className="flex gap-1.5">
+                              <Button
+                                type="primary"
+                                size="small"
+                                className="!h-6 !text-[11px] !px-2"
+                                loading={isResponding}
+                                onClick={() =>
+                                  respondToSwap({
+                                    id: swap.id,
+                                    accept: true,
+                                    actorUserId: demoPersonaId,
+                                  })
+                                }
+                              >
+                                Accept
+                              </Button>
+                              <Button
+                                size="small"
+                                className="!h-6 !text-[11px] !px-2"
+                                loading={isResponding}
+                                onClick={() =>
+                                  respondToSwap({
+                                    id: swap.id,
+                                    accept: false,
+                                    actorUserId: demoPersonaId,
+                                  })
+                                }
+                              >
+                                Reject
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
