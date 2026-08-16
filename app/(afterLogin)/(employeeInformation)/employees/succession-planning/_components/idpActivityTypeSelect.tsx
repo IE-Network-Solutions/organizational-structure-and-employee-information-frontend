@@ -1,12 +1,10 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Divider, Input, Select, Space } from 'antd';
+import { Button, Divider, Input, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import {
-  addCustomIdpActivityType,
-  idpActivityTypeOptions,
-  type IdpActivityType,
-} from './successionTypes';
+import { type IdpActivityType } from './successionTypes';
+import { useIdpActivityTypes } from '@/store/server/features/employees/successionPlanning/queries';
+import { useCreateIdpActivityType } from '@/store/server/features/employees/successionPlanning/mutation';
 
 interface IdpActivityTypeSelectProps {
   value?: IdpActivityType;
@@ -27,25 +25,41 @@ const IdpActivityTypeSelect: React.FC<IdpActivityTypeSelectProps> = ({
   className = 'w-full',
   'data-cy': dataCy = 'idp-activity-type-select',
 }) => {
-  const [optionsVersion, setOptionsVersion] = useState(0);
   const [customName, setCustomName] = useState('');
 
-  const options = idpActivityTypeOptions();
-  // optionsVersion forces re-render after catalog mutation
-  void optionsVersion;
+  // Presets are seeded per tenant; custom types added here persist instead of
+  // living in a module-level array that resets on reload.
+  const { data: activityTypes, isLoading } = useIdpActivityTypes();
+  const createActivityType = useCreateIdpActivityType();
 
-  const handleAdd = (
+  const options = (activityTypes ?? []).map((type) => ({
+    value: type.name,
+    label: type.name,
+  }));
+
+  const handleAdd = async (
     event?:
       | React.MouseEvent<HTMLElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => {
     event?.preventDefault();
     event?.stopPropagation();
-    const created = addCustomIdpActivityType(customName);
+    const name = customName.trim();
+    if (!name) return;
+
+    const existing = (activityTypes ?? []).find(
+      (type) => type.name.trim().toLowerCase() === name.toLowerCase(),
+    );
+    if (existing) {
+      setCustomName('');
+      onChange?.(existing.name);
+      return;
+    }
+
+    const created = await createActivityType.mutateAsync({ name });
     if (!created) return;
     setCustomName('');
-    setOptionsVersion((v) => v + 1);
-    onChange?.(created);
+    onChange?.(created.name);
   };
 
   return (
@@ -57,13 +71,15 @@ const IdpActivityTypeSelect: React.FC<IdpActivityTypeSelectProps> = ({
       placeholder={placeholder}
       className={className}
       options={options}
+      loading={isLoading}
       data-cy={dataCy}
       dropdownRender={(menu) => (
         <>
           {menu}
           <Divider style={{ margin: '8px 0' }} data-cy={`${dataCy}-divider`} />
-          <Space
-            style={{ padding: '0 8px 8px' }}
+          {/* Stacked so the input uses the full dropdown width. */}
+          <div
+            className="flex flex-col gap-2 px-2 pb-2"
             data-cy={`${dataCy}-add-space`}
           >
             <Input
@@ -76,18 +92,22 @@ const IdpActivityTypeSelect: React.FC<IdpActivityTypeSelectProps> = ({
                   handleAdd(e);
                 }
               }}
+              className="h-9"
               data-cy={`${dataCy}-add-input`}
             />
             <Button
-              type="link"
+              type="primary"
+              block
+              className="h-9 text-sm font-normal"
               icon={<PlusOutlined />}
               onClick={handleAdd}
+              loading={createActivityType.isLoading}
               disabled={!customName.trim()}
               data-cy={`${dataCy}-add-btn`}
             >
               Add type
             </Button>
-          </Space>
+          </div>
         </>
       )}
     />

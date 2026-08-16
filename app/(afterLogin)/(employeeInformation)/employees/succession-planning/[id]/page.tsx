@@ -16,8 +16,8 @@ import { useParams, useRouter } from 'next/navigation';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
+import { useSuccessionPlanningData } from '@/store/server/features/employees/successionPlanning/useSuccessionPlanningData';
 import {
   CompetencyImportance,
   RoleCompetency,
@@ -52,7 +52,7 @@ const CriticalRoleDetailPage: React.FC = () => {
   const role = useSuccessionPlanningStore((s) =>
     s.roles.find((r) => r.id === id),
   );
-  const updateRole = useSuccessionPlanningStore((s) => s.updateRole);
+  const { saveRole } = useSuccessionPlanningData();
   const [manageOpen, setManageOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('successors');
 
@@ -111,37 +111,35 @@ const CriticalRoleDetailPage: React.FC = () => {
       requiredCurrentPositions: string[];
     },
   ) => {
-    updateRole(role.id, {
-      positionId: role.positionId,
-      roleName: role.roleName,
-      department: role.department,
-      priority: role.priority,
-      riskLevel: role.riskLevel,
-      notes: role.notes,
-      requiredEducationLevel:
-        qualifications?.requiredEducationLevel ?? role.requiredEducationLevel,
-      requiredEducationField:
-        qualifications?.requiredEducationField ?? role.requiredEducationField,
-      allowRelatedEducationFields:
-        qualifications?.allowRelatedEducationFields ??
-        role.allowRelatedEducationFields,
-      requiredRelevantExperience:
-        qualifications?.requiredRelevantExperience ??
-        role.requiredRelevantExperience,
-      requiredCurrentPositionIds:
-        qualifications?.requiredCurrentPositionIds ??
-        role.requiredCurrentPositionIds,
-      requiredCurrentPositions:
-        qualifications?.requiredCurrentPositions ??
-        role.requiredCurrentPositions,
-      competencies,
-      successors,
-    });
-    NotificationMessage.success({
-      message: 'Competencies updated',
-      description:
-        'Criteria and evaluator assignments have been applied to all successors.',
-    });
+    void saveRole(
+      {
+        positionId: role.positionId,
+        roleName: role.roleName,
+        department: role.department,
+        priority: role.priority,
+        riskLevel: role.riskLevel,
+        notes: role.notes,
+        requiredEducationLevel:
+          qualifications?.requiredEducationLevel ?? role.requiredEducationLevel,
+        requiredEducationField:
+          qualifications?.requiredEducationField ?? role.requiredEducationField,
+        allowRelatedEducationFields:
+          qualifications?.allowRelatedEducationFields ??
+          role.allowRelatedEducationFields,
+        requiredRelevantExperience:
+          qualifications?.requiredRelevantExperience ??
+          role.requiredRelevantExperience,
+        requiredCurrentPositionIds:
+          qualifications?.requiredCurrentPositionIds ??
+          role.requiredCurrentPositionIds,
+        requiredCurrentPositions:
+          qualifications?.requiredCurrentPositions ??
+          role.requiredCurrentPositions,
+        competencies,
+        successors,
+      },
+      role.id,
+    );
   };
 
   const competencyColumns: TableColumnsType<

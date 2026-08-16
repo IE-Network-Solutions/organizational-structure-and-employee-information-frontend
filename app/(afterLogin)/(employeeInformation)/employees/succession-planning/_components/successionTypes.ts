@@ -55,45 +55,15 @@ export type DevelopmentActionStatus =
   | 'Completed'
   | 'Overdue';
 
+/**
+ * Activity type name. The list is a per-tenant table seeded with the presets at
+ * onboarding and served by `/succession-planning/idp-activity-types` — use
+ * `useIdpActivityTypes()` / `useCreateIdpActivityType()`. Holding it in a
+ * module-level array would silently lose custom types on reload.
+ */
 export type IdpActivityType = string;
 
-/** Built-in activity types; users can add custom types in the activity form. */
-export const IDP_ACTIVITY_TYPE_PRESETS = [
-  'Leadership Training',
-  'Technical Training',
-  'Certification',
-  'Delegation / Acting Assignment',
-  'Other',
-] as const;
-
-const customIdpActivityTypes: string[] = [];
-
-export const addCustomIdpActivityType = (raw: string): string | null => {
-  const name = raw.trim();
-  if (!name) return null;
-  const exists = [...IDP_ACTIVITY_TYPE_PRESETS, ...customIdpActivityTypes].some(
-    (t) => t.toLowerCase() === name.toLowerCase(),
-  );
-  if (!exists) {
-    customIdpActivityTypes.push(name);
-  }
-  return (
-    [...IDP_ACTIVITY_TYPE_PRESETS, ...customIdpActivityTypes].find(
-      (t) => t.toLowerCase() === name.toLowerCase(),
-    ) ?? name
-  );
-};
-
-export const idpActivityTypeOptions = () =>
-  [...IDP_ACTIVITY_TYPE_PRESETS, ...customIdpActivityTypes].map((value) => ({
-    value,
-    label: value,
-  }));
-
-export type IdpActivityStatus =
-  | 'Not Started'
-  | 'In Progress'
-  | 'Completed';
+export type IdpActivityStatus = 'Not Started' | 'In Progress' | 'Completed';
 
 export type IdpPlanStatus = 'Draft' | 'Active' | 'Completed';
 

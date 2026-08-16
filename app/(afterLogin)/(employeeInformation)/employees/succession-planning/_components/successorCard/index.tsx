@@ -15,11 +15,8 @@ import {
   scoreAchievementPercent,
   sumWeightedScores,
 } from '../steps/stepEvaluatorAssignment';
-import { MOCK_EMPLOYEES } from '../steps/stepEmployeeSelection';
-import {
-  EVALUATOR_AVATAR_COLOR,
-  PersonIdentity,
-} from '../personRoleChrome';
+import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
+import { EVALUATOR_AVATAR_COLOR, PersonIdentity } from '../personRoleChrome';
 import { getScoreBadgeClass } from '../hierarchyRows';
 import { importanceColor, readinessColor } from '../tagColors';
 import SuccessorAssessmentModal, {
@@ -33,7 +30,7 @@ import {
   deriveReadinessFromExperienceGap,
   formatExperienceReadinessHint,
 } from '../successionTypes';
-import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
+import { useSuccessorWrites } from '@/store/server/features/employees/successionPlanning/useSuccessorWrites';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   educationMatchTagColor,
@@ -150,7 +147,6 @@ export const SuccessorSummaryCard: React.FC<SuccessorSummaryCardProps> = ({
 };
 
 interface SuccessorDetailPanelProps {
-  roleId: string;
   role: CriticalRole;
   successor: RoleSuccessor;
   onEvaluatorChange: (
@@ -164,35 +160,27 @@ interface SuccessorDetailPanelProps {
 
 /** Full successor workspace (Assessment / Competencies / Gaps / Actions / IDP). */
 export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
-  roleId,
   role,
   successor,
   onEvaluatorChange,
   onManageCompetencies,
   initialTab = 'assessment',
 }) => {
-  const updateSuccessorProfile = useSuccessionPlanningStore(
-    (s) => s.updateSuccessorProfile,
-  );
-  const setEducationRelatedAccepted = useSuccessionPlanningStore(
-    (s) => s.setEducationRelatedAccepted,
-  );
-  const recomputeGaps = useSuccessionPlanningStore((s) => s.recomputeGaps);
-  const updateGap = useSuccessionPlanningStore((s) => s.updateGap);
-  const addDevelopmentAction = useSuccessionPlanningStore(
-    (s) => s.addDevelopmentAction,
-  );
-  const updateDevelopmentAction = useSuccessionPlanningStore(
-    (s) => s.updateDevelopmentAction,
-  );
-  const deleteDevelopmentAction = useSuccessionPlanningStore(
-    (s) => s.deleteDevelopmentAction,
-  );
-  const upsertIdp = useSuccessionPlanningStore((s) => s.upsertIdp);
-  const addIdpActivity = useSuccessionPlanningStore((s) => s.addIdpActivity);
-  const updateIdpActivity = useSuccessionPlanningStore(
-    (s) => s.updateIdpActivity,
-  );
+  // Writes go straight to the succession-planning API; the roles query is
+  // invalidated on success, which refreshes this panel through the store.
+  const {
+    updateProfile,
+    setEducationRelated,
+    recalculateGaps,
+    updateGapStatus,
+    addAction,
+    updateAction,
+    deleteAction,
+    upsertPlan,
+    addActivity,
+    updateActivity,
+  } = useSuccessorWrites(successor.id);
+  const { employees } = useSuccessionOrgData();
 
   const [assessmentOpen, setAssessmentOpen] = useState(false);
   const [selectedEvaluation, setSelectedEvaluation] =
@@ -246,10 +234,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
           type="primary"
           size="small"
           icon={<RefreshOutlinedIcon style={{ fontSize: 16 }} />}
-          onClick={() => {
-            recomputeGaps(roleId, successor.id);
-            NotificationMessage.success({ message: 'Gaps recalculated' });
-          }}
+          onClick={() => recalculateGaps()}
           className={tabBtnClass}
           data-cy={`recalculate-gaps-tab-${successor.id}`}
         >
@@ -304,7 +289,10 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
   const gaps = successor.gaps ?? [];
   const actions = successor.developmentActions ?? [];
   const openGaps = gaps.filter((g) => g.status !== 'Closed').length;
-  const evaluatorOptions = MOCK_EMPLOYEES.filter((e) => e.id !== successor.id);
+  // Exclude the successor themselves from their own evaluator list.
+  const evaluatorOptions = employees.filter(
+    (e) => e.id !== successor.userId && e.id !== successor.id,
+  );
   const evaluatedCount = evaluations.filter(
     (e) => e.status === 'Evaluated' && e.score != null,
   ).length;
@@ -312,8 +300,8 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
   const educationMatchOptions = {
     allowRelated: Boolean(
       role.allowRelatedEducationFields &&
-        role.requiredEducationField &&
-        role.requiredEducationField !== 'Any',
+      role.requiredEducationField &&
+      role.requiredEducationField !== 'Any',
     ),
     relatedAccepted: Boolean(successor.educationRelatedAccepted),
   };
@@ -361,8 +349,8 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
     successor.education ||
     formatEducationLabel(successor.educationLevel, successor.educationField);
 
-  const handleAssessmentSave = (values: SuccessorAssessmentValues) => {
-    updateSuccessorProfile(roleId, successor.id, values);
+  const handleAssessmentSave = async (values: SuccessorAssessmentValues) => {
+    await updateProfile(values);
     setAssessmentOpen(false);
     NotificationMessage.success({
       message: 'Assessment updated',
@@ -549,16 +537,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                           type="primary"
                           size="small"
                           className="h-8 font-normal"
-                          onClick={() => {
-                            setEducationRelatedAccepted(
-                              roleId,
-                              successor.id,
-                              true,
-                            );
-                            NotificationMessage.success({
-                              message: 'Marked as related field',
-                            });
-                          }}
+                          onClick={() => setEducationRelated(true)}
                           data-cy={`mark-education-related-${successor.id}`}
                         >
                           Mark as related
@@ -570,16 +549,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                         <Button
                           size="small"
                           className="h-8 font-normal border border-[#D9D9D9] text-[#4d4d4d]"
-                          onClick={() => {
-                            setEducationRelatedAccepted(
-                              roleId,
-                              successor.id,
-                              false,
-                            );
-                            NotificationMessage.success({
-                              message: 'Related mark removed',
-                            });
-                          }}
+                          onClick={() => setEducationRelated(false)}
                           data-cy={`unmark-education-related-${successor.id}`}
                         >
                           Unmark as related
@@ -605,9 +575,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                         {experienceMatch === 'Not matched' &&
                         experienceDerivedReadiness ? (
                           <Tag
-                            color={
-                              readinessColor[experienceDerivedReadiness]
-                            }
+                            color={readinessColor[experienceDerivedReadiness]}
                             className="m-0"
                           >
                             {experienceDerivedReadiness}
@@ -681,21 +649,12 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                   gaps={gaps}
                   actions={actions}
                   hideRecalculateButton
-                  onRecalculate={() => {
-                    recomputeGaps(roleId, successor.id);
-                    NotificationMessage.success({
-                      message: 'Gaps recalculated',
-                    });
-                  }}
+                  onRecalculate={() => recalculateGaps()}
                   onStatusChange={(gapId, status: GapStatus) =>
-                    updateGap(roleId, successor.id, gapId, { status })
+                    updateGapStatus(gapId, status)
                   }
-                  onAddAction={(action) => {
-                    addDevelopmentAction(roleId, successor.id, action);
-                    NotificationMessage.success({
-                      message:
-                        'Development action added — view it under Actions',
-                    });
+                  onAddAction={async (action) => {
+                    await addAction(action);
                     setActiveTab('actions');
                   }}
                 />
@@ -712,20 +671,9 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                   gaps={gaps}
                   hideAddButton
                   openCreateKey={actionCreateKey}
-                  onAdd={(action) =>
-                    addDevelopmentAction(roleId, successor.id, action)
-                  }
-                  onUpdate={(actionId, patch) =>
-                    updateDevelopmentAction(
-                      roleId,
-                      successor.id,
-                      actionId,
-                      patch,
-                    )
-                  }
-                  onDelete={(actionId) =>
-                    deleteDevelopmentAction(roleId, successor.id, actionId)
-                  }
+                  onAdd={(action) => addAction(action)}
+                  onUpdate={(actionId, patch) => updateAction(actionId, patch)}
+                  onDelete={(actionId) => deleteAction(actionId)}
                 />
               </div>
             ),
@@ -740,18 +688,15 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                   hideToolbarButtons
                   openPlanKey={idpPlanKey}
                   openActivityKey={idpActivityKey}
-                  onUpsertPlan={(plan) => upsertIdp(roleId, successor.id, plan)}
-                  onAddActivity={(activity) =>
-                    addIdpActivity(roleId, successor.id, activity)
-                  }
-                  onUpdateActivity={(activityId, patch) =>
-                    updateIdpActivity(
-                      roleId,
-                      successor.id,
-                      activityId,
-                      patch,
-                    )
-                  }
+                  onUpsertPlan={async (plan) => {
+                    await upsertPlan(plan);
+                  }}
+                  onAddActivity={async (activity) => {
+                    await addActivity(activity);
+                  }}
+                  onUpdateActivity={async (activityId, patch) => {
+                    await updateActivity(activityId, patch);
+                  }}
                 />
               </div>
             ),

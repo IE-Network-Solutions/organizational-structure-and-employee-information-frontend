@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, InputNumber, Modal, Select } from 'antd';
 import type { SuccessorReadiness } from '../successionTypes';
 import {
@@ -15,10 +15,7 @@ import {
 } from '../educationCatalog';
 import DepartmentPositionSelect from '../departmentPositionSelect';
 import EducationFieldSelect from '../educationFieldSelect';
-import {
-  resolvePositionDepartment,
-  resolvePositionTitle,
-} from '../steps/stepRoleSelection';
+import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
 
 export interface SuccessorAssessmentValues {
   educationLevel: EducationLevel;
@@ -45,7 +42,8 @@ interface SuccessorAssessmentModalProps {
     currentPosition?: string;
   };
   onClose: () => void;
-  onSave: (values: SuccessorAssessmentValues) => void;
+  /** Awaited so the Save button can stay in its loading state. */
+  onSave: (values: SuccessorAssessmentValues) => void | Promise<void>;
 }
 
 const SuccessorAssessmentModal: React.FC<SuccessorAssessmentModalProps> = ({
@@ -57,6 +55,10 @@ const SuccessorAssessmentModal: React.FC<SuccessorAssessmentModalProps> = ({
   onSave,
 }) => {
   const [form] = Form.useForm();
+  const [submitting, setSubmitting] = useState(false);
+  const { positions, resolvePositionTitle } = useSuccessionOrgData();
+  const resolvePositionDepartment = (positionId?: string | null) =>
+    positions.find((p) => p.id === positionId)?.department;
   const watchedYears = Form.useWatch('relevantExperience', form) as
     | number
     | undefined;
@@ -108,6 +110,9 @@ const SuccessorAssessmentModal: React.FC<SuccessorAssessmentModalProps> = ({
       onCancel={onClose}
       onOk={() => form.submit()}
       okText="Save"
+      confirmLoading={submitting}
+      cancelButtonProps={{ disabled: submitting }}
+      maskClosable={!submitting}
       destroyOnClose
       data-cy="successor-assessment-modal"
     >
@@ -115,26 +120,29 @@ const SuccessorAssessmentModal: React.FC<SuccessorAssessmentModalProps> = ({
         form={form}
         layout="vertical"
         className="mt-2"
-        onFinish={(values) => {
+        onFinish={async (values) => {
           const currentPositionId = values.currentPositionId as string;
           const years = Number(values.relevantExperience ?? 0);
           const readiness =
-            deriveReadinessFromExperienceGap(
-              requiredExperienceYears,
-              years,
-            ) ?? values.readiness;
-          onSave({
-            educationLevel: values.educationLevel,
-            educationField: values.educationField,
-            relevantExperience: years,
-            currentPositionId,
-            currentPosition: resolvePositionTitle(currentPositionId) ?? '',
-            readiness,
-            education: formatEducationLabel(
-              values.educationLevel,
-              values.educationField,
-            ),
-          });
+            deriveReadinessFromExperienceGap(requiredExperienceYears, years) ??
+            values.readiness;
+          setSubmitting(true);
+          try {
+            await onSave({
+              educationLevel: values.educationLevel,
+              educationField: values.educationField,
+              relevantExperience: years,
+              currentPositionId,
+              currentPosition: resolvePositionTitle(currentPositionId) ?? '',
+              readiness,
+              education: formatEducationLabel(
+                values.educationLevel,
+                values.educationField,
+              ),
+            });
+          } finally {
+            setSubmitting(false);
+          }
         }}
         data-cy="successor-assessment-form"
       >

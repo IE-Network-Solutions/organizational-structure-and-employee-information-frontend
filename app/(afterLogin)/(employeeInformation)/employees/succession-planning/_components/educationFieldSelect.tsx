@@ -1,12 +1,10 @@
 'use client';
 import React, { useState } from 'react';
-import { Button, Divider, Input, Select, Space } from 'antd';
+import { Button, Divider, Input, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import {
-  addCustomEducationField,
-  educationFieldOptions,
-  type EducationField,
-} from './educationCatalog';
+import { type EducationField } from './educationCatalog';
+import { useFieldsOfStudy } from '@/store/server/features/employees/successionPlanning/queries';
+import { useCreateFieldOfStudy } from '@/store/server/features/employees/successionPlanning/mutation';
 
 interface EducationFieldSelectProps {
   value?: EducationField;
@@ -29,25 +27,45 @@ const EducationFieldSelect: React.FC<EducationFieldSelectProps> = ({
   className = 'w-full h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selection-item]:!leading-8 [&_.ant-select-selection-placeholder]:!leading-8',
   'data-cy': dataCy = 'education-field-select',
 }) => {
-  const [optionsVersion, setOptionsVersion] = useState(0);
   const [customName, setCustomName] = useState('');
 
-  const options = educationFieldOptions(includeAny);
-  // optionsVersion forces re-render after catalog mutation
-  void optionsVersion;
+  // The catalog is seeded per tenant at onboarding and extended here, so a
+  // field added once is available to everyone rather than lost on reload.
+  const { data: fieldsOfStudy, isLoading } = useFieldsOfStudy();
+  const createFieldOfStudy = useCreateFieldOfStudy();
 
-  const handleAdd = (
+  const options = [
+    ...(includeAny ? [{ value: 'Any', label: 'Any field' }] : []),
+    ...(fieldsOfStudy ?? []).map((field) => ({
+      value: field.name,
+      label: field.name,
+    })),
+  ];
+
+  const handleAdd = async (
     event?:
       | React.MouseEvent<HTMLElement>
       | React.KeyboardEvent<HTMLInputElement>,
   ) => {
     event?.preventDefault();
     event?.stopPropagation();
-    const created = addCustomEducationField(customName);
+    const name = customName.trim();
+    if (!name) return;
+
+    // Already in the catalog — just select it.
+    const existing = (fieldsOfStudy ?? []).find(
+      (field) => field.name.trim().toLowerCase() === name.toLowerCase(),
+    );
+    if (existing) {
+      setCustomName('');
+      onChange?.(existing.name);
+      return;
+    }
+
+    const created = await createFieldOfStudy.mutateAsync({ name });
     if (!created) return;
     setCustomName('');
-    setOptionsVersion((v) => v + 1);
-    onChange?.(created);
+    onChange?.(created.name);
   };
 
   return (
@@ -59,13 +77,16 @@ const EducationFieldSelect: React.FC<EducationFieldSelectProps> = ({
       placeholder={placeholder}
       className={className}
       options={options}
+      loading={isLoading}
       data-cy={dataCy}
       dropdownRender={(menu) => (
         <>
           {menu}
           <Divider style={{ margin: '8px 0' }} data-cy={`${dataCy}-divider`} />
-          <Space
-            style={{ padding: '0 8px 8px' }}
+          {/* Input above the button so both span the dropdown width — a
+              side-by-side Space squeezed the field down to a few characters. */}
+          <div
+            className="flex flex-col gap-2 px-2 pb-2"
             data-cy={`${dataCy}-add-space`}
           >
             <Input
@@ -78,18 +99,22 @@ const EducationFieldSelect: React.FC<EducationFieldSelectProps> = ({
                   handleAdd(e);
                 }
               }}
+              className="h-9"
               data-cy={`${dataCy}-add-input`}
             />
             <Button
-              type="link"
+              type="primary"
+              block
               icon={<PlusOutlined />}
               onClick={handleAdd}
+              loading={createFieldOfStudy.isLoading}
               disabled={!customName.trim()}
+              className="h-9 text-sm font-normal"
               data-cy={`${dataCy}-add-btn`}
             >
               Add field of study
             </Button>
-          </Space>
+          </div>
         </>
       )}
     />

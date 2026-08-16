@@ -8,8 +8,7 @@ export type EducationLevel =
   | 'Doctorate'
   | 'ProfessionalCert';
 
-/** Controlled fields of study. Use `Any` on role requirements to skip field matching.
- * Custom fields can be added at runtime via `addCustomEducationField`. */
+/** Field-of-study name. Use `Any` on a role requirement to skip field matching. */
 export type EducationField = string;
 
 export const EDUCATION_LEVEL_RANK: Record<EducationLevel, number> = {
@@ -30,52 +29,22 @@ export const EDUCATION_LEVELS: EducationLevel[] = [
   'ProfessionalCert',
 ];
 
-export const EDUCATION_FIELDS: EducationField[] = [
-  'Any',
-  'Business Administration',
-  'Computer Science',
-  'Software Engineering',
-  'Electrical Engineering',
-  'Finance',
-  'Accounting',
-  'Human Resource Management',
-  'Psychology',
-  'Marketing',
-  'Information Systems',
-  'Operations Management',
-  'Other',
-];
-
-/** User-added fields of study (session catalog, same pattern as create-position in job forms). */
-const customEducationFields: EducationField[] = [];
-
-export const addCustomEducationField = (
-  name: string,
-): EducationField | null => {
-  const trimmed = name.trim();
-  if (!trimmed) return null;
-  const exists = [...EDUCATION_FIELDS, ...customEducationFields].some(
-    (f) => f.toLowerCase() === trimmed.toLowerCase(),
-  );
-  if (!exists) {
-    customEducationFields.push(trimmed);
-  }
-  return (
-    [...EDUCATION_FIELDS, ...customEducationFields].find(
-      (f) => f.toLowerCase() === trimmed.toLowerCase(),
-    ) ?? trimmed
-  );
-};
-
-export const getCustomEducationFields = (): EducationField[] => [
-  ...customEducationFields,
-];
+/**
+ * The field-of-study list itself is NOT held here — it is a per-tenant table
+ * seeded at onboarding and served by `/succession-planning/fields-of-study`.
+ * Use `useFieldsOfStudy()` / `useCreateFieldOfStudy()`; a module-level array
+ * would not persist and would drift from what the API validates against.
+ */
 
 /** Fields that count as equivalent for matching (role field → acceptable employee fields). */
 export const EDUCATION_FIELD_EQUIVALENTS: Partial<
   Record<EducationField, EducationField[]>
 > = {
-  'Business Administration': ['Business Administration', 'Finance', 'Marketing'],
+  'Business Administration': [
+    'Business Administration',
+    'Finance',
+    'Marketing',
+  ],
   Finance: ['Finance', 'Accounting', 'Business Administration'],
   Accounting: ['Accounting', 'Finance'],
   'Computer Science': [
@@ -130,30 +99,8 @@ export const formatEducationLabel = (
 
 export const educationLevelOptions = EDUCATION_LEVELS.map((value) => ({
   value,
-  label:
-    value === 'ProfessionalCert' ? 'Professional certification' : value,
+  label: value === 'ProfessionalCert' ? 'Professional certification' : value,
 }));
-
-export const educationFieldOptions = (
-  includeAny = true,
-): Array<{ value: EducationField; label: string }> => {
-  const fields = [
-    ...EDUCATION_FIELDS.filter((f) => includeAny || f !== 'Any'),
-    ...customEducationFields,
-  ];
-  const seen = new Set<string>();
-  return fields
-    .filter((value) => {
-      const key = value.toLowerCase();
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    })
-    .map((value) => ({
-      value,
-      label: value === 'Any' ? 'Any field' : value,
-    }));
-};
 
 const normalizeField = (field?: EducationField | null): string =>
   (field ?? '').trim().toLowerCase();
@@ -173,9 +120,7 @@ export const getRelatedEducationFields = (
 ): EducationField[] => {
   if (!field || field === 'Any') return [];
   const equivalents = EDUCATION_FIELD_EQUIVALENTS[field] ?? [field];
-  return equivalents.filter(
-    (f) => normalizeField(f) !== normalizeField(field),
-  );
+  return equivalents.filter((f) => normalizeField(f) !== normalizeField(field));
 };
 
 /**
@@ -230,10 +175,7 @@ export const educationMatchTagColor: Record<EducationMatchStatus, string> = {
 
 /** Years of relevant experience — role requirement vs employee background. */
 
-export type ExperienceMatchStatus =
-  | 'Meets'
-  | 'Not matched'
-  | 'Not assessed';
+export type ExperienceMatchStatus = 'Meets' | 'Not matched' | 'Not assessed';
 
 export const formatYearsLabel = (years?: number | null): string => {
   if (years == null || Number.isNaN(Number(years))) return '—';
@@ -261,9 +203,7 @@ export const matchesExperienceRequirement = (
   if (actualYears == null || Number.isNaN(Number(actualYears))) {
     return 'Not assessed';
   }
-  return Number(actualYears) >= Number(requiredYears)
-    ? 'Meets'
-    : 'Not matched';
+  return Number(actualYears) >= Number(requiredYears) ? 'Meets' : 'Not matched';
 };
 
 export const experienceMatchTagColor: Record<ExperienceMatchStatus, string> = {

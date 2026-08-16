@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Button,
+  ConfigProvider,
   Input,
   Select,
   Typography,
@@ -41,11 +42,16 @@ import {
   buildSuccessorReadinessRows,
   type SuccessionReportKey,
 } from './_components/reports/reportData';
+import { exportSuccessionReport } from './_components/reports/exportReports';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   computeCriticalRoleKpis,
   computeEvaluatorKpis,
 } from './_components/successionKpis';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
+import { useSuccessionPlanningData } from '@/store/server/features/employees/successionPlanning/useSuccessionPlanningData';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
@@ -53,7 +59,8 @@ const { Option } = Select;
 type SuccessionView = 'roles' | 'evaluators' | 'reports';
 
 const parseReportKey = (value: string | null): SuccessionReportKey => {
-  if (value === 'gaps' || value === 'idp' || value === 'readiness') return value;
+  if (value === 'gaps' || value === 'idp' || value === 'readiness')
+    return value;
   return 'readiness';
 };
 
@@ -72,10 +79,14 @@ const SuccessionPlanningPage: React.FC = () => {
   const initialAs = searchParams.get('as') ?? '';
   const initialReportKey = parseReportKey(searchParams.get('report'));
 
+  // Server data is mirrored into the store the whole feature reads from, so the
+  // screens below are unchanged from the design prototype.
+  const {
+    saveRole,
+    removeRole,
+    isLoading: isLoadingRoles,
+  } = useSuccessionPlanningData();
   const roles = useSuccessionPlanningStore((s) => s.roles);
-  const addRole = useSuccessionPlanningStore((s) => s.addRole);
-  const updateRole = useSuccessionPlanningStore((s) => s.updateRole);
-  const deleteRole = useSuccessionPlanningStore((s) => s.deleteRole);
 
   const [activeView, setActiveView] = useState<SuccessionView>(initialView);
   const [reportKey, setReportKey] =
@@ -88,6 +99,19 @@ const SuccessionPlanningPage: React.FC = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<CriticalRole | null>(null);
+  const [downloadingReport, setDownloadingReport] = useState(false);
+
+  /** Export the chosen report straight to Excel from the top bar. */
+  const handleDownloadReport = async (key: SuccessionReportKey) => {
+    setDownloadingReport(true);
+    try {
+      await exportSuccessionReport(roles, key);
+    } catch {
+      NotificationMessage.error({ message: 'Export failed' });
+    } finally {
+      setDownloadingReport(false);
+    }
+  };
 
   const {
     positionsWithSuccessors,
@@ -169,12 +193,6 @@ const SuccessionPlanningPage: React.FC = () => {
     });
   };
 
-  const openReportsView = (key: SuccessionReportKey) => {
-    setReportKey(key);
-    setActiveView('reports');
-    syncReportsUrl(key);
-  };
-
   const readinessRowCount = useMemo(
     () => buildSuccessorReadinessRows(roles).length,
     [roles],
@@ -224,18 +242,17 @@ const SuccessionPlanningPage: React.FC = () => {
     setEditingRole(null);
   };
 
-  const handleSave = (values: Omit<CriticalRole, 'id' | 'successorCount'>) => {
-    if (editingRole) {
-      updateRole(editingRole.id, values);
-    } else {
-      addRole(values);
-    }
+  const handleSave = async (
+    values: Omit<CriticalRole, 'id' | 'successorCount'>,
+  ) => {
+    // Creating a role also notifies every evaluator assigned in step 4.
+    await saveRole(values, editingRole?.id);
     setModalOpen(false);
     setEditingRole(null);
   };
 
-  const handleDelete = (id: string) => {
-    deleteRole(id);
+  const handleDelete = async (id: string) => {
+    await removeRole(id);
   };
 
   const handleRowClick = (role: CriticalRole) => {
@@ -356,55 +373,80 @@ const SuccessionPlanningPage: React.FC = () => {
               className="flex flex-wrap items-center gap-2 sm:gap-3 mr-1 sm:mr-0"
               data-cy="succession-planning-header-actions"
             >
-              <Segmented
-                value={activeView}
-                size="middle"
-                onChange={(value) => {
-                  const next = value as SuccessionView;
-                  setActiveView(next);
-                  if (next === 'evaluators') {
-                    syncEvaluatorsUrl(evaluatorScope, viewAsEvaluatorId);
-                  } else if (next === 'reports') {
-                    syncReportsUrl(reportKey);
-                  } else {
-                    router.replace('/employees/succession-planning', {
-                      scroll: false,
-                    });
-                  }
+              {/* Same Segmented treatment as Planning & Reporting so the
+                  sub-module reads as part of the workspace. */}
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Segmented: {
+                      trackBg: '#f1f5f9',
+                      itemSelectedBg: '#ffffff',
+                      itemSelectedColor: '#0f172a',
+                    },
+                  },
                 }}
-                options={[
-                  {
-                    label: isMobile ? 'Roles' : 'Critical Roles',
-                    value: 'roles',
-                  },
-                  {
-                    label: isMobile ? 'Evals' : 'Evaluators',
-                    value: 'evaluators',
-                  },
-                  {
-                    label: 'Reports',
-                    value: 'reports',
-                  },
-                ]}
-                data-cy="succession-planning-view-selector"
-              />
+              >
+                <Segmented
+                  value={activeView}
+                  size={isMobile ? 'middle' : 'large'}
+                  className={[
+                    '!inline-flex !w-max max-w-full !shrink-0 !rounded-xl !border !border-slate-100 !bg-slate-50/70 !p-1.5 !h-[50px]',
+                    '[&_.ant-segmented-group]:!w-max [&_.ant-segmented-group]:!items-stretch',
+                    '[&_.ant-segmented-thumb]:!h-full [&_.ant-segmented-thumb]:!bg-white [&_.ant-segmented-thumb]:!py-0 [&_.ant-segmented-thumb]:!shadow-sm',
+                    '[&_.ant-segmented-item]:!flex [&_.ant-segmented-item]:!flex-none [&_.ant-segmented-item]:!items-center [&_.ant-segmented-item]:!justify-center [&_.ant-segmented-item]:!self-stretch [&_.ant-segmented-item]:!bg-transparent',
+                    '[&_.ant-segmented-item-selected]:!z-[1] [&_.ant-segmented-item-selected]:!rounded-md [&_.ant-segmented-item-selected]:!shadow-sm',
+                    '[&_.ant-segmented-item-label]:!flex [&_.ant-segmented-item-label]:!h-9 [&_.ant-segmented-item-label]:!min-h-9 [&_.ant-segmented-item-label]:!items-center [&_.ant-segmented-item-label]:!justify-center [&_.ant-segmented-item-label]:!whitespace-nowrap [&_.ant-segmented-item-label]:!font-medium [&_.ant-segmented-item-label]:!text-slate-600 [&_.ant-segmented-item-label]:!px-4 [&_.ant-segmented-item-label]:!py-0 [&_.ant-segmented-item-label]:!text-[14px]',
+                    '[&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-slate-900',
+                  ].join(' ')}
+                  onChange={(value) => {
+                    const next = value as SuccessionView;
+                    setActiveView(next);
+                    if (next === 'evaluators') {
+                      syncEvaluatorsUrl(evaluatorScope, viewAsEvaluatorId);
+                    } else if (next === 'reports') {
+                      syncReportsUrl(reportKey);
+                    } else {
+                      router.replace('/employees/succession-planning', {
+                        scroll: false,
+                      });
+                    }
+                  }}
+                  options={[
+                    {
+                      label: isMobile ? 'Roles' : 'Critical Roles',
+                      value: 'roles',
+                    },
+                    {
+                      label: isMobile ? 'Evals' : 'Evaluators',
+                      value: 'evaluators',
+                    },
+                    {
+                      label: 'Reports',
+                      value: 'reports',
+                    },
+                  ]}
+                  data-cy="succession-planning-view-selector"
+                />
+              </ConfigProvider>
+              {/* Downloads the chosen report as Excel directly — the reports
+                  view no longer carries its own export button. */}
               <Dropdown
                 menu={{
                   items: [
                     {
                       key: 'readiness',
                       label: 'Successor Readiness Report',
-                      onClick: () => openReportsView('readiness'),
+                      onClick: () => handleDownloadReport('readiness'),
                     },
                     {
                       key: 'gaps',
                       label: 'Skill Gap Analysis Report',
-                      onClick: () => openReportsView('gaps'),
+                      onClick: () => handleDownloadReport('gaps'),
                     },
                     {
                       key: 'idp',
                       label: 'Development Plan Progress Report',
-                      onClick: () => openReportsView('idp'),
+                      onClick: () => handleDownloadReport('idp'),
                     },
                   ],
                 }}
@@ -414,6 +456,7 @@ const SuccessionPlanningPage: React.FC = () => {
                 <Button
                   type="default"
                   size="large"
+                  loading={downloadingReport}
                   className="h-10 border border-[#D9D9D9] text-[#4d4d4d] font-normal"
                   icon={
                     <FileDownloadOutlinedIcon
@@ -422,26 +465,28 @@ const SuccessionPlanningPage: React.FC = () => {
                   }
                   data-cy="succession-reports-btn"
                 >
-                  <span className="hidden sm:inline">Reports</span>
+                  <span className="hidden sm:inline">Download Reports</span>
                 </Button>
               </Dropdown>
-              <Button
-                type="primary"
-                size="large"
-                className="h-10 w-10 sm:w-auto mr-2 sm:mr-0"
-                icon={
-                  <AddCircleOutlineOutlinedIcon
-                    style={{ fontSize: 18, display: 'block' }}
-                  />
-                }
-                id="add-critical-role-btn"
-                onClick={openAddModal}
-                data-cy="add-critical-role-btn"
-              >
-                <span className="hidden sm:inline font-normal">
-                  Add Critical Role
-                </span>
-              </Button>
+              <AccessGuard permissions={[Permissions.CreateCriticalRole]}>
+                <Button
+                  type="primary"
+                  size="large"
+                  className="h-10 w-10 sm:w-auto mr-2 sm:mr-0"
+                  icon={
+                    <AddCircleOutlineOutlinedIcon
+                      style={{ fontSize: 18, display: 'block' }}
+                    />
+                  }
+                  id="add-critical-role-btn"
+                  onClick={openAddModal}
+                  data-cy="add-critical-role-btn"
+                >
+                  <span className="hidden sm:inline font-normal">
+                    Add Critical Role
+                  </span>
+                </Button>
+              </AccessGuard>
             </div>
           }
           data-cy="succession-planning-breadcrumb"
@@ -784,6 +829,7 @@ const SuccessionPlanningPage: React.FC = () => {
             >
               <CriticalRolesTable
                 roles={filtered}
+                loading={isLoadingRoles}
                 onEdit={openEditModal}
                 onDelete={handleDelete}
                 onRowClick={handleRowClick}

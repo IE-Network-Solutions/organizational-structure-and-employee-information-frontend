@@ -100,7 +100,12 @@ export interface EvaluationSessionCardProps {
 }
 
 /**
- * Compact successor evaluation tile — same chrome as role-detail SuccessorSummaryCard.
+ * Successor evaluation tile.
+ *
+ * Deliberately quiet: identity, one progress line, one action. The earlier
+ * version stacked two status tags on a two-column stat grid on top of a CTA,
+ * which made a wall of tiles hard to scan. Completion now reads from a single
+ * bar, and the score sits inline with it.
  */
 export const EvaluationSessionCard: React.FC<EvaluationSessionCardProps> = ({
   sessionKey,
@@ -113,11 +118,12 @@ export const EvaluationSessionCard: React.FC<EvaluationSessionCardProps> = ({
   sessionMaxWeight,
   criteriaCount,
   evaluatedCount,
-  pendingCount,
   onOpen,
   onRoleClick,
 }) => {
   const maxWeight = sessionMaxWeight || 100;
+  const progress =
+    criteriaCount > 0 ? Math.round((evaluatedCount / criteriaCount) * 100) : 0;
 
   return (
     <Card
@@ -129,108 +135,104 @@ export const EvaluationSessionCard: React.FC<EvaluationSessionCardProps> = ({
       data-cy={`evaluation-session-card-${sessionKey}`}
     >
       <div className="flex flex-col gap-3 h-full">
-        <PersonIdentity
-          role="Successor"
-          name={successorName}
-          caption={
-            <span className="text-xs text-gray-500">
-              {successorJobTitle ? `${successorJobTitle} · ` : ''}
-              For{' '}
-              {onRoleClick ? (
-                <button
-                  type="button"
-                  className="font-medium text-gray-700 hover:text-primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRoleClick();
-                  }}
-                  data-cy={`evaluation-session-role-link-${sessionKey}`}
-                >
-                  {roleName}
-                </button>
-              ) : (
-                <span className="font-medium text-gray-700">{roleName}</span>
-              )}
-              <span className="text-gray-400"> · {department}</span>
-            </span>
-          }
-          avatarSize={40}
-        />
-
-        <div className="flex flex-wrap items-center gap-1.5">
-          <Tag
-            className="m-0"
-            color={isComplete ? 'green' : 'orange'}
-            data-cy={`evaluation-session-status-${sessionKey}`}
-          >
-            {isComplete ? 'Session scored' : 'Not scored'}
-          </Tag>
-          {!isComplete && pendingCount > 0 ? (
-            <Tag className="m-0" color="default">
-              {pendingCount} pending
+        <div className="flex items-start justify-between gap-3">
+          <PersonIdentity
+            role="Successor"
+            name={successorName}
+            caption={
+              <span className="text-xs text-gray-500">
+                {successorJobTitle ? `${successorJobTitle} · ` : ''}
+                {onRoleClick ? (
+                  <button
+                    type="button"
+                    className="font-medium text-gray-700 hover:text-primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRoleClick();
+                    }}
+                    data-cy={`evaluation-session-role-link-${sessionKey}`}
+                  >
+                    {roleName}
+                  </button>
+                ) : (
+                  <span className="font-medium text-gray-700">{roleName}</span>
+                )}
+                <span className="text-gray-400"> · {department}</span>
+              </span>
+            }
+            avatarSize={36}
+          />
+          {isComplete ? (
+            <Tag
+              color="green"
+              className="m-0 shrink-0"
+              data-cy={`evaluation-session-status-${sessionKey}`}
+            >
+              Scored
             </Tag>
           ) : null}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 pt-1 border-t border-[#F0F0F0]">
-          <div>
-            <p className="text-sm text-[#bababa] font-normal m-0 mb-0.5">
-              Score
-            </p>
-            <p
-              className={`text-sm font-normal m-0 tabular-nums ${
-                isComplete && sessionTotal === maxWeight && maxWeight > 0
-                  ? 'text-green-700'
-                  : 'text-[#4d4d4d]'
-              }`}
+        <div className="mt-auto">
+          <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+            <span data-cy={`evaluation-session-progress-${sessionKey}`}>
+              {criteriaCount > 0
+                ? `${evaluatedCount} of ${criteriaCount} scored`
+                : 'No criteria yet'}
+            </span>
+            <span
+              className="tabular-nums font-medium text-gray-700"
               data-cy={`evaluation-session-total-${sessionKey}`}
             >
               {criteriaCount > 0 ? `${sessionTotal} / ${maxWeight}` : '—'}
-            </p>
+            </span>
           </div>
-          <div>
-            <p className="text-sm text-[#bababa] font-normal m-0 mb-0.5">
-              Criteria
-            </p>
-            <p className="text-sm font-normal text-[#4d4d4d] m-0 tabular-nums">
-              {criteriaCount > 0
-                ? `${evaluatedCount}/${criteriaCount}`
-                : '—'}
-            </p>
+          <div
+            className="h-1.5 w-full rounded-full bg-[#F0F0F0] overflow-hidden"
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <div
+              className={`h-full rounded-full transition-all ${
+                isComplete ? 'bg-green-500' : 'bg-primary'
+              }`}
+              style={{
+                width: `${progress}%`,
+                backgroundColor: isComplete ? undefined : '#3636F0',
+              }}
+            />
           </div>
         </div>
 
-        {isComplete ? (
-          <button
-            type="button"
-            className="mt-auto self-start inline-flex items-center gap-1 text-sm font-medium !text-primary hover:underline bg-transparent border-0 p-0 cursor-pointer"
-            style={{ color: '#3636F0' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpen();
-            }}
-            data-cy={`review-evaluation-btn-${sessionKey}`}
-          >
-            Review scores
-            <ArrowForwardOutlinedIcon
-              style={{ fontSize: 16, color: '#3636F0' }}
-            />
-          </button>
-        ) : (
-          <Button
-            type="primary"
-            size="small"
-            className="mt-auto self-start h-8 font-normal inline-flex items-center gap-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              onOpen();
-            }}
-            data-cy={`start-evaluation-btn-${sessionKey}`}
-          >
-            <PlayArrowOutlinedIcon style={{ fontSize: 16 }} />
-            Evaluate
-          </Button>
-        )}
+        <Button
+          type={isComplete ? 'default' : 'primary'}
+          size="small"
+          block
+          className="h-8 font-normal inline-flex items-center justify-center gap-1"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpen();
+          }}
+          data-cy={
+            isComplete
+              ? `review-evaluation-btn-${sessionKey}`
+              : `start-evaluation-btn-${sessionKey}`
+          }
+        >
+          {isComplete ? (
+            <>
+              Review scores
+              <ArrowForwardOutlinedIcon style={{ fontSize: 16 }} />
+            </>
+          ) : (
+            <>
+              <PlayArrowOutlinedIcon style={{ fontSize: 16 }} />
+              Evaluate
+            </>
+          )}
+        </Button>
       </div>
     </Card>
   );

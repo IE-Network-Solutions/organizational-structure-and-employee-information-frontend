@@ -27,9 +27,13 @@ import IdpActivityTypeSelect from '../idpActivityTypeSelect';
 
 interface IdpPanelProps {
   idp?: IndividualDevelopmentPlan;
-  onUpsertPlan: (plan: { status: IdpPlanStatus }) => void;
-  onAddActivity: (activity: Omit<IdpActivity, 'id'>) => void;
-  onUpdateActivity: (activityId: string, patch: Partial<IdpActivity>) => void;
+  /** Awaited so the Save buttons can hold their loading state. */
+  onUpsertPlan: (plan: { status: IdpPlanStatus }) => void | Promise<void>;
+  onAddActivity: (activity: Omit<IdpActivity, 'id'>) => void | Promise<void>;
+  onUpdateActivity: (
+    activityId: string,
+    patch: Partial<IdpActivity>,
+  ) => void | Promise<void>;
   /** Hide plan/activity buttons when parent renders them in the tab bar. */
   hideToolbarButtons?: boolean;
   /** Increment to open the plan status modal from outside. */
@@ -49,6 +53,8 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
 }) => {
   const [planOpen, setPlanOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
+  const [savingPlan, setSavingPlan] = useState(false);
+  const [savingActivity, setSavingActivity] = useState(false);
   const [editingActivity, setEditingActivity] = useState<IdpActivity | null>(
     null,
   );
@@ -192,10 +198,18 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
         onCancel={() => setPlanOpen(false)}
         onOk={async () => {
           const values = await planForm.validateFields();
-          onUpsertPlan({ status: values.status as IdpPlanStatus });
-          setPlanOpen(false);
+          setSavingPlan(true);
+          try {
+            await onUpsertPlan({ status: values.status as IdpPlanStatus });
+            setPlanOpen(false);
+          } finally {
+            setSavingPlan(false);
+          }
         }}
         okText="Save"
+        confirmLoading={savingPlan}
+        cancelButtonProps={{ disabled: savingPlan }}
+        maskClosable={!savingPlan}
         destroyOnClose
         data-cy="idp-plan-modal"
       >
@@ -228,14 +242,22 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
               : undefined,
             status: values.status as IdpActivityStatus,
           };
-          if (editingActivity) {
-            onUpdateActivity(editingActivity.id, payload);
-          } else {
-            onAddActivity(payload);
+          setSavingActivity(true);
+          try {
+            if (editingActivity) {
+              await onUpdateActivity(editingActivity.id, payload);
+            } else {
+              await onAddActivity(payload);
+            }
+            setActivityOpen(false);
+          } finally {
+            setSavingActivity(false);
           }
-          setActivityOpen(false);
         }}
         okText="Save"
+        confirmLoading={savingActivity}
+        cancelButtonProps={{ disabled: savingActivity }}
+        maskClosable={!savingActivity}
         destroyOnClose
         data-cy="idp-activity-modal"
       >

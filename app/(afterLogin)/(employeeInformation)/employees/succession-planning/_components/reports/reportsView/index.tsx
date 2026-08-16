@@ -1,12 +1,10 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Empty, Input, Select, Table, Tag } from 'antd';
+import { Empty, Input, Select, Table, Tag } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import type { CriticalRole } from '../../criticalRoleModal';
 import {
@@ -14,14 +12,8 @@ import {
   importanceColor,
   readinessColor,
 } from '../../tagColors';
-import type {
-  CompetencyImportance,
-} from '../../steps/stepCompetencyDefinition';
-import type {
-  GapSeverity,
-  SuccessorReadiness,
-} from '../../successionTypes';
-import { exportSuccessionReport } from '../exportReports';
+import type { CompetencyImportance } from '../../steps/stepCompetencyDefinition';
+import type { GapSeverity, SuccessorReadiness } from '../../successionTypes';
 import {
   buildDevelopmentPlanProgressRows,
   buildSkillGapAnalysisRows,
@@ -52,7 +44,6 @@ const ReportsView: React.FC<ReportsViewProps> = ({
   const [searchValue, setSearchValue] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE);
-  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -126,24 +117,14 @@ const ReportsView: React.FC<ReportsViewProps> = ({
     }
   };
 
-  const handleExport = async () => {
-    setExporting(true);
-    try {
-      await exportSuccessionReport(roles, reportKey);
-      NotificationMessage.success({ message: 'Report downloaded' });
-    } catch {
-      NotificationMessage.error({ message: 'Export failed' });
-    } finally {
-      setExporting(false);
-    }
-  };
-
   const readinessColumns: TableColumnsType<ReadinessReportRow> = [
     {
       title: <span className={headerClass}>Role</span>,
       dataIndex: 'role',
       ellipsis: true,
-      render: (v: string) => <span className={`${cellClass} font-medium`}>{v}</span>,
+      render: (v: string) => (
+        <span className={`${cellClass} font-medium`}>{v}</span>
+      ),
     },
     {
       title: <span className={headerClass}>Department</span>,
@@ -198,7 +179,9 @@ const ReportsView: React.FC<ReportsViewProps> = ({
       title: <span className={headerClass}>Role</span>,
       dataIndex: 'role',
       ellipsis: true,
-      render: (v: string) => <span className={`${cellClass} font-medium`}>{v}</span>,
+      render: (v: string) => (
+        <span className={`${cellClass} font-medium`}>{v}</span>
+      ),
     },
     {
       title: <span className={headerClass}>Successor</span>,
@@ -269,7 +252,9 @@ const ReportsView: React.FC<ReportsViewProps> = ({
       title: <span className={headerClass}>Role</span>,
       dataIndex: 'role',
       ellipsis: true,
-      render: (v: string) => <span className={`${cellClass} font-medium`}>{v}</span>,
+      render: (v: string) => (
+        <span className={`${cellClass} font-medium`}>{v}</span>
+      ),
     },
     {
       title: <span className={headerClass}>Successor</span>,
@@ -348,48 +333,34 @@ const ReportsView: React.FC<ReportsViewProps> = ({
         className="flex flex-wrap justify-between gap-3 mb-3 items-start"
         data-cy="succession-reports-toolbar"
       >
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-          <Select
-            value={reportKey}
-            onChange={(value) => onReportKeyChange(value)}
-            className="min-w-[220px] sm:min-w-[260px]"
-            options={SUCCESSION_REPORT_OPTIONS.map((opt) => ({
-              value: opt.key,
-              label: opt.label,
-            }))}
-            data-cy="succession-report-type-select"
-          />
-          <Input
-            placeholder="Search report"
-            allowClear
-            value={searchValue}
-            onChange={(e) => {
-              setSearchValue(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="w-[min(100%,280px)] pr-0 py-0 h-10 sm:h-8"
-            data-cy="succession-reports-search-input"
-            suffix={
-              <div className="text-gray-400 border-l border-gray-300 py-1 px-2">
-                <SearchOutlined />
-              </div>
-            }
-          />
-        </div>
-        <Button
-          type="default"
-          className="h-10 sm:h-8 border border-[#D9D9D9] text-[#4d4d4d] font-normal"
-          icon={
-            <FileDownloadOutlinedIcon
-              style={{ fontSize: 18, display: 'block' }}
-            />
+        {/* Search leads; the report-type filter takes the slot the Export
+            button used to occupy. Export now lives on the top bar. */}
+        <Input
+          placeholder="Search report"
+          allowClear
+          value={searchValue}
+          onChange={(e) => {
+            setSearchValue(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-[min(100%,280px)] pr-0 py-0 h-10 sm:h-8"
+          data-cy="succession-reports-search-input"
+          suffix={
+            <div className="text-gray-400 border-l border-gray-300 py-1 px-2">
+              <SearchOutlined />
+            </div>
           }
-          loading={exporting}
-          onClick={handleExport}
-          data-cy="succession-report-export-btn"
-        >
-          Export Excel
-        </Button>
+        />
+        <Select
+          value={reportKey}
+          onChange={(value) => onReportKeyChange(value)}
+          className="min-w-[220px] sm:min-w-[260px] h-10 sm:h-8"
+          options={SUCCESSION_REPORT_OPTIONS.map((opt) => ({
+            value: opt.key,
+            label: opt.label,
+          }))}
+          data-cy="succession-report-type-select"
+        />
       </div>
 
       <p

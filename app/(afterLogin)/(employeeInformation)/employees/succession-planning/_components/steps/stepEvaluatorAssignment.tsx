@@ -6,13 +6,19 @@ import {
   RoleCompetency,
   CompetencyImportance,
 } from './stepCompetencyDefinition';
-import { MOCK_EMPLOYEES, SuccessorCandidate } from './stepEmployeeSelection';
-import { MOCK_POSITIONS } from './stepRoleSelection';
+import { SuccessorCandidate } from './stepEmployeeSelection';
+import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
 import { EVALUATOR_AVATAR_COLOR, PersonIdentity } from '../personRoleChrome';
 
 const { Option } = Select;
 
 export interface CompetencyEvaluation {
+  /**
+   * Backend competency-criteria id. Absent while a role is being built in the
+   * wizard (criteria have no ids yet); present on anything loaded from the API,
+   * where it addresses the criterion for evaluator assignment and scoring.
+   */
+  competencyCriteriaId?: string;
   competencyName: string;
   category: RoleCompetency['category'];
   importance: CompetencyImportance;
@@ -98,12 +104,14 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
     [rawCompetencies],
   );
 
+  const { employees, positions } = useSuccessionOrgData();
+
   const selectedEmployees = useMemo(
-    () => MOCK_EMPLOYEES.filter((e) => successorIds.includes(e.id)),
-    [successorIds],
+    () => employees.filter((e) => successorIds.includes(e.id)),
+    [employees, successorIds],
   );
 
-  const position = MOCK_POSITIONS.find((p) => p.id === positionId);
+  const position = positions.find((p) => p.id === positionId);
 
   if (selectedEmployees.length === 0) {
     return (
@@ -187,7 +195,9 @@ const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
   competencies,
   requireEvaluators = true,
 }) => {
-  const evaluatorOptions = MOCK_EMPLOYEES.filter((e) => e.id !== employee.id);
+  const { employees } = useSuccessionOrgData();
+  // Anyone but the successor themselves can evaluate them.
+  const evaluatorOptions = employees.filter((e) => e.id !== employee.id);
 
   return (
     <div
@@ -268,9 +278,12 @@ export const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
   options,
   dataCy,
 }) => {
+  const { employees } = useSuccessionOrgData();
+  // Fall back to the full directory so an already-assigned evaluator still
+  // renders even when they are filtered out of `options`.
   const selected =
     options.find((o) => o.id === value) ??
-    MOCK_EMPLOYEES.find((o) => o.id === value);
+    employees.find((o) => o.id === value);
 
   return (
     <div

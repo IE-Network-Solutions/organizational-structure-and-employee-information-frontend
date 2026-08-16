@@ -114,8 +114,9 @@ export const buildDevelopmentPlanProgressRows = (
           ? Math.round((completedActions / actions.length) * 100)
           : successor.idp?.activities?.length
             ? Math.round(
-                ((successor.idp.activities.filter((a) => a.status === 'Completed')
-                  .length || 0) /
+                ((successor.idp.activities.filter(
+                  (a) => a.status === 'Completed',
+                ).length || 0) /
                   successor.idp.activities.length) *
                   100,
               )

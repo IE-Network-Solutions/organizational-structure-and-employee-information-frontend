@@ -1,8 +1,8 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DatePicker, Form, Input, Modal, Select } from 'antd';
 import dayjs from 'dayjs';
-import { MOCK_EMPLOYEES } from '../steps/stepEmployeeSelection';
+import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
 import type {
   CompetencyGap,
   DevelopmentAction,
@@ -18,7 +18,8 @@ interface DevelopmentActionModalProps {
   /** When set, the Linked Gap field is prefilled and locked. */
   lockedGapId?: string;
   onClose: () => void;
-  onSave: (payload: DevelopmentActionFormValues) => void;
+  /** Awaited so the Save button can hold its loading state. */
+  onSave: (payload: DevelopmentActionFormValues) => void | Promise<void>;
 }
 
 const DevelopmentActionModal: React.FC<DevelopmentActionModalProps> = ({
@@ -30,6 +31,8 @@ const DevelopmentActionModal: React.FC<DevelopmentActionModalProps> = ({
   onSave,
 }) => {
   const [form] = Form.useForm();
+  const [submitting, setSubmitting] = useState(false);
+  const { employees } = useSuccessionOrgData();
 
   useEffect(() => {
     if (!open) return;
@@ -52,20 +55,23 @@ const DevelopmentActionModal: React.FC<DevelopmentActionModalProps> = ({
 
   const handleOk = async () => {
     const values = await form.validateFields();
-    const person = MOCK_EMPLOYEES.find(
-      (e) => e.id === values.responsiblePersonId,
-    );
-    onSave({
-      actionItem: values.actionItem.trim(),
-      responsiblePersonId: values.responsiblePersonId,
-      responsiblePersonName: person?.name ?? '',
-      targetCompletionDate: values.targetCompletionDate
-        ? values.targetCompletionDate.format('YYYY-MM-DD')
-        : '',
-      status: values.status as DevelopmentActionStatus,
-      remarks: values.remarks?.trim() || undefined,
-      gapId: values.gapId || undefined,
-    });
+    const person = employees.find((e) => e.id === values.responsiblePersonId);
+    setSubmitting(true);
+    try {
+      await onSave({
+        actionItem: values.actionItem.trim(),
+        responsiblePersonId: values.responsiblePersonId,
+        responsiblePersonName: person?.name ?? '',
+        targetCompletionDate: values.targetCompletionDate
+          ? values.targetCompletionDate.format('YYYY-MM-DD')
+          : '',
+        status: values.status as DevelopmentActionStatus,
+        remarks: values.remarks?.trim() || undefined,
+        gapId: values.gapId || undefined,
+      });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const gapLocked = Boolean(lockedGapId);
@@ -77,6 +83,9 @@ const DevelopmentActionModal: React.FC<DevelopmentActionModalProps> = ({
       onCancel={onClose}
       onOk={handleOk}
       okText="Save"
+      confirmLoading={submitting}
+      cancelButtonProps={{ disabled: submitting }}
+      maskClosable={!submitting}
       destroyOnClose
       width={520}
       data-cy="development-action-modal"
@@ -119,7 +128,7 @@ const DevelopmentActionModal: React.FC<DevelopmentActionModalProps> = ({
             showSearch
             optionFilterProp="label"
             placeholder="Select person"
-            options={MOCK_EMPLOYEES.map((e) => ({
+            options={employees.map((e) => ({
               value: e.id,
               label: `${e.name} · ${e.jobTitle}`,
             }))}

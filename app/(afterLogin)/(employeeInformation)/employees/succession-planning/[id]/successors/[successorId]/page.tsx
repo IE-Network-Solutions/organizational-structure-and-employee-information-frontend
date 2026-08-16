@@ -4,12 +4,12 @@ import { Breadcrumb, Card, Empty, Tag, Typography } from 'antd';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
+import { useSuccessionPlanningData } from '@/store/server/features/employees/successionPlanning/useSuccessionPlanningData';
 import type { RoleCompetency } from '@/app/(afterLogin)/(employeeInformation)/employees/succession-planning/_components/steps/stepCompetencyDefinition';
 import type { CompetencyEvaluation } from '@/app/(afterLogin)/(employeeInformation)/employees/succession-planning/_components/steps/stepEvaluatorAssignment';
 import { sumWeightedScores } from '@/app/(afterLogin)/(employeeInformation)/employees/succession-planning/_components/steps/stepEvaluatorAssignment';
-import { MOCK_EMPLOYEES } from '@/app/(afterLogin)/(employeeInformation)/employees/succession-planning/_components/steps/stepEmployeeSelection';
+import { useSuccessorWrites } from '@/store/server/features/employees/successionPlanning/useSuccessorWrites';
 import ManageCompetenciesModal from '@/app/(afterLogin)/(employeeInformation)/employees/succession-planning/_components/manageCompetenciesModal';
 import { SuccessorDetailPanel } from '@/app/(afterLogin)/(employeeInformation)/employees/succession-planning/_components/successorCard';
 import { PersonIdentity } from '@/app/(afterLogin)/(employeeInformation)/employees/succession-planning/_components/personRoleChrome';
@@ -39,27 +39,18 @@ const SuccessorDetailPage: React.FC = () => {
   const role = useSuccessionPlanningStore((s) =>
     s.roles.find((r) => r.id === roleId),
   );
-  const updateRole = useSuccessionPlanningStore((s) => s.updateRole);
-  const assignCompetencyEvaluator = useSuccessionPlanningStore(
-    (s) => s.assignCompetencyEvaluator,
-  );
+  const { saveRole } = useSuccessionPlanningData();
+  const { assignEvaluator } = useSuccessorWrites(successorId);
 
   const successor = role?.successors?.find((s) => s.id === successorId);
   const roleHref = `/employees/succession-planning/${roleId}`;
 
   if (!role || !successor) {
     return (
-      <div
-        className="pt-4 pb-8"
-        data-cy="successor-detail-not-found"
-      >
+      <div className="pt-4 pb-8" data-cy="successor-detail-not-found">
         <CustomBreadcrumb
           onBack={() =>
-            router.push(
-              roleId
-                ? roleHref
-                : '/employees/succession-planning',
-            )
+            router.push(roleId ? roleHref : '/employees/succession-planning')
           }
           title={
             <Typography.Title className="text-xl font-bold text-black !mb-0">
@@ -106,15 +97,10 @@ const SuccessorDetailPage: React.FC = () => {
     evaluation: CompetencyEvaluation,
     evaluatorId: string | undefined,
   ) => {
-    const evaluator = MOCK_EMPLOYEES.find((e) => e.id === evaluatorId);
-    assignCompetencyEvaluator(
-      role.id,
-      successor.id,
-      evaluation.competencyName,
-      evaluation.category,
-      evaluatorId ?? '',
-      evaluator?.name ?? '',
-    );
+    // The criteria id comes from the API; clearing an evaluator is not a
+    // supported operation, so only real assignments are sent.
+    if (!evaluation.competencyCriteriaId || !evaluatorId) return;
+    assignEvaluator(evaluation.competencyCriteriaId, evaluatorId);
   };
 
   const handleManageSave = (
@@ -129,37 +115,35 @@ const SuccessorDetailPage: React.FC = () => {
       requiredCurrentPositions: string[];
     },
   ) => {
-    updateRole(role.id, {
-      positionId: role.positionId,
-      roleName: role.roleName,
-      department: role.department,
-      priority: role.priority,
-      riskLevel: role.riskLevel,
-      notes: role.notes,
-      requiredEducationLevel:
-        qualifications?.requiredEducationLevel ?? role.requiredEducationLevel,
-      requiredEducationField:
-        qualifications?.requiredEducationField ?? role.requiredEducationField,
-      allowRelatedEducationFields:
-        qualifications?.allowRelatedEducationFields ??
-        role.allowRelatedEducationFields,
-      requiredRelevantExperience:
-        qualifications?.requiredRelevantExperience ??
-        role.requiredRelevantExperience,
-      requiredCurrentPositionIds:
-        qualifications?.requiredCurrentPositionIds ??
-        role.requiredCurrentPositionIds,
-      requiredCurrentPositions:
-        qualifications?.requiredCurrentPositions ??
-        role.requiredCurrentPositions,
-      competencies,
-      successors,
-    });
-    NotificationMessage.success({
-      message: 'Competencies updated',
-      description:
-        'Criteria and evaluator assignments have been applied to all successors.',
-    });
+    void saveRole(
+      {
+        positionId: role.positionId,
+        roleName: role.roleName,
+        department: role.department,
+        priority: role.priority,
+        riskLevel: role.riskLevel,
+        notes: role.notes,
+        requiredEducationLevel:
+          qualifications?.requiredEducationLevel ?? role.requiredEducationLevel,
+        requiredEducationField:
+          qualifications?.requiredEducationField ?? role.requiredEducationField,
+        allowRelatedEducationFields:
+          qualifications?.allowRelatedEducationFields ??
+          role.allowRelatedEducationFields,
+        requiredRelevantExperience:
+          qualifications?.requiredRelevantExperience ??
+          role.requiredRelevantExperience,
+        requiredCurrentPositionIds:
+          qualifications?.requiredCurrentPositionIds ??
+          role.requiredCurrentPositionIds,
+        requiredCurrentPositions:
+          qualifications?.requiredCurrentPositions ??
+          role.requiredCurrentPositions,
+        competencies,
+        successors,
+      },
+      role.id,
+    );
   };
 
   return (
@@ -240,9 +224,7 @@ const SuccessorDetailPage: React.FC = () => {
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
           <MetaField label="Role">{role.roleName}</MetaField>
-          <MetaField label="Education">
-            {educationLabel || '—'}
-          </MetaField>
+          <MetaField label="Education">{educationLabel || '—'}</MetaField>
           <MetaField label="Service years">
             {formatYearsLabel(successor.relevantExperience)}
           </MetaField>
@@ -260,7 +242,6 @@ const SuccessorDetailPage: React.FC = () => {
         styles={{ body: { padding: '4px 16px 16px' } }}
       >
         <SuccessorDetailPanel
-          roleId={role.id}
           role={role}
           successor={successor}
           onEvaluatorChange={handleEvaluatorChange}

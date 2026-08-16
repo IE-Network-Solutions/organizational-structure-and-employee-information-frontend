@@ -1,15 +1,6 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Button,
-  Empty,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Tag,
-} from 'antd';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { Button, Empty, Form, Input, InputNumber, Modal, Tag } from 'antd';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
 import { CompetencyImportance } from '../steps/stepCompetencyDefinition';
@@ -19,13 +10,16 @@ import {
   sumWeightedScores,
   toWeightedScore,
 } from '../steps/stepEvaluatorAssignment';
-import { MOCK_EMPLOYEES } from '../steps/stepEmployeeSelection';
+import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
+import { useSuccessorWrites } from '@/store/server/features/employees/successionPlanning/useSuccessorWrites';
 import { PersonRoleAvatar, PersonRoleLabel } from '../personRoleChrome';
 import { importanceColor } from '../tagColors';
 
 const { TextArea } = Input;
 
 interface CriterionFormValue {
+  /** Backend criteria id — what the score is posted against. */
+  competencyCriteriaId?: string;
   competencyName: string;
   category: string;
   importance: CompetencyImportance;
@@ -60,9 +54,8 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
   const role = useSuccessionPlanningStore((s) =>
     target ? s.roles.find((r) => r.id === target.roleId) : undefined,
   );
-  const saveEvaluationScores = useSuccessionPlanningStore(
-    (s) => s.saveEvaluationScores,
-  );
+  const { submitEvaluation } = useSuccessorWrites(target?.successorId ?? '');
+  const { employees } = useSuccessionOrgData();
 
   const successor = useMemo(
     () => role?.successors?.find((s) => s.id === target?.successorId),
@@ -72,7 +65,7 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
   const evaluatorId = target?.evaluatorId ?? '';
 
   const evaluator =
-    MOCK_EMPLOYEES.find((e) => e.id === evaluatorId) ??
+    employees.find((e) => e.id === evaluatorId) ??
     (successor?.competencyEvaluations?.find(
       (e) => e.evaluatorId === evaluatorId,
     )
@@ -98,6 +91,7 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
     if (!open) return;
     form.setFieldsValue({
       criteria: assignedCriteria.map((c) => ({
+        competencyCriteriaId: c.competencyCriteriaId,
         competencyName: c.competencyName,
         category: c.category,
         importance: c.importance,
@@ -140,29 +134,22 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
       const values = await form.validateFields();
       setSubmitting(true);
 
-      const scores = (values.criteria ?? []).map((c) => {
-        const rating = Number(c.rating);
-        const weight = Number(c.weight ?? 0);
-        return {
-          competencyName: c.competencyName,
-          category: c.category,
-          rating,
-          score: toWeightedScore(rating, weight),
+      // Only the raw rating is sent; the server derives the weighted score so
+      // it can never exceed the criterion weight.
+      const scores = (values.criteria ?? [])
+        .filter(
+          (c): c is CriterionFormValue & { competencyCriteriaId: string } =>
+            Boolean(c.competencyCriteriaId),
+        )
+        .map((c) => ({
+          competencyCriteriaId: c.competencyCriteriaId,
+          rating: Number(c.rating),
           comment: c.comment?.trim() || undefined,
-        };
-      });
+        }));
 
-      saveEvaluationScores(
-        target.roleId,
-        target.successorId,
-        target.evaluatorId,
-        scores,
-      );
+      if (scores.length === 0) return;
 
-      NotificationMessage.success({
-        message: 'Evaluation submitted',
-        description: `Scores for ${successor?.name ?? 'successor'} have been saved.`,
-      });
+      await submitEvaluation(scores, target.evaluatorId);
 
       onSubmitted?.();
       onClose();
@@ -231,7 +218,10 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
             </div>
           </div>
 
-          <p className="text-sm text-gray-500 -mt-1 mb-0" data-cy="evaluation-intro">
+          <p
+            className="text-sm text-gray-500 -mt-1 mb-0"
+            data-cy="evaluation-intro"
+          >
             Rate each competency from 0–100.
           </p>
 
@@ -298,7 +288,11 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
                           ) : null}
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-[140px_120px_1fr] gap-3 items-start">
+                        {/* Rating and its weighted result share one baseline;
+                            comments take the full width beneath. The previous
+                            3-column grid padded the middle cell by hand to fake
+                            label alignment, which never lined up. */}
+                        <div className="flex flex-wrap items-end gap-4">
                           <Form.Item
                             name={[field.name, 'rating']}
                             label={
@@ -315,50 +309,53 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
                                 message: 'Rating must be between 0 and 100',
                               },
                             ]}
-                            className="mb-0"
+                            className="mb-0 w-[150px]"
                             data-cy={`evaluation-rating-item-${field.key}`}
                           >
                             <InputNumber
                               min={0}
                               max={100}
-                              className="w-full"
+                              className="w-full h-9"
                               placeholder="e.g. 85"
                               data-cy={`evaluation-rating-input-${field.key}`}
                             />
                           </Form.Item>
 
                           <div
-                            className="pt-7"
+                            className="flex h-9 items-center gap-2 rounded-md bg-[#F8FAFC] px-3"
                             data-cy={`evaluation-weighted-preview-${field.key}`}
                           >
-                            <div className="text-xs text-gray-400 mb-1">
-                              Weighted result
-                            </div>
-                            <div className="text-sm font-semibold text-gray-800 tabular-nums">
+                            <span className="text-xs text-gray-500">
+                              Weighted
+                            </span>
+                            <span className="text-sm font-semibold text-gray-800 tabular-nums">
                               {weightedPreview != null
                                 ? `${weightedPreview} / ${weight}`
                                 : `— / ${weight}`}
-                            </div>
+                            </span>
                           </div>
-
-                          <Form.Item
-                            name={[field.name, 'comment']}
-                            label={
-                              <span className="text-sm font-medium text-gray-700">
-                                Comments (optional)
-                              </span>
-                            }
-                            className="mb-0"
-                            data-cy={`evaluation-comment-item-${field.key}`}
-                          >
-                            <TextArea
-                              rows={2}
-                              placeholder="Notes on this competency…"
-                              maxLength={500}
-                              data-cy={`evaluation-comment-input-${field.key}`}
-                            />
-                          </Form.Item>
                         </div>
+
+                        <Form.Item
+                          name={[field.name, 'comment']}
+                          label={
+                            <span className="text-sm font-medium text-gray-700">
+                              Comments{' '}
+                              <span className="font-normal text-gray-400">
+                                (optional)
+                              </span>
+                            </span>
+                          }
+                          className="mb-0 mt-3"
+                          data-cy={`evaluation-comment-item-${field.key}`}
+                        >
+                          <TextArea
+                            rows={2}
+                            placeholder="Notes on this competency…"
+                            maxLength={500}
+                            data-cy={`evaluation-comment-input-${field.key}`}
+                          />
+                        </Form.Item>
                       </div>
                     );
                   })}
@@ -398,7 +395,9 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
                 onClick={handleSubmit}
                 data-cy="evaluation-submit-btn"
               >
-                {allAlreadyEvaluated ? 'Update Evaluation' : 'Submit Evaluation'}
+                {allAlreadyEvaluated
+                  ? 'Update Evaluation'
+                  : 'Submit Evaluation'}
               </Button>
             </div>
           </Form>

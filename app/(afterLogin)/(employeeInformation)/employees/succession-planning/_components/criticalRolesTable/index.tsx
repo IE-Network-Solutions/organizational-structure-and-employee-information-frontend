@@ -11,6 +11,8 @@ import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 import { CriticalRole } from '../criticalRoleModal';
 import { priorityColor } from '../tagColors';
 import { roleSuccessorCount } from '../successionKpis';
@@ -45,34 +47,44 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
     setDeleteTargetId(null);
   };
 
-  const getActionMenuItems = (record: CriticalRole): MenuProps['items'] => [
-    {
-      key: 'edit',
-      label: (
-        <div
-          className="flex items-center gap-2"
-          onClick={() => onEdit(record)}
-          data-cy={`critical-role-edit-menu-item-${record.id}`}
-        >
-          <EditOutlinedIcon className="text-gray-600" fontSize="small" />
-          <span className="text-sm text-gray-700">Edit</span>
-        </div>
-      ),
-    },
-    {
-      key: 'delete',
-      label: (
-        <div
-          className="flex items-center gap-2 text-red-600"
-          onClick={() => setDeleteTargetId(record.id)}
-          data-cy={`critical-role-delete-menu-item-${record.id}`}
-        >
-          <DeleteOutlineOutlinedIcon fontSize="small" />
-          <span className="text-sm">Delete</span>
-        </div>
-      ),
-    },
-  ];
+  // Only offer the actions the user actually holds — an empty menu means the
+  // trigger is hidden entirely below.
+  const canEdit = AccessGuard.checkAccess({
+    permissions: [Permissions.UpdateCriticalRole],
+  });
+  const canDelete = AccessGuard.checkAccess({
+    permissions: [Permissions.DeleteCriticalRole],
+  });
+
+  const getActionMenuItems = (record: CriticalRole): MenuProps['items'] =>
+    [
+      canEdit && {
+        key: 'edit',
+        label: (
+          <div
+            className="flex items-center gap-2"
+            onClick={() => onEdit(record)}
+            data-cy={`critical-role-edit-menu-item-${record.id}`}
+          >
+            <EditOutlinedIcon className="text-gray-600" fontSize="small" />
+            <span className="text-sm text-gray-700">Edit</span>
+          </div>
+        ),
+      },
+      canDelete && {
+        key: 'delete',
+        label: (
+          <div
+            className="flex items-center gap-2 text-red-600"
+            onClick={() => setDeleteTargetId(record.id)}
+            data-cy={`critical-role-delete-menu-item-${record.id}`}
+          >
+            <DeleteOutlineOutlinedIcon fontSize="small" />
+            <span className="text-sm">Delete</span>
+          </div>
+        ),
+      },
+    ].filter(Boolean) as MenuProps['items'];
 
   const baseColumns: TableColumnsType<CriticalRole> = useMemo(
     () => [
@@ -143,9 +155,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
             data-cy="critical-role-row-successors"
           >
             <PeopleAltOutlinedIcon fontSize="small" className="text-gray-400" />
-            <span>
-              {roleSuccessorCount(record)}
-            </span>
+            <span>{roleSuccessorCount(record)}</span>
           </div>
         ),
       },
@@ -189,19 +199,21 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
             onKeyDown={(e) => e.stopPropagation()}
             data-cy={`critical-role-actions-${record.id}`}
           >
-            <Dropdown
-              menu={{ items: getActionMenuItems(record) }}
-              trigger={['click']}
-              placement="bottomRight"
-            >
-              <Button
-                type="text"
-                icon={<MoreHorizIcon style={{ fontSize: 18 }} />}
-                className="!w-8 !h-8 !p-0 leading-none flex items-center justify-center !bg-transparent [&_.ant-btn-icon]:m-0 [&_.ant-btn-icon]:leading-none"
-                aria-label="More actions"
-                data-cy={`critical-role-menu-btn-${record.id}`}
-              />
-            </Dropdown>
+            {canEdit || canDelete ? (
+              <Dropdown
+                menu={{ items: getActionMenuItems(record) }}
+                trigger={['click']}
+                placement="bottomRight"
+              >
+                <Button
+                  type="text"
+                  icon={<MoreHorizIcon style={{ fontSize: 18 }} />}
+                  className="!w-8 !h-8 !p-0 leading-none flex items-center justify-center !bg-transparent [&_.ant-btn-icon]:m-0 [&_.ant-btn-icon]:leading-none"
+                  aria-label="More actions"
+                  data-cy={`critical-role-menu-btn-${record.id}`}
+                />
+              </Dropdown>
+            ) : null}
           </div>
         ),
       },

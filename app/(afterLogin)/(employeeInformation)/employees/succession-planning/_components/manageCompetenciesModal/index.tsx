@@ -12,11 +12,8 @@ import StepEvaluatorAssignment, {
   CompetencyEvaluation,
   evaluationFieldKey,
 } from '../steps/stepEvaluatorAssignment';
-import { MOCK_EMPLOYEES } from '../steps/stepEmployeeSelection';
-import {
-  MOCK_POSITIONS,
-  resolvePositionTitles,
-} from '../steps/stepRoleSelection';
+import type { SuccessorCandidate } from '../steps/stepEmployeeSelection';
+import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
 
 interface ManageCompetenciesModalProps {
   open: boolean;
@@ -33,7 +30,7 @@ interface ManageCompetenciesModalProps {
       requiredCurrentPositionIds: string[];
       requiredCurrentPositions: string[];
     },
-  ) => void;
+  ) => void | Promise<void>;
 }
 
 const STEP_LABELS = ['Edit Competencies', 'Assign Evaluators'];
@@ -62,6 +59,8 @@ export const syncCompetenciesToSuccessors = (
   competencies: RoleCompetency[],
   successors: CriticalRole['successors'],
   assignments: Record<string, string>,
+  /** Employee directory used to resolve evaluator display names. */
+  employees: SuccessorCandidate[] = [],
 ): CriticalRole['successors'] =>
   (successors ?? []).map((successor) => {
     const previous = successor.competencyEvaluations ?? [];
@@ -69,10 +68,9 @@ export const syncCompetenciesToSuccessors = (
       (comp, index) => {
         const fieldKey = evaluationFieldKey(successor.id, index);
         const evaluatorId = assignments[fieldKey] ?? '';
-        const evaluator = MOCK_EMPLOYEES.find((e) => e.id === evaluatorId);
+        const evaluator = employees.find((e) => e.id === evaluatorId);
         const prev = previous.find(
-          (e) =>
-            e.competencyName === comp.name && e.category === comp.category,
+          (e) => e.competencyName === comp.name && e.category === comp.category,
         );
         const sameEvaluator =
           !!evaluatorId && prev?.evaluatorId === evaluatorId;
@@ -102,7 +100,23 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
 }) => {
   const { isMobile } = useIsMobile();
   const [form] = Form.useForm();
+  const { positions, employees, resolvePositionTitles } =
+    useSuccessionOrgData();
   const [current, setCurrent] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+
+  /** Save through the API, holding the button in its loading state. */
+  const commit = async (
+    ...args: Parameters<ManageCompetenciesModalProps['onSave']>
+  ) => {
+    setSubmitting(true);
+    try {
+      await onSave(...args);
+      onClose();
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -117,19 +131,12 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
       requiredCurrentPositionIds: role.requiredCurrentPositionIds ?? [],
       requiredCurrentDepartment:
         role.requiredCurrentPositionIds?.length === 1
-          ? MOCK_POSITIONS.find(
-              (p) => p.id === role.requiredCurrentPositionIds[0],
-            )?.department
+          ? positions.find((p) => p.id === role.requiredCurrentPositionIds[0])
+              ?.department
           : undefined,
     });
     setCurrent(0);
   }, [open, role, form]);
-
-  const watchedCompetencies: RoleCompetency[] =
-    Form.useWatch('competencies', form) ?? [];
-  const hasNamedCompetencies = watchedCompetencies.some((c) =>
-    c?.name?.trim(),
-  );
 
   const handleContinue = async () => {
     if (current === 0) {
@@ -155,8 +162,8 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
           form.getFieldValue('requiredEducationField') ?? 'Any',
         allowRelatedEducationFields: Boolean(
           form.getFieldValue('allowRelatedEducationFields') &&
-            form.getFieldValue('requiredEducationField') &&
-            form.getFieldValue('requiredEducationField') !== 'Any',
+          form.getFieldValue('requiredEducationField') &&
+          form.getFieldValue('requiredEducationField') !== 'Any',
         ),
         requiredRelevantExperience:
           form.getFieldValue('requiredRelevantExperience') ?? 0,
@@ -168,8 +175,7 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
         form.setFieldsValue({ competencies: [] });
         // Still allow advancing to assign step (empty) or save empty
         if ((role.successors ?? []).length === 0) {
-          onSave([], role.successors ?? [], qualificationValues);
-          onClose();
+          await commit([], role.successors ?? [], qualificationValues);
           return;
         }
         setCurrent(1);
@@ -239,15 +245,16 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
         competencies,
         role.successors ?? [],
         assignments,
+        employees,
       );
 
-      onSave(competencies, successors, {
+      await commit(competencies, successors, {
         requiredEducationLevel: values.requiredEducationLevel,
         requiredEducationField: values.requiredEducationField ?? 'Any',
         allowRelatedEducationFields: Boolean(
           values.allowRelatedEducationFields &&
-            values.requiredEducationField &&
-            values.requiredEducationField !== 'Any',
+          values.requiredEducationField &&
+          values.requiredEducationField !== 'Any',
         ),
         requiredRelevantExperience: Number(
           values.requiredRelevantExperience ?? 0,
@@ -257,7 +264,6 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
           values.requiredCurrentPositionIds ?? [],
         ),
       });
-      onClose();
     } catch {
       // inline errors
     }
@@ -284,8 +290,8 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
             Manage Competencies
           </h2>
           <p className="text-sm text-black font-normal">
-            Update criteria for {role.roleName}. Changes apply to all successors;
-            assign or change evaluators per successor.
+            Update criteria for {role.roleName}. Changes apply to all
+            successors; assign or change evaluators per successor.
           </p>
         </div>
       }
@@ -387,13 +393,10 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
                 block
                 className="text-sm font-normal sm:!w-auto"
                 onClick={handleContinue}
+                loading={submitting}
                 data-cy="manage-competencies-continue-btn"
               >
-                {hasNamedCompetencies
-                  ? 'Continue'
-                  : (role.successors?.length ?? 0) > 0
-                    ? 'Skip to evaluators'
-                    : 'Save'}
+                {(role.successors?.length ?? 0) > 0 ? 'Continue' : 'Save'}
               </Button>
             </div>
           </>
@@ -428,6 +431,7 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
                 block
                 className="text-sm font-normal sm:!w-auto"
                 onClick={handleContinue}
+                loading={submitting}
                 data-cy="manage-competencies-save-btn"
               >
                 Save Changes

@@ -1,28 +1,17 @@
 'use client';
 import React, { useMemo, useState } from 'react';
-import {
-  Button,
-  Dropdown,
-  Empty,
-  Input,
-  Segmented,
-  Select,
-  Tag,
-} from 'antd';
+import { Button, Dropdown, Empty, Input, Segmented, Select, Tag } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import EvaluationModal, {
-  EvaluationModalTarget,
-} from '../evaluationModal';
+import EvaluationModal, { EvaluationModalTarget } from '../evaluationModal';
 import { CriticalRole } from '../criticalRoleModal';
 import { CompetencyImportance } from '../steps/stepCompetencyDefinition';
 import { sumWeightedScores } from '../steps/stepEvaluatorAssignment';
-import {
-  EvaluationSessionCard,
-  EvaluatorContainer,
-} from '../hierarchyRows';
+import { EvaluationSessionCard, EvaluatorContainer } from '../hierarchyRows';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 export type EvaluatorScope = 'admin' | 'mine';
 
@@ -176,7 +165,11 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
   const [evaluationTarget, setEvaluationTarget] =
     useState<EvaluationModalTarget | null>(null);
 
-  const isMine = scope === 'mine';
+  const canViewAllEvaluations = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewSuccessionEvaluations],
+  });
+  // Without the tenant-wide permission the scope is pinned to the user's own.
+  const isMine = scope === 'mine' || !canViewAllEvaluations;
 
   const allRows = useMemo(() => {
     const rows = buildEvaluatorAssignments(roles);
@@ -364,15 +357,24 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
         className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
         data-cy="evaluators-scope-row"
       >
-        <Segmented
-          value={scope}
-          onChange={(value) => onScopeChange(value as EvaluatorScope)}
-          options={[
-            { label: 'All evaluators', value: 'admin' },
-            { label: 'My assignments', value: 'mine' },
-          ]}
-          data-cy="evaluators-scope-selector"
-        />
+        {/* "All evaluators" needs the tenant-wide permission; without it the
+            toggle is not offered and the view stays on the user's own queue.
+            The API enforces the same split via /evaluator-assignments/mine. */}
+        {canViewAllEvaluations ? (
+          <Segmented
+            value={scope}
+            onChange={(value) => onScopeChange(value as EvaluatorScope)}
+            options={[
+              { label: 'All evaluators', value: 'admin' },
+              { label: 'My assignments', value: 'mine' },
+            ]}
+            data-cy="evaluators-scope-selector"
+          />
+        ) : (
+          <span className="text-sm font-medium text-gray-700">
+            My assignments
+          </span>
+        )}
         {isMine && (
           <div
             className="flex flex-wrap items-center gap-2"

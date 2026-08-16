@@ -1,16 +1,13 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { Card, Form, Modal, Steps, Button, Popconfirm } from 'antd';
-import StepRoleSelection, {
-  MOCK_POSITIONS,
-  resolvePositionTitles,
-} from '../steps/stepRoleSelection';
+import StepRoleSelection from '../steps/stepRoleSelection';
+import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
 import StepCompetencyDefinition, {
   RoleCompetency,
   sumCompetencyWeights,
 } from '../steps/stepCompetencyDefinition';
 import StepEmployeeSelection, {
-  MOCK_EMPLOYEES,
   SuccessorCandidate,
 } from '../steps/stepEmployeeSelection';
 import StepEvaluatorAssignment, {
@@ -25,10 +22,7 @@ import type {
   IndividualDevelopmentPlan,
 } from '../successionTypes';
 import { deriveSuccessorGaps } from '../successionTypes';
-import type {
-  EducationField,
-  EducationLevel,
-} from '../educationCatalog';
+import type { EducationField, EducationLevel } from '../educationCatalog';
 import { formatEducationLabel } from '../educationCatalog';
 
 // ── Public type ───────────────────────────────────────────────────────────────
@@ -83,7 +77,13 @@ interface CriticalRoleModalProps {
   open: boolean;
   editingRole: CriticalRole | null;
   onClose: () => void;
-  onSave: (values: Omit<CriticalRole, 'id' | 'successorCount'>) => void;
+  /**
+   * Awaited before the wizard resets, so the confirm button can stay in its
+   * loading state until the API responds.
+   */
+  onSave: (
+    values: Omit<CriticalRole, 'id' | 'successorCount'>,
+  ) => void | Promise<void>;
 }
 
 const TOTAL_STEPS = 4;
@@ -130,8 +130,11 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
   onSave,
 }) => {
   const { isMobile } = useIsMobile();
+  const { positions, employees, resolvePositionTitles } =
+    useSuccessionOrgData();
   const [form] = Form.useForm();
   const [current, setCurrent] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   const isEditing = editingRole !== null;
 
   useEffect(() => {
@@ -144,13 +147,13 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
             : [],
           successorIds: (editingRole.successors ?? []).map((s) => s.id),
           evaluationAssignments: buildAssignmentsFromRole(editingRole),
-          requiredCurrentPositionIds:
-            editingRole.requiredCurrentPositionIds?.length
-              ? editingRole.requiredCurrentPositionIds
-              : [],
+          requiredCurrentPositionIds: editingRole.requiredCurrentPositionIds
+            ?.length
+            ? editingRole.requiredCurrentPositionIds
+            : [],
           requiredCurrentDepartment:
             editingRole.requiredCurrentPositionIds?.length === 1
-              ? MOCK_POSITIONS.find(
+              ? positions.find(
                   (p) => p.id === editingRole.requiredCurrentPositionIds[0],
                 )?.department
               : undefined,
@@ -173,11 +176,44 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
     form.getFieldValue('positionId') ??
     null;
 
-  const watchedCompetencies: RoleCompetency[] =
-    Form.useWatch('competencies', form) ?? [];
-  const hasNamedCompetencies = watchedCompetencies.some((c) =>
-    c?.name?.trim(),
-  );
+  /**
+   * Validate the competency rows, returning them when they are usable and
+   * `null` when the user must fix something first.
+   *
+   * A half-filled row used to be silently dropped by the name filter, which
+   * then made the remaining weights fall short of 100 — so a missing *name*
+   * surfaced as a *weight* error. Blank names are now reported as blank names.
+   */
+  const collectCompetencies = async (): Promise<RoleCompetency[] | null> => {
+    const rows: RoleCompetency[] = (
+      form.getFieldValue('competencies') ?? []
+    ).filter(Boolean);
+
+    // Criteria are optional — no rows at all is a valid role.
+    if (rows.length === 0) return [];
+
+    if (rows.some((competency) => !competency?.name?.trim())) {
+      // Surfaces the inline "Please enter a competency name" on the offending
+      // row; the toast explains why the step did not advance.
+      await form.validateFields(['competencies']).catch(() => undefined);
+      NotificationMessage.warning({
+        message: 'Every competency needs a name',
+        description:
+          'Fill in the missing competency name, or remove the empty row.',
+      });
+      return null;
+    }
+
+    const totalWeight = sumCompetencyWeights(rows);
+    if (totalWeight !== 100) {
+      NotificationMessage.warning({
+        message: `Competency weights must total 100. Current sum: ${totalWeight}`,
+      });
+      return null;
+    }
+
+    return rows;
+  };
 
   const handleContinueClick = async () => {
     if (current === 0) {
@@ -203,30 +239,9 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
         return;
       }
 
-      const rawCompetencies: RoleCompetency[] =
-        form.getFieldValue('competencies') ?? [];
-      const competencies = rawCompetencies.filter((c) => c?.name?.trim());
-
-      // Competencies are optional during initial setup — empty list is allowed.
-      if (competencies.length === 0) {
-        form.setFieldsValue({ competencies: [] });
-        setCurrent(2);
-        return;
-      }
-
-      try {
-        await form.validateFields(['competencies']);
-        const totalWeight = sumCompetencyWeights(competencies);
-        if (totalWeight !== 100) {
-          NotificationMessage.warning({
-            message: `Competency weights must total 100. Current sum: ${totalWeight}`,
-          });
-          return;
-        }
-        setCurrent(2);
-      } catch {
-        // antd shows inline errors
-      }
+      const competencies = await collectCompetencies();
+      if (competencies === null) return;
+      setCurrent(2);
       return;
     }
 
@@ -244,81 +259,70 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
     try {
       await form.validateFields();
       const values = form.getFieldsValue(true);
-      const position = MOCK_POSITIONS.find((p) => p.id === values.positionId);
+      const position = positions.find((p) => p.id === values.positionId);
       const priority = (values.priority ??
         'Medium') as CriticalRole['priority'];
-      const competencies: RoleCompetency[] = (values.competencies ?? []).filter(
-        (c: RoleCompetency | undefined) => c?.name?.trim(),
-      );
-      if (competencies.length > 0) {
-        const totalWeight = sumCompetencyWeights(competencies);
-        if (totalWeight !== 100) {
-          NotificationMessage.warning({
-            message: `Competency weights must total 100. Current sum: ${totalWeight}`,
-          });
-          return;
-        }
-      }
+      const competencies = await collectCompetencies();
+      if (competencies === null) return;
       const successorIds: string[] = values.successorIds ?? [];
       const assignments: Record<string, string> =
         values.evaluationAssignments ?? {};
 
-      const successors = MOCK_EMPLOYEES.filter((e) =>
-        successorIds.includes(e.id),
-      ).map((employee) => {
-        const competencyEvaluations: CompetencyEvaluation[] = competencies.map(
-          (comp, index) => {
-            const fieldKey = evaluationFieldKey(employee.id, index);
-            const evaluatorId = assignments[fieldKey] ?? '';
-            const evaluator = MOCK_EMPLOYEES.find((e) => e.id === evaluatorId);
-            return {
-              competencyName: comp.name,
-              category: comp.category,
-              importance: comp.importance,
-              weight: comp.weight,
-              evaluatorId,
-              evaluatorName: evaluator?.name ?? '',
-              status: 'Pending' as const,
-            };
-          },
-        );
-        return {
-          ...employee,
-          currentPosition: employee.currentPosition ?? employee.jobTitle,
-          education:
-            employee.education ??
-            formatEducationLabel(
-              employee.educationLevel,
-              employee.educationField,
-            ),
-          competencyEvaluations,
-          gaps: deriveSuccessorGaps(
-            competencies,
+      const successors = employees
+        .filter((e) => successorIds.includes(e.id))
+        .map((employee) => {
+          const competencyEvaluations: CompetencyEvaluation[] =
+            competencies.map((comp, index) => {
+              const fieldKey = evaluationFieldKey(employee.id, index);
+              const evaluatorId = assignments[fieldKey] ?? '';
+              const evaluator = employees.find((e) => e.id === evaluatorId);
+              return {
+                competencyName: comp.name,
+                category: comp.category,
+                importance: comp.importance,
+                weight: comp.weight,
+                evaluatorId,
+                evaluatorName: evaluator?.name ?? '',
+                status: 'Pending' as const,
+              };
+            });
+          return {
+            ...employee,
+            currentPosition: employee.currentPosition ?? employee.jobTitle,
+            education:
+              employee.education ??
+              formatEducationLabel(
+                employee.educationLevel,
+                employee.educationField,
+              ),
             competencyEvaluations,
-            [],
-            {
-              level: values.requiredEducationLevel,
-              field: values.requiredEducationField ?? 'Any',
-            },
-            {
-              level: employee.educationLevel,
-              field: employee.educationField,
-            },
-            Number(values.requiredRelevantExperience ?? 0),
-            employee.relevantExperience,
-            {
-              allowRelated: Boolean(
-                values.allowRelatedEducationFields &&
+            gaps: deriveSuccessorGaps(
+              competencies,
+              competencyEvaluations,
+              [],
+              {
+                level: values.requiredEducationLevel,
+                field: values.requiredEducationField ?? 'Any',
+              },
+              {
+                level: employee.educationLevel,
+                field: employee.educationField,
+              },
+              Number(values.requiredRelevantExperience ?? 0),
+              employee.relevantExperience,
+              {
+                allowRelated: Boolean(
+                  values.allowRelatedEducationFields &&
                   values.requiredEducationField &&
                   values.requiredEducationField !== 'Any',
-              ),
-              relatedAccepted: false,
-            },
-          ),
-          developmentActions: [],
-          educationRelatedAccepted: false,
-        };
-      });
+                ),
+                relatedAccepted: false,
+              },
+            ),
+            developmentActions: [],
+            educationRelatedAccepted: false,
+          };
+        });
 
       // DEV NOTE (Succession Planning — Critical Role Modal):
       // After a critical role is successfully created, a notification must be
@@ -327,7 +331,11 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
       // and notify each that they have been assigned to evaluate the named
       // successor(s) against the role's competency criteria.
       // TODO: wire this up when the succession-planning notification API is ready.
-      onSave({
+      // Hold the button in its loading state until the API settles. Resetting
+      // before this resolved is what made the wizard snap back to step 1 and
+      // look like a second modal had opened.
+      setSubmitting(true);
+      await onSave({
         positionId: values.positionId,
         roleName: position?.title ?? '',
         department: position?.department ?? '',
@@ -338,8 +346,8 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
         requiredEducationField: values.requiredEducationField ?? 'Any',
         allowRelatedEducationFields: Boolean(
           values.allowRelatedEducationFields &&
-            values.requiredEducationField &&
-            values.requiredEducationField !== 'Any',
+          values.requiredEducationField &&
+          values.requiredEducationField !== 'Any',
         ),
         requiredRelevantExperience: Number(
           values.requiredRelevantExperience ?? 0,
@@ -354,7 +362,11 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
       form.resetFields();
       setCurrent(0);
     } catch {
-      // antd shows inline errors
+      // Validation errors render inline; a failed save is reported by the
+      // parent's error notification. Either way stay on this step so the user
+      // can correct and retry rather than losing their input.
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -369,6 +381,9 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
   };
 
   const handleCancel = () => {
+    // Ignore dismissal while a save is in flight, so the wizard cannot be torn
+    // down underneath an in-progress request.
+    if (submitting) return;
     form.resetFields();
     setCurrent(0);
     onClose();
@@ -455,9 +470,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
             Step {current + 1} of {TOTAL_STEPS}
           </div>
           <div className="text-sm font-semibold text-[#1E40AF]">
-            {current === 1
-              ? 'Define Competencies (optional)'
-              : STEP_LABELS[current]}
+            {STEP_LABELS[current]}
           </div>
         </div>
         <Steps
@@ -466,9 +479,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
           labelPlacement="vertical"
           progressDot
           className="cr-modal-steps px-1 mx-auto max-w-3xl hidden sm:flex"
-          items={STEP_LABELS.map((label, index) => ({
-            title: index === 1 ? `${label} (optional)` : label,
-          }))}
+          items={STEP_LABELS.map((label) => ({ title: label }))}
           data-cy="critical-role-modal-steps"
         />
       </div>
@@ -499,6 +510,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
               current={current}
               totalSteps={TOTAL_STEPS}
               isEditing={isEditing}
+              submitting={submitting}
               onContinue={handleContinueClick}
               onBack={handleBackClick}
             />
@@ -518,7 +530,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
               current={current}
               totalSteps={TOTAL_STEPS}
               isEditing={isEditing}
-              continueLabel={hasNamedCompetencies ? 'Continue' : 'Skip for now'}
+              submitting={submitting}
               onContinue={handleContinueClick}
               onBack={handleBackClick}
             />
@@ -538,6 +550,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
               current={current}
               totalSteps={TOTAL_STEPS}
               isEditing={isEditing}
+              submitting={submitting}
               onContinue={handleContinueClick}
               onBack={handleBackClick}
             />
@@ -557,6 +570,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
               current={current}
               totalSteps={TOTAL_STEPS}
               isEditing={isEditing}
+              submitting={submitting}
               onContinue={handleContinueClick}
               onBack={handleBackClick}
             />
@@ -572,6 +586,8 @@ interface StepNavButtonsProps {
   totalSteps: number;
   isEditing: boolean;
   continueLabel?: string;
+  /** True while the final save is in flight. */
+  submitting?: boolean;
   onContinue: () => void;
   onBack: () => void;
 }
@@ -581,6 +597,7 @@ const StepNavButtons: React.FC<StepNavButtonsProps> = ({
   totalSteps,
   isEditing,
   continueLabel,
+  submitting = false,
   onContinue,
   onBack,
 }) => {
@@ -604,6 +621,7 @@ const StepNavButtons: React.FC<StepNavButtonsProps> = ({
             <Button
               type="default"
               block
+              disabled={submitting}
               className="border border-[#D9D9D9] text-[#4d4d4d] text-sm font-normal sm:!w-auto"
               data-cy="critical-role-modal-cancel-btn"
             >
@@ -614,6 +632,7 @@ const StepNavButtons: React.FC<StepNavButtonsProps> = ({
           <Button
             type="default"
             block
+            disabled={submitting}
             className="border border-[#D9D9D9] text-[#4d4d4d] text-sm font-normal sm:!w-auto"
             onClick={onBack}
             data-cy="critical-role-modal-back-btn"
@@ -626,6 +645,7 @@ const StepNavButtons: React.FC<StepNavButtonsProps> = ({
       <Button
         type="primary"
         block
+        loading={submitting}
         className="text-sm font-normal sm:!w-auto"
         onClick={onContinue}
         data-cy={

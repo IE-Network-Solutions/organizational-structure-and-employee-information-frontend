@@ -172,7 +172,9 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
       ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Completed</span>,
+      title: (
+        <span className="text-[#4d4d4d] text-sm font-bold">Completed</span>
+      ),
       dataIndex: 'completionDate',
       width: 110,
       render: (value?: string) => (

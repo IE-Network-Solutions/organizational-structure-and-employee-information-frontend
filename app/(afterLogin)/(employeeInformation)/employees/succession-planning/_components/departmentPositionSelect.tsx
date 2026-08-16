@@ -1,11 +1,7 @@
 'use client';
 import React, { useMemo } from 'react';
 import { Form, Select } from 'antd';
-import {
-  MOCK_DEPARTMENTS,
-  MOCK_POSITIONS,
-  resolvePositionDepartment,
-} from './steps/stepRoleSelection';
+import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
 
 interface DepartmentPositionSelectProps {
   /** Form field name for department filter (string department name in mock). */
@@ -25,7 +21,7 @@ interface DepartmentPositionSelectProps {
 /**
  * Department + Position selects matching employee job forms:
  * searchable department, then searchable position filtered by department.
- * Uses succession MOCK_POSITIONS until org APIs are wired.
+ * Both lists come from the live org structure.
  */
 const DepartmentPositionSelect: React.FC<DepartmentPositionSelectProps> = ({
   departmentFieldName,
@@ -39,26 +35,28 @@ const DepartmentPositionSelect: React.FC<DepartmentPositionSelectProps> = ({
   positionDataCy = 'position-select',
 }) => {
   const form = Form.useFormInstance();
+  const { positions, departments, isLoading } = useSuccessionOrgData();
   const selectedDepartment = Form.useWatch(departmentFieldName, form) as
     | string
     | undefined;
 
+  const resolvePositionDepartment = (positionId?: string | null) =>
+    positions.find((p) => p.id === positionId)?.department;
+
   const positionOptions = useMemo(() => {
     const list = selectedDepartment
-      ? MOCK_POSITIONS.filter((p) => p.department === selectedDepartment)
-      : MOCK_POSITIONS;
+      ? positions.filter((p) => p.department === selectedDepartment)
+      : positions;
     return list.map((p) => ({
       value: p.id,
       label: p.title,
       department: p.department,
     }));
-  }, [selectedDepartment]);
+  }, [positions, selectedDepartment]);
 
   return (
     <div
-      className={
-        className ?? 'grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4'
-      }
+      className={className ?? 'grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4'}
     >
       <Form.Item
         name={departmentFieldName}
@@ -81,7 +79,8 @@ const DepartmentPositionSelect: React.FC<DepartmentPositionSelectProps> = ({
           optionFilterProp="label"
           placeholder="Select a department"
           className="w-full h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selection-item]:!leading-8 [&_.ant-select-selection-placeholder]:!leading-8"
-          options={MOCK_DEPARTMENTS.map((name) => ({
+          loading={isLoading}
+          options={departments.map((name) => ({
             value: name,
             label: name,
           }))}
@@ -134,6 +133,7 @@ const DepartmentPositionSelect: React.FC<DepartmentPositionSelectProps> = ({
               : 'Search or select a position'
           }
           className="w-full h-10 [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!h-10 [&_.ant-select-selection-overflow]:!flex-nowrap [&_.ant-select-selection-item]:!leading-[22px] [&_.ant-select-selection-placeholder]:!leading-8"
+          loading={isLoading}
           options={positionOptions}
           maxTagCount="responsive"
           onChange={(value: string | string[] | undefined) => {

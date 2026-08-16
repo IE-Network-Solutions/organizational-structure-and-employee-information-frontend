@@ -367,4 +367,15 @@ export enum Permissions {
   CreateProbationTask = 'create-probation-task',
   UpdateProbationTask = 'update-probation-task',
   DeleteProbationTask = 'delete-probation-task',
+
+  // Succession planning
+  ViewSuccessionPlanning = 'view-succession-planning',
+  CreateCriticalRole = 'create-critical-role',
+  UpdateCriticalRole = 'update-critical-role',
+  DeleteCriticalRole = 'delete-critical-role',
+  /** Tenant-wide evaluator view; without it a user only sees their own. */
+  ViewSuccessionEvaluations = 'view-succession-evaluations',
+  SubmitSuccessionEvaluation = 'submit-succession-evaluation',
+  ManageSuccessorDevelopment = 'manage-successor-development',
+  ViewSuccessionReports = 'view-succession-reports',
 }
