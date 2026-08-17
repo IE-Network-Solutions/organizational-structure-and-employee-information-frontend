@@ -1,8 +1,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import { Button, Select, Tag } from 'antd';
+import { Button, Select, Tag, Tooltip } from 'antd';
 import dayjs from 'dayjs';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import RequestSwapModal from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/workSchedule/_components/requestSwapModal';
 import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workSchedule';
 import {
@@ -153,7 +154,7 @@ const MySchedulePage = () => {
         </p>
       ) : (
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3"
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-3"
           data-cy="time-attendance-my-schedule-days"
         >
           {shiftsByDay.map(([date, dayShifts]) => {
@@ -170,9 +171,9 @@ const MySchedulePage = () => {
             return (
               <div
                 key={date}
-                className={`rounded-xl border p-3 flex flex-col gap-2 ${
+                className={`rounded-2xl border shadow-sm p-3 flex flex-col gap-2.5 transition-shadow hover:shadow-md ${
                   isToday
-                    ? 'border-primary/40 bg-primary/[0.03]'
+                    ? 'border-primary/50 bg-primary/[0.04] ring-1 ring-primary/20'
                     : 'border-gray-200 bg-white'
                 }`}
                 data-cy={`time-attendance-my-schedule-day-${date}`}
@@ -181,28 +182,34 @@ const MySchedulePage = () => {
                   className="flex items-start justify-between gap-2"
                   data-cy={`time-attendance-my-schedule-day-header-${date}`}
                 >
-                  <div>
+                  <div className="min-w-0">
                     <p
-                      className="mb-0 text-sm font-semibold text-[#4d4d4d]"
+                      className="mb-0 text-sm font-semibold text-[#4d4d4d] truncate"
                       data-cy={`time-attendance-my-schedule-day-label-${date}`}
                     >
-                      {day.format('ddd, MMM D')}
+                      {day.format('ddd')}
                     </p>
-                    <p className="mb-0 text-[11px] text-gray-500">
-                      {dayShifts.length} shift
-                      {dayShifts.length === 1 ? '' : 's'}
+                    <p className="mb-0 text-xs text-gray-500">
+                      {day.format('MMM D')}
                       {isToday ? ' · Today' : ''}
                     </p>
                   </div>
-                  {pendingCount > 0 && (
-                    <Tag color="processing" className="!m-0 !text-[10px]">
-                      {pendingCount} pending
+                  {pendingCount > 0 ? (
+                    <Tag
+                      color="processing"
+                      className="!m-0 !text-[10px] !leading-5 !px-1.5 shrink-0"
+                    >
+                      {pendingCount}
                     </Tag>
+                  ) : (
+                    <span className="text-[10px] text-gray-400 shrink-0">
+                      {dayShifts.length}s
+                    </span>
                   )}
                 </div>
 
                 <div
-                  className="flex flex-col gap-1.5"
+                  className="flex flex-col gap-2"
                   data-cy={`time-attendance-my-schedule-day-shifts-${date}`}
                 >
                   {dayShifts.map((shift) => {
@@ -214,60 +221,50 @@ const MySchedulePage = () => {
                     return (
                       <div
                         key={shift.id}
-                        className="rounded-lg border border-gray-100 bg-gray-50/80 px-2.5 py-2"
+                        className="rounded-xl border border-gray-100 bg-gray-50/90 px-2.5 py-2"
                         data-cy={`time-attendance-my-schedule-shift-${shift.id}`}
                       >
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="min-w-0">
-                            <p className="mb-0 text-xs font-semibold text-[#4d4d4d] truncate">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="mb-0 text-xs font-semibold text-[#4d4d4d] leading-snug">
                               {formatTimeRange(shift.startTime, shift.endTime)}
-                              {shift.shiftName ? ` · ${shift.shiftName}` : ''}
                             </p>
-                            <p className="mb-0 text-[11px] text-gray-500 truncate">
-                              {shift.blueprintTitle}
+                            <p className="mb-0 mt-0.5 text-[11px] text-gray-500 truncate">
+                              {shift.shiftName || shift.blueprintTitle}
                             </p>
                           </div>
-                          <div className="flex items-center gap-1 shrink-0">
-                            {!shift.isSwappable && (
-                              <Tag className="!m-0 !text-[10px] !leading-5 !px-1.5">
-                                Fixed
-                              </Tag>
-                            )}
-                            {outgoing.map((swap) => (
-                              <Tag
-                                key={swap.id}
-                                color="processing"
-                                className="!m-0 !text-[10px] !leading-5 !px-1.5"
-                              >
-                                {SWAP_STATUS_LABEL[swap.status]}
-                              </Tag>
-                            ))}
-                            {shift.isSwappable && (
-                              <Button
-                                type="link"
-                                size="small"
-                                className="!px-1 !h-auto !text-xs"
+                          {shift.isSwappable ? (
+                            <Tooltip title="Request swap">
+                              <button
+                                type="button"
                                 onClick={() => openSwapModal(shift.id)}
+                                className="shrink-0 inline-flex items-center justify-center h-7 w-7 rounded-full border border-primary/25 bg-white text-primary hover:bg-primary hover:text-white hover:border-primary transition-colors"
+                                aria-label="Request swap"
                                 data-cy={`time-attendance-my-schedule-shift-swap-${shift.id}`}
                               >
-                                Swap
-                              </Button>
-                            )}
-                          </div>
+                                <SwapHorizIcon sx={{ fontSize: 16 }} />
+                              </button>
+                            </Tooltip>
+                          ) : (
+                            <Tag className="!m-0 !text-[10px] !leading-5 !px-1.5 shrink-0">
+                              Fixed
+                            </Tag>
+                          )}
                         </div>
 
                         {outgoing.map((swap) => (
                           <p
                             key={swap.id}
-                            className="mt-1.5 mb-0 text-[11px] text-gray-500"
+                            className="mt-1.5 mb-0 text-[10px] text-gray-500 leading-snug"
                             data-cy={`time-attendance-my-schedule-shift-outgoing-${swap.id}`}
                           >
-                            With {getEmployeeDisplayName(swap.target)} ·{' '}
-                            {dayjs(swap.targetShift.date).format('MMM D')}{' '}
-                            {formatTimeRange(
-                              swap.targetShift.startTime,
-                              swap.targetShift.endTime,
-                            )}
+                            <Tag
+                              color="processing"
+                              className="!m-0 !mr-1 !text-[9px] !leading-4 !px-1"
+                            >
+                              {SWAP_STATUS_LABEL[swap.status]}
+                            </Tag>
+                            {getEmployeeDisplayName(swap.target)}
                           </p>
                         ))}
 
@@ -277,19 +274,15 @@ const MySchedulePage = () => {
                             className="mt-1.5 pt-1.5 border-t border-gray-200"
                             data-cy={`time-attendance-my-schedule-shift-incoming-${swap.id}`}
                           >
-                            <p className="mb-1.5 text-[11px] text-[#4d4d4d]">
-                              {getEmployeeDisplayName(swap.requester)} →{' '}
-                              {dayjs(swap.requesterShift.date).format('MMM D')}{' '}
-                              {formatTimeRange(
-                                swap.requesterShift.startTime,
-                                swap.requesterShift.endTime,
-                              )}
+                            <p className="mb-1.5 text-[10px] text-[#4d4d4d] leading-snug">
+                              {getEmployeeDisplayName(swap.requester)} ·{' '}
+                              {dayjs(swap.requesterShift.date).format('MMM D')}
                             </p>
-                            <div className="flex gap-1.5">
+                            <div className="flex gap-1">
                               <Button
                                 type="primary"
                                 size="small"
-                                className="!h-6 !text-[11px] !px-2"
+                                className="!h-6 !text-[10px] !px-2 !rounded-full"
                                 loading={isResponding}
                                 onClick={() =>
                                   respondToSwap({
@@ -303,7 +296,7 @@ const MySchedulePage = () => {
                               </Button>
                               <Button
                                 size="small"
-                                className="!h-6 !text-[11px] !px-2"
+                                className="!h-6 !text-[10px] !px-2 !rounded-full"
                                 loading={isResponding}
                                 onClick={() =>
                                   respondToSwap({
