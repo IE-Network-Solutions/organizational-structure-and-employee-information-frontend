@@ -540,15 +540,20 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
             >
               <Col span={24} className="flex flex-col">
                 <div
-                  className="mb-2"
+                  className="mb-2 rounded-xl border-2 border-[#93C5FD] bg-white px-3 py-3"
                   data-cy="job-work-schedule-assigned-shifts"
                 >
-                  <p
-                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-2"
-                    data-cy="job-work-schedule-assigned-shifts-label"
-                  >
-                    Assigned Shifts
-                  </p>
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    <p
+                      className="text-sm font-semibold text-[#1E40AF] m-0"
+                      data-cy="job-work-schedule-assigned-shifts-label"
+                    >
+                      Assigned Shifts
+                    </p>
+                    <Tag color="blue" className="!m-0 !text-[10px]">
+                      Shift schedule
+                    </Tag>
+                  </div>
                   <div
                     className="flex flex-col gap-2"
                     data-cy="job-work-schedule-assigned-shifts-list"
@@ -556,7 +561,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                     {userShiftAssignments.map((assignment) => (
                       <div
                         key={assignment.id}
-                        className="rounded-lg border border-gray-200 bg-white px-3 py-2"
+                        className="rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2"
                         data-cy={`job-work-schedule-assigned-shift-card-${assignment.id}`}
                       >
                         <p

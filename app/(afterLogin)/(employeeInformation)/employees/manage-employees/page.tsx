@@ -36,6 +36,15 @@ import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import Link from 'next/link';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { DEMO_LOGGED_IN_EMPLOYEE_ID } from '@/types/timesheet/workSchedule';
+import { MOCK_EMPLOYEES } from '@/store/server/features/timesheet/workSchedule/mockData';
+import { getEmployeeDisplayName } from '@/store/server/features/timesheet/workSchedule/mockService';
+
+const MOCK_DEMO_EMPLOYEE =
+  MOCK_EMPLOYEES.find((item) => item.id === DEMO_LOGGED_IN_EMPLOYEE_ID) ??
+  MOCK_EMPLOYEES[0];
 
 const ManageEmployees: React.FC<any> = () => {
   const {
@@ -428,6 +437,27 @@ const ManageEmployees: React.FC<any> = () => {
         </div>
       </div>
       <div className="rounded-lg" data-cy="manage-employees-table-section">
+        <Link
+          href="/employees/manage-employees/mock-demo"
+          className="mb-3 flex items-center justify-between gap-3 rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-4 py-3 transition-colors hover:bg-[#DBEAFE]"
+          data-cy="manage-employees-mock-demo-card"
+        >
+          <div className="min-w-0">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <Tag color="blue" className="!m-0">
+                Mock Employee
+              </Tag>
+              <span className="text-sm font-semibold text-[#1E40AF]">
+                {getEmployeeDisplayName(MOCK_DEMO_EMPLOYEE)}
+              </span>
+            </div>
+            <p className="mb-0 text-xs text-[#1D4ED8]">
+              View demo job info with assigned Morning / Afternoon shifts
+              highlighted.
+            </p>
+          </div>
+          <ArrowForwardIcon className="shrink-0 text-[#1D4ED8]" fontSize="small" />
+        </Link>
         <div
           className="w-full h-auto"
           id="manage-employees-content"

@@ -38,7 +38,15 @@ const DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
 /** Min width for horizontal scroll on narrow viewports (aligned with leave table pattern). */
 const APPROVAL_TABLE_SCROLL_X = 960;
 
-const ApprovalTable = () => {
+type ApprovalTableProps = {
+  controlledApprovalType?: 'Leave' | 'WorkFromHome';
+  hideTypePills?: boolean;
+};
+
+const ApprovalTable = ({
+  controlledApprovalType,
+  hideTypePills = false,
+}: ApprovalTableProps = {}) => {
   const { pageSize, userCurrentPage, setUserCurrentPage, setPageSize } =
     useCurrentLeaveApprovalStore();
   const { allPageSize, allUserCurrentPage } = useAllCurrentLeaveApprovedStore();
@@ -61,9 +69,14 @@ const ApprovalTable = () => {
 
   const [searchEmployee, setSearchEmployee] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
-  const [approvalTypeFilter, setApprovalTypeFilter] = useState<
-    'Leave' | 'WorkFromHome'
-  >('Leave');
+  const [internalApprovalTypeFilter, setInternalApprovalTypeFilter] =
+    useState<'Leave' | 'WorkFromHome'>('Leave');
+  const approvalTypeFilter =
+    controlledApprovalType ?? internalApprovalTypeFilter;
+  const setApprovalTypeFilter =
+    controlledApprovalType != null
+      ? () => undefined
+      : setInternalApprovalTypeFilter;
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const { data: allUsersData } = useGetAllUsers();
@@ -125,6 +138,12 @@ const ApprovalTable = () => {
     setUserCurrentPage(1);
     setSelectedRowKeys([]);
   }, [searchEmployee, filterStatus, approvalTypeFilter]);
+
+  useEffect(() => {
+    if (controlledApprovalType) {
+      setInternalApprovalTypeFilter(controlledApprovalType);
+    }
+  }, [controlledApprovalType]);
 
   /**
    * Use only initial-loading state for table skeleton.
@@ -591,30 +610,32 @@ const ApprovalTable = () => {
           className="flex w-full min-w-0 flex-wrap items-center gap-2 min-[400px]:w-auto min-[400px]:shrink-0 min-[400px]:justify-end"
           data-cy="time-attendance-approval-table-toolbar-actions"
         >
-          <div
-            className="flex w-full min-w-0 flex-wrap gap-2 min-[400px]:w-auto"
-            data-cy="time-attendance-approval-table-filter-approval-type-pills"
-          >
-            {approvalTypePills.map((pill) => {
-              const isSelected = approvalTypeFilter === pill.id;
-              return (
-                <Button
-                  key={pill.id}
-                  type="default"
-                  size="small"
-                  data-cy={`time-attendance-approval-table-filter-approval-type-pill-${pill.id}`}
-                  onClick={() => setApprovalTypeFilter(pill.id)}
-                  className={
-                    isSelected
-                      ? '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-[#1d4ed8] text-[#1d4ed8] !bg-white hover:!bg-[#FAFAFA] hover:!border-[#1d4ed8] hover:!text-[#1d4ed8]'
-                      : '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-gray-200 text-gray-700 !bg-white hover:!bg-gray-50 hover:!border-gray-300 hover:!text-gray-800'
-                  }
-                >
-                  {pill.label}
-                </Button>
-              );
-            })}
-          </div>
+          {!hideTypePills && (
+            <div
+              className="flex w-full min-w-0 flex-wrap gap-2 min-[400px]:w-auto"
+              data-cy="time-attendance-approval-table-filter-approval-type-pills"
+            >
+              {approvalTypePills.map((pill) => {
+                const isSelected = approvalTypeFilter === pill.id;
+                return (
+                  <Button
+                    key={pill.id}
+                    type="default"
+                    size="small"
+                    data-cy={`time-attendance-approval-table-filter-approval-type-pill-${pill.id}`}
+                    onClick={() => setApprovalTypeFilter(pill.id)}
+                    className={
+                      isSelected
+                        ? '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-[#1d4ed8] text-[#1d4ed8] !bg-white hover:!bg-[#FAFAFA] hover:!border-[#1d4ed8] hover:!text-[#1d4ed8]'
+                        : '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-gray-200 text-gray-700 !bg-white hover:!bg-gray-50 hover:!border-gray-300 hover:!text-gray-800'
+                    }
+                  >
+                    {pill.label}
+                  </Button>
+                );
+              })}
+            </div>
+          )}
           {!isWorkFromHome && selectedRowKeys.length > 0 && (
             <>
               <Popconfirm
