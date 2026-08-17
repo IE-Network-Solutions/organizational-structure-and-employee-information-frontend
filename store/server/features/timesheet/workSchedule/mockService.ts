@@ -38,7 +38,7 @@ import {
   SEED_BLUEPRINTS,
 } from './mockData';
 
-export const MOCK_STORAGE_KEY = 'tna-work-schedule-blueprint-mock-v4';
+export const MOCK_STORAGE_KEY = 'tna-work-schedule-blueprint-mock-v5';
 
 export class MockWorkScheduleError extends Error {
   code: string;

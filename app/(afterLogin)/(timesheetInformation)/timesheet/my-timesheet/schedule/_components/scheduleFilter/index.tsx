@@ -151,18 +151,8 @@ const ScheduleTableFilter: FC<ScheduleTableFilterProps> = ({
       id="time-attendance-my-schedule-filter-row"
       data-cy="time-attendance-my-schedule-filter-row"
     >
-      <DatePicker
-        picker="month"
-        allowClear={false}
-        value={value.month}
-        format="MMMM YYYY"
-        className="w-[220px] sm:w-[300px] pr-0 py-0 h-10 sm:h-8"
-        onChange={handleMonthChange}
-        data-cy="time-attendance-my-schedule-month-input"
-      />
-
       <div
-        className="flex items-center gap-2 flex-wrap"
+        className="flex items-center gap-2 flex-wrap min-w-0"
         data-cy="time-attendance-my-schedule-active-filters"
       >
         <Tag

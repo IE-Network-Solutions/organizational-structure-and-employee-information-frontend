@@ -396,12 +396,23 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
       loading={isLoading}
       title={
         !edit.workSchedule ? (
-          <span
-            className="text-base font-normal text-[#4d4d4d]"
+          <div
+            className="flex flex-wrap items-center gap-2"
             data-cy="job-work-schedule-card-title"
           >
-            Work Schedule
-          </span>
+            <span className="text-base font-normal text-[#4d4d4d]">
+              Work Schedule
+            </span>
+            {userShiftAssignments.length > 0 ? (
+              <Tag
+                color="blue"
+                className="!m-0 !text-[10px] !leading-4 !px-1.5"
+                data-cy="job-work-schedule-mock-tag"
+              >
+                Mock
+              </Tag>
+            ) : null}
+          </div>
         ) : null
       }
       extra={
@@ -540,62 +551,42 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
             >
               <Col span={24} className="flex flex-col">
                 <div
-                  className="mb-2 rounded-xl border-2 border-[#93C5FD] bg-white px-3 py-3"
+                  className="mb-2"
                   data-cy="job-work-schedule-assigned-shifts"
                 >
                   <div className="mb-2 flex flex-wrap items-center gap-2">
                     <p
-                      className="text-sm font-semibold text-[#1E40AF] m-0"
+                      className="text-sm text-[#4d4d4d] font-normal m-0"
                       data-cy="job-work-schedule-assigned-shifts-label"
                     >
                       Assigned Shifts
                     </p>
-                    <Tag color="blue" className="!m-0 !text-[10px]">
-                      Shift schedule
-                    </Tag>
                   </div>
                   <div
-                    className="flex flex-col gap-2"
+                    className="flex flex-wrap gap-1.5"
                     data-cy="job-work-schedule-assigned-shifts-list"
                   >
-                    {userShiftAssignments.map((assignment) => (
-                      <div
-                        key={assignment.id}
-                        className="rounded-lg border border-[#BFDBFE] bg-[#F8FBFF] px-3 py-2"
-                        data-cy={`job-work-schedule-assigned-shift-card-${assignment.id}`}
-                      >
-                        <p
-                          className="mb-1 text-sm font-medium text-[#4d4d4d]"
-                          data-cy={`job-work-schedule-assigned-shift-title-${assignment.id}`}
-                        >
-                          {assignment.blueprint.title}
-                        </p>
-                        <div
-                          className="flex flex-wrap gap-1.5"
-                          data-cy={`job-work-schedule-assigned-shift-tags-${assignment.id}`}
-                        >
-                          {assignment.shifts.length > 0 ? (
-                            assignment.shifts.map((shift) => (
-                              <Tag
-                                key={shift.id}
-                                color="blue"
-                                className="!m-0 !text-[11px] !leading-5"
-                              >
-                                {shift.name} ·{' '}
-                                {formatTimeRange(
-                                  shift.startTime,
-                                  shift.endTime,
-                                )}
-                              </Tag>
-                            ))
-                          ) : (
-                            <Tag className="!m-0 !text-[11px] !leading-5">
-                              Day hours only
+                    {userShiftAssignments.flatMap((assignment) =>
+                      assignment.shifts.length > 0
+                        ? assignment.shifts.map((shift) => (
+                            <Tag
+                              key={`${assignment.id}-${shift.id}`}
+                              className="!m-0 !text-[11px] !leading-5"
+                              data-cy={`job-work-schedule-assigned-shift-tag-${shift.id}`}
+                            >
+                              {shift.name} ·{' '}
+                              {formatTimeRange(shift.startTime, shift.endTime)}
                             </Tag>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                          ))
+                        : [
+                            <Tag
+                              key={assignment.id}
+                              className="!m-0 !text-[11px] !leading-5"
+                            >
+                              {assignment.blueprint.title} · Day hours only
+                            </Tag>,
+                          ],
+                    )}
                   </div>
                 </div>
               </Col>

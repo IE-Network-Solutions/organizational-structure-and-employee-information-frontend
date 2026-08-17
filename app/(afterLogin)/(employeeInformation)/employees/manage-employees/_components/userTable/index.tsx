@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Table, TableColumnsType, Avatar as AntAvatar, Empty } from 'antd';
+import { Table, TableColumnsType, Avatar as AntAvatar, Empty, Tag } from 'antd';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { useEmployeeAllFilter } from '@/store/server/features/employees/employeeManagment/queries';
 import userTypeButton from '../userTypeButton';
@@ -12,6 +12,15 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { TableSkeleton } from '@/components/tableSkeleton';
+import { DEMO_LOGGED_IN_EMPLOYEE_ID } from '@/types/timesheet/workSchedule';
+import { MOCK_EMPLOYEES } from '@/store/server/features/timesheet/workSchedule/mockData';
+import { getEmployeeDisplayName } from '@/store/server/features/timesheet/workSchedule/mockService';
+
+const MOCK_DEMO_EMPLOYEE =
+  MOCK_EMPLOYEES.find((item) => item.id === DEMO_LOGGED_IN_EMPLOYEE_ID) ??
+  MOCK_EMPLOYEES[0];
+
+const MOCK_EMPLOYEE_ROUTE_KEY = 'mock-demo';
 
 const tableClassName = 'text-[#4d4d4d] text-base font-bold';
 
@@ -25,11 +34,6 @@ const getBaseColumns = (
       </span>
     ),
     dataIndex: 'employee_attendance_id',
-    // sorter: (a, b) => {
-    //   const idA = a.employee_attendance_id ?? 0;
-    //   const idB = b.employee_attendance_id ?? 0;
-    //   return idA - idB;
-    // },
     width: isMobileView ? undefined : 70,
   },
   {
@@ -50,7 +54,6 @@ const getBaseColumns = (
     ),
     dataIndex: 'job_title',
     width: isMobileView ? undefined : 300,
-    // sorter: (a, b) => a.job_title.localeCompare(b.job_title),
   },
   {
     title: (
@@ -60,7 +63,6 @@ const getBaseColumns = (
     ),
     dataIndex: 'department',
     width: isMobileView ? undefined : 250,
-    // sorter: (a, b) => a.department.localeCompare(b.department),
   },
 
   {
@@ -80,7 +82,6 @@ const getBaseColumns = (
     ),
     dataIndex: 'role',
     width: isMobileView ? undefined : 100,
-    // sorter: (a, b) => a.role.localeCompare(b.role),
   },
 ];
 
@@ -113,9 +114,93 @@ const UserTable = () => {
   });
 
   const MAX_NAME_LENGTH = 20;
+
+  const mockEmployeeName = getEmployeeDisplayName(MOCK_DEMO_EMPLOYEE);
+  const matchesMockSearch =
+    !searchParams.employee_name ||
+    mockEmployeeName
+      .toLowerCase()
+      .includes(searchParams.employee_name.toLowerCase());
+
+  const mockRow = useMemo(() => {
+    if (!matchesMockSearch) return null;
+    return {
+      key: MOCK_EMPLOYEE_ROUTE_KEY,
+      isMock: true,
+      employee_attendance_id: 'M-001',
+      employee_name: (
+        <div
+          className="flex items-center flex-wrap sm:flex-row justify-start gap-2"
+          id="user-table-employee-name-mock-demo"
+          data-cy="user-table-employee-name-mock-demo"
+        >
+          <div
+            className="relative w-6 h-6 rounded-full overflow-hidden"
+            id="user-table-employee-avatar-wrapper-mock-demo"
+            data-cy="user-table-employee-avatar-wrapper-mock-demo"
+          >
+            <AntAvatar
+              size={24}
+              icon={<UserOutlined />}
+              className="w-6 h-6"
+              data-cy="user-table-employee-avatar-mock-demo"
+            />
+          </div>
+          <div
+            className="flex items-center gap-2"
+            id="user-table-employee-info-mock-demo"
+            data-cy="user-table-employee-info-mock-demo"
+          >
+            <span
+              id="user-table-employee-display-name-mock-demo"
+              data-cy="user-table-employee-display-name-mock-demo"
+              className="text-[#4d4d4d] text-sm font-normal"
+            >
+              {mockEmployeeName}
+            </span>
+            <Tag color="blue" className="!m-0 !text-[10px] !leading-4 !px-1.5">
+              Mock
+            </Tag>
+          </div>
+        </div>
+      ),
+      job_title: (
+        <span
+          data-cy="user-table-employee-job-title-span"
+          className="text-[#4d4d4d] text-sm font-normal"
+        >
+          {MOCK_DEMO_EMPLOYEE.jobTitle}
+        </span>
+      ),
+      department: (
+        <span
+          data-cy="user-table-employee-department-span"
+          className="text-[#4d4d4d] text-sm font-normal"
+        >
+          Operations
+        </span>
+      ),
+      account: (
+        <div data-cy="user-table-employee-account-div" className="pr-2">
+          {userTypeButton('Active')}
+        </div>
+      ),
+      role: (
+        <div data-cy="user-table-employee-role-div" className="pr-2">
+          <span
+            data-cy="user-table-employee-role-span"
+            className="text-[#4d4d4d] text-sm font-normal"
+          >
+            Employee
+          </span>
+        </div>
+      ),
+    };
+  }, [matchesMockSearch, mockEmployeeName]);
+
   const data = useMemo(() => {
     const items = allFilterData?.items ?? [];
-    return items.map((item: any) => {
+    const rows = items.map((item: any) => {
       const first = item?.firstName ?? '';
       const middle = item?.middleName ?? '';
       const fullName = `${first} ${middle}`.trim() || '—';
@@ -125,6 +210,7 @@ const UserTable = () => {
           : fullName;
       return {
         key: item?.id,
+        isMock: false,
         employee_attendance_id: item?.employeeInformation?.employeeAttendanceId,
         employee_name: (
           <div
@@ -179,7 +265,6 @@ const UserTable = () => {
                   }
                 }
 
-                // Fallback: Ant Design default avatar when no valid profile image
                 return (
                   <AntAvatar
                     size={24}
@@ -244,7 +329,12 @@ const UserTable = () => {
         ),
       };
     });
-  }, [allFilterData?.items]);
+
+    if (userCurrentPage === 1 && mockRow) {
+      return [mockRow, ...rows];
+    }
+    return rows;
+  }, [allFilterData?.items, mockRow, userCurrentPage]);
 
   const baseColumns = getBaseColumns(isMobile);
   const columns = isMobile
@@ -274,7 +364,7 @@ const UserTable = () => {
       >
         {isLoading || (isFetching && !allFilterData) ? (
           <TableSkeleton columns={columns} />
-        ) : isError ? (
+        ) : isError && !mockRow ? (
           <div
             className="py-8 text-center text-[#4d4d4d]"
             data-cy="user-table-error"
@@ -299,6 +389,10 @@ const UserTable = () => {
               hasAccess
                 ? (record) => ({
                     onClick: () => {
+                      if (record?.isMock) {
+                        router.push('manage-employees/mock-demo');
+                        return;
+                      }
                       router.push(`manage-employees/${record?.key}`);
                     },
                   })
@@ -312,7 +406,9 @@ const UserTable = () => {
         )}
         {isMobile || isTablet ? (
           <CustomMobilePagination
-            totalResults={allFilterData?.meta?.totalItems ?? 0}
+            totalResults={
+              (allFilterData?.meta?.totalItems ?? 0) + (mockRow ? 1 : 0)
+            }
             pageSize={pageSize}
             onChange={onPageChange}
             onShowSizeChange={onPageChange}
@@ -321,7 +417,7 @@ const UserTable = () => {
         ) : (
           <CustomPagination
             current={userCurrentPage}
-            total={allFilterData?.meta?.totalItems ?? 0}
+            total={(allFilterData?.meta?.totalItems ?? 0) + (mockRow ? 1 : 0)}
             pageSize={pageSize}
             onChange={onPageChange}
             onShowSizeChange={(pageSize) => {

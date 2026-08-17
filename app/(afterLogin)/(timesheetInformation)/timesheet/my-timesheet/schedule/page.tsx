@@ -128,16 +128,13 @@ const MySchedulePage = () => {
       id="time-attendance-my-schedule-page"
     >
       <div
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 pt-4 pb-3"
+        className="flex flex-col gap-3 px-4 pt-4 pb-3"
         data-cy="time-attendance-my-schedule-header"
       >
-        <div data-cy="time-attendance-my-schedule-header-text">
-          <h2
-            className="text-lg font-semibold text-[#4d4d4d] mb-1"
-            data-cy="time-attendance-my-schedule-title"
-          >
-            My Schedule
-          </h2>
+        <div
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+          data-cy="time-attendance-my-schedule-header-row"
+        >
           <p
             className="text-sm text-gray-500 mb-0"
             data-cy="time-attendance-my-schedule-subtitle"
@@ -145,24 +142,20 @@ const MySchedulePage = () => {
             Week of {weekStart.format('MMM D')} – {weekEnd.format('MMM D')}
             {persona ? ` · ${getEmployeeDisplayName(persona)}` : ''}
           </p>
+          <Select
+            className="w-full sm:w-64 h-8 [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-lg"
+            value={demoPersonaId}
+            onChange={setDemoPersonaId}
+            options={employees.map((item) => ({
+              value: item.id,
+              label: `${getEmployeeDisplayName(item)} · ${item.jobTitle}`,
+            }))}
+            data-cy="time-attendance-my-schedule-persona"
+          />
         </div>
-        <Select
-          className="w-full sm:w-64 h-8 [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-lg"
-          value={demoPersonaId}
-          onChange={setDemoPersonaId}
-          options={employees.map((item) => ({
-            value: item.id,
-            label: `${getEmployeeDisplayName(item)} · ${item.jobTitle}`,
-          }))}
-          data-cy="time-attendance-my-schedule-persona"
-        />
-      </div>
-
-      <div
-        className="px-4 pb-3"
-        data-cy="time-attendance-my-schedule-filter-container"
-      >
-        <ScheduleTableFilter value={weekFilter} onChange={setWeekFilter} />
+        <div data-cy="time-attendance-my-schedule-filter-container">
+          <ScheduleTableFilter value={weekFilter} onChange={setWeekFilter} />
+        </div>
       </div>
 
       <div className="px-4 pb-4" data-cy="time-attendance-my-schedule-body">
