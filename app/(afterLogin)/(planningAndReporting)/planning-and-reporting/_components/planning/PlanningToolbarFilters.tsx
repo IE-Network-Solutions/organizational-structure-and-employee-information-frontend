@@ -85,29 +85,46 @@ export default function PlanningToolbarFilters() {
     return [];
   }, [allLevelDepartmentUsers]);
 
-  const employeeOptions = useMemo(
-    () =>
-      buildEmployeeOptions(
-        draft?.department ?? 'all',
-        employeeData,
-        departmentData,
-        allLevelDepartmentUserIds,
-      ),
-    [
-      draft?.department,
+  const employeeOptions = useMemo(() => {
+    const options = buildEmployeeOptions(
+      draft?.department ?? 'all',
       employeeData,
       departmentData,
       allLevelDepartmentUserIds,
-    ],
-  );
+    );
+    const selectedId = draft?.employeeSelect;
+    if (
+      selectedId &&
+      selectedId !== 'all' &&
+      selectedId !== 'subordinate' &&
+      !options.some((o) => o.value === selectedId)
+    ) {
+      const emp = employeeData?.items?.find(
+        (e: any) => String(e.id) === selectedId,
+      );
+      const name = emp
+        ? `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim()
+        : '';
+      options.push({
+        label: name || selectedId,
+        value: selectedId,
+      });
+    }
+    return options;
+  }, [
+    draft?.department,
+    draft?.employeeSelect,
+    employeeData,
+    departmentData,
+    allLevelDepartmentUserIds,
+  ]);
 
   const employeeSelectValue = useMemo(() => {
     if (!draft) return 'all';
     const v = draft.employeeSelect;
     if (v === 'all' || v === 'subordinate') return 'all';
-    const exists = employeeOptions.some((o) => o.value === v);
-    return exists ? v : undefined;
-  }, [draft, employeeOptions]);
+    return v;
+  }, [draft]);
 
   const captureSnapshot = (): Snapshot => {
     const s = PlanningAndReportingStore.getState();

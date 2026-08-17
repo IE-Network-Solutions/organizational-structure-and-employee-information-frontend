@@ -32,7 +32,7 @@ export function buildEmployeeOptions(
       (dep: any) => dep.id === departmentId,
     );
     if (department && department.users) {
-      return department.users.map((user: any) => user.id);
+      return department.users.map((user: any) => String(user.id));
     }
     return [];
   };
@@ -47,7 +47,7 @@ export function buildEmployeeOptions(
           ? allLevelDepartmentUserIds
           : getUserIdsByDepartmentId(department);
       employeesToShow = employeeData.items.filter((emp: any) =>
-        departmentUserIds.includes(emp.id),
+        departmentUserIds.includes(String(emp.id)),
       );
     }
 
@@ -55,16 +55,31 @@ export function buildEmployeeOptions(
       const name =
         `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim();
       if (name) {
-        options.push({ label: name, value: emp.id });
+        options.push({ label: name, value: String(emp.id) });
       }
     });
   }
   return options;
 }
 
+/** Maps persisted selectedUser back to the Employee Select draft value. */
+export function getEmployeeSelectFromSelectedUser(
+  selectedUser: string[] | undefined,
+  planType: string,
+): string {
+  if (planType !== 'all') return 'all';
+  if (!selectedUser || selectedUser.length !== 1) return 'all';
+  const current = String(selectedUser[0] ?? '');
+  if (!current || current === 'all' || current === 'subordinate') return 'all';
+  return current;
+}
+
 export function initPlanningFilterDraftFromStore(): PlanningFilterDraft {
   const s = PlanningAndReportingStore.getState();
-  const employeeSelect = 'all';
+  const employeeSelect = getEmployeeSelectFromSelectedUser(
+    s.selectedUser,
+    s.planningFilterPlanType,
+  );
 
   return {
     employeeSelect,
@@ -89,7 +104,7 @@ export function commitPlanningDraft(
       (dep: any) => dep.id === departmentId,
     );
     if (department && department.users) {
-      return department.users.map((user: any) => user.id);
+      return department.users.map((user: any) => String(user.id));
     }
     return [];
   };
@@ -170,11 +185,12 @@ export function commitPlanningDraft(
     draft.employeeSelect !== 'all' &&
     draft.employeeSelect !== 'subordinate'
   ) {
+    const employeeId = String(draft.employeeSelect);
     if (
       value === 'all' ||
-      selectedDepartmentUserIds.includes(draft.employeeSelect)
+      selectedDepartmentUserIds.includes(employeeId)
     ) {
-      setSelectedUser([draft.employeeSelect]);
+      setSelectedUser([employeeId]);
     } else {
       setSelectedUser([]);
     }
@@ -228,18 +244,10 @@ export function usePlanningToolbarFilters() {
   }, [employeeData, planningFilterDepartment, departmentData]);
 
   const getSelectedEmployeeValue = () => {
-    const currentValue = selectedUser?.[0];
-    if (
-      !currentValue ||
-      currentValue === 'all' ||
-      currentValue === 'subordinate'
-    ) {
-      return 'all';
-    }
-    const optionExists = employeeOptions.some(
-      (opt) => opt.value === currentValue,
+    return getEmployeeSelectFromSelectedUser(
+      selectedUser,
+      planningFilterPlanType,
     );
-    return optionExists ? currentValue : undefined;
   };
 
   const departmentOptions = useMemo(() => {
