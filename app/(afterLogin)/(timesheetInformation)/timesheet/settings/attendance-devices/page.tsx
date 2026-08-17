@@ -149,23 +149,30 @@ const AttendanceDevicesPage = () => {
     {
       title: 'Device',
       key: 'device',
-      render: (_, row) => (
-        <div>
-          <Typography.Text strong>{row.name}</Typography.Text>
-          <div className="text-xs text-gray-500">{row.serialNumber}</div>
+      render: (columnValue, row) => (
+        <div data-cy="attendance-devices-device-cell">
+          <Typography.Text strong data-cy="attendance-devices-device-name">
+            {row.name}
+          </Typography.Text>
+          <div
+            className="text-xs text-gray-500"
+            data-cy="attendance-devices-device-serial"
+          >
+            {row.serialNumber}
+          </div>
         </div>
       ),
     },
     {
       title: 'Area',
       key: 'area',
-      render: (_, row) =>
+      render: (columnValue, row) =>
         row.area?.area_name || row.configuredDevice?.areaName || '—',
     },
     {
       title: 'Machine status',
       key: 'state',
-      render: (_, row) =>
+      render: (columnValue, row) =>
         row.state === null ? (
           <Tag>Configured</Tag>
         ) : (
@@ -177,7 +184,7 @@ const AttendanceDevicesPage = () => {
     {
       title: 'Purpose',
       key: 'purpose',
-      render: (_, row) =>
+      render: (columnValue, row) =>
         row.configuredDevice ? (
           <Tag color="blue">
             {row.configuredDevice.purpose.replace('_', ' ')}
@@ -189,7 +196,7 @@ const AttendanceDevicesPage = () => {
     {
       title: 'Enabled',
       key: 'enabled',
-      render: (_, row) =>
+      render: (columnValue, row) =>
         row.configuredDevice ? (
           <Tag color={row.configuredDevice.enabled ? 'green' : 'default'}>
             {row.configuredDevice.enabled ? 'Yes' : 'No'}
@@ -202,8 +209,11 @@ const AttendanceDevicesPage = () => {
       title: 'Action',
       key: 'action',
       align: 'right',
-      render: (_, row) => (
-        <div className="flex justify-end gap-2">
+      render: (columnValue, row) => (
+        <div
+          className="flex justify-end gap-2"
+          data-cy="attendance-devices-actions"
+        >
           <Button icon={<SettingOutlined />} onClick={() => openConfigure(row)}>
             {row.configuredDevice ? 'Edit' : 'Configure'}
           </Button>
@@ -226,8 +236,14 @@ const AttendanceDevicesPage = () => {
     <>
       {contextHolder}
       {messageContextHolder}
-      <div className="rounded-lg border border-[#D9D9D9] bg-white p-4">
-        <div className="mb-4 flex items-center justify-between">
+      <div
+        className="rounded-lg border border-[#D9D9D9] bg-white p-4"
+        data-cy="attendance-devices-page"
+      >
+        <div
+          className="mb-4 flex items-center justify-between"
+          data-cy="attendance-devices-header"
+        >
           <div>
             <Typography.Title level={4} className="!mb-1">
               Attendance Devices
@@ -247,7 +263,10 @@ const AttendanceDevicesPage = () => {
         </div>
 
         {discoveredQuery.isError && (
-          <div className="mb-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800">
+          <div
+            className="mb-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800"
+            data-cy="attendance-devices-discovery-warning"
+          >
             Machine discovery is unavailable. Showing saved device
             configurations.
           </div>
@@ -285,14 +304,21 @@ const AttendanceDevicesPage = () => {
             label="Device name"
             rules={[{ required: true }]}
           >
-            <input className="ant-input h-10" />
+            <input
+              className="ant-input h-10"
+              data-cy="attendance-devices-name-input"
+            />
           </Form.Item>
           <Form.Item
             name="serialNumber"
             label="Serial number"
             rules={[{ required: true }]}
           >
-            <input className="ant-input h-10" disabled />
+            <input
+              className="ant-input h-10"
+              disabled
+              data-cy="attendance-devices-serial-input"
+            />
           </Form.Item>
           <Form.Item
             name="purpose"
@@ -312,7 +338,10 @@ const AttendanceDevicesPage = () => {
           <Form.Item name="enabled" label="Enabled" valuePropName="checked">
             <Switch />
           </Form.Item>
-          <div className="flex justify-end gap-2">
+          <div
+            className="flex justify-end gap-2"
+            data-cy="attendance-devices-actions"
+          >
             <Button onClick={closeConfigure}>Cancel</Button>
             <Button
               type="primary"
