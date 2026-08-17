@@ -110,10 +110,11 @@ const AttendanceDevicesPage = () => {
           messageApi.success('Attendance device configuration saved.');
           closeConfigure();
         },
-        onError: (error: any) =>
+        onError: (error: any) => {
           messageApi.error(
             getErrorMessage(error, 'Unable to save device configuration.'),
-          ),
+          );
+        },
       },
     );
   };
