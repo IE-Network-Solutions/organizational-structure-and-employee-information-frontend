@@ -174,9 +174,14 @@ const AttendanceDevicesPage = () => {
       key: 'state',
       render: (columnValue, row) =>
         row.state === null ? (
-          <Tag>Configured</Tag>
+          <Tag data-cy="attendance-devices-status-configured-tag">
+            Configured
+          </Tag>
         ) : (
-          <Tag color={row.state === '1' ? 'green' : 'red'}>
+          <Tag
+            color={row.state === '1' ? 'green' : 'red'}
+            data-cy="attendance-devices-status-tag"
+          >
             {row.state === '1' ? 'Online' : 'Offline'}
           </Tag>
         ),
@@ -186,11 +191,13 @@ const AttendanceDevicesPage = () => {
       key: 'purpose',
       render: (columnValue, row) =>
         row.configuredDevice ? (
-          <Tag color="blue">
+          <Tag color="blue" data-cy="attendance-devices-purpose-tag">
             {row.configuredDevice.purpose.replace('_', ' ')}
           </Tag>
         ) : (
-          <Tag>Not configured</Tag>
+          <Tag data-cy="attendance-devices-not-configured-tag">
+            Not configured
+          </Tag>
         ),
     },
     {
@@ -198,7 +205,10 @@ const AttendanceDevicesPage = () => {
       key: 'enabled',
       render: (columnValue, row) =>
         row.configuredDevice ? (
-          <Tag color={row.configuredDevice.enabled ? 'green' : 'default'}>
+          <Tag
+            color={row.configuredDevice.enabled ? 'green' : 'default'}
+            data-cy="attendance-devices-enabled-tag"
+          >
             {row.configuredDevice.enabled ? 'Yes' : 'No'}
           </Tag>
         ) : (
@@ -214,7 +224,13 @@ const AttendanceDevicesPage = () => {
           className="flex justify-end gap-2"
           data-cy="attendance-devices-actions"
         >
-          <Button icon={<SettingOutlined />} onClick={() => openConfigure(row)}>
+          <Button
+            icon={
+              <SettingOutlined data-cy="attendance-devices-configure-icon" />
+            }
+            onClick={() => openConfigure(row)}
+            data-cy="attendance-devices-configure-button"
+          >
             {row.configuredDevice ? 'Edit' : 'Configure'}
           </Button>
           {row.configuredDevice && (
@@ -223,6 +239,7 @@ const AttendanceDevicesPage = () => {
               onClick={() =>
                 handleDelete(row.configuredDevice as AttendanceDevice)
               }
+              data-cy="attendance-devices-remove-button"
             >
               Remove
             </Button>
@@ -244,19 +261,29 @@ const AttendanceDevicesPage = () => {
           className="mb-4 flex items-center justify-between"
           data-cy="attendance-devices-header"
         >
-          <div>
-            <Typography.Title level={4} className="!mb-1">
+          <div data-cy="attendance-devices-header-title">
+            <Typography.Title
+              level={4}
+              className="!mb-1"
+              data-cy="attendance-devices-title"
+            >
               Attendance Devices
             </Typography.Title>
-            <Typography.Text type="secondary">
+            <Typography.Text
+              type="secondary"
+              data-cy="attendance-devices-subtitle"
+            >
               Configure which biometric machines provide attendance punches.
             </Typography.Text>
           </div>
           <Button
             type="primary"
-            icon={<ReloadOutlined />}
+            icon={
+              <ReloadOutlined data-cy="attendance-devices-discover-icon" />
+            }
             loading={discoveredQuery.isFetching}
             onClick={() => discoveredQuery.refetch()}
+            data-cy="attendance-devices-discover-button"
           >
             Discover devices
           </Button>
@@ -279,6 +306,7 @@ const AttendanceDevicesPage = () => {
           loading={discoveredQuery.isLoading || configuredQuery.isLoading}
           pagination={{ pageSize: 10 }}
           locale={{ emptyText: 'No biometric devices found.' }}
+          data-cy="attendance-devices-table"
         />
       </div>
 
@@ -292,17 +320,20 @@ const AttendanceDevicesPage = () => {
         onCancel={closeConfigure}
         footer={null}
         destroyOnClose
+        data-cy="attendance-devices-modal"
       >
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
           className="mt-4"
+          data-cy="attendance-devices-form"
         >
           <Form.Item
             name="name"
             label="Device name"
             rules={[{ required: true }]}
+            data-cy="attendance-devices-name-item"
           >
             <input
               className="ant-input h-10"
@@ -313,6 +344,7 @@ const AttendanceDevicesPage = () => {
             name="serialNumber"
             label="Serial number"
             rules={[{ required: true }]}
+            data-cy="attendance-devices-serial-item"
           >
             <input
               className="ant-input h-10"
@@ -324,29 +356,45 @@ const AttendanceDevicesPage = () => {
             name="purpose"
             label="Purpose"
             rules={[{ required: true }]}
+            data-cy="attendance-devices-purpose-item"
           >
-            <Select options={purposeOptions} />
+            <Select
+              options={purposeOptions}
+              data-cy="attendance-devices-purpose-select"
+            />
           </Form.Item>
           <Form.Item
             name="acceptUnknownPunches"
             label="Accept unknown punch states"
             valuePropName="checked"
             extra="Allow punches whose ZKT state is unknown to enter attendance processing."
+            data-cy="attendance-devices-accept-unknown-item"
           >
-            <Switch />
+            <Switch data-cy="attendance-devices-accept-unknown-switch" />
           </Form.Item>
-          <Form.Item name="enabled" label="Enabled" valuePropName="checked">
-            <Switch />
+          <Form.Item
+            name="enabled"
+            label="Enabled"
+            valuePropName="checked"
+            data-cy="attendance-devices-enabled-item"
+          >
+            <Switch data-cy="attendance-devices-enabled-switch" />
           </Form.Item>
           <div
             className="flex justify-end gap-2"
             data-cy="attendance-devices-actions"
           >
-            <Button onClick={closeConfigure}>Cancel</Button>
+            <Button
+              onClick={closeConfigure}
+              data-cy="attendance-devices-cancel-button"
+            >
+              Cancel
+            </Button>
             <Button
               type="primary"
               htmlType="submit"
               loading={saveMutation.isLoading}
+              data-cy="attendance-devices-save-button"
             >
               Save
             </Button>
