@@ -61,6 +61,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
     if (pathname.includes('/approvals')) return 'approvals';
     if (pathname.includes('/time-zone')) return 'time-zone';
     if (pathname.includes('/workSchedule')) return 'workSchedule';
+    if (pathname.includes('/attendance-devices')) return 'attendance-devices';
     if (pathname.includes('/zkt-addon')) return 'zkt-addon';
     return 'closed-date';
   };
@@ -107,6 +108,9 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         break;
       case 'workSchedule':
         router.push('/timesheet/settings/workSchedule');
+        break;
+      case 'attendance-devices':
+        router.push('/timesheet/settings/attendance-devices');
         break;
       case 'zkt-addon':
         router.push('/timesheet/settings/zkt-addon');
@@ -276,6 +280,18 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
           id="time-attendance-settings-workschedule-tab-label"
         >
           Work Schedule
+        </div>
+      ),
+    },
+    {
+      key: 'attendance-devices',
+      label: (
+        <div
+          className={`text-base font-normal m-0 ${activeKey === 'attendance-devices' ? 'text-primary font-semibold' : 'text-gray-800'}`}
+          data-cy="time-attendance-settings-attendance-devices-tab-label"
+          id="time-attendance-settings-attendance-devices-tab-label"
+        >
+          Attendance Devices
         </div>
       ),
     },
