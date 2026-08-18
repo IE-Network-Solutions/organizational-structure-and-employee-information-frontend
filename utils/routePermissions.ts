@@ -3,14 +3,21 @@
 import { useCallback } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 /** Route + permissions used for pathname-based access check (same as sidebar). */
-export type RouteWithPermissions = { route: string; permissions: string[] };
+export type RouteWithPermissions = {
+  route: string;
+  permissions: string[];
+  /** When true, any listed permission is enough (default is all of them). */
+  requireAny?: boolean;
+};
 
 /** Recursive menu node (key + permissions + optional children of same shape). */
 interface MenuRouteNode {
   key: string;
   permissions: string[];
+  requireAny?: boolean;
   children?: MenuRouteNode[];
 }
 
@@ -48,6 +55,14 @@ const MENU_ROUTES: MenuRouteNode[] = [
     permissions: ['view_employees'],
     children: [
       { key: '/employees/manage-employees', permissions: ['manage_employees'] },
+      {
+        key: '/employees/succession-planning',
+        permissions: [
+          Permissions.ViewSuccessionPlanning,
+          Permissions.SubmitSuccessionEvaluation,
+        ],
+        requireAny: true,
+      },
       { key: '/employees/settings', permissions: ['manage_employee_settings'] },
     ],
   },
@@ -197,7 +212,11 @@ function flattenRoutes(items: MenuRouteNode[]): RouteWithPermissions[] {
   function traverse(list: MenuRouteNode[]) {
     list.forEach((item) => {
       if (item.key && item.permissions) {
-        out.push({ route: item.key, permissions: item.permissions });
+        out.push({
+          route: item.key,
+          permissions: item.permissions,
+          ...(item.requireAny ? { requireAny: true } : {}),
+        });
       }
       if (item.children) traverse(item.children);
     });
@@ -215,17 +234,75 @@ export function getRoutesWithPermissions(): RouteWithPermissions[] {
   return cachedRoutes;
 }
 
-/** Match pathname to route pattern (same as sidebar isRouteMatch). */
+function routePatternToRegex(routePattern: string): RegExp {
+  const pattern = routePattern
+    .split('/')
+    .map((segment) => {
+      if (segment === '[id]') return '[0-9a-fA-F-]{36}';
+      if (/^\[.*\]$/.test(segment)) return '[^/]+';
+      return segment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    })
+    .join('/');
+
+  return new RegExp(`^${pattern}(?:/.*)?$`);
+}
+
+/** Match a pathname to a static or dynamic route and any of its descendants. */
 export function isRouteMatch(routePattern: string, pathname: string): boolean {
-  if (routePattern.includes('[id]')) {
-    const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
-    return new RegExp('^' + regexPattern + '$').test(pathname);
+  if (
+    routePattern === '/feedback/conversation' &&
+    (pathname === '/feedback/categories' ||
+      pathname.startsWith('/feedback/categories/'))
+  ) {
+    return true;
   }
-  if (routePattern.match(/\[.*?\]/g)) {
-    const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
-    return new RegExp('^' + regexPattern + '$').test(pathname);
+
+  if (
+    routePattern === '/timesheet/settings/closed-date' &&
+    (pathname === '/timesheet/settings' ||
+      pathname.startsWith('/timesheet/settings/'))
+  ) {
+    return true;
   }
-  return routePattern === pathname;
+
+  return routePatternToRegex(routePattern).test(pathname);
+}
+
+function getRouteSpecificity(routePattern: string): [number, number, number] {
+  const segments = routePattern.split('/').filter(Boolean);
+  const staticSegments = segments.filter(
+    (segment) => !/^\[.*\]$/.test(segment),
+  );
+  const literalLength = staticSegments.reduce(
+    (total, segment) => total + segment.length,
+    0,
+  );
+
+  return [segments.length, staticSegments.length, literalLength];
+}
+
+/**
+ * Find the most-specific applicable policy instead of whichever parent happens
+ * to appear first in the menu configuration.
+ */
+export function findMostSpecificMatchingRoute(
+  routes: RouteWithPermissions[],
+  pathname: string,
+): RouteWithPermissions | undefined {
+  return routes
+    .map((route, index) => ({
+      route,
+      index,
+      specificity: getRouteSpecificity(route.route),
+    }))
+    .filter(({ route }) => isRouteMatch(route.route, pathname))
+    .sort((left, right) => {
+      for (let i = 0; i < left.specificity.length; i++) {
+        const difference = right.specificity[i] - left.specificity[i];
+        if (difference !== 0) return difference;
+      }
+      return left.index - right.index;
+    })[0]?.route;
 }
 
 /**
@@ -240,11 +317,10 @@ export function checkPathnamePermissions(pathname: string): boolean {
   const isOwner = userData?.role?.slug?.toLowerCase() === 'owner';
   if (isOwner) return true;
 
-  const matchingRoute = routesWithPermissions.find((route) => {
-    if (isRouteMatch(route.route, pathname)) return true;
-    if (pathname.startsWith(route.route + '/')) return true;
-    return false;
-  });
+  const matchingRoute = findMostSpecificMatchingRoute(
+    routesWithPermissions,
+    pathname,
+  );
 
   if (!matchingRoute) {
     const pathParts = pathname.split('/').filter(Boolean);
@@ -265,7 +341,10 @@ export function checkPathnamePermissions(pathname: string): boolean {
 
   if (!matchingRoute.permissions || matchingRoute.permissions.length === 0)
     return true;
-  return AccessGuard.checkAccess({ permissions: matchingRoute.permissions });
+  return AccessGuard.checkAccess({
+    permissions: matchingRoute.permissions,
+    requireAny: matchingRoute.requireAny,
+  });
 }
 
 /** Hook for components (e.g. notifications) to check if the current user can access a route. Strips query string. Same check as sidebar. */

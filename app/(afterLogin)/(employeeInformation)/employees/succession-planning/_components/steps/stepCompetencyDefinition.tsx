@@ -154,13 +154,9 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
       </div>
 
       <div
-        className="rounded-lg border border-[#D9D9D9] p-3 bg-white flex flex-col gap-3"
+        className="rounded-lg p-3 bg-white flex flex-col gap-3"
         data-cy="step-mandatory-qualifications"
       >
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          Qualifications
-        </span>
-
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           <Form.Item
             name="requiredEducationLevel"

@@ -1,8 +1,7 @@
 'use client';
-import React from 'react';
-import { Button, Card, Tag } from 'antd';
-import PlayArrowOutlinedIcon from '@mui/icons-material/PlayArrowOutlined';
-import ArrowForwardOutlinedIcon from '@mui/icons-material/ArrowForwardOutlined';
+import React, { useState } from 'react';
+import { Button, Tag } from 'antd';
+import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined';
 import { PersonIdentity } from './personRoleChrome';
 import { scoreAchievementPercent } from './steps/stepEvaluatorAssignment';
 
@@ -83,199 +82,197 @@ export const CriteriaLine: React.FC<{
   );
 };
 
-export interface EvaluationSessionCardProps {
+export interface EvaluationSessionRowProps {
   sessionKey: string;
   successorName: string;
   successorJobTitle?: string;
   roleName: string;
   department: string;
   isComplete: boolean;
-  sessionTotal: number;
-  sessionMaxWeight: number;
   criteriaCount: number;
   evaluatedCount: number;
-  pendingCount: number;
+  canOpen?: boolean;
   onOpen: () => void;
   onRoleClick?: () => void;
 }
 
 /**
- * Successor evaluation tile.
- *
- * Deliberately quiet: identity, one progress line, one action. The earlier
- * version stacked two status tags on a two-column stat grid on top of a CTA,
- * which made a wall of tiles hard to scan. Completion now reads from a single
- * bar, and the score sits inline with it.
+ * One-line successor assignment. Used inside evaluator groups so a long
+ * queue stays a list, not a wall of tiles.
  */
-export const EvaluationSessionCard: React.FC<EvaluationSessionCardProps> = ({
+export const EvaluationSessionRow: React.FC<EvaluationSessionRowProps> = ({
   sessionKey,
   successorName,
   successorJobTitle,
   roleName,
   department,
   isComplete,
-  sessionTotal,
-  sessionMaxWeight,
   criteriaCount,
   evaluatedCount,
+  canOpen = true,
   onOpen,
   onRoleClick,
-}) => {
-  const maxWeight = sessionMaxWeight || 100;
-  const progress =
-    criteriaCount > 0 ? Math.round((evaluatedCount / criteriaCount) * 100) : 0;
-
-  return (
-    <Card
-      hoverable
-      bordered={false}
-      className="rounded-lg border border-[#D9D9D9] bg-white h-full cursor-pointer shadow-none hover:border-primary"
-      styles={{ body: { padding: 16 } }}
-      onClick={onOpen}
-      data-cy={`evaluation-session-card-${sessionKey}`}
-    >
-      <div className="flex flex-col gap-3 h-full">
-        <div className="flex items-start justify-between gap-3">
-          <PersonIdentity
-            role="Successor"
-            name={successorName}
-            caption={
-              <span className="text-xs text-gray-500">
-                {successorJobTitle ? `${successorJobTitle} · ` : ''}
-                {onRoleClick ? (
-                  <button
-                    type="button"
-                    className="font-medium text-gray-700 hover:text-primary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRoleClick();
-                    }}
-                    data-cy={`evaluation-session-role-link-${sessionKey}`}
-                  >
-                    {roleName}
-                  </button>
-                ) : (
-                  <span className="font-medium text-gray-700">{roleName}</span>
-                )}
-                <span className="text-gray-400"> · {department}</span>
-              </span>
-            }
-            avatarSize={36}
-          />
-          {isComplete ? (
-            <Tag
-              color="green"
-              className="m-0 shrink-0"
-              data-cy={`evaluation-session-status-${sessionKey}`}
-            >
-              Scored
-            </Tag>
-          ) : null}
-        </div>
-
-        <div className="mt-auto">
-          <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
-            <span data-cy={`evaluation-session-progress-${sessionKey}`}>
-              {criteriaCount > 0
-                ? `${evaluatedCount} of ${criteriaCount} scored`
-                : 'No criteria yet'}
-            </span>
-            <span
-              className="tabular-nums font-medium text-gray-700"
-              data-cy={`evaluation-session-total-${sessionKey}`}
-            >
-              {criteriaCount > 0 ? `${sessionTotal} / ${maxWeight}` : '—'}
-            </span>
-          </div>
-          <div
-            className="h-1.5 w-full rounded-full bg-[#F0F0F0] overflow-hidden"
-            role="progressbar"
-            aria-valuenow={progress}
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div
-              className={`h-full rounded-full transition-all ${
-                isComplete ? 'bg-green-500' : 'bg-primary'
-              }`}
-              style={{
-                width: `${progress}%`,
-                backgroundColor: isComplete ? undefined : '#3636F0',
+}) => (
+  <div
+    role={canOpen ? 'button' : undefined}
+    tabIndex={canOpen ? 0 : undefined}
+    className={`flex items-center gap-3 px-4 py-2.5 ${
+      canOpen
+        ? 'cursor-pointer hover:bg-[#F8FAFC]'
+        : 'cursor-default opacity-80'
+    }`}
+    onClick={canOpen ? onOpen : undefined}
+    onKeyDown={(event) => {
+      if (!canOpen) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onOpen();
+      }
+    }}
+    data-cy={`evaluation-session-row-${sessionKey}`}
+  >
+    <PersonIdentity
+      role="Successor"
+      name={successorName}
+      caption={
+        <span className="text-xs text-gray-500">
+          {successorJobTitle ? `${successorJobTitle} · ` : ''}
+          {onRoleClick ? (
+            <button
+              type="button"
+              className="font-medium text-gray-700 hover:text-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRoleClick();
               }}
-            />
-          </div>
-        </div>
-
-        <Button
-          type={isComplete ? 'default' : 'primary'}
-          size="small"
-          block
-          className="h-8 font-normal inline-flex items-center justify-center gap-1"
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpen();
-          }}
-          data-cy={
-            isComplete
-              ? `review-evaluation-btn-${sessionKey}`
-              : `start-evaluation-btn-${sessionKey}`
-          }
-        >
-          {isComplete ? (
-            <>
-              Review scores
-              <ArrowForwardOutlinedIcon style={{ fontSize: 16 }} />
-            </>
+              data-cy={`evaluation-session-role-link-${sessionKey}`}
+            >
+              {roleName}
+            </button>
           ) : (
-            <>
-              <PlayArrowOutlinedIcon style={{ fontSize: 16 }} />
-              Evaluate
-            </>
+            <span className="font-medium text-gray-700">{roleName}</span>
           )}
-        </Button>
-      </div>
-    </Card>
-  );
-};
+          <span className="text-gray-400"> · {department}</span>
+        </span>
+      }
+      avatarSize={28}
+      className="min-w-0 flex-1"
+    />
+
+    <span
+      className="hidden sm:block text-xs text-gray-500 tabular-nums shrink-0"
+      data-cy={`evaluation-session-progress-${sessionKey}`}
+    >
+      {criteriaCount > 0
+        ? `${evaluatedCount} of ${criteriaCount}`
+        : 'No criteria'}
+    </span>
+
+    {isComplete ? (
+      <Tag
+        color="green"
+        className="m-0 shrink-0"
+        data-cy={`evaluation-session-status-${sessionKey}`}
+      >
+        Scored
+      </Tag>
+    ) : (
+      <Tag
+        className="m-0 shrink-0"
+        data-cy={`evaluation-session-status-${sessionKey}`}
+      >
+        Pending
+      </Tag>
+    )}
+
+    {canOpen ? (
+      <Button
+        type="link"
+        size="small"
+        className="px-0 h-auto font-normal shrink-0 !text-primary hover:!text-primary"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpen();
+        }}
+        data-cy={
+          isComplete
+            ? `review-evaluation-btn-${sessionKey}`
+            : `start-evaluation-btn-${sessionKey}`
+        }
+      >
+        {isComplete ? 'Review' : 'Evaluate'}
+      </Button>
+    ) : null}
+  </div>
+);
 
 export interface EvaluatorContainerProps {
   evaluatorId: string;
   evaluatorName: string;
   sessionCount: number;
   pendingSessionCount: number;
+  defaultOpen?: boolean;
   children: React.ReactNode;
 }
 
-/** Evaluator header + tile grid for successor sessions. */
+/** Collapsible evaluator row — summary first, assignments on demand. */
 export const EvaluatorContainer: React.FC<EvaluatorContainerProps> = ({
   evaluatorId,
   evaluatorName,
   sessionCount,
   pendingSessionCount,
+  defaultOpen = false,
   children,
-}) => (
-  <div
-    className="rounded-lg border border-[#D9D9D9] bg-white p-4 sm:p-5 flex flex-col gap-4"
-    data-cy={`evaluator-group-${evaluatorId}`}
-  >
+}) => {
+  const [open, setOpen] = useState(defaultOpen);
+  const scoredCount = Math.max(0, sessionCount - pendingSessionCount);
+
+  return (
     <div
-      className="pb-3 border-b border-[#E5E7EB]"
-      data-cy={`evaluator-group-header-${evaluatorId}`}
+      className="rounded-lg border border-[#D9D9D9] bg-white overflow-hidden"
+      data-cy={`evaluator-group-${evaluatorId}`}
     >
-      <PersonIdentity
-        role="Evaluator"
-        name={evaluatorName}
-        caption={`${sessionCount} successor${sessionCount === 1 ? '' : 's'}${
-          pendingSessionCount > 0 ? ` · ${pendingSessionCount} pending` : ''
-        }`}
-        avatarSize={40}
-      />
+      <button
+        type="button"
+        className="w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-[#F8FAFC]"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+        data-cy={`evaluator-group-header-${evaluatorId}`}
+      >
+        <PersonIdentity
+          role="Evaluator"
+          name={evaluatorName}
+          caption={`${sessionCount} successor${sessionCount === 1 ? '' : 's'}`}
+          avatarSize={32}
+          className="min-w-0 flex-1"
+        />
+        <div className="flex items-center gap-2 shrink-0">
+          {pendingSessionCount > 0 ? (
+            <Tag className="m-0" color="orange">
+              {pendingSessionCount} pending
+            </Tag>
+          ) : null}
+          {scoredCount > 0 ? (
+            <Tag className="m-0" color="green">
+              {scoredCount} scored
+            </Tag>
+          ) : null}
+          <ExpandMoreOutlinedIcon
+            className={`text-gray-400 transition-transform ${
+              open ? 'rotate-180' : ''
+            }`}
+            fontSize="small"
+          />
+        </div>
+      </button>
+      {open ? (
+        <div
+          className="border-t border-[#E5E7EB] divide-y divide-[#F0F0F0]"
+          data-cy={`evaluator-sessions-${evaluatorId}`}
+        >
+          {children}
+        </div>
+      ) : null}
     </div>
-    <div
-      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
-      data-cy={`evaluator-sessions-${evaluatorId}`}
-    >
-      {children}
-    </div>
-  </div>
-);
+  );
+};

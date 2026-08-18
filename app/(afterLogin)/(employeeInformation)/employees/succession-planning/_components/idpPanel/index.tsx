@@ -24,6 +24,8 @@ import type {
 } from '../successionTypes';
 import { idpActivityStatusColor } from '../tagColors';
 import IdpActivityTypeSelect from '../idpActivityTypeSelect';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface IdpPanelProps {
   idp?: IndividualDevelopmentPlan;
@@ -60,8 +62,13 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
   );
   const [planForm] = Form.useForm();
   const [activityForm] = Form.useForm();
+  const canManageSuccessorDevelopment = AccessGuard.checkAccess({
+    permissions: [Permissions.ManageSuccessorDevelopment],
+  });
 
   const openPlan = () => {
+    if (!canManageSuccessorDevelopment) return;
+
     planForm.setFieldsValue({
       status: idp?.status ?? 'Draft',
     });
@@ -69,6 +76,8 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
   };
 
   const openActivity = (activity?: IdpActivity) => {
+    if (!canManageSuccessorDevelopment) return;
+
     setEditingActivity(activity ?? null);
     activityForm.setFieldsValue(
       activity
@@ -84,12 +93,22 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
   };
 
   useEffect(() => {
-    if (openPlanKey > 0) openPlan();
-  }, [openPlanKey]);
+    if (!canManageSuccessorDevelopment || openPlanKey <= 0) return;
+
+    planForm.setFieldsValue({ status: idp?.status ?? 'Draft' });
+    setPlanOpen(true);
+  }, [openPlanKey, canManageSuccessorDevelopment, idp?.status, planForm]);
 
   useEffect(() => {
-    if (openActivityKey > 0) openActivity();
-  }, [openActivityKey]);
+    if (!canManageSuccessorDevelopment || openActivityKey <= 0) return;
+
+    setEditingActivity(null);
+    activityForm.setFieldsValue({
+      type: 'Leadership Training',
+      status: 'Not Started',
+    });
+    setActivityOpen(true);
+  }, [openActivityKey, canManageSuccessorDevelopment, activityForm]);
 
   const columns: TableColumnsType<IdpActivity> = [
     {
@@ -104,15 +123,23 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
       title: <span className="text-[#4d4d4d] text-sm font-bold">Activity</span>,
       dataIndex: 'title',
       ellipsis: true,
-      render: (value: string, record) => (
-        <button
-          type="button"
-          className="text-left text-sm font-medium text-primary hover:underline"
-          onClick={() => openActivity(record)}
-        >
-          {value}
-        </button>
-      ),
+      render: (value: string, record) =>
+        canManageSuccessorDevelopment ? (
+          <button
+            type="button"
+            className="text-left text-sm font-medium text-primary hover:underline"
+            onClick={() => openActivity(record)}
+          >
+            {value}
+          </button>
+        ) : (
+          <span
+            className="text-sm font-medium text-[#4d4d4d]"
+            data-cy={`idp-activity-readonly-${record.id}`}
+          >
+            {value}
+          </span>
+        ),
     },
     {
       title: <span className="text-[#4d4d4d] text-sm font-bold">Target</span>,
@@ -147,7 +174,7 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
         </div>
       ) : null}
 
-      {!hideToolbarButtons ? (
+      {!hideToolbarButtons && canManageSuccessorDevelopment ? (
         <div className="flex flex-wrap justify-end gap-2">
           <Button
             type="primary"
@@ -182,7 +209,11 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
           emptyText: (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description="No IDP activities yet. Add an activity to get started."
+              description={
+                canManageSuccessorDevelopment
+                  ? 'No IDP activities yet. Add an activity to get started.'
+                  : 'No IDP activities have been defined.'
+              }
             />
           ),
         }}
@@ -193,10 +224,12 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
       />
 
       <Modal
-        open={planOpen}
+        open={planOpen && canManageSuccessorDevelopment}
         title={idp ? 'Edit IDP status' : 'Create IDP'}
         onCancel={() => setPlanOpen(false)}
         onOk={async () => {
+          if (!canManageSuccessorDevelopment) return;
+
           const values = await planForm.validateFields();
           setSavingPlan(true);
           try {
@@ -228,10 +261,12 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
       </Modal>
 
       <Modal
-        open={activityOpen}
+        open={activityOpen && canManageSuccessorDevelopment}
         title={editingActivity ? 'Edit activity' : 'Add activity'}
         onCancel={() => setActivityOpen(false)}
         onOk={async () => {
+          if (!canManageSuccessorDevelopment) return;
+
           const values = await activityForm.validateFields();
           const payload = {
             type: values.type as IdpActivityType,

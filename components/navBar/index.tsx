@@ -82,6 +82,8 @@ import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { findMostSpecificMatchingRoute } from '@/utils/routePermissions';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 // import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
@@ -103,6 +105,7 @@ interface CustomMenuItem {
   title: React.ReactNode; // Changed from `label` to `title`
   className?: string;
   permissions?: string[];
+  requireAny?: boolean;
   children?: CustomMenuItem[];
   disabled?: boolean;
   moduleCode?: string;
@@ -520,8 +523,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const getRoutesAndPermissions = React.useCallback(
     (
       menuItems: CustomMenuItem[],
-    ): { route: string; permissions: string[] }[] => {
-      const routes: { route: string; permissions: string[] }[] = [];
+    ): { route: string; permissions: string[]; requireAny?: boolean }[] => {
+      const routes: { route: string; permissions: string[]; requireAny?: boolean }[] =
+        [];
 
       const traverse = (items: CustomMenuItem[]) => {
         items.forEach((item) => {
@@ -529,6 +533,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             routes.push({
               route: item.key,
               permissions: item.permissions,
+              ...(item.requireAny ? { requireAny: true } : {}),
             });
           }
 
@@ -614,7 +619,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             ),
             key: '/employees/succession-planning',
             className: 'font-bold',
-            permissions: ['manage_employees'],
+            permissions: [
+              Permissions.ViewSuccessionPlanning,
+              Permissions.SubmitSuccessionEvaluation,
+            ],
+            requireAny: true,
           },
           {
             title: <span data-cy="nav-tree-employees-settings">Settings</span>,
@@ -967,17 +976,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return true;
       }
 
-      // First check if the pathname matches any defined route (supporting dynamic segments)
-      const matchingRoute = routesWithPermissions.find((route) => {
-        if (isRouteMatch(route.route, pathname)) {
-          return true;
-        }
-        // Check for parent-child relationship - allow any level of nesting
-        if (pathname.startsWith(route.route + '/')) {
-          return true;
-        }
-        return false;
-      });
+      // Prefer the deepest, most-specific policy over an earlier parent route.
+      const matchingRoute = findMostSpecificMatchingRoute(
+        routesWithPermissions,
+        pathname,
+      );
 
       // If no matching route found, check if it's a deeply nested route
       if (!matchingRoute) {
@@ -994,16 +997,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
           if (parentRoute) {
             // Check if user has permissions for parent route
-            const userPermissions = userData?.userPermissions || [];
-            const hasParentPermissions = parentRoute.permissions.every(
-              (requiredPermission: any) => {
-                const found = userPermissions?.find(
-                  (permission: any) =>
-                    permission.permission.slug === requiredPermission,
-                );
-                return found;
-              },
-            );
+            const hasParentPermissions = AccessGuard.checkAccess({
+              permissions: parentRoute.permissions,
+              requireAny: parentRoute.requireAny,
+            });
 
             if (hasParentPermissions) {
               return true;
@@ -1023,22 +1020,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return true;
       }
 
-      // Get user's permissions from the authentication store
-
-      const userPermissions = userData?.userPermissions || [];
-
-      // Check if user has ALL required permissions for this route
-
-      const hasAllPermissions = matchingRoute.permissions.every(
-        (requiredPermission: any) => {
-          const found = userPermissions?.find(
-            (permission: any) =>
-              permission.permission.slug === requiredPermission,
-          );
-          return found;
-        },
-      );
-      return hasAllPermissions;
+      // Check if user has the required permission(s) for this route
+      return AccessGuard.checkAccess({
+        permissions: matchingRoute.permissions,
+        requireAny: matchingRoute.requireAny,
+      });
     },
     [treeData, userData],
   );
@@ -1366,6 +1352,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       .map((item) => {
         const hasAccess = AccessGuard.checkAccess({
           permissions: item.permissions,
+          requireAny: item.requireAny,
         });
         if (!hasAccess) return null;
         return {
@@ -1374,6 +1361,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             ? item.children.filter((child) =>
                 AccessGuard.checkAccess({
                   permissions: child.permissions,
+                  requireAny: child.requireAny,
                 }),
               )
             : [],

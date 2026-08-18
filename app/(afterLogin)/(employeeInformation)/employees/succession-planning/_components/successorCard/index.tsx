@@ -43,6 +43,9 @@ import {
   matchesPositionRequirement,
   positionMatchTagColor,
 } from '../educationCatalog';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 type RoleSuccessor = CriticalRole['successors'][number];
 
@@ -82,10 +85,21 @@ export const SuccessorSummaryCard: React.FC<SuccessorSummaryCardProps> = ({
           name={successor.name}
           caption={`${successor.currentPosition ?? successor.jobTitle} · ${successor.department}`}
           avatarSize={40}
+          trailing={
+            openGaps > 0 ? (
+              <Tag className="m-0" color="orange">
+                {openGaps} open gap{openGaps === 1 ? '' : 's'}
+              </Tag>
+            ) : (
+              <Tag className="m-0" color="green">
+                No open gaps
+              </Tag>
+            )
+          }
         />
 
-        <div className="flex flex-wrap items-center gap-1.5">
-          {successor.readiness ? (
+        {successor.readiness ? (
+          <div className="flex flex-wrap items-center gap-1.5">
             <Tag
               color={readinessColor[successor.readiness]}
               className="m-0"
@@ -93,17 +107,8 @@ export const SuccessorSummaryCard: React.FC<SuccessorSummaryCardProps> = ({
             >
               {successor.readiness}
             </Tag>
-          ) : null}
-          {openGaps > 0 ? (
-            <Tag className="m-0" color="orange">
-              {openGaps} open gap{openGaps === 1 ? '' : 's'}
-            </Tag>
-          ) : (
-            <Tag className="m-0" color="green">
-              No open gaps
-            </Tag>
-          )}
-        </div>
+          </div>
+        ) : null}
 
         <div className="grid grid-cols-2 gap-3 pt-1 border-t border-[#F0F0F0]">
           <div>
@@ -189,18 +194,27 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
   const [actionCreateKey, setActionCreateKey] = useState(0);
   const [idpPlanKey, setIdpPlanKey] = useState(0);
   const [idpActivityKey, setIdpActivityKey] = useState(0);
+  useAuthenticationStore((state) => state.userData);
+  const canUpdateCriticalRole = AccessGuard.checkAccess({
+    permissions: [Permissions.UpdateCriticalRole],
+  });
+  const canManageSuccessorDevelopment = AccessGuard.checkAccess({
+    permissions: [Permissions.ManageSuccessorDevelopment],
+  });
 
   const hasCompetencies = (role.competencies?.length ?? 0) > 0;
   const tabBtnClass = 'h-8 font-normal';
 
   const tabBarExtra = (() => {
-    if (activeTab === 'assessment') {
+    if (activeTab === 'assessment' && canManageSuccessorDevelopment) {
       return (
         <Button
           type="primary"
           size="small"
           icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
-          onClick={() => setAssessmentOpen(true)}
+          onClick={() => {
+            if (canManageSuccessorDevelopment) setAssessmentOpen(true);
+          }}
           className={tabBtnClass}
           data-cy={`edit-assessment-${successor.id}`}
         >
@@ -208,7 +222,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
         </Button>
       );
     }
-    if (activeTab === 'competencies') {
+    if (activeTab === 'competencies' && canUpdateCriticalRole) {
       return (
         <Button
           type="primary"
@@ -220,7 +234,9 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
               <AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />
             )
           }
-          onClick={onManageCompetencies}
+          onClick={() => {
+            if (canUpdateCriticalRole) onManageCompetencies();
+          }}
           className={tabBtnClass}
           data-cy={`manage-competencies-${successor.id}`}
         >
@@ -228,13 +244,15 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
         </Button>
       );
     }
-    if (activeTab === 'gaps') {
+    if (activeTab === 'gaps' && canManageSuccessorDevelopment) {
       return (
         <Button
           type="primary"
           size="small"
           icon={<RefreshOutlinedIcon style={{ fontSize: 16 }} />}
-          onClick={() => recalculateGaps()}
+          onClick={() => {
+            if (canManageSuccessorDevelopment) void recalculateGaps();
+          }}
           className={tabBtnClass}
           data-cy={`recalculate-gaps-tab-${successor.id}`}
         >
@@ -242,13 +260,17 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
         </Button>
       );
     }
-    if (activeTab === 'actions') {
+    if (activeTab === 'actions' && canManageSuccessorDevelopment) {
       return (
         <Button
           type="primary"
           size="small"
           icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
-          onClick={() => setActionCreateKey((key) => key + 1)}
+          onClick={() => {
+            if (canManageSuccessorDevelopment) {
+              setActionCreateKey((key) => key + 1);
+            }
+          }}
           className={tabBtnClass}
           data-cy={`add-development-action-tab-${successor.id}`}
         >
@@ -256,14 +278,18 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
         </Button>
       );
     }
-    if (activeTab === 'idp') {
+    if (activeTab === 'idp' && canManageSuccessorDevelopment) {
       return (
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="primary"
             size="small"
             icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
-            onClick={() => setIdpPlanKey((key) => key + 1)}
+            onClick={() => {
+              if (canManageSuccessorDevelopment) {
+                setIdpPlanKey((key) => key + 1);
+              }
+            }}
             className={tabBtnClass}
             data-cy={`edit-idp-plan-tab-${successor.id}`}
           >
@@ -273,7 +299,11 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             type="primary"
             size="small"
             icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
-            onClick={() => setIdpActivityKey((key) => key + 1)}
+            onClick={() => {
+              if (canManageSuccessorDevelopment) {
+                setIdpActivityKey((key) => key + 1);
+              }
+            }}
             className={tabBtnClass}
             data-cy={`add-idp-activity-tab-${successor.id}`}
           >
@@ -350,6 +380,8 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
     formatEducationLabel(successor.educationLevel, successor.educationField);
 
   const handleAssessmentSave = async (values: SuccessorAssessmentValues) => {
+    if (!canManageSuccessorDevelopment) return;
+
     await updateProfile(values);
     setAssessmentOpen(false);
     NotificationMessage.success({
@@ -412,14 +444,52 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
       ),
       key: 'evaluator',
       width: 220,
-      render: (_: unknown, record) => (
-        <EvaluatorPicker
-          value={record.evaluatorId || undefined}
-          onChange={(value) => onEvaluatorChange(record, value)}
-          options={evaluatorOptions}
-          dataCy={`cr-detail-evaluator-${successor.id}-${record.competencyName}`}
-        />
-      ),
+      render: (_: unknown, record) => {
+        if (!canUpdateCriticalRole) {
+          const evaluatorName =
+            record.evaluatorName ||
+            employees.find((e) => e.id === record.evaluatorId)?.name;
+
+          return evaluatorName ? (
+            <div
+              className="inline-flex items-center gap-1.5 bg-gray-100 px-2 py-1 rounded-lg max-w-full"
+              data-cy={`readonly-evaluator-${successor.id}-${record.competencyName}`}
+            >
+              <Avatar
+                size={20}
+                icon={<UserOutlined />}
+                style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
+                className="shrink-0"
+                data-cy={`readonly-evaluator-avatar-${successor.id}-${record.competencyName}`}
+              />
+              <span
+                className="text-sm text-gray-800 truncate"
+                data-cy={`readonly-evaluator-name-${successor.id}-${record.competencyName}`}
+              >
+                {evaluatorName}
+              </span>
+            </div>
+          ) : (
+            <span
+              className="text-sm text-gray-400"
+              data-cy={`readonly-evaluator-empty-${successor.id}-${record.competencyName}`}
+            >
+              Not assigned
+            </span>
+          );
+        }
+
+        return (
+          <EvaluatorPicker
+            value={record.evaluatorId || undefined}
+            onChange={(value) => {
+              if (canUpdateCriticalRole) onEvaluatorChange(record, value);
+            }}
+            options={evaluatorOptions}
+            dataCy={`cr-detail-evaluator-${successor.id}-${record.competencyName}`}
+          />
+        );
+      },
     },
   ];
 
@@ -530,26 +600,35 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                         </div>
                       </div>
                     </div>
-                    {educationMatchOptions.allowRelated &&
+                    {canManageSuccessorDevelopment &&
+                    educationMatchOptions.allowRelated &&
                     educationMatch === 'Field mismatch' ? (
                       <div className="mt-3">
                         <Button
                           type="primary"
                           size="small"
                           className="h-8 font-normal"
-                          onClick={() => setEducationRelated(true)}
+                          onClick={() => {
+                            if (canManageSuccessorDevelopment) {
+                              void setEducationRelated(true);
+                            }
+                          }}
                           data-cy={`mark-education-related-${successor.id}`}
                         >
                           Mark as related
                         </Button>
                       </div>
                     ) : null}
-                    {educationRelatedMarked ? (
+                    {canManageSuccessorDevelopment && educationRelatedMarked ? (
                       <div className="mt-3">
                         <Button
                           size="small"
                           className="h-8 font-normal border border-[#D9D9D9] text-[#4d4d4d]"
-                          onClick={() => setEducationRelated(false)}
+                          onClick={() => {
+                            if (canManageSuccessorDevelopment) {
+                              void setEducationRelated(false);
+                            }
+                          }}
                           data-cy={`unmark-education-related-${successor.id}`}
                         >
                           Unmark as related
@@ -619,7 +698,11 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                 <div className="py-2">
                   <Empty
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description="No competencies defined yet. Use Add Competencies above to define criteria and assign evaluators."
+                    description={
+                      canUpdateCriticalRole
+                        ? 'No competencies defined yet. Use Add Competencies above to define criteria and assign evaluators.'
+                        : 'No competencies have been defined for this role.'
+                    }
                   />
                 </div>
               ) : (
@@ -649,11 +732,16 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                   gaps={gaps}
                   actions={actions}
                   hideRecalculateButton
-                  onRecalculate={() => recalculateGaps()}
-                  onStatusChange={(gapId, status: GapStatus) =>
-                    updateGapStatus(gapId, status)
-                  }
+                  onRecalculate={() => {
+                    if (!canManageSuccessorDevelopment) return;
+                    void recalculateGaps();
+                  }}
+                  onStatusChange={(gapId, status: GapStatus) => {
+                    if (!canManageSuccessorDevelopment) return;
+                    void updateGapStatus(gapId, status);
+                  }}
                   onAddAction={async (action) => {
+                    if (!canManageSuccessorDevelopment) return;
                     await addAction(action);
                     setActiveTab('actions');
                   }}
@@ -671,9 +759,18 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                   gaps={gaps}
                   hideAddButton
                   openCreateKey={actionCreateKey}
-                  onAdd={(action) => addAction(action)}
-                  onUpdate={(actionId, patch) => updateAction(actionId, patch)}
-                  onDelete={(actionId) => deleteAction(actionId)}
+                  onAdd={async (action) => {
+                    if (!canManageSuccessorDevelopment) return;
+                    await addAction(action);
+                  }}
+                  onUpdate={async (actionId, patch) => {
+                    if (!canManageSuccessorDevelopment) return;
+                    await updateAction(actionId, patch);
+                  }}
+                  onDelete={async (actionId) => {
+                    if (!canManageSuccessorDevelopment) return;
+                    await deleteAction(actionId);
+                  }}
                 />
               </div>
             ),
@@ -689,12 +786,15 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                   openPlanKey={idpPlanKey}
                   openActivityKey={idpActivityKey}
                   onUpsertPlan={async (plan) => {
+                    if (!canManageSuccessorDevelopment) return;
                     await upsertPlan(plan);
                   }}
                   onAddActivity={async (activity) => {
+                    if (!canManageSuccessorDevelopment) return;
                     await addActivity(activity);
                   }}
                   onUpdateActivity={async (activityId, patch) => {
+                    if (!canManageSuccessorDevelopment) return;
                     await updateActivity(activityId, patch);
                   }}
                 />
@@ -706,7 +806,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
       />
 
       <SuccessorAssessmentModal
-        open={assessmentOpen}
+        open={assessmentOpen && canManageSuccessorDevelopment}
         successorName={successor.name}
         requiredExperienceYears={role.requiredRelevantExperience}
         initialValues={{

@@ -36,6 +36,15 @@ export interface SuccessorCandidate {
   currentPosition?: string;
 }
 
+/**
+ * Core user id used for form keys, evaluator pickers, and the backend
+ * `userId` on a nomination. Wizard rows only have `id`; persisted successors
+ * keep the nomination id in `id` and the person in `userId`.
+ */
+export const successorPersonId = (
+  successor: Pick<SuccessorCandidate, 'id' | 'userId'>,
+) => successor.userId ?? successor.id;
+
 const th = 'text-[#4d4d4d] text-sm font-bold';
 const td = 'text-[#4d4d4d] text-sm font-normal';
 

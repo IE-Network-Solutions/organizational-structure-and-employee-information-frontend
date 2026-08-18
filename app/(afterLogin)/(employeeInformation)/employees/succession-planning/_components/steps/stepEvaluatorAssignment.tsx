@@ -6,7 +6,10 @@ import {
   RoleCompetency,
   CompetencyImportance,
 } from './stepCompetencyDefinition';
-import { SuccessorCandidate } from './stepEmployeeSelection';
+import {
+  SuccessorCandidate,
+  successorPersonId,
+} from './stepEmployeeSelection';
 import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
 import { EVALUATOR_AVATAR_COLOR, PersonIdentity } from '../personRoleChrome';
 
@@ -77,15 +80,104 @@ export const evaluationFieldKey = (
   competencyIndex: number,
 ) => `${employeeId}::${competencyIndex}`;
 
+/**
+ * Build the form map of evaluator assignments from persisted successor
+ * evaluations. Keys always use the Core user id so this step can look people
+ * up in the employee directory (nomination row ids would never match).
+ */
+export const buildEvaluationAssignments = (
+  successors: Array<
+    SuccessorCandidate & { competencyEvaluations?: CompetencyEvaluation[] }
+  >,
+  competencies: RoleCompetency[],
+): Record<string, string> => {
+  const map: Record<string, string> = {};
+  const live = (competencies ?? []).filter((c) => c?.name?.trim());
+
+  for (const successor of successors ?? []) {
+    live.forEach((comp, index) => {
+      const evaluation = (successor.competencyEvaluations ?? []).find(
+        (e) =>
+          (comp.id && e.competencyCriteriaId === comp.id) ||
+          (e.competencyName === comp.name && e.category === comp.category),
+      );
+      if (evaluation?.evaluatorId) {
+        map[evaluationFieldKey(successorPersonId(successor), index)] =
+          evaluation.evaluatorId;
+      }
+    });
+  }
+  return map;
+};
+
+/**
+ * Resolve the people shown on this step.
+ *
+ * Wizard `successorIds` are employee ids. After a role is saved they may be
+ * nomination ids — `nominatedSuccessors` (from the API) covers that case and
+ * also keeps successors visible if `/users` has not loaded yet.
+ */
+export const resolveSelectedSuccessors = (
+  successorIds: string[],
+  employees: SuccessorCandidate[],
+  nominatedSuccessors: SuccessorCandidate[] = [],
+): SuccessorCandidate[] => {
+  const ids =
+    successorIds.length > 0
+      ? successorIds
+      : nominatedSuccessors.map(successorPersonId);
+
+  const employeeById = new Map(
+    employees.map((employee) => [employee.id, employee]),
+  );
+
+  return ids
+    .map((id) => {
+      const nominated = nominatedSuccessors.find(
+        (successor) => successor.userId === id || successor.id === id,
+      );
+      const fromDirectory =
+        employeeById.get(id) ??
+        (nominated?.userId ? employeeById.get(nominated.userId) : undefined);
+
+      if (nominated) {
+        const personId = successorPersonId(nominated);
+        return {
+          ...fromDirectory,
+          ...nominated,
+          id: personId,
+          userId: personId,
+          name: nominated.name || fromDirectory?.name || 'Employee',
+          jobTitle:
+            nominated.jobTitle ||
+            nominated.currentPosition ||
+            fromDirectory?.jobTitle ||
+            '—',
+          department: nominated.department || fromDirectory?.department || '—',
+        };
+      }
+
+      return fromDirectory;
+    })
+    .filter((successor): successor is SuccessorCandidate => Boolean(successor));
+};
+
 interface StepEvaluatorAssignmentProps {
   positionId: string | null;
   /** When false, evaluator selects are optional (manage-from-details flow). */
   requireEvaluators?: boolean;
+  /**
+   * Persisted nominations for this role. Used to render successors when form
+   * ids are nomination row ids, and as identity when the employee directory
+   * has not caught up yet.
+   */
+  nominatedSuccessors?: SuccessorCandidate[];
 }
 
 const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
   positionId,
   requireEvaluators = true,
+  nominatedSuccessors,
 }) => {
   const form = Form.useFormInstance();
 
@@ -104,11 +196,16 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
     [rawCompetencies],
   );
 
-  const { employees, positions } = useSuccessionOrgData();
+  const { employees, positions, isLoading } = useSuccessionOrgData();
 
   const selectedEmployees = useMemo(
-    () => employees.filter((e) => successorIds.includes(e.id)),
-    [employees, successorIds],
+    () =>
+      resolveSelectedSuccessors(
+        successorIds,
+        employees,
+        nominatedSuccessors ?? [],
+      ),
+    [employees, nominatedSuccessors, successorIds],
   );
 
   const position = positions.find((p) => p.id === positionId);
@@ -122,7 +219,9 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
             className="text-gray-400 text-sm"
             data-cy="step-evaluator-no-successors"
           >
-            No successors selected. Go back and select at least one employee.
+            {isLoading
+              ? 'Loading successors…'
+              : 'No successors selected. Go back and select at least one employee.'}
           </span>
         }
       />
@@ -168,7 +267,7 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
       </p>
 
       <div
-        className="rounded-lg border border-[#D9D9D9] overflow-hidden divide-y divide-[#E5E7EB]"
+        className="overflow-hidden"
         data-cy="step-evaluator-employee-list"
       >
         {selectedEmployees.map((employee) => (
@@ -177,6 +276,7 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
             employee={employee}
             competencies={competencies}
             requireEvaluators={requireEvaluators}
+            employeesLoading={isLoading}
           />
         ))}
       </div>
@@ -188,16 +288,22 @@ interface EmployeeEvaluationCardProps {
   employee: SuccessorCandidate;
   competencies: RoleCompetency[];
   requireEvaluators?: boolean;
+  employeesLoading?: boolean;
 }
 
 const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
   employee,
   competencies,
   requireEvaluators = true,
+  employeesLoading = false,
 }) => {
   const { employees } = useSuccessionOrgData();
+  const successorId = successorPersonId(employee);
   // Anyone but the successor themselves can evaluate them.
-  const evaluatorOptions = employees.filter((e) => e.id !== employee.id);
+  const evaluatorOptions = employees.filter(
+    (candidate) =>
+      candidate.id !== successorId && candidate.id !== employee.id,
+  );
 
   return (
     <div
@@ -216,9 +322,9 @@ const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
         />
       </div>
 
-      <div className="flex flex-col divide-y divide-[#F0F0F0]">
+      <div className="flex flex-col">
         {competencies.map((comp, index) => {
-          const fieldKey = evaluationFieldKey(employee.id, index);
+          const fieldKey = evaluationFieldKey(successorId, index);
           return (
             <div
               key={`${employee.id}-${index}-${competencyKey(comp)}`}
@@ -253,6 +359,7 @@ const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
               >
                 <EvaluatorPicker
                   options={evaluatorOptions}
+                  loading={employeesLoading}
                   dataCy={`step-evaluator-select-${employee.id}-${index}`}
                 />
               </Form.Item>
@@ -269,6 +376,7 @@ export interface EvaluatorPickerProps {
   value?: string;
   onChange?: (value: string | undefined) => void;
   options: SuccessorCandidate[];
+  loading?: boolean;
   dataCy?: string;
 }
 
@@ -276,6 +384,7 @@ export const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
   value,
   onChange,
   options,
+  loading = false,
   dataCy,
 }) => {
   const { employees } = useSuccessionOrgData();
@@ -324,9 +433,10 @@ export const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
       <Select
         showSearch
         allowClear
+        loading={loading}
         value={value}
         onChange={(v) => onChange?.(v)}
-        placeholder="Search and select evaluator"
+        placeholder="Search employees to assign as evaluator"
         className="w-full"
         style={{ display: selected ? 'none' : undefined }}
         optionLabelProp="label"

@@ -13,6 +13,8 @@ import { gapSeverityColor, importanceColor } from '../tagColors';
 import DevelopmentActionModal, {
   type DevelopmentActionFormValues,
 } from '../developmentActionModal';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface SuccessorGapsPanelProps {
   gaps: CompetencyGap[];
@@ -34,6 +36,9 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
 }) => {
   const [actionModalOpen, setActionModalOpen] = useState(false);
   const [lockedGapId, setLockedGapId] = useState<string | undefined>();
+  const canManageSuccessorDevelopment = AccessGuard.checkAccess({
+    permissions: [Permissions.ManageSuccessorDevelopment],
+  });
 
   const openCount = gaps.filter((g) => g.status !== 'Closed').length;
 
@@ -41,11 +46,15 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
     actions.filter((a) => a.gapId === gapId).length;
 
   const openActionModal = (gapId: string) => {
+    if (!canManageSuccessorDevelopment) return;
+
     setLockedGapId(gapId);
     setActionModalOpen(true);
   };
 
   const handleSaveAction = (payload: DevelopmentActionFormValues) => {
+    if (!canManageSuccessorDevelopment) return;
+
     onAddAction?.(payload);
     setActionModalOpen(false);
     setLockedGapId(undefined);
@@ -117,7 +126,12 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
           size="small"
           className="w-full min-w-[130px]"
           value={record.status}
-          onChange={(status) => onStatusChange(record.id, status)}
+          disabled={!canManageSuccessorDevelopment}
+          onChange={(status) => {
+            if (canManageSuccessorDevelopment) {
+              onStatusChange(record.id, status);
+            }
+          }}
           options={[
             { value: 'Open', label: 'Open' },
             { value: 'In Progress', label: 'In Progress' },
@@ -127,24 +141,30 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
         />
       ),
     },
-    {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Action</span>,
-      key: 'define-action',
-      width: 160,
-      render: (_: unknown, record) =>
-        onAddAction ? (
-          <Button
-            type="primary"
-            size="small"
-            className="h-8 font-normal whitespace-nowrap"
-            icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
-            onClick={() => openActionModal(record.id)}
-            data-cy={`define-action-for-gap-${record.id}`}
-          >
-            Define action
-          </Button>
-        ) : null,
-    },
+    ...(onAddAction && canManageSuccessorDevelopment
+      ? [
+          {
+            title: (
+              <span className="text-[#4d4d4d] text-sm font-bold">Action</span>
+            ),
+            key: 'define-action',
+            dataIndex: 'id',
+            width: 160,
+            render: (gapId: string) => (
+              <Button
+                type="primary"
+                size="small"
+                className="h-8 font-normal whitespace-nowrap"
+                icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
+                onClick={() => openActionModal(gapId)}
+                data-cy={`define-action-for-gap-${gapId}`}
+              >
+                Define action
+              </Button>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -153,12 +173,14 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
         <p className="text-sm text-gray-500 mb-0">
           {openCount} open gap{openCount === 1 ? '' : 's'} vs role requirements
         </p>
-        {!hideRecalculateButton ? (
+        {!hideRecalculateButton && canManageSuccessorDevelopment ? (
           <Button
             type="primary"
             size="small"
             icon={<RefreshOutlinedIcon style={{ fontSize: 16 }} />}
-            onClick={onRecalculate}
+            onClick={() => {
+              if (canManageSuccessorDevelopment) onRecalculate();
+            }}
             className="h-8 font-normal"
             data-cy="recalculate-gaps-btn"
           >
@@ -188,9 +210,9 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
         data-cy="successor-gaps-table"
       />
 
-      {onAddAction ? (
+      {onAddAction && canManageSuccessorDevelopment ? (
         <DevelopmentActionModal
-          open={actionModalOpen}
+          open={actionModalOpen && canManageSuccessorDevelopment}
           gaps={gaps}
           lockedGapId={lockedGapId}
           onClose={() => {

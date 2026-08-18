@@ -5,6 +5,8 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 interface AccessGuardProps {
   roles?: string[];
   permissions?: string[];
+  /** When true, any listed permission is enough (default is all of them). */
+  requireAny?: boolean;
   id?: string;
   selfShouldAccess?: boolean;
   children?: ReactNode;
@@ -12,7 +14,7 @@ interface AccessGuardProps {
 
 const AccessGuard: React.FC<AccessGuardProps> & {
   checkAccess: (props: AccessGuardProps) => boolean;
-} = ({ roles, permissions, id, selfShouldAccess = false, children }) => {
+} = ({ roles, permissions, requireAny, id, selfShouldAccess = false, children }) => {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -26,6 +28,7 @@ const AccessGuard: React.FC<AccessGuardProps> & {
   const hasAccess = AccessGuard.checkAccess({
     roles,
     permissions,
+    requireAny,
     id,
     selfShouldAccess,
   });
@@ -41,6 +44,7 @@ const AccessGuard: React.FC<AccessGuardProps> & {
 AccessGuard.checkAccess = ({
   roles,
   permissions,
+  requireAny = false,
   id,
   selfShouldAccess = false,
 }: AccessGuardProps): boolean => {
@@ -49,17 +53,24 @@ AccessGuard.checkAccess = ({
   const role = userData?.role?.slug || '';
   const userPermissions = userData?.userPermissions || [];
 
-  const isOwner = role === 'owner';
+  const isOwner = role.toLowerCase() === 'owner';
 
   const hasRole = roles ? roles.includes(role) : true;
 
   const hasPermission = permissions
-    ? permissions.every((permission) =>
-        userPermissions.some(
-          (userPermission: { permission: { slug: string } }) =>
-            userPermission.permission?.slug === permission,
-        ),
-      )
+    ? requireAny
+      ? permissions.some((permission) =>
+          userPermissions.some(
+            (userPermission: { permission: { slug: string } }) =>
+              userPermission.permission?.slug === permission,
+          ),
+        )
+      : permissions.every((permission) =>
+          userPermissions.some(
+            (userPermission: { permission: { slug: string } }) =>
+              userPermission.permission?.slug === permission,
+          ),
+        )
     : true;
 
   const hasSelfAccess = selfShouldAccess && id === userId;

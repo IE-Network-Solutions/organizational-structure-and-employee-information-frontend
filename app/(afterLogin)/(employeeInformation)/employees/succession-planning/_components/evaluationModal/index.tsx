@@ -14,6 +14,9 @@ import { useSuccessionOrgData } from '@/store/server/features/employees/successi
 import { useSuccessorWrites } from '@/store/server/features/employees/successionPlanning/useSuccessorWrites';
 import { PersonRoleAvatar, PersonRoleLabel } from '../personRoleChrome';
 import { importanceColor } from '../tagColors';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const { TextArea } = Input;
 
@@ -50,6 +53,13 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
   const { isMobile } = useIsMobile();
   const [form] = Form.useForm<{ criteria: CriterionFormValue[] }>();
   const [submitting, setSubmitting] = useState(false);
+
+  // Keep the permission decision reactive after auth hydration/refresh while
+  // retaining AccessGuard's owner bypass.
+  useAuthenticationStore((state) => state.userData);
+  const canSubmitEvaluation = AccessGuard.checkAccess({
+    permissions: [Permissions.SubmitSuccessionEvaluation],
+  });
 
   const role = useSuccessionPlanningStore((s) =>
     target ? s.roles.find((r) => r.id === target.roleId) : undefined,
@@ -106,8 +116,11 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
     });
   }, [assignedCriteria, form, open]);
 
-  const watchedCriteria =
-    Form.useWatch('criteria', form) ?? ([] as CriterionFormValue[]);
+  const watchedCriteriaValue = Form.useWatch('criteria', form);
+  const watchedCriteria = useMemo(
+    () => watchedCriteriaValue ?? ([] as CriterionFormValue[]),
+    [watchedCriteriaValue],
+  );
 
   const liveTotal = useMemo(() => {
     const weighted = (watchedCriteria as CriterionFormValue[]).map((c) => ({
@@ -129,7 +142,9 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
     assignedCriteria.every((c) => c.status === 'Evaluated' && c.score != null);
 
   const handleSubmit = async () => {
-    if (!target) return;
+    // Defense in depth: the submit button is absent without this permission,
+    // but the handler must also reject indirect/programmatic invocation.
+    if (!target || !canSubmitEvaluation) return;
     try {
       const values = await form.validateFields();
       setSubmitting(true);
@@ -170,7 +185,11 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
       title={
         <div data-cy="evaluation-modal-header">
           <h2 className="text-xl font-bold text-black mb-0">
-            {allAlreadyEvaluated ? 'Edit Evaluation' : 'Evaluate Successor'}
+            {!canSubmitEvaluation
+              ? 'Review Evaluation'
+              : allAlreadyEvaluated
+                ? 'Edit Evaluation'
+                : 'Evaluate Successor'}
           </h2>
         </div>
       }
@@ -222,7 +241,9 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
             className="text-sm text-gray-500 -mt-1 mb-0"
             data-cy="evaluation-intro"
           >
-            Rate each competency from 0–100.
+            {canSubmitEvaluation
+              ? 'Rate each competency from 0–100.'
+              : 'Evaluation scores are read-only.'}
           </p>
 
           <Form
@@ -315,6 +336,7 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
                             <InputNumber
                               min={0}
                               max={100}
+                              disabled={!canSubmitEvaluation}
                               className="w-full h-9"
                               placeholder="e.g. 85"
                               data-cy={`evaluation-rating-input-${field.key}`}
@@ -351,6 +373,7 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
                         >
                           <TextArea
                             rows={2}
+                            disabled={!canSubmitEvaluation}
                             placeholder="Notes on this competency…"
                             maxLength={500}
                             data-cy={`evaluation-comment-input-${field.key}`}
@@ -387,18 +410,20 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
               data-cy="evaluation-actions"
             >
               <Button onClick={onClose} data-cy="evaluation-cancel-btn">
-                Cancel
+                {canSubmitEvaluation ? 'Cancel' : 'Close'}
               </Button>
-              <Button
-                type="primary"
-                loading={submitting}
-                onClick={handleSubmit}
-                data-cy="evaluation-submit-btn"
-              >
-                {allAlreadyEvaluated
-                  ? 'Update Evaluation'
-                  : 'Submit Evaluation'}
-              </Button>
+              {canSubmitEvaluation ? (
+                <Button
+                  type="primary"
+                  loading={submitting}
+                  onClick={handleSubmit}
+                  data-cy="evaluation-submit-btn"
+                >
+                  {allAlreadyEvaluated
+                    ? 'Update Evaluation'
+                    : 'Submit Evaluation'}
+                </Button>
+              ) : null}
             </div>
           </Form>
         </div>

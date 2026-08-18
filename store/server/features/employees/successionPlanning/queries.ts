@@ -134,19 +134,33 @@ export const useSuccessorDevelopmentPlan = (id?: string) =>
  * id. `scope: 'admin'` returns everything, optionally narrowed to one
  * evaluator for an admin inspecting a single person.
  */
+const asAssignmentList = (value: unknown): ApiEvaluatorAssignmentRow[] => {
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    if (Array.isArray(record.data)) return record.data;
+    if (Array.isArray(record.items)) return record.items;
+  }
+  return [];
+};
+
 export const useEvaluatorAssignments = (
   scope: 'admin' | 'mine' = 'admin',
   evaluatorId?: string,
+  enabled = true,
 ) =>
   useQuery<ApiEvaluatorAssignmentRow[], Error>(
     [SUCCESSION_KEYS.evaluatorAssignments, scope, evaluatorId ?? 'all'],
     async () =>
-      scope === 'mine'
-        ? get<ApiEvaluatorAssignmentRow[]>('/evaluator-assignments/mine')
-        : get<ApiEvaluatorAssignmentRow[]>(
-            '/evaluator-assignments',
-            evaluatorId ? { evaluatorId } : undefined,
-          ),
+      asAssignmentList(
+        scope === 'mine'
+          ? await get<unknown>('/evaluator-assignments/mine')
+          : await get<unknown>(
+              '/evaluator-assignments',
+              evaluatorId ? { evaluatorId } : undefined,
+            ),
+      ),
+    { enabled },
   );
 
 // ── KPIs ────────────────────────────────────────────────────────────────────

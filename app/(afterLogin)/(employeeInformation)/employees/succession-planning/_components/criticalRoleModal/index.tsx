@@ -9,10 +9,12 @@ import StepCompetencyDefinition, {
 } from '../steps/stepCompetencyDefinition';
 import StepEmployeeSelection, {
   SuccessorCandidate,
+  successorPersonId,
 } from '../steps/stepEmployeeSelection';
 import StepEvaluatorAssignment, {
   CompetencyEvaluation,
   evaluationFieldKey,
+  buildEvaluationAssignments,
 } from '../steps/stepEvaluatorAssignment';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -102,26 +104,6 @@ const deriveRiskLevel = (
   return 'Low';
 };
 
-/** Build flat evaluationAssignments map from saved successor evaluations */
-const buildAssignmentsFromRole = (
-  role: CriticalRole,
-): Record<string, string> => {
-  const map: Record<string, string> = {};
-  const competencies = (role.competencies ?? []).filter((c) => c?.name?.trim());
-
-  for (const successor of role.successors ?? []) {
-    competencies.forEach((comp, index) => {
-      const evaluation = (successor.competencyEvaluations ?? []).find(
-        (e) => e.competencyName === comp.name && e.category === comp.category,
-      );
-      if (evaluation?.evaluatorId) {
-        map[evaluationFieldKey(successor.id, index)] = evaluation.evaluatorId;
-      }
-    });
-  }
-  return map;
-};
-
 // ── Component ─────────────────────────────────────────────────────────────────
 const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
   open,
@@ -145,8 +127,11 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
           competencies: editingRole.competencies?.length
             ? editingRole.competencies
             : [],
-          successorIds: (editingRole.successors ?? []).map((s) => s.id),
-          evaluationAssignments: buildAssignmentsFromRole(editingRole),
+          successorIds: (editingRole.successors ?? []).map(successorPersonId),
+          evaluationAssignments: buildEvaluationAssignments(
+            editingRole.successors ?? [],
+            editingRole.competencies ?? [],
+          ),
           requiredCurrentPositionIds: editingRole.requiredCurrentPositionIds
             ?.length
             ? editingRole.requiredCurrentPositionIds
@@ -267,62 +252,98 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
       const successorIds: string[] = values.successorIds ?? [];
       const assignments: Record<string, string> =
         values.evaluationAssignments ?? {};
+      const existingByPersonId = new Map(
+        (editingRole?.successors ?? []).map((successor) => [
+          successorPersonId(successor),
+          successor,
+        ]),
+      );
 
-      const successors = employees
-        .filter((e) => successorIds.includes(e.id))
-        .map((employee) => {
+      const successors = successorIds
+        .map((personId) => {
+          const employee = employees.find((e) => e.id === personId);
+          const existing = existingByPersonId.get(personId);
+          const person = employee ?? existing;
+          if (!person) return null;
+
           const competencyEvaluations: CompetencyEvaluation[] =
             competencies.map((comp, index) => {
-              const fieldKey = evaluationFieldKey(employee.id, index);
+              const fieldKey = evaluationFieldKey(personId, index);
               const evaluatorId = assignments[fieldKey] ?? '';
               const evaluator = employees.find((e) => e.id === evaluatorId);
+              const previous = (existing?.competencyEvaluations ?? []).find(
+                (evaluation) =>
+                  (comp.id && evaluation.competencyCriteriaId === comp.id) ||
+                  (evaluation.competencyName === comp.name &&
+                    evaluation.category === comp.category),
+              );
+              const sameEvaluator =
+                !!evaluatorId && previous?.evaluatorId === evaluatorId;
               return {
+                competencyCriteriaId: comp.id ?? previous?.competencyCriteriaId,
                 competencyName: comp.name,
                 category: comp.category,
                 importance: comp.importance,
                 weight: comp.weight,
                 evaluatorId,
-                evaluatorName: evaluator?.name ?? '',
-                status: 'Pending' as const,
+                evaluatorName:
+                  evaluator?.name ?? previous?.evaluatorName ?? '',
+                status: sameEvaluator
+                  ? (previous?.status ?? 'Pending')
+                  : 'Pending',
+                rating: sameEvaluator ? previous?.rating : undefined,
+                score: sameEvaluator ? previous?.score : undefined,
+                comment: sameEvaluator ? previous?.comment : undefined,
               };
             });
           return {
-            ...employee,
-            currentPosition: employee.currentPosition ?? employee.jobTitle,
+            ...existing,
+            ...person,
+            id: existing?.id ?? person.id,
+            userId: personId,
+            currentPosition: person.currentPosition ?? person.jobTitle,
             education:
-              employee.education ??
+              person.education ??
               formatEducationLabel(
-                employee.educationLevel,
-                employee.educationField,
+                person.educationLevel,
+                person.educationField,
               ),
             competencyEvaluations,
-            gaps: deriveSuccessorGaps(
-              competencies,
-              competencyEvaluations,
-              [],
-              {
-                level: values.requiredEducationLevel,
-                field: values.requiredEducationField ?? 'Any',
-              },
-              {
-                level: employee.educationLevel,
-                field: employee.educationField,
-              },
-              Number(values.requiredRelevantExperience ?? 0),
-              employee.relevantExperience,
-              {
-                allowRelated: Boolean(
-                  values.allowRelatedEducationFields &&
-                  values.requiredEducationField &&
-                  values.requiredEducationField !== 'Any',
-                ),
-                relatedAccepted: false,
-              },
+            gaps:
+              existing?.gaps ??
+              deriveSuccessorGaps(
+                competencies,
+                competencyEvaluations,
+                [],
+                {
+                  level: values.requiredEducationLevel,
+                  field: values.requiredEducationField ?? 'Any',
+                },
+                {
+                  level: person.educationLevel,
+                  field: person.educationField,
+                },
+                Number(values.requiredRelevantExperience ?? 0),
+                person.relevantExperience,
+                {
+                  allowRelated: Boolean(
+                    values.allowRelatedEducationFields &&
+                    values.requiredEducationField &&
+                    values.requiredEducationField !== 'Any',
+                  ),
+                  relatedAccepted: Boolean(existing?.educationRelatedAccepted),
+                },
+              ),
+            developmentActions: existing?.developmentActions ?? [],
+            educationRelatedAccepted: Boolean(
+              existing?.educationRelatedAccepted,
             ),
-            developmentActions: [],
-            educationRelatedAccepted: false,
           };
-        });
+        })
+        .filter(
+          (successor): successor is NonNullable<typeof successor> =>
+            successor != null,
+        );
 
       // DEV NOTE (Succession Planning — Critical Role Modal):
       // After a critical role is successfully created, a notification must be
@@ -564,7 +585,10 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
               className="mt-2 border border-[#D9D9D9] max-h-[42vh] sm:max-h-[52vh] overflow-y-auto"
               data-cy="critical-role-modal-card-step3"
             >
-              <StepEvaluatorAssignment positionId={positionId} />
+              <StepEvaluatorAssignment
+                positionId={positionId}
+                nominatedSuccessors={editingRole?.successors ?? []}
+              />
             </Card>
             <StepNavButtons
               current={current}

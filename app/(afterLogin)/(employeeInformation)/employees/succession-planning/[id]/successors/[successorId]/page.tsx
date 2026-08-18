@@ -18,6 +18,9 @@ import {
   formatEducationLabel,
   formatYearsLabel,
 } from '@/app/(afterLogin)/(employeeInformation)/employees/succession-planning/_components/educationCatalog';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({
   label,
@@ -41,6 +44,10 @@ const SuccessorDetailPage: React.FC = () => {
   );
   const { saveRole } = useSuccessionPlanningData();
   const { assignEvaluator } = useSuccessorWrites(successorId);
+  useAuthenticationStore((state) => state.userData);
+  const canUpdateCriticalRole = AccessGuard.checkAccess({
+    permissions: [Permissions.UpdateCriticalRole],
+  });
 
   const successor = role?.successors?.find((s) => s.id === successorId);
   const roleHref = `/employees/succession-planning/${roleId}`;
@@ -97,6 +104,8 @@ const SuccessorDetailPage: React.FC = () => {
     evaluation: CompetencyEvaluation,
     evaluatorId: string | undefined,
   ) => {
+    if (!canUpdateCriticalRole) return;
+
     // The criteria id comes from the API; clearing an evaluator is not a
     // supported operation, so only real assignments are sent.
     if (!evaluation.competencyCriteriaId || !evaluatorId) return;
@@ -115,7 +124,9 @@ const SuccessorDetailPage: React.FC = () => {
       requiredCurrentPositions: string[];
     },
   ) => {
-    void saveRole(
+    if (!canUpdateCriticalRole) return;
+
+    return saveRole(
       {
         positionId: role.positionId,
         roleName: role.roleName,
@@ -245,12 +256,14 @@ const SuccessorDetailPage: React.FC = () => {
           role={role}
           successor={successor}
           onEvaluatorChange={handleEvaluatorChange}
-          onManageCompetencies={() => setManageOpen(true)}
+          onManageCompetencies={() => {
+            if (canUpdateCriticalRole) setManageOpen(true);
+          }}
         />
       </Card>
 
       <ManageCompetenciesModal
-        open={manageOpen}
+        open={manageOpen && canUpdateCriticalRole}
         role={role}
         onClose={() => setManageOpen(false)}
         onSave={handleManageSave}

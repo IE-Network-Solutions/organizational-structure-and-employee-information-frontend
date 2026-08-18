@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Modal, Popconfirm, Steps } from 'antd';
+import { Button, Form, Modal, Popconfirm, Select, Steps } from 'antd';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { CriticalRole } from '../criticalRoleModal';
@@ -11,9 +11,15 @@ import StepCompetencyDefinition, {
 import StepEvaluatorAssignment, {
   CompetencyEvaluation,
   evaluationFieldKey,
+  buildEvaluationAssignments,
 } from '../steps/stepEvaluatorAssignment';
-import type { SuccessorCandidate } from '../steps/stepEmployeeSelection';
+import {
+  successorPersonId,
+  type SuccessorCandidate,
+} from '../steps/stepEmployeeSelection';
 import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 interface ManageCompetenciesModalProps {
   open: boolean;
@@ -35,25 +41,6 @@ interface ManageCompetenciesModalProps {
 
 const STEP_LABELS = ['Edit Competencies', 'Assign Evaluators'];
 
-const buildAssignmentsFromRole = (
-  role: CriticalRole,
-): Record<string, string> => {
-  const map: Record<string, string> = {};
-  const competencies = (role.competencies ?? []).filter((c) => c?.name?.trim());
-
-  for (const successor of role.successors ?? []) {
-    competencies.forEach((comp, index) => {
-      const evaluation = (successor.competencyEvaluations ?? []).find(
-        (e) => e.competencyName === comp.name && e.category === comp.category,
-      );
-      if (evaluation?.evaluatorId) {
-        map[evaluationFieldKey(successor.id, index)] = evaluation.evaluatorId;
-      }
-    });
-  }
-  return map;
-};
-
 /** Apply competencies to every successor and attach evaluator assignments. */
 export const syncCompetenciesToSuccessors = (
   competencies: RoleCompetency[],
@@ -66,22 +53,28 @@ export const syncCompetenciesToSuccessors = (
     const previous = successor.competencyEvaluations ?? [];
     const competencyEvaluations: CompetencyEvaluation[] = competencies.map(
       (comp, index) => {
-        const fieldKey = evaluationFieldKey(successor.id, index);
+        const fieldKey = evaluationFieldKey(
+          successorPersonId(successor),
+          index,
+        );
         const evaluatorId = assignments[fieldKey] ?? '';
         const evaluator = employees.find((e) => e.id === evaluatorId);
         const prev = previous.find(
-          (e) => e.competencyName === comp.name && e.category === comp.category,
+          (e) =>
+            (comp.id && e.competencyCriteriaId === comp.id) ||
+            (e.competencyName === comp.name && e.category === comp.category),
         );
         const sameEvaluator =
           !!evaluatorId && prev?.evaluatorId === evaluatorId;
 
         return {
+          competencyCriteriaId: comp.id ?? prev?.competencyCriteriaId,
           competencyName: comp.name,
           category: comp.category,
           importance: comp.importance,
           weight: comp.weight,
           evaluatorId,
-          evaluatorName: evaluator?.name ?? '',
+          evaluatorName: evaluator?.name ?? prev?.evaluatorName ?? '',
           status: sameEvaluator ? (prev?.status ?? 'Pending') : 'Pending',
           rating: sameEvaluator ? prev?.rating : undefined,
           score: sameEvaluator ? prev?.score : undefined,
@@ -104,11 +97,16 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
     useSuccessionOrgData();
   const [current, setCurrent] = useState(0);
   const [submitting, setSubmitting] = useState(false);
+  const canUpdateCriticalRole = AccessGuard.checkAccess({
+    permissions: [Permissions.UpdateCriticalRole],
+  });
 
   /** Save through the API, holding the button in its loading state. */
   const commit = async (
     ...args: Parameters<ManageCompetenciesModalProps['onSave']>
   ) => {
+    if (!canUpdateCriticalRole) return;
+
     setSubmitting(true);
     try {
       await onSave(...args);
@@ -122,8 +120,11 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
     if (!open) return;
     form.setFieldsValue({
       competencies: role.competencies?.length ? role.competencies : [],
-      successorIds: (role.successors ?? []).map((s) => s.id),
-      evaluationAssignments: buildAssignmentsFromRole(role),
+      successorIds: (role.successors ?? []).map(successorPersonId),
+      evaluationAssignments: buildEvaluationAssignments(
+        role.successors ?? [],
+        role.competencies ?? [],
+      ),
       requiredEducationLevel: role.requiredEducationLevel,
       requiredEducationField: role.requiredEducationField,
       allowRelatedEducationFields: Boolean(role.allowRelatedEducationFields),
@@ -139,6 +140,8 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
   }, [open, role, form]);
 
   const handleContinue = async () => {
+    if (!canUpdateCriticalRole) return;
+
     if (current === 0) {
       try {
         await form.validateFields([
@@ -202,11 +205,14 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
         for (const successor of role.successors ?? []) {
           competencies.forEach((comp, newIndex) => {
             const oldIndex = previousComps.findIndex(
-              (c) => c.name === comp.name && c.category === comp.category,
+              (c) =>
+                (comp.id && c.id === comp.id) ||
+                (c.name === comp.name && c.category === comp.category),
             );
             if (oldIndex < 0) return;
-            const prevKey = evaluationFieldKey(successor.id, oldIndex);
-            const nextKey = evaluationFieldKey(successor.id, newIndex);
+            const personId = successorPersonId(successor);
+            const prevKey = evaluationFieldKey(personId, oldIndex);
+            const nextKey = evaluationFieldKey(personId, newIndex);
             if (prevAssignments[prevKey]) {
               nextAssignments[nextKey] = prevAssignments[prevKey];
             }
@@ -282,7 +288,7 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
 
   return (
     <Modal
-      open={open}
+      open={open && canUpdateCriticalRole}
       onCancel={handleCancel}
       title={
         <div data-cy="manage-competencies-modal-header">
@@ -360,6 +366,9 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
         autoComplete="off"
         data-cy="manage-competencies-form"
       >
+        <Form.Item name="successorIds" hidden>
+          <Select mode="multiple" />
+        </Form.Item>
         {current === 0 && (
           <>
             <div
@@ -411,6 +420,7 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
               <StepEvaluatorAssignment
                 positionId={role.positionId}
                 requireEvaluators={false}
+                nominatedSuccessors={role.successors ?? []}
               />
             </div>
             <div

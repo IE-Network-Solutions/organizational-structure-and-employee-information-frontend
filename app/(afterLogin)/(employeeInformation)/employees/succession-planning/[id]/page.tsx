@@ -31,6 +31,9 @@ import {
 } from '../_components/tagColors';
 import { roleRequiredEducationLabel } from '../_components/criticalRoleModal';
 import { formatYearsLabel } from '../_components/educationCatalog';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 const th = 'text-[#4d4d4d] text-base font-bold';
 const td = 'text-[#4d4d4d] text-sm font-normal';
@@ -55,6 +58,10 @@ const CriticalRoleDetailPage: React.FC = () => {
   const { saveRole } = useSuccessionPlanningData();
   const [manageOpen, setManageOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('successors');
+  useAuthenticationStore((state) => state.userData);
+  const canUpdateCriticalRole = AccessGuard.checkAccess({
+    permissions: [Permissions.UpdateCriticalRole],
+  });
 
   if (!role) {
     return (
@@ -111,7 +118,9 @@ const CriticalRoleDetailPage: React.FC = () => {
       requiredCurrentPositions: string[];
     },
   ) => {
-    void saveRole(
+    if (!canUpdateCriticalRole) return;
+
+    return saveRole(
       {
         positionId: role.positionId,
         roleName: role.roleName,
@@ -248,7 +257,11 @@ const CriticalRoleDetailPage: React.FC = () => {
                 emptyText: (
                   <Empty
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description="No competencies defined yet. Use Add Competencies above to define criteria and assign evaluators."
+                    description={
+                      canUpdateCriticalRole
+                        ? 'No competencies defined yet. Use Add Competencies above to define criteria and assign evaluators.'
+                        : 'No competencies have been defined for this role.'
+                    }
                   />
                 ),
               }}
@@ -264,7 +277,7 @@ const CriticalRoleDetailPage: React.FC = () => {
   ];
 
   const tabBarExtra =
-    activeTab === 'competencies' ? (
+    activeTab === 'competencies' && canUpdateCriticalRole ? (
       <div className="flex items-center py-2">
         <Button
           type="primary"
@@ -277,7 +290,9 @@ const CriticalRoleDetailPage: React.FC = () => {
               <AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />
             )
           }
-          onClick={() => setManageOpen(true)}
+          onClick={() => {
+            if (canUpdateCriticalRole) setManageOpen(true);
+          }}
           data-cy="cr-detail-manage-competencies-btn"
         >
           {hasCompetencies ? 'Manage Competencies' : 'Add Competencies'}
@@ -335,7 +350,7 @@ const CriticalRoleDetailPage: React.FC = () => {
       </div>
 
       <Card
-        className="mb-3 rounded-lg bg-[#F9FAFB]"
+        className="mb-3 rounded-lg bg-[#F9FAFB] shadow-none"
         bordered={false}
         styles={{ body: { padding: 16 } }}
         data-cy="critical-role-detail-overview"
@@ -419,7 +434,7 @@ const CriticalRoleDetailPage: React.FC = () => {
       />
 
       <ManageCompetenciesModal
-        open={manageOpen}
+        open={manageOpen && canUpdateCriticalRole}
         role={role}
         onClose={() => setManageOpen(false)}
         onSave={handleManageSave}

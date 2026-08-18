@@ -29,8 +29,9 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import StatsCard from '../manage-employees/_components/statsCard';
 import CriticalRolesTable from './_components/criticalRolesTable';
 import EvaluatorsView, {
-  buildEvaluatorAssignments,
   EvaluatorScope,
+  checkCanViewAllEvaluations,
+  resolveEvaluatorAssignments,
 } from './_components/evaluatorsView';
 import CriticalRoleModal, {
   CriticalRole,
@@ -52,6 +53,9 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useSuccessionPlanningStore } from '@/store/uistate/features/employees/successionPlanning';
 import { useSuccessionPlanningData } from '@/store/server/features/employees/successionPlanning/useSuccessionPlanningData';
+import { useEvaluatorAssignments } from '@/store/server/features/employees/successionPlanning/queries';
+import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { Option } = Select;
@@ -76,8 +80,36 @@ const SuccessionPlanningPage: React.FC = () => {
   const initialView = parseView(searchParams.get('view'));
   const initialScope: EvaluatorScope =
     searchParams.get('scope') === 'mine' ? 'mine' : 'admin';
-  const initialAs = searchParams.get('as') ?? '';
   const initialReportKey = parseReportKey(searchParams.get('report'));
+  useAuthenticationStore((state) => state.userData);
+  const hasAuthHydrated = useAuthenticationStore((state) => state.hasHydrated);
+  const currentUserId = useAuthenticationStore((state) => state.userId);
+  const { employees } = useSuccessionOrgData();
+
+  // AccessGuard owns the permission semantics, including the owner bypass.
+  // Subscribing to userData ensures these values update after auth hydration or
+  // when role permissions are refreshed in the background.
+  const permissionAccess = {
+    canViewCriticalRoles: AccessGuard.checkAccess({
+      permissions: [Permissions.ViewSuccessionPlanning],
+    }),
+    canCreateCriticalRole: AccessGuard.checkAccess({
+      permissions: [Permissions.CreateCriticalRole],
+    }),
+    canUpdateCriticalRole: AccessGuard.checkAccess({
+      permissions: [Permissions.UpdateCriticalRole],
+    }),
+    canDeleteCriticalRole: AccessGuard.checkAccess({
+      permissions: [Permissions.DeleteCriticalRole],
+    }),
+    canViewAllEvaluations: checkCanViewAllEvaluations(),
+    canSubmitEvaluation: AccessGuard.checkAccess({
+      permissions: [Permissions.SubmitSuccessionEvaluation],
+    }),
+    canViewReports: AccessGuard.checkAccess({
+      permissions: [Permissions.ViewSuccessionReports],
+    }),
+  };
 
   // Server data is mirrored into the store the whole feature reads from, so the
   // screens below are unchanged from the design prototype.
@@ -93,7 +125,6 @@ const SuccessionPlanningPage: React.FC = () => {
     useState<SuccessionReportKey>(initialReportKey);
   const [evaluatorScope, setEvaluatorScope] =
     useState<EvaluatorScope>(initialScope);
-  const [viewAsEvaluatorId, setViewAsEvaluatorId] = useState(initialAs);
   const [searchValue, setSearchValue] = useState('');
   const [priorityFilter, setPriorityFilter] = useState<string>('');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -101,8 +132,74 @@ const SuccessionPlanningPage: React.FC = () => {
   const [editingRole, setEditingRole] = useState<CriticalRole | null>(null);
   const [downloadingReport, setDownloadingReport] = useState(false);
 
+  const evaluatorOnly =
+    !permissionAccess.canViewCriticalRoles &&
+    permissionAccess.canSubmitEvaluation;
+
+  const effectiveEvaluatorScope: EvaluatorScope =
+    permissionAccess.canViewAllEvaluations && !evaluatorOnly
+      ? evaluatorScope
+      : 'mine';
+  const effectiveActiveView: SuccessionView = evaluatorOnly
+    ? 'evaluators'
+    : activeView === 'reports' && !permissionAccess.canViewReports
+      ? 'roles'
+      : activeView;
+
+  const evaluatorAssignmentsQuery = useEvaluatorAssignments(
+    effectiveEvaluatorScope,
+    undefined,
+    hasAuthHydrated,
+  );
+
+  useEffect(() => {
+    if (!hasAuthHydrated) return;
+
+    if (evaluatorOnly && activeView !== 'evaluators') {
+      setActiveView('evaluators');
+      setEvaluatorScope('mine');
+      router.replace(
+        '/employees/succession-planning?view=evaluators&scope=mine',
+        { scroll: false },
+      );
+      return;
+    }
+
+    if (
+      !permissionAccess.canViewAllEvaluations &&
+      (evaluatorScope !== 'mine' || searchParams.has('as'))
+    ) {
+      setEvaluatorScope('mine');
+      if (activeView === 'evaluators') {
+        router.replace(
+          '/employees/succession-planning?view=evaluators&scope=mine',
+          { scroll: false },
+        );
+      }
+    }
+
+    if (
+      !evaluatorOnly &&
+      activeView === 'reports' &&
+      !permissionAccess.canViewReports
+    ) {
+      setActiveView('roles');
+      router.replace('/employees/succession-planning', { scroll: false });
+    }
+  }, [
+    activeView,
+    evaluatorOnly,
+    evaluatorScope,
+    hasAuthHydrated,
+    permissionAccess.canViewAllEvaluations,
+    permissionAccess.canViewReports,
+    router,
+    searchParams,
+  ]);
+
   /** Export the chosen report straight to Excel from the top bar. */
   const handleDownloadReport = async (key: SuccessionReportKey) => {
+    if (!permissionAccess.canViewReports) return;
     setDownloadingReport(true);
     try {
       await exportSuccessionReport(roles, key);
@@ -121,9 +218,29 @@ const SuccessionPlanningPage: React.FC = () => {
     successionCoveragePercent,
   } = useMemo(() => computeCriticalRoleKpis(roles), [roles]);
 
+  const evaluatorNameById = useMemo(
+    () => new Map(employees.map((employee) => [employee.id, employee.name])),
+    [employees],
+  );
+
   const evaluatorAssignments = useMemo(
-    () => buildEvaluatorAssignments(roles),
-    [roles],
+    () =>
+      resolveEvaluatorAssignments({
+        serverData: evaluatorAssignmentsQuery.data,
+        roles,
+        scope: effectiveEvaluatorScope,
+        currentUserId,
+        canViewAll: permissionAccess.canViewAllEvaluations,
+        evaluatorNameById,
+      }),
+    [
+      currentUserId,
+      effectiveEvaluatorScope,
+      evaluatorAssignmentsQuery.data,
+      evaluatorNameById,
+      permissionAccess.canViewAllEvaluations,
+      roles,
+    ],
   );
 
   const evaluatorOptions = useMemo(() => {
@@ -138,26 +255,9 @@ const SuccessionPlanningPage: React.FC = () => {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [evaluatorAssignments]);
 
-  useEffect(() => {
-    if (
-      evaluatorOptions.length > 0 &&
-      !evaluatorOptions.some((e) => e.id === viewAsEvaluatorId)
-    ) {
-      setViewAsEvaluatorId(evaluatorOptions[0].id);
-    }
-  }, [evaluatorOptions, viewAsEvaluatorId]);
-
-  const scopedAssignments = useMemo(() => {
-    if (evaluatorScope !== 'mine') return evaluatorAssignments;
-    if (!viewAsEvaluatorId) return [];
-    return evaluatorAssignments.filter(
-      (a) => a.evaluatorId === viewAsEvaluatorId,
-    );
-  }, [evaluatorAssignments, evaluatorScope, viewAsEvaluatorId]);
-
   const uniqueEvaluatorCount = useMemo(
-    () => new Set(scopedAssignments.map((a) => a.evaluatorId)).size,
-    [scopedAssignments],
+    () => new Set(evaluatorAssignments.map((a) => a.evaluatorId)).size,
+    [evaluatorAssignments],
   );
   const {
     pendingEvaluationCount,
@@ -165,19 +265,16 @@ const SuccessionPlanningPage: React.FC = () => {
     evaluationCompletionPercent,
     sessionCount: evaluatorSessionCount,
   } = useMemo(
-    () => computeEvaluatorKpis(scopedAssignments),
-    [scopedAssignments],
+    () => computeEvaluatorKpis(evaluatorAssignments),
+    [evaluatorAssignments],
   );
 
-  const syncEvaluatorsUrl = (
-    scope: EvaluatorScope,
-    asId: string = viewAsEvaluatorId,
-  ) => {
+  const syncEvaluatorsUrl = (scope: EvaluatorScope) => {
+    const safeScope = permissionAccess.canViewAllEvaluations ? scope : 'mine';
     const params = new URLSearchParams();
     params.set('view', 'evaluators');
-    if (scope === 'mine') {
+    if (safeScope === 'mine') {
       params.set('scope', 'mine');
-      if (asId) params.set('as', asId);
     }
     router.replace(`/employees/succession-planning?${params.toString()}`, {
       scroll: false,
@@ -185,6 +282,7 @@ const SuccessionPlanningPage: React.FC = () => {
   };
 
   const syncReportsUrl = (key: SuccessionReportKey = reportKey) => {
+    if (!permissionAccess.canViewReports) return;
     const params = new URLSearchParams();
     params.set('view', 'reports');
     params.set('report', key);
@@ -194,16 +292,25 @@ const SuccessionPlanningPage: React.FC = () => {
   };
 
   const readinessRowCount = useMemo(
-    () => buildSuccessorReadinessRows(roles).length,
-    [roles],
+    () =>
+      permissionAccess.canViewReports
+        ? buildSuccessorReadinessRows(roles).length
+        : 0,
+    [permissionAccess.canViewReports, roles],
   );
   const gapRowCount = useMemo(
-    () => buildSkillGapAnalysisRows(roles).length,
-    [roles],
+    () =>
+      permissionAccess.canViewReports
+        ? buildSkillGapAnalysisRows(roles).length
+        : 0,
+    [permissionAccess.canViewReports, roles],
   );
   const idpRowCount = useMemo(
-    () => buildDevelopmentPlanProgressRows(roles).length,
-    [roles],
+    () =>
+      permissionAccess.canViewReports
+        ? buildDevelopmentPlanProgressRows(roles).length
+        : 0,
+    [permissionAccess.canViewReports, roles],
   );
 
   const filtered = roles.filter((r) => {
@@ -245,6 +352,11 @@ const SuccessionPlanningPage: React.FC = () => {
   const handleSave = async (
     values: Omit<CriticalRole, 'id' | 'successorCount'>,
   ) => {
+    const canSave = editingRole
+      ? permissionAccess.canUpdateCriticalRole
+      : permissionAccess.canCreateCriticalRole;
+    if (!canSave) return;
+
     // Creating a role also notifies every evaluator assigned in step 4.
     await saveRole(values, editingRole?.id);
     setModalOpen(false);
@@ -252,6 +364,7 @@ const SuccessionPlanningPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
+    if (!permissionAccess.canDeleteCriticalRole) return;
     await removeRole(id);
   };
 
@@ -387,7 +500,7 @@ const SuccessionPlanningPage: React.FC = () => {
                 }}
               >
                 <Segmented
-                  value={activeView}
+                  value={effectiveActiveView}
                   size={isMobile ? 'middle' : 'large'}
                   className={[
                     '!inline-flex !w-max max-w-full !shrink-0 !rounded-xl !border !border-slate-100 !bg-slate-50/70 !p-1.5 !h-[50px]',
@@ -400,9 +513,15 @@ const SuccessionPlanningPage: React.FC = () => {
                   ].join(' ')}
                   onChange={(value) => {
                     const next = value as SuccessionView;
+                    if (
+                      next === 'reports' &&
+                      !permissionAccess.canViewReports
+                    ) {
+                      return;
+                    }
                     setActiveView(next);
                     if (next === 'evaluators') {
-                      syncEvaluatorsUrl(evaluatorScope, viewAsEvaluatorId);
+                      syncEvaluatorsUrl(effectiveEvaluatorScope);
                     } else if (next === 'reports') {
                       syncReportsUrl(reportKey);
                     } else {
@@ -412,62 +531,72 @@ const SuccessionPlanningPage: React.FC = () => {
                     }
                   }}
                   options={[
-                    {
-                      label: isMobile ? 'Roles' : 'Critical Roles',
-                      value: 'roles',
-                    },
+                    ...(!evaluatorOnly
+                      ? [
+                          {
+                            label: isMobile ? 'Roles' : 'Critical Roles',
+                            value: 'roles' as const,
+                          },
+                        ]
+                      : []),
                     {
                       label: isMobile ? 'Evals' : 'Evaluators',
                       value: 'evaluators',
                     },
-                    {
-                      label: 'Reports',
-                      value: 'reports',
-                    },
+                    ...(permissionAccess.canViewReports && !evaluatorOnly
+                      ? [
+                          {
+                            label: 'Reports',
+                            value: 'reports' as const,
+                          },
+                        ]
+                      : []),
                   ]}
                   data-cy="succession-planning-view-selector"
                 />
               </ConfigProvider>
               {/* Downloads the chosen report as Excel directly — the reports
                   view no longer carries its own export button. */}
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: 'readiness',
-                      label: 'Successor Readiness Report',
-                      onClick: () => handleDownloadReport('readiness'),
-                    },
-                    {
-                      key: 'gaps',
-                      label: 'Skill Gap Analysis Report',
-                      onClick: () => handleDownloadReport('gaps'),
-                    },
-                    {
-                      key: 'idp',
-                      label: 'Development Plan Progress Report',
-                      onClick: () => handleDownloadReport('idp'),
-                    },
-                  ],
-                }}
-                trigger={['click']}
-                placement="bottomRight"
-              >
-                <Button
-                  type="default"
-                  size="large"
-                  loading={downloadingReport}
-                  className="h-10 border border-[#D9D9D9] text-[#4d4d4d] font-normal"
-                  icon={
-                    <FileDownloadOutlinedIcon
-                      style={{ fontSize: 18, display: 'block' }}
-                    />
-                  }
-                  data-cy="succession-reports-btn"
+              <AccessGuard permissions={[Permissions.ViewSuccessionReports]}>
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: 'readiness',
+                        label: 'Successor Readiness Report',
+                        onClick: () => handleDownloadReport('readiness'),
+                      },
+                      {
+                        key: 'gaps',
+                        label: 'Skill Gap Analysis Report',
+                        onClick: () => handleDownloadReport('gaps'),
+                      },
+                      {
+                        key: 'idp',
+                        label: 'Development Plan Progress Report',
+                        onClick: () => handleDownloadReport('idp'),
+                      },
+                    ],
+                  }}
+                  trigger={['click']}
+                  placement="bottomRight"
                 >
-                  <span className="hidden sm:inline">Download Reports</span>
-                </Button>
-              </Dropdown>
+                  <Button
+                    type="default"
+                    size="large"
+                    loading={downloadingReport}
+                    className="h-10 border border-[#D9D9D9] text-[#4d4d4d] font-normal"
+                    icon={
+                      <FileDownloadOutlinedIcon
+                        style={{ fontSize: 18, display: 'block' }}
+                      />
+                    }
+                    data-cy="succession-reports-btn"
+                  >
+                    <span className="hidden sm:inline">Download Reports</span>
+                  </Button>
+                </Dropdown>
+              </AccessGuard>
               <AccessGuard permissions={[Permissions.CreateCriticalRole]}>
                 <Button
                   type="primary"
@@ -498,7 +627,7 @@ const SuccessionPlanningPage: React.FC = () => {
           className="flex gap-4 overflow-x-auto overflow-y-hidden scrollbar-hide sm:grid sm:grid-cols-2 xl:grid-cols-5"
           data-cy="succession-planning-stats-grid"
         >
-          {activeView === 'roles' ? (
+          {effectiveActiveView === 'roles' ? (
             <>
               <div
                 className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
@@ -596,7 +725,7 @@ const SuccessionPlanningPage: React.FC = () => {
                 />
               </div>
             </>
-          ) : activeView === 'evaluators' ? (
+          ) : effectiveActiveView === 'evaluators' ? (
             <>
               <div
                 className="min-w-[220px] shrink-0 sm:min-w-0 sm:shrink"
@@ -612,12 +741,12 @@ const SuccessionPlanningPage: React.FC = () => {
                     </span>
                   }
                   title={
-                    evaluatorScope === 'mine'
+                    effectiveEvaluatorScope === 'mine'
                       ? 'My Assignments'
                       : 'Active Evaluators'
                   }
                   value={
-                    evaluatorScope === 'mine'
+                    effectiveEvaluatorScope === 'mine'
                       ? evaluatorSessionCount
                       : uniqueEvaluatorCount
                   }
@@ -639,12 +768,12 @@ const SuccessionPlanningPage: React.FC = () => {
                     </span>
                   }
                   title={
-                    evaluatorScope === 'mine'
+                    effectiveEvaluatorScope === 'mine'
                       ? 'My Scored'
                       : 'Total Assignments'
                   }
                   value={
-                    evaluatorScope === 'mine'
+                    effectiveEvaluatorScope === 'mine'
                       ? completedEvaluationCount
                       : evaluatorSessionCount
                   }
@@ -666,7 +795,7 @@ const SuccessionPlanningPage: React.FC = () => {
                     </span>
                   }
                   title={
-                    evaluatorScope === 'mine'
+                    effectiveEvaluatorScope === 'mine'
                       ? 'My Pending'
                       : 'Pending Evaluations'
                   }
@@ -764,7 +893,7 @@ const SuccessionPlanningPage: React.FC = () => {
         id="succession-planning-table-section"
         data-cy="succession-planning-table-section"
       >
-        {activeView === 'roles' ? (
+        {effectiveActiveView === 'roles' ? (
           <>
             <div
               className="flex justify-between gap-3 mb-2 pt-3 items-start"
@@ -836,37 +965,33 @@ const SuccessionPlanningPage: React.FC = () => {
               />
             </div>
           </>
-        ) : activeView === 'evaluators' ? (
+        ) : effectiveActiveView === 'evaluators' ? (
           <div
             className="pt-3"
             data-cy="succession-planning-evaluators-section"
           >
             <EvaluatorsView
-              roles={roles}
-              scope={evaluatorScope}
+              assignments={evaluatorAssignments}
+              scope={effectiveEvaluatorScope}
               onScopeChange={(scope) => {
                 setEvaluatorScope(scope);
-                syncEvaluatorsUrl(scope, viewAsEvaluatorId);
-              }}
-              viewAsEvaluatorId={viewAsEvaluatorId}
-              onViewAsChange={(id) => {
-                setViewAsEvaluatorId(id);
-                if (evaluatorScope === 'mine') {
-                  syncEvaluatorsUrl('mine', id);
-                }
+                syncEvaluatorsUrl(scope);
               }}
               evaluatorOptions={evaluatorOptions}
             />
           </div>
         ) : (
-          <ReportsView
-            roles={roles}
-            reportKey={reportKey}
-            onReportKeyChange={(key) => {
-              setReportKey(key);
-              syncReportsUrl(key);
-            }}
-          />
+          <AccessGuard permissions={[Permissions.ViewSuccessionReports]}>
+            <ReportsView
+              roles={roles}
+              reportKey={reportKey}
+              onReportKeyChange={(key) => {
+                if (!permissionAccess.canViewReports) return;
+                setReportKey(key);
+                syncReportsUrl(key);
+              }}
+            />
+          </AccessGuard>
         )}
       </div>
 

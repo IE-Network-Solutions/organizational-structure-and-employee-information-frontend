@@ -223,21 +223,34 @@ const ManageEmployees: React.FC<any> = () => {
               id="manage-employees-actions"
               data-cy="manage-employees-actions"
             >
-              <CustomButton
-                title={
-                  <span className="flex items-center gap-2 leading-none">
-                    <AccountTreeOutlinedIcon
-                      style={{ fontSize: 18, display: 'block' }}
-                    />
-                    <span>Succession Planning</span>
-                  </span>
-                }
-                type="default"
-                id="succession-planning-btn"
-                onClick={() => router.push('/employees/succession-planning')}
-                className="!border-[#D9D9D9] !text-[#4d4d4d]"
-                data-cy="manage-employees-succession-planning-btn"
-              />
+              <AccessGuard
+                permissions={[
+                  Permissions.ViewSuccessionPlanning,
+                  Permissions.SubmitSuccessionEvaluation,
+                ]}
+                requireAny
+              >
+                <CustomButton
+                  title={
+                    <span
+                      className="flex items-center gap-2 leading-none"
+                      data-cy="manage-employees-succession-planning-content"
+                    >
+                      <AccountTreeOutlinedIcon
+                        style={{ fontSize: 18, display: 'block' }}
+                      />
+                      <span data-cy="manage-employees-succession-planning-label">
+                        Succession Planning
+                      </span>
+                    </span>
+                  }
+                  type="default"
+                  id="succession-planning-btn"
+                  onClick={() => router.push('/employees/succession-planning')}
+                  className="!border-[#D9D9D9] !text-[#4d4d4d]"
+                  data-cy="manage-employees-succession-planning-btn"
+                />
+              </AccessGuard>
               <AccessGuard
                 permissions={[Permissions.DownloadEmployeeDocument]}
                 id="manage-employees-download-guard"

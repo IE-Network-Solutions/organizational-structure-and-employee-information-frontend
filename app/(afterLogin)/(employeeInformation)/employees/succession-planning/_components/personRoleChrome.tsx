@@ -60,6 +60,7 @@ interface PersonIdentityProps {
   caption?: React.ReactNode;
   avatarSize?: number;
   className?: string;
+  trailing?: React.ReactNode;
   'data-cy'?: string;
 }
 
@@ -70,6 +71,7 @@ export const PersonIdentity: React.FC<PersonIdentityProps> = ({
   caption,
   avatarSize = 36,
   className = '',
+  trailing,
   'data-cy': dataCy,
 }) => (
   <div
@@ -79,7 +81,12 @@ export const PersonIdentity: React.FC<PersonIdentityProps> = ({
     <PersonRoleAvatar role={role} size={avatarSize} />
     <div className="min-w-0 flex-1">
       <PersonRoleLabel role={role} />
-      <div className="text-sm font-semibold text-gray-800 truncate">{name}</div>
+      <div className="flex items-center justify-between gap-2 min-w-0">
+        <div className="text-sm font-semibold text-gray-800 truncate">
+          {name}
+        </div>
+        {trailing ? <div className="shrink-0">{trailing}</div> : null}
+      </div>
       {caption ? (
         <div className="text-xs text-gray-500 truncate">{caption}</div>
       ) : null}

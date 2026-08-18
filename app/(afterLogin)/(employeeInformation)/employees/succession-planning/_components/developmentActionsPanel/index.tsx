@@ -14,6 +14,8 @@ import type {
 import DevelopmentActionModal, {
   type DevelopmentActionFormValues,
 } from '../developmentActionModal';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 
 const ACTION_STATUS_OPTIONS: {
   value: DevelopmentActionStatus;
@@ -49,24 +51,34 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<DevelopmentAction | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const canManageSuccessorDevelopment = AccessGuard.checkAccess({
+    permissions: [Permissions.ManageSuccessorDevelopment],
+  });
 
   const openCreate = () => {
+    if (!canManageSuccessorDevelopment) return;
+
     setEditing(null);
     setOpen(true);
   };
 
   useEffect(() => {
-    if (openCreateKey > 0) {
-      openCreate();
+    if (canManageSuccessorDevelopment && openCreateKey > 0) {
+      setEditing(null);
+      setOpen(true);
     }
-  }, [openCreateKey]);
+  }, [openCreateKey, canManageSuccessorDevelopment]);
 
   const openEdit = (action: DevelopmentAction) => {
+    if (!canManageSuccessorDevelopment) return;
+
     setEditing(action);
     setOpen(true);
   };
 
   const handleSave = (payload: DevelopmentActionFormValues) => {
+    if (!canManageSuccessorDevelopment) return;
+
     const withCompletion: DevelopmentActionFormValues =
       payload.status === 'Completed'
         ? {
@@ -89,6 +101,8 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
     action: DevelopmentAction,
     status: DevelopmentActionStatus,
   ) => {
+    if (!canManageSuccessorDevelopment) return;
+
     if (status === 'Completed') {
       onUpdate(action.id, {
         status: 'Completed',
@@ -103,6 +117,8 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
   };
 
   const confirmDelete = () => {
+    if (!canManageSuccessorDevelopment) return;
+
     if (deleteTargetId) {
       onDelete(deleteTargetId);
     }
@@ -121,13 +137,22 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
       ellipsis: true,
       render: (value: string, record) => (
         <div>
-          <button
-            type="button"
-            className="text-left text-sm font-medium text-primary hover:underline"
-            onClick={() => openEdit(record)}
-          >
-            {value}
-          </button>
+          {canManageSuccessorDevelopment ? (
+            <button
+              type="button"
+              className="text-left text-sm font-medium text-primary hover:underline"
+              onClick={() => openEdit(record)}
+            >
+              {value}
+            </button>
+          ) : (
+            <span
+              className="text-sm font-medium text-[#4d4d4d]"
+              data-cy={`development-action-readonly-${record.id}`}
+            >
+              {value}
+            </span>
+          )}
           {record.gapId ? (
             <div className="text-xs text-gray-400 mt-0.5">
               Gap: {gapLabel(record.gapId) ?? 'Linked'}
@@ -165,6 +190,7 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
           size="small"
           className="w-full min-w-[130px]"
           value={record.status}
+          disabled={!canManageSuccessorDevelopment}
           onChange={(status) => handleStatusChange(record, status)}
           options={ACTION_STATUS_OPTIONS}
           data-cy={`action-status-${record.id}`}
@@ -183,27 +209,36 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
         </span>
       ),
     },
-    {
-      title: '',
-      key: 'delete',
-      width: 48,
-      render: (_: unknown, record) => (
-        <Button
-          type="text"
-          danger
-          size="small"
-          icon={<DeleteOutlineOutlinedIcon style={{ fontSize: 18 }} />}
-          onClick={() => setDeleteTargetId(record.id)}
-          aria-label="Delete action"
-          data-cy={`delete-action-${record.id}`}
-        />
-      ),
-    },
+    ...(canManageSuccessorDevelopment
+      ? [
+          {
+            title: '',
+            key: 'delete',
+            dataIndex: 'id',
+            width: 48,
+            render: (actionId: string) => (
+              <Button
+                type="text"
+                danger
+                size="small"
+                icon={<DeleteOutlineOutlinedIcon style={{ fontSize: 18 }} />}
+                onClick={() => {
+                  if (canManageSuccessorDevelopment) {
+                    setDeleteTargetId(actionId);
+                  }
+                }}
+                aria-label="Delete action"
+                data-cy={`delete-action-${actionId}`}
+              />
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
     <div className="flex flex-col gap-3" data-cy="development-actions-panel">
-      {!hideAddButton ? (
+      {!hideAddButton && canManageSuccessorDevelopment ? (
         <div className="flex justify-end">
           <Button
             type="primary"
@@ -227,7 +262,11 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
           emptyText: (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description="No development actions yet. Define actions from Gaps or add one here."
+              description={
+                canManageSuccessorDevelopment
+                  ? 'No development actions yet. Define actions from Gaps or add one here.'
+                  : 'No development actions have been defined.'
+              }
             />
           ),
         }}
@@ -238,7 +277,7 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
       />
 
       <DevelopmentActionModal
-        open={open}
+        open={open && canManageSuccessorDevelopment}
         editing={editing}
         gaps={gaps}
         onClose={() => {
@@ -249,7 +288,7 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
       />
 
       <DeleteModal
-        open={deleteTargetId !== null}
+        open={canManageSuccessorDevelopment && deleteTargetId !== null}
         onConfirm={confirmDelete}
         onCancel={() => setDeleteTargetId(null)}
         title="Delete Development Action"

@@ -8,10 +8,11 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import EvaluationModal, { EvaluationModalTarget } from '../evaluationModal';
 import { CriticalRole } from '../criticalRoleModal';
 import { CompetencyImportance } from '../steps/stepCompetencyDefinition';
-import { sumWeightedScores } from '../steps/stepEvaluatorAssignment';
-import { EvaluationSessionCard, EvaluatorContainer } from '../hierarchyRows';
+import { EvaluationSessionRow, EvaluatorContainer } from '../hierarchyRows';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import type { ApiEvaluatorAssignmentRow } from '@/store/server/features/employees/successionPlanning/types';
 
 export type EvaluatorScope = 'admin' | 'mine';
 
@@ -63,17 +64,42 @@ interface EvaluatorGroup {
 }
 
 interface EvaluatorsViewProps {
-  roles: CriticalRole[];
+  assignments: EvaluatorAssignmentRow[];
   scope: EvaluatorScope;
   onScopeChange: (scope: EvaluatorScope) => void;
-  viewAsEvaluatorId: string;
-  onViewAsChange: (evaluatorId: string) => void;
   evaluatorOptions: EvaluatorOption[];
 }
+
+/**
+ * Tenant-wide Evaluators tab. View-planning already includes evaluator names
+ * on each role, so either slug is enough; Submit-only users stay on /mine.
+ */
+export const checkCanViewAllEvaluations = () =>
+  AccessGuard.checkAccess({
+    permissions: [
+      Permissions.ViewSuccessionEvaluations,
+      Permissions.ViewSuccessionPlanning,
+    ],
+    requireAny: true,
+  });
+
+/** Assignment lists come back bare, wrapped, or missing after a failed fetch. */
+export const asAssignmentRows = (
+  data: unknown,
+): ApiEvaluatorAssignmentRow[] => {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === 'object') {
+    const record = data as Record<string, unknown>;
+    if (Array.isArray(record.data)) return record.data;
+    if (Array.isArray(record.items)) return record.items;
+  }
+  return [];
+};
 
 /** Flatten role → successor → competencyEvaluations into evaluator-centric rows */
 export const buildEvaluatorAssignments = (
   roles: CriticalRole[],
+  evaluatorNameById?: Map<string, string>,
 ): EvaluatorAssignmentRow[] => {
   const rows: EvaluatorAssignmentRow[] = [];
 
@@ -84,7 +110,10 @@ export const buildEvaluatorAssignments = (
         rows.push({
           key: `${role.id}-${successor.id}-${index}-${evaluation.evaluatorId}`,
           evaluatorId: evaluation.evaluatorId,
-          evaluatorName: evaluation.evaluatorName || 'Unknown',
+          evaluatorName:
+            evaluation.evaluatorName ||
+            evaluatorNameById?.get(evaluation.evaluatorId) ||
+            'Unknown',
           roleId: role.id,
           roleName: role.roleName,
           department: role.department,
@@ -103,6 +132,88 @@ export const buildEvaluatorAssignments = (
   });
 
   return rows;
+};
+
+/**
+ * Enrich server-authorized assignment rows with labels from the role catalog.
+ *
+ * The set of rows always comes from the assignment endpoint. In particular,
+ * callers without tenant-wide evaluation access use `/evaluator-assignments/mine`,
+ * so the richer role payload is never used to expand their evaluator scope.
+ */
+export const mapServerEvaluatorAssignments = (
+  assignments: ApiEvaluatorAssignmentRow[],
+  roles: CriticalRole[],
+  evaluatorNameById?: Map<string, string>,
+): EvaluatorAssignmentRow[] => {
+  const roleById = new Map(roles.map((role) => [role.id, role]));
+
+  return asAssignmentRows(assignments).map((assignment, index) => {
+    const role = roleById.get(assignment.criticalRoleId);
+    const successor = role?.successors?.find(
+      (candidate) =>
+        candidate.id === assignment.criticalRoleSuccessorId ||
+        candidate.userId === assignment.successorUserId,
+    );
+    const evaluation = successor?.competencyEvaluations?.find(
+      (candidate) =>
+        candidate.competencyCriteriaId === assignment.competencyCriteriaId,
+    );
+
+    return {
+      key: `${assignment.criticalRoleId}-${assignment.criticalRoleSuccessorId}-${assignment.competencyCriteriaId}-${assignment.evaluatorId}-${index}`,
+      evaluatorId: assignment.evaluatorId,
+      evaluatorName:
+        evaluation?.evaluatorName ||
+        evaluatorNameById?.get(assignment.evaluatorId) ||
+        'Evaluator',
+      roleId: assignment.criticalRoleId,
+      roleName: role?.roleName ?? 'Critical role',
+      department: role?.department ?? '—',
+      successorId: assignment.criticalRoleSuccessorId,
+      successorName: successor?.name ?? 'Successor',
+      successorJobTitle: successor?.jobTitle,
+      competencyName: assignment.competencyName,
+      category: assignment.category,
+      importance: assignment.importance as CompetencyImportance,
+      weight: assignment.weight,
+      status: assignment.status,
+      score: assignment.score,
+    };
+  });
+};
+
+/**
+ * Prefer the assignment API, then the already-loaded role catalog so the
+ * Evaluators tab still fills in when /evaluator-assignments is empty or stale.
+ * `/mine` callers are never expanded to other evaluators.
+ */
+export const resolveEvaluatorAssignments = ({
+  serverData,
+  roles,
+  scope,
+  currentUserId,
+  canViewAll,
+  evaluatorNameById,
+}: {
+  serverData: unknown;
+  roles: CriticalRole[];
+  scope: EvaluatorScope;
+  currentUserId?: string;
+  canViewAll: boolean;
+  evaluatorNameById?: Map<string, string>;
+}): EvaluatorAssignmentRow[] => {
+  const fromServer = mapServerEvaluatorAssignments(
+    asAssignmentRows(serverData),
+    roles,
+    evaluatorNameById,
+  );
+  if (fromServer.length > 0) return fromServer;
+
+  const fromRoles = buildEvaluatorAssignments(roles, evaluatorNameById);
+  if (canViewAll && scope !== 'mine') return fromRoles;
+  if (!currentUserId) return [];
+  return fromRoles.filter((row) => row.evaluatorId === currentUserId);
 };
 
 export const buildEvaluationSessions = (
@@ -146,11 +257,9 @@ export const evaluationPagePath = (
   `/employees/succession-planning/evaluate/${roleId}/${successorId}?evaluatorId=${encodeURIComponent(evaluatorId)}`;
 
 const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
-  roles,
+  assignments,
   scope,
   onScopeChange,
-  viewAsEvaluatorId,
-  onViewAsChange,
   evaluatorOptions,
 }) => {
   const router = useRouter();
@@ -165,17 +274,19 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
   const [evaluationTarget, setEvaluationTarget] =
     useState<EvaluationModalTarget | null>(null);
 
-  const canViewAllEvaluations = AccessGuard.checkAccess({
-    permissions: [Permissions.ViewSuccessionEvaluations],
+  // Re-render permission decisions when the hydrated session changes.
+  useAuthenticationStore((state) => state.userData);
+
+  const canViewAllEvaluations = checkCanViewAllEvaluations();
+  const canSubmitEvaluations = AccessGuard.checkAccess({
+    permissions: [Permissions.SubmitSuccessionEvaluation],
   });
   // Without the tenant-wide permission the scope is pinned to the user's own.
   const isMine = scope === 'mine' || !canViewAllEvaluations;
 
-  const allRows = useMemo(() => {
-    const rows = buildEvaluatorAssignments(roles);
-    if (!isMine || !viewAsEvaluatorId) return rows;
-    return rows.filter((row) => row.evaluatorId === viewAsEvaluatorId);
-  }, [roles, isMine, viewAsEvaluatorId]);
+  // `assignments` is already server-scoped. Never filter the tenant-wide role
+  // payload by a client-selected evaluator id to construct a personal queue.
+  const allRows = assignments;
 
   const successorOptions = useMemo(() => {
     const byId = new Map<string, string>();
@@ -264,14 +375,11 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
     if (isMine) {
       const pendingCount = sessions.reduce((n, s) => n + s.pendingCount, 0);
       const evaluatedCount = sessions.reduce((n, s) => n + s.evaluatedCount, 0);
-      const name =
-        evaluatorOptions.find((e) => e.id === viewAsEvaluatorId)?.name ??
-        sessions[0]?.evaluatorName ??
-        'You';
+      const name = sessions[0]?.evaluatorName ?? 'You';
       return sessions.length
         ? [
             {
-              evaluatorId: viewAsEvaluatorId || 'me',
+              evaluatorId: sessions[0]?.evaluatorId || 'me',
               evaluatorName: name,
               sessions,
               pendingCount,
@@ -309,11 +417,12 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
     evaluatorFilter,
     successorFilter,
     isMine,
-    viewAsEvaluatorId,
-    evaluatorOptions,
   ]);
 
   const openEvaluation = (session: EvaluationSession) => {
+    const isComplete = session.pendingCount === 0 && session.evaluatedCount > 0;
+    if (!isComplete && !canSubmitEvaluations) return;
+
     setEvaluationTarget({
       roleId: session.roleId,
       successorId: session.successorId,
@@ -321,16 +430,11 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
     });
   };
 
-  const renderSessionCard = (session: EvaluationSession) => {
+  const renderSessionRow = (session: EvaluationSession) => {
     const isComplete = session.pendingCount === 0 && session.evaluatedCount > 0;
-    const sessionTotal = sumWeightedScores(session.criteria);
-    const sessionMaxWeight = session.criteria.reduce(
-      (sum, c) => sum + Number(c.weight ?? 0),
-      0,
-    );
 
     return (
-      <EvaluationSessionCard
+      <EvaluationSessionRow
         key={session.key}
         sessionKey={session.key}
         successorName={session.successorName}
@@ -338,11 +442,9 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
         roleName={session.roleName}
         department={session.department}
         isComplete={isComplete}
-        sessionTotal={sessionTotal}
-        sessionMaxWeight={sessionMaxWeight}
         criteriaCount={session.criteria.length}
         evaluatedCount={session.evaluatedCount}
-        pendingCount={session.pendingCount}
+        canOpen={isComplete || canSubmitEvaluations}
         onOpen={() => openEvaluation(session)}
         onRoleClick={() =>
           router.push(`/employees/succession-planning/${session.roleId}`)
@@ -375,27 +477,6 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
             My assignments
           </span>
         )}
-        {isMine && (
-          <div
-            className="flex flex-wrap items-center gap-2"
-            data-cy="evaluators-view-as"
-          >
-            <span className="text-xs text-gray-500 whitespace-nowrap">
-              Viewing as
-            </span>
-            <Select
-              value={viewAsEvaluatorId || undefined}
-              onChange={onViewAsChange}
-              placeholder="Select evaluator"
-              className="min-w-[180px] w-full sm:w-[220px]"
-              options={evaluatorOptions.map((e) => ({
-                value: e.id,
-                label: e.name,
-              }))}
-              data-cy="evaluators-view-as-select"
-            />
-          </div>
-        )}
       </div>
 
       <p
@@ -403,8 +484,8 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
         data-cy="evaluators-view-intro"
       >
         {isMine
-          ? 'Your assigned successor evaluations as tiles — open a card to score or review.'
-          : 'Each evaluator groups their successor tiles — same layout as critical role detail.'}
+          ? 'Open a row to score or review a successor.'
+          : 'Click an evaluator to see their successor assignments.'}
       </p>
 
       <div
@@ -571,24 +652,22 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
           description={
             <span className="text-gray-400 text-sm" data-cy="evaluators-empty">
               {isMine
-                ? viewAsEvaluatorId
-                  ? 'No assignments for this evaluator yet.'
-                  : 'Select an evaluator to view their assignments.'
+                ? 'You have no successor evaluation assignments yet.'
                 : 'No evaluator assignments yet. Assign evaluators when adding a critical role.'}
             </span>
           }
         />
       ) : isMine ? (
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
+          className="rounded-lg border border-[#D9D9D9] bg-white divide-y divide-[#F0F0F0] overflow-hidden"
           data-cy="evaluators-my-sessions"
         >
           {(groups[0]?.sessions ?? []).map((session) =>
-            renderSessionCard(session),
+            renderSessionRow(session),
           )}
         </div>
       ) : (
-        <div className="flex flex-col gap-4" data-cy="evaluators-group-list">
+        <div className="flex flex-col gap-2" data-cy="evaluators-group-list">
           {groups.map((group) => {
             const pendingSessions = group.sessions.filter(
               (s) => s.pendingCount > 0,
@@ -600,8 +679,9 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                 evaluatorName={group.evaluatorName}
                 sessionCount={group.sessions.length}
                 pendingSessionCount={pendingSessions}
+                defaultOpen={groups.length === 1}
               >
-                {group.sessions.map((session) => renderSessionCard(session))}
+                {group.sessions.map((session) => renderSessionRow(session))}
               </EvaluatorContainer>
             );
           })}
