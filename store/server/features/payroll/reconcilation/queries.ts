@@ -117,7 +117,10 @@ export const useGetReconciliation = ({
     queryKey: ['reconciliation', previousPayPeriodId, currentPayPeriodId],
     queryFn: () =>
       getReconciliation({ previousPayPeriodId, currentPayPeriodId }),
-    enabled: Boolean(previousPayPeriodId && currentPayPeriodId),
+    enabled:
+      Boolean(previousPayPeriodId && currentPayPeriodId) &&
+      !String(previousPayPeriodId).startsWith('mock-pp-') &&
+      !String(currentPayPeriodId).startsWith('mock-pp-'),
     staleTime: 30_000,
   });
 };
@@ -174,13 +177,16 @@ export const useGetReconciliationDetails = ({
         currentPage,
         search,
       }),
-    enabled: Boolean(
-      previousPayPeriodId &&
-      currentPayPeriodId &&
-      componentType &&
-      pageSize &&
-      currentPage,
-    ),
+    enabled:
+      Boolean(
+        previousPayPeriodId &&
+        currentPayPeriodId &&
+        componentType &&
+        pageSize &&
+        currentPage,
+      ) &&
+      !String(previousPayPeriodId).startsWith('mock-pp-') &&
+      !String(currentPayPeriodId).startsWith('mock-pp-'),
     keepPreviousData: true,
     staleTime: 30_000,
   });

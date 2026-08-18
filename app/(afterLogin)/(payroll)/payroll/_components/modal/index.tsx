@@ -12,6 +12,7 @@ import { IoCloseOutline } from 'react-icons/io5';
 import dayjs from 'dayjs';
 
 import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
+import { MOCK_PAY_PERIODS } from '../payPeriodSelect/mockPayPeriods';
 
 interface Props {
   onClose: () => void;
@@ -19,6 +20,7 @@ interface Props {
   loading?: boolean;
   /** When true, modal copy reflects regenerating existing payroll (vs first-time generate). */
   isRegenerate?: boolean;
+  selectedPayPeriodId?: string;
 }
 
 export interface Incentive {
@@ -30,21 +32,36 @@ const GeneratePayrollModal: React.FC<Props> = ({
   onGenerate,
   loading = false,
   isRegenerate = false,
+  selectedPayPeriodId,
 }) => {
   const [form] = Form.useForm();
 
   const { data: payPeriodData } = useGetPayPeriod();
+  const payPeriodOptions = React.useMemo(() => {
+    const apiPeriods = Array.isArray(payPeriodData) ? payPeriodData : [];
+    const apiIds = new Set(
+      apiPeriods.map((period: { id: string }) => period.id),
+    );
+    return [
+      ...MOCK_PAY_PERIODS.filter((period) => !apiIds.has(period.id)),
+      ...apiPeriods,
+    ];
+  }, [payPeriodData]);
 
   React.useEffect(() => {
+    if (form.getFieldValue('payPeriod')) return;
+    if (selectedPayPeriodId) {
+      form.setFieldsValue({ payPeriod: selectedPayPeriodId });
+      return;
+    }
     if (payPeriodData && payPeriodData.length > 0) {
-      // Find the currently active (OPEN) pay period
       const activePeriod =
         payPeriodData.find((p: any) => p.status === 'OPEN') || payPeriodData[0];
-      if (activePeriod && !form.getFieldValue('payPeriod')) {
+      if (activePeriod) {
         form.setFieldsValue({ payPeriod: activePeriod.id });
       }
     }
-  }, [payPeriodData, form]);
+  }, [payPeriodData, form, selectedPayPeriodId]);
 
   const handleGenerate = () => {
     form
@@ -220,12 +237,10 @@ const GeneratePayrollModal: React.FC<Props> = ({
                   data-cy="payroll-generate-modal-payperiod-view-select"
                   placeholder="Select pay period"
                   size="large"
-                  options={
-                    payPeriodData?.map((period: any) => ({
-                      value: period.id,
-                      label: `${dayjs(period.startDate).format('MMM DD, YYYY')} - ${dayjs(period.endDate).format('MMM DD, YYYY')}`,
-                    })) || []
-                  }
+                  options={payPeriodOptions.map((period: any) => ({
+                    value: period.id,
+                    label: `${dayjs(period.startDate).format('MMM DD, YYYY')} - ${dayjs(period.endDate).format('MMM DD, YYYY')}`,
+                  }))}
                 />
               </Form.Item>
             </div>

@@ -14,16 +14,12 @@ import { X } from 'lucide-react';
 import dayjs from 'dayjs';
 
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import {
-  useGetActivePayroll,
-  useGetPayPeriod,
-} from '@/store/server/features/payroll/payroll/queries';
+import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetLevel1Departments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useTnaReviewStore } from '@/store/uistate/features/tna/review';
-import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
-import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { MOCK_PAY_PERIODS } from '../payPeriodSelect/mockPayPeriods';
 
 const { Option } = Select;
 
@@ -40,6 +36,13 @@ interface FilterValues {
 interface FilterPopoverProps {
   onSearch: (filters: { [key: string]: string | undefined | null }) => void;
   defaultValues?: FilterValues;
+  /** Pay period already chosen on the landing screen; used as the locked default. */
+  selectedPayPeriodId?: string;
+  /**
+   * When false, do not auto-apply the active fiscal month / OPEN pay period.
+   * Payroll now requires an explicit pay-period choice before loading data.
+   */
+  autoSearch?: boolean;
 }
 
 const CustomLabel = ({ title }: { title: string }) => (
@@ -54,6 +57,8 @@ const CustomLabel = ({ title }: { title: string }) => (
 const FilterPopover: React.FC<FilterPopoverProps> = ({
   onSearch,
   defaultValues,
+  selectedPayPeriodId,
+  autoSearch = true,
 }) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FilterValues>();
@@ -64,14 +69,6 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   const { data: departmentData } = useGetDepartments();
   const { data: level1Departments } = useGetLevel1Departments();
 
-  const { searchQuery } = useEmployeeStore();
-  const { pageSize, currentPage } = usePayrollStore();
-  const { data: payroll } = useGetActivePayroll(
-    searchQuery,
-    pageSize,
-    currentPage,
-  );
-
   const [fiscalYears, setFiscalYears] = useState<any[]>([]);
   const [sessions, setSessions] = useState<any[]>([]);
   const [months, setMonths] = useState<any[]>([]);
@@ -80,72 +77,76 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   const initialSearchTriggered = useRef(false);
 
   useEffect(() => {
-    if (getAllFiscalYears) {
-      setFiscalYears(getAllFiscalYears.items || []);
+    if (!getAllFiscalYears) return;
 
-      if (
-        !form.getFieldValue('yearId') ||
-        !form.getFieldValue('sessionId') ||
-        !form.getFieldValue('monthId')
-      ) {
-        const selectedYear =
-          getAllFiscalYears.items.find(
-            (year: any) => year.id === (defaultValues?.yearId || ''),
-          ) || getAllFiscalYears.items.find((year: any) => year.active);
+    setFiscalYears(getAllFiscalYears.items || []);
 
-        if (selectedYear) {
-          const selectedSession =
-            selectedYear.sessions?.find(
-              (s: any) => s.id === (defaultValues?.sessionId || ''),
-            ) || selectedYear.sessions?.find((s: any) => s.active);
+    const activeYear =
+      getAllFiscalYears.items.find(
+        (year: any) => year.id === (defaultValues?.yearId || ''),
+      ) || getAllFiscalYears.items.find((year: any) => year.active);
 
-          const selectedMonth =
-            selectedSession?.months?.find(
-              (m: any) => m.id === (defaultValues?.monthId || ''),
-            ) || selectedSession?.months?.find((m: any) => m.active);
+    if (autoSearch && activeYear && sessions.length === 0) {
+      const activeSession =
+        activeYear.sessions?.find(
+          (s: any) => s.id === (defaultValues?.sessionId || ''),
+        ) || activeYear.sessions?.find((s: any) => s.active);
+      setSessions(activeYear.sessions || []);
+      setMonths(activeSession?.months || []);
+    }
 
-          setSessions(selectedYear.sessions || []);
-          setMonths(selectedSession?.months || []);
+    if (!autoSearch) return;
 
-          form.setFieldsValue({
-            yearId: selectedYear.id || '',
-            sessionId: selectedSession?.id || '',
-            monthId: selectedMonth?.id || '',
-          });
+    if (
+      !form.getFieldValue('yearId') ||
+      !form.getFieldValue('sessionId') ||
+      !form.getFieldValue('monthId')
+    ) {
+      const selectedYear = activeYear;
 
-          if (!initialSearchTriggered.current) {
-            const formValues = form.getFieldsValue();
-            const sanitizedValues = Object.fromEntries(
-              Object.entries(formValues).filter(
-                ([, value]) => typeof value === 'string' && value.trim() !== '',
-              ),
-            ) as { [key: string]: string };
-            onSearch(sanitizedValues);
-            initialSearchTriggered.current = true;
-          }
+      if (selectedYear) {
+        const selectedSession =
+          selectedYear.sessions?.find(
+            (s: any) => s.id === (defaultValues?.sessionId || ''),
+          ) || selectedYear.sessions?.find((s: any) => s.active);
+
+        const selectedMonth =
+          selectedSession?.months?.find(
+            (m: any) => m.id === (defaultValues?.monthId || ''),
+          ) || selectedSession?.months?.find((m: any) => m.active);
+
+        setSessions(selectedYear.sessions || []);
+        setMonths(selectedSession?.months || []);
+
+        form.setFieldsValue({
+          yearId: selectedYear.id || '',
+          sessionId: selectedSession?.id || '',
+          monthId: selectedMonth?.id || '',
+        });
+
+        if (!initialSearchTriggered.current) {
+          const formValues = form.getFieldsValue();
+          const sanitizedValues = Object.fromEntries(
+            Object.entries(formValues).filter(
+              ([, value]) => typeof value === 'string' && value.trim() !== '',
+            ),
+          ) as { [key: string]: string };
+          onSearch(sanitizedValues);
+          initialSearchTriggered.current = true;
         }
       }
     }
-  }, [getAllFiscalYears]);
+  }, [getAllFiscalYears, autoSearch]);
 
   useEffect(() => {
+    if (selectedPayPeriodId) {
+      form.setFieldsValue({ payPeriodId: selectedPayPeriodId });
+      return;
+    }
+
+    if (!autoSearch) return;
+
     if (
-      payroll?.items &&
-      payroll.items.length > 0 &&
-      !form.getFieldValue('payPeriodId')
-    ) {
-      const defaultPayPeriodId = payroll.items[0]?.payPeriodId;
-      if (defaultPayPeriodId) {
-        form.setFieldsValue({ payPeriodId: defaultPayPeriodId });
-        const formValues = form.getFieldsValue();
-        const sanitizedValues = Object.fromEntries(
-          Object.entries(formValues).filter(
-            ([, value]) => typeof value === 'string' && value.trim() !== '',
-          ),
-        ) as { [key: string]: string };
-        onSearch(sanitizedValues);
-      }
-    } else if (
       payPeriodData &&
       payPeriodData.length > 0 &&
       !form.getFieldValue('payPeriodId')
@@ -163,7 +164,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
         onSearch(sanitizedValues);
       }
     }
-  }, [payroll?.items, payPeriodData]);
+  }, [payPeriodData, selectedPayPeriodId, autoSearch]);
 
   const handleYearChange = (value: string) => {
     const selectedYear = fiscalYears.find((year) => year.id === value);
@@ -194,12 +195,34 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   };
 
   const getDefaultActivePayPeriodId = (): string | undefined => {
+    if (selectedPayPeriodId) return selectedPayPeriodId;
     if (!payPeriodData?.length) return undefined;
     const openPeriod = payPeriodData.find((p: any) => p.status === 'OPEN');
     return (openPeriod || payPeriodData[0])?.id;
   };
 
   const onReset = () => {
+    const defaultPayPeriodId = getDefaultActivePayPeriodId();
+
+    if (!autoSearch) {
+      form.resetFields();
+      form.setFieldsValue({ payPeriodId: defaultPayPeriodId });
+      setSessions([]);
+      setMonths([]);
+      setMonthId('');
+      setYearId('');
+      setSessionId('');
+      onSearch({
+        yearId: undefined,
+        sessionId: undefined,
+        monthId: undefined,
+        divisionId: undefined,
+        departmentId: undefined,
+        payPeriodId: defaultPayPeriodId,
+      });
+      return;
+    }
+
     const fiscalItems = getAllFiscalYears?.items || [];
     const selectedYear =
       fiscalItems.find(
@@ -213,7 +236,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
       onSearch({
         divisionId: undefined,
         departmentId: undefined,
-        payPeriodId: undefined,
+        payPeriodId: defaultPayPeriodId,
         monthId: undefined,
       });
       return;
@@ -235,8 +258,6 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
 
     setSessions(selectedYear.sessions || []);
     setMonths(selectedSession?.months || []);
-
-    const defaultPayPeriodId = getDefaultActivePayPeriodId();
 
     const nextValues: FilterValues = {
       yearId: selectedYear.id || '',
@@ -325,7 +346,11 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
               <Form.Item
                 name="yearId"
                 label={<CustomLabel title="Year" />}
-                rules={[{ required: true, message: 'Required' }]}
+                rules={
+                  autoSearch
+                    ? [{ required: true, message: 'Required' }]
+                    : undefined
+                }
                 data-cy="payroll-filter-popover-year"
               >
                 <Select
@@ -352,7 +377,11 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
               <Form.Item
                 name="sessionId"
                 label={<CustomLabel title="Session" />}
-                rules={[{ required: true, message: 'Required' }]}
+                rules={
+                  autoSearch
+                    ? [{ required: true, message: 'Required' }]
+                    : undefined
+                }
                 data-cy="payroll-filter-popover-session"
               >
                 <Select
@@ -447,10 +476,10 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
                 <Select
                   size="large"
                   placeholder="Select Pay Period"
-                  allowClear
+                  allowClear={!selectedPayPeriodId}
                   data-cy="payroll-filter-popover-pay-period-select"
                 >
-                  {payPeriodData?.map((period: any) => (
+                  {MOCK_PAY_PERIODS.map((period) => (
                     <Option
                       key={period.id}
                       value={period.id}
@@ -468,7 +497,11 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
               <Form.Item
                 name="monthId"
                 label={<CustomLabel title="Month" />}
-                rules={[{ required: true, message: 'Required' }]}
+                rules={
+                  autoSearch
+                    ? [{ required: true, message: 'Required' }]
+                    : undefined
+                }
                 data-cy="payroll-filter-popover-month"
               >
                 <Select

@@ -65,12 +65,15 @@ const getActivePayrollsForExport = async (searchParams = '') => {
   });
 };
 
-export const useGetActivePayrollsForExport = (searchParams = '') =>
+export const useGetActivePayrollsForExport = (
+  searchParams = '',
+  options?: { enabled?: boolean },
+) =>
   useQuery(
     ['payrollForExport', searchParams],
     () => getActivePayrollsForExport(searchParams),
     {
-      enabled: true,
+      enabled: options?.enabled ?? true,
     },
   );
 
@@ -78,12 +81,13 @@ export const useGetActivePayroll = (
   searchParams = '',
   limit: number,
   page: number,
+  options?: { enabled?: boolean },
 ) =>
   useQuery(
     ['payroll', searchParams, limit, page],
     () => getActivePayroll(searchParams, limit, page),
     {
-      enabled: true,
+      enabled: options?.enabled ?? true,
     },
   );
 

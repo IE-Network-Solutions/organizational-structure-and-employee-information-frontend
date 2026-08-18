@@ -180,11 +180,9 @@ const NavMenuItem: React.FC<{
   const handleChildNavigate = (child: any) => {
     if (isItemDisabled) return;
     const path = String(child.key);
-    if (pathname !== path) {
-      triggerRouteLoaderStart();
-      router.push(path);
-      setSelectedKeys([path]);
-    }
+    triggerRouteLoaderStart();
+    router.push(path);
+    setSelectedKeys([path]);
     setFlyoutOpen(false);
     onNavigate?.();
   };

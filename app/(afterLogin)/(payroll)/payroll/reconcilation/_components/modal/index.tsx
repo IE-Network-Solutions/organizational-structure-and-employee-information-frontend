@@ -298,6 +298,12 @@ import { FaEye } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useQueryClient } from 'react-query';
 import { useRouter } from 'next/navigation';
+import { useMemo } from 'react';
+import {
+  getMockEmployeeOptions,
+  getMockReconciliationDetails,
+  isMockPayPeriodId,
+} from '@/app/(afterLogin)/(payroll)/payroll/_components/payPeriodSelect/mockPayPeriods';
 
 interface PayrollReconcilationModalProps {
   isModalOpen: boolean;
@@ -326,9 +332,10 @@ const PayrollReconcilationModal = ({
     setSearch,
   } = useReconciliationState();
   const { data: employeeData } = useGetAllUsers();
+  const isMockPeriod = isMockPayPeriodId(currentPayPeriodId);
 
   const {
-    data: reconcilationDetails,
+    data: apiReconcilationDetails,
     isLoading: isLoadingReconciliationDetails,
   } = useGetReconciliationDetails({
     previousPayPeriodId,
@@ -338,6 +345,34 @@ const PayrollReconcilationModal = ({
     currentPage,
     search,
   });
+
+  const mockReconcilationDetails = useMemo(
+    () =>
+      isMockPeriod && isModalOpen && componentType
+        ? getMockReconciliationDetails({
+            currentPayPeriodId,
+            previousPayPeriodId,
+            componentType,
+            search,
+            pageSize,
+            currentPage,
+          })
+        : null,
+    [
+      isMockPeriod,
+      isModalOpen,
+      currentPayPeriodId,
+      previousPayPeriodId,
+      componentType,
+      search,
+      pageSize,
+      currentPage,
+    ],
+  );
+
+  const reconcilationDetails = isMockPeriod
+    ? mockReconcilationDetails
+    : apiReconcilationDetails;
 
   const onPageChange = (page: number, pageSize?: number) => {
     setCurrentPage(page);
@@ -364,13 +399,14 @@ const PayrollReconcilationModal = ({
     queryClient.invalidateQueries('reconciliation-details');
   };
 
-  const options =
-    employeeData?.items?.map((emp: any) => ({
-      value: emp.id,
-      label:
-        `${emp?.firstName || ''} ${emp?.middleName || ''} ${emp?.lastName || ''}`.trim(),
-      employeeData: emp,
-    })) || [];
+  const options = isMockPeriod
+    ? getMockEmployeeOptions()
+    : employeeData?.items?.map((emp: any) => ({
+        value: emp.id,
+        label:
+          `${emp?.firstName || ''} ${emp?.middleName || ''} ${emp?.lastName || ''}`.trim(),
+        employeeData: emp,
+      })) || [];
   const columns = [
     {
       title: 'Employee ',
@@ -517,7 +553,7 @@ const PayrollReconcilationModal = ({
           data-cy="reconcilation-components-modal-index-tsx-index-div-205"
           className="w-full overflow-x-auto overflow-y-auto flex-1 min-h-0 max-h-full"
         >
-          {isLoadingReconciliationDetails ? (
+          {!isMockPeriod && isLoadingReconciliationDetails ? (
             <TableSkeleton columns={columns} />
           ) : (
             <Table
