@@ -1832,6 +1832,7 @@ const Payroll = () => {
                 defaultValues={searchValue as any}
                 selectedPayPeriodId={selectedPayPeriodId}
                 autoSearch={false}
+                hiddenFields={['yearId', 'sessionId', 'monthId', 'payPeriodId']}
               />
             </div>
 

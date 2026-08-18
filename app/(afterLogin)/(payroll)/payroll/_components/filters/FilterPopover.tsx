@@ -43,6 +43,19 @@ interface FilterPopoverProps {
    * Payroll now requires an explicit pay-period choice before loading data.
    */
   autoSearch?: boolean;
+  hiddenFields?: Array<
+    | 'yearId'
+    | 'sessionId'
+    | 'monthId'
+    | 'divisionId'
+    | 'departmentId'
+    | 'payPeriodId'
+  >;
+  fiscalYearsOverride?: Array<{
+    id: string;
+    name: string;
+    sessions?: any[];
+  }>;
 }
 
 const CustomLabel = ({ title }: { title: string }) => (
@@ -59,7 +72,11 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   defaultValues,
   selectedPayPeriodId,
   autoSearch = true,
+  hiddenFields = [],
+  fiscalYearsOverride,
 }) => {
+  const isFieldHidden = (field: (typeof hiddenFields)[number]) =>
+    hiddenFields.includes(field);
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FilterValues>();
   const { isMobile, isTablet } = useIsMobile();
@@ -77,14 +94,17 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   const initialSearchTriggered = useRef(false);
 
   useEffect(() => {
-    if (!getAllFiscalYears) return;
+    const yearItems = fiscalYearsOverride?.length
+      ? fiscalYearsOverride
+      : getAllFiscalYears?.items;
+    if (!yearItems) return;
 
-    setFiscalYears(getAllFiscalYears.items || []);
+    setFiscalYears(yearItems);
 
     const activeYear =
-      getAllFiscalYears.items.find(
+      yearItems.find(
         (year: any) => year.id === (defaultValues?.yearId || ''),
-      ) || getAllFiscalYears.items.find((year: any) => year.active);
+      ) || yearItems.find((year: any) => year.active);
 
     if (autoSearch && activeYear && sessions.length === 0) {
       const activeSession =
@@ -136,7 +156,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
         }
       }
     }
-  }, [getAllFiscalYears, autoSearch]);
+  }, [getAllFiscalYears, autoSearch, fiscalYearsOverride]);
 
   useEffect(() => {
     if (selectedPayPeriodId) {
@@ -285,6 +305,24 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   };
 
   const handleOpenChange = (newOpen: boolean) => {
+    if (newOpen) {
+      form.setFieldsValue({
+        yearId: defaultValues?.yearId,
+        sessionId: defaultValues?.sessionId,
+        monthId: defaultValues?.monthId,
+        divisionId: defaultValues?.divisionId,
+        departmentId: defaultValues?.departmentId,
+        payPeriodId: defaultValues?.payPeriodId || selectedPayPeriodId,
+      });
+      const selectedYear = fiscalYears.find(
+        (year) => year.id === defaultValues?.yearId,
+      );
+      setSessions(selectedYear?.sessions || []);
+      const selectedSession = selectedYear?.sessions?.find(
+        (session: any) => session.id === defaultValues?.sessionId,
+      );
+      setMonths(selectedSession?.months || []);
+    }
     setOpen(newOpen);
   };
 
@@ -341,189 +379,215 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           requiredMark={false}
           data-cy="payroll-filter-popover-form"
         >
-          <Row gutter={[16, 16]} data-cy="payroll-filter-popover-form-row">
-            <Col xs={12} sm={12} data-cy="payroll-filter-popover-form-col">
-              <Form.Item
-                name="yearId"
-                label={<CustomLabel title="Year" />}
-                rules={
-                  autoSearch
-                    ? [{ required: true, message: 'Required' }]
-                    : undefined
-                }
-                data-cy="payroll-filter-popover-year"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Year"
-                  onChange={handleYearChange}
-                  allowClear
-                  data-cy="payroll-filter-popover-year-select"
-                >
-                  {fiscalYears.map((year) => (
-                    <Option
-                      key={year.id}
-                      value={year.id}
-                      data-cy="payroll-filter-popover-year-option"
+          {(!isFieldHidden('yearId') || !isFieldHidden('sessionId')) && (
+            <Row gutter={[16, 16]} data-cy="payroll-filter-popover-form-row">
+              {!isFieldHidden('yearId') && (
+                <Col xs={12} sm={12} data-cy="payroll-filter-popover-form-col">
+                  <Form.Item
+                    name="yearId"
+                    label={<CustomLabel title="Year" />}
+                    rules={
+                      autoSearch
+                        ? [{ required: true, message: 'Required' }]
+                        : undefined
+                    }
+                    data-cy="payroll-filter-popover-year"
+                  >
+                    <Select
+                      size="large"
+                      placeholder="Select Year"
+                      onChange={handleYearChange}
+                      allowClear
+                      data-cy="payroll-filter-popover-year-select"
                     >
-                      {year.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
+                      {fiscalYears.map((year) => (
+                        <Option
+                          key={year.id}
+                          value={year.id}
+                          data-cy="payroll-filter-popover-year-option"
+                        >
+                          {year.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              )}
 
-            <Col xs={12} sm={12} data-cy="payroll-filter-popover-session-col">
-              <Form.Item
-                name="sessionId"
-                label={<CustomLabel title="Session" />}
-                rules={
-                  autoSearch
-                    ? [{ required: true, message: 'Required' }]
-                    : undefined
-                }
-                data-cy="payroll-filter-popover-session"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Session"
-                  onChange={handleSessionChange}
-                  allowClear
-                  disabled={!form.getFieldValue('yearId')}
-                  data-cy="payroll-filter-popover-session-select"
+              {!isFieldHidden('sessionId') && (
+                <Col
+                  xs={12}
+                  sm={12}
+                  data-cy="payroll-filter-popover-session-col"
                 >
-                  {sessions.map((session) => (
-                    <Option
-                      key={session.id}
-                      value={session.id}
-                      data-cy="payroll-filter-popover-session-option"
+                  <Form.Item
+                    name="sessionId"
+                    label={<CustomLabel title="Session" />}
+                    rules={
+                      autoSearch
+                        ? [{ required: true, message: 'Required' }]
+                        : undefined
+                    }
+                    data-cy="payroll-filter-popover-session"
+                  >
+                    <Select
+                      size="large"
+                      placeholder="Select Session"
+                      onChange={handleSessionChange}
+                      allowClear
+                      disabled={!form.getFieldValue('yearId')}
+                      data-cy="payroll-filter-popover-session-select"
                     >
-                      {session.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+                      {sessions.map((session) => (
+                        <Option
+                          key={session.id}
+                          value={session.id}
+                          data-cy="payroll-filter-popover-session-option"
+                        >
+                          {session.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              )}
+            </Row>
+          )}
 
-          <Row gutter={[16, 16]}>
-            <Col xs={12} sm={12} data-cy="payroll-filter-popover-division-col">
-              <Form.Item
-                name="divisionId"
-                label={<CustomLabel title="Division" />}
-                data-cy="payroll-filter-popover-division"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Division"
-                  allowClear
-                  data-cy="payroll-filter-popover-division-select"
+          {(!isFieldHidden('divisionId') || !isFieldHidden('departmentId')) && (
+            <Row gutter={[16, 16]}>
+              {!isFieldHidden('divisionId') && (
+                <Col
+                  xs={12}
+                  sm={12}
+                  data-cy="payroll-filter-popover-division-col"
                 >
-                  {level1Departments?.map((division: any) => (
-                    <Option
-                      key={division.id}
-                      value={division.id}
-                      data-cy="payroll-filter-popover-division-option"
+                  <Form.Item
+                    name="divisionId"
+                    label={<CustomLabel title="Division" />}
+                    data-cy="payroll-filter-popover-division"
+                  >
+                    <Select
+                      size="large"
+                      placeholder="Select Division"
+                      allowClear
+                      data-cy="payroll-filter-popover-division-select"
                     >
-                      {division?.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
+                      {level1Departments?.map((division: any) => (
+                        <Option
+                          key={division.id}
+                          value={division.id}
+                          data-cy="payroll-filter-popover-division-option"
+                        >
+                          {division?.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              )}
 
-            <Col
-              xs={12}
-              sm={12}
-              data-cy="payroll-filter-popover-department-col"
-            >
-              <Form.Item
-                name="departmentId"
-                label={<CustomLabel title="Department" />}
-                data-cy="payroll-filter-popover-department"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Department"
-                  allowClear
-                  data-cy="payroll-filter-popover-department-select"
+              {!isFieldHidden('departmentId') && (
+                <Col
+                  xs={12}
+                  sm={12}
+                  data-cy="payroll-filter-popover-department-col"
                 >
-                  {departmentData?.map((department: any) => (
-                    <Option
-                      key={department.id}
-                      value={department.id}
-                      data-cy="payroll-filter-popover-department-option"
+                  <Form.Item
+                    name="departmentId"
+                    label={<CustomLabel title="Department" />}
+                    data-cy="payroll-filter-popover-department"
+                  >
+                    <Select
+                      size="large"
+                      placeholder="Select Department"
+                      allowClear
+                      data-cy="payroll-filter-popover-department-select"
                     >
-                      {department?.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+                      {departmentData?.map((department: any) => (
+                        <Option
+                          key={department.id}
+                          value={department.id}
+                          data-cy="payroll-filter-popover-department-option"
+                        >
+                          {department?.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              )}
+            </Row>
+          )}
 
-          <Row gutter={[16, 16]}>
-            <Col
-              xs={12}
-              sm={12}
-              data-cy="payroll-filter-popover-pay-period-col"
-            >
-              <Form.Item
-                name="payPeriodId"
-                label={<CustomLabel title="Pay Period" />}
-                data-cy="payroll-filter-popover-pay-period"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Pay Period"
-                  allowClear={!selectedPayPeriodId}
-                  data-cy="payroll-filter-popover-pay-period-select"
+          {(!isFieldHidden('payPeriodId') || !isFieldHidden('monthId')) && (
+            <Row gutter={[16, 16]}>
+              {!isFieldHidden('payPeriodId') && (
+                <Col
+                  xs={12}
+                  sm={12}
+                  data-cy="payroll-filter-popover-pay-period-col"
                 >
-                  {MOCK_PAY_PERIODS.map((period) => (
-                    <Option
-                      key={period.id}
-                      value={period.id}
-                      data-cy="payroll-filter-popover-pay-period-option"
+                  <Form.Item
+                    name="payPeriodId"
+                    label={<CustomLabel title="Pay Period" />}
+                    data-cy="payroll-filter-popover-pay-period"
+                  >
+                    <Select
+                      size="large"
+                      placeholder="Select Pay Period"
+                      allowClear={!selectedPayPeriodId}
+                      data-cy="payroll-filter-popover-pay-period-select"
                     >
-                      {dayjs(period.startDate).format('MMM DD, YYYY')} --{' '}
-                      {dayjs(period.endDate).format('MMM DD, YYYY')}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
+                      {MOCK_PAY_PERIODS.map((period) => (
+                        <Option
+                          key={period.id}
+                          value={period.id}
+                          data-cy="payroll-filter-popover-pay-period-option"
+                        >
+                          {dayjs(period.startDate).format('MMM DD, YYYY')} --{' '}
+                          {dayjs(period.endDate).format('MMM DD, YYYY')}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              )}
 
-            <Col xs={12} sm={12} data-cy="payroll-filter-popover-month-col">
-              <Form.Item
-                name="monthId"
-                label={<CustomLabel title="Month" />}
-                rules={
-                  autoSearch
-                    ? [{ required: true, message: 'Required' }]
-                    : undefined
-                }
-                data-cy="payroll-filter-popover-month"
-              >
-                <Select
-                  size="large"
-                  placeholder="Select Month"
-                  allowClear
-                  disabled={!form.getFieldValue('sessionId')}
-                  data-cy="payroll-filter-popover-month-select"
-                >
-                  {months.map((month) => (
-                    <Option
-                      key={month.id}
-                      value={month.id}
-                      data-cy="payroll-filter-popover-month-option"
+              {!isFieldHidden('monthId') && (
+                <Col xs={12} sm={12} data-cy="payroll-filter-popover-month-col">
+                  <Form.Item
+                    name="monthId"
+                    label={<CustomLabel title="Month" />}
+                    rules={
+                      autoSearch
+                        ? [{ required: true, message: 'Required' }]
+                        : undefined
+                    }
+                    data-cy="payroll-filter-popover-month"
+                  >
+                    <Select
+                      size="large"
+                      placeholder="Select Month"
+                      allowClear
+                      disabled={!form.getFieldValue('sessionId')}
+                      data-cy="payroll-filter-popover-month-select"
                     >
-                      {month.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
+                      {months.map((month) => (
+                        <Option
+                          key={month.id}
+                          value={month.id}
+                          data-cy="payroll-filter-popover-month-option"
+                        >
+                          {month.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Col>
+              )}
+            </Row>
+          )}
 
           {/* Footer Buttons */}
           <div
@@ -567,7 +631,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
           icon={
             <FilterAltOutlinedIcon className="text-gray-600" fontSize="small" />
           }
-          onClick={() => setOpen(true)}
+          onClick={() => handleOpenChange(true)}
         >
           <span
             className="hidden sm:inline"
@@ -579,7 +643,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
 
         <Modal
           open={open}
-          onCancel={() => setOpen(false)}
+          onCancel={() => handleOpenChange(false)}
           footer={null}
           centered
           closable={false}

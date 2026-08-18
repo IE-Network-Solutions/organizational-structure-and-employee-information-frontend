@@ -4,8 +4,54 @@ export const MOCK_FISCAL_YEAR_2026_ID = 'mock-fy-2026';
 export const MOCK_FISCAL_YEAR_2025_ID = 'mock-fy-2025';
 
 export const MOCK_FISCAL_YEARS = [
-  { id: MOCK_FISCAL_YEAR_2026_ID, name: 'FY 2026' },
-  { id: MOCK_FISCAL_YEAR_2025_ID, name: 'FY 2025' },
+  {
+    id: MOCK_FISCAL_YEAR_2026_ID,
+    name: 'FY 2026',
+    sessions: [
+      {
+        id: 'mock-session-2026-q1',
+        name: 'Q1',
+        startDate: '2026-01-01',
+        endDate: '2026-03-31',
+      },
+      {
+        id: 'mock-session-2026-q2',
+        name: 'Q2',
+        startDate: '2026-04-01',
+        endDate: '2026-06-30',
+      },
+      {
+        id: 'mock-session-2026-q3',
+        name: 'Q3',
+        startDate: '2026-07-01',
+        endDate: '2026-09-30',
+      },
+      {
+        id: 'mock-session-2026-q4',
+        name: 'Q4',
+        startDate: '2026-10-01',
+        endDate: '2026-12-31',
+      },
+    ],
+  },
+  {
+    id: MOCK_FISCAL_YEAR_2025_ID,
+    name: 'FY 2025',
+    sessions: [
+      {
+        id: 'mock-session-2025-q3',
+        name: 'Q3',
+        startDate: '2025-07-01',
+        endDate: '2025-09-30',
+      },
+      {
+        id: 'mock-session-2025-q4',
+        name: 'Q4',
+        startDate: '2025-10-01',
+        endDate: '2025-12-31',
+      },
+    ],
+  },
 ];
 
 const MOCK_TENANT_ID = 'mock-tenant';

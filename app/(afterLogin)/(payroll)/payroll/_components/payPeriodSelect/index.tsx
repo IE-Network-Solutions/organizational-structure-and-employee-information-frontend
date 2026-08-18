@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Card, Select, Skeleton } from 'antd';
+import { Card, Skeleton } from 'antd';
 import dayjs from 'dayjs';
 import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
 import { PayPeriodCardSkeleton } from '@/components/common/PayPeriodCardSkeleton';
@@ -10,8 +10,7 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { MOCK_FISCAL_YEARS, MOCK_PAY_PERIODS } from './mockPayPeriods';
-
-const { Option } = Select;
+import FilterPopover from '../filters/FilterPopover';
 
 const PAY_PERIOD_SKELETON_COUNT = 6;
 
@@ -106,6 +105,7 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
   const { isMobile, isTablet } = useIsMobile();
 
   const [fiscalYearId, setFiscalYearId] = useState<string | undefined>();
+  const [sessionId, setSessionId] = useState<string | undefined>();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
 
@@ -121,11 +121,27 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
   }, []);
 
   const filteredPeriods = useMemo(() => {
-    if (!fiscalYearId) return payPeriods;
-    return payPeriods.filter(
-      (period) => period.activeFiscalYearId === fiscalYearId,
-    );
-  }, [payPeriods, fiscalYearId]);
+    return payPeriods.filter((period) => {
+      if (fiscalYearId && period.activeFiscalYearId !== fiscalYearId) {
+        return false;
+      }
+      if (sessionId) {
+        const selectedYear = MOCK_FISCAL_YEARS.find(
+          (year) => year.id === fiscalYearId,
+        );
+        const selectedSession = selectedYear?.sessions?.find(
+          (session) => session.id === sessionId,
+        );
+        if (!selectedSession) return false;
+        const periodStart = dayjs(period.startDate);
+        return (
+          !periodStart.isBefore(dayjs(selectedSession.startDate), 'day') &&
+          !periodStart.isAfter(dayjs(selectedSession.endDate), 'day')
+        );
+      }
+      return true;
+    });
+  }, [payPeriods, fiscalYearId, sessionId]);
 
   const paginatedPeriods = filteredPeriods.slice(
     (currentPage - 1) * pageSize,
@@ -144,12 +160,14 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
     setCurrentPage(1);
   };
 
-  const handleYearChange = (value: string | undefined) => {
-    setFiscalYearId(value);
+  const handleFilterSearch = (filters: {
+    [key: string]: string | undefined | null;
+  }) => {
+    setFiscalYearId(filters.yearId || undefined);
+    setSessionId(filters.sessionId || undefined);
     setCurrentPage(1);
   };
 
-  const fiscalYears = MOCK_FISCAL_YEARS;
   const isLoading = false;
 
   return (
@@ -161,7 +179,7 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
       <div
         id="payroll-pay-period-select-toolbar"
         data-cy="payroll-pay-period-select-toolbar"
-        className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        className="mb-6 flex justify-between items-center gap-2 sm:gap-0"
       >
         <div data-cy="payroll-pay-period-select-copy">
           <p
@@ -180,25 +198,21 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
             are available.
           </p>
         </div>
-        <Select
-          id="payroll-pay-period-select-year-select"
-          data-cy="payroll-pay-period-select-year-select"
-          placeholder="All fiscal years"
-          allowClear
-          value={fiscalYearId}
-          onChange={handleYearChange}
-          className="w-full sm:w-[217px] h-8"
-        >
-          {fiscalYears.map((year) => (
-            <Option
-              key={year.id}
-              value={year.id}
-              data-cy={`payroll-pay-period-select-year-option-${year.id}`}
-            >
-              {year.name}
-            </Option>
-          ))}
-        </Select>
+        <FilterPopover
+          onSearch={handleFilterSearch}
+          defaultValues={{
+            yearId: fiscalYearId,
+            sessionId,
+          }}
+          autoSearch={false}
+          hiddenFields={[
+            'divisionId',
+            'departmentId',
+            'payPeriodId',
+            'monthId',
+          ]}
+          fiscalYearsOverride={MOCK_FISCAL_YEARS}
+        />
       </div>
 
       <div
