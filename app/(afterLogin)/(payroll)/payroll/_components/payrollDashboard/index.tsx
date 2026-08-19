@@ -32,6 +32,7 @@ import {
   Avatar,
   Breadcrumb,
   Dropdown,
+  Tabs,
   Typography,
 } from 'antd';
 
@@ -53,8 +54,9 @@ import {
   useDeletePayroll,
   useSendingPayrollPayslip,
 } from '@/store/server/features/payroll/payroll/mutation';
-import PayrollCard from '../cards';
-import { useGenerateBankLetter } from '../Latter';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
@@ -63,9 +65,7 @@ import {
   PaySlipData,
 } from '@/store/server/features/payroll/payroll/interface';
 import { useExportData } from '../excel';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import { useGenerateBankLetter } from '../Latter';
 
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { TbFileExport } from 'react-icons/tb';
@@ -74,7 +74,6 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 import PayrollTableLoadingSkeleton from '../PayrollTableLoadingSkeleton';
 import EmptyState from '@/components/empty';
-import PayrollSummaryCardsSkeleton from '../PayrollSummaryCardsSkeleton';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
@@ -99,20 +98,9 @@ import {
 } from '../payPeriodSelect/mockPayPeriods';
 import { usePayrollActivityLogStore } from '@/store/uistate/features/payroll/activityLog';
 import ReconciliationTab from '../reconciliationTab';
-import ActivityLogTab from '../activityLogTab';
+import OverviewTab from '../overviewTab';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import LocalAtmIcon from '@mui/icons-material/LocalAtm';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { MdAttachMoney, MdCardGiftcard } from 'react-icons/md';
-
-/** Summary cards: horizontal scroll on phone & tablet; 5-col grid from `lg` up. */
-const PAYROLL_SUMMARY_CARDS_ROW_CLASS =
-  'mb-8 flex flex-nowrap gap-4 overflow-x-auto overflow-y-visible pb-2 scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] touch-pan-x lg:grid lg:grid-cols-5 lg:overflow-x-visible lg:snap-none';
-
-const PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS =
-  'min-w-[228px] w-[min(88vw,304px)] shrink-0 snap-start lg:min-w-0 lg:h-full lg:w-full lg:shrink lg:max-w-none';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -125,8 +113,8 @@ const Payroll = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    'payroll' | 'reconciliation' | 'activity-log'
-  >('payroll');
+    'overview' | 'payroll' | 'reconciliation'
+  >('overview');
   const addActivityLog = usePayrollActivityLogStore((state) => state.addLog);
 
   const authStore = useAuthenticationStore.getState();
@@ -1377,9 +1365,9 @@ const Payroll = () => {
   };
 
   const payrollViewTabs = [
+    { key: 'overview' as const, label: 'Overview' },
     { key: 'payroll' as const, label: 'Payroll' },
     { key: 'reconciliation' as const, label: 'Reconciliation' },
-    { key: 'activity-log' as const, label: 'Activity Log' },
   ];
 
   const handleChangePayPeriod = () => {
@@ -1476,50 +1464,51 @@ const Payroll = () => {
                   data-cy="payroll-dashboard-actions-view-container"
                   className="flex gap-3 items-center"
                 >
-                  {/* More actions dropdown */}
-                  <Dropdown
-                    data-cy="payroll-more-actions-dropdown"
-                    menu={{
-                      items: [
-                        {
-                          key: 'send-payslip',
-                          label: 'Email Payslip',
-                          disabled: mergedPayrollForExport?.length === 0,
-                          onClick: () => setOpen(true),
-                        },
-                        ...(hasPendingApprovals || isMockPeriod
-                          ? [
-                              {
-                                key: 'approve',
-                                label: 'Approve Payroll',
-                                onClick: () => setIsApproveModalOpen(true),
-                              },
-                            ]
-                          : []),
-                        {
-                          key: 'export',
-                          label: 'Export',
-                          onClick: () => setIsModalOpen(true),
-                        },
-                      ],
-                    }}
-                    trigger={['click']}
-                  >
-                    <Button
-                      id="payroll-more-actions-click-button"
-                      data-cy="payroll-more-actions-click-button"
-                      className="flex !p-0 items-center justify-center w-10 h-10 min-w-10 border border-gray-300"
-                      aria-label="More actions"
+                  {(activeTab === 'payroll' ||
+                    activeTab === 'reconciliation') && (
+                    <Dropdown
+                      data-cy="payroll-more-actions-dropdown"
+                      menu={{
+                        items: [
+                          {
+                            key: 'send-payslip',
+                            label: 'Email Payslip',
+                            disabled: mergedPayrollForExport?.length === 0,
+                            onClick: () => setOpen(true),
+                          },
+                          ...(hasPendingApprovals || isMockPeriod
+                            ? [
+                                {
+                                  key: 'approve',
+                                  label: 'Approve Payroll',
+                                  onClick: () => setIsApproveModalOpen(true),
+                                },
+                              ]
+                            : []),
+                          {
+                            key: 'export',
+                            label: 'Export',
+                            onClick: () => setIsModalOpen(true),
+                          },
+                        ],
+                      }}
+                      trigger={['click']}
                     >
-                      <MoreHorizIcon
-                        className="text-gray-600 text-lg leading-none"
-                        data-cy="payroll-more-actions-dots-view-text"
-                      />
-                    </Button>
-                  </Dropdown>
+                      <Button
+                        id="payroll-more-actions-click-button"
+                        data-cy="payroll-more-actions-click-button"
+                        className="flex !p-0 items-center justify-center w-10 h-10 min-w-10 border border-gray-300"
+                        aria-label="More actions"
+                      >
+                        <MoreHorizIcon
+                          className="text-gray-600 text-lg leading-none"
+                          data-cy="payroll-more-actions-dots-view-text"
+                        />
+                      </Button>
+                    </Dropdown>
+                  )}
 
-                  {/* Generate / Regenerate button */}
-                  {canGenerateOrRegenerate && (
+                  {activeTab === 'payroll' && canGenerateOrRegenerate && (
                     <Popconfirm
                       id="payroll-generate-popconfirm-view-component"
                       data-cy="payroll-generate-popconfirm-view-component"
@@ -1744,48 +1733,54 @@ const Payroll = () => {
         <div
           id="payroll-dashboard-tabs"
           data-cy="payroll-dashboard-tabs"
-          className="mb-4 w-full"
+          className="mt-5 mb-3 w-full"
         >
-          <div
-            className="flex w-full items-end justify-between gap-2 border-b border-gray-200"
-            data-cy="payroll-dashboard-tabs-container"
-          >
-            <div
-              className="scrollbar-hide flex min-w-0 flex-1 items-end gap-8 overflow-x-auto [-webkit-overflow-scrolling:touch]"
-              data-cy="payroll-dashboard-tabs-scroll"
-            >
-              {payrollViewTabs.map((tab) => {
-                const isActive = activeTab === tab.key;
-                return (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    id={`payroll-dashboard-tab-${tab.key}`}
-                    data-cy={`payroll-dashboard-tab-label-${tab.key}`}
-                    onClick={() => setActiveTab(tab.key)}
-                    className={`relative shrink-0 border-0 bg-transparent p-3 text-left text-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 ${
-                      isActive
-                        ? 'font-semibold text-primary'
-                        : 'font-normal text-gray-800 hover:text-gray-900'
-                    }`}
-                  >
-                    {tab.label}
-                    {isActive ? (
-                      <span
-                        className="pointer-events-none absolute inset-x-0 bottom-[-1px] z-10 h-0.5 bg-primary"
-                        data-cy={`payroll-dashboard-tab-indicator-${tab.key}`}
-                        aria-hidden
-                      />
-                    ) : null}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          <Tabs
+            activeKey={activeTab}
+            onChange={(key) =>
+              setActiveTab(
+                key as 'overview' | 'payroll' | 'reconciliation',
+              )
+            }
+            items={payrollViewTabs.map((tab) => ({
+              key: tab.key,
+              label: (
+                <div
+                  id={`payroll-dashboard-tab-${tab.key}`}
+                  data-cy={`payroll-dashboard-tab-label-${tab.key}`}
+                  className={`m-0 text-base font-normal ${
+                    activeTab === tab.key
+                      ? 'font-semibold text-primary'
+                      : 'text-gray-800'
+                  }`}
+                >
+                  {tab.label}
+                </div>
+              ),
+            }))}
+            className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-semibold [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-content-holder]:hidden"
+            data-cy="payroll-dashboard-tabs-nav"
+          />
         </div>
 
         {/* Content Card (border starts below header + filters) */}
-        {activeTab === 'payroll' ? (
+        {activeTab === 'overview' ? (
+          <div
+            id="payroll-overview-content-card"
+            data-cy="payroll-overview-content-card"
+            className={
+              isMobile
+                ? 'bg-white rounded-xl shadow-sm border border-gray-100 p-4'
+                : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6'
+            }
+          >
+            <OverviewTab
+              payPeriodId={selectedPayPeriodId}
+              payrollForExport={payrollForExport}
+              loading={payrollForExportLoading}
+            />
+          </div>
+        ) : activeTab === 'payroll' ? (
           <div
             id="payroll-content-card-view-container"
             data-cy="payroll-content-card-view-container"
@@ -1835,104 +1830,6 @@ const Payroll = () => {
                 hiddenFields={['yearId', 'sessionId', 'monthId', 'payPeriodId']}
               />
             </div>
-
-            {payrollForExportLoading ? (
-              <PayrollSummaryCardsSkeleton />
-            ) : (
-              <div
-                id="payroll-summary-cards-view-row"
-                data-cy="payroll-summary-cards-view-row"
-                className={PAYROLL_SUMMARY_CARDS_ROW_CLASS}
-              >
-                <div
-                  className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
-                  data-cy="payroll-summary-cards-scroll-item-total-amount"
-                >
-                  <PayrollCard
-                    title="Total Amount"
-                    data-cy="payroll-summary-card-total-amount-view-component"
-                    value={payrollForExport?.totalGrossPaymentAmount}
-                    icon={
-                      <MdAttachMoney data-cy="payroll-summary-card-total-amount-icon" />
-                    }
-                    iconBg="bg-[#E6F4FF]"
-                    iconText="text-[#1E40AF]"
-                  />
-                </div>
-                <div
-                  className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
-                  data-cy="payroll-summary-cards-scroll-item-net-paid"
-                >
-                  <PayrollCard
-                    title="Net Paid Amount"
-                    data-cy="payroll-summary-card-net-paid-view-component"
-                    value={payrollForExport?.totalNetPayAmount}
-                    icon={
-                      <LocalAtmIcon
-                        data-cy="payroll-summary-card-net-paid-amount-icon"
-                        className="w-5 h-5"
-                      />
-                    }
-                    iconBg="bg-[#F9F0FF]"
-                    iconText="text-[#722ED1]"
-                  />
-                </div>
-                <div
-                  className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
-                  data-cy="payroll-summary-cards-scroll-item-total-allowance"
-                >
-                  <PayrollCard
-                    title="Total Allowance"
-                    data-cy="payroll-summary-card-total-allowance-view-component"
-                    value={payrollForExport?.totalAllowanceAmount}
-                    icon={
-                      <PaymentsIcon
-                        data-cy="payroll-summary-card-total-allowance-icon"
-                        className="w-5 h-5"
-                      />
-                    }
-                    iconBg="bg-[#F6FFED]"
-                    iconText="text-[#52C41A]"
-                  />
-                </div>
-                <div
-                  className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
-                  data-cy="payroll-summary-cards-scroll-item-total-benefit"
-                >
-                  <PayrollCard
-                    title="Total Benefit"
-                    data-cy="payroll-summary-card-total-benefit-view-component"
-                    value={payrollForExport?.totalMeritAmount}
-                    icon={
-                      <MdCardGiftcard
-                        data-cy="payroll-summary-card-total-benefit-icon"
-                        className="w-5 h-5"
-                      />
-                    }
-                    iconBg="bg-[#FFFBE6]"
-                    iconText="text-[#FBB221]"
-                  />
-                </div>
-                <div
-                  className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
-                  data-cy="payroll-summary-cards-scroll-item-total-deduction"
-                >
-                  <PayrollCard
-                    title="Total Deduction"
-                    data-cy="payroll-summary-card-total-deduction-view-component"
-                    value={payrollForExport?.totalDeductionsAmount}
-                    icon={
-                      <MoneyOffIcon
-                        data-cy="payroll-summary-card-total-deduction-icon"
-                        className="w-5 h-5"
-                      />
-                    }
-                    iconBg="bg-[#FFF2F0]"
-                    iconText="text-[#FF4D4F]"
-                  />
-                </div>
-              </div>
-            )}
             <div
               id="payroll-table-wrapper-view-container"
               data-cy="payroll-table-wrapper-view-container"
@@ -2017,7 +1914,7 @@ const Payroll = () => {
               )}
             </div>
           </div>
-        ) : activeTab === 'reconciliation' ? (
+        ) : (
           <div
             id="payroll-reconciliation-content-card"
             data-cy="payroll-reconciliation-content-card"
@@ -2028,18 +1925,6 @@ const Payroll = () => {
             }
           >
             <ReconciliationTab payPeriodId={selectedPayPeriodId} />
-          </div>
-        ) : (
-          <div
-            id="payroll-activity-log-content-card"
-            data-cy="payroll-activity-log-content-card"
-            className={
-              isMobile
-                ? 'bg-white rounded-xl shadow-sm border border-gray-100 p-4'
-                : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6'
-            }
-          >
-            <ActivityLogTab payPeriodId={selectedPayPeriodId} />
           </div>
         )}
         <Modal

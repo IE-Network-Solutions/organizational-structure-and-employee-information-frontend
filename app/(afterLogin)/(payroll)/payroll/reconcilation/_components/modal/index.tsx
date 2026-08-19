@@ -296,6 +296,8 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { Button, Modal, Select, Table } from 'antd';
 import { FaEye } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
+import { SearchOutlined } from '@ant-design/icons';
+import EmptyState from '@/components/empty';
 import { useQueryClient } from 'react-query';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -454,7 +456,7 @@ const PayrollReconcilationModal = ({
               : 'text-red-500';
         return (
           <span
-            data-cy="reconcilation-components-modal-index-tsx-index-span-130"
+            data-cy="payroll-reconciliation-detail-difference"
             className={className}
           >
             {key}
@@ -470,12 +472,14 @@ const PayrollReconcilationModal = ({
       minWidth: 150,
       render: (notused: any, record: any) => (
         <Button
-          className="bg-primary px-[10px]  text-white disabled:bg-gray-400  border-none "
+          type="primary"
+          className="flex items-center justify-center !h-10 !w-10 !min-w-10 !p-0 shadow-none"
           onClick={() => {
             if (record.userId) {
               router.push(`/employee-information/${record.userId}`);
             }
           }}
+          aria-label="View employee"
         >
           <FaEye />
         </Button>
@@ -501,40 +505,46 @@ const PayrollReconcilationModal = ({
       open={isModalOpen}
       onCancel={handleModalClose}
       footer={null}
-      closeIcon={<IoCloseOutline className="text-2xl text-[#1A1C1E]" />}
+      closeIcon={
+        <IoCloseOutline
+          size={24}
+          className="text-gray-600 hover:text-gray-900"
+        />
+      }
       width={1130}
       centered
+      data-cy="payroll-reconciliation-detail-modal"
     >
       <div
-        data-cy="reconcilation-components-modal-index-tsx-index-div-176"
+        data-cy="payroll-reconciliation-detail-modal-body"
         className="pt-2 px-1 flex flex-col h-full max-h-[80vh]"
       >
         <div
-          data-cy="reconcilation-components-modal-index-tsx-index-div-177"
+          data-cy="payroll-reconciliation-detail-modal-header"
           className="mb-6 flex-shrink-0"
         >
           <h2
-            data-cy="reconcilation-components-modal-index-tsx-index-h2-178"
-            className="text-[28px] font-semibold text-[#1A1C1E] leading-none mb-2"
+            data-cy="payroll-reconciliation-detail-modal-title"
+            className="text-[16px] font-normal text-gray-900 m-0 leading-tight mb-1"
           >
             Salary
           </h2>
           <p
-            data-cy="reconcilation-components-modal-index-tsx-index-p-181"
-            className="text-[#74777F] text-[15px]"
+            data-cy="payroll-reconciliation-detail-modal-subtitle"
+            className="text-[13px] text-gray-400 m-0"
           >
             Employee Salary Variances
           </p>
         </div>
 
         <div
-          data-cy="reconcilation-components-modal-index-tsx-index-div-186"
+          data-cy="payroll-reconciliation-detail-search-wrap"
           className="mb-6 flex-shrink-0"
         >
           <Select
             showSearch
             allowClear
-            className="h-12 w-full rounded-lg border-[#C4C7CF] bg-white text-[15px] hover:border-[#4353FF] focus:border-[#4353FF] focus:shadow-none"
+            className="w-full min-h-[40px] [&_.ant-select-arrow]:!top-0 [&_.ant-select-arrow]:!bottom-0 [&_.ant-select-arrow]:!mt-0 [&_.ant-select-arrow]:!h-auto [&_.ant-select-arrow]:!flex [&_.ant-select-arrow]:!items-stretch [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!border-gray-200 [&_.ant-select-selector]:!shadow-none [&_.ant-select-selector:hover]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!shadow-none"
             placeholder="Search Employee"
             value={search || undefined}
             onChange={(value) => handleEmployeeSelect(value)}
@@ -546,12 +556,21 @@ const PayrollReconcilationModal = ({
               );
             }}
             options={options}
+            suffixIcon={
+              <span
+                className="flex h-full min-h-full items-center self-stretch border-l border-gray-200 pl-3 text-gray-400"
+                data-cy="payroll-reconciliation-detail-search-suffix"
+              >
+                <SearchOutlined className="text-base" />
+              </span>
+            }
+            data-cy="payroll-reconciliation-detail-search-select"
           />
         </div>
 
         <div
-          data-cy="reconcilation-components-modal-index-tsx-index-div-205"
-          className="w-full overflow-x-auto overflow-y-auto flex-1 min-h-0 max-h-full"
+          data-cy="payroll-reconciliation-detail-table-wrap"
+          className="payroll-table-scroll-host w-full overflow-x-auto overflow-y-auto flex-1 min-h-0 max-h-full scrollbar-none rounded-lg"
         >
           {!isMockPeriod && isLoadingReconciliationDetails ? (
             <TableSkeleton columns={columns} />
@@ -560,34 +579,61 @@ const PayrollReconcilationModal = ({
               dataSource={payrollVarianceData}
               columns={columns}
               pagination={false}
-              className="custom-payroll-table"
+              className="payroll-table"
+              rowKey={(record: any) => record.userId || record.employeeName}
+              rowClassName={(record: any, index: number) => {
+                void record;
+                return index % 2 === 1 ? 'payroll-zebra-row' : '';
+              }}
+              locale={{
+                emptyText: (
+                  <div
+                    className="payroll-table-empty-viewport-center py-10"
+                    data-cy="payroll-reconciliation-detail-empty-wrap"
+                  >
+                    <EmptyState
+                      minimal
+                      description="No employee found"
+                      data-cy="payroll-reconciliation-detail-empty"
+                      className="!py-2"
+                    />
+                  </div>
+                ),
+              }}
             />
           )}
         </div>
 
-        {isMobile || isTablet ? (
-          <CustomMobilePagination
-            currentPage={currentPage}
-            totalResults={
-              reconcilationDetails?.employeeVariances?.meta?.totalItems ?? 0
-            }
-            pageSize={pageSize}
-            onShowSizeChange={onPageSizeChange}
-          />
-        ) : (
-          <CustomPagination
-            current={currentPage}
-            total={
-              reconcilationDetails?.employeeVariances?.meta?.totalItems ?? 0
-            }
-            pageSize={pageSize}
-            onChange={onPageChange}
-            onShowSizeChange={(pageSize) => {
-              setPageSize(pageSize);
-              setCurrentPage(1);
-            }}
-          />
-        )}
+        <div
+          data-cy="payroll-reconciliation-detail-pagination"
+          className="bg-white px-0 mt-2 flex-shrink-0"
+        >
+          {isMobile || isTablet ? (
+            <CustomMobilePagination
+              data-cy="payroll-reconciliation-detail-mobile-pagination"
+              currentPage={currentPage}
+              totalResults={
+                reconcilationDetails?.employeeVariances?.meta?.totalItems ?? 0
+              }
+              pageSize={pageSize}
+              onShowSizeChange={onPageSizeChange}
+            />
+          ) : (
+            <CustomPagination
+              data-cy="payroll-reconciliation-detail-desktop-pagination"
+              current={currentPage}
+              total={
+                reconcilationDetails?.employeeVariances?.meta?.totalItems ?? 0
+              }
+              pageSize={pageSize}
+              onChange={onPageChange}
+              onShowSizeChange={(pageSize) => {
+                setPageSize(pageSize);
+                setCurrentPage(1);
+              }}
+            />
+          )}
+        </div>
       </div>
     </Modal>
   );
