@@ -18,7 +18,7 @@ import {
   UserOutlined,
   DownloadOutlined,
 } from '@ant-design/icons';
-import React, { useEffect, useRef, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useMemo, useState } from 'react';
 import {
   useGetActivePayroll,
   useGetPayPeriod,
@@ -160,11 +160,30 @@ const EmployeeProfile = () => {
     setActivePayPeriod,
   } = useEmployeeStore();
   const payslipRef = useRef(null);
+  const pendingDownloadRef = useRef(false);
+  const [payslipPayroll, setPayslipPayroll] = useState<any>(null);
+  const [payslipPeriod, setPayslipPeriod] = useState<any>(null);
 
-  const downloadPayslip = () => {
-    if (!payslipRef.current) return;
+  const templatePayroll = payslipPayroll ?? activeMergedPayroll;
+  const templatePeriod = payslipPeriod ?? activePayPeriod;
+
+  const downloadPayslip = (payrollItem?: any, period?: any) => {
+    pendingDownloadRef.current = true;
+    setPayslipPayroll({
+      ...(payrollItem || activeMergedPayroll || {}),
+      employeeInfo:
+        payrollItem?.employeeInfo ||
+        activeMergedPayroll?.employeeInfo ||
+        employee,
+    });
+    setPayslipPeriod(payrollItem ? period : activePayPeriod);
+  };
+
+  useLayoutEffect(() => {
+    if (!pendingDownloadRef.current || !payslipRef.current) return;
+    pendingDownloadRef.current = false;
+
     const payslipElement = payslipRef.current as HTMLElement;
-
     html2canvas(payslipElement, {
       scale: 2,
       useCORS: true,
@@ -173,32 +192,30 @@ const EmployeeProfile = () => {
     }).then((canvas) => {
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
+      const pageWidth = 210;
+      const pageHeight = 297;
       const imgWidth = pageWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      // Calculate how many pages are needed
       const totalPages = Math.ceil(imgHeight / pageHeight);
 
-      // Add pages with properly positioned content
       for (let i = 0; i < totalPages; i++) {
         if (i > 0) {
           pdf.addPage();
         }
-        // Calculate the Y position for this page
-        // For the first page, start at 0, for subsequent pages, shift up
         const yPosition = -(i * pageHeight);
         pdf.addImage(imgData, 'PNG', 0, yPosition, imgWidth, imgHeight);
       }
 
+      const periodLabel = templatePeriod?.startDate
+        ? dayjs(templatePeriod.startDate).format('MMMM-YYYY')
+        : '';
       pdf.save(
-        `${activeMergedPayroll?.employeeInfo?.firstName}_${
-          activeMergedPayroll?.employeeInfo?.lastName
-        }_Payslip_.pdf`,
+        `${templatePayroll?.employeeInfo?.firstName || employee?.firstName}_${
+          templatePayroll?.employeeInfo?.lastName || employee?.lastName
+        }_Payslip_${periodLabel}.pdf`,
       );
     });
-  };
+  }, [payslipPayroll, payslipPeriod, templatePayroll, templatePeriod, employee]);
 
   useEffect(() => {
     if (payPeriodData && activeMergedPayroll?.payPeriodId) {
@@ -544,14 +561,39 @@ const EmployeeProfile = () => {
                 >
                   <Card
                     title={
-                      <span
-                        className="text-sm font-semibold text-[#4d4d4d]"
-                        data-cy="payroll-history-card-title"
-                      >
-                        {period
-                          ? dayjs(period.startDate).format('MMMM-YYYY')
-                          : 'Unknown'}
-                      </span>
+                      <Row justify="space-between" align="middle">
+                        <span
+                          className="text-sm font-semibold text-[#4d4d4d]"
+                          data-cy="payroll-history-card-title"
+                        >
+                          {period
+                            ? dayjs(period.startDate).format('MMMM-YYYY')
+                            : 'Unknown'}
+                        </span>
+                        <Button
+                          onClick={() => downloadPayslip(historyItem, period)}
+                          icon={
+                            <DownloadOutlined style={{ fontSize: '16px' }} />
+                          }
+                          data-cy="payroll-history-download-button"
+                          style={{
+                            backgroundColor: '#fff',
+                            border: '1px solid #d9d9d9',
+                            color: '#595959',
+                            fontSize: '14px',
+                            fontWeight: 400,
+                            height: '36px',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '0 12px',
+                            boxShadow: 'none',
+                          }}
+                        >
+                          Download
+                        </Button>
+                      </Row>
                     }
                     bordered={false}
                     style={{
@@ -1496,7 +1538,7 @@ const EmployeeProfile = () => {
                 className="text-violet-500"
                 data-cy="payroll-employee-detail-payslip-period"
               >
-                {dayjs(activePayPeriod?.startDate).format('MMMM-YYYY')}
+                {dayjs(templatePeriod?.startDate).format('MMMM-YYYY')}
               </span>
             </h2>
           </header>
@@ -1552,10 +1594,10 @@ const EmployeeProfile = () => {
                     }
                   </Text>
                   <Text data-cy="payroll-employee-detail-payslip-value-period">
-                    {dayjs(activePayPeriod?.startDate).format('MMM-YYYY')}
+                    {dayjs(templatePeriod?.startDate).format('MMM-YYYY')}
                   </Text>
                   <Text data-cy="payroll-employee-detail-payslip-value-date">
-                    {dayjs(activePayPeriod?.updatedAt).format('MMM-DD-YYYY')}
+                    {dayjs(templatePeriod?.updatedAt).format('MMM-DD-YYYY')}
                   </Text>
                 </div>
               </div>
@@ -1574,7 +1616,7 @@ const EmployeeProfile = () => {
                 className="text-violet-500 text-4xl font-bold mb-2"
                 data-cy="payroll-employee-detail-payslip-net-value"
               >
-                {activeMergedPayroll?.netPay}
+                {templatePayroll?.netPay}
               </span>
               <span
                 className="font-bold text-xl"
@@ -1587,7 +1629,7 @@ const EmployeeProfile = () => {
                 data-cy="payroll-employee-detail-payslip-basic-value"
               >
                 {
-                  activeMergedPayroll?.employeeInfo?.basicSalaries[0]
+                  templatePayroll?.employeeInfo?.basicSalaries?.[0]
                     ?.basicSalary
                 }{' '}
               </span>
@@ -1634,7 +1676,7 @@ const EmployeeProfile = () => {
                 className="flex flex-col gap-2 pl-4"
                 data-cy="payroll-employee-detail-payslip-allowance-names"
               >
-                {activeMergedPayroll?.breakdown?.allowances?.map(
+                {templatePayroll?.breakdown?.allowances?.map(
                   (item: any, index: any) => (
                     <Text
                       key={index}
@@ -1649,7 +1691,7 @@ const EmployeeProfile = () => {
                 className="flex flex-col gap-2 text-right font-bold pr-10"
                 data-cy="payroll-employee-detail-payslip-allowance-amounts"
               >
-                {activeMergedPayroll?.breakdown?.allowances?.map(
+                {templatePayroll?.breakdown?.allowances?.map(
                   (item: any, index: any) => (
                     <Text
                       key={index}
@@ -1663,7 +1705,7 @@ const EmployeeProfile = () => {
             </div>
           </div>
           <PayrollDetails
-            activeMergedPayroll={activeMergedPayroll || undefined}
+            activeMergedPayroll={templatePayroll || undefined}
           />
         </div>
       </div>
