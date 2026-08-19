@@ -34,13 +34,8 @@ const PayrollCard: React.FC<PayrollCardProps> = ({
       <Card
         id="payroll-summary-card-view-card"
         data-cy="payroll-summary-card-view-card"
-        bordered={false}
-        className="h-full shadow-sm"
-        style={{
-          borderRadius: '10px',
-          border: '2px solid #A8AEB9',
-        }}
-        styles={{ body: { padding: '16px' } }}
+        className="h-full rounded-lg border border-gray-200 shadow-none"
+        styles={{ body: { padding: '12px 14px' } }}
       >
         <div
           id="payroll-summary-card-title-row"
@@ -51,7 +46,7 @@ const PayrollCard: React.FC<PayrollCardProps> = ({
             <span
               id="payroll-summary-card-icon-badge"
               data-cy="payroll-summary-card-icon-badge"
-              className={`inline-flex items-center justify-center w-7 h-7 rounded-sm text-lg ${iconBg || 'bg-gray-100'} ${iconText || 'text-gray-500'}`}
+              className={`inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-md text-lg ${iconBg || 'bg-gray-100'} ${iconText || 'text-gray-500'}`}
             >
               <span
                 id="payroll-summary-card-icon"

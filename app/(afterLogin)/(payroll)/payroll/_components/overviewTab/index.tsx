@@ -1,21 +1,33 @@
 'use client';
 
-import { useMemo } from 'react';
-import { Tag } from 'antd';
+import { useMemo, useState } from 'react';
+import { Button, Tag } from 'antd';
+import dayjs from 'dayjs';
+import * as ExcelJS from 'exceljs';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import { MdAttachMoney, MdCardGiftcard } from 'react-icons/md';
 import PayrollCard from '../cards';
 import PayrollSummaryCardsSkeleton from '../PayrollSummaryCardsSkeleton';
 import ActivityLogTab from '../activityLogTab';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
+import { usePayrollActivityLogStore } from '@/store/uistate/features/payroll/activityLog';
 import { formatPayPeriodLabel } from '../payPeriodSelect';
 import {
+  MOCK_PAYROLL_APPROVERS,
   getMockPayrollBundle,
   isMockPayPeriodId,
   MOCK_PAY_PERIODS,
 } from '../payPeriodSelect/mockPayPeriods';
+import {
+  overallStatusIcon,
+  resolvePayrollApprovalWorkflow,
+} from '../approvalWorkflow';
+import Image from 'next/image';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const PAYROLL_SUMMARY_CARDS_ROW_CLASS =
   'mb-0 flex flex-nowrap gap-4 overflow-x-auto overflow-y-visible pb-2 scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] touch-pan-x lg:grid lg:grid-cols-5 lg:overflow-x-visible lg:snap-none';
@@ -55,6 +67,8 @@ interface OverviewTabProps {
   payPeriod?: PayPeriod;
   hasPendingApprovals?: boolean;
   isApproved?: boolean;
+  payrollApproval?: unknown;
+  pendingApprovals?: unknown;
 }
 
 type OverviewTotals = {
@@ -139,13 +153,6 @@ const getApprovalLabel = (
   return 'Generated';
 };
 
-const getApprovalTagColor = (label: string): string => {
-  if (label === 'Approved') return 'green';
-  if (label === 'Pending approval') return 'orange';
-  if (label === 'Generated') return 'blue';
-  return 'default';
-};
-
 const OverviewTab = ({
   payPeriodId,
   payrollForExport,
@@ -153,7 +160,14 @@ const OverviewTab = ({
   payPeriod,
   hasPendingApprovals,
   isApproved,
+  payrollApproval,
+  pendingApprovals,
 }: OverviewTabProps) => {
+  const [isExporting, setIsExporting] = useState(false);
+  const addActivityLog = usePayrollActivityLogStore((state) => state.addLog);
+  const getLogs = usePayrollActivityLogStore((state) => state.getLogs);
+  const { data: employeeData } = useGetAllUsers();
+
   const totals = useMemo(
     () => computeOverviewTotals(payrollForExport),
     [payrollForExport],
@@ -197,15 +211,132 @@ const OverviewTab = ({
   };
 
   const hasPayroll = totals.headcount > 0 || totals.gross > 0;
-  const approvalLabel = getApprovalLabel(
-    hasPayroll,
-    hasPendingApprovals,
-    isApproved,
+  const workflow = useMemo(
+    () =>
+      resolvePayrollApprovalWorkflow(
+        payPeriodId,
+        payrollApproval,
+        pendingApprovals,
+      ),
+    [payPeriodId, payrollApproval, pendingApprovals],
   );
+  const approvalLabel =
+    workflow.overall !== 'Not generated'
+      ? workflow.overall === 'Pending'
+        ? 'Pending approval'
+        : workflow.overall
+      : getApprovalLabel(hasPayroll, hasPendingApprovals, isApproved);
+  const approvalIcon = overallStatusIcon(workflow.overall);
   const periodLabel = payPeriod
     ? formatPayPeriodLabel(payPeriod)
     : 'Pay period';
   const isOpen = payPeriod?.status === 'OPEN';
+
+  const userName = (userId: string) => {
+    const mockUser = MOCK_PAYROLL_APPROVERS[userId];
+    if (mockUser) {
+      return `${mockUser.firstName} ${mockUser.lastName}`.trim();
+    }
+    const user = employeeData?.items?.find((item: any) => item.id === userId);
+    return `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`.trim();
+  };
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const summarySheet = workbook.addWorksheet('Overview');
+      summarySheet.columns = [
+        { header: 'Metric', key: 'metric', width: 24 },
+        { header: 'Value', key: 'value', width: 28 },
+        { header: 'Change vs last period', key: 'change', width: 24 },
+      ];
+      summarySheet.addRows([
+        {
+          metric: 'Pay Period',
+          value: periodLabel,
+          change: isOpen ? 'Open' : 'Closed',
+        },
+        {
+          metric: 'Employees',
+          value: totals.headcount,
+          change: approvalLabel,
+        },
+        {
+          metric: 'Total Amount',
+          value: totals.gross,
+          change: growth.gross ?? '--',
+        },
+        {
+          metric: 'Net Paid Amount',
+          value: totals.net,
+          change: growth.net ?? '--',
+        },
+        {
+          metric: 'Total Allowance',
+          value: totals.allowance,
+          change: growth.allowance ?? '--',
+        },
+        {
+          metric: 'Total Benefit',
+          value: totals.benefit,
+          change: growth.benefit ?? '--',
+        },
+        {
+          metric: 'Total Deduction',
+          value: totals.deductions,
+          change: growth.deductions ?? '--',
+        },
+      ]);
+      summarySheet.getRow(1).font = { bold: true };
+
+      const logs = getLogs(payPeriodId);
+      const logSheet = workbook.addWorksheet('Activity Log');
+      logSheet.columns = [
+        { header: 'Action', key: 'action', width: 18 },
+        { header: 'Performed By', key: 'performedBy', width: 24 },
+        { header: 'Performed At', key: 'performedAt', width: 22 },
+        { header: 'Remarks', key: 'remarks', width: 50 },
+      ];
+      logs.forEach((log) => {
+        logSheet.addRow({
+          action: log.action,
+          performedBy:
+            `${log.performedBy.firstName || ''} ${log.performedBy.lastName || ''}`.trim() ||
+            'Unknown User',
+          performedAt: dayjs(log.performedAt).format('MMM DD, YYYY HH:mm'),
+          remarks: log.remarks || '--',
+        });
+      });
+      logSheet.getRow(1).font = { bold: true };
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'Payroll-Overview.xlsx';
+      link.click();
+      URL.revokeObjectURL(link.href);
+
+      addActivityLog(payPeriodId, {
+        action: 'Exported',
+        remarks: 'Payroll overview exported for this pay period.',
+      });
+      NotificationMessage.success({
+        message: 'Export completed',
+        description: 'Payroll overview has been exported successfully.',
+      });
+    } catch {
+      NotificationMessage.error({
+        message: 'Export Failed',
+        description: 'Unable to export payroll overview.',
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div
@@ -214,40 +345,121 @@ const OverviewTab = ({
       className="w-full"
     >
       <div
-        id="payroll-overview-period-chips"
-        data-cy="payroll-overview-period-chips"
-        className="mb-6 flex flex-wrap items-center gap-2"
+        data-cy="payroll-overview-tab-toolbar"
+        className="mb-6 flex flex-wrap items-center justify-between gap-2"
       >
-        <Tag
-          data-cy="payroll-overview-period-label-tag"
-          className="m-0 text-sm"
-          style={{ border: 'none' }}
+        <div
+          id="payroll-overview-period-chips"
+          data-cy="payroll-overview-period-chips"
+          className="flex flex-wrap items-center gap-2"
         >
-          {periodLabel}
-        </Tag>
-        <Tag
-          color={isOpen ? 'green' : 'default'}
-          data-cy="payroll-overview-period-status-tag"
-          className="m-0 text-sm"
-          style={{ border: 'none' }}
+          <Tag
+            data-cy="payroll-overview-period-label-tag"
+            className="m-0 text-sm"
+            style={{ border: 'none' }}
+          >
+            {periodLabel}
+          </Tag>
+          <Tag
+            color={isOpen ? 'green' : 'default'}
+            data-cy="payroll-overview-period-status-tag"
+            className="m-0 text-sm"
+            style={{ border: 'none' }}
+          >
+            {isOpen ? 'Open' : 'Closed'}
+          </Tag>
+          <Tag
+            data-cy="payroll-overview-headcount-tag"
+            className="m-0 text-sm"
+            style={{ border: 'none' }}
+          >
+            {totals.headcount} employee{totals.headcount === 1 ? '' : 's'}
+          </Tag>
+        </div>
+        <div
+          data-cy="payroll-overview-tab-toolbar-actions"
+          className="flex flex-wrap items-center gap-3"
         >
-          {isOpen ? 'Open' : 'Closed'}
-        </Tag>
-        <Tag
-          data-cy="payroll-overview-headcount-tag"
-          className="m-0 text-sm"
-          style={{ border: 'none' }}
-        >
-          {totals.headcount} employee{totals.headcount === 1 ? '' : 's'}
-        </Tag>
-        <Tag
-          color={getApprovalTagColor(approvalLabel)}
-          data-cy="payroll-overview-approval-status-tag"
-          className="m-0 text-sm"
-          style={{ border: 'none' }}
-        >
-          {approvalLabel}
-        </Tag>
+          <div
+            id="payroll-overview-approval-flow"
+            data-cy="payroll-overview-approval-flow"
+            className="flex flex-wrap items-center gap-3"
+          >
+            <span
+              data-cy="payroll-overview-approval-flow-overall"
+              className="inline-flex items-center gap-1.5"
+            >
+              {approvalIcon ? (
+                <Image
+                  unoptimized
+                  width={20}
+                  height={20}
+                  src={approvalIcon}
+                  alt={workflow.overall}
+                  data-cy="payroll-overview-approval-flow-overall-icon"
+                />
+              ) : null}
+              <span
+                data-cy="payroll-overview-approval-status-tag"
+                className="text-sm font-medium text-gray-900"
+              >
+                {approvalLabel}
+              </span>
+            </span>
+            {workflow.steps.map((step) => {
+              const displayUserId = String(
+                step.displayUserId || step.approvedUserId || step.userId || '',
+              );
+              const stepIcon = overallStatusIcon(step.status);
+              return (
+                <span
+                  key={`payroll-overview-approval-step-${step.stepOrder}`}
+                  data-cy={`payroll-overview-approval-step-${step.stepOrder}`}
+                  className="inline-flex items-center gap-1.5"
+                >
+                  <span
+                    data-cy={`payroll-overview-approval-step-level-${step.stepOrder}`}
+                    className="text-sm text-gray-500"
+                  >
+                    Level {step.stepOrder}
+                  </span>
+                  {stepIcon ? (
+                    <Image
+                      unoptimized
+                      width={20}
+                      height={20}
+                      src={stepIcon}
+                      alt={step.status}
+                      data-cy={`payroll-overview-approval-step-icon-${step.stepOrder}`}
+                    />
+                  ) : null}
+                  <span
+                    data-cy={`payroll-overview-approval-step-person-${step.stepOrder}`}
+                    className="text-sm text-gray-900"
+                  >
+                    {userName(displayUserId) || '--'}
+                  </span>
+                </span>
+              );
+            })}
+          </div>
+          <Button
+            type="default"
+            size="large"
+            className="flex items-center gap-2 h-10 border-gray-200 text-gray-600 rounded-[6px] px-3 md:px-4 font-medium"
+            icon={<SaveAltIcon className="text-gray-600" fontSize="small" />}
+            loading={isExporting}
+            onClick={handleExport}
+            data-cy="payroll-overview-tab-export-click-button"
+          >
+            <span
+              data-cy="payroll-overview-tab-export-label"
+              className="hidden sm:inline"
+            >
+              Export
+            </span>
+          </Button>
+        </div>
       </div>
 
       {loading ? (

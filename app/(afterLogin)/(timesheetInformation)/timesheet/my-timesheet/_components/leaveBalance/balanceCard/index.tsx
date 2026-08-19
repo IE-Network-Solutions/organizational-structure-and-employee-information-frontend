@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tooltip } from 'antd';
+import StatChip from '@/components/common/statChip';
 
 interface LeaveBalanceCardProps {
   title: string;
@@ -78,60 +79,26 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
         className="flex justify-between gap-2 mt-3"
         data-cy={`time-attendance-leave-balance-card-${title}-stats-row`}
       >
-        <div
-          className="flex-1 rounded-lg border border-gray-200 px-2 py-1 bg-white min-w-0 text-center"
-          id={`time-attendance-leave-balance-card-${title}-entitled`}
+        <StatChip
+          className="flex-1"
+          label="Entitled"
+          value={toOneDecimal(entitled)}
           data-cy={`time-attendance-leave-balance-card-${title}-entitled`}
-        >
-          <span
-            className="text-[10px] text-gray-500 block"
-            data-cy={`time-attendance-leave-balance-card-${title}-entitled-label`}
-          >
-            Entitled
-          </span>
-          <span
-            className="text-sm font-semibold text-gray-900"
-            data-cy={`time-attendance-leave-balance-card-${title}-entitled-value`}
-          >
-            {toOneDecimal(entitled)}
-          </span>
-        </div>
-        <div
-          className="flex-1 rounded-lg border border-gray-200 px-2 py-1 bg-white min-w-0 text-center"
-          id={`time-attendance-leave-balance-card-${title}-used`}
+        />
+        <StatChip
+          className="flex-1"
+          label="Used"
+          value={toOneDecimal(used)}
+          valueClassName="text-red-600"
           data-cy={`time-attendance-leave-balance-card-${title}-used`}
-        >
-          <span
-            className="text-[10px] text-gray-500 block"
-            data-cy={`time-attendance-leave-balance-card-${title}-used-label`}
-          >
-            Used
-          </span>
-          <span
-            className="text-sm font-semibold text-red-600"
-            data-cy={`time-attendance-leave-balance-card-${title}-used-value`}
-          >
-            {toOneDecimal(used)}
-          </span>
-        </div>
-        <div
-          className="flex-1 rounded-lg border border-gray-200 px-2 py-1 bg-white min-w-0 text-center"
-          id={`time-attendance-leave-balance-card-${title}-carried`}
+        />
+        <StatChip
+          className="flex-1"
+          label="Carried"
+          value={toOneDecimal(carried)}
+          valueClassName="text-primary"
           data-cy={`time-attendance-leave-balance-card-${title}-carried`}
-        >
-          <span
-            className="text-[10px] text-gray-500 block"
-            data-cy={`time-attendance-leave-balance-card-${title}-carried-label`}
-          >
-            Carried
-          </span>
-          <span
-            className="text-sm font-semibold text-primary"
-            data-cy={`time-attendance-leave-balance-card-${title}-carried-value`}
-          >
-            {toOneDecimal(carried)}
-          </span>
-        </div>
+        />
       </div>
     </div>
   );

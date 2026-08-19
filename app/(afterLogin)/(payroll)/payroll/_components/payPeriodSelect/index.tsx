@@ -1,73 +1,35 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Card, Skeleton } from 'antd';
+import { Skeleton, Table, Tag } from 'antd';
 import dayjs from 'dayjs';
+import Image from 'next/image';
 import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
-import { PayPeriodCardSkeleton } from '@/components/common/PayPeriodCardSkeleton';
 import EmptyState from '@/components/empty';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { MOCK_FISCAL_YEARS, MOCK_PAY_PERIODS } from './mockPayPeriods';
+import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalStatusesInfo';
+import UserCard from '@/components/common/userCard/userCard';
+import {
+  useGetPayrollApprovalByPayPeriodId,
+  useGetPendingPayrollApprovals,
+} from '@/store/server/features/payroll/payrollApproval/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import FilterPopover from '../filters/FilterPopover';
-
-const PAY_PERIOD_SKELETON_COUNT = 6;
-
-const payPeriodTagTextColor = 'rgba(0, 0, 0, 0.7)';
-const payPeriodTagBackgroundColor = 'rgba(0, 0, 0, 0.02)';
-
-const payPeriodChipLayoutStyle: React.CSSProperties = {
-  boxSizing: 'border-box',
-  display: 'inline-flex',
-  alignItems: 'center',
-  height: 22,
-  minHeight: 22,
-  padding: '1px 8px',
-  borderRadius: 4,
-  border: '1px solid #D9D9D9',
-  fontSize: 12,
-  lineHeight: '18px',
-  fontWeight: 400,
-};
-
-const pillStyle: React.CSSProperties = {
-  ...payPeriodChipLayoutStyle,
-  background: payPeriodTagBackgroundColor,
-  color: payPeriodTagTextColor,
-  userSelect: 'none',
-  whiteSpace: 'nowrap',
-};
-
-const statusTagStyle: React.CSSProperties = {
-  ...payPeriodChipLayoutStyle,
-  color: payPeriodTagTextColor,
-  backgroundColor: payPeriodTagBackgroundColor,
-};
-
-const payPeriodCardShellStyle: React.CSSProperties = {
-  width: '100%',
-  minWidth: 0,
-  borderRadius: 8,
-  border: '1px solid #D9D9D9',
-  boxShadow: 'none',
-  boxSizing: 'border-box',
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'hidden',
-  cursor: 'pointer',
-};
-
-const payPeriodCardBodyStyle: React.CSSProperties = {
-  padding: '10px 12px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 6,
-  flex: 1,
-  minHeight: 0,
-  boxSizing: 'border-box',
-  overflow: 'hidden',
-};
+import {
+  getMockPayrollApprovalWorkflow,
+  isMockPayPeriodId,
+  MOCK_FISCAL_YEARS,
+  MOCK_PAY_PERIODS,
+  MOCK_PAYROLL_APPROVERS,
+  MockPayrollApprovalWorkflow,
+} from './mockPayPeriods';
+import {
+  asApprovalList,
+  overallStatusIcon,
+  workflowFromApprovalRecord,
+} from '../approvalWorkflow';
 
 function asPayPeriodList(data: unknown): PayPeriod[] {
   if (Array.isArray(data)) {
@@ -103,21 +65,50 @@ interface PayPeriodSelectProps {
 
 const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
   const { isMobile, isTablet } = useIsMobile();
-
   const [fiscalYearId, setFiscalYearId] = useState<string | undefined>();
   const [sessionId, setSessionId] = useState<string | undefined>();
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(9);
+  const [pageSize, setPageSize] = useState(10);
+  const { data: employeeData } = useGetAllUsers();
+  const { data: payrollApprovals } = useGetPayrollApprovalByPayPeriodId('all');
+  const { data: pendingApprovals } = useGetPendingPayrollApprovals(
+    undefined,
+    1,
+    100,
+  );
+
+  const approvalsByPeriod = useMemo(() => {
+    const map: Record<string, MockPayrollApprovalWorkflow> = {};
+    asApprovalList(payrollApprovals).forEach((item) => {
+      const id = String(item?.payPeriodId || item?.payPeriod?.id || '');
+      if (id) map[id] = workflowFromApprovalRecord(item);
+    });
+    asApprovalList(pendingApprovals).forEach((item) => {
+      const id = String(item?.payPeriodId || item?.payPeriod?.id || '');
+      if (id && !map[id]) map[id] = workflowFromApprovalRecord(item);
+    });
+    return map;
+  }, [payrollApprovals, pendingApprovals]);
+
+  const userName = (userId: string) => {
+    const mockUser = MOCK_PAYROLL_APPROVERS[userId];
+    if (mockUser) {
+      return `${mockUser.firstName} ${mockUser.lastName}`.trim();
+    }
+    const user = employeeData?.items?.find((item: any) => item.id === userId);
+    return `${user?.firstName || ''} ${user?.middleName || ''} ${user?.lastName || ''}`.trim();
+  };
+
+  const userImage = (userId: string) => {
+    const user = employeeData?.items?.find((item: any) => item.id === userId);
+    return user?.profileImage;
+  };
 
   const payPeriods = useMemo(() => {
     const list = asPayPeriodList(MOCK_PAY_PERIODS);
-    return [...list].sort((a, b) => {
-      const aOpen = a.status === 'OPEN';
-      const bOpen = b.status === 'OPEN';
-      if (aOpen && !bOpen) return -1;
-      if (bOpen && !aOpen) return 1;
-      return dayjs(b.startDate).valueOf() - dayjs(a.startDate).valueOf();
-    });
+    return [...list].sort(
+      (a, b) => dayjs(b.startDate).valueOf() - dayjs(a.startDate).valueOf(),
+    );
   }, []);
 
   const filteredPeriods = useMemo(() => {
@@ -168,7 +159,146 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
     setCurrentPage(1);
   };
 
+  const getWorkflow = (periodId: string): MockPayrollApprovalWorkflow => {
+    if (isMockPayPeriodId(periodId)) {
+      return getMockPayrollApprovalWorkflow(periodId);
+    }
+    return (
+      approvalsByPeriod[periodId] || { overall: 'Not generated', steps: [] }
+    );
+  };
+
   const isLoading = false;
+
+  const columns = [
+    {
+      title: 'Pay Period',
+      dataIndex: 'id',
+      key: 'payPeriod',
+      minWidth: 160,
+      render: (_unused: string, record: PayPeriod) => (
+        <span
+          id={`payroll-pay-period-select-name-${record.id}`}
+          data-cy={`payroll-pay-period-select-name-${record.id}`}
+          className="text-sm text-gray-800"
+        >
+          {formatPayPeriodLabel(record)}
+        </span>
+      ),
+    },
+    {
+      title: 'Date Range',
+      dataIndex: 'startDate',
+      key: 'dateRange',
+      minWidth: 240,
+      render: (_unused: string, record: PayPeriod) => (
+        <span
+          id={`payroll-pay-period-select-range-${record.id}`}
+          data-cy={`payroll-pay-period-select-range-${record.id}`}
+          className="text-sm text-gray-600"
+        >
+          {formatPayPeriodRange(record)}
+        </span>
+      ),
+    },
+    {
+      title: 'Period Status',
+      dataIndex: 'status',
+      key: 'status',
+      minWidth: 120,
+      render: (status: PayPeriod['status'], record: PayPeriod) => {
+        const isOpen = status === 'OPEN';
+        return (
+          <Tag
+            color={isOpen ? 'green' : 'default'}
+            id={`payroll-pay-period-select-status-${record.id}`}
+            data-cy={`payroll-pay-period-select-status-${record.id}`}
+            className="m-0 text-sm"
+            style={{ border: 'none' }}
+          >
+            {isOpen ? 'Open' : 'Closed'}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: 'Approval Status',
+      key: 'approvalStatus',
+      minWidth: 220,
+      render: (_unused: unknown, record: PayPeriod) => {
+        const workflow = getWorkflow(record.id);
+        const icon = overallStatusIcon(workflow.overall);
+        const pendingStep = workflow.steps.find(
+          (step) => step.status === 'Pending',
+        );
+        const rejectedStep = workflow.steps.find(
+          (step) => step.status === 'Rejected',
+        );
+        const currentStep =
+          workflow.overall === 'Pending'
+            ? pendingStep
+            : workflow.overall === 'Rejected'
+              ? rejectedStep
+              : undefined;
+        const currentUserId = currentStep
+          ? String(
+              currentStep.displayUserId ||
+                currentStep.approvedUserId ||
+                currentStep.userId ||
+                '',
+            )
+          : '';
+
+        return (
+          <div
+            id={`payroll-pay-period-select-approval-${record.id}`}
+            data-cy={`payroll-pay-period-select-approval-${record.id}`}
+            className="flex flex-col gap-1 py-0.5"
+          >
+            <div
+              id={`payroll-pay-period-select-approval-overall-${record.id}`}
+              data-cy={`payroll-pay-period-select-approval-overall-${record.id}`}
+              className="flex items-center gap-2"
+            >
+              {icon ? (
+                <Image
+                  unoptimized
+                  width={24}
+                  height={24}
+                  src={icon}
+                  alt={workflow.overall}
+                  data-cy={`payroll-pay-period-select-approval-overall-icon-${record.id}`}
+                />
+              ) : null}
+              <span
+                id={`payroll-pay-period-select-approval-overall-label-${record.id}`}
+                data-cy={`payroll-pay-period-select-approval-overall-label-${record.id}`}
+                className="text-sm font-medium text-gray-900"
+              >
+                {workflow.overall}
+              </span>
+              {currentStep ? (
+                <span
+                  data-cy={`payroll-pay-period-select-approval-level-${record.id}`}
+                  className="text-sm text-gray-500"
+                >
+                  · Level {currentStep.stepOrder}
+                </span>
+              ) : null}
+            </div>
+            {currentStep && currentUserId ? (
+              <UserCard
+                data={currentStep}
+                name={userName(currentUserId)}
+                profileImage={userImage(currentUserId)}
+                size="small"
+              />
+            ) : null}
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <div
@@ -179,7 +309,7 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
       <div
         id="payroll-pay-period-select-toolbar"
         data-cy="payroll-pay-period-select-toolbar"
-        className="mb-6 flex justify-between items-center gap-2 sm:gap-0"
+        className="mb-6 flex flex-wrap items-start justify-between gap-3"
       >
         <div data-cy="payroll-pay-period-select-copy">
           <p
@@ -194,119 +324,71 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
             data-cy="payroll-pay-period-select-subtitle"
             className="m-0 mt-1 text-sm text-gray-500"
           >
-            Choose a pay period to view payroll data. All periods in the system
-            are available.
+            Latest pay periods appear first. Open a row to view payroll.
           </p>
         </div>
-        <FilterPopover
-          onSearch={handleFilterSearch}
-          defaultValues={{
-            yearId: fiscalYearId,
-            sessionId,
-          }}
-          autoSearch={false}
-          hiddenFields={[
-            'divisionId',
-            'departmentId',
-            'payPeriodId',
-            'monthId',
-          ]}
-          fiscalYearsOverride={MOCK_FISCAL_YEARS}
-        />
+        <div
+          id="payroll-pay-period-select-toolbar-actions"
+          data-cy="payroll-pay-period-select-toolbar-actions"
+          className="flex flex-wrap items-center gap-3"
+        >
+          <ApprovalStatusesInfo />
+          <FilterPopover
+            onSearch={handleFilterSearch}
+            defaultValues={{
+              yearId: fiscalYearId,
+              sessionId,
+            }}
+            autoSearch={false}
+            hiddenFields={[
+              'divisionId',
+              'departmentId',
+              'payPeriodId',
+              'monthId',
+            ]}
+            fiscalYearsOverride={MOCK_FISCAL_YEARS}
+          />
+        </div>
       </div>
 
       <div
-        id="payroll-pay-period-select-grid"
-        data-cy="payroll-pay-period-select-grid"
-        className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        id="payroll-pay-period-select-table-wrap"
+        data-cy="payroll-pay-period-select-table-wrap"
+        className="payroll-table-scroll-host overflow-x-auto scrollbar-none rounded-lg overflow-hidden"
       >
         {isLoading ? (
-          Array.from(
-            { length: PAY_PERIOD_SKELETON_COUNT },
-            (element: unknown, skeletonIndex: number) => (
-              <PayPeriodCardSkeleton
-                key={`payroll-pay-period-select-sk-${skeletonIndex}`}
-                index={skeletonIndex}
-                dataCyPrefix="payroll-pay-period-select-card-skeleton"
-              />
-            ),
-          )
-        ) : filteredPeriods.length === 0 ? (
-          <div
-            id="payroll-pay-period-select-empty-state"
-            data-cy="payroll-pay-period-select-empty-state"
-            className="col-span-full"
-          >
-            <EmptyState
-              title="No pay periods found"
-              description="Create a pay period in Payroll Settings to get started."
-              data-cy="payroll-pay-period-select-empty-state-inner"
-            />
+          <div data-cy="payroll-pay-period-select-table-skeleton">
+            <Skeleton active title={false} paragraph={{ rows: 8 }} />
           </div>
         ) : (
-          paginatedPeriods.map((period) => {
-            const isOpen = period.status === 'OPEN';
-            const range = formatPayPeriodRange(period);
-            const title = formatPayPeriodLabel(period);
-
-            return (
-              <Card
-                key={period.id}
-                id={`payroll-pay-period-select-card-${period.id}`}
-                data-cy={`payroll-pay-period-select-card-${period.id}`}
-                style={payPeriodCardShellStyle}
-                bodyStyle={payPeriodCardBodyStyle}
-                hoverable
-                onClick={() => onSelect(period.id)}
-                className="transition-colors hover:!border-primary"
-              >
+          <Table
+            id="payroll-pay-period-select-table"
+            data-cy="payroll-pay-period-select-table"
+            className="payroll-table"
+            rowKey="id"
+            pagination={false}
+            dataSource={paginatedPeriods}
+            columns={columns}
+            onRow={(record) => ({
+              onClick: () => onSelect(record.id),
+              style: { cursor: 'pointer' },
+            })}
+            locale={{
+              emptyText: (
                 <div
-                  id={`payroll-pay-period-select-card-header-${period.id}`}
-                  data-cy={`payroll-pay-period-select-card-header-${period.id}`}
-                  className="flex shrink-0 items-start justify-between"
-                  style={{ gap: 8 }}
+                  className="payroll-table-empty-viewport-center py-10"
+                  data-cy="payroll-pay-period-select-empty-wrap"
                 >
-                  <h3
-                    id={`payroll-pay-period-select-card-title-${period.id}`}
-                    data-cy={`payroll-pay-period-select-card-title-${period.id}`}
-                    className="m-0 min-w-0 flex-1 truncate text-base font-normal leading-tight"
-                    style={{ color: '#000000' }}
-                  >
-                    {title}
-                  </h3>
+                  <EmptyState
+                    title="No pay periods found"
+                    description="Create a pay period in Payroll Settings to get started."
+                    data-cy="payroll-pay-period-select-empty-state-inner"
+                    className="!py-2"
+                  />
                 </div>
-
-                <div
-                  id={`payroll-pay-period-select-card-details-${period.id}`}
-                  data-cy={`payroll-pay-period-select-card-details-${period.id}`}
-                  className="flex min-h-0 shrink flex-wrap items-center"
-                  style={{ gap: 6 }}
-                >
-                  <span
-                    id={`payroll-pay-period-select-card-range-${period.id}`}
-                    data-cy={`payroll-pay-period-select-card-range-${period.id}`}
-                    style={{
-                      ...pillStyle,
-                      whiteSpace: 'normal',
-                      height: 'auto',
-                      minHeight: 22,
-                    }}
-                    title={range}
-                  >
-                    {range}
-                  </span>
-                  <span
-                    id={`payroll-pay-period-select-card-status-${period.id}`}
-                    data-cy={`payroll-pay-period-select-card-status-${period.id}`}
-                    className="shrink-0"
-                    style={statusTagStyle}
-                  >
-                    {isOpen ? 'Open' : 'Closed'}
-                  </span>
-                </div>
-              </Card>
-            );
-          })
+              ),
+            }}
+          />
         )}
       </div>
 
@@ -315,15 +397,7 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
         data-cy="payroll-pay-period-select-pagination"
         className="mt-4 pt-4"
       >
-        {isLoading ? (
-          <div data-cy="payroll-pay-period-select-pagination-skeleton">
-            <Skeleton
-              active
-              title={false}
-              paragraph={{ rows: 1, width: ['100%'] }}
-            />
-          </div>
-        ) : isMobile || isTablet ? (
+        {isMobile || isTablet ? (
           <CustomMobilePagination
             data-cy="payroll-pay-period-select-mobile-pagination"
             totalResults={filteredPeriods.length}

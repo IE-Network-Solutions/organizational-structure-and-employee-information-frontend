@@ -107,6 +107,73 @@ export function findMockPayPeriod(id?: string | null): PayPeriod | undefined {
   return MOCK_PAY_PERIODS.find((period) => period.id === id);
 }
 
+export type MockPayrollApprovalStep = {
+  stepOrder: number;
+  status: 'Approved' | 'Pending' | 'Rejected';
+  userId: string;
+  displayUserId: string;
+  approvedUserId?: string;
+};
+
+export type MockPayrollApprovalWorkflow = {
+  overall: 'Approved' | 'Pending' | 'Rejected' | 'Not generated';
+  steps: MockPayrollApprovalStep[];
+};
+
+export const MOCK_PAYROLL_APPROVERS: Record<
+  string,
+  { firstName: string; lastName: string }
+> = {
+  'mock-approver-1': { firstName: 'Liya', lastName: 'Asfaw' },
+  'mock-approver-2': { firstName: 'Henok', lastName: 'Berhanu' },
+};
+
+export function getMockPayrollApprovalWorkflow(
+  payPeriodId: string,
+): MockPayrollApprovalWorkflow {
+  const period = findMockPayPeriod(payPeriodId);
+  if (!period) {
+    return { overall: 'Not generated', steps: [] };
+  }
+
+  const financeLead: MockPayrollApprovalStep = {
+    stepOrder: 1,
+    status: 'Approved',
+    userId: 'mock-approver-1',
+    displayUserId: 'mock-approver-1',
+    approvedUserId: 'mock-approver-1',
+  };
+
+  if (period.status === 'OPEN') {
+    return {
+      overall: 'Pending',
+      steps: [
+        financeLead,
+        {
+          stepOrder: 2,
+          status: 'Pending',
+          userId: 'mock-approver-2',
+          displayUserId: 'mock-approver-2',
+        },
+      ],
+    };
+  }
+
+  return {
+    overall: 'Approved',
+    steps: [
+      financeLead,
+      {
+        stepOrder: 2,
+        status: 'Approved',
+        userId: 'mock-approver-2',
+        displayUserId: 'mock-approver-2',
+        approvedUserId: 'mock-approver-2',
+      },
+    ],
+  };
+}
+
 const MOCK_EMPLOYEES = [
   {
     id: 'mock-emp-1',
@@ -313,6 +380,7 @@ export type PayrollActivityAction =
   | 'Regenerated'
   | 'Approved'
   | 'Exported'
+  | 'Payslip Generated'
   | 'Payslip Sent'
   | 'Reconciled';
 
@@ -628,6 +696,14 @@ export function getSeedActivityLogs(payPeriodId: string): PayrollActivityLog[] {
         remarks: 'Bank file and payroll workbook exported.',
         performedBy: financeUser,
         performedAt: at(7, 16),
+      },
+      {
+        id: `${payPeriodId}-log-payslip-generated`,
+        payPeriodId,
+        action: 'Payslip Generated',
+        remarks: 'Payslips generated for all employees.',
+        performedBy: financeUser,
+        performedAt: at(7, 15),
       },
       {
         id: `${payPeriodId}-log-payslip`,

@@ -13,6 +13,7 @@ const ACTION_COLORS: Record<PayrollActivityAction, string> = {
   Regenerated: 'blue',
   Approved: 'purple',
   Exported: 'cyan',
+  'Payslip Generated': 'lime',
   'Payslip Sent': 'geekblue',
   Reconciled: 'gold',
 };
@@ -124,9 +125,6 @@ const ActivityLogTab: React.FC<ActivityLogTabProps> = ({ payPeriodId }) => {
         pagination={false}
         dataSource={logs}
         columns={columns}
-        rowClassName={(_record, index) =>
-          index % 2 === 1 ? 'payroll-zebra-row' : ''
-        }
         locale={{
           emptyText: (
             <div

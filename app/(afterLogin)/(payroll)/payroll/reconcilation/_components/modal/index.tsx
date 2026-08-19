@@ -298,6 +298,7 @@ import { FaEye } from 'react-icons/fa';
 import { IoCloseOutline } from 'react-icons/io5';
 import { SearchOutlined } from '@ant-design/icons';
 import EmptyState from '@/components/empty';
+import { PAYROLL_SELECT_CHROME } from '@/app/(afterLogin)/(payroll)/payroll/_components/selectClass';
 import { useQueryClient } from 'react-query';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
@@ -544,7 +545,7 @@ const PayrollReconcilationModal = ({
           <Select
             showSearch
             allowClear
-            className="w-full min-h-[40px] [&_.ant-select-arrow]:!top-0 [&_.ant-select-arrow]:!bottom-0 [&_.ant-select-arrow]:!mt-0 [&_.ant-select-arrow]:!h-auto [&_.ant-select-arrow]:!flex [&_.ant-select-arrow]:!items-stretch [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!border-gray-200 [&_.ant-select-selector]:!shadow-none [&_.ant-select-selector:hover]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!shadow-none"
+            className={`w-full ${PAYROLL_SELECT_CHROME}`}
             placeholder="Search Employee"
             value={search || undefined}
             onChange={(value) => handleEmployeeSelect(value)}
@@ -557,12 +558,10 @@ const PayrollReconcilationModal = ({
             }}
             options={options}
             suffixIcon={
-              <span
-                className="flex h-full min-h-full items-center self-stretch border-l border-gray-200 pl-3 text-gray-400"
+              <SearchOutlined
+                className="text-base text-gray-400"
                 data-cy="payroll-reconciliation-detail-search-suffix"
-              >
-                <SearchOutlined className="text-base" />
-              </span>
+              />
             }
             data-cy="payroll-reconciliation-detail-search-select"
           />
@@ -581,10 +580,6 @@ const PayrollReconcilationModal = ({
               pagination={false}
               className="payroll-table"
               rowKey={(record: any) => record.userId || record.employeeName}
-              rowClassName={(record: any, index: number) => {
-                void record;
-                return index % 2 === 1 ? 'payroll-zebra-row' : '';
-              }}
               locale={{
                 emptyText: (
                   <div

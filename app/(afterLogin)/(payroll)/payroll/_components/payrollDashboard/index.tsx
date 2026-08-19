@@ -31,13 +31,17 @@ import {
   Tooltip,
   Avatar,
   Breadcrumb,
-  Dropdown,
   Tabs,
   Typography,
 } from 'antd';
 
 const { Text } = Typography;
-import { SearchOutlined, FileSyncOutlined } from '@ant-design/icons';
+import {
+  SearchOutlined,
+  FileSyncOutlined,
+  CheckOutlined,
+  FileTextOutlined,
+} from '@ant-design/icons';
 
 import { Workbook } from 'exceljs';
 
@@ -69,6 +73,7 @@ import { useGenerateBankLetter } from '../Latter';
 
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
 import { TbFileExport } from 'react-icons/tb';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import GeneratePayrollModal, { Incentive } from '../modal';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
@@ -99,8 +104,10 @@ import {
 import { usePayrollActivityLogStore } from '@/store/uistate/features/payroll/activityLog';
 import ReconciliationTab from '../reconciliationTab';
 import OverviewTab from '../overviewTab';
+import PayslipsTab from '../payslipsTab';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { usePayrollPayslipStore } from '@/store/uistate/features/payroll/payslips';
+import { PAYROLL_SELECT_CLASS } from '../selectClass';
 
 const Payroll = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -113,9 +120,18 @@ const Payroll = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'payroll' | 'reconciliation'
+    'overview' | 'payroll' | 'payslips' | 'reconciliation'
   >('overview');
   const addActivityLog = usePayrollActivityLogStore((state) => state.addLog);
+  const generatePayslips = usePayrollPayslipStore(
+    (state) => state.generatePayslips,
+  );
+  const payslipsGeneratedByPeriod = usePayrollPayslipStore(
+    (state) => state.generatedByPeriod,
+  );
+  const ensurePayslipsSeeded = usePayrollPayslipStore(
+    (state) => state.ensureSeeded,
+  );
 
   const authStore = useAuthenticationStore.getState();
   const { userId } = useAuthenticationStore();
@@ -362,6 +378,13 @@ const Payroll = () => {
     setCurrentPage(1);
     setSelectedRowKeys([]);
   }, [selectedPayPeriodId, setSearchQuery, setCurrentPage]);
+
+  useEffect(() => {
+    const payrollIds = (mergedPayrollForExport || [])
+      .map((item: any) => item.id || item.employeeId)
+      .filter(Boolean);
+    ensurePayslipsSeeded(selectedPayPeriodId, payrollIds);
+  }, [ensurePayslipsSeeded, mergedPayrollForExport, selectedPayPeriodId]);
 
   // Get selected payroll data or all data if nothing is selected
   const getSelectedPayrollData = () => {
@@ -1276,6 +1299,10 @@ const Payroll = () => {
     },
   ];
   const { isMobile, isTablet } = useIsMobile();
+  const headerActionButtonClassName =
+    isMobile || isTablet
+      ? 'flex !w-10 !min-w-10 items-center justify-center !gap-0 !p-0 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block'
+      : 'flex items-center gap-2 px-6 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block';
 
   const handleEmployeeSelect = (value: string | null | undefined) => {
     handleSearch({ employeeId: value ?? undefined });
@@ -1364,9 +1391,37 @@ const Payroll = () => {
     });
   };
 
+  const handleGeneratePayslips = () => {
+    const payrollIds = (mergedPayrollForExport || [])
+      .map((item: any) => item.id || item.employeeId)
+      .filter(Boolean);
+    if (!payrollIds.length) {
+      NotificationMessage.error({
+        message: 'No payroll data',
+        description: 'Generate payroll before creating payslips.',
+      });
+      return;
+    }
+    generatePayslips(selectedPayPeriodId, payrollIds);
+    addActivityLog(selectedPayPeriodId, {
+      action: 'Payslip Generated',
+      remarks: `Payslips generated for ${payrollIds.length} employee(s).`,
+    });
+    NotificationMessage.success({
+      message: 'Payslips generated',
+      description: 'Payslips are available on the Payslips tab.',
+    });
+    setActiveTab('payslips');
+  };
+
+  const payslipsGenerated = Boolean(
+    payslipsGeneratedByPeriod[selectedPayPeriodId],
+  );
+
   const payrollViewTabs = [
     { key: 'overview' as const, label: 'Overview' },
     { key: 'payroll' as const, label: 'Payroll' },
+    { key: 'payslips' as const, label: 'Payslips' },
     { key: 'reconciliation' as const, label: 'Reconciliation' },
   ];
 
@@ -1464,50 +1519,40 @@ const Payroll = () => {
                   data-cy="payroll-dashboard-actions-view-container"
                   className="flex gap-3 items-center"
                 >
-                  {activeTab === 'payroll' && (
-                    <Dropdown
-                      data-cy="payroll-more-actions-dropdown"
-                      menu={{
-                        items: [
-                          {
-                            key: 'send-payslip',
-                            label: 'Email Payslip',
-                            disabled: mergedPayrollForExport?.length === 0,
-                            onClick: () => setOpen(true),
-                          },
-                          ...(hasPendingApprovals || isMockPeriod
-                            ? [
-                                {
-                                  key: 'approve',
-                                  label: 'Approve Payroll',
-                                  onClick: () => setIsApproveModalOpen(true),
-                                },
-                              ]
-                            : []),
-                          {
-                            key: 'export',
-                            label: 'Export',
-                            onClick: () => setIsModalOpen(true),
-                          },
-                        ],
-                      }}
-                      trigger={['click']}
+                  {(hasPendingApprovals || isMockPeriod) && (
+                    <Button
+                      id="payroll-approve-click-button"
+                      data-cy="payroll-approve-click-button"
+                      type="primary"
+                      aria-label={
+                        isMobile || isTablet ? 'Approve payroll' : undefined
+                      }
+                      icon={
+                        <span
+                          className="inline-flex items-center justify-center leading-none"
+                          data-cy="payroll-approve-button-icon-wrapper"
+                        >
+                          <CheckOutlined
+                            data-cy="payroll-approve-icon"
+                            className="text-base leading-none"
+                          />
+                        </span>
+                      }
+                      className={headerActionButtonClassName}
+                      onClick={() => setIsApproveModalOpen(true)}
                     >
-                      <Button
-                        id="payroll-more-actions-click-button"
-                        data-cy="payroll-more-actions-click-button"
-                        className="flex !p-0 items-center justify-center w-10 h-10 min-w-10 border border-gray-300"
-                        aria-label="More actions"
-                      >
-                        <MoreHorizIcon
-                          className="text-gray-600 text-lg leading-none"
-                          data-cy="payroll-more-actions-dots-view-text"
-                        />
-                      </Button>
-                    </Dropdown>
+                      {!(isMobile || isTablet) && (
+                        <span
+                          className="inline-flex items-center leading-none"
+                          data-cy="payroll-approve-button-label"
+                        >
+                          Approve Payroll
+                        </span>
+                      )}
+                    </Button>
                   )}
 
-                  {activeTab === 'payroll' && canGenerateOrRegenerate && (
+                  {canGenerateOrRegenerate && (
                     <Popconfirm
                       id="payroll-generate-popconfirm-view-component"
                       data-cy="payroll-generate-popconfirm-view-component"
@@ -1559,11 +1604,7 @@ const Payroll = () => {
                               )}
                             </span>
                           }
-                          className={
-                            isMobile || isTablet
-                              ? 'flex !w-10 !min-w-10 items-center justify-center !gap-0 !p-0 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block'
-                              : 'flex items-center gap-2 px-6 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block'
-                          }
+                          className={headerActionButtonClassName}
                           onClick={() => setIsPayrollModalOpen(true)}
                           loading={
                             isCreatingPayroll || loading || deleteLoading
@@ -1600,6 +1641,57 @@ const Payroll = () => {
                       </AccessGuard>
                     </Popconfirm>
                   )}
+
+                  <Popconfirm
+                    id="payroll-generate-payslip-popconfirm"
+                    data-cy="payroll-generate-payslip-popconfirm"
+                    title={
+                      payslipsGenerated
+                        ? 'Regenerate payslips for all employees in this pay period?'
+                        : 'Generate payslips for all employees in this pay period?'
+                    }
+                    onConfirm={handleGeneratePayslips}
+                    okText="Yes"
+                    cancelText="No"
+                    disabled={mergedPayrollForExport?.length === 0}
+                  >
+                    <Button
+                      id="payroll-generate-payslip-click-button"
+                      data-cy="payroll-generate-payslip-click-button"
+                      type="default"
+                      aria-label={
+                        isMobile || isTablet
+                          ? payslipsGenerated
+                            ? 'Regenerate payslip'
+                            : 'Generate payslip'
+                          : undefined
+                      }
+                      icon={
+                        <span
+                          className="inline-flex items-center justify-center leading-none"
+                          data-cy="payroll-generate-payslip-button-icon-wrapper"
+                        >
+                          <FileTextOutlined
+                            data-cy="payroll-generate-payslip-icon"
+                            className="text-base leading-none"
+                          />
+                        </span>
+                      }
+                      className={`${headerActionButtonClassName} border-gray-200 text-gray-600`}
+                      disabled={mergedPayrollForExport?.length === 0}
+                    >
+                      {!(isMobile || isTablet) && (
+                        <span
+                          className="inline-flex items-center leading-none"
+                          data-cy="payroll-generate-payslip-button-label"
+                        >
+                          {payslipsGenerated
+                            ? 'Regenerate Payslip'
+                            : 'Generate Payslip'}
+                        </span>
+                      )}
+                    </Button>
+                  </Popconfirm>
                 </div>
               }
             />
@@ -1738,7 +1830,7 @@ const Payroll = () => {
             activeKey={activeTab}
             onChange={(key) =>
               setActiveTab(
-                key as 'overview' | 'payroll' | 'reconciliation',
+                key as 'overview' | 'payroll' | 'payslips' | 'reconciliation',
               )
             }
             items={payrollViewTabs.map((tab) => ({
@@ -1780,6 +1872,8 @@ const Payroll = () => {
               payPeriod={selectedPayPeriod}
               hasPendingApprovals={hasPendingApprovals}
               isApproved={payrollApprovalByPayPeriod?.approved === true}
+              payrollApproval={payrollApprovalByPayPeriod}
+              pendingApprovals={pendingApprovals}
             />
           </div>
         ) : activeTab === 'payroll' ? (
@@ -1803,7 +1897,7 @@ const Payroll = () => {
                 data-cy="payroll-search-employee-interact-select"
                 showSearch
                 allowClear
-                className="max-w-xs min-h-[40px] min-w-[240px] sm:min-w-[280px] [&_.ant-select-arrow]:!top-0 [&_.ant-select-arrow]:!bottom-0 [&_.ant-select-arrow]:!mt-0 [&_.ant-select-arrow]:!h-auto [&_.ant-select-arrow]:!flex [&_.ant-select-arrow]:!items-stretch [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!bg-white [&_.ant-select-selector]:!min-h-10 [&_.ant-select-selector]:!border-gray-200 [&_.ant-select-selector]:!shadow-none [&_.ant-select-selector:hover]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!border-gray-300 [&_.ant-select-focused_.ant-select-selector]:!shadow-none"
+                className={PAYROLL_SELECT_CLASS}
                 placeholder="Search Employee"
                 value={searchValue?.employeeId}
                 onChange={(value) => handleEmployeeSelect(value)}
@@ -1816,21 +1910,47 @@ const Payroll = () => {
                 }}
                 options={options}
                 suffixIcon={
-                  <span
-                    className="flex h-full min-h-full items-center self-stretch border-l border-gray-200 pl-3 text-gray-400"
+                  <SearchOutlined
+                    className="text-base text-gray-400"
                     data-cy="payroll-search-employee-suffix"
-                  >
-                    <SearchOutlined className="text-base" />
-                  </span>
+                  />
                 }
               />
-              <FilterPopover
-                onSearch={handleSearch}
-                defaultValues={searchValue as any}
-                selectedPayPeriodId={selectedPayPeriodId}
-                autoSearch={false}
-                hiddenFields={['yearId', 'sessionId', 'monthId', 'payPeriodId']}
-              />
+              <div
+                data-cy="payroll-tab-toolbar-actions"
+                className="flex items-center gap-2"
+              >
+                <FilterPopover
+                  onSearch={handleSearch}
+                  defaultValues={searchValue as any}
+                  selectedPayPeriodId={selectedPayPeriodId}
+                  autoSearch={false}
+                  hiddenFields={[
+                    'yearId',
+                    'sessionId',
+                    'monthId',
+                    'payPeriodId',
+                  ]}
+                />
+                <Button
+                  type="default"
+                  size="large"
+                  className="flex items-center gap-2 h-10 border-gray-200 text-gray-600 rounded-[6px] px-3 md:px-4 font-medium"
+                  icon={
+                    <SaveAltIcon className="text-gray-600" fontSize="small" />
+                  }
+                  disabled={mergedPayrollForExport?.length === 0}
+                  onClick={() => setIsModalOpen(true)}
+                  data-cy="payroll-tab-export-click-button"
+                >
+                  <span
+                    data-cy="payroll-tab-export-label"
+                    className="hidden sm:inline"
+                  >
+                    Export
+                  </span>
+                </Button>
+              </div>
             </div>
             <div
               id="payroll-table-wrapper-view-container"
@@ -1865,10 +1985,6 @@ const Payroll = () => {
                         />
                       </div>
                     ),
-                  }}
-                  rowClassName={(record: any, index: number) => {
-                    void record;
-                    return index % 2 === 1 ? 'payroll-zebra-row' : '';
                   }}
                   rowSelection={{
                     selectedRowKeys,
@@ -1915,6 +2031,25 @@ const Payroll = () => {
                 />
               )}
             </div>
+          </div>
+        ) : activeTab === 'payslips' ? (
+          <div
+            id="payroll-payslips-content-card"
+            data-cy="payroll-payslips-content-card"
+            className={
+              isMobile
+                ? 'bg-white rounded-xl shadow-sm border border-gray-100 p-4'
+                : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6'
+            }
+          >
+            <PayslipsTab
+              payPeriodId={selectedPayPeriodId}
+              payPeriod={selectedPayPeriod}
+              payrollItems={mergedPayrollForExport}
+              loading={payrollForExportLoading}
+              employeeOptions={options}
+              onEmailPayslips={() => setOpen(true)}
+            />
           </div>
         ) : (
           <div

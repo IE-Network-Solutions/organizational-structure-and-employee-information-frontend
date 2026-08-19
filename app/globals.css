@@ -2393,14 +2393,6 @@ h6 {
   vertical-align: middle;
 }
 
-.payroll-zebra-row > td {
-  background-color: #fafafa !important;
-}
-
-.payroll-zebra-row:hover > td {
-  background-color: #f0f4f8 !important;
-}
-
 /* Planning & Reporting: selected segment stays white after thumb motion ends (rc-segmented clears thumb; item-selected must contrast track) */
 .planning-reporting-toolbar-segmented.ant-segmented
   .ant-segmented-item-selected {

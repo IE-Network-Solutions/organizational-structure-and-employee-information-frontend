@@ -27,10 +27,6 @@ const PayrollTableLoadingSkeleton = ({
       pagination={false}
       className="payroll-table"
       loading={false}
-      rowClassName={(unusedRecord, index) => {
-        void unusedRecord;
-        return index % 2 === 1 ? 'payroll-zebra-row' : '';
-      }}
       components={{
         body: {
           row: ({ children, ...rowProps }: any) => {
