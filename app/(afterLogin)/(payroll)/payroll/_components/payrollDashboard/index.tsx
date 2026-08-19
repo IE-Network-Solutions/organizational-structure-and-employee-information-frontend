@@ -1464,8 +1464,7 @@ const Payroll = () => {
                   data-cy="payroll-dashboard-actions-view-container"
                   className="flex gap-3 items-center"
                 >
-                  {(activeTab === 'payroll' ||
-                    activeTab === 'reconciliation') && (
+                  {activeTab === 'payroll' && (
                     <Dropdown
                       data-cy="payroll-more-actions-dropdown"
                       menu={{
