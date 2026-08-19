@@ -38,6 +38,7 @@ const ActivityLogTab: React.FC<ActivityLogTabProps> = ({ payPeriodId }) => {
       title: 'Action',
       dataIndex: 'action',
       key: 'action',
+      minWidth: 150,
       render: (action: PayrollActivityAction) => (
         <Tag
           color={ACTION_COLORS[action] || 'default'}
@@ -53,6 +54,7 @@ const ActivityLogTab: React.FC<ActivityLogTabProps> = ({ payPeriodId }) => {
       title: 'Performed By',
       dataIndex: 'performedBy',
       key: 'performedBy',
+      minWidth: 200,
       render: (
         _unused: unknown,
         record: {
@@ -82,6 +84,7 @@ const ActivityLogTab: React.FC<ActivityLogTabProps> = ({ payPeriodId }) => {
       title: 'Performed At',
       dataIndex: 'performedAt',
       key: 'performedAt',
+      minWidth: 180,
       render: (date: string, record: { id: string }) => (
         <span
           className="text-sm"
@@ -95,6 +98,7 @@ const ActivityLogTab: React.FC<ActivityLogTabProps> = ({ payPeriodId }) => {
       title: 'Remarks',
       dataIndex: 'remarks',
       key: 'remarks',
+      minWidth: 240,
       render: (remarks: string, record: { id: string }) => (
         <span
           className="text-sm text-gray-600"
@@ -110,22 +114,32 @@ const ActivityLogTab: React.FC<ActivityLogTabProps> = ({ payPeriodId }) => {
     <div
       id="payroll-activity-log-tab-view-container"
       data-cy="payroll-activity-log-tab-view-container"
-      className="w-full"
+      className="payroll-table-scroll-host w-full overflow-x-auto scrollbar-none rounded-lg overflow-hidden"
     >
       <Table
         id="payroll-activity-log-table"
         data-cy="payroll-activity-log-table"
+        className="payroll-table"
         rowKey="id"
         pagination={false}
         dataSource={logs}
         columns={columns}
+        rowClassName={(_record, index) =>
+          index % 2 === 1 ? 'payroll-zebra-row' : ''
+        }
         locale={{
           emptyText: (
-            <EmptyState
-              minimal
-              description="No activity recorded for this pay period"
-              data-cy="payroll-activity-log-empty"
-            />
+            <div
+              className="payroll-table-empty-viewport-center py-10"
+              data-cy="payroll-activity-log-empty-wrap"
+            >
+              <EmptyState
+                minimal
+                description="No activity recorded for this pay period"
+                data-cy="payroll-activity-log-empty"
+                className="!py-2"
+              />
+            </div>
           ),
         }}
       />

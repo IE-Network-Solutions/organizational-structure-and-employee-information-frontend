@@ -1778,6 +1778,9 @@ const Payroll = () => {
               payPeriodId={selectedPayPeriodId}
               payrollForExport={payrollForExport}
               loading={payrollForExportLoading}
+              payPeriod={selectedPayPeriod}
+              hasPendingApprovals={hasPendingApprovals}
+              isApproved={payrollApprovalByPayPeriod?.approved === true}
             />
           </div>
         ) : activeTab === 'payroll' ? (

@@ -5,7 +5,7 @@ import TrendingDownOutlinedIcon from '@mui/icons-material/TrendingDownOutlined';
 
 interface PayrollCardProps {
   title?: string;
-  value?: string;
+  value?: string | number;
   growth?: string;
   icon?: React.ReactNode;
   iconBg?: string;
@@ -75,7 +75,7 @@ const PayrollCard: React.FC<PayrollCardProps> = ({
           data-cy="payroll-summary-card-value-view-text"
           className="text-xl font-semibold mb-4 text-gray-800"
         >
-          {value
+          {value !== undefined && value !== null && value !== ''
             ? Number(value).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
@@ -87,25 +87,35 @@ const PayrollCard: React.FC<PayrollCardProps> = ({
           data-cy="payroll-summary-card-growth-view-container"
           className="text-sm"
         >
-          <span
-            id="payroll-summary-card-growth-view-text"
-            data-cy="payroll-summary-card-growth-view-text"
-            className={`inline-flex items-center gap-0.5 font-medium mr-1 ${isPositive ? 'text-success' : 'text-error'}`}
-          >
-            {isPositive ? (
-              <TrendingUpOutlinedIcon
-                className="!w-4 !h-4 text-current shrink-0"
-                data-cy="payroll-summary-card-growth-up-icon"
-              />
-            ) : (
-              <TrendingDownOutlinedIcon
-                className="!w-4 !h-4 text-current shrink-0"
-                data-cy="payroll-summary-card-growth-down-icon"
-              />
-            )}
-            {isPositive ? '+' : ''}
-            {growth || '--'}
-          </span>
+          {growth ? (
+            <span
+              id="payroll-summary-card-growth-view-text"
+              data-cy="payroll-summary-card-growth-view-text"
+              className={`inline-flex items-center gap-0.5 font-medium mr-1 ${isPositive ? 'text-success' : 'text-error'}`}
+            >
+              {isPositive ? (
+                <TrendingUpOutlinedIcon
+                  className="!w-4 !h-4 text-current shrink-0"
+                  data-cy="payroll-summary-card-growth-up-icon"
+                />
+              ) : (
+                <TrendingDownOutlinedIcon
+                  className="!w-4 !h-4 text-current shrink-0"
+                  data-cy="payroll-summary-card-growth-down-icon"
+                />
+              )}
+              {isPositive ? '+' : ''}
+              {growth}
+            </span>
+          ) : (
+            <span
+              id="payroll-summary-card-growth-view-text"
+              data-cy="payroll-summary-card-growth-view-text"
+              className="mr-1 text-gray-500"
+            >
+              --
+            </span>
+          )}
           <span
             id="payroll-summary-card-growth-period-text"
             data-cy="payroll-summary-card-growth-period-text"
