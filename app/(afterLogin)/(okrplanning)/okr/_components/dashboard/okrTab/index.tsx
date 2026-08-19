@@ -108,6 +108,7 @@ export default function OkrTab({
     fiscalYearId,
     sessionIds,
     keyResultDeadlineFilter,
+    { enabled: String(activeKey) === '1' },
   );
   const {
     data: teamObjective,
@@ -121,6 +122,8 @@ export default function OkrTab({
     searchObjParams?.metricTypeId || '', // Provide empty string as fallback
     fiscalYearId,
     sessionIds,
+    undefined,
+    { enabled: String(activeKey) === '2' },
   );
 
   const {
@@ -136,6 +139,8 @@ export default function OkrTab({
     searchObjParams?.metricTypeId,
     fiscalYearId,
     sessionIds,
+    undefined,
+    { enabled: String(activeKey) === '3' },
   );
 
   const isUserLoading = isLoading;
@@ -154,29 +159,29 @@ export default function OkrTab({
   }, []);
 
   useEffect(() => {
-    if (isMounted) {
+    if (isMounted && String(activeKey) === '1') {
       userRefetch();
     }
-  }, [pageSize, currentPage, isMounted]);
+  }, [pageSize, currentPage, isMounted, activeKey]);
 
   useEffect(() => {
-    if (isMounted) {
+    if (isMounted && String(activeKey) === '2') {
       refetch();
     }
-  }, [teamPageSize, teamCurrentPage, isMounted]);
+  }, [teamPageSize, teamCurrentPage, isMounted, activeKey]);
 
   // Refetch Team OKR when year/session filters change
   useEffect(() => {
-    if (isMounted) {
+    if (isMounted && String(activeKey) === '2') {
       refetch();
     }
-  }, [fiscalYearId, sessionIds, isMounted]);
+  }, [fiscalYearId, sessionIds, isMounted, activeKey]);
 
   useEffect(() => {
-    if (isMounted) {
+    if (isMounted && String(activeKey) === '3') {
       CompanyRefetch();
     }
-  }, [companyPageSize, companyCurrentPage, isMounted]);
+  }, [companyPageSize, companyCurrentPage, isMounted, activeKey]);
 
   useEffect(() => {
     setActiveKey(String(okrTab));
@@ -585,7 +590,7 @@ export default function OkrTab({
         className={tabsClassName}
         data-cy="okr-tabs"
         id="okr-tabs"
-        destroyInactiveTabPane={false}
+        destroyInactiveTabPane
       />
     </div>
   );

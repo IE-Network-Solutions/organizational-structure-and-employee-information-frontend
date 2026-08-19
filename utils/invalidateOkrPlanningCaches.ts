@@ -13,7 +13,7 @@ import {
   type ReportTaskStatusOverride,
 } from '@/utils/recentReportTaskStatuses';
 
-const REFETCH_OPTS = { refetchActive: true, refetchInactive: true } as const;
+const REFETCH_OPTS = { refetchActive: true, refetchInactive: false } as const;
 
 /** Query keys that carry per-milestone Completed status for the plan + modal. */
 const MILESTONE_STATUS_QUERY_KEYS = [
@@ -21,33 +21,88 @@ const MILESTONE_STATUS_QUERY_KEYS = [
   ['ObjectiveInformation'],
 ] as const;
 
-/**
- * Invalidate every query that feeds OKR objectives and Plan & Report KR progress.
- * Plan/report edits update backend KR metrics; without ObjectiveInformation invalidation
- * the Plan & Report left panel keeps stale progress until an unrelated action refetches.
- *
- * Use array prefixes so react-query matches `['fetchObjectives', userId]` etc.
- */
-export function invalidateOkrPlanningCaches(
+/** Plan-list / hierarchy / KR panel — after plan create/update/approve. */
+export function invalidatePlanningCaches(
   queryClient: QueryClient,
 ): Promise<unknown[]> {
   return Promise.all([
     queryClient.invalidateQueries(['okrPlans'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrUserPlans'], REFETCH_OPTS),
-    queryClient.invalidateQueries(['okrReports'], REFETCH_OPTS),
-    queryClient.invalidateQueries(['okrReport'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrPlan'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrPlannedData'], REFETCH_OPTS),
     queryClient.invalidateQueries(['planningPeriodsHierarchy'], REFETCH_OPTS),
     queryClient.invalidateQueries(['fetchObjectives'], REFETCH_OPTS),
     queryClient.invalidateQueries(['ObjectiveInformation'], REFETCH_OPTS),
-    queryClient.invalidateQueries(['teamObjectiveInformation'], REFETCH_OPTS),
-    queryClient.invalidateQueries(
-      ['companyObjectiveInformation'],
-      REFETCH_OPTS,
-    ),
     queryClient.invalidateQueries(['keyResult'], REFETCH_OPTS),
-    queryClient.invalidateQueries(['keyResultForEdit'], REFETCH_OPTS),
+  ]);
+}
+
+/** Report list/detail — after report create/update/approve. */
+export function invalidateReportingCaches(
+  queryClient: QueryClient,
+): Promise<unknown[]> {
+  return Promise.all([
+    queryClient.invalidateQueries(['okrReports'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['okrReport'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['okrPlannedData'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['fetchObjectives'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['ObjectiveInformation'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['teamObjectiveInformation'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['companyObjectiveInformation'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['keyResult'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['ObjectiveDashboard'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['VPScores'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['variablePay'], REFETCH_OPTS),
+  ]);
+}
+
+/**
+ * Dashboard OKR totals + VP recalculate async after report.
+ * Re-invalidate shortly after so cards pick up the finished summary/VP.
+ */
+export function scheduleDashboardAndVpRefetch(
+  queryClient: QueryClient,
+  delayMs = 1000,
+): void {
+  if (typeof window === 'undefined') return;
+  window.setTimeout(() => {
+    void Promise.all([
+      queryClient.invalidateQueries(['ObjectiveDashboard'], REFETCH_OPTS),
+      queryClient.invalidateQueries(['VPScores'], REFETCH_OPTS),
+      queryClient.invalidateQueries(['variablePay'], REFETCH_OPTS),
+      queryClient.invalidateQueries(['ObjectiveInformation'], REFETCH_OPTS),
+      queryClient.invalidateQueries(['fetchObjectives'], REFETCH_OPTS),
+    ]);
+  }, delayMs);
+}
+
+/**
+ * Invalidate every query that feeds OKR objectives and Plan & Report KR progress.
+ * Prefer invalidatePlanningCaches / invalidateReportingCaches when the mutation
+ * only touches one surface.
+ */
+export function invalidateOkrPlanningCaches(
+  queryClient: QueryClient,
+): Promise<unknown[]> {
+  return Promise.all([
+    ...[
+      ['okrPlans'],
+      ['okrUserPlans'],
+      ['okrReports'],
+      ['okrReport'],
+      ['okrPlan'],
+      ['okrPlannedData'],
+      ['planningPeriodsHierarchy'],
+      ['fetchObjectives'],
+      ['ObjectiveInformation'],
+      ['teamObjectiveInformation'],
+      ['companyObjectiveInformation'],
+      ['keyResult'],
+      ['keyResultForEdit'],
+      ['ObjectiveDashboard'],
+      ['VPScores'],
+      ['variablePay'],
+    ].map((key) => queryClient.invalidateQueries(key, REFETCH_OPTS)),
   ]);
 }
 

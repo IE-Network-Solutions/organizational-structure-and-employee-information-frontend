@@ -1,15 +1,7 @@
-import React, {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 import { Avatar, Button, Dropdown, Table, message } from 'antd';
 import TableFilter from './tableFilter';
 import {
-  AttendanceRequestBody,
   ExportWarningLetterFormat,
   RuleViolationQueryParams,
 } from '@/store/server/features/timesheet/attendance/interface';
@@ -98,7 +90,6 @@ interface RuleViolationTableRow {
 }
 
 interface RuleViolationTableProps {
-  setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
   isImport: boolean;
   selectedRowKeys?: Key[];
   setSelectedRowKeys?: (keys: Key[]) => void;

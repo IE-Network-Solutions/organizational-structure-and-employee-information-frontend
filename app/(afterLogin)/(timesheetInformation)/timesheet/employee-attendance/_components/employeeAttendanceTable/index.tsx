@@ -1,14 +1,7 @@
-import React, {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import { Button, Dropdown, Table } from 'antd';
 import TableFilter from './tableFilter';
-import { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
+import type { AttendanceRequestBody } from '@/store/server/features/timesheet/attendance/interface';
 import { useGetAttendances } from '@/store/server/features/timesheet/attendance/queries';
 import {
   calculateAttendanceRecordToTotalWorkTime,
@@ -169,14 +162,12 @@ const MISSED_BREAK_BADGE_CLASS =
   'min-h-6 max-w-full py-1 px-3 flex items-center justify-center rounded-lg font-bold text-[10px] whitespace-normal text-center bg-red-100 text-red-600';
 
 interface EmployeeAttendanceTableProps {
-  setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
   isImport: boolean;
   selectedRowKeys?: Key[];
   setSelectedRowKeys?: (keys: Key[]) => void;
 }
 
 const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
-  setBodyRequest,
   isImport,
   selectedRowKeys,
   setSelectedRowKeys,
@@ -213,6 +204,8 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
   const { data, isFetching, refetch } = useGetAttendances(
     { page: currentPage, limit: pageSize, orderBy, orderDirection },
     { filter },
+    true,
+    true,
   );
   const importWarnings: Array<{
     line?: number;
@@ -805,10 +798,6 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
     setCurrentPage(1);
     setFilter(nFilter);
-    setBodyRequest((prev) => ({
-      ...prev,
-      filter: nFilter,
-    }));
   };
 
   const handleTableChange = (pagination: any, sorter: any) => {
@@ -863,7 +852,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
           id="time-attendance-employee-attendance-table-scroll-wrapper"
           data-cy="time-attendance-employee-attendance-table-scroll-wrapper"
         >
-          {isFetching ? (
+          {isFetching && !data ? (
             <TableSkeleton
               columns={columns}
               scroll={{ x: 'max-content' }}

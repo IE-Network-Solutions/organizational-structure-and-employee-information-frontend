@@ -84,6 +84,9 @@ const ReactQueryWrapper: React.FC<ReactQueryWrapperProps> = ({ children }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
+        staleTime: 30_000,
+        refetchOnWindowFocus: false,
+        retry: 1,
         onError: async (error: any) => {
           // Check for tenant ID missing error first
           if (handleTenantIdError(error)) {

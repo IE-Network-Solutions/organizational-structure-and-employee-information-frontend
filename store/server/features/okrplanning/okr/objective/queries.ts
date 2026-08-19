@@ -172,6 +172,7 @@ export const useGetUserObjective = (
   fiscalYearId?: string,
   sessions?: string[],
   keyResultDeadlineFilter?: string,
+  queryOptions?: { enabled?: boolean },
 ) =>
   useQuery<ResponseData>(
     [
@@ -196,6 +197,8 @@ export const useGetUserObjective = (
       ),
     {
       keepPreviousData: true,
+      staleTime: 30_000,
+      enabled: (queryOptions?.enabled ?? true) && !!postId,
     },
   );
 
@@ -208,6 +211,7 @@ export const useGetTeamObjective = (
   fiscalYearId?: string,
   sessions?: string[],
   keyResultDeadlineFilter?: string,
+  queryOptions?: { enabled?: boolean },
 ) =>
   useQuery<ResponseData>(
     [
@@ -234,7 +238,9 @@ export const useGetTeamObjective = (
       ),
     {
       keepPreviousData: true,
-      enabled: users.length > 0 && !!userId,
+      staleTime: 30_000,
+      enabled:
+        (queryOptions?.enabled ?? true) && users.length > 0 && !!userId,
     },
   );
 
@@ -248,6 +254,7 @@ export const useGetCompanyObjective = (
   fiscalYearId?: string,
   sessions?: string[],
   keyResultDeadlineFilter?: string,
+  queryOptions?: { enabled?: boolean },
 ) =>
   useQuery<ResponseData>(
     [
@@ -276,6 +283,8 @@ export const useGetCompanyObjective = (
       ),
     {
       keepPreviousData: true,
+      staleTime: 30_000,
+      enabled: (queryOptions?.enabled ?? true) && !!postId,
     },
   );
 
