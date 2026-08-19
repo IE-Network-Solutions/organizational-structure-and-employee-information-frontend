@@ -139,9 +139,7 @@ function GroupSheet({
 }
 
 type Sheet =
-  | { type: 'closed' }
-  | { type: 'group'; group: NavGroup }
-  | { type: 'all' };
+  { type: 'closed' } | { type: 'group'; group: NavGroup } | { type: 'all' };
 
 export function MobileBottomNav({
   groups,

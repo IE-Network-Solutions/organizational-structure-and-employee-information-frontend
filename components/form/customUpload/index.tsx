@@ -44,10 +44,7 @@ interface CustomUploadProps extends UploadProps {
   value?: UploadFile[];
   /** Required so concurrently rendered uploads keep separate lists in the store. */
   targetState?:
-    | 'fileList'
-    | 'fileAttachmentList'
-    | 'fileReferenceList'
-    | 'fileImageList';
+    'fileList' | 'fileAttachmentList' | 'fileReferenceList' | 'fileImageList';
   /** Used by `dragWithLinkStacked` for the link input placeholder */
   linkPlaceholder?: string;
 }
