@@ -87,14 +87,6 @@ const EmployeeAttendanceSideBar = () => {
       return;
     }
 
-    if (!value.startAt || !value.endAt) {
-      NotificationMessage.warning({
-        message:
-          'Clock In and Clock Out times are required unless marked absent.',
-      });
-      return;
-    }
-
     if (!recordDate) {
       NotificationMessage.warning({
         message:
@@ -103,44 +95,59 @@ const EmployeeAttendanceSideBar = () => {
       return;
     }
 
+    const startAt = value.startAt ?? null;
+    const endAt = value.endAt ?? null;
+    const hasPunchTimes = Boolean(startAt || endAt);
+
     const attendanceDateBase = getAttendanceDateBase(recordDate);
     const dayOfTheWeek = attendanceDateBase.format('dddd');
-    const checkIn = value.startAt.format('HH.mm');
-    const checkOut = value.endAt.format('HH.mm');
-
     const workScheduleData = employeeData?.employeeJobInformation
       ?.find((item: any) => item.isPositionActive === true)
       ?.workSchedule?.detail?.find((item: any) =>
         item.day ? item.day === dayOfTheWeek : item.dayOfWeek === dayOfTheWeek,
       );
 
-    if (!workScheduleData) {
+    if (hasPunchTimes && !workScheduleData) {
       NotificationMessage.warning({
         message: `This Employee does not have any active work scheduled`,
       });
       return;
     }
 
-    const lateByMinutes = dayjs(checkIn, 'HH.mm').diff(
-      dayjs(workScheduleData.startTime, 'HH.mm'),
-      'minute',
-    );
+    const lateByMinutes =
+      startAt && workScheduleData
+        ? Math.max(
+            0,
+            dayjs(startAt.format('HH.mm'), 'HH.mm').diff(
+              dayjs(workScheduleData.startTime, 'HH.mm'),
+              'minute',
+            ),
+          )
+        : 0;
 
-    const earlyByMinutes = dayjs(workScheduleData.endTime, 'HH:mm A').diff(
-      dayjs(checkOut, 'HH.mm'),
-      'minute',
-    );
+    const earlyByMinutes =
+      endAt && workScheduleData
+        ? Math.max(
+            0,
+            dayjs(workScheduleData.endTime, 'HH:mm A').diff(
+              dayjs(endAt.format('HH.mm'), 'HH.mm'),
+              'minute',
+            ),
+          )
+        : 0;
 
     updateLeaveRequest(
       {
         id: employeeAttendanceId,
         data: {
-          startAt: formatAttendanceApiDateTime(recordDate, value.startAt),
-          endAt: formatAttendanceApiDateTime(recordDate, value.endAt),
-          lateByMinutes: Math.max(0, lateByMinutes),
-          earlyByMinutes: Math.max(0, earlyByMinutes),
+          startAt: startAt
+            ? formatAttendanceApiDateTime(recordDate, startAt)
+            : null,
+          endAt: endAt ? formatAttendanceApiDateTime(recordDate, endAt) : null,
+          lateByMinutes,
+          earlyByMinutes,
           isAbsent: false,
-          isOnGoing: false,
+          isOnGoing: Boolean(startAt) && !endAt,
         },
       },
       {
@@ -153,7 +160,6 @@ const EmployeeAttendanceSideBar = () => {
 
   React.useEffect(() => {
     if (currentAttendanceData && recordDate) {
-      const dateBase = getAttendanceDateBase(recordDate);
       const formattedBreakType = {
         ...currentAttendanceData,
         startAt: currentAttendanceData.startAt
@@ -161,13 +167,13 @@ const EmployeeAttendanceSideBar = () => {
               recordDate,
               parseAttendanceWallClockTime(currentAttendanceData.startAt)!,
             )
-          : dateBase,
+          : null,
         endAt: currentAttendanceData.endAt
           ? applyTimeToAttendanceDate(
               recordDate,
               parseAttendanceWallClockTime(currentAttendanceData.endAt)!,
             )
-          : dateBase,
+          : null,
         status: formatToAttendanceStatuses(currentAttendanceData)?.[0]?.status,
       };
       form.setFieldsValue(formattedBreakType);
@@ -253,39 +259,35 @@ const EmployeeAttendanceSideBar = () => {
                   className="text-sm font-normal"
                   data-cy="time-attendance-employee-attendance-sidebar-check-in-label"
                 >
-                  Check In{' '}
-                  <span
-                    style={{ color: 'red' }}
-                    data-cy="time-attendance-employee-attendance-sidebar-check-in-required"
-                  >
-                    *
-                  </span>
+                  Check In
                 </span>
               }
-              rules={[{ required: !isAbsent, message: 'Required' }]}
               className={itemClass}
             >
               {currentAttendanceData?.isAbsent ? (
                 <DatePicker
                   showTime
+                  allowClear
                   disabled={isAbsent}
                   format={ATTENDANCE_API_DATETIME_FORMAT}
                   className={controlClass}
                   onChange={(datetime) => {
-                    form.setFieldsValue({ startAt: datetime });
+                    form.setFieldsValue({ startAt: datetime ?? null });
                   }}
                   id="time-attendance-employee-attendance-sidebar-clock-in-date"
                   data-cy="time-attendance-employee-attendance-sidebar-clock-in-date"
                 />
               ) : (
                 <TimePicker
+                  allowClear
                   disabled={isAbsent}
                   format="HH:mm"
                   className={controlClass}
                   onChange={(time) => {
-                    if (!time) return;
                     form.setFieldsValue({
-                      startAt: applyTimeToAttendanceDate(recordDate, time),
+                      startAt: time
+                        ? applyTimeToAttendanceDate(recordDate, time)
+                        : null,
                     });
                   }}
                   id="time-attendance-employee-attendance-sidebar-clock-in-time"
@@ -302,39 +304,35 @@ const EmployeeAttendanceSideBar = () => {
                   className="text-sm font-normal"
                   data-cy="time-attendance-employee-attendance-sidebar-check-out-label"
                 >
-                  Check Out{' '}
-                  <span
-                    style={{ color: 'red' }}
-                    data-cy="time-attendance-employee-attendance-sidebar-check-out-required"
-                  >
-                    *
-                  </span>
+                  Check Out
                 </span>
               }
-              rules={[{ required: !isAbsent, message: 'Required' }]}
               className={itemClass}
             >
               {currentAttendanceData?.isAbsent ? (
                 <DatePicker
                   showTime
+                  allowClear
                   disabled={isAbsent}
                   format={ATTENDANCE_API_DATETIME_FORMAT}
                   className={controlClass}
                   onChange={(datetime) => {
-                    form.setFieldsValue({ endAt: datetime });
+                    form.setFieldsValue({ endAt: datetime ?? null });
                   }}
                   id="time-attendance-employee-attendance-sidebar-clock-out-date"
                   data-cy="time-attendance-employee-attendance-sidebar-clock-out-date"
                 />
               ) : (
                 <TimePicker
+                  allowClear
                   format="HH:mm"
                   disabled={isAbsent}
                   className={controlClass}
                   onChange={(time) => {
-                    if (!time) return;
                     form.setFieldsValue({
-                      endAt: applyTimeToAttendanceDate(recordDate, time),
+                      endAt: time
+                        ? applyTimeToAttendanceDate(recordDate, time)
+                        : null,
                     });
                   }}
                   id="time-attendance-employee-attendance-sidebar-clock-out-time"

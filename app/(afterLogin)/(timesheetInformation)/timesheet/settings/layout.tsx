@@ -174,7 +174,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
         </div>
       ),
     },
-
     {
       key: 'allowed-area-configuration',
       label: (
@@ -196,18 +195,6 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
           id="time-attendance-settings-configuration-vp-deduction-tab-label"
         >
           Configuration VP Deduction
-        </div>
-      ),
-    },
-    {
-      key: 'allowed-area-configuration',
-      label: (
-        <div
-          className={`text-base font-normal m-0 ${activeKey === 'allowed-area-configuration' ? 'text-primary font-semibold' : 'text-gray-800'}`}
-          data-cy="time-attendance-settings-allowed-area-configuration-tab-label"
-          id="time-attendance-settings-allowed-area-configuration-tab-label"
-        >
-          Allowed Area Configuration
         </div>
       ),
     },

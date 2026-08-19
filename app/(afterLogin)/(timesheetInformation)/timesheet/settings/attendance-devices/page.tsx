@@ -3,6 +3,7 @@
 import React from 'react';
 import {
   Button,
+  Dropdown,
   Form,
   Modal,
   Select,
@@ -13,7 +14,12 @@ import {
   message,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { ReloadOutlined, SettingOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import {
   useDiscoverAttendanceDevices,
   useGetAttendanceDevices,
@@ -36,6 +42,16 @@ const purposeOptions = [
   { label: 'Access control', value: AttendanceDevicePurpose.ACCESS_CONTROL },
   { label: 'Both', value: AttendanceDevicePurpose.BOTH },
 ];
+
+const getPurposeLabel = (purpose: AttendanceDevicePurpose) =>
+  purposeOptions.find((option) => option.value === purpose)?.label ??
+  purpose
+    .replaceAll('_', ' ')
+    .toLowerCase()
+    .replace(/^\w/, (letter) => letter.toUpperCase());
+
+const headerClass = 'text-[#4d4d4d] text-base font-bold';
+const cellClass = 'text-[#4d4d4d] text-sm font-normal';
 
 const getErrorMessage = (error: any, fallback: string) =>
   error?.response?.data?.message ||
@@ -148,15 +164,18 @@ const AttendanceDevicesPage = () => {
 
   const columns: ColumnsType<DeviceRow> = [
     {
-      title: 'Device',
+      title: <span className={headerClass}>Device</span>,
       key: 'device',
       render: (columnValue, row) => (
         <div data-cy="attendance-devices-device-cell">
-          <Typography.Text strong data-cy="attendance-devices-device-name">
-            {row.name}
-          </Typography.Text>
           <div
-            className="text-xs text-gray-500"
+            className={`${cellClass} font-medium`}
+            data-cy="attendance-devices-device-name"
+          >
+            {row.name}
+          </div>
+          <div
+            className="text-xs text-[#8c8c8c]"
             data-cy="attendance-devices-device-serial"
           >
             {row.serialNumber}
@@ -165,13 +184,16 @@ const AttendanceDevicesPage = () => {
       ),
     },
     {
-      title: 'Area',
+      title: <span className={headerClass}>Area</span>,
       key: 'area',
-      render: (columnValue, row) =>
-        row.area?.area_name || row.configuredDevice?.areaName || '—',
+      render: (columnValue, row) => (
+        <span className={cellClass}>
+          {row.area?.area_name || row.configuredDevice?.areaName || '—'}
+        </span>
+      ),
     },
     {
-      title: 'Machine status',
+      title: <span className={headerClass}>Machine status</span>,
       key: 'state',
       render: (columnValue, row) =>
         row.state === null ? (
@@ -188,12 +210,12 @@ const AttendanceDevicesPage = () => {
         ),
     },
     {
-      title: 'Purpose',
+      title: <span className={headerClass}>Purpose</span>,
       key: 'purpose',
       render: (columnValue, row) =>
         row.configuredDevice ? (
           <Tag color="blue" data-cy="attendance-devices-purpose-tag">
-            {row.configuredDevice.purpose.replace('_', ' ')}
+            {getPurposeLabel(row.configuredDevice.purpose)}
           </Tag>
         ) : (
           <Tag data-cy="attendance-devices-not-configured-tag">
@@ -202,7 +224,7 @@ const AttendanceDevicesPage = () => {
         ),
     },
     {
-      title: 'Enabled',
+      title: <span className={headerClass}>Enabled</span>,
       key: 'enabled',
       render: (columnValue, row) =>
         row.configuredDevice ? (
@@ -213,40 +235,57 @@ const AttendanceDevicesPage = () => {
             {row.configuredDevice.enabled ? 'Yes' : 'No'}
           </Tag>
         ) : (
-          '—'
+          <span className={cellClass}>—</span>
         ),
     },
     {
-      title: 'Action',
+      title: <span className={headerClass}>Action</span>,
       key: 'action',
-      align: 'right',
-      render: (columnValue, row) => (
-        <div
-          className="flex justify-end gap-2"
-          data-cy="attendance-devices-actions"
-        >
-          <Button
-            icon={
-              <SettingOutlined data-cy="attendance-devices-configure-icon" />
-            }
-            onClick={() => openConfigure(row)}
-            data-cy="attendance-devices-configure-button"
+      align: 'left',
+      render: (columnValue, row) => {
+        const items: MenuProps['items'] = [
+          {
+            key: 'configure',
+            label: row.configuredDevice ? 'Edit' : 'Configure',
+            icon: row.configuredDevice ? (
+              <EditOutlinedIcon fontSize="small" />
+            ) : (
+              <SettingsOutlinedIcon fontSize="small" />
+            ),
+            onClick: () => openConfigure(row),
+          },
+          ...(row.configuredDevice
+            ? [
+                {
+                  key: 'remove',
+                  label: 'Remove',
+                  icon: <DeleteOutlinedIcon fontSize="small" />,
+                  danger: true,
+                  onClick: () =>
+                    handleDelete(row.configuredDevice as AttendanceDevice),
+                },
+              ]
+            : []),
+        ];
+
+        return (
+          <Dropdown
+            trigger={['click']}
+            menu={{ items }}
+            placement="bottomRight"
           >
-            {row.configuredDevice ? 'Edit' : 'Configure'}
-          </Button>
-          {row.configuredDevice && (
             <Button
-              danger
-              onClick={() =>
-                handleDelete(row.configuredDevice as AttendanceDevice)
-              }
-              data-cy="attendance-devices-remove-button"
+              type="text"
+              className="!w-8 !h-8 !min-w-8 !min-h-8 flex items-center justify-center hover:!bg-gray-50 !border-0 !shadow-none"
+              aria-label="Device actions"
+              data-cy="attendance-devices-actions"
+              onClick={(event) => event.stopPropagation()}
             >
-              Remove
+              <MoreHorizIcon />
             </Button>
-          )}
-        </div>
-      ),
+          </Dropdown>
+        );
+      },
     },
   ];
 
@@ -255,7 +294,7 @@ const AttendanceDevicesPage = () => {
       {contextHolder}
       {messageContextHolder}
       <div
-        className="rounded-lg border border-[#D9D9D9] bg-white p-4"
+        className="rounded-lg bg-white p-4"
         data-cy="attendance-devices-page"
       >
         <div
@@ -308,6 +347,13 @@ const AttendanceDevicesPage = () => {
           pagination={{ pageSize: 10 }}
           locale={{ emptyText: 'No biometric devices found.' }}
           data-cy="attendance-devices-table"
+          onRow={(_, index) => ({
+            className:
+              (index ?? 0) % 2 === 0
+                ? 'attendance-devices-row-odd'
+                : 'attendance-devices-row-even',
+          })}
+          className="[&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-[#4d4d4d] [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-bold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_.ant-table-tbody>tr>td]:text-[#4d4d4d] [&_.ant-table-tbody>tr>td]:text-sm [&_.ant-table-tbody>tr>td]:font-normal [&_tr.attendance-devices-row-even>td]:!bg-[#FAFAFA] [&_tr.attendance-devices-row-odd>td]:!bg-white"
         />
       </div>
 
