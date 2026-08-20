@@ -40,7 +40,6 @@ import {
   SearchOutlined,
   FileSyncOutlined,
   CheckOutlined,
-  FileTextOutlined,
 } from '@ant-design/icons';
 
 import { Workbook } from 'exceljs';
@@ -123,12 +122,6 @@ const Payroll = () => {
     'overview' | 'payroll' | 'payslips' | 'reconciliation'
   >('overview');
   const addActivityLog = usePayrollActivityLogStore((state) => state.addLog);
-  const generatePayslips = usePayrollPayslipStore(
-    (state) => state.generatePayslips,
-  );
-  const payslipsGeneratedByPeriod = usePayrollPayslipStore(
-    (state) => state.generatedByPeriod,
-  );
   const ensurePayslipsSeeded = usePayrollPayslipStore(
     (state) => state.ensureSeeded,
   );
@@ -1391,38 +1384,11 @@ const Payroll = () => {
     });
   };
 
-  const handleGeneratePayslips = () => {
-    const payrollIds = (mergedPayrollForExport || [])
-      .map((item: any) => item.id || item.employeeId)
-      .filter(Boolean);
-    if (!payrollIds.length) {
-      NotificationMessage.error({
-        message: 'No payroll data',
-        description: 'Generate payroll before creating payslips.',
-      });
-      return;
-    }
-    generatePayslips(selectedPayPeriodId, payrollIds);
-    addActivityLog(selectedPayPeriodId, {
-      action: 'Payslip Generated',
-      remarks: `Payslips generated for ${payrollIds.length} employee(s).`,
-    });
-    NotificationMessage.success({
-      message: 'Payslips generated',
-      description: 'Payslips are available on the Payslips tab.',
-    });
-    setActiveTab('payslips');
-  };
-
-  const payslipsGenerated = Boolean(
-    payslipsGeneratedByPeriod[selectedPayPeriodId],
-  );
-
   const payrollViewTabs = [
     { key: 'overview' as const, label: 'Overview' },
     { key: 'payroll' as const, label: 'Payroll' },
-    { key: 'payslips' as const, label: 'Payslips' },
     { key: 'reconciliation' as const, label: 'Reconciliation' },
+    { key: 'payslips' as const, label: 'Payslips' },
   ];
 
   const handleChangePayPeriod = () => {
@@ -1641,57 +1607,6 @@ const Payroll = () => {
                       </AccessGuard>
                     </Popconfirm>
                   )}
-
-                  <Popconfirm
-                    id="payroll-generate-payslip-popconfirm"
-                    data-cy="payroll-generate-payslip-popconfirm"
-                    title={
-                      payslipsGenerated
-                        ? 'Regenerate payslips for all employees in this pay period?'
-                        : 'Generate payslips for all employees in this pay period?'
-                    }
-                    onConfirm={handleGeneratePayslips}
-                    okText="Yes"
-                    cancelText="No"
-                    disabled={mergedPayrollForExport?.length === 0}
-                  >
-                    <Button
-                      id="payroll-generate-payslip-click-button"
-                      data-cy="payroll-generate-payslip-click-button"
-                      type="default"
-                      aria-label={
-                        isMobile || isTablet
-                          ? payslipsGenerated
-                            ? 'Regenerate payslip'
-                            : 'Generate payslip'
-                          : undefined
-                      }
-                      icon={
-                        <span
-                          className="inline-flex items-center justify-center leading-none"
-                          data-cy="payroll-generate-payslip-button-icon-wrapper"
-                        >
-                          <FileTextOutlined
-                            data-cy="payroll-generate-payslip-icon"
-                            className="text-base leading-none"
-                          />
-                        </span>
-                      }
-                      className={`${headerActionButtonClassName} border-gray-200 text-gray-600`}
-                      disabled={mergedPayrollForExport?.length === 0}
-                    >
-                      {!(isMobile || isTablet) && (
-                        <span
-                          className="inline-flex items-center leading-none"
-                          data-cy="payroll-generate-payslip-button-label"
-                        >
-                          {payslipsGenerated
-                            ? 'Regenerate Payslip'
-                            : 'Generate Payslip'}
-                        </span>
-                      )}
-                    </Button>
-                  </Popconfirm>
                 </div>
               }
             />

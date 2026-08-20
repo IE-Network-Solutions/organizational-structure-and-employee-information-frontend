@@ -226,7 +226,6 @@ const OverviewTab = ({
         ? 'Pending approval'
         : workflow.overall
       : getApprovalLabel(hasPayroll, hasPendingApprovals, isApproved);
-  const approvalIcon = overallStatusIcon(workflow.overall);
   const periodLabel = payPeriod
     ? formatPayPeriodLabel(payPeriod)
     : 'Pay period';
@@ -385,27 +384,6 @@ const OverviewTab = ({
             data-cy="payroll-overview-approval-flow"
             className="flex flex-wrap items-center gap-3"
           >
-            <span
-              data-cy="payroll-overview-approval-flow-overall"
-              className="inline-flex items-center gap-1.5"
-            >
-              {approvalIcon ? (
-                <Image
-                  unoptimized
-                  width={20}
-                  height={20}
-                  src={approvalIcon}
-                  alt={workflow.overall}
-                  data-cy="payroll-overview-approval-flow-overall-icon"
-                />
-              ) : null}
-              <span
-                data-cy="payroll-overview-approval-status-tag"
-                className="text-sm font-medium text-gray-900"
-              >
-                {approvalLabel}
-              </span>
-            </span>
             {workflow.steps.map((step) => {
               const displayUserId = String(
                 step.displayUserId || step.approvedUserId || step.userId || '',

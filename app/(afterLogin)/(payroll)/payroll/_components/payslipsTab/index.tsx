@@ -1,18 +1,11 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Row,
-  Select,
-  Typography,
-} from 'antd';
+import { Button, Card, Col, Divider, Popconfirm, Row, Select, Typography } from 'antd';
 import { DownloadOutlined, SearchOutlined } from '@ant-design/icons';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import dayjs from 'dayjs';
@@ -140,6 +133,9 @@ const PayslipsTab = ({
 
   const generatedByPeriod = usePayrollPayslipStore(
     (state) => state.generatedByPeriod,
+  );
+  const generatePayslips = usePayrollPayslipStore(
+    (state) => state.generatePayslips,
   );
   const ensureSeeded = usePayrollPayslipStore((state) => state.ensureSeeded);
   const addActivityLog = usePayrollActivityLogStore((state) => state.addLog);
@@ -289,6 +285,26 @@ const PayslipsTab = ({
   };
 
   const hasGeneratedPayslips = generatedPayslips.length > 0;
+  const canGeneratePayslips = payrollIds.length > 0;
+
+  const handleGeneratePayslips = () => {
+    if (!canGeneratePayslips) {
+      NotificationMessage.error({
+        message: 'No payroll data',
+        description: 'Generate payroll before creating payslips.',
+      });
+      return;
+    }
+    generatePayslips(payPeriodId, payrollIds);
+    addActivityLog(payPeriodId, {
+      action: 'Payslip Generated',
+      remarks: `Payslips generated for ${payrollIds.length} employee(s).`,
+    });
+    NotificationMessage.success({
+      message: 'Payslips generated',
+      description: 'Payslips are ready for this pay period.',
+    });
+  };
 
   return (
     <div
@@ -345,6 +361,43 @@ const PayslipsTab = ({
               'payPeriodId',
             ]}
           />
+          <Popconfirm
+            id="payroll-generate-payslip-popconfirm"
+            data-cy="payroll-generate-payslip-popconfirm"
+            title={
+              hasGeneratedPayslips
+                ? 'Regenerate payslips for all employees in this pay period?'
+                : 'Generate payslips for all employees in this pay period?'
+            }
+            onConfirm={handleGeneratePayslips}
+            okText="Yes"
+            cancelText="No"
+            disabled={!canGeneratePayslips}
+          >
+            <Button
+              id="payroll-generate-payslip-click-button"
+              data-cy="payroll-generate-payslip-click-button"
+              type="default"
+              size="large"
+              className="flex items-center gap-2 h-10 border-gray-200 text-gray-600 rounded-[6px] px-3 md:px-4 font-medium"
+              icon={
+                <DescriptionOutlinedIcon
+                  className="text-gray-600"
+                  fontSize="small"
+                />
+              }
+              disabled={!canGeneratePayslips}
+            >
+              <span
+                data-cy="payroll-generate-payslip-button-label"
+                className="hidden sm:inline"
+              >
+                {hasGeneratedPayslips
+                  ? 'Regenerate Payslip'
+                  : 'Generate Payslip'}
+              </span>
+            </Button>
+          </Popconfirm>
           <Button
             type="default"
             size="large"

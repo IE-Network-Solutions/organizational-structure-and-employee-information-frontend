@@ -9,7 +9,6 @@ import EmptyState from '@/components/empty';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import ApprovalStatusesInfo from '@/components/common/approvalStatuses/approvalStatusesInfo';
 import UserCard from '@/components/common/userCard/userCard';
 import {
   useGetPayrollApprovalByPayPeriodId,
@@ -332,7 +331,6 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
           data-cy="payroll-pay-period-select-toolbar-actions"
           className="flex flex-wrap items-center gap-3"
         >
-          <ApprovalStatusesInfo />
           <FilterPopover
             onSearch={handleFilterSearch}
             defaultValues={{
