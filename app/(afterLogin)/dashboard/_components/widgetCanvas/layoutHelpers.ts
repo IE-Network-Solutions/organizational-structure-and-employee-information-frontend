@@ -278,56 +278,8 @@ const itemsOverlap = (
   first.y < second.y + second.h &&
   first.y + first.h > second.y;
 
-const firstFitY = (
-  item: DashboardLayoutItem,
-  blockers: DashboardLayoutItem[],
-) => {
-  for (let y = 0; y <= item.y; y += 1) {
-    const candidate = { ...item, y };
-    if (!blockers.some((blocker) => itemsOverlap(candidate, blocker))) {
-      return y;
-    }
-  }
-  return item.y;
-};
-
-export const compactUp = (
-  items: DashboardLayoutItem[],
-  options?: {
-    skipIds?: DashboardLayoutItem['i'][];
-    reserved?: DashboardLayoutItem[];
-  },
-): DashboardLayoutItem[] => {
-  const skip = new Set(options?.skipIds ?? []);
-  const reserved = options?.reserved ?? [];
-  const next = items.map((item) => ({ ...item }));
-  let changed = true;
-  let guard = 0;
-  while (changed && guard < 40) {
-    changed = false;
-    guard += 1;
-    const ordered = next
-      .filter((item) => item.hidden !== true && !skip.has(item.i))
-      .sort((first, second) => first.y - second.y || first.x - second.x);
-    for (const item of ordered) {
-      const blockers = [
-        ...next.filter(
-          (other) => other.i !== item.i && other.hidden !== true,
-        ),
-        ...reserved,
-      ];
-      const y = firstFitY(item, blockers);
-      if (y !== item.y) {
-        item.y = y;
-        changed = true;
-      }
-    }
-  }
-  return clampLayout(next);
-};
-
 export const packLayout = (items: DashboardLayoutItem[]) =>
-  compactUp(clampLayout(items));
+  clampLayout(items);
 
 export const snapSize = (item: DashboardLayoutItem): DashboardLayoutItem => {
   const def = widgetMetaById[item.i];
@@ -444,7 +396,7 @@ export const placeAndPushDown = (
   const placed = items.map((item) =>
     item.i === next.i ? snapped : { ...item },
   );
-  return compactUp(resolvePushDown(placed, next.i));
+  return resolvePushDown(placed, next.i);
 };
 
 export const previewPushDown = (
@@ -463,12 +415,8 @@ export const previewPushDown = (
     item.i === placeholder.i ? snapped : { ...item },
   );
   const pushed = resolvePushDown(placed, placeholder.i);
-  const compacted = compactUp(pushed, {
-    skipIds: [placeholder.i],
-    reserved: origin ? [origin] : [],
-  });
-  if (!origin) return compacted;
-  return compacted.map((item) =>
+  if (!origin) return pushed;
+  return pushed.map((item) =>
     item.i === placeholder.i ? { ...origin } : item,
   );
 };

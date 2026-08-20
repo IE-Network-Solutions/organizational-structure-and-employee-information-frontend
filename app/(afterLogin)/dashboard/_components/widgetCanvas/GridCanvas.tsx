@@ -516,7 +516,7 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
                     removeWidget(event, item.i)
                   }
                 >
-                  <X size={14} strokeWidth={2} />
+                  <X size={12} strokeWidth={2.5} />
                 </button>
                 {canGrowWidth && (
                   <button

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button, Popconfirm } from 'antd';
+import { Button, Popconfirm, Tooltip } from 'antd';
 import { Pencil, Plus, RotateCcw } from 'lucide-react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useDashboardLayoutStore } from '@/store/uistate/features/dashboard/layout';
@@ -23,14 +23,16 @@ const WidgetToolbar = ({ plan }: WidgetToolbarProps) => {
 
   if (!isEditing) {
     return (
-      <Button
-        id="dashboard-widget-edit-button"
-        data-cy="dashboard-widget-edit-button"
-        icon={<Pencil size={14} />}
-        onClick={() => setIsEditing(true)}
-      >
-        Edit
-      </Button>
+      <Tooltip title="Edit layout">
+        <Button
+          id="dashboard-widget-edit-button"
+          data-cy="dashboard-widget-edit-button"
+          type="text"
+          aria-label="Edit layout"
+          icon={<Pencil size={16} />}
+          onClick={() => setIsEditing(true)}
+        />
+      </Tooltip>
     );
   }
 

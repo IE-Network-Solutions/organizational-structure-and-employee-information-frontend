@@ -65,17 +65,18 @@
 
 .dashboard-widget-remove {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 0;
+  right: 0;
   z-index: 50;
   display: flex;
-  height: 24px;
-  width: 24px;
+  height: 16px;
+  width: 16px;
   align-items: center;
   justify-content: center;
   padding: 0;
   border: 0;
-  background: transparent;
+  border-radius: 0 8px 0 4px;
+  background: rgb(255 255 255 / 0.9);
   color: #9ca3af;
   cursor: pointer;
   pointer-events: auto;
@@ -93,29 +94,61 @@
 .dashboard-widget-resize-handle {
   position: absolute;
   z-index: 20;
-  background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 9999px;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  padding: 0;
+  border: 0;
+  background: transparent;
   pointer-events: auto;
   touch-action: none;
 }
 
+.dashboard-widget-resize-handle::after {
+  content: '';
+  position: absolute;
+  background: #c4c9d2;
+}
+
+.dashboard-widget-resize-handle:hover::after {
+  background: #9ca3af;
+}
+
 .dashboard-widget-resize-handle-se {
-  right: -6px;
-  bottom: -6px;
-  width: 14px;
-  height: 14px;
+  right: 0;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
   cursor: se-resize;
 }
 
+.dashboard-widget-resize-handle-se::after {
+  right: 3px;
+  bottom: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 0 0 2px 0;
+  background: transparent;
+  box-shadow: 1.5px 1.5px 0 0 #c4c9d2;
+}
+
+.dashboard-widget-resize-handle-se:hover::after {
+  background: transparent;
+  box-shadow: 1.5px 1.5px 0 0 #9ca3af;
+}
+
 .dashboard-widget-resize-handle-e {
-  top: 50%;
-  right: -6px;
-  width: 12px;
-  height: 22px;
-  margin-top: -11px;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 100%;
   cursor: e-resize;
+}
+
+.dashboard-widget-resize-handle-e::after {
+  top: 50%;
+  right: 2px;
+  width: 2px;
+  height: 10px;
+  margin-top: -5px;
+  border-radius: 1px;
 }
 
 .dashboard-widget-catalog-modal .ant-modal-body {
