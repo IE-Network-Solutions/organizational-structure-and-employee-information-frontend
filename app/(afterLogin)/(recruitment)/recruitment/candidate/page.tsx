@@ -10,6 +10,7 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePathname } from 'next/navigation';
+import { useNotificationDeepLink } from '@/hooks/useNotificationDeepLink';
 import { Button, Card, DatePicker, Row, Col, Select, Popover } from 'antd';
 import { theme } from 'antd';
 import { useEmployeeDepartments } from '@/store/server/features/employees/employeeManagment/queries';
@@ -36,6 +37,13 @@ const AllCandidates: React.FC = () => {
     currentPage,
     pageSize,
   } = useCandidateState();
+  const { jobId: linkedJobId } = useNotificationDeepLink();
+
+  useEffect(() => {
+    if (linkedJobId) {
+      setSearchParams('selectedJob', linkedJobId);
+    }
+  }, [linkedJobId, setSearchParams]);
 
   const { isMobile, isTablet } = useIsMobile();
   const pathname = usePathname();

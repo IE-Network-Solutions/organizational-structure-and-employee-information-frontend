@@ -26,6 +26,7 @@ import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/e
 import BreakImportSidebar from './_components/breakImportSidebar';
 import { HiOutlineTemplate } from 'react-icons/hi';
 import { useMediaQuery } from 'react-responsive';
+import { useNotificationDeepLink } from '@/hooks/useNotificationDeepLink';
 
 import AttendanceImportErrorModal from './_components/attendanceImportErrorModal';
 import { LuBookmark } from 'react-icons/lu';
@@ -67,6 +68,15 @@ const EmployeeAttendance = () => {
     violationFilters,
   } = useEmployeeAttendanceStore();
   const [activeTabKey, setActiveTabKey] = useState('1');
+  const { tab: deepLinkTab } = useNotificationDeepLink();
+
+  useEffect(() => {
+    if (deepLinkTab === 'violations' || deepLinkTab === '2') {
+      setActiveTabKey('2');
+    } else if (deepLinkTab === 'attendance' || deepLinkTab === '1') {
+      setActiveTabKey('1');
+    }
+  }, [deepLinkTab]);
   const [isBulkMoveToDeductionModalOpen, setIsBulkMoveToDeductionModalOpen] =
     useState(false);
   const [bulkDeductionViolations, setBulkDeductionViolations] = useState<

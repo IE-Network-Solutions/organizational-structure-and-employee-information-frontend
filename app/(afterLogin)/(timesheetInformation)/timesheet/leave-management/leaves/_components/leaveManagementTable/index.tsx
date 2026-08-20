@@ -22,7 +22,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import usePagination from '@/utils/usePagination';
 import { Key } from 'react';
 import { useLeaveManagementStore } from '@/store/uistate/features/timesheet/leaveManagement';
@@ -49,6 +49,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
   } = useMyTimesheetStore();
 
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const {
     setLeaveRequestId,
     setLeaveRequestWorkflowId,
@@ -74,6 +75,15 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     { page: currentPage, limit: pageSize, orderBy, orderDirection },
     { filter },
   );
+
+  useEffect(() => {
+    const linkedEmployee =
+      searchParams.get('employeeId') || searchParams.get('userId') || '';
+    if (!linkedEmployee) return;
+    const nFilter = { userIds: [linkedEmployee] };
+    setFilter(nFilter);
+    setBodyRequest((prev) => ({ ...prev, filter: nFilter }));
+  }, [searchParams, setBodyRequest]);
 
   const { isMobile, isTablet } = useIsMobile();
 

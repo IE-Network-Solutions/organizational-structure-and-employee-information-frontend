@@ -31,6 +31,8 @@ import { requestAndRegisterPushSubscription } from '@/hooks/usePushSubscription'
 import { VAPID_PUBLIC_KEY } from '@/utils/constants';
 import { getNotificationThemeClasses } from '@/store/server/features/notification/themeUtils';
 import { useCanAccessRoute } from '@/utils/routePermissions';
+import { resolveNotificationPath } from '@/utils/notificationRoute';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const toSlug = (v: string | number | null | undefined) =>
   String(v ?? 'na')
@@ -172,10 +174,12 @@ function NotificationItem({
   );
 }
 
-function getNotificationPath(item: NotificationType): string {
-  const routeStr =
-    item.route?.trim() || `/employees/notification?id=${item.id}`;
-  return routeStr.startsWith('/') ? routeStr : `/${routeStr}`;
+function getNotificationPath(
+  item: NotificationType,
+  recipientUserId?: string,
+  employees?: { id?: string; firstName?: string; middleName?: string; lastName?: string }[],
+): string {
+  return resolveNotificationPath(item, { recipientUserId, employees });
 }
 
 export function NotificationDropdownPanel({
@@ -190,6 +194,8 @@ export function NotificationDropdownPanel({
   const canAccessRoute = useCanAccessRoute();
   const userId = useAuthenticationStore.getState().userId ?? '';
   const tenantId = useAuthenticationStore.getState().tenantId ?? undefined;
+  const { data: allUsersData } = useGetAllUsers();
+  const employees = allUsersData?.items;
   const [filter, setFilter] = useState<FilterType>('all');
   const [pushPermission, setPushPermission] =
     useState<NotificationPermission | null>(null);
@@ -315,7 +321,7 @@ export function NotificationDropdownPanel({
   };
 
   const handleItemClick = (item: NotificationType) => {
-    const path = getNotificationPath(item);
+    const path = getNotificationPath(item, userId, employees);
     if (!canAccessRoute(path)) return;
     if (isUnread(item)) markAsRead(item.id);
     onRequestClose?.();
@@ -504,7 +510,9 @@ export function NotificationDropdownPanel({
                         onMarkAsRead={handleMarkAsRead}
                         onClick={handleItemClick}
                         formatTime={formatTime}
-                        hasAccess={canAccessRoute(getNotificationPath(item))}
+                        hasAccess={canAccessRoute(
+                          getNotificationPath(item, userId, employees),
+                        )}
                       />
                     ))}
                   </div>
@@ -535,7 +543,9 @@ export function NotificationDropdownPanel({
                         onMarkAsRead={handleMarkAsRead}
                         onClick={handleItemClick}
                         formatTime={formatTime}
-                        hasAccess={canAccessRoute(getNotificationPath(item))}
+                        hasAccess={canAccessRoute(
+                          getNotificationPath(item, userId, employees),
+                        )}
                       />
                     ))}
                   </div>
@@ -556,7 +566,9 @@ export function NotificationDropdownPanel({
                   onMarkAsRead={handleMarkAsRead}
                   onClick={handleItemClick}
                   formatTime={formatTime}
-                  hasAccess={canAccessRoute(getNotificationPath(item))}
+                  hasAccess={canAccessRoute(
+                    getNotificationPath(item, userId, employees),
+                  )}
                 />
               ))}
             </div>
