@@ -30,7 +30,108 @@ function mapClosedDayItem(row: ClosedDayInActiveMonth): {
   return { date, name };
 }
 
-export default function AttendanceSummaryCards() {
+function AttendanceSummarySkeleton() {
+  return (
+    <div
+      className="bg-white rounded-lg border border-[#E5E7EB] p-3 h-[109px]"
+      data-cy="attendance-summary-card-skeleton"
+    >
+      <Skeleton active paragraph={{ rows: 1 }} title={{ width: '60%' }} />
+    </div>
+  );
+}
+
+export function DaysPresentKpiCard() {
+  const { showSkeleton, daysPresent } = useAttendanceSummaryData();
+  if (showSkeleton) return <AttendanceSummarySkeleton />;
+  return (
+    <AttendanceStatCard
+      title="Days Present"
+      value={
+        <>
+          <span
+            className="text-xl text-black font-semibold"
+            data-cy="attendance-summary-days-present-value-current"
+          >
+            {daysPresent.present}
+          </span>
+          <span
+            className="text-gray-500"
+            data-cy="attendance-summary-days-present-value-sep"
+          >
+            {' '}
+            /{' '}
+          </span>
+          <span
+            className="text-gray-500"
+            data-cy="attendance-summary-days-present-value-total"
+          >
+            {daysPresent.total}
+          </span>
+        </>
+      }
+      icon={<MdHowToReg size={24} />}
+      iconBgClassName="bg-greenlight  text-greenbg"
+      dataCy="attendance-summary-days-present"
+    />
+  );
+}
+
+export function LateArrivalsKpiCard() {
+  const { showSkeleton, lateArrivals, lateArrivalsFooter } =
+    useAttendanceSummaryData();
+  if (showSkeleton) return <AttendanceSummarySkeleton />;
+  return (
+    <AttendanceStatCard
+      title="Late Arrivals"
+      value={
+        <span
+          className="text-xl text-black font-semibold"
+          data-cy="attendance-summary-late-arrivals-value"
+        >
+          {lateArrivals}
+        </span>
+      }
+      footer={lateArrivalsFooter}
+      icon={<MdOutlineSchedule size={24} />}
+      iconBgClassName="bg-lightorange text-orangebg"
+      dataCy="attendance-summary-late-arrivals"
+    />
+  );
+}
+
+export function LeavesTakenKpiCard() {
+  const { showSkeleton, leavesCarouselSlides } = useAttendanceSummaryData();
+  if (showSkeleton) return <AttendanceSummarySkeleton />;
+  return (
+    <AttendanceStatCard
+      title="Leaves Taken"
+      value={null}
+      carouselSlides={leavesCarouselSlides}
+      icon={<MdOutlineFreeBreakfast size={24} />}
+      iconBgClassName="bg-lightblue text-blue"
+      dataCy="attendance-summary-leaves-taken"
+    />
+  );
+}
+
+export function ClosedDaysKpiCard() {
+  const { showSkeleton, closedDays } = useAttendanceSummaryData();
+  if (showSkeleton) return <AttendanceSummarySkeleton />;
+  return (
+    <ClosedDaysCard
+      title="Closed Days"
+      count={closedDays.count}
+      periodLabel={closedDays.periodLabel}
+      items={closedDays.items}
+      icon={<LuCalendarClock size={24} />}
+      iconBgClassName="bg-light_purple text-purple"
+      dataCy="attendance-summary-closed-days"
+    />
+  );
+}
+
+function useAttendanceSummaryData() {
   const userId = useAuthenticationStore((s) => s.userId);
   const { data, isLoading } = useGetDashboardEmployeeSummary(
     userId || undefined,
@@ -177,99 +278,26 @@ export default function AttendanceSummaryCards() {
 
   const showSkeleton = !userId || (isLoading && !data);
 
-  if (showSkeleton) {
-    return (
-      <div
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5"
-        data-cy="attendance-summary-cards"
-      >
-        {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="bg-white rounded-lg border border-[#E5E7EB] p-3 h-[109px]"
-            data-cy={`attendance-summary-cards-skeleton-${i}`}
-          >
-            <Skeleton active paragraph={{ rows: 1 }} title={{ width: '60%' }} />
-          </div>
-        ))}
-      </div>
-    );
-  }
+  return {
+    showSkeleton,
+    daysPresent,
+    lateArrivals,
+    leavesCarouselSlides,
+    closedDays,
+    lateArrivalsFooter,
+  };
+}
 
-  const DaysPresentValue = (
-    <>
-      <span
-        className="text-xl text-black font-semibold"
-        data-cy="attendance-summary-days-present-value-current"
-      >
-        {daysPresent.present}
-      </span>
-      <span
-        className="text-gray-500"
-        data-cy="attendance-summary-days-present-value-sep"
-      >
-        {' '}
-        /{' '}
-      </span>
-      <span
-        className="text-gray-500"
-        data-cy="attendance-summary-days-present-value-total"
-      >
-        {daysPresent.total}
-      </span>
-    </>
-  );
-  const LateArrivalsValue = (
-    <>
-      <span
-        className="text-xl text-black font-semibold"
-        data-cy="attendance-summary-late-arrivals-value"
-      >
-        {lateArrivals}
-      </span>
-    </>
-  );
-
+export default function AttendanceSummaryCards() {
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
       data-cy="attendance-summary-cards"
     >
-      <AttendanceStatCard
-        title="Days Present"
-        value={DaysPresentValue}
-        icon={<MdHowToReg size={24} />}
-        iconBgClassName="bg-greenlight  text-greenbg"
-        dataCy="attendance-summary-days-present"
-      />
-
-      <AttendanceStatCard
-        title="Late Arrivals"
-        value={LateArrivalsValue}
-        footer={lateArrivalsFooter}
-        icon={<MdOutlineSchedule size={24} />}
-        iconBgClassName="bg-lightorange text-orangebg"
-        dataCy="attendance-summary-late-arrivals"
-      />
-
-      <AttendanceStatCard
-        title="Leaves Taken"
-        value={null}
-        carouselSlides={leavesCarouselSlides}
-        icon={<MdOutlineFreeBreakfast size={24} />}
-        iconBgClassName="bg-lightblue text-blue"
-        dataCy="attendance-summary-leaves-taken"
-      />
-
-      <ClosedDaysCard
-        title="Closed Days"
-        count={closedDays.count}
-        periodLabel={closedDays.periodLabel}
-        items={closedDays.items}
-        icon={<LuCalendarClock size={24} />}
-        iconBgClassName="bg-light_purple text-purple"
-        dataCy="attendance-summary-closed-days"
-      />
+      <DaysPresentKpiCard />
+      <LateArrivalsKpiCard />
+      <LeavesTakenKpiCard />
+      <ClosedDaysKpiCard />
     </div>
   );
 }

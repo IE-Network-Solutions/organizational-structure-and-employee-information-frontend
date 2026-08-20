@@ -1,0 +1,102 @@
+.dashboard-widget-grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(60, minmax(0, 1fr));
+  grid-auto-rows: 20px;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.dashboard-widget {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+.dashboard-widget-body {
+  height: 100%;
+  min-width: 0;
+}
+
+.dashboard-widget-grid.is-editing .dashboard-widget {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.dashboard-widget-grid.is-editing .dashboard-widget-body {
+  pointer-events: none;
+}
+
+.dashboard-widget-grid.is-editing .dashboard-widget.is-dragging {
+  cursor: grabbing;
+}
+
+.dashboard-widget-ghost {
+  opacity: 0.35;
+}
+
+.dashboard-widget-preview {
+  position: fixed;
+  z-index: 1000;
+  margin: 0;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.18);
+}
+
+.dashboard-widget-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 50;
+  display: flex;
+  height: 24px;
+  width: 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
+
+.dashboard-widget-remove svg {
+  pointer-events: none;
+}
+
+.dashboard-widget-remove:hover {
+  color: #4b5563;
+}
+
+.dashboard-widget-resize-handle {
+  position: absolute;
+  z-index: 20;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 9999px;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.dashboard-widget-resize-handle-se {
+  right: -6px;
+  bottom: -6px;
+  width: 14px;
+  height: 14px;
+  cursor: se-resize;
+}
+
+.dashboard-widget-resize-handle-e {
+  top: 50%;
+  right: -6px;
+  width: 12px;
+  height: 22px;
+  margin-top: -11px;
+  cursor: e-resize;
+}
