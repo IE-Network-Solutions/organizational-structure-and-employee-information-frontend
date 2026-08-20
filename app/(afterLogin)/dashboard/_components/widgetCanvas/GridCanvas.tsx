@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -14,20 +14,22 @@ import {
 import type { DashboardLayoutItem, DashboardPlanView } from './types';
 import { widgetById } from './registry';
 import {
-  clampLayout,
-  clampLayoutItem,
+  placeAndPushDown,
+  packLayout,
+  previewPushDown,
   resolveLayout,
+  snapPosition,
+  snapSize,
   widgetMetaById,
 } from './layoutHelpers';
 import './styles.css';
 
 const [GAP_X, GAP_Y] = DASHBOARD_GRID_MARGIN;
 const DRAG_THRESHOLD_PX = 4;
+const FLIP_MS = 200;
 
-const replaceItem = (
-  items: DashboardLayoutItem[],
-  nextItem: DashboardLayoutItem,
-) => items.map((item) => (item.i === nextItem.i ? nextItem : item));
+const layoutSignature = (item: DashboardLayoutItem) =>
+  `${item.i}:${item.x}:${item.y}:${item.w}:${item.h}`;
 
 const gridMetrics = (grid: HTMLDivElement) => {
   const rect = grid.getBoundingClientRect();
@@ -42,7 +44,7 @@ const gridMetrics = (grid: HTMLDivElement) => {
   };
 };
 
-const pointToCell = (
+const pointToItem = (
   left: number,
   top: number,
   grid: HTMLDivElement,
@@ -51,7 +53,7 @@ const pointToCell = (
   const { rect, colPitch, rowPitch } = gridMetrics(grid);
   const x = Math.round((left - rect.left) / colPitch);
   const y = Math.round((top - rect.top) / rowPitch);
-  return clampLayoutItem({ ...item, x, y });
+  return { ...item, x, y };
 };
 
 type DragSession =
@@ -59,12 +61,15 @@ type DragSession =
       type: 'move';
       id: DashboardLayoutItem['i'];
       origin: DashboardLayoutItem;
+      baseItems: DashboardLayoutItem[];
       startClientX: number;
       startClientY: number;
       grabOffsetX: number;
       grabOffsetY: number;
       width: number;
       height: number;
+      lastClientX: number;
+      lastClientY: number;
       pointerId: number;
       active: boolean;
     }
@@ -80,8 +85,6 @@ type DragSession =
 
 interface DragPreview {
   id: DashboardLayoutItem['i'];
-  left: number;
-  top: number;
   width: number;
   height: number;
 }
@@ -94,9 +97,12 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
   const gridRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragSession | null>(null);
   const captureElRef = useRef<HTMLElement | null>(null);
-  const previewRef = useRef<DragPreview | null>(null);
   const itemsRef = useRef<DashboardLayoutItem[]>([]);
   const suppressPointerRef = useRef<number | null>(null);
+  const nodeRefs = useRef(new Map<string, HTMLDivElement>());
+  const prevRects = useRef(new Map<string, DOMRect>());
+  const lastPlaceholderRef = useRef<string | null>(null);
+  const previewElRef = useRef<HTMLDivElement | null>(null);
   const userId = useAuthenticationStore((state) => state.userId);
   const storageKey = layoutStorageKey(userId || 'anonymous', plan);
   const isEditing = useDashboardLayoutStore((state) => state.isEditing);
@@ -113,6 +119,9 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
   const [activeWidgetId, setActiveWidgetId] = useState<
     DashboardLayoutItem['i'] | null
   >(null);
+  const [placeholder, setPlaceholder] = useState<DashboardLayoutItem | null>(
+    null,
+  );
   const [preview, setPreview] = useState<DragPreview | null>(null);
 
   const savedLayout = layoutsByKey[storageKey];
@@ -135,7 +144,6 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
   storageKeyRef.current = storageKey;
   const isEditingRef = useRef(isEditing);
   isEditingRef.current = isEditing;
-  previewRef.current = preview;
 
   useEffect(() => {
     setCommittedItems(null);
@@ -146,12 +154,48 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
     () => items.filter((item) => !item.hidden),
     [items],
   );
+  const visibleItemsRef = useRef(visibleItems);
+  visibleItemsRef.current = visibleItems;
+
+  const layoutKey = useMemo(
+    () =>
+      visibleItems
+        .map((item) => `${item.i}:${item.x}:${item.y}:${item.w}:${item.h}`)
+        .join('|'),
+    [visibleItems],
+  );
+
+  useLayoutEffect(() => {
+    visibleItemsRef.current.forEach((item) => {
+      if (item.i === activeWidgetId) return;
+      const node = nodeRefs.current.get(item.i);
+      if (!node) return;
+      const visual = node.getBoundingClientRect();
+      node.style.transition = 'none';
+      node.style.transform = 'none';
+      const layout = node.getBoundingClientRect();
+      prevRects.current.set(item.i, layout);
+      const dx = visual.left - layout.left;
+      const dy = visual.top - layout.top;
+      if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
+        node.style.transform = '';
+        return;
+      }
+      node.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          node.style.transition = `transform ${FLIP_MS}ms ease`;
+          node.style.transform = 'translate3d(0, 0, 0)';
+        });
+      });
+    });
+  }, [layoutKey, activeWidgetId]);
 
   const persistItems = (next: DashboardLayoutItem[]) => {
-    const clamped = clampLayout(next);
-    itemsRef.current = clamped;
-    setCommittedItems(clamped);
-    setLayout(storageKeyRef.current, clamped);
+    const packed = packLayout(next);
+    itemsRef.current = packed;
+    setCommittedItems(packed);
+    setLayout(storageKeyRef.current, packed);
   };
 
   const clearPointerSession = () => {
@@ -162,9 +206,10 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
     }
     captureElRef.current = null;
     dragRef.current = null;
-    previewRef.current = null;
-    setPreview(null);
+    lastPlaceholderRef.current = null;
     setActiveWidgetId(null);
+    setPlaceholder(null);
+    setPreview(null);
     setDraftItems(null);
   };
 
@@ -182,15 +227,24 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
 
   dragLogicRef.current = {
     applyMove: (session, event) => {
-      const nextPreview = {
-        id: session.id,
-        left: event.clientX - session.grabOffsetX,
-        top: event.clientY - session.grabOffsetY,
-        width: session.width,
-        height: session.height,
-      };
-      previewRef.current = nextPreview;
-      setPreview(nextPreview);
+      const grid = gridRef.current;
+      if (!grid) return;
+      session.lastClientX = event.clientX;
+      session.lastClientY = event.clientY;
+      const left = event.clientX - session.grabOffsetX;
+      const top = event.clientY - session.grabOffsetY;
+      const previewNode = previewElRef.current;
+      if (previewNode) {
+        previewNode.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+      }
+      const snapped = snapPosition(
+        pointToItem(left, top, grid, session.origin),
+      );
+      const signature = layoutSignature(snapped);
+      if (lastPlaceholderRef.current === signature) return;
+      lastPlaceholderRef.current = signature;
+      setPlaceholder(snapped);
+      setDraftItems(previewPushDown(session.baseItems, snapped));
     },
     applyResize: (session, event) => {
       const grid = gridRef.current;
@@ -201,31 +255,30 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
         session.axis === 'se'
           ? Math.round((event.clientY - session.pointerY) / rowPitch)
           : 0;
-      setDraftItems(
-        replaceItem(
-          itemsRef.current,
-          clampLayoutItem({
-            ...session.origin,
-            w: session.origin.w + dw,
-            h: session.origin.h + dh,
-          }),
-        ),
-      );
+      const sized = snapSize({
+        ...session.origin,
+        w: session.origin.w + dw,
+        h: session.origin.h + dh,
+      });
+      setDraftItems(placeAndPushDown(itemsRef.current, sized));
     },
     finish: (session, event) => {
       if (session.type === 'move') {
         const grid = gridRef.current;
         if (!grid) return;
-        const placed = pointToCell(
+        const next = pointToItem(
           event.clientX - session.grabOffsetX,
           event.clientY - session.grabOffsetY,
           grid,
           session.origin,
         );
-        persistItems(replaceItem(itemsRef.current, placed));
+        persistItems(placeAndPushDown(session.baseItems, next));
         return;
       }
-      persistItems(itemsRef.current);
+      const resized = itemsRef.current.find((item) => item.i === session.id);
+      persistItems(
+        resized ? placeAndPushDown(itemsRef.current, resized) : itemsRef.current,
+      );
     },
   };
 
@@ -241,7 +294,16 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
           );
           if (distance < DRAG_THRESHOLD_PX) return;
           session.active = true;
+          session.baseItems = itemsRef.current.map((item) => ({ ...item }));
+          session.lastClientX = event.clientX;
+          session.lastClientY = event.clientY;
           setActiveWidgetId(session.id);
+          setPreview({
+            id: session.id,
+            width: session.width,
+            height: session.height,
+          });
+          setDraftItems(session.baseItems);
         }
         dragLogicRef.current.applyMove(session, event);
         return;
@@ -258,15 +320,16 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
       if (!session || session.pointerId !== event.pointerId) return;
       const didDrag = session.type === 'resize' || session.active;
       dragRef.current = null;
+      lastPlaceholderRef.current = null;
       setActiveWidgetId(null);
+      setPlaceholder(null);
+      setPreview(null);
       const node = captureElRef.current;
       if (node?.hasPointerCapture(event.pointerId)) {
         node.releasePointerCapture(event.pointerId);
       }
       captureElRef.current = null;
       if (didDrag) dragLogicRef.current.finish(session, event);
-      setPreview(null);
-      previewRef.current = null;
       setDraftItems(null);
     };
 
@@ -305,10 +368,13 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
       type: 'move',
       id: item.i,
       origin: item,
+      baseItems: itemsRef.current.map((entry) => ({ ...entry })),
       startClientX: event.clientX,
       startClientY: event.clientY,
       grabOffsetX: event.clientX - rect.left,
       grabOffsetY: event.clientY - rect.top,
+      lastClientX: event.clientX,
+      lastClientY: event.clientY,
       width: rect.width,
       height: rect.height,
       pointerId: event.pointerId,
@@ -361,14 +427,23 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
       const widget = widgetById[preview.id];
       if (!widget) return null;
       const WidgetComponent = widget.Component;
+      const session = dragRef.current;
+      const left =
+        session?.type === 'move'
+          ? session.lastClientX - session.grabOffsetX
+          : 0;
+      const top =
+        session?.type === 'move'
+          ? session.lastClientY - session.grabOffsetY
+          : 0;
       return (
         <div
+          ref={previewElRef}
           className="dashboard-widget dashboard-widget-preview"
           style={{
-            left: preview.left,
-            top: preview.top,
             width: preview.width,
             height: preview.height,
+            transform: `translate3d(${left}px, ${top}px, 0)`,
           }}
           data-cy={`dashboard-widget-preview-${preview.id}`}
         >
@@ -382,9 +457,21 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
   return (
     <div
       ref={gridRef}
-      className={`dashboard-widget-grid${isEditing ? ' is-editing' : ''}`}
+      className={`dashboard-widget-grid${isEditing ? ' is-editing' : ''}${
+        activeWidgetId ? ' is-reflowing' : ''
+      }`}
       data-cy="dashboard-widget-grid-container"
     >
+      {placeholder && activeWidgetId && (
+        <div
+          className="dashboard-widget-placeholder"
+          style={{
+            gridColumn: `${placeholder.x + 1} / span ${placeholder.w}`,
+            gridRow: `${placeholder.y + 1} / span ${placeholder.h}`,
+          }}
+          data-cy={`dashboard-widget-placeholder-${placeholder.i}`}
+        />
+      )}
       {visibleItems.map((item) => {
         const widget = widgetById[item.i];
         if (!widget) return null;
@@ -393,10 +480,14 @@ const GridCanvas = ({ plan }: GridCanvasProps) => {
         const canGrowWidth = meta.maxW > meta.minW;
         const canGrowHeight =
           (meta.maxH ?? Number.POSITIVE_INFINITY) > meta.minH;
-        const isDragging = activeWidgetId === item.i && preview != null;
+        const isDragging = activeWidgetId === item.i;
         return (
           <div
             key={item.i}
+            ref={(node) => {
+              if (node) nodeRefs.current.set(item.i, node);
+              else nodeRefs.current.delete(item.i);
+            }}
             className={`dashboard-widget relative ${
               isDragging ? 'is-dragging dashboard-widget-ghost' : ''
             }`}

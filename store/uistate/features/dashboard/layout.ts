@@ -6,9 +6,9 @@ import type {
   DashboardWidgetId,
 } from '@/app/(afterLogin)/dashboard/_components/widgetCanvas/types';
 import {
-  clampLayout,
   clampLayoutItem,
   defaultLayoutForPlan,
+  packLayout,
   resolveLayout,
   widgetMetaById,
 } from '@/app/(afterLogin)/dashboard/_components/widgetCanvas/layoutHelpers';
@@ -68,10 +68,9 @@ export const useDashboardLayoutStore = create<DashboardLayoutState>()(
         setHasHydrated: (hasHydrated) => set({ hasHydrated }),
         setLayout: (storageKey, items) =>
           set((state) => ({
-            layoutEpoch: state.layoutEpoch + 1,
             layoutsByKey: {
               ...state.layoutsByKey,
-              [storageKey]: clampLayout(items),
+              [storageKey]: packLayout(items),
             },
           })),
         resetLayout: (storageKey, plan) =>
@@ -79,7 +78,7 @@ export const useDashboardLayoutStore = create<DashboardLayoutState>()(
             layoutEpoch: state.layoutEpoch + 1,
             layoutsByKey: {
               ...state.layoutsByKey,
-              [storageKey]: defaultLayoutForPlan(plan),
+              [storageKey]: packLayout(defaultLayoutForPlan(plan)),
             },
           })),
         hideWidget: (storageKey, widgetId, plan) =>
@@ -102,7 +101,7 @@ export const useDashboardLayoutStore = create<DashboardLayoutState>()(
               layoutEpoch: state.layoutEpoch + 1,
               layoutsByKey: {
                 ...state.layoutsByKey,
-                [storageKey]: clampLayout(nextItems),
+                [storageKey]: packLayout(nextItems),
               },
             };
           }),
@@ -131,7 +130,7 @@ export const useDashboardLayoutStore = create<DashboardLayoutState>()(
               layoutEpoch: state.layoutEpoch + 1,
               layoutsByKey: {
                 ...state.layoutsByKey,
-                [storageKey]: nextItems,
+                [storageKey]: packLayout(nextItems),
               },
             };
           }),

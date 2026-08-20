@@ -32,18 +32,35 @@
 
 .dashboard-widget-grid.is-editing .dashboard-widget.is-dragging {
   cursor: grabbing;
+  z-index: 1;
 }
 
 .dashboard-widget-ghost {
   opacity: 0.35;
 }
 
+.dashboard-widget-placeholder {
+  z-index: 0;
+  border: 2px dashed #3b82f6;
+  border-radius: 8px;
+  background: rgb(59 130 246 / 0.12);
+  pointer-events: none;
+}
+
+.dashboard-widget-grid.is-reflowing .dashboard-widget:not(.is-dragging) {
+  will-change: transform;
+}
+
 .dashboard-widget-preview {
   position: fixed;
+  left: 0;
+  top: 0;
   z-index: 1000;
   margin: 0;
   pointer-events: none;
-  box-shadow: 0 8px 24px rgb(15 23 42 / 0.18);
+  box-shadow: 0 12px 32px rgb(15 23 42 / 0.2);
+  cursor: grabbing;
+  will-change: transform;
 }
 
 .dashboard-widget-remove {
