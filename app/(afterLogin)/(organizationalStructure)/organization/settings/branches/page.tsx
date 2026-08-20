@@ -166,7 +166,7 @@ const Branches = () => {
                   </p>
                   <CloseOutlined
                     className="text-gray-400 m-0 cursor-pointer hover:text-gray-600"
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent<HTMLDivElement>) => {
                       e.preventDefault();
                       e.stopPropagation();
                       setOpenDeleteConfirmBranchId(null);
