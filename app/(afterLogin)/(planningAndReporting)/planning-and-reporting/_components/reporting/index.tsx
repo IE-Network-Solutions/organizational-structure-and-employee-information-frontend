@@ -17,11 +17,15 @@ import CustomPagination from '@/components/customPagination';
 import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from '../planning/PlanningPanelView';
-import { transformReportToPlanSummary } from '../dataTransformer/vamp';
+import {
+  useEffectivePlanUserIds,
+  usePlanningFilterScopeReady,
+} from '../planning/usePlanningData';
 import { Cadence } from '../types';
 import { formatPlanningReportDate } from '../utils';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
+import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 
 function Reporting({
   onHoverKR,
@@ -31,7 +35,6 @@ function Reporting({
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
 }) {
   const {
-    selectedUser,
     activePlanPeriod,
     activeTab,
     pageReporting,
@@ -42,11 +45,14 @@ function Reporting({
     selectedSessionIds,
     selectedFiscalYearId,
     allSessionsOfYear,
+    planningDefaultFilterApplied,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
+  const effectiveSelectedUsers = useEffectivePlanUserIds();
+  const { isFilterScopePending } = usePlanningFilterScopeReady();
   const { isMobile, isTablet } = useIsMobile();
   const { data: selectedFiscalYear } = useGetFiscalYearById(
     selectedFiscalYearId || '',
@@ -57,9 +63,13 @@ function Reporting({
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
 
-  const { data: allReporting, isLoading: getReportLoading } = useGetReporting(
+  const {
+    data: allReporting,
+    isLoading: isReportingQueryLoading,
+    isFetching: isReportingQueryFetching,
+  } = useGetReporting(
     {
-      userId: selectedUser,
+      userId: effectiveSelectedUsers,
       planPeriodId: planningPeriodId ?? '',
       pageReporting,
       pageSizeReporting,
@@ -70,8 +80,19 @@ function Reporting({
             ? allSessionsOfYear
             : [],
     },
-    { enabled: activeTab === 2 && !!planningPeriodId },
+    {
+      enabled:
+        activeTab === 2 &&
+        !!planningPeriodId &&
+        planningDefaultFilterApplied &&
+        effectiveSelectedUsers.length > 0,
+    },
   );
+
+  const getReportLoading =
+    isFilterScopePending ||
+    isReportingQueryLoading ||
+    (isReportingQueryFetching && allReporting === undefined);
 
   const getPlanningPeriodDetail = (id: string) => {
     return planningPeriods?.items?.find((p: any) => p?.id === id) || {};
@@ -138,13 +159,14 @@ function Reporting({
 
   const reportSummaries = useMemo(() => {
     if (!allReporting?.items) return [];
-    return allReporting.items.map((dataItem: any) =>
+    return allReporting?.items?.map((dataItem: any) =>
       transformReportToPlanSummary(dataItem, cadence, employeeData),
     );
   }, [allReporting?.items, cadence, employeeData, reportTaskOverrides]);
 
   const totalReportingItems = allReporting?.meta?.totalItems ?? 0;
-  const showReportingPagination = totalReportingItems > pageSizeReporting;
+  const showReportingPagination =
+    !getReportLoading && totalReportingItems > pageSizeReporting;
 
   const paginationNode = !showReportingPagination ? null : isMobile ||
     isTablet ? (
