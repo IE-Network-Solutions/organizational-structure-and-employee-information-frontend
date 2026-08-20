@@ -303,10 +303,30 @@ function isApproverNotification(text: string): boolean {
     text.includes('pending your') ||
     text.includes('needs your') ||
     text.includes('waiting for your') ||
+    text.includes('new leave request') ||
     text.includes('leave request approval') ||
+    text.includes('new wfh request approval') ||
     text.includes('wfh request approval') ||
+    text.includes('new work from home request approval') ||
     text.includes('work from home request approval') ||
     (text.includes('approval') &&
+      (text.includes('leave') ||
+        text.includes('work from home') ||
+        text.includes('wfh')))
+  );
+}
+
+/** First-level or later leave/WFH approval assigned to the logged-in approver. */
+function isLeaveApproverActionNotification(text: string): boolean {
+  if (isOwnLeaveNotification(text)) return false;
+  return (
+    text.includes('new leave request approval') ||
+    text.includes('leave request approval') ||
+    text.includes('new wfh request approval') ||
+    text.includes('wfh request approval') ||
+    text.includes('new work from home request approval') ||
+    text.includes('work from home request approval') ||
+    (isApproverNotification(text) &&
       (text.includes('leave') ||
         text.includes('work from home') ||
         text.includes('wfh')))
@@ -566,6 +586,13 @@ function resolveTimesheetPath(
     !pathname ||
     pathname === '/timesheet' ||
     pathname.startsWith('/timesheet/my-timesheet');
+
+  // Both first approver ("New Leave Request") and later levels
+  // ("Leave Request Approval") open My Approvals — ignore generic backend routes.
+  if (isLeaveApproverActionNotification(text)) {
+    params.set('type', isWfh ? 'WorkFromHome' : 'Leave');
+    return withParams('/timesheet/my-timesheet/my-approvals', params);
+  }
 
   if (isApproverNotification(text) && (isMyTimesheetContext || !pathname)) {
     params.set('type', isWfh ? 'WorkFromHome' : 'Leave');
