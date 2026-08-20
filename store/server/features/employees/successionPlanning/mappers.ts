@@ -92,7 +92,7 @@ export const mapDevelopmentAction = (
   status: action.status,
   completionDate: action.completionDate ?? undefined,
   remarks: action.remark ?? undefined,
-  gapId: action.successorGapId,
+  gapId: action.successorGapId || undefined,
 });
 
 const mapIdpActivity = (activity: ApiDevelopmentPlanActivity): IdpActivity => ({
@@ -120,9 +120,18 @@ const mapSuccessor = (
   context: RoleMapContext = {},
 ): CriticalRole['successors'][number] => {
   const gaps = notDeleted(successor.gaps);
-  const developmentActions = gaps.flatMap((gap) =>
-    notDeleted(gap.actions).map((action) => mapDevelopmentAction(action)),
-  );
+  const actionsById = new Map<string, DevelopmentAction>();
+  gaps.forEach((gap) => {
+    notDeleted(gap.actions).forEach((action) => {
+      actionsById.set(action.id, mapDevelopmentAction(action));
+    });
+  });
+  notDeleted(successor.developmentActions).forEach((action) => {
+    if (!actionsById.has(action.id)) {
+      actionsById.set(action.id, mapDevelopmentAction(action));
+    }
+  });
+  const developmentActions = Array.from(actionsById.values());
   // The API returns the newest plan first; the UI shows a single active IDP.
   const plan = notDeleted(successor.developmentPlans)[0];
 

@@ -280,10 +280,10 @@ export const useCreateDevelopmentAction = () => {
   const invalidate = useSuccessionInvalidator();
   return useMutation(
     ({
-      gapId,
+      successorId,
       payload,
     }: {
-      gapId: string;
+      successorId: string;
       payload: {
         actionItem: string;
         responsiblePersonId?: string;
@@ -291,9 +291,14 @@ export const useCreateDevelopmentAction = () => {
         completionDate?: string;
         status?: string;
         remark?: string;
+        successorGapId?: string;
       };
     }) =>
-      request<ApiSuccessorGapAction>('POST', `/gaps/${gapId}/actions`, payload),
+      request<ApiSuccessorGapAction>(
+        'POST',
+        `/successors/${successorId}/development-actions`,
+        payload,
+      ),
     {
       onSuccess: () => {
         invalidate();

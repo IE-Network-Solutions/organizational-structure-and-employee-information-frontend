@@ -94,7 +94,8 @@ export interface ApiSuccessorEvaluation {
 
 export interface ApiSuccessorGapAction {
   id: string;
-  successorGapId: string;
+  successorGapId?: string | null;
+  criticalRoleSuccessorId?: string | null;
   actionItem: string;
   responsiblePersonId?: string | null;
   targetCompletionDate?: string | null;
@@ -155,6 +156,7 @@ export interface ApiCriticalRoleSuccessor {
   educationRelatedAcceptedField?: string | null;
   evaluations?: ApiSuccessorEvaluation[];
   gaps?: ApiSuccessorGap[];
+  developmentActions?: ApiSuccessorGapAction[];
   developmentPlans?: ApiDevelopmentPlan[];
   deletedAt?: string | null;
 }
@@ -275,9 +277,12 @@ export interface ApiSuccessorAssessment {
 
 export interface ApiEvaluatorAssignmentRow {
   evaluatorId: string;
+  evaluatorName?: string;
   criticalRoleId: string;
   criticalRoleSuccessorId: string;
   successorUserId: string;
+  successorName?: string;
+  successorJobTitle?: string;
   competencyCriteriaId: string;
   competencyName: string;
   category: string;

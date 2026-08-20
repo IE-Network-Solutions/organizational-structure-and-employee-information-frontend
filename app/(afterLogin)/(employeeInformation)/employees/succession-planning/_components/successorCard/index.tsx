@@ -181,7 +181,6 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
     addAction,
     updateAction,
     deleteAction,
-    upsertPlan,
     addActivity,
     updateActivity,
   } = useSuccessorWrites(successor.id);
@@ -192,7 +191,6 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
     useState<CompetencyEvaluation | null>(null);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [actionCreateKey, setActionCreateKey] = useState(0);
-  const [idpPlanKey, setIdpPlanKey] = useState(0);
   const [idpActivityKey, setIdpActivityKey] = useState(0);
   useAuthenticationStore((state) => state.userData);
   const canUpdateCriticalRole = AccessGuard.checkAccess({
@@ -280,36 +278,20 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
     }
     if (activeTab === 'idp' && canManageSuccessorDevelopment) {
       return (
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="primary"
-            size="small"
-            icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
-            onClick={() => {
-              if (canManageSuccessorDevelopment) {
-                setIdpPlanKey((key) => key + 1);
-              }
-            }}
-            className={tabBtnClass}
-            data-cy={`edit-idp-plan-tab-${successor.id}`}
-          >
-            {successor.idp ? 'Edit status' : 'Create IDP'}
-          </Button>
-          <Button
-            type="primary"
-            size="small"
-            icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
-            onClick={() => {
-              if (canManageSuccessorDevelopment) {
-                setIdpActivityKey((key) => key + 1);
-              }
-            }}
-            className={tabBtnClass}
-            data-cy={`add-idp-activity-tab-${successor.id}`}
-          >
-            Add activity
-          </Button>
-        </div>
+        <Button
+          type="primary"
+          size="small"
+          icon={<AddCircleOutlineOutlinedIcon style={{ fontSize: 16 }} />}
+          onClick={() => {
+            if (canManageSuccessorDevelopment) {
+              setIdpActivityKey((key) => key + 1);
+            }
+          }}
+          className={tabBtnClass}
+          data-cy={`add-idp-activity-tab-${successor.id}`}
+        >
+          Add activity
+        </Button>
       );
     }
     return null;
@@ -319,6 +301,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
   const gaps = successor.gaps ?? [];
   const actions = successor.developmentActions ?? [];
   const openGaps = gaps.filter((g) => g.status !== 'Closed').length;
+  const idpCount = successor.idp?.activities?.length ?? 0;
   // Exclude the successor themselves from their own evaluator list.
   const evaluatorOptions = employees.filter(
     (e) => e.id !== successor.userId && e.id !== successor.id,
@@ -777,18 +760,13 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
           },
           {
             key: 'idp',
-            label: 'IDP',
+            label: `IDP${idpCount ? ` (${idpCount})` : ''}`,
             children: (
               <div>
                 <IdpPanel
                   idp={successor.idp}
                   hideToolbarButtons
-                  openPlanKey={idpPlanKey}
                   openActivityKey={idpActivityKey}
-                  onUpsertPlan={async (plan) => {
-                    if (!canManageSuccessorDevelopment) return;
-                    await upsertPlan(plan);
-                  }}
                   onAddActivity={async (activity) => {
                     if (!canManageSuccessorDevelopment) return;
                     await addActivity(activity);

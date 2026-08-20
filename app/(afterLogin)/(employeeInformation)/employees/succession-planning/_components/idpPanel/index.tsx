@@ -14,12 +14,10 @@ import {
 import type { TableColumnsType } from 'antd';
 import dayjs from 'dayjs';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import type {
   IdpActivity,
   IdpActivityStatus,
   IdpActivityType,
-  IdpPlanStatus,
   IndividualDevelopmentPlan,
 } from '../successionTypes';
 import { idpActivityStatusColor } from '../tagColors';
@@ -30,7 +28,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 interface IdpPanelProps {
   idp?: IndividualDevelopmentPlan;
   /** Awaited so the Save buttons can hold their loading state. */
-  onUpsertPlan: (plan: { status: IdpPlanStatus }) => void | Promise<void>;
   onAddActivity: (activity: Omit<IdpActivity, 'id'>) => void | Promise<void>;
   onUpdateActivity: (
     activityId: string,
@@ -38,42 +35,26 @@ interface IdpPanelProps {
   ) => void | Promise<void>;
   /** Hide plan/activity buttons when parent renders them in the tab bar. */
   hideToolbarButtons?: boolean;
-  /** Increment to open the plan status modal from outside. */
-  openPlanKey?: number;
   /** Increment to open the add-activity modal from outside. */
   openActivityKey?: number;
 }
 
 const IdpPanel: React.FC<IdpPanelProps> = ({
   idp,
-  onUpsertPlan,
   onAddActivity,
   onUpdateActivity,
   hideToolbarButtons = false,
-  openPlanKey = 0,
   openActivityKey = 0,
 }) => {
-  const [planOpen, setPlanOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
-  const [savingPlan, setSavingPlan] = useState(false);
   const [savingActivity, setSavingActivity] = useState(false);
   const [editingActivity, setEditingActivity] = useState<IdpActivity | null>(
     null,
   );
-  const [planForm] = Form.useForm();
   const [activityForm] = Form.useForm();
   const canManageSuccessorDevelopment = AccessGuard.checkAccess({
     permissions: [Permissions.ManageSuccessorDevelopment],
   });
-
-  const openPlan = () => {
-    if (!canManageSuccessorDevelopment) return;
-
-    planForm.setFieldsValue({
-      status: idp?.status ?? 'Draft',
-    });
-    setPlanOpen(true);
-  };
 
   const openActivity = (activity?: IdpActivity) => {
     if (!canManageSuccessorDevelopment) return;
@@ -91,13 +72,6 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
     );
     setActivityOpen(true);
   };
-
-  useEffect(() => {
-    if (!canManageSuccessorDevelopment || openPlanKey <= 0) return;
-
-    planForm.setFieldsValue({ status: idp?.status ?? 'Draft' });
-    setPlanOpen(true);
-  }, [openPlanKey, canManageSuccessorDevelopment, idp?.status, planForm]);
 
   useEffect(() => {
     if (!canManageSuccessorDevelopment || openActivityKey <= 0) return;
@@ -165,27 +139,8 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
 
   return (
     <div className="flex flex-col gap-3" data-cy="idp-panel">
-      {idp ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm text-gray-500">Plan status</span>
-          <Tag className="m-0" data-cy="idp-plan-status-tag">
-            {idp.status}
-          </Tag>
-        </div>
-      ) : null}
-
       {!hideToolbarButtons && canManageSuccessorDevelopment ? (
         <div className="flex flex-wrap justify-end gap-2">
-          <Button
-            type="primary"
-            size="small"
-            icon={<EditOutlinedIcon style={{ fontSize: 16 }} />}
-            onClick={openPlan}
-            className="h-8 font-normal"
-            data-cy="edit-idp-plan-btn"
-          >
-            {idp ? 'Edit status' : 'Create IDP'}
-          </Button>
           <Button
             type="primary"
             size="small"
@@ -222,43 +177,6 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
         }
         data-cy="idp-activities-table"
       />
-
-      <Modal
-        open={planOpen && canManageSuccessorDevelopment}
-        title={idp ? 'Edit IDP status' : 'Create IDP'}
-        onCancel={() => setPlanOpen(false)}
-        onOk={async () => {
-          if (!canManageSuccessorDevelopment) return;
-
-          const values = await planForm.validateFields();
-          setSavingPlan(true);
-          try {
-            await onUpsertPlan({ status: values.status as IdpPlanStatus });
-            setPlanOpen(false);
-          } finally {
-            setSavingPlan(false);
-          }
-        }}
-        okText="Save"
-        confirmLoading={savingPlan}
-        cancelButtonProps={{ disabled: savingPlan }}
-        maskClosable={!savingPlan}
-        destroyOnClose
-        data-cy="idp-plan-modal"
-      >
-        <Form form={planForm} layout="vertical" className="mt-2">
-          <Form.Item name="status" label="Status" rules={[{ required: true }]}>
-            <Select
-              options={[
-                { value: 'Draft', label: 'Draft' },
-                { value: 'Active', label: 'Active' },
-                { value: 'Completed', label: 'Completed' },
-              ]}
-              data-cy="idp-status"
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
 
       <Modal
         open={activityOpen && canManageSuccessorDevelopment}

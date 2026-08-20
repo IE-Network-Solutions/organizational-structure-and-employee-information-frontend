@@ -158,7 +158,11 @@ const DevelopmentActionModal: React.FC<DevelopmentActionModalProps> = ({
           />
         </Form.Item>
         {!gapLocked ? (
-          <Form.Item name="gapId" label="Linked Gap">
+          <Form.Item
+            name="gapId"
+            label="Linked Gap"
+            normalize={(value) => value || undefined}
+          >
             <Select
               allowClear
               placeholder="Select gap (optional)"

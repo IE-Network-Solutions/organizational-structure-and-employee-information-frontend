@@ -85,7 +85,7 @@ export interface DevelopmentAction {
   responsiblePersonName: string;
   targetCompletionDate: string;
   status: DevelopmentActionStatus;
-  completionDate?: string;
+  completionDate?: string | null;
   remarks?: string;
   gapId?: string;
 }
@@ -365,9 +365,9 @@ export const deriveSuccessorGaps = (
 export const resolveActionStatus = (
   status: DevelopmentActionStatus,
   targetCompletionDate: string,
-  completionDate?: string,
+  _completionDate?: string | null,
 ): DevelopmentActionStatus => {
-  if (status === 'Completed' || completionDate) return 'Completed';
+  if (status === 'Completed') return 'Completed';
   if (!targetCompletionDate) return status;
   const target = new Date(targetCompletionDate);
   const today = new Date();

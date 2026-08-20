@@ -29,6 +29,8 @@ export interface EvaluatorAssignmentRow {
   roleName: string;
   department: string;
   successorId: string;
+  /** Core employee id. Used to unique the successor filter across nominations. */
+  successorUserId?: string;
   successorName: string;
   successorJobTitle?: string;
   competencyName: string;
@@ -83,6 +85,26 @@ export const checkCanViewAllEvaluations = () =>
     requireAny: true,
   });
 
+/** Person id for filter options: Core user id, else the nomination row id. */
+export const successorFilterId = (
+  row: Pick<EvaluatorAssignmentRow, 'successorId' | 'successorUserId'>,
+) => row.successorUserId || row.successorId;
+
+const filterSelectPopupContainer = (trigger: HTMLElement) =>
+  trigger.parentElement ?? document.body;
+
+const isPlaceholderSuccessorName = (name?: string) =>
+  !name || name === 'Successor' || name === 'Employee';
+
+const resolvedSuccessorName = (
+  catalogName?: string,
+  apiName?: string,
+) => {
+  if (!isPlaceholderSuccessorName(catalogName)) return catalogName as string;
+  if (!isPlaceholderSuccessorName(apiName)) return apiName as string;
+  return catalogName || apiName || 'Successor';
+};
+
 /** Assignment lists come back bare, wrapped, or missing after a failed fetch. */
 export const asAssignmentRows = (
   data: unknown,
@@ -118,6 +140,7 @@ export const buildEvaluatorAssignments = (
           roleName: role.roleName,
           department: role.department,
           successorId: successor.id,
+          successorUserId: successor.userId ?? successor.id,
           successorName: successor.name,
           successorJobTitle: successor.jobTitle,
           competencyName: evaluation.competencyName,
@@ -166,13 +189,16 @@ export const mapServerEvaluatorAssignments = (
       evaluatorName:
         evaluation?.evaluatorName ||
         evaluatorNameById?.get(assignment.evaluatorId) ||
+        assignment.evaluatorName ||
         'Evaluator',
       roleId: assignment.criticalRoleId,
       roleName: role?.roleName ?? 'Critical role',
       department: role?.department ?? '—',
       successorId: assignment.criticalRoleSuccessorId,
-      successorName: successor?.name ?? 'Successor',
-      successorJobTitle: successor?.jobTitle,
+      successorUserId: assignment.successorUserId || successor?.userId,
+      successorName: resolvedSuccessorName(successor?.name, assignment.successorName),
+      successorJobTitle:
+        successor?.jobTitle ?? assignment.successorJobTitle,
       competencyName: assignment.competencyName,
       category: assignment.category,
       importance: assignment.importance as CompetencyImportance,
@@ -291,8 +317,10 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
   const successorOptions = useMemo(() => {
     const byId = new Map<string, string>();
     allRows.forEach((row) => {
-      if (!byId.has(row.successorId)) {
-        byId.set(row.successorId, row.successorName);
+      const id = successorFilterId(row);
+      const existing = byId.get(id);
+      if (!existing || isPlaceholderSuccessorName(existing)) {
+        byId.set(id, row.successorName);
       }
     });
     return Array.from(byId.entries())
@@ -358,7 +386,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
       const matchesEvaluator =
         isMine || !evaluatorFilter || row.evaluatorId === evaluatorFilter;
       const matchesSuccessor =
-        !successorFilter || row.successorId === successorFilter;
+        !successorFilter || successorFilterId(row) === successorFilter;
       return matchesSearch && matchesEvaluator && matchesSuccessor;
     });
 
@@ -536,8 +564,10 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
             onOpenChange={setFilterOpen}
             dropdownRender={() => (
               <div
-                className="bg-white rounded-lg border border-gray-200 min-w-[280px] sm:min-w-[320px] overflow-hidden shadow-md"
+                className="bg-white rounded-lg border border-gray-200 min-w-[280px] sm:min-w-[320px] overflow-visible shadow-md"
                 data-cy="evaluators-filter-panel"
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
               >
                 <div className="px-5 pt-4 pb-1">
                   <h3 className="text-base font-bold text-[#4d4d4d] m-0 mb-1">
@@ -567,6 +597,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                         { value: 'Pending', label: 'Not scored' },
                         { value: 'Evaluated', label: 'Scored' },
                       ]}
+                      getPopupContainer={filterSelectPopupContainer}
                       data-cy="evaluators-filter-status-select"
                     />
                   </div>
@@ -588,6 +619,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                           value: e.id,
                           label: e.name,
                         }))}
+                        getPopupContainer={filterSelectPopupContainer}
                         data-cy="evaluators-filter-evaluator-select"
                       />
                     </div>
@@ -609,6 +641,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                         value: s.id,
                         label: s.name,
                       }))}
+                      getPopupContainer={filterSelectPopupContainer}
                       data-cy="evaluators-filter-successor-select"
                     />
                   </div>

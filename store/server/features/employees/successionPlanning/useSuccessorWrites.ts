@@ -69,15 +69,9 @@ export const useSuccessorWrites = (successorId: string) => {
     updateGapStatus: (gapId: string, status: GapStatus) =>
       updateGapStatus.mutateAsync({ id: gapId, status }),
 
-    addAction: (action: Omit<DevelopmentAction, 'id'>) => {
-      // Actions hang off a gap; the panels always supply the gap they came from.
-      if (!action.gapId) {
-        return Promise.reject(
-          new Error('A development action must be attached to a gap'),
-        );
-      }
-      return createAction.mutateAsync({
-        gapId: action.gapId,
+    addAction: (action: Omit<DevelopmentAction, 'id'>) =>
+      createAction.mutateAsync({
+        successorId,
         payload: {
           actionItem: action.actionItem,
           responsiblePersonId: action.responsiblePersonId || undefined,
@@ -85,9 +79,9 @@ export const useSuccessorWrites = (successorId: string) => {
           completionDate: action.completionDate || undefined,
           status: action.status,
           remark: action.remarks || undefined,
+          successorGapId: action.gapId || undefined,
         },
-      });
-    },
+      }),
 
     updateAction: (actionId: string, patch: Partial<DevelopmentAction>) =>
       updateAction.mutateAsync({
@@ -102,8 +96,8 @@ export const useSuccessorWrites = (successorId: string) => {
           ...(patch.targetCompletionDate !== undefined && {
             targetCompletionDate: patch.targetCompletionDate || undefined,
           }),
-          ...(patch.completionDate !== undefined && {
-            completionDate: patch.completionDate || undefined,
+          ...('completionDate' in patch && {
+            completionDate: patch.completionDate || null,
           }),
           ...(patch.status !== undefined && { status: patch.status }),
           // The UI calls this field `remarks`; the API column is `remark`.

@@ -86,7 +86,7 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
             completionDate:
               payload.completionDate ?? dayjs().format('YYYY-MM-DD'),
           }
-        : { ...payload, completionDate: undefined };
+        : { ...payload, completionDate: null };
 
     if (editing) {
       onUpdate(editing.id, withCompletion);
@@ -112,7 +112,7 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
     }
     onUpdate(action.id, {
       status,
-      completionDate: undefined,
+      completionDate: null,
     });
   };
 
