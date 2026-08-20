@@ -48,6 +48,8 @@ import { PlanningReportingHeaderActions } from './_components/PlanningReportingH
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useSearchParams } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface PlanningPeriod {
   id: string;
@@ -61,12 +63,18 @@ interface PlanningPeriod {
 
 function Page() {
   useFiscalYearSessionSync();
+  const searchParams = useSearchParams();
   const {
     setActiveTab,
     activeTab,
     activePlanPeriod,
     setActivePlanPeriod,
     setActivePlanPeriodId,
+    setSelectedUser,
+    setPlanningFilterPlanType,
+    setPlanningFilterDepartment,
+    setPage,
+    setPageReporting,
     inlinePlanningMode,
     setInlinePlanningMode,
     mobilePlanComposerOpen,
@@ -157,6 +165,53 @@ function Page() {
       }),
     );
   }, [processedPlanningPeriods]);
+
+  useEffect(() => {
+    const recipientUserId = useAuthenticationStore.getState().userId;
+    const tab = (searchParams.get('tab') ?? '').toLowerCase();
+    if (tab === 'report' || tab === 'reporting') {
+      setActiveTab(2);
+    } else if (tab === 'plan' || tab === 'planning') {
+      setActiveTab(1);
+    }
+
+    const employeeIdParam = searchParams.get('employeeId');
+    const userIdParam = searchParams.get('userId');
+    const linkedEmployee = employeeIdParam || userIdParam || '';
+    const onlyRecipientFallback =
+      !employeeIdParam && !!userIdParam && userIdParam === recipientUserId;
+
+    if (
+      linkedEmployee &&
+      linkedEmployee !== 'all' &&
+      !onlyRecipientFallback
+    ) {
+      setPlanningFilterPlanType('all');
+      setPlanningFilterDepartment(undefined);
+      setSelectedUser([linkedEmployee]);
+      setPage(1);
+      setPageReporting(1);
+    }
+  }, [
+    searchParams,
+    setActiveTab,
+    setSelectedUser,
+    setPlanningFilterPlanType,
+    setPlanningFilterDepartment,
+    setPage,
+    setPageReporting,
+  ]);
+
+  useEffect(() => {
+    const periodId =
+      searchParams.get('planningPeriodId') || searchParams.get('periodId') || '';
+    if (!periodId || tabItems.length === 0) return;
+    const match = tabItems.find((item) => item.id === periodId);
+    if (match?.key) {
+      setActivePlanPeriod(Number(match.key));
+      setActivePlanPeriodId(match.id);
+    }
+  }, [searchParams, tabItems, setActivePlanPeriod, setActivePlanPeriodId]);
 
   const selectedTab = tabItems.find(
     (item) => item.key === String(activePlanPeriod),
