@@ -567,11 +567,6 @@ function resolveTimesheetPath(
   }
 
   if (isHrLeave) {
-    const ctx = extractLeaveRequestContext(item);
-    if (ctx.leaveRequestId) params.set('leaveRequestId', ctx.leaveRequestId);
-    if (ctx.approvalWorkflowId) {
-      params.set('approvalWorkflowId', ctx.approvalWorkflowId);
-    }
     return withParams('/timesheet/leave-management/leaves', params);
   }
 
