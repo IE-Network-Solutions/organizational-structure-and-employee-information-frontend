@@ -170,8 +170,11 @@ function Page() {
   const {
     planSummaries,
     transformedData,
+    krPlanSummaries,
+    krTransformedData,
     isLoading: planningLoading,
     userId,
+    totalItems: planningTotalItems,
   } = usePlanningData(activeTab === 1);
 
   const {
@@ -218,32 +221,43 @@ function Page() {
     [planningPeriodHierarchy],
   );
 
-  const { reportSummaries, reportingItems } = useReportingData(activeTab === 2);
+  const { reportSummaries, krReportSummaries, krReportingItems, isLoading: reportingLoading, isFilterScopePending: reportingFilterPending } =
+    useReportingData(activeTab === 2);
 
   const enrichedPlanSummaries = useMemo(
     () =>
       enrichPlanSummariesWithUserKeyResults(planSummaries, userKeyResultItems),
     [planSummaries, userKeyResultItems],
   );
-  const enrichedReportSummaries = useMemo(
+  const enrichedKrPlanSummaries = useMemo(
     () =>
       enrichPlanSummariesWithUserKeyResults(
-        reportSummaries,
+        krPlanSummaries,
         userKeyResultItems,
       ),
-    [reportSummaries, userKeyResultItems],
+    [krPlanSummaries, userKeyResultItems],
+  );
+  const enrichedKrReportSummaries = useMemo(
+    () =>
+      enrichPlanSummariesWithUserKeyResults(
+        krReportSummaries,
+        userKeyResultItems,
+      ),
+    [krReportSummaries, userKeyResultItems],
   );
 
   const krPanelPlans =
-    activeTab === 2 ? enrichedReportSummaries : enrichedPlanSummaries;
+    activeTab === 2 ? enrichedKrReportSummaries : enrichedKrPlanSummaries;
   const krPanelTransformedData =
-    activeTab === 2 ? reportingItems : transformedData;
+    activeTab === 2 ? krReportingItems : krTransformedData;
 
   const krPanelBlockingLoading =
     activeTab === 2
-      ? (userKeyResultsLoading || userObjectivesLoading) &&
-        reportSummaries.length === 0 &&
-        planSummaries.length === 0
+      ? reportingFilterPending ||
+        reportingLoading ||
+        ((userKeyResultsLoading || userObjectivesLoading) &&
+          reportSummaries.length === 0 &&
+          planSummaries.length === 0)
       : planningLoading ||
         ((userKeyResultsLoading || userObjectivesLoading) &&
           planSummaries.length === 0);
@@ -656,6 +670,7 @@ function Page() {
                   planSummaries={planSummaries}
                   transformedData={transformedData}
                   isLoading={planningLoading}
+                  totalItems={planningTotalItems}
                 />
               </div>
               <div

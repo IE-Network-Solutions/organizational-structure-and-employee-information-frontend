@@ -1,8 +1,13 @@
 import { useCallback, useMemo } from 'react';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useGetAllUsers,
+  useGetAllUsersData,
+} from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { resolveEmployeeAndPlanType } from './resolveFilterDraft';
+import { getEmployeeDepartmentId, getEmployeeItems, getSubordinateIds } from './departmentUsers';
 
 export const planTypeOptions = [
   { label: 'All Plans', value: 'all' },
@@ -21,54 +26,74 @@ export type PlanningFilterDraft = {
 
 type EmployeeItem = { label: string; value: string };
 
+function collectDepartmentUserIds(
+  departmentId: string,
+  employeeData: any,
+  departmentData: any,
+  allLevelDepartmentUserIds?: string[],
+) {
+  const department = departmentData?.find(
+    (dep: any) => dep.id === departmentId,
+  );
+  const fromDepartmentEntity =
+    department?.users?.map((user: any) => String(user.id)) ?? [];
+  const fromEmployees = getEmployeeItems(employeeData)
+    .filter((emp: any) => getEmployeeDepartmentId(emp) === departmentId)
+    .map((emp: any) => String(emp.id));
+
+  return Array.from(
+    new Set([
+      ...(allLevelDepartmentUserIds ?? []),
+      ...fromDepartmentEntity,
+      ...fromEmployees,
+    ]),
+  ).filter((id) => id);
+}
+
 export function buildEmployeeOptions(
   department: string | undefined,
   employeeData: ReturnType<typeof useGetAllUsers>['data'],
   departmentData: ReturnType<typeof useGetDepartmentsWithUsers>['data'],
   allLevelDepartmentUserIds?: string[],
 ): EmployeeItem[] {
-  const getUserIdsByDepartmentId = (departmentId: string) => {
-    const department = departmentData?.find(
-      (dep: any) => dep.id === departmentId,
-    );
-    if (department && department.users) {
-      return department.users.map((user: any) => user.id);
-    }
-    return [];
-  };
-
   const options: EmployeeItem[] = [{ label: 'All employees', value: 'all' }];
-  if (employeeData?.items) {
-    let employeesToShow = employeeData.items;
+  const employees = getEmployeeItems(employeeData);
+  if (employees.length === 0) return options;
 
-    if (department && department !== 'all') {
-      const departmentUserIds =
-        allLevelDepartmentUserIds && allLevelDepartmentUserIds.length > 0
-          ? allLevelDepartmentUserIds
-          : getUserIdsByDepartmentId(department);
-      employeesToShow = employeeData.items.filter((emp: any) =>
-        departmentUserIds.includes(emp.id),
-      );
-    }
-
-    employeesToShow.forEach((emp: any) => {
-      const name =
-        `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim();
-      if (name) {
-        options.push({ label: name, value: emp.id });
-      }
-    });
+  let employeesToShow = employees;
+  if (department && department !== 'all') {
+    const departmentUserIds = collectDepartmentUserIds(
+      department,
+      employeeData,
+      departmentData,
+      allLevelDepartmentUserIds,
+    );
+    employeesToShow = employees.filter((emp: any) =>
+      departmentUserIds.includes(emp.id),
+    );
   }
+
+  employeesToShow.forEach((emp: any) => {
+    const name =
+      `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim();
+    if (name) {
+      options.push({ label: name, value: emp.id });
+    }
+  });
   return options;
 }
 
 export function initPlanningFilterDraftFromStore(): PlanningFilterDraft {
   const s = PlanningAndReportingStore.getState();
-  const employeeSelect = 'all';
+  const { employeeSelect, planType } = resolveEmployeeAndPlanType({
+    planningFilterPlanType: s.planningFilterPlanType,
+    planningFilterEmployee: s.planningFilterEmployee,
+    selectedUser: s.selectedUser,
+  });
 
   return {
     employeeSelect,
-    planType: s.planningFilterPlanType,
+    planType,
     department: s.planningFilterDepartment ?? 'all',
     fiscalYearId: s.selectedFiscalYearId,
     sessionIds: [...s.selectedSessionIds],
@@ -85,27 +110,36 @@ export function commitPlanningDraft(
   },
 ) {
   const getUserIdsByDepartmentId = (departmentId: string) => {
-    const department = deps.departmentData?.find(
-      (dep: any) => dep.id === departmentId,
+    return collectDepartmentUserIds(
+      departmentId,
+      deps.employeeData,
+      deps.departmentData,
+      deps.allLevelDepartmentUserIds,
     );
-    if (department && department.users) {
-      return department.users.map((user: any) => user.id);
-    }
-    return [];
   };
 
   const {
     setPlanningFilterPlanType,
     setPlanningFilterDepartment,
+    setPlanningFilterEmployee,
     setSelectedUser,
     setSelectedFiscalYearId,
     setSelectedSessionIds,
     setAllSessionsOfYear,
     setPage,
     setPageReporting,
+    setPlanningDefaultFilterApplied,
   } = PlanningAndReportingStore.getState();
 
+  const appliedEmployee =
+    draft.planType === 'all' &&
+    draft.employeeSelect !== 'all' &&
+    draft.employeeSelect !== 'subordinate'
+      ? draft.employeeSelect
+      : 'all';
+
   setPlanningFilterPlanType(draft.planType);
+  setPlanningFilterEmployee(appliedEmployee);
   setPlanningFilterDepartment(
     draft.department === 'all' ? undefined : draft.department,
   );
@@ -113,12 +147,7 @@ export function commitPlanningDraft(
   const planType = draft.planType;
   const value = draft.department === 'all' ? 'all' : draft.department;
   const selectedDepartmentUserIds =
-    value === 'all'
-      ? []
-      : deps.allLevelDepartmentUserIds &&
-          deps.allLevelDepartmentUserIds.length > 0
-        ? deps.allLevelDepartmentUserIds
-        : getUserIdsByDepartmentId(value);
+    value === 'all' ? [] : getUserIdsByDepartmentId(value);
 
   if (value === 'all') {
     if (planType === 'all') {
@@ -126,14 +155,7 @@ export function commitPlanningDraft(
     } else if (planType === 'myPlan') {
       setSelectedUser([deps.userId]);
     } else if (planType === 'subordinatePlan') {
-      const subordinates =
-        deps.employeeData?.items
-          ?.filter(
-            (employee: any) =>
-              (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
-              deps.userId,
-          )
-          .map((employee: any) => employee.id) || [];
+      const subordinates = getSubordinateIds(deps.employeeData, deps.userId);
       setSelectedUser(
         subordinates.length > 0
           ? ['subordinate', ...subordinates]
@@ -149,14 +171,10 @@ export function commitPlanningDraft(
       const userInDepartment = departmentUserIds.includes(deps.userId);
       setSelectedUser(userInDepartment ? [deps.userId] : []);
     } else if (planType === 'subordinatePlan') {
-      const subordinates =
-        deps.employeeData?.items
-          ?.filter(
-            (employee: any) =>
-              (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
-                deps.userId && departmentUserIds.includes(employee.id),
-          )
-          .map((employee: any) => employee.id) || [];
+      const subordinates = getSubordinateIds(
+        deps.employeeData,
+        deps.userId,
+      ).filter((id) => departmentUserIds.includes(id));
       setSelectedUser(
         subordinates.length > 0
           ? ['subordinate', ...subordinates]
@@ -190,11 +208,16 @@ export function commitPlanningDraft(
   }
   setPage(1);
   setPageReporting(1);
+  setPlanningDefaultFilterApplied(true);
 }
 
 export function usePlanningToolbarFilters() {
-  const { data: employeeData, isLoading: isEmployeesLoading } =
-    useGetAllUsers();
+  const { data: allEmployeesRaw, isLoading: isEmployeesLoading } =
+    useGetAllUsersData();
+  const employeeData = useMemo(
+    () => ({ items: getEmployeeItems(allEmployeesRaw) }),
+    [allEmployeesRaw],
+  );
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { userId } = useAuthenticationStore();
   const {
@@ -204,19 +227,13 @@ export function usePlanningToolbarFilters() {
     setPlanningFilterDepartment,
     planningFilterPlanType,
     setPlanningFilterPlanType,
+    setPlanningFilterEmployee,
   } = PlanningAndReportingStore();
 
   const getUserIdsByDepartmentId = useCallback(
-    (departmentId: string) => {
-      const department = departmentData?.find(
-        (dep: any) => dep.id === departmentId,
-      );
-      if (department && department.users) {
-        return department.users.map((user: any) => user.id);
-      }
-      return [];
-    },
-    [departmentData],
+    (departmentId: string) =>
+      collectDepartmentUserIds(departmentId, employeeData, departmentData),
+    [departmentData, employeeData],
   );
 
   const employeeOptions = useMemo(() => {
@@ -257,6 +274,7 @@ export function usePlanningToolbarFilters() {
   const handleEmployeeChange = (value: string) => {
     setPlanningFilterDepartment(undefined);
     setPlanningFilterPlanType('all');
+    setPlanningFilterEmployee(value === 'all' ? 'all' : value);
     if (value === 'all') {
       setSelectedUser(['all']);
     } else {
@@ -267,20 +285,14 @@ export function usePlanningToolbarFilters() {
   const handlePlanTypeChange = (value: string) => {
     setPlanningFilterDepartment(undefined);
     setPlanningFilterPlanType(value);
+    setPlanningFilterEmployee('all');
 
     if (value === 'all') {
       setSelectedUser(['all']);
     } else if (value === 'myPlan') {
       setSelectedUser([userId]);
     } else if (value === 'subordinatePlan') {
-      const subordinates =
-        employeeData?.items
-          ?.filter(
-            (employee: any) =>
-              (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
-              userId,
-          )
-          .map((employee: any) => employee.id) || [];
+      const subordinates = getSubordinateIds(employeeData, userId);
       setSelectedUser(
         subordinates.length > 0
           ? ['subordinate', ...subordinates]
@@ -301,14 +313,7 @@ export function usePlanningToolbarFilters() {
       } else if (planType === 'myPlan') {
         setSelectedUser([userId]);
       } else if (planType === 'subordinatePlan') {
-        const subordinates =
-          employeeData?.items
-            ?.filter(
-              (employee: any) =>
-                (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
-                userId,
-            )
-            .map((employee: any) => employee.id) || [];
+        const subordinates = getSubordinateIds(employeeData, userId);
         setSelectedUser(
           subordinates.length > 0
             ? ['subordinate', ...subordinates]
@@ -324,14 +329,9 @@ export function usePlanningToolbarFilters() {
         const userInDepartment = departmentUserIds.includes(userId);
         setSelectedUser(userInDepartment ? [userId] : []);
       } else if (planType === 'subordinatePlan') {
-        const subordinates =
-          employeeData?.items
-            ?.filter(
-              (employee: any) =>
-                (employee?.delegatedTo?.id || employee.reportingTo?.id) ===
-                  userId && departmentUserIds.includes(employee.id),
-            )
-            .map((employee: any) => employee.id) || [];
+        const subordinates = getSubordinateIds(employeeData, userId).filter(
+          (id) => departmentUserIds.includes(id),
+        );
         setSelectedUser(
           subordinates.length > 0
             ? ['subordinate', ...subordinates]
