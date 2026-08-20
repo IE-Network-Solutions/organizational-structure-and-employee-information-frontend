@@ -22,7 +22,12 @@ const toSlug = (v: string | number | null | undefined) =>
 function getNotificationRoute(
   n: NotificationType,
   recipientUserId?: string,
-  employees?: { id?: string; firstName?: string; middleName?: string; lastName?: string }[],
+  employees?: {
+    id?: string;
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+  }[],
 ): string {
   return resolveNotificationPath(n, { recipientUserId, employees });
 }

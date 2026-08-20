@@ -94,10 +94,7 @@ function firstUuidFromValue(value: unknown): string | undefined {
   return undefined;
 }
 
-function extractIdFromRecord(
-  obj: unknown,
-  depth = 0,
-): string | undefined {
+function extractIdFromRecord(obj: unknown, depth = 0): string | undefined {
   if (!obj || typeof obj !== 'object' || depth > 3) return undefined;
   const record = obj as Record<string, unknown>;
   for (const key of RELATED_ID_KEYS) {
@@ -210,7 +207,10 @@ function resolveDelegatorEmployeeId(
   return picked;
 }
 
-function isLeaveDelegationNotification(text: string, pathname: string): boolean {
+function isLeaveDelegationNotification(
+  text: string,
+  pathname: string,
+): boolean {
   if (pathname.includes('leave-management') && text.includes('delegat')) {
     return true;
   }
@@ -252,9 +252,15 @@ export function findEmployeeIdFromText(
       .filter(Boolean)
       .join(' ')
       .trim();
-    const firstLast = [emp.firstName, emp.lastName].filter(Boolean).join(' ').trim();
+    const firstLast = [emp.firstName, emp.lastName]
+      .filter(Boolean)
+      .join(' ')
+      .trim();
     if (full.length >= 5) candidates.push({ id: emp.id, name: full });
-    if (firstLast.length >= 5 && firstLast.toLowerCase() !== full.toLowerCase()) {
+    if (
+      firstLast.length >= 5 &&
+      firstLast.toLowerCase() !== full.toLowerCase()
+    ) {
       candidates.push({ id: emp.id, name: firstLast });
     }
   }
@@ -501,8 +507,8 @@ function isEmployeeNotification(
   text: string,
 ): boolean {
   return (
-    pathname.includes('/employees') &&
-    !pathname.includes('/employees/notification') ||
+    (pathname.includes('/employees') &&
+      !pathname.includes('/employees/notification')) ||
     source.includes('employee') ||
     text.includes('employee profile') ||
     text.includes('new employee') ||
@@ -677,12 +683,12 @@ function resolveOkrPath(
   employeeId?: string,
 ): string {
   attachEmployee(params, employeeId);
-  if (pathname.includes('weekly-priority') || text.includes('weekly priority')) {
+  if (
+    pathname.includes('weekly-priority') ||
+    text.includes('weekly priority')
+  ) {
     if (!params.get('tab')) {
-      params.set(
-        'tab',
-        text.includes('team') ? 'team' : 'department',
-      );
+      params.set('tab', text.includes('team') ? 'team' : 'department');
     }
     return withParams('/weekly-priority', params);
   }
@@ -736,7 +742,10 @@ function resolvePayrollPath(
   if (employeeId) {
     return withParams(`/employee-information/${employeeId}`, params);
   }
-  return withParams(pathname.includes('payroll') ? pathname : '/payroll', params);
+  return withParams(
+    pathname.includes('payroll') ? pathname : '/payroll',
+    params,
+  );
 }
 
 function resolveCompensationPath(
@@ -803,7 +812,10 @@ function resolveOrgPath(
 ): string {
   if (pathHasUuid(pathname)) return withParams(pathname, params);
   if (text.includes('fiscal') || text.includes('quarter')) {
-    return withParams('/organization/settings/fiscalYear/fiscalYearCard', params);
+    return withParams(
+      '/organization/settings/fiscalYear/fiscalYearCard',
+      params,
+    );
   }
   if (text.includes('branch')) {
     return withParams('/organization/settings/branches', params);
@@ -840,11 +852,7 @@ export function resolveNotificationPath(
   options: ResolveNotificationPathOptions = {},
 ): string {
   const raw = (item.route || item.url || '').trim();
-  const prefixed = raw
-    ? raw.startsWith('/')
-      ? raw
-      : `/${raw}`
-    : '';
+  const prefixed = raw ? (raw.startsWith('/') ? raw : `/${raw}`) : '';
   const { pathname, search } = splitPath(prefixed);
   const params = new URLSearchParams(search);
   const text = haystackOf(item);
