@@ -177,7 +177,12 @@ function NotificationItem({
 function getNotificationPath(
   item: NotificationType,
   recipientUserId?: string,
-  employees?: { id?: string; firstName?: string; middleName?: string; lastName?: string }[],
+  employees?: {
+    id?: string;
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+  }[],
 ): string {
   return resolveNotificationPath(item, { recipientUserId, employees });
 }

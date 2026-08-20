@@ -181,11 +181,7 @@ function Page() {
     const onlyRecipientFallback =
       !employeeIdParam && !!userIdParam && userIdParam === recipientUserId;
 
-    if (
-      linkedEmployee &&
-      linkedEmployee !== 'all' &&
-      !onlyRecipientFallback
-    ) {
+    if (linkedEmployee && linkedEmployee !== 'all' && !onlyRecipientFallback) {
       setPlanningFilterPlanType('all');
       setPlanningFilterDepartment(undefined);
       setSelectedUser([linkedEmployee]);
@@ -204,7 +200,9 @@ function Page() {
 
   useEffect(() => {
     const periodId =
-      searchParams.get('planningPeriodId') || searchParams.get('periodId') || '';
+      searchParams.get('planningPeriodId') ||
+      searchParams.get('periodId') ||
+      '';
     if (!periodId || tabItems.length === 0) return;
     const match = tabItems.find((item) => item.id === periodId);
     if (match?.key) {
