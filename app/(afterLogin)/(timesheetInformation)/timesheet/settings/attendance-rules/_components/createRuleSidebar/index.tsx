@@ -1245,7 +1245,10 @@ const CreateRuleSidebar = () => {
                           className="flex items-start justify-between gap-4"
                           data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-header"
                         >
-                          <div className="min-w-0 flex-1">
+                          <div
+                            className="min-w-0 flex-1"
+                            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-copy"
+                          >
                             <p
                               className="mb-0 text-sm font-medium text-[#262626]"
                               data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-title"

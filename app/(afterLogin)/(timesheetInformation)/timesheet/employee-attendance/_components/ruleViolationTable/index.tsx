@@ -280,7 +280,7 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
         </span>
       ),
       key: 'actionTypes',
-      render: (_: unknown, row: RuleViolationTableRow) => {
+      render: (notUsed: unknown, row: RuleViolationTableRow) => {
         const actionTypes = row.actionTypes;
         const minutes = row.record.salaryDeductionMinutes;
         const amount = row.record.salaryDeductionAmount;
