@@ -77,10 +77,10 @@ const SuccessionPlanningPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isMobile } = useIsMobile();
-  const initialView = parseView(searchParams.get('view'));
-  const initialScope: EvaluatorScope =
+  const activeView = parseView(searchParams.get('view'));
+  const evaluatorScope: EvaluatorScope =
     searchParams.get('scope') === 'mine' ? 'mine' : 'admin';
-  const initialReportKey = parseReportKey(searchParams.get('report'));
+  const reportKey = parseReportKey(searchParams.get('report'));
   useAuthenticationStore((state) => state.userData);
   const hasAuthHydrated = useAuthenticationStore((state) => state.hasHydrated);
   const currentUserId = useAuthenticationStore((state) => state.userId);
@@ -120,11 +120,6 @@ const SuccessionPlanningPage: React.FC = () => {
   } = useSuccessionPlanningData();
   const roles = useSuccessionPlanningStore((s) => s.roles);
 
-  const [activeView, setActiveView] = useState<SuccessionView>(initialView);
-  const [reportKey, setReportKey] =
-    useState<SuccessionReportKey>(initialReportKey);
-  const [evaluatorScope, setEvaluatorScope] =
-    useState<EvaluatorScope>(initialScope);
   const [searchValue, setSearchValue] = useState('');
   const [priorityFilter, setPriorityFilter] = useState<string>('');
   const [filterOpen, setFilterOpen] = useState(false);
@@ -156,8 +151,6 @@ const SuccessionPlanningPage: React.FC = () => {
     if (!hasAuthHydrated) return;
 
     if (evaluatorOnly && activeView !== 'evaluators') {
-      setActiveView('evaluators');
-      setEvaluatorScope('mine');
       router.replace(
         '/employees/succession-planning?view=evaluators&scope=mine',
         { scroll: false },
@@ -167,15 +160,13 @@ const SuccessionPlanningPage: React.FC = () => {
 
     if (
       !permissionAccess.canViewAllEvaluations &&
-      (evaluatorScope !== 'mine' || searchParams.has('as'))
+      (evaluatorScope !== 'mine' || searchParams.has('as')) &&
+      activeView === 'evaluators'
     ) {
-      setEvaluatorScope('mine');
-      if (activeView === 'evaluators') {
-        router.replace(
-          '/employees/succession-planning?view=evaluators&scope=mine',
-          { scroll: false },
-        );
-      }
+      router.replace(
+        '/employees/succession-planning?view=evaluators&scope=mine',
+        { scroll: false },
+      );
     }
 
     if (
@@ -183,7 +174,6 @@ const SuccessionPlanningPage: React.FC = () => {
       activeView === 'reports' &&
       !permissionAccess.canViewReports
     ) {
-      setActiveView('roles');
       router.replace('/employees/succession-planning', { scroll: false });
     }
   }, [
@@ -519,15 +509,15 @@ const SuccessionPlanningPage: React.FC = () => {
                     ) {
                       return;
                     }
-                    setActiveView(next);
                     if (next === 'evaluators') {
                       syncEvaluatorsUrl(effectiveEvaluatorScope);
                     } else if (next === 'reports') {
                       syncReportsUrl(reportKey);
                     } else {
-                      router.replace('/employees/succession-planning', {
-                        scroll: false,
-                      });
+                      router.replace(
+                        '/employees/succession-planning?view=roles',
+                        { scroll: false },
+                      );
                     }
                   }}
                   options={[
@@ -974,7 +964,6 @@ const SuccessionPlanningPage: React.FC = () => {
               assignments={evaluatorAssignments}
               scope={effectiveEvaluatorScope}
               onScopeChange={(scope) => {
-                setEvaluatorScope(scope);
                 syncEvaluatorsUrl(scope);
               }}
               evaluatorOptions={evaluatorOptions}
@@ -987,7 +976,6 @@ const SuccessionPlanningPage: React.FC = () => {
               reportKey={reportKey}
               onReportKeyChange={(key) => {
                 if (!permissionAccess.canViewReports) return;
-                setReportKey(key);
                 syncReportsUrl(key);
               }}
             />

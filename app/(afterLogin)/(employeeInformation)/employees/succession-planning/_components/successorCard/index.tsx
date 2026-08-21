@@ -46,8 +46,26 @@ import {
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 type RoleSuccessor = CriticalRole['successors'][number];
+
+const SUCCESSOR_TABS = [
+  'assessment',
+  'competencies',
+  'gaps',
+  'actions',
+  'idp',
+] as const;
+type SuccessorTab = (typeof SUCCESSOR_TABS)[number];
+
+const parseSuccessorTab = (
+  value: string | null | undefined,
+  fallback: SuccessorTab = 'assessment',
+): SuccessorTab =>
+  SUCCESSOR_TABS.includes(value as SuccessorTab)
+    ? (value as SuccessorTab)
+    : fallback;
 
 interface SuccessorSummaryCardProps {
   successor: RoleSuccessor;
@@ -171,6 +189,9 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
   onManageCompetencies,
   initialTab = 'assessment',
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   // Writes go straight to the succession-planning API; the roles query is
   // invalidated on success, which refreshes this panel through the store.
   const {
@@ -189,7 +210,18 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
   const [assessmentOpen, setAssessmentOpen] = useState(false);
   const [selectedEvaluation, setSelectedEvaluation] =
     useState<CompetencyEvaluation | null>(null);
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const activeTab = parseSuccessorTab(
+    searchParams.get('tab'),
+    parseSuccessorTab(initialTab),
+  );
+  const setActiveTab = (key: string) => {
+    const next = parseSuccessorTab(key, activeTab);
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === 'assessment') params.delete('tab');
+    else params.set('tab', next);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  };
   const [actionCreateKey, setActionCreateKey] = useState(0);
   const [idpActivityKey, setIdpActivityKey] = useState(0);
   useAuthenticationStore((state) => state.userData);

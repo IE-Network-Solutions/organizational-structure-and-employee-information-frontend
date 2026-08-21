@@ -12,7 +12,7 @@ import {
 } from 'antd';
 import type { TableColumnsType } from 'antd';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -48,8 +48,13 @@ const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({
   </div>
 );
 
+const parseRoleTab = (value: string | null): 'successors' | 'competencies' =>
+  value === 'competencies' ? 'competencies' : 'successors';
+
 const CriticalRoleDetailPage: React.FC = () => {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const params = useParams();
   const id = String(params?.id ?? '');
   const role = useSuccessionPlanningStore((s) =>
@@ -57,7 +62,7 @@ const CriticalRoleDetailPage: React.FC = () => {
   );
   const { saveRole } = useSuccessionPlanningData();
   const [manageOpen, setManageOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('successors');
+  const activeTab = parseRoleTab(searchParams.get('tab'));
   useAuthenticationStore((state) => state.userData);
   const canUpdateCriticalRole = AccessGuard.checkAccess({
     permissions: [Permissions.UpdateCriticalRole],
@@ -426,7 +431,14 @@ const CriticalRoleDetailPage: React.FC = () => {
         size="small"
         tabBarGutter={16}
         activeKey={activeTab}
-        onChange={setActiveTab}
+        onChange={(key) => {
+          const next = parseRoleTab(key);
+          const params = new URLSearchParams(searchParams.toString());
+          if (next === 'successors') params.delete('tab');
+          else params.set('tab', next);
+          const qs = params.toString();
+          router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+        }}
         items={tabItems}
         tabBarExtraContent={tabBarExtra}
         className="[&_.ant-tabs-nav]:mb-2 [&_.ant-tabs-nav]:mt-1 [&_.ant-tabs-nav]:min-h-[52px] [&_.ant-tabs-nav]:items-center"
