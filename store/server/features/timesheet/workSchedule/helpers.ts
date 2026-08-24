@@ -62,8 +62,17 @@ export function formatTime(value: string): string {
   return parsed.isValid() ? parsed.format(TIME_FORMAT) : value;
 }
 
+export function formatTimeMeridiem(value: string): string {
+  const parsed = parseTime(value);
+  return parsed.isValid() ? parsed.format('h:mm A') : value;
+}
+
 export function formatTimeRange(start: string, end: string): string {
   return `${formatTime(start)} - ${formatTime(end)}`;
+}
+
+export function formatTimeRangeMeridiem(start: string, end: string): string {
+  return `${formatTimeMeridiem(start)} - ${formatTimeMeridiem(end)}`;
 }
 
 export function durationHours(startTime: string, endTime: string): number {

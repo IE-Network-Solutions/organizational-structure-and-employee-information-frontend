@@ -15,6 +15,7 @@ import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workS
 import {
   formatHours,
   formatTimeRange,
+  formatTimeRangeMeridiem,
   remainingHoursForWeekday,
   shiftsForWeekday,
 } from '@/store/server/features/timesheet/workSchedule/helpers';
@@ -196,7 +197,7 @@ const BlueprintList = () => {
             Daily Schedule
           </div>
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
+            className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5"
             data-cy={`time-attendance-settings-work-schedule-blueprint-card-days-grid-${blueprint.id}`}
           >
             {blueprint.activeWeekdays.map((day) => {
@@ -210,37 +211,48 @@ const BlueprintList = () => {
               return (
                 <div
                   key={`${blueprint.id}-${day}`}
-                  className="rounded-xl border border-gray-200 p-3"
+                  className="min-w-0 overflow-hidden rounded-xl border border-gray-200 p-3"
                   data-cy={`time-attendance-settings-work-schedule-blueprint-day-${blueprint.id}-${day}`}
                 >
                   <div
-                    className="flex items-center justify-between gap-2 mb-2"
+                    className="mb-2 flex min-w-0 items-center gap-1"
                     data-cy={`time-attendance-settings-work-schedule-blueprint-day-header-${blueprint.id}-${day}`}
                   >
                     <span
-                      className="text-sm font-semibold text-[#4d4d4d]"
+                      className="min-w-0 flex-1 truncate text-sm font-semibold text-[#4d4d4d]"
+                      title={day}
                       data-cy={`time-attendance-settings-work-schedule-blueprint-day-name-${blueprint.id}-${day}`}
                     >
                       {day}
                     </span>
+                    {blueprint.hasShifts && (
+                      <Tag
+                        className="!m-0 !h-4 !shrink-0 !px-1 !py-0 !text-[10px] !leading-4"
+                        data-cy={`time-attendance-settings-work-schedule-blueprint-day-remaining-${blueprint.id}-${day}`}
+                      >
+                        {remaining > 0
+                          ? `${formatHours(remaining)} left`
+                          : 'Full'}
+                      </Tag>
+                    )}
+                  </div>
+                  <div
+                    className="flex min-w-0 flex-col items-start gap-1.5"
+                    data-cy={`time-attendance-settings-work-schedule-blueprint-day-tags-${blueprint.id}-${day}`}
+                  >
                     <Tag
-                      className="!m-0 !text-[11px] !leading-5"
+                      className="!m-0 !max-w-full !overflow-hidden !text-ellipsis !text-[11px] !leading-5"
                       data-cy={`time-attendance-settings-work-schedule-blueprint-day-time-${blueprint.id}-${day}`}
                     >
                       <CalendarOutlined className="mr-1" />
-                      {formatTimeRange(
+                      {formatTimeRangeMeridiem(
                         blueprint.defaultStartTime,
                         blueprint.defaultEndTime,
                       )}
                     </Tag>
-                  </div>
-                  <div
-                    className="flex flex-wrap gap-1.5"
-                    data-cy={`time-attendance-settings-work-schedule-blueprint-day-tags-${blueprint.id}-${day}`}
-                  >
                     {dayShifts.length === 0 ? (
                       <Tag
-                        className="!m-0 !text-[11px] !leading-5"
+                        className="!m-0 !max-w-full !overflow-hidden !text-ellipsis !text-[11px] !leading-5"
                         data-cy={`time-attendance-settings-work-schedule-blueprint-day-baseline-${blueprint.id}-${day}`}
                       >
                         Day hours only
@@ -250,23 +262,17 @@ const BlueprintList = () => {
                         <Tag
                           key={`${blueprint.id}-${day}-${shift.id}`}
                           color="blue"
-                          className="!m-0 !text-[11px] !leading-5"
+                          className="!m-0 !max-w-full !overflow-hidden !text-ellipsis !text-[11px] !leading-5"
+                          title={`${shift.name} · ${formatTimeRangeMeridiem(shift.startTime, shift.endTime)}`}
                           data-cy={`time-attendance-settings-work-schedule-blueprint-day-shift-${blueprint.id}-${day}-${shift.id}`}
                         >
                           {shift.name} ·{' '}
-                          {formatTimeRange(shift.startTime, shift.endTime)}
+                          {formatTimeRangeMeridiem(
+                            shift.startTime,
+                            shift.endTime,
+                          )}
                         </Tag>
                       ))
-                    )}
-                    {blueprint.hasShifts && (
-                      <Tag
-                        className="!m-0 !text-[11px] !leading-5"
-                        data-cy={`time-attendance-settings-work-schedule-blueprint-day-remaining-${blueprint.id}-${day}`}
-                      >
-                        {remaining > 0
-                          ? `${formatHours(remaining)} left`
-                          : 'Full'}
-                      </Tag>
                     )}
                   </div>
                 </div>
