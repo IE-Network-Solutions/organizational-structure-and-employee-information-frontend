@@ -69,8 +69,9 @@ const ApprovalTable = ({
 
   const [searchEmployee, setSearchEmployee] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
-  const [internalApprovalTypeFilter, setInternalApprovalTypeFilter] =
-    useState<'Leave' | 'WorkFromHome'>('Leave');
+  const [internalApprovalTypeFilter, setInternalApprovalTypeFilter] = useState<
+    'Leave' | 'WorkFromHome'
+  >('Leave');
   const approvalTypeFilter =
     controlledApprovalType ?? internalApprovalTypeFilter;
   const setApprovalTypeFilter =

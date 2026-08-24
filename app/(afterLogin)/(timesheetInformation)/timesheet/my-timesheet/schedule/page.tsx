@@ -79,7 +79,7 @@ const MySchedulePage = () => {
       shiftsByDate.set(item.date, list);
     }
 
-    return Array.from({ length: 7 }, (_, index) => {
+    return Array.from({ length: 7 }, (unusedSlot, index) => {
       const date = start.add(index, 'day');
       const key = date.format(DATE_FORMAT);
       const dayShifts = (shiftsByDate.get(key) || []).sort((a, b) =>
@@ -190,14 +190,20 @@ const MySchedulePage = () => {
                   className="flex items-start justify-between gap-2"
                   data-cy={`time-attendance-my-schedule-day-header-${date}`}
                 >
-                  <div className="min-w-0">
+                  <div
+                    className="min-w-0"
+                    data-cy={`time-attendance-my-schedule-day-title-${date}`}
+                  >
                     <p
                       className="mb-0 text-sm font-semibold text-gray-900 truncate"
                       data-cy={`time-attendance-my-schedule-day-label-${date}`}
                     >
                       {day.format('ddd')}
                     </p>
-                    <p className="mb-0 text-xs text-gray-500">
+                    <p
+                      className="mb-0 text-xs text-gray-500"
+                      data-cy={`time-attendance-my-schedule-day-date-${date}`}
+                    >
                       {day.format('MMM D')}
                       {isToday ? ' · Today' : ''}
                     </p>
@@ -210,7 +216,10 @@ const MySchedulePage = () => {
                       {pendingCount}
                     </Tag>
                   ) : (
-                    <span className="text-[10px] text-gray-400 shrink-0">
+                    <span
+                      className="text-[10px] text-gray-400 shrink-0"
+                      data-cy={`time-attendance-my-schedule-day-count-${date}`}
+                    >
                       {dayShifts.length}
                     </span>
                   )}
@@ -240,15 +249,27 @@ const MySchedulePage = () => {
                           className="rounded-lg border border-gray-200 bg-[#FAFAFA] px-2.5 py-2"
                           data-cy={`time-attendance-my-schedule-shift-${shift.id}`}
                         >
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0 flex-1">
-                              <p className="mb-0 text-xs font-semibold text-gray-900 leading-snug">
+                          <div
+                            className="flex items-start justify-between gap-2"
+                            data-cy={`time-attendance-my-schedule-shift-header-${shift.id}`}
+                          >
+                            <div
+                              className="min-w-0 flex-1"
+                              data-cy={`time-attendance-my-schedule-shift-meta-${shift.id}`}
+                            >
+                              <p
+                                className="mb-0 text-xs font-semibold text-gray-900 leading-snug"
+                                data-cy={`time-attendance-my-schedule-shift-time-${shift.id}`}
+                              >
                                 {formatTimeRange(
                                   shift.startTime,
                                   shift.endTime,
                                 )}
                               </p>
-                              <p className="mb-0 mt-0.5 text-[11px] text-gray-500 truncate">
+                              <p
+                                className="mb-0 mt-0.5 text-[11px] text-gray-500 truncate"
+                                data-cy={`time-attendance-my-schedule-shift-name-${shift.id}`}
+                              >
                                 {shift.shiftName || shift.blueprintTitle}
                               </p>
                             </div>
@@ -293,13 +314,19 @@ const MySchedulePage = () => {
                               className="mt-1.5 pt-1.5 border-t border-gray-200"
                               data-cy={`time-attendance-my-schedule-shift-incoming-${swap.id}`}
                             >
-                              <p className="mb-1.5 text-[10px] text-[#4d4d4d] leading-snug">
+                              <p
+                                className="mb-1.5 text-[10px] text-[#4d4d4d] leading-snug"
+                                data-cy={`time-attendance-my-schedule-shift-incoming-label-${swap.id}`}
+                              >
                                 {getEmployeeDisplayName(swap.requester)} ·{' '}
                                 {dayjs(swap.requesterShift.date).format(
                                   'MMM D',
                                 )}
                               </p>
-                              <div className="flex gap-1">
+                              <div
+                                className="flex gap-1"
+                                data-cy={`time-attendance-my-schedule-shift-incoming-actions-${swap.id}`}
+                              >
                                 <Button
                                   type="primary"
                                   size="small"

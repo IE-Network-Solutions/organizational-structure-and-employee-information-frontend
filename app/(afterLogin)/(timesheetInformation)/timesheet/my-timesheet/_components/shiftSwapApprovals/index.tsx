@@ -102,14 +102,17 @@ const ShiftSwapApprovals = () => {
     {
       title: 'Requester',
       key: 'requester',
-      render: (_: unknown, record: SwapRequestView) =>
+      render: (unusedValue: unknown, record: SwapRequestView) =>
         getEmployeeDisplayName(record.requester),
     },
     {
       title: 'Their Shift',
       key: 'requesterShift',
-      render: (_: unknown, record: SwapRequestView) => (
-        <span className="text-sm text-[#4d4d4d]">
+      render: (unusedValue: unknown, record: SwapRequestView) => (
+        <span
+          className="text-sm text-[#4d4d4d]"
+          data-cy={`time-attendance-swap-approval-requester-shift-${record.id}`}
+        >
           {dayjs(record.requesterShift.date).format('MMM D')} ·{' '}
           {formatTimeRange(
             record.requesterShift.startTime,
@@ -121,14 +124,17 @@ const ShiftSwapApprovals = () => {
     {
       title: 'Target',
       key: 'target',
-      render: (_: unknown, record: SwapRequestView) =>
+      render: (unusedValue: unknown, record: SwapRequestView) =>
         getEmployeeDisplayName(record.target),
     },
     {
       title: 'Target Shift',
       key: 'targetShift',
-      render: (_: unknown, record: SwapRequestView) => (
-        <span className="text-sm text-[#4d4d4d]">
+      render: (unusedValue: unknown, record: SwapRequestView) => (
+        <span
+          className="text-sm text-[#4d4d4d]"
+          data-cy={`time-attendance-swap-approval-target-shift-${record.id}`}
+        >
           {dayjs(record.targetShift.date).format('MMM D')} ·{' '}
           {formatTimeRange(
             record.targetShift.startTime,
@@ -150,14 +156,24 @@ const ShiftSwapApprovals = () => {
     {
       title: 'Action',
       key: 'action',
-      render: (_: unknown, record: SwapRequestView & { index: number }) => {
+      render: (
+        unusedValue: unknown,
+        record: SwapRequestView & { index: number },
+      ) => {
         const canPeerRespond =
           record.status === 'PENDING_PEER' &&
           record.targetUserId === demoPersonaId;
         const canAdminRespond = record.status === 'PENDING_ADMIN';
 
         if (!canPeerRespond && !canAdminRespond) {
-          return <span className="text-xs text-gray-400">—</span>;
+          return (
+            <span
+              className="text-xs text-gray-400"
+              data-cy={`time-attendance-swap-approval-no-action-${record.id}`}
+            >
+              —
+            </span>
+          );
         }
 
         const onAccept = () => {
@@ -281,7 +297,7 @@ const ShiftSwapApprovals = () => {
           scroll={{ x: 960 }}
           locale={{ emptyText: 'No shift swap approvals' }}
           className="mx-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.my-timesheet-approval-table-row-even>td]:!bg-[#FAFAFA] [&_tr.my-timesheet-approval-table-row-odd>td]:!bg-white"
-          rowClassName={(_, index) =>
+          rowClassName={(unusedRow, index) =>
             index % 2 === 1
               ? 'my-timesheet-approval-table-row-even'
               : 'my-timesheet-approval-table-row-odd'

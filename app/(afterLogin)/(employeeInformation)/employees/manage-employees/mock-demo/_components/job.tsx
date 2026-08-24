@@ -10,11 +10,7 @@ import {
   formatTimeRangeMeridiem,
 } from '@/store/server/features/timesheet/workSchedule/helpers';
 import { FieldBlock, FieldGrid, InfoCard } from './shared';
-import {
-  formatServiceYear,
-  MOCK_JOINED_DATE,
-  MOCK_PROFILE,
-} from './profile';
+import { formatServiceYear, MOCK_JOINED_DATE, MOCK_PROFILE } from './profile';
 
 const EMPTY_ASSIGNMENTS: NonNullable<
   ReturnType<typeof useGetUserShiftAssignments>['data']
@@ -86,17 +82,25 @@ export default function MockJob() {
               <Col lg={12} className="flex flex-col">
                 <FieldBlock
                   label="Total Working Hours"
-                  value={totalHours > 0 ? `${Math.round(totalHours)} Hours` : '—'}
+                  value={
+                    totalHours > 0 ? `${Math.round(totalHours)} Hours` : '—'
+                  }
                   dataCy="mock-employee-demo-total-hours"
                 />
               </Col>
             </Row>
             {assignedShifts.length > 0 && (
               <div data-cy="mock-employee-demo-assigned-shifts">
-                <p className="m-0 mb-2 text-sm font-normal text-[#4d4d4d]">
+                <p
+                  className="m-0 mb-2 text-sm font-normal text-[#4d4d4d]"
+                  data-cy="mock-employee-demo-assigned-shifts-label"
+                >
                   Assigned Shifts
                 </p>
-                <div className="flex flex-wrap gap-1.5">
+                <div
+                  className="flex flex-wrap gap-1.5"
+                  data-cy="mock-employee-demo-assigned-shifts-list"
+                >
                   {assignedShifts.map((shift) => (
                     <Tag
                       key={shift.id}

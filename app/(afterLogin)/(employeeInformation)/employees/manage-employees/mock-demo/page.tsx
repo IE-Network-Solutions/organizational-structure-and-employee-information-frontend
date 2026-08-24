@@ -25,7 +25,11 @@ function MockPlaceholderTab({
 }) {
   return (
     <div className="py-4" data-cy={dataCy}>
-      <EmptyState title={title} description="Nothing to display on this mock tab." compact />
+      <EmptyState
+        title={title}
+        description="Nothing to display on this mock tab."
+        compact
+      />
     </div>
   );
 }
@@ -107,7 +111,12 @@ export default function MockEmployeeDemoPage() {
               items={[
                 {
                   title: (
-                    <span className="text-gray-500">Employee</span>
+                    <span
+                      className="text-gray-500"
+                      data-cy="mock-employee-demo-breadcrumb-employee"
+                    >
+                      Employee
+                    </span>
                   ),
                 },
                 {

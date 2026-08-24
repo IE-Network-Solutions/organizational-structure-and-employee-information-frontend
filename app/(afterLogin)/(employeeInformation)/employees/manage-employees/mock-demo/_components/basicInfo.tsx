@@ -7,7 +7,11 @@ import { MockEmployee } from '@/types/timesheet/workSchedule';
 import { getEmployeeDisplayName } from '@/store/server/features/timesheet/workSchedule/helpers';
 import { formatServiceYear, MOCK_JOINED_DATE, MOCK_PROFILE } from './profile';
 
-export default function MockBasicInfo({ employee }: { employee: MockEmployee }) {
+export default function MockBasicInfo({
+  employee,
+}: {
+  employee: MockEmployee;
+}) {
   return (
     <Card
       className="mb-3 rounded-lg bg-[#F9FAFB]"
@@ -23,7 +27,10 @@ export default function MockBasicInfo({ employee }: { employee: MockEmployee }) 
           icon={<UserOutlined />}
           data-cy="mock-employee-demo-avatar"
         />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <div
+          className="flex min-w-0 flex-1 flex-col gap-0.5"
+          data-cy="mock-employee-demo-name-block"
+        >
           <h5
             className="m-0 text-sm font-normal text-[#4d4d4d]"
             data-cy="mock-employee-demo-name"
@@ -50,34 +57,58 @@ export default function MockBasicInfo({ employee }: { employee: MockEmployee }) 
         data-cy="mock-employee-demo-basic-info-details"
       >
         <div data-cy="mock-employee-demo-joined">
-          <p className="m-0 mb-0.5 text-sm font-normal text-[#bababa]">
+          <p
+            className="m-0 mb-0.5 text-sm font-normal text-[#bababa]"
+            data-cy="mock-employee-demo-joined-label"
+          >
             Joined at
           </p>
-          <p className="m-0 text-sm font-normal text-[#4d4d4d]">
+          <p
+            className="m-0 text-sm font-normal text-[#4d4d4d]"
+            data-cy="mock-employee-demo-joined-value"
+          >
             {dayjs(MOCK_JOINED_DATE).format('DD MMMM, YYYY')}
           </p>
         </div>
         <div data-cy="mock-employee-demo-address">
-          <p className="m-0 mb-0.5 text-sm font-normal text-[#bababa]">
+          <p
+            className="m-0 mb-0.5 text-sm font-normal text-[#bababa]"
+            data-cy="mock-employee-demo-address-label"
+          >
             Address
           </p>
-          <p className="m-0 text-sm font-normal text-[#4d4d4d]">
+          <p
+            className="m-0 text-sm font-normal text-[#4d4d4d]"
+            data-cy="mock-employee-demo-address-value"
+          >
             {MOCK_PROFILE.addressLine}
           </p>
         </div>
         <div data-cy="mock-employee-demo-service-year">
-          <p className="m-0 mb-0.5 text-sm font-normal text-[#bababa]">
+          <p
+            className="m-0 mb-0.5 text-sm font-normal text-[#bababa]"
+            data-cy="mock-employee-demo-service-year-label"
+          >
             Service Year
           </p>
-          <p className="m-0 text-sm font-normal text-[#4d4d4d]">
+          <p
+            className="m-0 text-sm font-normal text-[#4d4d4d]"
+            data-cy="mock-employee-demo-service-year-value"
+          >
             {formatServiceYear(MOCK_JOINED_DATE)}
           </p>
         </div>
         <div data-cy="mock-employee-demo-office">
-          <p className="m-0 mb-0.5 text-sm font-normal text-[#bababa]">
+          <p
+            className="m-0 mb-0.5 text-sm font-normal text-[#bababa]"
+            data-cy="mock-employee-demo-office-label"
+          >
             Office
           </p>
-          <p className="m-0 text-sm font-normal text-[#4d4d4d]">
+          <p
+            className="m-0 text-sm font-normal text-[#4d4d4d]"
+            data-cy="mock-employee-demo-office-value"
+          >
             {MOCK_PROFILE.office}
           </p>
         </div>

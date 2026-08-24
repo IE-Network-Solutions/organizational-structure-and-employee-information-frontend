@@ -64,8 +64,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
   const { data: workSchedules } = useGetWorkSchedules();
   const { data: shiftSchedulesData } = useGetBlueprints();
   const shiftSchedules = shiftSchedulesData ?? EMPTY_SHIFT_SCHEDULES;
-  const { data: userShiftAssignmentsData } =
-    useGetUserShiftAssignments(userId);
+  const { data: userShiftAssignmentsData } = useGetUserShiftAssignments(userId);
   const userShiftAssignments =
     userShiftAssignmentsData ?? EMPTY_USER_SHIFT_ASSIGNMENTS;
   const { mutate: assignShiftSchedule } = useAssignEmployees();
@@ -400,7 +399,10 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
             className="flex flex-wrap items-center gap-2"
             data-cy="job-work-schedule-card-title"
           >
-            <span className="text-base font-normal text-[#4d4d4d]">
+            <span
+              className="text-base font-normal text-[#4d4d4d]"
+              data-cy="job-work-schedule-card-title-text"
+            >
               Work Schedule
             </span>
             {userShiftAssignments.length > 0 ? (
@@ -554,7 +556,10 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                   className="mb-2"
                   data-cy="job-work-schedule-assigned-shifts"
                 >
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <div
+                    className="mb-2 flex flex-wrap items-center gap-2"
+                    data-cy="job-work-schedule-assigned-shifts-header"
+                  >
                     <p
                       className="text-sm text-[#4d4d4d] font-normal m-0"
                       data-cy="job-work-schedule-assigned-shifts-label"

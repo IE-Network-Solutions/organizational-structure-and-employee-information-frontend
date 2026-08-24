@@ -25,8 +25,7 @@ export function getWeeksInMonth(month: Dayjs) {
   const monthEnd = month.endOf('month');
   let cursor = monthStart.startOf('isoWeek');
   const last = monthEnd.endOf('isoWeek');
-  const weeks: Array<{ value: string; label: string; shortLabel: string }> =
-    [];
+  const weeks: Array<{ value: string; label: string; shortLabel: string }> = [];
   const seen = new Set<string>();
 
   while (cursor.isBefore(last) || cursor.isSame(last, 'day')) {
@@ -102,8 +101,16 @@ const ScheduleTableFilter: FC<ScheduleTableFilterProps> = ({
       data-cy="time-attendance-my-schedule-filter-panel"
       onClick={(event) => event.stopPropagation()}
     >
-      <div className="mb-3 flex items-center justify-between">
-        <p className="mb-0 text-sm font-medium text-[#4d4d4d]">Filters</p>
+      <div
+        className="mb-3 flex items-center justify-between"
+        data-cy="time-attendance-my-schedule-filter-panel-header"
+      >
+        <p
+          className="mb-0 text-sm font-medium text-[#4d4d4d]"
+          data-cy="time-attendance-my-schedule-filter-panel-title"
+        >
+          Filters
+        </p>
         <Button
           type="link"
           size="small"
@@ -118,7 +125,12 @@ const ScheduleTableFilter: FC<ScheduleTableFilterProps> = ({
         </Button>
       </div>
       <div className="mb-3" data-cy="time-attendance-my-schedule-filter-month">
-        <p className="mb-1 text-xs text-gray-500">Month</p>
+        <p
+          className="mb-1 text-xs text-gray-500"
+          data-cy="time-attendance-my-schedule-filter-month-label"
+        >
+          Month
+        </p>
         <DatePicker
           picker="month"
           allowClear={false}
@@ -130,7 +142,12 @@ const ScheduleTableFilter: FC<ScheduleTableFilterProps> = ({
         />
       </div>
       <div data-cy="time-attendance-my-schedule-filter-week">
-        <p className="mb-1 text-xs text-gray-500">Week</p>
+        <p
+          className="mb-1 text-xs text-gray-500"
+          data-cy="time-attendance-my-schedule-filter-week-label"
+        >
+          Week
+        </p>
         <Select
           className="h-8 w-full [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-lg"
           value={value.weekStart}

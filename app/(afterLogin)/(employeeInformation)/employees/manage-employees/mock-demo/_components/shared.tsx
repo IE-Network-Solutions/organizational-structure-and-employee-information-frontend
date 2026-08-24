@@ -84,11 +84,18 @@ export function InfoCard({
       title={
         <span
           className={`text-base text-[#4d4d4d] ${titleBold ? 'font-bold' : 'font-normal'}`}
+          data-cy={`${dataCy}-title`}
         >
           {title}
         </span>
       }
-      extra={extra !== undefined ? extra : <EditButton dataCy={`${dataCy}-edit-btn`} />}
+      extra={
+        extra !== undefined ? (
+          extra
+        ) : (
+          <EditButton dataCy={`${dataCy}-edit-btn`} />
+        )
+      }
       className="my-6 mt-0 rounded-lg"
       bordered={false}
       style={{ background: '#F9FAFB', boxShadow: 'none' }}

@@ -63,12 +63,21 @@ const SwapRequestsSection = ({
       className="shadow-sm rounded-lg border border-gray-200"
       data-cy="time-attendance-my-schedule-swap-requests"
     >
-      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="mb-0 text-lg font-semibold text-gray-900">
+      <div
+        className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+        data-cy="time-attendance-my-schedule-swap-header"
+      >
+        <div data-cy="time-attendance-my-schedule-swap-title-block">
+          <p
+            className="mb-0 text-lg font-semibold text-gray-900"
+            data-cy="time-attendance-my-schedule-swap-title"
+          >
             Swap Requests
           </p>
-          <p className="mb-0 text-xs text-gray-500">
+          <p
+            className="mb-0 text-xs text-gray-500"
+            data-cy="time-attendance-my-schedule-swap-subtitle"
+          >
             Pending, approved, and rejected shift swap requests
           </p>
         </div>
@@ -112,8 +121,7 @@ const SwapRequestsSection = ({
         >
           {items.map((swap) => {
             const isIncoming =
-              swap.targetUserId === personaId &&
-              swap.status === 'PENDING_PEER';
+              swap.targetUserId === personaId && swap.status === 'PENDING_PEER';
             const isOutgoing = swap.requesterId === personaId;
             const counterpart = isOutgoing ? swap.target : swap.requester;
 
@@ -123,21 +131,36 @@ const SwapRequestsSection = ({
                 className="rounded-lg border border-gray-200 bg-[#FAFAFA] px-3 py-2.5"
                 data-cy={`time-attendance-my-schedule-swap-item-${swap.id}`}
               >
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div className="min-w-0">
-                    <div className="mb-1 flex flex-wrap items-center gap-2">
+                <div
+                  className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+                  data-cy={`time-attendance-my-schedule-swap-item-body-${swap.id}`}
+                >
+                  <div
+                    className="min-w-0"
+                    data-cy={`time-attendance-my-schedule-swap-item-details-${swap.id}`}
+                  >
+                    <div
+                      className="mb-1 flex flex-wrap items-center gap-2"
+                      data-cy={`time-attendance-my-schedule-swap-item-meta-${swap.id}`}
+                    >
                       <Tag
                         color={statusColor(swap.status)}
                         className="!m-0 !text-[10px]"
                       >
                         {SWAP_STATUS_LABEL[swap.status]}
                       </Tag>
-                      <span className="text-xs text-gray-500">
+                      <span
+                        className="text-xs text-gray-500"
+                        data-cy={`time-attendance-my-schedule-swap-item-direction-${swap.id}`}
+                      >
                         {isOutgoing ? 'Outgoing' : 'Incoming'} ·{' '}
                         {getEmployeeDisplayName(counterpart)}
                       </span>
                     </div>
-                    <p className="mb-0 text-sm text-[#4d4d4d]">
+                    <p
+                      className="mb-0 text-sm text-[#4d4d4d]"
+                      data-cy={`time-attendance-my-schedule-swap-item-times-${swap.id}`}
+                    >
                       {dayjs(swap.requesterShift.date).format('MMM D')} (
                       {formatTimeRange(
                         swap.requesterShift.startTime,
@@ -151,14 +174,20 @@ const SwapRequestsSection = ({
                       )
                     </p>
                     {swap.reason ? (
-                      <p className="mb-0 mt-1 text-xs text-gray-500">
+                      <p
+                        className="mb-0 mt-1 text-xs text-gray-500"
+                        data-cy={`time-attendance-my-schedule-swap-item-reason-${swap.id}`}
+                      >
                         “{swap.reason}”
                       </p>
                     ) : null}
                   </div>
 
                   {isIncoming ? (
-                    <div className="flex gap-2 shrink-0">
+                    <div
+                      className="flex gap-2 shrink-0"
+                      data-cy={`time-attendance-my-schedule-swap-item-actions-${swap.id}`}
+                    >
                       <Button
                         type="primary"
                         size="small"

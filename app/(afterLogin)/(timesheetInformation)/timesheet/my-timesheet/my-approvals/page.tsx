@@ -49,10 +49,7 @@ export default function MyApprovalsPage() {
       {approvalType === 'ShiftSwap' ? (
         <ShiftSwapApprovals />
       ) : (
-        <ApprovalTable
-          controlledApprovalType={approvalType}
-          hideTypePills
-        />
+        <ApprovalTable controlledApprovalType={approvalType} hideTypePills />
       )}
     </div>
   );

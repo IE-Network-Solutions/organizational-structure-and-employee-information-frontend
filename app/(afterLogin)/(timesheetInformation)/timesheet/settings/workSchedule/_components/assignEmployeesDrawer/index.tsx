@@ -45,8 +45,7 @@ const AssignEmployeesDrawer = () => {
     useAssignEmployees();
   const { mutate: unassignEmployee, isLoading: isUnassigning } =
     useUnassignEmployee();
-  const selectedShiftIds =
-    Form.useWatch('shiftIds', form) ?? EMPTY_SHIFT_IDS;
+  const selectedShiftIds = Form.useWatch('shiftIds', form) ?? EMPTY_SHIFT_IDS;
 
   useEffect(() => {
     if (!isAssignDrawerOpen) {

@@ -11,7 +11,10 @@ export default function MockGeneral({ employee }: { employee: MockEmployee }) {
   return (
     <Row gutter={16} data-cy="mock-employee-demo-general">
       <Col lg={12} sm={24} xs={24}>
-        <InfoCard title="Personal Information" dataCy="mock-employee-demo-personal-card">
+        <InfoCard
+          title="Personal Information"
+          dataCy="mock-employee-demo-personal-card"
+        >
           <FieldGrid
             dataCy="mock-employee-demo-personal-grid"
             items={[
@@ -112,7 +115,10 @@ export default function MockGeneral({ employee }: { employee: MockEmployee }) {
             ]}
           />
         </InfoCard>
-        <InfoCard title="Bank Information" dataCy="mock-employee-demo-bank-card">
+        <InfoCard
+          title="Bank Information"
+          dataCy="mock-employee-demo-bank-card"
+        >
           <FieldGrid
             dataCy="mock-employee-demo-bank-grid"
             items={[
