@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 import {
   Button,
+  DatePicker,
   Input,
   InputNumber,
   Modal,
@@ -35,10 +36,12 @@ import {
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   AllPlanningPeriods,
+  useDefaultPlanningPeriods,
   useGetPlanningById,
   useGetPlanningPeriodsHierarchy,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { usePlanTaskDatesStore } from '@/store/uistate/features/planningAndReporting/taskDates';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { NAME } from '@/types/enumTypes';
 import {
@@ -52,6 +55,19 @@ import {
   type PlanningTarget,
 } from './buildPlanningTargets';
 import { useRecentlyAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
+import dayjs, { type Dayjs } from 'dayjs';
+import {
+  formatDate,
+  todayIso,
+  validateRange,
+} from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
+import {
+  cadenceAssignmentByKind,
+  defaultSpanForKind,
+  durationFilterLabel,
+  periodNameToKind,
+  resolveSpan,
+} from './durationFilter';
 
 type DraftLine = {
   id: string;
@@ -73,6 +89,8 @@ type DraftLine = {
   milestoneTitle?: string | null;
   /** Set for rows loaded from API; omitted for new rows added while editing */
   serverTaskId?: string | null;
+  start: string;
+  deadline: string;
 };
 
 function normalizeInlinePriority(p: string | undefined): string {
@@ -93,6 +111,19 @@ function buildLabelFromApiTask(e: any): string {
 
 function apiTaskToDraftLine(e: any): DraftLine {
   const isDailySlot = !!(e?.parentTaskId || e?.parentPlanId);
+  const overlay = usePlanTaskDatesStore.getState().datesByTaskId[String(e.id)];
+  const fallback = defaultSpanForKind(
+    periodNameToKind(
+      e?.planningPeriod?.name || e?.planningUser?.planningPeriod?.name,
+    ),
+  );
+  const start = overlay?.start || e?.startDate || e?.start || fallback.start;
+  const deadline =
+    overlay?.deadline ||
+    e?.endDate ||
+    e?.deadline ||
+    e?.end ||
+    fallback.deadline;
   return {
     id: String(e.id),
     serverTaskId: String(e.id),
@@ -114,6 +145,8 @@ function apiTaskToDraftLine(e: any): DraftLine {
     isDailySlot,
     keyResultTitle: e?.keyResult?.title,
     milestoneTitle: e?.milestone?.title ?? null,
+    start,
+    deadline,
   };
 }
 
@@ -480,30 +513,67 @@ function inlinePlanHeadline(
   periodLabel: string,
   mode: 'create' | 'edit',
 ): string {
-  const t = periodLabel.trim().toLowerCase();
-  const prefix = mode === 'edit' ? 'Edit' : 'Plan your';
-  if (!t || t === 'plan' || t.includes('no name')) {
-    return mode === 'edit' ? 'Edit plan' : 'Plan your work for this period';
-  }
-  if (t.includes('daily') || /\bday\b/.test(t)) {
-    return mode === 'edit' ? 'Edit your day' : 'Plan your day';
-  }
-  if (t.includes('weekly') || t === 'week') {
-    return mode === 'edit' ? 'Edit your week' : 'Plan your week';
-  }
-  if (t.includes('monthly') || t === 'month') {
-    return mode === 'edit' ? 'Edit your month' : 'Plan your month';
-  }
-  if (t.includes('quarter')) {
-    return mode === 'edit' ? 'Edit your quarter' : 'Plan your quarter';
-  }
-  if (t.includes('annual') || t.includes('yearly') || /\byear\b/.test(t)) {
-    return mode === 'edit' ? 'Edit your year' : 'Plan your year';
-  }
-  return mode === 'edit'
-    ? `${prefix} ${periodLabel.trim()}`
-    : `Plan your ${periodLabel.trim()}`;
+  void periodLabel;
+  return mode === 'edit' ? 'Edit plan' : 'Add plan';
 }
+
+const DeadlineSpanFields = ({
+  start,
+  deadline,
+  onStart,
+  onDeadline,
+}: {
+  start: Dayjs | null;
+  deadline: Dayjs | null;
+  onStart: (value: Dayjs | null) => void;
+  onDeadline: (value: Dayjs | null) => void;
+}) => {
+  const startIso = start ? formatDate(start) : todayIso();
+  const deadlineIso = deadline ? formatDate(deadline) : null;
+  const resolved =
+    deadlineIso != null ? resolveSpan(startIso, deadlineIso) : null;
+  const invalid =
+    deadlineIso != null && validateRange(startIso, deadlineIso).ok === false;
+  return (
+    <div className="flex flex-col gap-2" data-cy="inline-plan-deadline-fields">
+      <div
+        className="flex flex-col gap-2 sm:flex-row"
+        data-cy="inline-plan-deadline-pickers"
+      >
+        <DatePicker
+          className="w-full"
+          value={start}
+          onChange={onStart}
+          placeholder="Start"
+          data-cy="inline-plan-start-date"
+        />
+        <DatePicker
+          className="w-full"
+          value={deadline}
+          onChange={onDeadline}
+          placeholder="Deadline"
+          data-cy="inline-plan-end-date"
+        />
+      </div>
+      {invalid ? (
+        <p
+          className="m-0 text-[12px] text-[#DC2626]"
+          data-cy="inline-plan-deadline-error"
+        >
+          Deadline must be on or after the start date.
+        </p>
+      ) : resolved ? (
+        <p
+          className="m-0 text-[12px] text-[#575B7A]"
+          data-cy="inline-plan-deadline-hint"
+        >
+          {resolved.spanDays} day{resolved.spanDays === 1 ? '' : 's'} · shown in{' '}
+          {durationFilterLabel(resolved.kind)}
+        </p>
+      ) : null}
+    </div>
+  );
+};
 
 export interface InlinePlanningWorkspaceHandle {
   /** Same as the card header close: confirm if drafts exist, then exit */
@@ -541,22 +611,30 @@ const InlinePlanningWorkspace = forwardRef<
   ref,
 ) {
   const { userId } = useAuthenticationStore();
-  const { activePlanPeriodId, setInlinePlanningMode, setMKAsATask } =
-    PlanningAndReportingStore();
-  const planningPeriodId = activePlanPeriodId;
+  const { setInlinePlanningMode, setMKAsATask } = PlanningAndReportingStore();
   const { data: planningPeriods } = AllPlanningPeriods();
-  const planningUserId = useMemo(() => {
-    const list = Array.isArray(planningPeriods) ? planningPeriods : [];
-    return list.find((item: any) => item.planningPeriod?.id == planningPeriodId)
-      ?.id as string | undefined;
-  }, [planningPeriods, planningPeriodId]);
+  const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
+  const cadenceAssignments = useMemo(
+    () =>
+      cadenceAssignmentByKind(
+        defaultPlanningPeriods?.items,
+        Array.isArray(planningPeriods) ? planningPeriods : [],
+      ),
+    [defaultPlanningPeriods?.items, planningPeriods],
+  );
+  const setTaskDatesBulk = usePlanTaskDatesStore((s) => s.setTaskDatesBulk);
+  const hierarchyPeriodId =
+    cadenceAssignments.week.periodId ||
+    cadenceAssignments.daily.periodId ||
+    cadenceAssignments.month.periodId;
 
   const { data: planGroupData, isLoading: loadingPlanGroup } =
     useGetPlanningById(editPlanId || '');
   const { data: planningPeriodHierarchy, isLoading: loadingHierarchy } =
-    useGetPlanningPeriodsHierarchy(userId, planningPeriodId || '');
+    useGetPlanningPeriodsHierarchy(userId, hierarchyPeriodId || '');
 
-  const { mutate: createTask, isLoading: isCreating } = useCreatePlanTasks();
+  const { mutateAsync: createTask, isLoading: isCreating } =
+    useCreatePlanTasks();
   const { mutate: updatePlanTasks, isLoading: isUpdating } =
     useUpdatePlanTasks();
   const isLoading = isCreating || isUpdating;
@@ -568,6 +646,8 @@ const InlinePlanningWorkspace = forwardRef<
 
   const [draftLines, setDraftLines] = useState<DraftLine[]>([]);
   const [task, setTask] = useState('');
+  const [startDate, setStartDate] = useState<Dayjs | null>(dayjs());
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
   const [priority, setPriority] = useState<string | undefined>(
     DEFAULT_INLINE_PRIORITY,
   );
@@ -675,6 +755,8 @@ const InlinePlanningWorkspace = forwardRef<
 
   const resetForm = useCallback(() => {
     setTask('');
+    setStartDate(dayjs());
+    setEndDate(null);
     setPriority(DEFAULT_INLINE_PRIORITY);
     setWeight(DEFAULT_INLINE_WEIGHT);
     setPlanAsAchieve(false);
@@ -703,6 +785,8 @@ const InlinePlanningWorkspace = forwardRef<
     setComposerCollapsed(false);
     setPlanAsAchieve(false);
     setTask('');
+    setStartDate(dayjs());
+    setEndDate(null);
     setPriority(DEFAULT_INLINE_PRIORITY);
     if (
       !shouldShowPlanningTarget(
@@ -757,6 +841,8 @@ const InlinePlanningWorkspace = forwardRef<
     setEditingDraftId(line.id);
     setComposerCollapsed(false);
     setTask(line.task);
+    setStartDate(line.start ? dayjs(line.start) : dayjs());
+    setEndDate(line.deadline ? dayjs(line.deadline) : null);
     setPriority(line.priority);
     setWeight(line.weight);
     setTargetValue(line.targetValue);
@@ -767,6 +853,17 @@ const InlinePlanningWorkspace = forwardRef<
     const t = task.trim();
     if (!t) {
       message.warning('Enter a task description.');
+      return;
+    }
+    const startIso = startDate ? formatDate(startDate) : todayIso();
+    const deadlineIso = endDate ? formatDate(endDate) : '';
+    if (!deadlineIso) {
+      message.warning('Choose a deadline.');
+      return;
+    }
+    const range = validateRange(startIso, deadlineIso);
+    if (!range.ok) {
+      message.warning(range.error);
       return;
     }
     if (!priority) {
@@ -854,6 +951,8 @@ const InlinePlanningWorkspace = forwardRef<
                 task: t,
                 priority,
                 weight: w,
+                start: startIso,
+                deadline: deadlineIso,
                 targetValue: resolvePlanningTargetValue(
                   targetValue,
                   existing.metricTypeName,
@@ -961,6 +1060,8 @@ const InlinePlanningWorkspace = forwardRef<
       isDailySlot: activeTarget.isDailySlot,
       keyResultTitle: activeTarget.keyResultTitle,
       milestoneTitle: activeTarget.milestoneTitle ?? null,
+      start: startIso,
+      deadline: deadlineIso,
     };
 
     setDraftLines((prev) => {
@@ -977,6 +1078,8 @@ const InlinePlanningWorkspace = forwardRef<
     activeTarget,
     activeKeyResultForBounds,
     task,
+    startDate,
+    endDate,
     priority,
     weight,
     targetValue,
@@ -1016,6 +1119,14 @@ const InlinePlanningWorkspace = forwardRef<
       const pvPlanningUserId = planGroupData?.planningUser?.id;
       const ppId = planGroupData?.planningUser?.planningPeriod?.id;
 
+      const missingDates = ordered.some(
+        (l) => !resolveSpan(l.start, l.deadline),
+      );
+      if (missingDates) {
+        message.warning('Each task needs a start date and a deadline.');
+        return;
+      }
+
       const tasks = ordered.map((l) => ({
         ...(l.serverTaskId ? { id: l.serverTaskId } : {}),
         task: l.task,
@@ -1024,19 +1135,39 @@ const InlinePlanningWorkspace = forwardRef<
         targetValue: l.targetValue,
         achieveMK: !!l.achieveMK,
         userId: String(pvUserId || userId),
-        planningPeriodId: String(ppId || planningPeriodId || ''),
-        planningUserId: String(pvPlanningUserId || planningUserId || ''),
+        planningPeriodId: String(ppId || ''),
+        planningUserId: String(pvPlanningUserId || ''),
         keyResultId: String(l.keyResultId),
         milestoneId: l.milestoneId ? String(l.milestoneId) : null,
         parentTaskId: l.parentTaskId ? String(l.parentTaskId) : null,
         parentPlanId: l.parentPlanId ? String(l.parentPlanId) : null,
         planId: planGroupData.id,
+        startDate: l.start,
+        endDate: l.deadline,
+        deadline: l.deadline,
       }));
 
       updatePlanTasks(
         { tasks },
         {
           onSuccess: () => {
+            const overlayEntries: Record<
+              string,
+              { start: string; deadline: string }
+            > = {};
+            ordered.forEach((l) => {
+              if (l.serverTaskId) {
+                overlayEntries[l.serverTaskId] = {
+                  start: l.start,
+                  deadline: l.deadline,
+                };
+              }
+              overlayEntries[`${l.task}::${l.keyResultId}`] = {
+                start: l.start,
+                deadline: l.deadline,
+              };
+            });
+            setTaskDatesBulk(overlayEntries);
             setDraftLines([]);
             setEditingDraftId(null);
             setMKAsATask(null);
@@ -1048,33 +1179,93 @@ const InlinePlanningWorkspace = forwardRef<
       return;
     }
 
-    const tasks = ordered.map((l) => ({
-      task: l.task,
-      priority: l.priority,
-      weight: l.weight,
-      targetValue: l.targetValue,
-      achieveMK: !!l.achieveMK,
-      userId: String(userId),
-      planningPeriodId: String(planningPeriodId || ''),
-      planningUserId: String(planningUserId || ''),
-      keyResultId: String(l.keyResultId),
-      milestoneId: l.milestoneId ? String(l.milestoneId) : null,
-      parentTaskId: l.parentTaskId ? String(l.parentTaskId) : null,
-      parentPlanId: l.parentPlanId ? String(l.parentPlanId) : null,
-    }));
-
-    createTask(
-      { tasks },
+    const groups = new Map<
+      string,
       {
-        onSuccess: () => {
-          setDraftLines([]);
-          setEditingDraftId(null);
-          setMKAsATask(null);
-          setInlinePlanningMode(false);
-          onExit();
-        },
-      },
-    );
+        planningPeriodId: string;
+        planningUserId: string;
+        lines: typeof ordered;
+      }
+    >();
+    for (const line of ordered) {
+      const resolved = resolveSpan(line.start, line.deadline);
+      if (!resolved) {
+        message.warning('Each task needs a start date and a deadline.');
+        return;
+      }
+      const assignment = cadenceAssignments[resolved.kind];
+      if (!assignment.periodId) {
+        message.warning(
+          `No ${resolved.kind === 'daily' ? 'Daily' : resolved.kind === 'month' ? 'Monthly' : 'Weekly'} planning period is available.`,
+        );
+        return;
+      }
+      const existing = groups.get(assignment.periodId);
+      if (existing) {
+        existing.lines.push(line);
+      } else {
+        groups.set(assignment.periodId, {
+          planningPeriodId: assignment.periodId,
+          planningUserId: assignment.planningUserId,
+          lines: [line],
+        });
+      }
+    }
+
+    const submitGroups = async () => {
+      try {
+        const overlayEntries: Record<
+          string,
+          { start: string; deadline: string }
+        > = {};
+        for (const group of groups.values()) {
+          const tasks = group.lines.map((l) => ({
+            task: l.task,
+            priority: l.priority,
+            weight: l.weight,
+            targetValue: l.targetValue,
+            achieveMK: !!l.achieveMK,
+            userId: String(userId),
+            planningPeriodId: group.planningPeriodId,
+            planningUserId: String(group.planningUserId || ''),
+            keyResultId: String(l.keyResultId),
+            milestoneId: l.milestoneId ? String(l.milestoneId) : null,
+            parentTaskId: l.parentTaskId ? String(l.parentTaskId) : null,
+            parentPlanId: l.parentPlanId ? String(l.parentPlanId) : null,
+            startDate: l.start,
+            endDate: l.deadline,
+            deadline: l.deadline,
+          }));
+          const data = await createTask({ tasks });
+          const created = Array.isArray(data)
+            ? data
+            : data?.tasks || data?.items || data?.data || [];
+          group.lines.forEach((l, index) => {
+            overlayEntries[`${l.task}::${l.keyResultId}`] = {
+              start: l.start,
+              deadline: l.deadline,
+            };
+            const createdId = created[index]?.id;
+            if (createdId) {
+              overlayEntries[String(createdId)] = {
+                start: l.start,
+                deadline: l.deadline,
+              };
+            }
+          });
+        }
+        setTaskDatesBulk(overlayEntries);
+        setDraftLines([]);
+        setEditingDraftId(null);
+        setMKAsATask(null);
+        setInlinePlanningMode(false);
+        onExit();
+      } catch {
+        /* mutation hook surfaces the error */
+      }
+    };
+
+    void submitGroups();
   };
 
   const roundedTotal = Math.round(totalWeight);
@@ -1347,6 +1538,12 @@ const InlinePlanningWorkspace = forwardRef<
                     disabled={planAsAchieve && showAchieveOptionForAdd}
                     className="!h-10 rounded-lg border-[#E5E7EB] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]"
                   />
+                  <DeadlineSpanFields
+                    start={startDate}
+                    deadline={endDate}
+                    onStart={setStartDate}
+                    onDeadline={setEndDate}
+                  />
                   {showAchieveOptionForAdd && activeTarget ? (
                     <OutcomeTaskSwitchRow
                       milestoneId={activeTarget.milestoneId}
@@ -1535,6 +1732,12 @@ const InlinePlanningWorkspace = forwardRef<
                               }
                               className="!h-10 rounded-lg border-[#E5E7EB] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]"
                             />
+                            <DeadlineSpanFields
+                              start={startDate}
+                              deadline={endDate}
+                              onStart={setStartDate}
+                              onDeadline={setEndDate}
+                            />
                             {canUseAchieveMK(
                               l.metricTypeName,
                               l.isDailySlot,
@@ -1625,6 +1828,20 @@ const InlinePlanningWorkspace = forwardRef<
                           >
                             {l.label}
                           </p>
+                          {(() => {
+                            const span = resolveSpan(l.start, l.deadline);
+                            if (!span) return null;
+                            return (
+                              <p
+                                className="mt-1 text-[12px] leading-relaxed text-[#575B7A]"
+                                data-cy="inline-plan-draft-span-hint"
+                              >
+                                {span.spanDays} day
+                                {span.spanDays === 1 ? '' : 's'} ·{' '}
+                                {durationFilterLabel(span.kind)}
+                              </p>
+                            );
+                          })()}
                         </div>
                         <div
                           data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1189"

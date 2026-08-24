@@ -8,8 +8,15 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { usePlanTaskDatesStore } from '@/store/uistate/features/planningAndReporting/taskDates';
 import { transformToPlanSummary } from '../dataTransformer/vamp';
 import { ViewMode, Cadence, PlanSummary } from '../types';
+import { todayIso } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
+import {
+  cadenceAssignmentByKind,
+  periodNameToKind,
+  planItemMatchesDurationFilter,
+} from './durationFilter';
 
 /** Same team/default scope as Planning list — one shared plan fetch. */
 export function useEffectivePlanUserIds() {
@@ -83,41 +90,102 @@ export function useEffectivePlanUserIds() {
   ]);
 }
 
-/** Single plan-list source for page KR panel + Planning list. */
+const cadenceFromKind = (kind: string): Cadence => {
+  if (kind === 'daily') return 'daily';
+  if (kind === 'month' || kind === 'monthly') return 'monthly';
+  return 'weekly';
+};
+
+const ALL_CADENCE_PAGE_SIZE = 100;
+
+/** Plan-list source for page KR panel + Planning list (all cadences, filtered by duration). */
 export function usePlanningData(enabled = true) {
-  const { activePlanPeriod, page, pageSize, activePlanPeriodId } =
+  const { activePlanPeriod, pageSize, activePlanPeriodId } =
     PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
   const effectiveSelectedUsers = useEffectivePlanUserIds();
+  const datesByTaskId = usePlanTaskDatesStore((s) => s.datesByTaskId);
+
+  const assignments = useMemo(
+    () =>
+      cadenceAssignmentByKind(
+        planningPeriods?.items,
+        Array.isArray(userPlanningPeriods) ? userPlanningPeriods : [],
+      ),
+    [planningPeriods?.items, userPlanningPeriods],
+  );
+
+  const dailyId = assignments.daily.periodId;
+  const weeklyId = assignments.week.periodId;
+  const monthlyId = assignments.month.periodId;
+
+  const listParams = {
+    userId: effectiveSelectedUsers,
+    page: 1,
+    pageSize: ALL_CADENCE_PAGE_SIZE,
+    sessionId: [] as string[],
+  };
+
+  const { data: dailyPlanning, isLoading: loadingDaily } = useGetPlanning(
+    { ...listParams, planPeriodId: dailyId || '' },
+    { enabled: enabled && !!dailyId },
+  );
+  const { data: weeklyPlanning, isLoading: loadingWeekly } = useGetPlanning(
+    { ...listParams, planPeriodId: weeklyId || '' },
+    { enabled: enabled && !!weeklyId },
+  );
+  const { data: monthlyPlanning, isLoading: loadingMonthly } = useGetPlanning(
+    { ...listParams, planPeriodId: monthlyId || '' },
+    { enabled: enabled && !!monthlyId },
+  );
 
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
-
-  const { data: allPlanning, isLoading } = useGetPlanning(
-    {
-      userId: effectiveSelectedUsers,
-      planPeriodId: planningPeriodId ?? '',
-      page,
-      pageSize,
-      sessionId: [],
-    },
-    { enabled: enabled && !!planningPeriodId },
-  );
 
   const getPlanningPeriodDetail = (id: string) => {
     return planningPeriods?.items?.find((p: any) => p?.id === id) || {};
   };
 
   const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+  const filterKind = periodNameToKind(activeTabName);
+  const isLoading = loadingDaily || loadingWeekly || loadingMonthly;
+
+  const mergedPlanningItems = useMemo(() => {
+    const stamp = (items: any[] | undefined, periodName: string) =>
+      (items ?? []).map((item) => ({ ...item, _periodName: periodName }));
+    const combined = [
+      ...stamp(dailyPlanning?.items, 'Daily'),
+      ...stamp(weeklyPlanning?.items, 'Weekly'),
+      ...stamp(monthlyPlanning?.items, 'Monthly'),
+    ];
+    const byId = new Map<string, any>();
+    combined.forEach((item) => {
+      const id = String(item?.id ?? '');
+      if (!id || byId.has(id)) return;
+      byId.set(id, item);
+    });
+    return Array.from(byId.values());
+  }, [dailyPlanning?.items, weeklyPlanning?.items, monthlyPlanning?.items]);
 
   const activePlanningItems = useMemo(() => {
-    const items = allPlanning?.items ?? [];
-    const activeOnly = items.filter((item: any) => item?.isReported !== true);
+    const today = todayIso();
+    const activeOnly = mergedPlanningItems.filter(
+      (item: any) => item?.isReported !== true,
+    );
+    const filtered = activeOnly.filter((item: any) =>
+      planItemMatchesDurationFilter(
+        item,
+        filterKind,
+        today,
+        datesByTaskId,
+        periodNameToKind(item?._periodName),
+      ),
+    );
     const currentUserId = String(userId ?? '');
-    return [...activeOnly].sort((a: any, b: any) => {
+    return [...filtered].sort((a: any, b: any) => {
       const aMine = String(a?.userId ?? '') === currentUserId ? 0 : 1;
       const bMine = String(b?.userId ?? '') === currentUserId ? 0 : 1;
       if (aMine !== bMine) return aMine - bMine;
@@ -125,7 +193,7 @@ export function usePlanningData(enabled = true) {
       const tb = new Date(b?.createdAt || 0).getTime();
       return tb - ta;
     });
-  }, [allPlanning?.items, userId]);
+  }, [mergedPlanningItems, userId, filterKind, datesByTaskId]);
 
   const transformedData =
     groupPlanTasksByKeyResultAndMilestone(activePlanningItems);
@@ -133,7 +201,9 @@ export function usePlanningData(enabled = true) {
   const planSummaries: PlanSummary[] = useMemo(() => {
     return (
       transformedData?.map((dataItem: any) => {
-        const cadence = (activeTabName?.toLowerCase() as Cadence) || 'weekly';
+        const cadence = cadenceFromKind(
+          periodNameToKind(dataItem?._periodName || activeTabName),
+        );
         return transformToPlanSummary(
           dataItem,
           'planning' as ViewMode,
@@ -143,6 +213,14 @@ export function usePlanningData(enabled = true) {
       }) || []
     );
   }, [transformedData, employeeData, activeTabName]);
+
+  const allPlanning = {
+    items: activePlanningItems,
+    meta: {
+      totalItems: activePlanningItems.length,
+      totalPages: Math.max(1, Math.ceil(activePlanningItems.length / pageSize)),
+    },
+  };
 
   return {
     planSummaries,

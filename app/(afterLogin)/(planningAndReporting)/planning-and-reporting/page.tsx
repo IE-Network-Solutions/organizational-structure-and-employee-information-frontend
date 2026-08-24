@@ -692,7 +692,7 @@ function Page() {
             data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-545"
             className="truncate text-sm font-semibold leading-tight text-[#161A2C] sm:text-base"
           >
-            New {inlinePlanningPeriodLabel}
+            New plan
           </span>
         }
         extra={

@@ -90,7 +90,7 @@ function Planning({
   useEffect(() => {
     setPage(1);
     setPageSize(10);
-  }, [activeTab, setPage, setPageSize]);
+  }, [activeTab, activePlanPeriod, setPage, setPageSize]);
 
   useEffect(() => {
     if (activeTab !== 1) {
@@ -141,10 +141,6 @@ function Planning({
     setSelectedUser,
   ]);
 
-  const activePlanningItems = useMemo(() => {
-    return transformedData ?? [];
-  }, [transformedData]);
-
   const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
 
   const { data: plannedTasksForReport, isLoading: plannedForReportLoading } =
@@ -190,11 +186,16 @@ function Planning({
     }
   };
 
+  const visiblePlanSummaries = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return planSummaries.slice(start, start + pageSize);
+  }, [planSummaries, page, pageSize]);
+
   const isDesktop = !isMobile && !isTablet;
   const isDesktopPanelView =
     isDesktop && !isPlanningListLoading && planSummaries.length > 0;
 
-  const totalPlanningItems = activePlanningItems.length;
+  const totalPlanningItems = planSummaries.length;
   const showPlanningPagination = totalPlanningItems > pageSize;
 
   const paginationElement = showPlanningPagination ? (
@@ -238,7 +239,7 @@ function Planning({
               data-cy="planning-and-reporting-components-planning-index-tsx-index-div-319"
               className="space-y-6"
             >
-              {planSummaries.map((plan: any) => {
+              {visiblePlanSummaries.map((plan: any) => {
                 const originalDataItem = transformedData?.find(
                   (item: any) => item.id === plan.id,
                 );
@@ -300,7 +301,7 @@ function Planning({
             </div>
           ) : (
             <PlanningPanelView
-              plans={planSummaries}
+              plans={visiblePlanSummaries}
               transformedData={transformedData}
               cadence={currentCadence}
               userId={userId}
@@ -357,8 +358,8 @@ function Planning({
                 className="mt-2 text-xs leading-relaxed text-[#8F94A3]"
               >
                 {activeTabName
-                  ? `There are no planned tasks for ${activeTabName} with the current filters.`
-                  : 'There are no planned tasks for this period with the current filters.'}
+                  ? `No ${activeTabName.toLowerCase()} duration tasks match the current filters.`
+                  : 'There are no planned tasks for this duration with the current filters.'}
               </p>
               <p
                 data-cy="planning-and-reporting-components-planning-index-tsx-index-p-432"
