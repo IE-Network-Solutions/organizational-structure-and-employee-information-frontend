@@ -118,6 +118,17 @@ const ApprovalWorkFlowModal = ({
     setCurrent(0);
   }, [openApprovalModal]);
 
+  // The store starts `level` at 0, which hides the assignee picker entirely
+  // until a level is picked by hand. Open on a single level so the picker is
+  // there straight away; the dropdown still adds more. Kept apart from the
+  // reset effect above to keep `level` out of that effect's deps — adding it
+  // there would send the wizard back to step 0 on every dropdown change.
+  useEffect(() => {
+    if (!openApprovalModal || level) return;
+    setLevel(1);
+    form.setFieldValue('level', 1);
+  }, [openApprovalModal, level, setLevel, form]);
+
   const users = useMemo(() => usersData?.items || [], [usersData?.items]);
   const departments = useMemo(
     () => (departmentsData as Department[] | undefined) || [],
@@ -257,7 +268,10 @@ const ApprovalWorkFlowModal = ({
 
       const workflowAppliesId = form.getFieldValue('workflowAppliesId');
       const workflowName = form.getFieldValue('workflowName');
-      const carryOverPeriod = form.getFieldValue('carryOverPeriod');
+      // The field is named `description` — reading `carryOverPeriod` (copied
+      // from the timesheet modal) always yielded undefined, so the description
+      // the user typed never reached the approval service.
+      const description = form.getFieldValue('description');
       const steps = selections.SectionItemType.flatMap((selection, idx) => {
         const usersForStep = Array.isArray(selection.user)
           ? selection.user
@@ -285,7 +299,7 @@ const ApprovalWorkFlowModal = ({
         {
           values: {
             name: workflowName,
-            description: carryOverPeriod,
+            description,
             entityType: workflowApplies,
             entityId: workflowAppliesId,
             approvalType: APPROVALTYPES.TNA,
@@ -302,10 +316,17 @@ const ApprovalWorkFlowModal = ({
             handleCancel();
           },
           onError: (error: any) => {
+            // The approval service allows one workflow per target per approval
+            // type, and TNA only has the one type — so a second workflow for a
+            // department that already has one comes back as a bare 409.
+            const isDuplicate = error?.response?.status === 409;
             NotificationMessage.error({
-              message: 'Error',
+              message: isDuplicate ? 'Workflow already exists' : 'Error',
               description:
-                error?.response?.data?.message ?? 'Something went wrong',
+                error?.response?.data?.message ??
+                (isDuplicate
+                  ? `${getAppliedToLabel()} already has a Training Needs Assessment workflow. Edit or delete the existing one instead of creating a second.`
+                  : 'Something went wrong'),
             });
           },
         },
