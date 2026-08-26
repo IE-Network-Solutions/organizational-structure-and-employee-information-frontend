@@ -75,6 +75,9 @@ function CreatePlan() {
     enabled: open && !!planningPeriodId,
   });
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 31a98c008 (Remove duplicate call to useGetPlanningPeriodsHierarchy in CreatePlan component for cleaner code.)
 
 =======
 >>>>>>> aa749fc18 (error fix)
