@@ -7,7 +7,11 @@ import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/em
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { resolveEmployeeAndPlanType } from './resolveFilterDraft';
-import { getEmployeeDepartmentId, getEmployeeItems, getSubordinateIds } from './departmentUsers';
+import {
+  getEmployeeDepartmentId,
+  getEmployeeItems,
+  getSubordinateIds,
+} from './departmentUsers';
 
 export const planTypeOptions = [
   { label: 'All Plans', value: 'all' },

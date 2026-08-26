@@ -120,7 +120,13 @@ export default function MyPayroll() {
         }_Payslip_${periodLabel}.pdf`,
       );
     });
-  }, [payslipPayroll, payslipPeriod, templatePayroll, templatePeriod, employee]);
+  }, [
+    payslipPayroll,
+    payslipPeriod,
+    templatePayroll,
+    templatePeriod,
+    employee,
+  ]);
 
   const openPayPeriods = useMemo(
     () => payPeriodData?.filter((period: any) => period.status === 'OPEN'),
@@ -901,7 +907,9 @@ export default function MyPayroll() {
                 className=" text-2xl font-bold"
                 data-cy="my-payroll-payslip-basic-value"
               >
-                {templatePayroll?.employeeInfo?.basicSalaries?.[0]?.basicSalary}{' '}
+                {
+                  templatePayroll?.employeeInfo?.basicSalaries?.[0]?.basicSalary
+                }{' '}
               </span>
             </div>
           </div>

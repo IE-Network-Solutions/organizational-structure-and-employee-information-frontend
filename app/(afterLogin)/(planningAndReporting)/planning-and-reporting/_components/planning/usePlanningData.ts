@@ -227,11 +227,7 @@ export function usePlanningData(enabled = true) {
   );
 
   const krActivePlanningItems = useMemo(
-    () =>
-      buildActivePlanningItems(
-        allPlanningForKrPanel?.items ?? [],
-        userId,
-      ),
+    () => buildActivePlanningItems(allPlanningForKrPanel?.items ?? [], userId),
     [allPlanningForKrPanel?.items, userId],
   );
 
@@ -242,7 +238,10 @@ export function usePlanningData(enabled = true) {
 
   useEffect(() => {
     if (!isKrPanelReady) return;
-    const maxPage = Math.max(1, Math.ceil(krActivePlanningItems.length / pageSize));
+    const maxPage = Math.max(
+      1,
+      Math.ceil(krActivePlanningItems.length / pageSize),
+    );
     if (page > maxPage) {
       setPage(maxPage);
     }
@@ -260,8 +259,9 @@ export function usePlanningData(enabled = true) {
     pageSize,
   ]);
 
-  const transformedData =
-    groupPlanTasksByKeyResultAndMilestone(pagedActivePlanningItems);
+  const transformedData = groupPlanTasksByKeyResultAndMilestone(
+    pagedActivePlanningItems,
+  );
   const krTransformedData = groupPlanTasksByKeyResultAndMilestone(
     krActivePlanningItems,
   );

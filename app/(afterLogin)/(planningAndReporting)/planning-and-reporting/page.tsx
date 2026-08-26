@@ -221,8 +221,13 @@ function Page() {
     [planningPeriodHierarchy],
   );
 
-  const { reportSummaries, krReportSummaries, krReportingItems, isLoading: reportingLoading, isFilterScopePending: reportingFilterPending } =
-    useReportingData(activeTab === 2);
+  const {
+    reportSummaries,
+    krReportSummaries,
+    krReportingItems,
+    isLoading: reportingLoading,
+    isFilterScopePending: reportingFilterPending,
+  } = useReportingData(activeTab === 2);
 
   const enrichedPlanSummaries = useMemo(
     () =>
