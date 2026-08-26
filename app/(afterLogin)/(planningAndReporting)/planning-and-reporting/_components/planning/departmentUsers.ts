@@ -55,7 +55,10 @@ export function getSubordinateIds(employeeData: any, managerId: string) {
     .filter(Boolean);
 }
 
-export function resolveDefaultPlanScope(userId: string, subordinateIds: string[]) {
+export function resolveDefaultPlanScope(
+  userId: string,
+  subordinateIds: string[],
+) {
   if (subordinateIds.length > 0) {
     return {
       planningFilterPlanType: 'subordinatePlan',

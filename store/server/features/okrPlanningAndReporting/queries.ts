@@ -283,7 +283,7 @@ async function fetchAllPlanningData(params: DataType) {
   }
 
   const extraPages = await fetchPagesInBatches(
-    Array.from({ length: totalPages - 1 }, (_, index) => index + 2),
+    Array.from({ length: totalPages - 1 }, (unused, index) => index + 2),
     (page) =>
       getPlanningData({
         ...params,
@@ -309,7 +309,7 @@ async function fetchAllReportingData(params: DataType) {
   }
 
   const extraPages = await fetchPagesInBatches(
-    Array.from({ length: totalPages - 1 }, (_, index) => index + 2),
+    Array.from({ length: totalPages - 1 }, (unused, index) => index + 2),
     (page) =>
       getReportingData({
         ...params,
@@ -373,8 +373,7 @@ export const useGetPlanningPeriodsHierarchy = (
     ['planningPeriodsHierarchy', { userId, planningPeriodId }],
     () => getPlanningPeriodsHierarchy(userId, planningPeriodId),
     {
-      enabled:
-        (options?.enabled ?? true) && !!userId && !!planningPeriodId,
+      enabled: (options?.enabled ?? true) && !!userId && !!planningPeriodId,
       staleTime: 5 * 60_000,
     },
   );
