@@ -10,6 +10,8 @@ import { useRouter } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { getNotificationThemeClasses } from '@/store/server/features/notification/themeUtils';
 import { useCanAccessRoute } from '@/utils/routePermissions';
+import { resolveNotificationPath } from '@/utils/notificationRoute';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const toSlug = (v: string | number | null | undefined) =>
   String(v ?? 'na')
@@ -17,15 +19,25 @@ const toSlug = (v: string | number | null | undefined) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 
-function getNotificationRoute(n: NotificationType): string | null {
-  const r = n?.route?.trim();
-  return r || null;
+function getNotificationRoute(
+  n: NotificationType,
+  recipientUserId?: string,
+  employees?: {
+    id?: string;
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+  }[],
+): string {
+  return resolveNotificationPath(n, { recipientUserId, employees });
 }
 
 function NotificationBar() {
   const userId = useAuthenticationStore.getState().userId;
   const router = useRouter();
   const canAccessRoute = useCanAccessRoute();
+  const { data: allUsersData } = useGetAllUsers();
+  const employees = allUsersData?.items;
 
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
   const { data, isLoading } = useGetNotifications(userId ?? '');
@@ -40,11 +52,10 @@ function NotificationBar() {
   };
 
   const handleNotificationClick = (notification: NotificationType) => {
-    const route = getNotificationRoute(notification);
-    const path = route ? (route.startsWith('/') ? route : `/${route}`) : null;
-    if (path && !canAccessRoute(path)) return;
+    const path = getNotificationRoute(notification, userId, employees);
+    if (!canAccessRoute(path)) return;
     updateNotification(notification.id);
-    if (path) router.push(path);
+    router.push(path);
   };
 
   const formatDateDifference = (updatedAt: string) => {
@@ -89,13 +100,12 @@ function NotificationBar() {
             ?.map((notification: NotificationType) => {
               const theme = getNotificationThemeClasses(notification);
               const slug = toSlug(notification.id);
-              const route = getNotificationRoute(notification);
-              const path = route
-                ? route.startsWith('/')
-                  ? route
-                  : `/${route}`
-                : null;
-              const hasAccess = !path || canAccessRoute(path);
+              const path = getNotificationRoute(
+                notification,
+                userId,
+                employees,
+              );
+              const hasAccess = canAccessRoute(path);
               return (
                 <div
                   key={notification.id}

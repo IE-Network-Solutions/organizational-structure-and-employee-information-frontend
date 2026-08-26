@@ -12,6 +12,7 @@ interface AccessGuardProps {
 
 const AccessGuard: React.FC<AccessGuardProps> & {
   checkAccess: (props: AccessGuardProps) => boolean;
+  hasExplicitPermission: (permission: string) => boolean;
 } = ({ roles, permissions, id, selfShouldAccess = false, children }) => {
   const [isClient, setIsClient] = useState(false);
 
@@ -65,6 +66,22 @@ AccessGuard.checkAccess = ({
   const hasSelfAccess = selfShouldAccess && id === userId;
 
   return isOwner || (hasRole && (hasPermission || hasSelfAccess));
+};
+
+/**
+ * Strict permission check with no `owner` short-circuit.
+ *
+ * Use this for anything a backend guard also enforces. `checkAccess` grants an
+ * owner everything, but the services check the real permission list, so an
+ * owner without the slug would be shown a button whose request comes back 403.
+ */
+AccessGuard.hasExplicitPermission = (permission: string): boolean => {
+  const { userData } = useAuthenticationStore.getState();
+
+  return (userData?.userPermissions || []).some(
+    (userPermission: { permission?: { slug?: string } }) =>
+      userPermission?.permission?.slug === permission,
+  );
 };
 
 export default AccessGuard;

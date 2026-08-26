@@ -86,6 +86,7 @@ import {
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useNotificationDeepLink } from '@/hooks/useNotificationDeepLink';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import PaymentsIcon from '@mui/icons-material/Payments';
@@ -131,6 +132,7 @@ const Payroll = () => {
 
   const { pageSize, currentPage, setCurrentPage, setPageSize } =
     usePayrollStore();
+  const { employeeId: linkedPayrollEmployee } = useNotificationDeepLink();
 
   const [payPeriodQuery, setPayPeriodQuery] = useState('');
   const [payPeriodId, setPayPeriodId] = useState('');
@@ -400,6 +402,13 @@ const Payroll = () => {
     refetch();
     refetchExportData();
   };
+
+  useEffect(() => {
+    if (linkedPayrollEmployee) {
+      handleSearch({ employeeId: linkedPayrollEmployee });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedPayrollEmployee]);
 
   const handleGeneratePayroll = async (data: Incentive) => {
     if (!allActiveSalary || allActiveSalary?.length === 0) {
