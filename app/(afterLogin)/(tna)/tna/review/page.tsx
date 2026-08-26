@@ -38,6 +38,7 @@ import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import CustomPagination from '@/components/customPagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
+import { useNotificationDeepLink } from '@/hooks/useNotificationDeepLink';
 
 const TnaReviewPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -123,6 +124,12 @@ const TnaReviewPage = () => {
     setOrderDirection,
   } = usePagination();
   const [filter, setFilter] = useState<Partial<TnaRequestBody['filter']>>({});
+  const { employeeId: linkedEmployee } = useNotificationDeepLink();
+
+  useEffect(() => {
+    if (!linkedEmployee) return;
+    setFilter((prev) => ({ ...prev, assignedUserId: [linkedEmployee] }));
+  }, [linkedEmployee]);
   const { data, isLoading, refetch } = useGetTna(
     { page, limit, orderBy, orderDirection },
     { filter },
