@@ -279,25 +279,43 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
           Action
         </span>
       ),
-      dataIndex: 'actionTypes',
       key: 'actionTypes',
-      render: (actionTypes: string[]) => (
-        <div
-          className="flex flex-col gap-1"
-          data-cy="time-attendance-rule-violation-table-action-tags"
-        >
-          {actionTypes?.length
-            ? actionTypes.map((type) => (
-                <div
-                  data-cy="time-attendance-rule-violation-table-action-tags-div"
-                  key={type}
-                >
-                  {statusType(type)}
-                </div>
-              ))
-            : '-'}
-        </div>
-      ),
+      render: (notUsed: unknown, row: RuleViolationTableRow) => {
+        const actionTypes = row.actionTypes;
+        const minutes = row.record.salaryDeductionMinutes;
+        const amount = row.record.salaryDeductionAmount;
+        const showSalaryDeductionDetail =
+          actionTypes?.includes(AttendanceActionType.SALARY_DEDUCTION) &&
+          (minutes != null || amount != null);
+
+        return (
+          <div
+            className="flex flex-col gap-1"
+            data-cy="time-attendance-rule-violation-table-action-tags"
+          >
+            {actionTypes?.length
+              ? actionTypes.map((type) => (
+                  <div
+                    data-cy="time-attendance-rule-violation-table-action-tags-div"
+                    key={type}
+                  >
+                    {statusType(type)}
+                  </div>
+                ))
+              : '-'}
+            {showSalaryDeductionDetail && (
+              <div
+                className="text-xs text-[#4d4d4d] whitespace-nowrap"
+                data-cy="time-attendance-rule-violation-table-salary-deduction-detail"
+              >
+                {minutes != null ? `${minutes} min` : null}
+                {minutes != null && amount != null ? ' · ' : null}
+                {amount != null ? `${Number(amount).toFixed(2)}` : null}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: (
