@@ -4,7 +4,6 @@ import { Skeleton } from 'antd';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useFiscalYearRedirect } from '@/hooks/useFiscalYearRedirect';
 import AccessGuard from '@/utils/permissionGuard';
-import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 
 import DashboardSubscriptionSkeleton from './_components/DashboardSubscriptionSkeleton';
 import { useCallback, useEffect, useMemo, useState } from 'react';

@@ -74,13 +74,6 @@ function CreatePlan() {
   } = useGetPlanningPeriodsHierarchy(userId, planningPeriodId || '', {
     enabled: open && !!planningPeriodId,
   });
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 31a98c008 (Remove duplicate call to useGetPlanningPeriodsHierarchy in CreatePlan component for cleaner code.)
-
-=======
->>>>>>> aa749fc18 (error fix)
   // Fetch the last report to get failed tasks
   const { data: lastReportData, refetch: refetchLastReport } = useGetReporting(
     {
