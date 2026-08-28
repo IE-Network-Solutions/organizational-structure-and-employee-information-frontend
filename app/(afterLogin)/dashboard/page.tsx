@@ -1,4 +1,5 @@
 'use client';
+import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { Skeleton } from 'antd';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useFiscalYearRedirect } from '@/hooks/useFiscalYearRedirect';
@@ -6,14 +7,17 @@ import AccessGuard from '@/utils/permissionGuard';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 
 import DashboardSubscriptionSkeleton from './_components/DashboardSubscriptionSkeleton';
-import WidgetCanvas from './_components/widgetCanvas';
-import WidgetToolbar from './_components/widgetCanvas/WidgetToolbar';
-import type { DashboardPlanView } from './_components/widgetCanvas/types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import type { ApiResponse } from '@/types/commons/responseTypes';
 import type { Subscription } from '@/types/tenant-management';
+import AddWidgetModal from './_components/customize/AddWidgetModal';
+import DashboardGrid from './_components/customize/DashboardGrid';
+import EditToolbar from './_components/customize/EditToolbar';
+import { useDashboardLayout } from './_components/customize/useDashboardLayout';
+import { toDashboardPlanKey } from './_components/customize/widgetRegistry';
+import type { DashboardPlanView } from './_components/customize/types';
 
 function dashboardPlanFromSubscription(
   data: ApiResponse<Subscription> | undefined,
@@ -32,7 +36,7 @@ export default function Home() {
     useGetActiveFiscalYears({
       refetchInterval: 30000, // Keep polling for banner display
     });
-  const { tenantId } = useAuthenticationStore();
+  const { tenantId, userId } = useAuthenticationStore();
   const { data: subscriptionData, isLoading: isSubscriptionLoading } =
     useGetSubscriptionByTenant(tenantId, !!tenantId);
   const hasEndedFiscalYear =
@@ -48,6 +52,34 @@ export default function Home() {
     if (plan) setSelectedTenatType(plan);
   }, [subscriptionData]);
 
+  const planKey = useMemo(
+    () => toDashboardPlanKey(selectedTenatType),
+    [selectedTenatType],
+  );
+
+  const {
+    layout,
+    commitLayout,
+    isReady,
+    isEditing,
+    setIsEditing,
+    hiddenWidgetIds,
+    hideWidget,
+    addWidget,
+    resetLayout,
+    isSaving,
+  } = useDashboardLayout(userId, planKey);
+
+  const [isCatalogOpen, setIsCatalogOpen] = useState(false);
+
+  const handleAddWidget = useCallback(
+    (id: string) => {
+      addWidget(id);
+      setIsCatalogOpen(false);
+    },
+    [addWidget],
+  );
+
   const mainLayout = (
     <div className="min-h-screen" data-cy="dashboard-main-layout">
       <div
@@ -60,17 +92,41 @@ export default function Home() {
         >
           Dashboard
         </h1>
+        {/* Dashboard customization controls */}
         <div
           className="flex gap-2 items-center"
           data-cy="dashboard-tenant-type-control"
         >
-          <WidgetToolbar plan={selectedTenatType} />
+          <EditToolbar
+            isEditing={isEditing}
+            isSaving={isSaving}
+            onStartEditing={() => setIsEditing(true)}
+            onOpenCatalog={() => setIsCatalogOpen(true)}
+            onReset={resetLayout}
+            onDone={() => setIsEditing(false)}
+          />
         </div>
       </div>
 
       <div data-cy="dashboard-content">
-        <WidgetCanvas plan={selectedTenatType} />
+        {isReady && (
+          <DashboardGrid
+            layout={layout}
+            plan={selectedTenatType}
+            isEditing={isEditing}
+            onLayoutChange={commitLayout}
+            onHideWidget={hideWidget}
+          />
+        )}
       </div>
+
+      <AddWidgetModal
+        open={isCatalogOpen}
+        plan={selectedTenatType}
+        hiddenWidgetIds={hiddenWidgetIds}
+        onAdd={handleAddWidget}
+        onClose={() => setIsCatalogOpen(false)}
+      />
     </div>
   );
 

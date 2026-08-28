@@ -1,34 +1,9 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import {
-  MdHowToReg,
-  MdOutlineSchedule,
-  MdOutlineFreeBreakfast,
-} from 'react-icons/md';
-import { LuCalendarClock } from 'react-icons/lu';
-import { Skeleton } from 'antd';
-import dayjs from 'dayjs';
-
-import AttendanceStatCard, {
-  type AttendanceStatCarouselSlide,
-} from './AttendanceStatCard';
-import ClosedDaysCard from './ClosedDaysCard';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useGetDashboardEmployeeSummary } from '@/store/server/features/dashboard/employee-summary/queries';
-import type { ClosedDayInActiveMonth } from '@/store/server/features/dashboard/employee-summary/interface';
-import { DATE_FORMAT } from '@/utils/constants';
-
-function mapClosedDayItem(row: ClosedDayInActiveMonth): {
-  date: string;
-  name: string;
-} {
-  const name = row.name ?? row.title ?? row.holidayName ?? '';
-  const raw = row.date ?? row.holidayDate;
-  const date =
-    raw && dayjs(raw).isValid() ? dayjs(raw).format(DATE_FORMAT) : (raw ?? '');
-  return { date, name };
-}
+import ClosedDaysSummaryCard from './ClosedDaysSummaryCard';
+import DaysPresentCard from './DaysPresentCard';
+import LateArrivalsCard from './LateArrivalsCard';
+import LeavesTakenCard from './LeavesTakenCard';
 
 function AttendanceSummarySkeleton() {
   return (
