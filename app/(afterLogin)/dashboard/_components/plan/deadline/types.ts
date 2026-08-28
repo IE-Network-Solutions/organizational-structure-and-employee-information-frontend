@@ -10,6 +10,8 @@ export interface DeadlineTask {
   parentId: string | null;
   done: boolean;
   keyResultTitle?: string;
+  planningPeriodId?: string;
+  sourceStatus?: string;
 }
 
 export const DATE_FORMAT = 'YYYY-MM-DD';

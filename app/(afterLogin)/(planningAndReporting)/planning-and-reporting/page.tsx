@@ -31,6 +31,7 @@ import { useGetUserObjective } from '@/store/server/features/okrplanning/okr/obj
 import { usePlanningData } from './_components/planning/usePlanningData';
 import { usePlanningTargets } from './_components/planning/usePlanningTargets';
 import { isPlanningTargetBlocked } from './_components/planning/buildPlanningTargets';
+import { cadenceAssignmentByKind } from './_components/planning/durationFilter';
 import { useReportingData } from './_components/planning/useReportingData';
 import { KRPanelSkeleton } from './_components/cards/PlanCardSkeleton';
 import {
@@ -199,9 +200,19 @@ function Page() {
     keyResultSessionId ? [keyResultSessionId] : undefined,
   );
 
+  const cadenceAssignments = useMemo(
+    () =>
+      cadenceAssignmentByKind(
+        defaultPlanningPeriods?.items,
+        Array.isArray(planningPeriods) ? planningPeriods : [],
+      ),
+    [defaultPlanningPeriods?.items, planningPeriods],
+  );
+  const weeklyPeriodId = cadenceAssignments.week.periodId;
+
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
     userId,
-    selectedTab?.id ?? '',
+    weeklyPeriodId || '',
   );
 
   const userKeyResultItems = useMemo(
@@ -282,7 +293,7 @@ function Page() {
     refetchObjectives,
   } = usePlanningTargets(
     userId,
-    selectedTab?.id,
+    weeklyPeriodId || selectedTab?.id,
     userKeyResultItems,
     planKeyResultsForTargets,
   );

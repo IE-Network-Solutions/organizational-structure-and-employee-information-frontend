@@ -1,4 +1,7 @@
-import type { DeadlineKind } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/types';
+import type {
+  DeadlineKind,
+  DeadlineTask,
+} from '@/app/(afterLogin)/dashboard/_components/plan/deadline/types';
 import {
   appearsInThisMonth,
   appearsInThisWeek,
@@ -51,23 +54,108 @@ export const resolveSpan = (
   return { spanDays: days, kind: kindFromSpan(days) };
 };
 
-const asDeadlineTask = (
-  id: string,
-  start: string,
-  deadline: string,
-  kind: DeadlineKind,
-  days: number,
-  done: boolean,
-) => ({
-  id,
-  title: id,
-  start,
-  deadline,
-  spanDays: days,
-  kind,
-  parentId: null,
-  done,
-});
+export const toIsoDate = (value?: string | null): string | null => {
+  if (value == null || value === '') return null;
+  const sliced = String(value).slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(sliced) ? sliced : null;
+};
+
+export const resolveTaskDates = (
+  task: any,
+  overlay: Record<string, TaskDateSpan>,
+): { start: string | null; deadline: string | null } => {
+  const id = String(task?.id ?? '');
+  const overlaySpan =
+    overlay[id] ||
+    overlay[
+      `${task?.task || task?.taskName || ''}::${task?.keyResultId || task?.keyResult?.id || ''}`
+    ];
+  return {
+    start: toIsoDate(
+      overlaySpan?.start ||
+        task?.startDate ||
+        task?.start ||
+        task?.deadlineStart ||
+        null,
+    ),
+    deadline: toIsoDate(
+      overlaySpan?.deadline ||
+        task?.endDate ||
+        task?.deadline ||
+        task?.end ||
+        null,
+    ),
+  };
+};
+
+export const plannedTaskToDeadlineTask = (
+  task: any,
+  overlay: Record<string, TaskDateSpan>,
+  fallbackKind: DeadlineKind,
+  today: string = todayIso(),
+  planningPeriodId?: string,
+): DeadlineTask | null => {
+  const id = String(task?.id ?? '');
+  const title = String(task?.task || task?.taskName || '').trim();
+  if (!id && !title) return null;
+
+  const { start, deadline } = resolveTaskDates(task, overlay);
+  const resolved = resolveSpan(start, deadline);
+  const kind = resolved?.kind ?? fallbackKind;
+  const fallback = defaultSpanForKind(kind, today);
+  const startIso = start && resolved ? start : fallback.start;
+  const deadlineIso = deadline && resolved ? deadline : fallback.deadline;
+  const parentId = task?.parentTaskId || task?.parentTask?.id || null;
+  const sourceStatus = task?.status ? String(task.status) : undefined;
+
+  return {
+    id: id || `${title}::${task?.keyResultId || task?.keyResult?.id || ''}`,
+    title: title || 'Task',
+    start: startIso,
+    deadline: deadlineIso,
+    spanDays:
+      resolved?.spanDays ?? (kind === 'daily' ? 1 : kind === 'month' ? 15 : 5),
+    kind,
+    parentId: parentId ? String(parentId) : null,
+    done: sourceStatus === 'completed' || sourceStatus === 'pre_achieved',
+    keyResultTitle: task?.keyResult?.title || undefined,
+    planningPeriodId: planningPeriodId || task?.planningPeriodId || undefined,
+    sourceStatus,
+  };
+};
+
+export const collectDeadlineTasksFromPlans = (
+  plans: any[],
+  overlay: Record<string, TaskDateSpan>,
+  today: string,
+): DeadlineTask[] => {
+  const out: DeadlineTask[] = [];
+  const seen = new Set<string>();
+  for (const plan of plans) {
+    const fallbackKind = periodNameToKind(
+      plan?._periodName ||
+        plan?.planningUser?.planningPeriod?.name ||
+        plan?.planningPeriod?.name,
+    );
+    const planningPeriodId = String(
+      plan?.planningUser?.planningPeriod?.id || plan?.planningPeriodId || '',
+    );
+    const tasks = Array.isArray(plan?.tasks) ? plan.tasks : [];
+    for (const task of tasks) {
+      const mapped = plannedTaskToDeadlineTask(
+        task,
+        overlay,
+        fallbackKind,
+        today,
+        planningPeriodId || undefined,
+      );
+      if (!mapped || seen.has(mapped.id)) continue;
+      seen.add(mapped.id);
+      out.push(mapped);
+    }
+  }
+  return out;
+};
 
 export const durationFilterMatchesTask = (
   task: any,
@@ -76,45 +164,22 @@ export const durationFilterMatchesTask = (
   overlay: Record<string, TaskDateSpan>,
   fallbackKind: DeadlineKind,
 ): boolean => {
-  const id = String(task?.id ?? '');
-  const overlaySpan =
-    overlay[id] ||
-    overlay[
-      `${task?.task || task?.taskName || ''}::${task?.keyResultId || task?.keyResult?.id || ''}`
-    ];
-  const start =
-    overlaySpan?.start ||
-    task?.startDate ||
-    task?.start ||
-    task?.deadlineStart ||
-    null;
-  const deadline =
-    overlaySpan?.deadline ||
-    task?.endDate ||
-    task?.deadline ||
-    task?.end ||
-    null;
+  const { start, deadline } = resolveTaskDates(task, overlay);
   const resolved = resolveSpan(start, deadline);
-  const kind = resolved?.kind ?? fallbackKind;
-  const days =
-    resolved?.spanDays ?? (kind === 'daily' ? 1 : kind === 'month' ? 15 : 5);
-  const startIso = start || today;
-  const deadlineIso = deadline || today;
-  const fake = asDeadlineTask(
-    id || 'task',
-    startIso,
-    deadlineIso,
-    kind,
-    days,
-    task?.status === 'completed' || task?.status === 'pre_achieved',
+  const mapped = plannedTaskToDeadlineTask(
+    task,
+    overlay,
+    fallbackKind,
+    today,
   );
+  if (!mapped) return fallbackKind === filterKind;
 
   if (!resolved) {
-    return kind === filterKind;
+    return mapped.kind === filterKind;
   }
-  if (filterKind === 'daily') return appearsInToday(fake, [fake], today);
-  if (filterKind === 'week') return appearsInThisWeek(fake, today);
-  return appearsInThisMonth(fake, today);
+  if (filterKind === 'daily') return appearsInToday(mapped, [mapped], today);
+  if (filterKind === 'week') return appearsInThisWeek(mapped, today);
+  return appearsInThisMonth(mapped, today);
 };
 
 export const cadenceAssignmentByKind = (
@@ -155,6 +220,59 @@ export const cadenceAssignmentByKind = (
     week: pick('Weekly'),
     month: pick('Monthly'),
   };
+};
+
+export const cadencePeriodLabel = (kind: DeadlineKind): string => {
+  if (kind === 'daily') return 'Daily';
+  if (kind === 'month') return 'Monthly';
+  return 'Weekly';
+};
+
+export type CadenceGroup<T> = {
+  planningPeriodId: string;
+  planningUserId: string;
+  kind: DeadlineKind;
+  lines: T[];
+};
+
+export const groupLinesByDeadlineCadence = <
+  T extends { start: string; deadline: string },
+>(
+  lines: T[],
+  assignments: Record<
+    DeadlineKind,
+    { periodId: string; planningUserId: string }
+  >,
+): { ok: true; groups: CadenceGroup<T>[] } | { ok: false; error: string } => {
+  const groups = new Map<string, CadenceGroup<T>>();
+  for (const line of lines) {
+    const resolved = resolveSpan(line.start, line.deadline);
+    if (!resolved) {
+      return {
+        ok: false,
+        error: 'Each task needs a start date and an end date.',
+      };
+    }
+    const assignment = assignments[resolved.kind];
+    if (!assignment.periodId) {
+      return {
+        ok: false,
+        error: `No ${cadencePeriodLabel(resolved.kind)} planning period is available.`,
+      };
+    }
+    const existing = groups.get(assignment.periodId);
+    if (existing) {
+      existing.lines.push(line);
+    } else {
+      groups.set(assignment.periodId, {
+        planningPeriodId: assignment.periodId,
+        planningUserId: assignment.planningUserId,
+        kind: resolved.kind,
+        lines: [line],
+      });
+    }
+  }
+  return { ok: true, groups: Array.from(groups.values()) };
 };
 
 export const planItemMatchesDurationFilter = (

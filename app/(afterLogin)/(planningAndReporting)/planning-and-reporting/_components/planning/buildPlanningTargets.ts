@@ -561,6 +561,27 @@ export function filterPlanningTargetsByBlockedKeyResults(
     });
 }
 
+/**
+ * Deadline-based create: KR/milestone slots from objectives, plus optional
+ * daily-under-weekly parent-task slots when an unreported weekly plan exists.
+ * Duration pills must not replace KR + with hierarchy-only targets.
+ */
+export function buildDeadlineCreatePlanningTargets(
+  objective: any,
+  userKeyResultItems: any[] = [],
+  planKeyResults: any[] = [],
+  hierarchy?: any,
+): PlanningTarget[] {
+  const fromObjectives = buildPlanningTargetsFromObjectives(
+    objective,
+    userKeyResultItems,
+    planKeyResults,
+  );
+  const fromDaily = buildPlanningTargetsFromDailyHierarchy(hierarchy);
+  if (fromDaily.length === 0) return fromObjectives;
+  return [...fromObjectives, ...fromDaily];
+}
+
 /** Daily: one row per weekly parent task (slot for daily sub-tasks). */
 export function buildPlanningTargetsFromDailyHierarchy(
   hierarchy: any,

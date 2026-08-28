@@ -1,173 +1,35 @@
 'use client';
 
-import { Button, Checkbox, DatePicker, Input, Modal, Select } from 'antd';
-import { type Dayjs } from 'dayjs';
+import { Checkbox, Select, Spin } from 'antd';
 import { MdAppRegistration } from 'react-icons/md';
-import { useEffect, useState } from 'react';
-import { useDeadlinePlanStore } from '@/store/uistate/features/dashboard/plan/deadline';
+import { useState } from 'react';
+import { useUpdateStatus } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import {
   appearsInThisMonth,
   appearsInThisWeek,
   appearsInToday,
   childrenOf,
-  dateInRange,
-  defaultDailySubtaskDate,
   isOverdue,
   todayIso,
   weekDailiesForSection,
 } from './bucket';
 import type { DeadlineTask } from './types';
-
-const isoFromPicker = (value: Dayjs | null): string | null =>
-  value ? value.format('YYYY-MM-DD') : null;
-
-const AddDailyModal = ({
-  parent,
-  onClose,
-}: {
-  parent: DeadlineTask | null;
-  onClose: () => void;
-}) => {
-  const addDailySubtask = useDeadlinePlanStore(
-    (state) => state.addDailySubtask,
-  );
-  const today = todayIso();
-  const [title, setTitle] = useState('');
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!parent) return;
-    setTitle('');
-    setError(null);
-  }, [parent]);
-
-  const submit = () => {
-    if (!parent) return;
-    const dateIso = defaultDailySubtaskDate(parent, today);
-    const result = addDailySubtask(parent.id, title, dateIso);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    setTitle('');
-    setError(null);
-    onClose();
-  };
-
-  return (
-    <Modal
-      title={parent ? `Daily subtask of ${parent.title}` : 'Daily subtask'}
-      open={parent != null}
-      onCancel={onClose}
-      onOk={submit}
-      okText="Add daily"
-      destroyOnClose
-    >
-      {parent ? (
-        <div className="flex flex-col gap-3 pt-1">
-          <Input
-            placeholder="Task name"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            onPressEnter={submit}
-          />
-          {error ? <p className="m-0 text-sm text-red-500">{error}</p> : null}
-        </div>
-      ) : null}
-    </Modal>
-  );
-};
-
-const AddWeeklyModal = ({
-  parent,
-  onClose,
-}: {
-  parent: DeadlineTask | null;
-  onClose: () => void;
-}) => {
-  const addWeeklySubtask = useDeadlinePlanStore(
-    (state) => state.addWeeklySubtask,
-  );
-  const [title, setTitle] = useState('');
-  const [range, setRange] = useState<[Dayjs | null, Dayjs | null] | null>(
-    null,
-  );
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!parent) return;
-    setTitle('');
-    setRange(null);
-    setError(null);
-  }, [parent]);
-
-  const submit = () => {
-    if (!parent) return;
-    const startIso = isoFromPicker(range?.[0] ?? null);
-    const endIso = isoFromPicker(range?.[1] ?? null);
-    if (!startIso || !endIso) {
-      setError('Pick a week range.');
-      return;
-    }
-    const result = addWeeklySubtask(parent.id, title, startIso, endIso);
-    if (!result.ok) {
-      setError(result.error);
-      return;
-    }
-    setTitle('');
-    setRange(null);
-    setError(null);
-    onClose();
-  };
-
-  return (
-    <Modal
-      title={parent ? `Weekly subtask of ${parent.title}` : 'Weekly subtask'}
-      open={parent != null}
-      onCancel={onClose}
-      onOk={submit}
-      okText="Add weekly"
-      destroyOnClose
-    >
-      {parent ? (
-        <div className="flex flex-col gap-3 pt-1">
-          <Input
-            placeholder="Week slice title"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-          />
-          <DatePicker.RangePicker
-            className="w-full"
-            value={range}
-            onChange={(next) => setRange(next)}
-            disabledDate={(current) =>
-              !dateInRange(
-                current.format('YYYY-MM-DD'),
-                parent.start,
-                parent.deadline,
-              )
-            }
-          />
-          {error ? <p className="m-0 text-sm text-red-500">{error}</p> : null}
-        </div>
-      ) : null}
-    </Modal>
-  );
-};
+import { useDashboardDeadlineTasks } from './useDashboardDeadlineTasks';
 
 const TaskRow = ({
   task,
   today,
   nested,
-  action,
+  onToggle,
 }: {
   task: DeadlineTask;
   today: string;
   nested?: boolean;
-  action?: React.ReactNode;
+  onToggle: (task: DeadlineTask) => void;
 }) => {
-  const toggleDone = useDeadlinePlanStore((state) => state.toggleDone);
   const overdue = isOverdue(task, today);
+  const completed = task.sourceStatus === 'completed';
+
   return (
     <div
       className={`flex items-start gap-2 py-1.5 ${nested ? 'pl-6' : ''}`}
@@ -175,8 +37,10 @@ const TaskRow = ({
     >
       <Checkbox
         checked={task.done}
-        onChange={() => toggleDone(task.id)}
-        className="mt-0.5"
+        onChange={() => onToggle(task)}
+        disabled={completed}
+        className="mt-0.5 [&_.ant-checkbox-checked_.ant-checkbox-inner]:!bg-[#52C41A] [&_.ant-checkbox-checked_.ant-checkbox-inner]:!border-[#52C41A]"
+        data-cy={`deadline-plan-checkbox-${task.id}`}
       />
       <div className="min-w-0 flex-1">
         <p
@@ -192,7 +56,6 @@ const TaskRow = ({
           {overdue ? ' · Overdue' : ''}
         </p>
       </div>
-      {action}
     </div>
   );
 };
@@ -205,12 +68,27 @@ const PLAN_VIEW_OPTIONS = [
   { value: 'month', label: "This month's tasks" },
 ];
 
+const EmptyState = ({ label }: { label: string }) => (
+  <p className="m-0 flex min-h-[190px] items-center justify-center text-lg font-light">
+    {label}
+  </p>
+);
+
 const DeadlinePlanWidget = () => {
-  const tasks = useDeadlinePlanStore((state) => state.tasks);
+  const { tasks, isLoading } = useDashboardDeadlineTasks();
+  const { mutate: updateStatus } = useUpdateStatus();
   const today = todayIso();
   const [planView, setPlanView] = useState<PlanView>('today');
-  const [dailyParent, setDailyParent] = useState<DeadlineTask | null>(null);
-  const [weeklyParent, setWeeklyParent] = useState<DeadlineTask | null>(null);
+
+  const onToggle = (task: DeadlineTask) => {
+    if (task.sourceStatus === 'completed') return;
+    updateStatus({
+      id: task.id,
+      status:
+        task.sourceStatus === 'pre_achieved' ? 'pre_pending' : 'pre_achieved',
+      planningPeriodId: task.planningPeriodId,
+    });
+  };
 
   const todayTasks = tasks.filter((task) => appearsInToday(task, tasks, today));
   const weekParents = tasks.filter(
@@ -219,37 +97,35 @@ const DeadlinePlanWidget = () => {
   const weekSlices = tasks.filter(
     (task) => appearsInThisWeek(task, today) && task.parentId != null,
   );
-  const monthParents = tasks.filter((task) =>
-    appearsInThisMonth(task, today),
-  );
-
-  const addDailyButton = (task: DeadlineTask) =>
-    task.kind === 'week' ? (
-      <Button
-        type="text"
-        size="small"
-        className="!px-1 !text-primary hover:!text-primary"
-        onClick={() => setDailyParent(task)}
-      >
-        Add daily
-      </Button>
-    ) : null;
+  const monthParents = tasks.filter((task) => appearsInThisMonth(task, today));
 
   const weekList = (
     <>
       {weekParents.map((task) => (
         <div key={task.id}>
-          <TaskRow task={task} today={today} action={addDailyButton(task)} />
+          <TaskRow task={task} today={today} onToggle={onToggle} />
           {weekDailiesForSection(tasks, task.id, today).map((child) => (
-            <TaskRow key={child.id} task={child} today={today} nested />
+            <TaskRow
+              key={child.id}
+              task={child}
+              today={today}
+              nested
+              onToggle={onToggle}
+            />
           ))}
         </div>
       ))}
       {weekSlices.map((task) => (
         <div key={task.id}>
-          <TaskRow task={task} today={today} action={addDailyButton(task)} />
+          <TaskRow task={task} today={today} onToggle={onToggle} />
           {weekDailiesForSection(tasks, task.id, today).map((child) => (
-            <TaskRow key={child.id} task={child} today={today} nested />
+            <TaskRow
+              key={child.id}
+              task={child}
+              today={today}
+              nested
+              onToggle={onToggle}
+            />
           ))}
         </div>
       ))}
@@ -258,55 +134,48 @@ const DeadlinePlanWidget = () => {
 
   const monthList = monthParents.map((task) => (
     <div key={task.id}>
-      <TaskRow
-        task={task}
-        today={today}
-        action={
-          <Button
-            type="text"
-            size="small"
-            className="!px-1 !text-primary hover:!text-primary"
-            onClick={() => setWeeklyParent(task)}
-          >
-            Add weekly
-          </Button>
-        }
-      />
+      <TaskRow task={task} today={today} onToggle={onToggle} />
       {childrenOf(tasks, task.id)
         .filter((child) => child.kind === 'week')
         .map((child) => (
-          <TaskRow key={child.id} task={child} today={today} nested />
+          <TaskRow
+            key={child.id}
+            task={child}
+            today={today}
+            nested
+            onToggle={onToggle}
+          />
         ))}
     </div>
   ));
 
   const weekCount = weekParents.length + weekSlices.length;
-  const body =
-    planView === 'today' ? (
-      todayTasks.length === 0 ? (
-        <p className="m-0 flex min-h-[190px] items-center justify-center text-lg font-light">
-          No tasks today
-        </p>
-      ) : (
-        todayTasks.map((task) => (
-          <TaskRow key={task.id} task={task} today={today} />
-        ))
-      )
-    ) : planView === 'week' ? (
-      weekCount === 0 ? (
-        <p className="m-0 flex min-h-[190px] items-center justify-center text-lg font-light">
-          No tasks this week
-        </p>
-      ) : (
-        weekList
-      )
-    ) : monthParents.length === 0 ? (
-      <p className="m-0 flex min-h-[190px] items-center justify-center text-lg font-light">
-        No tasks this month
-      </p>
+  const body = isLoading ? (
+    <div
+      className="flex min-h-[190px] items-center justify-center"
+      data-cy="deadline-plan-loading"
+    >
+      <Spin />
+    </div>
+  ) : planView === 'today' ? (
+    todayTasks.length === 0 ? (
+      <EmptyState label="No tasks today" />
     ) : (
-      monthList
-    );
+      todayTasks.map((task) => (
+        <TaskRow key={task.id} task={task} today={today} onToggle={onToggle} />
+      ))
+    )
+  ) : planView === 'week' ? (
+    weekCount === 0 ? (
+      <EmptyState label="No tasks this week" />
+    ) : (
+      weekList
+    )
+  ) : monthParents.length === 0 ? (
+    <EmptyState label="No tasks this month" />
+  ) : (
+    monthList
+  );
 
   return (
     <div data-cy="deadline-plan-widget">
@@ -339,14 +208,6 @@ const DeadlinePlanWidget = () => {
       >
         {body}
       </div>
-      <AddDailyModal
-        parent={dailyParent}
-        onClose={() => setDailyParent(null)}
-      />
-      <AddWeeklyModal
-        parent={weeklyParent}
-        onClose={() => setWeeklyParent(null)}
-      />
     </div>
   );
 };

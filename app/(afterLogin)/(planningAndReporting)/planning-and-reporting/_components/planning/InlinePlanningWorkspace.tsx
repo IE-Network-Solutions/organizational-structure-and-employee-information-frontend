@@ -65,6 +65,7 @@ import {
   cadenceAssignmentByKind,
   defaultSpanForKind,
   durationFilterLabel,
+  groupLinesByDeadlineCadence,
   periodNameToKind,
   resolveSpan,
 } from './durationFilter';
@@ -545,13 +546,17 @@ const DeadlineSpanFields = ({
           value={start}
           onChange={onStart}
           placeholder="Start"
+          allowClear={false}
           data-cy="inline-plan-start-date"
         />
         <DatePicker
           className="w-full"
           value={deadline}
           onChange={onDeadline}
-          placeholder="Deadline"
+          placeholder="End date"
+          disabledDate={(current) =>
+            start ? current.isBefore(start, 'day') : false
+          }
           data-cy="inline-plan-end-date"
         />
       </div>
@@ -756,7 +761,7 @@ const InlinePlanningWorkspace = forwardRef<
   const resetForm = useCallback(() => {
     setTask('');
     setStartDate(dayjs());
-    setEndDate(null);
+    setEndDate(activeTarget?.isDailySlot ? dayjs() : null);
     setPriority(DEFAULT_INLINE_PRIORITY);
     setWeight(DEFAULT_INLINE_WEIGHT);
     setPlanAsAchieve(false);
@@ -786,7 +791,7 @@ const InlinePlanningWorkspace = forwardRef<
     setPlanAsAchieve(false);
     setTask('');
     setStartDate(dayjs());
-    setEndDate(null);
+    setEndDate(activeTarget.isDailySlot ? dayjs() : null);
     setPriority(DEFAULT_INLINE_PRIORITY);
     if (
       !shouldShowPlanningTarget(
@@ -858,7 +863,7 @@ const InlinePlanningWorkspace = forwardRef<
     const startIso = startDate ? formatDate(startDate) : todayIso();
     const deadlineIso = endDate ? formatDate(endDate) : '';
     if (!deadlineIso) {
-      message.warning('Choose a deadline.');
+      message.warning('Choose an end date.');
       return;
     }
     const range = validateRange(startIso, deadlineIso);
@@ -1123,7 +1128,7 @@ const InlinePlanningWorkspace = forwardRef<
         (l) => !resolveSpan(l.start, l.deadline),
       );
       if (missingDates) {
-        message.warning('Each task needs a start date and a deadline.');
+        message.warning('Each task needs a start date and an end date.');
         return;
       }
 
@@ -1179,37 +1184,10 @@ const InlinePlanningWorkspace = forwardRef<
       return;
     }
 
-    const groups = new Map<
-      string,
-      {
-        planningPeriodId: string;
-        planningUserId: string;
-        lines: typeof ordered;
-      }
-    >();
-    for (const line of ordered) {
-      const resolved = resolveSpan(line.start, line.deadline);
-      if (!resolved) {
-        message.warning('Each task needs a start date and a deadline.');
-        return;
-      }
-      const assignment = cadenceAssignments[resolved.kind];
-      if (!assignment.periodId) {
-        message.warning(
-          `No ${resolved.kind === 'daily' ? 'Daily' : resolved.kind === 'month' ? 'Monthly' : 'Weekly'} planning period is available.`,
-        );
-        return;
-      }
-      const existing = groups.get(assignment.periodId);
-      if (existing) {
-        existing.lines.push(line);
-      } else {
-        groups.set(assignment.periodId, {
-          planningPeriodId: assignment.periodId,
-          planningUserId: assignment.planningUserId,
-          lines: [line],
-        });
-      }
+    const grouped = groupLinesByDeadlineCadence(ordered, cadenceAssignments);
+    if (!grouped.ok) {
+      message.warning(grouped.error);
+      return;
     }
 
     const submitGroups = async () => {
@@ -1218,7 +1196,7 @@ const InlinePlanningWorkspace = forwardRef<
           string,
           { start: string; deadline: string }
         > = {};
-        for (const group of groups.values()) {
+        for (const group of grouped.groups) {
           const tasks = group.lines.map((l) => ({
             task: l.task,
             priority: l.priority,

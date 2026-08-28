@@ -1,4 +1,5 @@
 import {
+  buildDeadlineCreatePlanningTargets,
   buildPickTargetsForKeyResult,
   buildPlanningTargetsFromObjectives,
   hasSelectablePlanningTargets,
@@ -411,5 +412,67 @@ describe('planning completion session rules', () => {
     expect(targets[0]?.isCompleted).toBe(true);
     expect(targets[1]?.isCompleted).toBe(false);
     expect(hasSelectablePlanningTargets(targets)).toBe(true);
+  });
+});
+
+describe('buildDeadlineCreatePlanningTargets', () => {
+  const objective = {
+    items: [
+      {
+        keyResults: [
+          {
+            id: 'kr-1',
+            title: 'Ship API',
+            metricType: { name: 'Achieve' },
+          },
+        ],
+      },
+    ],
+  };
+
+  const weeklyHierarchy = {
+    parentPlan: {
+      name: 'Weekly',
+      plans: [
+        {
+          id: 'weekly-plan-1',
+          isReported: false,
+          tasks: [
+            {
+              id: 'task-1',
+              task: 'Weekly parent',
+              keyResultId: 'kr-1',
+              keyResult: {
+                id: 'kr-1',
+                title: 'Ship API',
+                metricType: { name: 'Achieve' },
+                objective: { id: 'obj-1' },
+              },
+            },
+          ],
+        },
+      ],
+    },
+  };
+
+  it('keeps KR slots even when a weekly parent plan exists', () => {
+    const targets = buildDeadlineCreatePlanningTargets(
+      objective,
+      [],
+      [],
+      weeklyHierarchy,
+    );
+    const krSlots = targets.filter((t) => !t.isDailySlot);
+    const dailySlots = targets.filter((t) => t.isDailySlot);
+
+    expect(krSlots.some((t) => t.keyResultId === 'kr-1')).toBe(true);
+    expect(dailySlots.length).toBeGreaterThan(0);
+    expect(dailySlots[0]?.parentTaskId).toBe('task-1');
+  });
+
+  it('returns KR slots when there is no parent plan hierarchy', () => {
+    const targets = buildDeadlineCreatePlanningTargets(objective);
+    expect(targets.every((t) => !t.isDailySlot)).toBe(true);
+    expect(targets.some((t) => t.keyResultId === 'kr-1')).toBe(true);
   });
 });

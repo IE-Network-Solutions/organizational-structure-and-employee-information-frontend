@@ -8,8 +8,7 @@ import { restampSessionAchievedMilestonesInCaches } from '@/utils/invalidateOkrP
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { useGetPlanningPeriodsHierarchy } from '@/store/server/features/okrPlanningAndReporting/queries';
 import {
-  buildPlanningTargetsFromObjectives,
-  buildPlanningTargetsFromDailyHierarchy,
+  buildDeadlineCreatePlanningTargets,
   filterPlanningTargetsByBlockedKeyResults,
   indexObjectiveMilestonesByKrId,
   type PlanningTarget,
@@ -45,11 +44,8 @@ export function usePlanningTargets(
     keepPreviousData: true,
     refetchOnWindowFocus: false,
   });
-  const {
-    data: hierarchy,
-    isLoading: hierLoading,
-    isFetching: hierFetching,
-  } = useGetPlanningPeriodsHierarchy(userId, planningPeriodId || '');
+  const { data: hierarchy, isFetching: hierFetching } =
+    useGetPlanningPeriodsHierarchy(userId, planningPeriodId || '');
 
   // Rebuild targets when session achieve/reopen changes (not only when RQ data changes).
   const recentlyAchievedIds = useRecentlyAchievedMilestones((s) => s.ids);
@@ -68,18 +64,14 @@ export function usePlanningTargets(
   );
 
   const targets = useMemo(() => {
-    if (!planningPeriodId) return [];
-    const raw = isDailyPeriod
-      ? buildPlanningTargetsFromDailyHierarchy(hierarchy)
-      : buildPlanningTargetsFromObjectives(
-          objective,
-          userKeyResultItems,
-          planKeyResults,
-        );
+    const raw = buildDeadlineCreatePlanningTargets(
+      objective,
+      userKeyResultItems,
+      planKeyResults,
+      hierarchy,
+    );
     return filterPlanningTargetsByBlockedKeyResults(raw, userKeyResultItems);
   }, [
-    planningPeriodId,
-    isDailyPeriod,
     hierarchy,
     objective,
     userKeyResultItems,
@@ -92,12 +84,11 @@ export function usePlanningTargets(
   // Seed session memory from authoritative objective/API completed rows so a
   // later stale refetch cannot flip achieved milestones back to selectable.
   useEffect(() => {
-    if (!planningPeriodId) return;
     const ids = targets
       .filter((t) => t.milestoneId && t.isCompleted)
       .map((t) => t.milestoneId);
     if (ids.length > 0) rememberAchievedMilestones(ids);
-  }, [targets, planningPeriodId]);
+  }, [targets]);
 
   // After browser refresh, re-stamp Completed onto RQ caches from persisted IDs
   // so stale Incomplete API rows cannot re-enable the pick menu.
@@ -107,10 +98,8 @@ export function usePlanningTargets(
     restampSessionAchievedMilestonesInCaches(queryClient);
   }, [recentlyAchievedIds, objective, userKeyResultItems, queryClient]);
 
-  // Background invalidation/refetch must not flip buttons or panels into loading.
-  const isInitialLoading =
-    (objLoading && objective == null) ||
-    (!!planningPeriodId && hierLoading && hierarchy == null);
+  // KR + comes from objectives; hierarchy is optional (daily-under-weekly slots).
+  const isInitialLoading = objLoading && objective == null;
 
   return {
     targets,
