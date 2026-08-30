@@ -291,15 +291,17 @@ function recalcAvgProgress(krs: KRPanelAggregatedKR[]): number {
   return Math.round(krs.reduce((s, k) => s + k.progress, 0) / krs.length);
 }
 
-function isGroupForCurrentUser(
+/** True when this KR owner group belongs to the logged-in user. */
+export function isGroupForCurrentUser(
   group: KRPanelOwnerGroup,
   plans: PlanSummary[],
   transformedData: any[] | undefined,
   userId: string,
 ): boolean {
+  if (group.ownerKey === `__user_key_results_${userId}`) return true;
   if (!transformedData?.length || !plans.length) return false;
   return transformedData.some((d: any) => {
-    if (d.userId !== userId) return false;
+    if (String(d.userId) !== String(userId)) return false;
     const p = plans.find((pl) => pl.id === d.id);
     if (!p) return false;
     const key = p.owner?.name || p.id;

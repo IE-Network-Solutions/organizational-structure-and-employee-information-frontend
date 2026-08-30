@@ -138,6 +138,16 @@ function Planning({
   const currentCadence = (activeTabName?.toLowerCase() as Cadence) || 'weekly';
 
   const handleEdit = (id: string) => {
+    const planItem = transformedData?.find((item: any) => item.id === id);
+    const planOwnerId = planItem?.userId ?? planItem?.createdBy;
+    // Only block when we know the plan belongs to someone else — never block own plans
+    if (
+      planOwnerId != null &&
+      String(planOwnerId) !== String(userId ?? '')
+    ) {
+      return;
+    }
+
     setSelectedPlanId(id);
     setInlineEditPlanId(id);
     setInlinePlanningMode(true);

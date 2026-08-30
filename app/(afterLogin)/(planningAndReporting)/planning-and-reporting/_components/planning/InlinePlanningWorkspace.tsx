@@ -638,6 +638,20 @@ const InlinePlanningWorkspace = forwardRef<
 
   useEffect(() => {
     if (!isEditMode || !editPlanId || !planGroupData) return;
+
+    const planOwnerId = planGroupData?.planningUser?.userId;
+    if (
+      planOwnerId != null &&
+      String(planOwnerId) !== String(userId ?? '')
+    ) {
+      message.warning(
+        "You can only view other people's plans — editing is not allowed.",
+      );
+      setInlinePlanningMode(false);
+      onExit();
+      return;
+    }
+
     if (editHydratedRef.current === editPlanId) return;
     if (planningPeriodHierarchy?.parentPlan && loadingHierarchy) return;
 
@@ -671,6 +685,9 @@ const InlinePlanningWorkspace = forwardRef<
     loadingHierarchy,
     planningPeriodHierarchy?.parentPlan,
     planningPeriodHierarchy?.planData,
+    userId,
+    setInlinePlanningMode,
+    onExit,
   ]);
 
   const resetForm = useCallback(() => {
@@ -1016,6 +1033,16 @@ const InlinePlanningWorkspace = forwardRef<
       const pvPlanningUserId = planGroupData?.planningUser?.id;
       const ppId = planGroupData?.planningUser?.planningPeriod?.id;
 
+      if (
+        pvUserId != null &&
+        String(pvUserId) !== String(userId ?? '')
+      ) {
+        message.warning(
+          "You can only view other people's plans — editing is not allowed.",
+        );
+        return;
+      }
+
       const tasks = ordered.map((l) => ({
         ...(l.serverTaskId ? { id: l.serverTaskId } : {}),
         task: l.task,
@@ -1023,7 +1050,7 @@ const InlinePlanningWorkspace = forwardRef<
         weight: l.weight,
         targetValue: l.targetValue,
         achieveMK: !!l.achieveMK,
-        userId: String(pvUserId || userId),
+        userId: String(userId),
         planningPeriodId: String(ppId || planningPeriodId || ''),
         planningUserId: String(pvPlanningUserId || planningUserId || ''),
         keyResultId: String(l.keyResultId),

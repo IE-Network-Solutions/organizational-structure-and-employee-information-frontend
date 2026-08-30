@@ -147,12 +147,15 @@ function Reporting({
       const row = allReporting?.items?.find(
         (item: any) => item.id === reportId,
       );
+      const ownerId = row?.userId ?? row?.createdBy;
+      // Only block when we know the report belongs to someone else
+      if (ownerId != null && String(ownerId) !== String(userId ?? '')) return;
       const resolvedPlanId =
         row?.planId || row?.plan?.id || row?.plan?.planId || '';
       if (!resolvedPlanId) return;
       setInlineEditingReport({ reportId, planId: resolvedPlanId });
     },
-    [allReporting?.items],
+    [allReporting?.items, userId],
   );
 
   const reportTaskOverrides = useRecentReportTaskStatuses((s) => s.byReport);
@@ -244,7 +247,8 @@ function Reporting({
                           ?.delegatedTo?.id)
                     }
                     canEdit={
-                      userId === (dataItem?.userId ?? dataItem?.createdBy) &&
+                      String(userId ?? '') ===
+                        String(dataItem?.userId ?? dataItem?.createdBy ?? '') &&
                       dataItem?.plan?.isReportValidated == false &&
                       isDataFromActiveSession(dataItem?.createdAt)
                     }
