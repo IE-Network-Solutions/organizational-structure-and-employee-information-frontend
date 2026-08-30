@@ -9,7 +9,13 @@ import { useDashboardApprovalStore } from '@/store/uistate/features/dashboard/ap
 import { useGetBranchTransferApproveById } from '@/store/server/features/employees/approval/queries';
 import MyLeaveRequestDashboard from '../my-leave-request';
 
-const ApprovalStatus = ({ type }: { type: string }) => {
+const ApprovalStatus = ({
+  type,
+  expanded = false,
+}: {
+  type: string;
+  expanded?: boolean;
+}) => {
   const { userId } = useAuthenticationStore();
   const { data: LeaveTransferData, isLoading: isLoadingLeaveTransfer } =
     useGetApprovalLeaveRequest(userId, 1, 4);
@@ -62,7 +68,9 @@ const ApprovalStatus = ({ type }: { type: string }) => {
 
   return (
     <div
-      className={`bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none p-3 ${type !== 'Essential Plan ' ? 'h-[343px]' : 'h-[343px]'}`}
+      className={`bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none p-3 flex flex-col ${
+        expanded ? 'h-full min-h-[520px]' : 'h-[343px]'
+      }`}
       data-cy="dashboard-approval-status-container"
     >
       <div
@@ -152,7 +160,9 @@ const ApprovalStatus = ({ type }: { type: string }) => {
         )}
       </div>
       <div
-        className={`${type !== 'Essential Plan ' ? 'h-[270px]' : 'h-[270px]'} overflow-y-auto scrollbar-none`}
+        className={`min-h-0 overflow-y-auto scrollbar-none ${
+          expanded ? 'flex-1' : 'h-[270px]'
+        }`}
         data-cy="dashboard-approval-status-content"
       >
         {approverType === 'Personal' ? (
