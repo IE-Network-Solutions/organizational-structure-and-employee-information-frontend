@@ -3,7 +3,7 @@ import { message, Table } from 'antd';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import { TableColumnsType } from '@/types/table/table';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
-import ActionButtons from '@/components/common/actionButton/actionButtons';
+import ActionButton from '@/components/common/actionButton';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useUpdateClosedDate } from '@/store/server/features/organizationStructure/fiscalYear/mutation';
 import AccessGuard from '@/utils/permissionGuard';
@@ -112,7 +112,7 @@ const ClosedDateTable = () => {
           ]}
           data-cy="time-attendance-settings-closed-date-table-row-actions-access-guard"
         >
-          <ActionButtons
+          <ActionButton
             id={record?.id ?? null}
             onEdit={() => handleEdit(record)}
             onDelete={() => handleDelete(record)}
