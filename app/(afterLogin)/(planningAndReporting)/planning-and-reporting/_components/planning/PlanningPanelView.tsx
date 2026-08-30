@@ -440,6 +440,12 @@ function KRProgressCard({
     },
   );
 
+  // Milestone KRs need a pick menu; other metric types have a single KR-level
+  // slot and should plan directly on + (no "Select milestone" dropdown).
+  const needsMilestonePickMenu = planningTargetsForKr.some(
+    (t) => !!t.milestoneId,
+  );
+
   // Flat items (not type:group) so Ant Design reliably applies `disabled`.
   const dropdownMenuItems: MenuProps['items'] = [
     {
@@ -458,37 +464,55 @@ function KRProgressCard({
     ...(dropdownSlotItems ?? []),
   ];
 
+  const pickBtnClass = `${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`;
+
   const pickButton =
     showPickControl && onPickPlanningTarget ? (
-      <Dropdown
-        open={pickMenuOpen}
-        menu={{
-          items: dropdownMenuItems,
-          onClick: ({ key, domEvent }) => {
-            domEvent.stopPropagation();
-            const t = planningTargetsForKr.find((x) => x.id === key);
-            if (!t || isSlotDisabled(t)) return;
-            setPickMenuOpen(false);
-            onPickPlanningTarget(t);
-          },
-        }}
-        trigger={['click']}
-        placement={pickMenuPlacement}
-        overlayClassName="planning-target-pick-menu"
-        onOpenChange={(open) => {
-          setPickMenuOpen(open);
-          if (open) onRefreshMilestoneStatus?.();
-        }}
-      >
+      needsMilestonePickMenu ? (
+        <Dropdown
+          open={pickMenuOpen}
+          menu={{
+            items: dropdownMenuItems,
+            onClick: ({ key, domEvent }) => {
+              domEvent.stopPropagation();
+              const t = planningTargetsForKr.find((x) => x.id === key);
+              if (!t || isSlotDisabled(t)) return;
+              setPickMenuOpen(false);
+              onPickPlanningTarget(t);
+            },
+          }}
+          trigger={['click']}
+          placement={pickMenuPlacement}
+          overlayClassName="planning-target-pick-menu"
+          onOpenChange={(open) => {
+            setPickMenuOpen(open);
+            if (open) onRefreshMilestoneStatus?.();
+          }}
+        >
+          <button
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-295"
+            type="button"
+            title="Choose a milestone to plan against"
+            className={pickBtnClass}
+          >
+            <PlusOutlined className="text-[13px]" />
+          </button>
+        </Dropdown>
+      ) : (
         <button
           data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-295"
           type="button"
-          title="Choose a milestone or key result to plan against"
-          className={`${inlinePickBtnClass} ${rowSelected ? inlinePickBtnSelectedRing : ''}`}
+          title="Plan against this key result"
+          className={pickBtnClass}
+          onClick={(e) => {
+            e.stopPropagation();
+            const t = planningTargetsForKr.find((x) => !isSlotDisabled(x));
+            if (t) onPickPlanningTarget(t);
+          }}
         >
           <PlusOutlined className="text-[13px]" />
         </button>
-      </Dropdown>
+      )
     ) : null;
 
   useEffect(() => {
