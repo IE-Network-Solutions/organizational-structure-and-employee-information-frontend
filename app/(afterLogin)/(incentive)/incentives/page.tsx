@@ -87,9 +87,14 @@ const Page = () => {
     };
     exportIncentiveData(formattedValues);
   };
-  const { data: parentRecognition, isLoading: parentResponseLoading } =
+  const { data: parentRecognitionRaw, isLoading: parentResponseLoading } =
     useParentRecognition();
   const { data: allChildrenRaw } = useAllChildrenRecognition();
+
+  const parentRecognition = useMemo(
+    () => normalizeRecognitionList(parentRecognitionRaw),
+    [parentRecognitionRaw],
+  );
 
   const allChildTypes = useMemo(
     () => normalizeRecognitionList(allChildrenRaw),
@@ -181,7 +186,7 @@ const Page = () => {
       setCategoryPage(1);
       setActiveKey(key);
 
-      const foundRecognition = (parentRecognition || []).find(
+      const foundRecognition = parentRecognition.find(
         (rec: any) => rec?.id === key,
       );
       if (!foundRecognition) {
@@ -213,15 +218,43 @@ const Page = () => {
   useEffect(() => {
     const id = selectedRecognition?.id;
     if (!id) return;
+
+    // Parent was cascade-deleted — leave the stale detail view.
+    const parentStillExists = parentRecognition.some(
+      (p: any) => p && String(p.id) === String(id),
+    );
+    if (parentRecognition.length > 0 && !parentStillExists) {
+      setSelectedRecognition(null);
+      setActiveKey('1');
+      setSelectedRowKeys([]);
+      return;
+    }
+
+    // Keep child list in sync after child-type cascade deletes.
     const children = allChildTypes.filter(
       (c: any) => parentIdOfChild(c) === id,
     );
-    if (children.length === 0) return;
     const prev = useIncentiveStore.getState().selectedRecognition;
     if (!prev || prev.id !== id) return;
-    if ((prev.children?.length ?? 0) === children.length) return;
+
+    const prevChildren = Array.isArray(prev.children) ? prev.children : [];
+    const sameLength = prevChildren.length === children.length;
+    const sameIds =
+      sameLength &&
+      prevChildren.every(
+        (c: any, i: number) => String(c?.id) === String(children[i]?.id),
+      );
+    if (sameIds) return;
+
     setSelectedRecognition({ ...prev, children });
-  }, [allChildTypes, selectedRecognition?.id, setSelectedRecognition]);
+  }, [
+    allChildTypes,
+    parentRecognition,
+    selectedRecognition?.id,
+    setSelectedRecognition,
+    setActiveKey,
+    setSelectedRowKeys,
+  ]);
 
   const handleBackToCards = () => {
     setActiveKey('1');
@@ -239,19 +272,30 @@ const Page = () => {
     .padStart(3, '0')
     .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-  const formattedCategories = (
-    incentiveData?.data?.totalCategories || 0
-  ).toString();
+  // Prefer live parent/child lists for type counts so top KPI cards match the
+  // recognition category cards immediately after cascade deletes.
+  const liveCategoryCount = parentRecognition.length;
+  const liveRecognitionTypeCount = allChildTypes.length;
+  const apiCategoryCount = Number(incentiveData?.data?.totalCategories || 0);
+  const apiRecognitionTypeCount = Number(
+    incentiveData?.data?.totalRecognitionTypes || 0,
+  );
 
-  const formattedTotalRecognitionTypes = (
-    incentiveData?.data?.totalRecognitionTypes || 0
-  ).toString();
+  const formattedCategories = String(
+    liveCategoryCount > 0 ? liveCategoryCount : apiCategoryCount,
+  );
+
+  const formattedTotalRecognitionTypes = String(
+    liveRecognitionTypeCount > 0
+      ? liveRecognitionTypeCount
+      : apiRecognitionTypeCount,
+  );
 
   const filteredRecognition = useMemo(() => {
-    if (!searchCategory.trim()) return parentRecognition || [];
+    if (!searchCategory.trim()) return parentRecognition;
 
     const query = searchCategory.toLowerCase().trim();
-    return (parentRecognition || []).filter((item: any) => {
+    return parentRecognition.filter((item: any) => {
       const name = String(item?.name || '').toLowerCase();
       const description = String(item?.description || '').toLowerCase();
       return name.includes(query) || description.includes(query);

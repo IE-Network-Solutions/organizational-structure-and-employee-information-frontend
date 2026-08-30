@@ -8,67 +8,68 @@ import {
   MdOutlineFolder,
 } from 'react-icons/md';
 
-type RecognitionTypeDashboardStats = {
-  categories?: number;
-  totalCriteria?: number;
-  totalIncentive?: number;
-  totalRecognitionTypes?: number;
+type IncentiveStatusStats = {
+  categories?: number | string;
+  totalCriteria?: number | string;
+  totalIncentive?: number | string;
+  totalRecognitionTypes?: number | string;
 };
 
-type RecognitionStatsCardsProps = {
-  recognitionTypeDashboardStats?: RecognitionTypeDashboardStats;
+type IncentiveStatusCardsProps = {
+  recognitionTypeDashboardStats?: IncentiveStatusStats;
   isLoading?: boolean;
 };
 
 type StatCardConfig = {
   key: string;
   label: string;
-  value: number;
+  value: string | number;
   cardCy: string;
   labelCy: string;
   valueCy: string;
   icon: React.ReactNode;
 };
 
-function RecognitionStatsCards({
+/** Top KPI cards on Incentives → Incentive (Categories / Criteria / Incentive / Types). */
+function IncentiveStatusCards({
   recognitionTypeDashboardStats,
   isLoading = false,
-}: RecognitionStatsCardsProps) {
+}: IncentiveStatusCardsProps) {
   const cards: StatCardConfig[] = [
     {
       key: 'categories',
       label: 'Categories',
       value: recognitionTypeDashboardStats?.categories ?? 0,
-      cardCy: 'recognition-stats-card-categories',
-      labelCy: 'recognition-stats-label-categories',
-      valueCy: 'recognition-stats-value-categories',
+      cardCy: 'incentive-stats-card-categories',
+      labelCy: 'incentive-stats-label-categories',
+      valueCy: 'incentive-stats-value-categories',
       icon: <MdOutlineFolder size={24} className="text-base" />,
     },
     {
       key: 'totalCriteria',
       label: 'Total Criteria',
       value: recognitionTypeDashboardStats?.totalCriteria ?? 0,
-      cardCy: 'recognition-stats-card-total-criteria',
-      labelCy: 'recognition-stats-label-total-criteria',
-      valueCy: 'recognition-stats-value-total-criteria',
+      cardCy: 'incentive-stats-card-total-criteria',
+      labelCy: 'incentive-stats-label-total-criteria',
+      valueCy: 'incentive-stats-value-total-criteria',
       icon: <MdOutlineEmojiEvents size={24} className="text-base" />,
     },
     {
       key: 'totalIncentive',
       label: 'Total Incentive',
       value: recognitionTypeDashboardStats?.totalIncentive ?? 0,
-      cardCy: 'recognition-stats-card-total-incentive',
-      labelCy: 'recognition-stats-label-total-incentive',
-      valueCy: 'recognition-stats-value-total-incentive',
+      cardCy: 'incentive-stats-card-total-incentive',
+      labelCy: 'incentive-stats-label-total-incentive',
+      valueCy: 'incentive-stats-value-total-incentive',
       icon: <MdOutlineBallot size={24} className="text-base" />,
     },
     {
       key: 'totalRecognitionTypes',
       label: 'Total Recognition Types',
       value: recognitionTypeDashboardStats?.totalRecognitionTypes ?? 0,
-      cardCy: 'recognition-stats-card-total-types',
-      labelCy: 'recognition-stats-label-total-types',
-      valueCy: 'recognition-stats-value-total-types',
+      cardCy: 'incentive-stats-card-total-types',
+      labelCy: 'incentive-stats-label-total-types',
+      valueCy: 'incentive-stats-value-total-types',
       icon: <MdCategory size={24} className="text-base" />,
     },
   ];
@@ -76,7 +77,7 @@ function RecognitionStatsCards({
   return (
     <div
       className="flex w-full gap-4 my-6 overflow-x-auto scrollbar-none md:grid md:overflow-x-visible md:scrollbar-auto grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-      data-cy="recognition-stats-cards"
+      data-cy="incentive-stats-cards"
     >
       {cards.map((card) => (
         <Card
@@ -123,4 +124,4 @@ function RecognitionStatsCards({
   );
 }
 
-export default RecognitionStatsCards;
+export default IncentiveStatusCards;

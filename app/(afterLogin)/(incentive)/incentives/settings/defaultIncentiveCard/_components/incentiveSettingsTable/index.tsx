@@ -119,6 +119,7 @@ const DefaultIncentiveSettingsTable: React.FC<IncentiveSettingsTableProps> = ({
           />
         </div>
         <DeletePopover
+          titleText="Delete this recognition type? Child types, recognitions, and linked incentives will also be removed."
           onDelete={() => handleDelete(recognitionDataIndexed?.[0]?.id)}
           data-cy="default-incentive-settings-table-delete-popover"
         >

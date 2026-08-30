@@ -29,77 +29,88 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
   const { isMobile } = useIsMobile();
 
   useEffect(() => {
-    if (recognitionData && recognitionData?.length > 0) {
-      // Extract the first item separately
-      const firstItem = recognitionData[0];
+    const list = Array.isArray(recognitionData)
+      ? recognitionData
+      : Array.isArray((recognitionData as any)?.items)
+        ? (recognitionData as any).items
+        : Array.isArray((recognitionData as any)?.data)
+          ? (recognitionData as any).data
+          : [];
 
-      const defaultIncentiveSettings = {
+    if (list.length === 0) {
+      setMenuItems([]);
+      return;
+    }
+
+    // Extract the first item separately
+    const firstItem = list[0];
+
+    const defaultIncentiveSettings = {
+      item: {
+        key: 'IncentiveSettings',
+        icon: !isMobile ? (
+          <CiCalendarDate
+            id="incentive-settings-layout-default-icon"
+            data-cy="incentive-settings-layout-default-icon"
+            size={16}
+            className={
+              currentItem === 'defaultIncentiveCard' ||
+              currentItem === firstItem?.id
+                ? 'text-[#4DAEF0]'
+                : 'text-gray-500'
+            }
+          />
+        ) : null,
+
+        label: (
+          <p
+            id="incentive-settings-layout-default-label"
+            data-cy="incentive-settings-layout-default-label"
+            className="menu-item-label"
+          >
+            {firstItem?.name ?? 'Default Incentive '}
+          </p>
+        ),
+        className:
+          currentItem === 'defaultIncentiveCard' ||
+          currentItem === firstItem?.id
+            ? 'px-6'
+            : 'px-1',
+      },
+      link: `/incentives/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
+    };
+
+    // Map remaining items (excluding the first item)
+    const dynamicMenuItems =
+      list.slice(1).map((item: any) => ({
         item: {
-          key: 'IncentiveSettings',
+          key: item?.id,
           icon: !isMobile ? (
-            <CiCalendarDate
-              id="incentive-settings-layout-default-icon"
-              data-cy="incentive-settings-layout-default-icon"
+            <TbCalendar
+              id={`incentive-settings-layout-dynamic-icon-${item?.id}`}
+              data-cy={`incentive-settings-layout-dynamic-icon-${item?.id}`}
               size={16}
               className={
-                currentItem === 'defaultIncentiveCard' ||
-                currentItem === firstItem?.id
-                  ? 'text-[#4DAEF0]'
-                  : 'text-gray-500'
+                currentItem === item?.id ? 'text-[#4DAEF0]' : 'text-gray-500'
               }
             />
           ) : null,
-
           label: (
             <p
-              id="incentive-settings-layout-default-label"
-              data-cy="incentive-settings-layout-default-label"
+              id={`incentive-settings-layout-dynamic-label-${item?.id}`}
+              data-cy={`incentive-settings-layout-dynamic-label-${item?.id}`}
               className="menu-item-label"
             >
-              {firstItem?.name ?? 'Default Incentive '}
+              {item?.name || '-'}
             </p>
           ),
-          className:
-            currentItem === 'defaultIncentiveCard' ||
-            currentItem === firstItem?.id
-              ? 'px-6'
-              : 'px-1',
+          className: currentItem === item?.id ? 'px-6' : 'px-1',
         },
-        link: `/incentives/settings/${firstItem?.id ?? 'defaultIncentiveCard'}`,
-      };
+        link: `/incentives/settings/${item?.id}`,
+      })) || [];
 
-      // Map remaining items (excluding the first item)
-      const dynamicMenuItems =
-        recognitionData?.slice(1).map((item: any) => ({
-          item: {
-            key: item?.id,
-            icon: !isMobile ? (
-              <TbCalendar
-                id={`incentive-settings-layout-dynamic-icon-${item?.id}`}
-                data-cy={`incentive-settings-layout-dynamic-icon-${item?.id}`}
-                size={16}
-                className={
-                  currentItem === item?.id ? 'text-[#4DAEF0]' : 'text-gray-500'
-                }
-              />
-            ) : null,
-            label: (
-              <p
-                id={`incentive-settings-layout-dynamic-label-${item?.id}`}
-                data-cy={`incentive-settings-layout-dynamic-label-${item?.id}`}
-                className="menu-item-label"
-              >
-                {item?.name || '-'}
-              </p>
-            ),
-            className: currentItem === item?.id ? 'px-6' : 'px-1',
-          },
-          link: `/incentives/settings/${item?.id}`,
-        })) || [];
-
-      setMenuItems([defaultIncentiveSettings, ...dynamicMenuItems]);
-    }
-  }, [recognitionData, currentItem]);
+    setMenuItems([defaultIncentiveSettings, ...dynamicMenuItems]);
+  }, [recognitionData, currentItem, isMobile, setMenuItems]);
 
   useEffect(() => {
     const pathSegments = pathname.split('/').filter(Boolean);

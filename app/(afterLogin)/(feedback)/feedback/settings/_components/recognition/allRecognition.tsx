@@ -165,7 +165,8 @@ const AllRecognition: React.FC<PropsData> = ({
                 id="allRecognitionCardDeleteButtonAccessGuard"
               >
                 <Popconfirm
-                  title="Are you sure you want to delete this?"
+                  title="Delete this recognition type?"
+                  description="This will also permanently delete all child recognition types, recognitions, and linked incentives."
                   onConfirm={() => handleDeleteRecognitionType(item?.id)}
                   okText="Yes"
                   cancelText="No"
