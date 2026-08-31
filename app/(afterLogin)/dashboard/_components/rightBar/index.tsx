@@ -9,6 +9,13 @@ const RightBar = ({ type }: { type: string }) => {
       data-cy="dashboard-right-bar"
     >
       <ApprovalStatus type={type} />
+      {/* <ActionPlans /> */}
+      {/*
+      
+      <SuperStart />
+      <RookStarsList title="Leaders" data={weeklyLeaderData ?? []} />
+      <RookStarsList title="Employee" data={rockStarData ?? []} />
+      <JobSummary /> */}
     </div>
   );
 };

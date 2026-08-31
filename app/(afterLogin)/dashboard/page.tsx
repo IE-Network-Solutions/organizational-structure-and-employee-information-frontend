@@ -12,10 +12,9 @@ import DashboardSubscriptionSkeleton from './_components/DashboardSubscriptionSk
 import Calender from './_components/action-plan/calender';
 import AttendanceSummaryCards from './_components/attendance-stats';
 import ThisWeeksAttendanceReviewCard from './_components/attendance-review';
+import RecentFeedbacks from './_components/recent-feedbacks';
+import EventsCard from './_components/events';
 import EventEssentials from './_components/event-essentials';
-import CollaborationNotificationsWidget from './_components/announcement/CollaborationNotificationsWidget';
-import WeeklyRecognitionCards from './_components/events/WeeklyRecognitionCards';
-import ScheduleSideCards from './_components/events/ScheduleSideCards';
 import { useEffect, useState } from 'react';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -72,10 +71,11 @@ export default function Home() {
         >
           Dashboard
         </h1>
+        {/* TenatType Options Display */}
         <div
           className="flex gap-2 items-center"
           data-cy="dashboard-tenant-type-control"
-        />
+        ></div>
       </div>
 
       {selectedTenatType !== 'Essential Plan ' ? (
@@ -88,71 +88,43 @@ export default function Home() {
           className="grid grid-cols-12 gap-4 pb-5"
           data-cy="dashboard-desktop-grid"
         >
-          {selectedTenatType === 'Essential Plan ' ? (
-            <>
-              <div
-                className="md:col-span-4 col-span-12"
-                data-cy="dashboard-desktop-leftbar-container"
-              >
-                <ThisWeeksAttendanceReviewCard />
-              </div>
-              <div
-                className="md:col-span-4 col-span-12"
-                data-cy="dashboard-desktop-middle-container"
-              >
-                <WeeklyRecognitionCards />
-              </div>
-              <div
-                className="md:col-span-4 col-span-12"
-                data-cy="dashboard-desktop-rightbar-container"
-              >
-                <RightBar type={selectedTenatType} />
-              </div>
-            </>
-          ) : (
-            <>
-              <div
-                className="md:col-span-4 col-span-12"
-                data-cy="dashboard-desktop-leftbar-container"
-              >
-                <LeftBar type={selectedTenatType} />
-              </div>
-              <div
-                className="md:col-span-4 col-span-12 flex flex-col gap-4"
-                data-cy="dashboard-desktop-middle-container"
-              >
-                <ThisWeeksAttendanceReviewCard />
-              </div>
-              <div
-                className="relative md:col-span-4 col-span-12 h-full min-h-[520px]"
-                data-cy="dashboard-desktop-collaboration-container"
-              >
-                <CollaborationNotificationsWidget expanded />
-              </div>
-            </>
-          )}
+          <div
+            className="md:col-span-4 col-span-12"
+            data-cy="dashboard-desktop-leftbar-container"
+          >
+            {selectedTenatType !== 'Essential Plan ' ? (
+              <LeftBar />
+            ) : (
+              <ThisWeeksAttendanceReviewCard />
+            )}
+          </div>
+          <div
+            className="md:col-span-4 col-span-12"
+            data-cy="dashboard-desktop-leftbar-container"
+          >
+            {selectedTenatType !== 'Essential Plan ' && (
+              <ThisWeeksAttendanceReviewCard />
+            )}
+          </div>
+          <div
+            className="md:col-span-4 col-span-12"
+            data-cy="dashboard-desktop-rightbar-container"
+          >
+            {selectedTenatType !== 'Essential Plan ' &&
+            selectedTenatType !== 'Enterprise Plan' ? (
+              <RecentFeedbacks />
+            ) : (
+              <RightBar type={selectedTenatType} />
+            )}
+          </div>
         </div>
-        {selectedTenatType === 'Essential Plan ' ? <EventEssentials /> : null}
+        {selectedTenatType !== 'Essential Plan ' ? (
+          <EventsCard />
+        ) : (
+          <EventEssentials />
+        )}
       </div>
-      {selectedTenatType !== 'Essential Plan ' && (
-        <div
-          className="grid grid-cols-12 gap-4 pb-5"
-          data-cy="dashboard-schedule-row"
-        >
-          <div
-            className="col-span-12 min-w-0 md:col-span-9"
-            data-cy="dashboard-schedule-calendar"
-          >
-            <Calender />
-          </div>
-          <div
-            className="col-span-12 md:col-span-3"
-            data-cy="dashboard-schedule-side-cards-container"
-          >
-            <ScheduleSideCards />
-          </div>
-        </div>
-      )}
+      {selectedTenatType !== 'Essential Plan ' && <Calender />}
     </div>
   );
 

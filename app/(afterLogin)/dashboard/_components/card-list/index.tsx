@@ -26,8 +26,6 @@ interface CardListProps {
   people: CardPerson[];
   loading: boolean;
   type: string;
-  /** Compact height for stacking under Planning */
-  compact?: boolean;
 }
 
 const CardListSkeleton: FC = () => (
@@ -107,13 +105,7 @@ const PersonSlide: FC<{ person: CardPerson; slideIndex: number }> = ({
   </div>
 );
 
-const CardList: FC<CardListProps> = ({
-  title,
-  people,
-  type,
-  loading,
-  compact = false,
-}) => {
+const CardList: FC<CardListProps> = ({ title, people, type, loading }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   /** Desktop: show prev/next on hover only. Touch / coarse pointer: always show (no hover). */
@@ -182,11 +174,7 @@ const CardList: FC<CardListProps> = ({
     <Card
       bordered={false}
       bodyStyle={{ padding: 0 }}
-      className={`p-3 bg-white rounded-lg border border-[#E5E7EB] shadow-none flex flex-col ${
-        compact
-          ? 'min-h-[160px] h-[160px]'
-          : 'min-h-[160px] h-auto sm:h-[160px]'
-      }`}
+      className="p-3 bg-white rounded-lg border border-[#E5E7EB] shadow-none min-h-[160px] h-auto sm:h-[160px] flex flex-col"
       data-cy="dashboard-card-list-container"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
