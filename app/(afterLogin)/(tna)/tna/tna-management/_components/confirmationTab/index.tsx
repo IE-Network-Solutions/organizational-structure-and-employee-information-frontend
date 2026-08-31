@@ -11,7 +11,7 @@ import EmptyState from '@/components/empty';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { TableColumnsType } from '@/types/table/table';
 import { DATE_FORMAT } from '@/utils/constants';
-import AccessGuard from '@/utils/permissionGuard';
+import { useHasPermission } from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { TrainingRequest } from '@/types/tna/externalTna';
 import { useGetTrainingRequests } from '@/store/server/features/tna/externalTraining/queries';
@@ -38,9 +38,7 @@ const ConfirmationTab: FC = () => {
 
   // Strict check, no owner short-circuit — the backend guards confirm on the
   // real permission list, so an owner without the slug would get a 403.
-  const canConfirm = AccessGuard.hasExplicitPermission(
-    Permissions.ConfirmTnaCommitment,
-  );
+  const canConfirm = useHasPermission(Permissions.ConfirmTnaCommitment);
 
   const columns: TableColumnsType<TrainingRequest> = [
     {
