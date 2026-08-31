@@ -156,7 +156,12 @@ const Login: FC = () => {
             className="relative flex justify-center text-[13px] text-[#9ca3af] px-3"
             data-cy="login-divider-text"
           >
-            <span className="bg-[#f0f4fa] px-3">or</span>
+            <span
+              className="bg-[#f0f4fa] px-3"
+              data-cy="login-divider-or-text"
+            >
+              or
+            </span>
           </div>
         </div>
 
