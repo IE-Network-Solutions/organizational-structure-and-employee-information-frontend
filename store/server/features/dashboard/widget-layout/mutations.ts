@@ -4,9 +4,13 @@ import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { dashboardWidgetLayoutKey } from './queries';
+import {
+  isDashboardLayoutForUser,
+  normalizeDashboardWidgetLayout,
+} from './normalize';
 import type {
   DashboardPlanKey,
-  DashboardWidgetLayoutRow,
+  DashboardWidgetLayoutResponse,
   SaveDashboardWidgetLayoutPayload,
 } from './interface';
 
@@ -19,14 +23,30 @@ const authHeaders = async () => {
 };
 
 const saveDashboardWidgetLayout = async (
-  payload: SaveDashboardWidgetLayoutPayload,
-): Promise<DashboardWidgetLayoutRow[]> =>
-  crudRequest({
+  payload: SaveDashboardWidgetLayoutPayload & { fallbackUserId: string },
+): Promise<DashboardWidgetLayoutResponse> => {
+  const { fallbackUserId, ...body } = payload;
+  const raw = await crudRequest({
     url: `${ORG_AND_EMP_URL}/dashboard-widget-layouts`,
     method: 'PUT',
-    data: payload,
+    data: body,
     headers: await authHeaders(),
   });
+
+  const normalized = normalizeDashboardWidgetLayout(
+    raw,
+    body.plan,
+    fallbackUserId,
+  );
+
+  if (!isDashboardLayoutForUser(normalized, fallbackUserId)) {
+    throw new Error(
+      'Dashboard layout belongs to a different user and will not be applied.',
+    );
+  }
+
+  return normalized;
+};
 
 const resetDashboardWidgetLayout = async (planKey: DashboardPlanKey) =>
   crudRequest({
@@ -39,10 +59,10 @@ const resetDashboardWidgetLayout = async (planKey: DashboardPlanKey) =>
 export const useSaveDashboardWidgetLayout = (userId: string) => {
   const queryClient = useQueryClient();
   return useMutation(saveDashboardWidgetLayout, {
-    onSuccess: (rows, payload) => {
+    onSuccess: (response, payload) => {
       queryClient.setQueryData(
         dashboardWidgetLayoutKey(userId, payload.plan),
-        rows,
+        response,
       );
     },
   });
@@ -54,7 +74,9 @@ export const useResetDashboardWidgetLayout = (userId: string) => {
   return useMutation(resetDashboardWidgetLayout, {
     onSuccess: (unusedResult, planKey) => {
       void unusedResult;
-      queryClient.setQueryData(dashboardWidgetLayoutKey(userId, planKey), []);
+      // Drop the entry rather than writing an empty one, so the next mount
+      // refetches and re-learns which user the layout belongs to.
+      queryClient.removeQueries(dashboardWidgetLayoutKey(userId, planKey));
     },
   });
 };

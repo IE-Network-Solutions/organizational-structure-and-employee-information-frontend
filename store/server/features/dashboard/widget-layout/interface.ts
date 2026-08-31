@@ -18,6 +18,17 @@ export interface DashboardWidgetLayoutRow extends DashboardWidgetPlacement {
   plan: DashboardPlanKey;
 }
 
+/**
+ * Every response names the user it belongs to. The client scopes the layout on
+ * this rather than on its own auth store, so a stale client-side userId can
+ * never cause one user's dashboard to be rendered — or saved back — as another's.
+ */
+export interface DashboardWidgetLayoutResponse {
+  userId: string;
+  plan: DashboardPlanKey;
+  items: DashboardWidgetLayoutRow[];
+}
+
 export interface SaveDashboardWidgetLayoutPayload {
   plan: DashboardPlanKey;
   /** The complete layout — it replaces whatever the API had stored. */

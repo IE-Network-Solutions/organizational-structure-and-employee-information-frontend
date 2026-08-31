@@ -7,6 +7,7 @@ import {
   useResetDashboardWidgetLayout,
   useSaveDashboardWidgetLayout,
 } from '@/store/server/features/dashboard/widget-layout/mutations';
+import { isDashboardLayoutForUser } from '@/store/server/features/dashboard/widget-layout/normalize';
 import type { DashboardWidgetLayoutRow } from '@/store/server/features/dashboard/widget-layout/interface';
 import { GRID_COLUMNS } from './constants';
 import { getDefaultLayout } from './defaultLayouts';
@@ -108,7 +109,7 @@ function placementsFromRows(
 }
 
 export function useDashboardLayout(userId: string, planKey: DashboardPlanKey) {
-  const { data: rows, isFetched } = useGetDashboardWidgetLayout(
+  const { data: response, isFetched } = useGetDashboardWidgetLayout(
     userId,
     planKey,
   );
@@ -120,7 +121,9 @@ export function useDashboardLayout(userId: string, planKey: DashboardPlanKey) {
   >(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  const scopeKey = `${userId}:${planKey}`;
+  // Which user's layout is currently in `placements`, as reported by the API.
+  // Scoping on the server's answer rather than on the auth store means a stale
+  // client-side userId cannot leak one user's dashboard into another's session.
   const hydratedScopeRef = useRef<string | null>(null);
 
   // Mutations are new objects every render; the refs keep the callbacks below
@@ -145,18 +148,34 @@ export function useDashboardLayout(userId: string, planKey: DashboardPlanKey) {
 
   useEffect(() => cancelPendingSave, [cancelPendingSave]);
 
+  // Blank the canvas the moment the signed-in user or plan changes, so the
+  // previous layout is never on screen while the refetch is in flight.
   useEffect(() => {
     hydratedScopeRef.current = null;
     cancelPendingSave();
     setPlacements(null);
     setIsEditing(false);
-  }, [scopeKey, cancelPendingSave]);
+  }, [userId, planKey, cancelPendingSave]);
 
   useEffect(() => {
-    if (!isFetched || hydratedScopeRef.current === scopeKey) return;
-    hydratedScopeRef.current = scopeKey;
-    setPlacements(placementsFromRows(rows, planKey));
-  }, [isFetched, rows, scopeKey, planKey]);
+    if (!isFetched || !response) return;
+    if (!isDashboardLayoutForUser(response, userId)) {
+      // Shared cache / identity drift served someone else's layout. Do not
+      // render it and do not queue a save that would copy it onto this user.
+      cancelPendingSave();
+      return;
+    }
+    const responseScope = `${response.userId}:${response.plan}`;
+    if (hydratedScopeRef.current === responseScope) return;
+
+    // The layout that came back belongs to a different user or plan than the
+    // one held in state — drop whatever the previous scope had queued so it
+    // cannot be written under this identity.
+    cancelPendingSave();
+    hydratedScopeRef.current = responseScope;
+    setIsEditing(false);
+    setPlacements(placementsFromRows(response.items, planKey));
+  }, [isFetched, response, planKey, userId, cancelPendingSave]);
 
   /**
    * Sends the queued layout, but only ever one request at a time. Debouncing
@@ -171,10 +190,12 @@ export function useDashboardLayout(userId: string, planKey: DashboardPlanKey) {
 
     queuedPlacementsRef.current = null;
     isSavingRef.current = true;
+    const scopeAtSend = hydratedScopeRef.current;
 
     saveMutationRef.current.mutate(
       {
         plan: planKey,
+        fallbackUserId: userId,
         items: next.map((item) => ({
           widgetId: item.id,
           x: item.x,
@@ -193,11 +214,14 @@ export function useDashboardLayout(userId: string, planKey: DashboardPlanKey) {
           }),
         onSettled: () => {
           isSavingRef.current = false;
+          // If the signed-in user changed while this was in flight, anything
+          // still queued belongs to the previous session — do not send it.
+          if (hydratedScopeRef.current !== scopeAtSend) return;
           flushSaveRef.current();
         },
       },
     );
-  }, [planKey]);
+  }, [planKey, userId]);
 
   const flushSaveRef = useRef(flushSave);
   flushSaveRef.current = flushSave;
