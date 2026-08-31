@@ -13,6 +13,7 @@ import { useAverageOkrRuleAssignmentStore } from '@/store/uistate/features/okrpl
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import Link from 'next/link';
+import { useBscUiStore } from '@/store/uistate/features/bsc';
 
 interface OkrSettingsLayoutProps {
   children: React.ReactNode;
@@ -31,10 +32,13 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     setAssignment: setAverageOkrRuleAssignment,
   } = useAverageOkrRuleAssignmentStore();
   const { showNotReportedList } = useOKRSettingStore();
+  const { openCreateSetup } = useBscUiStore();
 
   const isPlanningAssignation = activeTab === 'planning-assignation';
   const isCriteriaManagement = activeTab === 'criteria-management';
   const isAverageOkrRuleAssignment = activeTab === 'okr-rule-assignment';
+  const isBscSetup = activeTab === 'bsc-setup';
+  const isBscRoleDetail = pathname.includes('/bsc-setup/role/');
 
   const handleAddAssignee = () => {
     setPlanningOpen(true);
@@ -84,6 +88,11 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       label: 'OKR rule assignment',
       path: '/okr/settings/assign-average-okr-rule',
     },
+    {
+      key: 'bsc-setup',
+      label: 'BSC Setup',
+      path: '/okr/settings/bsc-setup',
+    },
   ];
 
   useEffect(() => {
@@ -98,9 +107,14 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       'target-assignment': 'target-assignment',
       'define-okr-rule': 'okr-rules',
       'assign-average-okr-rule': 'okr-rule-assignment',
+      'bsc-setup': 'bsc-setup',
+      'bsc-kpi-library': 'bsc-setup',
+      'bsc-cycles': 'bsc-setup',
     };
 
-    if (tabMap[lastKey]) {
+    if (pathname.includes('/okr/settings/bsc-setup')) {
+      setActiveTab('bsc-setup');
+    } else if (tabMap[lastKey]) {
       setActiveTab(tabMap[lastKey]);
     }
 
@@ -307,6 +321,18 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                     >
                       Add Assignment
                     </span>
+                  </Button>
+                )}
+                {isBscSetup && !isBscRoleDetail && (
+                  <Button
+                    icon={<FaPlus />}
+                    onClick={openCreateSetup}
+                    className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-[40px] px-3 sm:px-6 text-white border-none mb-3 rounded-lg flex items-center justify-center font-medium"
+                    type="primary"
+                    id="okr-settings-add-bsc-setup-button"
+                    data-cy="bsc-setup-add"
+                  >
+                    <span className="hidden sm:inline ml-2">Add Setup</span>
                   </Button>
                 )}
               </div>

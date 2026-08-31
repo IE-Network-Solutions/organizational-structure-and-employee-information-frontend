@@ -655,7 +655,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       },
       {
         icon: <AlbumIcon style={{ fontSize: 20 }} />,
-        title: 'OKR',
+        title: 'Performance',
         key: '/okr-menu',
         className: 'font-bold',
         permissions: ['view_okr'],
@@ -683,6 +683,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             key: '/weekly-priority',
             className: 'font-bold h-8',
             permissions: ['view_weekly_priority'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-bsc-my-scorecard">My Scorecard</span>
+            ),
+            key: '/bsc/my-scorecard',
+            className: 'font-bold',
+            permissions: ['view_okr_overview'],
           },
           {
             title: <span data-cy="nav-tree-okr-settings">Settings</span>,

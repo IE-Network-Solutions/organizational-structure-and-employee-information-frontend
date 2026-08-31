@@ -89,6 +89,7 @@ const MENU_ROUTES: MenuRouteNode[] = [
         permissions: ['manage_planning_reporting'],
       },
       { key: '/weekly-priority', permissions: ['view_weekly_priority'] },
+      { key: '/bsc/my-scorecard', permissions: ['view_okr_overview'] },
       { key: '/okr/settings', permissions: ['manage_okr_settings'] },
     ],
   },

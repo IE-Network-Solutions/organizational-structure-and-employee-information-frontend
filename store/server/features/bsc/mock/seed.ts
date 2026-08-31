@@ -1,0 +1,609 @@
+import {
+  BscCadence,
+  BscPerspective,
+  CycleStatus,
+  EmployeeScorecard,
+  EvaluationCycle,
+  KpiApprovalStatus,
+  KpiLibraryItem,
+  ScorecardStatus,
+  TargetLogic,
+} from '@/types/bsc';
+
+const now = new Date().toISOString();
+
+/** Seeded positional KPI library from the non-financial BSC research matrices */
+export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
+  {
+    id: 'kpi-hr-dir-enps',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Enterprise Employee Net Promoter Score (eNPS)',
+    description: 'Measures enterprise employee net promoter score (enps) for this role.',
+    perspective: BscPerspective.Customer,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Index (-100 to +100)',
+    departmentName: 'Human Resources',
+    positionTitle: 'HR Director',
+    defaultTarget: 40,
+    weight: 35,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-hr-dir-ttf',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Enterprise Average Time-to-Fill Open Roles',
+    description: 'Measures enterprise average time-to-fill open roles for this role.',
+    perspective: BscPerspective.InternalProcess,
+    targetLogic: TargetLogic.LowerBetter,
+    measurementUnit: 'Days',
+    departmentName: 'Human Resources',
+    positionTitle: 'HR Director',
+    defaultTarget: 30,
+    weight: 35,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-hr-dir-succession',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Leadership Succession Readiness Rate',
+    description: 'Measures leadership succession readiness rate for this role.',
+    perspective: BscPerspective.LearningGrowth,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: '%',
+    departmentName: 'Human Resources',
+    positionTitle: 'HR Director',
+    defaultTarget: 80,
+    weight: 30,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-ta-hm-sat',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Hiring Manager Satisfaction Score',
+    description: 'Measures hiring manager satisfaction score for this role.',
+    perspective: BscPerspective.Customer,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Rating (1.0 - 5.0)',
+    departmentName: 'Human Resources',
+    positionTitle: 'Talent Acquisition Specialist',
+    defaultTarget: 4.5,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-ta-yield',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Candidate Yield Ratio (Interview to Offer)',
+    description: 'Measures candidate yield ratio (interview to offer) for this role.',
+    perspective: BscPerspective.InternalProcess,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: '%',
+    departmentName: 'Human Resources',
+    positionTitle: 'Talent Acquisition Specialist',
+    defaultTarget: 40,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-ta-cert',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Advanced Sourcing Certification Completion',
+    description: 'Measures advanced sourcing certification completion for this role.',
+    perspective: BscPerspective.LearningGrowth,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Boolean (1 or 0)',
+    departmentName: 'Human Resources',
+    positionTitle: 'Talent Acquisition Specialist',
+    defaultTarget: 1,
+    weight: 20,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-sup-lead-csat',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Aggregate Team Customer Satisfaction (CSAT)',
+    description: 'Measures aggregate team customer satisfaction (csat) for this role.',
+    perspective: BscPerspective.Customer,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: '%',
+    departmentName: 'Customer Support',
+    positionTitle: 'Support Team Lead',
+    defaultTarget: 90,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-sup-lead-fcr',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Team First Contact Resolution (FCR) Rate',
+    description: 'Measures team first contact resolution (fcr) rate for this role.',
+    perspective: BscPerspective.InternalProcess,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: '%',
+    departmentName: 'Customer Support',
+    positionTitle: 'Support Team Lead',
+    defaultTarget: 75,
+    weight: 35,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-sup-lead-kb',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Team Knowledge Base Contribution Volume',
+    description: 'Measures team knowledge base contribution volume for this role.',
+    perspective: BscPerspective.LearningGrowth,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Document Count',
+    departmentName: 'Customer Support',
+    positionTitle: 'Support Team Lead',
+    defaultTarget: 10,
+    weight: 25,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-t1-csat',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Individual Customer Satisfaction (CSAT)',
+    description: 'Measures individual customer satisfaction (csat) for this role.',
+    perspective: BscPerspective.Customer,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: '%',
+    departmentName: 'Customer Support',
+    positionTitle: 'Tier 1 Support Agent',
+    defaultTarget: 90,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-t1-asa',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Average Speed of Answer (ASA)',
+    description: 'Measures average speed of answer (asa) for this role.',
+    perspective: BscPerspective.InternalProcess,
+    targetLogic: TargetLogic.LowerBetter,
+    measurementUnit: 'Seconds',
+    departmentName: 'Customer Support',
+    positionTitle: 'Tier 1 Support Agent',
+    defaultTarget: 30,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-t1-training',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Technical Product Update Training Hours',
+    description: 'Measures technical product update training hours for this role.',
+    perspective: BscPerspective.LearningGrowth,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Hours',
+    departmentName: 'Customer Support',
+    positionTitle: 'Tier 1 Support Agent',
+    defaultTarget: 10,
+    weight: 20,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-lead-slo',
+    evaluationConfigId: 'config-seed-current',
+    name: 'System Uptime / Service Level Objective (SLO)',
+    description: 'Measures system uptime / service level objective (slo) for this role.',
+    perspective: BscPerspective.Customer,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: '%',
+    departmentName: 'Information Technology',
+    positionTitle: 'Lead Software Engineer',
+    defaultTarget: 99.9,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-lead-cicd',
+    evaluationConfigId: 'config-seed-current',
+    name: 'CI/CD Deployment Frequency',
+    description: 'Measures ci/cd deployment frequency for this role.',
+    perspective: BscPerspective.InternalProcess,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Count per Month',
+    departmentName: 'Information Technology',
+    positionTitle: 'Lead Software Engineer',
+    defaultTarget: 20,
+    weight: 35,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-lead-mentor',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Junior Engineer Mentorship Hours',
+    description: 'Measures junior engineer mentorship hours for this role.',
+    perspective: BscPerspective.LearningGrowth,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Hours',
+    departmentName: 'Information Technology',
+    positionTitle: 'Lead Software Engineer',
+    defaultTarget: 8,
+    weight: 25,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-qa-escape',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Post-Release Defect Escape Rate',
+    description: 'Measures post-release defect escape rate for this role.',
+    perspective: BscPerspective.Customer,
+    targetLogic: TargetLogic.LowerBetter,
+    measurementUnit: 'Defect Count',
+    departmentName: 'Information Technology',
+    positionTitle: 'QA Automation Engineer',
+    defaultTarget: 3,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-qa-coverage',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Automated Test Suite Coverage',
+    description: 'Measures automated test suite coverage for this role.',
+    perspective: BscPerspective.InternalProcess,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: '%',
+    departmentName: 'Information Technology',
+    positionTitle: 'QA Automation Engineer',
+    defaultTarget: 80,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-qa-training',
+    evaluationConfigId: 'config-seed-current',
+    name: 'New Testing Framework Architecture Training',
+    description: 'Measures new testing framework architecture training for this role.',
+    perspective: BscPerspective.LearningGrowth,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Boolean (1 or 0)',
+    departmentName: 'Information Technology',
+    positionTitle: 'QA Automation Engineer',
+    defaultTarget: 1,
+    weight: 20,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-ae-churn',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Client Retention / Account Churn Rate',
+    description: 'Measures client retention / account churn rate for this role.',
+    perspective: BscPerspective.Customer,
+    targetLogic: TargetLogic.LowerBetter,
+    measurementUnit: '%',
+    departmentName: 'Sales Operations',
+    positionTitle: 'Account Executive',
+    defaultTarget: 5,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-ae-crm',
+    evaluationConfigId: 'config-seed-current',
+    name: 'CRM Data Accuracy and Pipeline Compliance',
+    description: 'Measures crm data accuracy and pipeline compliance for this role.',
+    perspective: BscPerspective.InternalProcess,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Audit Score (0-100)',
+    departmentName: 'Sales Operations',
+    positionTitle: 'Account Executive',
+    defaultTarget: 95,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-ae-nego',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Advanced Negotiation Tactics Masterclass',
+    description: 'Measures advanced negotiation tactics masterclass for this role.',
+    perspective: BscPerspective.LearningGrowth,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Boolean (1 or 0)',
+    departmentName: 'Sales Operations',
+    positionTitle: 'Account Executive',
+    defaultTarget: 1,
+    weight: 20,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-se-sat',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Sales Team Satisfaction with Collateral',
+    description: 'Measures sales team satisfaction with collateral for this role.',
+    perspective: BscPerspective.Customer,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Rating (1.0 - 5.0)',
+    departmentName: 'Sales Operations',
+    positionTitle: 'Sales Enablement Lead',
+    defaultTarget: 4.5,
+    weight: 35,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-se-ttp',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Average Time-to-Productivity for New Reps',
+    description: 'Measures average time-to-productivity for new reps for this role.',
+    perspective: BscPerspective.InternalProcess,
+    targetLogic: TargetLogic.LowerBetter,
+    measurementUnit: 'Days',
+    departmentName: 'Sales Operations',
+    positionTitle: 'Sales Enablement Lead',
+    defaultTarget: 45,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-se-workshops',
+    evaluationConfigId: 'config-seed-current',
+    name: 'Competitor Analysis Workshops Delivered',
+    description: 'Measures competitor analysis workshops delivered for this role.',
+    perspective: BscPerspective.LearningGrowth,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Event Count',
+    departmentName: 'Sales Operations',
+    positionTitle: 'Sales Enablement Lead',
+    defaultTarget: 2,
+    weight: 25,
+    createdAt: now,
+  },
+  // Quarterly-scoped KPIs for HR Director (visible under "This Quarter" filter)
+  {
+    id: 'kpi-hr-dir-q-retention',
+    evaluationConfigId: 'config-seed-quarterly',
+    name: 'Quarterly Voluntary Attrition Rate',
+    description:
+      'Tracks voluntary attrition across the quarter for the HR Director scorecard.',
+    perspective: BscPerspective.InternalProcess,
+    targetLogic: TargetLogic.LowerBetter,
+    measurementUnit: '%',
+    departmentName: 'Human Resources',
+    positionTitle: 'HR Director',
+    defaultTarget: 5,
+    weight: 40,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-hr-dir-q-engagement',
+    evaluationConfigId: 'config-seed-quarterly',
+    name: 'Quarterly Engagement Pulse Score',
+    description:
+      'Aggregated engagement pulse for the quarter across the organization.',
+    perspective: BscPerspective.Customer,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: 'Index (0–100)',
+    departmentName: 'Human Resources',
+    positionTitle: 'HR Director',
+    defaultTarget: 75,
+    weight: 35,
+    createdAt: now,
+  },
+  {
+    id: 'kpi-hr-dir-q-capability',
+    evaluationConfigId: 'config-seed-quarterly',
+    name: 'Critical Role Capability Coverage',
+    description:
+      'Share of critical roles with ready-now successors at quarter close.',
+    perspective: BscPerspective.LearningGrowth,
+    targetLogic: TargetLogic.HigherBetter,
+    measurementUnit: '%',
+    departmentName: 'Human Resources',
+    positionTitle: 'HR Director',
+    defaultTarget: 85,
+    weight: 25,
+    createdAt: now,
+  },
+];
+
+function seedEvaluationConfig(): EvaluationCycle {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const start = new Date(year, month - 1, 1);
+  const end = new Date(year, month, 0);
+  const label = start.toLocaleString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  });
+  return {
+    id: 'config-seed-current',
+    label: `${label} (Monthly)`,
+    status: CycleStatus.Open,
+    cadence: BscCadence.Monthly,
+    fiscalYearId: 'fy-active-placeholder',
+    fiscalYearName: `FY ${year}`,
+    periodIds: [`month-${year}-${String(month).padStart(2, '0')}`],
+    periodLabels: [label],
+    startDate: start.toISOString().slice(0, 10),
+    endDate: end.toISOString().slice(0, 10),
+    isRecurring: true,
+    useCustomDates: false,
+    departmentIds: [],
+    departmentNames: [
+      'Human Resources',
+      'Customer Support',
+      'Information Technology',
+      'Sales Operations',
+    ],
+    positionIds: [],
+    positionTitles: [
+      'HR Director',
+      'Talent Acquisition Specialist',
+      'Support Team Lead',
+      'Tier 1 Support Agent',
+      'Lead Software Engineer',
+      'QA Automation Engineer',
+      'Account Executive',
+      'Sales Enablement Lead',
+    ],
+    year,
+    month,
+  };
+}
+
+export const SEED_CYCLES: EvaluationCycle[] = [
+  seedEvaluationConfig(),
+  (() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const q = Math.floor(d.getMonth() / 3) + 1;
+    return {
+      id: 'config-seed-quarterly',
+      label: `Q${q} ${year} (Quarterly)`,
+      status: CycleStatus.Open,
+      cadence: BscCadence.Quarterly,
+      fiscalYearId: 'fy-active-placeholder',
+      fiscalYearName: `FY ${year}`,
+      periodIds: [`session-q${q}-${year}`],
+      periodLabels: [`Q${q} ${year}`],
+      startDate: new Date(year, (q - 1) * 3, 1).toISOString().slice(0, 10),
+      endDate: new Date(year, q * 3, 0).toISOString().slice(0, 10),
+      isRecurring: true,
+      useCustomDates: false,
+      departmentIds: [],
+      departmentNames: ['Human Resources'],
+      positionIds: [],
+      positionTitles: ['HR Director'],
+      year,
+      month: d.getMonth() + 1,
+    } as EvaluationCycle;
+  })(),
+];
+
+function monthMeta(offsetMonths: number) {
+  const d = new Date();
+  d.setDate(1);
+  d.setMonth(d.getMonth() + offsetMonths);
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const start = new Date(year, month - 1, 1);
+  const end = new Date(year, month, 0);
+  const monthName = start.toLocaleString('en-US', { month: 'long' });
+  const label = `${monthName} ${year}`;
+  return { year, month, monthName, label, start, end };
+}
+
+function buildHrDirectorTargets(
+  scorecardId: string,
+  actuals: [number | null, number | null, number | null],
+): EmployeeScorecard['targets'] {
+  const kpis = SEED_KPI_LIBRARY.filter(
+    (k) =>
+      k.positionTitle === 'HR Director' &&
+      k.evaluationConfigId === 'config-seed-current',
+  );
+  return kpis.map((kpi, i) => ({
+    id: `${scorecardId}-t${i + 1}`,
+    scorecardId,
+    kpiLibraryId: kpi.id,
+    kpiName: kpi.name,
+    perspective: kpi.perspective,
+    targetLogic: kpi.targetLogic,
+    measurementUnit: kpi.measurementUnit,
+    weightPercentage: kpi.weight,
+    targetValue: kpi.defaultTarget ?? 0,
+    actualValue: actuals[i] ?? null,
+    approvalStatus:
+      actuals[i] == null
+        ? KpiApprovalStatus.Pending
+        : KpiApprovalStatus.Approved,
+    submittedAt: actuals[i] == null ? null : now,
+  }));
+}
+
+function seedScorecardForMonth(opts: {
+  id: string;
+  offsetMonths: number;
+  status: ScorecardStatus;
+  actuals: [number | null, number | null, number | null];
+  compositeScore?: number;
+  managerNote?: string;
+}): EmployeeScorecard {
+  const meta = monthMeta(opts.offsetMonths);
+  const cycleId =
+    opts.offsetMonths === 0
+      ? 'config-seed-current'
+      : `config-seed-${meta.year}-${String(meta.month).padStart(2, '0')}`;
+  return {
+    id: opts.id,
+    userId: 'demo-user',
+    userName: 'Alex Morgan',
+    managerId: 'demo-manager',
+    departmentId: null,
+    positionId: null,
+    positionTitle: 'HR Director',
+    cycleId,
+    cycleLabel: `${meta.label} (Monthly)`,
+    periodMonthName: meta.monthName,
+    periodYear: meta.year,
+    status: opts.status,
+    targets: buildHrDirectorTargets(opts.id, opts.actuals),
+    acknowledgedAt: now,
+    finalEvaluation:
+      opts.compositeScore != null
+        ? {
+            compositeScore: opts.compositeScore,
+            managerNote: opts.managerNote || 'Solid delivery against targets.',
+            evaluatedAt: now,
+            evaluatorUserId: 'demo-manager',
+          }
+        : null,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+/** Past locked cycles for mock history (current month stays on SEED_CYCLES[0]) */
+export const SEED_PAST_CYCLES: EvaluationCycle[] = [-1, -2].map((offset) => {
+  const meta = monthMeta(offset);
+  return {
+    id: `config-seed-${meta.year}-${String(meta.month).padStart(2, '0')}`,
+    label: `${meta.label} (Monthly)`,
+    status: CycleStatus.Closed,
+    cadence: BscCadence.Monthly,
+    fiscalYearId: 'fy-active-placeholder',
+    fiscalYearName: `FY ${meta.year}`,
+    periodIds: [
+      `month-${meta.year}-${String(meta.month).padStart(2, '0')}`,
+    ],
+    periodLabels: [meta.label],
+    startDate: meta.start.toISOString().slice(0, 10),
+    endDate: meta.end.toISOString().slice(0, 10),
+    isRecurring: false,
+    useCustomDates: false,
+    departmentIds: [],
+    departmentNames: ['Human Resources'],
+    positionIds: [],
+    positionTitles: ['HR Director'],
+    year: meta.year,
+    month: meta.month,
+  };
+});
+
+export const SEED_SCORECARDS: EmployeeScorecard[] = [
+  seedScorecardForMonth({
+    id: 'sc-demo-current',
+    offsetMonths: 0,
+    status: ScorecardStatus.Active,
+    actuals: [null, null, null],
+  }),
+  seedScorecardForMonth({
+    id: 'sc-demo-prev-1',
+    offsetMonths: -1,
+    status: ScorecardStatus.Completed,
+    actuals: [38, 32, 75],
+    compositeScore: 86.4,
+    managerNote: 'Strong eNPS; succession readiness slightly below target.',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-demo-prev-2',
+    offsetMonths: -2,
+    status: ScorecardStatus.Completed,
+    actuals: [35, 34, 70],
+    compositeScore: 79.2,
+    managerNote: 'Time-to-fill improved; keep focus on leadership pipeline.',
+  }),
+];
