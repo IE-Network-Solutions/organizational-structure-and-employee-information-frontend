@@ -7,6 +7,7 @@ import { auth } from '@/utils/firebaseConfig';
 import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
+import AnnouncementMegaphoneIcon from '@/app/(afterLogin)/(organizationalStructure)/organization/announcement/_components/AnnouncementMegaphoneIcon';
 import {
   MdPeople,
   MdPersonSearch,
@@ -15,7 +16,6 @@ import {
   MdCardGiftcard,
   MdWidgets,
   MdAdminPanelSettings,
-  MdSettings,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
@@ -233,7 +233,7 @@ const NavMenuItem: React.FC<{
           }
         }}
         className={`
-          py-2 rounded-[6px] transition-all duration-200 outline-none
+          flex items-center gap-1.5 py-2 rounded-[6px] transition-all duration-200 outline-none
           ${collapsed ? 'px-3' : 'pl-[33px] -ml-[33px]'}
           ${
             isChildSelected
@@ -1821,44 +1821,51 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </div>
 
           {AccessGuard.checkAccess({
-            permissions: ['view_admin_configuration'],
+            permissions: ['view_organization'],
           }) && (
             <div
-              data-cy="nav-sider-admin-wrap"
+              data-cy="nav-sider-announcement-wrap"
               className={`mt-2 w-full shrink-0 border-t border-[#E2E8F0] bg-white/40 pt-3 pb-2 ${
                 collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
               }`}
             >
               <div
-                data-cy="nav-sider-admin-inner"
+                data-cy="nav-sider-announcement-inner"
                 className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
               >
                 {(() => {
-                  const adminButton = (
+                  const isAnnouncementActive = pathname.startsWith(
+                    '/organization/announcement',
+                  );
+                  const announcementButton = (
                     <Button
-                      data-cy="nav-sider-admin-btn"
+                      data-cy="nav-sider-announcement-btn"
                       type="text"
                       block={!collapsed}
-                      aria-label={collapsed ? 'Admin Console' : undefined}
+                      aria-label={collapsed ? 'Announcement' : undefined}
+                      disabled={hasEndedFiscalYear}
                       icon={
                         <span
-                          data-cy="nav-sider-admin-icon-wrap"
+                          data-cy="nav-sider-announcement-icon-wrap"
                           className={`flex items-center justify-center text-[21px] leading-none transition-colors ${
-                            pathname.startsWith('/admin') ? '' : 'text-black'
+                            isAnnouncementActive ? '' : 'text-black'
                           }`}
                           style={
-                            pathname.startsWith('/admin')
+                            isAnnouncementActive
                               ? { color: colorPrimary }
                               : undefined
                           }
                         >
-                          <MdSettings size={21} />
+                          <AnnouncementMegaphoneIcon
+                            size={21}
+                            data-cy="nav-sider-announcement-icon"
+                          />
                         </span>
                       }
                       className={`
                       !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
                       ${
-                        pathname.startsWith('/admin')
+                        isAnnouncementActive
                           ? '!font-bold'
                           : '!font-medium !text-black hover:!bg-[#E6F4FF]'
                       }
@@ -1869,13 +1876,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       }
                     `}
                       style={
-                        pathname.startsWith('/admin')
+                        isAnnouncementActive
                           ? { color: colorPrimary }
                           : undefined
                       }
                       onClick={() => {
+                        if (hasEndedFiscalYear) return;
                         triggerRouteLoaderStart();
-                        router.push('/admin/dashboard');
+                        router.push('/organization/announcement');
+                        setSelectedKeys(['/organization/announcement']);
                         if (isMobile) {
                           setMobileCollapsed(true);
                         }
@@ -1883,11 +1892,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     >
                       {!collapsed && (
                         <span
-                          data-cy="nav-sider-admin-label"
-                          className="flex-1 text-left transition-colors"
+                          data-cy="nav-sider-announcement-label"
+                          className="flex flex-1 items-center justify-start gap-1 text-left transition-colors"
                           style={{ fontSize }}
                         >
-                          Admin Console
+                          <span className="leading-none">Announcement</span>
+                          <span
+                            className="inline-flex shrink-0 items-center justify-start font-bold leading-none text-[#ff4d4f]"
+                            style={{ fontSize }}
+                            aria-label="You were mentioned"
+                            title="Mention"
+                            data-cy="nav-sider-announcement-mention"
+                          >
+                            @
+                          </span>
                         </span>
                       )}
                     </Button>
@@ -1896,12 +1914,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     <Tooltip
                       placement="right"
                       trigger={['hover', 'focus']}
-                      title="Admin Console"
+                      title="Announcement"
                     >
-                      {adminButton}
+                      {announcementButton}
                     </Tooltip>
                   ) : (
-                    adminButton
+                    announcementButton
                   );
                 })()}
               </div>
