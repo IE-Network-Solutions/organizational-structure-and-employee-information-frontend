@@ -2,11 +2,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Avatar, Checkbox, Input, Modal } from 'antd';
-import {
-  PlusOutlined,
-  SearchOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { PlusOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
 import type { SpaceMember } from './mockAnnouncementService';
 import { collaborationColors } from './collaborationColors';
 
@@ -78,7 +74,12 @@ const AddMembersModal = ({
       data-cy="announcement-add-members-modal"
     >
       {description ? (
-        <p className="mb-3 text-sm text-gray-500">{description}</p>
+        <p
+          data-cy="organization-announcement-components-addmembersmodal-tsx-addmembersmodal-p-77"
+          className="mb-3 text-sm text-gray-500"
+        >
+          {description}
+        </p>
       ) : null}
       <Input
         allowClear
@@ -124,12 +125,21 @@ const AddMembersModal = ({
                     : collaborationColors.primary,
                 }}
               />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-gray-900">
+              <span
+                data-cy="organization-announcement-components-addmembersmodal-tsx-addmembersmodal-span-123"
+                className="min-w-0 flex-1"
+              >
+                <span
+                  data-cy="organization-announcement-components-addmembersmodal-tsx-addmembersmodal-span-124"
+                  className="block truncate text-sm font-medium text-gray-900"
+                >
                   {member.name}
                 </span>
                 {member.email ? (
-                  <span className="block truncate text-xs text-gray-400">
+                  <span
+                    data-cy="organization-announcement-components-addmembersmodal-tsx-addmembersmodal-span-128"
+                    className="block truncate text-xs text-gray-400"
+                  >
                     {member.email}
                   </span>
                 ) : null}

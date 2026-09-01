@@ -69,7 +69,10 @@ const CollaborationNotificationsWidget = ({
           className="mb-3 flex shrink-0 items-center justify-between gap-2"
           data-cy="collaboration-notifications-header"
         >
-          <div className="flex min-w-0 items-center gap-2">
+          <div
+            data-cy="organization-announcement-components-collaborationnotificationswidget-tsx-collaborationnotificationswidget-div-72"
+            className="flex min-w-0 items-center gap-2"
+          >
             <span
               className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
               style={{
@@ -160,9 +163,15 @@ const CollaborationNotificationsWidget = ({
                     No mentions yet
                   </p>
                 ) : (
-                  <ul className="m-0 list-none space-y-1 p-0">
+                  <ul
+                    data-cy="organization-announcement-components-collaborationnotificationswidget-tsx-collaborationnotificationswidget-ul-163"
+                    className="m-0 list-none space-y-1 p-0"
+                  >
                     {notifications.map((item) => (
-                      <li key={item.id}>
+                      <li
+                        data-cy="organization-announcement-components-collaborationnotificationswidget-tsx-collaborationnotificationswidget-li-165"
+                        key={item.id}
+                      >
                         <button
                           type="button"
                           className="flex w-full items-start gap-2.5 rounded-lg border-0 px-2 py-2 text-left transition"
@@ -194,9 +203,16 @@ const CollaborationNotificationsWidget = ({
                               ? actorInitials(item.actorName)
                               : null}
                           </Avatar>
-                          <div className="min-w-0 flex-1">
-                            <p className="m-0 text-sm leading-snug text-gray-900">
+                          <div
+                            data-cy="organization-announcement-components-collaborationnotificationswidget-tsx-collaborationnotificationswidget-div-197"
+                            className="min-w-0 flex-1"
+                          >
+                            <p
+                              data-cy="organization-announcement-components-collaborationnotificationswidget-tsx-collaborationnotificationswidget-p-198"
+                              className="m-0 text-sm leading-snug text-gray-900"
+                            >
                               <span
+                                data-cy="organization-announcement-components-collaborationnotificationswidget-tsx-collaborationnotificationswidget-span-199"
                                 className="font-semibold"
                                 style={{
                                   color: collaborationColors.primary,
@@ -205,14 +221,23 @@ const CollaborationNotificationsWidget = ({
                                 @{item.actorName.replace(/\s+/g, '')}
                               </span>{' '}
                               {kindLabel(item.kind)} in{' '}
-                              <span className="font-medium">
+                              <span
+                                data-cy="organization-announcement-components-collaborationnotificationswidget-tsx-collaborationnotificationswidget-span-208"
+                                className="font-medium"
+                              >
                                 {item.spaceName}
                               </span>
                             </p>
-                            <p className="m-0 mt-0.5 truncate text-xs text-gray-500">
+                            <p
+                              data-cy="organization-announcement-components-collaborationnotificationswidget-tsx-collaborationnotificationswidget-p-212"
+                              className="m-0 mt-0.5 truncate text-xs text-gray-500"
+                            >
                               {item.preview}
                             </p>
-                            <p className="m-0 mt-1 text-[11px] text-gray-400">
+                            <p
+                              data-cy="organization-announcement-components-collaborationnotificationswidget-tsx-collaborationnotificationswidget-p-215"
+                              className="m-0 mt-1 text-[11px] text-gray-400"
+                            >
                               {dayjs(item.createdAt).fromNow()}
                             </p>
                           </div>

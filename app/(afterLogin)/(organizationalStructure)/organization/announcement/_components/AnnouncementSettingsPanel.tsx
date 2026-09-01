@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type MouseEvent } from 'react';
 import {
   Button,
   Card,
@@ -98,7 +98,14 @@ const AnnouncementSettingsPanel = ({
     {
       key: 'add-more',
       icon: <PlusOutlined className="!text-primary" />,
-      label: <span className="text-primary">Add more</span>,
+      label: (
+        <span
+          data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-span-101"
+          className="text-primary"
+        >
+          Add more
+        </span>
+      ),
       onClick: () => openIntegrationWizard(spaceId),
     },
     {
@@ -115,10 +122,7 @@ const AnnouncementSettingsPanel = ({
   ];
 
   return (
-    <div
-      className="bg-white h-full pb-4"
-      data-cy="announcement-settings-panel"
-    >
+    <div className="bg-white h-full pb-4" data-cy="announcement-settings-panel">
       {showIntro ? (
         <div className="mb-3 px-1" data-cy="announcement-settings-header">
           <Title level={4} className="!mb-1 !text-base">
@@ -145,11 +149,20 @@ const AnnouncementSettingsPanel = ({
           <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
-              <div className="text-center">
-                <p className="m-0 text-sm font-medium text-gray-700">
+              <div
+                data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-div-145"
+                className="text-center"
+              >
+                <p
+                  data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-p-146"
+                  className="m-0 text-sm font-medium text-gray-700"
+                >
                   No channels integrated yet
                 </p>
-                <p className="mt-1 text-sm text-gray-400">
+                <p
+                  data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-p-149"
+                  className="mt-1 text-sm text-gray-400"
+                >
                   Click + to select a Collaboration space, then choose channels.
                 </p>
               </div>
@@ -184,7 +197,10 @@ const AnnouncementSettingsPanel = ({
                       onClick={() => toggleExpand(space.id)}
                       data-cy={`org-settings-announcement-space-header-${space.id}`}
                     >
-                      <div className="flex shrink-0 items-center justify-center self-center">
+                      <div
+                        data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-div-184"
+                        className="flex shrink-0 items-center justify-center self-center"
+                      >
                         {isExpanded ? (
                           <IoIosArrowUp size={16} />
                         ) : (
@@ -192,22 +208,37 @@ const AnnouncementSettingsPanel = ({
                         )}
                       </div>
                       <span
+                        data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-span-191"
                         className="h-2.5 w-2.5 shrink-0 rounded-full"
                         style={{ background: space.color }}
                         aria-hidden
                       />
-                      <div className="flex min-w-0 flex-col gap-0.5 py-0.5">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="m-0 cursor-pointer truncate text-base font-semibold text-gray-800">
+                      <div
+                        data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-div-196"
+                        className="flex min-w-0 flex-col gap-0.5 py-0.5"
+                      >
+                        <div
+                          data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-div-197"
+                          className="flex flex-wrap items-center gap-2"
+                        >
+                          <h3
+                            data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-h3-198"
+                            className="m-0 cursor-pointer truncate text-base font-semibold text-gray-800"
+                          >
                             {space.name}
                           </h3>
                           {space.isPrivate ? (
                             <LockOutlined className="text-xs text-gray-400" />
                           ) : null}
                         </div>
-                        <div className="flex flex-wrap items-center gap-x-3 text-xs text-gray-500">
-                          <span>{space.subtitle}</span>
-                          <span>
+                        <div
+                          data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-div-205"
+                          className="flex flex-wrap items-center gap-x-3 text-xs text-gray-500"
+                        >
+                          <span data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-span-206">
+                            {space.subtitle}
+                          </span>
+                          <span data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-span-207">
                             {space.channels.length} channel
                             {space.channels.length === 1 ? '' : 's'}
                           </span>
@@ -222,7 +253,7 @@ const AnnouncementSettingsPanel = ({
                     >
                       <MoreOutlined
                         className="cursor-pointer text-lg text-gray-500 hover:text-gray-700"
-                        onClick={(event) => event.stopPropagation()}
+                        onClick={(event: MouseEvent) => event.stopPropagation()}
                         data-cy={`org-settings-announcement-space-actions-${space.id}`}
                       />
                     </Dropdown>
@@ -239,13 +270,24 @@ const AnnouncementSettingsPanel = ({
                           className="flex items-center justify-between gap-2 rounded-md px-1 py-1.5"
                           data-cy={`org-settings-announcement-integrated-channel-${channel.id}`}
                         >
-                          <span className="inline-flex min-w-0 items-center gap-2 text-sm text-gray-800">
+                          <span
+                            data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-span-239"
+                            className="inline-flex min-w-0 items-center gap-2 text-sm text-gray-800"
+                          >
                             <MdTag
                               className="shrink-0 text-gray-400"
                               size={14}
                             />
-                            <span className="truncate">#{channel.name}</span>
-                            <span className="text-xs capitalize text-gray-400">
+                            <span
+                              data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-span-244"
+                              className="truncate"
+                            >
+                              #{channel.name}
+                            </span>
+                            <span
+                              data-cy="organization-announcement-components-announcementsettingspanel-tsx-announcementsettingspanel-span-245"
+                              className="text-xs capitalize text-gray-400"
+                            >
                               {channel.kind}
                             </span>
                           </span>

@@ -11,7 +11,12 @@ import {
   Steps,
   message,
 } from 'antd';
-import { DeleteOutlined, LockOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  LockOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   SPACE_COLORS,
   useAnnouncementChannelsStore,
@@ -62,7 +67,7 @@ const ChannelDraftList = ({ dataCyPrefix }: { dataCyPrefix: string }) => (
     name="channels"
     rules={[
       {
-        validator: async (_, channels) => {
+        validator: async (rule, channels) => {
           if (!channels || channels.length < 1) {
             return Promise.reject(new Error('Add at least one channel'));
           }
@@ -71,16 +76,28 @@ const ChannelDraftList = ({ dataCyPrefix }: { dataCyPrefix: string }) => (
     ]}
   >
     {(fields, { add, remove }, { errors }) => (
-      <div className="pb-2">
-        <div className="mb-3 flex max-h-[280px] flex-col gap-3 overflow-y-auto pr-1">
+      <div
+        data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-79"
+        className="pb-2"
+      >
+        <div
+          data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-80"
+          className="mb-3 flex max-h-[280px] flex-col gap-3 overflow-y-auto pr-1"
+        >
           {fields.map((field, index) => (
             <div
               key={field.key}
               className="rounded-lg border border-[#E8EDF2] bg-[#FAFBFC] p-4"
               data-cy={`${dataCyPrefix}-${index}`}
             >
-              <div className="mb-3 flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-800">
+              <div
+                data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-87"
+                className="mb-3 flex items-center justify-between"
+              >
+                <span
+                  data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-88"
+                  className="text-sm font-medium text-gray-800"
+                >
                   Channel {index + 1}
                 </span>
                 {fields.length > 1 ? (
@@ -166,22 +183,40 @@ const SpaceOption = ({
     data-selected={selected ? 'true' : 'false'}
   >
     <span
+      data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-173"
       className="h-2.5 w-2.5 shrink-0 rounded-full"
       style={{ background: space.color }}
       aria-hidden
     />
-    <div className="min-w-0 flex-1">
-      <div className="flex items-center gap-2">
-        <span className="truncate text-sm font-semibold text-gray-900">
+    <div
+      data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-178"
+      className="min-w-0 flex-1"
+    >
+      <div
+        data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-179"
+        className="flex items-center gap-2"
+      >
+        <span
+          data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-180"
+          className="truncate text-sm font-semibold text-gray-900"
+        >
           {space.name}
         </span>
         {space.isPrivate ? (
           <LockOutlined className="text-xs text-gray-400" />
         ) : null}
       </div>
-      <span className="text-xs text-gray-400">{space.subtitle}</span>
+      <span
+        data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-187"
+        className="text-xs text-gray-400"
+      >
+        {space.subtitle}
+      </span>
     </div>
-    <span className="text-xs text-gray-400">
+    <span
+      data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-189"
+      className="text-xs text-gray-400"
+    >
       {space.channels.length} channel{space.channels.length === 1 ? '' : 's'}
     </span>
   </button>
@@ -199,7 +234,9 @@ const AnnouncementIntegrationWizard = ({
   const addEnabledChannels = useAnnouncementChannelsStore(
     (state) => state.addEnabledChannels,
   );
-  const createSpace = useAnnouncementChannelsStore((state) => state.createSpace);
+  const createSpace = useAnnouncementChannelsStore(
+    (state) => state.createSpace,
+  );
   const createChannel = useAnnouncementChannelsStore(
     (state) => state.createChannel,
   );
@@ -583,7 +620,10 @@ const AnnouncementIntegrationWizard = ({
       data-cy="announcement-integration-wizard"
     >
       {showSteps ? (
-        <div data-cy="announcement-integration-steps-container" className="my-2">
+        <div
+          data-cy="announcement-integration-steps-container"
+          className="my-2"
+        >
           <style data-cy="announcement-integration-steps-style">{`
             .announcement-integration-steps .ant-steps-item-title {
               white-space: nowrap !important;
@@ -625,12 +665,18 @@ const AnnouncementIntegrationWizard = ({
             >
               {createStep === 0 ? (
                 <>
-                  <p className="mb-3 text-sm text-gray-500">
+                  <p
+                    data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-638"
+                    className="mb-3 text-sm text-gray-500"
+                  >
                     Set up a new Collaboration space. Next you&apos;ll create
                     its channels.
                   </p>
                   <Form.Item label="Name" className="!mb-4">
-                    <div className="flex items-start gap-2">
+                    <div
+                      data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-643"
+                      className="flex items-start gap-2"
+                    >
                       <Form.Item
                         name="spaceName"
                         noStyle
@@ -697,19 +743,23 @@ const AnnouncementIntegrationWizard = ({
                     name="visibility"
                     label="Type"
                     className="!mb-2"
-                    rules={[
-                      { required: true, message: 'Choose a space type' },
-                    ]}
+                    rules={[{ required: true, message: 'Choose a space type' }]}
                   >
                     <SpaceVisibilityCards />
                   </Form.Item>
                 </>
               ) : (
                 <>
-                  <p className="mb-1 text-sm font-medium text-gray-900">
+                  <p
+                    data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-717"
+                    className="mb-1 text-sm font-medium text-gray-900"
+                  >
                     {draftSpaceName?.trim() || 'New space'}
                   </p>
-                  <p className="mb-3 text-sm text-gray-500">
+                  <p
+                    data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-720"
+                    className="mb-3 text-sm text-gray-500"
+                  >
                     Create channels for this space. All of them will be added to
                     Announcement.
                   </p>
@@ -720,10 +770,16 @@ const AnnouncementIntegrationWizard = ({
           </div>
         ) : mode === 'create-channel' ? (
           <div data-cy="announcement-integration-create-channel">
-            <p className="mb-1 text-sm font-medium text-gray-900">
+            <p
+              data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-731"
+              className="mb-1 text-sm font-medium text-gray-900"
+            >
               {selectedSpace?.name}
             </p>
-            <p className="mb-3 text-sm text-gray-500">
+            <p
+              data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-734"
+              className="mb-3 text-sm text-gray-500"
+            >
               Create one or more posts channels in this space, then select them
               to integrate.
             </p>
@@ -741,10 +797,16 @@ const AnnouncementIntegrationWizard = ({
           </div>
         ) : current === 0 ? (
           <div data-cy="announcement-integration-step-space">
-            <p className="mb-3 text-sm text-gray-500">
+            <p
+              data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-752"
+              className="mb-3 text-sm text-gray-500"
+            >
               Choose a space from Selamnew Collaboration to integrate.
             </p>
-            <div className="mb-3 flex items-center gap-2">
+            <div
+              data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-755"
+              className="mb-3 flex items-center gap-2"
+            >
               <Input
                 allowClear
                 prefix={<SearchOutlined className="text-gray-400" />}
@@ -764,7 +826,10 @@ const AnnouncementIntegrationWizard = ({
                 Create space
               </Button>
             </div>
-            <div className="flex max-h-[280px] flex-col gap-2 overflow-y-auto">
+            <div
+              data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-775"
+              className="flex max-h-[280px] flex-col gap-2 overflow-y-auto"
+            >
               {filteredSpaces.length === 0 ? (
                 <p
                   className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-sm text-gray-400"
@@ -786,13 +851,22 @@ const AnnouncementIntegrationWizard = ({
           </div>
         ) : (
           <div data-cy="announcement-integration-step-channel">
-            <p className="mb-1 text-sm font-medium text-gray-900">
+            <p
+              data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-797"
+              className="mb-1 text-sm font-medium text-gray-900"
+            >
               {selectedSpace?.name}
             </p>
-            <p className="mb-3 text-sm text-gray-500">
+            <p
+              data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-800"
+              className="mb-3 text-sm text-gray-500"
+            >
               Select the channels that should appear on the Announcement page.
             </p>
-            <div className="mb-3 flex items-center gap-2">
+            <div
+              data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-803"
+              className="mb-3 flex items-center gap-2"
+            >
               <Input
                 allowClear
                 prefix={<SearchOutlined className="text-gray-400" />}
@@ -823,60 +897,74 @@ const AnnouncementIntegrationWizard = ({
                 new channel above to add more.
               </p>
             ) : (
-              <div className="flex max-h-[320px] flex-col gap-1 overflow-y-auto">
-                  {filteredChannels.length === 0 ? (
-                    <p
-                      className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-sm text-gray-400"
-                      data-cy="announcement-integration-channel-empty"
+              <div
+                data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-834"
+                className="flex max-h-[320px] flex-col gap-1 overflow-y-auto"
+              >
+                {filteredChannels.length === 0 ? (
+                  <p
+                    className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-sm text-gray-400"
+                    data-cy="announcement-integration-channel-empty"
+                  >
+                    No channels match your search.
+                  </p>
+                ) : (
+                  <>
+                    <label
+                      className="mb-1 flex cursor-pointer items-center gap-2 rounded-md border-b border-gray-100 px-2 pb-2 pt-1"
+                      data-cy="announcement-integration-select-all"
                     >
-                      No channels match your search.
-                    </p>
-                  ) : (
-                    <>
+                      <Checkbox
+                        checked={allFilteredSelected}
+                        indeterminate={someFilteredSelected}
+                        onChange={(event) =>
+                          toggleAllFilteredChannels(event.target.checked)
+                        }
+                        data-cy="announcement-integration-select-all-check"
+                      />
+                      <span
+                        data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-856"
+                        className="text-sm font-medium text-gray-800"
+                      >
+                        Select all
+                        {channelSearch.trim() ? ' matching' : ''}
+                      </span>
+                      <span
+                        data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-860"
+                        className="text-xs text-gray-400"
+                      >
+                        ({selectedChannelIds.length}/{availableChannels.length})
+                      </span>
+                    </label>
+                    {filteredChannels.map((channel) => (
                       <label
-                        className="mb-1 flex cursor-pointer items-center gap-2 rounded-md border-b border-gray-100 px-2 pb-2 pt-1"
-                        data-cy="announcement-integration-select-all"
+                        key={channel.id}
+                        className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 hover:bg-gray-50"
+                        data-cy={`announcement-integration-channel-${channel.id}`}
                       >
                         <Checkbox
-                          checked={allFilteredSelected}
-                          indeterminate={someFilteredSelected}
+                          checked={selectedChannelIds.includes(channel.id)}
                           onChange={(event) =>
-                            toggleAllFilteredChannels(event.target.checked)
+                            toggleChannel(channel.id, event.target.checked)
                           }
-                          data-cy="announcement-integration-select-all-check"
+                          data-cy={`announcement-integration-channel-check-${channel.id}`}
                         />
-                        <span className="text-sm font-medium text-gray-800">
-                          Select all
-                          {channelSearch.trim() ? ' matching' : ''}
+                        <span
+                          data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-877"
+                          className="text-sm text-gray-800"
+                        >
+                          #{channel.name}
                         </span>
-                        <span className="text-xs text-gray-400">
-                          ({selectedChannelIds.length}/
-                          {availableChannels.length})
+                        <span
+                          data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-880"
+                          className="text-xs capitalize text-gray-400"
+                        >
+                          {channel.kind}
                         </span>
                       </label>
-                      {filteredChannels.map((channel) => (
-                        <label
-                          key={channel.id}
-                          className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-2 hover:bg-gray-50"
-                          data-cy={`announcement-integration-channel-${channel.id}`}
-                        >
-                          <Checkbox
-                            checked={selectedChannelIds.includes(channel.id)}
-                            onChange={(event) =>
-                              toggleChannel(channel.id, event.target.checked)
-                            }
-                            data-cy={`announcement-integration-channel-check-${channel.id}`}
-                          />
-                          <span className="text-sm text-gray-800">
-                            #{channel.name}
-                          </span>
-                          <span className="text-xs capitalize text-gray-400">
-                            {channel.kind}
-                          </span>
-                        </label>
-                      ))}
-                    </>
-                  )}
+                    ))}
+                  </>
+                )}
               </div>
             )}
           </div>

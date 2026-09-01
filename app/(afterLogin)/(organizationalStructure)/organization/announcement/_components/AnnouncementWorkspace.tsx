@@ -24,7 +24,9 @@ const AnnouncementWorkspace = () => {
   const findSpaceById = useAnnouncementChannelsStore(
     (state) => state.findSpaceById,
   );
-  const findChannel = useAnnouncementChannelsStore((state) => state.findChannel);
+  const findChannel = useAnnouncementChannelsStore(
+    (state) => state.findChannel,
+  );
   const addSpaceMembers = useAnnouncementChannelsStore(
     (state) => state.addSpaceMembers,
   );
@@ -166,7 +168,10 @@ const AnnouncementWorkspace = () => {
         description={
           <>
             Choose people from the organization to add to{' '}
-            <strong>{addMembersSpace?.name}</strong>.
+            <strong data-cy="organization-announcement-components-announcementworkspace-tsx-announcementworkspace-strong-171">
+              {addMembersSpace?.name}
+            </strong>
+            .
           </>
         }
         members={availableOrgMembers}

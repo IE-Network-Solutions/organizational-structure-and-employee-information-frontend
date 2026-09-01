@@ -30,9 +30,12 @@ import { collaborationColors } from './collaborationColors';
 import { createAnnouncement } from './mockAnnouncementService';
 import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
 
-const AnnouncementQuillField = dynamic(() => import('./AnnouncementQuillField'), {
-  ssr: false,
-});
+const AnnouncementQuillField = dynamic(
+  () => import('./AnnouncementQuillField'),
+  {
+    ssr: false,
+  },
+);
 
 const quillHtmlToPlainText = (html?: string) => {
   if (!html) return '';
@@ -141,8 +144,7 @@ const getAvatarColor = (userId: string) => {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 };
 
-const getMentionToken = (name: string) =>
-  `@${name.trim().replace(/\s+/g, '')}`;
+const getMentionToken = (name: string) => `@${name.trim().replace(/\s+/g, '')}`;
 
 const toMentionUser = (user: any): MentionUser | null => {
   if (!user?.id) return null;
@@ -178,7 +180,9 @@ const AnnouncementComposerPanel = ({
   const findSpaceById = useAnnouncementChannelsStore(
     (state) => state.findSpaceById,
   );
-  const findChannel = useAnnouncementChannelsStore((state) => state.findChannel);
+  const findChannel = useAnnouncementChannelsStore(
+    (state) => state.findChannel,
+  );
   const channelOptions = useMemo(
     () =>
       spaces.flatMap((space) =>
@@ -332,7 +336,10 @@ const AnnouncementComposerPanel = ({
           <Input type="hidden" />
         </Form.Item>
 
-        <div className="mb-3 flex shrink-0 flex-wrap items-center gap-2">
+        <div
+          data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-339"
+          className="mb-3 flex shrink-0 flex-wrap items-center gap-2"
+        >
           <Tag
             className="text-[12px] font-medium px-2 py-0 rounded-md"
             style={{
@@ -377,24 +384,34 @@ const AnnouncementComposerPanel = ({
                 options={channelOptions.map((channel) => ({
                   value: channel.id,
                   label: (
-                    <span className="inline-flex items-center gap-1.5">
+                    <span
+                      data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-384"
+                      className="inline-flex items-center gap-1.5"
+                    >
                       <MdTag
                         size={14}
                         style={{ color: collaborationColors.primary }}
                       />
-                      <span className="truncate">{channel.name}</span>
+                      <span
+                        data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-389"
+                        className="truncate"
+                      >
+                        {channel.name}
+                      </span>
                     </span>
                   ),
                   channel,
                 }))}
                 optionRender={(option) => {
-                  const channel = option.data.channel as (typeof channelOptions)[number];
+                  const channel = option.data
+                    .channel as (typeof channelOptions)[number];
                   return (
                     <span
                       className="flex items-center gap-2 py-0.5"
                       data-cy={`create-announcement-space-option-${channel.id}`}
                     >
                       <span
+                        data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-402"
                         className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded"
                         style={{
                           background: collaborationColors.surface,
@@ -403,11 +420,20 @@ const AnnouncementComposerPanel = ({
                       >
                         <MdTag size={13} />
                       </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-sm text-gray-900">
+                      <span
+                        data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-411"
+                        className="min-w-0 flex-1"
+                      >
+                        <span
+                          data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-412"
+                          className="block truncate text-sm text-gray-900"
+                        >
                           {channel.name}
                         </span>
-                        <span className="block text-[11px] text-gray-400">
+                        <span
+                          data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-415"
+                          className="block text-[11px] text-gray-400"
+                        >
                           {channel.spaceName}
                         </span>
                       </span>
@@ -436,7 +462,10 @@ const AnnouncementComposerPanel = ({
           </span>
         </div>
 
-        <div className="mt-auto flex shrink-0 flex-col">
+        <div
+          data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-444"
+          className="mt-auto flex shrink-0 flex-col"
+        >
           <Form.Item className="!mb-0" name="body">
             <CollaborationComposer
               active={active}
@@ -453,7 +482,10 @@ const AnnouncementComposerPanel = ({
           </Form.Item>
 
           {!hideSpaceSelect ? (
-            <div className="mt-2 flex justify-end border-t border-[#F0F0F0] pt-2">
+            <div
+              data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-461"
+              className="mt-2 flex justify-end border-t border-[#F0F0F0] pt-2"
+            >
               <button
                 type="button"
                 onClick={handleClose}
@@ -590,7 +622,10 @@ const CollaborationComposer = ({
     setSelectedMentionIndex(0);
   };
 
-  const applyFormat = (format: string, value: string | boolean = true) => {
+  const applyFormat = (
+    format: string,
+    value: string | boolean | number = true,
+  ) => {
     const quill = getQuill();
     if (!quill) return;
     quill.focus();
@@ -614,7 +649,10 @@ const CollaborationComposer = ({
       return;
     }
     if (format === 'color') {
-      quill.format('color', current.color ? false : collaborationColors.primary);
+      quill.format(
+        'color',
+        current.color ? false : collaborationColors.primary,
+      );
       return;
     }
     if (format === 'background') {
@@ -627,7 +665,7 @@ const CollaborationComposer = ({
 
   const handleQuillChange = (
     nextHtml: string,
-    _delta: unknown,
+    delta: unknown,
     source: string,
   ) => {
     // Ignore Quill's own value sync (`api`/`silent`) — propagating those
@@ -683,12 +721,7 @@ const CollaborationComposer = ({
       root.removeEventListener('keyup', updateMentionState);
       root.removeEventListener('click', updateMentionState);
     };
-  }, [
-    editorReady,
-    filteredMentionUsers,
-    mentionQuery,
-    selectedMentionIndex,
-  ]);
+  }, [editorReady, filteredMentionUsers, mentionQuery, selectedMentionIndex]);
 
   const handleAttachFiles = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -710,11 +743,11 @@ const CollaborationComposer = ({
   };
 
   const attachMenu = (
-    <div
-      className="w-[148px] py-1"
-      data-cy="create-announcement-attach-menu"
-    >
-      <p className="m-0 px-3 pb-1 pt-1 text-[11px] font-semibold tracking-wide text-gray-400">
+    <div className="w-[148px] py-1" data-cy="create-announcement-attach-menu">
+      <p
+        data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-p-720"
+        className="m-0 px-3 pb-1 pt-1 text-[11px] font-semibold tracking-wide text-gray-400"
+      >
         ATTACH
       </p>
       <button
@@ -782,15 +815,22 @@ const CollaborationComposer = ({
                 >
                   {!user.profileImage ? getUserAvatarText(user.name) : null}
                 </Avatar>
-                <div className="min-w-0 flex-1">
+                <div
+                  data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-788"
+                  className="min-w-0 flex-1"
+                >
                   <div
+                    data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-789"
                     className="truncate text-sm font-medium"
                     style={{ color: collaborationColors.primary }}
                   >
                     {user.name}
                   </div>
                   {user.email ? (
-                    <div className="truncate text-xs text-gray-500">
+                    <div
+                      data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-796"
+                      className="truncate text-xs text-gray-500"
+                    >
                       {user.email}
                     </div>
                   ) : null}
@@ -847,7 +887,10 @@ const CollaborationComposer = ({
             <BsTypeStrikethrough size={15} />
           </button>
 
-          <span className="mx-1 h-4 w-px shrink-0 bg-[#D8DEE6]" />
+          <span
+            data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-853"
+            className="mx-1 h-4 w-px shrink-0 bg-[#D8DEE6]"
+          />
 
           <button
             type="button"
@@ -870,7 +913,10 @@ const CollaborationComposer = ({
             <BsListOl size={15} />
           </button>
 
-          <span className="mx-1 h-4 w-px shrink-0 bg-[#D8DEE6]" />
+          <span
+            data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-876"
+            className="mx-1 h-4 w-px shrink-0 bg-[#D8DEE6]"
+          />
 
           <button
             type="button"
@@ -910,12 +956,20 @@ const CollaborationComposer = ({
             onClick={() => applyFormat('header', 2)}
             data-cy="create-announcement-format-style"
           >
-            <span className="font-semibold text-[#334155]">Aa</span>
+            <span
+              data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-916"
+              className="font-semibold text-[#334155]"
+            >
+              Aa
+            </span>
             Default
             <MdKeyboardArrowDown size={14} />
           </button>
 
-          <span className="mx-1 h-4 w-px shrink-0 bg-[#D8DEE6]" />
+          <span
+            data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-921"
+            className="mx-1 h-4 w-px shrink-0 bg-[#D8DEE6]"
+          />
 
           <button
             type="button"
@@ -930,7 +984,10 @@ const CollaborationComposer = ({
         </div>
       ) : null}
 
-      <div className="flex flex-col gap-2">
+      <div
+        data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-936"
+        className="flex flex-col gap-2"
+      >
         {attachments.length > 0 ? (
           <div
             className="flex flex-wrap gap-1.5"
@@ -958,7 +1015,12 @@ const CollaborationComposer = ({
                 ) : (
                   <BsFileEarmarkText size={12} />
                 )}
-                <span className="max-w-[140px] truncate">{file.name}</span>
+                <span
+                  data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-964"
+                  className="max-w-[140px] truncate"
+                >
+                  {file.name}
+                </span>
               </Tag>
             ))}
           </div>
@@ -1038,7 +1100,10 @@ const CollaborationComposer = ({
             />
           </div>
 
-          <div className="mb-1 flex shrink-0 items-center gap-1">
+          <div
+            data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-1044"
+            className="mb-1 flex shrink-0 items-center gap-1"
+          >
             <button
               type="button"
               className="rounded-md p-1 transition"

@@ -74,8 +74,6 @@ export const listCollaborationNotifications = (): CollabNotification[] => {
     const kindDiff = kindRank[a.kind] - kindRank[b.kind];
     if (kindDiff !== 0) return kindDiff;
     if (a.unread !== b.unread) return a.unread ? -1 : 1;
-    return (
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
   });
 };

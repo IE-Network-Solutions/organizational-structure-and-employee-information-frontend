@@ -51,7 +51,10 @@ export const SpaceVisibilityCards = ({
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-2" data-cy="announcement-space-visibility-cards">
+    <div
+      className="grid grid-cols-2 gap-2"
+      data-cy="announcement-space-visibility-cards"
+    >
       {options.map((option) => {
         const selected = value === option.value;
         return (
@@ -69,18 +72,27 @@ export const SpaceVisibilityCards = ({
             data-selected={selected ? 'true' : 'false'}
           >
             <span
+              data-cy="organization-announcement-components-createspacechannelmodals-tsx-createspacechannelmodals-span-74"
               className="mb-2 inline-flex"
-              style={{ color: selected ? collaborationColors.primary : '#6B7280' }}
+              style={{
+                color: selected ? collaborationColors.primary : '#6B7280',
+              }}
             >
               {option.icon}
             </span>
             <span
+              data-cy="organization-announcement-components-createspacechannelmodals-tsx-createspacechannelmodals-span-82"
               className="block text-sm font-semibold"
-              style={{ color: selected ? collaborationColors.primary : '#111827' }}
+              style={{
+                color: selected ? collaborationColors.primary : '#111827',
+              }}
             >
               {option.title}
             </span>
-            <span className="mt-0.5 block text-xs leading-snug text-gray-500">
+            <span
+              data-cy="organization-announcement-components-createspacechannelmodals-tsx-createspacechannelmodals-span-90"
+              className="mt-0.5 block text-xs leading-snug text-gray-500"
+            >
               {option.description}
             </span>
           </button>
@@ -96,10 +108,17 @@ type EditSpaceModalProps = {
   onClose: () => void;
 };
 
-export const EditSpaceModal = ({ open, space, onClose }: EditSpaceModalProps) => {
+export const EditSpaceModal = ({
+  open,
+  space,
+  onClose,
+}: EditSpaceModalProps) => {
   const [form] = Form.useForm<SpaceFormValues>();
-  const updateSpace = useAnnouncementChannelsStore((state) => state.updateSpace);
-  const colorValue = Form.useWatch('color', form) || space?.color || SPACE_COLORS[0];
+  const updateSpace = useAnnouncementChannelsStore(
+    (state) => state.updateSpace,
+  );
+  const colorValue =
+    Form.useWatch('color', form) || space?.color || SPACE_COLORS[0];
 
   const handleClose = () => {
     form.resetFields();
@@ -136,7 +155,10 @@ export const EditSpaceModal = ({ open, space, onClose }: EditSpaceModalProps) =>
       open={open}
       onCancel={handleClose}
       footer={
-        <div className="flex justify-end gap-2">
+        <div
+          data-cy="organization-announcement-components-createspacechannelmodals-tsx-createspacechannelmodals-div-153"
+          className="flex justify-end gap-2"
+        >
           <Button
             type="primary"
             onClick={() => void handleOk()}
@@ -144,7 +166,10 @@ export const EditSpaceModal = ({ open, space, onClose }: EditSpaceModalProps) =>
           >
             Save
           </Button>
-          <Button onClick={handleClose} data-cy="announcement-edit-space-cancel">
+          <Button
+            onClick={handleClose}
+            data-cy="announcement-edit-space-cancel"
+          >
             Cancel
           </Button>
         </div>
@@ -170,7 +195,10 @@ export const EditSpaceModal = ({ open, space, onClose }: EditSpaceModalProps) =>
         data-cy="announcement-edit-space-form"
       >
         <Form.Item label="Name" className="!mb-4">
-          <div className="flex items-start gap-2">
+          <div
+            data-cy="organization-announcement-components-createspacechannelmodals-tsx-createspacechannelmodals-div-190"
+            className="flex items-start gap-2"
+          >
             <Form.Item
               name="name"
               noStyle
@@ -299,7 +327,10 @@ export const EditChannelModal = ({
       open={open}
       onCancel={handleClose}
       footer={
-        <div className="flex justify-end gap-2">
+        <div
+          data-cy="organization-announcement-components-createspacechannelmodals-tsx-createspacechannelmodals-div-319"
+          className="flex justify-end gap-2"
+        >
           <Button
             type="primary"
             onClick={() => void handleOk()}
@@ -307,7 +338,10 @@ export const EditChannelModal = ({
           >
             Save
           </Button>
-          <Button onClick={handleClose} data-cy="announcement-edit-channel-cancel">
+          <Button
+            onClick={handleClose}
+            data-cy="announcement-edit-channel-cancel"
+          >
             Cancel
           </Button>
         </div>
@@ -363,4 +397,3 @@ export const EditChannelModal = ({
     </Modal>
   );
 };
-

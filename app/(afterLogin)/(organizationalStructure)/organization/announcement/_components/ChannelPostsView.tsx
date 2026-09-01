@@ -81,8 +81,14 @@ const NewPostCard = ({
       className="mx-auto w-full max-w-2xl rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm"
       data-cy="announcement-new-post-card"
     >
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-center gap-2.5">
+      <div
+        data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-84"
+        className="mb-3 flex items-start justify-between gap-3"
+      >
+        <div
+          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-85"
+          className="flex min-w-0 items-center gap-2.5"
+        >
           <Avatar
             size={32}
             src={avatarUrl || undefined}
@@ -93,11 +99,20 @@ const NewPostCard = ({
                 : collaborationColors.primary,
             }}
           />
-          <div className="min-w-0">
-            <p className="m-0 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+          <div
+            data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-96"
+            className="min-w-0"
+          >
+            <p
+              data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-p-97"
+              className="m-0 text-[11px] font-semibold uppercase tracking-wide text-gray-400"
+            >
               New post
             </p>
-            <p className="m-0 truncate text-sm font-semibold text-gray-900">
+            <p
+              data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-p-100"
+              className="m-0 truncate text-sm font-semibold text-gray-900"
+            >
               Post for #{channelName}
             </p>
           </div>
@@ -133,8 +148,14 @@ const NewPostCard = ({
           className="!resize-none !border-0 !px-0 !shadow-none focus:!shadow-none"
           data-cy="announcement-new-post-body"
         />
-        <div className="mt-2 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1">
+        <div
+          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-136"
+          className="mt-2 flex items-center justify-between gap-2"
+        >
+          <div
+            data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-137"
+            className="flex items-center gap-1"
+          >
             <Tooltip title="Attach">
               <button
                 type="button"
@@ -179,7 +200,12 @@ const NewPostCard = ({
           </button>
         </div>
       </div>
-      <span className="sr-only">{authorName}</span>
+      <span
+        data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-span-182"
+        className="sr-only"
+      >
+        {authorName}
+      </span>
     </div>
   );
 };
@@ -193,7 +219,10 @@ const PostCard = ({ post }: { post: ChannelPost }) => {
       className="rounded-xl border border-[#E8EDF2] bg-white p-4 shadow-none"
       data-cy={`announcement-post-${post.id}`}
     >
-      <div className="flex items-start gap-3">
+      <div
+        data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-196"
+        className="flex items-start gap-3"
+      >
         <Avatar
           size={40}
           src={post.authorAvatarUrl || undefined}
@@ -205,7 +234,10 @@ const PostCard = ({ post }: { post: ChannelPost }) => {
             flexShrink: 0,
           }}
         />
-        <div className="min-w-0 flex-1">
+        <div
+          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-208"
+          className="min-w-0 flex-1"
+        >
           {post.title ? (
             <h3
               className="m-0 text-[15px] font-semibold leading-snug"
@@ -364,7 +396,10 @@ const ChannelPostsView = ({
         style={{ background: collaborationColors.surface }}
         data-cy="announcement-channel-topbar"
       >
-        <div className="flex min-w-0 flex-wrap items-center gap-3">
+        <div
+          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-367"
+          className="flex min-w-0 flex-wrap items-center gap-3"
+        >
           {onBack ? (
             <button
               type="button"
@@ -375,8 +410,12 @@ const ChannelPostsView = ({
               Spaces
             </button>
           ) : null}
-          <div className="flex min-w-0 items-center gap-2">
+          <div
+            data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-378"
+            className="flex min-w-0 items-center gap-2"
+          >
             <span
+              data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-span-379"
               className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white"
               style={{
                 color: collaborationColors.primary,
@@ -393,7 +432,10 @@ const ChannelPostsView = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div
+          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-396"
+          className="flex items-center gap-2"
+        >
           <Button
             type="primary"
             onClick={() => setComposerOpen(true)}
@@ -417,7 +459,10 @@ const ChannelPostsView = ({
         className="min-h-0 flex-1 overflow-y-auto bg-white px-4 py-6"
         data-cy="announcement-channel-feed"
       >
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+        <div
+          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-420"
+          className="mx-auto flex w-full max-w-2xl flex-col gap-4"
+        >
           {composerOpen ? (
             <NewPostCard
               channelName={channel.name}
@@ -432,7 +477,10 @@ const ChannelPostsView = ({
               className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-[#D1D5DB] bg-transparent px-4"
               data-cy="announcement-posts-empty"
             >
-              <p className="m-0 text-center text-sm text-gray-500">
+              <p
+                data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-p-435"
+                className="m-0 text-center text-sm text-gray-500"
+              >
                 No posts yet. Create a new post.
               </p>
             </div>
@@ -443,7 +491,10 @@ const ChannelPostsView = ({
               className="flex min-h-[140px] items-center justify-center rounded-xl border border-dashed border-[#D1D5DB] px-4"
               data-cy="announcement-posts-empty-behind-composer"
             >
-              <p className="m-0 text-center text-sm text-gray-500">
+              <p
+                data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-p-446"
+                className="m-0 text-center text-sm text-gray-500"
+              >
                 No posts yet. Create a new post.
               </p>
             </div>
@@ -460,8 +511,11 @@ const ChannelPostsView = ({
         title={`Add members to #${channel.name}`}
         description={
           <>
-            Choose members from <strong>{space.name}</strong> to add to this
-            channel.
+            Choose members from{' '}
+            <strong data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-strong-463">
+              {space.name}
+            </strong>{' '}
+            to add to this channel.
           </>
         }
         members={availableSpaceMembers}

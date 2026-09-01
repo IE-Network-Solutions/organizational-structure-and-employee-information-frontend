@@ -336,7 +336,11 @@ export const SEED_COLLABORATION_SPACES: CollaborationSpace[] = [
     ],
     channels: [
       { id: 'ch-hr-general', name: 'general', kind: 'general' },
-      { id: 'ch-hr-announcements', name: 'announcements', kind: 'announcements' },
+      {
+        id: 'ch-hr-announcements',
+        name: 'announcements',
+        kind: 'announcements',
+      },
       { id: 'ch-hr-policies', name: 'policies', kind: 'channel' },
     ],
   },
@@ -446,7 +450,9 @@ export const createAnnouncement = (
     const findChannelFn =
       lookup?.findChannel ??
       ((spaceId: string, channelId: string) =>
-        findSpace(spaceId)?.channels.find((channel) => channel.id === channelId));
+        findSpace(spaceId)?.channels.find(
+          (channel) => channel.id === channelId,
+        ));
 
     const space = findSpace(draft.spaceId);
     const channel = findChannelFn(draft.spaceId, draft.channelId);

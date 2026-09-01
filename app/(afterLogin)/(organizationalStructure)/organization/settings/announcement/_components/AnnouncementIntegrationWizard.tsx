@@ -7,10 +7,7 @@ import { MdTag } from 'react-icons/md';
 import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
 import type { CollaborationSpace } from '@/app/(afterLogin)/(organizationalStructure)/organization/announcement/_components/mockAnnouncementService';
 
-const STEP_ITEMS = [
-  { title: 'Select Space' },
-  { title: 'Select Channel' },
-];
+const STEP_ITEMS = [{ title: 'Select Space' }, { title: 'Select Channel' }];
 
 type AnnouncementIntegrationWizardProps = {
   open: boolean;
@@ -39,22 +36,40 @@ const SpaceOption = ({
     data-selected={selected ? 'true' : 'false'}
   >
     <span
+      data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-38"
       className="h-2.5 w-2.5 shrink-0 rounded-full"
       style={{ background: space.color }}
       aria-hidden
     />
-    <div className="min-w-0 flex-1">
-      <div className="flex items-center gap-2">
-        <span className="truncate text-sm font-semibold text-gray-900">
+    <div
+      data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-43"
+      className="min-w-0 flex-1"
+    >
+      <div
+        data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-44"
+        className="flex items-center gap-2"
+      >
+        <span
+          data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-45"
+          className="truncate text-sm font-semibold text-gray-900"
+        >
           {space.name}
         </span>
         {space.isPrivate ? (
           <LockOutlined className="text-xs text-gray-400" />
         ) : null}
       </div>
-      <span className="text-xs text-gray-400">{space.subtitle}</span>
+      <span
+        data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-52"
+        className="text-xs text-gray-400"
+      >
+        {space.subtitle}
+      </span>
     </div>
-    <span className="text-xs text-gray-400">
+    <span
+      data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-54"
+      className="text-xs text-gray-400"
+    >
       {space.channels.length} channel{space.channels.length === 1 ? '' : 's'}
     </span>
   </button>
@@ -246,7 +261,10 @@ const AnnouncementIntegrationWizard = ({
       <div className="mt-6" data-cy="announcement-integration-step-content">
         {current === 0 ? (
           <div data-cy="announcement-integration-step-space">
-            <p className="mb-3 text-sm text-gray-500">
+            <p
+              data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-246"
+              className="mb-3 text-sm text-gray-500"
+            >
               Choose a space from Selamnew Collaboration to integrate.
             </p>
             <Input
@@ -258,7 +276,10 @@ const AnnouncementIntegrationWizard = ({
               className="mb-3"
               data-cy="announcement-integration-space-search"
             />
-            <div className="flex max-h-[320px] flex-col gap-2 overflow-y-auto">
+            <div
+              data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-258"
+              className="flex max-h-[320px] flex-col gap-2 overflow-y-auto"
+            >
               {filteredSpaces.length === 0 ? (
                 <p
                   className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-sm text-gray-400"
@@ -280,10 +301,16 @@ const AnnouncementIntegrationWizard = ({
           </div>
         ) : (
           <div data-cy="announcement-integration-step-channel">
-            <p className="mb-1 text-sm font-medium text-gray-900">
+            <p
+              data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-280"
+              className="mb-1 text-sm font-medium text-gray-900"
+            >
               {selectedSpace?.name}
             </p>
-            <p className="mb-3 text-sm text-gray-500">
+            <p
+              data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-283"
+              className="mb-3 text-sm text-gray-500"
+            >
               Select the channels that should appear on the Announcement page.
             </p>
             {availableChannels.length === 0 ? (
@@ -304,7 +331,10 @@ const AnnouncementIntegrationWizard = ({
                   className="mb-3"
                   data-cy="announcement-integration-channel-search"
                 />
-                <div className="flex max-h-[320px] flex-col gap-1 overflow-y-auto">
+                <div
+                  data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-div-304"
+                  className="flex max-h-[320px] flex-col gap-1 overflow-y-auto"
+                >
                   {filteredChannels.length === 0 ? (
                     <p
                       className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-sm text-gray-400"
@@ -326,11 +356,17 @@ const AnnouncementIntegrationWizard = ({
                           }
                           data-cy="announcement-integration-select-all-check"
                         />
-                        <span className="text-sm font-medium text-gray-800">
+                        <span
+                          data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-326"
+                          className="text-sm font-medium text-gray-800"
+                        >
                           Select all
                           {channelSearch.trim() ? ' matching' : ''}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span
+                          data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-330"
+                          className="text-xs text-gray-400"
+                        >
                           ({selectedChannelIds.length}/
                           {availableChannels.length})
                         </span>
@@ -349,10 +385,16 @@ const AnnouncementIntegrationWizard = ({
                             data-cy={`announcement-integration-channel-check-${channel.id}`}
                           />
                           <MdTag className="text-gray-400" size={14} />
-                          <span className="text-sm text-gray-800">
+                          <span
+                            data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-349"
+                            className="text-sm text-gray-800"
+                          >
                             #{channel.name}
                           </span>
-                          <span className="text-xs capitalize text-gray-400">
+                          <span
+                            data-cy="settings-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-span-352"
+                            className="text-xs capitalize text-gray-400"
+                          >
                             {channel.kind}
                           </span>
                         </label>

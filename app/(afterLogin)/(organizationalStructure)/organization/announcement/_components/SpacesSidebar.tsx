@@ -1,6 +1,13 @@
 'use client';
 
-import { Button, Collapse, Dropdown, Empty, Typography } from 'antd';
+import {
+  Button,
+  Collapse,
+  Dropdown,
+  Empty,
+  Typography,
+  type MenuProps,
+} from 'antd';
 import {
   LockOutlined,
   MoreOutlined,
@@ -59,6 +66,40 @@ const SpaceActivityIndicator = ({ space }: { space: CollaborationSpace }) => {
   return null;
 };
 
+const getSpaceHeaderMenuItems = (
+  spaceId: string,
+  onEditSpace?: (spaceId: string) => void,
+  onAddSpaceMembers?: (spaceId: string) => void,
+): MenuProps['items'] => {
+  const items: NonNullable<MenuProps['items']> = [];
+
+  if (onEditSpace) {
+    items.push({
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        onEditSpace(spaceId);
+      },
+    });
+  }
+
+  if (onAddSpaceMembers) {
+    items.push({
+      key: 'add-members',
+      icon: <UserAddOutlined />,
+      label: 'Add members',
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        onAddSpaceMembers(spaceId);
+      },
+    });
+  }
+
+  return items;
+};
+
 const SpacePanelHeader = ({
   space,
   onAddSpaceMembers,
@@ -73,18 +114,33 @@ const SpacePanelHeader = ({
     data-cy={`announcement-space-header-${space.id}`}
   >
     <span
+      data-cy="organization-announcement-components-spacessidebar-tsx-spacessidebar-span-82"
       className="h-2 w-2 shrink-0 rounded-full"
       style={{ background: space.color }}
       aria-hidden
     />
-    <div className="min-w-0 flex-1">
-      <div className="flex items-center gap-1.5">
-        <span className="truncate text-sm font-semibold text-gray-900">
+    <div
+      data-cy="organization-announcement-components-spacessidebar-tsx-spacessidebar-div-87"
+      className="min-w-0 flex-1"
+    >
+      <div
+        data-cy="organization-announcement-components-spacessidebar-tsx-spacessidebar-div-88"
+        className="flex items-center gap-1.5"
+      >
+        <span
+          data-cy="organization-announcement-components-spacessidebar-tsx-spacessidebar-span-89"
+          className="truncate text-sm font-semibold text-gray-900"
+        >
           {space.name}
         </span>
         <SpaceActivityIndicator space={space} />
       </div>
-      <div className="truncate text-xs text-gray-400">{space.subtitle}</div>
+      <div
+        data-cy="organization-announcement-components-spacessidebar-tsx-spacessidebar-div-94"
+        className="truncate text-xs text-gray-400"
+      >
+        {space.subtitle}
+      </div>
     </div>
     {space.isPrivate ? (
       <LockOutlined
@@ -95,34 +151,11 @@ const SpacePanelHeader = ({
     {onAddSpaceMembers || onEditSpace ? (
       <Dropdown
         menu={{
-          items: [
-            ...(onEditSpace
-              ? [
-                  {
-                    key: 'settings',
-                    icon: <SettingOutlined />,
-                    label: 'Settings',
-                    onClick: ({ domEvent }: { domEvent: Event }) => {
-                      domEvent.stopPropagation();
-                      onEditSpace(space.id);
-                    },
-                  },
-                ]
-              : []),
-            ...(onAddSpaceMembers
-              ? [
-                  {
-                    key: 'add-members',
-                    icon: <UserAddOutlined />,
-                    label: 'Add members',
-                    onClick: ({ domEvent }: { domEvent: Event }) => {
-                      domEvent.stopPropagation();
-                      onAddSpaceMembers(space.id);
-                    },
-                  },
-                ]
-              : []),
-          ],
+          items: getSpaceHeaderMenuItems(
+            space.id,
+            onEditSpace,
+            onAddSpaceMembers,
+          ),
         }}
         trigger={['click']}
         placement="bottomRight"
@@ -177,7 +210,12 @@ const ChannelRow = ({
       data-cy={`announcement-channel-${channel.id}`}
       data-selected={selected ? 'true' : 'false'}
     >
-      <span className="min-w-0 truncate">{channel.name}</span>
+      <span
+        data-cy="organization-announcement-components-spacessidebar-tsx-spacessidebar-span-187"
+        className="min-w-0 truncate"
+      >
+        {channel.name}
+      </span>
     </button>
     {onEditChannel ? (
       <Dropdown
@@ -279,7 +317,10 @@ const SpacesSidebar = ({
         </Text>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-4">
+      <div
+        data-cy="organization-announcement-components-spacessidebar-tsx-spacessidebar-div-289"
+        className="min-h-0 flex-1 overflow-y-auto px-2 pb-4"
+      >
         <Collapse
           accordion
           ghost
@@ -310,12 +351,17 @@ export const SelectSpaceEmptyState = ({
     <Empty
       image={Empty.PRESENTED_IMAGE_SIMPLE}
       description={
-        <div className="text-center">
+        <div
+          data-cy="organization-announcement-components-spacessidebar-tsx-spacessidebar-div-320"
+          className="text-center"
+        >
           <h2
             className="m-0 text-lg font-semibold text-gray-800"
             data-cy="announcement-select-space-empty-title"
           >
-            {hasIntegratedChannels ? 'Select a Space' : 'No channels integrated'}
+            {hasIntegratedChannels
+              ? 'Select a Space'
+              : 'No channels integrated'}
           </h2>
           <p
             className="mt-2 max-w-sm text-sm text-gray-500"

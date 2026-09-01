@@ -1896,7 +1896,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                           className="flex flex-1 items-center justify-start gap-1 text-left transition-colors"
                           style={{ fontSize }}
                         >
-                          <span className="leading-none">Announcement</span>
+                          <span
+                            className="leading-none"
+                            data-cy="nav-sider-announcement-text"
+                          >
+                            Announcement
+                          </span>
                           <span
                             className="inline-flex shrink-0 items-center justify-start font-bold leading-none text-[#ff4d4f]"
                             style={{ fontSize }}

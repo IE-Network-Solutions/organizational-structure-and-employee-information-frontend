@@ -299,8 +299,7 @@ export const useAnnouncementChannelsStore = create<AnnouncementChannelsStore>(
 
       const channelType = input.channelType ?? 'posts';
       const kind =
-        input.kind ??
-        (channelType === 'posts' ? 'announcements' : 'channel');
+        input.kind ?? (channelType === 'posts' ? 'announcements' : 'channel');
       const description = input.description?.trim() || undefined;
 
       const channel: CollaborationChannel = {
@@ -333,7 +332,9 @@ export const useAnnouncementChannelsStore = create<AnnouncementChannelsStore>(
     updateChannel: (spaceId, channelId, input) => {
       const space = get().spaces.find((item) => item.id === spaceId);
       if (!space) return null;
-      const existing = space.channels.find((channel) => channel.id === channelId);
+      const existing = space.channels.find(
+        (channel) => channel.id === channelId,
+      );
       if (!existing) return null;
 
       const nextName = input.name
@@ -413,7 +414,9 @@ export const useAnnouncementChannelsStore = create<AnnouncementChannelsStore>(
         return {
           spaces: state.spaces.map((space) => {
             if (space.id !== spaceId) return space;
-            const existingIds = new Set(space.members.map((member) => member.id));
+            const existingIds = new Set(
+              space.members.map((member) => member.id),
+            );
             const additions: SpaceMember[] = [];
             for (const memberId of memberIds) {
               if (existingIds.has(memberId)) continue;
@@ -434,8 +437,7 @@ export const useAnnouncementChannelsStore = create<AnnouncementChannelsStore>(
         };
       }),
 
-    getChannelMemberIds: (channelId) =>
-      get().channelMemberIds[channelId] ?? [],
+    getChannelMemberIds: (channelId) => get().channelMemberIds[channelId] ?? [],
 
     getPostsForChannel: (channelId) =>
       get().posts.filter((post) => post.channelId === channelId),
