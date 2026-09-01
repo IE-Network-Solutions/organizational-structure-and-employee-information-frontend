@@ -1,5 +1,19 @@
 import { ScorecardStatus } from '@/types/bsc';
 
+/**
+ * Prompt lifecycle → persisted mock status.
+ * SYSTEM_SCORING is a synchronous step inside finalizeApprovals, never stored.
+ */
+export const PROMPT_TO_MOCK_STATUS = {
+  DRAFT: ScorecardStatus.Draft,
+  PENDING_ACK: ScorecardStatus.PendingAck,
+  ACTIVE_CYCLE: ScorecardStatus.Active,
+  PENDING_EVAL: ScorecardStatus.PendingEval,
+  NEEDS_RESUBMIT: ScorecardStatus.NeedsResubmit,
+  MANAGER_REVIEW: ScorecardStatus.Scored,
+  COMPLETED: ScorecardStatus.Completed,
+} as const;
+
 const TRANSITIONS: Record<ScorecardStatus, ScorecardStatus[]> = {
   [ScorecardStatus.Draft]: [ScorecardStatus.PendingAck],
   [ScorecardStatus.PendingAck]: [ScorecardStatus.Active],

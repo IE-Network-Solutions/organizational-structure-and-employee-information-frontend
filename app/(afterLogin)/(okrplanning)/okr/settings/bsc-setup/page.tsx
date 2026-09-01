@@ -5,7 +5,7 @@ import { Input, Select, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import EmptyState from '@/components/empty';
-import { useGetBscCycles, useGetBscKpiLibrary } from '@/store/server/features/bsc/queries';
+import { useGetBscCycles, useGetBscKpiLibrary, useGetBscRolePerspectives } from '@/store/server/features/bsc/queries';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import BscSetupModal from './_components/BscSetupModal';
 import { buildRoleList } from './_utils/roleList';
@@ -24,10 +24,11 @@ export default function BscSetupPage() {
 
   const { data: configs, isLoading: configsLoading } = useGetBscCycles();
   const { data: kpis, isLoading: kpisLoading } = useGetBscKpiLibrary();
+  const { data: allocations } = useGetBscRolePerspectives();
 
   const roles = useMemo(
-    () => buildRoleList(configs || [], kpis || []),
-    [configs, kpis],
+    () => buildRoleList(configs || [], kpis || [], allocations || []),
+    [configs, kpis, allocations],
   );
 
   const departments = useMemo(() => {

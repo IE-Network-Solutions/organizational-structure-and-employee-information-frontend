@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { EvaluationCycle, KpiLibraryItem } from '@/types/bsc';
+import { EvaluationCycle, KpiLibraryItem, BscPerspectiveDefinition } from '@/types/bsc';
 import type { Month } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
 export interface BscRoleContext {
@@ -21,11 +21,13 @@ interface BscUiState {
   kpiSearch: string;
   kpiModalOpen: boolean;
   editingKpi: KpiLibraryItem | null;
+  perspectiveModalOpen: boolean;
+  editingPerspective: BscPerspectiveDefinition | null;
   assignModalOpen: boolean;
   myScorecardSessionId: string | undefined;
   myScorecardMonthId: string | undefined;
   myScorecardSessionMonths: Month[];
-  myKpiPeriodView: 'month' | 'quarter';
+  scorecardTab: 'mine' | 'team' | 'all';
   setSetupModalOpen: (v: boolean) => void;
   setEditingConfig: (v: EvaluationCycle | null) => void;
   openCreateSetup: () => void;
@@ -40,11 +42,16 @@ interface BscUiState {
   setKpiSearch: (v: string) => void;
   openKpiModal: (kpi?: KpiLibraryItem | null) => void;
   closeKpiModal: () => void;
+  openCreatePerspective: () => void;
+  openEditPerspective: (item: BscPerspectiveDefinition) => void;
+  closePerspectiveModal: () => void;
+  openAssignPerspectives: () => void;
+  closeAssignModal: () => void;
   setAssignModalOpen: (v: boolean) => void;
   setMyScorecardSessionId: (v: string | undefined) => void;
   setMyScorecardMonthId: (v: string | undefined) => void;
   setMyScorecardSessionMonths: (v: Month[]) => void;
-  setMyKpiPeriodView: (v: 'month' | 'quarter') => void;
+  setScorecardTab: (v: 'mine' | 'team' | 'all') => void;
 }
 
 export const useBscUiStore = create<BscUiState>((set) => ({
@@ -59,11 +66,13 @@ export const useBscUiStore = create<BscUiState>((set) => ({
   kpiSearch: '',
   kpiModalOpen: false,
   editingKpi: null,
+  perspectiveModalOpen: false,
+  editingPerspective: null,
   assignModalOpen: false,
   myScorecardSessionId: undefined,
   myScorecardMonthId: undefined,
   myScorecardSessionMonths: [],
-  myKpiPeriodView: 'month',
+  scorecardTab: 'mine',
   setSetupModalOpen: (setupModalOpen) => set({ setupModalOpen }),
   setEditingConfig: (editingConfig) => set({ editingConfig }),
   openCreateSetup: () =>
@@ -83,11 +92,19 @@ export const useBscUiStore = create<BscUiState>((set) => ({
   openKpiModal: (kpi = null) =>
     set({ kpiModalOpen: true, editingKpi: kpi || null }),
   closeKpiModal: () => set({ kpiModalOpen: false, editingKpi: null }),
+  openCreatePerspective: () =>
+    set({ perspectiveModalOpen: true, editingPerspective: null }),
+  openEditPerspective: (editingPerspective) =>
+    set({ perspectiveModalOpen: true, editingPerspective }),
+  closePerspectiveModal: () =>
+    set({ perspectiveModalOpen: false, editingPerspective: null }),
+  openAssignPerspectives: () => set({ assignModalOpen: true }),
+  closeAssignModal: () => set({ assignModalOpen: false }),
   setAssignModalOpen: (assignModalOpen) => set({ assignModalOpen }),
   setMyScorecardSessionId: (myScorecardSessionId) =>
     set({ myScorecardSessionId }),
   setMyScorecardMonthId: (myScorecardMonthId) => set({ myScorecardMonthId }),
   setMyScorecardSessionMonths: (myScorecardSessionMonths) =>
     set({ myScorecardSessionMonths }),
-  setMyKpiPeriodView: (myKpiPeriodView) => set({ myKpiPeriodView }),
+  setScorecardTab: (scorecardTab) => set({ scorecardTab }),
 }));

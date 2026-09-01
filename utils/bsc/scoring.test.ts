@@ -1,10 +1,12 @@
 import {
   computeCompositeScore,
   normalizeRatio,
+  validateKpisMatchPerspectiveAllocation,
+  validatePerspectiveWeights,
   validateWeights,
 } from './scoring';
 import { BscPerspective, TargetLogic } from '@/types/bsc';
-import { canTransition } from './stateMachine';
+import { canTransition, PROMPT_TO_MOCK_STATUS } from './stateMachine';
 import { ScorecardStatus } from '@/types/bsc';
 
 describe('bsc scoring', () => {
@@ -86,6 +88,60 @@ describe('bsc scoring', () => {
     );
     expect(valid.valid).toBe(true);
   });
+
+  it('requires role perspective weights to sum to 100 and stay within 50%', () => {
+    expect(
+      validatePerspectiveWeights({
+        [BscPerspective.Customer]: 40,
+        [BscPerspective.InternalProcess]: 35,
+        [BscPerspective.LearningGrowth]: 25,
+      }).valid,
+    ).toBe(true);
+    expect(
+      validatePerspectiveWeights({
+        [BscPerspective.Customer]: 60,
+        [BscPerspective.InternalProcess]: 20,
+        [BscPerspective.LearningGrowth]: 20,
+      }).valid,
+    ).toBe(false);
+  });
+
+  it('requires KPI weights to match a role perspective allocation', () => {
+    const allocation = {
+      [BscPerspective.Customer]: 35,
+      [BscPerspective.InternalProcess]: 35,
+      [BscPerspective.LearningGrowth]: 30,
+    };
+    expect(
+      validateKpisMatchPerspectiveAllocation(
+        [35, 35, 30],
+        [
+          BscPerspective.Customer,
+          BscPerspective.InternalProcess,
+          BscPerspective.LearningGrowth,
+        ],
+        allocation,
+      ).valid,
+    ).toBe(true);
+    expect(
+      validateKpisMatchPerspectiveAllocation(
+        [40, 35, 25],
+        [
+          BscPerspective.Customer,
+          BscPerspective.InternalProcess,
+          BscPerspective.LearningGrowth,
+        ],
+        allocation,
+      ).valid,
+    ).toBe(false);
+    expect(
+      validateKpisMatchPerspectiveAllocation(
+        [100],
+        ['Community Impact'],
+        allocation,
+      ).message,
+    ).toMatch(/not assigned/i);
+  });
 });
 
 describe('bsc state machine', () => {
@@ -99,5 +155,16 @@ describe('bsc state machine', () => {
     expect(
       canTransition(ScorecardStatus.Completed, ScorecardStatus.Active),
     ).toBe(false);
+  });
+
+  it('maps prompt names onto persisted statuses and omits SYSTEM_SCORING', () => {
+    expect(PROMPT_TO_MOCK_STATUS.DRAFT).toBe(ScorecardStatus.Draft);
+    expect(PROMPT_TO_MOCK_STATUS.PENDING_ACK).toBe(ScorecardStatus.PendingAck);
+    expect(PROMPT_TO_MOCK_STATUS.ACTIVE_CYCLE).toBe(ScorecardStatus.Active);
+    expect(PROMPT_TO_MOCK_STATUS.PENDING_EVAL).toBe(ScorecardStatus.PendingEval);
+    expect(PROMPT_TO_MOCK_STATUS.MANAGER_REVIEW).toBe(ScorecardStatus.Scored);
+    expect(PROMPT_TO_MOCK_STATUS.COMPLETED).toBe(ScorecardStatus.Completed);
+    expect('SYSTEM_SCORING' in PROMPT_TO_MOCK_STATUS).toBe(false);
+    expect(Object.values(ScorecardStatus)).not.toContain('SYSTEM_SCORING');
   });
 });

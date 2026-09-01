@@ -6,4 +6,10 @@ export type {
   EvaluationCycle,
   KpiLibraryItem,
   ReportKpiInput,
+  AdjustReportedKpiInput,
+  RolePerspectiveAllocation,
+  SaveRolePerspectiveInput,
+  CreatePerspectiveInput,
+  BscPerspectiveDefinition,
+  ScorecardAuditEvent,
 } from '@/types/bsc';

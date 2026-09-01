@@ -32,13 +32,19 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     setAssignment: setAverageOkrRuleAssignment,
   } = useAverageOkrRuleAssignmentStore();
   const { showNotReportedList } = useOKRSettingStore();
-  const { openCreateSetup } = useBscUiStore();
+  const { openCreateSetup, openCreatePerspective, openAssignPerspectives } =
+    useBscUiStore();
 
   const isPlanningAssignation = activeTab === 'planning-assignation';
   const isCriteriaManagement = activeTab === 'criteria-management';
   const isAverageOkrRuleAssignment = activeTab === 'okr-rule-assignment';
   const isBscSetup = activeTab === 'bsc-setup';
   const isBscRoleDetail = pathname.includes('/bsc-setup/role/');
+  const isBscPerspectives = activeTab === 'bsc-perspectives';
+  const isBscPerspectiveAssignment = activeTab === 'bsc-perspective-assignment';
+  const isBscAssignmentRole = pathname.includes(
+    '/bsc-perspective-assignment/role/',
+  );
 
   const handleAddAssignee = () => {
     setPlanningOpen(true);
@@ -93,6 +99,16 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       label: 'BSC Setup',
       path: '/okr/settings/bsc-setup',
     },
+    {
+      key: 'bsc-perspectives',
+      label: 'BSC Perspectives',
+      path: '/okr/settings/bsc-perspectives',
+    },
+    {
+      key: 'bsc-perspective-assignment',
+      label: 'Perspective Assignment',
+      path: '/okr/settings/bsc-perspective-assignment',
+    },
   ];
 
   useEffect(() => {
@@ -110,10 +126,16 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       'bsc-setup': 'bsc-setup',
       'bsc-kpi-library': 'bsc-setup',
       'bsc-cycles': 'bsc-setup',
+      'bsc-perspectives': 'bsc-perspectives',
+      'bsc-perspective-assignment': 'bsc-perspective-assignment',
     };
 
     if (pathname.includes('/okr/settings/bsc-setup')) {
       setActiveTab('bsc-setup');
+    } else if (pathname.includes('/okr/settings/bsc-perspective-assignment')) {
+      setActiveTab('bsc-perspective-assignment');
+    } else if (pathname.includes('/okr/settings/bsc-perspectives')) {
+      setActiveTab('bsc-perspectives');
     } else if (tabMap[lastKey]) {
       setActiveTab(tabMap[lastKey]);
     }
@@ -333,6 +355,32 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                     data-cy="bsc-setup-add"
                   >
                     <span className="hidden sm:inline ml-2">Add Setup</span>
+                  </Button>
+                )}
+                {isBscPerspectives && (
+                  <Button
+                    icon={<FaPlus />}
+                    onClick={openCreatePerspective}
+                    className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-[40px] px-3 sm:px-6 text-white border-none mb-3 rounded-lg flex items-center justify-center font-medium"
+                    type="primary"
+                    id="okr-settings-add-bsc-perspective-button"
+                    data-cy="bsc-perspective-add"
+                  >
+                    <span className="hidden sm:inline ml-2">
+                      Add Perspective
+                    </span>
+                  </Button>
+                )}
+                {isBscPerspectiveAssignment && !isBscAssignmentRole && (
+                  <Button
+                    icon={<FaPlus />}
+                    onClick={openAssignPerspectives}
+                    className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-[40px] px-3 sm:px-6 text-white border-none mb-3 rounded-lg flex items-center justify-center font-medium"
+                    type="primary"
+                    id="okr-settings-assign-bsc-perspectives-button"
+                    data-cy="bsc-perspective-assign"
+                  >
+                    <span className="hidden sm:inline ml-2">Assign</span>
                   </Button>
                 )}
               </div>

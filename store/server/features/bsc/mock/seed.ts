@@ -1,16 +1,42 @@
 import {
   BscCadence,
   BscPerspective,
+  BscPerspectiveDefinition,
   CycleStatus,
   EmployeeScorecard,
   EvaluationCycle,
   KpiApprovalStatus,
   KpiLibraryItem,
+  RolePerspectiveAllocation,
   ScorecardStatus,
   TargetLogic,
 } from '@/types/bsc';
 
 const now = new Date().toISOString();
+
+export const SEED_PERSPECTIVES: BscPerspectiveDefinition[] = [
+  {
+    id: 'perspective-customer',
+    name: BscPerspective.Customer,
+    description: 'Outcomes for the people you serve.',
+    isSystem: true,
+    createdAt: now,
+  },
+  {
+    id: 'perspective-internal-process',
+    name: BscPerspective.InternalProcess,
+    description: 'How work gets done across the role.',
+    isSystem: true,
+    createdAt: now,
+  },
+  {
+    id: 'perspective-learning-growth',
+    name: BscPerspective.LearningGrowth,
+    description: 'Capability, skills, and development.',
+    isSystem: true,
+    createdAt: now,
+  },
+];
 
 /** Seeded positional KPI library from the non-financial BSC research matrices */
 export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
@@ -398,6 +424,44 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
   },
 ];
 
+function emptySeedWeights(): Record<BscPerspective, number> {
+  return {
+    [BscPerspective.Customer]: 0,
+    [BscPerspective.InternalProcess]: 0,
+    [BscPerspective.LearningGrowth]: 0,
+  };
+}
+
+/** Role perspective allocations derived from seeded KPI weights */
+export const SEED_ROLE_PERSPECTIVES: RolePerspectiveAllocation[] = (() => {
+  const map = new Map<string, RolePerspectiveAllocation>();
+  for (const kpi of SEED_KPI_LIBRARY) {
+    const title = kpi.positionTitle;
+    if (!title) continue;
+    const key = `${kpi.evaluationConfigId}::${(
+      kpi.positionId || title
+    ).toLowerCase()}`;
+    let row = map.get(key);
+    if (!row) {
+      row = {
+        id: `rp-${key.replace(/[^a-z0-9]+/gi, '-')}`,
+        evaluationConfigId: kpi.evaluationConfigId,
+        positionId: kpi.positionId || null,
+        positionTitle: title,
+        departmentName: kpi.departmentName || null,
+        weights: emptySeedWeights(),
+        updatedAt: now,
+      };
+      map.set(key, row);
+    }
+    row.weights[kpi.perspective] += kpi.weight;
+  }
+  return Array.from(map.values()).filter((row) => {
+    const sum = Object.values(row.weights).reduce((a, b) => a + b, 0);
+    return Math.round(sum) === 100;
+  });
+})();
+
 function seedEvaluationConfig(): EvaluationCycle {
   const d = new Date();
   const year = d.getFullYear();
@@ -486,15 +550,19 @@ function monthMeta(offsetMonths: number) {
   return { year, month, monthName, label, start, end };
 }
 
-function buildHrDirectorTargets(
+function buildRoleTargets(
   scorecardId: string,
-  actuals: [number | null, number | null, number | null],
+  positionTitle: string,
+  actuals: Array<number | null>,
+  status: ScorecardStatus,
 ): EmployeeScorecard['targets'] {
   const kpis = SEED_KPI_LIBRARY.filter(
     (k) =>
-      k.positionTitle === 'HR Director' &&
+      k.positionTitle === positionTitle &&
       k.evaluationConfigId === 'config-seed-current',
   );
+  const scored =
+    status === ScorecardStatus.Scored || status === ScorecardStatus.Completed;
   return kpis.map((kpi, i) => ({
     id: `${scorecardId}-t${i + 1}`,
     scorecardId,
@@ -509,8 +577,14 @@ function buildHrDirectorTargets(
     approvalStatus:
       actuals[i] == null
         ? KpiApprovalStatus.Pending
-        : KpiApprovalStatus.Approved,
+        : scored
+          ? KpiApprovalStatus.Approved
+          : KpiApprovalStatus.Pending,
     submittedAt: actuals[i] == null ? null : now,
+    evidenceUrl:
+      actuals[i] == null ? null : `https://mock.evidence/${scorecardId}/${kpi.id}`,
+    evidenceFileName: actuals[i] == null ? null : `${kpi.id}.pdf`,
+    evidenceHash: actuals[i] == null ? null : `hash-${scorecardId}-${i}`,
   }));
 }
 
@@ -518,30 +592,38 @@ function seedScorecardForMonth(opts: {
   id: string;
   offsetMonths: number;
   status: ScorecardStatus;
-  actuals: [number | null, number | null, number | null];
+  actuals: Array<number | null>;
   compositeScore?: number;
   managerNote?: string;
+  userId?: string;
+  userName?: string;
+  positionTitle?: string;
+  departmentName?: string;
 }): EmployeeScorecard {
   const meta = monthMeta(opts.offsetMonths);
   const cycleId =
     opts.offsetMonths === 0
       ? 'config-seed-current'
       : `config-seed-${meta.year}-${String(meta.month).padStart(2, '0')}`;
+  const positionTitle = opts.positionTitle || 'HR Director';
   return {
     id: opts.id,
-    userId: 'demo-user',
-    userName: 'Alex Morgan',
+    userId: opts.userId || 'demo-user',
+    userName: opts.userName || 'Alex Morgan',
     managerId: 'demo-manager',
     departmentId: null,
+    departmentName: opts.departmentName || 'Human Resources',
     positionId: null,
-    positionTitle: 'HR Director',
+    positionTitle,
     cycleId,
     cycleLabel: `${meta.label} (Monthly)`,
     periodMonthName: meta.monthName,
     periodYear: meta.year,
     status: opts.status,
-    targets: buildHrDirectorTargets(opts.id, opts.actuals),
+    targets: buildRoleTargets(opts.id, positionTitle, opts.actuals, opts.status),
     acknowledgedAt: now,
+    acknowledgedBy: opts.userId || 'demo-user',
+    acknowledgmentSignature: `sig-${opts.id}`,
     finalEvaluation:
       opts.compositeScore != null
         ? {
@@ -605,5 +687,46 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     actuals: [35, 34, 70],
     compositeScore: 79.2,
     managerNote: 'Time-to-fill improved; keep focus on leadership pipeline.',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-ta-current',
+    offsetMonths: 0,
+    status: ScorecardStatus.Active,
+    actuals: [4.3, 38, null],
+    userId: 'emp-ta-jordan',
+    userName: 'Jordan Hale',
+    positionTitle: 'Talent Acquisition Specialist',
+    departmentName: 'Human Resources',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-sup-current',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [92, 71, 8],
+    userId: 'emp-sup-sam',
+    userName: 'Sam Rivera',
+    positionTitle: 'Support Team Lead',
+    departmentName: 'Customer Support',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-eng-current',
+    offsetMonths: 0,
+    status: ScorecardStatus.Scored,
+    actuals: [99.7, 18, 9],
+    compositeScore: 91.2,
+    userId: 'emp-eng-riley',
+    userName: 'Riley Chen',
+    positionTitle: 'Lead Software Engineer',
+    departmentName: 'Information Technology',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-ae-current',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [4, 96, 1],
+    userId: 'emp-ae-casey',
+    userName: 'Casey Brooks',
+    positionTitle: 'Account Executive',
+    departmentName: 'Sales Operations',
   }),
 ];

@@ -4,12 +4,44 @@ export enum BscPerspective {
   LearningGrowth = 'Learning & Growth',
 }
 
+/** Default non-financial perspectives. Additional perspectives can be defined in settings. */
+export const BSC_PERSPECTIVES = [
+  BscPerspective.Customer,
+  BscPerspective.InternalProcess,
+  BscPerspective.LearningGrowth,
+] as const;
+
+export interface BscPerspectiveDefinition {
+  id: string;
+  name: string;
+  description?: string | null;
+  /** Seeded defaults cannot be deleted */
+  isSystem?: boolean;
+  createdAt: string;
+}
+
+export interface CreatePerspectiveInput {
+  name: string;
+  description?: string | null;
+}
+
 export enum TargetLogic {
   HigherBetter = 'HigherBetter',
   LowerBetter = 'LowerBetter',
   Bounded = 'Bounded',
 }
 
+/**
+ * Persisted scorecard lifecycle. Prompt names map as:
+ * DRAFT → Draft
+ * PENDING_ACK → PendingAck
+ * ACTIVE_CYCLE → Active
+ * PENDING_EVAL → PendingEval
+ * (reject path) → NeedsResubmit
+ * SYSTEM_SCORING → not persisted (runs inside finalizeApprovals)
+ * MANAGER_REVIEW → Scored
+ * COMPLETED → Completed
+ */
 export enum ScorecardStatus {
   Draft = 'Draft',
   PendingAck = 'PendingAck',
@@ -36,6 +68,7 @@ export enum BscCadence {
   Weekly = 'Weekly',
   Monthly = 'Monthly',
   Quarterly = 'Quarterly',
+  Yearly = 'Yearly',
   Custom = 'Custom',
 }
 
@@ -70,7 +103,7 @@ export interface KpiLibraryItem {
   evaluationConfigId: string;
   name: string;
   description?: string | null;
-  perspective: BscPerspective;
+  perspective: string;
   targetLogic: TargetLogic;
   measurementUnit: string;
   departmentId?: string | null;
@@ -92,7 +125,7 @@ export interface ScorecardKpiTarget {
   scorecardId: string;
   kpiLibraryId: string;
   kpiName: string;
-  perspective: BscPerspective;
+  perspective: string;
   targetLogic: TargetLogic;
   measurementUnit: string;
   weightPercentage: number;
@@ -115,12 +148,22 @@ export interface FinalEvaluation {
   evaluatorUserId: string;
 }
 
+export interface ScorecardAuditEvent {
+  id: string;
+  scorecardId: string;
+  from: ScorecardStatus | null;
+  to: ScorecardStatus;
+  actorId: string;
+  at: string;
+}
+
 export interface EmployeeScorecard {
   id: string;
   userId: string;
   userName: string;
   managerId: string;
   departmentId?: string | null;
+  departmentName?: string | null;
   positionId?: string | null;
   positionTitle?: string | null;
   cycleId: string;
@@ -131,6 +174,9 @@ export interface EmployeeScorecard {
   status: ScorecardStatus;
   targets: ScorecardKpiTarget[];
   acknowledgedAt?: string | null;
+  acknowledgedBy?: string | null;
+  /** Mock digital signature token applied on employee ack */
+  acknowledgmentSignature?: string | null;
   finalEvaluation?: FinalEvaluation | null;
   createdAt: string;
   updatedAt: string;
@@ -140,7 +186,7 @@ export interface CreateKpiLibraryInput {
   evaluationConfigId: string;
   name: string;
   description?: string | null;
-  perspective: BscPerspective;
+  perspective: string;
   targetLogic?: TargetLogic;
   measurementUnit?: string;
   departmentId?: string | null;
@@ -198,14 +244,21 @@ export interface AssignScorecardInput {
 export interface ReportKpiInput {
   targetId: string;
   actualValue: number;
-  evidenceUrl: string;
+  evidenceUrl?: string;
   evidenceFileName?: string;
+  evidenceHash?: string;
+}
+
+/** Manager correction of a reported actual while the scorecard is pending evaluation */
+export interface AdjustReportedKpiInput {
+  targetId: string;
+  actualValue: number;
 }
 
 export interface ScoreBreakdownItem {
   targetId: string;
   kpiName: string;
-  perspective: BscPerspective;
+  perspective: string;
   weight: number;
   ratio: number;
   weightedValue: number;
@@ -215,4 +268,23 @@ export interface ScoreBreakdownItem {
 export interface CompositeScoreResult {
   compositeScore: number;
   items: ScoreBreakdownItem[];
+}
+
+/** Role-level allocation of the three non-financial perspectives. Weights must sum to 100%. */
+export interface RolePerspectiveAllocation {
+  id: string;
+  evaluationConfigId: string;
+  positionId: string | null;
+  positionTitle: string;
+  departmentName?: string | null;
+  weights: Record<string, number>;
+  updatedAt: string;
+}
+
+export interface SaveRolePerspectiveInput {
+  evaluationConfigId: string;
+  positionId: string | null;
+  positionTitle: string;
+  departmentName?: string | null;
+  weights: Record<string, number>;
 }

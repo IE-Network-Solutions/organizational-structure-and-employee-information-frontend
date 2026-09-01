@@ -1,32 +1,51 @@
 import {
   AssignScorecardInput,
-  BscPerspective,
+  BscPerspectiveDefinition,
   CreateEvaluationConfigInput,
   CreateKpiLibraryInput,
+  CreatePerspectiveInput,
   CycleStatus,
   EmployeeScorecard,
   EvaluationCycle,
   KpiApprovalStatus,
   KpiLibraryItem,
   ReportKpiInput,
+  AdjustReportedKpiInput,
+  RolePerspectiveAllocation,
+  SaveRolePerspectiveInput,
+  ScorecardAuditEvent,
   ScorecardKpiTarget,
   ScorecardStatus,
   TargetLogic,
   UpdateEvaluationConfigInput,
 } from '@/types/bsc';
-import { computeCompositeScore, validateWeights } from '@/utils/bsc/scoring';
+import { hasEvidenceArtifact } from '@/utils/bsc/evidence';
+import {
+  computeCompositeScore,
+  validateKpisMatchPerspectiveAllocation,
+  validatePerspectiveWeights,
+  validateWeights,
+} from '@/utils/bsc/scoring';
 import { assertTransition } from '@/utils/bsc/stateMachine';
-import { SEED_CYCLES, SEED_KPI_LIBRARY, SEED_PAST_CYCLES, SEED_SCORECARDS } from './seed';
+import {
+  SEED_CYCLES,
+  SEED_KPI_LIBRARY,
+  SEED_PAST_CYCLES,
+  SEED_PERSPECTIVES,
+  SEED_ROLE_PERSPECTIVES,
+  SEED_SCORECARDS,
+} from './seed';
 
 function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function delay<T>(value: T, ms = 120): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), ms));
+  const wait = process.env.NODE_ENV === 'test' ? 0 : ms;
+  return new Promise((resolve) => setTimeout(() => resolve(value), wait));
 }
 
-class BscMockRepository {
+export class BscMockRepository {
   private kpiLibrary: KpiLibraryItem[] = SEED_KPI_LIBRARY.map((k) => ({
     ...k,
   }));
@@ -41,6 +60,15 @@ class BscMockRepository {
   }));
   private hrisOutbox: Array<{ scorecardId: string; score: number; at: string }> =
     [];
+  private auditLog: ScorecardAuditEvent[] = [];
+  private rolePerspectives: RolePerspectiveAllocation[] =
+    SEED_ROLE_PERSPECTIVES.map((row) => ({
+      ...row,
+      weights: { ...row.weights },
+    }));
+  private perspectives: BscPerspectiveDefinition[] = SEED_PERSPECTIVES.map(
+    (row) => ({ ...row }),
+  );
 
   listKpis(filters?: {
     evaluationConfigId?: string;
@@ -83,7 +111,7 @@ class BscMockRepository {
     return delay(items);
   }
 
-  createKpi(input: CreateKpiLibraryInput): Promise<KpiLibraryItem> {
+  async createKpi(input: CreateKpiLibraryInput): Promise<KpiLibraryItem> {
     if (!input.evaluationConfigId) {
       throw new Error('evaluationConfigId is required');
     }
@@ -92,6 +120,9 @@ class BscMockRepository {
     }
     if (input.weight === undefined || input.weight === null) {
       throw new Error('Weight is required');
+    }
+    if (!input.perspective?.trim()) {
+      throw new Error('Select a perspective');
     }
     const item: KpiLibraryItem = {
       id: uid('kpi'),
@@ -107,7 +138,7 @@ class BscMockRepository {
     return delay(item);
   }
 
-  updateKpi(
+  async updateKpi(
     id: string,
     input: Partial<CreateKpiLibraryInput>,
   ): Promise<KpiLibraryItem> {
@@ -123,7 +154,7 @@ class BscMockRepository {
   }
 
   /** Replace a role's KPI set in one shot (create / update / delete). Weights must sum to 100. */
-  syncRoleKpis(input: {
+  async syncRoleKpis(input: {
     evaluationConfigId: string;
     positionId: string | null;
     positionTitle: string;
@@ -139,10 +170,6 @@ class BscMockRepository {
     }>;
     existingIds: string[];
   }): Promise<KpiLibraryItem[]> {
-    const total = input.rows.reduce((s, r) => s + Number(r.weight || 0), 0);
-    if (Math.round(total) !== 100) {
-      throw new Error('KPI weights must sum to exactly 100%');
-    }
     if (!input.rows.length) {
       throw new Error('Add at least one KPI');
     }
@@ -151,7 +178,31 @@ class BscMockRepository {
       if (!row.weight || row.weight <= 0) {
         throw new Error('Each KPI weight must be greater than 0');
       }
+      if (!row.perspective?.trim()) {
+        throw new Error('Each KPI needs a perspective');
+      }
     }
+    const allocation = this.findRolePerspective(
+      input.evaluationConfigId,
+      input.positionId,
+      input.positionTitle,
+    );
+    if (!allocation) {
+      throw new Error('Assign perspectives to this role before adding KPIs');
+    }
+    const weightCheck = validateWeights(
+      input.rows.map((r) => Number(r.weight || 0)),
+      input.rows.map((r) => r.perspective as string),
+    );
+    if (!weightCheck.valid) {
+      throw new Error(weightCheck.message);
+    }
+    const match = validateKpisMatchPerspectiveAllocation(
+      input.rows.map((r) => Number(r.weight || 0)),
+      input.rows.map((r) => r.perspective as string),
+      allocation.weights,
+    );
+    if (!match.valid) throw new Error(match.message);
 
     const keepIds = new Set(
       input.rows.map((r) => r.id).filter((id): id is string => Boolean(id)),
@@ -173,6 +224,7 @@ class BscMockRepository {
           description: row.description?.trim() || null,
           weight: Number(row.weight),
           suggestedWeight: Number(row.weight),
+          perspective: row.perspective,
           positionId: input.positionId,
           positionTitle: input.positionTitle,
           departmentName:
@@ -186,7 +238,7 @@ class BscMockRepository {
           evaluationConfigId: input.evaluationConfigId,
           name: row.name.trim(),
           description: row.description?.trim() || null,
-          perspective: row.perspective || BscPerspective.InternalProcess,
+          perspective: row.perspective,
           targetLogic: row.targetLogic || TargetLogic.HigherBetter,
           measurementUnit: row.measurementUnit || '%',
           departmentName: input.departmentName || null,
@@ -203,6 +255,153 @@ class BscMockRepository {
     return delay(result);
   }
 
+  listRolePerspectives(filters?: {
+    evaluationConfigId?: string;
+    positionTitle?: string;
+  }): Promise<RolePerspectiveAllocation[]> {
+    let items = this.rolePerspectives.map((row) => this.cloneRolePerspective(row));
+    if (filters?.evaluationConfigId) {
+      items = items.filter(
+        (row) => row.evaluationConfigId === filters.evaluationConfigId,
+      );
+    }
+    if (filters?.positionTitle) {
+      const q = filters.positionTitle.toLowerCase();
+      items = items.filter((row) => row.positionTitle.toLowerCase() === q);
+    }
+    return delay(items);
+  }
+
+  getRolePerspectives(
+    evaluationConfigId: string,
+    positionId: string | null,
+    positionTitle: string,
+  ): Promise<RolePerspectiveAllocation | undefined> {
+    const found = this.findRolePerspective(
+      evaluationConfigId,
+      positionId,
+      positionTitle,
+    );
+    return delay(found ? this.cloneRolePerspective(found) : undefined);
+  }
+
+  async saveRolePerspectives(
+    input: SaveRolePerspectiveInput,
+  ): Promise<RolePerspectiveAllocation> {
+    if (!input.evaluationConfigId) {
+      throw new Error('evaluationConfigId is required');
+    }
+    if (!input.positionTitle?.trim()) {
+      throw new Error('Role is required');
+    }
+    const check = validatePerspectiveWeights(input.weights);
+    if (!check.valid) throw new Error(check.message);
+
+    const existing = this.findRolePerspective(
+      input.evaluationConfigId,
+      input.positionId,
+      input.positionTitle,
+    );
+    const saved: RolePerspectiveAllocation = {
+      id: existing?.id || uid('rp'),
+      evaluationConfigId: input.evaluationConfigId,
+      positionId: input.positionId,
+      positionTitle: input.positionTitle.trim(),
+      departmentName: input.departmentName ?? existing?.departmentName ?? null,
+      weights: { ...input.weights },
+      updatedAt: new Date().toISOString(),
+    };
+    if (existing) {
+      const idx = this.rolePerspectives.findIndex((row) => row.id === existing.id);
+      this.rolePerspectives[idx] = saved;
+    } else {
+      this.rolePerspectives.unshift(saved);
+    }
+    return delay(this.cloneRolePerspective(saved));
+  }
+
+  listPerspectives(): Promise<BscPerspectiveDefinition[]> {
+    return delay(this.perspectives.map((row) => ({ ...row })));
+  }
+
+  async createPerspective(
+    input: CreatePerspectiveInput,
+  ): Promise<BscPerspectiveDefinition> {
+    const name = input.name?.trim();
+    if (!name) throw new Error('Perspective name is required');
+    if (name.toLowerCase() === 'financial') {
+      throw new Error('Financial perspective is not used in this scorecard');
+    }
+    if (
+      this.perspectives.some((p) => p.name.toLowerCase() === name.toLowerCase())
+    ) {
+      throw new Error('A perspective with this name already exists');
+    }
+    const item: BscPerspectiveDefinition = {
+      id: uid('perspective'),
+      name,
+      description: input.description?.trim() || null,
+      isSystem: false,
+      createdAt: new Date().toISOString(),
+    };
+    this.perspectives.push(item);
+    return delay({ ...item });
+  }
+
+  async updatePerspective(
+    id: string,
+    input: Partial<CreatePerspectiveInput>,
+  ): Promise<BscPerspectiveDefinition> {
+    const idx = this.perspectives.findIndex((p) => p.id === id);
+    if (idx < 0) throw new Error('Perspective not found');
+    const current = this.perspectives[idx];
+    const nextName = input.name?.trim() || current.name;
+    if (nextName.toLowerCase() === 'financial') {
+      throw new Error('Financial perspective is not used in this scorecard');
+    }
+    if (
+      this.perspectives.some(
+        (p) => p.id !== id && p.name.toLowerCase() === nextName.toLowerCase(),
+      )
+    ) {
+      throw new Error('A perspective with this name already exists');
+    }
+    if (nextName !== current.name) {
+      this.renamePerspectiveUsage(current.name, nextName);
+    }
+    this.perspectives[idx] = {
+      ...current,
+      name: nextName,
+      description:
+        input.description !== undefined
+          ? input.description?.trim() || null
+          : current.description,
+    };
+    return delay({ ...this.perspectives[idx] });
+  }
+
+  async deletePerspective(id: string): Promise<void> {
+    const item = this.perspectives.find((p) => p.id === id);
+    if (!item) throw new Error('Perspective not found');
+    if (item.isSystem) {
+      throw new Error('Default perspectives cannot be deleted');
+    }
+    const inUse =
+      this.kpiLibrary.some((k) => k.perspective === item.name) ||
+      this.scorecards.some((s) =>
+        s.targets.some((t) => t.perspective === item.name),
+      );
+    if (inUse) {
+      throw new Error('This perspective is used by KPIs and cannot be deleted');
+    }
+    this.perspectives = this.perspectives.filter((p) => p.id !== id);
+    this.rolePerspectives = this.rolePerspectives.map((row) => {
+      const { [item.name]: _removed, ...rest } = row.weights;
+      return { ...row, weights: rest };
+    });
+    return delay(undefined);
+  }
+
   listCycles(): Promise<EvaluationCycle[]> {
     return delay(
       [...this.cycles].sort((a, b) => b.startDate.localeCompare(a.startDate)),
@@ -214,7 +413,7 @@ class BscMockRepository {
     return delay(found ? { ...found } : undefined);
   }
 
-  createCycle(input: CreateEvaluationConfigInput): Promise<EvaluationCycle> {
+  async createCycle(input: CreateEvaluationConfigInput): Promise<EvaluationCycle> {
     const hasPeriods = !!input.periodIds?.length;
     const hasDates = !!(input.startDate && input.endDate);
     if (!hasPeriods && !hasDates) {
@@ -232,11 +431,12 @@ class BscMockRepository {
       periodLabels: input.periodLabels || [],
       status: CycleStatus.Open,
     };
+    // Recurring configs stamp cadence only; do not auto-spawn extra scorecards.
     this.cycles.unshift(cycle);
     return delay({ ...cycle });
   }
 
-  updateCycle(
+  async updateCycle(
     id: string,
     input: UpdateEvaluationConfigInput,
   ): Promise<EvaluationCycle> {
@@ -246,7 +446,7 @@ class BscMockRepository {
     return delay({ ...this.cycles[idx] });
   }
 
-  lockCycle(id: string): Promise<EvaluationCycle> {
+  async lockCycle(id: string): Promise<EvaluationCycle> {
     const cycle = this.cycles.find((c) => c.id === id);
     if (!cycle) throw new Error('Cycle not found');
     cycle.status = CycleStatus.Locked;
@@ -292,7 +492,7 @@ class BscMockRepository {
     return delay(found ? this.cloneScorecard(found) : undefined);
   }
 
-  createScorecard(input: AssignScorecardInput): Promise<EmployeeScorecard> {
+  async createScorecard(input: AssignScorecardInput): Promise<EmployeeScorecard> {
     const cycle = this.cycles.find((c) => c.id === input.cycleId);
     if (!cycle) throw new Error('Cycle not found');
     if (cycle.status !== CycleStatus.Open) {
@@ -347,10 +547,14 @@ class BscMockRepository {
       updatedAt: new Date().toISOString(),
     };
     this.scorecards.unshift(scorecard);
+    this.recordTransition(scorecard, null, ScorecardStatus.Draft, input.managerId);
     return delay(this.cloneScorecard(scorecard));
   }
 
-  submitForAck(scorecardId: string): Promise<EmployeeScorecard> {
+  async submitForAck(
+    scorecardId: string,
+    actorId?: string,
+  ): Promise<EmployeeScorecard> {
     const sc = this.requireScorecard(scorecardId);
     assertTransition(sc.status, ScorecardStatus.PendingAck);
     const validation = validateWeights(
@@ -358,21 +562,36 @@ class BscMockRepository {
       sc.targets.map((t) => t.perspective),
     );
     if (!validation.valid) throw new Error(validation.message);
+    const from = sc.status;
     sc.status = ScorecardStatus.PendingAck;
     sc.updatedAt = new Date().toISOString();
+    this.recordTransition(
+      sc,
+      from,
+      ScorecardStatus.PendingAck,
+      actorId || sc.managerId,
+    );
     return delay(this.cloneScorecard(sc));
   }
 
-  acknowledge(scorecardId: string): Promise<EmployeeScorecard> {
+  async acknowledge(
+    scorecardId: string,
+    actorUserId?: string,
+  ): Promise<EmployeeScorecard> {
     const sc = this.requireScorecard(scorecardId);
     assertTransition(sc.status, ScorecardStatus.Active);
+    const actorId = actorUserId || sc.userId;
+    const from = sc.status;
     sc.status = ScorecardStatus.Active;
     sc.acknowledgedAt = new Date().toISOString();
+    sc.acknowledgedBy = actorId;
+    sc.acknowledgmentSignature = `sig-${scorecardId}-${actorId}-${uid('ack')}`;
     sc.updatedAt = sc.acknowledgedAt;
+    this.recordTransition(sc, from, ScorecardStatus.Active, actorId);
     return delay(this.cloneScorecard(sc));
   }
 
-  reportKpis(
+  async reportKpis(
     scorecardId: string,
     reports: ReportKpiInput[],
   ): Promise<EmployeeScorecard> {
@@ -385,21 +604,43 @@ class BscMockRepository {
     }
 
     for (const report of reports) {
-      const target = sc.targets.find((t) => t.id === report.targetId);
-      if (!target) throw new Error(`Target ${report.targetId} not found`);
-      if (
-        sc.status === ScorecardStatus.NeedsResubmit &&
-        target.approvalStatus === KpiApprovalStatus.Approved
-      ) {
-        continue;
+      let target = sc.targets.find((t) => t.id === report.targetId);
+      if (!target) {
+        target = sc.targets.find((t) => t.kpiLibraryId === report.targetId);
       }
-      if (!report.evidenceUrl?.trim()) {
+      if (!target) {
+        const kpi = this.kpiLibrary.find((k) => k.id === report.targetId);
+        if (!kpi) throw new Error(`Target ${report.targetId} not found`);
+        target = {
+          id: `${sc.id}-${kpi.id}`,
+          scorecardId: sc.id,
+          kpiLibraryId: kpi.id,
+          kpiName: kpi.name,
+          perspective: kpi.perspective,
+          targetLogic: kpi.targetLogic,
+          measurementUnit: kpi.measurementUnit,
+          weightPercentage: kpi.weight,
+          targetValue: kpi.defaultTarget ?? 0,
+          actualValue: null,
+          approvalStatus: KpiApprovalStatus.Pending,
+        };
+        sc.targets.push(target);
+      }
+      const mayEditActual =
+        sc.status === ScorecardStatus.Active ||
+        (sc.status === ScorecardStatus.NeedsResubmit &&
+          target.approvalStatus === KpiApprovalStatus.Rejected);
+      if (!mayEditActual) {
+        throw new Error(`Actual value is locked for ${target.kpiName}`);
+      }
+      if (!hasEvidenceArtifact(report)) {
         throw new Error(`Evidence is required for ${target.kpiName}`);
       }
       target.actualValue = report.actualValue;
-      target.evidenceUrl = report.evidenceUrl;
-      target.evidenceFileName = report.evidenceFileName || null;
-      target.evidenceHash = `hash-${uid('ev')}`;
+      target.evidenceUrl = report.evidenceUrl?.trim() || null;
+      target.evidenceFileName = report.evidenceFileName?.trim() || null;
+      target.evidenceHash =
+        report.evidenceHash?.trim() || `hash-${uid('ev')}`;
       target.submittedAt = new Date().toISOString();
       target.approvalStatus = KpiApprovalStatus.Pending;
       target.rejectionReason = null;
@@ -408,39 +649,73 @@ class BscMockRepository {
     return delay(this.cloneScorecard(sc));
   }
 
-  submitFinal(scorecardId: string): Promise<EmployeeScorecard> {
+  async submitFinal(
+    scorecardId: string,
+    actorId?: string,
+  ): Promise<EmployeeScorecard> {
     const sc = this.requireScorecard(scorecardId);
-    const next =
-      sc.status === ScorecardStatus.NeedsResubmit
-        ? ScorecardStatus.PendingEval
-        : ScorecardStatus.PendingEval;
     assertTransition(
       sc.status === ScorecardStatus.NeedsResubmit
         ? ScorecardStatus.NeedsResubmit
         : ScorecardStatus.Active,
-      next,
+      ScorecardStatus.PendingEval,
     );
 
     const editable = sc.targets.filter(
       (t) =>
         sc.status === ScorecardStatus.Active ||
-        t.approvalStatus !== KpiApprovalStatus.Approved,
+        t.approvalStatus === KpiApprovalStatus.Rejected,
     );
     for (const t of editable) {
       if (t.actualValue === null || t.actualValue === undefined) {
         throw new Error(`Missing actual value for ${t.kpiName}`);
       }
-      if (!t.evidenceUrl) {
+      if (!hasEvidenceArtifact(t)) {
         throw new Error(`Missing evidence for ${t.kpiName}`);
       }
     }
 
+    const from = sc.status;
     sc.status = ScorecardStatus.PendingEval;
+    sc.updatedAt = new Date().toISOString();
+    this.recordTransition(
+      sc,
+      from,
+      ScorecardStatus.PendingEval,
+      actorId || sc.userId,
+    );
+    return delay(this.cloneScorecard(sc));
+  }
+
+  async adjustReportedKpis(
+    scorecardId: string,
+    adjustments: AdjustReportedKpiInput[],
+  ): Promise<EmployeeScorecard> {
+    const sc = this.requireScorecard(scorecardId);
+    if (sc.status !== ScorecardStatus.PendingEval) {
+      throw new Error('Only reported KPIs pending evaluation can be edited');
+    }
+    if (!adjustments.length) {
+      throw new Error('At least one KPI adjustment is required');
+    }
+    for (const row of adjustments) {
+      const target = sc.targets.find((t) => t.id === row.targetId);
+      if (!target) throw new Error(`Target ${row.targetId} not found`);
+      if (!Number.isFinite(row.actualValue)) {
+        throw new Error(`Invalid actual value for ${target.kpiName}`);
+      }
+      if (target.actualValue !== row.actualValue) {
+        target.actualValue = row.actualValue;
+        target.approvalStatus = KpiApprovalStatus.Pending;
+        target.rejectionReason = null;
+        target.submittedAt = new Date().toISOString();
+      }
+    }
     sc.updatedAt = new Date().toISOString();
     return delay(this.cloneScorecard(sc));
   }
 
-  setKpiApproval(
+  async setKpiApproval(
     scorecardId: string,
     targetId: string,
     approved: boolean,
@@ -460,18 +735,24 @@ class BscMockRepository {
     return delay(this.cloneScorecard(sc));
   }
 
-  finalizeApprovals(scorecardId: string): Promise<EmployeeScorecard> {
+  async finalizeApprovals(
+    scorecardId: string,
+    actorId?: string,
+  ): Promise<EmployeeScorecard> {
     const sc = this.requireScorecard(scorecardId);
     if (sc.status !== ScorecardStatus.PendingEval) {
       throw new Error('Scorecard is not pending evaluation');
     }
+    const actor = actorId || sc.managerId;
     const rejected = sc.targets.filter(
       (t) => t.approvalStatus === KpiApprovalStatus.Rejected,
     );
     if (rejected.length > 0) {
       assertTransition(sc.status, ScorecardStatus.NeedsResubmit);
+      const from = sc.status;
       sc.status = ScorecardStatus.NeedsResubmit;
       sc.updatedAt = new Date().toISOString();
+      this.recordTransition(sc, from, ScorecardStatus.NeedsResubmit, actor);
       return delay(this.cloneScorecard(sc));
     }
     const pending = sc.targets.filter(
@@ -481,19 +762,22 @@ class BscMockRepository {
       throw new Error('All KPIs must be approved or rejected first');
     }
     assertTransition(sc.status, ScorecardStatus.Scored);
+    // SYSTEM_SCORING: synchronous auto-step; never persisted as a user-facing status.
     const { compositeScore } = computeCompositeScore(sc.targets);
+    const from = sc.status;
     sc.status = ScorecardStatus.Scored;
     sc.finalEvaluation = {
       compositeScore,
       managerNote: '',
       evaluatedAt: new Date().toISOString(),
-      evaluatorUserId: sc.managerId,
+      evaluatorUserId: actor,
     };
     sc.updatedAt = new Date().toISOString();
+    this.recordTransition(sc, from, ScorecardStatus.Scored, actor);
     return delay(this.cloneScorecard(sc));
   }
 
-  lockEvaluation(
+  async lockEvaluation(
     scorecardId: string,
     managerNote: string,
     evaluatorUserId: string,
@@ -506,6 +790,7 @@ class BscMockRepository {
     if (!managerNote?.trim()) {
       throw new Error('Evaluation note is required');
     }
+    const from = sc.status;
     sc.finalEvaluation = {
       ...sc.finalEvaluation,
       managerNote: managerNote.trim(),
@@ -519,11 +804,35 @@ class BscMockRepository {
       score: sc.finalEvaluation.compositeScore,
       at: sc.updatedAt,
     });
+    this.recordTransition(sc, from, ScorecardStatus.Completed, evaluatorUserId);
     return delay(this.cloneScorecard(sc));
   }
 
   getHrisOutbox() {
     return delay([...this.hrisOutbox]);
+  }
+
+  listAudit(scorecardId?: string): Promise<ScorecardAuditEvent[]> {
+    const items = scorecardId
+      ? this.auditLog.filter((e) => e.scorecardId === scorecardId)
+      : this.auditLog;
+    return delay(items.map((e) => ({ ...e })));
+  }
+
+  private recordTransition(
+    sc: EmployeeScorecard,
+    from: ScorecardStatus | null,
+    to: ScorecardStatus,
+    actorId: string,
+  ) {
+    this.auditLog.push({
+      id: uid('audit'),
+      scorecardId: sc.id,
+      from,
+      to,
+      actorId,
+      at: sc.updatedAt,
+    });
   }
 
   private requireScorecard(id: string): EmployeeScorecard {
@@ -540,6 +849,46 @@ class BscMockRepository {
         ? { ...sc.finalEvaluation }
         : null,
     };
+  }
+
+  private findRolePerspective(
+    evaluationConfigId: string,
+    positionId: string | null,
+    positionTitle: string,
+  ): RolePerspectiveAllocation | undefined {
+    const title = positionTitle.trim().toLowerCase();
+    return this.rolePerspectives.find((row) => {
+      if (row.evaluationConfigId !== evaluationConfigId) return false;
+      if (positionId && row.positionId) return row.positionId === positionId;
+      return row.positionTitle.toLowerCase() === title;
+    });
+  }
+
+  private cloneRolePerspective(
+    row: RolePerspectiveAllocation,
+  ): RolePerspectiveAllocation {
+    return { ...row, weights: { ...row.weights } };
+  }
+
+  private renamePerspectiveUsage(from: string, to: string) {
+    this.kpiLibrary = this.kpiLibrary.map((k) =>
+      k.perspective === from ? { ...k, perspective: to as typeof k.perspective } : k,
+    );
+    this.scorecards = this.scorecards.map((s) => ({
+      ...s,
+      targets: s.targets.map((t) =>
+        t.perspective === from
+          ? { ...t, perspective: to as typeof t.perspective }
+          : t,
+      ),
+    }));
+    this.rolePerspectives = this.rolePerspectives.map((row) => {
+      if (!(from in row.weights)) return row;
+      const weights = { ...row.weights };
+      weights[to] = weights[from];
+      delete weights[from];
+      return { ...row, weights };
+    });
   }
 }
 

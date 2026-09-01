@@ -35,6 +35,40 @@ function asList(data: any): any[] {
   return [];
 }
 
+function toDateString(value: unknown): string {
+  if (!value) return '';
+  const parsed = dayjs(value as string | number | Date | Dayjs);
+  return parsed.isValid() ? parsed.format('YYYY-MM-DD') : '';
+}
+
+function fiscalYearBounds(fy: any): { start: string; end: string } {
+  const sessions = fy?.sessions || [];
+  const lastSession = sessions[sessions.length - 1];
+  return {
+    start:
+      toDateString(fy?.startDate) ||
+      toDateString(sessions[0]?.startDate) ||
+      '',
+    end:
+      toDateString(fy?.endDate) ||
+      toDateString(lastSession?.endDate) ||
+      '',
+  };
+}
+
+function formCadence(cadence?: BscCadence): BscCadence {
+  if (cadence === BscCadence.Custom) return BscCadence.Monthly;
+  if (
+    cadence === BscCadence.Weekly ||
+    cadence === BscCadence.Monthly ||
+    cadence === BscCadence.Yearly ||
+    cadence === BscCadence.Quarterly
+  ) {
+    return cadence;
+  }
+  return BscCadence.Monthly;
+}
+
 export default function BscSetupModal() {
   const [form] = Form.useForm();
   const {
@@ -67,21 +101,37 @@ export default function BscSetupModal() {
     label: p.name || p.positionName || 'Position',
   }));
 
+  const cadenceOptions = useMemo(() => {
+    const options = [
+      { value: BscCadence.Weekly, label: 'Weekly' },
+      { value: BscCadence.Monthly, label: 'Monthly' },
+      { value: BscCadence.Yearly, label: 'Yearly' },
+    ];
+    if (editingConfig?.cadence === BscCadence.Quarterly) {
+      options.splice(2, 0, {
+        value: BscCadence.Quarterly,
+        label: 'Quarterly',
+      });
+    }
+    return options;
+  }, [editingConfig]);
+
+  const useCustomDates = Form.useWatch('useCustomDates', form);
+
   useEffect(() => {
     if (!setupModalOpen) return;
     if (editingConfig) {
-      const editCadence =
-        editingConfig.cadence === BscCadence.Custom
-          ? BscCadence.Monthly
-          : editingConfig.cadence;
       form.setFieldsValue({
-        cadence: editCadence || BscCadence.Monthly,
+        cadence: formCadence(editingConfig.cadence),
         fiscalYearId: editingConfig.fiscalYearId,
         departmentIds: editingConfig.departmentIds,
         positionIds: editingConfig.positionIds,
         isRecurring: editingConfig.isRecurring ?? false,
+        useCustomDates: Boolean(editingConfig.useCustomDates),
         dateRange:
-          editingConfig.startDate && editingConfig.endDate
+          editingConfig.useCustomDates &&
+          editingConfig.startDate &&
+          editingConfig.endDate
             ? [dayjs(editingConfig.startDate), dayjs(editingConfig.endDate)]
             : undefined,
       });
@@ -91,6 +141,7 @@ export default function BscSetupModal() {
         cadence: BscCadence.Monthly,
         fiscalYearId: activeFy?.id,
         isRecurring: false,
+        useCustomDates: false,
         dateRange: undefined,
       });
     }
@@ -115,22 +166,45 @@ export default function BscSetupModal() {
       return;
     }
 
-    const range = values.dateRange as [Dayjs, Dayjs] | undefined;
-    if (!range?.[0] || !range?.[1]) {
+    const fy =
+      fiscalYears.find((y) => y.id === values.fiscalYearId) || activeFy;
+    const fyName = fy?.name || activeFy?.name || '';
+    const fyBounds = fiscalYearBounds(fy);
+    const customRange = values.useCustomDates
+      ? (values.dateRange as [Dayjs, Dayjs] | undefined)
+      : undefined;
+
+    if (values.useCustomDates && (!customRange?.[0] || !customRange?.[1])) {
       form.setFields([
-        { name: 'dateRange', errors: ['Select a date range'] },
+        { name: 'dateRange', errors: ['Select a custom duration'] },
       ]);
       return;
     }
 
-    const startDate = range[0].format('YYYY-MM-DD');
-    const endDate = range[1].format('YYYY-MM-DD');
-    const periodLabel = `${range[0].format('MMM D, YYYY')} – ${range[1].format('MMM D, YYYY')}`;
+    const startDate = customRange?.[0]
+      ? customRange[0].format('YYYY-MM-DD')
+      : fyBounds.start;
+    const endDate = customRange?.[1]
+      ? customRange[1].format('YYYY-MM-DD')
+      : fyBounds.end;
 
-    const fyName =
-      fiscalYears.find((y) => y.id === values.fiscalYearId)?.name ||
-      activeFy?.name ||
-      '';
+    if (!startDate || !endDate) {
+      form.setFields([
+        {
+          name: values.useCustomDates ? 'dateRange' : 'fiscalYearId',
+          errors: [
+            values.useCustomDates
+              ? 'Select a custom duration'
+              : 'This fiscal year has no dates. Set a custom duration.',
+          ],
+        },
+      ]);
+      return;
+    }
+
+    const periodLabel = values.useCustomDates
+      ? `${customRange![0].format('MMM D, YYYY')} – ${customRange![1].format('MMM D, YYYY')}`
+      : fyName;
     const departmentNames = (values.departmentIds || []).map(
       (id: string) => deptOptions.find((o) => o.value === id)?.label || id,
     );
@@ -139,7 +213,9 @@ export default function BscSetupModal() {
     );
 
     const recurringTag = values.isRecurring ? ' · Recurring' : '';
-    const label = `${periodLabel} · ${values.cadence}${recurringTag} · ${fyName}`;
+    const label = values.useCustomDates
+      ? `${periodLabel} · ${values.cadence}${recurringTag} · ${fyName}`
+      : `${fyName} · ${values.cadence}${recurringTag}`;
 
     const payload = {
       label,
@@ -151,7 +227,7 @@ export default function BscSetupModal() {
       startDate,
       endDate,
       isRecurring: Boolean(values.isRecurring),
-      useCustomDates: true,
+      useCustomDates: Boolean(values.useCustomDates),
       departmentIds: values.departmentIds || [],
       departmentNames,
       positionIds: values.positionIds || [],
@@ -195,37 +271,41 @@ export default function BscSetupModal() {
           />
         </Form.Item>
 
-        <Row gutter={16}>
-          <Col span={10}>
-            <Form.Item
-              name="cadence"
-              label="Frequency"
-              rules={[{ required: true, message: 'Select frequency' }]}
-            >
-              <Select
-                placeholder="Select frequency"
-                options={[
-                  { value: BscCadence.Weekly, label: 'Weekly' },
-                  { value: BscCadence.Monthly, label: 'Monthly' },
-                  { value: BscCadence.Quarterly, label: 'Quarterly' },
-                ]}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={14}>
-            <Form.Item
-              name="dateRange"
-              label="Period"
-              rules={[{ required: true, message: 'Select a date range' }]}
-            >
-              <RangePicker className="w-full" format="YYYY-MM-DD" />
-            </Form.Item>
-          </Col>
-        </Row>
+        <Form.Item
+          name="cadence"
+          label="Frequency"
+          rules={[{ required: true, message: 'Select frequency' }]}
+        >
+          <Select
+            placeholder="Select frequency"
+            options={cadenceOptions}
+            data-cy="bsc-setup-cadence"
+          />
+        </Form.Item>
 
-        <Form.Item name="isRecurring" valuePropName="checked" className="mb-4">
+        <Form.Item name="isRecurring" valuePropName="checked" className="mb-2">
           <Checkbox>Recurring evaluations</Checkbox>
         </Form.Item>
+
+        <Form.Item name="useCustomDates" valuePropName="checked" className="mb-3">
+          <Checkbox data-cy="bsc-setup-custom-duration">
+            Custom evaluation duration
+          </Checkbox>
+        </Form.Item>
+
+        {useCustomDates ? (
+          <Form.Item
+            name="dateRange"
+            label="Custom duration"
+            rules={[{ required: true, message: 'Select a custom duration' }]}
+          >
+            <RangePicker
+              className="w-full"
+              format="YYYY-MM-DD"
+              data-cy="bsc-setup-date-range"
+            />
+          </Form.Item>
+        ) : null}
 
         <Row gutter={16}>
           <Col span={12}>

@@ -8,6 +8,7 @@ import { Card, Progress, Skeleton } from 'antd';
 import { useRouter } from 'next/navigation';
 import { MdOutlineMilitaryTech, MdReportGmailerrorred } from 'react-icons/md';
 import { IoMdTrendingDown, IoMdTrendingUp } from 'react-icons/io';
+import KpiProgressHeaderCard from './KpiProgressHeaderCard';
 
 const okrHeaderCardShellClass =
   'flex flex-col gap-4 h-[115px] min-w-[260px] flex-none shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 md:min-w-0';
@@ -138,7 +139,7 @@ const Header = () => {
   return (
     <>
       <div
-        className="w-full pb-6 flex flex-nowrap gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-none md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-5"
+        className="w-full pb-6 flex flex-nowrap gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-none md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6"
         data-cy="okr-header-cards"
       >
         {isLoading ? (
@@ -204,6 +205,7 @@ const Header = () => {
             </div>
           </Card>
         )}
+        <KpiProgressHeaderCard />
         {/* <Card
             loading={isLoading}
             bordered={false}

@@ -8,6 +8,9 @@ export const BSC_QUERY_KEYS = {
   scorecards: 'bsc-scorecards',
   scorecard: 'bsc-scorecard',
   hris: 'bsc-hris-outbox',
+  audit: 'bsc-audit',
+  catalog: 'bsc-perspective-catalog',
+  perspectives: 'bsc-role-perspectives',
 };
 
 export const useGetBscKpiLibrary = (filters?: {
@@ -51,3 +54,38 @@ export const useGetBscScorecard = (id: string) =>
 
 export const useGetBscHrisOutbox = () =>
   useQuery(BSC_QUERY_KEYS.hris, () => bscMockRepo.getHrisOutbox());
+
+export const useGetBscAudit = (scorecardId?: string) =>
+  useQuery(
+    [BSC_QUERY_KEYS.audit, scorecardId],
+    () => bscMockRepo.listAudit(scorecardId),
+  );
+
+export const useGetBscPerspectiveCatalog = () =>
+  useQuery(BSC_QUERY_KEYS.catalog, () => bscMockRepo.listPerspectives());
+
+export const useGetBscRolePerspectives = (filters?: {
+  evaluationConfigId?: string;
+  positionTitle?: string;
+}) =>
+  useQuery(
+    [BSC_QUERY_KEYS.perspectives, filters],
+    () => bscMockRepo.listRolePerspectives(filters),
+    { keepPreviousData: true },
+  );
+
+export const useGetBscRolePerspective = (
+  evaluationConfigId: string,
+  positionId: string | null,
+  positionTitle: string,
+) =>
+  useQuery(
+    [BSC_QUERY_KEYS.perspectives, evaluationConfigId, positionId, positionTitle],
+    () =>
+      bscMockRepo.getRolePerspectives(
+        evaluationConfigId,
+        positionId,
+        positionTitle,
+      ),
+    { enabled: !!evaluationConfigId && !!positionTitle },
+  );

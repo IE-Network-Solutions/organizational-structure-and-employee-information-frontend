@@ -1,4 +1,8 @@
-import { EvaluationCycle, KpiLibraryItem } from '@/types/bsc';
+import {
+  EvaluationCycle,
+  KpiLibraryItem,
+  RolePerspectiveAllocation,
+} from '@/types/bsc';
 
 export function roleSlug(title: string): string {
   return title.trim().toLowerCase();
@@ -21,10 +25,11 @@ export interface BscRoleListItem {
   evaluationConfigId: string;
 }
 
-/** Aggregate roles from setups + KPIs for the BSC Setup list */
+/** Aggregate roles from setups, KPIs, and perspective assignments */
 export function buildRoleList(
   configs: EvaluationCycle[],
   kpis: KpiLibraryItem[],
+  allocations: RolePerspectiveAllocation[] = [],
 ): BscRoleListItem[] {
   const map = new Map<string, BscRoleListItem>();
 
@@ -77,6 +82,15 @@ export function buildRoleList(
       kpi.positionId,
       kpi.departmentName,
       kpi.evaluationConfigId,
+    );
+  }
+
+  for (const alloc of allocations) {
+    upsert(
+      alloc.positionTitle,
+      alloc.positionId,
+      alloc.departmentName,
+      alloc.evaluationConfigId,
     );
   }
 
