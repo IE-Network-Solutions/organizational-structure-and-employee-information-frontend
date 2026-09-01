@@ -7,10 +7,7 @@ import EmptyState from '@/components/empty';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { WorkScheduleBlueprint } from '@/types/timesheet/workSchedule';
-import {
-  useGetAssignments,
-  useGetBlueprints,
-} from '@/store/server/features/timesheet/workSchedule/queries';
+import { useGetBlueprints } from '@/store/server/features/timesheet/workSchedule/queries';
 import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workSchedule';
 import { formatTimeRange } from '@/store/server/features/timesheet/workSchedule/helpers';
 import { useMemo } from 'react';
@@ -20,21 +17,15 @@ import { blueprintStatusColor, blueprintStatusLabel } from '../blueprintStatus';
 const EMPTY_BLUEPRINTS: NonNullable<
   ReturnType<typeof useGetBlueprints>['data']
 > = [];
-const EMPTY_ASSIGNMENTS: NonNullable<
-  ReturnType<typeof useGetAssignments>['data']
-> = [];
 
 const BlueprintList = () => {
   const router = useRouter();
   const { data: blueprintsData, isLoading } = useGetBlueprints();
   const blueprints = blueprintsData ?? EMPTY_BLUEPRINTS;
-  const { data: assignmentsData } = useGetAssignments();
-  const assignments = assignmentsData ?? EMPTY_ASSIGNMENTS;
   const {
     searchQuery,
     setSearchQuery,
     openEditBlueprintModal,
-    openAssignDrawer,
     openDeleteModal,
     openCreateBlueprintModal,
   } = useWorkScheduleUiStore();
@@ -51,9 +42,6 @@ const BlueprintList = () => {
     );
   }, [blueprints, searchQuery]);
 
-  const assignmentCount = (blueprintId: string) =>
-    assignments.filter((item) => item.blueprintId === blueprintId).length;
-
   const renderMenu = (blueprint: WorkScheduleBlueprint): MenuProps => {
     const items: MenuProps['items'] = [
       {
@@ -67,18 +55,11 @@ const BlueprintList = () => {
         permissions: [Permissions.UpdateWorkingSchedule],
       })
     ) {
-      items.push(
-        {
-          key: 'edit',
-          label: 'Edit',
-          onClick: () => openEditBlueprintModal(blueprint.id),
-        },
-        {
-          key: 'assign',
-          label: 'Assign employees',
-          onClick: () => openAssignDrawer(blueprint.id),
-        },
-      );
+      items.push({
+        key: 'edit',
+        label: 'Edit',
+        onClick: () => openEditBlueprintModal(blueprint.id),
+      });
     }
     if (
       AccessGuard.checkAccess({
@@ -139,7 +120,6 @@ const BlueprintList = () => {
           data-cy="time-attendance-settings-work-schedule-blueprint-grid"
         >
           {filtered.map((blueprint) => {
-            const assigned = assignmentCount(blueprint.id);
             return (
               <div
                 key={blueprint.id}
@@ -186,8 +166,7 @@ const BlueprintList = () => {
                       className="text-xs text-gray-500 mb-0"
                       data-cy={`time-attendance-settings-work-schedule-blueprint-card-range-${blueprint.id}`}
                     >
-                      {blueprint.activeWeekdays.length} days · {assigned}{' '}
-                      assigned ·{' '}
+                      {blueprint.activeWeekdays.length} days ·{' '}
                       {formatTimeRange(
                         blueprint.defaultStartTime,
                         blueprint.defaultEndTime,

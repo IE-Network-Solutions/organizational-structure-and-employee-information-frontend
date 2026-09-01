@@ -5,7 +5,6 @@ type WorkScheduleUiState = {
   isBlueprintModalOpen: boolean;
   isBlueprintEditMode: boolean;
   selectedBlueprintId: string | null;
-  isAssignDrawerOpen: boolean;
   isDeleteModalOpen: boolean;
   isSwapModalOpen: boolean;
   selectedSwapRequesterShiftId: string | null;
@@ -18,8 +17,6 @@ type WorkScheduleUiActions = {
   openCreateBlueprintModal: () => void;
   openEditBlueprintModal: (id: string) => void;
   closeBlueprintModal: () => void;
-  openAssignDrawer: (blueprintId: string) => void;
-  closeAssignDrawer: () => void;
   openDeleteModal: (blueprintId: string) => void;
   closeDeleteModal: () => void;
   openSwapModal: (
@@ -38,7 +35,6 @@ export const useWorkScheduleUiStore = create<
   isBlueprintModalOpen: false,
   isBlueprintEditMode: false,
   selectedBlueprintId: null,
-  isAssignDrawerOpen: false,
   isDeleteModalOpen: false,
   isSwapModalOpen: false,
   selectedSwapRequesterShiftId: null,
@@ -63,15 +59,6 @@ export const useWorkScheduleUiStore = create<
       isBlueprintModalOpen: false,
       isBlueprintEditMode: false,
       selectedBlueprintId: null,
-    }),
-  openAssignDrawer: (blueprintId) =>
-    set({
-      isAssignDrawerOpen: true,
-      selectedBlueprintId: blueprintId,
-    }),
-  closeAssignDrawer: () =>
-    set({
-      isAssignDrawerOpen: false,
     }),
   openDeleteModal: (blueprintId) =>
     set({

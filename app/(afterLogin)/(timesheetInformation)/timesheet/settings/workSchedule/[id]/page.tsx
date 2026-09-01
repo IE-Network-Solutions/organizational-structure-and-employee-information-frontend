@@ -8,10 +8,7 @@ import { useParams, useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workSchedule';
-import {
-  useGetAssignments,
-  useGetBlueprint,
-} from '@/store/server/features/timesheet/workSchedule/queries';
+import { useGetBlueprint } from '@/store/server/features/timesheet/workSchedule/queries';
 import {
   formatHours,
   formatTimeRange,
@@ -24,22 +21,14 @@ import {
   blueprintStatusLabel,
 } from '../_components/blueprintStatus';
 import BlueprintFormModal from '../_components/blueprintFormModal';
-import AssignEmployeesDrawer from '../_components/assignEmployeesDrawer';
 import DeleteBlueprintModal from '../_components/deleteBlueprintModal';
-
-const EMPTY_ASSIGNMENTS: NonNullable<
-  ReturnType<typeof useGetAssignments>['data']
-> = [];
 
 const WorkScheduleDetailPage = () => {
   const router = useRouter();
   const params = useParams();
   const blueprintId = typeof params?.id === 'string' ? params.id : null;
-  const { openEditBlueprintModal, openAssignDrawer, openDeleteModal } =
-    useWorkScheduleUiStore();
+  const { openEditBlueprintModal, openDeleteModal } = useWorkScheduleUiStore();
   const { data: blueprint, isLoading, isError } = useGetBlueprint(blueprintId);
-  const { data: assignmentsData } = useGetAssignments(blueprintId ?? undefined);
-  const assignments = assignmentsData ?? EMPTY_ASSIGNMENTS;
   const canUpdate = AccessGuard.checkAccess({
     permissions: [Permissions.UpdateWorkingSchedule],
   });
@@ -59,11 +48,6 @@ const WorkScheduleDetailPage = () => {
                     key: 'edit',
                     label: 'Edit',
                     onClick: () => openEditBlueprintModal(blueprint.id),
-                  },
-                  {
-                    key: 'assign',
-                    label: 'Assign employees',
-                    onClick: () => openAssignDrawer(blueprint.id),
                   },
                 ]
               : []),
@@ -155,15 +139,6 @@ const WorkScheduleDetailPage = () => {
                   <span data-cy="time-attendance-settings-work-schedule-detail-days-count">
                     {blueprint.activeWeekdays.length} days
                   </span>
-                  <button
-                    type="button"
-                    className="text-primary hover:underline disabled:text-gray-500 disabled:no-underline"
-                    disabled={!canUpdate}
-                    onClick={() => openAssignDrawer(blueprint.id)}
-                    data-cy="time-attendance-settings-work-schedule-detail-assigned"
-                  >
-                    {assignments.length} assigned
-                  </button>
                 </div>
               </>
             )}
@@ -289,7 +264,6 @@ const WorkScheduleDetailPage = () => {
       ) : null}
 
       <BlueprintFormModal />
-      <AssignEmployeesDrawer />
       <DeleteBlueprintModal />
     </div>
   );

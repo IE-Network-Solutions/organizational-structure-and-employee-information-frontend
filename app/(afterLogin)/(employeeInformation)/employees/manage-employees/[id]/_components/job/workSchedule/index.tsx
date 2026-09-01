@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   Button,
   Card,
@@ -70,19 +70,39 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
   const { mutate: assignShiftSchedule } = useAssignEmployees();
   const [form] = Form.useForm();
   const [dailySchedule, setDailySchedule] = React.useState<any[]>([]);
-  const selectedShiftScheduleId = Form.useWatch('shiftScheduleId', form);
-  const selectedShiftSchedule = shiftSchedules.find(
-    (item) => item.id === selectedShiftScheduleId,
-  );
+  const selectedWorkScheduleId = Form.useWatch('workScheduleId', form);
+  const selectedBlueprint = useMemo(() => {
+    const categoryId = selectedWorkScheduleId || workSchedule;
+    if (!categoryId) return undefined;
+    const byId = shiftSchedules.find((item) => item.id === categoryId);
+    if (byId) return byId;
+    const categoryName = workSchedules?.items?.find(
+      (item) => item.id === categoryId,
+    )?.name;
+    if (!categoryName) return undefined;
+    return shiftSchedules.find(
+      (item) => item.title.toLowerCase() === categoryName.toLowerCase(),
+    );
+  }, [
+    selectedWorkScheduleId,
+    workSchedule,
+    shiftSchedules,
+    workSchedules?.items,
+  ]);
+  const showShifts =
+    Boolean(selectedBlueprint?.hasShifts) &&
+    (selectedBlueprint?.shifts || []).length > 0;
 
   const handleSaveChanges = (editKey: keyof EditState) => {
     form
       .validateFields()
       .then((values) => {
         const persistShiftAssignment = () => {
-          if (values.shiftScheduleId) {
+          const blueprintId =
+            values.shiftScheduleId || selectedBlueprint?.id || undefined;
+          if (blueprintId) {
             assignShiftSchedule({
-              blueprintId: values.shiftScheduleId,
+              blueprintId,
               userIds: [userId],
               shiftIds: values.assignedShiftIds || [],
               employees: [
@@ -127,6 +147,18 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
     setWorkSchedule(value);
     // CRITICAL: Update the form field value so it's included in form submission
     form.setFieldValue('workScheduleId', value);
+
+    const matchedBlueprint =
+      shiftSchedules.find((item) => item.id === value) ||
+      shiftSchedules.find(
+        (item) =>
+          item.title.toLowerCase() ===
+          (selectedValue?.name || '').toLowerCase(),
+      );
+    form.setFieldsValue({
+      shiftScheduleId: matchedBlueprint?.id,
+      assignedShiftIds: [],
+    });
 
     // Update daily schedule when schedule changes
     if (selectedValue?.detail) {
@@ -710,42 +742,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
               </Select>
             </Form.Item>
 
-            <Form.Item
-              className="font-semibold text-xs mb-4"
-              name="shiftScheduleId"
-              label={
-                <span
-                  className="text-sm font-normal text-[#4d4d4d]"
-                  data-cy="job-work-schedule-edit-shift-schedule-label"
-                >
-                  Shift Schedule
-                </span>
-              }
-            >
-              <Select
-                placeholder="Select shift schedule (optional)"
-                className="mt-2"
-                allowClear
-                size="large"
-                onChange={(value: string | undefined) => {
-                  const schedule = shiftSchedules.find(
-                    (item) => item.id === value,
-                  );
-                  form.setFieldsValue({
-                    assignedShiftIds: schedule?.hasShifts
-                      ? (schedule.shifts || []).map((shift) => shift.id)
-                      : [],
-                  });
-                }}
-                options={shiftSchedules.map((schedule) => ({
-                  value: schedule.id,
-                  label: schedule.title,
-                }))}
-                data-cy="job-work-schedule-edit-shift-schedule"
-              />
-            </Form.Item>
-
-            {selectedShiftSchedule?.hasShifts && (
+            {showShifts && selectedBlueprint ? (
               <Form.Item
                 className="font-semibold text-xs mb-4"
                 name="assignedShiftIds"
@@ -766,19 +763,21 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
               >
                 <Select
                   mode="multiple"
+                  allowClear
                   placeholder="Select shifts"
                   className="mt-2"
                   size="large"
-                  options={(selectedShiftSchedule.shifts || []).map(
-                    (shift) => ({
-                      value: shift.id,
-                      label: `${shift.name} · ${formatTimeRange(shift.startTime, shift.endTime)}`,
-                    }),
-                  )}
+                  optionFilterProp="label"
+                  showSearch
+                  maxTagCount="responsive"
+                  options={(selectedBlueprint.shifts || []).map((shift) => ({
+                    value: shift.id,
+                    label: `${shift.name} · ${formatTimeRange(shift.startTime, shift.endTime)}`,
+                  }))}
                   data-cy="job-work-schedule-edit-shifts"
                 />
               </Form.Item>
-            )}
+            ) : null}
 
             {/* Working Days Section */}
             <div

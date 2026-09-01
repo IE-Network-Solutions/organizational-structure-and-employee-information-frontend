@@ -1,45 +1,55 @@
-import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 import { Col, Form, Row, Select } from 'antd';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useGetBlueprints } from '@/store/server/features/timesheet/workSchedule/queries';
 import { formatTimeRange } from '@/store/server/features/timesheet/workSchedule/helpers';
-
-const { Option } = Select;
 
 interface WorkScheduleFormProps {
   selectedWorkScheduleDetails?: any[];
   form?: any;
 }
 
-const EMPTY_SHIFT_SCHEDULES: NonNullable<
+const EMPTY_WORK_SCHEDULES: NonNullable<
   ReturnType<typeof useGetBlueprints>['data']
 > = [];
 
 const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
-  const { data: workSchedules } = useGetWorkSchedules();
-  const { data: shiftSchedulesData } = useGetBlueprints();
-  const shiftSchedules = shiftSchedulesData ?? EMPTY_SHIFT_SCHEDULES;
-  const { setSelectedWorkSchedule, workSchedule, setWorkSchedule } =
-    useEmployeeManagementStore();
-  const selectedShiftScheduleId = Form.useWatch('shiftScheduleId', form);
-  const selectedShiftSchedule = shiftSchedules.find(
-    (item) => item.id === selectedShiftScheduleId,
+  const { data: workSchedulesData } = useGetBlueprints();
+  const workSchedules = workSchedulesData ?? EMPTY_WORK_SCHEDULES;
+  const { setWorkSchedule } = useEmployeeManagementStore();
+  const selectedWorkScheduleId = Form.useWatch('workScheduleId', form);
+  const selectedWorkSchedule = workSchedules.find(
+    (schedule) => schedule.id === selectedWorkScheduleId,
+  );
+  const showShifts =
+    Boolean(selectedWorkSchedule?.hasShifts) &&
+    (selectedWorkSchedule?.shifts || []).length > 0;
+
+  const shiftOptions = useMemo(
+    () =>
+      (selectedWorkSchedule?.shifts || []).map((shift) => ({
+        value: shift.id,
+        label: `${shift.name} · ${formatTimeRange(shift.startTime, shift.endTime)}`,
+      })),
+    [selectedWorkSchedule],
   );
 
-  const workscheduleChangeHandler = (value: string) => {
-    const selectedValue = workSchedules?.items.find(
-      (schedule) => schedule.id === value,
-    );
-    setSelectedWorkSchedule(selectedValue || null);
-    setWorkSchedule(value);
-  };
-
   React.useEffect(() => {
-    if (form && workSchedule) {
-      form.setFieldsValue({ workScheduleId: workSchedule });
-    }
-  }, [workSchedule, form]);
+    if (!form || !selectedWorkScheduleId) return;
+    form.setFieldsValue({
+      shiftScheduleId: selectedWorkScheduleId,
+      ...(showShifts ? {} : { assignedShiftIds: [] }),
+    });
+  }, [form, selectedWorkScheduleId, showShifts]);
+
+  const workscheduleChangeHandler = (value: string | undefined) => {
+    setWorkSchedule(value || '');
+    form?.setFieldsValue({
+      workScheduleId: value,
+      shiftScheduleId: value || undefined,
+      assignedShiftIds: [],
+    });
+  };
 
   return (
     <div id="work-schedule-form" data-cy="work-schedule-form">
@@ -81,60 +91,19 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
               placeholder="Select an option"
               onChange={workscheduleChangeHandler}
               allowClear
-              value={workSchedule}
               className="bg-white"
+              optionFilterProp="label"
+              showSearch
               id="work-schedule-select"
               data-cy="work-schedule-select"
-            >
-              {workSchedules?.items.map((schedule) => (
-                <Option
-                  key={schedule?.id}
-                  value={schedule?.id}
-                  id={`work-schedule-option-${schedule?.id}`}
-                  data-cy={`work-schedule-option-${schedule?.id}`}
-                >
-                  {schedule?.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-        </Col>
-        <Col xs={24} sm={24}>
-          <Form.Item
-            className="font-normal text-base"
-            name="shiftScheduleId"
-            label={
-              <span
-                className="mb-1 font-normal text-sm text-[#030712]"
-                data-cy="work-schedule-form-shift-schedule-label"
-              >
-                Shift Schedule
-              </span>
-            }
-          >
-            <Select
-              placeholder="Select shift schedule (optional)"
-              allowClear
-              className="bg-white"
-              onChange={(value: string | undefined) => {
-                const schedule = shiftSchedules.find(
-                  (item) => item.id === value,
-                );
-                form?.setFieldsValue({
-                  assignedShiftIds: schedule?.hasShifts
-                    ? (schedule.shifts || []).map((shift) => shift.id)
-                    : [],
-                });
-              }}
-              options={shiftSchedules.map((schedule) => ({
+              options={workSchedules.map((schedule) => ({
                 value: schedule.id,
                 label: schedule.title,
               }))}
-              data-cy="work-schedule-form-shift-schedule"
             />
           </Form.Item>
         </Col>
-        {selectedShiftSchedule?.hasShifts && (
+        {showShifts ? (
           <Col xs={24} sm={24}>
             <Form.Item
               className="font-normal text-base"
@@ -162,20 +131,18 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
             >
               <Select
                 mode="multiple"
+                allowClear
                 placeholder="Select shifts"
                 className="bg-white"
-                options={(selectedShiftSchedule.shifts || []).map((shift) => ({
-                  value: shift.id,
-                  label: `${shift.name} · ${formatTimeRange(
-                    shift.startTime,
-                    shift.endTime,
-                  )}`,
-                }))}
+                optionFilterProp="label"
+                showSearch
+                maxTagCount="responsive"
+                options={shiftOptions}
                 data-cy="work-schedule-form-shifts"
               />
             </Form.Item>
           </Col>
-        )}
+        ) : null}
       </Row>
     </div>
   );
