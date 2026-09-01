@@ -217,8 +217,7 @@ export interface CreateEvaluationConfigInput {
   positionTitles: string[];
 }
 
-export interface UpdateEvaluationConfigInput
-  extends Partial<CreateEvaluationConfigInput> {
+export interface UpdateEvaluationConfigInput extends Partial<CreateEvaluationConfigInput> {
   status?: CycleStatus;
 }
 

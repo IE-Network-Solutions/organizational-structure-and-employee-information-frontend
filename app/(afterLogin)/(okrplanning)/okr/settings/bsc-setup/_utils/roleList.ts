@@ -44,7 +44,10 @@ export function buildRoleList(
     const key = positionId || roleSlug(trimmed);
     const existing = map.get(key);
     if (existing) {
-      if (departmentName && !existing.departmentNames.includes(departmentName)) {
+      if (
+        departmentName &&
+        !existing.departmentNames.includes(departmentName)
+      ) {
         existing.departmentNames.push(departmentName);
       }
       if (!existing.evaluationConfigId && evaluationConfigId) {
@@ -77,12 +80,7 @@ export function buildRoleList(
   for (const kpi of kpis) {
     const title = kpi.positionTitle;
     if (!title) continue;
-    upsert(
-      title,
-      kpi.positionId,
-      kpi.departmentName,
-      kpi.evaluationConfigId,
-    );
+    upsert(title, kpi.positionId, kpi.departmentName, kpi.evaluationConfigId);
   }
 
   for (const alloc of allocations) {

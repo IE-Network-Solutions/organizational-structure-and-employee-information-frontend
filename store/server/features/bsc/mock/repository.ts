@@ -58,8 +58,11 @@ export class BscMockRepository {
     targets: s.targets.map((t) => ({ ...t })),
     finalEvaluation: s.finalEvaluation ? { ...s.finalEvaluation } : null,
   }));
-  private hrisOutbox: Array<{ scorecardId: string; score: number; at: string }> =
-    [];
+  private hrisOutbox: Array<{
+    scorecardId: string;
+    score: number;
+    at: string;
+  }> = [];
   private auditLog: ScorecardAuditEvent[] = [];
   private rolePerspectives: RolePerspectiveAllocation[] =
     SEED_ROLE_PERSPECTIVES.map((row) => ({
@@ -259,7 +262,9 @@ export class BscMockRepository {
     evaluationConfigId?: string;
     positionTitle?: string;
   }): Promise<RolePerspectiveAllocation[]> {
-    let items = this.rolePerspectives.map((row) => this.cloneRolePerspective(row));
+    let items = this.rolePerspectives.map((row) =>
+      this.cloneRolePerspective(row),
+    );
     if (filters?.evaluationConfigId) {
       items = items.filter(
         (row) => row.evaluationConfigId === filters.evaluationConfigId,
@@ -312,7 +317,9 @@ export class BscMockRepository {
       updatedAt: new Date().toISOString(),
     };
     if (existing) {
-      const idx = this.rolePerspectives.findIndex((row) => row.id === existing.id);
+      const idx = this.rolePerspectives.findIndex(
+        (row) => row.id === existing.id,
+      );
       this.rolePerspectives[idx] = saved;
     } else {
       this.rolePerspectives.unshift(saved);
@@ -396,8 +403,9 @@ export class BscMockRepository {
     }
     this.perspectives = this.perspectives.filter((p) => p.id !== id);
     this.rolePerspectives = this.rolePerspectives.map((row) => {
-      const { [item.name]: _removed, ...rest } = row.weights;
-      return { ...row, weights: rest };
+      const nextWeights = { ...row.weights };
+      delete nextWeights[item.name];
+      return { ...row, weights: nextWeights };
     });
     return delay(undefined);
   }
@@ -413,7 +421,9 @@ export class BscMockRepository {
     return delay(found ? { ...found } : undefined);
   }
 
-  async createCycle(input: CreateEvaluationConfigInput): Promise<EvaluationCycle> {
+  async createCycle(
+    input: CreateEvaluationConfigInput,
+  ): Promise<EvaluationCycle> {
     const hasPeriods = !!input.periodIds?.length;
     const hasDates = !!(input.startDate && input.endDate);
     if (!hasPeriods && !hasDates) {
@@ -461,7 +471,6 @@ export class BscMockRepository {
     return delay(undefined);
   }
 
-
   listScorecards(filters?: {
     userId?: string;
     managerId?: string;
@@ -492,7 +501,9 @@ export class BscMockRepository {
     return delay(found ? this.cloneScorecard(found) : undefined);
   }
 
-  async createScorecard(input: AssignScorecardInput): Promise<EmployeeScorecard> {
+  async createScorecard(
+    input: AssignScorecardInput,
+  ): Promise<EmployeeScorecard> {
     const cycle = this.cycles.find((c) => c.id === input.cycleId);
     if (!cycle) throw new Error('Cycle not found');
     if (cycle.status !== CycleStatus.Open) {
@@ -547,7 +558,12 @@ export class BscMockRepository {
       updatedAt: new Date().toISOString(),
     };
     this.scorecards.unshift(scorecard);
-    this.recordTransition(scorecard, null, ScorecardStatus.Draft, input.managerId);
+    this.recordTransition(
+      scorecard,
+      null,
+      ScorecardStatus.Draft,
+      input.managerId,
+    );
     return delay(this.cloneScorecard(scorecard));
   }
 
@@ -639,8 +655,7 @@ export class BscMockRepository {
       target.actualValue = report.actualValue;
       target.evidenceUrl = report.evidenceUrl?.trim() || null;
       target.evidenceFileName = report.evidenceFileName?.trim() || null;
-      target.evidenceHash =
-        report.evidenceHash?.trim() || `hash-${uid('ev')}`;
+      target.evidenceHash = report.evidenceHash?.trim() || `hash-${uid('ev')}`;
       target.submittedAt = new Date().toISOString();
       target.approvalStatus = KpiApprovalStatus.Pending;
       target.rejectionReason = null;
@@ -845,9 +860,7 @@ export class BscMockRepository {
     return {
       ...sc,
       targets: sc.targets.map((t) => ({ ...t })),
-      finalEvaluation: sc.finalEvaluation
-        ? { ...sc.finalEvaluation }
-        : null,
+      finalEvaluation: sc.finalEvaluation ? { ...sc.finalEvaluation } : null,
     };
   }
 
@@ -872,7 +885,9 @@ export class BscMockRepository {
 
   private renamePerspectiveUsage(from: string, to: string) {
     this.kpiLibrary = this.kpiLibrary.map((k) =>
-      k.perspective === from ? { ...k, perspective: to as typeof k.perspective } : k,
+      k.perspective === from
+        ? { ...k, perspective: to as typeof k.perspective }
+        : k,
     );
     this.scorecards = this.scorecards.map((s) => ({
       ...s,

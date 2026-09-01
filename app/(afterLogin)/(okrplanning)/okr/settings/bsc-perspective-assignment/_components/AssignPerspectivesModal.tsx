@@ -177,13 +177,19 @@ export default function AssignPerspectivesModal() {
           />
         </Form.Item>
 
-        <p className="mb-2 text-[13px] font-medium text-[#161A2C]">
+        <p
+          data-cy="settings-bsc-perspective-assignment-components-assignperspectivesmodal-tsx-assignperspectivesmodal-p-180"
+          className="mb-2 text-[13px] font-medium text-[#161A2C]"
+        >
           Perspectives
         </p>
         <Form.List name="rows">
           {(fields, { add, remove }) => (
             <>
-              <div className="flex flex-col gap-2">
+              <div
+                data-cy="settings-bsc-perspective-assignment-components-assignperspectivesmodal-tsx-assignperspectivesmodal-div-186"
+                className="flex flex-col gap-2"
+              >
                 {fields.map((field) => {
                   const currentName = watchedRows[field.name]?.name;
                   const available = catalogNames.filter(
@@ -228,6 +234,7 @@ export default function AssignPerspectivesModal() {
                       </Form.Item>
                       {fields.length > 1 && (
                         <button
+                          data-cy="settings-bsc-perspective-assignment-components-assignperspectivesmodal-tsx-assignperspectivesmodal-button-230"
                           type="button"
                           className="mt-1 border-none bg-transparent text-[#8F94A3] cursor-pointer"
                           onClick={() => remove(field.name)}
@@ -253,17 +260,26 @@ export default function AssignPerspectivesModal() {
           )}
         </Form.List>
 
-        <p className="mt-3 mb-0 text-[12px] text-[#8F94A3]">
+        <p
+          data-cy="settings-bsc-perspective-assignment-components-assignperspectivesmodal-tsx-assignperspectivesmodal-p-256"
+          className="mt-3 mb-0 text-[12px] text-[#8F94A3]"
+        >
           Weights must total 100%. Each perspective can be at most{' '}
           {MAX_PERSPECTIVE_WEIGHT}%.
           {!validation.valid && watchedRows.some((r) => r?.weight) ? (
-            <span className="block mt-1 text-[#DC2626]">
+            <span
+              data-cy="settings-bsc-perspective-assignment-components-assignperspectivesmodal-tsx-assignperspectivesmodal-span-260"
+              className="block mt-1 text-[#DC2626]"
+            >
               {validation.message}
             </span>
           ) : null}
         </p>
 
-        <div className="flex justify-end gap-3 mt-6">
+        <div
+          data-cy="settings-bsc-perspective-assignment-components-assignperspectivesmodal-tsx-assignperspectivesmodal-div-266"
+          className="flex justify-end gap-3 mt-6"
+        >
           <CustomButton
             type="default"
             title="Cancel"

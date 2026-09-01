@@ -105,9 +105,10 @@ export function emptyPerspectiveWeightMap(
   return Object.fromEntries(names.map((name) => [name, 0]));
 }
 
-export function validatePerspectiveWeights(
-  weights: Record<string, number>,
-): { valid: boolean; message?: string } {
+export function validatePerspectiveWeights(weights: Record<string, number>): {
+  valid: boolean;
+  message?: string;
+} {
   const entries = Object.entries(weights).filter(([name]) => name.trim());
   if (entries.length === 0) {
     return { valid: false, message: 'Add at least one perspective' };
@@ -127,7 +128,10 @@ export function validatePerspectiveWeights(
       };
     }
   }
-  const sum = entries.reduce((total, [, value]) => total + Number(value || 0), 0);
+  const sum = entries.reduce(
+    (total, [, value]) => total + Number(value || 0),
+    0,
+  );
   if (Math.abs(sum - 100) > 0.01) {
     return {
       valid: false,

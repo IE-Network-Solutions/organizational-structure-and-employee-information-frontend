@@ -161,7 +161,9 @@ describe('bsc state machine', () => {
     expect(PROMPT_TO_MOCK_STATUS.DRAFT).toBe(ScorecardStatus.Draft);
     expect(PROMPT_TO_MOCK_STATUS.PENDING_ACK).toBe(ScorecardStatus.PendingAck);
     expect(PROMPT_TO_MOCK_STATUS.ACTIVE_CYCLE).toBe(ScorecardStatus.Active);
-    expect(PROMPT_TO_MOCK_STATUS.PENDING_EVAL).toBe(ScorecardStatus.PendingEval);
+    expect(PROMPT_TO_MOCK_STATUS.PENDING_EVAL).toBe(
+      ScorecardStatus.PendingEval,
+    );
     expect(PROMPT_TO_MOCK_STATUS.MANAGER_REVIEW).toBe(ScorecardStatus.Scored);
     expect(PROMPT_TO_MOCK_STATUS.COMPLETED).toBe(ScorecardStatus.Completed);
     expect('SYSTEM_SCORING' in PROMPT_TO_MOCK_STATUS).toBe(false);

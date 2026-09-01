@@ -37,10 +37,24 @@ export default function ScorecardPeriodFilter() {
   };
 
   const filterBody = (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Session</label>
+    <div
+      data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-40"
+      className="flex flex-col gap-4"
+    >
+      <div
+        data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-41"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+      >
+        <div
+          data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-42"
+          className="flex flex-col gap-2"
+        >
+          <label
+            data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-label-43"
+            className="text-sm font-medium text-gray-700"
+          >
+            Session
+          </label>
           <Select
             allowClear
             placeholder="Select session"
@@ -54,8 +68,16 @@ export default function ScorecardPeriodFilter() {
             data-cy="bsc-my-sc-session"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Month</label>
+        <div
+          data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-57"
+          className="flex flex-col gap-2"
+        >
+          <label
+            data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-label-58"
+            className="text-sm font-medium text-gray-700"
+          >
+            Month
+          </label>
           <Select
             allowClear
             placeholder="Select month"
@@ -77,9 +99,15 @@ export default function ScorecardPeriodFilter() {
   );
 
   const filterPopover = (
-    <div className="w-[460px] max-w-[460px]">
+    <div
+      data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-80"
+      className="w-[460px] max-w-[460px]"
+    >
       {filterBody}
-      <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100">
+      <div
+        data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-82"
+        className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100"
+      >
         <Button
           onClick={handleReset}
           className="h-8 px-4 rounded-lg text-xs text-gray-700 border-gray-300"
@@ -102,14 +130,26 @@ export default function ScorecardPeriodFilter() {
       <Popover
         content={filterPopover}
         title={
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="text-base font-bold text-gray-900 m-0">Filter</h3>
-              <p className="text-xs text-gray-500 mt-1 mb-0">
+          <div
+            data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-105"
+            className="flex justify-between items-start"
+          >
+            <div data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-106">
+              <h3
+                data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-h3-107"
+                className="text-base font-bold text-gray-900 m-0"
+              >
+                Filter
+              </h3>
+              <p
+                data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-p-108"
+                className="text-xs text-gray-500 mt-1 mb-0"
+              >
                 Select all filters that apply
               </p>
             </div>
             <button
+              data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-button-112"
               type="button"
               onClick={() => setFilterOpen(false)}
               className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"

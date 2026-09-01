@@ -129,8 +129,7 @@ export default function MyBscScorecardPage() {
 
   const selectedMonth = useMemo(
     () =>
-      myScorecardSessionMonths.find((m) => m.id === myScorecardMonthId) ||
-      null,
+      myScorecardSessionMonths.find((m) => m.id === myScorecardMonthId) || null,
     [myScorecardSessionMonths, myScorecardMonthId],
   );
 
@@ -188,9 +187,9 @@ export default function MyBscScorecardPage() {
 
   const evaluated = Boolean(
     activeScorecard &&
-      (activeScorecard.status === ScorecardStatus.Scored ||
-        activeScorecard.status === ScorecardStatus.Completed ||
-        activeScorecard.finalEvaluation?.compositeScore != null),
+    (activeScorecard.status === ScorecardStatus.Scored ||
+      activeScorecard.status === ScorecardStatus.Completed ||
+      activeScorecard.finalEvaluation?.compositeScore != null),
   );
 
   const cycle = useMemo(
@@ -297,9 +296,17 @@ export default function MyBscScorecardPage() {
   const myScorecardBody = (
     <div data-cy="bsc-my-scorecard-tab-content">
       {loading ? (
-        <div className="py-16 text-center text-gray-400">Loading…</div>
+        <div
+          data-cy="-bsc-bsc-my-scorecard-page-tsx-page-div-299"
+          className="py-16 text-center text-gray-400"
+        >
+          Loading…
+        </div>
       ) : !assignedKpis.length && !activeScorecard ? (
-        <div className="flex justify-center py-10">
+        <div
+          data-cy="-bsc-bsc-my-scorecard-page-tsx-page-div-301"
+          className="flex justify-center py-10"
+        >
           <EmptyImage />
         </div>
       ) : (
@@ -317,9 +324,7 @@ export default function MyBscScorecardPage() {
   const tabLabel = (key: string, label: string) => (
     <div
       className={`text-base font-normal m-0 ${
-        activeTab === key
-          ? 'text-okr-primary font-semibold'
-          : 'text-gray-800'
+        activeTab === key ? 'text-okr-primary font-semibold' : 'text-gray-800'
       }`}
       data-cy={`bsc-scorecard-tab-${key}`}
     >
@@ -373,8 +378,8 @@ export default function MyBscScorecardPage() {
     .filter(Boolean)
     .join(' ');
 
-  const compactRenderTabBar: RenderTabBar = (tabBarProps, DefaultTabBar) => {
-    const TabNavList = DefaultTabBar;
+  const compactRenderTabBar: RenderTabBar = (tabBarProps, defaultTabBar) => {
+    const TabNavList = defaultTabBar;
     return (
       <div className="w-full min-w-0" data-cy="bsc-mobile-tab-bar-stack">
         <TabNavList {...tabBarProps} />
@@ -387,26 +392,43 @@ export default function MyBscScorecardPage() {
       <CustomBreadcrumb
         titleClassName="!text-gray-900"
         title={
-          <span className="text-2xl font-bold text-gray-900">
+          <span
+            data-cy="-bsc-bsc-my-scorecard-page-tsx-page-span-387"
+            className="text-2xl font-bold text-gray-900"
+          >
             My Scorecard
           </span>
         }
         subtitle={
           <nav
+            data-cy="-bsc-bsc-my-scorecard-page-tsx-page-nav-390"
             aria-label="Breadcrumb"
             className="flex text-sm font-medium text-gray-500 mt-1"
           >
-            <ol className="flex items-center space-x-2">
-              <li>
+            <ol
+              data-cy="-bsc-bsc-my-scorecard-page-tsx-page-ol-394"
+              className="flex items-center space-x-2"
+            >
+              <li data-cy="-bsc-bsc-my-scorecard-page-tsx-page-li-395">
                 <Link className="!text-gray-800" href="/okr">
                   Performance
                 </Link>
               </li>
-              <li>
-                <span className="text-gray-400">/</span>
+              <li data-cy="-bsc-bsc-my-scorecard-page-tsx-page-li-400">
+                <span
+                  data-cy="-bsc-bsc-my-scorecard-page-tsx-page-span-401"
+                  className="text-gray-400"
+                >
+                  /
+                </span>
               </li>
-              <li>
-                <span className="text-gray-900">My Scorecard</span>
+              <li data-cy="-bsc-bsc-my-scorecard-page-tsx-page-li-403">
+                <span
+                  data-cy="-bsc-bsc-my-scorecard-page-tsx-page-span-404"
+                  className="text-gray-900"
+                >
+                  My Scorecard
+                </span>
               </li>
             </ol>
           </nav>
@@ -415,9 +437,7 @@ export default function MyBscScorecardPage() {
 
       <Tabs
         activeKey={activeTab}
-        onChange={(key) =>
-          setScorecardTab(key as 'mine' | 'team' | 'all')
-        }
+        onChange={(key) => setScorecardTab(key as 'mine' | 'team' | 'all')}
         items={tabItems}
         moreIcon={false}
         tabBarStyle={{

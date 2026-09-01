@@ -5,7 +5,11 @@ import { Input, Select, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import EmptyState from '@/components/empty';
-import { useGetBscCycles, useGetBscKpiLibrary, useGetBscRolePerspectives } from '@/store/server/features/bsc/queries';
+import {
+  useGetBscCycles,
+  useGetBscKpiLibrary,
+  useGetBscRolePerspectives,
+} from '@/store/server/features/bsc/queries';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import BscSetupModal from './_components/BscSetupModal';
 import { buildRoleList } from './_utils/roleList';
@@ -58,11 +62,22 @@ export default function BscSetupPage() {
 
   return (
     <div className="w-full" data-cy="bsc-setup-page">
-      <div className="rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]">
+      <div
+        data-cy="okr-settings-bsc-setup-page-tsx-page-div-65"
+        className="rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
+      >
         {loading ? (
-          <div className="py-16 text-center text-gray-400">Loading…</div>
+          <div
+            data-cy="okr-settings-bsc-setup-page-tsx-page-div-67"
+            className="py-16 text-center text-gray-400"
+          >
+            Loading…
+          </div>
         ) : roles.length === 0 ? (
-          <div className="flex min-h-[280px] items-center justify-center py-8">
+          <div
+            data-cy="okr-settings-bsc-setup-page-tsx-page-div-69"
+            className="flex min-h-[280px] items-center justify-center py-8"
+          >
             <EmptyState
               title="No roles in BSC setup yet"
               description="Add a setup with departments and roles, then open a role to define its KPIs."
@@ -97,7 +112,10 @@ export default function BscSetupPage() {
               </Select>
             </Space>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div
+              data-cy="okr-settings-bsc-setup-page-tsx-page-div-104"
+              className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            >
               {filtered.map((role) => (
                 <div
                   key={role.key}
@@ -109,12 +127,19 @@ export default function BscSetupPage() {
                   }
                   data-cy={`bsc-role-card-${role.key}`}
                 >
-                  <p className="mb-4 text-[15px] font-semibold leading-tight text-[#262626]">
+                  <p
+                    data-cy="okr-settings-bsc-setup-page-tsx-page-p-116"
+                    className="mb-4 text-[15px] font-semibold leading-tight text-[#262626]"
+                  >
                     {role.positionTitle}
                   </p>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div
+                    data-cy="okr-settings-bsc-setup-page-tsx-page-div-119"
+                    className="flex flex-wrap items-center gap-2"
+                  >
                     {role.departmentNames.slice(0, 2).map((d) => (
                       <div
+                        data-cy="okr-settings-bsc-setup-page-tsx-page-div-121"
                         key={d}
                         className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
                       >
@@ -122,11 +147,17 @@ export default function BscSetupPage() {
                       </div>
                     ))}
                     {role.departmentNames.length > 2 && (
-                      <div className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]">
+                      <div
+                        data-cy="okr-settings-bsc-setup-page-tsx-page-div-129"
+                        className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
+                      >
                         +{role.departmentNames.length - 2}
                       </div>
                     )}
-                    <div className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]">
+                    <div
+                      data-cy="okr-settings-bsc-setup-page-tsx-page-div-133"
+                      className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
+                    >
                       {role.kpiCount} KPI{role.kpiCount === 1 ? '' : 's'}
                     </div>
                   </div>
@@ -135,7 +166,10 @@ export default function BscSetupPage() {
             </div>
 
             {!filtered.length && (
-              <div className="py-12 text-center text-gray-400">
+              <div
+                data-cy="okr-settings-bsc-setup-page-tsx-page-div-142"
+                className="py-12 text-center text-gray-400"
+              >
                 No roles match your search
               </div>
             )}

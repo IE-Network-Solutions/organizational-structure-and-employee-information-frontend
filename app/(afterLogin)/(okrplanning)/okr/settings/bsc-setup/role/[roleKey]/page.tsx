@@ -1,8 +1,20 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
-import { Button, Form, Input, InputNumber, Select, Tooltip, message } from 'antd';
-import { CloseCircleFilled, LeftOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  Button,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  Tooltip,
+  message,
+} from 'antd';
+import {
+  CloseCircleFilled,
+  LeftOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import { useParams, useRouter } from 'next/navigation';
 import EmptyState from '@/components/empty';
 import {
@@ -64,8 +76,7 @@ export default function BscRoleKpiDetailPage() {
 
   const watchedRows: KpiRow[] = Form.useWatch('kpis', form) || [];
   const totalWeight = useMemo(
-    () =>
-      watchedRows.reduce((sum, row) => sum + Number(row?.weight || 0), 0),
+    () => watchedRows.reduce((sum, row) => sum + Number(row?.weight || 0), 0),
     [watchedRows],
   );
   const roundedTotal = Math.round(totalWeight);
@@ -118,11 +129,7 @@ export default function BscRoleKpiDetailPage() {
   const existingIds = useMemo(() => roleKpis.map((k) => k.id), [roleKpis]);
 
   const { data: allocation, isLoading: allocationLoading } =
-    useGetBscRolePerspective(
-      configId,
-      role?.positionId || null,
-      roleTitle,
-    );
+    useGetBscRolePerspective(configId, role?.positionId || null, roleTitle);
 
   const perspectiveNames = useMemo(() => {
     if (!allocation?.weights) return [];
@@ -238,12 +245,18 @@ export default function BscRoleKpiDetailPage() {
 
   return (
     <div className="w-full" data-cy="bsc-role-kpi-detail">
-      <div className="overflow-hidden rounded-xl border border-[#F1F2F6] bg-white min-h-[400px]">
+      <div
+        data-cy="bsc-setup-role-rolekey-page-tsx-page-div-248"
+        className="overflow-hidden rounded-xl border border-[#F1F2F6] bg-white min-h-[400px]"
+      >
         <div
           className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F1F2F6] bg-[#FAFBFC] px-4 py-3 md:px-6 md:py-4"
           data-cy="bsc-kpi-header"
         >
-          <div className="flex min-w-0 items-center gap-2 md:gap-3">
+          <div
+            data-cy="bsc-setup-role-rolekey-page-tsx-page-div-253"
+            className="flex min-w-0 items-center gap-2 md:gap-3"
+          >
             <button
               type="button"
               onClick={() => router.push('/okr/settings/bsc-setup')}
@@ -253,32 +266,52 @@ export default function BscRoleKpiDetailPage() {
             >
               <LeftOutlined className="text-[14px]" />
             </button>
-            <div className="min-w-0">
-              <p className="m-0 truncate text-[12px] font-semibold leading-snug text-[#161A2C] md:text-sm">
+            <div
+              data-cy="bsc-setup-role-rolekey-page-tsx-page-div-263"
+              className="min-w-0"
+            >
+              <p
+                data-cy="bsc-setup-role-rolekey-page-tsx-page-p-264"
+                className="m-0 truncate text-[12px] font-semibold leading-snug text-[#161A2C] md:text-sm"
+              >
                 {roleTitle}
               </p>
               {!!role?.departmentNames?.length && (
-                <p className="m-0 mt-0.5 truncate text-[11px] text-[#8F94A3]">
+                <p
+                  data-cy="bsc-setup-role-rolekey-page-tsx-page-p-268"
+                  className="m-0 mt-0.5 truncate text-[11px] text-[#8F94A3]"
+                >
                   {role.departmentNames.join(' · ')}
                 </p>
               )}
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-2 md:gap-3">
+          <div
+            data-cy="bsc-setup-role-rolekey-page-tsx-page-div-275"
+            className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-2 md:gap-3"
+          >
             <span
               className="whitespace-nowrap text-[12px] tabular-nums text-[#475569] md:text-sm"
               data-cy="bsc-kpi-weight-summary"
             >
               {watchedRows.length} KPI{watchedRows.length !== 1 ? 's' : ''}
-              <span className="mx-1 text-[#CBD5E1] md:mx-2">·</span>
+              <span
+                data-cy="bsc-setup-role-rolekey-page-tsx-page-span-281"
+                className="mx-1 text-[#CBD5E1] md:mx-2"
+              >
+                ·
+              </span>
               <span
                 className={`text-[18px] font-extrabold md:text-[20px] ${weightTone}`}
                 data-cy="bsc-kpi-weight-total"
               >
                 {roundedTotal}
               </span>
-              <span className="text-[13px] font-medium text-[#94A3B8] md:text-[14px]">
+              <span
+                data-cy="bsc-setup-role-rolekey-page-tsx-page-span-288"
+                className="text-[13px] font-medium text-[#94A3B8] md:text-[14px]"
+              >
                 {' '}
                 / 100
               </span>
@@ -307,11 +340,22 @@ export default function BscRoleKpiDetailPage() {
           </div>
         </div>
 
-        <div className="px-4 py-4 md:px-6 md:py-5">
+        <div
+          data-cy="bsc-setup-role-rolekey-page-tsx-page-div-317"
+          className="px-4 py-4 md:px-6 md:py-5"
+        >
           {isLoading || allocationLoading ? (
-            <div className="py-16 text-center text-[#94A3B8]">Loading…</div>
+            <div
+              data-cy="bsc-setup-role-rolekey-page-tsx-page-div-319"
+              className="py-16 text-center text-[#94A3B8]"
+            >
+              Loading…
+            </div>
           ) : !hasAssignedPerspectives ? (
-            <div className="flex min-h-[240px] items-center justify-center py-8">
+            <div
+              data-cy="bsc-setup-role-rolekey-page-tsx-page-div-321"
+              className="flex min-h-[240px] items-center justify-center py-8"
+            >
               <EmptyState
                 title="Assign perspectives first"
                 description="Select perspectives and weights for this role before you can create KPIs."
@@ -347,7 +391,10 @@ export default function BscRoleKpiDetailPage() {
                       className="rounded-xl bg-[#F9FAFB] px-3.5 py-3 md:px-4 md:py-3.5"
                       data-cy={`bsc-kpi-row-${field.key}`}
                     >
-                      <div className="mb-2 flex items-center justify-between gap-2">
+                      <div
+                        data-cy="bsc-setup-role-rolekey-page-tsx-page-div-357"
+                        className="mb-2 flex items-center justify-between gap-2"
+                      >
                         <span
                           className="text-[11px] font-semibold uppercase tracking-wider text-[#8F94A3]"
                           data-cy={`bsc-kpi-index-${field.name}`}
@@ -360,7 +407,10 @@ export default function BscRoleKpiDetailPage() {
                         <Input />
                       </Form.Item>
 
-                      <div className="flex items-center gap-3 w-full">
+                      <div
+                        data-cy="bsc-setup-role-rolekey-page-tsx-page-div-370"
+                        className="flex items-center gap-3 w-full"
+                      >
                         <Form.Item
                           name={[field.name, 'name']}
                           className="mb-0 flex-1"
@@ -388,10 +438,22 @@ export default function BscRoleKpiDetailPage() {
                         />
                       </div>
 
-                      <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-                        <div className="w-full sm:w-[220px]">
-                          <div className="mb-1 text-xs flex items-center gap-1.5 text-gray-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block" />
+                      <div
+                        data-cy="bsc-setup-role-rolekey-page-tsx-page-div-398"
+                        className="mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end"
+                      >
+                        <div
+                          data-cy="bsc-setup-role-rolekey-page-tsx-page-div-399"
+                          className="w-full sm:w-[220px]"
+                        >
+                          <div
+                            data-cy="bsc-setup-role-rolekey-page-tsx-page-div-400"
+                            className="mb-1 text-xs flex items-center gap-1.5 text-gray-500"
+                          >
+                            <span
+                              data-cy="bsc-setup-role-rolekey-page-tsx-page-span-401"
+                              className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                            />
                             Perspective
                           </div>
                           <Form.Item
@@ -415,9 +477,18 @@ export default function BscRoleKpiDetailPage() {
                             />
                           </Form.Item>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="mb-1 text-xs flex items-center gap-1.5 text-gray-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block" />
+                        <div
+                          data-cy="bsc-setup-role-rolekey-page-tsx-page-div-425"
+                          className="min-w-0 flex-1"
+                        >
+                          <div
+                            data-cy="bsc-setup-role-rolekey-page-tsx-page-div-426"
+                            className="mb-1 text-xs flex items-center gap-1.5 text-gray-500"
+                          >
+                            <span
+                              data-cy="bsc-setup-role-rolekey-page-tsx-page-span-427"
+                              className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                            />
                             Description
                           </div>
                           <Form.Item
@@ -438,9 +509,15 @@ export default function BscRoleKpiDetailPage() {
                             />
                           </Form.Item>
                         </div>
-                        <div>
-                          <div className="mb-1 text-xs flex items-center gap-1.5 text-gray-500">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block" />
+                        <div data-cy="bsc-setup-role-rolekey-page-tsx-page-div-448">
+                          <div
+                            data-cy="bsc-setup-role-rolekey-page-tsx-page-div-449"
+                            className="mb-1 text-xs flex items-center gap-1.5 text-gray-500"
+                          >
+                            <span
+                              data-cy="bsc-setup-role-rolekey-page-tsx-page-span-450"
+                              className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                            />
                             Weight
                           </div>
                           <Form.Item
@@ -452,7 +529,7 @@ export default function BscRoleKpiDetailPage() {
                                 message: 'Weight is required',
                               },
                               {
-                                validator: (_rule, value) => {
+                                validator: (rule, value) => {
                                   if (
                                     value !== undefined &&
                                     value !== null &&
@@ -483,18 +560,30 @@ export default function BscRoleKpiDetailPage() {
                   );
 
                   return (
-                    <div className="flex flex-col gap-6">
+                    <div
+                      data-cy="bsc-setup-role-rolekey-page-tsx-page-div-493"
+                      className="flex flex-col gap-6"
+                    >
                       {unassignedFields.length > 0 && (
                         <section
                           className="rounded-xl bg-[#F9FAFB] px-3.5 py-3 md:px-4 md:py-4"
                           data-cy="bsc-perspective-section-unassigned"
                         >
-                          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                            <h2 className="m-0 text-[13px] font-semibold text-[#161A2C]">
+                          <div
+                            data-cy="bsc-setup-role-rolekey-page-tsx-page-div-499"
+                            className="mb-3 flex flex-wrap items-center justify-between gap-2"
+                          >
+                            <h2
+                              data-cy="bsc-setup-role-rolekey-page-tsx-page-h2-500"
+                              className="m-0 text-[13px] font-semibold text-[#161A2C]"
+                            >
                               New KPI
                             </h2>
                           </div>
-                          <div className="flex flex-col gap-3">
+                          <div
+                            data-cy="bsc-setup-role-rolekey-page-tsx-page-div-504"
+                            className="flex flex-col gap-3"
+                          >
                             {unassignedFields.map((field, index) =>
                               renderKpiRow(field, index),
                             )}
@@ -517,8 +606,14 @@ export default function BscRoleKpiDetailPage() {
                             className="rounded-xl bg-[#F9FAFB] px-3.5 py-3 md:px-4 md:py-4"
                             data-cy={`bsc-perspective-section-${perspective}`}
                           >
-                            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                              <h2 className="m-0 text-[13px] font-semibold text-[#161A2C]">
+                            <div
+                              data-cy="bsc-setup-role-rolekey-page-tsx-page-div-527"
+                              className="mb-3 flex flex-wrap items-center justify-between gap-2"
+                            >
+                              <h2
+                                data-cy="bsc-setup-role-rolekey-page-tsx-page-h2-528"
+                                className="m-0 text-[13px] font-semibold text-[#161A2C]"
+                              >
                                 {perspective}
                               </h2>
                               <span
@@ -533,9 +628,15 @@ export default function BscRoleKpiDetailPage() {
                               </span>
                             </div>
 
-                            <div className="flex flex-col gap-3">
+                            <div
+                              data-cy="bsc-setup-role-rolekey-page-tsx-page-div-543"
+                              className="flex flex-col gap-3"
+                            >
                               {sectionFields.length === 0 && (
-                                <p className="m-0 text-[12px] text-[#94A3B8]">
+                                <p
+                                  data-cy="bsc-setup-role-rolekey-page-tsx-page-p-545"
+                                  className="m-0 text-[12px] text-[#94A3B8]"
+                                >
                                   Add at least one KPI and select this
                                   perspective.
                                 </p>
@@ -566,9 +667,15 @@ export default function BscRoleKpiDetailPage() {
                 className="mt-6 flex flex-wrap items-center justify-end gap-3 border-t border-[#F1F2F6] pt-4"
                 data-cy="bsc-kpi-weight-footer"
               >
-                <span className="text-sm font-medium text-[#161A2C] whitespace-nowrap">
+                <span
+                  data-cy="bsc-setup-role-rolekey-page-tsx-page-span-576"
+                  className="text-sm font-medium text-[#161A2C] whitespace-nowrap"
+                >
                   Weight Point:{' '}
-                  <span className={`font-bold ${weightTone}`}>
+                  <span
+                    data-cy="bsc-setup-role-rolekey-page-tsx-page-span-578"
+                    className={`font-bold ${weightTone}`}
+                  >
                     {roundedTotal}%
                   </span>
                 </span>

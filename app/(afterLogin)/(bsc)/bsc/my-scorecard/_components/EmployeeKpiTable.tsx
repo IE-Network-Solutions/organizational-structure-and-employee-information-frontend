@@ -52,7 +52,9 @@ function isScorecardApproved(scorecard: EmployeeScorecard): boolean {
   }
   return (
     scorecard.targets.length > 0 &&
-    scorecard.targets.every((t) => t.approvalStatus === KpiApprovalStatus.Approved)
+    scorecard.targets.every(
+      (t) => t.approvalStatus === KpiApprovalStatus.Approved,
+    )
   );
 }
 
@@ -114,52 +116,119 @@ export default function EmployeeKpiTable() {
 
   const columns: ColumnsType<EmployeeKpiRow> = [
     {
-      title: <span className={tableHeaderClassName}>Employee Name</span>,
+      title: (
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-119"
+          className={tableHeaderClassName}
+        >
+          Employee Name
+        </span>
+      ),
       dataIndex: 'userName',
       key: 'userName',
       width: 200,
       render: (name: string) => (
-        <span className={tableCellClassName}>{name}</span>
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-124"
+          className={tableCellClassName}
+        >
+          {name}
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Job Title</span>,
+      title: (
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-128"
+          className={tableHeaderClassName}
+        >
+          Job Title
+        </span>
+      ),
       dataIndex: 'positionTitle',
       key: 'positionTitle',
       width: 240,
       render: (title: string) => (
-        <span className={tableCellClassName}>{title || '—'}</span>
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-133"
+          className={tableCellClassName}
+        >
+          {title || '—'}
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Department</span>,
+      title: (
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-137"
+          className={tableHeaderClassName}
+        >
+          Department
+        </span>
+      ),
       dataIndex: 'departmentName',
       key: 'departmentName',
       width: 200,
       render: (name: string) => (
-        <span className={tableCellClassName}>{name || '—'}</span>
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-142"
+          className={tableCellClassName}
+        >
+          {name || '—'}
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Period</span>,
+      title: (
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-146"
+          className={tableHeaderClassName}
+        >
+          Period
+        </span>
+      ),
       dataIndex: 'cycleLabel',
       key: 'cycleLabel',
       render: (label: string) => (
-        <span className={tableCellClassName}>{label}</span>
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-150"
+          className={tableCellClassName}
+        >
+          {label}
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>KPI Score</span>,
+      title: (
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-154"
+          className={tableHeaderClassName}
+        >
+          KPI Score
+        </span>
+      ),
       dataIndex: 'kpiScore',
       key: 'kpiScore',
       render: (score: number) => (
-        <span className={tableCellClassName}>{formatScore(score)}%</span>
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-158"
+          className={tableCellClassName}
+        >
+          {formatScore(score)}%
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Status</span>,
+      title: (
+        <span
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-span-162"
+          className={tableHeaderClassName}
+        >
+          Status
+        </span>
+      ),
       key: 'approval',
-      render: (_: unknown, record: EmployeeKpiRow) =>
+      render: (unused: unknown, record: EmployeeKpiRow) =>
         isScorecardApproved(record) ? (
           <Tag color="green">Approved</Tag>
         ) : (
@@ -175,10 +244,24 @@ export default function EmployeeKpiTable() {
   };
 
   const filterBody = (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Employee</label>
+    <div
+      data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-div-180"
+      className="flex flex-col gap-4"
+    >
+      <div
+        data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-div-181"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+      >
+        <div
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-div-182"
+          className="flex flex-col gap-2"
+        >
+          <label
+            data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-label-183"
+            className="text-sm font-medium text-gray-700"
+          >
+            Employee
+          </label>
           <Select
             showSearch
             allowClear
@@ -193,8 +276,14 @@ export default function EmployeeKpiTable() {
             optionFilterProp="label"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">
+        <div
+          data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-div-198"
+          className="flex flex-col gap-2"
+        >
+          <label
+            data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-label-199"
+            className="text-sm font-medium text-gray-700"
+          >
             Department
           </label>
           <Select
@@ -218,9 +307,15 @@ export default function EmployeeKpiTable() {
   );
 
   const filterPopover = (
-    <div className="w-[460px] max-w-[460px]">
+    <div
+      data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-div-223"
+      className="w-[460px] max-w-[460px]"
+    >
       {filterBody}
-      <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100">
+      <div
+        data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-div-225"
+        className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100"
+      >
         <Button
           onClick={handleReset}
           className="h-8 px-4 rounded-lg text-xs text-gray-700 border-gray-300"
@@ -243,7 +338,10 @@ export default function EmployeeKpiTable() {
       className="border border-[#D9D9D9] rounded-lg"
       data-cy="bsc-all-employee-kpi-table"
     >
-      <div className="flex justify-between items-center gap-3 mb-2 px-3 pt-3">
+      <div
+        data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-div-248"
+        className="flex justify-between items-center gap-3 mb-2 px-3 pt-3"
+      >
         <Select
           showSearch
           allowClear
@@ -261,16 +359,26 @@ export default function EmployeeKpiTable() {
         <Popover
           content={filterPopover}
           title={
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-base font-bold text-gray-900 m-0">
+            <div
+              data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-div-266"
+              className="flex justify-between items-start"
+            >
+              <div data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-div-267">
+                <h3
+                  data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-h3-268"
+                  className="text-base font-bold text-gray-900 m-0"
+                >
                   Filter
                 </h3>
-                <p className="text-xs text-gray-500 mt-1 mb-0">
+                <p
+                  data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-p-271"
+                  className="text-xs text-gray-500 mt-1 mb-0"
+                >
                   Select all filters that apply
                 </p>
               </div>
               <button
+                data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-button-275"
                 type="button"
                 onClick={() => setFilterOpen(false)}
                 className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"
@@ -296,7 +404,10 @@ export default function EmployeeKpiTable() {
         </Popover>
       </div>
 
-      <div className="overflow-x-auto mt-2">
+      <div
+        data-cy="bsc-my-scorecard-components-employeekpitable-tsx-employeekpitable-div-301"
+        className="overflow-x-auto mt-2"
+      >
         {isLoading ? (
           <div data-cy="bsc-all-employee-kpi-table-skeleton">
             <TableSkeleton columns={columns} scroll={{ x: 1000 }} />
@@ -311,7 +422,7 @@ export default function EmployeeKpiTable() {
             scroll={{ x: 1000 }}
             rowKey="id"
             rowHoverable={false}
-            rowClassName={(_record, index) =>
+            rowClassName={(record, index) =>
               index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
             }
           />

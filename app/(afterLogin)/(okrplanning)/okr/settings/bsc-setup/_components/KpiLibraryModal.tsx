@@ -66,8 +66,7 @@ export default function KpiLibraryModal() {
       departmentId: editingKpi?.departmentId || null,
       departmentName:
         editingKpi?.departmentName || roleContext?.departmentName || null,
-      positionId:
-        editingKpi?.positionId || roleContext?.positionId || null,
+      positionId: editingKpi?.positionId || roleContext?.positionId || null,
       positionTitle:
         editingKpi?.positionTitle || roleContext?.positionTitle || null,
       defaultTarget: editingKpi?.defaultTarget ?? null,
@@ -91,7 +90,10 @@ export default function KpiLibraryModal() {
       closeIcon={<CloseOutlined />}
       data-cy="bsc-kpi-library-modal"
       footer={
-        <div className="flex justify-end gap-3">
+        <div
+          data-cy="settings-bsc-setup-components-kpilibrarymodal-tsx-kpilibrarymodal-div-93"
+          className="flex justify-end gap-3"
+        >
           <CustomButton
             type="default"
             title="Cancel"
@@ -111,8 +113,14 @@ export default function KpiLibraryModal() {
     >
       <Form form={form} layout="vertical" className="mt-2">
         {roleContext?.positionTitle && (
-          <p className="mb-3 text-sm text-[#595959]">
-            Role: <strong>{roleContext.positionTitle}</strong>
+          <p
+            data-cy="settings-bsc-setup-components-kpilibrarymodal-tsx-kpilibrarymodal-p-113"
+            className="mb-3 text-sm text-[#595959]"
+          >
+            Role:{' '}
+            <strong data-cy="settings-bsc-setup-components-kpilibrarymodal-tsx-kpilibrarymodal-strong-114">
+              {roleContext.positionTitle}
+            </strong>
           </p>
         )}
         <Form.Item
@@ -127,10 +135,7 @@ export default function KpiLibraryModal() {
           label="Description"
           rules={[{ required: true, message: 'Description is required' }]}
         >
-          <TextArea
-            rows={3}
-            placeholder="Describe what this KPI measures"
-          />
+          <TextArea rows={3} placeholder="Describe what this KPI measures" />
         </Form.Item>
         <Form.Item
           name="weight"

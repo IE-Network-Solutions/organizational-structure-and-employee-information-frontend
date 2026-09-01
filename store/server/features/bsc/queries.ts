@@ -46,19 +46,16 @@ export const useGetBscScorecards = (filters?: {
   );
 
 export const useGetBscScorecard = (id: string) =>
-  useQuery(
-    [BSC_QUERY_KEYS.scorecard, id],
-    () => bscMockRepo.getScorecard(id),
-    { enabled: !!id },
-  );
+  useQuery([BSC_QUERY_KEYS.scorecard, id], () => bscMockRepo.getScorecard(id), {
+    enabled: !!id,
+  });
 
 export const useGetBscHrisOutbox = () =>
   useQuery(BSC_QUERY_KEYS.hris, () => bscMockRepo.getHrisOutbox());
 
 export const useGetBscAudit = (scorecardId?: string) =>
-  useQuery(
-    [BSC_QUERY_KEYS.audit, scorecardId],
-    () => bscMockRepo.listAudit(scorecardId),
+  useQuery([BSC_QUERY_KEYS.audit, scorecardId], () =>
+    bscMockRepo.listAudit(scorecardId),
   );
 
 export const useGetBscPerspectiveCatalog = () =>
@@ -80,7 +77,12 @@ export const useGetBscRolePerspective = (
   positionTitle: string,
 ) =>
   useQuery(
-    [BSC_QUERY_KEYS.perspectives, evaluationConfigId, positionId, positionTitle],
+    [
+      BSC_QUERY_KEYS.perspectives,
+      evaluationConfigId,
+      positionId,
+      positionTitle,
+    ],
     () =>
       bscMockRepo.getRolePerspectives(
         evaluationConfigId,

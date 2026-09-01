@@ -16,11 +16,22 @@ export default function BscPerspectivesPage() {
 
   return (
     <div className="w-full" data-cy="bsc-perspectives-page">
-      <div className="rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]">
+      <div
+        data-cy="okr-settings-bsc-perspectives-page-tsx-page-div-19"
+        className="rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
+      >
         {isLoading ? (
-          <div className="py-16 text-center text-gray-400">Loading…</div>
+          <div
+            data-cy="okr-settings-bsc-perspectives-page-tsx-page-div-21"
+            className="py-16 text-center text-gray-400"
+          >
+            Loading…
+          </div>
         ) : !catalog?.length ? (
-          <div className="flex min-h-[280px] items-center justify-center py-8">
+          <div
+            data-cy="okr-settings-bsc-perspectives-page-tsx-page-div-23"
+            className="flex min-h-[280px] items-center justify-center py-8"
+          >
             <EmptyState
               title="No perspectives yet"
               description="Add perspectives here, then assign them to roles on Perspective Assignment."
@@ -29,24 +40,39 @@ export default function BscPerspectivesPage() {
             />
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div
+            data-cy="okr-settings-bsc-perspectives-page-tsx-page-div-32"
+            className="flex flex-col gap-3"
+          >
             {catalog.map((item) => (
               <div
                 key={item.id}
                 className="flex flex-wrap items-start justify-between gap-3 rounded-[12px] bg-[#F9FAFB] p-5"
                 data-cy={`bsc-perspective-card-${item.id}`}
               >
-                <div className="min-w-0">
-                  <p className="m-0 text-[15px] font-semibold text-[#262626]">
+                <div
+                  data-cy="okr-settings-bsc-perspectives-page-tsx-page-div-39"
+                  className="min-w-0"
+                >
+                  <p
+                    data-cy="okr-settings-bsc-perspectives-page-tsx-page-p-40"
+                    className="m-0 text-[15px] font-semibold text-[#262626]"
+                  >
                     {item.name}
                   </p>
                   {item.description ? (
-                    <p className="m-0 mt-1 text-[13px] text-[#8F94A3]">
+                    <p
+                      data-cy="okr-settings-bsc-perspectives-page-tsx-page-p-44"
+                      className="m-0 mt-1 text-[13px] text-[#8F94A3]"
+                    >
                       {item.description}
                     </p>
                   ) : null}
                 </div>
-                <div className="flex items-center gap-1">
+                <div
+                  data-cy="okr-settings-bsc-perspectives-page-tsx-page-div-49"
+                  className="flex items-center gap-1"
+                >
                   <Button
                     type="text"
                     icon={<EditOutlined />}

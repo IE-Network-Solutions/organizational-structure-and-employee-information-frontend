@@ -75,11 +75,7 @@ export default function BscPerspectiveAssignmentRolePage() {
   );
 
   const { data: allocation, isLoading: allocationLoading } =
-    useGetBscRolePerspective(
-      configId,
-      role?.positionId || null,
-      roleTitle,
-    );
+    useGetBscRolePerspective(configId, role?.positionId || null, roleTitle);
 
   const watchedRows: WeightRow[] = Form.useWatch('rows', form) || [];
   const selectedNames = useMemo(
@@ -120,7 +116,9 @@ export default function BscPerspectiveAssignmentRolePage() {
           .map(([name, weight]) => ({ name, weight }))
       : [];
     form.setFieldsValue({
-      rows: assigned.length ? assigned : [{ name: undefined, weight: undefined }],
+      rows: assigned.length
+        ? assigned
+        : [{ name: undefined, weight: undefined }],
     });
   }, [loading, roleKey, configId, allocation, form]);
 
@@ -151,12 +149,18 @@ export default function BscPerspectiveAssignmentRolePage() {
 
   return (
     <div className="w-full" data-cy="bsc-perspective-assignment-detail">
-      <div className="overflow-hidden rounded-xl border border-[#F1F2F6] bg-white min-h-[400px]">
+      <div
+        data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-152"
+        className="overflow-hidden rounded-xl border border-[#F1F2F6] bg-white min-h-[400px]"
+      >
         <div
           className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F1F2F6] bg-[#FAFBFC] px-4 py-3 md:px-6 md:py-4"
           data-cy="bsc-assignment-header"
         >
-          <div className="flex min-w-0 items-center gap-2 md:gap-3">
+          <div
+            data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-157"
+            className="flex min-w-0 items-center gap-2 md:gap-3"
+          >
             <button
               type="button"
               onClick={() =>
@@ -168,29 +172,45 @@ export default function BscPerspectiveAssignmentRolePage() {
             >
               <LeftOutlined className="text-[14px]" />
             </button>
-            <div className="min-w-0">
-              <p className="m-0 truncate text-[12px] font-semibold leading-snug text-[#161A2C] md:text-sm">
+            <div
+              data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-169"
+              className="min-w-0"
+            >
+              <p
+                data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-p-170"
+                className="m-0 truncate text-[12px] font-semibold leading-snug text-[#161A2C] md:text-sm"
+              >
                 {roleTitle}
               </p>
               {!!role?.departmentNames?.length && (
-                <p className="m-0 mt-0.5 truncate text-[11px] text-[#8F94A3]">
+                <p
+                  data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-p-174"
+                  className="m-0 mt-0.5 truncate text-[11px] text-[#8F94A3]"
+                >
                   {role.departmentNames.join(' · ')}
                 </p>
               )}
             </div>
           </div>
 
-          <div className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-2 md:gap-3">
+          <div
+            data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-181"
+            className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-2 md:gap-3"
+          >
             <span
               className="whitespace-nowrap text-[12px] tabular-nums text-[#475569] md:text-sm"
               data-cy="bsc-assignment-weight-summary"
             >
               <span
+                data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-span-186"
                 className={`text-[18px] font-extrabold md:text-[20px] ${weightTone}`}
               >
                 {roundedTotal}
               </span>
-              <span className="text-[13px] font-medium text-[#94A3B8] md:text-[14px]">
+              <span
+                data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-span-191"
+                className="text-[13px] font-medium text-[#94A3B8] md:text-[14px]"
+              >
                 {' '}
                 / 100
               </span>
@@ -217,9 +237,17 @@ export default function BscPerspectiveAssignmentRolePage() {
           </div>
         </div>
 
-        <div className="px-4 py-4 md:px-6 md:py-5">
+        <div
+          data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-218"
+          className="px-4 py-4 md:px-6 md:py-5"
+        >
           {loading ? (
-            <div className="py-16 text-center text-[#94A3B8]">Loading…</div>
+            <div
+              data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-220"
+              className="py-16 text-center text-[#94A3B8]"
+            >
+              Loading…
+            </div>
           ) : (
             <Form
               form={form}
@@ -230,17 +258,35 @@ export default function BscPerspectiveAssignmentRolePage() {
               <Form.List name="rows">
                 {(fields, { add, remove }) => (
                   <>
-                    <div className="rounded-xl bg-[#F9FAFB] px-3.5 py-3 md:px-4 md:py-4">
-                      <div className="mb-2 hidden gap-3 sm:flex sm:items-center">
-                        <div className="min-w-0 flex-1 text-xs text-gray-500">
+                    <div
+                      data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-231"
+                      className="rounded-xl bg-[#F9FAFB] px-3.5 py-3 md:px-4 md:py-4"
+                    >
+                      <div
+                        data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-232"
+                        className="mb-2 hidden gap-3 sm:flex sm:items-center"
+                      >
+                        <div
+                          data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-233"
+                          className="min-w-0 flex-1 text-xs text-gray-500"
+                        >
                           Perspective
                         </div>
-                        <div className="w-[88px] text-xs text-gray-500">
+                        <div
+                          data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-236"
+                          className="w-[88px] text-xs text-gray-500"
+                        >
                           Weight
                         </div>
-                        <div className="w-5" />
+                        <div
+                          data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-239"
+                          className="w-5"
+                        />
                       </div>
-                      <div className="flex flex-col gap-3">
+                      <div
+                        data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-241"
+                        className="flex flex-col gap-3"
+                      >
                         {fields.map((field) => {
                           const currentName = watchedRows[field.name]?.name;
                           const available = catalogNames.filter(
@@ -257,9 +303,18 @@ export default function BscPerspectiveAssignmentRolePage() {
                               className="flex flex-col gap-1"
                               data-cy={`bsc-assignment-row-${field.key}`}
                             >
-                              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                                <div className="min-w-0 flex-1">
-                                  <div className="mb-1 text-xs text-gray-500 sm:hidden">
+                              <div
+                                data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-258"
+                                className="flex flex-col gap-3 sm:flex-row sm:items-center"
+                              >
+                                <div
+                                  data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-259"
+                                  className="min-w-0 flex-1"
+                                >
+                                  <div
+                                    data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-260"
+                                    className="mb-1 text-xs text-gray-500 sm:hidden"
+                                  >
                                     Perspective
                                   </div>
                                   <Form.Item
@@ -283,8 +338,11 @@ export default function BscPerspectiveAssignmentRolePage() {
                                     />
                                   </Form.Item>
                                 </div>
-                                <div>
-                                  <div className="mb-1 text-xs text-gray-500 sm:hidden">
+                                <div data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-284">
+                                  <div
+                                    data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-div-285"
+                                    className="mb-1 text-xs text-gray-500 sm:hidden"
+                                  >
                                     Weight
                                   </div>
                                   <Form.Item
@@ -296,7 +354,7 @@ export default function BscPerspectiveAssignmentRolePage() {
                                         message: 'Weight is required',
                                       },
                                       {
-                                        validator: (_rule, val) => {
+                                        validator: (rule, val) => {
                                           if (
                                             val !== undefined &&
                                             val !== null &&
@@ -344,7 +402,10 @@ export default function BscPerspectiveAssignmentRolePage() {
                                 />
                               </div>
                               {overCap && (
-                                <p className="m-0 text-[12px] text-[#DC2626]">
+                                <p
+                                  data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-p-345"
+                                  className="m-0 text-[12px] text-[#DC2626]"
+                                >
                                   Max {MAX_PERSPECTIVE_WEIGHT}% per perspective
                                 </p>
                               )}
@@ -374,9 +435,15 @@ export default function BscPerspectiveAssignmentRolePage() {
                 className="mt-6 flex flex-wrap items-center justify-end gap-3 border-t border-[#F1F2F6] pt-4"
                 data-cy="bsc-assignment-weight-footer"
               >
-                <span className="text-sm font-medium text-[#161A2C] whitespace-nowrap">
+                <span
+                  data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-span-375"
+                  className="text-sm font-medium text-[#161A2C] whitespace-nowrap"
+                >
                   Weight Point:{' '}
-                  <span className={`font-bold ${weightTone}`}>
+                  <span
+                    data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-span-377"
+                    className={`font-bold ${weightTone}`}
+                  >
                     {roundedTotal}%
                   </span>
                 </span>

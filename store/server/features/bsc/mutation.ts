@@ -27,14 +27,19 @@ function invalidateAll(qc: ReturnType<typeof useQueryClient>) {
 
 export const useCreateBscKpi = () => {
   const qc = useQueryClient();
-  return useMutation((input: CreateKpiLibraryInput) => bscMockRepo.createKpi(input), {
-    onSuccess: () => {
-      invalidateAll(qc);
-      NotificationMessage.success({ message: 'KPI created' });
+  return useMutation(
+    (input: CreateKpiLibraryInput) => bscMockRepo.createKpi(input),
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'KPI created' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Failed to create KPI',
+        }),
     },
-    onError: (e: Error) =>
-      NotificationMessage.error({ message: e.message || 'Failed to create KPI' }),
-  });
+  );
 };
 
 export const useUpdateBscKpi = () => {
@@ -48,7 +53,9 @@ export const useUpdateBscKpi = () => {
         NotificationMessage.success({ message: 'KPI updated' });
       },
       onError: (e: Error) =>
-        NotificationMessage.error({ message: e.message || 'Failed to update KPI' }),
+        NotificationMessage.error({
+          message: e.message || 'Failed to update KPI',
+        }),
     },
   );
 };
@@ -61,7 +68,9 @@ export const useDeleteBscKpi = () => {
       NotificationMessage.success({ message: 'KPI deleted' });
     },
     onError: (e: Error) =>
-      NotificationMessage.error({ message: e.message || 'Failed to delete KPI' }),
+      NotificationMessage.error({
+        message: e.message || 'Failed to delete KPI',
+      }),
   });
 };
 
@@ -103,13 +112,8 @@ export const useCreateBscPerspective = () => {
 export const useUpdateBscPerspective = () => {
   const qc = useQueryClient();
   return useMutation(
-    ({
-      id,
-      input,
-    }: {
-      id: string;
-      input: Partial<CreatePerspectiveInput>;
-    }) => bscMockRepo.updatePerspective(id, input),
+    ({ id, input }: { id: string; input: Partial<CreatePerspectiveInput> }) =>
+      bscMockRepo.updatePerspective(id, input),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -140,7 +144,8 @@ export const useDeleteBscPerspective = () => {
 export const useSaveBscRolePerspectives = () => {
   const qc = useQueryClient();
   return useMutation(
-    (input: SaveRolePerspectiveInput) => bscMockRepo.saveRolePerspectives(input),
+    (input: SaveRolePerspectiveInput) =>
+      bscMockRepo.saveRolePerspectives(input),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -179,7 +184,9 @@ export const useUpdateBscCycle = () => {
     {
       onSuccess: () => {
         invalidateAll(qc);
-        NotificationMessage.success({ message: 'BSC evaluation setup updated' });
+        NotificationMessage.success({
+          message: 'BSC evaluation setup updated',
+        });
       },
       onError: (e: Error) =>
         NotificationMessage.error({
@@ -197,7 +204,9 @@ export const useLockBscCycle = () => {
       NotificationMessage.success({ message: 'Cycle locked' });
     },
     onError: (e: Error) =>
-      NotificationMessage.error({ message: e.message || 'Failed to lock cycle' }),
+      NotificationMessage.error({
+        message: e.message || 'Failed to lock cycle',
+      }),
   });
 };
 
@@ -234,32 +243,42 @@ export const useCreateBscScorecard = () => {
 
 export const useSubmitBscForAck = () => {
   const qc = useQueryClient();
-  return useMutation((id: string) => {
-    const actorId = useAuthenticationStore.getState().userId;
-    return bscMockRepo.submitForAck(id, actorId);
-  }, {
-    onSuccess: () => {
-      invalidateAll(qc);
-      NotificationMessage.success({ message: 'Submitted for acknowledgment' });
+  return useMutation(
+    (id: string) => {
+      const actorId = useAuthenticationStore.getState().userId;
+      return bscMockRepo.submitForAck(id, actorId);
     },
-    onError: (e: Error) =>
-      NotificationMessage.error({ message: e.message || 'Submit failed' }),
-  });
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({
+          message: 'Submitted for acknowledgment',
+        });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({ message: e.message || 'Submit failed' }),
+    },
+  );
 };
 
 export const useAcknowledgeBscScorecard = () => {
   const qc = useQueryClient();
-  return useMutation((id: string) => {
-    const actorId = useAuthenticationStore.getState().userId;
-    return bscMockRepo.acknowledge(id, actorId);
-  }, {
-    onSuccess: () => {
-      invalidateAll(qc);
-      NotificationMessage.success({ message: 'Scorecard acknowledged' });
+  return useMutation(
+    (id: string) => {
+      const actorId = useAuthenticationStore.getState().userId;
+      return bscMockRepo.acknowledge(id, actorId);
     },
-    onError: (e: Error) =>
-      NotificationMessage.error({ message: e.message || 'Acknowledge failed' }),
-  });
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'Scorecard acknowledged' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Acknowledge failed',
+        }),
+    },
+  );
 };
 
 export const useReportBscKpis = () => {
@@ -285,17 +304,20 @@ export const useReportBscKpis = () => {
 
 export const useSubmitBscFinal = () => {
   const qc = useQueryClient();
-  return useMutation((id: string) => {
-    const actorId = useAuthenticationStore.getState().userId;
-    return bscMockRepo.submitFinal(id, actorId);
-  }, {
-    onSuccess: () => {
-      invalidateAll(qc);
-      NotificationMessage.success({ message: 'Submitted for evaluation' });
+  return useMutation(
+    (id: string) => {
+      const actorId = useAuthenticationStore.getState().userId;
+      return bscMockRepo.submitFinal(id, actorId);
     },
-    onError: (e: Error) =>
-      NotificationMessage.error({ message: e.message || 'Submit failed' }),
-  });
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'Submitted for evaluation' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({ message: e.message || 'Submit failed' }),
+    },
+  );
 };
 
 export const useAdjustBscReportedKpis = () => {
@@ -342,7 +364,8 @@ export const useSetBscKpiApproval = () => {
         rejectionReason,
       ),
     {
-      onSuccess: (_data, vars) => {
+      onSuccess: (result, vars) => {
+        void result;
         invalidateAll(qc);
         NotificationMessage.success({
           message: vars.approved ? 'KPI approved' : 'KPI rejected',
@@ -356,17 +379,20 @@ export const useSetBscKpiApproval = () => {
 
 export const useFinalizeBscApprovals = () => {
   const qc = useQueryClient();
-  return useMutation((id: string) => {
-    const actorId = useAuthenticationStore.getState().userId;
-    return bscMockRepo.finalizeApprovals(id, actorId);
-  }, {
-    onSuccess: () => {
-      invalidateAll(qc);
-      NotificationMessage.success({ message: 'Team KPI review completed' });
+  return useMutation(
+    (id: string) => {
+      const actorId = useAuthenticationStore.getState().userId;
+      return bscMockRepo.finalizeApprovals(id, actorId);
     },
-    onError: (e: Error) =>
-      NotificationMessage.error({ message: e.message || 'Finalize failed' }),
-  });
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'Team KPI review completed' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({ message: e.message || 'Finalize failed' }),
+    },
+  );
 };
 
 export const useLockBscEvaluation = () => {

@@ -51,9 +51,7 @@ describe('bsc mock repository contract', () => {
     const repo = new BscMockRepository();
     const sc = await createActiveScorecard(repo);
     await expect(
-      repo.reportKpis(sc.id, [
-        { targetId: sc.targets[0].id, actualValue: 38 },
-      ]),
+      repo.reportKpis(sc.id, [{ targetId: sc.targets[0].id, actualValue: 38 }]),
     ).rejects.toThrow(/Evidence is required/);
 
     const saved = await repo.reportKpis(sc.id, [
@@ -203,11 +201,7 @@ describe('bsc mock repository contract', () => {
       })),
     });
     expect(saved.map((k) => k.perspective).sort()).toEqual(
-      [
-        'Customer',
-        'Internal Process',
-        'Learning & Growth',
-      ].sort(),
+      ['Customer', 'Internal Process', 'Learning & Growth'].sort(),
     );
   });
 
@@ -291,8 +285,8 @@ describe('bsc mock repository contract', () => {
     expect(created.isSystem).toBe(false);
     const catalog = await repo.listPerspectives();
     expect(catalog.some((p) => p.name === 'Community Impact')).toBe(true);
-    await expect(
-      repo.createPerspective({ name: 'Financial' }),
-    ).rejects.toThrow(/Financial perspective is not used/);
+    await expect(repo.createPerspective({ name: 'Financial' })).rejects.toThrow(
+      /Financial perspective is not used/,
+    );
   });
 });

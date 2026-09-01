@@ -1,15 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
-import {
-  Checkbox,
-  DatePicker,
-  Form,
-  Modal,
-  Select,
-  Row,
-  Col,
-} from 'antd';
+import { Checkbox, DatePicker, Form, Modal, Select, Row, Col } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -46,13 +38,8 @@ function fiscalYearBounds(fy: any): { start: string; end: string } {
   const lastSession = sessions[sessions.length - 1];
   return {
     start:
-      toDateString(fy?.startDate) ||
-      toDateString(sessions[0]?.startDate) ||
-      '',
-    end:
-      toDateString(fy?.endDate) ||
-      toDateString(lastSession?.endDate) ||
-      '',
+      toDateString(fy?.startDate) || toDateString(sessions[0]?.startDate) || '',
+    end: toDateString(fy?.endDate) || toDateString(lastSession?.endDate) || '',
   };
 }
 
@@ -287,7 +274,11 @@ export default function BscSetupModal() {
           <Checkbox>Recurring evaluations</Checkbox>
         </Form.Item>
 
-        <Form.Item name="useCustomDates" valuePropName="checked" className="mb-3">
+        <Form.Item
+          name="useCustomDates"
+          valuePropName="checked"
+          className="mb-3"
+        >
           <Checkbox data-cy="bsc-setup-custom-duration">
             Custom evaluation duration
           </Checkbox>
@@ -332,7 +323,10 @@ export default function BscSetupModal() {
           </Col>
         </Row>
 
-        <div className="flex justify-end gap-3 mt-4">
+        <div
+          data-cy="settings-bsc-setup-components-bscsetupmodal-tsx-bscsetupmodal-div-326"
+          className="flex justify-end gap-3 mt-4"
+        >
           <CustomButton
             type="default"
             title="Cancel"

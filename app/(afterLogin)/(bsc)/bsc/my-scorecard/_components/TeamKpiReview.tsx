@@ -166,37 +166,79 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
 
   const columns: ColumnsType<ScorecardKpiTarget> = [
     {
-      title: <span className={tableHeaderClassName}>KPI</span>,
+      title: (
+        <span
+          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-169"
+          className={tableHeaderClassName}
+        >
+          KPI
+        </span>
+      ),
       dataIndex: 'kpiName',
       key: 'kpiName',
       render: (name: string, row) => (
-        <div className="flex flex-col gap-0.5">
-          <span className={tableCellClassName}>{name}</span>
-          <span className="text-xs text-gray-500">{row.perspective}</span>
+        <div
+          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-div-173"
+          className="flex flex-col gap-0.5"
+        >
+          <span
+            data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-174"
+            className={tableCellClassName}
+          >
+            {name}
+          </span>
+          <span
+            data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-175"
+            className="text-xs text-gray-500"
+          >
+            {row.perspective}
+          </span>
         </div>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Weight</span>,
+      title: (
+        <span
+          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-180"
+          className={tableHeaderClassName}
+        >
+          Weight
+        </span>
+      ),
       dataIndex: 'weightPercentage',
       key: 'weightPercentage',
       width: 90,
       render: (weight: number) => (
-        <span className={tableCellClassName}>{weight}%</span>
+        <span
+          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-185"
+          className={tableCellClassName}
+        >
+          {weight}%
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Reported</span>,
+      title: (
+        <span
+          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-189"
+          className={tableHeaderClassName}
+        >
+          Reported
+        </span>
+      ),
       key: 'reportedPercent',
       width: 110,
-      render: (_: unknown, row: ScorecardKpiTarget) => {
+      render: (unused: unknown, row: ScorecardKpiTarget) => {
         const value = displayReportedNumber(
           row,
           drafts[row.id] ?? row.actualValue,
         );
         if (!canReview) {
           return (
-            <span className={tableCellClassName}>
+            <span
+              data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-199"
+              className={tableCellClassName}
+            >
               {value == null ? '—' : `${value}%`}
             </span>
           );
@@ -225,7 +267,14 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
       },
     },
     {
-      title: <span className={tableHeaderClassName}>Status</span>,
+      title: (
+        <span
+          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-228"
+          className={tableHeaderClassName}
+        >
+          Status
+        </span>
+      ),
       dataIndex: 'approvalStatus',
       key: 'approvalStatus',
       width: 110,
@@ -238,12 +287,21 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
       className="mb-6 bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
       data-cy={`bsc-team-kpi-card-${scorecard.id}`}
     >
-      <div className="px-4 pt-4 pb-3 sm:px-6 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="mt-0 mb-0 text-base sm:text-lg font-bold text-gray-900">
+      <div
+        data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-div-241"
+        className="px-4 pt-4 pb-3 sm:px-6 flex flex-wrap items-start justify-between gap-3"
+      >
+        <div data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-div-242">
+          <h2
+            data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-h2-243"
+            className="mt-0 mb-0 text-base sm:text-lg font-bold text-gray-900"
+          >
             {scorecard.userName}
           </h2>
-          <p className="mt-1 mb-0 text-sm text-gray-500">
+          <p
+            data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-p-246"
+            className="mt-1 mb-0 text-sm text-gray-500"
+          >
             {scorecard.positionTitle || '—'}
             {scorecard.departmentName ? ` · ${scorecard.departmentName}` : ''}
             {scorecard.cycleLabel ? ` · ${scorecard.cycleLabel}` : ''}
@@ -262,7 +320,10 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
           </Dropdown>
         ) : null}
       </div>
-      <div className="border-t border-gray-200 overflow-x-auto">
+      <div
+        data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-div-265"
+        className="border-t border-gray-200 overflow-x-auto"
+      >
         <Table
           className="w-full [&_.ant-table]:!border-[#D9D9D9]"
           columns={columns}
@@ -283,7 +344,10 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
         okText="Reject"
         okButtonProps={{ danger: true }}
       >
-        <p className="text-sm text-gray-600 mb-2">
+        <p
+          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-p-286"
+          className="text-sm text-gray-600 mb-2"
+        >
           Tell the employee what to correct before they resubmit.
         </p>
         <Input.TextArea
@@ -307,7 +371,14 @@ export default function TeamKpiReview() {
   );
 
   if (isLoading) {
-    return <div className="py-16 text-center text-gray-400">Loading…</div>;
+    return (
+      <div
+        data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-div-310"
+        className="py-16 text-center text-gray-400"
+      >
+        Loading…
+      </div>
+    );
   }
 
   if (!team.length) {

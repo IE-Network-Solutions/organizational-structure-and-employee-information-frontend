@@ -354,7 +354,12 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                     id="okr-settings-add-bsc-setup-button"
                     data-cy="bsc-setup-add"
                   >
-                    <span className="hidden sm:inline ml-2">Add Setup</span>
+                    <span
+                      data-cy="-okrplanning-okr-settings-layout-tsx-layout-span-357"
+                      className="hidden sm:inline ml-2"
+                    >
+                      Add Setup
+                    </span>
                   </Button>
                 )}
                 {isBscPerspectives && (
@@ -366,7 +371,10 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                     id="okr-settings-add-bsc-perspective-button"
                     data-cy="bsc-perspective-add"
                   >
-                    <span className="hidden sm:inline ml-2">
+                    <span
+                      data-cy="-okrplanning-okr-settings-layout-tsx-layout-span-369"
+                      className="hidden sm:inline ml-2"
+                    >
                       Add Perspective
                     </span>
                   </Button>
@@ -380,7 +388,12 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                     id="okr-settings-assign-bsc-perspectives-button"
                     data-cy="bsc-perspective-assign"
                   >
-                    <span className="hidden sm:inline ml-2">Assign</span>
+                    <span
+                      data-cy="-okrplanning-okr-settings-layout-tsx-layout-span-383"
+                      className="hidden sm:inline ml-2"
+                    >
+                      Assign
+                    </span>
                   </Button>
                 )}
               </div>

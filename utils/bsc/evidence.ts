@@ -6,7 +6,7 @@ export function hasEvidenceArtifact(input: {
 }): boolean {
   return Boolean(
     input.evidenceUrl?.trim() ||
-      input.evidenceFileName?.trim() ||
-      input.evidenceHash?.trim(),
+    input.evidenceFileName?.trim() ||
+    input.evidenceHash?.trim(),
   );
 }

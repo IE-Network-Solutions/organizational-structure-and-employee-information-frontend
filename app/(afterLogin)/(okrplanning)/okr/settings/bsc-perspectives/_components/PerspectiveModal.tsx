@@ -14,11 +14,8 @@ const { TextArea } = Input;
 
 export default function PerspectiveModal() {
   const [form] = Form.useForm();
-  const {
-    perspectiveModalOpen,
-    editingPerspective,
-    closePerspectiveModal,
-  } = useBscUiStore();
+  const { perspectiveModalOpen, editingPerspective, closePerspectiveModal } =
+    useBscUiStore();
   const createPerspective = useCreateBscPerspective();
   const updatePerspective = useUpdateBscPerspective();
 
@@ -91,7 +88,10 @@ export default function PerspectiveModal() {
             data-cy="bsc-perspective-description"
           />
         </Form.Item>
-        <div className="flex justify-end gap-3 pt-2">
+        <div
+          data-cy="settings-bsc-perspectives-components-perspectivemodal-tsx-perspectivemodal-div-91"
+          className="flex justify-end gap-3 pt-2"
+        >
           <CustomButton
             type="default"
             title="Cancel"

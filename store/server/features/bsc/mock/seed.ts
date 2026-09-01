@@ -44,7 +44,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-hr-dir-enps',
     evaluationConfigId: 'config-seed-current',
     name: 'Enterprise Employee Net Promoter Score (eNPS)',
-    description: 'Measures enterprise employee net promoter score (enps) for this role.',
+    description:
+      'Measures enterprise employee net promoter score (enps) for this role.',
     perspective: BscPerspective.Customer,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: 'Index (-100 to +100)',
@@ -58,7 +59,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-hr-dir-ttf',
     evaluationConfigId: 'config-seed-current',
     name: 'Enterprise Average Time-to-Fill Open Roles',
-    description: 'Measures enterprise average time-to-fill open roles for this role.',
+    description:
+      'Measures enterprise average time-to-fill open roles for this role.',
     perspective: BscPerspective.InternalProcess,
     targetLogic: TargetLogic.LowerBetter,
     measurementUnit: 'Days',
@@ -100,7 +102,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-ta-yield',
     evaluationConfigId: 'config-seed-current',
     name: 'Candidate Yield Ratio (Interview to Offer)',
-    description: 'Measures candidate yield ratio (interview to offer) for this role.',
+    description:
+      'Measures candidate yield ratio (interview to offer) for this role.',
     perspective: BscPerspective.InternalProcess,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: '%',
@@ -114,7 +117,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-ta-cert',
     evaluationConfigId: 'config-seed-current',
     name: 'Advanced Sourcing Certification Completion',
-    description: 'Measures advanced sourcing certification completion for this role.',
+    description:
+      'Measures advanced sourcing certification completion for this role.',
     perspective: BscPerspective.LearningGrowth,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: 'Boolean (1 or 0)',
@@ -128,7 +132,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-sup-lead-csat',
     evaluationConfigId: 'config-seed-current',
     name: 'Aggregate Team Customer Satisfaction (CSAT)',
-    description: 'Measures aggregate team customer satisfaction (csat) for this role.',
+    description:
+      'Measures aggregate team customer satisfaction (csat) for this role.',
     perspective: BscPerspective.Customer,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: '%',
@@ -142,7 +147,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-sup-lead-fcr',
     evaluationConfigId: 'config-seed-current',
     name: 'Team First Contact Resolution (FCR) Rate',
-    description: 'Measures team first contact resolution (fcr) rate for this role.',
+    description:
+      'Measures team first contact resolution (fcr) rate for this role.',
     perspective: BscPerspective.InternalProcess,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: '%',
@@ -156,7 +162,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-sup-lead-kb',
     evaluationConfigId: 'config-seed-current',
     name: 'Team Knowledge Base Contribution Volume',
-    description: 'Measures team knowledge base contribution volume for this role.',
+    description:
+      'Measures team knowledge base contribution volume for this role.',
     perspective: BscPerspective.LearningGrowth,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: 'Document Count',
@@ -170,7 +177,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-t1-csat',
     evaluationConfigId: 'config-seed-current',
     name: 'Individual Customer Satisfaction (CSAT)',
-    description: 'Measures individual customer satisfaction (csat) for this role.',
+    description:
+      'Measures individual customer satisfaction (csat) for this role.',
     perspective: BscPerspective.Customer,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: '%',
@@ -198,7 +206,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-t1-training',
     evaluationConfigId: 'config-seed-current',
     name: 'Technical Product Update Training Hours',
-    description: 'Measures technical product update training hours for this role.',
+    description:
+      'Measures technical product update training hours for this role.',
     perspective: BscPerspective.LearningGrowth,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: 'Hours',
@@ -212,7 +221,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-lead-slo',
     evaluationConfigId: 'config-seed-current',
     name: 'System Uptime / Service Level Objective (SLO)',
-    description: 'Measures system uptime / service level objective (slo) for this role.',
+    description:
+      'Measures system uptime / service level objective (slo) for this role.',
     perspective: BscPerspective.Customer,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: '%',
@@ -282,7 +292,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-qa-training',
     evaluationConfigId: 'config-seed-current',
     name: 'New Testing Framework Architecture Training',
-    description: 'Measures new testing framework architecture training for this role.',
+    description:
+      'Measures new testing framework architecture training for this role.',
     perspective: BscPerspective.LearningGrowth,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: 'Boolean (1 or 0)',
@@ -296,7 +307,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-ae-churn',
     evaluationConfigId: 'config-seed-current',
     name: 'Client Retention / Account Churn Rate',
-    description: 'Measures client retention / account churn rate for this role.',
+    description:
+      'Measures client retention / account churn rate for this role.',
     perspective: BscPerspective.Customer,
     targetLogic: TargetLogic.LowerBetter,
     measurementUnit: '%',
@@ -310,7 +322,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-ae-crm',
     evaluationConfigId: 'config-seed-current',
     name: 'CRM Data Accuracy and Pipeline Compliance',
-    description: 'Measures crm data accuracy and pipeline compliance for this role.',
+    description:
+      'Measures crm data accuracy and pipeline compliance for this role.',
     perspective: BscPerspective.InternalProcess,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: 'Audit Score (0-100)',
@@ -324,7 +337,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-ae-nego',
     evaluationConfigId: 'config-seed-current',
     name: 'Advanced Negotiation Tactics Masterclass',
-    description: 'Measures advanced negotiation tactics masterclass for this role.',
+    description:
+      'Measures advanced negotiation tactics masterclass for this role.',
     perspective: BscPerspective.LearningGrowth,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: 'Boolean (1 or 0)',
@@ -338,7 +352,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-se-sat',
     evaluationConfigId: 'config-seed-current',
     name: 'Sales Team Satisfaction with Collateral',
-    description: 'Measures sales team satisfaction with collateral for this role.',
+    description:
+      'Measures sales team satisfaction with collateral for this role.',
     perspective: BscPerspective.Customer,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: 'Rating (1.0 - 5.0)',
@@ -352,7 +367,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-se-ttp',
     evaluationConfigId: 'config-seed-current',
     name: 'Average Time-to-Productivity for New Reps',
-    description: 'Measures average time-to-productivity for new reps for this role.',
+    description:
+      'Measures average time-to-productivity for new reps for this role.',
     perspective: BscPerspective.InternalProcess,
     targetLogic: TargetLogic.LowerBetter,
     measurementUnit: 'Days',
@@ -366,7 +382,8 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     id: 'kpi-se-workshops',
     evaluationConfigId: 'config-seed-current',
     name: 'Competitor Analysis Workshops Delivered',
-    description: 'Measures competitor analysis workshops delivered for this role.',
+    description:
+      'Measures competitor analysis workshops delivered for this role.',
     perspective: BscPerspective.LearningGrowth,
     targetLogic: TargetLogic.HigherBetter,
     measurementUnit: 'Event Count',
@@ -582,7 +599,9 @@ function buildRoleTargets(
           : KpiApprovalStatus.Pending,
     submittedAt: actuals[i] == null ? null : now,
     evidenceUrl:
-      actuals[i] == null ? null : `https://mock.evidence/${scorecardId}/${kpi.id}`,
+      actuals[i] == null
+        ? null
+        : `https://mock.evidence/${scorecardId}/${kpi.id}`,
     evidenceFileName: actuals[i] == null ? null : `${kpi.id}.pdf`,
     evidenceHash: actuals[i] == null ? null : `hash-${scorecardId}-${i}`,
   }));
@@ -620,7 +639,12 @@ function seedScorecardForMonth(opts: {
     periodMonthName: meta.monthName,
     periodYear: meta.year,
     status: opts.status,
-    targets: buildRoleTargets(opts.id, positionTitle, opts.actuals, opts.status),
+    targets: buildRoleTargets(
+      opts.id,
+      positionTitle,
+      opts.actuals,
+      opts.status,
+    ),
     acknowledgedAt: now,
     acknowledgedBy: opts.userId || 'demo-user',
     acknowledgmentSignature: `sig-${opts.id}`,
@@ -648,9 +672,7 @@ export const SEED_PAST_CYCLES: EvaluationCycle[] = [-1, -2].map((offset) => {
     cadence: BscCadence.Monthly,
     fiscalYearId: 'fy-active-placeholder',
     fiscalYearName: `FY ${meta.year}`,
-    periodIds: [
-      `month-${meta.year}-${String(meta.month).padStart(2, '0')}`,
-    ],
+    periodIds: [`month-${meta.year}-${String(meta.month).padStart(2, '0')}`],
     periodLabels: [meta.label],
     startDate: meta.start.toISOString().slice(0, 10),
     endDate: meta.end.toISOString().slice(0, 10),

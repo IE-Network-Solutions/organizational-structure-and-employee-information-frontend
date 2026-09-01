@@ -26,9 +26,7 @@ export default function KpiProgressHeaderCard() {
 
   const progress = useMemo(() => {
     const list = scorecards || [];
-    const mine = userId
-      ? list.filter((s) => s.userId === userId)
-      : [];
+    const mine = userId ? list.filter((s) => s.userId === userId) : [];
     const cards = mine.length
       ? mine
       : list.filter((s) => s.userId === 'demo-user');
@@ -112,7 +110,10 @@ export default function KpiProgressHeaderCard() {
             fill="#1677FF"
             data-cy="okr-card-kpi-progress-icon"
           >
-            <path d="M160-160v-320h160v320H160Zm240 0v-560h160v560H400Zm240 0v-200h160v200H640Z" />
+            <path
+              data-cy="dashboard-components-header-kpiprogressheadercard-tsx-kpiprogressheadercard-path-113"
+              d="M160-160v-320h160v320H160Zm240 0v-560h160v560H400Zm240 0v-200h160v200H640Z"
+            />
           </svg>
         </div>
         <div

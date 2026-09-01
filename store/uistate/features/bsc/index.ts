@@ -1,5 +1,9 @@
 import { create } from 'zustand';
-import { EvaluationCycle, KpiLibraryItem, BscPerspectiveDefinition } from '@/types/bsc';
+import {
+  EvaluationCycle,
+  KpiLibraryItem,
+  BscPerspectiveDefinition,
+} from '@/types/bsc';
 import type { Month } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 
 export interface BscRoleContext {
@@ -75,12 +79,10 @@ export const useBscUiStore = create<BscUiState>((set) => ({
   scorecardTab: 'mine',
   setSetupModalOpen: (setupModalOpen) => set({ setupModalOpen }),
   setEditingConfig: (editingConfig) => set({ editingConfig }),
-  openCreateSetup: () =>
-    set({ setupModalOpen: true, editingConfig: null }),
+  openCreateSetup: () => set({ setupModalOpen: true, editingConfig: null }),
   openEditSetup: (editingConfig) =>
     set({ setupModalOpen: true, editingConfig }),
-  closeSetupModal: () =>
-    set({ setupModalOpen: false, editingConfig: null }),
+  closeSetupModal: () => set({ setupModalOpen: false, editingConfig: null }),
   setSelectedConfigId: (selectedConfigId) => set({ selectedConfigId }),
   setRoleContext: (roleContext) => set({ roleContext }),
   setOpenDeleteModal: (openDeleteModal) => set({ openDeleteModal }),

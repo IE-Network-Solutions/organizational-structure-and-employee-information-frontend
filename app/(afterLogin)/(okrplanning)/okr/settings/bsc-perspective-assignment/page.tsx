@@ -74,11 +74,22 @@ export default function BscPerspectiveAssignmentPage() {
 
   return (
     <div className="w-full" data-cy="bsc-perspective-assignment-page">
-      <div className="rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]">
+      <div
+        data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-77"
+        className="rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
+      >
         {loading ? (
-          <div className="py-16 text-center text-gray-400">Loading…</div>
+          <div
+            data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-79"
+            className="py-16 text-center text-gray-400"
+          >
+            Loading…
+          </div>
         ) : roles.length === 0 ? (
-          <div className="flex min-h-[280px] items-center justify-center py-8">
+          <div
+            data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-81"
+            className="flex min-h-[280px] items-center justify-center py-8"
+          >
             <EmptyState
               title="No roles assigned yet"
               description={
@@ -123,7 +134,10 @@ export default function BscPerspectiveAssignmentPage() {
               </Select>
             </Space>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div
+              data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-126"
+              className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            >
               {filtered.map((role) => {
                 const allocation = allocationFor(role);
                 const weightEntries = allocation
@@ -142,32 +156,43 @@ export default function BscPerspectiveAssignmentPage() {
                     }
                     data-cy={`bsc-assignment-role-card-${role.key}`}
                   >
-                    <p className="mb-4 text-[15px] font-semibold leading-tight text-[#262626]">
+                    <p
+                      data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-p-145"
+                      className="mb-4 text-[15px] font-semibold leading-tight text-[#262626]"
+                    >
                       {role.positionTitle}
                     </p>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div
+                      data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-148"
+                      className="flex flex-wrap items-center gap-2"
+                    >
                       {role.departmentNames.slice(0, 2).map((d) => (
                         <div
+                          data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-150"
                           key={d}
                           className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
                         >
                           {d}
                         </div>
                       ))}
-                      {weightEntries.length
-                        ? weightEntries.map(([name, weight]) => (
-                            <div
-                              key={name}
-                              className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
-                            >
-                              {name} {weight}%
-                            </div>
-                          ))
-                        : (
-                            <div className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]">
-                              Not assigned
-                            </div>
-                          )}
+                      {weightEntries.length ? (
+                        weightEntries.map(([name, weight]) => (
+                          <div
+                            data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-159"
+                            key={name}
+                            className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
+                          >
+                            {name} {weight}%
+                          </div>
+                        ))
+                      ) : (
+                        <div
+                          data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-167"
+                          className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
+                        >
+                          Not assigned
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -175,7 +200,10 @@ export default function BscPerspectiveAssignmentPage() {
             </div>
 
             {!filtered.length && (
-              <div className="py-12 text-center text-gray-400">
+              <div
+                data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-178"
+                className="py-12 text-center text-gray-400"
+              >
                 No roles match your search
               </div>
             )}
