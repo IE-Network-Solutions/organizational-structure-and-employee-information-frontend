@@ -218,6 +218,10 @@ export class BscMockRepository {
 
     const result: KpiLibraryItem[] = [];
     for (const row of input.rows) {
+      const perspective = row.perspective?.trim();
+      if (!perspective) {
+        throw new Error('Each KPI needs a perspective');
+      }
       if (row.id) {
         const idx = this.kpiLibrary.findIndex((k) => k.id === row.id);
         if (idx < 0) throw new Error(`KPI ${row.id} not found`);
@@ -227,7 +231,7 @@ export class BscMockRepository {
           description: row.description?.trim() || null,
           weight: Number(row.weight),
           suggestedWeight: Number(row.weight),
-          perspective: row.perspective,
+          perspective,
           positionId: input.positionId,
           positionTitle: input.positionTitle,
           departmentName:
@@ -241,7 +245,7 @@ export class BscMockRepository {
           evaluationConfigId: input.evaluationConfigId,
           name: row.name.trim(),
           description: row.description?.trim() || null,
-          perspective: row.perspective,
+          perspective,
           targetLogic: row.targetLogic || TargetLogic.HigherBetter,
           measurementUnit: row.measurementUnit || '%',
           departmentName: input.departmentName || null,

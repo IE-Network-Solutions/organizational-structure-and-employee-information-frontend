@@ -70,10 +70,8 @@ const MoveToDeductionModal = ({
     useAddAttendanceViolationsToDeduction();
   const { mutateAsync: createVpDeduction, isLoading: isVpLoading } =
     useCreateVpDeduction();
-  const {
-    mutateAsync: updateActionStatus,
-    isLoading: isActionStatusLoading,
-  } = useUpdateViolationActionStatus();
+  const { mutateAsync: updateActionStatus, isLoading: isActionStatusLoading } =
+    useUpdateViolationActionStatus();
 
   const salaryViolations = useMemo(
     () =>
@@ -161,8 +159,7 @@ const MoveToDeductionModal = ({
     }
   };
 
-  const isLoading =
-    isSalaryLoading || isVpLoading || isActionStatusLoading;
+  const isLoading = isSalaryLoading || isVpLoading || isActionStatusLoading;
 
   return (
     <Modal
