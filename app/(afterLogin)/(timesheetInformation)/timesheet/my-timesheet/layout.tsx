@@ -8,6 +8,7 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
+import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workSchedule';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
@@ -39,6 +40,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
     setBreakTypes,
     setIsShowLeaveRequestSidebar,
   } = useMyTimesheetStore();
+  const { openSwapModal } = useWorkScheduleUiStore();
 
   const { data: leaveTypesData } = useGetLeaveTypes();
   const { data: allowAreasData } = useGetAllowedAreas();
@@ -235,6 +237,18 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
                   New Request
                 </Button>
               </AccessGuard>
+            )}
+            {activeKey === 'schedule' && isMobile && (
+              <Button
+                type="primary"
+                size="large"
+                icon={<FaPlus />}
+                onClick={() => openSwapModal()}
+                className="shrink-0 h-10"
+                data-cy="time-attendance-my-timesheet-schedule-new-request-button"
+              >
+                New Request
+              </Button>
             )}
           </div>
         </div>

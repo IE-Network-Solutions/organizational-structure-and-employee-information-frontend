@@ -620,7 +620,8 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
                       </span>
                     </Button>
                   </AccessGuard>
-                ) : activeKey === 'workSchedule' ? (
+                ) : activeKey === 'workSchedule' &&
+                  !pathname.match(/\/workSchedule\/[^/]+/) ? (
                   <AccessGuard
                     permissions={[Permissions.CreateWorkingSchedule]}
                     data-cy="time-attendance-settings-work-schedule-create-btn"

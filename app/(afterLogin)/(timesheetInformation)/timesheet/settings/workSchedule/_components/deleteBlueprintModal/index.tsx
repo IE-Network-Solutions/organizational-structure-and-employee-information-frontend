@@ -1,11 +1,16 @@
 'use client';
 
+import { usePathname, useRouter } from 'next/navigation';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { useDeleteBlueprint } from '@/store/server/features/timesheet/workSchedule/mutation';
 import { useGetBlueprint } from '@/store/server/features/timesheet/workSchedule/queries';
 import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workSchedule';
 
+const LIST_PATH = '/timesheet/settings/workSchedule';
+
 const DeleteBlueprintModal = () => {
+  const router = useRouter();
+  const pathname = usePathname();
   const { isDeleteModalOpen, selectedBlueprintId, closeDeleteModal } =
     useWorkScheduleUiStore();
   const { data: blueprint } = useGetBlueprint(
@@ -34,7 +39,15 @@ const DeleteBlueprintModal = () => {
       onConfirm={() => {
         if (!selectedBlueprintId) return;
         deleteBlueprint(selectedBlueprintId, {
-          onSuccess: closeDeleteModal,
+          onSuccess: () => {
+            closeDeleteModal();
+            if (
+              pathname?.startsWith(`${LIST_PATH}/`) &&
+              pathname !== LIST_PATH
+            ) {
+              router.push(LIST_PATH);
+            }
+          },
         });
       }}
       data-cy="time-attendance-settings-work-schedule-delete-modal"

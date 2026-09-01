@@ -1,10 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Button, Card, Select, Tag, Tooltip } from 'antd';
+import { Button, Select, Tag } from 'antd';
+import { FaPlus } from 'react-icons/fa';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import RequestSwapModal from '@/app/(afterLogin)/(timesheetInformation)/timesheet/settings/workSchedule/_components/requestSwapModal';
 import ScheduleTableFilter, {
   resolveDefaultWeekStart,
@@ -38,6 +38,9 @@ const EMPTY_INSTANCES: ShiftInstanceView[] = [];
 const EMPTY_SWAPS: SwapRequestView[] = [];
 
 const PENDING_OUTGOING_STATUSES = new Set(['PENDING_PEER', 'PENDING_ADMIN']);
+
+const desktopSelectClassName =
+  'h-8 w-full [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-lg focus-within:[&_.ant-select-selector]:!bg-blue-50';
 
 const MySchedulePage = () => {
   const { demoPersonaId, setDemoPersonaId, openSwapModal } =
@@ -123,256 +126,289 @@ const MySchedulePage = () => {
 
   return (
     <div
-      className="border border-[#D9D9D9] rounded-lg bg-white"
+      className="space-y-6 w-full max-w-full"
       data-cy="time-attendance-my-schedule-page"
       id="time-attendance-my-schedule-page"
     >
-      <div
-        className="flex flex-col gap-3 px-4 pt-4 pb-3"
-        data-cy="time-attendance-my-schedule-header"
+      <section
+        className="bg-white rounded-lg"
+        data-cy="time-attendance-my-schedule-week-section"
       >
         <div
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-          data-cy="time-attendance-my-schedule-header-row"
+          className="mb-4"
+          data-cy="time-attendance-my-schedule-week-header"
         >
+          <div
+            className="text-sm sm:text-xl font-bold text-gray-900 mb-1"
+            data-cy="time-attendance-my-schedule-title"
+          >
+            My Schedule
+          </div>
           <p
-            className="text-sm text-gray-500 mb-0"
+            className="mb-0 text-sm text-gray-500"
             data-cy="time-attendance-my-schedule-subtitle"
           >
             Week of {weekStart.format('MMM D')} – {weekEnd.format('MMM D')}
             {persona ? ` · ${getEmployeeDisplayName(persona)}` : ''}
           </p>
-          <Select
-            className="w-full sm:w-64 h-8 [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-lg"
-            value={demoPersonaId}
-            onChange={setDemoPersonaId}
-            options={employees.map((item) => ({
-              value: item.id,
-              label: `${getEmployeeDisplayName(item)} · ${item.jobTitle}`,
-            }))}
-            data-cy="time-attendance-my-schedule-persona"
-          />
         </div>
-        <div data-cy="time-attendance-my-schedule-filter-container">
-          <ScheduleTableFilter value={weekFilter} onChange={setWeekFilter} />
-        </div>
-      </div>
 
-      <div className="px-4 pb-4" data-cy="time-attendance-my-schedule-body">
         <div
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3"
-          data-cy="time-attendance-my-schedule-days"
+          className="rounded-lg border border-gray-200 sm:overflow-hidden"
+          data-cy="time-attendance-my-schedule-bordered-wrapper"
         >
-          {weekDays.map(({ date, day, dayShifts }) => {
-            const isToday = day.isSame(dayjs(), 'day');
-            const pendingCount = dayShifts.reduce((count, shift) => {
-              return (
-                count +
-                (incomingByTargetShiftId.get(shift.id)?.length || 0) +
-                (outgoingByRequesterShiftId.get(shift.id)?.length || 0)
-              );
-            }, 0);
-
-            return (
-              <Card
-                key={date}
-                className="rounded-lg border border-gray-200 shadow-sm h-full"
-                bodyStyle={{
-                  padding: 12,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 10,
-                  height: '100%',
-                }}
-                data-cy={`time-attendance-my-schedule-day-${date}`}
+          <div
+            className="px-4 py-3 sm:p-0"
+            data-cy="time-attendance-my-schedule-toolbar"
+          >
+            <div
+              className="flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-8 sm:px-4 sm:pb-2 sm:pt-4 lg:gap-12 lg:px-5"
+              data-cy="time-attendance-my-schedule-toolbar-inner"
+            >
+              <div
+                className="min-w-0 w-full sm:w-auto sm:shrink flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-end sm:gap-4"
+                data-cy="time-attendance-my-schedule-filter-wrapper"
               >
+                <ScheduleTableFilter
+                  value={weekFilter}
+                  onChange={setWeekFilter}
+                />
                 <div
-                  className="flex items-start justify-between gap-2"
-                  data-cy={`time-attendance-my-schedule-day-header-${date}`}
+                  className="w-full sm:w-[240px] sm:shrink-0"
+                  data-cy="time-attendance-my-schedule-persona-wrap"
                 >
+                  <Select
+                    className={desktopSelectClassName}
+                    style={{ width: '100%' }}
+                    value={demoPersonaId}
+                    onChange={setDemoPersonaId}
+                    options={employees.map((item) => ({
+                      value: item.id,
+                      label: `${getEmployeeDisplayName(item)} · ${item.jobTitle}`,
+                    }))}
+                    data-cy="time-attendance-my-schedule-persona"
+                  />
+                </div>
+              </div>
+              <div
+                className="hidden shrink-0 sm:block sm:pl-4"
+                data-cy="time-attendance-my-schedule-new-request-wrap"
+              >
+                <Button
+                  size="large"
+                  type="primary"
+                  icon={<FaPlus />}
+                  className="flex h-10 items-center justify-center"
+                  onClick={() => openSwapModal()}
+                  data-cy="time-attendance-my-schedule-swap-new-request-button"
+                >
+                  New Request
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="border-t border-gray-200 p-4"
+            data-cy="time-attendance-my-schedule-body"
+          >
+            <div
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3"
+              data-cy="time-attendance-my-schedule-days"
+            >
+              {weekDays.map(({ date, day, dayShifts }) => {
+                const isToday = day.isSame(dayjs(), 'day');
+                const pendingCount = dayShifts.reduce((count, shift) => {
+                  return (
+                    count +
+                    (incomingByTargetShiftId.get(shift.id)?.length || 0) +
+                    (outgoingByRequesterShiftId.get(shift.id)?.length || 0)
+                  );
+                }, 0);
+
+                return (
                   <div
-                    className="min-w-0"
-                    data-cy={`time-attendance-my-schedule-day-title-${date}`}
+                    key={date}
+                    className="rounded-lg border border-gray-200 bg-white p-3 flex flex-col gap-2.5 h-full"
+                    data-cy={`time-attendance-my-schedule-day-${date}`}
                   >
-                    <p
-                      className="mb-0 text-sm font-semibold text-gray-900 truncate"
-                      data-cy={`time-attendance-my-schedule-day-label-${date}`}
+                    <div
+                      className="flex items-start justify-between gap-2"
+                      data-cy={`time-attendance-my-schedule-day-header-${date}`}
                     >
-                      {day.format('ddd')}
-                    </p>
-                    <p
-                      className="mb-0 text-xs text-gray-500"
-                      data-cy={`time-attendance-my-schedule-day-date-${date}`}
-                    >
-                      {day.format('MMM D')}
-                      {isToday ? ' · Today' : ''}
-                    </p>
-                  </div>
-                  {pendingCount > 0 ? (
-                    <Tag
-                      color="processing"
-                      className="!m-0 !text-[10px] !leading-5 !px-1.5 shrink-0"
-                    >
-                      {pendingCount}
-                    </Tag>
-                  ) : (
-                    <span
-                      className="text-[10px] text-gray-400 shrink-0"
-                      data-cy={`time-attendance-my-schedule-day-count-${date}`}
-                    >
-                      {dayShifts.length}
-                    </span>
-                  )}
-                </div>
-
-                <div
-                  className="flex flex-col gap-2"
-                  data-cy={`time-attendance-my-schedule-day-shifts-${date}`}
-                >
-                  {dayShifts.length === 0 ? (
-                    <p
-                      className="mb-0 text-[11px] text-gray-400"
-                      data-cy={`time-attendance-my-schedule-day-empty-${date}`}
-                    >
-                      No shifts
-                    </p>
-                  ) : (
-                    dayShifts.map((shift) => {
-                      const incoming =
-                        incomingByTargetShiftId.get(shift.id) || [];
-                      const outgoing =
-                        outgoingByRequesterShiftId.get(shift.id) || [];
-
-                      return (
-                        <div
-                          key={shift.id}
-                          className="rounded-lg border border-gray-200 bg-[#FAFAFA] px-2.5 py-2"
-                          data-cy={`time-attendance-my-schedule-shift-${shift.id}`}
+                      <div
+                        className="min-w-0"
+                        data-cy={`time-attendance-my-schedule-day-title-${date}`}
+                      >
+                        <p
+                          className="mb-0 text-sm font-semibold text-gray-900 truncate"
+                          data-cy={`time-attendance-my-schedule-day-label-${date}`}
                         >
-                          <div
-                            className="flex items-start justify-between gap-2"
-                            data-cy={`time-attendance-my-schedule-shift-header-${shift.id}`}
-                          >
-                            <div
-                              className="min-w-0 flex-1"
-                              data-cy={`time-attendance-my-schedule-shift-meta-${shift.id}`}
-                            >
-                              <p
-                                className="mb-0 text-xs font-semibold text-gray-900 leading-snug"
-                                data-cy={`time-attendance-my-schedule-shift-time-${shift.id}`}
-                              >
-                                {formatTimeRange(
-                                  shift.startTime,
-                                  shift.endTime,
-                                )}
-                              </p>
-                              <p
-                                className="mb-0 mt-0.5 text-[11px] text-gray-500 truncate"
-                                data-cy={`time-attendance-my-schedule-shift-name-${shift.id}`}
-                              >
-                                {shift.shiftName || shift.blueprintTitle}
-                              </p>
-                            </div>
-                            {shift.isSwappable ? (
-                              <Tooltip title="Request swap">
-                                <button
-                                  type="button"
-                                  onClick={() => openSwapModal(shift.id)}
-                                  className="shrink-0 inline-flex items-center justify-center h-7 w-7 rounded-full border border-gray-200 bg-white text-primary hover:border-primary transition-colors"
-                                  aria-label="Request swap"
-                                  data-cy={`time-attendance-my-schedule-shift-swap-${shift.id}`}
-                                >
-                                  <SwapHorizIcon sx={{ fontSize: 16 }} />
-                                </button>
-                              </Tooltip>
-                            ) : (
-                              <Tag className="!m-0 !text-[10px] !leading-5 !px-1.5 shrink-0">
-                                Fixed
-                              </Tag>
-                            )}
-                          </div>
+                          {day.format('ddd')}
+                        </p>
+                        <p
+                          className="mb-0 text-xs text-gray-500"
+                          data-cy={`time-attendance-my-schedule-day-date-${date}`}
+                        >
+                          {day.format('MMM D')}
+                          {isToday ? ' · Today' : ''}
+                        </p>
+                      </div>
+                      {pendingCount > 0 ? (
+                        <Tag
+                          color="processing"
+                          className="!m-0 !text-[10px] !leading-5 !px-1.5 shrink-0"
+                        >
+                          {pendingCount}
+                        </Tag>
+                      ) : (
+                        <span
+                          className="text-[10px] text-gray-400 shrink-0"
+                          data-cy={`time-attendance-my-schedule-day-count-${date}`}
+                        >
+                          {dayShifts.length}
+                        </span>
+                      )}
+                    </div>
 
-                          {outgoing.map((swap) => (
-                            <p
-                              key={swap.id}
-                              className="mt-1.5 mb-0 text-[10px] text-gray-500 leading-snug"
-                              data-cy={`time-attendance-my-schedule-shift-outgoing-${swap.id}`}
-                            >
-                              <Tag
-                                color="processing"
-                                className="!m-0 !mr-1 !text-[9px] !leading-4 !px-1"
-                              >
-                                {SWAP_STATUS_LABEL[swap.status]}
-                              </Tag>
-                              {getEmployeeDisplayName(swap.target)}
-                            </p>
-                          ))}
+                    <div
+                      className="flex flex-col gap-2"
+                      data-cy={`time-attendance-my-schedule-day-shifts-${date}`}
+                    >
+                      {dayShifts.length === 0 ? (
+                        <p
+                          className="mb-0 text-[11px] text-gray-400"
+                          data-cy={`time-attendance-my-schedule-day-empty-${date}`}
+                        >
+                          No shifts
+                        </p>
+                      ) : (
+                        dayShifts.map((shift) => {
+                          const incoming =
+                            incomingByTargetShiftId.get(shift.id) || [];
+                          const outgoing =
+                            outgoingByRequesterShiftId.get(shift.id) || [];
 
-                          {incoming.map((swap) => (
+                          return (
                             <div
-                              key={swap.id}
-                              className="mt-1.5 pt-1.5 border-t border-gray-200"
-                              data-cy={`time-attendance-my-schedule-shift-incoming-${swap.id}`}
+                              key={shift.id}
+                              className="rounded-lg border border-gray-200 bg-[#FAFAFA] px-2.5 py-2"
+                              data-cy={`time-attendance-my-schedule-shift-${shift.id}`}
                             >
-                              <p
-                                className="mb-1.5 text-[10px] text-[#4d4d4d] leading-snug"
-                                data-cy={`time-attendance-my-schedule-shift-incoming-label-${swap.id}`}
-                              >
-                                {getEmployeeDisplayName(swap.requester)} ·{' '}
-                                {dayjs(swap.requesterShift.date).format(
-                                  'MMM D',
-                                )}
-                              </p>
                               <div
-                                className="flex gap-1"
-                                data-cy={`time-attendance-my-schedule-shift-incoming-actions-${swap.id}`}
+                                className="flex items-start justify-between gap-2"
+                                data-cy={`time-attendance-my-schedule-shift-header-${shift.id}`}
                               >
-                                <Button
-                                  type="primary"
-                                  size="small"
-                                  className="!h-6 !text-[10px] !px-2"
-                                  loading={isResponding}
-                                  onClick={() =>
-                                    respondToSwap({
-                                      id: swap.id,
-                                      accept: true,
-                                      actorUserId: demoPersonaId,
-                                    })
-                                  }
+                                <div
+                                  className="min-w-0 flex-1"
+                                  data-cy={`time-attendance-my-schedule-shift-meta-${shift.id}`}
                                 >
-                                  Accept
-                                </Button>
-                                <Button
-                                  size="small"
-                                  className="!h-6 !text-[10px] !px-2"
-                                  loading={isResponding}
-                                  onClick={() =>
-                                    respondToSwap({
-                                      id: swap.id,
-                                      accept: false,
-                                      actorUserId: demoPersonaId,
-                                    })
-                                  }
-                                >
-                                  Reject
-                                </Button>
+                                  <p
+                                    className="mb-0 text-xs font-semibold text-gray-900 leading-snug"
+                                    data-cy={`time-attendance-my-schedule-shift-time-${shift.id}`}
+                                  >
+                                    {formatTimeRange(
+                                      shift.startTime,
+                                      shift.endTime,
+                                    )}
+                                  </p>
+                                  <p
+                                    className="mb-0 mt-0.5 text-[11px] text-gray-500 truncate"
+                                    data-cy={`time-attendance-my-schedule-shift-name-${shift.id}`}
+                                  >
+                                    {shift.shiftName || shift.blueprintTitle}
+                                  </p>
+                                </div>
+                                {!shift.isSwappable && (
+                                  <Tag className="!m-0 !text-[10px] !leading-5 !px-1.5 shrink-0">
+                                    Fixed
+                                  </Tag>
+                                )}
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-              </Card>
-            );
-          })}
-        </div>
 
-        <div className="mt-4" data-cy="time-attendance-my-schedule-swaps-wrap">
-          <SwapRequestsSection personaId={demoPersonaId} swaps={swaps} />
+                              {outgoing.map((swap) => (
+                                <p
+                                  key={swap.id}
+                                  className="mt-1.5 mb-0 text-[10px] text-gray-500 leading-snug"
+                                  data-cy={`time-attendance-my-schedule-shift-outgoing-${swap.id}`}
+                                >
+                                  <Tag
+                                    color="processing"
+                                    className="!m-0 !mr-1 !text-[9px] !leading-4 !px-1"
+                                  >
+                                    {SWAP_STATUS_LABEL[swap.status]}
+                                  </Tag>
+                                  {getEmployeeDisplayName(swap.target)}
+                                </p>
+                              ))}
+
+                              {incoming.map((swap) => (
+                                <div
+                                  key={swap.id}
+                                  className="mt-1.5 pt-1.5 border-t border-gray-200"
+                                  data-cy={`time-attendance-my-schedule-shift-incoming-${swap.id}`}
+                                >
+                                  <p
+                                    className="mb-1.5 text-[10px] text-[#4d4d4d] leading-snug"
+                                    data-cy={`time-attendance-my-schedule-shift-incoming-label-${swap.id}`}
+                                  >
+                                    {getEmployeeDisplayName(swap.requester)} ·{' '}
+                                    {dayjs(swap.requesterShift.date).format(
+                                      'MMM D',
+                                    )}
+                                  </p>
+                                  <div
+                                    className="flex gap-1"
+                                    data-cy={`time-attendance-my-schedule-shift-incoming-actions-${swap.id}`}
+                                  >
+                                    <Button
+                                      type="primary"
+                                      size="small"
+                                      className="!h-6 !text-[10px] !px-2"
+                                      loading={isResponding}
+                                      onClick={() =>
+                                        respondToSwap({
+                                          id: swap.id,
+                                          accept: true,
+                                          actorUserId: demoPersonaId,
+                                        })
+                                      }
+                                    >
+                                      Accept
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      className="!h-6 !text-[10px] !px-2"
+                                      loading={isResponding}
+                                      onClick={() =>
+                                        respondToSwap({
+                                          id: swap.id,
+                                          accept: false,
+                                          actorUserId: demoPersonaId,
+                                        })
+                                      }
+                                    >
+                                      Reject
+                                    </Button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section data-cy="time-attendance-my-schedule-swaps-wrap">
+        <SwapRequestsSection personaId={demoPersonaId} swaps={swaps} />
+      </section>
 
       <RequestSwapModal />
     </div>

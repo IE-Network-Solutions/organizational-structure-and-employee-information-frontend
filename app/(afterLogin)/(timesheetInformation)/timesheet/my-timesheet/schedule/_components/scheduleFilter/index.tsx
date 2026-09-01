@@ -1,9 +1,7 @@
 'use client';
 
-import { FC, useMemo, useState } from 'react';
-import { Button, DatePicker, Dropdown, Select, Tag } from 'antd';
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import { FC, useMemo } from 'react';
+import { DatePicker, Select } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import { DATE_FORMAT } from '@/store/server/features/timesheet/workSchedule/helpers';
@@ -61,18 +59,19 @@ export function resolveDefaultWeekStart(month: Dayjs, preferred?: Dayjs) {
   return weeks[0].value;
 }
 
+const desktopSelectClassName =
+  'h-8 w-full [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-lg focus-within:[&_.ant-select-selector]:!bg-blue-50';
+
+const desktopMonthPickerClassName =
+  'h-8 w-full rounded-lg border-gray-200 bg-white [&_.ant-picker-input>input]:text-gray-700 [&_.ant-picker-input>input::placeholder]:text-gray-500';
+
 const ScheduleTableFilter: FC<ScheduleTableFilterProps> = ({
   value,
   onChange,
 }) => {
-  const { isMobile } = useIsMobile();
-  const [open, setOpen] = useState(false);
   const weekOptions = useMemo(
     () => getWeeksInMonth(value.month),
     [value.month],
-  );
-  const selectedWeek = weekOptions.find(
-    (week) => week.value === value.weekStart,
   );
 
   const handleMonthChange = (month: Dayjs | null) => {
@@ -87,69 +86,34 @@ const ScheduleTableFilter: FC<ScheduleTableFilterProps> = ({
     onChange({ ...value, weekStart });
   };
 
-  const resetToCurrentWeek = () => {
-    const month = dayjs().startOf('month');
-    onChange({
-      month,
-      weekStart: resolveDefaultWeekStart(month, dayjs()),
-    });
-  };
-
-  const filterPanel = (
+  return (
     <div
-      className="w-[300px] rounded-lg border border-gray-200 bg-white p-4 shadow-md"
-      data-cy="time-attendance-my-schedule-filter-panel"
-      onClick={(event) => event.stopPropagation()}
+      className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-nowrap sm:items-end sm:gap-4"
+      id="time-attendance-my-schedule-filter-row"
+      data-cy="time-attendance-my-schedule-filter-row"
     >
       <div
-        className="mb-3 flex items-center justify-between"
-        data-cy="time-attendance-my-schedule-filter-panel-header"
+        className="w-full sm:w-[220px] sm:shrink-0"
+        data-cy="time-attendance-my-schedule-filter-month"
       >
-        <p
-          className="mb-0 text-sm font-medium text-[#4d4d4d]"
-          data-cy="time-attendance-my-schedule-filter-panel-title"
-        >
-          Filters
-        </p>
-        <Button
-          type="link"
-          size="small"
-          className="!px-0"
-          onClick={() => {
-            resetToCurrentWeek();
-            setOpen(false);
-          }}
-          data-cy="time-attendance-my-schedule-filter-reset"
-        >
-          Reset
-        </Button>
-      </div>
-      <div className="mb-3" data-cy="time-attendance-my-schedule-filter-month">
-        <p
-          className="mb-1 text-xs text-gray-500"
-          data-cy="time-attendance-my-schedule-filter-month-label"
-        >
-          Month
-        </p>
         <DatePicker
           picker="month"
           allowClear={false}
           value={value.month}
           format="MMMM YYYY"
-          className="h-8 w-full rounded-lg"
+          className={desktopMonthPickerClassName}
+          style={{ width: '100%' }}
           onChange={handleMonthChange}
           data-cy="time-attendance-my-schedule-filter-month-picker"
         />
       </div>
-      <div data-cy="time-attendance-my-schedule-filter-week">
-        <p
-          className="mb-1 text-xs text-gray-500"
-          data-cy="time-attendance-my-schedule-filter-week-label"
-        >
-          Week
-        </p>
+      <div
+        className="w-full sm:w-[360px] sm:shrink-0 md:w-[376px]"
+        data-cy="time-attendance-my-schedule-filter-week"
+      >
         <Select
-          className="h-8 w-full [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8 [&_.ant-select-selector]:!rounded-lg"
+          className={desktopSelectClassName}
+          style={{ width: '100%' }}
           value={value.weekStart}
           options={weekOptions.map((week) => ({
             value: week.value,
@@ -159,65 +123,6 @@ const ScheduleTableFilter: FC<ScheduleTableFilterProps> = ({
           data-cy="time-attendance-my-schedule-filter-week-select"
         />
       </div>
-    </div>
-  );
-
-  return (
-    <div
-      className="flex w-full justify-between gap-4"
-      id="time-attendance-my-schedule-filter-row"
-      data-cy="time-attendance-my-schedule-filter-row"
-    >
-      <div
-        className="flex items-center gap-2 flex-wrap min-w-0"
-        data-cy="time-attendance-my-schedule-active-filters"
-      >
-        <Tag
-          className="bg-white text-primary border-primary rounded-md px-3 h-6 flex items-center text-xs font-normal"
-          data-cy="time-attendance-my-schedule-filter-tag-month"
-        >
-          <span
-            onClick={resetToCurrentWeek}
-            className="text-primary hover:!text-[#FF8787] mr-2 text-lg cursor-pointer"
-            data-cy="time-attendance-my-schedule-filter-tag-month-clear"
-          >
-            ×
-          </span>
-          {value.month.format('MMM YYYY')}
-        </Tag>
-        {selectedWeek && (
-          <Tag
-            className="bg-white text-primary border-primary rounded-md px-3 h-6 flex items-center text-xs font-normal"
-            data-cy="time-attendance-my-schedule-filter-tag-week"
-          >
-            <span
-              onClick={resetToCurrentWeek}
-              className="text-primary hover:!text-[#FF8787] mr-2 text-lg cursor-pointer"
-              data-cy="time-attendance-my-schedule-filter-tag-week-clear"
-            >
-              ×
-            </span>
-            {selectedWeek.shortLabel}
-          </Tag>
-        )}
-      </div>
-
-      <Dropdown
-        placement="bottomRight"
-        trigger={['click']}
-        open={open}
-        onOpenChange={setOpen}
-        dropdownRender={() => filterPanel}
-      >
-        <Button
-          type="default"
-          className="border border-[#D9D9D9] font-normal text-[#4d4d4d]"
-          icon={<FilterAltOutlinedIcon className="py-1" />}
-          data-cy="time-attendance-my-schedule-filter-toggle-btn"
-        >
-          {!isMobile && 'Filter'}
-        </Button>
-      </Dropdown>
     </div>
   );
 };
