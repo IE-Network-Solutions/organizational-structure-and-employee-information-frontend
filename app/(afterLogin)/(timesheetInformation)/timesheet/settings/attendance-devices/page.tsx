@@ -28,6 +28,10 @@ import {
   AttendanceDevicePurpose,
   DiscoveredAttendanceDevice,
 } from '@/store/server/features/timesheet/device/interface';
+import { useGetZktConfig } from '@/store/server/features/timesheet/zkt/queries';
+import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
+import ZktConnectionCard from './_components/zktConnectionCard';
+import ZktConnectedStatus from './_components/zktConnectedStatus';
 
 type DeviceRow = DiscoveredAttendanceDevice & { key: string };
 
@@ -43,6 +47,14 @@ const getErrorMessage = (error: any, fallback: string) =>
   error?.message ||
   fallback;
 
+const isZktConfigConnected = (config: any) =>
+  Boolean(
+    config &&
+    (config.url || config.passUrl || config.zkturl) &&
+    config.username &&
+    config.password,
+  );
+
 const AttendanceDevicesPage = () => {
   const [form] = Form.useForm<SaveAttendanceDevicePayload>();
   const [modal, contextHolder] = Modal.useModal();
@@ -51,8 +63,45 @@ const AttendanceDevicesPage = () => {
     React.useState<AttendanceDevice | null>(null);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
 
-  const configuredQuery = useGetAttendanceDevices();
-  const discoveredQuery = useDiscoverAttendanceDevices();
+  const {
+    isZktConfigured,
+    setIsZktConfigured,
+    setZktSavedData,
+    resetZktConfiguration,
+  } = useTimesheetSettingsStore();
+  const { data: zktConfigData, isLoading: isZktConfigLoading } =
+    useGetZktConfig();
+
+  React.useEffect(() => {
+    if (!zktConfigData) {
+      resetZktConfiguration();
+      return;
+    }
+
+    if (isZktConfigConnected(zktConfigData)) {
+      const savedUrl =
+        zktConfigData.url ||
+        zktConfigData.passUrl ||
+        zktConfigData.zkturl ||
+        '';
+      setZktSavedData({
+        url: savedUrl,
+        username: zktConfigData.username,
+      });
+      setIsZktConfigured(true);
+      return;
+    }
+
+    resetZktConfiguration();
+  }, [
+    resetZktConfiguration,
+    setIsZktConfigured,
+    setZktSavedData,
+    zktConfigData,
+  ]);
+
+  const configuredQuery = useGetAttendanceDevices(isZktConfigured);
+  const discoveredQuery = useDiscoverAttendanceDevices(isZktConfigured);
   const saveMutation = useSaveAttendanceDevice();
   const deleteMutation = useDeleteAttendanceDevice();
 
@@ -255,58 +304,89 @@ const AttendanceDevicesPage = () => {
       {contextHolder}
       {messageContextHolder}
       <div
-        className="rounded-lg border border-[#D9D9D9] bg-white p-4"
+        className="space-y-4 w-full max-w-full"
         data-cy="attendance-devices-page"
       >
-        <div
-          className="mb-4 flex items-center justify-between"
-          data-cy="attendance-devices-header"
-        >
-          <div data-cy="attendance-devices-header-title">
-            <Typography.Title
-              level={4}
-              className="!mb-1"
-              data-cy="attendance-devices-title"
-            >
-              Attendance Devices
-            </Typography.Title>
-            <Typography.Text
-              type="secondary"
-              data-cy="attendance-devices-subtitle"
-            >
-              Configure which biometric machines provide attendance punches.
-            </Typography.Text>
-          </div>
-          <Button
-            type="primary"
-            icon={<ReloadOutlined data-cy="attendance-devices-discover-icon" />}
-            loading={discoveredQuery.isFetching}
-            onClick={() => discoveredQuery.refetch()}
-            data-cy="attendance-devices-discover-button"
+        {isZktConfigLoading ? (
+          <p
+            className="mb-0 text-sm text-gray-500 text-center"
+            data-cy="attendance-devices-zkt-loading"
           >
-            Discover devices
-          </Button>
-        </div>
+            Checking ZKTeco connection…
+          </p>
+        ) : !isZktConfigured ? (
+          <>
+            <ZktConnectionCard />
+            <div
+              className="rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900 sm:w-[754px] mx-auto"
+              data-cy="attendance-devices-zkt-awareness"
+            >
+              Connect ZKTeco above to discover and configure attendance devices.
+              Your biometric machines will appear here after linking.
+            </div>
+          </>
+        ) : (
+          <>
+            <ZktConnectedStatus />
+            <div
+              className="rounded-lg border border-[#D9D9D9] bg-white p-4"
+              data-cy="attendance-devices-list-section"
+            >
+              <div
+                className="mb-4 flex items-center justify-between"
+                data-cy="attendance-devices-header"
+              >
+                <div data-cy="attendance-devices-header-title">
+                  <Typography.Title
+                    level={4}
+                    className="!mb-1"
+                    data-cy="attendance-devices-title"
+                  >
+                    Attendance Devices
+                  </Typography.Title>
+                  <Typography.Text
+                    type="secondary"
+                    data-cy="attendance-devices-subtitle"
+                  >
+                    Configure which biometric machines provide attendance
+                    punches.
+                  </Typography.Text>
+                </div>
+                <Button
+                  type="primary"
+                  icon={
+                    <ReloadOutlined data-cy="attendance-devices-discover-icon" />
+                  }
+                  loading={discoveredQuery.isFetching}
+                  onClick={() => discoveredQuery.refetch()}
+                  data-cy="attendance-devices-discover-button"
+                >
+                  Discover devices
+                </Button>
+              </div>
 
-        {discoveredQuery.isError && (
-          <div
-            className="mb-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800"
-            data-cy="attendance-devices-discovery-warning"
-          >
-            Machine discovery is unavailable. Showing saved device
-            configurations.
-          </div>
+              {discoveredQuery.isError && (
+                <div
+                  className="mb-4 rounded border border-yellow-200 bg-yellow-50 p-3 text-sm text-yellow-800"
+                  data-cy="attendance-devices-discovery-warning"
+                >
+                  Machine discovery is unavailable. Showing saved device
+                  configurations.
+                </div>
+              )}
+
+              <Table<DeviceRow>
+                rowKey="key"
+                columns={columns}
+                dataSource={rows}
+                loading={discoveredQuery.isLoading || configuredQuery.isLoading}
+                pagination={{ pageSize: 10 }}
+                locale={{ emptyText: 'No biometric devices found.' }}
+                data-cy="attendance-devices-table"
+              />
+            </div>
+          </>
         )}
-
-        <Table<DeviceRow>
-          rowKey="key"
-          columns={columns}
-          dataSource={rows}
-          loading={discoveredQuery.isLoading || configuredQuery.isLoading}
-          pagination={{ pageSize: 10 }}
-          locale={{ emptyText: 'No biometric devices found.' }}
-          data-cy="attendance-devices-table"
-        />
       </div>
 
       <Modal
@@ -381,7 +461,7 @@ const AttendanceDevicesPage = () => {
           </Form.Item>
           <div
             className="flex justify-end gap-2"
-            data-cy="attendance-devices-actions"
+            data-cy="attendance-devices-modal-actions"
           >
             <Button
               onClick={closeConfigure}

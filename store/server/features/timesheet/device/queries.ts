@@ -33,14 +33,15 @@ export const discoverAttendanceDevices = async (): Promise<
   return unwrapItems<DiscoveredAttendanceDevice>(response);
 };
 
-export const useGetAttendanceDevices = () =>
+export const useGetAttendanceDevices = (enabled = true) =>
   useQuery<AttendanceDevice[]>(['attendance-devices'], getAttendanceDevices, {
     staleTime: 30 * 1000,
+    enabled,
   });
 
-export const useDiscoverAttendanceDevices = () =>
+export const useDiscoverAttendanceDevices = (enabled = true) =>
   useQuery<DiscoveredAttendanceDevice[]>(
     ['attendance-devices-discover'],
     discoverAttendanceDevices,
-    { staleTime: 30 * 1000 },
+    { staleTime: 30 * 1000, enabled },
   );
