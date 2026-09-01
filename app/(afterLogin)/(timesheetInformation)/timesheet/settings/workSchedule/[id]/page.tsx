@@ -104,16 +104,30 @@ const WorkScheduleDetailPage = () => {
             data-cy="time-attendance-settings-work-schedule-detail-back"
             aria-label="Back"
           />
-          <div className="min-w-0">
+          <div
+            className="min-w-0"
+            data-cy="time-attendance-settings-work-schedule-detail-title-content"
+          >
             {isLoading ? (
-              <p className="mb-0 text-sm text-gray-500">Loading schedule…</p>
+              <p
+                className="mb-0 text-sm text-gray-500"
+                data-cy="time-attendance-settings-work-schedule-detail-loading"
+              >
+                Loading schedule…
+              </p>
             ) : isError || !blueprint ? (
-              <p className="mb-0 text-sm text-gray-500">
+              <p
+                className="mb-0 text-sm text-gray-500"
+                data-cy="time-attendance-settings-work-schedule-detail-not-found"
+              >
                 Work schedule not found.
               </p>
             ) : (
               <>
-                <div className="flex flex-wrap items-center gap-2 mb-1">
+                <div
+                  className="flex flex-wrap items-center gap-2 mb-1"
+                  data-cy="time-attendance-settings-work-schedule-detail-title-row"
+                >
                   <h1
                     className="mb-0 text-base sm:text-lg font-semibold text-gray-900 truncate"
                     data-cy="time-attendance-settings-work-schedule-detail-title"
@@ -132,13 +146,15 @@ const WorkScheduleDetailPage = () => {
                   className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600"
                   data-cy="time-attendance-settings-work-schedule-detail-meta"
                 >
-                  <span>
+                  <span data-cy="time-attendance-settings-work-schedule-detail-hours">
                     {formatTimeRange(
                       blueprint.defaultStartTime,
                       blueprint.defaultEndTime,
                     )}
                   </span>
-                  <span>{blueprint.activeWeekdays.length} days</span>
+                  <span data-cy="time-attendance-settings-work-schedule-detail-days-count">
+                    {blueprint.activeWeekdays.length} days
+                  </span>
                   <button
                     type="button"
                     className="text-primary hover:underline disabled:text-gray-500 disabled:no-underline"
@@ -196,28 +212,41 @@ const WorkScheduleDetailPage = () => {
                 day,
               );
               return (
+                <div
+                  key={`${blueprint.id}-${day}`}
+                  className="min-w-0 overflow-hidden rounded-lg bg-[#FAFAFA] p-3"
+                  data-cy={`time-attendance-settings-work-schedule-detail-day-${blueprint.id}-${day}`}
+                >
                   <div
-                    key={`${blueprint.id}-${day}`}
-                    className="min-w-0 overflow-hidden rounded-lg bg-[#FAFAFA] p-3"
-                    data-cy={`time-attendance-settings-work-schedule-detail-day-${blueprint.id}-${day}`}
+                    className="mb-2 flex min-w-0 items-center gap-1"
+                    data-cy={`time-attendance-settings-work-schedule-detail-day-header-${blueprint.id}-${day}`}
                   >
-                  <div className="mb-2 flex min-w-0 items-center gap-1">
                     <span
                       className="min-w-0 flex-1 truncate text-sm font-semibold text-[#4d4d4d]"
                       title={day}
+                      data-cy={`time-attendance-settings-work-schedule-detail-day-name-${blueprint.id}-${day}`}
                     >
                       {day}
                     </span>
                     {blueprint.hasShifts && (
-                      <Tag className="!m-0 !h-4 !shrink-0 !px-1 !py-0 !text-[10px] !leading-4">
+                      <Tag
+                        className="!m-0 !h-4 !shrink-0 !px-1 !py-0 !text-[10px] !leading-4"
+                        data-cy={`time-attendance-settings-work-schedule-detail-day-remaining-${blueprint.id}-${day}`}
+                      >
                         {remaining > 0
                           ? `${formatHours(remaining)} left`
                           : 'Full'}
                       </Tag>
                     )}
                   </div>
-                  <div className="flex min-w-0 flex-col items-start gap-1.5">
-                    <Tag className="!m-0 !max-w-full !overflow-hidden !text-ellipsis !text-[11px] !leading-5">
+                  <div
+                    className="flex min-w-0 flex-col items-start gap-1.5"
+                    data-cy={`time-attendance-settings-work-schedule-detail-day-tags-${blueprint.id}-${day}`}
+                  >
+                    <Tag
+                      className="!m-0 !max-w-full !overflow-hidden !text-ellipsis !text-[11px] !leading-5"
+                      data-cy={`time-attendance-settings-work-schedule-detail-day-time-${blueprint.id}-${day}`}
+                    >
                       <CalendarOutlined className="mr-1" />
                       {formatTimeRangeMeridiem(
                         blueprint.defaultStartTime,
@@ -225,7 +254,10 @@ const WorkScheduleDetailPage = () => {
                       )}
                     </Tag>
                     {dayShifts.length === 0 ? (
-                      <Tag className="!m-0 !max-w-full !overflow-hidden !text-ellipsis !text-[11px] !leading-5">
+                      <Tag
+                        className="!m-0 !max-w-full !overflow-hidden !text-ellipsis !text-[11px] !leading-5"
+                        data-cy={`time-attendance-settings-work-schedule-detail-day-baseline-${blueprint.id}-${day}`}
+                      >
                         Day hours only
                       </Tag>
                     ) : (
@@ -237,6 +269,7 @@ const WorkScheduleDetailPage = () => {
                           <Tag
                             color="blue"
                             className="!m-0 !max-w-full !overflow-hidden !text-ellipsis !text-[11px] !leading-5"
+                            data-cy={`time-attendance-settings-work-schedule-detail-day-shift-${blueprint.id}-${day}-${shift.id}`}
                           >
                             {shift.name} ·{' '}
                             {formatTimeRangeMeridiem(

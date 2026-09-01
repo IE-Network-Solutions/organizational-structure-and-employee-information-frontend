@@ -63,10 +63,7 @@ const SwapRequestsSection = ({
       className="bg-white rounded-lg"
       data-cy="time-attendance-my-schedule-swap-requests"
     >
-      <div
-        className="mb-4"
-        data-cy="time-attendance-my-schedule-swap-header"
-      >
+      <div className="mb-4" data-cy="time-attendance-my-schedule-swap-header">
         <div
           className="text-sm sm:text-xl font-bold text-gray-900 mb-4"
           data-cy="time-attendance-my-schedule-swap-title"

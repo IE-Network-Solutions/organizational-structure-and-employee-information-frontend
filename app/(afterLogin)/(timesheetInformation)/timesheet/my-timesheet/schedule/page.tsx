@@ -134,10 +134,7 @@ const MySchedulePage = () => {
         className="bg-white rounded-lg"
         data-cy="time-attendance-my-schedule-week-section"
       >
-        <div
-          className="mb-4"
-          data-cy="time-attendance-my-schedule-week-header"
-        >
+        <div className="mb-4" data-cy="time-attendance-my-schedule-week-header">
           <div
             className="text-sm sm:text-xl font-bold text-gray-900 mb-1"
             data-cy="time-attendance-my-schedule-title"

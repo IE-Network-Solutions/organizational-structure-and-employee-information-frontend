@@ -15,10 +15,7 @@ import { useWorkScheduleUiStore } from '@/store/uistate/features/timesheet/workS
 import { formatTimeRange } from '@/store/server/features/timesheet/workSchedule/helpers';
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  blueprintStatusColor,
-  blueprintStatusLabel,
-} from '../blueprintStatus';
+import { blueprintStatusColor, blueprintStatusLabel } from '../blueprintStatus';
 
 const EMPTY_BLUEPRINTS: NonNullable<
   ReturnType<typeof useGetBlueprints>['data']
@@ -201,6 +198,7 @@ const BlueprintList = () => {
                     className="shrink-0"
                     onClick={(event) => event.stopPropagation()}
                     onKeyDown={(event) => event.stopPropagation()}
+                    data-cy={`time-attendance-settings-work-schedule-blueprint-actions-wrap-${blueprint.id}`}
                   >
                     <Dropdown menu={renderMenu(blueprint)} trigger={['click']}>
                       <Button
