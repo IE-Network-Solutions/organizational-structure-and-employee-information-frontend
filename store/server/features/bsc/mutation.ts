@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from 'react-query';
 import {
   AssignScorecardInput,
+  AppendIndividualKpisInput,
   CreateEvaluationConfigInput,
   CreateKpiLibraryInput,
   CreatePerspectiveInput,
@@ -166,11 +167,11 @@ export const useCreateBscCycle = () => {
     {
       onSuccess: () => {
         invalidateAll(qc);
-        NotificationMessage.success({ message: 'BSC evaluation setup saved' });
+        NotificationMessage.success({ message: 'BSC saved' });
       },
       onError: (e: Error) =>
         NotificationMessage.error({
-          message: e.message || 'Failed to save evaluation setup',
+          message: e.message || 'Failed to save BSC',
         }),
     },
   );
@@ -185,12 +186,12 @@ export const useUpdateBscCycle = () => {
       onSuccess: () => {
         invalidateAll(qc);
         NotificationMessage.success({
-          message: 'BSC evaluation setup updated',
+          message: 'BSC updated',
         });
       },
       onError: (e: Error) =>
         NotificationMessage.error({
-          message: e.message || 'Failed to update evaluation setup',
+          message: e.message || 'Failed to update BSC',
         }),
     },
   );
@@ -215,11 +216,11 @@ export const useDeleteBscCycle = () => {
   return useMutation((id: string) => bscMockRepo.deleteCycle(id), {
     onSuccess: () => {
       invalidateAll(qc);
-      NotificationMessage.success({ message: 'BSC setup deleted' });
+      NotificationMessage.success({ message: 'BSC deleted' });
     },
     onError: (e: Error) =>
       NotificationMessage.error({
-        message: e.message || 'Failed to delete BSC setup',
+        message: e.message || 'Failed to delete BSC',
       }),
   });
 };
@@ -236,6 +237,49 @@ export const useCreateBscScorecard = () => {
       onError: (e: Error) =>
         NotificationMessage.error({
           message: e.message || 'Failed to create scorecard',
+        }),
+    },
+  );
+};
+
+export const useAppendIndividualBscKpis = () => {
+  const qc = useQueryClient();
+  return useMutation(
+    (input: AppendIndividualKpisInput) =>
+      bscMockRepo.appendIndividualKpis(input),
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({
+          message: 'Individual KPIs added (this person only)',
+        });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Failed to add individual KPIs',
+        }),
+    },
+  );
+};
+
+export const useRemoveIndividualBscKpi = () => {
+  const qc = useQueryClient();
+  return useMutation(
+    ({
+      scorecardId,
+      targetId,
+    }: {
+      scorecardId: string;
+      targetId: string;
+    }) => bscMockRepo.removeIndividualKpi(scorecardId, targetId),
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'Individual KPI removed' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Failed to remove KPI',
         }),
     },
   );

@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Tabs } from 'antd';
+import { Button, Tabs } from 'antd';
 import type { RenderTabBar } from 'rc-tabs/es/interface';
 import Link from 'next/link';
+import { FaPlus } from 'react-icons/fa';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { EmptyImage } from '@/components/emptyIndicator';
 import {
@@ -30,6 +31,8 @@ import PerspectiveKpiCard, {
 import EmployeeKpiTable from './_components/EmployeeKpiTable';
 import ScorecardPeriodFilter from './_components/ScorecardPeriodFilter';
 import TeamKpiReview from './_components/TeamKpiReview';
+import PerspectivesCatalog from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-perspectives/_components/PerspectivesCatalog';
+import ScorecardsCatalog from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-setup/_components/ScorecardsCatalog';
 
 function currentMonthName(): string {
   return new Date().toLocaleString('en-US', { month: 'long' });
@@ -65,6 +68,8 @@ export default function MyBscScorecardPage() {
     myScorecardSessionMonths,
     scorecardTab,
     setScorecardTab,
+    openCreateSetup,
+    openCreatePerspective,
   } = useBscUiStore();
   const { isMobile, isTablet } = useIsMobile();
   const canViewAllEmployeeKpi = AccessGuard.checkAccess({
@@ -73,6 +78,16 @@ export default function MyBscScorecardPage() {
   const canViewTeamKpi = AccessGuard.checkAccess({
     permissions: [Permissions.ViewTeamOkr],
   });
+  const canManageBscAdmin =
+    AccessGuard.checkAccess({
+      permissions: [Permissions.ManageBscCycles],
+    }) ||
+    AccessGuard.checkAccess({
+      permissions: [Permissions.ManageBscKpiLibrary],
+    }) ||
+    AccessGuard.checkAccess({
+      permissions: [Permissions.ViewCompanyOkr],
+    });
 
   const { data: scorecards, isLoading: scorecardsLoading } =
     useGetBscScorecards();
@@ -211,6 +226,11 @@ export default function MyBscScorecardPage() {
   );
 
   const perspectiveNames = useMemo(() => {
+    const fromScorecard = Array.from(
+      new Set((activeScorecard?.targets || []).map((t) => t.perspective)),
+    );
+    if (fromScorecard.length) return fromScorecard;
+
     if (allocation?.weights) {
       const assigned = Object.entries(allocation.weights)
         .filter(([, weight]) => Number(weight) > 0)
@@ -219,22 +239,48 @@ export default function MyBscScorecardPage() {
     }
     const names = new Set(assignedKpis.map((k) => k.perspective));
     return Array.from(names);
-  }, [allocation, assignedKpis]);
+  }, [activeScorecard, allocation, assignedKpis]);
 
   const kpiRows = useMemo(() => {
-    const targets = activeScorecard?.targets || [];
     const order = new Map(perspectiveNames.map((name, index) => [name, index]));
+    const catalogById = new Map((allKpis || []).map((kpi) => [kpi.id, kpi]));
+    const targets = activeScorecard?.targets || [];
+
+    // Prefer the person's scorecard targets (person weights, individual KPIs).
+    if (targets.length) {
+      const rows: ScorecardKpiRow[] = targets.map((target) => {
+        const catalog = catalogById.get(target.kpiLibraryId);
+        const actual = target.actualValue ?? null;
+        const goal = target.targetValue ?? catalog?.defaultTarget ?? null;
+        const logic = target.targetLogic || catalog?.targetLogic || TargetLogic.HigherBetter;
+        return {
+          id: target.kpiLibraryId,
+          name: target.kpiName,
+          description: catalog?.description ?? null,
+          perspective: target.perspective,
+          weight: target.weightPercentage,
+          target: goal,
+          actual,
+          unit: target.measurementUnit || catalog?.measurementUnit || '',
+          targetLogic: logic,
+          progress: kpiProgressPercent(actual, goal, logic),
+          targetId: target.id,
+          approvalStatus: target.approvalStatus,
+          assignmentSource: target.assignmentSource || 'shared',
+        };
+      });
+      return rows.sort(
+        (a, b) =>
+          (order.get(a.perspective || '') ?? 99) -
+            (order.get(b.perspective || '') ?? 99) ||
+          a.name.localeCompare(b.name),
+      );
+    }
+
+    // Fallback when no scorecard targets exist yet (catalog / role preview).
     const rows: ScorecardKpiRow[] = assignedKpis.map((kpi) => {
-      const target =
-        targets.find((t) => t.kpiLibraryId === kpi.id) ||
-        targets.find(
-          (t) =>
-            t.kpiName.toLowerCase() === kpi.name.toLowerCase() &&
-            t.perspective === kpi.perspective,
-        );
-      const actual = target?.actualValue ?? null;
-      const goal = target?.targetValue ?? kpi.defaultTarget ?? null;
-      const logic = target?.targetLogic || kpi.targetLogic;
+      const actual = null;
+      const goal = kpi.defaultTarget ?? null;
       return {
         id: kpi.id,
         name: kpi.name,
@@ -244,51 +290,29 @@ export default function MyBscScorecardPage() {
         target: goal,
         actual,
         unit: kpi.measurementUnit || '',
-        targetLogic: logic,
-        progress: kpiProgressPercent(actual, goal, logic),
-        targetId: target?.id,
-        approvalStatus: target?.approvalStatus,
+        targetLogic: kpi.targetLogic,
+        progress: 0,
+        assignmentSource: 'shared',
       };
     });
-    const seen = new Set(
-      rows.map((row) => row.targetId).filter((id): id is string => Boolean(id)),
-    );
-    for (const target of targets) {
-      if (seen.has(target.id)) continue;
-      if (rows.some((row) => row.id === target.kpiLibraryId)) continue;
-      rows.push({
-        id: target.kpiLibraryId,
-        name: target.kpiName,
-        description: null,
-        perspective: target.perspective,
-        weight: target.weightPercentage,
-        target: target.targetValue,
-        actual: target.actualValue ?? null,
-        unit: target.measurementUnit || '',
-        targetLogic: target.targetLogic,
-        progress: kpiProgressPercent(
-          target.actualValue ?? null,
-          target.targetValue,
-          target.targetLogic,
-        ),
-        targetId: target.id,
-        approvalStatus: target.approvalStatus,
-      });
-    }
     return rows.sort(
       (a, b) =>
         (order.get(a.perspective || '') ?? 99) -
         (order.get(b.perspective || '') ?? 99),
     );
-  }, [assignedKpis, activeScorecard, perspectiveNames]);
+  }, [activeScorecard, allKpis, assignedKpis, perspectiveNames]);
 
   const loading = scorecardsLoading || kpisLoading;
   const activeTab =
-    scorecardTab === 'all' && canViewAllEmployeeKpi
-      ? 'all'
-      : scorecardTab === 'team' && canViewTeamKpi
-        ? 'team'
-        : 'mine';
+    scorecardTab === 'kpis' && canManageBscAdmin
+      ? 'kpis'
+      : scorecardTab === 'bsc' && canManageBscAdmin
+        ? 'bsc'
+        : scorecardTab === 'all' && canViewAllEmployeeKpi
+          ? 'all'
+          : scorecardTab === 'team' && canViewTeamKpi
+            ? 'team'
+            : 'mine';
   const isCompactTabBar = isMobile || isTablet;
 
   const myScorecardFilters = <ScorecardPeriodFilter />;
@@ -302,7 +326,7 @@ export default function MyBscScorecardPage() {
         >
           Loading…
         </div>
-      ) : !assignedKpis.length && !activeScorecard ? (
+      ) : !kpiRows.length && !activeScorecard ? (
         <div
           data-cy="-bsc-bsc-my-scorecard-page-tsx-page-div-301"
           className="flex justify-center py-10"
@@ -360,14 +384,63 @@ export default function MyBscScorecardPage() {
           },
         ]
       : []),
+    ...(canManageBscAdmin
+      ? [
+          {
+            key: 'kpis',
+            label: tabLabel('kpis', 'KPIs'),
+            children: (
+              <div data-cy="bsc-kpis-admin-tab-content">
+                <PerspectivesCatalog />
+              </div>
+            ),
+          },
+          {
+            key: 'bsc',
+            label: tabLabel('bsc', 'BSC'),
+            children: (
+              <div data-cy="bsc-setup-admin-tab-content">
+                <ScorecardsCatalog />
+              </div>
+            ),
+          },
+        ]
+      : []),
   ];
+
+  const adminTabActions =
+    activeTab === 'kpis' ? (
+      <Button
+        icon={<FaPlus />}
+        onClick={openCreatePerspective}
+        className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-9 px-3 sm:px-4 text-white border-none rounded-lg flex items-center justify-center font-medium"
+        type="primary"
+        data-cy="bsc-perspective-add"
+      >
+        <span className="hidden sm:inline ml-2">Add Perspective</span>
+      </Button>
+    ) : activeTab === 'bsc' ? (
+      <Button
+        icon={<FaPlus />}
+        onClick={openCreateSetup}
+        className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-9 px-3 sm:px-4 text-white border-none rounded-lg flex items-center justify-center font-medium"
+        type="primary"
+        data-cy="bsc-setup-add"
+      >
+        <span className="hidden sm:inline ml-2">Add</span>
+      </Button>
+    ) : null;
 
   const tabBarExtraContent =
     activeTab === 'mine'
       ? isCompactTabBar
         ? { right: myScorecardFilters }
         : myScorecardFilters
-      : undefined;
+      : adminTabActions
+        ? isCompactTabBar
+          ? { right: adminTabActions }
+          : adminTabActions
+        : undefined;
 
   const tabsClassName = [
     '[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-content-holder]:mt-6',
@@ -437,7 +510,9 @@ export default function MyBscScorecardPage() {
 
       <Tabs
         activeKey={activeTab}
-        onChange={(key) => setScorecardTab(key as 'mine' | 'team' | 'all')}
+        onChange={(key) =>
+          setScorecardTab(key as 'mine' | 'team' | 'all' | 'kpis' | 'bsc')
+        }
         items={tabItems}
         moreIcon={false}
         tabBarStyle={{

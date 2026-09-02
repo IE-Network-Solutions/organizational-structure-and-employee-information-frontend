@@ -1,6 +1,8 @@
 import {
   AssignScorecardInput,
+  AppendIndividualKpisInput,
   BscPerspectiveDefinition,
+  BscSetupKind,
   CreateEvaluationConfigInput,
   CreateKpiLibraryInput,
   CreatePerspectiveInput,
@@ -22,6 +24,7 @@ import {
 import { hasEvidenceArtifact } from '@/utils/bsc/evidence';
 import {
   computeCompositeScore,
+  rebalanceSharedWeightsForAppend,
   validateKpisMatchPerspectiveAllocation,
   validatePerspectiveWeights,
   validateWeights,
@@ -115,25 +118,27 @@ export class BscMockRepository {
   }
 
   async createKpi(input: CreateKpiLibraryInput): Promise<KpiLibraryItem> {
-    if (!input.evaluationConfigId) {
-      throw new Error('evaluationConfigId is required');
-    }
     if (!input.name?.trim()) {
       throw new Error('Name is required');
-    }
-    if (input.weight === undefined || input.weight === null) {
-      throw new Error('Weight is required');
     }
     if (!input.perspective?.trim()) {
       throw new Error('Select a perspective');
     }
+    const weight =
+      input.weight === undefined || input.weight === null
+        ? 0
+        : Number(input.weight);
     const item: KpiLibraryItem = {
       id: uid('kpi'),
       targetLogic: TargetLogic.HigherBetter,
       measurementUnit: '%',
       ...input,
-      weight: Number(input.weight),
-      suggestedWeight: Number(input.weight),
+      evaluationConfigId: input.evaluationConfigId || 'library',
+      weight,
+      suggestedWeight:
+        input.suggestedWeight === undefined || input.suggestedWeight === null
+          ? weight || null
+          : Number(input.suggestedWeight),
       description: input.description ?? null,
       createdAt: new Date().toISOString(),
     };
@@ -170,6 +175,9 @@ export class BscMockRepository {
       perspective?: CreateKpiLibraryInput['perspective'];
       targetLogic?: CreateKpiLibraryInput['targetLogic'];
       measurementUnit?: string;
+      defaultTarget?: number | null;
+      worstCase?: number | null;
+      bestCase?: number | null;
     }>;
     existingIds: string[];
   }): Promise<KpiLibraryItem[]> {
@@ -232,6 +240,24 @@ export class BscMockRepository {
           weight: Number(row.weight),
           suggestedWeight: Number(row.weight),
           perspective,
+          targetLogic:
+            row.targetLogic ||
+            this.kpiLibrary[idx].targetLogic ||
+            TargetLogic.HigherBetter,
+          measurementUnit:
+            row.measurementUnit || this.kpiLibrary[idx].measurementUnit || '%',
+          defaultTarget:
+            row.defaultTarget !== undefined
+              ? row.defaultTarget
+              : this.kpiLibrary[idx].defaultTarget,
+          worstCase:
+            row.worstCase !== undefined
+              ? row.worstCase
+              : this.kpiLibrary[idx].worstCase,
+          bestCase:
+            row.bestCase !== undefined
+              ? row.bestCase
+              : this.kpiLibrary[idx].bestCase,
           positionId: input.positionId,
           positionTitle: input.positionTitle,
           departmentName:
@@ -251,6 +277,9 @@ export class BscMockRepository {
           departmentName: input.departmentName || null,
           positionId: input.positionId,
           positionTitle: input.positionTitle,
+          defaultTarget: row.defaultTarget ?? null,
+          worstCase: row.worstCase ?? null,
+          bestCase: row.bestCase ?? null,
           weight: Number(row.weight),
           suggestedWeight: Number(row.weight),
           createdAt: new Date().toISOString(),
@@ -433,12 +462,26 @@ export class BscMockRepository {
     if (!hasPeriods && !hasDates) {
       throw new Error('Select a fiscal period or set a custom date range');
     }
-    if (!input.departmentIds?.length && !input.positionIds?.length) {
-      throw new Error('Select at least one department or role');
+    if (
+      !input.departmentIds?.length &&
+      !input.positionIds?.length &&
+      !input.employeeIds?.length
+    ) {
+      throw new Error(
+        'Select at least one department, role, or individual',
+      );
     }
     const cycle: EvaluationCycle = {
       id: uid('config'),
       ...input,
+      description: input.description?.trim() || null,
+      employeeIds: input.employeeIds || [],
+      employeeNames: input.employeeNames || [],
+      setupKind:
+        input.setupKind ||
+        (input.useCustomDates
+          ? BscSetupKind.Temporary
+          : BscSetupKind.Permanent),
       isRecurring: Boolean(input.isRecurring),
       useCustomDates: Boolean(input.useCustomDates),
       periodIds: input.periodIds || [],
@@ -531,6 +574,7 @@ export class BscMockRepository {
         worstCase: t.worstCase ?? kpi.worstCase,
         bestCase: t.bestCase ?? kpi.bestCase,
         approvalStatus: KpiApprovalStatus.Pending,
+        assignmentSource: 'shared',
       };
     });
 
@@ -569,6 +613,145 @@ export class BscMockRepository {
       input.managerId,
     );
     return delay(this.cloneScorecard(scorecard));
+  }
+
+  /**
+   * Append KPIs to one person's scorecard only. Shared KPI weights are
+   * rebalanced so that person still totals 100%, unless existingWeights
+   * are provided for an explicit person-level weight table.
+   * Other assignees are untouched.
+   */
+  async appendIndividualKpis(
+    input: AppendIndividualKpisInput,
+  ): Promise<EmployeeScorecard> {
+    const sc = this.requireScorecard(input.scorecardId);
+    if (!input.kpis?.length) {
+      throw new Error('Add at least one KPI');
+    }
+
+    const libraryMap = new Map(this.kpiLibrary.map((k) => [k.id, k]));
+    const existingIds = new Set(sc.targets.map((t) => t.kpiLibraryId));
+
+    for (const row of input.kpis) {
+      if (existingIds.has(row.kpiLibraryId)) {
+        throw new Error('That KPI is already on this person\'s scorecard');
+      }
+      if (!libraryMap.has(row.kpiLibraryId)) {
+        throw new Error(`KPI ${row.kpiLibraryId} not found in library`);
+      }
+    }
+
+    if (input.existingWeights?.length) {
+      const weightByTarget = new Map(
+        input.existingWeights.map((row) => [
+          row.targetId,
+          Number(row.weightPercentage),
+        ]),
+      );
+      for (const target of sc.targets) {
+        if (!weightByTarget.has(target.id)) {
+          throw new Error('Provide a weight for every existing KPI on this person');
+        }
+        const next = weightByTarget.get(target.id)!;
+        if (!(next > 0)) {
+          throw new Error('Each KPI weight must be greater than 0');
+        }
+        target.weightPercentage = next;
+      }
+    } else {
+      const rebalance = rebalanceSharedWeightsForAppend(
+        sc.targets.map((t) => t.weightPercentage),
+        sc.targets.map((t) => t.assignmentSource),
+        input.kpis.map((k) => Number(k.weightPercentage)),
+      );
+      if (!rebalance.valid) {
+        throw new Error(rebalance.message || 'Could not rebalance weights');
+      }
+
+      sc.targets.forEach((target, index) => {
+        if ((target.assignmentSource || 'shared') === 'shared') {
+          target.weightPercentage = rebalance.sharedScaled[index];
+        }
+      });
+    }
+
+    for (const row of input.kpis) {
+      const kpi = libraryMap.get(row.kpiLibraryId)!;
+      sc.targets.push({
+        id: uid('target'),
+        scorecardId: sc.id,
+        kpiLibraryId: kpi.id,
+        kpiName: kpi.name,
+        perspective: kpi.perspective,
+        targetLogic: kpi.targetLogic,
+        measurementUnit: kpi.measurementUnit,
+        weightPercentage: Number(row.weightPercentage),
+        targetValue: Number(row.targetValue),
+        worstCase: row.worstCase ?? kpi.worstCase,
+        bestCase: row.bestCase ?? kpi.bestCase,
+        approvalStatus: KpiApprovalStatus.Pending,
+        assignmentSource: 'individual',
+      });
+    }
+
+    const validation = validateWeights(
+      sc.targets.map((t) => t.weightPercentage),
+      sc.targets.map((t) => t.perspective),
+    );
+    if (!validation.valid) {
+      throw new Error(validation.message);
+    }
+
+    sc.updatedAt = new Date().toISOString();
+    return delay(this.cloneScorecard(sc));
+  }
+
+  async removeIndividualKpi(
+    scorecardId: string,
+    targetId: string,
+  ): Promise<EmployeeScorecard> {
+    const sc = this.requireScorecard(scorecardId);
+    const target = sc.targets.find((t) => t.id === targetId);
+    if (!target) throw new Error('KPI not found on this scorecard');
+    if (target.assignmentSource !== 'individual') {
+      throw new Error('Only individually assigned KPIs can be removed here');
+    }
+
+    const removedWeight = target.weightPercentage;
+    sc.targets = sc.targets.filter((t) => t.id !== targetId);
+
+    const shared = sc.targets.filter(
+      (t) => (t.assignmentSource || 'shared') === 'shared',
+    );
+    const sharedSum = shared.reduce((s, t) => s + t.weightPercentage, 0);
+    if (shared.length && sharedSum > 0 && removedWeight > 0) {
+      shared.forEach((t, index) => {
+        const next =
+          Math.round(
+            ((t.weightPercentage / sharedSum) * (sharedSum + removedWeight) +
+              Number.EPSILON) *
+              100,
+          ) / 100;
+        t.weightPercentage = next;
+        if (index === shared.length - 1) {
+          const others = sc.targets
+            .filter((row) => row.id !== t.id)
+            .reduce((s, row) => s + row.weightPercentage, 0);
+          t.weightPercentage = Math.round((100 - others) * 100) / 100;
+        }
+      });
+    }
+
+    const validation = validateWeights(
+      sc.targets.map((t) => t.weightPercentage),
+      sc.targets.map((t) => t.perspective),
+    );
+    if (!validation.valid) {
+      throw new Error(validation.message);
+    }
+
+    sc.updatedAt = new Date().toISOString();
+    return delay(this.cloneScorecard(sc));
   }
 
   async submitForAck(

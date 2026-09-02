@@ -1,6 +1,7 @@
 import {
   computeCompositeScore,
   normalizeRatio,
+  rebalanceSharedWeightsForAppend,
   validateKpisMatchPerspectiveAllocation,
   validatePerspectiveWeights,
   validateWeights,
@@ -67,7 +68,7 @@ describe('bsc scoring', () => {
 
   it('rejects invalid weight distribution', () => {
     const invalid = validateWeights(
-      [60, 20, 20],
+      [60, 20, 10],
       [
         BscPerspective.Customer,
         BscPerspective.InternalProcess,
@@ -75,6 +76,9 @@ describe('bsc scoring', () => {
       ],
     );
     expect(invalid.valid).toBe(false);
+    expect(
+      validateWeights([100], [BscPerspective.Customer]).valid,
+    ).toBe(true);
   });
 
   it('accepts balanced weights', () => {
@@ -89,7 +93,7 @@ describe('bsc scoring', () => {
     expect(valid.valid).toBe(true);
   });
 
-  it('requires role perspective weights to sum to 100 and stay within 50%', () => {
+  it('requires role perspective weights to sum to 100%', () => {
     expect(
       validatePerspectiveWeights({
         [BscPerspective.Customer]: 40,
@@ -102,6 +106,17 @@ describe('bsc scoring', () => {
         [BscPerspective.Customer]: 60,
         [BscPerspective.InternalProcess]: 20,
         [BscPerspective.LearningGrowth]: 20,
+      }).valid,
+    ).toBe(true);
+    expect(
+      validatePerspectiveWeights({
+        [BscPerspective.Customer]: 100,
+      }).valid,
+    ).toBe(true);
+    expect(
+      validatePerspectiveWeights({
+        [BscPerspective.Customer]: 70,
+        [BscPerspective.InternalProcess]: 20,
       }).valid,
     ).toBe(false);
   });
@@ -168,5 +183,30 @@ describe('bsc state machine', () => {
     expect(PROMPT_TO_MOCK_STATUS.COMPLETED).toBe(ScorecardStatus.Completed);
     expect('SYSTEM_SCORING' in PROMPT_TO_MOCK_STATUS).toBe(false);
     expect(Object.values(ScorecardStatus)).not.toContain('SYSTEM_SCORING');
+  });
+
+  it('rebalances shared weights when appending individual KPIs', () => {
+    const result = rebalanceSharedWeightsForAppend(
+      [40, 40, 20],
+      ['shared', 'shared', 'shared'],
+      [20],
+    );
+    expect(result.valid).toBe(true);
+    expect(result.sharedScaled.reduce((a, b) => a + b, 0)).toBeCloseTo(80, 2);
+    expect(result.sharedScaled[0] / result.sharedScaled[1]).toBeCloseTo(1, 2);
+  });
+
+  it('keeps prior individual weights when appending more', () => {
+    const result = rebalanceSharedWeightsForAppend(
+      [32, 32, 16, 20],
+      ['shared', 'shared', 'shared', 'individual'],
+      [10],
+    );
+    expect(result.valid).toBe(true);
+    const sharedSum = result.sharedScaled
+      .slice(0, 3)
+      .reduce((a, b) => a + b, 0);
+    expect(sharedSum).toBeCloseTo(70, 2);
+    expect(result.sharedScaled[3]).toBe(20);
   });
 });

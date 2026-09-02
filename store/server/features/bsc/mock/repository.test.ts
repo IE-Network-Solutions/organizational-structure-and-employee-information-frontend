@@ -247,12 +247,11 @@ describe('bsc mock repository contract', () => {
         positionId: null,
         positionTitle: 'HR Director',
         weights: {
-          [BscPerspective.Customer]: 60,
+          [BscPerspective.Customer]: 70,
           [BscPerspective.InternalProcess]: 20,
-          [BscPerspective.LearningGrowth]: 20,
         },
       }),
-    ).rejects.toThrow(/cannot exceed 50%/);
+    ).rejects.toThrow(/sum to exactly 100%/);
   });
 
   it('assigns perspectives to a role that is not on a setup', async () => {
@@ -275,18 +274,75 @@ describe('bsc mock repository contract', () => {
     ).toBe(true);
   });
 
-  it('creates a custom perspective in the catalog', async () => {
+  it('appends individual KPIs and rebalances only that scorecard', async () => {
     const repo = new BscMockRepository();
-    const created = await repo.createPerspective({
-      name: 'Community Impact',
-      description: 'External community outcomes',
+    const person = await createActiveScorecard(repo);
+    const otherBefore = await repo.getScorecard('sc-ta-current');
+    const otherSharedBefore = otherBefore!.targets.map((t) => t.weightPercentage);
+
+    const updated = await repo.appendIndividualKpis({
+      scorecardId: person.id,
+      kpis: [
+        {
+          kpiLibraryId: 'kpi-ta-hm-sat',
+          weightPercentage: 20,
+          targetValue: 90,
+        },
+      ],
     });
-    expect(created.name).toBe('Community Impact');
-    expect(created.isSystem).toBe(false);
-    const catalog = await repo.listPerspectives();
-    expect(catalog.some((p) => p.name === 'Community Impact')).toBe(true);
-    await expect(repo.createPerspective({ name: 'Financial' })).rejects.toThrow(
-      /Financial perspective is not used/,
+
+    const individual = updated.targets.filter(
+      (t) => t.assignmentSource === 'individual',
     );
+    expect(individual).toHaveLength(1);
+    expect(individual[0].weightPercentage).toBe(20);
+    const sharedSum = updated.targets
+      .filter((t) => (t.assignmentSource || 'shared') === 'shared')
+      .reduce((s, t) => s + t.weightPercentage, 0);
+    expect(sharedSum).toBeCloseTo(80, 2);
+    expect(
+      updated.targets.reduce((s, t) => s + t.weightPercentage, 0),
+    ).toBeCloseTo(100, 2);
+
+    const otherAfter = await repo.getScorecard('sc-ta-current');
+    expect(otherAfter!.targets.map((t) => t.weightPercentage)).toEqual(
+      otherSharedBefore,
+    );
+  });
+
+  it('appends individual KPIs with explicit person weight table', async () => {
+    const repo = new BscMockRepository();
+    const person = await createActiveScorecard(repo);
+    const existing = person.targets;
+    expect(existing.length).toBeGreaterThan(0);
+
+    const perExisting = Math.floor((80 / existing.length) * 100) / 100;
+    const existingWeights = existing.map((t, index) => ({
+      targetId: t.id,
+      weightPercentage:
+        index === existing.length - 1
+          ? Math.round((80 - perExisting * (existing.length - 1)) * 100) / 100
+          : perExisting,
+    }));
+
+    const updated = await repo.appendIndividualKpis({
+      scorecardId: person.id,
+      existingWeights,
+      kpis: [
+        {
+          kpiLibraryId: 'kpi-ta-hm-sat',
+          weightPercentage: 20,
+          targetValue: 90,
+        },
+      ],
+    });
+
+    expect(
+      updated.targets.reduce((s, t) => s + t.weightPercentage, 0),
+    ).toBeCloseTo(100, 2);
+    for (const row of existingWeights) {
+      const target = updated.targets.find((t) => t.id === row.targetId);
+      expect(target?.weightPercentage).toBe(row.weightPercentage);
+    }
   });
 });

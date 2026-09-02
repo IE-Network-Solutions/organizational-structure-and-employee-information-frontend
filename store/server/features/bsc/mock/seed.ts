@@ -2,6 +2,7 @@ import {
   BscCadence,
   BscPerspective,
   BscPerspectiveDefinition,
+  BscSetupKind,
   CycleStatus,
   EmployeeScorecard,
   EvaluationCycle,
@@ -48,7 +49,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
       'Measures enterprise employee net promoter score (enps) for this role.',
     perspective: BscPerspective.Customer,
     targetLogic: TargetLogic.HigherBetter,
-    measurementUnit: 'Index (-100 to +100)',
+    measurementUnit: 'Currency',
     departmentName: 'Human Resources',
     positionTitle: 'HR Director',
     defaultTarget: 40,
@@ -491,25 +492,36 @@ function seedEvaluationConfig(): EvaluationCycle {
   });
   return {
     id: 'config-seed-current',
-    label: `${label} (Monthly)`,
+    label: 'Enterprise Non-Financial Scorecard',
+    description: 'Cascade customer, process, and learning outcomes across core roles.',
     status: CycleStatus.Open,
     cadence: BscCadence.Monthly,
-    fiscalYearId: 'fy-active-placeholder',
-    fiscalYearName: `FY ${year}`,
+    setupKind: BscSetupKind.Permanent,
+    fiscalYearId: 'permanent',
+    fiscalYearName: 'Permanent',
     periodIds: [`month-${year}-${String(month).padStart(2, '0')}`],
     periodLabels: [label],
     startDate: start.toISOString().slice(0, 10),
-    endDate: end.toISOString().slice(0, 10),
+    endDate: '2099-12-31',
     isRecurring: true,
     useCustomDates: false,
-    departmentIds: [],
+    departmentIds: ['dept-hr', 'dept-cs', 'dept-it', 'dept-sales'],
     departmentNames: [
       'Human Resources',
       'Customer Support',
       'Information Technology',
       'Sales Operations',
     ],
-    positionIds: [],
+    positionIds: [
+      'pos-hr-dir',
+      'pos-ta',
+      'pos-stl',
+      'pos-t1',
+      'pos-lse',
+      'pos-qa',
+      'pos-ae',
+      'pos-sel',
+    ],
     positionTitles: [
       'HR Director',
       'Talent Acquisition Specialist',
@@ -520,6 +532,8 @@ function seedEvaluationConfig(): EvaluationCycle {
       'Account Executive',
       'Sales Enablement Lead',
     ],
+    employeeIds: [],
+    employeeNames: [],
     year,
     month,
   };
@@ -531,25 +545,63 @@ export const SEED_CYCLES: EvaluationCycle[] = [
     const d = new Date();
     const year = d.getFullYear();
     const q = Math.floor(d.getMonth() / 3) + 1;
+    const start = new Date(year, (q - 1) * 3, 1);
+    const end = new Date(year, q * 3, 0);
     return {
       id: 'config-seed-quarterly',
-      label: `Q${q} ${year} (Quarterly)`,
+      label: 'HR Q Scorecard',
+      description: 'Temporary quarterly HR cascade for director-level outcomes.',
       status: CycleStatus.Open,
       cadence: BscCadence.Quarterly,
-      fiscalYearId: 'fy-active-placeholder',
-      fiscalYearName: `FY ${year}`,
+      setupKind: BscSetupKind.Temporary,
+      fiscalYearId: 'temporary',
+      fiscalYearName: 'Temporary',
       periodIds: [`session-q${q}-${year}`],
       periodLabels: [`Q${q} ${year}`],
-      startDate: new Date(year, (q - 1) * 3, 1).toISOString().slice(0, 10),
-      endDate: new Date(year, q * 3, 0).toISOString().slice(0, 10),
+      startDate: start.toISOString().slice(0, 10),
+      endDate: end.toISOString().slice(0, 10),
       isRecurring: true,
-      useCustomDates: false,
-      departmentIds: [],
+      useCustomDates: true,
+      departmentIds: ['dept-hr'],
       departmentNames: ['Human Resources'],
-      positionIds: [],
+      positionIds: ['pos-hr-dir'],
       positionTitles: ['HR Director'],
+      employeeIds: [],
+      employeeNames: [],
       year,
       month: d.getMonth() + 1,
+    } as EvaluationCycle;
+  })(),
+  (() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const start = new Date(year, 0, 1);
+    const end = new Date(year, 2, 31);
+    return {
+      id: 'config-seed-individuals',
+      label: 'Leadership Pilot Scorecard',
+      description: 'One-time individual assignments for selected leaders.',
+      status: CycleStatus.Open,
+      cadence: BscCadence.Custom,
+      setupKind: BscSetupKind.Temporary,
+      fiscalYearId: 'temporary',
+      fiscalYearName: 'Temporary',
+      periodIds: [],
+      periodLabels: [
+        `${start.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} – ${end.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`,
+      ],
+      startDate: start.toISOString().slice(0, 10),
+      endDate: end.toISOString().slice(0, 10),
+      isRecurring: false,
+      useCustomDates: true,
+      departmentIds: [],
+      departmentNames: [],
+      positionIds: [],
+      positionTitles: [],
+      employeeIds: ['emp-1', 'emp-2'],
+      employeeNames: ['Pat Lee', 'Sam Rivera'],
+      year,
+      month: 1,
     } as EvaluationCycle;
   })(),
 ];
@@ -591,6 +643,7 @@ function buildRoleTargets(
     weightPercentage: kpi.weight,
     targetValue: kpi.defaultTarget ?? 0,
     actualValue: actuals[i] ?? null,
+    assignmentSource: 'shared' as const,
     approvalStatus:
       actuals[i] == null
         ? KpiApprovalStatus.Pending
@@ -667,21 +720,25 @@ export const SEED_PAST_CYCLES: EvaluationCycle[] = [-1, -2].map((offset) => {
   const meta = monthMeta(offset);
   return {
     id: `config-seed-${meta.year}-${String(meta.month).padStart(2, '0')}`,
-    label: `${meta.label} (Monthly)`,
+    label: `Enterprise Non-Financial Scorecard · ${meta.label}`,
+    description: 'Closed monthly cascade archive.',
     status: CycleStatus.Closed,
     cadence: BscCadence.Monthly,
-    fiscalYearId: 'fy-active-placeholder',
-    fiscalYearName: `FY ${meta.year}`,
+    setupKind: BscSetupKind.Temporary,
+    fiscalYearId: 'temporary',
+    fiscalYearName: 'Temporary',
     periodIds: [`month-${meta.year}-${String(meta.month).padStart(2, '0')}`],
     periodLabels: [meta.label],
     startDate: meta.start.toISOString().slice(0, 10),
     endDate: meta.end.toISOString().slice(0, 10),
     isRecurring: false,
-    useCustomDates: false,
-    departmentIds: [],
+    useCustomDates: true,
+    departmentIds: ['dept-hr'],
     departmentNames: ['Human Resources'],
-    positionIds: [],
+    positionIds: ['pos-hr-dir'],
     positionTitles: ['HR Director'],
+    employeeIds: [],
+    employeeNames: [],
     year: meta.year,
     month: meta.month,
   };
@@ -751,4 +808,42 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     positionTitle: 'Account Executive',
     departmentName: 'Sales Operations',
   }),
-];
+].map((sc) => {
+  // Demo: Alex Morgan has one person-only KPI on the current scorecard
+  if (sc.id !== 'sc-demo-current') return sc;
+  const sharedScaled = sc.targets.map((t, index, all) => {
+    const scaled = Math.round(t.weightPercentage * 0.8 * 100) / 100;
+    return { ...t, weightPercentage: scaled, assignmentSource: 'shared' as const };
+  });
+  const sharedSum = sharedScaled.reduce((s, t) => s + t.weightPercentage, 0);
+  if (sharedScaled.length) {
+    sharedScaled[sharedScaled.length - 1] = {
+      ...sharedScaled[sharedScaled.length - 1],
+      weightPercentage:
+        Math.round((sharedScaled[sharedScaled.length - 1].weightPercentage +
+          (80 - sharedSum)) *
+          100) / 100,
+    };
+  }
+  const taKpi = SEED_KPI_LIBRARY.find((k) => k.id === 'kpi-ta-hm-sat');
+  return {
+    ...sc,
+    targets: [
+      ...sharedScaled,
+      {
+        id: `${sc.id}-individual-1`,
+        scorecardId: sc.id,
+        kpiLibraryId: taKpi?.id || 'kpi-ta-hm-sat',
+        kpiName: taKpi?.name || 'Hiring Manager Satisfaction Score',
+        perspective: taKpi?.perspective || BscPerspective.Customer,
+        targetLogic: taKpi?.targetLogic || TargetLogic.HigherBetter,
+        measurementUnit: taKpi?.measurementUnit || 'Rating (1.0 - 5.0)',
+        weightPercentage: 20,
+        targetValue: taKpi?.defaultTarget ?? 4.5,
+        actualValue: null,
+        approvalStatus: KpiApprovalStatus.Pending,
+        assignmentSource: 'individual' as const,
+      },
+    ],
+  };
+});

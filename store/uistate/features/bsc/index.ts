@@ -27,11 +27,14 @@ interface BscUiState {
   editingKpi: KpiLibraryItem | null;
   perspectiveModalOpen: boolean;
   editingPerspective: BscPerspectiveDefinition | null;
+  perspectiveKpiModalOpen: boolean;
+  perspectiveKpiContext: string | null;
+  viewingPerspectiveKpis: BscPerspectiveDefinition | null;
   assignModalOpen: boolean;
   myScorecardSessionId: string | undefined;
   myScorecardMonthId: string | undefined;
   myScorecardSessionMonths: Month[];
-  scorecardTab: 'mine' | 'team' | 'all';
+  scorecardTab: 'mine' | 'team' | 'all' | 'kpis' | 'bsc';
   setSetupModalOpen: (v: boolean) => void;
   setEditingConfig: (v: EvaluationCycle | null) => void;
   openCreateSetup: () => void;
@@ -49,13 +52,17 @@ interface BscUiState {
   openCreatePerspective: () => void;
   openEditPerspective: (item: BscPerspectiveDefinition) => void;
   closePerspectiveModal: () => void;
+  openPerspectiveKpiModal: (perspectiveName: string) => void;
+  closePerspectiveKpiModal: () => void;
+  openViewPerspectiveKpis: (item: BscPerspectiveDefinition) => void;
+  closeViewPerspectiveKpis: () => void;
   openAssignPerspectives: () => void;
   closeAssignModal: () => void;
   setAssignModalOpen: (v: boolean) => void;
   setMyScorecardSessionId: (v: string | undefined) => void;
   setMyScorecardMonthId: (v: string | undefined) => void;
   setMyScorecardSessionMonths: (v: Month[]) => void;
-  setScorecardTab: (v: 'mine' | 'team' | 'all') => void;
+  setScorecardTab: (v: 'mine' | 'team' | 'all' | 'kpis' | 'bsc') => void;
 }
 
 export const useBscUiStore = create<BscUiState>((set) => ({
@@ -72,6 +79,9 @@ export const useBscUiStore = create<BscUiState>((set) => ({
   editingKpi: null,
   perspectiveModalOpen: false,
   editingPerspective: null,
+  perspectiveKpiModalOpen: false,
+  perspectiveKpiContext: null,
+  viewingPerspectiveKpis: null,
   assignModalOpen: false,
   myScorecardSessionId: undefined,
   myScorecardMonthId: undefined,
@@ -100,6 +110,16 @@ export const useBscUiStore = create<BscUiState>((set) => ({
     set({ perspectiveModalOpen: true, editingPerspective }),
   closePerspectiveModal: () =>
     set({ perspectiveModalOpen: false, editingPerspective: null }),
+  openPerspectiveKpiModal: (perspectiveName) =>
+    set({
+      perspectiveKpiModalOpen: true,
+      perspectiveKpiContext: perspectiveName,
+    }),
+  closePerspectiveKpiModal: () =>
+    set({ perspectiveKpiModalOpen: false, perspectiveKpiContext: null }),
+  openViewPerspectiveKpis: (viewingPerspectiveKpis) =>
+    set({ viewingPerspectiveKpis }),
+  closeViewPerspectiveKpis: () => set({ viewingPerspectiveKpis: null }),
   openAssignPerspectives: () => set({ assignModalOpen: true }),
   closeAssignModal: () => set({ assignModalOpen: false }),
   setAssignModalOpen: (assignModalOpen) => set({ assignModalOpen }),

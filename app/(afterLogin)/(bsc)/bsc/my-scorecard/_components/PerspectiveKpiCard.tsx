@@ -16,6 +16,7 @@ import {
   useSubmitBscFinal,
 } from '@/store/server/features/bsc/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { normalizeRatio } from '@/utils/bsc/scoring';
 
 export type ScorecardKpiRow = {
   id: string;
@@ -30,6 +31,8 @@ export type ScorecardKpiRow = {
   progress: number;
   targetId?: string;
   approvalStatus?: KpiApprovalStatus;
+  /** Person-level source: shared scorecard KPI vs individually appended */
+  assignmentSource?: 'shared' | 'individual';
 };
 
 function targetLogicLabel(logic: TargetLogic): string {
@@ -38,38 +41,29 @@ function targetLogicLabel(logic: TargetLogic): string {
   return 'Higher is better';
 }
 
+function formatTarget(kpi: ScorecardKpiRow): string {
+  if (kpi.target == null) return '—';
+  return String(kpi.target);
+}
+
+function formatMetric(kpi: ScorecardKpiRow): string {
+  return kpi.unit?.trim() || '—';
+}
+
 function kpiResultLabel(kpi: ScorecardKpiRow): string {
   if (kpi.actual == null) return 'Pending';
   if (kpi.progress >= 100) return 'Achieved';
   return `${Math.round(kpi.progress)}%`;
 }
 
-function scoreFromActual(kpi: ScorecardKpiRow): number | null {
-  if (kpi.actual == null || !Number.isFinite(kpi.actual) || !kpi.weight) {
-    return null;
-  }
-  const target = kpi.target ?? 0;
-  if (target <= 0)
-    return Math.min(Math.max(Math.round(kpi.actual), 0), kpi.weight);
-  if (kpi.targetLogic === TargetLogic.LowerBetter) {
-    if (kpi.actual <= 0) return kpi.weight;
-    const ratio = Math.min(Math.max(target / kpi.actual, 0), 1);
-    return Math.round(ratio * kpi.weight);
-  }
-  const ratio = Math.min(Math.max(kpi.actual / target, 0), 1);
-  return Math.round(ratio * kpi.weight);
-}
-
-function actualFromScore(kpi: ScorecardKpiRow, score: number): number {
-  const weight = kpi.weight || 0;
-  const target = kpi.target ?? 0;
-  if (weight <= 0) return score;
-  const ratio = Math.min(Math.max(score / weight, 0), 1);
-  if (kpi.targetLogic === TargetLogic.LowerBetter) {
-    if (ratio <= 0) return target * 100;
-    return target / ratio;
-  }
-  return ratio * target;
+function progressFromActual(
+  actual: number | null | undefined,
+  target: number | null | undefined,
+  logic: TargetLogic,
+): number {
+  if (actual == null || target == null) return 0;
+  const { ratio } = normalizeRatio(actual, target, logic);
+  return Math.min(Math.max(ratio, 0), 1) * 100;
 }
 
 function canSubmitScorecard(scorecard?: EmployeeScorecard | null): boolean {
@@ -126,7 +120,7 @@ export default function PerspectiveKpiCard({
   useEffect(() => {
     setDrafts(
       Object.fromEntries(
-        kpis.map((kpi) => [draftKey(kpi), scoreFromActual(kpi)]),
+        kpis.map((kpi) => [draftKey(kpi), kpi.actual ?? null]),
       ),
     );
   }, [kpis, scorecard?.id]);
@@ -134,8 +128,9 @@ export default function PerspectiveKpiCard({
   const progressPct = reportingOpen
     ? Math.round(
         kpis.reduce((sum, kpi) => {
-          const score = drafts[draftKey(kpi)];
-          return sum + (score == null ? 0 : score);
+          const actual = drafts[draftKey(kpi)];
+          const pct = progressFromActual(actual, kpi.target, kpi.targetLogic);
+          return sum + (pct * kpi.weight) / 100;
         }, 0),
       )
     : evaluated
@@ -152,25 +147,19 @@ export default function PerspectiveKpiCard({
     if (!scorecard) return;
     const editableKpis = kpis.filter((kpi) => isRowEditable(kpi, scorecard));
     for (const kpi of editableKpis) {
-      const score = drafts[draftKey(kpi)];
-      if (score == null || !Number.isFinite(score)) {
+      const actual = drafts[draftKey(kpi)];
+      if (actual == null || !Number.isFinite(actual)) {
         NotificationMessage.error({
-          message: `Enter a result for ${kpi.name}`,
-        });
-        return;
-      }
-      if (score < 0 || score > kpi.weight) {
-        NotificationMessage.error({
-          message: `${kpi.name} must be between 0 and ${kpi.weight}`,
+          message: `Enter an actual for ${kpi.name}`,
         });
         return;
       }
     }
     const reports = editableKpis.map((kpi) => {
-      const score = drafts[draftKey(kpi)] as number;
+      const actual = drafts[draftKey(kpi)] as number;
       return {
         targetId: draftKey(kpi),
-        actualValue: actualFromScore(kpi, score),
+        actualValue: actual,
         evidenceFileName: `${kpi.name.replace(/\s+/g, '-')}.pdf`,
         evidenceUrl: `https://mock.evidence/${scorecard.id}/${draftKey(kpi)}`,
       };
@@ -179,6 +168,8 @@ export default function PerspectiveKpiCard({
     await submitAsync(scorecard.id);
     setReportingOpen(false);
   };
+
+  const colSpan = reportingOpen ? 6 : 4;
 
   return (
     <div
@@ -270,7 +261,7 @@ export default function PerspectiveKpiCard({
       >
         <table
           data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-table-250"
-          className="w-full min-w-[640px] table-auto divide-y divide-gray-200"
+          className="w-full min-w-[720px] table-auto divide-y divide-gray-200"
         >
           <thead
             data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-thead-251"
@@ -283,24 +274,46 @@ export default function PerspectiveKpiCard({
               >
                 KPI
               </th>
-              <th
-                data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-th-256"
-                className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[90px] whitespace-nowrap sm:px-6 sm:py-3"
-              >
-                Weight
-              </th>
-              <th
-                data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-th-259"
-                className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[180px] whitespace-nowrap sm:px-6 sm:py-3"
-              >
-                Progress
-              </th>
-              <th
-                data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-th-262"
-                className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[110px] whitespace-nowrap sm:px-6 sm:py-3"
-              >
-                Result
-              </th>
+              {reportingOpen ? (
+                <>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider whitespace-nowrap sm:px-6 sm:py-3">
+                    Direction
+                  </th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[90px] whitespace-nowrap sm:px-6 sm:py-3">
+                    Weight
+                  </th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[100px] whitespace-nowrap sm:px-6 sm:py-3">
+                    Target
+                  </th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[120px] whitespace-nowrap sm:px-6 sm:py-3">
+                    Metric
+                  </th>
+                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[130px] whitespace-nowrap sm:px-6 sm:py-3">
+                    Actual
+                  </th>
+                </>
+              ) : (
+                <>
+                  <th
+                    data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-th-256"
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[90px] whitespace-nowrap sm:px-6 sm:py-3"
+                  >
+                    Weight
+                  </th>
+                  <th
+                    data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-th-259"
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[180px] whitespace-nowrap sm:px-6 sm:py-3"
+                  >
+                    Progress
+                  </th>
+                  <th
+                    data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-th-262"
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[110px] whitespace-nowrap sm:px-6 sm:py-3"
+                  >
+                    Result
+                  </th>
+                </>
+              )}
             </tr>
           </thead>
           <tbody
@@ -311,7 +324,7 @@ export default function PerspectiveKpiCard({
               <tr data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-tr-269">
                 <td
                   data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-td-270"
-                  colSpan={4}
+                  colSpan={colSpan}
                   className="px-3 py-6 text-center text-gray-400 sm:px-6"
                 >
                   No KPIs assigned yet
@@ -320,24 +333,17 @@ export default function PerspectiveKpiCard({
             ) : (
               kpis.map((kpi) => {
                 const key = draftKey(kpi);
-                const score =
-                  drafts[key] !== undefined
-                    ? drafts[key]
-                    : scoreFromActual(kpi);
+                const actual =
+                  drafts[key] !== undefined ? drafts[key] : kpi.actual ?? null;
                 const barPct = reportingOpen
-                  ? kpi.weight
-                    ? Math.min(
-                        Math.max(((score ?? 0) / kpi.weight) * 100, 0),
-                        100,
-                      )
-                    : 0
+                  ? progressFromActual(actual, kpi.target, kpi.targetLogic)
                   : kpi.progress;
                 const editable = reportingOpen && isRowEditable(kpi, scorecard);
                 return (
                   <tr
-                    key={kpi.id}
+                    key={kpi.targetId || kpi.id}
                     className="hover:bg-gray-50"
-                    data-cy={`bsc-scorecard-kpi-row-${kpi.id}`}
+                    data-cy={`bsc-scorecard-kpi-row-${kpi.targetId || kpi.id}`}
                   >
                     <td
                       data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-td-299"
@@ -350,105 +356,135 @@ export default function PerspectiveKpiCard({
                         <span data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-span-301">
                           {kpi.name}
                         </span>
-                        <span
-                          data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-span-302"
-                          className="text-xs text-gray-500 leading-snug"
-                        >
-                          {kpi.perspective
-                            ? `${kpi.perspective} · ${
-                                kpi.description ||
-                                targetLogicLabel(kpi.targetLogic)
-                              }`
-                            : kpi.description ||
-                              targetLogicLabel(kpi.targetLogic)}
-                        </span>
-                      </div>
-                    </td>
-                    <td
-                      data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-td-313"
-                      className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
-                    >
-                      {kpi.weight}%
-                    </td>
-                    <td
-                      data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-td-316"
-                      className="px-3 py-3 whitespace-nowrap sm:px-6 sm:py-4"
-                    >
-                      {barPct >= 100 ? (
-                        <div
-                          data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-318"
-                          className="flex min-w-0 items-center gap-1"
-                        >
-                          <div
-                            data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-319"
-                            className="h-2 w-[140px] overflow-hidden rounded-full bg-gray-200"
-                          >
-                            <div
-                              data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-320"
-                              className="h-2 w-full rounded-full bg-success"
-                            />
-                          </div>
-                          <IoCheckmarkCircle className="text-success text-lg" />
-                        </div>
-                      ) : (
-                        <div
-                          data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-325"
-                          className="flex min-w-0 items-center"
-                        >
-                          <div
-                            data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-326"
-                            className="mr-3 h-2 w-[140px] overflow-hidden rounded-full bg-gray-200"
-                          >
-                            <div
-                              data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-327"
-                              className="h-2 rounded-full bg-okr-primary transition-all"
-                              style={{
-                                width: `${Math.min(Math.max(barPct, 0), 100)}%`,
-                              }}
-                            />
-                          </div>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {kpi.assignmentSource === 'individual' ? (
+                            <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                              Individual
+                            </Tag>
+                          ) : null}
                           <span
-                            data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-span-334"
-                            className="text-gray-500 text-xs"
+                            data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-span-302"
+                            className="text-xs text-gray-500 leading-snug"
                           >
-                            {Math.round(barPct)}%
+                            {[kpi.perspective, kpi.description]
+                              .filter(Boolean)
+                              .join(' · ') || targetLogicLabel(kpi.targetLogic)}
                           </span>
                         </div>
-                      )}
+                      </div>
                     </td>
-                    <td
-                      data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-td-340"
-                      className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
-                    >
-                      {editable ? (
-                        <Input
-                          className="!w-[72px] h-8 text-sm"
-                          placeholder={`0–${kpi.weight}`}
-                          value={score == null ? '' : String(score)}
-                          onChange={(e) => {
-                            const raw = e.target.value.replace(/[^\d.]/g, '');
-                            const key = draftKey(kpi);
-                            if (raw === '') {
-                              setDrafts((prev) => ({
-                                ...prev,
-                                [key]: null,
-                              }));
-                              return;
-                            }
-                            const next = Number(raw);
-                            if (!Number.isFinite(next) || next < 0) return;
-                            if (next > kpi.weight) return;
-                            setDrafts((prev) => ({
-                              ...prev,
-                              [key]: next,
-                            }));
-                          }}
-                          data-cy={`bsc-my-scorecard-result-${kpi.id}`}
-                        />
-                      ) : (
-                        kpiResultLabel(kpi)
-                      )}
-                    </td>
+                    {reportingOpen ? (
+                      <>
+                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4">
+                          {targetLogicLabel(kpi.targetLogic)}
+                        </td>
+                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4">
+                          {kpi.weight}%
+                        </td>
+                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4">
+                          {formatTarget(kpi)}
+                        </td>
+                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4">
+                          {formatMetric(kpi)}
+                        </td>
+                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4">
+                          {editable ? (
+                            <Input
+                              className="!w-[110px] h-8 text-sm"
+                              placeholder={
+                                kpi.target != null
+                                  ? String(kpi.target)
+                                  : 'Enter actual'
+                              }
+                              value={actual == null ? '' : String(actual)}
+                              onChange={(e) => {
+                                const raw = e.target.value.replace(
+                                  /[^\d.-]/g,
+                                  '',
+                                );
+                                if (raw === '' || raw === '-') {
+                                  setDrafts((prev) => ({
+                                    ...prev,
+                                    [key]: null,
+                                  }));
+                                  return;
+                                }
+                                const next = Number(raw);
+                                if (!Number.isFinite(next)) return;
+                                setDrafts((prev) => ({
+                                  ...prev,
+                                  [key]: next,
+                                }));
+                              }}
+                              data-cy={`bsc-my-scorecard-actual-${kpi.id}`}
+                            />
+                          ) : (
+                            <span>{actual == null ? '—' : String(actual)}</span>
+                          )}
+                        </td>
+                      </>
+                    ) : (
+                      <>
+                        <td
+                          data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-td-313"
+                          className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
+                        >
+                          {kpi.weight}%
+                        </td>
+                        <td
+                          data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-td-316"
+                          className="px-3 py-3 whitespace-nowrap sm:px-6 sm:py-4"
+                        >
+                          {barPct >= 100 ? (
+                            <div
+                              data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-318"
+                              className="flex min-w-0 items-center gap-1"
+                            >
+                              <div
+                                data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-319"
+                                className="h-2 w-[140px] overflow-hidden rounded-full bg-gray-200"
+                              >
+                                <div
+                                  data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-320"
+                                  className="h-2 w-full rounded-full bg-success"
+                                />
+                              </div>
+                              <IoCheckmarkCircle className="text-success text-lg" />
+                            </div>
+                          ) : (
+                            <div
+                              data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-325"
+                              className="flex min-w-0 items-center"
+                            >
+                              <div
+                                data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-326"
+                                className="mr-3 h-2 w-[140px] overflow-hidden rounded-full bg-gray-200"
+                              >
+                                <div
+                                  data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-div-327"
+                                  className="h-2 rounded-full bg-okr-primary transition-all"
+                                  style={{
+                                    width: `${Math.min(Math.max(barPct, 0), 100)}%`,
+                                  }}
+                                />
+                              </div>
+                              <span
+                                data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-span-334"
+                                className="text-gray-500 text-xs"
+                              >
+                                {Math.round(barPct)}%
+                              </span>
+                            </div>
+                          )}
+                        </td>
+                        <td
+                          data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-td-340"
+                          className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
+                        >
+                          {kpiResultLabel(kpi)}
+                        </td>
+                      </>
+                    )}
                   </tr>
                 );
               })

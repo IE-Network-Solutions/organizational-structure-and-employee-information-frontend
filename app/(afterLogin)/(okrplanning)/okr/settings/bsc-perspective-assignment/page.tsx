@@ -95,10 +95,10 @@ export default function BscPerspectiveAssignmentPage() {
               description={
                 configs?.length
                   ? 'Pick any organizational role and assign catalog perspectives with weights.'
-                  : 'Create a BSC setup first, then assign perspectives to any role.'
+                  : 'Create a BSC first, then assign perspectives to any role.'
               }
               actionText={
-                configs?.length ? 'Assign to a role' : 'Go to BSC Setup'
+                configs?.length ? 'Assign to a role' : 'Go to BSC'
               }
               onAction={() =>
                 configs?.length

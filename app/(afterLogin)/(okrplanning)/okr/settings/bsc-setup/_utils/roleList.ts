@@ -25,7 +25,7 @@ export interface BscRoleListItem {
   evaluationConfigId: string;
 }
 
-/** Aggregate roles from setups, KPIs, and perspective assignments */
+/** Aggregate roles from BSC configs, KPIs, and perspective assignments */
 export function buildRoleList(
   configs: EvaluationCycle[],
   kpis: KpiLibraryItem[],
@@ -74,6 +74,12 @@ export function buildRoleList(
       });
     } else if (ids.length) {
       ids.forEach((id) => upsert(id, id, null, config.id));
+    }
+    // Department-only (or dept + individual) templates show as department scope rows
+    if (!titles.length && !ids.length) {
+      (config.departmentNames || []).forEach((name) => {
+        upsert(name, null, name, config.id);
+      });
     }
   }
 

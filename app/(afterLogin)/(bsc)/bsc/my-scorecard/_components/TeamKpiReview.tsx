@@ -19,10 +19,17 @@ import {
   KpiApprovalStatus,
   ScorecardKpiTarget,
   ScorecardStatus,
+  TargetLogic,
 } from '@/types/bsc';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
+
+function targetLogicLabel(logic: TargetLogic): string {
+  if (logic === TargetLogic.LowerBetter) return 'Lower is better';
+  if (logic === TargetLogic.Bounded) return 'Bounded';
+  return 'Higher is better';
+}
 
 function latestTeamScorecards(
   scorecards: EmployeeScorecard[] | undefined,
@@ -48,26 +55,6 @@ function latestTeamScorecards(
   return Array.from(map.values()).sort((a, b) =>
     a.userName.localeCompare(b.userName),
   );
-}
-
-function displayReportedNumber(
-  row: ScorecardKpiTarget,
-  actual: number | null | undefined,
-): number | null {
-  if (actual == null || !Number.isFinite(actual)) return null;
-  if (row.targetValue === 1 && (actual === 0 || actual === 1)) {
-    return actual * 100;
-  }
-  return Math.round(actual);
-}
-
-function actualFromReportedNumber(
-  row: ScorecardKpiTarget,
-  value: number,
-): number {
-  if (row.targetValue === 1 && value === 100) return 1;
-  if (row.targetValue === 1 && value === 0) return 0;
-  return value;
 }
 
 function approvalTag(status: KpiApprovalStatus) {
@@ -166,90 +153,84 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
 
   const columns: ColumnsType<ScorecardKpiTarget> = [
     {
-      title: (
-        <span
-          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-169"
-          className={tableHeaderClassName}
-        >
-          KPI
-        </span>
-      ),
+      title: <span className={tableHeaderClassName}>KPI</span>,
       dataIndex: 'kpiName',
       key: 'kpiName',
       render: (name: string, row) => (
-        <div
-          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-div-173"
-          className="flex flex-col gap-0.5"
-        >
-          <span
-            data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-174"
-            className={tableCellClassName}
-          >
-            {name}
-          </span>
-          <span
-            data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-175"
-            className="text-xs text-gray-500"
-          >
-            {row.perspective}
-          </span>
+        <div className="flex flex-col gap-1">
+          <span className={tableCellClassName}>{name}</span>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {row.assignmentSource === 'individual' ? (
+              <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                Individual
+              </Tag>
+            ) : null}
+            <span className="text-xs text-gray-500">{row.perspective}</span>
+          </div>
         </div>
       ),
     },
     {
-      title: (
-        <span
-          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-180"
-          className={tableHeaderClassName}
-        >
-          Weight
-        </span>
+      title: <span className={tableHeaderClassName}>Direction</span>,
+      dataIndex: 'targetLogic',
+      key: 'targetLogic',
+      width: 140,
+      render: (logic: TargetLogic) => (
+        <span className={tableCellClassName}>{targetLogicLabel(logic)}</span>
       ),
+    },
+    {
+      title: <span className={tableHeaderClassName}>Weight</span>,
       dataIndex: 'weightPercentage',
       key: 'weightPercentage',
       width: 90,
       render: (weight: number) => (
-        <span
-          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-185"
-          className={tableCellClassName}
-        >
-          {weight}%
+        <span className={tableCellClassName}>{weight}%</span>
+      ),
+    },
+    {
+      title: <span className={tableHeaderClassName}>Target</span>,
+      dataIndex: 'targetValue',
+      key: 'targetValue',
+      width: 100,
+      render: (value: number) => (
+        <span className={tableCellClassName}>
+          {value == null ? '—' : String(value)}
         </span>
       ),
     },
     {
-      title: (
-        <span
-          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-189"
-          className={tableHeaderClassName}
-        >
-          Reported
-        </span>
+      title: <span className={tableHeaderClassName}>Metric</span>,
+      dataIndex: 'measurementUnit',
+      key: 'measurementUnit',
+      width: 120,
+      render: (unit: string) => (
+        <span className={tableCellClassName}>{unit?.trim() || '—'}</span>
       ),
-      key: 'reportedPercent',
-      width: 110,
-      render: (unused: unknown, row: ScorecardKpiTarget) => {
-        const value = displayReportedNumber(
-          row,
-          drafts[row.id] ?? row.actualValue,
-        );
+    },
+    {
+      title: <span className={tableHeaderClassName}>Actual</span>,
+      key: 'actual',
+      width: 120,
+      render: (_unused: unknown, row: ScorecardKpiTarget) => {
+        const value = drafts[row.id] ?? row.actualValue;
         if (!canReview) {
           return (
-            <span
-              data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-199"
-              className={tableCellClassName}
-            >
-              {value == null ? '—' : `${value}%`}
+            <span className={tableCellClassName}>
+              {value == null ? '—' : String(value)}
             </span>
           );
         }
         return (
           <Input
-            className="!w-[72px] h-8 text-sm"
+            className="!w-[96px] h-8 text-sm"
+            placeholder={
+              row.targetValue != null ? String(row.targetValue) : 'Enter'
+            }
             value={value == null ? '' : String(value)}
             onChange={(e) => {
-              const raw = e.target.value.replace(/[^\d.]/g, '');
-              if (raw === '') {
+              const raw = e.target.value.replace(/[^\d.-]/g, '');
+              if (raw === '' || raw === '-') {
                 setDrafts((prev) => ({ ...prev, [row.id]: null }));
                 return;
               }
@@ -257,7 +238,7 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
               if (!Number.isFinite(next)) return;
               setDrafts((prev) => ({
                 ...prev,
-                [row.id]: actualFromReportedNumber(row, next),
+                [row.id]: next,
               }));
             }}
             onBlur={() => saveEdits()}
@@ -267,14 +248,7 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
       },
     },
     {
-      title: (
-        <span
-          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-span-228"
-          className={tableHeaderClassName}
-        >
-          Status
-        </span>
-      ),
+      title: <span className={tableHeaderClassName}>Status</span>,
       dataIndex: 'approvalStatus',
       key: 'approvalStatus',
       width: 110,
@@ -331,6 +305,7 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
           pagination={false}
           rowKey="id"
           rowHoverable={false}
+          scroll={{ x: 960 }}
         />
       </div>
       <Modal

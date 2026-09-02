@@ -7,7 +7,8 @@ import {
 } from '@/types/bsc';
 
 export const DEFAULT_R_MAX = 1.25;
-export const MAX_PERSPECTIVE_WEIGHT = 50;
+/** Absolute upper bound for a single perspective weight (100% when only one is used). */
+export const MAX_PERSPECTIVE_WEIGHT = 100;
 
 export function normalizeRatio(
   actual: number,
@@ -89,10 +90,10 @@ export function validateWeights(
     byPerspective[p] = (byPerspective[p] || 0) + w;
   });
   for (const [p, total] of Object.entries(byPerspective)) {
-    if ((total || 0) > MAX_PERSPECTIVE_WEIGHT + 0.01) {
+    if ((total || 0) > 100 + 0.01) {
       return {
         valid: false,
-        message: `${p} cannot exceed ${MAX_PERSPECTIVE_WEIGHT}% of total weight`,
+        message: `${p} cannot exceed 100% of total weight`,
       };
     }
   }
@@ -121,10 +122,10 @@ export function validatePerspectiveWeights(weights: Record<string, number>): {
         message: `${perspective} weight must be greater than 0`,
       };
     }
-    if (value > MAX_PERSPECTIVE_WEIGHT + 0.01) {
+    if (value > 100 + 0.01) {
       return {
         valid: false,
-        message: `${perspective} cannot exceed ${MAX_PERSPECTIVE_WEIGHT}% of total weight`,
+        message: `${perspective} cannot exceed 100%`,
       };
     }
   }
@@ -243,4 +244,90 @@ export function computeCompositeScore(
     compositeScore: Number((sum * 100).toFixed(2)),
     items,
   };
+}
+
+/**
+ * Option A: append individual KPI weights and scale existing shared weights
+ * so the person still totals 100%. Does not mutate other people's scorecards.
+ */
+export function rebalanceSharedWeightsForAppend(
+  existingWeights: number[],
+  existingSources: Array<'shared' | 'individual' | undefined>,
+  newIndividualWeights: number[],
+): { sharedScaled: number[]; valid: boolean; message?: string } {
+  if (!newIndividualWeights.length) {
+    return {
+      sharedScaled: existingWeights,
+      valid: false,
+      message: 'Add at least one individual KPI',
+    };
+  }
+  if (newIndividualWeights.some((w) => !w || w <= 0)) {
+    return {
+      sharedScaled: existingWeights,
+      valid: false,
+      message: 'Each individual KPI weight must be greater than 0',
+    };
+  }
+
+  const newSum = newIndividualWeights.reduce((a, b) => a + b, 0);
+  if (newSum >= 100) {
+    return {
+      sharedScaled: existingWeights,
+      valid: false,
+      message: 'Individual KPI weights must total less than 100%',
+    };
+  }
+
+  const sharedIndices: number[] = [];
+  let sharedSum = 0;
+  existingWeights.forEach((weight, index) => {
+    const source = existingSources[index] || 'shared';
+    if (source === 'shared') {
+      sharedIndices.push(index);
+      sharedSum += weight;
+    }
+  });
+
+  if (!sharedIndices.length || sharedSum <= 0) {
+    return {
+      sharedScaled: existingWeights,
+      valid: false,
+      message: 'No shared KPIs to rebalance against',
+    };
+  }
+
+  // Keep previously appended individual weights and scale only shared
+  const priorIndividualSum = existingWeights.reduce((sum, weight, index) => {
+    const source = existingSources[index] || 'shared';
+    return source === 'individual' ? sum + weight : sum;
+  }, 0);
+  const totalIndividual = priorIndividualSum + newSum;
+  if (totalIndividual >= 100) {
+    return {
+      sharedScaled: existingWeights,
+      valid: false,
+      message: 'Individual KPI weights must leave room for shared KPIs',
+    };
+  }
+
+  const finalSharedBudget = 100 - totalIndividual;
+  const scaled = existingWeights.map((weight, index) => {
+    const source = existingSources[index] || 'shared';
+    if (source !== 'shared') return weight;
+    return Math.round(((weight / sharedSum) * finalSharedBudget) * 100) / 100;
+  });
+
+  // Fix rounding drift on the last shared KPI
+  const sharedAfter = scaled.reduce((sum, weight, index) => {
+    const source = existingSources[index] || 'shared';
+    return source === 'shared' ? sum + weight : sum;
+  }, 0);
+  const drift = Math.round((finalSharedBudget - sharedAfter) * 100) / 100;
+  if (drift !== 0 && sharedIndices.length) {
+    const last = sharedIndices[sharedIndices.length - 1];
+    scaled[last] = Math.round((scaled[last] + drift) * 100) / 100;
+  }
+
+  return { sharedScaled: scaled, valid: true };
 }

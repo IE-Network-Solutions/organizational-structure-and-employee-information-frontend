@@ -406,7 +406,7 @@ export default function BscPerspectiveAssignmentRolePage() {
                                   data-cy="bsc-perspective-assignment-role-rolekey-page-tsx-page-p-345"
                                   className="m-0 text-[12px] text-[#DC2626]"
                                 >
-                                  Max {MAX_PERSPECTIVE_WEIGHT}% per perspective
+                                  Weight cannot exceed {MAX_PERSPECTIVE_WEIGHT}%
                                 </p>
                               )}
                             </div>

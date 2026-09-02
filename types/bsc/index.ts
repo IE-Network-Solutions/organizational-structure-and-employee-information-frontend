@@ -72,12 +72,29 @@ export enum BscCadence {
   Custom = 'Custom',
 }
 
+/** Permanent = ongoing; Temporary = fixed active window */
+export enum BscSetupKind {
+  Permanent = 'Permanent',
+  Temporary = 'Temporary',
+}
+
+/** Who the scorecard is assigned to in settings scope */
+export enum BscScopeTarget {
+  Department = 'Department',
+  Role = 'Role',
+  Individual = 'Individual',
+}
+
 /** Fiscal-year-backed evaluation period + dept/role scope (replaces free-form cycles) */
 export interface EvaluationCycle {
   id: string;
   label: string;
+  /** Optional purpose / strategy note for this scorecard */
+  description?: string | null;
   status: CycleStatus;
   cadence: BscCadence;
+  /** Permanent = ongoing; Temporary = fixed active window */
+  setupKind?: BscSetupKind;
   fiscalYearId: string;
   fiscalYearName: string;
   /** Month IDs (Monthly) or Session IDs (Quarterly); empty when using custom dates only */
@@ -85,14 +102,17 @@ export interface EvaluationCycle {
   periodLabels: string[];
   startDate: string;
   endDate: string;
-  /** When true, evaluations repeat for each matching cadence period */
+  /** Permanent always recurs by cadence; temporary is chosen by the user before cadence */
   isRecurring: boolean;
-  /** True when start/end came from the optional date selector */
+  /** True when start/end came from the temporary duration selector */
   useCustomDates: boolean;
   departmentIds: string[];
   departmentNames: string[];
   positionIds: string[];
   positionTitles: string[];
+  /** Optional direct assignees (individuals) */
+  employeeIds?: string[];
+  employeeNames?: string[];
   /** @deprecated kept for assign UI display fallback */
   year?: number;
   month?: number;
@@ -111,7 +131,7 @@ export interface KpiLibraryItem {
   positionId?: string | null;
   positionTitle?: string | null;
   defaultTarget?: number | null;
-  /** Weight % of the scorecard (0–100); must be set when defining the KPI */
+  /** Weight % of the scorecard (0–100); set when assigning KPIs to a role. May be 0 for catalog KPIs. */
   weight: number;
   /** @deprecated use weight */
   suggestedWeight?: number | null;
@@ -139,6 +159,11 @@ export interface ScorecardKpiTarget {
   submittedAt?: string | null;
   approvalStatus: KpiApprovalStatus;
   rejectionReason?: string | null;
+  /**
+   * shared = from scorecard/role template (rebalanced when individuals are added)
+   * individual = appended to this person only
+   */
+  assignmentSource?: 'shared' | 'individual';
 }
 
 export interface FinalEvaluation {
@@ -183,7 +208,8 @@ export interface EmployeeScorecard {
 }
 
 export interface CreateKpiLibraryInput {
-  evaluationConfigId: string;
+  /** Optional for perspective-catalog KPIs not yet tied to a setup/role */
+  evaluationConfigId?: string;
   name: string;
   description?: string | null;
   perspective: string;
@@ -194,7 +220,7 @@ export interface CreateKpiLibraryInput {
   positionId?: string | null;
   positionTitle?: string | null;
   defaultTarget?: number | null;
-  weight: number;
+  weight?: number;
   suggestedWeight?: number | null;
   worstCase?: number | null;
   bestCase?: number | null;
@@ -202,7 +228,9 @@ export interface CreateKpiLibraryInput {
 
 export interface CreateEvaluationConfigInput {
   label: string;
+  description?: string | null;
   cadence: BscCadence;
+  setupKind?: BscSetupKind;
   fiscalYearId: string;
   fiscalYearName: string;
   periodIds: string[];
@@ -215,6 +243,9 @@ export interface CreateEvaluationConfigInput {
   departmentNames: string[];
   positionIds: string[];
   positionTitles: string[];
+  /** Optional direct assignees (individuals) */
+  employeeIds?: string[];
+  employeeNames?: string[];
 }
 
 export interface UpdateEvaluationConfigInput extends Partial<CreateEvaluationConfigInput> {
@@ -237,6 +268,27 @@ export interface AssignScorecardInput {
     targetValue: number;
     worstCase?: number | null;
     bestCase?: number | null;
+  }>;
+}
+
+/** Append KPIs to one person's scorecard; shared weights are rebalanced to keep 100%. */
+export interface AppendIndividualKpisInput {
+  scorecardId: string;
+  kpis: Array<{
+    kpiLibraryId: string;
+    weightPercentage: number;
+    targetValue: number;
+    worstCase?: number | null;
+    bestCase?: number | null;
+  }>;
+  /**
+   * Optional explicit weights for existing targets on this person.
+   * When provided, those replace auto-rebalance of shared KPIs.
+   * Combined with new KPI weights must sum to 100%.
+   */
+  existingWeights?: Array<{
+    targetId: string;
+    weightPercentage: number;
   }>;
 }
 
