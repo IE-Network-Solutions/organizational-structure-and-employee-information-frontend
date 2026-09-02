@@ -15,7 +15,10 @@ export default function BscPerspectivesRedirectPage() {
   }, [router, setScorecardTab]);
 
   return (
-    <div className="py-16 text-center text-gray-400" data-cy="bsc-kpis-redirect">
+    <div
+      className="py-16 text-center text-gray-400"
+      data-cy="bsc-kpis-redirect"
+    >
       Redirecting…
     </div>
   );

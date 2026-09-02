@@ -203,27 +203,31 @@ export default function BscSetupModal() {
     label: p.name || p.positionName || 'Position',
     departmentName: p.departmentName || p.department?.name || null,
   }));
-  const employeeOptions = asList(
-    allUsersData?.items || allUsersData || [],
-  ).map((user: any) => ({
-    value: String(user.id),
-    label:
-      `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
-        .replace(/\s+/g, ' ')
-        .trim() || user.email || 'Employee',
-    departmentId:
-      user.employeeInformation?.departmentId ||
-      user.departmentId ||
-      user.department?.id ||
-      null,
-    positionId:
-      user.employeeJobInformation?.[0]?.positionId ||
-      user.positionId ||
-      user.position?.id ||
-      null,
-  }));
+  const employeeOptions = asList(allUsersData?.items || allUsersData || []).map(
+    (user: any) => ({
+      value: String(user.id),
+      label:
+        `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
+          .replace(/\s+/g, ' ')
+          .trim() ||
+        user.email ||
+        'Employee',
+      departmentId:
+        user.employeeInformation?.departmentId ||
+        user.departmentId ||
+        user.department?.id ||
+        null,
+      positionId:
+        user.employeeJobInformation?.[0]?.positionId ||
+        user.positionId ||
+        user.position?.id ||
+        null,
+    }),
+  );
 
-  const setupKind = Form.useWatch('setupKind', form) as BscSetupKind | undefined;
+  const setupKind = Form.useWatch('setupKind', form) as
+    | BscSetupKind
+    | undefined;
   const isTemporary = setupKind === BscSetupKind.Temporary;
   const isPermanent = setupKind === BscSetupKind.Permanent;
   const isRecurringChoice = Form.useWatch('isRecurring', form) as
@@ -414,8 +418,7 @@ export default function BscSetupModal() {
       ...new Set(
         selectedIds
           .map(
-            (id) =>
-              uniqueCatalogKpis.find((kpi) => kpi.id === id)?.perspective,
+            (id) => uniqueCatalogKpis.find((kpi) => kpi.id === id)?.perspective,
           )
           .filter((name): name is string => Boolean(name)),
       ),
@@ -559,9 +562,7 @@ export default function BscSetupModal() {
       values.isRecurring &&
       values.cadence
     ) {
-      const allowed = cadenceOptionsForPeriod(
-        periodDayCount(values.dateRange),
-      );
+      const allowed = cadenceOptionsForPeriod(periodDayCount(values.dateRange));
       if (!allowed.some((o) => o.value === values.cadence)) {
         form.setFields([
           {
@@ -812,15 +813,15 @@ export default function BscSetupModal() {
           targetValue:
             measureTargets[kpi.id] != null
               ? Number(measureTargets[kpi.id])
-              : kpi.defaultTarget ?? null,
+              : (kpi.defaultTarget ?? null),
           worstCase:
             measureWorstCases[kpi.id] != null
               ? Number(measureWorstCases[kpi.id])
-              : kpi.worstCase ?? null,
+              : (kpi.worstCase ?? null),
           bestCase:
             measureBestCases[kpi.id] != null
               ? Number(measureBestCases[kpi.id])
-              : kpi.bestCase ?? null,
+              : (kpi.bestCase ?? null),
         });
       });
     }
@@ -839,9 +840,7 @@ export default function BscSetupModal() {
         form.setFieldsValue({
           perspectiveRows: seeded.map((row) => {
             const prev = existingRows.find((r) => r?.name === row.name);
-            return prev?.weight != null
-              ? { ...row, weight: prev.weight }
-              : row;
+            return prev?.weight != null ? { ...row, weight: prev.weight } : row;
           }),
         });
         // Prefill targets from catalog defaults; user may overwrite on Weights
@@ -1032,11 +1031,17 @@ export default function BscSetupModal() {
       width={860}
       closeIcon={<CloseOutlined />}
       title={
-        <div>
-          <h2 className="m-0 text-xl font-bold text-black">
+        <div data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-1">
+          <h2
+            className="m-0 text-xl font-bold text-black"
+            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-h2-2"
+          >
             {isEdit ? 'Edit Scorecard' : 'Add Scorecard'}
           </h2>
-          <p className="m-0 mt-1 text-sm font-normal text-[#595959]">
+          <p
+            className="m-0 mt-1 text-sm font-normal text-[#595959]"
+            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-3"
+          >
             {isEdit
               ? 'Update definition, scope, KPIs, and weights.'
               : 'Define the scorecard, set scope, select KPIs, then assign weights.'}
@@ -1046,7 +1051,10 @@ export default function BscSetupModal() {
       destroyOnClose
       data-cy="bsc-setup-modal"
     >
-      <div className="mb-4 mt-2 hidden sm:block">
+      <div
+        className="mb-4 mt-2 hidden sm:block"
+        data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-4"
+      >
         <Steps
           current={current}
           progressDot
@@ -1197,10 +1205,16 @@ export default function BscSetupModal() {
 
         {current === 1 && (
           <>
-            <p className="mb-1 text-[13px] font-semibold text-[#262626]">
+            <p
+              className="mb-1 text-[13px] font-semibold text-[#262626]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-5"
+            >
               Organizational scope
             </p>
-            <p className="mb-4 text-[12px] text-[#8F94A3]">
+            <p
+              className="mb-4 text-[12px] text-[#8F94A3]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-6"
+            >
               Choose how this scorecard is assigned, then select the matching
               targets.
             </p>
@@ -1314,16 +1328,25 @@ export default function BscSetupModal() {
 
         {current === 2 && (
           <>
-            <p className="mb-1 text-[13px] font-semibold text-[#262626]">
+            <p
+              className="mb-1 text-[13px] font-semibold text-[#262626]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-7"
+            >
               KPIs by perspective
             </p>
-            <p className="mb-4 text-[12px] text-[#8F94A3]">
+            <p
+              className="mb-4 text-[12px] text-[#8F94A3]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-8"
+            >
               Expand each perspective and select the KPIs to include on this
               scorecard. Weights are assigned in the next step.
             </p>
 
             {!scorecardPerspectiveNames.length ? (
-              <p className="text-[13px] text-[#94A3B8]">
+              <p
+                className="text-[13px] text-[#94A3B8]"
+                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-9"
+              >
                 No perspectives in the catalog yet. Add them on the KPIs tab
                 first.
               </p>
@@ -1350,28 +1373,41 @@ export default function BscSetupModal() {
                           className="flex items-center justify-between gap-3 pr-2"
                           data-cy={`bsc-scorecard-perspective-${perspective}`}
                         >
-                          <span className="text-[14px] font-semibold text-[#262626]">
+                          <span
+                            className="text-[14px] font-semibold text-[#262626]"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-10"
+                          >
                             {perspective}
                           </span>
-                          <span className="text-[11px] font-normal text-[#8F94A3]">
+                          <span
+                            className="text-[11px] font-normal text-[#8F94A3]"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-11"
+                          >
                             {selectedCount} of {kpis.length} selected
                           </span>
                         </div>
                       }
                     >
                       {!kpis.length ? (
-                        <p className="m-0 text-[12px] text-[#94A3B8]">
+                        <p
+                          className="m-0 text-[12px] text-[#94A3B8]"
+                          data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-12"
+                        >
                           No catalog KPIs for this perspective yet. Add them on
                           the KPIs tab.
                         </p>
                       ) : (
-                        <div className="flex flex-col gap-2">
+                        <div
+                          className="flex flex-col gap-2"
+                          data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-13"
+                        >
                           {kpis.map((kpi) => {
                             const checked = selectedKpiIds.includes(kpi.id);
                             return (
                               <div
                                 key={kpi.id}
                                 className="rounded-lg bg-[#F9FAFB] px-3 py-2"
+                                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-14"
                               >
                                 <Checkbox
                                   checked={checked}
@@ -1383,10 +1419,16 @@ export default function BscSetupModal() {
                                     );
                                   }}
                                 >
-                                  <span className="text-[13px] font-medium text-[#262626]">
+                                  <span
+                                    className="text-[13px] font-medium text-[#262626]"
+                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-15"
+                                  >
                                     {kpi.name}
                                   </span>
-                                  <span className="ml-2 text-[11px] text-[#8F94A3]">
+                                  <span
+                                    className="ml-2 text-[11px] text-[#8F94A3]"
+                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-16"
+                                  >
                                     {kpi.measurementUnit}
                                   </span>
                                 </Checkbox>
@@ -1405,10 +1447,16 @@ export default function BscSetupModal() {
 
         {current === 3 && (
           <>
-            <p className="mb-1 text-[13px] font-semibold text-[#262626]">
+            <p
+              className="mb-1 text-[13px] font-semibold text-[#262626]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-17"
+            >
               Weights & targets
             </p>
-            <p className="mb-4 text-[12px] text-[#8F94A3]">
+            <p
+              className="mb-4 text-[12px] text-[#8F94A3]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-18"
+            >
               Set perspective weights (sum 100%). Targets are prefilled from the
               KPI catalog when available — overwrite if this scorecard needs a
               different number. Leave KPI weights blank to auto-split.
@@ -1431,11 +1479,17 @@ export default function BscSetupModal() {
             </Form.Item>
 
             {!activePerspectiveNames.length ? (
-              <p className="text-[13px] text-[#94A3B8]">
+              <p
+                className="text-[13px] text-[#94A3B8]"
+                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-19"
+              >
                 No KPIs selected. Go back and select KPIs first.
               </p>
             ) : (
-              <div className="flex max-h-[440px] flex-col gap-4 overflow-y-auto pr-1">
+              <div
+                className="flex max-h-[440px] flex-col gap-4 overflow-y-auto pr-1"
+                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-20"
+              >
                 {activePerspectiveNames.map((perspective) => {
                   const kpis = selectedKpis.filter(
                     (kpi) => kpi.perspective === perspective,
@@ -1454,15 +1508,30 @@ export default function BscSetupModal() {
                       className="rounded-xl border border-[#E5E7EB] p-4"
                       data-cy={`bsc-scorecard-weight-perspective-${perspective}`}
                     >
-                      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                        <p className="m-0 text-[14px] font-semibold text-[#262626]">
+                      <div
+                        className="mb-3 flex flex-wrap items-center justify-between gap-3"
+                        data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-21"
+                      >
+                        <p
+                          className="m-0 text-[14px] font-semibold text-[#262626]"
+                          data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-22"
+                        >
                           {perspective}
-                          <span className="ml-2 text-[11px] font-normal text-[#8F94A3]">
+                          <span
+                            className="ml-2 text-[11px] font-normal text-[#8F94A3]"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-23"
+                          >
                             {kpis.length} KPI{kpis.length === 1 ? '' : 's'}
                           </span>
                         </p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[12px] text-[#595959]">
+                        <div
+                          className="flex items-center gap-2"
+                          data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-24"
+                        >
+                          <span
+                            className="text-[12px] text-[#595959]"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-25"
+                          >
                             Weight %
                           </span>
                           <InputNumber
@@ -1493,7 +1562,10 @@ export default function BscSetupModal() {
                         </div>
                       </div>
 
-                      <div className="flex flex-col gap-3">
+                      <div
+                        className="flex flex-col gap-3"
+                        data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-26"
+                      >
                         {kpis.map((kpi) => {
                           const isBounded =
                             kpi.targetLogic === TargetLogic.Bounded;
@@ -1501,13 +1573,23 @@ export default function BscSetupModal() {
                             <div
                               key={kpi.id}
                               className="rounded-lg bg-[#F9FAFB] px-3 py-3"
+                              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-27"
                             >
-                              <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-                                <div>
-                                  <p className="m-0 text-[13px] font-medium text-[#262626]">
+                              <div
+                                className="mb-2 flex flex-wrap items-start justify-between gap-2"
+                                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-28"
+                              >
+                                <div data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-29">
+                                  <p
+                                    className="m-0 text-[13px] font-medium text-[#262626]"
+                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-30"
+                                  >
                                     {kpi.name}
                                   </p>
-                                  <p className="m-0 text-[11px] text-[#8F94A3]">
+                                  <p
+                                    className="m-0 text-[11px] text-[#8F94A3]"
+                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-31"
+                                  >
                                     {kpi.measurementUnit} ·{' '}
                                     {targetLogicLabel(kpi.targetLogic)}
                                     {kpi.defaultTarget != null
@@ -1515,8 +1597,14 @@ export default function BscSetupModal() {
                                       : ''}
                                   </p>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[11px] text-[#595959]">
+                                <div
+                                  className="flex items-center gap-2"
+                                  data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-32"
+                                >
+                                  <span
+                                    className="text-[11px] text-[#595959]"
+                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-33"
+                                  >
                                     Weight %
                                   </span>
                                   <InputNumber
@@ -1537,9 +1625,18 @@ export default function BscSetupModal() {
                                   />
                                 </div>
                               </div>
-                              <div className="flex flex-wrap gap-3">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[11px] text-[#595959]">
+                              <div
+                                className="flex flex-wrap gap-3"
+                                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-34"
+                              >
+                                <div
+                                  className="flex items-center gap-2"
+                                  data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-35"
+                                >
+                                  <span
+                                    className="text-[11px] text-[#595959]"
+                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-36"
+                                  >
                                     Target
                                   </span>
                                   <InputNumber
@@ -1563,8 +1660,14 @@ export default function BscSetupModal() {
                                 </div>
                                 {isBounded ? (
                                   <>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-[11px] text-[#595959]">
+                                    <div
+                                      className="flex items-center gap-2"
+                                      data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-37"
+                                    >
+                                      <span
+                                        className="text-[11px] text-[#595959]"
+                                        data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-38"
+                                      >
                                         Worst
                                       </span>
                                       <InputNumber
@@ -1583,8 +1686,14 @@ export default function BscSetupModal() {
                                         data-cy={`bsc-scorecard-kpi-worst-${kpi.id}`}
                                       />
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-[11px] text-[#595959]">
+                                    <div
+                                      className="flex items-center gap-2"
+                                      data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-39"
+                                    >
+                                      <span
+                                        className="text-[11px] text-[#595959]"
+                                        data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-40"
+                                      >
                                         Best
                                       </span>
                                       <InputNumber
@@ -1618,7 +1727,10 @@ export default function BscSetupModal() {
           </>
         )}
 
-        <div className="mt-6 flex justify-between gap-3">
+        <div
+          className="mt-6 flex justify-between gap-3"
+          data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-41"
+        >
           <CustomButton
             type="default"
             title={current === 0 ? 'Cancel' : 'Back'}

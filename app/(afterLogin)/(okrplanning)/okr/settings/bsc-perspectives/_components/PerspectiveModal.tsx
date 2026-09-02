@@ -153,11 +153,23 @@ export default function PerspectiveModal() {
           className="mb-2 flex items-center justify-between"
           data-cy="bsc-perspective-optional-kpis-header"
         >
-          <div>
-            <p className="m-0 text-[13px] font-semibold text-[#262626]">
-              KPIs <span className="font-normal text-[#8F94A3]">(optional)</span>
+          <div data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-div-1">
+            <p
+              className="m-0 text-[13px] font-semibold text-[#262626]"
+              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-p-2"
+            >
+              KPIs{' '}
+              <span
+                className="font-normal text-[#8F94A3]"
+                data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-span-3"
+              >
+                (optional)
+              </span>
             </p>
-            <p className="m-0 mt-0.5 text-[12px] text-[#8F94A3]">
+            <p
+              className="m-0 mt-0.5 text-[12px] text-[#8F94A3]"
+              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-p-4"
+            >
               Add measures under this perspective now, or later from the list.
             </p>
           </div>
@@ -165,15 +177,24 @@ export default function PerspectiveModal() {
 
         <Form.List name="kpis">
           {(fields, { add, remove }) => (
-            <div className="flex flex-col gap-3 mb-4">
+            <div
+              className="flex flex-col gap-3 mb-4"
+              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-div-5"
+            >
               {fields.map((field, index) => (
                 <div
                   key={field.key}
                   className="rounded-xl bg-[#F9FAFB] px-3.5 py-3"
                   data-cy={`bsc-perspective-kpi-row-${field.key}`}
                 >
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-[#8F94A3]">
+                  <div
+                    className="mb-2 flex items-center justify-between"
+                    data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-div-6"
+                  >
+                    <span
+                      className="text-[11px] font-semibold uppercase tracking-wider text-[#8F94A3]"
+                      data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-span-7"
+                    >
                       KPI {index + 1}
                     </span>
                     <button

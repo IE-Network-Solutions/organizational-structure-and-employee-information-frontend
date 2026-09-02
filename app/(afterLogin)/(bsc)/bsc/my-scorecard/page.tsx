@@ -252,7 +252,10 @@ export default function MyBscScorecardPage() {
         const catalog = catalogById.get(target.kpiLibraryId);
         const actual = target.actualValue ?? null;
         const goal = target.targetValue ?? catalog?.defaultTarget ?? null;
-        const logic = target.targetLogic || catalog?.targetLogic || TargetLogic.HigherBetter;
+        const logic =
+          target.targetLogic ||
+          catalog?.targetLogic ||
+          TargetLogic.HigherBetter;
         return {
           id: target.kpiLibraryId,
           name: target.kpiName,
@@ -417,7 +420,12 @@ export default function MyBscScorecardPage() {
         type="primary"
         data-cy="bsc-perspective-add"
       >
-        <span className="hidden sm:inline ml-2">Add Perspective</span>
+        <span
+          className="hidden sm:inline ml-2"
+          data-cy="-bsc-bsc-my-scorecard-page-span-1"
+        >
+          Add Perspective
+        </span>
       </Button>
     ) : activeTab === 'bsc' ? (
       <Button
@@ -427,7 +435,12 @@ export default function MyBscScorecardPage() {
         type="primary"
         data-cy="bsc-setup-add"
       >
-        <span className="hidden sm:inline ml-2">Add</span>
+        <span
+          className="hidden sm:inline ml-2"
+          data-cy="-bsc-bsc-my-scorecard-page-span-2"
+        >
+          Add
+        </span>
       </Button>
     ) : null;
 

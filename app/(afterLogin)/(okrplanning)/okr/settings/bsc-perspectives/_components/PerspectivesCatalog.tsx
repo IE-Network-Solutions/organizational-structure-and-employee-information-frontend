@@ -74,7 +74,10 @@ export default function PerspectivesCatalog() {
                   className="flex min-h-[140px] flex-col rounded-[12px] border border-[#E5E7EB] bg-[#F9FAFB] p-5 cursor-pointer hover:bg-[#F3F4F6] transition-colors"
                   data-cy={`bsc-perspective-card-${item.id}`}
                 >
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div
+                    className="flex flex-wrap items-center gap-2"
+                    data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivescatalog-div-1"
+                  >
                     <p
                       data-cy="okr-settings-bsc-perspectives-page-tsx-page-p-40"
                       className="m-0 text-[15px] font-semibold text-[#262626]"

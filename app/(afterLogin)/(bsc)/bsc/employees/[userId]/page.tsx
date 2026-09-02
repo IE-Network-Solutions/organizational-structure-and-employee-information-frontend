@@ -103,74 +103,160 @@ export default function EmployeeKpiDetailPage() {
 
   const columns: ColumnsType<ScorecardKpiTarget> = [
     {
-      title: <span className={tableHeaderClassName}>KPI</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-1"
+        >
+          KPI
+        </span>
+      ),
       dataIndex: 'kpiName',
       key: 'kpiName',
       render: (name: string, row) => (
-        <div className="flex flex-col gap-1">
-          <span className={tableCellClassName}>{name}</span>
-          <div className="flex flex-wrap items-center gap-1.5">
+        <div
+          className="flex flex-col gap-1"
+          data-cy="-bsc-bsc-employees-userid-page-div-2"
+        >
+          <span
+            className={tableCellClassName}
+            data-cy="-bsc-bsc-employees-userid-page-span-3"
+          >
+            {name}
+          </span>
+          <div
+            className="flex flex-wrap items-center gap-1.5"
+            data-cy="-bsc-bsc-employees-userid-page-div-4"
+          >
             {row.assignmentSource === 'individual' ? (
               <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                 Individual
               </Tag>
             ) : null}
-            <span className="text-xs text-gray-500">{row.perspective}</span>
+            <span
+              className="text-xs text-gray-500"
+              data-cy="-bsc-bsc-employees-userid-page-span-5"
+            >
+              {row.perspective}
+            </span>
           </div>
         </div>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Direction</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-6"
+        >
+          Direction
+        </span>
+      ),
       dataIndex: 'targetLogic',
       key: 'targetLogic',
       width: 140,
       render: (logic: TargetLogic) => (
-        <span className={tableCellClassName}>{targetLogicLabel(logic)}</span>
+        <span
+          className={tableCellClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-7"
+        >
+          {targetLogicLabel(logic)}
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Weight</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-8"
+        >
+          Weight
+        </span>
+      ),
       dataIndex: 'weightPercentage',
       key: 'weightPercentage',
       width: 90,
       render: (weight: number) => (
-        <span className={tableCellClassName}>{weight}%</span>
+        <span
+          className={tableCellClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-9"
+        >
+          {weight}%
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Target</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-10"
+        >
+          Target
+        </span>
+      ),
       dataIndex: 'targetValue',
       key: 'targetValue',
       width: 100,
       render: (value: number) => (
-        <span className={tableCellClassName}>
+        <span
+          className={tableCellClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-11"
+        >
           {value == null ? '—' : String(value)}
         </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Metric</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-12"
+        >
+          Metric
+        </span>
+      ),
       dataIndex: 'measurementUnit',
       key: 'measurementUnit',
       width: 120,
       render: (unit: string) => (
-        <span className={tableCellClassName}>{unit?.trim() || '—'}</span>
+        <span
+          className={tableCellClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-13"
+        >
+          {unit?.trim() || '—'}
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Actual</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-14"
+        >
+          Actual
+        </span>
+      ),
       dataIndex: 'actualValue',
       key: 'actualValue',
       width: 100,
       render: (value: number | null) => (
-        <span className={tableCellClassName}>
+        <span
+          className={tableCellClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-15"
+        >
           {value == null ? '—' : String(value)}
         </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Status</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-employees-userid-page-span-16"
+        >
+          Status
+        </span>
+      ),
       dataIndex: 'approvalStatus',
       key: 'approvalStatus',
       width: 110,
@@ -197,7 +283,7 @@ export default function EmployeeKpiDetailPage() {
         }
       />
 
-      <div className="mb-4">
+      <div className="mb-4" data-cy="-bsc-bsc-employees-userid-page-div-17">
         <Button
           type="text"
           icon={<LeftOutlined />}
@@ -210,19 +296,39 @@ export default function EmployeeKpiDetailPage() {
       </div>
 
       {isLoading ? (
-        <div className="py-16 text-center text-gray-400">Loading…</div>
+        <div
+          className="py-16 text-center text-gray-400"
+          data-cy="-bsc-bsc-employees-userid-page-div-18"
+        >
+          Loading…
+        </div>
       ) : !scorecard ? (
-        <div className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-12">
+        <div
+          className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-12"
+          data-cy="-bsc-bsc-employees-userid-page-div-19"
+        >
           <Empty description="No scorecard found for this employee" />
         </div>
       ) : (
-        <div className="rounded-xl border border-[#E5E7EB] bg-white overflow-hidden">
-          <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4 border-b border-[#F0F0F0]">
-            <div>
-              <h2 className="m-0 text-lg font-semibold text-[#262626]">
+        <div
+          className="rounded-xl border border-[#E5E7EB] bg-white overflow-hidden"
+          data-cy="-bsc-bsc-employees-userid-page-div-20"
+        >
+          <div
+            className="flex flex-wrap items-start justify-between gap-3 px-5 py-4 border-b border-[#F0F0F0]"
+            data-cy="-bsc-bsc-employees-userid-page-div-21"
+          >
+            <div data-cy="-bsc-bsc-employees-userid-page-div-22">
+              <h2
+                className="m-0 text-lg font-semibold text-[#262626]"
+                data-cy="-bsc-bsc-employees-userid-page-h2-23"
+              >
                 {scorecard.userName}
               </h2>
-              <p className="m-0 mt-1 text-sm text-[#8F94A3]">
+              <p
+                className="m-0 mt-1 text-sm text-[#8F94A3]"
+                data-cy="-bsc-bsc-employees-userid-page-p-24"
+              >
                 {[
                   scorecard.positionTitle,
                   scorecard.departmentName,
@@ -232,7 +338,10 @@ export default function EmployeeKpiDetailPage() {
                   .join(' · ')}
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            <div
+              className="flex flex-wrap items-center gap-2"
+              data-cy="-bsc-bsc-employees-userid-page-div-25"
+            >
               <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                 {scorecard.targets.length} KPI
                 {scorecard.targets.length === 1 ? '' : 's'}
@@ -248,7 +357,10 @@ export default function EmployeeKpiDetailPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div
+            className="overflow-x-auto"
+            data-cy="-bsc-bsc-employees-userid-page-div-26"
+          >
             <Table
               className="w-full"
               columns={columns}

@@ -246,10 +246,16 @@ export default function PerspectiveKpiModal() {
             className="flex items-center gap-2"
             data-cy="bsc-perspective-kpi-modal-title"
           >
-            <span className="min-w-0 flex-1 truncate text-[16px] font-semibold text-[#262626]">
+            <span
+              className="min-w-0 flex-1 truncate text-[16px] font-semibold text-[#262626]"
+              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-span-1"
+            >
               {perspectiveName ? `${perspectiveName} KPIs` : 'KPIs'}
             </span>
-            <div className="flex shrink-0 items-center gap-1">
+            <div
+              className="flex shrink-0 items-center gap-1"
+              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-div-2"
+            >
               <Button
                 type="text"
                 icon={<PlusOutlined />}
@@ -310,7 +316,12 @@ export default function PerspectiveKpiModal() {
           ) : null}
 
           {isLoading ? (
-            <p className="py-8 text-center text-[#8F94A3]">Loading…</p>
+            <p
+              className="py-8 text-center text-[#8F94A3]"
+              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-p-3"
+            >
+              Loading…
+            </p>
           ) : perspectiveKpis.length === 0 ? (
             <p
               className="m-0 py-6 text-center text-[13px] text-[#94A3B8]"
@@ -319,20 +330,30 @@ export default function PerspectiveKpiModal() {
               No KPIs under this perspective yet.
             </p>
           ) : (
-            <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div
+              className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-div-4"
+            >
               {perspectiveKpis.map((kpi) => (
                 <div
                   key={kpi.id}
                   className="flex min-h-[160px] h-full flex-col rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-4"
                   data-cy={`bsc-perspective-kpi-${kpi.id}`}
                 >
-                  <div className="mb-3 flex items-start justify-between gap-2">
-                    <p className="m-0 min-w-0 flex-1 text-[14px] font-medium leading-5 text-[#262626]">
+                  <div
+                    className="mb-3 flex items-start justify-between gap-2"
+                    data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-div-5"
+                  >
+                    <p
+                      className="m-0 min-w-0 flex-1 text-[14px] font-medium leading-5 text-[#262626]"
+                      data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-p-6"
+                    >
                       {kpi.name}
                     </p>
                     <div
                       className="shrink-0"
                       onClick={(e) => e.stopPropagation()}
+                      data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-div-7"
                     >
                       <ActionButton
                         id={`bsc-perspective-kpi-${kpi.id}`}
@@ -344,13 +365,22 @@ export default function PerspectiveKpiModal() {
                     </div>
                   </div>
                   {kpi.description ? (
-                    <p className="m-0 mb-3 flex-1 line-clamp-4 text-[12px] leading-5 text-[#8F94A3]">
+                    <p
+                      className="m-0 mb-3 flex-1 line-clamp-4 text-[12px] leading-5 text-[#8F94A3]"
+                      data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-p-8"
+                    >
                       {kpi.description}
                     </p>
                   ) : (
-                    <div className="flex-1" />
+                    <div
+                      className="flex-1"
+                      data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-div-9"
+                    />
                   )}
-                  <div className="mt-auto flex flex-wrap items-center gap-1.5">
+                  <div
+                    className="mt-auto flex flex-wrap items-center gap-1.5"
+                    data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-div-10"
+                  >
                     <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                       {kpi.measurementUnit || '—'}
                     </Tag>
@@ -384,8 +414,14 @@ export default function PerspectiveKpiModal() {
       >
         <Form form={form} layout="vertical" className="mt-2">
           {perspectiveName ? (
-            <p className="mb-3 text-sm text-[#595959]">
-              Perspective: <strong>{perspectiveName}</strong>
+            <p
+              className="mb-3 text-sm text-[#595959]"
+              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-p-11"
+            >
+              Perspective:{' '}
+              <strong data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-strong-12">
+                {perspectiveName}
+              </strong>
             </p>
           ) : null}
           <Form.Item

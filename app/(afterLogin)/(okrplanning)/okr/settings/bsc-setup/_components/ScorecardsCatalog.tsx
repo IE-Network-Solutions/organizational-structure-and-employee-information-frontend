@@ -1,7 +1,16 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Button, Dropdown, Input, Select, Space, Table, Tag, Empty } from 'antd';
+import {
+  Button,
+  Dropdown,
+  Input,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Empty,
+} from 'antd';
 import type { MenuProps, TableColumnsType } from 'antd';
 import {
   EllipsisOutlined,
@@ -215,50 +224,104 @@ export default function ScorecardsCatalog() {
 
   const peopleColumns: TableColumnsType<IndividualAssignee> = [
     {
-      title: <span className={tableHeaderClassName}>Person</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-1"
+        >
+          Person
+        </span>
+      ),
       key: 'person',
       ellipsis: true,
-      render: (_, row) => (
-        <span className={`inline-flex items-center gap-2 ${tableCellClassName}`}>
+      render: (unused, row) => (
+        <span
+          className={`inline-flex items-center gap-2 ${tableCellClassName}`}
+          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-2"
+        >
           <UserOutlined className="text-[#1677ff]" />
-          <span className="font-medium">{row.scorecard.userName}</span>
+          <span
+            className="font-medium"
+            data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-3"
+          >
+            {row.scorecard.userName}
+          </span>
         </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Role</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-4"
+        >
+          Role
+        </span>
+      ),
       key: 'role',
       ellipsis: true,
-      render: (_, row) => (
-        <span className={tableCellClassName}>
+      render: (unused, row) => (
+        <span
+          className={tableCellClassName}
+          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-5"
+        >
           {row.scorecard.positionTitle || '—'}
         </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Department</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-6"
+        >
+          Department
+        </span>
+      ),
       key: 'department',
       ellipsis: true,
-      render: (_, row) => (
-        <span className={tableCellClassName}>
+      render: (unused, row) => (
+        <span
+          className={tableCellClassName}
+          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-7"
+        >
           {row.scorecard.departmentName || '—'}
         </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Scorecard</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-8"
+        >
+          Scorecard
+        </span>
+      ),
       key: 'scorecard',
       ellipsis: true,
-      render: (_, row) => (
-        <span className={tableCellClassName}>{row.configLabel}</span>
+      render: (unused, row) => (
+        <span
+          className={tableCellClassName}
+          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-9"
+        >
+          {row.configLabel}
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Extras</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-10"
+        >
+          Extras
+        </span>
+      ),
       key: 'extras',
       width: 110,
       align: 'right',
-      render: (_, row) => (
+      render: (unused, row) => (
         <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
           {row.individualCount} KPI{row.individualCount === 1 ? '' : 's'}
         </Tag>
@@ -266,7 +329,10 @@ export default function ScorecardsCatalog() {
     },
     {
       title: (
-        <span className={`${tableHeaderClassName} whitespace-nowrap`}>
+        <span
+          className={`${tableHeaderClassName} whitespace-nowrap`}
+          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-11"
+        >
           Action
         </span>
       ),
@@ -276,7 +342,7 @@ export default function ScorecardsCatalog() {
       onHeaderCell: () => ({
         className: 'whitespace-nowrap',
       }),
-      render: (_, row) => {
+      render: (unused, row) => {
         const items: MenuProps['items'] = [
           {
             key: 'edit',
@@ -394,7 +460,10 @@ export default function ScorecardsCatalog() {
           </div>
         ) : (
           <>
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <div
+              className="mb-6 flex flex-wrap items-center justify-between gap-3"
+              data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-12"
+            >
               <Space wrap>
                 {view === 'scorecards' ? (
                   <>
@@ -490,7 +559,10 @@ export default function ScorecardsCatalog() {
                         onClick={() => router.push(`/bsc/setup/${config.id}`)}
                         data-cy={`bsc-scorecard-card-${config.id}`}
                       >
-                        <div className="mb-3 flex flex-wrap items-center gap-2">
+                        <div
+                          className="mb-3 flex flex-wrap items-center gap-2"
+                          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-13"
+                        >
                           <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                             {horizonLabel(config)}
                           </Tag>
@@ -508,11 +580,17 @@ export default function ScorecardsCatalog() {
                           {config.label}
                         </p>
                         {config.description ? (
-                          <p className="mb-4 line-clamp-2 text-[12px] text-[#8F94A3]">
+                          <p
+                            className="mb-4 line-clamp-2 text-[12px] text-[#8F94A3]"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-p-14"
+                          >
                             {config.description}
                           </p>
                         ) : (
-                          <div className="mb-4" />
+                          <div
+                            className="mb-4"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-15"
+                          />
                         )}
                         <div
                           data-cy="okr-settings-bsc-setup-page-tsx-page-div-119"
@@ -544,7 +622,10 @@ export default function ScorecardsCatalog() {
                             </button>
                           ) : null}
                           {(config.periodLabels || [])[0] ? (
-                            <div className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]">
+                            <div
+                              className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
+                              data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-16"
+                            >
                               {config.periodLabels[0]}
                             </div>
                           ) : null}
@@ -566,11 +647,20 @@ export default function ScorecardsCatalog() {
             ) : (
               <div data-cy="bsc-individual-assignees-panel">
                 {!peopleWithIndividualKpis.length ? (
-                  <div className="rounded-[12px] border border-dashed border-[#d9d9d9] bg-[#F9FAFB] px-4 py-10 text-center">
-                    <p className="m-0 text-[14px] font-medium text-[#262626]">
+                  <div
+                    className="rounded-[12px] border border-dashed border-[#d9d9d9] bg-[#F9FAFB] px-4 py-10 text-center"
+                    data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-17"
+                  >
+                    <p
+                      className="m-0 text-[14px] font-medium text-[#262626]"
+                      data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-p-18"
+                    >
                       No individual KPI assignments yet
                     </p>
-                    <p className="m-0 mt-1 text-[13px] text-[#8F94A3]">
+                    <p
+                      className="m-0 mt-1 text-[13px] text-[#8F94A3]"
+                      data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-p-19"
+                    >
                       Use Add individual KPIs to append person-only KPIs to an
                       employee scorecard.
                     </p>
@@ -591,7 +681,10 @@ export default function ScorecardsCatalog() {
                   </div>
                 ) : (
                   <>
-                    <div className="mt-2 overflow-x-auto">
+                    <div
+                      className="mt-2 overflow-x-auto"
+                      data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-20"
+                    >
                       <Table
                         className="w-full cursor-pointer"
                         columns={peopleColumns}
@@ -603,7 +696,7 @@ export default function ScorecardsCatalog() {
                           onClick: () => openPersonOnScorecard(row),
                         })}
                         rowHoverable={false}
-                        rowClassName={(_, index) =>
+                        rowClassName={(unused, index) =>
                           index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
                         }
                         data-cy="bsc-individual-people-table"

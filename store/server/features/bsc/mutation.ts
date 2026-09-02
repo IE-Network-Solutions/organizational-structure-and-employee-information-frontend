@@ -265,13 +265,8 @@ export const useAppendIndividualBscKpis = () => {
 export const useRemoveIndividualBscKpi = () => {
   const qc = useQueryClient();
   return useMutation(
-    ({
-      scorecardId,
-      targetId,
-    }: {
-      scorecardId: string;
-      targetId: string;
-    }) => bscMockRepo.removeIndividualKpi(scorecardId, targetId),
+    ({ scorecardId, targetId }: { scorecardId: string; targetId: string }) =>
+      bscMockRepo.removeIndividualKpi(scorecardId, targetId),
     {
       onSuccess: () => {
         invalidateAll(qc);

@@ -13,11 +13,7 @@ import CustomButton from '@/components/common/buttons/customButton';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAppendIndividualBscKpis } from '@/store/server/features/bsc/mutation';
 import { useGetBscKpiLibrary } from '@/store/server/features/bsc/queries';
-import {
-  EmployeeScorecard,
-  KpiLibraryItem,
-  TargetLogic,
-} from '@/types/bsc';
+import { EmployeeScorecard, KpiLibraryItem, TargetLogic } from '@/types/bsc';
 import { validateWeights } from '@/utils/bsc/scoring';
 
 type PersonOption = {
@@ -78,13 +74,13 @@ export default function AssignIndividualKpisModal({
   const activeScorecard = useMemo(() => {
     if (scorecard) return scorecard;
     return (
-      personOptions.find((option) => option.scorecard.id === selectedScorecardId)
-        ?.scorecard || null
+      personOptions.find(
+        (option) => option.scorecard.id === selectedScorecardId,
+      )?.scorecard || null
     );
   }, [scorecard, personOptions, selectedScorecardId]);
 
-  const resolvedConfigId =
-    evaluationConfigId || activeScorecard?.cycleId || '';
+  const resolvedConfigId = evaluationConfigId || activeScorecard?.cycleId || '';
 
   const alreadyOnScorecard = useMemo(() => {
     const names = new Set(
@@ -262,8 +258,7 @@ export default function AssignIndividualKpisModal({
         targetValue: Number(measureTargets[`new:${kpi.id}`]),
         worstCase:
           kpi.targetLogic === TargetLogic.Bounded ? kpi.worstCase : null,
-        bestCase:
-          kpi.targetLogic === TargetLogic.Bounded ? kpi.bestCase : null,
+        bestCase: kpi.targetLogic === TargetLogic.Bounded ? kpi.bestCase : null,
       })),
     });
     onClose();
@@ -304,11 +299,17 @@ export default function AssignIndividualKpisModal({
       closeIcon={<CloseOutlined />}
       destroyOnClose
       title={
-        <div>
-          <h2 className="m-0 text-xl font-bold text-black">
+        <div data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-1">
+          <h2
+            className="m-0 text-xl font-bold text-black"
+            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-h2-2"
+          >
             Add individual KPIs
           </h2>
-          <p className="m-0 mt-1 text-sm font-normal text-[#595959]">
+          <p
+            className="m-0 mt-1 text-sm font-normal text-[#595959]"
+            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-3"
+          >
             {activeScorecard
               ? `Select KPIs for ${activeScorecard.userName}, then assign this person's weights.`
               : 'Choose a person, select KPIs, then assign weights.'}
@@ -317,7 +318,10 @@ export default function AssignIndividualKpisModal({
       }
       data-cy="bsc-assign-individual-kpis-modal"
     >
-      <div className="mb-4 mt-2 hidden sm:block">
+      <div
+        className="mb-4 mt-2 hidden sm:block"
+        data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-4"
+      >
         <Steps
           current={current}
           progressDot
@@ -328,12 +332,21 @@ export default function AssignIndividualKpisModal({
         />
       </div>
 
-      <div className="mt-2">
+      <div
+        className="mt-2"
+        data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-5"
+      >
         {current === 0 && (
           <>
             {needsPersonPick ? (
-              <div className="mb-4">
-                <p className="mb-2 text-[13px] font-semibold text-[#262626]">
+              <div
+                className="mb-4"
+                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-6"
+              >
+                <p
+                  className="mb-2 text-[13px] font-semibold text-[#262626]"
+                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-7"
+                >
                   Person
                 </p>
                 <Select
@@ -357,16 +370,25 @@ export default function AssignIndividualKpisModal({
               </div>
             ) : null}
 
-            <p className="mb-1 text-[13px] font-semibold text-[#262626]">
+            <p
+              className="mb-1 text-[13px] font-semibold text-[#262626]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-8"
+            >
               KPIs by perspective
             </p>
-            <p className="mb-4 text-[12px] text-[#8F94A3]">
+            <p
+              className="mb-4 text-[12px] text-[#8F94A3]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-9"
+            >
               Expand each perspective and select the KPIs to append for this
               person only. Weights are assigned in the next step.
             </p>
 
             {activeScorecard ? (
-              <div className="mb-4 flex flex-wrap items-center gap-2">
+              <div
+                className="mb-4 flex flex-wrap items-center gap-2"
+                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-10"
+              >
                 <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                   {
                     activeScorecard.targets.filter(
@@ -387,11 +409,17 @@ export default function AssignIndividualKpisModal({
             ) : null}
 
             {!activeScorecard ? (
-              <p className="text-[13px] text-[#94A3B8]">
+              <p
+                className="text-[13px] text-[#94A3B8]"
+                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-11"
+              >
                 Select a person to choose KPIs.
               </p>
             ) : !perspectives.length ? (
-              <p className="text-[13px] text-[#94A3B8]">
+              <p
+                className="text-[13px] text-[#94A3B8]"
+                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-12"
+              >
                 No additional catalog KPIs available for this person.
               </p>
             ) : (
@@ -410,23 +438,36 @@ export default function AssignIndividualKpisModal({
                     <Collapse.Panel
                       key={perspective}
                       header={
-                        <div className="flex items-center justify-between gap-3 pr-2">
-                          <span className="text-[14px] font-semibold text-[#262626]">
+                        <div
+                          className="flex items-center justify-between gap-3 pr-2"
+                          data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-13"
+                        >
+                          <span
+                            className="text-[14px] font-semibold text-[#262626]"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-14"
+                          >
                             {perspective}
                           </span>
-                          <span className="text-[11px] font-normal text-[#8F94A3]">
+                          <span
+                            className="text-[11px] font-normal text-[#8F94A3]"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-15"
+                          >
                             {selectedCount} of {kpis.length} selected
                           </span>
                         </div>
                       }
                     >
-                      <div className="flex flex-col gap-2">
+                      <div
+                        className="flex flex-col gap-2"
+                        data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-16"
+                      >
                         {kpis.map((kpi) => {
                           const checked = selectedIds.includes(kpi.id);
                           return (
                             <div
                               key={kpi.id}
                               className="rounded-lg bg-[#F9FAFB] px-3 py-2"
+                              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-17"
                             >
                               <Checkbox
                                 checked={checked}
@@ -434,10 +475,16 @@ export default function AssignIndividualKpisModal({
                                   handleToggle(kpi, e.target.checked)
                                 }
                               >
-                                <span className="text-[13px] font-medium text-[#262626]">
+                                <span
+                                  className="text-[13px] font-medium text-[#262626]"
+                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-18"
+                                >
                                   {kpi.name}
                                 </span>
-                                <span className="ml-2 text-[11px] text-[#8F94A3]">
+                                <span
+                                  className="ml-2 text-[11px] text-[#8F94A3]"
+                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-19"
+                                >
                                   {kpi.measurementUnit}
                                 </span>
                               </Checkbox>
@@ -455,32 +502,50 @@ export default function AssignIndividualKpisModal({
 
         {current === 1 && (
           <>
-            <p className="mb-1 text-[13px] font-semibold text-[#262626]">
+            <p
+              className="mb-1 text-[13px] font-semibold text-[#262626]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-20"
+            >
               Weights & targets
             </p>
-            <p className="mb-4 text-[12px] text-[#8F94A3]">
+            <p
+              className="mb-4 text-[12px] text-[#8F94A3]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-21"
+            >
               Set every KPI weight for {activeScorecard?.userName} only (sum
-              100%). New KPI weights start empty — lower shared weights as needed
-              so the total still adds to 100%.
+              100%). New KPI weights start empty — lower shared weights as
+              needed so the total still adds to 100%.
             </p>
 
-            <div className="mb-3 flex flex-wrap items-center gap-2 text-[12px]">
+            <div
+              className="mb-3 flex flex-wrap items-center gap-2 text-[12px]"
+              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-22"
+            >
               <span
                 className={
                   Math.abs(weightSum - 100) <= 0.01
                     ? 'text-[#389E0D]'
                     : 'text-[#CF1322]'
                 }
+                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-23"
               >
                 Total {Math.round(weightSum * 100) / 100}%
               </span>
               {!weightCheck.valid && weightSum > 0 ? (
-                <span className="text-[#CF1322]">{weightCheck.message}</span>
+                <span
+                  className="text-[#CF1322]"
+                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-24"
+                >
+                  {weightCheck.message}
+                </span>
               ) : null}
             </div>
 
             {!weightRowsByPerspective.length ? (
-              <p className="text-[13px] text-[#94A3B8]">
+              <p
+                className="text-[13px] text-[#94A3B8]"
+                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-25"
+              >
                 No KPIs selected. Go back and select KPIs first.
               </p>
             ) : (
@@ -497,31 +562,57 @@ export default function AssignIndividualKpisModal({
                     <div
                       key={perspective}
                       className="rounded-xl border border-[#E5E7EB] p-4"
+                      data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-26"
                     >
-                      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                        <p className="m-0 text-[14px] font-semibold text-[#262626]">
+                      <div
+                        className="mb-3 flex flex-wrap items-center justify-between gap-3"
+                        data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-27"
+                      >
+                        <p
+                          className="m-0 text-[14px] font-semibold text-[#262626]"
+                          data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-28"
+                        >
                           {perspective}
-                          <span className="ml-2 text-[11px] font-normal text-[#8F94A3]">
+                          <span
+                            className="ml-2 text-[11px] font-normal text-[#8F94A3]"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-29"
+                          >
                             {rows.length} KPI{rows.length === 1 ? '' : 's'}
                           </span>
                         </p>
-                        <span className="text-[12px] text-[#595959]">
+                        <span
+                          className="text-[12px] text-[#595959]"
+                          data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-30"
+                        >
                           {Math.round(allocated * 100) / 100}%
                         </span>
                       </div>
 
-                      <div className="flex flex-col gap-3">
+                      <div
+                        className="flex flex-col gap-3"
+                        data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-31"
+                      >
                         {rows.map((row) => (
                           <div
                             key={row.key}
                             className="rounded-lg bg-[#F9FAFB] px-3 py-3"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-32"
                           >
-                            <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-                              <div>
-                                <p className="m-0 text-[13px] font-medium text-[#262626]">
+                            <div
+                              className="mb-2 flex flex-wrap items-start justify-between gap-2"
+                              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-33"
+                            >
+                              <div data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-34">
+                                <p
+                                  className="m-0 text-[13px] font-medium text-[#262626]"
+                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-35"
+                                >
                                   {row.name}
                                 </p>
-                                <div className="mt-1 flex flex-wrap gap-1">
+                                <div
+                                  className="mt-1 flex flex-wrap gap-1"
+                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-36"
+                                >
                                   <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                                     {row.source === 'individual'
                                       ? 'Individual'
@@ -533,14 +624,23 @@ export default function AssignIndividualKpisModal({
                                     </Tag>
                                   ) : null}
                                   {row.measurementUnit ? (
-                                    <span className="text-[11px] text-[#8F94A3]">
+                                    <span
+                                      className="text-[11px] text-[#8F94A3]"
+                                      data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-37"
+                                    >
                                       {row.measurementUnit}
                                     </span>
                                   ) : null}
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[11px] text-[#595959]">
+                              <div
+                                className="flex items-center gap-2"
+                                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-38"
+                              >
+                                <span
+                                  className="text-[11px] text-[#595959]"
+                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-39"
+                                >
                                   Weight %
                                 </span>
                                 <InputNumber
@@ -567,9 +667,18 @@ export default function AssignIndividualKpisModal({
                             </div>
 
                             {row.kind === 'new' ? (
-                              <div className="flex flex-wrap gap-3">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[11px] text-[#595959]">
+                              <div
+                                className="flex flex-wrap gap-3"
+                                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-40"
+                              >
+                                <div
+                                  className="flex items-center gap-2"
+                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-41"
+                                >
+                                  <span
+                                    className="text-[11px] text-[#595959]"
+                                    data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-42"
+                                  >
                                     Target
                                   </span>
                                   <InputNumber
@@ -579,9 +688,7 @@ export default function AssignIndividualKpisModal({
                                         ? String(row.defaultTarget)
                                         : 'Enter target'
                                     }
-                                    value={
-                                      measureTargets[row.key] ?? undefined
-                                    }
+                                    value={measureTargets[row.key] ?? undefined}
                                     onChange={(value) =>
                                       setMeasureTargets((prev) => ({
                                         ...prev,
@@ -594,7 +701,10 @@ export default function AssignIndividualKpisModal({
                                 </div>
                               </div>
                             ) : row.existingTarget != null ? (
-                              <p className="m-0 text-[11px] text-[#8F94A3]">
+                              <p
+                                className="m-0 text-[11px] text-[#8F94A3]"
+                                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-43"
+                              >
                                 Target {row.existingTarget}
                               </p>
                             ) : null}
@@ -609,7 +719,10 @@ export default function AssignIndividualKpisModal({
           </>
         )}
 
-        <div className="mt-6 flex justify-between gap-3">
+        <div
+          className="mt-6 flex justify-between gap-3"
+          data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-44"
+        >
           <CustomButton
             type="default"
             title={current === 0 ? 'Cancel' : 'Back'}

@@ -18,6 +18,11 @@ export default function LegacyBscScorecardDetailRedirect() {
   }, [configId, router]);
 
   return (
-    <div className="py-16 text-center text-gray-400">Redirecting…</div>
+    <div
+      className="py-16 text-center text-gray-400"
+      data-cy="-okrplanning-okr-settings-bsc-setup-configid-page-div-1"
+    >
+      Redirecting…
+    </div>
   );
 }

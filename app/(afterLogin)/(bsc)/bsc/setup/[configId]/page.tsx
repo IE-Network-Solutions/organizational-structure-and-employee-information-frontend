@@ -48,9 +48,22 @@ function targetLogicLabel(logic?: TargetLogic): string {
 
 function InfoChip({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-3">
-      <p className="m-0 text-[11px] font-normal text-[#8c8c8c]">{label}</p>
-      <p className="m-0 mt-1 text-[14px] font-semibold text-[#262626]">{value}</p>
+    <div
+      className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-3"
+      data-cy="-bsc-bsc-setup-configid-page-div-1"
+    >
+      <p
+        className="m-0 text-[11px] font-normal text-[#8c8c8c]"
+        data-cy="-bsc-bsc-setup-configid-page-p-2"
+      >
+        {label}
+      </p>
+      <p
+        className="m-0 mt-1 text-[14px] font-semibold text-[#262626]"
+        data-cy="-bsc-bsc-setup-configid-page-p-3"
+      >
+        {value}
+      </p>
     </div>
   );
 }
@@ -67,15 +80,22 @@ function SectionCard({
   'data-cy'?: string;
 }) {
   return (
-    <section
-      className="rounded-[12px] bg-[#F9FAFB] p-5"
-      data-cy={dataCy}
-    >
-      <h2 className="mb-1 text-[15px] font-semibold text-[#262626]">{title}</h2>
+    <section className="rounded-[12px] bg-[#F9FAFB] p-5" data-cy={dataCy}>
+      <h2
+        className="mb-1 text-[15px] font-semibold text-[#262626]"
+        data-cy="-bsc-bsc-setup-configid-page-h2-4"
+      >
+        {title}
+      </h2>
       {description ? (
-        <p className="mb-4 text-[12px] text-[#8F94A3]">{description}</p>
+        <p
+          className="mb-4 text-[12px] text-[#8F94A3]"
+          data-cy="-bsc-bsc-setup-configid-page-p-5"
+        >
+          {description}
+        </p>
       ) : (
-        <div className="mb-3" />
+        <div className="mb-3" data-cy="-bsc-bsc-setup-configid-page-div-6" />
       )}
       {children}
     </section>
@@ -90,14 +110,25 @@ function ChipList({
   emptyText: string;
 }) {
   if (!items.length) {
-    return <p className="m-0 text-[13px] text-[#94A3B8]">{emptyText}</p>;
+    return (
+      <p
+        className="m-0 text-[13px] text-[#94A3B8]"
+        data-cy="-bsc-bsc-setup-configid-page-p-7"
+      >
+        {emptyText}
+      </p>
+    );
   }
   return (
-    <div className="flex flex-wrap gap-2">
+    <div
+      className="flex flex-wrap gap-2"
+      data-cy="-bsc-bsc-setup-configid-page-div-8"
+    >
       {items.map((item) => (
         <span
           key={item}
           className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
+          data-cy="-bsc-bsc-setup-configid-page-span-9"
         >
           {item}
         </span>
@@ -106,11 +137,7 @@ function ChipList({
   );
 }
 
-function MetaTag({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function MetaTag({ children }: { children: React.ReactNode }) {
   return (
     <Tag className="m-0 rounded-md border border-[#d9d9d9] bg-[#fafafa] px-3 py-0.5 text-xs font-normal text-[#595959]">
       {children}
@@ -228,10 +255,13 @@ export default function BscScorecardDetailPage() {
           description="Scorecard not found"
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         >
-          <Button type="primary" onClick={() => {
-            setScorecardTab('bsc');
-            router.push('/bsc/my-scorecard');
-          }}>
+          <Button
+            type="primary"
+            onClick={() => {
+              setScorecardTab('bsc');
+              router.push('/bsc/my-scorecard');
+            }}
+          >
             Back to BSC
           </Button>
         </Empty>
@@ -241,23 +271,35 @@ export default function BscScorecardDetailPage() {
 
   return (
     <div className="w-full" data-cy="bsc-scorecard-detail-page">
-      <div className="rounded-xl bg-white px-6 py-5 sm:px-8 sm:py-6">
-        <div className="mb-6">
+      <div
+        className="rounded-xl bg-white px-6 py-5 sm:px-8 sm:py-6"
+        data-cy="-bsc-bsc-setup-configid-page-div-10"
+      >
+        <div className="mb-6" data-cy="-bsc-bsc-setup-configid-page-div-11">
           <button
             type="button"
             className="mb-3 inline-flex items-center gap-1 border-none bg-transparent p-0 text-[13px] text-[#595959] cursor-pointer hover:text-[#2b54ad]"
             onClick={() => {
-            setScorecardTab('bsc');
-            router.push('/bsc/my-scorecard');
-          }}
+              setScorecardTab('bsc');
+              router.push('/bsc/my-scorecard');
+            }}
             data-cy="bsc-scorecard-detail-back"
           >
             <LeftOutlined className="text-[11px]" />
             Back to scorecards
           </button>
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <h1 className="m-0 text-xl font-bold text-[#262626]">
+          <div
+            className="flex flex-wrap items-center justify-between gap-2"
+            data-cy="-bsc-bsc-setup-configid-page-div-12"
+          >
+            <div
+              className="flex min-w-0 flex-wrap items-center gap-2"
+              data-cy="-bsc-bsc-setup-configid-page-div-13"
+            >
+              <h1
+                className="m-0 text-xl font-bold text-[#262626]"
+                data-cy="-bsc-bsc-setup-configid-page-h1-14"
+              >
                 {config.label}
               </h1>
               <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
@@ -277,24 +319,37 @@ export default function BscScorecardDetailPage() {
             />
           </div>
           {config.description ? (
-            <p className="m-0 mt-2 max-w-3xl text-[13px] text-[#8F94A3]">
+            <p
+              className="m-0 mt-2 max-w-3xl text-[13px] text-[#8F94A3]"
+              data-cy="-bsc-bsc-setup-configid-page-p-15"
+            >
               {config.description}
             </p>
           ) : null}
         </div>
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:gap-5">
-          <div className="flex flex-col gap-5 lg:col-span-5">
+        <div
+          className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:gap-5"
+          data-cy="-bsc-bsc-setup-configid-page-div-16"
+        >
+          <div
+            className="flex flex-col gap-5 lg:col-span-5"
+            data-cy="-bsc-bsc-setup-configid-page-div-17"
+          >
             <SectionCard
-              title={
-                isPermanentSetup(config) ? 'Active period' : 'Overview'
-              }
+              title={isPermanentSetup(config) ? 'Active period' : 'Overview'}
               data-cy="bsc-scorecard-detail-overview"
             >
               {isPermanentSetup(config) ? (
-                <InfoChip label="Current period" value={activePeriodLabel(config)} />
+                <InfoChip
+                  label="Current period"
+                  value={activePeriodLabel(config)}
+                />
               ) : (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div
+                  className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                  data-cy="-bsc-bsc-setup-configid-page-div-18"
+                >
                   <InfoChip
                     label="Period"
                     value={(config.periodLabels || [])[0] || '—'}
@@ -312,9 +367,15 @@ export default function BscScorecardDetailPage() {
               description="Who this scorecard is assigned to."
               data-cy="bsc-scorecard-detail-scope"
             >
-              <div className="flex flex-col gap-4">
-                <div>
-                  <p className="mb-2 text-[13px] font-semibold text-[#262626]">
+              <div
+                className="flex flex-col gap-4"
+                data-cy="-bsc-bsc-setup-configid-page-div-19"
+              >
+                <div data-cy="-bsc-bsc-setup-configid-page-div-20">
+                  <p
+                    className="mb-2 text-[13px] font-semibold text-[#262626]"
+                    data-cy="-bsc-bsc-setup-configid-page-p-21"
+                  >
                     Departments
                   </p>
                   <ChipList
@@ -322,8 +383,11 @@ export default function BscScorecardDetailPage() {
                     emptyText="No departments assigned"
                   />
                 </div>
-                <div>
-                  <p className="mb-2 text-[13px] font-semibold text-[#262626]">
+                <div data-cy="-bsc-bsc-setup-configid-page-div-22">
+                  <p
+                    className="mb-2 text-[13px] font-semibold text-[#262626]"
+                    data-cy="-bsc-bsc-setup-configid-page-p-23"
+                  >
                     Roles
                   </p>
                   <ChipList
@@ -331,8 +395,11 @@ export default function BscScorecardDetailPage() {
                     emptyText="No roles assigned"
                   />
                 </div>
-                <div>
-                  <p className="mb-2 text-[13px] font-semibold text-[#262626]">
+                <div data-cy="-bsc-bsc-setup-configid-page-div-24">
+                  <p
+                    className="mb-2 text-[13px] font-semibold text-[#262626]"
+                    data-cy="-bsc-bsc-setup-configid-page-p-25"
+                  >
                     Individuals
                   </p>
                   <ChipList
@@ -349,13 +416,19 @@ export default function BscScorecardDetailPage() {
               data-cy="bsc-scorecard-detail-people"
             >
               {!people.length ? (
-                <p className="m-0 text-[13px] text-[#94A3B8]">
+                <p
+                  className="m-0 text-[13px] text-[#94A3B8]"
+                  data-cy="-bsc-bsc-setup-configid-page-p-26"
+                >
                   No employee scorecards for this program yet. Assign by
                   individual in Edit, or wait until role cascade creates
                   scorecards.
                 </p>
               ) : (
-                <div className="flex flex-col gap-2">
+                <div
+                  className="flex flex-col gap-2"
+                  data-cy="-bsc-bsc-setup-configid-page-div-27"
+                >
                   {people.map((person) => {
                     const sharedCount = person.targets.filter(
                       (t) => (t.assignmentSource || 'shared') === 'shared',
@@ -373,22 +446,37 @@ export default function BscScorecardDetailPage() {
                         }
                         className={`rounded-[6px] border px-3 py-3 ${
                           focusPersonId && person.userId === focusPersonId
-                            ? 'border-[#1677ff] bg-[#e6f4ff] ring-2 ring-[#91caff]/
+                            ? 'border-[#1677ff] bg-[#e6f4ff] ring-2 ring-[#91caff]'
                             : 'border-[#d9d9d9] bg-[#fafafa]'
                         }`}
                         data-cy={`bsc-scorecard-person-${person.id}`}
                       >
-                        <div className="flex flex-wrap items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="m-0 text-[13px] font-semibold text-[#262626]">
+                        <div
+                          className="flex flex-wrap items-start justify-between gap-3"
+                          data-cy="-bsc-bsc-setup-configid-page-div-28"
+                        >
+                          <div
+                            className="min-w-0"
+                            data-cy="-bsc-bsc-setup-configid-page-div-29"
+                          >
+                            <p
+                              className="m-0 text-[13px] font-semibold text-[#262626]"
+                              data-cy="-bsc-bsc-setup-configid-page-p-30"
+                            >
                               {person.userName}
                             </p>
-                            <p className="m-0 mt-0.5 text-[11px] text-[#8F94A3]">
+                            <p
+                              className="m-0 mt-0.5 text-[11px] text-[#8F94A3]"
+                              data-cy="-bsc-bsc-setup-configid-page-p-31"
+                            >
                               {[person.positionTitle, person.departmentName]
                                 .filter(Boolean)
                                 .join(' · ') || '—'}
                             </p>
-                            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                            <div
+                              className="mt-2 flex flex-wrap items-center gap-1.5"
+                              data-cy="-bsc-bsc-setup-configid-page-div-32"
+                            >
                               <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                                 {sharedCount} shared
                               </Tag>
@@ -409,17 +497,30 @@ export default function BscScorecardDetailPage() {
                           </Button>
                         </div>
                         {individualTargets.length ? (
-                          <div className="mt-3 flex flex-col gap-1.5 border-t border-[#e5e7eb] pt-3">
+                          <div
+                            className="mt-3 flex flex-col gap-1.5 border-t border-[#e5e7eb] pt-3"
+                            data-cy="-bsc-bsc-setup-configid-page-div-33"
+                          >
                             {individualTargets.map((target) => (
                               <div
                                 key={target.id}
                                 className="flex flex-wrap items-center justify-between gap-2 rounded border border-[#d9d9d9] bg-white px-2.5 py-2"
+                                data-cy="-bsc-bsc-setup-configid-page-div-34"
                               >
-                                <div className="min-w-0">
-                                  <p className="m-0 text-[12px] font-medium text-[#262626]">
+                                <div
+                                  className="min-w-0"
+                                  data-cy="-bsc-bsc-setup-configid-page-div-35"
+                                >
+                                  <p
+                                    className="m-0 text-[12px] font-medium text-[#262626]"
+                                    data-cy="-bsc-bsc-setup-configid-page-p-36"
+                                  >
                                     {target.kpiName}
                                   </p>
-                                  <p className="m-0 text-[11px] text-[#8F94A3]">
+                                  <p
+                                    className="m-0 text-[11px] text-[#8F94A3]"
+                                    data-cy="-bsc-bsc-setup-configid-page-p-37"
+                                  >
                                     {target.perspective} · Weight{' '}
                                     {target.weightPercentage}% · Target{' '}
                                     {target.targetValue}
@@ -452,14 +553,20 @@ export default function BscScorecardDetailPage() {
             </SectionCard>
           </div>
 
-          <div className="lg:col-span-7">
+          <div
+            className="lg:col-span-7"
+            data-cy="-bsc-bsc-setup-configid-page-div-38"
+          >
             <SectionCard
               title="Linked perspectives & KPIs"
               description="KPIs under each perspective, with weight and target details."
               data-cy="bsc-scorecard-detail-perspectives"
             >
               {!perspectives.length ? (
-                <div className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-4 py-10 text-center text-[13px] text-[#94A3B8]">
+                <div
+                  className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-4 py-10 text-center text-[13px] text-[#94A3B8]"
+                  data-cy="-bsc-bsc-setup-configid-page-div-39"
+                >
                   No perspectives or KPIs linked yet.
                 </div>
               ) : (
@@ -478,12 +585,24 @@ export default function BscScorecardDetailPage() {
                       <Collapse.Panel
                         key={perspective}
                         header={
-                          <div className="flex flex-wrap items-center justify-between gap-3 pr-2">
-                            <span className="text-[14px] font-semibold text-[#262626]">
+                          <div
+                            className="flex flex-wrap items-center justify-between gap-3 pr-2"
+                            data-cy="-bsc-bsc-setup-configid-page-div-40"
+                          >
+                            <span
+                              className="text-[14px] font-semibold text-[#262626]"
+                              data-cy="-bsc-bsc-setup-configid-page-span-41"
+                            >
                               {perspective}
                             </span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[11px] font-normal text-[#8F94A3]">
+                            <div
+                              className="flex items-center gap-2"
+                              data-cy="-bsc-bsc-setup-configid-page-div-42"
+                            >
+                              <span
+                                className="text-[11px] font-normal text-[#8F94A3]"
+                                data-cy="-bsc-bsc-setup-configid-page-span-43"
+                              >
                                 {perspectiveKpis.length} KPI
                                 {perspectiveKpis.length === 1 ? '' : 's'}
                               </span>
@@ -495,23 +614,41 @@ export default function BscScorecardDetailPage() {
                         }
                       >
                         {!perspectiveKpis.length ? (
-                          <p className="m-0 text-[12px] text-[#94A3B8]">
+                          <p
+                            className="m-0 text-[12px] text-[#94A3B8]"
+                            data-cy="-bsc-bsc-setup-configid-page-p-44"
+                          >
                             No KPIs linked under this perspective.
                           </p>
                         ) : (
-                          <div className="flex max-h-[70vh] flex-col gap-2 overflow-y-auto pr-1">
+                          <div
+                            className="flex max-h-[70vh] flex-col gap-2 overflow-y-auto pr-1"
+                            data-cy="-bsc-bsc-setup-configid-page-div-45"
+                          >
                             {perspectiveKpis.map((kpi) => (
                               <div
                                 key={kpi.id}
                                 className="rounded-[6px] border border-[#d9d9d9] bg-white px-3 py-3"
                                 data-cy={`bsc-scorecard-detail-kpi-${kpi.id}`}
                               >
-                                <div className="flex flex-wrap items-start justify-between gap-3">
-                                  <div className="min-w-0 flex-1">
-                                    <p className="m-0 text-[13px] font-medium text-[#262626]">
+                                <div
+                                  className="flex flex-wrap items-start justify-between gap-3"
+                                  data-cy="-bsc-bsc-setup-configid-page-div-46"
+                                >
+                                  <div
+                                    className="min-w-0 flex-1"
+                                    data-cy="-bsc-bsc-setup-configid-page-div-47"
+                                  >
+                                    <p
+                                      className="m-0 text-[13px] font-medium text-[#262626]"
+                                      data-cy="-bsc-bsc-setup-configid-page-p-48"
+                                    >
                                       {kpi.name}
                                     </p>
-                                    <p className="m-0 mt-1 text-[11px] text-[#8F94A3]">
+                                    <p
+                                      className="m-0 mt-1 text-[11px] text-[#8F94A3]"
+                                      data-cy="-bsc-bsc-setup-configid-page-p-49"
+                                    >
                                       {kpi.measurementUnit} ·{' '}
                                       {targetLogicLabel(kpi.targetLogic)}
                                       {kpi.positionTitle
@@ -522,12 +659,18 @@ export default function BscScorecardDetailPage() {
                                         : ''}
                                     </p>
                                     {kpi.description ? (
-                                      <p className="m-0 mt-1 text-[12px] text-[#595959]">
+                                      <p
+                                        className="m-0 mt-1 text-[12px] text-[#595959]"
+                                        data-cy="-bsc-bsc-setup-configid-page-p-50"
+                                      >
                                         {kpi.description}
                                       </p>
                                     ) : null}
                                   </div>
-                                  <div className="flex flex-wrap gap-2">
+                                  <div
+                                    className="flex flex-wrap gap-2"
+                                    data-cy="-bsc-bsc-setup-configid-page-div-51"
+                                  >
                                     <MetaTag>Weight {kpi.weight}%</MetaTag>
                                     {kpi.defaultTarget != null ? (
                                       <MetaTag>

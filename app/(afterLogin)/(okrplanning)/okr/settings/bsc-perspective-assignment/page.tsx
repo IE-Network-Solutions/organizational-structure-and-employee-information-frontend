@@ -97,9 +97,7 @@ export default function BscPerspectiveAssignmentPage() {
                   ? 'Pick any organizational role and assign catalog perspectives with weights.'
                   : 'Create a BSC first, then assign perspectives to any role.'
               }
-              actionText={
-                configs?.length ? 'Assign to a role' : 'Go to BSC'
-              }
+              actionText={configs?.length ? 'Assign to a role' : 'Go to BSC'}
               onAction={() =>
                 configs?.length
                   ? openAssignPerspectives()

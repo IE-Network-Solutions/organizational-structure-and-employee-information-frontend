@@ -153,70 +153,149 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
 
   const columns: ColumnsType<ScorecardKpiTarget> = [
     {
-      title: <span className={tableHeaderClassName}>KPI</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-1"
+        >
+          KPI
+        </span>
+      ),
       dataIndex: 'kpiName',
       key: 'kpiName',
       render: (name: string, row) => (
-        <div className="flex flex-col gap-1">
-          <span className={tableCellClassName}>{name}</span>
-          <div className="flex flex-wrap items-center gap-1.5">
+        <div
+          className="flex flex-col gap-1"
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-div-2"
+        >
+          <span
+            className={tableCellClassName}
+            data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-3"
+          >
+            {name}
+          </span>
+          <div
+            className="flex flex-wrap items-center gap-1.5"
+            data-cy="-bsc-bsc-my-scorecard-teamkpireview-div-4"
+          >
             {row.assignmentSource === 'individual' ? (
               <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                 Individual
               </Tag>
             ) : null}
-            <span className="text-xs text-gray-500">{row.perspective}</span>
+            <span
+              className="text-xs text-gray-500"
+              data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-5"
+            >
+              {row.perspective}
+            </span>
           </div>
         </div>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Direction</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-6"
+        >
+          Direction
+        </span>
+      ),
       dataIndex: 'targetLogic',
       key: 'targetLogic',
       width: 140,
       render: (logic: TargetLogic) => (
-        <span className={tableCellClassName}>{targetLogicLabel(logic)}</span>
+        <span
+          className={tableCellClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-7"
+        >
+          {targetLogicLabel(logic)}
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Weight</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-8"
+        >
+          Weight
+        </span>
+      ),
       dataIndex: 'weightPercentage',
       key: 'weightPercentage',
       width: 90,
       render: (weight: number) => (
-        <span className={tableCellClassName}>{weight}%</span>
+        <span
+          className={tableCellClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-9"
+        >
+          {weight}%
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Target</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-10"
+        >
+          Target
+        </span>
+      ),
       dataIndex: 'targetValue',
       key: 'targetValue',
       width: 100,
       render: (value: number) => (
-        <span className={tableCellClassName}>
+        <span
+          className={tableCellClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-11"
+        >
           {value == null ? '—' : String(value)}
         </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Metric</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-12"
+        >
+          Metric
+        </span>
+      ),
       dataIndex: 'measurementUnit',
       key: 'measurementUnit',
       width: 120,
       render: (unit: string) => (
-        <span className={tableCellClassName}>{unit?.trim() || '—'}</span>
+        <span
+          className={tableCellClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-13"
+        >
+          {unit?.trim() || '—'}
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Actual</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-14"
+        >
+          Actual
+        </span>
+      ),
       key: 'actual',
       width: 120,
-      render: (_unused: unknown, row: ScorecardKpiTarget) => {
+      render: (unused: unknown, row: ScorecardKpiTarget) => {
         const value = drafts[row.id] ?? row.actualValue;
         if (!canReview) {
           return (
-            <span className={tableCellClassName}>
+            <span
+              className={tableCellClassName}
+              data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-15"
+            >
               {value == null ? '—' : String(value)}
             </span>
           );
@@ -248,7 +327,14 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
       },
     },
     {
-      title: <span className={tableHeaderClassName}>Status</span>,
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-16"
+        >
+          Status
+        </span>
+      ),
       dataIndex: 'approvalStatus',
       key: 'approvalStatus',
       width: 110,

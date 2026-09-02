@@ -485,7 +485,6 @@ function seedEvaluationConfig(): EvaluationCycle {
   const year = d.getFullYear();
   const month = d.getMonth() + 1;
   const start = new Date(year, month - 1, 1);
-  const end = new Date(year, month, 0);
   const label = start.toLocaleString('en-US', {
     month: 'long',
     year: 'numeric',
@@ -493,7 +492,8 @@ function seedEvaluationConfig(): EvaluationCycle {
   return {
     id: 'config-seed-current',
     label: 'Enterprise Non-Financial Scorecard',
-    description: 'Cascade customer, process, and learning outcomes across core roles.',
+    description:
+      'Cascade customer, process, and learning outcomes across core roles.',
     status: CycleStatus.Open,
     cadence: BscCadence.Monthly,
     setupKind: BscSetupKind.Permanent,
@@ -550,7 +550,8 @@ export const SEED_CYCLES: EvaluationCycle[] = [
     return {
       id: 'config-seed-quarterly',
       label: 'HR Q Scorecard',
-      description: 'Temporary quarterly HR cascade for director-level outcomes.',
+      description:
+        'Temporary quarterly HR cascade for director-level outcomes.',
       status: CycleStatus.Open,
       cadence: BscCadence.Quarterly,
       setupKind: BscSetupKind.Temporary,
@@ -811,18 +812,24 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
 ].map((sc) => {
   // Demo: Alex Morgan has one person-only KPI on the current scorecard
   if (sc.id !== 'sc-demo-current') return sc;
-  const sharedScaled = sc.targets.map((t, index, all) => {
+  const sharedScaled = sc.targets.map((t) => {
     const scaled = Math.round(t.weightPercentage * 0.8 * 100) / 100;
-    return { ...t, weightPercentage: scaled, assignmentSource: 'shared' as const };
+    return {
+      ...t,
+      weightPercentage: scaled,
+      assignmentSource: 'shared' as const,
+    };
   });
   const sharedSum = sharedScaled.reduce((s, t) => s + t.weightPercentage, 0);
   if (sharedScaled.length) {
     sharedScaled[sharedScaled.length - 1] = {
       ...sharedScaled[sharedScaled.length - 1],
       weightPercentage:
-        Math.round((sharedScaled[sharedScaled.length - 1].weightPercentage +
-          (80 - sharedSum)) *
-          100) / 100,
+        Math.round(
+          (sharedScaled[sharedScaled.length - 1].weightPercentage +
+            (80 - sharedSum)) *
+            100,
+        ) / 100,
     };
   }
   const taKpi = SEED_KPI_LIBRARY.find((k) => k.id === 'kpi-ta-hm-sat');

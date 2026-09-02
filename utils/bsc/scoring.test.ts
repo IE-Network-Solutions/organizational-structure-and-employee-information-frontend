@@ -76,9 +76,7 @@ describe('bsc scoring', () => {
       ],
     );
     expect(invalid.valid).toBe(false);
-    expect(
-      validateWeights([100], [BscPerspective.Customer]).valid,
-    ).toBe(true);
+    expect(validateWeights([100], [BscPerspective.Customer]).valid).toBe(true);
   });
 
   it('accepts balanced weights', () => {

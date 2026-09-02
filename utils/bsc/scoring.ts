@@ -315,7 +315,7 @@ export function rebalanceSharedWeightsForAppend(
   const scaled = existingWeights.map((weight, index) => {
     const source = existingSources[index] || 'shared';
     if (source !== 'shared') return weight;
-    return Math.round(((weight / sharedSum) * finalSharedBudget) * 100) / 100;
+    return Math.round((weight / sharedSum) * finalSharedBudget * 100) / 100;
   });
 
   // Fix rounding drift on the last shared KPI

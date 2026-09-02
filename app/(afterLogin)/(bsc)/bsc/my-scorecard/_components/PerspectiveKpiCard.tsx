@@ -276,19 +276,34 @@ export default function PerspectiveKpiCard({
               </th>
               {reportingOpen ? (
                 <>
-                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider whitespace-nowrap sm:px-6 sm:py-3">
+                  <th
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider whitespace-nowrap sm:px-6 sm:py-3"
+                    data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-th-1"
+                  >
                     Direction
                   </th>
-                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[90px] whitespace-nowrap sm:px-6 sm:py-3">
+                  <th
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[90px] whitespace-nowrap sm:px-6 sm:py-3"
+                    data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-th-2"
+                  >
                     Weight
                   </th>
-                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[100px] whitespace-nowrap sm:px-6 sm:py-3">
+                  <th
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[100px] whitespace-nowrap sm:px-6 sm:py-3"
+                    data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-th-3"
+                  >
                     Target
                   </th>
-                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[120px] whitespace-nowrap sm:px-6 sm:py-3">
+                  <th
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[120px] whitespace-nowrap sm:px-6 sm:py-3"
+                    data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-th-4"
+                  >
                     Metric
                   </th>
-                  <th className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[130px] whitespace-nowrap sm:px-6 sm:py-3">
+                  <th
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[130px] whitespace-nowrap sm:px-6 sm:py-3"
+                    data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-th-5"
+                  >
                     Actual
                   </th>
                 </>
@@ -334,7 +349,9 @@ export default function PerspectiveKpiCard({
               kpis.map((kpi) => {
                 const key = draftKey(kpi);
                 const actual =
-                  drafts[key] !== undefined ? drafts[key] : kpi.actual ?? null;
+                  drafts[key] !== undefined
+                    ? drafts[key]
+                    : (kpi.actual ?? null);
                 const barPct = reportingOpen
                   ? progressFromActual(actual, kpi.target, kpi.targetLogic)
                   : kpi.progress;
@@ -356,7 +373,10 @@ export default function PerspectiveKpiCard({
                         <span data-cy="bsc-my-scorecard-components-perspectivekpicard-tsx-perspectivekpicard-span-301">
                           {kpi.name}
                         </span>
-                        <div className="flex flex-wrap items-center gap-1.5">
+                        <div
+                          className="flex flex-wrap items-center gap-1.5"
+                          data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-div-6"
+                        >
                           {kpi.assignmentSource === 'individual' ? (
                             <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                               Individual
@@ -375,19 +395,34 @@ export default function PerspectiveKpiCard({
                     </td>
                     {reportingOpen ? (
                       <>
-                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4">
+                        <td
+                          className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
+                          data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-td-7"
+                        >
                           {targetLogicLabel(kpi.targetLogic)}
                         </td>
-                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4">
+                        <td
+                          className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
+                          data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-td-8"
+                        >
                           {kpi.weight}%
                         </td>
-                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4">
+                        <td
+                          className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
+                          data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-td-9"
+                        >
                           {formatTarget(kpi)}
                         </td>
-                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4">
+                        <td
+                          className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
+                          data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-td-10"
+                        >
                           {formatMetric(kpi)}
                         </td>
-                        <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4">
+                        <td
+                          className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
+                          data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-td-11"
+                        >
                           {editable ? (
                             <Input
                               className="!w-[110px] h-8 text-sm"
@@ -419,7 +454,9 @@ export default function PerspectiveKpiCard({
                               data-cy={`bsc-my-scorecard-actual-${kpi.id}`}
                             />
                           ) : (
-                            <span>{actual == null ? '—' : String(actual)}</span>
+                            <span data-cy="-bsc-bsc-my-scorecard-perspectivekpicard-span-12">
+                              {actual == null ? '—' : String(actual)}
+                            </span>
                           )}
                         </td>
                       </>

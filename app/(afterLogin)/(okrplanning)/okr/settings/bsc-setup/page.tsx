@@ -15,7 +15,10 @@ export default function BscSetupRedirectPage() {
   }, [router, setScorecardTab]);
 
   return (
-    <div className="py-16 text-center text-gray-400" data-cy="bsc-setup-redirect">
+    <div
+      className="py-16 text-center text-gray-400"
+      data-cy="bsc-setup-redirect"
+    >
       Redirecting…
     </div>
   );

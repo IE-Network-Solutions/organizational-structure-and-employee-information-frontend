@@ -278,7 +278,9 @@ describe('bsc mock repository contract', () => {
     const repo = new BscMockRepository();
     const person = await createActiveScorecard(repo);
     const otherBefore = await repo.getScorecard('sc-ta-current');
-    const otherSharedBefore = otherBefore!.targets.map((t) => t.weightPercentage);
+    const otherSharedBefore = otherBefore!.targets.map(
+      (t) => t.weightPercentage,
+    );
 
     const updated = await repo.appendIndividualKpis({
       scorecardId: person.id,

@@ -467,9 +467,7 @@ export class BscMockRepository {
       !input.positionIds?.length &&
       !input.employeeIds?.length
     ) {
-      throw new Error(
-        'Select at least one department, role, or individual',
-      );
+      throw new Error('Select at least one department, role, or individual');
     }
     const cycle: EvaluationCycle = {
       id: uid('config'),
@@ -634,7 +632,7 @@ export class BscMockRepository {
 
     for (const row of input.kpis) {
       if (existingIds.has(row.kpiLibraryId)) {
-        throw new Error('That KPI is already on this person\'s scorecard');
+        throw new Error("That KPI is already on this person's scorecard");
       }
       if (!libraryMap.has(row.kpiLibraryId)) {
         throw new Error(`KPI ${row.kpiLibraryId} not found in library`);
@@ -650,7 +648,9 @@ export class BscMockRepository {
       );
       for (const target of sc.targets) {
         if (!weightByTarget.has(target.id)) {
-          throw new Error('Provide a weight for every existing KPI on this person');
+          throw new Error(
+            'Provide a weight for every existing KPI on this person',
+          );
         }
         const next = weightByTarget.get(target.id)!;
         if (!(next > 0)) {
