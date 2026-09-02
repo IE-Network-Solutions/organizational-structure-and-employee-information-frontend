@@ -18,12 +18,19 @@ const PayrollPeriodReconciliationPage = () => {
     setCurrentPayPeriodId(payPeriodId);
 
     const periods = Array.isArray(payPeriodData) ? [...payPeriodData] : [];
-    const currentIndex = periods.findIndex((period) => period.id === payPeriodId);
+    const currentIndex = periods.findIndex(
+      (period) => period.id === payPeriodId,
+    );
     const previous = periods[currentIndex + 1] || periods[currentIndex - 1];
     if (previous?.id) {
       setPreviousPayPeriodId(previous.id);
     }
-  }, [payPeriodId, payPeriodData, setCurrentPayPeriodId, setPreviousPayPeriodId]);
+  }, [
+    payPeriodId,
+    payPeriodData,
+    setCurrentPayPeriodId,
+    setPreviousPayPeriodId,
+  ]);
 
   return <PayrollReconcilation />;
 };

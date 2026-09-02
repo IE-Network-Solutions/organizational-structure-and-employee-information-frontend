@@ -51,6 +51,7 @@ function ApprovalLevelItem({
                 : 'font-medium text-gray-800'
             }`}
             title={name}
+            data-cy={`payroll-approval-level-name-${level.stepOrder}`}
           >
             {name}
           </p>
@@ -64,6 +65,7 @@ function ApprovalLevelItem({
                     ? 'text-[#DC2626]'
                     : 'text-gray-400'
             }`}
+            data-cy={`payroll-approval-level-status-${level.stepOrder}`}
           >
             {STATUS_LABEL[level.status]}
           </span>
@@ -96,13 +98,22 @@ const PayrollApprovalStatusBar = ({
         className={`${BAR_WRAPPER_CLASS} flex items-center justify-end gap-2`}
         data-cy="payroll-approval-status-loading"
       >
-        {Array.from({ length: 2 }).map((_, idx) => (
+        {Array.from({ length: 2 }).map((unusedItem, idx) => (
           <div
             key={`payroll-approval-skeleton-${idx}`}
             className="flex flex-1 flex-col items-center gap-1"
+            data-cy={`payroll-approval-skeleton-${idx}`}
           >
-            <Skeleton.Input active size="small" style={{ width: 48, height: 10 }} />
-            <Skeleton.Input active size="small" style={{ width: 64, height: 12 }} />
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 48, height: 10 }}
+            />
+            <Skeleton.Input
+              active
+              size="small"
+              style={{ width: 64, height: 12 }}
+            />
           </div>
         ))}
       </div>
@@ -118,22 +129,25 @@ const PayrollApprovalStatusBar = ({
       className={`${BAR_WRAPPER_CLASS} flex min-w-0 items-center justify-end`}
       data-cy="payroll-approval-status-bar"
     >
-      <div className="flex w-full min-w-0 items-center">
+      <div
+        className="flex w-full min-w-0 items-center"
+        data-cy="payroll-approval-status-levels"
+      >
         {approvalLevels.map((level, idx) => {
-        const previousLevel = idx > 0 ? approvalLevels[idx - 1] : null;
-        const connectorActive =
-          previousLevel?.status === 'Approved' && level.status !== 'Waiting';
+          const previousLevel = idx > 0 ? approvalLevels[idx - 1] : null;
+          const connectorActive =
+            previousLevel?.status === 'Approved' && level.status !== 'Waiting';
 
-        return (
-          <React.Fragment key={level.stepOrder}>
-            <ApprovalLevelItem
-              level={level}
-              getApproverName={getApproverName}
-              showConnector={idx > 0}
-              connectorActive={connectorActive}
-            />
-          </React.Fragment>
-        );
+          return (
+            <React.Fragment key={level.stepOrder}>
+              <ApprovalLevelItem
+                level={level}
+                getApproverName={getApproverName}
+                showConnector={idx > 0}
+                connectorActive={connectorActive}
+              />
+            </React.Fragment>
+          );
         })}
       </div>
     </div>

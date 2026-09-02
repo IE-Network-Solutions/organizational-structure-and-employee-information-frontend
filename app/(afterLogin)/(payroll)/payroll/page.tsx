@@ -1,15 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Avatar,
-  Breadcrumb,
-  Button,
-  Form,
-  Popover,
-  Select,
-  Table,
-} from 'antd';
+import { Avatar, Breadcrumb, Button, Form, Popover, Select, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -29,7 +21,10 @@ import {
   useGetAllPayrollApprovals,
   useGetPendingPayrollApprovals,
 } from '@/store/server/features/payroll/payrollApproval/queries';
-import { useGetAllFiscalYears, useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
+import {
+  useGetAllFiscalYears,
+  useGetActiveFiscalYears,
+} from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 
 type PeriodStatusFilter = 'ALL' | 'OPEN' | 'CLOSED';
@@ -62,20 +57,24 @@ const ApproverPerson = ({ userId }: { userId?: string }) => {
         icon={<UserOutlined />}
         className="shrink-0"
       />
-      <span className="text-sm text-gray-700">{fullName || 'Approver'}</span>
+      <span
+        className="text-sm text-gray-700"
+        data-cy="payroll-pay-period-approver-name"
+      >
+        {fullName || 'Approver'}
+      </span>
     </div>
   );
 };
 
 const ApprovalStatusCell = ({
-  period,
   approval,
   pendingItem,
 }: {
   period: PayPeriodListRow;
   approval?: { approved?: boolean };
   pendingItem?: any;
-  }) => {
+}) => {
   const isApproved = approval?.approved === true;
 
   if (isApproved) {
@@ -85,7 +84,12 @@ const ApprovalStatusCell = ({
         data-cy="payroll-pay-period-approval-approved"
       >
         <CheckCircleFilled className="text-base text-[#22C55E]" />
-        <span className="text-sm font-medium text-gray-900">Approved</span>
+        <span
+          className="text-sm font-medium text-gray-900"
+          data-cy="payroll-pay-period-approval-approved-label"
+        >
+          Approved
+        </span>
       </div>
     );
   }
@@ -98,9 +102,15 @@ const ApprovalStatusCell = ({
 
   return (
     <div data-cy="payroll-pay-period-approval-pending">
-      <div className="flex items-center gap-2">
+      <div
+        className="flex items-center gap-2"
+        data-cy="payroll-pay-period-approval-pending-row"
+      >
         <ExclamationCircleFilled className="text-base text-[#F97316]" />
-        <span className="text-sm font-medium text-[#EA580C]">
+        <span
+          className="text-sm font-medium text-[#EA580C]"
+          data-cy="payroll-pay-period-approval-pending-label"
+        >
           Pending{stepOrder ? ` · Level ${stepOrder}` : ''}
         </span>
       </div>
@@ -177,8 +187,11 @@ const PayPeriodListPage = () => {
       title: 'Pay Period',
       dataIndex: 'startDate',
       key: 'payPeriod',
-      render: (_value, record) => (
-        <span className="text-sm font-medium text-gray-900">
+      render: (notused, record) => (
+        <span
+          className="text-sm font-medium text-gray-900"
+          data-cy={`payroll-pay-period-label-${record.id}`}
+        >
           {dayjs(record.startDate).format('MMMM YYYY')}
         </span>
       ),
@@ -186,11 +199,14 @@ const PayPeriodListPage = () => {
     {
       title: 'Date Range',
       key: 'dateRange',
-      render: (_value, record) => (
-        <span className="text-sm text-gray-700">
+      render: (notused, record) => (
+        <span
+          className="text-sm text-gray-700"
+          data-cy={`payroll-pay-period-date-range-${record.id}`}
+        >
           {dayjs(record.startDate).format('MMMM D, YYYY')} -{' '}
           {dayjs(record.endDate).format('MMMM D, YYYY')}
-          </span>
+        </span>
       ),
     },
     {
@@ -198,21 +214,22 @@ const PayPeriodListPage = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status: PayPeriod['status']) => (
-          <span
+        <span
           className={
             status === 'OPEN'
               ? 'text-sm font-medium text-[#16A34A]'
               : 'text-sm text-gray-900'
           }
+          data-cy="payroll-pay-period-status-cell"
         >
           {status === 'OPEN' ? 'Open' : 'Closed'}
-          </span>
+        </span>
       ),
     },
     {
       title: 'Approval Status',
       key: 'approvalStatus',
-      render: (_value, record) => (
+      render: (notused, record) => (
         <ApprovalStatusCell
           period={record}
           approval={approvalByPeriodId.get(record.id)}
@@ -269,11 +286,22 @@ const PayPeriodListPage = () => {
             }))}
           />
         </Form.Item>
-        <div className="flex justify-end gap-2">
-          <Button htmlType="button" onClick={resetFilters}>
+        <div
+          className="flex justify-end gap-2"
+          data-cy="payroll-pay-periods-filter-actions"
+        >
+          <Button
+            htmlType="button"
+            onClick={resetFilters}
+            data-cy="payroll-pay-periods-filter-reset-button"
+          >
             Reset
           </Button>
-          <Button type="primary" htmlType="submit">
+          <Button
+            type="primary"
+            htmlType="submit"
+            data-cy="payroll-pay-periods-filter-apply-button"
+          >
             Apply
           </Button>
         </div>
@@ -290,46 +318,59 @@ const PayPeriodListPage = () => {
           ? 'bg-white overflow-x-hidden pb-2 [padding-top:max(1.5rem,env(safe-area-inset-top,0px))] py-4 w-full'
           : ''
       }
-          >
-            <CustomBreadcrumb
+    >
+      <CustomBreadcrumb
         title="Payroll"
-              subtitle={
-                <Breadcrumb
+        subtitle={
+          <Breadcrumb
             data-cy="payroll-pay-periods-breadcrumb"
-                  className="mt-2 mb-0 whitespace-nowrap"
-                  items={[
-                    {
-                      title: (
+            className="mt-2 mb-0 whitespace-nowrap"
+            items={[
+              {
+                title: (
                   <Link href="/payroll" className="text-xs sm:text-sm">
-                          Payroll
-                        </Link>
-                      ),
-                    },
-                    {
-                title: <span className="text-xs sm:text-sm">Pay Periods</span>,
-                    },
-                  ]}
-                />
-              }
+                    Payroll
+                  </Link>
+                ),
+              },
+              {
+                title: (
+                  <span
+                    className="text-xs sm:text-sm"
+                    data-cy="payroll-pay-periods-breadcrumb-current"
+                  >
+                    Pay Periods
+                  </span>
+                ),
+              },
+            ]}
+          />
+        }
       />
 
       <div
-          className={
-            isMobile
-              ? 'bg-white rounded-xl shadow-sm border border-gray-100 p-4'
-              : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6'
-          }
+        className={
+          isMobile
+            ? 'bg-white rounded-xl shadow-sm border border-gray-100 p-4'
+            : 'bg-white rounded-xl shadow-sm border border-gray-100 p-6'
+        }
         data-cy="payroll-pay-periods-card"
       >
-        <div className="mb-6 flex items-start justify-between gap-3">
-          <div>
+        <div
+          className="mb-6 flex items-start justify-between gap-3"
+          data-cy="payroll-pay-periods-header"
+        >
+          <div data-cy="payroll-pay-periods-header-text">
             <h2
               className="m-0 text-lg font-semibold text-gray-900"
               data-cy="payroll-pay-periods-title"
             >
               Select a pay period
             </h2>
-            <p className="m-0 mt-1 text-sm text-gray-500">
+            <p
+              className="m-0 mt-1 text-sm text-gray-500"
+              data-cy="payroll-pay-periods-subtitle"
+            >
               Latest pay periods appear first. Open a row to view payroll.
             </p>
           </div>
@@ -343,29 +384,34 @@ const PayPeriodListPage = () => {
             <Button
               data-cy="payroll-pay-periods-filter-button"
               className="flex items-center gap-2 h-10 border-gray-200 text-gray-600 rounded-[6px] px-3 md:px-4 font-medium"
-                  icon={
+              icon={
                 <FilterAltOutlinedIcon
                   className="text-gray-600"
                   fontSize="small"
                 />
               }
             >
-              <span className="hidden sm:inline">Filter</span>
+              <span
+                className="hidden sm:inline"
+                data-cy="payroll-pay-periods-filter-button-label"
+              >
+                Filter
+              </span>
             </Button>
           </Popover>
-              </div>
+        </div>
 
         <Table<PayPeriodListRow>
           data-cy="payroll-pay-periods-table"
-                columns={columns}
+          columns={columns}
           dataSource={rows}
           loading={isLoading}
-                pagination={false}
+          pagination={false}
           scroll={{ x: true }}
           rowClassName="cursor-pointer"
-                locale={{
-                  emptyText: (
-                      <EmptyState
+          locale={{
+            emptyText: (
+              <EmptyState
                 title="No pay periods"
                 description="No pay periods found."
                 compact

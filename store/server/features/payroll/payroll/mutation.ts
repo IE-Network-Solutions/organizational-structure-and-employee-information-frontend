@@ -406,7 +406,8 @@ export const useUnpublishPayslips = () => {
       queryClient.invalidateQueries('payroll-history');
       NotificationMessage.success({
         message: 'Payslip access revoked',
-        description: 'Employees can no longer view payslips for this pay period.',
+        description:
+          'Employees can no longer view payslips for this pay period.',
       });
     },
     onError: (error: any) => {

@@ -26,11 +26,7 @@ export function usePayrollApproveVisibility(
 
   const pendingApproval = useMemo(() => {
     if (!payPeriodId || !userId) return null;
-    return resolvePendingApprovalForUser(
-      pendingApprovals,
-      payPeriodId,
-      userId,
-    );
+    return resolvePendingApprovalForUser(pendingApprovals, payPeriodId, userId);
   }, [pendingApprovals, payPeriodId, userId]);
 
   const showApproveButton = canShowPayrollApproveButton({

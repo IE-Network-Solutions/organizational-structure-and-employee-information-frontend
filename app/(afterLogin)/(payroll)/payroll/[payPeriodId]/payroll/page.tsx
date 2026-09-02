@@ -36,7 +36,11 @@ import {
 } from 'antd';
 
 const { Text } = Typography;
-import { SearchOutlined, FileSyncOutlined, DownloadOutlined } from '@ant-design/icons';
+import {
+  SearchOutlined,
+  FileSyncOutlined,
+  DownloadOutlined,
+} from '@ant-design/icons';
 
 import { Workbook } from 'exceljs';
 
@@ -53,7 +57,6 @@ import {
   useDeletePayroll,
   useSendingPayrollPayslip,
 } from '@/store/server/features/payroll/payroll/mutation';
-import PayrollCard from '../../_components/cards';
 import { useGenerateBankLetter } from '../../_components/Latter';
 import { saveAs } from 'file-saver';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -71,14 +74,11 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import CustomPagination from '@/components/customPagination';
 import PayrollTableLoadingSkeleton from '../../_components/PayrollTableLoadingSkeleton';
 import EmptyState from '@/components/empty';
-import PayrollSummaryCardsSkeleton from '../../_components/PayrollSummaryCardsSkeleton';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import { useGetAllFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { FiscalYear } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { useFetchAllowanceTypes } from '@/store/server/features/compensation/settings/queries';
-import {
-  useGetAllPayrollApprovals,
-} from '@/store/server/features/payroll/payrollApproval/queries';
+import { useGetAllPayrollApprovals } from '@/store/server/features/payroll/payrollApproval/queries';
 import {
   useApprovePayrollApproval,
   useLastApprovingPayroll,
@@ -89,18 +89,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import LocalAtmIcon from '@mui/icons-material/LocalAtm';
-import PaymentsIcon from '@mui/icons-material/Payments';
-import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { MdAttachMoney, MdCardGiftcard } from 'react-icons/md';
-
-/** Summary cards: horizontal scroll on phone & tablet; 5-col grid from `lg` up. */
-const PAYROLL_SUMMARY_CARDS_ROW_CLASS =
-  'mb-8 flex flex-nowrap gap-4 overflow-x-auto overflow-y-visible pb-2 scroll-smooth snap-x snap-mandatory [-webkit-overflow-scrolling:touch] touch-pan-x lg:grid lg:grid-cols-5 lg:overflow-x-visible lg:snap-none';
-
-const PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS =
-  'min-w-[228px] w-[min(88vw,304px)] shrink-0 snap-start lg:min-w-0 lg:h-full lg:w-full lg:shrink lg:max-w-none';
 
 const Payroll = () => {
   const router = useRouter();
@@ -147,11 +136,8 @@ const Payroll = () => {
     refetch,
     isLoading: payrollTableLoading,
   } = useGetActivePayroll(searchQuery, pageSize, currentPage);
-  const {
-    data: payrollForExport,
-    refetch: refetchExportData,
-    isLoading: payrollForExportLoading,
-  } = useGetActivePayrollsForExport(searchQuery);
+  const { data: payrollForExport, refetch: refetchExportData } =
+    useGetActivePayrollsForExport(searchQuery);
   const { data: employeeInfo } = useGetEmployeeInfo();
   const { data: allActiveSalary } = useGetAllActiveBasicSalary();
   const { data: allEmployees } = useGetAllUsersData();
@@ -177,7 +163,8 @@ const Payroll = () => {
 
   const payrollApprovalForPeriod = useMemo(() => {
     return (Array.isArray(allPayrollApprovals) ? allPayrollApprovals : []).find(
-      (item: { payPeriodId?: string }) => item.payPeriodId === currentPayPeriodId,
+      (item: { payPeriodId?: string }) =>
+        item.payPeriodId === currentPayPeriodId,
     );
   }, [allPayrollApprovals, currentPayPeriodId]);
 
@@ -1320,209 +1307,209 @@ const Payroll = () => {
             data-cy="payroll-dashboard-title-wrapper"
             className="w-full"
           >
-          <div className="hidden" data-cy="payroll-tab-legacy-header">
-            <CustomBreadcrumb
-              href="/payroll"
-              backControlDataCy="payroll-detail-back-link"
-              title={
-                <span
-                  id="payroll-dashboard-title-view-text"
-                  data-cy="payroll-dashboard-title-view-text"
-                >
-                  Payroll
-                </span>
-              }
-              subtitle={
-                <Breadcrumb
-                  data-cy="payroll-dashboard-breadcrumb"
-                  className="mt-2 mb-0 whitespace-nowrap"
-                  style={{ whiteSpace: 'nowrap' }}
-                  items={[
-                    {
-                      title: (
-                        <Link
-                          href="/payroll"
-                          data-cy="payroll-breadcrumb-payroll-link"
-                          className="text-xs sm:text-sm"
-                        >
-                          Payroll
-                        </Link>
-                      ),
-                    },
-                    {
-                      title: (
-                        <Link
-                          href="/payroll"
-                          data-cy="payroll-breadcrumb-pay-periods-link"
-                          className="text-xs sm:text-sm"
-                        >
-                          Pay Periods
-                        </Link>
-                      ),
-                    },
-                    {
-                      title: (
-                        <span
-                          data-cy="payroll-breadcrumb-current"
-                          className="text-xs sm:text-sm"
-                        >
-                          {selectedPayPeriodLabel}
-                        </span>
-                      ),
-                    },
-                  ]}
-                />
-              }
-              titleExtra={
-                <div
-                  id="payroll-dashboard-actions-view-container"
-                  data-cy="payroll-dashboard-actions-view-container"
-                  className="flex gap-3 items-center"
-                >
-                  {/* More actions dropdown */}
-                  <Dropdown
-                    data-cy="payroll-more-actions-dropdown"
-                    menu={{
-                      items: [
-                        {
-                          key: 'send-payslip',
-                          label: 'Email Payslip',
-                          disabled: mergedPayrollForExport?.length === 0,
-                          onClick: () => setOpen(true),
-                        },
-                        {
-                          key: 'reconciliation',
-                          label: 'Reconciliation',
-                          onClick: () => routerToReconcilation(),
-                        },
-                        ...(showApproveButton
-                          ? [
-                              {
-                                key: 'approve',
-                                label: 'Approve Payroll',
-                                onClick: () => setIsApproveModalOpen(true),
-                              },
-                            ]
-                          : []),
-                        {
-                          key: 'export',
-                          label: 'Export',
-                          onClick: openExportModal,
-                        },
-                      ],
-                    }}
-                    trigger={['click']}
+            <div className="hidden" data-cy="payroll-tab-legacy-header">
+              <CustomBreadcrumb
+                href="/payroll"
+                backControlDataCy="payroll-detail-back-link"
+                title={
+                  <span
+                    id="payroll-dashboard-title-view-text"
+                    data-cy="payroll-dashboard-title-view-text"
                   >
-                    <Button
-                      id="payroll-more-actions-click-button"
-                      data-cy="payroll-more-actions-click-button"
-                      className="flex !p-0 items-center justify-center w-10 h-10 min-w-10 border border-gray-300"
-                      aria-label="More actions"
+                    Payroll
+                  </span>
+                }
+                subtitle={
+                  <Breadcrumb
+                    data-cy="payroll-dashboard-breadcrumb"
+                    className="mt-2 mb-0 whitespace-nowrap"
+                    style={{ whiteSpace: 'nowrap' }}
+                    items={[
+                      {
+                        title: (
+                          <Link
+                            href="/payroll"
+                            data-cy="payroll-breadcrumb-payroll-link"
+                            className="text-xs sm:text-sm"
+                          >
+                            Payroll
+                          </Link>
+                        ),
+                      },
+                      {
+                        title: (
+                          <Link
+                            href="/payroll"
+                            data-cy="payroll-breadcrumb-pay-periods-link"
+                            className="text-xs sm:text-sm"
+                          >
+                            Pay Periods
+                          </Link>
+                        ),
+                      },
+                      {
+                        title: (
+                          <span
+                            data-cy="payroll-breadcrumb-current"
+                            className="text-xs sm:text-sm"
+                          >
+                            {selectedPayPeriodLabel}
+                          </span>
+                        ),
+                      },
+                    ]}
+                  />
+                }
+                titleExtra={
+                  <div
+                    id="payroll-dashboard-actions-view-container"
+                    data-cy="payroll-dashboard-actions-view-container"
+                    className="flex gap-3 items-center"
+                  >
+                    {/* More actions dropdown */}
+                    <Dropdown
+                      data-cy="payroll-more-actions-dropdown"
+                      menu={{
+                        items: [
+                          {
+                            key: 'send-payslip',
+                            label: 'Email Payslip',
+                            disabled: mergedPayrollForExport?.length === 0,
+                            onClick: () => setOpen(true),
+                          },
+                          {
+                            key: 'reconciliation',
+                            label: 'Reconciliation',
+                            onClick: () => routerToReconcilation(),
+                          },
+                          ...(showApproveButton
+                            ? [
+                                {
+                                  key: 'approve',
+                                  label: 'Approve Payroll',
+                                  onClick: () => setIsApproveModalOpen(true),
+                                },
+                              ]
+                            : []),
+                          {
+                            key: 'export',
+                            label: 'Export',
+                            onClick: openExportModal,
+                          },
+                        ],
+                      }}
+                      trigger={['click']}
                     >
-                      <MoreHorizIcon
-                        className="text-gray-600 text-lg leading-none"
-                        data-cy="payroll-more-actions-dots-view-text"
-                      />
-                    </Button>
-                  </Dropdown>
-
-                  {/* Generate / Regenerate button */}
-                  {canGenerateOrRegenerate && (
-                    <Popconfirm
-                      id="payroll-generate-popconfirm-view-component"
-                      data-cy="payroll-generate-popconfirm-view-component"
-                      title={
-                        payroll?.items?.length
-                          ? 'Are you sure you want to regenerate the payroll ?'
-                          : 'Are you sure you want to generate the payroll ?'
-                      }
-                      onConfirm={handleDeletePayroll}
-                      okText="Yes"
-                      cancelText="No"
-                      disabled={!(payroll?.items?.length > 0)}
-                    >
-                      <AccessGuard
-                        id="payroll-generate-guard-view-component"
-                        data-cy="payroll-generate-guard-view-component"
-                        permissions={[
-                          Permissions.GeneratePayroll,
-                          Permissions.DeletePayroll,
-                        ]}
+                      <Button
+                        id="payroll-more-actions-click-button"
+                        data-cy="payroll-more-actions-click-button"
+                        className="flex !p-0 items-center justify-center w-10 h-10 min-w-10 border border-gray-300"
+                        aria-label="More actions"
                       >
-                        <Button
-                          id="payroll-generate-open-modal-click-button"
-                          data-cy="payroll-generate-open-modal-click-button"
-                          type="primary"
-                          aria-label={
-                            isMobile || isTablet
-                              ? payroll?.items?.length > 0
-                                ? 'Regenerate payroll'
-                                : 'Generate payroll'
-                              : undefined
-                          }
-                          icon={
-                            <span
-                              className="inline-flex items-center justify-center leading-none"
-                              data-cy="payroll-generate-button-icon-wrapper"
-                            >
-                              {payroll?.items?.length > 0 ? (
-                                <FileSyncOutlined
-                                  data-cy="payroll-generate-icon"
-                                  className="text-base leading-none"
-                                />
-                              ) : (
-                                <TbFileExport
-                                  data-cy="payroll-generate-icon"
-                                  size={16}
-                                  className="block leading-none"
-                                />
-                              )}
-                            </span>
-                          }
-                          className={
-                            isMobile || isTablet
-                              ? 'flex !w-10 !min-w-10 items-center justify-center !gap-0 !p-0 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block'
-                              : 'flex items-center gap-2 px-6 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block'
-                          }
-                          onClick={() => setIsPayrollModalOpen(true)}
-                          loading={
-                            isCreatingPayroll || loading || deleteLoading
-                          }
-                        >
-                          {!(isMobile || isTablet) &&
-                            (payroll?.items?.length > 0 ? (
-                              <span
-                                className="inline-flex items-center leading-none"
-                                data-cy="payroll-regenerate-button-label"
-                              >
-                                Regenerate
-                              </span>
-                            ) : (
-                              <span
-                                className="inline-flex items-center leading-none"
-                                data-cy="payroll-generate-button-label"
-                              >
-                                Generate
-                              </span>
-                            ))}
-                        </Button>
+                        <MoreHorizIcon
+                          className="text-gray-600 text-lg leading-none"
+                          data-cy="payroll-more-actions-dots-view-text"
+                        />
+                      </Button>
+                    </Dropdown>
 
-                        {isPayrollModalOpen && (
-                          <GeneratePayrollModal
-                            data-cy="payroll-generate-modal-view-component"
-                            onGenerate={handleGeneratePayroll}
-                            onClose={() => setIsPayrollModalOpen(false)}
-                            loading={isCreatingPayroll || loading}
-                            isRegenerate={payroll?.items?.length > 0}
-                          />
-                        )}
-                      </AccessGuard>
-                    </Popconfirm>
-                  )}
-                </div>
-              }
-            />
-          </div>
+                    {/* Generate / Regenerate button */}
+                    {canGenerateOrRegenerate && (
+                      <Popconfirm
+                        id="payroll-generate-popconfirm-view-component"
+                        data-cy="payroll-generate-popconfirm-view-component"
+                        title={
+                          payroll?.items?.length
+                            ? 'Are you sure you want to regenerate the payroll ?'
+                            : 'Are you sure you want to generate the payroll ?'
+                        }
+                        onConfirm={handleDeletePayroll}
+                        okText="Yes"
+                        cancelText="No"
+                        disabled={!(payroll?.items?.length > 0)}
+                      >
+                        <AccessGuard
+                          id="payroll-generate-guard-view-component"
+                          data-cy="payroll-generate-guard-view-component"
+                          permissions={[
+                            Permissions.GeneratePayroll,
+                            Permissions.DeletePayroll,
+                          ]}
+                        >
+                          <Button
+                            id="payroll-generate-open-modal-click-button"
+                            data-cy="payroll-generate-open-modal-click-button"
+                            type="primary"
+                            aria-label={
+                              isMobile || isTablet
+                                ? payroll?.items?.length > 0
+                                  ? 'Regenerate payroll'
+                                  : 'Generate payroll'
+                                : undefined
+                            }
+                            icon={
+                              <span
+                                className="inline-flex items-center justify-center leading-none"
+                                data-cy="payroll-generate-button-icon-wrapper"
+                              >
+                                {payroll?.items?.length > 0 ? (
+                                  <FileSyncOutlined
+                                    data-cy="payroll-generate-icon"
+                                    className="text-base leading-none"
+                                  />
+                                ) : (
+                                  <TbFileExport
+                                    data-cy="payroll-generate-icon"
+                                    size={16}
+                                    className="block leading-none"
+                                  />
+                                )}
+                              </span>
+                            }
+                            className={
+                              isMobile || isTablet
+                                ? 'flex !w-10 !min-w-10 items-center justify-center !gap-0 !p-0 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block'
+                                : 'flex items-center gap-2 px-6 h-10 leading-none [&_.ant-btn-icon]:inline-flex [&_.ant-btn-icon]:items-center [&_.ant-btn-icon]:justify-center [&_.ant-btn-icon_svg]:block'
+                            }
+                            onClick={() => setIsPayrollModalOpen(true)}
+                            loading={
+                              isCreatingPayroll || loading || deleteLoading
+                            }
+                          >
+                            {!(isMobile || isTablet) &&
+                              (payroll?.items?.length > 0 ? (
+                                <span
+                                  className="inline-flex items-center leading-none"
+                                  data-cy="payroll-regenerate-button-label"
+                                >
+                                  Regenerate
+                                </span>
+                              ) : (
+                                <span
+                                  className="inline-flex items-center leading-none"
+                                  data-cy="payroll-generate-button-label"
+                                >
+                                  Generate
+                                </span>
+                              ))}
+                          </Button>
+
+                          {isPayrollModalOpen && (
+                            <GeneratePayrollModal
+                              data-cy="payroll-generate-modal-view-component"
+                              onGenerate={handleGeneratePayroll}
+                              onClose={() => setIsPayrollModalOpen(false)}
+                              loading={isCreatingPayroll || loading}
+                              isRegenerate={payroll?.items?.length > 0}
+                            />
+                          )}
+                        </AccessGuard>
+                      </Popconfirm>
+                    )}
+                  </div>
+                }
+              />
+            </div>
           </div>
         </div>
 
@@ -1702,7 +1689,12 @@ const Payroll = () => {
                 icon={<DownloadOutlined />}
                 onClick={openExportModal}
               >
-                <span className="hidden sm:inline">Export</span>
+                <span
+                  className="hidden sm:inline"
+                  data-cy="payroll-export-button-label"
+                >
+                  Export
+                </span>
               </Button>
             </div>
           </div>

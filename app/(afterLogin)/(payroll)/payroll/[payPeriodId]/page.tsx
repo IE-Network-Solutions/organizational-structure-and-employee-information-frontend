@@ -1,22 +1,11 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  Avatar,
-  Button,
-  DatePicker,
-  Popover,
-  Select,
-  Table,
-  Tag,
-} from 'antd';
+import { Avatar, Button, DatePicker, Popover, Select, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useParams, useRouter } from 'next/navigation';
 import dayjs, { Dayjs } from 'dayjs';
-import {
-  SearchOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { MdOutlineFilterAlt } from 'react-icons/md';
 import LocalAtmIcon from '@mui/icons-material/LocalAtm';
 import PaymentsIcon from '@mui/icons-material/Payments';
@@ -33,10 +22,7 @@ import {
   useGetPayPeriod,
 } from '@/store/server/features/payroll/payroll/queries';
 import PayrollApprovalStatusBar from '../_components/PayrollApprovalStatusBar';
-import {
-  useGetEmployee,
-  useGetAllUsers,
-} from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import PayrollSummaryCardsSkeleton from '../_components/PayrollSummaryCardsSkeleton';
 import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
@@ -275,20 +261,28 @@ const PayrollPeriodOverviewPage = () => {
     {
       title: 'Performed By',
       key: 'performedBy',
-      render: (_value, record) => {
+      render: (notused, record) => {
         const user = record?.performedByUser;
         const fullName = user
           ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
           : null;
         return (
-          <div className="flex items-center gap-2">
-          <Avatar
+          <div
+            className="flex items-center gap-2"
+            data-cy={`payroll-activity-performed-by-${record.id}`}
+          >
+            <Avatar
               size={22}
               src={user?.profileImage}
               icon={!user?.profileImage ? <UserOutlined /> : undefined}
             />
-            <span className="text-sm">{fullName || 'Unknown User'}</span>
-        </div>
+            <span
+              className="text-sm"
+              data-cy={`payroll-activity-performed-by-name-${record.id}`}
+            >
+              {fullName || 'Unknown User'}
+            </span>
+          </div>
         );
       },
     },
@@ -296,10 +290,13 @@ const PayrollPeriodOverviewPage = () => {
       title: 'Performed At',
       dataIndex: 'performedAt',
       key: 'performedAt',
-      render: (_value, record) => {
+      render: (notused, record) => {
         const date = record?.performedAt || record?.createdAt;
         return (
-          <span className="text-sm">
+          <span
+            className="text-sm"
+            data-cy={`payroll-activity-performed-at-${record.id}`}
+          >
             {date ? dayjs(date).format('MMM D, YYYY HH:mm') : '—'}
           </span>
         );
@@ -308,8 +305,13 @@ const PayrollPeriodOverviewPage = () => {
     {
       title: 'Remarks',
       key: 'remarks',
-      render: (_value, record) => (
-        <span className="text-sm">{record.remarks || '—'}</span>
+      render: (notused, record) => (
+        <span
+          className="text-sm"
+          data-cy={`payroll-activity-remarks-${record.id}`}
+        >
+          {record.remarks || '—'}
+        </span>
       ),
     },
   ];
@@ -319,10 +321,21 @@ const PayrollPeriodOverviewPage = () => {
       className="w-full max-w-full px-4 py-2 md:w-[440px] md:max-w-[calc(100vw-32px)]"
       data-cy="payroll-activity-filter-popover-content"
     >
-      <div className="mb-1 flex items-start justify-between">
-        <div>
-          <h3 className="m-0 text-lg font-semibold text-gray-900">Filter</h3>
-          <p className="mb-0 mt-1 text-sm text-gray-500">
+      <div
+        className="mb-1 flex items-start justify-between"
+        data-cy="payroll-activity-filter-header"
+      >
+        <div data-cy="payroll-activity-filter-header-text">
+          <h3
+            className="m-0 text-lg font-semibold text-gray-900"
+            data-cy="payroll-activity-filter-title"
+          >
+            Filter
+          </h3>
+          <p
+            className="mb-0 mt-1 text-sm text-gray-500"
+            data-cy="payroll-activity-filter-subtitle"
+          >
             Select All filters that apply
           </p>
         </div>
@@ -337,9 +350,17 @@ const PayrollPeriodOverviewPage = () => {
         </button>
       </div>
 
-      <div className="mt-4 flex flex-col gap-5">
-        <div>
-          <div className="mb-2 text-sm font-semibold text-gray-900">Date</div>
+      <div
+        className="mt-4 flex flex-col gap-5"
+        data-cy="payroll-activity-filter-fields"
+      >
+        <div data-cy="payroll-activity-filter-date-field">
+          <div
+            className="mb-2 text-sm font-semibold text-gray-900"
+            data-cy="payroll-activity-filter-date-label"
+          >
+            Date
+          </div>
           <DatePicker.RangePicker
             value={[dateFrom, dateTo] as any}
             format="YYYY-MM-DD"
@@ -354,8 +375,13 @@ const PayrollPeriodOverviewPage = () => {
           />
         </div>
 
-        <div>
-          <div className="mb-2 text-sm font-semibold text-gray-900">Action</div>
+        <div data-cy="payroll-activity-filter-action-field">
+          <div
+            className="mb-2 text-sm font-semibold text-gray-900"
+            data-cy="payroll-activity-filter-action-label"
+          >
+            Action
+          </div>
           <Select
             placeholder="Create"
             value={selectedAction}
@@ -373,12 +399,15 @@ const PayrollPeriodOverviewPage = () => {
               </Option>
             ))}
           </Select>
-          </div>
         </div>
+      </div>
 
-      <div className="mt-6 flex justify-end gap-3">
-            <Button
-              onClick={() => {
+      <div
+        className="mt-6 flex justify-end gap-3"
+        data-cy="payroll-activity-filter-footer"
+      >
+        <Button
+          onClick={() => {
             setDateFrom(null);
             setDateTo(null);
             setSelectedAction(undefined);
@@ -390,17 +419,17 @@ const PayrollPeriodOverviewPage = () => {
           data-cy="payroll-activity-filter-reset-button"
         >
           Reset
-              </Button>
-              <Button
-                type="primary"
+        </Button>
+        <Button
+          type="primary"
           onClick={() => setFilterPopoverOpen(false)}
           className="transition-colors hover:opacity-90 hover:brightness-110 active:opacity-95 active:brightness-105"
           data-cy="payroll-activity-filter-save-button"
         >
           Save Filter
-              </Button>
-            </div>
-          </div>
+        </Button>
+      </div>
+    </div>
   );
 
   return (
@@ -409,79 +438,111 @@ const PayrollPeriodOverviewPage = () => {
         className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
         data-cy="payroll-period-overview-status-bar"
       >
-        <div className="flex flex-wrap items-center gap-3 lg:flex-1 lg:min-w-0">
-          <h3 className="m-0 text-lg font-semibold text-gray-900">
+        <div
+          className="flex flex-wrap items-center gap-3 lg:flex-1 lg:min-w-0"
+          data-cy="payroll-period-overview-status-left"
+        >
+          <h3
+            className="m-0 text-lg font-semibold text-gray-900"
+            data-cy="payroll-period-overview-title"
+          >
             {selectedPayPeriodLabel}
           </h3>
           <span
-          className={
+            className={
               isOpen
                 ? 'rounded-full bg-green-50 px-2.5 py-0.5 text-sm font-medium text-[#16A34A]'
                 : 'rounded-full bg-gray-100 px-2.5 py-0.5 text-sm font-medium text-gray-700'
             }
+            data-cy="payroll-period-overview-status-badge"
           >
             {isOpen ? 'Open' : 'Closed'}
-                </span>
-          <span className="text-sm text-gray-500">
+          </span>
+          <span
+            className="text-sm text-gray-500"
+            data-cy="payroll-period-overview-employee-count"
+          >
             {employeeCount} employees
           </span>
         </div>
 
         <PayrollApprovalStatusBar payPeriodId={payPeriodId} />
-          </div>
+      </div>
 
       {payrollForExportLoading || payrollLoading ? (
-            <PayrollSummaryCardsSkeleton />
-          ) : (
-        <div className={PAYROLL_SUMMARY_CARDS_ROW_CLASS}>
-          <div className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}>
-                <PayrollCard
-                  title="Total Amount"
+        <PayrollSummaryCardsSkeleton />
+      ) : (
+        <div
+          className={PAYROLL_SUMMARY_CARDS_ROW_CLASS}
+          data-cy="payroll-overview-summary-cards-row"
+        >
+          <div
+            className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+            data-cy="payroll-overview-total-amount-item"
+          >
+            <PayrollCard
+              title="Total Amount"
               data-cy="payroll-overview-total-amount-card"
-                  value={payrollForExport?.totalGrossPaymentAmount}
+              value={payrollForExport?.totalGrossPaymentAmount}
               icon={<LocalAtmIcon className="h-5 w-5" />}
-                  iconBg="bg-[#E6F4FF]"
+              iconBg="bg-[#E6F4FF]"
               iconText="text-[#1677FF]"
-                />
-              </div>
-          <div className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}>
-                <PayrollCard
-                  title="Net Paid Amount"
-                  value={payrollForExport?.totalNetPayAmount}
+            />
+          </div>
+          <div
+            className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+            data-cy="payroll-overview-net-paid-item"
+          >
+            <PayrollCard
+              title="Net Paid Amount"
+              data-cy="payroll-overview-net-paid-card"
+              value={payrollForExport?.totalNetPayAmount}
               icon={<LocalAtmIcon className="h-5 w-5" />}
-                  iconBg="bg-[#F9F0FF]"
-                  iconText="text-[#722ED1]"
-                />
-              </div>
-          <div className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}>
-                <PayrollCard
-                  title="Total Allowance"
-                  value={payrollForExport?.totalAllowanceAmount}
+              iconBg="bg-[#F9F0FF]"
+              iconText="text-[#722ED1]"
+            />
+          </div>
+          <div
+            className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+            data-cy="payroll-overview-total-allowance-item"
+          >
+            <PayrollCard
+              title="Total Allowance"
+              data-cy="payroll-overview-total-allowance-card"
+              value={payrollForExport?.totalAllowanceAmount}
               icon={<PaymentsIcon className="h-5 w-5" />}
-                  iconBg="bg-[#F6FFED]"
-                  iconText="text-[#52C41A]"
-                />
-              </div>
-          <div className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}>
-                <PayrollCard
-                  title="Total Benefit"
-                  value={payrollForExport?.totalMeritAmount}
+              iconBg="bg-[#F6FFED]"
+              iconText="text-[#52C41A]"
+            />
+          </div>
+          <div
+            className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+            data-cy="payroll-overview-total-benefit-item"
+          >
+            <PayrollCard
+              title="Total Benefit"
+              data-cy="payroll-overview-total-benefit-card"
+              value={payrollForExport?.totalMeritAmount}
               icon={<MdCardGiftcard className="h-5 w-5" />}
-                  iconBg="bg-[#FFFBE6]"
-                  iconText="text-[#FBB221]"
-                />
-              </div>
-          <div className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}>
-                <PayrollCard
-                  title="Total Deduction"
-                  value={payrollForExport?.totalDeductionsAmount}
+              iconBg="bg-[#FFFBE6]"
+              iconText="text-[#FBB221]"
+            />
+          </div>
+          <div
+            className={PAYROLL_SUMMARY_CARD_SCROLL_ITEM_CLASS}
+            data-cy="payroll-overview-total-deduction-item"
+          >
+            <PayrollCard
+              title="Total Deduction"
+              data-cy="payroll-overview-total-deduction-card"
+              value={payrollForExport?.totalDeductionsAmount}
               icon={<MoneyOffIcon className="h-5 w-5" />}
-                  iconBg="bg-[#FFF2F0]"
-                  iconText="text-[#FF4D4F]"
-                />
-              </div>
-            </div>
-          )}
+              iconBg="bg-[#FFF2F0]"
+              iconText="text-[#FF4D4F]"
+            />
+          </div>
+        </div>
+      )}
 
       <div
         className={
@@ -491,7 +552,10 @@ const PayrollPeriodOverviewPage = () => {
         }
         data-cy="payroll-period-activity-log-card"
       >
-        <h3 className="mb-4 text-base font-semibold text-gray-900">
+        <h3
+          className="mb-4 text-base font-semibold text-gray-900"
+          data-cy="payroll-period-activity-log-title"
+        >
           Activity Log
         </h3>
 
@@ -515,7 +579,10 @@ const PayrollPeriodOverviewPage = () => {
             showSearch
             loading={isLoadingUsers}
             suffixIcon={
-              <div className="flex h-8 items-center justify-center border-l border-gray-200">
+              <div
+                className="flex h-8 items-center justify-center border-l border-gray-200"
+                data-cy="payroll-activity-search-suffix"
+              >
                 <SearchOutlined className="ml-2 text-gray-600" />
               </div>
             }
@@ -570,7 +637,12 @@ const PayrollPeriodOverviewPage = () => {
                 setFilterPopoverOpen(true);
               }}
             >
-              <span className="hidden leading-none md:block">Filter</span>
+              <span
+                className="hidden leading-none md:block"
+                data-cy="payroll-activity-filter-button-label"
+              >
+                Filter
+              </span>
             </Button>
           </Popover>
         </div>
@@ -579,15 +651,13 @@ const PayrollPeriodOverviewPage = () => {
           <TableSkeleton columns={activityColumns} />
         ) : (
           <>
-              <Table
+            <Table
               columns={activityColumns}
               dataSource={filteredActivityRows}
-                pagination={false}
+              pagination={false}
               rowKey="id"
-              rowClassName={(_record, index) =>
-                index % 2 === 1
-                  ? 'bg-gray-50 cursor-pointer'
-                  : 'cursor-pointer'
+              rowClassName={(unusedRecord, index) =>
+                index % 2 === 1 ? 'bg-gray-50 cursor-pointer' : 'cursor-pointer'
               }
               scroll={{ x: true }}
               data-cy="payroll-period-activity-log-table"
@@ -600,9 +670,9 @@ const PayrollPeriodOverviewPage = () => {
                   router.push(`/audit-log/${record.id}`);
                 },
               })}
-                locale={{
-                  emptyText: (
-                      <EmptyState
+              locale={{
+                emptyText: (
+                  <EmptyState
                     title="No activity yet"
                     description="Payroll audit activity for this pay period will appear here."
                     compact
@@ -613,26 +683,26 @@ const PayrollPeriodOverviewPage = () => {
             <div
               className="mt-2"
               data-cy="payroll-activity-pagination-container"
-          >
-            {isMobile || isTablet ? (
-              <CustomMobilePagination
+            >
+              {isMobile || isTablet ? (
+                <CustomMobilePagination
                   totalResults={totalItems}
                   pageSize={activityPageSize}
-                onChange={onPageChange}
-                onShowSizeChange={onPageChange}
+                  onChange={onPageChange}
+                  onShowSizeChange={onPageChange}
                   data-cy="payroll-activity-mobile-pagination"
-              />
-            ) : (
-              <CustomPagination
+                />
+              ) : (
+                <CustomPagination
                   current={activityPage}
                   total={totalItems}
                   pageSize={activityPageSize}
-                onChange={onPageChange}
-                onShowSizeChange={onPageSizeChange}
+                  onChange={onPageChange}
+                  onShowSizeChange={onPageSizeChange}
                   data-cy="payroll-activity-desktop-pagination"
-              />
-            )}
-          </div>
+                />
+              )}
+            </div>
           </>
         )}
       </div>

@@ -132,7 +132,10 @@ const PayPeriodDetailLayout: FC<PayPeriodDetailLayoutProps> = ({
               },
               {
                 title: (
-                  <span className="text-xs sm:text-sm">
+                  <span
+                    className="text-xs sm:text-sm"
+                    data-cy="payroll-period-detail-breadcrumb-period"
+                  >
                     {selectedPayPeriodLabel}
                   </span>
                 ),

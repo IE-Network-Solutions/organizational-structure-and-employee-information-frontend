@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button, Modal, notification, Popconfirm } from 'antd';
+import { Button, Modal, notification } from 'antd';
 import { CheckOutlined, FileSyncOutlined } from '@ant-design/icons';
 import { useParams } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
@@ -49,8 +49,7 @@ const PayPeriodDetailHeader = () => {
 
   const { mutate: createPayroll, isLoading: isCreatingPayroll } =
     useCreatePayroll();
-  const { mutate: deletePayroll, isLoading: deleteLoading } =
-    useDeletePayroll();
+  const { isLoading: deleteLoading } = useDeletePayroll();
   const { mutate: approvePayroll, isLoading: isApproving } =
     useApprovePayrollApproval();
   const { mutate: lastApproving, isLoading: isLastApproving } =
@@ -151,10 +150,7 @@ const PayPeriodDetailHeader = () => {
 
       {canGenerateOrRegenerate && (
         <AccessGuard
-        permissions={[
-          Permissions.GeneratePayroll,
-          Permissions.DeletePayroll,
-        ]}
+          permissions={[Permissions.GeneratePayroll, Permissions.DeletePayroll]}
         >
           {/* <Popconfirm
             title={
@@ -169,16 +165,16 @@ const PayPeriodDetailHeader = () => {
             cancelText="No"
             disabled={!hasPayroll}
           > */}
-            <Button
-              type="primary"
-              icon={<FileSyncOutlined />}
-              className="h-10"
-              onClick={() => setIsPayrollModalOpen(true)}
-              loading={isCreatingPayroll || deleteLoading}
-              data-cy="payroll-period-regenerate-button"
-            >
-              {hasPayroll ? 'Regenerate' : 'Generate'}
-            </Button>
+          <Button
+            type="primary"
+            icon={<FileSyncOutlined />}
+            className="h-10"
+            onClick={() => setIsPayrollModalOpen(true)}
+            loading={isCreatingPayroll || deleteLoading}
+            data-cy="payroll-period-regenerate-button"
+          >
+            {hasPayroll ? 'Regenerate' : 'Generate'}
+          </Button>
           {/* </Popconfirm> */}
         </AccessGuard>
       )}
@@ -199,12 +195,26 @@ const PayPeriodDetailHeader = () => {
         centered
         width={600}
       >
-        <div className="flex flex-col items-center justify-center gap-4">
-          <h2 className="text-2xl font-bold">Approve Payroll</h2>
-          <p className="text-lg text-gray-600">
+        <div
+          className="flex flex-col items-center justify-center gap-4"
+          data-cy="payroll-approve-modal-content"
+        >
+          <h2
+            className="text-2xl font-bold"
+            data-cy="payroll-approve-modal-title"
+          >
+            Approve Payroll
+          </h2>
+          <p
+            className="text-lg text-gray-600"
+            data-cy="payroll-approve-modal-description"
+          >
             Do you wish to Approve this payroll
           </p>
-          <div className="mt-4 flex w-full justify-center gap-4">
+          <div
+            className="mt-4 flex w-full justify-center gap-4"
+            data-cy="payroll-approve-modal-actions"
+          >
             <Button
               className="h-12 w-full text-lg font-semibold"
               onClick={() => setIsApproveModalOpen(false)}

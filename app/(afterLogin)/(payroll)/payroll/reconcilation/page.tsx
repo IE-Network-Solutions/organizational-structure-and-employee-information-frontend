@@ -1644,46 +1644,46 @@ const PayrollReconcilation = () => {
     >
       <BlockWrapper className="h-auto w-full bg-white">
         {!isEmbedded && (
-        <div
-          className="w-full"
-          id="manage-employees-header"
-          data-cy="manage-employees-header"
-        >
-          <CustomBreadcrumb
-            onBack={handleGoBack}
-            title="Payroll Reconciliation"
-            subtitle="Employee Payroll Reconciliation"
-            rootClassName="w-full !mb-0"
-            titleExtra={
-              <div
-                data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-278"
-                className="flex flex-wrap justify-start items-center gap-4 md:gap-8"
-              >
-                <Button
-                  type="default"
-                  size="small"
-                  className="h-8 w-8 sm:w-auto sm:px-4 text-[#3A3A3A] border-[#D9D9D9] pl-3 rounded-md"
-                  icon={<SaveAltIcon className="text-sm" />}
-                  loading={isExporting}
-                  disabled={!previousPayPeriodId || !currentPayPeriodId}
-                  onClick={() =>
-                    exportReconciliation({
-                      previousPayPeriodId,
-                      currentPayPeriodId,
-                    })
-                  }
+          <div
+            className="w-full"
+            id="manage-employees-header"
+            data-cy="manage-employees-header"
+          >
+            <CustomBreadcrumb
+              onBack={handleGoBack}
+              title="Payroll Reconciliation"
+              subtitle="Employee Payroll Reconciliation"
+              rootClassName="w-full !mb-0"
+              titleExtra={
+                <div
+                  data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-278"
+                  className="flex flex-wrap justify-start items-center gap-4 md:gap-8"
                 >
-                  <span
-                    data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285"
-                    className="hidden sm:inline"
+                  <Button
+                    type="default"
+                    size="small"
+                    className="h-8 w-8 sm:w-auto sm:px-4 text-[#3A3A3A] border-[#D9D9D9] pl-3 rounded-md"
+                    icon={<SaveAltIcon className="text-sm" />}
+                    loading={isExporting}
+                    disabled={!previousPayPeriodId || !currentPayPeriodId}
+                    onClick={() =>
+                      exportReconciliation({
+                        previousPayPeriodId,
+                        currentPayPeriodId,
+                      })
+                    }
                   >
-                    Export
-                  </span>
-                </Button>
-              </div>
-            }
-          />
-        </div>
+                    <span
+                      data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285"
+                      className="hidden sm:inline"
+                    >
+                      Export
+                    </span>
+                  </Button>
+                </div>
+              }
+            />
+          </div>
         )}
         <div
           className="mb-5 flex flex-wrap items-end gap-3"
@@ -1693,7 +1693,10 @@ const PayrollReconcilation = () => {
             className="min-w-[220px] flex-1 sm:max-w-[280px]"
             data-cy="payroll-reconciliation-previous-period-select"
           >
-            <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-500">
+            <p
+              className="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-500"
+              data-cy="payroll-reconciliation-previous-period-label"
+            >
               Previous
             </p>
             <Select
@@ -1713,7 +1716,10 @@ const PayrollReconcilation = () => {
             </Select>
           </div>
 
-          <div className="mb-3 hidden h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 sm:flex">
+          <div
+            className="mb-3 hidden h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 sm:flex"
+            data-cy="payroll-reconciliation-period-arrow"
+          >
             <ArrowRightOutlined />
           </div>
 
@@ -1721,7 +1727,10 @@ const PayrollReconcilation = () => {
             className="min-w-[220px] flex-1 sm:max-w-[280px]"
             data-cy="payroll-reconciliation-current-period-select"
           >
-            <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-primary">
+            <p
+              className="mb-1.5 text-xs font-medium uppercase tracking-wide text-primary"
+              data-cy="payroll-reconciliation-current-period-label"
+            >
               Current
             </p>
             <Select
@@ -1753,20 +1762,38 @@ const PayrollReconcilation = () => {
             styles={{ body: { padding: '16px 18px' } }}
             data-cy="payroll-reconciliation-total-cost-card"
           >
-            <div className="mb-2 flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#E6F4FF] text-[#1677FF]">
+            <div
+              className="mb-2 flex items-center gap-2"
+              data-cy="payroll-reconciliation-total-cost-header"
+            >
+              <span
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#E6F4FF] text-[#1677FF]"
+                data-cy="payroll-reconciliation-total-cost-icon"
+              >
                 <LocalAtmIcon className="h-4 w-4" />
               </span>
-              <p className="m-0 text-sm font-medium text-gray-500">
+              <p
+                className="m-0 text-sm font-medium text-gray-500"
+                data-cy="payroll-reconciliation-total-cost-label"
+              >
                 Total Payroll Cost
               </p>
             </div>
-            <p className="m-0 text-2xl font-bold leading-tight text-gray-900">
+            <p
+              className="m-0 text-2xl font-bold leading-tight text-gray-900"
+              data-cy="payroll-reconciliation-total-cost-value"
+            >
               {formatAmount(summaryMetrics.totalCost)}
             </p>
-            <p className="mt-2 mb-0 text-sm text-gray-500">
+            <p
+              className="mt-2 mb-0 text-sm text-gray-500"
+              data-cy="payroll-reconciliation-total-cost-comparison"
+            >
               vs{' '}
-              <span className="font-medium text-gray-700">
+              <span
+                className="font-medium text-gray-700"
+                data-cy="payroll-reconciliation-total-cost-previous"
+              >
                 {formatAmount(summaryMetrics.previousCost)}
               </span>{' '}
               previous
@@ -1780,9 +1807,13 @@ const PayrollReconcilation = () => {
             styles={{ body: { padding: '16px 18px' } }}
             data-cy="payroll-reconciliation-net-variance-card"
           >
-            <div className="mb-2 flex items-center gap-2">
+            <div
+              className="mb-2 flex items-center gap-2"
+              data-cy="payroll-reconciliation-net-variance-header"
+            >
               <span
                 className={`inline-flex h-7 w-7 items-center justify-center rounded-md ${summaryMetrics.varianceIconBg} ${summaryMetrics.varianceIconText}`}
+                data-cy="payroll-reconciliation-net-variance-icon"
               >
                 {summaryMetrics.isVarianceIncrease ? (
                   <TrendingUpOutlinedIcon className="h-4 w-4" />
@@ -1790,18 +1821,26 @@ const PayrollReconcilation = () => {
                   <TrendingDownOutlinedIcon className="h-4 w-4" />
                 )}
               </span>
-              <p className="m-0 text-sm font-medium text-gray-500">
+              <p
+                className="m-0 text-sm font-medium text-gray-500"
+                data-cy="payroll-reconciliation-net-variance-label"
+              >
                 Net Variance
               </p>
             </div>
             <p
               className={`m-0 text-2xl font-bold leading-tight ${summaryMetrics.varianceColorClass}`}
+              data-cy="payroll-reconciliation-net-variance-value"
             >
               {formatAmount(summaryMetrics.netVariance)}
             </p>
-            <p className="mt-2 mb-0 flex items-center gap-1.5 text-sm text-gray-500">
+            <p
+              className="mt-2 mb-0 flex items-center gap-1.5 text-sm text-gray-500"
+              data-cy="payroll-reconciliation-net-variance-comparison"
+            >
               <span
                 className={`inline-flex items-center gap-0.5 font-medium ${summaryMetrics.varianceColorClass}`}
+                data-cy="payroll-reconciliation-net-variance-pct"
               >
                 {summaryMetrics.isVarianceIncrease ? (
                   <TrendingUpOutlinedIcon className="!h-3.5 !w-3.5" />
@@ -1812,7 +1851,9 @@ const PayrollReconcilation = () => {
                   ? '--'
                   : `${summaryMetrics.netVariancePct > 0 ? '+' : ''}${summaryMetrics.netVariancePct}%`}
               </span>
-              <span>vs previous period</span>
+              <span data-cy="payroll-reconciliation-net-variance-vs-label">
+                vs previous period
+              </span>
             </p>
           </Card>
 
@@ -1823,30 +1864,60 @@ const PayrollReconcilation = () => {
             styles={{ body: { padding: '16px 18px' } }}
             data-cy="payroll-reconciliation-headcount-card"
           >
-            <div className="mb-2 flex items-center gap-2">
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#F9F0FF] text-[#722ED1]">
+            <div
+              className="mb-2 flex items-center gap-2"
+              data-cy="payroll-reconciliation-headcount-header"
+            >
+              <span
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#F9F0FF] text-[#722ED1]"
+                data-cy="payroll-reconciliation-headcount-icon"
+              >
                 <PeopleAltOutlinedIcon className="h-4 w-4" />
               </span>
-              <p className="m-0 text-sm font-medium text-gray-500">
+              <p
+                className="m-0 text-sm font-medium text-gray-500"
+                data-cy="payroll-reconciliation-headcount-label"
+              >
                 Headcount Impact
               </p>
             </div>
-            <p className="m-0 text-2xl font-bold leading-tight text-gray-900">
+            <p
+              className="m-0 text-2xl font-bold leading-tight text-gray-900"
+              data-cy="payroll-reconciliation-headcount-value"
+            >
               {summaryMetrics.headcount}{' '}
-              <span className="text-base font-semibold text-gray-500">
+              <span
+                className="text-base font-semibold text-gray-500"
+                data-cy="payroll-reconciliation-headcount-unit"
+              >
                 Employees
               </span>
             </p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <span className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs text-gray-600">
+            <div
+              className="mt-2 flex flex-wrap gap-2"
+              data-cy="payroll-reconciliation-headcount-badges"
+            >
+              <span
+                className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs text-gray-600"
+                data-cy="payroll-reconciliation-headcount-previous-badge"
+              >
                 Previous{' '}
-                <span className="ml-1 font-semibold text-gray-800">
+                <span
+                  className="ml-1 font-semibold text-gray-800"
+                  data-cy="payroll-reconciliation-headcount-previous-value"
+                >
                   {summaryMetrics.previousHeadcount}
                 </span>
               </span>
-              <span className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs text-gray-600">
+              <span
+                className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs text-gray-600"
+                data-cy="payroll-reconciliation-headcount-terminations-badge"
+              >
                 Terminations{' '}
-                <span className="ml-1 font-semibold text-gray-800">
+                <span
+                  className="ml-1 font-semibold text-gray-800"
+                  data-cy="payroll-reconciliation-headcount-terminations-value"
+                >
                   {summaryMetrics.terminations}
                 </span>
               </span>

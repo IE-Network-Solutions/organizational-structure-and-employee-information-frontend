@@ -34,7 +34,10 @@ export function resolvePendingApprovalForUser(
     pendingApprovals,
     payPeriodId,
   );
-  if (!pendingForPeriod || !isCurrentApproverForItem(pendingForPeriod, currentUserId)) {
+  if (
+    !pendingForPeriod ||
+    !isCurrentApproverForItem(pendingForPeriod, currentUserId)
+  ) {
     return null;
   }
   return pendingForPeriod;

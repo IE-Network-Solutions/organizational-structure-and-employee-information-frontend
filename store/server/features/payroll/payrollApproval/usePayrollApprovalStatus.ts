@@ -35,7 +35,11 @@ type HistoricalLog = {
 
 function normalizeArrayResponse<T>(data: unknown): T[] {
   if (Array.isArray(data)) return data;
-  if (data && typeof data === 'object' && Array.isArray((data as { items?: T[] }).items)) {
+  if (
+    data &&
+    typeof data === 'object' &&
+    Array.isArray((data as { items?: T[] }).items)
+  ) {
     return (data as { items: T[] }).items;
   }
   return [];
@@ -129,7 +133,9 @@ function buildMergedApprovalLevels(
 }
 
 function getUserFullName(
-  users: { items?: { id: string; firstName?: string; middleName?: string; }[] } | undefined,
+  users:
+    | { items?: { id: string; firstName?: string; middleName?: string }[] }
+    | undefined,
   userId: string,
 ) {
   const user = users?.items?.find((item) => item.id === userId);
@@ -180,15 +186,21 @@ export function usePayrollApprovalStatus(payPeriodId?: string) {
     ? workflows.items
     : [];
 
-  const pendingItem = getPendingApprovalForPeriod(pendingApprovals, payPeriodId || '');
+  const pendingItem = getPendingApprovalForPeriod(
+    pendingApprovals,
+    payPeriodId || '',
+  );
   const requestId = payrollApproval?.id as string | undefined;
 
   const { data: approverLog, isLoading: isLogsLoading } =
     useGetPayrollApprovalLogs(requestId);
 
-  const historicalLogsForWorkflow = normalizeArrayResponse<HistoricalLog>(approverLog);
+  const historicalLogsForWorkflow =
+    normalizeArrayResponse<HistoricalLog>(approverLog);
   const hasApprovalLogs = historicalLogsForWorkflow.length > 0;
-  const workflowFromPending = pendingItem?.approvalWorkflowId as string | undefined;
+  const workflowFromPending = pendingItem?.approvalWorkflowId as
+    | string
+    | undefined;
   const workflowFromLogs = historicalLogsForWorkflow.find(
     (log) => log.approvalWorkflowId,
   )?.approvalWorkflowId;
@@ -207,7 +219,9 @@ export function usePayrollApprovalStatus(payPeriodId?: string) {
     : [];
 
   // Status API fails when logs reference a deleted workflow; logs + settings are enough.
-  const shouldFetchStatus = Boolean(requestId && workflowId && !hasApprovalLogs);
+  const shouldFetchStatus = Boolean(
+    requestId && workflowId && !hasApprovalLogs,
+  );
 
   const { data: statusData, isLoading: isStatusLoading } =
     useGetPayrollApprovalStatus(requestId, workflowId, shouldFetchStatus);

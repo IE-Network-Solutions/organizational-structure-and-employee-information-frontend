@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   Button,
   Card,
@@ -22,7 +28,6 @@ import {
   MailOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useParams } from 'next/navigation';
 import dayjs from 'dayjs';
 import html2canvas from 'html2canvas';
@@ -130,18 +135,23 @@ const PayrollPeriodPayslipsPage = () => {
       queryParams.append('departmentId', searchValue.departmentId);
     const qs = queryParams.toString();
     return qs ? `&${qs}` : '';
-  }, [payPeriodId, employeeId, searchValue.divisionId, searchValue.departmentId]);
+  }, [
+    payPeriodId,
+    employeeId,
+    searchValue.divisionId,
+    searchValue.departmentId,
+  ]);
 
   useEffect(() => {
     setSearchQuery(searchQuery);
   }, [searchQuery, setSearchQuery]);
 
   const { data: payPeriodData } = useGetPayPeriod();
-  const { data: payroll, isLoading, refetch } = useGetActivePayroll(
-    searchQuery,
-    pageSize,
-    currentPage,
-  );
+  const {
+    data: payroll,
+    isLoading,
+    refetch,
+  } = useGetActivePayroll(searchQuery, pageSize, currentPage);
   const { data: payrollForExport } = useGetActivePayrollsForExport(searchQuery);
   const { data: allEmployees } = useGetAllUsersData();
   const { mutate: sendPaySlip, isLoading: isSending } =
@@ -202,7 +212,8 @@ const PayrollPeriodPayslipsPage = () => {
       : allEmployees?.items || []
   ).map((emp: any) => ({
     value: emp.id,
-    label: `${emp?.firstName || ''} ${emp?.middleName || ''} ${emp?.lastName || ''}`.trim(),
+    label:
+      `${emp?.firstName || ''} ${emp?.middleName || ''} ${emp?.lastName || ''}`.trim(),
   }));
 
   const selectedRows = useMemo(() => {
@@ -352,21 +363,30 @@ const PayrollPeriodPayslipsPage = () => {
           }}
           options={employeeOptions}
           suffixIcon={
-            <span className="flex h-full items-center border-l border-gray-200 pl-3 text-gray-400">
+            <span
+              className="flex h-full items-center border-l border-gray-200 pl-3 text-gray-400"
+              data-cy="payroll-payslips-search-suffix-icon"
+            >
               <SearchOutlined className="text-base" />
             </span>
           }
           data-cy="payroll-payslips-search-employee"
         />
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div
+          className="flex flex-wrap items-center gap-2"
+          data-cy="payroll-payslips-toolbar-actions"
+        >
           <FilterPopover
             onSearch={handleFilterSearch}
             defaultValues={{ ...searchValue, payPeriodId }}
           />
 
           <AccessGuard
-            permissions={[Permissions.GeneratePayroll, Permissions.DeletePayroll]}
+            permissions={[
+              Permissions.GeneratePayroll,
+              Permissions.DeletePayroll,
+            ]}
           >
             {payslipsPublished ? (
               <Popconfirm
@@ -382,7 +402,12 @@ const PayrollPeriodPayslipsPage = () => {
                   disabled={!hasPayslips}
                   data-cy="payroll-payslips-revoke-access-button"
                 >
-                  <span className="hidden sm:inline">Revoke Payslip Access</span>
+                  <span
+                    className="hidden sm:inline"
+                    data-cy="payroll-payslips-revoke-access-label"
+                  >
+                    Revoke Payslip Access
+                  </span>
                 </Button>
               </Popconfirm>
             ) : (
@@ -393,7 +418,12 @@ const PayrollPeriodPayslipsPage = () => {
                 onClick={handlePublishPayslips}
                 data-cy="payroll-payslips-release-access-button"
               >
-                <span className="hidden sm:inline">Release Payslip Access</span>
+                <span
+                  className="hidden sm:inline"
+                  data-cy="payroll-payslips-release-access-label"
+                >
+                  Release Payslip Access
+                </span>
               </Button>
             )}
           </AccessGuard>
@@ -407,14 +437,24 @@ const PayrollPeriodPayslipsPage = () => {
               onClick={() => setEmailModalOpen(true)}
               data-cy="payroll-payslips-email-button"
             >
-              <span className="hidden sm:inline">Email Payslip</span>
+              <span
+                className="hidden sm:inline"
+                data-cy="payroll-payslips-email-button-label"
+              >
+                Email Payslip
+              </span>
             </Button>
           </AccessGuard>
         </div>
       </div>
 
       {isLoading ? (
-        <div className="py-16 text-center text-gray-500">Loading payslips…</div>
+        <div
+          className="py-16 text-center text-gray-500"
+          data-cy="payroll-payslips-loading"
+        >
+          Loading payslips…
+        </div>
       ) : !hasPayslips ? (
         <EmptyState
           title="No payslips generated"
@@ -453,8 +493,14 @@ const PayrollPeriodPayslipsPage = () => {
                       body: { padding: '0 20px 20px 20px' },
                     }}
                     title={
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex min-w-0 items-start gap-2">
+                      <div
+                        className="flex items-start justify-between gap-2"
+                        data-cy={`payroll-payslip-card-header-${key}`}
+                      >
+                        <div
+                          className="flex min-w-0 items-start gap-2"
+                          data-cy={`payroll-payslip-card-title-${key}`}
+                        >
                           <Checkbox
                             checked={selectedKeys.includes(key)}
                             onChange={(e) =>
@@ -555,8 +601,7 @@ const PayrollPeriodPayslipsPage = () => {
                         ...(breakdown?.incentives
                           ? [
                               {
-                                label:
-                                  breakdown.incentives.type || 'Incentive',
+                                label: breakdown.incentives.type || 'Incentive',
                                 value: formatAmount(
                                   breakdown.incentives.amount,
                                 ),
@@ -599,7 +644,7 @@ const PayrollPeriodPayslipsPage = () => {
             })}
           </Row>
 
-          <div className="mt-6">
+          <div className="mt-6" data-cy="payroll-payslips-pagination">
             {isMobile || isTablet ? (
               <CustomMobilePagination
                 totalResults={payroll?.meta?.totalItems || 0}
@@ -609,7 +654,7 @@ const PayrollPeriodPayslipsPage = () => {
                   setCurrentPage(page);
                   if (size) setPageSize(size);
                 }}
-                onShowSizeChange={(_current, size) => {
+                onShowSizeChange={(unusedCurrent, size) => {
                   setPageSize(size);
                   setCurrentPage(1);
                 }}
@@ -658,7 +703,10 @@ const PayrollPeriodPayslipsPage = () => {
         ]}
         data-cy="payroll-payslips-email-modal"
       >
-        <p className="m-0 max-w-[360px] text-base leading-6 text-gray-600">
+        <p
+          className="m-0 max-w-[360px] text-base leading-6 text-gray-600"
+          data-cy="payroll-payslips-email-modal-description"
+        >
           You are about to send payslips to {selectedRows.length} selected
           employee{selectedRows.length === 1 ? '' : 's'}
           {selectedKeys.length === 0 ? ` (all in current result)` : ''} out of{' '}
@@ -682,25 +730,54 @@ const PayrollPeriodPayslipsPage = () => {
           }}
           data-cy="payroll-payslips-payslip-content"
         >
-          <header className="mb-4 border-b pb-4 text-center">
-            <h2 className="text-xl font-semibold">
+          <header
+            className="mb-4 border-b pb-4 text-center"
+            data-cy="payroll-payslips-payslip-header"
+          >
+            <h2
+              className="text-xl font-semibold"
+              data-cy="payroll-payslips-payslip-title"
+            >
               Payslip for the month of{' '}
-              <span className="text-violet-500">
+              <span
+                className="text-violet-500"
+                data-cy="payroll-payslips-payslip-period"
+              >
                 {dayjs(templatePeriod?.startDate).format('MMMM-YYYY')}
               </span>
             </h2>
           </header>
-          <div className="flex justify-between">
-            <div className="mx-2 flex flex-col gap-2">
-              <div className="text-xl font-bold">Employee Pay Summary</div>
-              <div className="flex w-full gap-6">
-                <div className="flex flex-col gap-2">
+          <div
+            className="flex justify-between"
+            data-cy="payroll-payslips-payslip-summary"
+          >
+            <div
+              className="mx-2 flex flex-col gap-2"
+              data-cy="payroll-payslips-payslip-employee-info"
+            >
+              <div
+                className="text-xl font-bold"
+                data-cy="payroll-payslips-payslip-summary-heading"
+              >
+                Employee Pay Summary
+              </div>
+              <div
+                className="flex w-full gap-6"
+                data-cy="payroll-payslips-payslip-employee-details"
+              >
+                <div
+                  className="flex flex-col gap-2"
+                  data-cy="payroll-payslips-payslip-labels"
+                >
                   <Text>Employee name:</Text>
                   <Text>Job title:</Text>
                   <Text>Pay period:</Text>
                   <Text>Pay Date:</Text>
                 </div>
-                <div className="flex flex-col gap-2 font-bold">
+                <div
+                  className="flex flex-col gap-2 font-bold"
+                  data-cy="payroll-payslips-payslip-values"
+                >
                   <Text>
                     {[
                       templateEmployee?.firstName,
@@ -728,38 +805,79 @@ const PayrollPeriodPayslipsPage = () => {
                 </div>
               </div>
             </div>
-            <div className="m-2 flex flex-col items-center justify-center">
-              <span className="text-xl font-bold">Employee Net Pay</span>
-              <span className="mb-2 text-4xl font-bold text-violet-500">
+            <div
+              className="m-2 flex flex-col items-center justify-center"
+              data-cy="payroll-payslips-payslip-net-pay"
+            >
+              <span
+                className="text-xl font-bold"
+                data-cy="payroll-payslips-payslip-net-pay-label"
+              >
+                Employee Net Pay
+              </span>
+              <span
+                className="mb-2 text-4xl font-bold text-violet-500"
+                data-cy="payroll-payslips-payslip-net-pay-value"
+              >
                 {templatePayroll?.netPay}
               </span>
-              <span className="text-xl font-bold">Employee Basic Salary</span>
-              <span className="text-2xl font-bold">
+              <span
+                className="text-xl font-bold"
+                data-cy="payroll-payslips-payslip-basic-salary-label"
+              >
+                Employee Basic Salary
+              </span>
+              <span
+                className="text-2xl font-bold"
+                data-cy="payroll-payslips-payslip-basic-salary-value"
+              >
                 {
-                  templatePayroll?.employeeInfo?.basicSalaries?.[0]
-                    ?.basicSalary
+                  templatePayroll?.employeeInfo?.basicSalaries?.[0]?.basicSalary
                 }{' '}
               </span>
             </div>
           </div>
           <Divider className="my-2" />
-          <header className="mb-2 border-b pb-2">
-            <h2 className="text-xl font-semibold">Employee Earnings</h2>
+          <header
+            className="mb-2 border-b pb-2"
+            data-cy="payroll-payslips-payslip-earnings-header"
+          >
+            <h2
+              className="text-xl font-semibold"
+              data-cy="payroll-payslips-payslip-earnings-title"
+            >
+              Employee Earnings
+            </h2>
           </header>
-          <div className="flex w-full flex-col gap-4">
-            <div className="my-2 flex items-center justify-between pl-4">
+          <div
+            className="flex w-full flex-col gap-4"
+            data-cy="payroll-payslips-payslip-earnings"
+          >
+            <div
+              className="my-2 flex items-center justify-between pl-4"
+              data-cy="payroll-payslips-payslip-allowance-header"
+            >
               <Text className="text-xl">Employee Allowance</Text>
               <Text className="pr-10 text-xl">Amount</Text>
             </div>
-            <div className="flex justify-between">
-              <div className="flex flex-col gap-2 pl-4">
+            <div
+              className="flex justify-between"
+              data-cy="payroll-payslips-payslip-allowance-rows"
+            >
+              <div
+                className="flex flex-col gap-2 pl-4"
+                data-cy="payroll-payslips-payslip-allowance-types"
+              >
                 {templatePayroll?.breakdown?.allowances?.map(
                   (item: any, index: number) => (
                     <Text key={index}>{item.type}</Text>
                   ),
                 )}
               </div>
-              <div className="flex flex-col gap-2 pr-10 text-right font-bold">
+              <div
+                className="flex flex-col gap-2 pr-10 text-right font-bold"
+                data-cy="payroll-payslips-payslip-allowance-amounts"
+              >
                 {templatePayroll?.breakdown?.allowances?.map(
                   (item: any, index: number) => (
                     <Text key={index}>
