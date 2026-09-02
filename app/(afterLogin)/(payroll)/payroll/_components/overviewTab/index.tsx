@@ -555,9 +555,7 @@ const OverviewTab = ({
         >
           Activity Log
         </h3>
-        <div
-          data-cy="payroll-overview-activity-log-table-wrap"
-        >
+        <div data-cy="payroll-overview-activity-log-table-wrap">
           <ActivityLogTab payPeriodId={payPeriodId} />
         </div>
       </div>

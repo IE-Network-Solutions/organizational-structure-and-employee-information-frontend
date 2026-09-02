@@ -311,9 +311,7 @@ const ReconciliationTab = ({ payPeriodId }: ReconciliationTabProps) => {
     ),
   }));
 
-  const netVariancePercentage = Number(
-    data?.summary?.netVariancePercentage,
-  );
+  const netVariancePercentage = Number(data?.summary?.netVariancePercentage);
 
   const formatMoney = (value?: number | string | null) => {
     if (value == null || value === '' || Number.isNaN(Number(value))) {

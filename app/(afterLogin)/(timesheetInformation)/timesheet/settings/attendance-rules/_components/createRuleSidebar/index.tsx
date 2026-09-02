@@ -601,6 +601,8 @@ const buildAttendanceRulePayload = (
   return payload;
 };
 
+const ruleOrder = ['LATE', 'ABSENT', 'EARLY_CLOCK_OUT', 'MISSED_CHECK_IN_OUT'];
+
 const CreateRuleSidebar = () => {
   const {
     isShowCreateRuleSidebar: isShow,
@@ -626,13 +628,6 @@ const CreateRuleSidebar = () => {
   } = useUpdateAttendanceRule();
   const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
   const { data: breakTypesData } = useGetBreakTypes();
-
-  const ruleOrder = [
-    'LATE',
-    'ABSENT',
-    'EARLY_CLOCK_OUT',
-    'MISSED_CHECK_IN_OUT',
-  ];
 
   const sortedAttendanceRuleTypes = useMemo(
     () =>
@@ -700,7 +695,8 @@ const CreateRuleSidebar = () => {
         actionTypes: normalizeActionTypes(item.actionTypes),
         breakType: resolveBreakTypeId(item.breakType as string | BreakType),
         isFixed: item.isFixed,
-        isMinuteBasedSalaryDeduction: item.isMinuteBasedSalaryDeduction ?? false,
+        isMinuteBasedSalaryDeduction:
+          item.isMinuteBasedSalaryDeduction ?? false,
         deductibleSalaryDays: item.deductibleSalaryDays,
         deductibleFixedAmount: item.deductibleFixedAmount,
         vpDeductionAmount: item.vpDeductionAmount,

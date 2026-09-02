@@ -230,7 +230,8 @@ export default function MyPayroll() {
           >
             <Row gutter={[16, 16]}>
               <Col span={12}>
-                <PayslipInfoItem data-cy="my-payroll-info-item"
+                <PayslipInfoItem
+                  data-cy="my-payroll-info-item"
                   label="Basic Salary"
                   value={
                     activeMergedPayroll?.employeeInfo?.basicSalaries?.[0]
@@ -239,7 +240,8 @@ export default function MyPayroll() {
                 />
               </Col>
               <Col span={12}>
-                <PayslipInfoItem data-cy="my-payroll-info-item"
+                <PayslipInfoItem
+                  data-cy="my-payroll-info-item"
                   label="Account Number"
                   value={
                     activeMergedPayroll?.employeeInfo?.employeeInformation
@@ -248,7 +250,8 @@ export default function MyPayroll() {
                 />
               </Col>
               <Col span={12}>
-                <PayslipInfoItem data-cy="my-payroll-info-item"
+                <PayslipInfoItem
+                  data-cy="my-payroll-info-item"
                   label="Bank Information"
                   value={
                     activeMergedPayroll?.employeeInfo?.employeeInformation
@@ -257,7 +260,8 @@ export default function MyPayroll() {
                 />
               </Col>
               <Col span={12}>
-                <PayslipInfoItem data-cy="my-payroll-info-item"
+                <PayslipInfoItem
+                  data-cy="my-payroll-info-item"
                   label="Branch"
                   value={
                     activeMergedPayroll?.employeeInfo
@@ -311,13 +315,15 @@ export default function MyPayroll() {
           >
             <Row gutter={[16, 16]}>
               <Col span={12}>
-                <PayslipInfoItem data-cy="my-payroll-info-item"
+                <PayslipInfoItem
+                  data-cy="my-payroll-info-item"
                   label="Salary Period"
                   value={dayjs(activePayPeriod?.startDate).format('MMM-YYYY')}
                 />
               </Col>
               <Col span={12}>
-                <PayslipInfoItem data-cy="my-payroll-info-item"
+                <PayslipInfoItem
+                  data-cy="my-payroll-info-item"
                   label="Pay Date"
                   value={dayjs(activePayPeriod?.updatedAt).format(
                     'MMM-DD-YYYY',
@@ -326,7 +332,8 @@ export default function MyPayroll() {
               </Col>
             </Row>
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
-            <PayslipInfoItem data-cy="my-payroll-info-item"
+            <PayslipInfoItem
+              data-cy="my-payroll-info-item"
               label="Entitled Allowance"
               value={parseFloat(
                 activeMergedPayroll?.totalAllowance || '0',
@@ -338,7 +345,8 @@ export default function MyPayroll() {
               }))}
             />
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
-            <PayslipInfoItem data-cy="my-payroll-info-item"
+            <PayslipInfoItem
+              data-cy="my-payroll-info-item"
               label="Entitled Benefit"
               value={entitledBenefitTotal.toFixed(2)}
               large
@@ -360,7 +368,8 @@ export default function MyPayroll() {
               ]}
             />
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
-            <PayslipInfoItem data-cy="my-payroll-info-item"
+            <PayslipInfoItem
+              data-cy="my-payroll-info-item"
               label="Entitled Deduction"
               value={entitledDeductionTotal.toFixed(2)}
               large
@@ -378,7 +387,8 @@ export default function MyPayroll() {
             <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
             <Row gutter={16}>
               <Col span={12}>
-                <PayslipInfoItem data-cy="my-payroll-info-item"
+                <PayslipInfoItem
+                  data-cy="my-payroll-info-item"
                   label="Gross Earning"
                   value={parseFloat(
                     activeMergedPayroll?.grossSalary || '0',
@@ -386,7 +396,8 @@ export default function MyPayroll() {
                 />
               </Col>
               <Col span={12}>
-                <PayslipInfoItem data-cy="my-payroll-info-item"
+                <PayslipInfoItem
+                  data-cy="my-payroll-info-item"
                   label="Net Pay"
                   value={parseFloat(activeMergedPayroll?.netPay || '0').toFixed(
                     2,
@@ -633,7 +644,8 @@ export default function MyPayroll() {
                           >
                             <Row gutter={[16, 16]}>
                               <Col span={12}>
-                                <PayslipInfoItem data-cy="my-payroll-info-item"
+                                <PayslipInfoItem
+                                  data-cy="my-payroll-info-item"
                                   label="Salary Period"
                                   value={
                                     period
@@ -645,7 +657,8 @@ export default function MyPayroll() {
                                 />
                               </Col>
                               <Col span={12}>
-                                <PayslipInfoItem data-cy="my-payroll-info-item"
+                                <PayslipInfoItem
+                                  data-cy="my-payroll-info-item"
                                   label="Pay Date"
                                   value={
                                     period
@@ -663,7 +676,8 @@ export default function MyPayroll() {
                                 borderColor: '#e0e0e0',
                               }}
                             />
-                            <PayslipInfoItem data-cy="my-payroll-info-item"
+                            <PayslipInfoItem
+                              data-cy="my-payroll-info-item"
                               label="Entitled Allowance"
                               value={parseFloat(
                                 historyItem.totalAllowance || '0',
@@ -680,7 +694,8 @@ export default function MyPayroll() {
                                 borderColor: '#e0e0e0',
                               }}
                             />
-                            <PayslipInfoItem data-cy="my-payroll-info-item"
+                            <PayslipInfoItem
+                              data-cy="my-payroll-info-item"
                               label="Entitled Benefit"
                               value={entitledBenefitTotal.toFixed(2)}
                               large
@@ -707,7 +722,8 @@ export default function MyPayroll() {
                                 borderColor: '#e0e0e0',
                               }}
                             />
-                            <PayslipInfoItem data-cy="my-payroll-info-item"
+                            <PayslipInfoItem
+                              data-cy="my-payroll-info-item"
                               label="Entitled Deduction"
                               value={entitledDeductionTotal.toFixed(2)}
                               large
@@ -734,7 +750,8 @@ export default function MyPayroll() {
                             />
                             <Row gutter={16}>
                               <Col span={12}>
-                                <PayslipInfoItem data-cy="my-payroll-info-item"
+                                <PayslipInfoItem
+                                  data-cy="my-payroll-info-item"
                                   label="Gross Earning"
                                   value={parseFloat(
                                     historyItem.grossSalary || '0',
@@ -742,7 +759,8 @@ export default function MyPayroll() {
                                 />
                               </Col>
                               <Col span={12}>
-                                <PayslipInfoItem data-cy="my-payroll-info-item"
+                                <PayslipInfoItem
+                                  data-cy="my-payroll-info-item"
                                   label="Net Pay"
                                   value={parseFloat(
                                     historyItem.netPay || '0',

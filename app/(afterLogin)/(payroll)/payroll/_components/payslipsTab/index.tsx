@@ -1,7 +1,16 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Card, Col, Divider, Popconfirm, Row, Select, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Popconfirm,
+  Row,
+  Select,
+  Typography,
+} from 'antd';
 import { DownloadOutlined, SearchOutlined } from '@ant-design/icons';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -61,7 +70,8 @@ const getEmployeeName = (item: any) =>
   `${item?.employeeInfo?.firstName || ''} ${item?.employeeInfo?.middleName || ''} ${item?.employeeInfo?.lastName || ''}`.trim() ||
   'Employee';
 
-const toAmount = (value: unknown) => parseFloat(String(value || '0')).toFixed(2);
+const toAmount = (value: unknown) =>
+  parseFloat(String(value || '0')).toFixed(2);
 
 const getBenefitTotal = (breakdown: any) =>
   (breakdown?.merits?.reduce(
@@ -354,12 +364,7 @@ const PayslipsTab = ({
             defaultValues={orgFilters}
             selectedPayPeriodId={payPeriodId}
             autoSearch={false}
-            hiddenFields={[
-              'yearId',
-              'sessionId',
-              'monthId',
-              'payPeriodId',
-            ]}
+            hiddenFields={['yearId', 'sessionId', 'monthId', 'payPeriodId']}
           />
           <Popconfirm
             id="payroll-generate-payslip-popconfirm"
@@ -402,7 +407,9 @@ const PayslipsTab = ({
             type="default"
             size="large"
             className="flex items-center gap-2 h-10 border-gray-200 text-gray-600 rounded-[6px] px-3 md:px-4 font-medium"
-            icon={<MailOutlineIcon className="text-gray-600" fontSize="small" />}
+            icon={
+              <MailOutlineIcon className="text-gray-600" fontSize="small" />
+            }
             disabled={!hasGeneratedPayslips}
             onClick={onEmailPayslips}
             data-cy="payroll-payslips-tab-email-click-button"
@@ -526,7 +533,10 @@ const PayslipsTab = ({
                   >
                     <Row gutter={[16, 16]}>
                       <Col span={12}>
-                        <PayslipInfoItem label="Salary Period" value={salaryPeriod} />
+                        <PayslipInfoItem
+                          label="Salary Period"
+                          value={salaryPeriod}
+                        />
                       </Col>
                       <Col span={12}>
                         <PayslipInfoItem label="Pay Date" value={payDate} />
@@ -619,7 +629,7 @@ const PayslipsTab = ({
                     setCurrentPage(page);
                     if (size) setPageSize(size);
                   }}
-                  onShowSizeChange={(_current, size) => {
+                  onShowSizeChange={(current, size) => {
                     setPageSize(size);
                     setCurrentPage(1);
                   }}

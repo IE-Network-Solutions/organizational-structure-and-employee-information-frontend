@@ -57,7 +57,7 @@ const ActivityLogTab: React.FC<ActivityLogTabProps> = ({ payPeriodId }) => {
       key: 'performedBy',
       minWidth: 200,
       render: (
-        _unused: unknown,
+        performedBy: unknown,
         record: {
           id: string;
           performedBy: { firstName: string; lastName: string };

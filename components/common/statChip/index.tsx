@@ -54,7 +54,10 @@ const StatChip: React.FC<StatChipProps> = ({
       } ${className}`}
       data-cy={dataCy}
     >
-      <div className={isExpanded ? 'min-w-0' : undefined}>
+      <div
+        className={isExpanded ? 'min-w-0' : undefined}
+        data-cy={`${dataCy}-content`}
+      >
         <span
           className="block text-[10px] text-gray-500"
           data-cy={`${dataCy}-label`}

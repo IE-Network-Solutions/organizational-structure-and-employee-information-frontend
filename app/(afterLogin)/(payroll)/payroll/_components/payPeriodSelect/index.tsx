@@ -175,7 +175,7 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
       dataIndex: 'id',
       key: 'payPeriod',
       minWidth: 160,
-      render: (_unused: string, record: PayPeriod) => (
+      render: (id: string, record: PayPeriod) => (
         <span
           id={`payroll-pay-period-select-name-${record.id}`}
           data-cy={`payroll-pay-period-select-name-${record.id}`}
@@ -190,7 +190,7 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
       dataIndex: 'startDate',
       key: 'dateRange',
       minWidth: 240,
-      render: (_unused: string, record: PayPeriod) => (
+      render: (startDate: string, record: PayPeriod) => (
         <span
           id={`payroll-pay-period-select-range-${record.id}`}
           data-cy={`payroll-pay-period-select-range-${record.id}`}
@@ -224,7 +224,7 @@ const PayPeriodSelect: React.FC<PayPeriodSelectProps> = ({ onSelect }) => {
       title: 'Approval Status',
       key: 'approvalStatus',
       minWidth: 220,
-      render: (_unused: unknown, record: PayPeriod) => {
+      render: (value: unknown, record: PayPeriod) => {
         const workflow = getWorkflow(record.id);
         const icon = overallStatusIcon(workflow.overall);
         const pendingStep = workflow.steps.find(
