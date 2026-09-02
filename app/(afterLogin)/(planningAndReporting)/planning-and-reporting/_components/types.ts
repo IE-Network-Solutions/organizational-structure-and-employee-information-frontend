@@ -27,6 +27,10 @@ export interface PlanTask {
   planTaskId?: string;
   /** Raw API achieved flag (reporting); prefer status when both disagree. */
   isAchieved?: boolean;
+  /** ISO date (YYYY-MM-DD) when the task is due. */
+  deadline?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface Milestone {

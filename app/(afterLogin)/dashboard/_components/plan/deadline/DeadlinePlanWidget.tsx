@@ -1,19 +1,16 @@
 'use client';
 
-import { Checkbox, Select, Spin } from 'antd';
+import { useMemo } from 'react';
+import { Checkbox, Spin } from 'antd';
 import { MdAppRegistration } from 'react-icons/md';
-import { useState } from 'react';
-import { useUpdateStatus } from '@/store/server/features/okrPlanningAndReporting/mutations';
-import {
-  appearsInThisMonth,
-  appearsInThisWeek,
-  appearsInToday,
-  childrenOf,
-  isOverdue,
-  todayIso,
-  weekDailiesForSection,
-} from './bucket';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useUserPlanRepositoryMock } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
+import { isOverdue, todayIso } from './bucket';
 import type { DeadlineTask } from './types';
+import {
+  accompanyingChildrenForRoot,
+  selectTopDeadlineRoots,
+} from './topDeadlineTasks';
 import { useDashboardDeadlineTasks } from './useDashboardDeadlineTasks';
 
 const TaskRow = ({
@@ -60,84 +57,42 @@ const TaskRow = ({
   );
 };
 
-type PlanView = 'today' | 'week' | 'month';
-
-const PLAN_VIEW_OPTIONS = [
-  { value: 'today', label: "Today's tasks" },
-  { value: 'week', label: "This week's tasks" },
-  { value: 'month', label: "This month's tasks" },
-];
-
-const EmptyState = ({ label }: { label: string }) => (
+const EmptyState = () => (
   <p className="m-0 flex min-h-[190px] items-center justify-center text-lg font-light">
-    {label}
+    No upcoming tasks
   </p>
 );
 
 const DeadlinePlanWidget = () => {
   const { tasks, isLoading } = useDashboardDeadlineTasks();
-  const { mutate: updateStatus } = useUpdateStatus();
+  const { userId } = useAuthenticationStore();
+  const togglePreAchieved = useUserPlanRepositoryMock((s) => s.togglePreAchieved);
   const today = todayIso();
-  const [planView, setPlanView] = useState<PlanView>('today');
+
+  const topRoots = useMemo(
+    () => selectTopDeadlineRoots(tasks),
+    [tasks],
+  );
 
   const onToggle = (task: DeadlineTask) => {
-    if (task.sourceStatus === 'completed') return;
-    updateStatus({
-      id: task.id,
-      status:
-        task.sourceStatus === 'pre_achieved' ? 'pre_pending' : 'pre_achieved',
-      planningPeriodId: task.planningPeriodId,
-    });
+    if (task.sourceStatus === 'completed' || !userId) return;
+    togglePreAchieved(userId, task.id);
   };
 
-  const todayTasks = tasks.filter((task) => appearsInToday(task, tasks, today));
-  const weekParents = tasks.filter(
-    (task) => appearsInThisWeek(task, today) && task.parentId == null,
-  );
-  const weekSlices = tasks.filter(
-    (task) => appearsInThisWeek(task, today) && task.parentId != null,
-  );
-  const monthParents = tasks.filter((task) => appearsInThisMonth(task, today));
-
-  const weekList = (
-    <>
-      {weekParents.map((task) => (
-        <div key={task.id}>
-          <TaskRow task={task} today={today} onToggle={onToggle} />
-          {weekDailiesForSection(tasks, task.id, today).map((child) => (
-            <TaskRow
-              key={child.id}
-              task={child}
-              today={today}
-              nested
-              onToggle={onToggle}
-            />
-          ))}
-        </div>
-      ))}
-      {weekSlices.map((task) => (
-        <div key={task.id}>
-          <TaskRow task={task} today={today} onToggle={onToggle} />
-          {weekDailiesForSection(tasks, task.id, today).map((child) => (
-            <TaskRow
-              key={child.id}
-              task={child}
-              today={today}
-              nested
-              onToggle={onToggle}
-            />
-          ))}
-        </div>
-      ))}
-    </>
-  );
-
-  const monthList = monthParents.map((task) => (
-    <div key={task.id}>
-      <TaskRow task={task} today={today} onToggle={onToggle} />
-      {childrenOf(tasks, task.id)
-        .filter((child) => child.kind === 'week')
-        .map((child) => (
+  const body = isLoading ? (
+    <div
+      className="flex min-h-[190px] items-center justify-center"
+      data-cy="deadline-plan-loading"
+    >
+      <Spin />
+    </div>
+  ) : topRoots.length === 0 ? (
+    <EmptyState />
+  ) : (
+    topRoots.map((task) => (
+      <div key={task.id}>
+        <TaskRow task={task} today={today} onToggle={onToggle} />
+        {accompanyingChildrenForRoot(tasks, task, today).map((child) => (
           <TaskRow
             key={child.id}
             task={child}
@@ -146,35 +101,8 @@ const DeadlinePlanWidget = () => {
             onToggle={onToggle}
           />
         ))}
-    </div>
-  ));
-
-  const weekCount = weekParents.length + weekSlices.length;
-  const body = isLoading ? (
-    <div
-      className="flex min-h-[190px] items-center justify-center"
-      data-cy="deadline-plan-loading"
-    >
-      <Spin />
-    </div>
-  ) : planView === 'today' ? (
-    todayTasks.length === 0 ? (
-      <EmptyState label="No tasks today" />
-    ) : (
-      todayTasks.map((task) => (
-        <TaskRow key={task.id} task={task} today={today} onToggle={onToggle} />
-      ))
-    )
-  ) : planView === 'week' ? (
-    weekCount === 0 ? (
-      <EmptyState label="No tasks this week" />
-    ) : (
-      weekList
-    )
-  ) : monthParents.length === 0 ? (
-    <EmptyState label="No tasks this month" />
-  ) : (
-    monthList
+      </div>
+    ))
   );
 
   return (
@@ -192,15 +120,9 @@ const DeadlinePlanWidget = () => {
             Planning
           </span>
         </div>
-        <div className="flex items-center gap-1" data-cy="plan-selector">
-          <Select
-            value={planView}
-            className="w-[160px] min-w-[160px] text-sm rounded-md border-gray-200 [&_.ant-select-selector]:rounded-md [&_.ant-select-selector]:border-gray-200"
-            onChange={(value) => setPlanView(value)}
-            options={PLAN_VIEW_OPTIONS}
-            data-cy="deadline-plan-view-select"
-          />
-        </div>
+        <span className="text-xs text-gray-500" data-cy="deadline-plan-subtitle">
+          Next 5 deadlines
+        </span>
       </div>
       <div
         className="h-[270px] overflow-y-auto scrollbar-none"

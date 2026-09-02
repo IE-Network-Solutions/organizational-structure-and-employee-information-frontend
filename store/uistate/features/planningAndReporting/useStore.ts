@@ -35,6 +35,8 @@ export interface PlanningAndReporting {
 
   selectedUser: string[];
   setSelectedUser: (selectedUser: string[]) => void;
+  planningDefaultFilterApplied: boolean;
+  setPlanningDefaultFilterApplied: (value: boolean) => void;
   weights: Record<string, number>;
   totalWeight: number;
 
@@ -74,6 +76,8 @@ export interface PlanningAndReporting {
   setPlanningFilterDepartment: (id: string | undefined) => void;
   planningFilterPlanType: string;
   setPlanningFilterPlanType: (value: string) => void;
+  planningFilterEmployee: string;
+  setPlanningFilterEmployee: (value: string) => void;
 
   /** Page-embedded create plan (KR + composer) instead of drawer on desktop */
   inlinePlanningMode: boolean;
@@ -139,6 +143,9 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
 
     selectedUser: ['all'],
     setSelectedUser: (selectedUser: string[]) => set({ selectedUser }),
+    planningDefaultFilterApplied: false,
+    setPlanningDefaultFilterApplied: (planningDefaultFilterApplied: boolean) =>
+      set({ planningDefaultFilterApplied }),
     weights: {},
     totalWeight: 0,
 
@@ -200,6 +207,10 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     planningFilterPlanType: 'all',
     setPlanningFilterPlanType: (planningFilterPlanType: string) =>
       set({ planningFilterPlanType }),
+
+    planningFilterEmployee: 'all',
+    setPlanningFilterEmployee: (planningFilterEmployee: string) =>
+      set({ planningFilterEmployee }),
 
     inlinePlanningMode: false,
     setInlinePlanningMode: (inlinePlanningMode: boolean) =>

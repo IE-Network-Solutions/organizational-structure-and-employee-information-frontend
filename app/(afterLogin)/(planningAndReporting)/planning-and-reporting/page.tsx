@@ -31,7 +31,10 @@ import { useGetUserObjective } from '@/store/server/features/okrplanning/okr/obj
 import { usePlanningData } from './_components/planning/usePlanningData';
 import { usePlanningTargets } from './_components/planning/usePlanningTargets';
 import { isPlanningTargetBlocked } from './_components/planning/buildPlanningTargets';
-import { cadenceAssignmentByKind } from './_components/planning/durationFilter';
+import {
+  cadenceAssignmentByKind,
+  DURATION_TAB_ITEMS,
+} from './_components/planning/durationFilter';
 import { useReportingData } from './_components/planning/useReportingData';
 import { KRPanelSkeleton } from './_components/cards/PlanCardSkeleton';
 import {
@@ -45,10 +48,17 @@ import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
 import CreatePlan from './_components/createPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
-import { PlanningReportingHeaderActions } from './_components/PlanningReportingHeaderActions';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useSearchParams } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
+import {
+  MOCK_KEY_RESULTS,
+  UNLINKED_KR_ID,
+} from './_components/prototype/mockPlanningConstants';
+import type { PlanningTarget } from './_components/planning/buildPlanningTargets';
 
 interface PlanningPeriod {
   id: string;
@@ -62,12 +72,18 @@ interface PlanningPeriod {
 
 function Page() {
   useFiscalYearSessionSync();
+  const searchParams = useSearchParams();
   const {
     setActiveTab,
     activeTab,
     activePlanPeriod,
     setActivePlanPeriod,
     setActivePlanPeriodId,
+    setSelectedUser,
+    setPlanningFilterPlanType,
+    setPlanningFilterDepartment,
+    setPage,
+    setPageReporting,
     inlinePlanningMode,
     setInlinePlanningMode,
     mobilePlanComposerOpen,
@@ -78,6 +94,8 @@ function Page() {
 
   const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
     useOkrPlanningScope();
+
+  const mockEnabled = isDeadlinePlanningMockEnabled();
 
   const { data: planningPeriods } = AllPlanningPeriods();
   const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
@@ -159,6 +177,51 @@ function Page() {
     );
   }, [processedPlanningPeriods]);
 
+  useEffect(() => {
+    const recipientUserId = useAuthenticationStore.getState().userId;
+    const tab = (searchParams.get('tab') ?? '').toLowerCase();
+    if (tab === 'report' || tab === 'reporting') {
+      setActiveTab(2);
+    } else if (tab === 'plan' || tab === 'planning') {
+      setActiveTab(1);
+    }
+
+    const employeeIdParam = searchParams.get('employeeId');
+    const userIdParam = searchParams.get('userId');
+    const linkedEmployee = employeeIdParam || userIdParam || '';
+    const onlyRecipientFallback =
+      !employeeIdParam && !!userIdParam && userIdParam === recipientUserId;
+
+    if (linkedEmployee && linkedEmployee !== 'all' && !onlyRecipientFallback) {
+      setPlanningFilterPlanType('all');
+      setPlanningFilterDepartment(undefined);
+      setSelectedUser([linkedEmployee]);
+      setPage(1);
+      setPageReporting(1);
+    }
+  }, [
+    searchParams,
+    setActiveTab,
+    setSelectedUser,
+    setPlanningFilterPlanType,
+    setPlanningFilterDepartment,
+    setPage,
+    setPageReporting,
+  ]);
+
+  useEffect(() => {
+    const periodId =
+      searchParams.get('planningPeriodId') ||
+      searchParams.get('periodId') ||
+      '';
+    if (!periodId || tabItems.length === 0) return;
+    const match = tabItems.find((item) => item.id === periodId);
+    if (match?.key) {
+      setActivePlanPeriod(Number(match.key));
+      setActivePlanPeriodId(match.id);
+    }
+  }, [searchParams, tabItems, setActivePlanPeriod, setActivePlanPeriodId]);
+
   const selectedTab = tabItems.find(
     (item) => item.key === String(activePlanPeriod),
   );
@@ -180,10 +243,15 @@ function Page() {
     isLoading: userKeyResultsLoading,
     isFetching: userKeyResultsFetching,
     refetch: refetchUserKeyResults,
-  } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
-    staleTime: 30_000,
-    keepPreviousData: true,
-  });
+  } = useGetUserKeyResult(
+    mockEnabled ? null : userId,
+    keyResultFiscalYearId,
+    keyResultSessionId,
+    {
+      staleTime: 30_000,
+      keepPreviousData: true,
+    },
+  );
 
   // Same objective payload the OKR dashboard uses — fills metricType / milestones
   // when key-results/user returns thinner rows (daily / weekly / monthly alike).
@@ -192,12 +260,14 @@ function Page() {
     isLoading: userObjectivesLoading,
     isFetching: userObjectivesFetching,
   } = useGetUserObjective(
-    userId,
+    mockEnabled ? '' : userId,
     100,
     1,
     '',
     keyResultFiscalYearId,
     keyResultSessionId ? [keyResultSessionId] : undefined,
+    undefined,
+    { enabled: !mockEnabled && !!userId },
   );
 
   const cadenceAssignments = useMemo(
@@ -211,22 +281,33 @@ function Page() {
   const weeklyPeriodId = cadenceAssignments.week.periodId;
 
   const { data: planningPeriodHierarchy } = useGetPlanningPeriodsHierarchy(
-    userId,
-    weeklyPeriodId || '',
+    mockEnabled ? '' : userId,
+    mockEnabled ? '' : weeklyPeriodId || '',
   );
 
-  const userKeyResultItems = useMemo(
-    () =>
-      mergeUserKeyResultSources(
-        normalizeUserKeyResultItems(userKeyResultsRaw),
-        flattenObjectiveKeyResults(userObjectives?.items),
-      ),
-    [userKeyResultsRaw, userObjectives?.items],
-  );
+  const userKeyResultItems = useMemo(() => {
+    if (mockEnabled) {
+      return MOCK_KEY_RESULTS.filter((kr) => kr.id !== UNLINKED_KR_ID).map(
+        (kr) => ({
+          id: kr.id,
+          title: kr.title,
+          metricType: { name: 'Percentage' },
+          milestones: [],
+        }),
+      );
+    }
+    return mergeUserKeyResultSources(
+      normalizeUserKeyResultItems(userKeyResultsRaw),
+      flattenObjectiveKeyResults(userObjectives?.items),
+    );
+  }, [mockEnabled, userKeyResultsRaw, userObjectives?.items]);
 
   const parentPlanContext = useMemo(
-    () => getActiveUnreportedParentPlanContext(planningPeriodHierarchy),
-    [planningPeriodHierarchy],
+    () =>
+      mockEnabled
+        ? null
+        : getActiveUnreportedParentPlanContext(planningPeriodHierarchy),
+    [mockEnabled, planningPeriodHierarchy],
   );
 
   const { reportSummaries, reportingItems } = useReportingData(activeTab === 2);
@@ -250,8 +331,9 @@ function Page() {
   const krPanelTransformedData =
     activeTab === 2 ? reportingItems : transformedData;
 
-  const krPanelBlockingLoading =
-    activeTab === 2
+  const krPanelBlockingLoading = mockEnabled
+    ? planningLoading
+    : activeTab === 2
       ? (userKeyResultsLoading || userObjectivesLoading) &&
         reportSummaries.length === 0 &&
         planSummaries.length === 0
@@ -286,7 +368,7 @@ function Page() {
   }, [enrichedPlanSummaries, userKeyResultItems]);
 
   const {
-    targets: planningTargets,
+    targets: livePlanningTargets,
     isLoading: planningTargetsLoading,
     isFetching: planningTargetsFetching,
     objectiveMilestonesByKrId,
@@ -298,10 +380,30 @@ function Page() {
     planKeyResultsForTargets,
   );
 
+  const mockPlanningTargets: PlanningTarget[] = useMemo(
+    () =>
+      MOCK_KEY_RESULTS.filter((kr) => kr.id !== UNLINKED_KR_ID).map((kr) => ({
+        id: `mock-target-${kr.id}`,
+        keyResultId: kr.id,
+        keyResultTitle: kr.title,
+        milestoneId: null,
+        milestoneTitle: null,
+        parentTaskId: null,
+        parentTaskTitle: null,
+        isDailySlot: false,
+        metricTypeName: 'Percentage',
+      })),
+    [],
+  );
+
+  const planningTargets = mockEnabled
+    ? mockPlanningTargets
+    : livePlanningTargets;
+
   // Soft refresh KR/objective milestone status when returning to this tab
   // (throttled to avoid refetch storms under concurrent usage).
   useEffect(() => {
-    if (!userId || typeof document === 'undefined') return;
+    if (mockEnabled || !userId || typeof document === 'undefined') return;
     let lastRefreshAt = 0;
     const MIN_INTERVAL_MS = 60_000;
     const onVisible = () => {
@@ -314,7 +416,7 @@ function Page() {
     };
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
-  }, [userId, refetchUserKeyResults, refetchObjectives]);
+  }, [mockEnabled, userId, refetchUserKeyResults, refetchObjectives]);
 
   const handleRefreshMilestoneStatus = useCallback(() => {
     void refetchUserKeyResults();
@@ -323,13 +425,14 @@ function Page() {
 
   // Hide + until user-KR + objective milestone sources have settled once.
   // Background refetches (isFetching) after that must not blank the control.
-  const planningPickReady =
-    !userKeyResultsLoading &&
-    !userObjectivesLoading &&
-    !planningTargetsLoading &&
-    !(userKeyResultsFetching && !userKeyResultsRaw) &&
-    !(userObjectivesFetching && !userObjectives) &&
-    !(planningTargetsFetching && planningTargets.length === 0);
+  const planningPickReady = mockEnabled
+    ? true
+    : !userKeyResultsLoading &&
+      !userObjectivesLoading &&
+      !planningTargetsLoading &&
+      !(userKeyResultsFetching && !userKeyResultsRaw) &&
+      !(userObjectivesFetching && !userObjectives) &&
+      !(planningTargetsFetching && planningTargets.length === 0);
 
   const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
     string | null
@@ -342,11 +445,12 @@ function Page() {
   );
 
   const inlinePlanningPeriodLabel = useMemo(() => {
+    if (mockEnabled) return 'Plan';
     const item = processedPlanningPeriods[activePlanPeriod - 1] as
       | PlanningPeriod
       | undefined;
     return item?.planningPeriod?.name?.trim() || 'Plan';
-  }, [processedPlanningPeriods, activePlanPeriod]);
+  }, [mockEnabled, processedPlanningPeriods, activePlanPeriod]);
 
   useEffect(() => {
     if (!inlinePlanningMode) setSelectedPlanningTargetId(null);
@@ -489,7 +593,6 @@ function Page() {
           title="Plan & Report"
           subtitle="Manage your plans and reports in one place."
           isRecognition
-          titleExtra={<PlanningReportingHeaderActions />}
         />
         <div
           data-cy="planning-reporting-main-card"
@@ -538,52 +641,54 @@ function Page() {
                 />
               </ConfigProvider>
             </div>
-            {(processedPlanningPeriods.length > 0 || activeTab === 1) && (
-              <div
-                data-cy="planning-period-pills"
-                className="flex min-w-0 w-full flex-1 flex-wrap items-center justify-end gap-2 overflow-visible sm:min-h-10 sm:flex-nowrap sm:gap-3"
-              >
+            <div
+              data-cy="planning-period-pills"
+              className="flex min-w-0 w-full flex-1 flex-wrap items-center justify-end gap-2 overflow-visible sm:min-h-10 sm:flex-nowrap sm:gap-3"
+            >
+              {activeTab === 2 && DURATION_TAB_ITEMS.length > 0 ? (
                 <div
                   data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-406"
                   role="tablist"
-                  aria-label="Planning period"
+                  aria-label="Reporting duration"
                   className="flex min-w-0 flex-wrap items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/70 p-1.5 sm:shrink-0 sm:flex-nowrap"
                 >
-                  {processedPlanningPeriods.map(
-                    (item: PlanningPeriod, index: number) => {
-                      const n = index + 1;
-                      const isActive = activePlanPeriod === n;
-                      return (
-                        <button
-                          key={item.planningPeriod.id}
-                          type="button"
-                          role="tab"
-                          aria-selected={isActive}
-                          data-cy={`planning-period-pill-${n}`}
-                          onClick={() => setActivePlanPeriod(n)}
-                          className={classNames(
-                            'inline-flex h-9 shrink-0 items-center rounded-md border font-medium transition-colors',
-                            'text-xs sm:text-sm',
-                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45 focus-visible:ring-offset-2',
-                            isActive
-                              ? 'border-slate-200 bg-white px-2.5 text-slate-800 shadow-sm hover:bg-slate-100 sm:px-3'
-                              : 'border-transparent bg-transparent px-2 text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-800 sm:px-2.5',
-                          )}
-                        >
-                          {item.planningPeriod.name || 'No name available'}
-                        </button>
-                      );
-                    },
-                  )}
+                  {DURATION_TAB_ITEMS.map(({ key, kind, label }) => {
+                    const n = Number(key);
+                    const isActive = activePlanPeriod === n;
+                    return (
+                      <button
+                        key={kind}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActive}
+                        data-cy={`planning-period-pill-${n}`}
+                        onClick={() => {
+                          setActivePlanPeriod(n);
+                          const periodId = cadenceAssignments[kind]?.periodId;
+                          if (periodId) setActivePlanPeriodId(periodId);
+                        }}
+                        className={classNames(
+                          'inline-flex h-9 shrink-0 items-center rounded-md border font-medium transition-colors',
+                          'text-xs sm:text-sm',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45 focus-visible:ring-offset-2',
+                          isActive
+                            ? 'border-slate-200 bg-white px-2.5 text-slate-800 shadow-sm hover:bg-slate-100 sm:px-3'
+                            : 'border-transparent bg-transparent px-2 text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-800 sm:px-2.5',
+                        )}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
-                <div
-                  data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
-                  className="shrink-0 self-center"
-                >
-                  <PlanningToolbarFilters />
-                </div>
+              ) : null}
+              <div
+                data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
+                className="shrink-0 self-center"
+              >
+                <PlanningToolbarFilters />
               </div>
-            )}
+            </div>
           </div>
 
           {/* ── KR + plans/reports: stacked on mobile/tablet, grid on lg+; same inline create flow everywhere ── */}
@@ -592,7 +697,7 @@ function Page() {
             ref={containerRef}
             className={classNames(
               'grid min-h-0 w-full min-w-0 max-w-full grid-cols-1 gap-4',
-              'lg:grid-cols-[clamp(260px,38%,28rem)_minmax(0,1fr)] xl:grid-cols-[clamp(280px,36%,30rem)_minmax(0,1fr)]',
+              'lg:grid-cols-[clamp(220px,28%,22rem)_minmax(0,1fr)] xl:grid-cols-[clamp(240px,26%,24rem)_minmax(0,1fr)]',
             )}
             style={{ height: isDesktop ? panelHeight : undefined }}
           >
@@ -642,10 +747,14 @@ function Page() {
                   'min-w-0 max-w-full',
                   activeTab === 1 ? 'flex flex-col' : 'hidden',
                   isDesktop && activeTab === 1 && 'min-h-full',
-                  inlinePlanningMode ? 'space-y-0' : 'space-y-4',
+                  inlinePlanningMode && !isDeadlinePlanningMockEnabled()
+                    ? 'space-y-0'
+                    : 'space-y-4',
                 )}
               >
-                {inlinePlanningMode && isDesktop ? (
+                {inlinePlanningMode &&
+                isDesktop &&
+                !isDeadlinePlanningMockEnabled() ? (
                   <section
                     data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-section-504"
                     className="mb-8 shrink-0 border-b border-[#F1F2F6] pb-8 sm:mb-10 sm:pb-10"
@@ -667,6 +776,22 @@ function Page() {
                   planSummaries={planSummaries}
                   transformedData={transformedData}
                   isLoading={planningLoading}
+                  totalItems={planSummaries.length}
+                  addPlanComposer={
+                    isDeadlinePlanningMockEnabled() &&
+                    inlinePlanningMode &&
+                    isDesktop ? (
+                      <InlinePlanningWorkspace
+                        planningPeriodLabel={inlinePlanningPeriodLabel}
+                        activeTarget={activePlanningTarget}
+                        userKeyResultItems={userKeyResultItems}
+                        onClearTarget={() => setSelectedPlanningTargetId(null)}
+                        onExit={handleInlineWorkspaceExit}
+                        editPlanId={inlineEditPlanId}
+                        embedded
+                      />
+                    ) : null
+                  }
                 />
               </div>
               <div
@@ -682,8 +807,8 @@ function Page() {
             </div>
           </div>
 
-          <CreatePlan />
-          <CreateReport />
+          {!isDeadlinePlanningMockEnabled() ? <CreatePlan /> : null}
+          {!isDeadlinePlanningMockEnabled() ? <CreateReport /> : null}
 
           {planningPeriodForUserId?.length === 0 && (
             <div
@@ -703,7 +828,7 @@ function Page() {
             data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-545"
             className="truncate text-sm font-semibold leading-tight text-[#161A2C] sm:text-base"
           >
-            New plan
+            New {isDeadlinePlanningMockEnabled() ? 'tasks' : inlinePlanningPeriodLabel}
           </span>
         }
         extra={

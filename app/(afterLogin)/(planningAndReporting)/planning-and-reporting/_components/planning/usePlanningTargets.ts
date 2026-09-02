@@ -7,6 +7,7 @@ import {
 import { restampSessionAchievedMilestonesInCaches } from '@/utils/invalidateOkrPlanningCaches';
 import { useFetchObjectives } from '@/store/server/features/employees/planning/queries';
 import { useGetPlanningPeriodsHierarchy } from '@/store/server/features/okrPlanningAndReporting/queries';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import {
   buildDeadlineCreatePlanningTargets,
   filterPlanningTargetsByBlockedKeyResults,
@@ -31,6 +32,7 @@ export function usePlanningTargets(
   /** Refresh objective milestone Completed status (e.g. when opening + menu). */
   refetchObjectives: () => void;
 } {
+  const mockEnabled = isDeadlinePlanningMockEnabled();
   const queryClient = useQueryClient();
   const {
     data: objective,
@@ -43,9 +45,13 @@ export function usePlanningTargets(
     staleTime: 30_000,
     keepPreviousData: true,
     refetchOnWindowFocus: false,
+    enabled: !mockEnabled && !!userId,
   });
   const { data: hierarchy, isFetching: hierFetching } =
-    useGetPlanningPeriodsHierarchy(userId, planningPeriodId || '');
+    useGetPlanningPeriodsHierarchy(
+      mockEnabled ? '' : userId,
+      mockEnabled ? '' : planningPeriodId || '',
+    );
 
   // Rebuild targets when session achieve/reopen changes (not only when RQ data changes).
   const recentlyAchievedIds = useRecentlyAchievedMilestones((s) => s.ids);

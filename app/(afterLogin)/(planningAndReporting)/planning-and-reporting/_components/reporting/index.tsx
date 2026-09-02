@@ -22,6 +22,8 @@ import { Cadence } from '../types';
 import { formatPlanningReportDate } from '../utils';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
+import { useReportingData } from '../planning/useReportingData';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 
 function Reporting({
   onHoverKR,
@@ -54,6 +56,10 @@ function Reporting({
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
+  const mockEnabled = isDeadlinePlanningMockEnabled();
+  const { reportSummaries: mockReportSummaries } = useReportingData(
+    activeTab === 2,
+  );
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
 
@@ -70,7 +76,7 @@ function Reporting({
             ? allSessionsOfYear
             : [],
     },
-    { enabled: activeTab === 2 && !!planningPeriodId },
+    { enabled: !mockEnabled && activeTab === 2 && !!planningPeriodId },
   );
 
   const getPlanningPeriodDetail = (id: string) => {
@@ -137,13 +143,23 @@ function Reporting({
   const reportTaskOverrides = useRecentReportTaskStatuses((s) => s.byReport);
 
   const reportSummaries = useMemo(() => {
+    if (mockEnabled) return mockReportSummaries;
     if (!allReporting?.items) return [];
     return allReporting.items.map((dataItem: any) =>
       transformReportToPlanSummary(dataItem, cadence, employeeData),
     );
-  }, [allReporting?.items, cadence, employeeData, reportTaskOverrides]);
+  }, [
+    mockEnabled,
+    mockReportSummaries,
+    allReporting?.items,
+    cadence,
+    employeeData,
+    reportTaskOverrides,
+  ]);
 
-  const totalReportingItems = allReporting?.meta?.totalItems ?? 0;
+  const totalReportingItems = mockEnabled
+    ? mockReportSummaries.length
+    : (allReporting?.meta?.totalItems ?? 0);
   const showReportingPagination = totalReportingItems > pageSizeReporting;
 
   const paginationNode = !showReportingPagination ? null : isMobile ||
@@ -215,16 +231,25 @@ function Reporting({
                     onOpen={() => handleApproveHandler(dataItem.id, false)}
                     onEdit={() => startInlineEditReport(dataItem.id)}
                     canApprove={
-                      userId ===
-                      (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
-                        ?.reportingTo?.id ||
-                        getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
-                          ?.delegatedTo?.id)
+                      mockEnabled
+                        ? String(userId ?? '') !==
+                          String(
+                            dataItem?.userId ?? dataItem?.createdBy ?? '',
+                          )
+                        : userId ===
+                          (getEmployeeData(
+                            dataItem?.userId ?? dataItem?.createdBy,
+                          )?.reportingTo?.id ||
+                            getEmployeeData(
+                              dataItem?.userId ?? dataItem?.createdBy,
+                            )?.delegatedTo?.id)
                     }
                     canEdit={
-                      userId === (dataItem?.userId ?? dataItem?.createdBy) &&
-                      dataItem?.plan?.isReportValidated == false &&
-                      isDataFromActiveSession(dataItem?.createdAt)
+                      mockEnabled
+                        ? false
+                        : userId === (dataItem?.userId ?? dataItem?.createdBy) &&
+                          dataItem?.plan?.isReportValidated == false &&
+                          isDataFromActiveSession(dataItem?.createdAt)
                     }
                     isApprovalLoading={isApprovalLoading}
                     dateLabel={getDateLabel(dataItem?.createdAt ?? '')}

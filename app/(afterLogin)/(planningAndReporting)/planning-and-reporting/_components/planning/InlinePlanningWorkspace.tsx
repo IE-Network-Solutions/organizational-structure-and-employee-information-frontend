@@ -9,6 +9,7 @@ import React, {
   useState,
   useCallback,
 } from 'react';
+import classNames from 'classnames';
 import {
   Button,
   DatePicker,
@@ -42,6 +43,11 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { usePlanTaskDatesStore } from '@/store/uistate/features/planningAndReporting/taskDates';
+import {
+  UNLINKED_KR_ID,
+  useUserPlanRepositoryMock,
+} from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { NAME } from '@/types/enumTypes';
 import {
@@ -151,22 +157,8 @@ function apiTaskToDraftLine(e: any): DraftLine {
   };
 }
 
-/** Integers summing to 100, split as evenly as possible (e.g. 3 → 34, 33, 33). */
-function equalIntegerWeightsForCount(n: number): number[] {
-  if (n <= 0) return [];
-  const base = Math.floor(100 / n);
-  const remainder = 100 - base * n;
-  return Array.from({ length: n }, (value, i) => {
-    void value;
-    const extra = i < remainder ? 1 : 0;
-    return base + extra;
-  });
-}
-
 function applyEqualWeightsToDailyDraftLines(lines: DraftLine[]): DraftLine[] {
-  if (lines.length === 0 || !lines.every((l) => l.isDailySlot)) return lines;
-  const weights = equalIntegerWeightsForCount(lines.length);
-  return lines.map((l, i) => ({ ...l, weight: weights[i] }));
+  return lines.map((l) => ({ ...l, weight: 0 }));
 }
 
 const priorityOptions = [
@@ -406,8 +398,6 @@ function PlanningMetricsRow({
   isDailySlot,
   priority,
   setPriority,
-  weight,
-  setWeight,
   targetValue,
   setTargetValue,
   keyResultForBounds,
@@ -416,8 +406,6 @@ function PlanningMetricsRow({
   isDailySlot: boolean;
   priority: string | undefined;
   setPriority: (v: string) => void;
-  weight: number | null;
-  setWeight: (v: number | null) => void;
   targetValue: number | null;
   setTargetValue: (v: number | null) => void;
   keyResultForBounds?: any | null;
@@ -427,7 +415,7 @@ function PlanningMetricsRow({
     <div
       data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1006"
       className={`grid min-w-0 flex-1 gap-2 sm:gap-3 [&>*]:min-w-0 ${
-        showTarget ? 'grid-cols-3' : 'grid-cols-2'
+        showTarget ? 'grid-cols-2' : 'grid-cols-1'
       }`}
     >
       <Select
@@ -436,14 +424,6 @@ function PlanningMetricsRow({
         value={priority}
         onChange={setPriority}
         options={priorityOptions}
-      />
-      <InputNumber
-        placeholder="Weight %"
-        min={1}
-        max={100}
-        className={`w-full min-w-0 rounded-lg ${inputNumH40} [&_.ant-input-number]:!rounded-lg`}
-        value={weight ?? undefined}
-        onChange={(v) => setWeight(v ?? null)}
       />
       {showTarget ? (
         <InputNumber
@@ -507,7 +487,7 @@ const INLINE_KEY_RESULT_INSTRUCTION = (
 );
 
 const DEFAULT_INLINE_PRIORITY = 'medium';
-const DEFAULT_INLINE_WEIGHT = 10;
+const PLAN_TASK_WEIGHT = 0;
 
 /** One-line header from the active planning period pill name */
 function inlinePlanHeadline(
@@ -515,7 +495,8 @@ function inlinePlanHeadline(
   mode: 'create' | 'edit',
 ): string {
   void periodLabel;
-  return mode === 'edit' ? 'Edit plan' : 'Add plan';
+  if (mode === 'edit') return 'Edit plan';
+  return isDeadlinePlanningMockEnabled() ? 'Add to My Plan' : 'Add plan';
 }
 
 const DeadlineSpanFields = ({
@@ -596,6 +577,11 @@ interface InlinePlanningWorkspaceProps {
   onExit: () => void;
   /** When true, omit the header back/close control (e.g. parent Drawer supplies it) */
   hideHeaderCloseButton?: boolean;
+  /**
+   * Nested inside My Plan card: no draft header chrome, compact empty hint,
+   * KR + pick on the left stays the entry point.
+   */
+  embedded?: boolean;
   /** When set, load this plan into the same composer and PATCH on save (reuses create UX) */
   editPlanId?: string | null;
 }
@@ -611,6 +597,7 @@ const InlinePlanningWorkspace = forwardRef<
     onClearTarget,
     onExit,
     hideHeaderCloseButton = false,
+    embedded = false,
     editPlanId = null,
   },
   ref,
@@ -642,10 +629,17 @@ const InlinePlanningWorkspace = forwardRef<
     useCreatePlanTasks();
   const { mutate: updatePlanTasks, isLoading: isUpdating } =
     useUpdatePlanTasks();
+  const appendTask = useUserPlanRepositoryMock((s) => s.appendTask);
+  const removeMockTask = useUserPlanRepositoryMock((s) => s.removeTask);
+  const getMockPlan = useUserPlanRepositoryMock((s) => s.getPlan);
+  const mockEnabled = isDeadlinePlanningMockEnabled();
   const isLoading = isCreating || isUpdating;
 
   const isEditMode = Boolean(editPlanId);
-  const loadingEditPlan = isEditMode && (loadingPlanGroup || loadingHierarchy);
+  const loadingEditPlan =
+    isEditMode &&
+    !mockEnabled &&
+    (loadingPlanGroup || loadingHierarchy);
   const editHydratedRef = useRef<string | null>(null);
   const { isMobile } = useIsMobile();
 
@@ -656,19 +650,13 @@ const InlinePlanningWorkspace = forwardRef<
   const [priority, setPriority] = useState<string | undefined>(
     DEFAULT_INLINE_PRIORITY,
   );
-  const [weight, setWeight] = useState<number | null>(DEFAULT_INLINE_WEIGHT);
   const [targetValue, setTargetValue] = useState<number | null>(null);
-  /** Hide Adding to + New task after last add reaches 100%; reopen when total drops below 100 */
+  /** Hide add form after a task is added; user reopens via "Additional Plans". */
   const [composerCollapsed, setComposerCollapsed] = useState(false);
   /** Draft row being edited in the form (same fields as add) */
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
   /** KR/milestone-as-outcome task (Achieve metric only, not daily sub-slots) */
   const [planAsAchieve, setPlanAsAchieve] = useState(false);
-
-  const totalWeight = useMemo(
-    () => draftLines.reduce((s, l) => s + (Number(l.weight) || 0), 0),
-    [draftLines],
-  );
 
   const recentlyAchievedIds = useRecentlyAchievedMilestones((s) => s.ids);
   const reopenedMilestoneIds = useRecentlyAchievedMilestones(
@@ -722,8 +710,45 @@ const InlinePlanningWorkspace = forwardRef<
   }, [editPlanId]);
 
   useEffect(() => {
-    if (!isEditMode || !editPlanId || !planGroupData) return;
+    if (!isEditMode || !editPlanId) return;
     if (editHydratedRef.current === editPlanId) return;
+
+    if (mockEnabled) {
+      const plan = getMockPlan(String(userId));
+      if (!plan) return;
+      const lines: DraftLine[] = plan.activeTasks
+        .filter((t) => !t.isReported)
+        .map((t) => ({
+          id:
+            typeof crypto !== 'undefined' && crypto.randomUUID
+              ? crypto.randomUUID()
+              : `draft-${t.id}`,
+          serverTaskId: t.id,
+          task: t.title,
+          priority: t.priority ?? DEFAULT_INLINE_PRIORITY,
+          weight: PLAN_TASK_WEIGHT,
+          targetValue: Number(t.actualValue ?? 0),
+          keyResultId: String(t.keyResultId || UNLINKED_KR_ID),
+          milestoneId: null,
+          parentTaskId: t.parentId,
+          parentPlanId: null,
+          label: t.keyResultTitle || 'Unlinked',
+          achieveMK: false,
+          metricTypeName: null,
+          isDailySlot: t.kind === 'daily',
+          keyResultTitle: t.keyResultTitle,
+          milestoneTitle: null,
+          start: t.start,
+          deadline: t.deadline,
+        }));
+      setDraftLines(lines);
+      setEditingDraftId(null);
+      setComposerCollapsed(false);
+      editHydratedRef.current = editPlanId;
+      return;
+    }
+
+    if (!planGroupData) return;
     if (planningPeriodHierarchy?.parentPlan && loadingHierarchy) return;
 
     let tasks: any[] = [];
@@ -752,6 +777,9 @@ const InlinePlanningWorkspace = forwardRef<
   }, [
     isEditMode,
     editPlanId,
+    mockEnabled,
+    getMockPlan,
+    userId,
     planGroupData,
     loadingHierarchy,
     planningPeriodHierarchy?.parentPlan,
@@ -763,7 +791,6 @@ const InlinePlanningWorkspace = forwardRef<
     setStartDate(dayjs());
     setEndDate(activeTarget?.isDailySlot ? dayjs() : null);
     setPriority(DEFAULT_INLINE_PRIORITY);
-    setWeight(DEFAULT_INLINE_WEIGHT);
     setPlanAsAchieve(false);
     if (
       activeTarget &&
@@ -806,11 +833,6 @@ const InlinePlanningWorkspace = forwardRef<
         hint != null && !Number.isNaN(Number(hint)) ? Number(hint) : null,
       );
     }
-    if (activeTarget.isDailySlot) {
-      setWeight(equalIntegerWeightsForCount(1)[0]);
-    } else {
-      setWeight(DEFAULT_INLINE_WEIGHT);
-    }
   }, [
     activeTarget?.id,
     activeTarget?.targetValueHint,
@@ -819,28 +841,11 @@ const InlinePlanningWorkspace = forwardRef<
     editingDraftId,
   ]);
 
-  /** Equal-split preview for the next daily child task (does not reset task/priority). */
-  React.useEffect(() => {
-    if (!activeTarget || editingDraftId) return;
-    const dailyEqualComposer =
-      !!activeTarget.isDailySlot &&
-      (draftLines.length === 0 || draftLines.every((l) => l.isDailySlot));
-    if (!dailyEqualComposer) return;
-    setWeight(equalIntegerWeightsForCount(draftLines.length + 1)[0]);
-  }, [
-    activeTarget?.id,
-    activeTarget?.isDailySlot,
-    draftLines.length,
-    editingDraftId,
-  ]);
-
   const cancelEditDraft = useCallback(() => {
     setEditingDraftId(null);
     resetForm();
-    if (Math.round(totalWeight) === 100) {
-      setComposerCollapsed(true);
-    }
-  }, [draftLines, resetForm, totalWeight]);
+    setComposerCollapsed(true);
+  }, [resetForm]);
 
   const beginEditDraft = useCallback((line: DraftLine) => {
     setEditingDraftId(line.id);
@@ -849,7 +854,6 @@ const InlinePlanningWorkspace = forwardRef<
     setStartDate(line.start ? dayjs(line.start) : dayjs());
     setEndDate(line.deadline ? dayjs(line.deadline) : null);
     setPriority(line.priority);
-    setWeight(line.weight);
     setTargetValue(line.targetValue);
     setPlanAsAchieve(!!line.achieveMK);
   }, []);
@@ -875,23 +879,8 @@ const InlinePlanningWorkspace = forwardRef<
       message.warning('Select a priority.');
       return;
     }
-    const w = Number(weight);
-    const dailyEqualComposer =
-      !!activeTarget?.isDailySlot &&
-      (draftLines.length === 0 || draftLines.every((l) => l.isDailySlot));
-
-    if (!editingDraftId && !dailyEqualComposer) {
-      if (!w || w <= 0) {
-        message.warning('Enter a weight greater than 0.');
-        return;
-      }
-    }
 
     if (editingDraftId) {
-      if (!w || w <= 0) {
-        message.warning('Enter a weight greater than 0.');
-        return;
-      }
       const existing = draftLines.find((l) => l.id === editingDraftId);
       if (!existing) {
         setEditingDraftId(null);
@@ -919,13 +908,6 @@ const InlinePlanningWorkspace = forwardRef<
           return;
         }
       }
-      const weightWithout = totalWeight - existing.weight;
-      if (weightWithout + w > 100) {
-        message.warning(
-          `Total weight would exceed 100 (currently ${totalWeight}).`,
-        );
-        return;
-      }
       const nextAchieveMK = canUseAchieveMK(
         existing.metricTypeName,
         existing.isDailySlot,
@@ -947,7 +929,6 @@ const InlinePlanningWorkspace = forwardRef<
         );
         return;
       }
-      const newTotal = weightWithout + w;
       setDraftLines((prev) =>
         prev.map((l) =>
           l.id === editingDraftId
@@ -955,7 +936,7 @@ const InlinePlanningWorkspace = forwardRef<
                 ...l,
                 task: t,
                 priority,
-                weight: w,
+                weight: PLAN_TASK_WEIGHT,
                 start: startIso,
                 deadline: deadlineIso,
                 targetValue: resolvePlanningTargetValue(
@@ -970,26 +951,28 @@ const InlinePlanningWorkspace = forwardRef<
       );
       setEditingDraftId(null);
       resetForm();
-      if (newTotal === 100) {
-        setComposerCollapsed(true);
-      } else {
-        message.success('Task updated.');
-      }
+      setComposerCollapsed(true);
+      message.success('Task updated.');
       return;
     }
 
     if (!activeTarget) {
-      const wideLayout =
-        typeof window !== 'undefined' &&
-        window.matchMedia('(min-width: 1024px)').matches;
-      message.info(
-        wideLayout
-          ? 'Choose a key result (or weekly task) on the left with + first.'
-          : 'Choose a key result (or weekly task) above with + first.',
-      );
-      return;
+      if (mockEnabled) {
+        // Mock: allow unlinked tasks without picking a KR first.
+      } else {
+        const wideLayout =
+          typeof window !== 'undefined' &&
+          window.matchMedia('(min-width: 1024px)').matches;
+        message.info(
+          wideLayout
+            ? 'Choose a key result (or weekly task) on the left with + first.'
+            : 'Choose a key result (or weekly task) above with + first.',
+        );
+        return;
+      }
     }
     if (
+      activeTarget &&
       shouldShowPlanningTarget(
         activeTarget.metricTypeName,
         activeTarget.isDailySlot,
@@ -1004,16 +987,9 @@ const InlinePlanningWorkspace = forwardRef<
         return;
       }
     }
-    if (!dailyEqualComposer) {
-      if (totalWeight + w > 100) {
-        message.warning(
-          `Total weight would exceed 100 (currently ${totalWeight}).`,
-        );
-        return;
-      }
-    }
 
     const achieveMK =
+      !!activeTarget &&
       planAsAchieve &&
       canUseAchieveMK(
         activeTarget.metricTypeName,
@@ -1022,6 +998,7 @@ const InlinePlanningWorkspace = forwardRef<
       );
     if (
       achieveMK &&
+      activeTarget &&
       hasOutcomeTaskConflict(
         draftLines,
         activeTarget.keyResultId,
@@ -1034,37 +1011,34 @@ const InlinePlanningWorkspace = forwardRef<
       return;
     }
 
-    const label = activeTarget.isDailySlot
-      ? `${activeTarget.keyResultTitle} · ${activeTarget.parentTaskTitle || 'Task'}`
-      : activeTarget.milestoneId
-        ? activeTarget.milestoneTitle || 'Milestone'
-        : activeTarget.keyResultTitle;
-
-    const nextCount = draftLines.length + 1;
-    const initialWeight = dailyEqualComposer
-      ? equalIntegerWeightsForCount(nextCount)[0]
-      : w;
+    const label = !activeTarget
+      ? 'Unlinked'
+      : activeTarget.isDailySlot
+        ? `${activeTarget.keyResultTitle} · ${activeTarget.parentTaskTitle || 'Task'}`
+        : activeTarget.milestoneId
+          ? activeTarget.milestoneTitle || 'Milestone'
+          : activeTarget.keyResultTitle;
 
     const line: DraftLine = {
       id: crypto.randomUUID(),
       task: t,
       priority,
-      weight: initialWeight,
+      weight: PLAN_TASK_WEIGHT,
       targetValue: resolvePlanningTargetValue(
         targetValue,
-        activeTarget.metricTypeName,
-        activeTarget.isDailySlot,
+        activeTarget?.metricTypeName,
+        !!activeTarget?.isDailySlot,
       ),
-      keyResultId: activeTarget.keyResultId,
-      milestoneId: activeTarget.milestoneId,
-      parentTaskId: activeTarget.parentTaskId,
-      parentPlanId: activeTarget.parentPlanId ?? null,
+      keyResultId: activeTarget?.keyResultId ?? UNLINKED_KR_ID,
+      milestoneId: activeTarget?.milestoneId ?? null,
+      parentTaskId: activeTarget?.parentTaskId ?? null,
+      parentPlanId: activeTarget?.parentPlanId ?? null,
       label,
       achieveMK,
-      metricTypeName: activeTarget.metricTypeName ?? null,
-      isDailySlot: activeTarget.isDailySlot,
-      keyResultTitle: activeTarget.keyResultTitle,
-      milestoneTitle: activeTarget.milestoneTitle ?? null,
+      metricTypeName: activeTarget?.metricTypeName ?? null,
+      isDailySlot: activeTarget?.isDailySlot ?? false,
+      keyResultTitle: activeTarget?.keyResultTitle ?? 'Unlinked',
+      milestoneTitle: activeTarget?.milestoneTitle ?? null,
       start: startIso,
       deadline: deadlineIso,
     };
@@ -1086,9 +1060,7 @@ const InlinePlanningWorkspace = forwardRef<
     startDate,
     endDate,
     priority,
-    weight,
     targetValue,
-    totalWeight,
     resetForm,
     editingDraftId,
     draftLines,
@@ -1109,15 +1081,48 @@ const InlinePlanningWorkspace = forwardRef<
       message.warning('Add at least one task.');
       return;
     }
-    if (totalWeight !== 100) {
-      message.warning(
-        `Weights must sum to exactly 100 (currently ${totalWeight}).`,
-      );
-      return;
-    }
 
     /* Newest-first in UI; submit in creation order (oldest first) for API parity */
     const ordered = [...draftLines].reverse();
+
+    if (isEditMode && editPlanId && mockEnabled) {
+      const missingDates = ordered.some(
+        (l) => !resolveSpan(l.start, l.deadline),
+      );
+      if (missingDates) {
+        message.warning('Each task needs a start date and an end date.');
+        return;
+      }
+      const plan = getMockPlan(String(userId));
+      const keepIds = new Set(
+        ordered.map((l) => l.serverTaskId).filter(Boolean) as string[],
+      );
+      (plan?.activeTasks ?? []).forEach((t) => {
+        if (!keepIds.has(t.id)) removeMockTask(String(userId), t.id);
+      });
+      for (const line of ordered) {
+        if (line.serverTaskId) continue;
+        const result = appendTask(String(userId), {
+          title: line.task,
+          start: line.start,
+          deadline: line.deadline,
+          keyResultId: line.keyResultId || UNLINKED_KR_ID,
+          priority: line.priority,
+          parentId: line.parentTaskId,
+        });
+        if (!result.ok) {
+          message.warning(result.error);
+          return;
+        }
+      }
+      setDraftLines([]);
+      setEditingDraftId(null);
+      setMKAsATask(null);
+      setInlinePlanningMode(false);
+      onExit();
+      message.success('Plan updated.');
+      return;
+    }
 
     if (isEditMode && editPlanId && planGroupData) {
       const pvUserId = planGroupData?.planningUser?.userId;
@@ -1136,7 +1141,7 @@ const InlinePlanningWorkspace = forwardRef<
         ...(l.serverTaskId ? { id: l.serverTaskId } : {}),
         task: l.task,
         priority: l.priority,
-        weight: l.weight,
+        weight: PLAN_TASK_WEIGHT,
         targetValue: l.targetValue,
         achieveMK: !!l.achieveMK,
         userId: String(pvUserId || userId),
@@ -1190,6 +1195,32 @@ const InlinePlanningWorkspace = forwardRef<
       return;
     }
 
+    if (isDeadlinePlanningMockEnabled()) {
+      for (const group of grouped.groups) {
+        for (const line of group.lines) {
+          const result = appendTask(String(userId), {
+            title: line.task,
+            start: line.start,
+            deadline: line.deadline,
+            keyResultId: line.keyResultId || UNLINKED_KR_ID,
+            priority: line.priority,
+            parentId: line.parentTaskId,
+          });
+          if (!result.ok) {
+            message.warning(result.error);
+            return;
+          }
+        }
+      }
+      setDraftLines([]);
+      setEditingDraftId(null);
+      setMKAsATask(null);
+      setInlinePlanningMode(false);
+      onExit();
+      message.success('Tasks added to your plan.');
+      return;
+    }
+
     const submitGroups = async () => {
       try {
         const overlayEntries: Record<
@@ -1200,7 +1231,7 @@ const InlinePlanningWorkspace = forwardRef<
           const tasks = group.lines.map((l) => ({
             task: l.task,
             priority: l.priority,
-            weight: l.weight,
+            weight: PLAN_TASK_WEIGHT,
             targetValue: l.targetValue,
             achieveMK: !!l.achieveMK,
             userId: String(userId),
@@ -1246,26 +1277,6 @@ const InlinePlanningWorkspace = forwardRef<
     void submitGroups();
   };
 
-  const roundedTotal = Math.round(totalWeight);
-  const saveWeightIncomplete = totalWeight !== 100;
-
-  // Composer no longer auto-opens when weight drops — user opens it manually via "Additional Plans".
-
-  React.useEffect(() => {
-    if (!editingDraftId) return;
-    if (!draftLines.some((l) => l.id === editingDraftId)) {
-      setEditingDraftId(null);
-      resetForm();
-    }
-  }, [editingDraftId, draftLines, resetForm]);
-
-  const weightTone =
-    roundedTotal === 100
-      ? 'text-[#059669]'
-      : roundedTotal > 100
-        ? 'text-[#DC2626]'
-        : 'text-[#D97706]';
-
   const showDraftAndSubmit = draftLines.length > 0;
   const showEmptyInstruction =
     !isEditMode && !activeTarget && draftLines.length === 0;
@@ -1277,6 +1288,14 @@ const InlinePlanningWorkspace = forwardRef<
     setInlinePlanningMode(false);
     onExit();
   }, [onExit, setInlinePlanningMode, setMKAsATask]);
+
+  React.useEffect(() => {
+    if (!editingDraftId) return;
+    if (!draftLines.some((l) => l.id === editingDraftId)) {
+      setEditingDraftId(null);
+      resetForm();
+    }
+  }, [editingDraftId, draftLines, resetForm]);
 
   const requestExitInlinePlanning = useCallback(() => {
     if (draftLines.length === 0) {
@@ -1332,13 +1351,23 @@ const InlinePlanningWorkspace = forwardRef<
     );
   return (
     <div
-      className="min-w-0 max-w-full pr-1"
+      className={classNames(
+        'min-w-0 max-w-full',
+        embedded ? '' : 'pr-1',
+      )}
       data-cy="inline-planning-workspace"
+      data-embedded={embedded ? 'true' : undefined}
     >
       <div
-        className="overflow-hidden rounded-xl border border-[#F1F2F6] bg-white"
+        className={classNames(
+          'overflow-hidden bg-white',
+          embedded
+            ? ''
+            : 'rounded-xl border border-[#F1F2F6]',
+        )}
         data-cy="inline-plan-draft-card"
       >
+        {!embedded ? (
         <div
           data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-872"
           className="flex min-h-[48px] items-center justify-between gap-2 border-b border-[#F1F2F6] bg-[#FAFBFC] px-3 py-2 md:min-h-[60px] md:gap-4 md:px-5 md:py-4"
@@ -1374,66 +1403,25 @@ const InlinePlanningWorkspace = forwardRef<
               className="whitespace-nowrap text-[12px] tabular-nums text-[#475569] md:text-sm"
             >
               {draftLines.length} task{draftLines.length !== 1 ? 's' : ''}
-              <span
-                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-892"
-                className="mx-1 text-[#CBD5E1] md:mx-2"
-              >
-                ·
-              </span>
-              <span
-                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-893"
-                className={`text-[18px] font-extrabold md:text-[20px] ${weightTone}`}
-              >
-                {roundedTotal}
-              </span>
-              <span
-                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-894"
-                className="text-[13px] font-medium text-[#94A3B8] md:text-[14px]"
-              >
-                {' '}
-                / 100
-              </span>
             </span>
             {showDraftAndSubmit ? (
-              <Tooltip
-                title={
-                  saveWeightIncomplete
-                    ? 'Total weight must equal 100 before you can save the plan.'
-                    : ''
-                }
-                open={isMobile ? false : undefined}
+              <Button
+                type="primary"
+                loading={isLoading}
+                onClick={() => handleSubmit()}
+                className="!m-0 !h-9 !min-h-9 !w-auto !min-w-0 rounded-lg !border-[#1E40AF] !bg-[#1E40AF] !px-3.5 text-[12px] font-semibold !text-white hover:!border-[#1E3A8A] hover:!bg-[#1E3A8A] md:!h-10 md:!min-h-10 md:!px-5 md:text-[13px]"
+                data-cy="inline-plan-create-plan"
               >
-                <Button
-                  type="primary"
-                  loading={isLoading}
-                  disabled={!isMobile && saveWeightIncomplete}
-                  onClick={() => {
-                    if (saveWeightIncomplete) {
-                      if (isMobile) {
-                        message.info({
-                          content:
-                            'Assign weights so your tasks total exactly 100% before you save your plan.',
-                          duration: 4,
-                        });
-                      }
-                      return;
-                    }
-                    handleSubmit();
-                  }}
-                  aria-disabled={isMobile && saveWeightIncomplete}
-                  className={`!m-0 !h-9 !min-h-9 !w-auto !min-w-0 rounded-lg !border-[#1E40AF] !bg-[#1E40AF] !px-3.5 text-[12px] font-semibold !text-white hover:!border-[#1E3A8A] hover:!bg-[#1E3A8A] md:!h-10 md:!min-h-10 md:!px-5 md:text-[13px] ${
-                    isMobile && saveWeightIncomplete
-                      ? '!cursor-not-allowed !opacity-[0.45]'
-                      : ''
-                  }`}
-                  data-cy="inline-plan-create-plan"
-                >
-                  {isEditMode ? 'Save changes' : 'Save plan'}
-                </Button>
-              </Tooltip>
+                {isEditMode
+                  ? 'Save changes'
+                  : isDeadlinePlanningMockEnabled()
+                    ? 'Add to plan'
+                    : 'Save plan'}
+              </Button>
             ) : null}
           </div>
         </div>
+        ) : null}
 
         <div
           data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-937"
@@ -1445,12 +1433,20 @@ const InlinePlanningWorkspace = forwardRef<
 
           {showEmptyInstruction ? (
             <div
-              className="flex min-h-[336px] flex-col items-center justify-center px-6 py-12 text-center"
+              className={classNames(
+                'flex flex-col items-center justify-center text-center',
+                embedded
+                  ? 'min-h-0 px-2 py-4'
+                  : 'min-h-[336px] px-6 py-12',
+              )}
               data-cy="inline-plan-empty-draft"
             >
               <p
                 data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-947"
-                className="max-w-lg text-[15px] leading-8 text-[#575B7A]"
+                className={classNames(
+                  'max-w-lg leading-relaxed text-[#575B7A]',
+                  embedded ? 'text-[13px]' : 'text-[15px] leading-8',
+                )}
               >
                 {INLINE_KEY_RESULT_INSTRUCTION}
               </p>
@@ -1464,13 +1460,21 @@ const InlinePlanningWorkspace = forwardRef<
           !loadingEditPlan ? (
             <div
               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1039"
-              className={`space-y-4 px-3 py-3 md:px-5 md:py-5 ${
-                draftLines.length > 0 ? 'border-b border-[#F1F2F6]' : ''
-              }`}
+              className={classNames(
+                embedded
+                  ? 'space-y-2 rounded-lg bg-[#F5F6F9] px-2.5 py-2'
+                  : 'space-y-4 px-3 py-3 md:px-5 md:py-5',
+                !embedded && draftLines.length > 0
+                  ? 'border-b border-[#F1F2F6]'
+                  : '',
+              )}
             >
               <div
                 data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-962"
-                className="flex items-center justify-between gap-3 md:items-start"
+                className={classNames(
+                  'flex items-center justify-between gap-2',
+                  embedded ? 'min-h-7' : 'gap-3 md:items-start',
+                )}
               >
                 <div
                   data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-963"
@@ -1478,13 +1482,21 @@ const InlinePlanningWorkspace = forwardRef<
                 >
                   <p
                     data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-964"
-                    className="text-[10px] font-semibold uppercase tracking-wider text-[#8F94A3]"
+                    className={classNames(
+                      'font-semibold uppercase tracking-wider text-[#8F94A3]',
+                      embedded ? 'text-[9px] leading-none' : 'text-[10px]',
+                    )}
                   >
                     Adding to
                   </p>
                   <p
                     data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-967"
-                    className="mt-0.5 min-w-0 text-[13px] font-semibold leading-snug text-[#161A2C] line-clamp-3 md:line-clamp-4"
+                    className={classNames(
+                      'min-w-0 font-semibold leading-snug text-[#161A2C]',
+                      embedded
+                        ? 'mt-0.5 text-[12px] line-clamp-1'
+                        : 'mt-0.5 text-[13px] line-clamp-3 md:line-clamp-4',
+                    )}
                   >
                     {(activeTarget.keyResultTitle || 'Key result').trim() ||
                       'Key result'}
@@ -1494,27 +1506,39 @@ const InlinePlanningWorkspace = forwardRef<
                   data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-button-1066"
                   type="button"
                   onClick={onClearTarget}
-                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#574CFF]"
+                  className={classNames(
+                    'flex flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#E8EAF0] hover:text-[#574CFF]',
+                    embedded ? 'h-7 w-7' : 'h-9 w-9',
+                  )}
                   aria-label="Clear planning target"
                 >
-                  <CloseOutlined className="text-[15px]" />
+                  <CloseOutlined
+                    className={embedded ? 'text-[12px]' : 'text-[15px]'}
+                  />
                 </button>
               </div>
 
               <div
                 data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-982"
-                className="rounded-lg border border-[#F1F2F6] bg-[#FAFBFC]/60 p-4"
+                className={classNames(
+                  embedded
+                    ? ''
+                    : 'rounded-lg border border-[#F1F2F6] bg-[#FAFBFC]/60 p-4',
+                )}
               >
                 <div
                   data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-983"
-                  className="space-y-4"
+                  className={embedded ? 'space-y-2' : 'space-y-4'}
                 >
                   <Input
                     value={task}
                     onChange={(e) => setTask(e.target.value)}
                     placeholder="What will you accomplish?"
                     disabled={planAsAchieve && showAchieveOptionForAdd}
-                    className="!h-10 rounded-lg border-[#E5E7EB] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]"
+                    className={classNames(
+                      'rounded-lg border-[#E5E7EB] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]',
+                      embedded ? '!h-8' : '!h-10',
+                    )}
                   />
                   <DeadlineSpanFields
                     start={startDate}
@@ -1539,24 +1563,32 @@ const InlinePlanningWorkspace = forwardRef<
                   ) : null}
                   <div
                     data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1005"
-                    className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-5"
+                    className={classNames(
+                      'flex flex-col lg:flex-row lg:items-end lg:justify-between',
+                      embedded
+                        ? 'gap-2 lg:gap-3'
+                        : 'gap-4 lg:gap-5',
+                    )}
                   >
                     <PlanningMetricsRow
                       metricTypeName={activeTarget.metricTypeName}
                       isDailySlot={activeTarget.isDailySlot}
                       priority={priority}
                       setPriority={setPriority}
-                      weight={weight}
-                      setWeight={setWeight}
                       targetValue={targetValue}
                       setTargetValue={setTargetValue}
                       keyResultForBounds={activeKeyResultForBounds}
                     />
                     <Button
                       type="default"
-                      icon={<PlusOutlined className="text-[14px]" />}
+                      icon={<PlusOutlined className="text-[12px]" />}
                       onClick={handleSaveLine}
-                      className={`!m-0 !h-10 w-full shrink-0 px-5 lg:ml-2 lg:w-auto ${inlineComposerOutlineBtnClass}`}
+                      className={classNames(
+                        '!m-0 w-full shrink-0 lg:ml-2 lg:w-auto',
+                        embedded
+                          ? `!h-8 px-3 text-[12px] ${inlineComposerOutlineBtnClass}`
+                          : `!h-10 px-5 ${inlineComposerOutlineBtnClass}`,
+                      )}
                     >
                       Add to plan
                     </Button>
@@ -1568,24 +1600,22 @@ const InlinePlanningWorkspace = forwardRef<
 
           {activeTarget &&
           composerCollapsed &&
-          roundedTotal < 100 &&
           draftLines.length > 0 &&
           !editingDraftId ? (
             <div
               data-cy="inline-plan-additional-plans-row"
-              className={`flex items-center justify-between px-4 py-3 md:px-5 ${draftLines.length > 0 ? 'border-b border-[#F1F2F6]' : ''}`}
+              className={classNames(
+                'flex items-center justify-between',
+                embedded
+                  ? 'px-0 py-2'
+                  : 'border-b border-[#F1F2F6] px-4 py-3 md:px-5',
+              )}
             >
               <span
                 className="text-[13px] text-[#575B7A]"
-                data-cy="inline-plan-weight-summary"
+                data-cy="inline-plan-add-more-hint"
               >
-                <span
-                  className="font-semibold text-[#161A2C]"
-                  data-cy="inline-plan-weight-total"
-                >
-                  {roundedTotal}%
-                </span>{' '}
-                weight assigned.
+                Add more tasks to this plan.
               </span>
               <button
                 type="button"
@@ -1599,45 +1629,15 @@ const InlinePlanningWorkspace = forwardRef<
             </div>
           ) : null}
 
-          {activeTarget &&
-          composerCollapsed &&
-          roundedTotal === 100 &&
-          !editingDraftId ? (
-            <div
-              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1153"
-              className={`px-4 md:px-5 ${
-                draftLines.length > 0
-                  ? 'border-b border-[#F1F2F6] pb-3 pt-1'
-                  : 'py-1'
-              }`}
-            >
-              <p
-                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1054"
-                className="text-[13px] leading-relaxed text-[#575B7A]"
-              >
-                You’ve reached{' '}
-                <span
-                  data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1056"
-                  className="font-semibold text-[#161A2C]"
-                >
-                  100%
-                </span>{' '}
-                weight. Review your tasks below, then click{' '}
-                <span
-                  data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1058"
-                  className="font-semibold text-[#161A2C]"
-                >
-                  Save plan
-                </span>
-                .
-              </p>
-            </div>
-          ) : null}
-
           {!activeTarget && draftLines.length > 0 ? (
             <div
               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1064"
-              className="border-b border-[#F1F2F6] px-4 py-3 text-[13px] text-[#575B7A] md:px-5"
+              className={classNames(
+                'text-[13px] text-[#575B7A]',
+                embedded
+                  ? 'px-0 py-2'
+                  : 'border-b border-[#F1F2F6] px-4 py-3 md:px-5',
+              )}
             >
               <span
                 data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1065"
@@ -1657,7 +1657,12 @@ const InlinePlanningWorkspace = forwardRef<
           {showDraftAndSubmit ? (
             <ul
               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-ul-1075"
-              className="flex flex-col gap-2.5 p-3 md:gap-3 md:p-4 md:px-5"
+              className={classNames(
+                'flex flex-col gap-2.5',
+                embedded
+                  ? 'gap-2 px-0 py-1 md:gap-2'
+                  : 'p-3 md:gap-3 md:p-4 md:px-5',
+              )}
             >
               {draftLines.map((l) =>
                 editingDraftId === l.id ? (
@@ -1744,8 +1749,6 @@ const InlinePlanningWorkspace = forwardRef<
                                 isDailySlot={l.isDailySlot}
                                 priority={priority}
                                 setPriority={setPriority}
-                                weight={weight}
-                                setWeight={setWeight}
                                 targetValue={targetValue}
                                 setTargetValue={setTargetValue}
                                 keyResultForBounds={activeKeyResultForBounds}
@@ -1773,6 +1776,85 @@ const InlinePlanningWorkspace = forwardRef<
                           </div>
                         </div>
                       </div>
+                    </div>
+                  </li>
+                ) : embedded ? (
+                  <li
+                    data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-li-1333"
+                    key={l.id}
+                    className="group flex min-h-9 items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-[#F8F9FB]"
+                  >
+                    <OutcomeTaskListIcon line={l} />
+                    <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+                      <span
+                        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1182"
+                        className="min-w-0 truncate text-[13px] font-semibold text-[#161A2C]"
+                      >
+                        {l.task}
+                      </span>
+                      <span
+                        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1185"
+                        className="hidden min-w-0 truncate text-[12px] text-[#8F94A3] sm:inline"
+                      >
+                        {l.label}
+                      </span>
+                      {(() => {
+                        const span = resolveSpan(l.start, l.deadline);
+                        if (!span) return null;
+                        return (
+                          <span
+                            className="hidden shrink-0 text-[11px] tabular-nums text-[#575B7A] md:inline"
+                            data-cy="inline-plan-draft-span-hint"
+                          >
+                            {span.spanDays}d · {durationFilterLabel(span.kind)}
+                          </span>
+                        );
+                      })()}
+                      <span
+                        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1389"
+                        className={`inline-flex shrink-0 items-center rounded-full border px-1.5 py-px text-[10px] font-semibold capitalize ${draftPriorityPillClass(l.priority)}`}
+                      >
+                        {l.priority}
+                      </span>
+                      {shouldShowTargetOnDraftLine(l) ? (
+                        <span
+                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1217"
+                          className="shrink-0 text-[11px] tabular-nums text-[#475569]"
+                        >
+                          T{l.targetValue}
+                        </span>
+                      ) : null}
+                      {l.achieveMK ? (
+                        <span
+                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-outcome-pill"
+                          className="hidden shrink-0 text-[10px] font-semibold text-[#1E40AF] lg:inline"
+                        >
+                          Outcome
+                        </span>
+                      ) : null}
+                    </div>
+                    <div
+                      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1189"
+                      className="flex shrink-0 items-center gap-0"
+                    >
+                      <button
+                        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-button-1367"
+                        type="button"
+                        onClick={() => beginEditDraft(l)}
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#574CFF]"
+                        aria-label="Edit task"
+                      >
+                        <EditOutlined className="text-[13px]" />
+                      </button>
+                      <button
+                        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-button-1375"
+                        type="button"
+                        onClick={() => removeLine(l.id)}
+                        className="flex h-7 w-7 items-center justify-center rounded-md text-[#9CA3AF] transition-colors hover:bg-[#F1F5F9] hover:text-[#64748B]"
+                        aria-label="Remove task"
+                      >
+                        <CloseOutlined className="text-[13px]" />
+                      </button>
                     </div>
                   </li>
                 ) : (
@@ -1855,12 +1937,6 @@ const InlinePlanningWorkspace = forwardRef<
                         >
                           {l.priority}
                         </span>
-                        <span
-                          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1214"
-                          className="inline-flex items-center rounded-full border border-[#E0E7FF] bg-[#F8F7FF] px-2.5 py-0.5 text-[11px] font-semibold tabular-nums text-[#574CFF]"
-                        >
-                          {l.weight}%
-                        </span>
                         {shouldShowTargetOnDraftLine(l) ? (
                           <span
                             data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1217"
@@ -1891,6 +1967,34 @@ const InlinePlanningWorkspace = forwardRef<
                 ),
               )}
             </ul>
+          ) : null}
+
+          {embedded && showDraftAndSubmit ? (
+            <div
+              className="flex flex-wrap items-center justify-end gap-2 px-0 py-2"
+              data-cy="inline-plan-embedded-actions"
+            >
+              <span className="mr-auto text-[12px] tabular-nums text-[#475569]">
+                {draftLines.length} task{draftLines.length !== 1 ? 's' : ''}
+              </span>
+              <Button
+                type="default"
+                onClick={requestExitInlinePlanning}
+                className="!h-9 rounded-lg text-[12px] font-semibold"
+                data-cy="inline-plan-embedded-cancel"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                loading={isLoading}
+                onClick={() => handleSubmit()}
+                className="!h-9 rounded-lg !border-[#1E40AF] !bg-[#1E40AF] !px-4 text-[12px] font-semibold !text-white hover:!border-[#1E3A8A] hover:!bg-[#1E3A8A]"
+                data-cy="inline-plan-embedded-save"
+              >
+                {isEditMode ? 'Save changes' : 'Add to plan'}
+              </Button>
+            </div>
           ) : null}
         </div>
       </div>

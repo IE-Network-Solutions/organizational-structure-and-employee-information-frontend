@@ -5,7 +5,6 @@ import type {
 import {
   appearsInThisMonth,
   appearsInThisWeek,
-  appearsInToday,
   formatDate,
   kindFromSpan,
   parseDate,
@@ -23,9 +22,28 @@ export const periodNameToKind = (name?: string): DeadlineKind => {
 
 export const durationFilterLabel = (kind: DeadlineKind): string => {
   if (kind === 'daily') return 'Today';
-  if (kind === 'week') return 'This week';
-  return 'This month';
+  if (kind === 'week') return 'This Week';
+  return 'This Month';
 };
+
+/** UI tab index (1-based) → duration window kind. */
+export const activePlanPeriodToKind = (
+  activePlanPeriod: number,
+): DeadlineKind => {
+  if (activePlanPeriod === 1) return 'daily';
+  if (activePlanPeriod === 3) return 'month';
+  return 'week';
+};
+
+export const DURATION_TAB_ITEMS: ReadonlyArray<{
+  key: string;
+  kind: DeadlineKind;
+  label: string;
+}> = [
+  { key: '1', kind: 'daily', label: 'Today' },
+  { key: '2', kind: 'week', label: 'This Week' },
+  { key: '3', kind: 'month', label: 'This Month' },
+] as const;
 
 export const defaultSpanForKind = (
   kind: DeadlineKind,
@@ -174,10 +192,15 @@ export const durationFilterMatchesTask = (
   );
   if (!mapped) return fallbackKind === filterKind;
 
+  if (filterKind === 'daily') {
+    // Today filter: only tasks due today (deadline date === today).
+    const deadlineDay = String(deadline || mapped.deadline || '').slice(0, 10);
+    return deadlineDay === today;
+  }
+
   if (!resolved) {
     return mapped.kind === filterKind;
   }
-  if (filterKind === 'daily') return appearsInToday(mapped, [mapped], today);
   if (filterKind === 'week') return appearsInThisWeek(mapped, today);
   return appearsInThisMonth(mapped, today);
 };

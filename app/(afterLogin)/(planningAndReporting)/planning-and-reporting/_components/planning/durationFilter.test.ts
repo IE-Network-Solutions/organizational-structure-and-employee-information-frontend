@@ -1,11 +1,24 @@
 import {
+  activePlanPeriodToKind,
   cadenceAssignmentByKind,
   collectDeadlineTasksFromPlans,
+  durationFilterLabel,
   groupLinesByDeadlineCadence,
   planItemMatchesDurationFilter,
   plannedTaskToDeadlineTask,
   resolveSpan,
 } from './durationFilter';
+
+describe('duration tab helpers', () => {
+  it('maps tab index to kind and labels', () => {
+    expect(activePlanPeriodToKind(1)).toBe('daily');
+    expect(activePlanPeriodToKind(2)).toBe('week');
+    expect(activePlanPeriodToKind(3)).toBe('month');
+    expect(durationFilterLabel('daily')).toBe('Today');
+    expect(durationFilterLabel('week')).toBe('This Week');
+    expect(durationFilterLabel('month')).toBe('This Month');
+  });
+});
 
 describe('resolveSpan', () => {
   it('classifies 1 day as daily, 2–14 as week, 15+ as month', () => {

@@ -39,6 +39,7 @@ export interface KRPanelAggregatedKR {
 
 export interface KRPanelOwnerGroup {
   ownerKey: string;
+  ownerUserId?: string;
   owner: PlanOwner;
   krs: KRPanelAggregatedKR[];
   avgProgress: number;
@@ -297,13 +298,17 @@ function isGroupForCurrentUser(
   transformedData: any[] | undefined,
   userId: string,
 ): boolean {
+  if (String(group.ownerUserId ?? '') === String(userId ?? '')) return true;
+  if (group.ownerKey === `__user_key_results_${userId}`) return true;
+  if (group.owner?.name === 'My Plan') return true;
+  if (/^your key results?$/i.test(String(group.owner?.name || ''))) return true;
   if (!transformedData?.length || !plans.length) return false;
   return transformedData.some((d: any) => {
     if (d.userId !== userId) return false;
     const p = plans.find((pl) => pl.id === d.id);
     if (!p) return false;
-    const key = p.owner?.name || p.id;
-    return key === group.ownerKey;
+    const key = p.ownerUserId || p.owner?.name || p.id;
+    return String(key) === String(group.ownerKey);
   });
 }
 
@@ -360,8 +365,9 @@ export function mergeUserKeyResultsIntoOwnerGroups(
 
   merged.unshift({
     ownerKey: `__user_key_results_${userId}`,
+    ownerUserId: userId,
     owner: {
-      name: 'Your key results',
+      name: 'Your Key Results',
       role: '',
       avatarInitials: 'KR',
       avatar: undefined,

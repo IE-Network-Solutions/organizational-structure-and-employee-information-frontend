@@ -141,6 +141,18 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
     hasAttachment: task.hasAttachment || false,
   };
 
+  const deadlineRaw =
+    task.deadline || task.endDate || task.end || task.planTask?.deadline;
+  const startRaw = task.startDate || task.start || task.planTask?.startDate;
+  if (deadlineRaw) {
+    const iso = String(deadlineRaw).slice(0, 10);
+    baseTask.deadline = iso;
+    baseTask.endDate = iso;
+  }
+  if (startRaw) {
+    baseTask.startDate = String(startRaw).slice(0, 10);
+  }
+
   if (achieveMK) {
     baseTask.achieveMK = true;
     if (hasMilestoneOutcome) {

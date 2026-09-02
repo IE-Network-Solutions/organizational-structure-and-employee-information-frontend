@@ -6,12 +6,19 @@ import {
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import { resolveEmployeeAndPlanType } from './resolveFilterDraft';
 import {
   getEmployeeDepartmentId,
   getEmployeeItems,
   getSubordinateIds,
 } from './departmentUsers';
+import {
+  buildMockEmployeeFilterOptions,
+  mockDepartmentFilterOptions,
+  mockTeamMemberIds,
+  mockUserIdsForDepartment,
+} from '../prototype/mockPlanningConstants';
 
 export const planTypeOptions = [
   { label: 'All Plans', value: 'all' },
@@ -113,7 +120,9 @@ export function commitPlanningDraft(
     allLevelDepartmentUserIds?: string[];
   },
 ) {
+  const mockEnabled = isDeadlinePlanningMockEnabled();
   const getUserIdsByDepartmentId = (departmentId: string) => {
+    if (mockEnabled) return mockUserIdsForDepartment(departmentId);
     return collectDepartmentUserIds(
       departmentId,
       deps.employeeData,
@@ -121,6 +130,10 @@ export function commitPlanningDraft(
       deps.allLevelDepartmentUserIds,
     );
   };
+  const subordinateIds = () =>
+    mockEnabled
+      ? mockTeamMemberIds()
+      : getSubordinateIds(deps.employeeData, deps.userId);
 
   const {
     setPlanningFilterPlanType,
@@ -159,7 +172,7 @@ export function commitPlanningDraft(
     } else if (planType === 'myPlan') {
       setSelectedUser([deps.userId]);
     } else if (planType === 'subordinatePlan') {
-      const subordinates = getSubordinateIds(deps.employeeData, deps.userId);
+      const subordinates = subordinateIds();
       setSelectedUser(
         subordinates.length > 0
           ? ['subordinate', ...subordinates]
@@ -172,13 +185,16 @@ export function commitPlanningDraft(
     if (planType === 'all') {
       setSelectedUser(departmentUserIds.length > 0 ? departmentUserIds : []);
     } else if (planType === 'myPlan') {
-      const userInDepartment = departmentUserIds.includes(deps.userId);
-      setSelectedUser(userInDepartment ? [deps.userId] : []);
+      if (mockEnabled) {
+        setSelectedUser([deps.userId]);
+      } else {
+        const userInDepartment = departmentUserIds.includes(deps.userId);
+        setSelectedUser(userInDepartment ? [deps.userId] : []);
+      }
     } else if (planType === 'subordinatePlan') {
-      const subordinates = getSubordinateIds(
-        deps.employeeData,
-        deps.userId,
-      ).filter((id) => departmentUserIds.includes(id));
+      const subordinates = subordinateIds().filter((id) =>
+        departmentUserIds.includes(id),
+      );
       setSelectedUser(
         subordinates.length > 0
           ? ['subordinate', ...subordinates]
@@ -216,6 +232,7 @@ export function commitPlanningDraft(
 }
 
 export function usePlanningToolbarFilters() {
+  const mockEnabled = isDeadlinePlanningMockEnabled();
   const { data: allEmployeesRaw, isLoading: isEmployeesLoading } =
     useGetAllUsersData();
   const employeeData = useMemo(
@@ -236,17 +253,39 @@ export function usePlanningToolbarFilters() {
 
   const getUserIdsByDepartmentId = useCallback(
     (departmentId: string) =>
-      collectDepartmentUserIds(departmentId, employeeData, departmentData),
-    [departmentData, employeeData],
+      mockEnabled
+        ? mockUserIdsForDepartment(departmentId)
+        : collectDepartmentUserIds(departmentId, employeeData, departmentData),
+    [departmentData, employeeData, mockEnabled],
   );
 
   const employeeOptions = useMemo(() => {
+    if (mockEnabled) {
+      const options = buildMockEmployeeFilterOptions();
+      if (
+        planningFilterDepartment &&
+        planningFilterDepartment !== 'all'
+      ) {
+        const allowed = new Set(
+          mockUserIdsForDepartment(planningFilterDepartment),
+        );
+        return options.filter(
+          (opt) => opt.value === 'all' || allowed.has(opt.value),
+        );
+      }
+      return options;
+    }
     return buildEmployeeOptions(
       planningFilterDepartment,
       employeeData,
       departmentData,
     );
-  }, [employeeData, planningFilterDepartment, departmentData]);
+  }, [
+    mockEnabled,
+    employeeData,
+    planningFilterDepartment,
+    departmentData,
+  ]);
 
   const getSelectedEmployeeValue = () => {
     const currentValue = selectedUser?.[0];
@@ -264,6 +303,7 @@ export function usePlanningToolbarFilters() {
   };
 
   const departmentOptions = useMemo(() => {
+    if (mockEnabled) return mockDepartmentFilterOptions();
     const options = [{ label: 'All Departments', value: 'all' }];
     if (departmentData) {
       departmentData.forEach((dept: any) => {
@@ -273,7 +313,7 @@ export function usePlanningToolbarFilters() {
       });
     }
     return options;
-  }, [departmentData]);
+  }, [departmentData, mockEnabled]);
 
   const handleEmployeeChange = (value: string) => {
     setPlanningFilterDepartment(undefined);
@@ -296,7 +336,9 @@ export function usePlanningToolbarFilters() {
     } else if (value === 'myPlan') {
       setSelectedUser([userId]);
     } else if (value === 'subordinatePlan') {
-      const subordinates = getSubordinateIds(employeeData, userId);
+      const subordinates = mockEnabled
+        ? mockTeamMemberIds()
+        : getSubordinateIds(employeeData, userId);
       setSelectedUser(
         subordinates.length > 0
           ? ['subordinate', ...subordinates]
@@ -317,7 +359,9 @@ export function usePlanningToolbarFilters() {
       } else if (planType === 'myPlan') {
         setSelectedUser([userId]);
       } else if (planType === 'subordinatePlan') {
-        const subordinates = getSubordinateIds(employeeData, userId);
+        const subordinates = mockEnabled
+          ? mockTeamMemberIds()
+          : getSubordinateIds(employeeData, userId);
         setSelectedUser(
           subordinates.length > 0
             ? ['subordinate', ...subordinates]
@@ -330,12 +374,19 @@ export function usePlanningToolbarFilters() {
       if (planType === 'all') {
         setSelectedUser(departmentUserIds.length > 0 ? departmentUserIds : []);
       } else if (planType === 'myPlan') {
-        const userInDepartment = departmentUserIds.includes(userId);
-        setSelectedUser(userInDepartment ? [userId] : []);
+        // Mock: "My Plan" is never scoped to a mock department roster.
+        if (mockEnabled) {
+          setSelectedUser([userId]);
+        } else {
+          const userInDepartment = departmentUserIds.includes(userId);
+          setSelectedUser(userInDepartment ? [userId] : []);
+        }
       } else if (planType === 'subordinatePlan') {
-        const subordinates = getSubordinateIds(employeeData, userId).filter(
-          (id) => departmentUserIds.includes(id),
-        );
+        const subordinates = (
+          mockEnabled
+            ? mockTeamMemberIds()
+            : getSubordinateIds(employeeData, userId)
+        ).filter((id) => departmentUserIds.includes(id));
         setSelectedUser(
           subordinates.length > 0
             ? ['subordinate', ...subordinates]
@@ -347,7 +398,7 @@ export function usePlanningToolbarFilters() {
 
   return {
     employeeData,
-    isEmployeesLoading,
+    isEmployeesLoading: mockEnabled ? false : isEmployeesLoading,
     departmentData,
     employeeOptions,
     departmentOptions,

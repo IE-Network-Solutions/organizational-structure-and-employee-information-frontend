@@ -7,6 +7,9 @@ import {
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useApprovalPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useUserPlanRepositoryMock } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
+import { userIdFromMockPlanId } from '../prototype/mockPlanAdapter';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { BsClipboard2Check } from 'react-icons/bs';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
@@ -15,6 +18,7 @@ import CustomPagination from '@/components/customPagination';
 import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from './PlanningPanelView';
+import StatusBadge from '../StatusBadge';
 import { Cadence, PlanSummary } from '../types';
 import { formatPlanningReportDate } from '../utils';
 
@@ -31,6 +35,7 @@ function Planning({
   transformedData: transformedDataFromParent,
   isLoading: planningLoadingFromParent,
   totalItems: totalItemsFromParent,
+  addPlanComposer,
 }: {
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
@@ -39,6 +44,8 @@ function Planning({
   transformedData?: any[];
   isLoading?: boolean;
   totalItems?: number;
+  /** Inline composer nested in My Plan (append to existing plan). */
+  addPlanComposer?: React.ReactNode;
 }) {
   const {
     activePlanPeriod,
@@ -62,6 +69,10 @@ function Planning({
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
     useApprovalPlanningPeriods();
+  const approvePending = useUserPlanRepositoryMock((s) => s.approvePending);
+  const openPlanDirect = useUserPlanRepositoryMock((s) => s.openPlanDirect);
+  const mockEnabled = isDeadlinePlanningMockEnabled();
+  const getPlan = useUserPlanRepositoryMock((s) => s.getPlan);
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods, isLoading: userPlanningPeriodsLoading } =
     AllPlanningPeriods();
@@ -87,7 +98,7 @@ function Planning({
   useEffect(() => {
     setPage(1);
     setPageSize(10);
-  }, [activeTab, setPage, setPageSize]);
+  }, [activeTab, activePlanPeriod, setPage, setPageSize]);
 
   useEffect(() => {
     if (activeTab !== 1) {
@@ -105,12 +116,17 @@ function Planning({
 
   const { data: plannedTasksForReport, isLoading: plannedForReportLoading } =
     useGetPlannedTaskForReport(planningPeriodId, {
-      enabled: activeTab === 1 && !!planningPeriodId,
+      enabled: activeTab === 1 && !!planningPeriodId && !mockEnabled,
     });
+  const mockPlanTaskCount = mockEnabled
+    ? (getPlan(userId)?.activeTasks.filter((t) => !t.isReported).length ?? 0)
+    : 0;
   const ownerCanOpenSubmitReport =
-    !plannedForReportLoading &&
-    Array.isArray(plannedTasksForReport) &&
-    plannedTasksForReport.length > 0;
+    mockEnabled
+      ? mockPlanTaskCount > 0
+      : !plannedForReportLoading &&
+        Array.isArray(plannedTasksForReport) &&
+        plannedTasksForReport.length > 0;
   const closeInlineReport = useCallback(() => {
     resetStatuses();
     resetWeights();
@@ -118,6 +134,12 @@ function Planning({
   }, [resetStatuses, resetWeights, setInlineReportPlanId]);
 
   const handleApproveHandler = (id: string, value: boolean) => {
+    if (mockEnabled) {
+      const ownerId = userIdFromMockPlanId(id) ?? id;
+      if (value) approvePending(ownerId);
+      else openPlanDirect(ownerId);
+      return;
+    }
     approvalPlanningPeriod({ id, value });
   };
 
@@ -146,11 +168,43 @@ function Planning({
     }
   };
 
+  const handleAddPlan = () => {
+    const { inlinePlanningMode } = PlanningAndReportingStore.getState();
+    if (inlinePlanningMode) return;
+    setInlineEditPlanId(null);
+    setInlinePlanningMode(true);
+    if (isMobile || isTablet) {
+      setMobilePlanComposerOpen(true);
+    }
+  };
+
+  const { myPlans, otherPlans } = useMemo(() => {
+    const mine: typeof planSummaries = [];
+    const others: typeof planSummaries = [];
+    const currentUserId = String(userId ?? '');
+    for (const plan of planSummaries) {
+      const isMine =
+        String(plan.ownerUserId ?? '') === currentUserId ||
+        plan.summary === 'My Plan' ||
+        plan.owner?.name === 'My Plan';
+      if (isMine) mine.push(plan);
+      else others.push(plan);
+    }
+    return { myPlans: mine, otherPlans: others };
+  }, [planSummaries, userId]);
+
+  const visiblePlanSummaries = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    // My Plan is always pinned above the paginated list of other users' plans.
+    return [...myPlans, ...otherPlans.slice(start, start + pageSize)];
+  }, [myPlans, otherPlans, page, pageSize]);
+
   const isDesktop = !isMobile && !isTablet;
   const isDesktopPanelView =
     isDesktop && !isPlanningListLoading && planSummaries.length > 0;
 
-  const totalPlanningItems = totalItemsFromParent ?? activePlanningItems.length;
+  // Paginate other users' plans only — My Plan stays pinned on every page.
+  const totalPlanningItems = otherPlans.length;
   const showPlanningPagination =
     !isPlanningListLoading && totalPlanningItems > pageSize;
 
@@ -191,11 +245,14 @@ function Planning({
           </div>
         ) : planSummaries.length > 0 ? (
           isMobile || isTablet ? (
-            <div
-              data-cy="planning-and-reporting-components-planning-index-tsx-index-div-319"
-              className="space-y-6"
-            >
-              {planSummaries.map((plan: any) => {
+            (() => {
+              const pendingPlans = visiblePlanSummaries.filter(
+                (plan: PlanSummary) => plan.status?.label !== 'Closed',
+              );
+              const closedPlans = visiblePlanSummaries.filter(
+                (plan: PlanSummary) => plan.status?.label === 'Closed',
+              );
+              const renderMobileCard = (plan: PlanSummary) => {
                 const originalDataItem = transformedData?.find(
                   (item: any) => item.id === plan.id,
                 );
@@ -214,21 +271,26 @@ function Planning({
                     }
                     onEdit={() => handleEdit(originalDataItem.id)}
                     canApprove={
-                      String(userId ?? '') ===
-                      String(
-                        getEmployeeData(originalDataItem?.userId)?.delegatedTo
-                          ?.id ||
-                          getEmployeeData(originalDataItem?.userId)?.reportingTo
-                            ?.id ||
-                          '',
-                      )
+                      mockEnabled
+                        ? String(userId ?? '') !==
+                          String(originalDataItem?.userId ?? '')
+                        : String(userId ?? '') ===
+                          String(
+                            getEmployeeData(originalDataItem?.userId)
+                              ?.delegatedTo?.id ||
+                              getEmployeeData(originalDataItem?.userId)
+                                ?.reportingTo?.id ||
+                              '',
+                          )
                     }
                     canEdit={
-                      String(userId ?? '') ===
-                        String(originalDataItem?.userId ?? '') &&
-                      originalDataItem?.isValidated == false &&
-                      originalDataItem?.isReported == false &&
-                      isDataFromActiveSession(originalDataItem?.createdAt)
+                      mockEnabled
+                        ? false
+                        : String(userId ?? '') ===
+                            String(originalDataItem?.userId ?? '') &&
+                          originalDataItem?.isValidated == false &&
+                          originalDataItem?.isReported == false &&
+                          isDataFromActiveSession(originalDataItem?.createdAt)
                     }
                     isApprovalLoading={isApprovalLoading}
                     dateLabel={getDateLabel(originalDataItem?.createdAt ?? '')}
@@ -248,16 +310,86 @@ function Planning({
                       originalDataItem?.isReported == false &&
                       ownerCanOpenSubmitReport
                     }
+                    onAddPlan={
+                      originalDataItem?.userId === userId
+                        ? handleAddPlan
+                        : undefined
+                    }
+                    showAddPlan={originalDataItem?.userId === userId}
+                    addPlanComposer={
+                      originalDataItem?.userId === userId
+                        ? addPlanComposer
+                        : undefined
+                    }
                     inlineReportActive={inlineReportPlanId === plan.id}
                     onCloseInlineReport={closeInlineReport}
                     planningPeriodLabel={activeTabName}
                   />
                 );
-              })}
-            </div>
+              };
+
+              return (
+                <div
+                  data-cy="planning-and-reporting-components-planning-index-tsx-index-div-319"
+                  className="space-y-6"
+                >
+                  {pendingPlans.length > 0 ? (
+                    <div
+                      className="space-y-3"
+                      data-cy="planning-pending-section"
+                    >
+                      <div
+                        className="flex items-center gap-2"
+                        data-cy="planning-pending-section-header"
+                      >
+                        <StatusBadge
+                          status={
+                            pendingPlans[0]?.status ?? {
+                              label: 'Open',
+                              updatedAt: '',
+                              tone: 'warning',
+                            }
+                          }
+                        />
+                        <span className="text-[12px] font-medium text-[#8F94A3]">
+                          New & unclosed plans
+                        </span>
+                      </div>
+                      <div className="space-y-6">
+                        {pendingPlans.map(renderMobileCard)}
+                      </div>
+                    </div>
+                  ) : null}
+                  {closedPlans.length > 0 ? (
+                    <div
+                      className="space-y-3"
+                      data-cy="planning-closed-section"
+                    >
+                      <div
+                        className="flex items-center gap-2"
+                        data-cy="planning-closed-section-header"
+                      >
+                        <StatusBadge
+                          status={
+                            closedPlans[0]?.status ?? {
+                              label: 'Closed',
+                              updatedAt: '',
+                              tone: 'success',
+                            }
+                          }
+                        />
+                      </div>
+                      <div className="space-y-6">
+                        {closedPlans.map(renderMobileCard)}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })()
           ) : (
             <PlanningPanelView
-              plans={planSummaries}
+              plans={visiblePlanSummaries}
               transformedData={transformedData}
               cadence={currentCadence}
               userId={userId}
@@ -276,6 +408,8 @@ function Planning({
                 resetWeights();
                 setInlineReportPlanId(planId);
               }}
+              onAddPlan={handleAddPlan}
+              addPlanComposer={addPlanComposer}
               ownerCanOpenSubmitReport={ownerCanOpenSubmitReport}
               inlineReportPlanId={inlineReportPlanId}
               onCloseInlineReport={closeInlineReport}

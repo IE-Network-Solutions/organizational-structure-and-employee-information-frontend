@@ -22,6 +22,11 @@ import {
   type PlanningFilterDraft,
 } from './usePlanningToolbarFilters';
 import { extractDepartmentUserIds } from './departmentUsers';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
+import {
+  buildMockEmployeeFilterOptions,
+  mockUserIdsForDepartment,
+} from '../prototype/mockPlanningConstants';
 
 const { Option } = Select;
 
@@ -51,6 +56,7 @@ export default function PlanningToolbarFilters() {
   const applyCloseRef = useRef(false);
 
   const { userId } = useAuthenticationStore();
+  const mockEnabled = isDeadlinePlanningMockEnabled();
   const {
     employeeData,
     isEmployeesLoading,
@@ -65,15 +71,29 @@ export default function PlanningToolbarFilters() {
     data: allLevelDepartmentUsers,
     isFetching: isDepartmentUsersFetching,
   } = useGetDepartmentUsersAllLevels(
-    draft?.department && draft.department !== 'all' ? draft.department : null,
+    !mockEnabled && draft?.department && draft.department !== 'all'
+      ? draft.department
+      : null,
   );
 
   const allLevelDepartmentUserIds = useMemo(
-    () => extractDepartmentUserIds(allLevelDepartmentUsers),
-    [allLevelDepartmentUsers],
+    () =>
+      mockEnabled ? [] : extractDepartmentUserIds(allLevelDepartmentUsers),
+    [mockEnabled, allLevelDepartmentUsers],
   );
 
   const employeeOptions = useMemo(() => {
+    if (mockEnabled) {
+      const options = buildMockEmployeeFilterOptions();
+      const dept = draft?.department;
+      if (dept && dept !== 'all') {
+        const allowed = new Set(mockUserIdsForDepartment(dept));
+        return options.filter(
+          (opt) => opt.value === 'all' || allowed.has(opt.value),
+        );
+      }
+      return options;
+    }
     const options = buildEmployeeOptions(
       draft?.department ?? 'all',
       employeeData,
@@ -99,6 +119,7 @@ export default function PlanningToolbarFilters() {
     }
     return options;
   }, [
+    mockEnabled,
     draft?.department,
     draft?.employeeSelect,
     employeeData,

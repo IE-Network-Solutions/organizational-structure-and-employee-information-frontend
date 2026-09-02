@@ -14,6 +14,8 @@ import {
   useGetReportingById,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { useUserPlanRepositoryMock } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import {
   markMilestonesCompletedInOkrCaches,
   markMilestonesReopenedInOkrCaches,
@@ -32,6 +34,10 @@ import { PlanCardInlineReportFields } from './PlanCardInlineReportFields';
 import { computeReportTotalWeight } from './reportFormUtils';
 import { PlanCardInlineReportFormSkeleton } from './PlanCardInlineReportFormSkeleton';
 import { useCreateReportFormEffects } from './useCreateReportFormEffects';
+import {
+  mockActiveTasksForReport,
+  userIdFromMockPlanId,
+} from '../prototype/mockPlanAdapter';
 
 type PlanCardInlineReportFormProps = {
   planId: string;
@@ -56,26 +62,39 @@ export function PlanCardInlineReportForm({
   const setStatus = PlanningAndReportingStore((s) => s.setStatus);
   const isEditMode = Boolean(reportId);
   const queryClient = useQueryClient();
+  const mockEnabled = isDeadlinePlanningMockEnabled();
+  const getPlan = useUserPlanRepositoryMock((s) => s.getPlan);
+  const reportTasks = useUserPlanRepositoryMock((s) => s.reportTasks);
+  const mockOwnerId = userIdFromMockPlanId(planId);
+  const mockPlan = mockOwnerId ? getPlan(mockOwnerId) : null;
 
   const {
     data: allPlannedTaskForReport,
     isLoading: plannedTaskForReportLoading,
     isFetching: plannedTaskForReportFetching,
     refetch: refetchPlannedTasks,
-  } = useGetPlannedTaskForReport(planningPeriodId);
+  } = useGetPlannedTaskForReport(planningPeriodId, {
+    enabled: !mockEnabled && !isEditMode && !!planningPeriodId,
+  });
   const {
     data: allReportedPlanning,
     isLoading: reportedPlanningLoading,
     isFetching: reportedPlanningFetching,
-  } = useGetReportedPlanning(isEditMode ? planId : '');
+  } = useGetReportedPlanning(isEditMode && !mockEnabled ? planId : '');
 
   useEffect(() => {
+    if (mockEnabled) return;
     refetchPlannedTasks();
-  }, [refetchPlannedTasks]);
+  }, [mockEnabled, refetchPlannedTasks]);
 
-  const sourceTasks = isEditMode
-    ? allReportedPlanning
-    : allPlannedTaskForReport;
+  const mockSourceTasks = mockActiveTasksForReport(mockPlan);
+  const sourceTasks = mockEnabled
+    ? isEditMode
+      ? allReportedPlanning
+      : mockSourceTasks
+    : isEditMode
+      ? allReportedPlanning
+      : allPlannedTaskForReport;
   const formattedData =
     sourceTasks != null
       ? groupUnReportedTasksByKeyResultAndMilestone(sourceTasks)
@@ -87,14 +106,16 @@ export function PlanCardInlineReportForm({
   /** Same query as planning list: empty UI was flashing while refetching or before cache hydrated. */
   const showReportTasksLoading =
     !hasReportTaskRows &&
-    (isEditMode
-      ? allReportedPlanning === undefined ||
-        reportedPlanningLoading ||
-        reportedPlanningFetching
-      : !!planningPeriodId &&
-        (allPlannedTaskForReport === undefined ||
-          plannedTaskForReportLoading ||
-          plannedTaskForReportFetching));
+    (mockEnabled
+      ? false
+      : isEditMode
+        ? allReportedPlanning === undefined ||
+          reportedPlanningLoading ||
+          reportedPlanningFetching
+        : !!planningPeriodId &&
+          (allPlannedTaskForReport === undefined ||
+            plannedTaskForReportLoading ||
+            plannedTaskForReportFetching));
 
   useCreateReportFormEffects(hasReportTaskRows ? formattedData : null, form);
 
@@ -222,6 +243,23 @@ export function PlanCardInlineReportForm({
           },
         },
       );
+      return;
+    }
+
+    if (!planningPeriodId && !mockEnabled) return;
+
+    if (mockEnabled && !isEditMode && mockOwnerId) {
+      const payload = Object.entries(selectedStatuses)
+        .filter(([, status]) => status === 'Done' || status === 'Not')
+        .map(([taskId, status]) => ({
+          taskId,
+          status: status === 'Done' ? ('Done' as const) : ('Not' as const),
+          note: values[taskId]?.customReason,
+          actualValue: values[taskId]?.actualValue ?? null,
+        }));
+      if (payload.length === 0) return;
+      reportTasks(mockOwnerId, payload);
+      handleClose();
       return;
     }
 

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
-import { Button, Dropdown, Tooltip } from 'antd';
+import { Button, Dropdown, Select, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   MoreOutlined,
@@ -21,9 +21,18 @@ import StatusBadge from '../StatusBadge';
 import CommentsSection from '../comments/CommentsSection';
 import { useUpdateStatus } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useUserPlanRepositoryMock } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
+import { usePlanTaskDatesStore } from '@/store/uistate/features/planningAndReporting/taskDates';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
+import { todayIso, parseDate } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
+import type { DeadlineKind } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/types';
 import CustomButton from '@/components/common/buttons/customButton';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
+import {
+  DURATION_TAB_ITEMS,
+  durationFilterMatchesTask,
+} from '../planning/durationFilter';
 
 interface PlanCardProps {
   plan: PlanSummary;
@@ -42,6 +51,11 @@ interface PlanCardProps {
   /** Starts inline report flow on the card (planning + owner only). */
   onSubmitReport?: () => void;
   showSubmitReport?: boolean;
+  /** Starts inline add-task / add-plan composer (owner My Plan only). */
+  onAddPlan?: () => void;
+  showAddPlan?: boolean;
+  /** Composer rendered inside My Plan when adding to the existing plan. */
+  addPlanComposer?: React.ReactNode;
   inlineReportActive?: boolean;
   onCloseInlineReport?: () => void;
   /** Period name for inline / drawer labels (e.g. Weekly) */
@@ -105,10 +119,65 @@ const meta = {
   wt: 'w-[28px] sm:w-[38px]',
   tgt: 'w-[32px] sm:w-[46px]',
   out: 'w-[13px] sm:w-[18px]',
+  deadline: 'w-[72px] sm:w-[88px]',
+  daysLeft: 'w-[78px] sm:w-[96px]',
 } as const;
 
 const metaHead =
   'text-right text-[11px] font-medium uppercase leading-none tracking-tighter text-[#B0B3C0] sm:text-[12px] sm:tracking-wider';
+
+function resolveTaskDeadlineIso(
+  task: any,
+  datesByTaskId?: Record<string, { start?: string; deadline?: string }>,
+): string | null {
+  const overlay = datesByTaskId?.[String(task?.id ?? '')];
+  const raw =
+    overlay?.deadline ||
+    task?.deadline ||
+    task?.endDate ||
+    task?.end ||
+    null;
+  if (!raw) return null;
+  const iso = String(raw).slice(0, 10);
+  return parseDate(iso).isValid() ? iso : null;
+}
+
+function formatTaskDeadline(
+  deadlineIso: string | null,
+  opts?: { durationKind?: DeadlineKind; today?: string },
+): string {
+  if (!deadlineIso) return '—';
+  const today = opts?.today ?? todayIso();
+  if (
+    opts?.durationKind === 'daily' ||
+    String(deadlineIso).slice(0, 10) === today
+  ) {
+    if (String(deadlineIso).slice(0, 10) === today) return 'Today';
+  }
+  const d = parseDate(deadlineIso);
+  return d.isValid() ? d.format('MMM D') : '—';
+}
+
+function formatDaysLeft(
+  deadlineIso: string | null,
+  today: string,
+): { label: string; overdue: boolean } {
+  if (!deadlineIso) return { label: '—', overdue: false };
+  const end = parseDate(deadlineIso).startOf('day');
+  const start = parseDate(today).startOf('day');
+  if (!end.isValid() || !start.isValid()) return { label: '—', overdue: false };
+  const diff = end.diff(start, 'day');
+  if (diff < 0) {
+    const n = Math.abs(diff);
+    return {
+      label: n === 1 ? '1d overdue' : `${n}d overdue`,
+      overdue: true,
+    };
+  }
+  if (diff === 0) return { label: 'Due today', overdue: false };
+  if (diff === 1) return { label: '1 day left', overdue: false };
+  return { label: `${diff} days left`, overdue: false };
+}
 
 /** Priority pill: on small screens use a 3-letter label for Medium ("Med"). */
 function priorityChipText(priorityKey: string): React.ReactNode {
@@ -173,21 +242,29 @@ export default function PlanCard({
   onOpenThread,
   onSubmitReport,
   showSubmitReport,
+  onAddPlan,
+  showAddPlan,
+  addPlanComposer,
   inlineReportActive = false,
   onCloseInlineReport,
   planningPeriodLabel,
   inlineReportContent,
 }: PlanCardProps) {
   const { mutate: updateStatus } = useUpdateStatus();
+  const togglePreAchieved = useUserPlanRepositoryMock((s) => s.togglePreAchieved);
+  const mockEnabled = isDeadlinePlanningMockEnabled();
   const viewerUserId = useAuthenticationStore((s) => s.userId);
   const isTeammatePlan =
     viewMode === 'planning' &&
     Boolean(
       plan.ownerUserId && viewerUserId && plan.ownerUserId !== viewerUserId,
     );
+  // Pre-achieve ticks stay available for the owner even when the edit menu is hidden.
   const isPlanReadOnly =
     viewMode === 'planning' &&
-    (!canEdit || Boolean(plan.isReported) || plan.status?.label !== 'Open');
+    (isTeammatePlan ||
+      Boolean(plan.isReported) ||
+      plan.status?.label !== 'Open');
   const [optimisticStatuses, setOptimisticStatuses] = useState<
     Record<string, string>
   >({});
@@ -197,6 +274,8 @@ export default function PlanCard({
     top: number;
     text: string;
   } | null>(null);
+  const [durationKind, setDurationKind] = useState<DeadlineKind>('daily');
+  const datesByTaskId = usePlanTaskDatesStore((s) => s.datesByTaskId);
 
   const serverTaskStatusMap = React.useMemo(() => {
     const map: Record<string, string | undefined> = {};
@@ -247,6 +326,17 @@ export default function PlanCard({
       setOptimisticStatuses((prev) => ({ ...prev, [taskId]: nextStatus }));
       setLoadingTasks((prev) => new Set(prev).add(taskId));
 
+      if (mockEnabled) {
+        const ownerId = plan.ownerUserId;
+        if (ownerId) togglePreAchieved(ownerId, taskId);
+        setLoadingTasks((prev) => {
+          const next = new Set(prev);
+          next.delete(taskId);
+          return next;
+        });
+        return;
+      }
+
       updateStatus(
         { id: taskId, status: nextStatus, planningPeriodId },
         {
@@ -272,7 +362,7 @@ export default function PlanCard({
         },
       );
     },
-    [updateStatus, planningPeriodId, isPlanReadOnly],
+    [updateStatus, planningPeriodId, isPlanReadOnly, mockEnabled, plan.ownerUserId, togglePreAchieved],
   );
   const approvalMenuItems: MenuProps['items'] =
     plan.status?.label === 'Open'
@@ -358,7 +448,25 @@ export default function PlanCard({
     return total;
   }, [plan, viewMode]);
 
-  const sections = React.useMemo(() => flattenAllTasks(plan), [plan]);
+  const sections = React.useMemo(() => {
+    const raw = flattenAllTasks(plan);
+    if (viewMode !== 'planning') return raw;
+    const today = todayIso();
+    return raw
+      .map((section) => ({
+        ...section,
+        tasks: section.tasks.filter((task: any) =>
+          durationFilterMatchesTask(
+            task,
+            durationKind,
+            today,
+            datesByTaskId,
+            durationKind,
+          ),
+        ),
+      }))
+      .filter((section) => section.tasks.length > 0);
+  }, [plan, viewMode, durationKind, datesByTaskId]);
   const reportTaskOverrides = useRecentReportTaskStatuses(
     (s) => s.byReport[String(plan.id)],
   );
@@ -486,7 +594,9 @@ export default function PlanCard({
                   <FaRegThumbsUp className="text-[11px]" />
                 </div>
               ) : null}
-              {plan.status && <StatusBadge status={plan.status} />}
+              {plan.status && viewMode !== 'planning' ? (
+                <StatusBadge status={plan.status} />
+              ) : null}
               {inlineReportActive && onCloseInlineReport ? (
                 <button
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-button-437"
@@ -678,7 +788,6 @@ export default function PlanCard({
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-620"
                     className={rowClassName}
                     onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
-                      task._krId && onHoverKR?.(task._krId);
                       if (isFailed && failReason) {
                         const { left, top } = clampFailReasonPanelPosition(
                           e.clientX,
@@ -705,7 +814,6 @@ export default function PlanCard({
                       }
                     }}
                     onMouseLeave={() => {
-                      onHoverKR?.(null);
                       if (isFailed && failReason) {
                         setFailReasonCursorPanel(null);
                       }
@@ -891,14 +999,6 @@ export default function PlanCard({
     })),
   );
 
-  const checkedCount = allTasks.filter((t: any) => {
-    const s = optimisticStatuses[t.id] ?? t.status;
-    return s === 'pre_achieved' || s === 'completed';
-  }).length;
-  const totalTasks = allTasks.length;
-  const progressPct =
-    totalTasks > 0 ? Math.round((checkedCount / totalTasks) * 100) : 0;
-
   return (
     <article
       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
@@ -956,6 +1056,17 @@ export default function PlanCard({
                 <FaRegThumbsUp className="text-[11px]" />
               </div>
             ) : null}
+            {!inlineReportActive && showAddPlan && onAddPlan ? (
+              <CustomButton
+                title="Add Plan"
+                id={`plan-card-${plan.id}-add-plan`}
+                size="small"
+                textClassName="text-[11px] font-semibold leading-tight sm:text-xs"
+                style={{ paddingInline: 10 }}
+                onClick={onAddPlan}
+                className="!h-7 !min-h-7 !w-auto !min-w-0 !shrink-0 !rounded-md !px-2.5 !py-0 !bg-[#1E40AF] !text-white hover:!bg-[#1E3A8A]"
+              />
+            ) : null}
             {!inlineReportActive && showSubmitReport && onSubmitReport ? (
               <CustomButton
                 title="Report"
@@ -964,10 +1075,28 @@ export default function PlanCard({
                 textClassName="text-[11px] font-semibold leading-tight sm:text-xs"
                 style={{ paddingInline: 10 }}
                 onClick={onSubmitReport}
-                className="!h-7 !min-h-7 !w-auto !min-w-0 !shrink-0 !rounded-md !px-2.5 !py-0 !bg-[#1E40AF] !text-white hover:!bg-[#1E3A8A]"
+                className="!h-7 !min-h-7 !w-auto !min-w-0 !shrink-0 !rounded-md !px-2.5 !py-0 !border !border-[#1E40AF] !bg-white !text-[#1E40AF] hover:!bg-[#EFF6FF]"
               />
             ) : null}
-            {plan.status && <StatusBadge status={plan.status} />}
+            <div data-cy={`plan-card-duration-tabs-${plan.id}`}>
+              <Select
+                size="small"
+                value={durationKind}
+                onChange={(value: DeadlineKind) => setDurationKind(value)}
+                options={DURATION_TAB_ITEMS.map(({ kind, label }) => ({
+                  value: kind,
+                  label,
+                }))}
+                aria-label="Plan duration filter"
+                data-cy={`plan-card-duration-select-${plan.id}`}
+                className="[&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!min-h-7 [&_.ant-select-selector]:!rounded-md [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!bg-[#F8FAFC] [&_.ant-select-selection-item]:!text-[12px] [&_.ant-select-selection-item]:!leading-7"
+                style={{ width: 118 }}
+                popupMatchSelectWidth={false}
+              />
+            </div>
+            {plan.status && viewMode !== 'planning' ? (
+              <StatusBadge status={plan.status} />
+            ) : null}
             {inlineReportActive && onCloseInlineReport ? (
               <button
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-button-897"
@@ -1026,96 +1155,50 @@ export default function PlanCard({
         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-819"
         className="px-3 md:px-4 pb-2"
       >
-        {/* Column titles + date + progress */}
+        {!inlineReportActive && allTasks.length === 0 && !addPlanComposer ? (
+          <p
+            data-cy={`plan-card-empty-duration-${plan.id}`}
+            className="px-2 py-4 text-center text-[13px] text-[#8F94A3]"
+          >
+            No tasks for this period
+          </p>
+        ) : null}
+        {/* Column titles */}
         {!inlineReportActive && allTasks.length > 0 && (
           <div
             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-822"
-            className="flex items-center px-2.5 pb-1 mb-0.5 mt-1"
+            className="flex items-center justify-end px-2.5 pb-1 mb-0.5 mt-1"
           >
-            <div
-              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-823"
-              className="flex items-center gap-2 flex-1 min-w-0"
-            >
-              <span
-                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-824"
-                className="text-[13px] font-medium text-[#8F94A3]"
-              >
-                {getDateLabel()}
-              </span>
-              <span
-                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-827"
-                className="text-[13px] font-medium text-[#8F94A3]"
-              >
-                {checkedCount}/{totalTasks}
-              </span>
-              <div
-                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-830"
-                className="h-[4px] w-[52px] overflow-hidden rounded-full bg-[#F1F2F6]"
-              >
-                <div
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-990"
-                  className="h-full rounded-full transition-all duration-500"
-                  style={{
-                    width: `${progressPct}%`,
-                    backgroundColor:
-                      progressPct === 100
-                        ? '#10B981'
-                        : progressPct >= 50
-                          ? '#1E40AF'
-                          : '#F59E0B',
-                  }}
-                />
-              </div>
-            </div>
             <div
               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-845"
               className="flex flex-shrink-0 items-center"
             >
               <div
-                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-846"
+                data-cy="plan-card-col-priority"
                 className={classNames(meta.pri, metaHead)}
               >
-                <span
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-847"
-                  className="sm:hidden"
-                >
-                  Pri
-                </span>
-                <span
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-848"
-                  className="hidden sm:inline"
-                >
-                  Priority
-                </span>
+                <span className="sm:hidden">Pri</span>
+                <span className="hidden sm:inline">Priority</span>
               </div>
               <div
-                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-850"
+                data-cy="plan-card-col-weight"
                 className={classNames(meta.wt, metaHead)}
               >
                 Wt
               </div>
               <div
-                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-851"
-                className={classNames(meta.tgt, metaHead)}
+                data-cy="plan-card-col-deadline"
+                className={classNames(meta.deadline, metaHead)}
               >
-                <span
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-852"
-                  className="sm:hidden"
-                >
-                  Tgt
-                </span>
-                <span
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-853"
-                  className="hidden sm:inline"
-                >
-                  Target
-                </span>
+                Deadline
               </div>
               <div
-                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1048"
-                className={classNames(meta.out, 'flex-shrink-0')}
-                aria-hidden
-              />
+                data-cy="plan-card-col-days-left"
+                className={classNames(meta.daysLeft, metaHead)}
+              >
+                <span className="sm:hidden">Left</span>
+                <span className="hidden sm:inline">Days left</span>
+              </div>
             </div>
           </div>
         )}
@@ -1146,16 +1229,13 @@ export default function PlanCard({
               };
               const pc = priorityColors[priorityKey] || priorityColors.Low;
 
-              const showTarget =
-                task.target !== undefined &&
-                task.target !== 0 &&
-                task._metricType !== 'Milestone';
-
               const effectiveStatus =
                 optimisticStatuses[task.id] ?? task.status;
               const isChecked = effectiveStatus === 'pre_achieved';
               const isCompleted = effectiveStatus === 'completed';
               const isLoading = loadingTasks.has(task.id);
+              const deadlineIso = resolveTaskDeadlineIso(task, datesByTaskId);
+              const daysLeft = formatDaysLeft(deadlineIso, todayIso());
 
               return (
                 <div
@@ -1164,10 +1244,8 @@ export default function PlanCard({
                   className={`group/row flex items-start gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150 ${
                     isChecked ? 'bg-[#2563EB]/[0.03]' : 'hover:bg-[#FAFBFC]'
                   }`}
-                  onMouseEnter={() => task._krId && onHoverKR?.(task._krId)}
-                  onMouseLeave={() => onHoverKR?.(null)}
                 >
-                  {/* Pre-achieve: owner uses interactive control; teammates see same visuals, read-only */}
+                  {/* Pre-achieve tick */}
                   {isTeammatePlan ? (
                     <span
                       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1104"
@@ -1203,6 +1281,9 @@ export default function PlanCard({
                         handleTaskToggle(task.id, effectiveStatus ?? '')
                       }
                       disabled={isPlanReadOnly || isCompleted || isLoading}
+                      aria-label={
+                        isChecked ? 'Mark task not achieved' : 'Mark task achieved'
+                      }
                       className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
                         isPlanReadOnly || isCompleted
                           ? 'border-[#D1D5DB] bg-[#F3F4F6] cursor-not-allowed'
@@ -1235,82 +1316,70 @@ export default function PlanCard({
                     {taskName}
                   </p>
 
-                  {/* Right-side meta columns — fixed widths for alignment */}
                   <div
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-971"
                     className="flex flex-shrink-0 items-center self-center"
                   >
                     <div
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-972"
+                      data-cy={`plan-card-task-priority-${task.id}`}
                       className={classNames(meta.pri, 'flex justify-end')}
                     >
                       <span
-                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1175"
                         className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[11px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[12px]"
                         style={{ backgroundColor: pc.bg, color: pc.text }}
                       >
                         <span
-                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1179"
                           className="inline-block h-2 w-2 shrink-0 rounded-full"
                           style={{ backgroundColor: pc.dot }}
                         />
                         {priorityChipText(priorityKey)}
                       </span>
                     </div>
-
                     <div
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-985"
-                      className={classNames(meta.wt, 'text-right')}
-                    >
-                      <span
-                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-986"
-                        className="text-[12px] font-semibold text-[#8F94A3] tabular-nums sm:text-[13px]"
-                      >
-                        {formatNum(task.weight)}
-                      </span>
-                    </div>
-
-                    <div
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-991"
-                      className={classNames(meta.tgt, 'text-right')}
-                    >
-                      {showTarget ? (
-                        <span
-                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-993"
-                          className="text-[11px] font-semibold text-[#10B981] tabular-nums sm:text-[12px]"
-                        >
-                          {formatNum(task.target)}
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <div
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1213"
+                      data-cy={`plan-card-task-weight-${task.id}`}
                       className={classNames(
-                        meta.out,
-                        'flex flex-shrink-0 items-center justify-center self-center',
+                        meta.wt,
+                        'text-right text-[12px] font-semibold tabular-nums text-[#8F94A3] sm:text-[13px]',
                       )}
                     >
-                      {(task as PlanTask).achieveMK ? (
-                        <Tooltip
-                          title={
-                            (task as PlanTask).outcomeMilestoneId
-                              ? 'Milestone planned as outcome'
-                              : 'Key result planned as outcome'
-                          }
-                        >
-                          <FlagOutlined
-                            className="text-[10px] text-[#059669] sm:text-[12px]"
-                            aria-label="Outcome task"
-                          />
-                        </Tooltip>
-                      ) : null}
+                      {formatNum(task.weight)}
+                    </div>
+                    <div
+                      data-cy={`plan-card-task-deadline-${task.id}`}
+                      className={classNames(
+                        meta.deadline,
+                        'text-right text-[12px] font-medium tabular-nums text-[#64748B] sm:text-[13px]',
+                      )}
+                    >
+                      {formatTaskDeadline(deadlineIso, {
+                        durationKind,
+                        today: todayIso(),
+                      })}
+                    </div>
+                    <div
+                      data-cy={`plan-card-task-days-left-${task.id}`}
+                      className={classNames(
+                        meta.daysLeft,
+                        'text-right text-[12px] font-semibold tabular-nums sm:text-[13px]',
+                        daysLeft.overdue ? 'text-[#DC2626]' : 'text-[#8F94A3]',
+                      )}
+                    >
+                      {daysLeft.label}
                     </div>
                   </div>
                 </div>
               );
             })}
         </div>
+
+        {addPlanComposer ? (
+          <div
+            data-cy={`plan-card-add-composer-${plan.id}`}
+            className="min-w-0"
+          >
+            {addPlanComposer}
+          </div>
+        ) : null}
       </div>
 
       {/* ── Footer: comments (hidden during inline report submit) ─ */}

@@ -29,6 +29,9 @@ const groupTasksByKeyResultId = (plans: any) => {
         achieveMK: task?.achieveMK,
         status: task?.status,
         milestone: { ...task?.milestone },
+        startDate: task?.startDate || task?.start,
+        endDate: task?.endDate || task?.end || task?.deadline,
+        deadline: task?.deadline || task?.endDate || task?.end,
       });
     });
     const resultPlan = {

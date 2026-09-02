@@ -9,6 +9,7 @@ import { IoArrowBack } from 'react-icons/io5';
 import { MessageOutlined, PlusOutlined } from '@ant-design/icons';
 import PlanCard from '../cards/PlanCard';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
+import StatusBadge from '../StatusBadge';
 import {
   isMilestoneAchievedForPlanning,
   formatKrMetricTypeDisplayName,
@@ -30,9 +31,11 @@ import type {
   KeyResult,
   Cadence,
   PlanOwner,
+  PlanStatus,
   ViewMode,
 } from '../types';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import {
   aggregateKeyResultForPanel,
   buildBlockedKeyResultIdSet,
@@ -244,9 +247,20 @@ function resolvePlanningSlotsForKr(
 
 interface OwnerKRGroup {
   ownerKey: string;
+  ownerUserId?: string;
   owner: PlanOwner;
   krs: AggregatedKR[];
   avgProgress: number;
+}
+
+/** Person label for KR panel (not plan card titles like "Alice's Plan"). */
+export function krPanelPersonName(ownerName?: string): string {
+  const n = String(ownerName || '').trim();
+  if (!n) return 'Unknown';
+  if (/^my plan$/i.test(n) || /^your key results?$/i.test(n)) return 'You';
+  const possessive = n.match(/^(.+?)'s Plan$/i);
+  if (possessive?.[1]) return possessive[1].trim();
+  return n;
 }
 
 export function buildOwnerKRGroups(
@@ -255,20 +269,33 @@ export function buildOwnerKRGroups(
 ): OwnerKRGroup[] {
   const ownerMap = new Map<
     string,
-    { owner: PlanOwner; seenKRs: Set<string>; krs: AggregatedKR[] }
+    {
+      owner: PlanOwner;
+      ownerUserId?: string;
+      seenKRs: Set<string>;
+      krs: AggregatedKR[];
+    }
   >();
 
   for (const plan of plans) {
     if (!plan.keyResults || plan.keyResults.length === 0) continue;
-    const ownerKey = plan.owner?.name || plan.id;
+    const ownerUserId = plan.ownerUserId
+      ? String(plan.ownerUserId)
+      : undefined;
+    const ownerKey =
+      ownerUserId || plan.owner?.name || plan.id;
     if (!ownerMap.has(ownerKey)) {
       ownerMap.set(ownerKey, {
         owner: plan.owner,
+        ownerUserId,
         seenKRs: new Set(),
         krs: [],
       });
     }
     const entry = ownerMap.get(ownerKey)!;
+    if (!entry.ownerUserId && ownerUserId) {
+      entry.ownerUserId = ownerUserId;
+    }
 
     for (const kr of plan.keyResults) {
       if (entry.seenKRs.has(kr.id)) continue;
@@ -289,6 +316,7 @@ export function buildOwnerKRGroups(
     );
     groups.push({
       ownerKey,
+      ownerUserId: entry.ownerUserId,
       owner: entry.owner,
       krs: entry.krs,
       avgProgress: avg,
@@ -657,10 +685,13 @@ function OwnerKRSection({
   onRefreshMilestoneStatus?: () => void;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const headerLabel =
-    isCurrentUser && isSingleOwner
-      ? 'Your Key Results'
-      : group.owner?.name || 'Unknown';
+  const headerLabel = isCurrentUser
+    ? 'Your Key Results'
+    : krPanelPersonName(group.owner?.name);
+  const roleLabel =
+    isCurrentUser || !group.owner?.role || group.owner.role === 'Plan'
+      ? null
+      : group.owner.role;
 
   const completedCount = group.krs.filter((k) => k.progress >= 100).length;
   const totalTasks = group.krs.reduce((s, k) => s + k.taskCount, 0);
@@ -695,7 +726,7 @@ function OwnerKRSection({
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-426"
                 className="truncate text-[12px] font-bold leading-tight text-[#161A2C] sm:text-[13px]"
               >
-                Key Results
+                {isCurrentUser ? 'Your Key Results' : 'Key Results'}
               </p>
             </div>
             <span
@@ -818,13 +849,13 @@ function OwnerKRSection({
             data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-506"
             className="flex items-center gap-2 mt-0.5"
           >
-            {group.owner?.role && (
+            {roleLabel ? (
               <>
                 <span
                   data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-509"
                   className="text-[10px] text-[#8F94A3] truncate"
                 >
-                  {group.owner.role}
+                  {roleLabel}
                 </span>
                 <span
                   data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-512"
@@ -833,7 +864,7 @@ function OwnerKRSection({
                   ·
                 </span>
               </>
-            )}
+            ) : null}
             <span
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-515"
               className="text-[10px] text-[#8F94A3]"
@@ -1235,16 +1266,30 @@ export function KRLeftPanel({
       objectiveMilestonesByKrId,
     );
     const currentUserOwnerKeys = new Set(
-      transformedData
-        ?.filter((d: any) => d?.userId === userId)
-        ?.map(
-          (d: any) => plans.find((p) => p.id === d?.id)?.owner?.name || '',
-        ) || [],
+      plans
+        .filter((p) => String(p.ownerUserId ?? '') === String(userId ?? ''))
+        .map((p) => p.ownerUserId || p.owner?.name || p.id)
+        .filter(Boolean)
+        .map(String),
     );
+    // Legacy name-keyed groups + explicit user-KR bucket.
+    plans.forEach((p) => {
+      if (String(p.ownerUserId ?? '') !== String(userId ?? '')) return;
+      if (p.owner?.name) currentUserOwnerKeys.add(p.owner.name);
+    });
+    currentUserOwnerKeys.add(`__user_key_results_${userId}`);
 
     return [...merged].sort((a, b) => {
-      const aMine = currentUserOwnerKeys.has(a.ownerKey);
-      const bMine = currentUserOwnerKeys.has(b.ownerKey);
+      const aMine =
+        currentUserOwnerKeys.has(a.ownerKey) ||
+        String(a.ownerUserId ?? '') === String(userId ?? '') ||
+        a.owner?.name === 'My Plan' ||
+        /^your key results?$/i.test(String(a.owner?.name || ''));
+      const bMine =
+        currentUserOwnerKeys.has(b.ownerKey) ||
+        String(b.ownerUserId ?? '') === String(userId ?? '') ||
+        b.owner?.name === 'My Plan' ||
+        /^your key results?$/i.test(String(b.owner?.name || ''));
       if (aMine === bMine) return 0;
       return aMine ? -1 : 1;
     });
@@ -1414,18 +1459,24 @@ export function KRLeftPanel({
                   </p>
                 </div>
               ) : (
-                ownerGroups.map((group, idx) => {
+                ownerGroups.map((group) => {
                   const isCurrentUserGroup =
-                    isSingleOwner &&
-                    transformedData?.some(
-                      (d: any) =>
-                        d.userId === userId &&
-                        plans.some(
-                          (p) =>
-                            p.id === d.id &&
-                            p.owner?.name === group.owner?.name,
-                        ),
-                    );
+                    String(group.ownerUserId ?? '') === String(userId ?? '') ||
+                    group.ownerKey === `__user_key_results_${userId}` ||
+                    group.owner?.name === 'My Plan' ||
+                    /^your key results?$/i.test(
+                      String(group.owner?.name || ''),
+                    ) ||
+                    (isSingleOwner &&
+                      transformedData?.some(
+                        (d: any) =>
+                          d.userId === userId &&
+                          plans.some(
+                            (p) =>
+                              p.id === d.id &&
+                              p.owner?.name === group.owner?.name,
+                          ),
+                      ));
 
                   return (
                     <OwnerKRSection
@@ -1433,7 +1484,7 @@ export function KRLeftPanel({
                       group={group}
                       isSingleOwner={isSingleOwner}
                       isCurrentUser={!!isCurrentUserGroup}
-                      defaultExpanded={isSingleOwner || idx === 0}
+                      defaultExpanded={!!isCurrentUserGroup || isSingleOwner}
                       highlightedKRId={highlightedKRId}
                       showInlinePlanningPick={showInlinePick}
                       planningTargetsByKrId={targetsByKrId}
@@ -1473,6 +1524,9 @@ export interface PlanningPanelViewProps {
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: CommentThreadKind) => void;
   onStartInlineReport?: (planId: string) => void;
+  onAddPlan?: () => void;
+  /** Composer for appending tasks to My Plan (mock single-plan flow). */
+  addPlanComposer?: React.ReactNode;
   ownerCanOpenSubmitReport?: boolean;
   inlineReportPlanId?: string | null;
   onCloseInlineReport?: () => void;
@@ -1496,113 +1550,209 @@ export default function PlanningPanelView({
   onHoverKR,
   onOpenThread,
   onStartInlineReport,
+  onAddPlan,
+  addPlanComposer,
   ownerCanOpenSubmitReport,
   inlineReportPlanId,
   onCloseInlineReport,
   planningPeriodLabel,
 }: PlanningPanelViewProps) {
+  const currentUserId = String(userId ?? '');
+  const isOwnPlan = (plan: PlanSummary) =>
+    String(plan.ownerUserId ?? '') === currentUserId ||
+    plan.summary === 'My Plan' ||
+    plan.owner?.name === 'My Plan';
+
+  const myPlans = plans.filter(isOwnPlan);
+  const otherPlans = plans.filter((plan) => !isOwnPlan(plan));
+
+  /** Keep My Plan first, then everyone else, within a status bucket. */
+  const orderedPlans = [...myPlans, ...otherPlans];
+  const pendingPlans = orderedPlans.filter(
+    (plan) => plan.status?.label !== 'Closed',
+  );
+  const closedPlans = orderedPlans.filter(
+    (plan) => plan.status?.label === 'Closed',
+  );
+
+  const pendingSectionStatus: PlanStatus = pendingPlans[0]?.status ?? {
+    label: 'Open',
+    updatedAt: '',
+    tone: 'warning',
+  };
+  const closedSectionStatus: PlanStatus = closedPlans[0]?.status ?? {
+    label: 'Closed',
+    updatedAt: '',
+    tone: 'success',
+  };
+
+  const renderPlanCard = (plan: PlanSummary, pinned: boolean) => {
+    const originalDataItem = transformedData?.find(
+      (item: any) => item.id === plan.id,
+    );
+    if (!originalDataItem) return null;
+
+    const ownerUserId =
+      originalDataItem?.userId ?? originalDataItem?.createdBy;
+
+    const card =
+      viewMode === 'reporting' ? (
+        <PlanCard
+          plan={plan}
+          viewMode="reporting"
+          activeCadence={cadence}
+          onApprove={() => onApprove(originalDataItem.id, true)}
+          onOpen={() => onApprove(originalDataItem.id, false)}
+          onEdit={() => onEdit(originalDataItem.id)}
+          canApprove={
+            isDeadlinePlanningMockEnabled()
+              ? String(userId ?? '') !== String(ownerUserId ?? '')
+              : userId ===
+                (getEmployeeData(ownerUserId)?.reportingTo?.id ||
+                  getEmployeeData(ownerUserId)?.delegatedTo?.id)
+          }
+          canEdit={
+            isDeadlinePlanningMockEnabled()
+              ? false
+              : userId === ownerUserId &&
+                originalDataItem?.plan?.isReportValidated == false &&
+                isDataFromActiveSession(originalDataItem?.createdAt)
+          }
+          isApprovalLoading={isApprovalLoading}
+          dateLabel={getDateLabel(originalDataItem?.createdAt ?? '')}
+          onHoverKR={onHoverKR}
+          onOpenThread={onOpenThread}
+          inlineReportActive={inlineReportPlanId === originalDataItem.id}
+          onCloseInlineReport={onCloseInlineReport}
+          inlineReportContent={
+            inlineReportPlanId === originalDataItem.id ? (
+              <PlanCardInlineReportForm
+                reportId={originalDataItem.id}
+                planId={
+                  originalDataItem.planId ||
+                  originalDataItem?.plan?.id ||
+                  originalDataItem?.plan?.planId
+                }
+                planningPeriodId={planningPeriodId}
+                planningPeriodName={planningPeriodLabel}
+                onClose={onCloseInlineReport || (() => {})}
+              />
+            ) : undefined
+          }
+        />
+      ) : (
+        <PlanCard
+          plan={plan}
+          viewMode="planning"
+          activeCadence={cadence}
+          onApprove={() => onApprove(originalDataItem.id, true)}
+          onOpen={() => onApprove(originalDataItem.id, false)}
+          onEdit={() => onEdit(originalDataItem.id)}
+          canApprove={
+            isDeadlinePlanningMockEnabled()
+              ? String(userId ?? '') !== String(originalDataItem?.userId ?? '')
+              : userId ===
+                (getEmployeeData(originalDataItem?.userId)?.delegatedTo?.id ||
+                  getEmployeeData(originalDataItem?.userId)?.reportingTo?.id)
+          }
+          canEdit={
+            isDeadlinePlanningMockEnabled()
+              ? false
+              : userId === originalDataItem?.userId &&
+                originalDataItem?.isValidated == false &&
+                originalDataItem?.isReported == false &&
+                isDataFromActiveSession(originalDataItem?.createdAt)
+          }
+          isApprovalLoading={isApprovalLoading}
+          dateLabel={getDateLabel(originalDataItem?.createdAt ?? '')}
+          onHoverKR={onHoverKR}
+          planningPeriodId={planningPeriodId}
+          onOpenThread={onOpenThread}
+          onSubmitReport={
+            ownerUserId === userId &&
+            originalDataItem?.isReported == false &&
+            onStartInlineReport
+              ? () => onStartInlineReport(originalDataItem.id)
+              : undefined
+          }
+          showSubmitReport={
+            ownerUserId === userId &&
+            originalDataItem?.isReported == false &&
+            !!ownerCanOpenSubmitReport
+          }
+          onAddPlan={
+            ownerUserId === userId && onAddPlan ? onAddPlan : undefined
+          }
+          showAddPlan={ownerUserId === userId && !!onAddPlan}
+          addPlanComposer={
+            ownerUserId === userId ? addPlanComposer : undefined
+          }
+          inlineReportActive={inlineReportPlanId === plan.id}
+          onCloseInlineReport={onCloseInlineReport}
+          planningPeriodLabel={planningPeriodLabel}
+        />
+      );
+
+    return (
+      <div
+        key={plan.id}
+        data-cy={pinned ? `pinned-plan-card-${plan.id}` : `plan-card-wrap-${plan.id}`}
+      >
+        {card}
+      </div>
+    );
+  };
+
   return (
     <div
       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-995"
       className="min-w-0 max-w-full space-y-4 pr-1"
     >
-      {plans.map((plan) => {
-        const originalDataItem = transformedData?.find(
-          (item: any) => item.id === plan.id,
-        );
-        if (!originalDataItem) return null;
+      {viewMode === 'planning' && pendingPlans.length > 0 ? (
+        <div
+          className="space-y-3"
+          data-cy="planning-pending-section"
+        >
+          <div
+            className="flex items-center gap-2"
+            data-cy="planning-pending-section-header"
+          >
+            <StatusBadge status={pendingSectionStatus} />
+            <span className="text-[12px] font-medium text-[#8F94A3]">
+              New & unclosed plans
+            </span>
+          </div>
+          <div className="space-y-4">
+            {pendingPlans.map((plan) =>
+              renderPlanCard(plan, isOwnPlan(plan)),
+            )}
+          </div>
+        </div>
+      ) : null}
 
-        const ownerUserId =
-          originalDataItem?.userId ?? originalDataItem?.createdBy;
+      {viewMode === 'planning' && closedPlans.length > 0 ? (
+        <div
+          className="space-y-3"
+          data-cy="planning-closed-section"
+        >
+          <div
+            className="flex items-center gap-2"
+            data-cy="planning-closed-section-header"
+          >
+            <StatusBadge status={closedSectionStatus} />
+          </div>
+          <div className="space-y-4">
+            {closedPlans.map((plan) =>
+              renderPlanCard(plan, isOwnPlan(plan)),
+            )}
+          </div>
+        </div>
+      ) : null}
 
-        if (viewMode === 'reporting') {
-          return (
-            <PlanCard
-              key={plan.id}
-              plan={plan}
-              viewMode="reporting"
-              activeCadence={cadence}
-              onApprove={() => onApprove(originalDataItem.id, true)}
-              onOpen={() => onApprove(originalDataItem.id, false)}
-              onEdit={() => onEdit(originalDataItem.id)}
-              canApprove={
-                userId ===
-                (getEmployeeData(ownerUserId)?.reportingTo?.id ||
-                  getEmployeeData(ownerUserId)?.delegatedTo?.id)
-              }
-              canEdit={
-                userId === ownerUserId &&
-                originalDataItem?.plan?.isReportValidated == false &&
-                isDataFromActiveSession(originalDataItem?.createdAt)
-              }
-              isApprovalLoading={isApprovalLoading}
-              dateLabel={getDateLabel(originalDataItem?.createdAt ?? '')}
-              onHoverKR={onHoverKR}
-              onOpenThread={onOpenThread}
-              inlineReportActive={inlineReportPlanId === originalDataItem.id}
-              onCloseInlineReport={onCloseInlineReport}
-              inlineReportContent={
-                inlineReportPlanId === originalDataItem.id ? (
-                  <PlanCardInlineReportForm
-                    reportId={originalDataItem.id}
-                    planId={
-                      originalDataItem.planId ||
-                      originalDataItem?.plan?.id ||
-                      originalDataItem?.plan?.planId
-                    }
-                    planningPeriodId={planningPeriodId}
-                    planningPeriodName={planningPeriodLabel}
-                    onClose={onCloseInlineReport || (() => {})}
-                  />
-                ) : undefined
-              }
-            />
-          );
-        }
+      {viewMode !== 'planning'
+        ? orderedPlans.map((plan) => renderPlanCard(plan, isOwnPlan(plan)))
+        : null}
 
-        return (
-          <PlanCard
-            key={plan.id}
-            plan={plan}
-            viewMode="planning"
-            activeCadence={cadence}
-            onApprove={() => onApprove(originalDataItem.id, true)}
-            onOpen={() => onApprove(originalDataItem.id, false)}
-            onEdit={() => onEdit(originalDataItem.id)}
-            canApprove={
-              userId ===
-              (getEmployeeData(originalDataItem?.userId)?.delegatedTo?.id ||
-                getEmployeeData(originalDataItem?.userId)?.reportingTo?.id)
-            }
-            canEdit={
-              userId === originalDataItem?.userId &&
-              originalDataItem?.isValidated == false &&
-              originalDataItem?.isReported == false &&
-              isDataFromActiveSession(originalDataItem?.createdAt)
-            }
-            isApprovalLoading={isApprovalLoading}
-            dateLabel={getDateLabel(originalDataItem?.createdAt ?? '')}
-            onHoverKR={onHoverKR}
-            planningPeriodId={planningPeriodId}
-            onOpenThread={onOpenThread}
-            onSubmitReport={
-              ownerUserId === userId &&
-              originalDataItem?.isReported == false &&
-              onStartInlineReport
-                ? () => onStartInlineReport(originalDataItem.id)
-                : undefined
-            }
-            showSubmitReport={
-              ownerUserId === userId &&
-              originalDataItem?.isReported == false &&
-              !!ownerCanOpenSubmitReport
-            }
-            inlineReportActive={inlineReportPlanId === plan.id}
-            onCloseInlineReport={onCloseInlineReport}
-            planningPeriodLabel={planningPeriodLabel}
-          />
-        );
-      })}
       {paginationNode && (
         <div
           data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-1093"
