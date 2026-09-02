@@ -341,11 +341,80 @@ export const useDeletePayroll = () => {
   return useMutation(deletePayroll, {
     onSuccess: () => {
       queryClient.invalidateQueries('payroll');
+      queryClient.invalidateQueries('pay-peroid');
     },
     onError: (error) => {
       NotificationMessage.error({
         message: error + '',
         description: 'Failed to delete Payroll.',
+      });
+    },
+  });
+};
+
+const publishPayslips = async (payPeriodId: string) => {
+  const requestHeaders = await requestHeader();
+  return crudRequest({
+    url: `${PAYROLL_URL}/pay-period/publish-payslips/${payPeriodId}`,
+    method: 'PUT',
+    headers: requestHeaders,
+  });
+};
+
+export const usePublishPayslips = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(publishPayslips, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('pay-peroid');
+      queryClient.invalidateQueries('payroll');
+      queryClient.invalidateQueries('payrollForExport');
+      queryClient.invalidateQueries('payroll-history');
+      NotificationMessage.success({
+        message: 'Payslips released',
+        description: 'Employees can now view payslips for this pay period.',
+      });
+    },
+    onError: (error: any) => {
+      NotificationMessage.error({
+        message: 'Release failed',
+        description:
+          error?.response?.data?.message ||
+          'Failed to release payslips for this pay period.',
+      });
+    },
+  });
+};
+
+const unpublishPayslips = async (payPeriodId: string) => {
+  const requestHeaders = await requestHeader();
+  return crudRequest({
+    url: `${PAYROLL_URL}/pay-period/unpublish-payslips/${payPeriodId}`,
+    method: 'PUT',
+    headers: requestHeaders,
+  });
+};
+
+export const useUnpublishPayslips = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation(unpublishPayslips, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('pay-peroid');
+      queryClient.invalidateQueries('payroll');
+      queryClient.invalidateQueries('payrollForExport');
+      queryClient.invalidateQueries('payroll-history');
+      NotificationMessage.success({
+        message: 'Payslip access revoked',
+        description: 'Employees can no longer view payslips for this pay period.',
+      });
+    },
+    onError: (error: any) => {
+      NotificationMessage.error({
+        message: 'Revoke failed',
+        description:
+          error?.response?.data?.message ||
+          'Failed to revoke payslip access for this pay period.',
       });
     },
   });
