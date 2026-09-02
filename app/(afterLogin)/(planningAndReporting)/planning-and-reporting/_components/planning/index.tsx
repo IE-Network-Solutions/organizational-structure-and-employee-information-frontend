@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import {
   AllPlanningPeriods,
   useDefaultPlanningPeriods,
@@ -30,6 +30,7 @@ function Planning({
   planSummaries: planSummariesFromParent,
   transformedData: transformedDataFromParent,
   isLoading: planningLoadingFromParent,
+  totalItems: totalItemsFromParent,
 }: {
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
@@ -37,8 +38,8 @@ function Planning({
   planSummaries?: PlanSummary[];
   transformedData?: any[];
   isLoading?: boolean;
+  totalItems?: number;
 }) {
-  const hasAppliedDefaultDepartmentRef = useRef(false);
   const {
     activePlanPeriod,
     setSelectedPlanId,
@@ -55,10 +56,6 @@ function Planning({
     setInlineReportPlanId,
     resetStatuses,
     resetWeights,
-    planningFilterPlanType,
-    planningFilterDepartment,
-    setPlanningFilterDepartment,
-    setSelectedUser,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { isMobile, isTablet } = useIsMobile();
@@ -90,7 +87,7 @@ function Planning({
   useEffect(() => {
     setPage(1);
     setPageSize(10);
-  }, [activeTab, activePlanPeriod, setPage, setPageSize]);
+  }, [activeTab, setPage, setPageSize]);
 
   useEffect(() => {
     if (activeTab !== 1) {
@@ -100,46 +97,9 @@ function Planning({
     }
   }, [activeTab, resetStatuses, resetWeights, setInlineReportPlanId]);
 
-  useEffect(() => {
-    if (hasAppliedDefaultDepartmentRef.current) return;
-    if (planningFilterDepartment || planningFilterPlanType !== 'all') return;
-    const employees = employeeData?.items ?? [];
-    if (employees.length === 0) return;
-
-    const currentUser = employees.find(
-      (employee: any) => employee?.id === userId,
-    );
-    const myDepartmentId =
-      currentUser?.employeeJobInformation?.[0]?.department?.id ||
-      currentUser?.employeeJobInformation?.[0]?.departmentId ||
-      currentUser?.department?.id ||
-      currentUser?.departmentId;
-    if (!myDepartmentId) return;
-
-    const departmentUserIds = employees
-      .filter((employee: any) => {
-        const employeeDepartmentId =
-          employee?.employeeJobInformation?.[0]?.department?.id ||
-          employee?.employeeJobInformation?.[0]?.departmentId ||
-          employee?.department?.id ||
-          employee?.departmentId;
-        return employeeDepartmentId === myDepartmentId;
-      })
-      .map((employee: any) => employee.id);
-
-    setPlanningFilterDepartment(myDepartmentId);
-    if (departmentUserIds.length > 0) {
-      setSelectedUser(departmentUserIds);
-    }
-    hasAppliedDefaultDepartmentRef.current = true;
-  }, [
-    planningFilterDepartment,
-    planningFilterPlanType,
-    employeeData?.items,
-    userId,
-    setPlanningFilterDepartment,
-    setSelectedUser,
-  ]);
+  const activePlanningItems = useMemo(() => {
+    return transformedData ?? [];
+  }, [transformedData]);
 
   const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
 
@@ -165,7 +125,7 @@ function Planning({
     return employeeData?.items?.find((emp: any) => emp?.id === id) || {};
   };
 
-  /** Active plans ignore fiscal year / session; editability is plan state only. */
+  /** Active plans remain editable based on plan state; filtering now happens at fetch level. */
   const isDataFromActiveSession = (createdAt: string) => {
     void createdAt;
     return true;
@@ -186,17 +146,13 @@ function Planning({
     }
   };
 
-  const visiblePlanSummaries = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return planSummaries.slice(start, start + pageSize);
-  }, [planSummaries, page, pageSize]);
-
   const isDesktop = !isMobile && !isTablet;
   const isDesktopPanelView =
     isDesktop && !isPlanningListLoading && planSummaries.length > 0;
 
-  const totalPlanningItems = planSummaries.length;
-  const showPlanningPagination = totalPlanningItems > pageSize;
+  const totalPlanningItems = totalItemsFromParent ?? activePlanningItems.length;
+  const showPlanningPagination =
+    !isPlanningListLoading && totalPlanningItems > pageSize;
 
   const paginationElement = showPlanningPagination ? (
     <CustomPagination
@@ -239,7 +195,7 @@ function Planning({
               data-cy="planning-and-reporting-components-planning-index-tsx-index-div-319"
               className="space-y-6"
             >
-              {visiblePlanSummaries.map((plan: any) => {
+              {planSummaries.map((plan: any) => {
                 const originalDataItem = transformedData?.find(
                   (item: any) => item.id === plan.id,
                 );
@@ -301,7 +257,7 @@ function Planning({
             </div>
           ) : (
             <PlanningPanelView
-              plans={visiblePlanSummaries}
+              plans={planSummaries}
               transformedData={transformedData}
               cadence={currentCadence}
               userId={userId}
@@ -358,8 +314,8 @@ function Planning({
                 className="mt-2 text-xs leading-relaxed text-[#8F94A3]"
               >
                 {activeTabName
-                  ? `No ${activeTabName.toLowerCase()} duration tasks match the current filters.`
-                  : 'There are no planned tasks for this duration with the current filters.'}
+                  ? `There are no planned tasks for ${activeTabName} with the current filters and session.`
+                  : 'There are no planned tasks for this period with the current filters and session.'}
               </p>
               <p
                 data-cy="planning-and-reporting-components-planning-index-tsx-index-p-432"

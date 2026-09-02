@@ -1298,11 +1298,13 @@ export function KRLeftPanel({
   }, [planningTargets]);
 
   const showKrTargetsLoadingRow =
-    showInlinePick && planningTargetsLoading && planningTargets.length === 0;
+    showInlinePick &&
+    planningTargetsLoading &&
+    !parentPlanContext &&
+    planningTargets.length === 0;
 
-  /** Optional daily-under-weekly slots during Add plan — KR list stays visible. */
-  const showParentPlanSlots =
-    showInlinePick && !!parentPlanContext && parentPlanSlots.length > 0;
+  /** Child cadence on Plans tab: parent plan tasks only (hide KR list). Reports tab keeps KRs. */
+  const isChildCadence = !!parentPlanContext && activeTab === 1;
 
   return (
     <>
@@ -1314,7 +1316,7 @@ export function KRLeftPanel({
         />
       ) : (
         <>
-          {!isSingleOwner && (
+          {!isChildCadence && !isSingleOwner && (
             <div
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-853"
               className="bg-white border-b border-[#F1F2F6] px-4 py-3.5 flex-shrink-0"
@@ -1360,7 +1362,7 @@ export function KRLeftPanel({
             </div>
           )}
 
-          {showParentPlanSlots && parentPlanContext ? (
+          {parentPlanContext && activeTab === 1 ? (
             <ParentPlanTasksSection
               title={parentPlanContext.title}
               slots={parentPlanSlots}
@@ -1369,79 +1371,83 @@ export function KRLeftPanel({
               onPickPlanningTarget={onPickPlanningTarget}
               loading={planningTargetsLoading}
               blockedKrIds={blockedKrIds}
+              expandToFill={isChildCadence}
             />
           ) : null}
 
-          <div
-            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-890"
-            className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-1 py-2 scrollbar-hide sm:px-2 lg:overflow-x-hidden"
-          >
-            {showKrTargetsLoadingRow ? (
-              <div
-                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-892"
-                className="flex shrink-0 items-center justify-center gap-2 py-2 text-[11px] text-[#8F94A3]"
-              >
-                <Spin size="small" />
-                Loading planning slots…
-              </div>
-            ) : null}
-            {totalKRs === 0 ? (
-              <div
-                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-898"
-                className="flex min-h-[min(42vh,26rem)] flex-1 flex-col items-center justify-center px-4 py-8 text-center lg:min-h-0"
-              >
+          {!isChildCadence ? (
+            <div
+              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-890"
+              className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-1 py-2 scrollbar-hide sm:px-2 lg:overflow-x-hidden"
+            >
+              {showKrTargetsLoadingRow ? (
                 <div
-                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-899"
-                  className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
+                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-892"
+                  className="flex shrink-0 items-center justify-center gap-2 py-2 text-[11px] text-[#8F94A3]"
                 >
-                  <BsKey size={24} className="text-[#D1D5DB]" />
+                  <Spin size="small" />
+                  Loading planning slots…
                 </div>
-                <p
-                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-902"
-                  className="text-sm font-medium text-[#8F94A3]"
+              ) : null}
+              {totalKRs === 0 ? (
+                <div
+                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-898"
+                  className="flex min-h-[min(42vh,26rem)] flex-1 flex-col items-center justify-center px-4 py-8 text-center lg:min-h-0"
                 >
-                  No key results yet
-                </p>
-                <p
-                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-905"
-                  className="mt-1 text-xs text-[#C4C7CE]"
-                >
-                  No key results are assigned to your profile for this view
-                </p>
-              </div>
-            ) : (
-              ownerGroups.map((group, idx) => {
-                const isCurrentUserGroup =
-                  isSingleOwner &&
-                  transformedData?.some(
-                    (d: any) =>
-                      d.userId === userId &&
-                      plans.some(
-                        (p) =>
-                          p.id === d.id && p.owner?.name === group.owner?.name,
-                      ),
-                  );
+                  <div
+                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-899"
+                    className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
+                  >
+                    <BsKey size={24} className="text-[#D1D5DB]" />
+                  </div>
+                  <p
+                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-902"
+                    className="text-sm font-medium text-[#8F94A3]"
+                  >
+                    No key results yet
+                  </p>
+                  <p
+                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-905"
+                    className="mt-1 text-xs text-[#C4C7CE]"
+                  >
+                    No key results are assigned to your profile for this view
+                  </p>
+                </div>
+              ) : (
+                ownerGroups.map((group, idx) => {
+                  const isCurrentUserGroup =
+                    isSingleOwner &&
+                    transformedData?.some(
+                      (d: any) =>
+                        d.userId === userId &&
+                        plans.some(
+                          (p) =>
+                            p.id === d.id &&
+                            p.owner?.name === group.owner?.name,
+                        ),
+                    );
 
-                return (
-                  <OwnerKRSection
-                    key={group.ownerKey}
-                    group={group}
-                    isSingleOwner={isSingleOwner}
-                    isCurrentUser={!!isCurrentUserGroup}
-                    defaultExpanded={isSingleOwner || idx === 0}
-                    highlightedKRId={highlightedKRId}
-                    showInlinePlanningPick={showInlinePick}
-                    planningTargetsByKrId={targetsByKrId}
-                    selectedPlanningTargetId={selectedPlanningTargetId}
-                    onPickPlanningTarget={onPickPlanningTarget}
-                    userKeyResultItems={userKeyResultItems}
-                    objectiveMilestonesByKrId={objectiveMilestonesByKrId}
-                    onRefreshMilestoneStatus={onRefreshMilestoneStatus}
-                  />
-                );
-              })
-            )}
-          </div>
+                  return (
+                    <OwnerKRSection
+                      key={group.ownerKey}
+                      group={group}
+                      isSingleOwner={isSingleOwner}
+                      isCurrentUser={!!isCurrentUserGroup}
+                      defaultExpanded={isSingleOwner || idx === 0}
+                      highlightedKRId={highlightedKRId}
+                      showInlinePlanningPick={showInlinePick}
+                      planningTargetsByKrId={targetsByKrId}
+                      selectedPlanningTargetId={selectedPlanningTargetId}
+                      onPickPlanningTarget={onPickPlanningTarget}
+                      userKeyResultItems={userKeyResultItems}
+                      objectiveMilestonesByKrId={objectiveMilestonesByKrId}
+                      onRefreshMilestoneStatus={onRefreshMilestoneStatus}
+                    />
+                  );
+                })
+              )}
+            </div>
+          ) : null}
         </>
       )}
     </>
