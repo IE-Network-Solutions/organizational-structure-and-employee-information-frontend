@@ -178,7 +178,7 @@ const Plan = () => {
   return (
     <Card
       bodyStyle={{ padding: 0 }}
-      className="bg-white p-3 border h-[343px] border-gray-200  rounded-lg overflow-hidden"
+      className="bg-white p-3 border h-full min-h-[343px] border-gray-200  rounded-lg overflow-hidden"
     >
       {isDeterminingAvailability ? (
         <PlanCardSkeleton />
