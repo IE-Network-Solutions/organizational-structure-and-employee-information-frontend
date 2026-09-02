@@ -1,15 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import {
-  Select,
-  Tag,
-  Avatar,
-  Popover,
-  Button,
-  DatePicker,
-  Table,
-} from 'antd';
+import { Select, Tag, Avatar, Popover, Button, DatePicker, Table } from 'antd';
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
@@ -59,33 +51,38 @@ const AuditLogPage = () => {
     const parsed = raw ? Number.parseInt(raw, 10) : 10;
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 10;
   });
-  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(() => {
-    const performedBy = searchParams.get('performedBy');
-    return performedBy || undefined;
-  });
-  const [selectedModule, setSelectedModule] = useState<string | undefined>(() => {
-    const direct = searchParams.get('module');
-    if (direct) return direct;
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(
+    () => {
+      const performedBy = searchParams.get('performedBy');
+      return performedBy || undefined;
+    },
+  );
+  const [selectedModule, setSelectedModule] = useState<string | undefined>(
+    () => {
+      const direct = searchParams.get('module');
+      if (direct) return direct;
 
-    // Backward/compat: if the page is opened as `/audit-log?modules=foo`
-    // and `modules` contains exactly one module, use it as `module`.
-    const modules = searchParams.get('modules');
-    if (modules) {
-      const parts = modules
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      if (parts.length === 1) return parts[0];
-    }
-    return undefined;
-  });
-  const [selectedAction, setSelectedAction] = useState<string | undefined>(() => {
-    const action = searchParams.get('action');
-    return action || undefined;
-  });
-  const [employeeOrRemarksSearch, setEmployeeOrRemarksSearch] = useState<
-    string
-  >(() => searchParams.get('q') || '');
+      // Backward/compat: if the page is opened as `/audit-log?modules=foo`
+      // and `modules` contains exactly one module, use it as `module`.
+      const modules = searchParams.get('modules');
+      if (modules) {
+        const parts = modules
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+        if (parts.length === 1) return parts[0];
+      }
+      return undefined;
+    },
+  );
+  const [selectedAction, setSelectedAction] = useState<string | undefined>(
+    () => {
+      const action = searchParams.get('action');
+      return action || undefined;
+    },
+  );
+  const [employeeOrRemarksSearch, setEmployeeOrRemarksSearch] =
+    useState<string>(() => searchParams.get('q') || '');
   const [orderDirection, setOrderDirection] = useState<'ASC' | 'DESC'>('DESC');
   const { isMobile, isTablet } = useIsMobile();
   const { data: allUsers, isLoading: isLoadingUsers } = useGetAllUsers();
@@ -143,8 +140,7 @@ const AuditLogPage = () => {
         const performedAt = dayjs(performedAtValue);
         if (dateFrom && performedAt.isBefore(dateFrom.startOf('day')))
           return false;
-        if (dateTo && performedAt.isAfter(dateTo.endOf('day')))
-          return false;
+        if (dateTo && performedAt.isAfter(dateTo.endOf('day'))) return false;
       }
 
       const user = log?.performedByUser;
