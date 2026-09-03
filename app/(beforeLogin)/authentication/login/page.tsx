@@ -156,21 +156,14 @@ const Login: FC = () => {
             className="relative flex justify-center text-[13px] text-[#9ca3af] px-3"
             data-cy="login-divider-text"
           >
-            <span
-              className="bg-[#f0f4fa] px-3"
-              data-cy="login-divider-or-text"
-            >
+            <span className="bg-[#f0f4fa] px-3" data-cy="login-divider-or-text">
               or
             </span>
           </div>
         </div>
 
         {/* Email / password form */}
-        <div
-          id="div-login-form"
-          data-cy="div-login-form"
-          className="w-full"
-        >
+        <div id="div-login-form" data-cy="div-login-form" className="w-full">
           <Form
             id="login-form"
             data-cy="login-form"
@@ -232,7 +225,10 @@ const Login: FC = () => {
             </Form.Item>
           </Form>
 
-          <div className="text-center mb-10" data-cy="login-forgot-password-row">
+          <div
+            className="text-center mb-10"
+            data-cy="login-forgot-password-row"
+          >
             <Link
               href="/authentication/forget-password"
               className="text-[#1a3278] hover:text-[#152a66] text-[14px] font-medium transition-colors"
@@ -245,10 +241,7 @@ const Login: FC = () => {
       </main>
 
       {/* Help link */}
-      <footer
-        className="absolute bottom-6 z-20"
-        data-cy="login-footer"
-      >
+      <footer className="absolute bottom-6 z-20" data-cy="login-footer">
         <Link
           href="/help"
           className="text-[13px] text-[#9ca3af] hover:text-[#6b7280] transition-colors"

@@ -700,7 +700,8 @@ const CreateRuleSidebar = () => {
         actionTypes: normalizeActionTypes(item.actionTypes),
         breakType: resolveBreakTypeId(item.breakType as string | BreakType),
         isFixed: item.isFixed,
-        isMinuteBasedSalaryDeduction: item.isMinuteBasedSalaryDeduction ?? false,
+        isMinuteBasedSalaryDeduction:
+          item.isMinuteBasedSalaryDeduction ?? false,
         deductibleSalaryDays: item.deductibleSalaryDays,
         deductibleFixedAmount: item.deductibleFixedAmount,
         vpDeductionAmount: item.vpDeductionAmount,

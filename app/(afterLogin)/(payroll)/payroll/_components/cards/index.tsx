@@ -38,7 +38,7 @@ const PayrollCard: React.FC<PayrollCardProps> = ({
         className="h-full shadow-sm"
         style={{
           borderRadius: '10px',
-          border: '2px solid #A8AEB9',
+          border: '1px solid #E1E3E7',
         }}
         styles={{ body: { padding: '16px' } }}
       >
