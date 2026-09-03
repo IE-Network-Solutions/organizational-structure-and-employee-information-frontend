@@ -9,7 +9,11 @@ export function isCurrentApproverForItem(
   if (!item || !currentUserId) return false;
   const approvers = Array.isArray(item?.nextApprover) ? item.nextApprover : [];
   return approvers.some(
-    (approver) => getNextApproverUserId(approver) === currentUserId,
+    (approver: {
+      userId?: string;
+      approverId?: string;
+      approverUserId?: string;
+    }) => getNextApproverUserId(approver) === currentUserId,
   );
 }
 
