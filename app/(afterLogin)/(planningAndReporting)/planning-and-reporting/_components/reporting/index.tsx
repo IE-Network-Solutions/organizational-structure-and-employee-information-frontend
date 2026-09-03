@@ -19,7 +19,7 @@ import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from '../planning/PlanningPanelView';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence } from '../types';
-import { formatPlanningReportDate } from '../utils';
+import { canApproveSubordinateWork, formatPlanningReportDate } from '../utils';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 
@@ -214,13 +214,12 @@ function Reporting({
                     onApprove={() => handleApproveHandler(dataItem.id, true)}
                     onOpen={() => handleApproveHandler(dataItem.id, false)}
                     onEdit={() => startInlineEditReport(dataItem.id)}
-                    canApprove={
-                      userId ===
-                      (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
-                        ?.reportingTo?.id ||
-                        getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
-                          ?.delegatedTo?.id)
-                    }
+                    canApprove={canApproveSubordinateWork(
+                      userId,
+                      getEmployeeData(
+                        dataItem?.userId ?? dataItem?.createdBy,
+                      ),
+                    )}
                     canEdit={
                       userId === (dataItem?.userId ?? dataItem?.createdBy) &&
                       dataItem?.plan?.isReportValidated == false &&
