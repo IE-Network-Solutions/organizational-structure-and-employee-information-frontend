@@ -71,7 +71,7 @@ export default function PerspectivesCatalog() {
                       openViewPerspectiveKpis(item);
                     }
                   }}
-                  className="flex min-h-[140px] flex-col rounded-[12px] border border-[#E5E7EB] bg-[#F9FAFB] p-5 cursor-pointer hover:bg-[#F3F4F6] transition-colors"
+                  className="flex min-h-[96px] flex-col rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] p-3.5 cursor-pointer hover:bg-[#F3F4F6] transition-colors"
                   data-cy={`bsc-perspective-card-${item.id}`}
                 >
                   <div
@@ -80,18 +80,18 @@ export default function PerspectivesCatalog() {
                   >
                     <p
                       data-cy="okr-settings-bsc-perspectives-page-tsx-page-p-40"
-                      className="m-0 text-[15px] font-semibold text-[#262626]"
+                      className="m-0 text-[13px] font-semibold text-[#262626]"
                     >
                       {item.name}
                     </p>
-                    <Tag className="m-0 rounded-md border-none bg-[#EEF2FF] text-[#3730A3]">
+                    <Tag className="m-0 h-5 rounded border-none bg-[#EEF2FF] px-1.5 text-[11px] font-normal leading-5 text-[#3730A3]">
                       {count} KPI{count === 1 ? '' : 's'}
                     </Tag>
                   </div>
                   {item.description ? (
                     <p
                       data-cy="okr-settings-bsc-perspectives-page-tsx-page-p-44"
-                      className="m-0 mt-2 text-[13px] leading-5 text-[#8F94A3] line-clamp-3"
+                      className="m-0 mt-1.5 text-[12px] leading-4 text-[#8F94A3] line-clamp-2"
                     >
                       {item.description}
                     </p>

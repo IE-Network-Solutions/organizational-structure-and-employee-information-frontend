@@ -1,8 +1,13 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Collapse, Empty, Tag } from 'antd';
-import { EditOutlined, LeftOutlined, PlusOutlined } from '@ant-design/icons';
+import { Avatar, Button, Collapse, Empty, Tag } from 'antd';
+import {
+  EditOutlined,
+  LeftOutlined,
+  PlusOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import {
   useGetBscCycle,
@@ -11,6 +16,7 @@ import {
   useGetBscScorecards,
 } from '@/store/server/features/bsc/queries';
 import { useRemoveIndividualBscKpi } from '@/store/server/features/bsc/mutation';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   BscSetupKind,
@@ -21,6 +27,30 @@ import {
 } from '@/types/bsc';
 import BscSetupModal from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-setup/_components/BscSetupModal';
 import AssignIndividualKpisModal from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-setup/_components/AssignIndividualKpisModal';
+
+function resolveProfileImageSrc(profileImage: unknown): string | undefined {
+  if (!profileImage || typeof profileImage !== 'string') return undefined;
+  try {
+    const parsed = JSON.parse(profileImage);
+    if (
+      parsed?.url &&
+      typeof parsed.url === 'string' &&
+      parsed.url.startsWith('http')
+    ) {
+      return parsed.url;
+    }
+  } catch {
+    if (profileImage.startsWith('http')) return profileImage;
+  }
+  return undefined;
+}
+
+function nameInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
 
 function horizonLabel(config?: EvaluationCycle | null): string {
   if (!config) return '—';
@@ -165,7 +195,17 @@ export default function BscScorecardDetailPage() {
   });
   const { data: peopleScorecards, isLoading: peopleLoading } =
     useGetBscScorecards({ cycleId: configId });
+  const { data: allUsers } = useGetAllUsers();
   const removeIndividualKpi = useRemoveIndividualBscKpi();
+
+  const profileImageByUserId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const user of allUsers?.items || []) {
+      const src = resolveProfileImageSrc(user?.profileImage);
+      if (user?.id && src) map.set(user.id, src);
+    }
+    return map;
+  }, [allUsers]);
 
   const kpis = useMemo(() => allKpis || [], [allKpis]);
 
@@ -456,33 +496,47 @@ export default function BscScorecardDetailPage() {
                           data-cy="-bsc-bsc-setup-configid-page-div-28"
                         >
                           <div
-                            className="min-w-0"
+                            className="flex min-w-0 items-start gap-3"
                             data-cy="-bsc-bsc-setup-configid-page-div-29"
                           >
-                            <p
-                              className="m-0 text-[13px] font-semibold text-[#262626]"
-                              data-cy="-bsc-bsc-setup-configid-page-p-30"
+                            <Avatar
+                              size={40}
+                              src={profileImageByUserId.get(person.userId)}
+                              icon={<UserOutlined />}
+                              className="shrink-0 bg-[#E6F4FF] text-[#1677ff]"
+                              data-cy={`bsc-scorecard-person-avatar-${person.id}`}
                             >
-                              {person.userName}
-                            </p>
-                            <p
-                              className="m-0 mt-0.5 text-[11px] text-[#8F94A3]"
-                              data-cy="-bsc-bsc-setup-configid-page-p-31"
-                            >
-                              {[person.positionTitle, person.departmentName]
-                                .filter(Boolean)
-                                .join(' · ') || '—'}
-                            </p>
+                              {nameInitials(person.userName)}
+                            </Avatar>
                             <div
-                              className="mt-2 flex flex-wrap items-center gap-1.5"
-                              data-cy="-bsc-bsc-setup-configid-page-div-32"
+                              className="min-w-0"
+                              data-cy={`bsc-scorecard-person-info-${person.id}`}
                             >
-                              <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                                {sharedCount} shared
-                              </Tag>
-                              <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                                {individualTargets.length} individual
-                              </Tag>
+                              <p
+                                className="m-0 text-[13px] font-semibold text-[#262626]"
+                                data-cy="-bsc-bsc-setup-configid-page-p-30"
+                              >
+                                {person.userName}
+                              </p>
+                              <p
+                                className="m-0 mt-0.5 text-[11px] text-[#8F94A3]"
+                                data-cy="-bsc-bsc-setup-configid-page-p-31"
+                              >
+                                {[person.positionTitle, person.departmentName]
+                                  .filter(Boolean)
+                                  .join(' · ') || '—'}
+                              </p>
+                              <div
+                                className="mt-2 flex flex-wrap items-center gap-1.5"
+                                data-cy="-bsc-bsc-setup-configid-page-div-32"
+                              >
+                                <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                                  {sharedCount} shared
+                                </Tag>
+                                <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                                  {individualTargets.length} individual
+                                </Tag>
+                              </div>
                             </div>
                           </div>
                           <Button

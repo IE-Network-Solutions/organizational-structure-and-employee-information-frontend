@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import {
+  Avatar,
   Button,
   Dropdown,
   Input,
@@ -25,9 +26,9 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   useGetBscCycles,
-  useGetBscKpiLibrary,
   useGetBscScorecards,
 } from '@/store/server/features/bsc/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   BscScopeTarget,
@@ -43,6 +44,30 @@ const { Option } = Select;
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
 
+function resolveProfileImageSrc(profileImage: unknown): string | undefined {
+  if (!profileImage || typeof profileImage !== 'string') return undefined;
+  try {
+    const parsed = JSON.parse(profileImage);
+    if (
+      parsed?.url &&
+      typeof parsed.url === 'string' &&
+      parsed.url.startsWith('http')
+    ) {
+      return parsed.url;
+    }
+  } catch {
+    if (profileImage.startsWith('http')) return profileImage;
+  }
+  return undefined;
+}
+
+function nameInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
+
 function resolveScopeLabel(config: EvaluationCycle): string {
   if (config.employeeIds?.length) return BscScopeTarget.Individual;
   if (config.positionIds?.length || config.positionTitles?.length) {
@@ -52,33 +77,6 @@ function resolveScopeLabel(config: EvaluationCycle): string {
     return BscScopeTarget.Department;
   }
   return 'Unscoped';
-}
-
-function scopeSummary(config: EvaluationCycle): string {
-  const scope = resolveScopeLabel(config);
-  if (scope === BscScopeTarget.Individual) {
-    const names = config.employeeNames || [];
-    if (!names.length) {
-      return `${config.employeeIds?.length || 0} individual${
-        (config.employeeIds?.length || 0) === 1 ? '' : 's'
-      }`;
-    }
-    if (names.length <= 2) return names.join(', ');
-    return `${names.slice(0, 2).join(', ')} +${names.length - 2}`;
-  }
-  if (scope === BscScopeTarget.Role) {
-    const roles = config.positionTitles || [];
-    if (!roles.length) return 'Roles';
-    if (roles.length <= 2) return roles.join(', ');
-    return `${roles.slice(0, 2).join(', ')} +${roles.length - 2}`;
-  }
-  if (scope === BscScopeTarget.Department) {
-    const depts = config.departmentNames || [];
-    if (!depts.length) return 'Departments';
-    if (depts.length <= 2) return depts.join(', ');
-    return `${depts.slice(0, 2).join(', ')} +${depts.length - 2}`;
-  }
-  return 'No assignment';
 }
 
 function horizonLabel(config: EvaluationCycle): string {
@@ -106,9 +104,6 @@ export default function ScorecardsCatalog() {
   } = useBscUiStore();
   const [view, setView] = useState<CatalogView>('scorecards');
   const [peopleSearch, setPeopleSearch] = useState('');
-  const [peopleConfigFilter, setPeopleConfigFilter] = useState<
-    string | undefined
-  >();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [assignOpen, setAssignOpen] = useState(false);
@@ -117,9 +112,18 @@ export default function ScorecardsCatalog() {
   const { isMobile, isTablet } = useIsMobile();
 
   const { data: configs, isLoading: configsLoading } = useGetBscCycles();
-  const { data: kpis, isLoading: kpisLoading } = useGetBscKpiLibrary();
   const { data: peopleScorecards, isLoading: peopleLoading } =
     useGetBscScorecards();
+  const { data: allUsers } = useGetAllUsers();
+
+  const profileImageByUserId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const user of allUsers?.items || []) {
+      const src = resolveProfileImageSrc(user?.profileImage);
+      if (user?.id && src) map.set(user.id, src);
+    }
+    return map;
+  }, [allUsers]);
 
   const scorecards = useMemo(() => configs || [], [configs]);
 
@@ -176,20 +180,9 @@ export default function ScorecardsCatalog() {
     );
   }, [peopleScorecards, configLabelById]);
 
-  const individualCountByConfig = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const row of peopleWithIndividualKpis) {
-      map.set(row.scorecard.cycleId, (map.get(row.scorecard.cycleId) || 0) + 1);
-    }
-    return map;
-  }, [peopleWithIndividualKpis]);
-
   const filteredPeople = useMemo(() => {
     const q = peopleSearch.trim().toLowerCase();
     return peopleWithIndividualKpis.filter((row) => {
-      if (peopleConfigFilter && row.scorecard.cycleId !== peopleConfigFilter) {
-        return false;
-      }
       if (!q) return true;
       const person = row.scorecard;
       return (
@@ -199,7 +192,7 @@ export default function ScorecardsCatalog() {
         row.configLabel.toLowerCase().includes(q)
       );
     });
-  }, [peopleWithIndividualKpis, peopleSearch, peopleConfigFilter]);
+  }, [peopleWithIndividualKpis, peopleSearch]);
 
   const pagedPeople = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -235,18 +228,26 @@ export default function ScorecardsCatalog() {
       key: 'person',
       ellipsis: true,
       render: (unused, row) => (
-        <span
-          className={`inline-flex items-center gap-2 ${tableCellClassName}`}
-          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-2"
+        <div
+          className={`flex items-center gap-2 ${tableCellClassName}`}
+          data-cy={`bsc-individual-person-cell-${row.scorecard.id}`}
         >
-          <UserOutlined className="text-[#1677ff]" />
+          <Avatar
+            size={32}
+            src={profileImageByUserId.get(row.scorecard.userId)}
+            icon={<UserOutlined />}
+            className="shrink-0 bg-[#E6F4FF] text-[#1677ff]"
+            data-cy={`bsc-individual-person-avatar-${row.scorecard.id}`}
+          >
+            {nameInitials(row.scorecard.userName)}
+          </Avatar>
           <span
-            className="font-medium"
+            className="min-w-0 truncate font-medium"
             data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-3"
           >
             {row.scorecard.userName}
           </span>
-        </span>
+        </div>
       ),
     },
     {
@@ -373,17 +374,6 @@ export default function ScorecardsCatalog() {
     },
   ];
 
-  const kpiCountByConfig = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const kpi of kpis || []) {
-      map.set(
-        kpi.evaluationConfigId,
-        (map.get(kpi.evaluationConfigId) || 0) + 1,
-      );
-    }
-    return map;
-  }, [kpis]);
-
   const departments = useMemo(() => {
     const set = new Set<string>();
     scorecards.forEach((c) =>
@@ -421,17 +411,7 @@ export default function ScorecardsCatalog() {
     });
   }, [scorecards, roleSearch, roleDepartmentFilter, peopleWithIndividualKpis]);
 
-  const loading = configsLoading || kpisLoading || peopleLoading;
-
-  const showPeopleForScorecard = (
-    event: React.MouseEvent,
-    configId: string,
-  ) => {
-    event.stopPropagation();
-    setPeopleConfigFilter(configId);
-    setPeopleSearch('');
-    setView('people');
-  };
+  const loading = configsLoading || peopleLoading;
 
   return (
     <div className="w-full" data-cy="bsc-setup-page">
@@ -548,9 +528,6 @@ export default function ScorecardsCatalog() {
                   className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
                 >
                   {filtered.map((config) => {
-                    const kpiCount = kpiCountByConfig.get(config.id) || 0;
-                    const peopleWithExtras =
-                      individualCountByConfig.get(config.id) || 0;
                     const scope = resolveScopeLabel(config);
                     return (
                       <div
@@ -575,61 +552,18 @@ export default function ScorecardsCatalog() {
                         </div>
                         <p
                           data-cy="okr-settings-bsc-setup-page-tsx-page-p-116"
-                          className="mb-1 text-[15px] font-semibold leading-tight text-[#262626]"
+                          className="mb-0 text-[15px] font-semibold leading-tight text-[#262626]"
                         >
                           {config.label}
                         </p>
                         {config.description ? (
                           <p
-                            className="mb-4 line-clamp-2 text-[12px] text-[#8F94A3]"
+                            className="mb-0 mt-1 line-clamp-2 text-[12px] text-[#8F94A3]"
                             data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-p-14"
                           >
                             {config.description}
                           </p>
-                        ) : (
-                          <div
-                            className="mb-4"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-15"
-                          />
-                        )}
-                        <div
-                          data-cy="okr-settings-bsc-setup-page-tsx-page-div-119"
-                          className="flex flex-wrap items-center gap-2"
-                        >
-                          <div
-                            data-cy="okr-settings-bsc-setup-page-tsx-page-div-121"
-                            className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
-                          >
-                            {scopeSummary(config)}
-                          </div>
-                          <div
-                            data-cy="okr-settings-bsc-setup-page-tsx-page-div-133"
-                            className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
-                          >
-                            {kpiCount} KPI{kpiCount === 1 ? '' : 's'}
-                          </div>
-                          {peopleWithExtras > 0 ? (
-                            <button
-                              type="button"
-                              className="rounded-[6px] border border-[#91caff] bg-[#e6f4ff] px-3 py-1.5 text-[12px] text-[#1677ff] cursor-pointer"
-                              onClick={(event) =>
-                                showPeopleForScorecard(event, config.id)
-                              }
-                              data-cy={`bsc-scorecard-people-badge-${config.id}`}
-                            >
-                              {peopleWithExtras} person
-                              {peopleWithExtras === 1 ? '' : 's'} with extras
-                            </button>
-                          ) : null}
-                          {(config.periodLabels || [])[0] ? (
-                            <div
-                              className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
-                              data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-16"
-                            >
-                              {config.periodLabels[0]}
-                            </div>
-                          ) : null}
-                        </div>
+                        ) : null}
                       </div>
                     );
                   })}
