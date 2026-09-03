@@ -238,9 +238,7 @@ function Reporting({
                     onEdit={() => startInlineEditReport(dataItem.id)}
                     canApprove={canApproveSubordinateWork(
                       userId,
-                      getEmployeeData(
-                        dataItem?.userId ?? dataItem?.createdBy,
-                      ),
+                      getEmployeeData(dataItem?.userId ?? dataItem?.createdBy),
                     )}
                     canEdit={
                       userId === (dataItem?.userId ?? dataItem?.createdBy) &&

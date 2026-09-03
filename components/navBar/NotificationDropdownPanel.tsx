@@ -2,7 +2,8 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Spin, Button, message } from 'antd';
+import { Spin, Button, message, Dropdown, Modal } from 'antd';
+import type { MenuProps } from 'antd';
 import { useQueryClient } from 'react-query';
 import {
   useGetNotifications,
@@ -14,6 +15,7 @@ import {
   useMarkAllAsRead,
 } from '@/store/server/features/notification/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useNotificationPreferencesStore } from '@/store/uistate/features/notification/preferences';
 
 import {
   EyeOutlined,
@@ -26,6 +28,8 @@ import {
   ReadOutlined,
   GiftOutlined,
   GlobalOutlined,
+  SettingOutlined,
+  MoreOutlined,
 } from '@ant-design/icons';
 import { requestAndRegisterPushSubscription } from '@/hooks/usePushSubscription';
 import { VAPID_PUBLIC_KEY } from '@/utils/constants';
@@ -82,6 +86,7 @@ function NotificationItem({
   item,
   unread,
   onMarkAsRead,
+  onMuteType,
   onClick,
   formatTime,
   hasAccess,
@@ -89,12 +94,36 @@ function NotificationItem({
   item: NotificationType;
   unread: boolean;
   onMarkAsRead: (e: React.MouseEvent, id: string) => void;
+  onMuteType: (item: NotificationType) => void;
   onClick: (item: NotificationType) => void;
   formatTime: (dateStr: string) => string;
   hasAccess: boolean;
 }) {
   const IconComponent = getNotificationIcon(item);
   const themeClasses = getNotificationThemeClasses(item);
+
+  const overflowItems: MenuProps['items'] = [
+    {
+      key: 'mute-type',
+      label: (
+        <span data-cy={`notification-item-mute-${toSlug(item.id)}`}>
+          Turn off notifications like this
+        </span>
+      ),
+      onClick: ({ domEvent }) => {
+        domEvent.stopPropagation();
+        Modal.confirm({
+          title: 'Turn off notifications like this?',
+          content:
+            'Prototype only — saved on this device. Delivery is not stopped by the server.',
+          okText: 'Turn off',
+          cancelText: 'Cancel',
+          onOk: () => onMuteType(item),
+        });
+      },
+    },
+  ];
+
   return (
     <div
       id={`notification-item-${toSlug(item.id)}`}
@@ -152,24 +181,46 @@ function NotificationItem({
           {formatTime(item.createdAt ?? item.updatedAt ?? '')}
         </div>
       </div>
-      <button
-        type="button"
-        id={`notification-item-mark-read-${toSlug(item.id)}`}
-        data-cy={`notification-item-mark-read-${toSlug(item.id)}`}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (unread) onMarkAsRead(e, item.id);
-        }}
-        className={`flex-shrink-0 p-1.5 rounded transition-colors ${
-          unread
-            ? 'text-[#5B4FFF] hover:bg-[#5B4FFF]/10'
-            : 'text-gray-300 cursor-default'
-        }`}
-        aria-label={unread ? 'Mark as read' : 'Seen'}
-        disabled={!unread}
+      <div
+        className="flex flex-shrink-0 items-center gap-0.5"
+        onClick={(e) => e.stopPropagation()}
+        data-cy={`notification-item-actions-${toSlug(item.id)}`}
       >
-        <EyeOutlined className="text-base" />
-      </button>
+        <button
+          type="button"
+          id={`notification-item-mark-read-${toSlug(item.id)}`}
+          data-cy={`notification-item-mark-read-${toSlug(item.id)}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (unread) onMarkAsRead(e, item.id);
+          }}
+          className={`p-1.5 rounded transition-colors ${
+            unread
+              ? 'text-[#5B4FFF] hover:bg-[#5B4FFF]/10'
+              : 'text-gray-300 cursor-default'
+          }`}
+          aria-label={unread ? 'Mark as read' : 'Seen'}
+          disabled={!unread}
+        >
+          <EyeOutlined className="text-base" />
+        </button>
+        <Dropdown
+          menu={{ items: overflowItems }}
+          trigger={['click']}
+          placement="bottomRight"
+          getPopupContainer={() => document.body}
+        >
+          <button
+            type="button"
+            className="p-1.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            aria-label="Notification actions"
+            data-cy={`notification-item-more-${toSlug(item.id)}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MoreOutlined className="text-base" />
+          </button>
+        </Dropdown>
+      </div>
     </div>
   );
 }
@@ -300,6 +351,9 @@ export function NotificationDropdownPanel({
   });
   const { mutate: markAsRead } = useUpdateNotificationStatus();
   const { mutate: markAllAsRead } = useMarkAllAsRead();
+  const muteTypeFromNotification = useNotificationPreferencesStore(
+    (s) => s.muteTypeFromNotification,
+  );
 
   const list = useMemo(
     () => (Array.isArray(data) ? data : ((data as any)?.data ?? [])),
@@ -323,6 +377,18 @@ export function NotificationDropdownPanel({
 
   const handleMarkAllAsRead = () => {
     markAllAsRead(userId);
+  };
+
+  const handleOpenSettings = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    onRequestClose?.();
+    router.push('/employees/notification/settings');
+  };
+
+  const handleMuteType = (item: NotificationType) => {
+    muteTypeFromNotification(item);
+    message.success("You won't get these notifications anymore (prototype)");
   };
 
   const handleItemClick = (item: NotificationType) => {
@@ -353,15 +419,30 @@ export function NotificationDropdownPanel({
           >
             Notifications
           </span>
-          <button
-            type="button"
-            id="notification-mark-all-read"
-            data-cy="notification-mark-all-read"
-            onClick={handleMarkAllAsRead}
-            className="text-sm font-medium text-[#5B4FFF] hover:underline"
+          <div
+            className="flex items-center gap-2"
+            data-cy="notification-panel-header-actions"
           >
-            Mark all as read
-          </button>
+            <button
+              type="button"
+              id="notification-settings-gear"
+              data-cy="notification-settings-gear"
+              onClick={handleOpenSettings}
+              className="p-1.5 rounded text-gray-500 hover:text-[#5B4FFF] hover:bg-[#5B4FFF]/10 transition-colors"
+              aria-label="Notification settings"
+            >
+              <SettingOutlined className="text-base" />
+            </button>
+            <button
+              type="button"
+              id="notification-mark-all-read"
+              data-cy="notification-mark-all-read"
+              onClick={handleMarkAllAsRead}
+              className="text-sm font-medium text-[#5B4FFF] hover:underline"
+            >
+              Mark all as read
+            </button>
+          </div>
         </div>
 
         {/* Filters - selected tab: solid blue bg + white text (match design) */}
@@ -513,6 +594,7 @@ export function NotificationDropdownPanel({
                         item={item}
                         unread
                         onMarkAsRead={handleMarkAsRead}
+                        onMuteType={handleMuteType}
                         onClick={handleItemClick}
                         formatTime={formatTime}
                         hasAccess={canAccessRoute(
@@ -546,6 +628,7 @@ export function NotificationDropdownPanel({
                         item={item}
                         unread={false}
                         onMarkAsRead={handleMarkAsRead}
+                        onMuteType={handleMuteType}
                         onClick={handleItemClick}
                         formatTime={formatTime}
                         hasAccess={canAccessRoute(
@@ -569,6 +652,7 @@ export function NotificationDropdownPanel({
                   item={item}
                   unread={isUnread(item)}
                   onMarkAsRead={handleMarkAsRead}
+                  onMuteType={handleMuteType}
                   onClick={handleItemClick}
                   formatTime={formatTime}
                   hasAccess={canAccessRoute(
