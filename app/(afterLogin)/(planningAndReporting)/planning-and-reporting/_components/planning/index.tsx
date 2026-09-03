@@ -18,7 +18,6 @@ import CustomPagination from '@/components/customPagination';
 import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from './PlanningPanelView';
-import StatusBadge from '../StatusBadge';
 import { Cadence, PlanSummary } from '../types';
 import { formatPlanningReportDate } from '../utils';
 
@@ -36,6 +35,7 @@ function Planning({
   isLoading: planningLoadingFromParent,
   totalItems: totalItemsFromParent,
   addPlanComposer,
+  onStartAddPlan,
 }: {
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
@@ -46,6 +46,8 @@ function Planning({
   totalItems?: number;
   /** Inline composer nested in My Plan (append to existing plan). */
   addPlanComposer?: React.ReactNode;
+  /** Called when Add Plan is pressed (before opening KR pick mode). */
+  onStartAddPlan?: () => void;
 }) {
   const {
     activePlanPeriod,
@@ -118,12 +120,9 @@ function Planning({
     useGetPlannedTaskForReport(planningPeriodId, {
       enabled: activeTab === 1 && !!planningPeriodId && !mockEnabled,
     });
-  const mockPlanTaskCount = mockEnabled
-    ? (getPlan(userId)?.activeTasks.filter((t) => !t.isReported).length ?? 0)
-    : 0;
   const ownerCanOpenSubmitReport =
     mockEnabled
-      ? mockPlanTaskCount > 0
+      ? false // Mock: tick checkbox = done & reported (no Report button)
       : !plannedForReportLoading &&
         Array.isArray(plannedTasksForReport) &&
         plannedTasksForReport.length > 0;
@@ -171,6 +170,7 @@ function Planning({
   const handleAddPlan = () => {
     const { inlinePlanningMode } = PlanningAndReportingStore.getState();
     if (inlinePlanningMode) return;
+    onStartAddPlan?.();
     setInlineEditPlanId(null);
     setInlinePlanningMode(true);
     if (isMobile || isTablet) {
@@ -246,12 +246,6 @@ function Planning({
         ) : planSummaries.length > 0 ? (
           isMobile || isTablet ? (
             (() => {
-              const pendingPlans = visiblePlanSummaries.filter(
-                (plan: PlanSummary) => plan.status?.label !== 'Closed',
-              );
-              const closedPlans = visiblePlanSummaries.filter(
-                (plan: PlanSummary) => plan.status?.label === 'Closed',
-              );
               const renderMobileCard = (plan: PlanSummary) => {
                 const originalDataItem = transformedData?.find(
                   (item: any) => item.id === plan.id,
@@ -333,57 +327,7 @@ function Planning({
                   data-cy="planning-and-reporting-components-planning-index-tsx-index-div-319"
                   className="space-y-6"
                 >
-                  {pendingPlans.length > 0 ? (
-                    <div
-                      className="space-y-3"
-                      data-cy="planning-pending-section"
-                    >
-                      <div
-                        className="flex items-center gap-2"
-                        data-cy="planning-pending-section-header"
-                      >
-                        <StatusBadge
-                          status={
-                            pendingPlans[0]?.status ?? {
-                              label: 'Open',
-                              updatedAt: '',
-                              tone: 'warning',
-                            }
-                          }
-                        />
-                        <span className="text-[12px] font-medium text-[#8F94A3]">
-                          New & unclosed plans
-                        </span>
-                      </div>
-                      <div className="space-y-6">
-                        {pendingPlans.map(renderMobileCard)}
-                      </div>
-                    </div>
-                  ) : null}
-                  {closedPlans.length > 0 ? (
-                    <div
-                      className="space-y-3"
-                      data-cy="planning-closed-section"
-                    >
-                      <div
-                        className="flex items-center gap-2"
-                        data-cy="planning-closed-section-header"
-                      >
-                        <StatusBadge
-                          status={
-                            closedPlans[0]?.status ?? {
-                              label: 'Closed',
-                              updatedAt: '',
-                              tone: 'success',
-                            }
-                          }
-                        />
-                      </div>
-                      <div className="space-y-6">
-                        {closedPlans.map(renderMobileCard)}
-                      </div>
-                    </div>
-                  ) : null}
+                  {visiblePlanSummaries.map(renderMobileCard)}
                 </div>
               );
             })()
@@ -456,8 +400,8 @@ function Planning({
                 className="mt-2 text-xs leading-relaxed text-[#C4C7CE]"
               >
                 {isDesktop
-                  ? 'Add tasks from a key result using the + in the left panel.'
-                  : 'Add tasks from a key result using + next to a key result.'}
+                  ? 'Use Add Plan, then pick a key result — or tap + to plan without one.'
+                  : 'Use Add Plan, then pick a key result — or tap + to plan without one.'}
               </p>
             </div>
           </div>

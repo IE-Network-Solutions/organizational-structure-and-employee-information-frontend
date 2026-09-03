@@ -1,98 +1,86 @@
+'use client';
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
   AllPlanningPeriods,
   useDefaultPlanningPeriods,
-  useGetReporting,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
-import { useGetFiscalYearById } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import dayjs from 'dayjs';
+import { useApprovalReporting } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
-import { BsFileEarmarkText } from 'react-icons/bs';
-import { useApprovalReporting } from '@/store/server/features/okrPlanningAndReporting/mutations';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
+import { BsFileEarmarkText } from 'react-icons/bs';
 import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
-import PlanningPanelView from '../planning/PlanningPanelView';
-import { transformReportToPlanSummary } from '../dataTransformer/vamp';
-import { Cadence } from '../types';
-import { formatPlanningReportDate } from '../utils';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
-import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 import { useReportingData } from '../planning/useReportingData';
-import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
+import { formatPlanningReportDate } from '../utils';
+import { Cadence, PlanSummary } from '../types';
+import dayjs from 'dayjs';
+import { useGetFiscalYearById } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 
 function Reporting({
   onHoverKR,
   onOpenThread,
+  onStartAddPlan,
+  addPlanComposer,
 }: {
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
+  onStartAddPlan?: () => void;
+  addPlanComposer?: React.ReactNode;
 }) {
+  void onHoverKR;
+  void onOpenThread;
+
+  const mockEnabled = isDeadlinePlanningMockEnabled();
   const {
-    selectedUser,
     activePlanPeriod,
     activeTab,
+    activePlanPeriodId,
     pageReporting,
     setPageReporting,
     pageSizeReporting,
-    activePlanPeriodId,
     setPageSizeReporting,
-    selectedSessionIds,
     selectedFiscalYearId,
-    allSessionsOfYear,
   } = PlanningAndReportingStore();
-  const { data: employeeData } = useGetAllUsers();
+
   const { userId } = useAuthenticationStore();
+  const { data: employeeData } = useGetAllUsers();
+  const { isMobile, isTablet } = useIsMobile();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
-  const { isMobile, isTablet } = useIsMobile();
   const { data: selectedFiscalYear } = useGetFiscalYearById(
     selectedFiscalYearId || '',
   );
 
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
-  const mockEnabled = isDeadlinePlanningMockEnabled();
-  const { reportSummaries: mockReportSummaries } = useReportingData(
+
+  const { reportSummaries, reportingItems } = useReportingData(
     activeTab === 2,
   );
+
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
 
-  const { data: allReporting, isLoading: getReportLoading } = useGetReporting(
-    {
-      userId: selectedUser,
-      planPeriodId: planningPeriodId ?? '',
-      pageReporting,
-      pageSizeReporting,
-      sessionId:
-        selectedSessionIds.length > 0
-          ? selectedSessionIds
-          : allSessionsOfYear.length > 0
-            ? allSessionsOfYear
-            : [],
-    },
-    { enabled: !mockEnabled && activeTab === 2 && !!planningPeriodId },
-  );
-
-  const getPlanningPeriodDetail = (id: string) => {
-    return planningPeriods?.items?.find((p: any) => p?.id === id) || {};
-  };
+  const getPlanningPeriodDetail = (id: string) =>
+    planningPeriods?.items?.find((p: any) => p?.id === id) || {};
 
   const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+  const cadence = (activeTabName?.toLowerCase() as Cadence) || 'weekly';
 
   useEffect(() => {
     setPageReporting(1);
     setPageSizeReporting(10);
   }, [activeTab, setPageReporting, setPageSizeReporting]);
 
-  const getEmployeeData = (id: string) => {
-    return employeeData?.items?.find((emp: any) => emp?.id === id) || {};
-  };
+  const getEmployeeData = (id: string) =>
+    employeeData?.items?.find((emp: any) => emp?.id === id) || {};
 
   const handleApproveHandler = (id: string, value: boolean) => {
     ReportApproval({ id, value });
@@ -101,7 +89,7 @@ function Reporting({
   const isDataFromActiveSession = (createdAt: string): boolean => {
     if (!selectedFiscalYearId || !selectedFiscalYear?.sessions) return true;
     const dataDate = dayjs(createdAt);
-    return !!selectedFiscalYear.sessions.find((session) => {
+    return !!selectedFiscalYear.sessions.find((session: any) => {
       const start = dayjs(session.startDate);
       const end = dayjs(session.endDate);
       return (
@@ -112,12 +100,9 @@ function Reporting({
     });
   };
 
-  const getDateLabel = (createdAt: string): string => {
-    return formatPlanningReportDate(createdAt);
-  };
+  const getDateLabel = (createdAt: string) =>
+    formatPlanningReportDate(createdAt);
 
-  const cadence = (activeTabName?.toLowerCase() as Cadence) || 'weekly';
-  const isDesktop = !isMobile && !isTablet;
   const [inlineEditingReport, setInlineEditingReport] = useState<{
     reportId: string;
     planId: string;
@@ -127,71 +112,132 @@ function Reporting({
     setInlineEditingReport(null);
   }, []);
 
+  const handleAddPlan = useCallback(() => {
+    onStartAddPlan?.();
+  }, [onStartAddPlan]);
+
   const startInlineEditReport = useCallback(
     (reportId: string) => {
-      const row = allReporting?.items?.find(
-        (item: any) => item.id === reportId,
-      );
+      const row = reportingItems?.find((item: any) => item.id === reportId);
       const resolvedPlanId =
         row?.planId || row?.plan?.id || row?.plan?.planId || '';
       if (!resolvedPlanId) return;
       setInlineEditingReport({ reportId, planId: resolvedPlanId });
     },
-    [allReporting?.items],
+    [reportingItems],
   );
 
-  const reportTaskOverrides = useRecentReportTaskStatuses((s) => s.byReport);
+  // Sort: My report first, then others
+  const currentUserId = String(userId ?? '');
+  const { myReports, otherReports } = useMemo(() => {
+    const mine: PlanSummary[] = [];
+    const others: PlanSummary[] = [];
+    for (const plan of reportSummaries) {
+      const isMine =
+        String(plan.ownerUserId ?? '') === currentUserId ||
+        plan.summary === 'My Plan' ||
+        plan.owner?.name === 'My Plan';
+      if (isMine) mine.push(plan);
+      else others.push(plan);
+    }
+    return { myReports: mine, otherReports: others };
+  }, [reportSummaries, currentUserId]);
 
-  const reportSummaries = useMemo(() => {
-    if (mockEnabled) return mockReportSummaries;
-    if (!allReporting?.items) return [];
-    return allReporting.items.map((dataItem: any) =>
-      transformReportToPlanSummary(dataItem, cadence, employeeData),
+  const totalOthers = otherReports.length;
+  const showPagination = totalOthers > pageSizeReporting;
+
+  const visibleReports = useMemo(() => {
+    const start = (pageReporting - 1) * pageSizeReporting;
+    return [...myReports, ...otherReports.slice(start, start + pageSizeReporting)];
+  }, [myReports, otherReports, pageReporting, pageSizeReporting]);
+
+  const paginationNode = showPagination ? (
+    isMobile || isTablet ? (
+      <CustomMobilePagination
+        totalResults={totalOthers}
+        pageSize={pageSizeReporting}
+        onChange={(page, pageSize) => {
+          setPageReporting(page);
+          setPageSizeReporting(pageSize);
+        }}
+        onShowSizeChange={(size) => {
+          setPageSizeReporting(size);
+          setPageReporting(1);
+        }}
+      />
+    ) : (
+      <CustomPagination
+        total={totalOthers}
+        current={pageReporting}
+        pageSize={pageSizeReporting}
+        onShowSizeChange={(size) => {
+          setPageSizeReporting(size);
+          setPageReporting(1);
+        }}
+        onChange={(page, pageSize) => {
+          setPageReporting(page);
+          setPageSizeReporting(pageSize);
+        }}
+        data-cy="reporting-list-pagination"
+      />
+    )
+  ) : null;
+
+  const renderCard = (plan: PlanSummary) => {
+    // Find matching raw item (mock: plan.id may directly match; live: via reportSummaries index)
+    const dataItem = reportingItems?.find(
+      (item: any) => item.id === plan.id || item?.plan?.id === plan.id,
+    ) ?? { id: plan.id, userId: plan.ownerUserId };
+
+    return (
+      <PlanCard
+        key={plan.id}
+        plan={plan}
+        viewMode={mockEnabled ? 'planning' : 'reporting'}
+        activeCadence={cadence}
+        onApprove={() => handleApproveHandler(String(dataItem.id), true)}
+        onOpen={() => handleApproveHandler(String(dataItem.id), false)}
+        onEdit={() => startInlineEditReport(String(dataItem.id))}
+        canApprove={
+          mockEnabled
+            ? currentUserId !==
+              String(dataItem?.userId ?? dataItem?.createdBy ?? '')
+            : userId ===
+              (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
+                ?.reportingTo?.id ||
+                getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
+                  ?.delegatedTo?.id)
+        }
+        canEdit={
+          mockEnabled
+            ? false
+            : userId === (dataItem?.userId ?? dataItem?.createdBy) &&
+              dataItem?.plan?.isReportValidated == false &&
+              isDataFromActiveSession(dataItem?.createdAt)
+        }
+        isApprovalLoading={isApprovalLoading}
+        dateLabel={getDateLabel(dataItem?.createdAt ?? '')}
+        inlineReportActive={
+          !mockEnabled &&
+          inlineEditingReport?.reportId === String(dataItem.id)
+        }
+        onCloseInlineReport={closeInlineEditReport}
+        inlineReportContent={
+          !mockEnabled && inlineEditingReport?.reportId === String(dataItem.id) ? (
+            <PlanCardInlineReportForm
+              reportId={String(dataItem.id)}
+              planId={dataItem.planId || dataItem?.plan?.id}
+              planningPeriodId={planningPeriodId}
+              planningPeriodName={activeTabName}
+              onClose={closeInlineEditReport}
+            />
+          ) : undefined
+        }
+      />
     );
-  }, [
-    mockEnabled,
-    mockReportSummaries,
-    allReporting?.items,
-    cadence,
-    employeeData,
-    reportTaskOverrides,
-  ]);
+  };
 
-  const totalReportingItems = mockEnabled
-    ? mockReportSummaries.length
-    : (allReporting?.meta?.totalItems ?? 0);
-  const showReportingPagination = totalReportingItems > pageSizeReporting;
-
-  const paginationNode = !showReportingPagination ? null : isMobile ||
-    isTablet ? (
-    <CustomMobilePagination
-      totalResults={totalReportingItems}
-      pageSize={pageSizeReporting}
-      onChange={(page, pageSize) => {
-        setPageReporting(page);
-        setPageSizeReporting(pageSize);
-      }}
-      onShowSizeChange={(size) => {
-        setPageSizeReporting(size);
-        setPageReporting(1);
-      }}
-    />
-  ) : (
-    <CustomPagination
-      total={totalReportingItems}
-      current={pageReporting}
-      pageSize={pageSizeReporting}
-      onShowSizeChange={(size) => {
-        setPageSizeReporting(size);
-        setPageReporting(1);
-      }}
-      onChange={(page, pageSize) => {
-        setPageReporting(page);
-        setPageSizeReporting(pageSize);
-      }}
-      data-cy="reporting-list-pagination"
-    />
-  );
+  const isLoading = !mockEnabled && !reportSummaries.length && activeTab === 2;
 
   return (
     <div
@@ -202,98 +248,20 @@ function Reporting({
         data-cy="planning-and-reporting-components-reporting-index-tsx-index-section-449"
         className="mt-0 flex min-h-0 flex-1 flex-col"
       >
-        {getReportLoading ? (
-          <div
-            data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-184"
-            className="space-y-4"
-          >
+        {isLoading ? (
+          <div className="space-y-4">
             {[0, 1, 2].map((i) => (
               <PlanCardSkeleton key={i} reporting />
             ))}
           </div>
-        ) : reportSummaries.length > 0 ? (
-          isMobile || isTablet ? (
-            <div
-              data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-191"
-              className="space-y-4"
-            >
-              {allReporting?.items?.map((dataItem: any, index: number) => {
-                const plan = reportSummaries[index];
-                if (!plan) return null;
-
-                return (
-                  <PlanCard
-                    key={plan.id}
-                    plan={plan}
-                    viewMode="reporting"
-                    activeCadence={cadence}
-                    onApprove={() => handleApproveHandler(dataItem.id, true)}
-                    onOpen={() => handleApproveHandler(dataItem.id, false)}
-                    onEdit={() => startInlineEditReport(dataItem.id)}
-                    canApprove={
-                      mockEnabled
-                        ? String(userId ?? '') !==
-                          String(
-                            dataItem?.userId ?? dataItem?.createdBy ?? '',
-                          )
-                        : userId ===
-                          (getEmployeeData(
-                            dataItem?.userId ?? dataItem?.createdBy,
-                          )?.reportingTo?.id ||
-                            getEmployeeData(
-                              dataItem?.userId ?? dataItem?.createdBy,
-                            )?.delegatedTo?.id)
-                    }
-                    canEdit={
-                      mockEnabled
-                        ? false
-                        : userId === (dataItem?.userId ?? dataItem?.createdBy) &&
-                          dataItem?.plan?.isReportValidated == false &&
-                          isDataFromActiveSession(dataItem?.createdAt)
-                    }
-                    isApprovalLoading={isApprovalLoading}
-                    dateLabel={getDateLabel(dataItem?.createdAt ?? '')}
-                    inlineReportActive={
-                      inlineEditingReport?.reportId === dataItem.id
-                    }
-                    onCloseInlineReport={closeInlineEditReport}
-                    inlineReportContent={
-                      inlineEditingReport?.reportId === dataItem.id ? (
-                        <PlanCardInlineReportForm
-                          reportId={dataItem.id}
-                          planId={dataItem.planId || dataItem?.plan?.id}
-                          planningPeriodId={planningPeriodId}
-                          planningPeriodName={activeTabName}
-                          onClose={closeInlineEditReport}
-                        />
-                      ) : undefined
-                    }
-                  />
-                );
-              })}
-              {paginationNode}
-            </div>
-          ) : (
-            <PlanningPanelView
-              plans={reportSummaries}
-              transformedData={allReporting?.items ?? []}
-              cadence={cadence}
-              userId={userId}
-              getEmployeeData={getEmployeeData}
-              isDataFromActiveSession={isDataFromActiveSession}
-              onApprove={handleApproveHandler}
-              onEdit={startInlineEditReport}
-              isApprovalLoading={isApprovalLoading}
-              getDateLabel={getDateLabel}
-              paginationNode={paginationNode}
-              viewMode="reporting"
-              onHoverKR={onHoverKR}
-              onOpenThread={onOpenThread}
-              inlineReportPlanId={inlineEditingReport?.reportId}
-              onCloseInlineReport={closeInlineEditReport}
-              planningPeriodLabel={activeTabName}
-            />
-          )
+        ) : visibleReports.length > 0 ? (
+          <div
+            data-cy="reporting-card-list"
+            className="min-w-0 max-w-full space-y-4 pr-1"
+          >
+            {visibleReports.map(renderCard)}
+            {paginationNode}
+          </div>
         ) : (
           <div
             data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-526"
@@ -301,41 +269,15 @@ function Reporting({
             role="status"
             aria-live="polite"
           >
-            <div
-              data-cy="reporting-empty-state"
-              className="flex w-full max-w-md flex-col items-center justify-center px-6 py-14"
-            >
-              <div
-                data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-271"
-                className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
-              >
-                <BsFileEarmarkText
-                  size={26}
-                  className="text-[#D1D5DB]"
-                  aria-hidden
-                />
+            <div className="flex w-full max-w-md flex-col items-center justify-center px-6 py-14">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]">
+                <BsFileEarmarkText size={26} className="text-[#D1D5DB]" aria-hidden />
               </div>
-              <p
-                data-cy="planning-and-reporting-components-reporting-index-tsx-index-p-536"
-                className="text-sm font-medium text-[#161A2C]"
-              >
-                No reports yet
-              </p>
-              <p
-                data-cy="planning-and-reporting-components-reporting-index-tsx-index-p-284"
-                className="mt-2 text-xs leading-relaxed text-[#8F94A3]"
-              >
+              <p className="text-sm font-medium text-[#161A2C]">No reports yet</p>
+              <p className="mt-2 text-xs leading-relaxed text-[#8F94A3]">
                 {activeTabName
-                  ? `There are no submitted reports for ${activeTabName} with the current filters and session.`
-                  : 'There are no submitted reports for this period with the current filters and session.'}
-              </p>
-              <p
-                data-cy="planning-and-reporting-components-reporting-index-tsx-index-p-289"
-                className="mt-2 text-xs leading-relaxed text-[#C4C7CE]"
-              >
-                {isDesktop
-                  ? 'Submit a report from your plans using the actions on each plan card in the list.'
-                  : 'Submit a report from each plan when you open it from your plan list.'}
+                  ? `No submitted reports for ${activeTabName} with the current filters.`
+                  : 'No submitted reports for this period.'}
               </p>
             </div>
           </div>
@@ -344,4 +286,5 @@ function Reporting({
     </div>
   );
 }
+
 export default Reporting;

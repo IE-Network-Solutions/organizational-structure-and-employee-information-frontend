@@ -3,6 +3,9 @@ import { spanDays } from '@/app/(afterLogin)/dashboard/_components/plan/deadline
 
 export const UNLINKED_KR_ID = '__unlinked__';
 
+/** Bump when mock seed shape/status defaults change so zustand rebuilds. */
+export const MOCK_PLAN_SEED_VERSION = 7;
+
 export const MOCK_KEY_RESULTS = [
   { id: 'kr-team-cadence', title: 'Team cadence' },
   { id: 'kr-q-demo', title: 'Q-demo delivery' },
@@ -16,6 +19,14 @@ export const MOCK_TEAM_MEMBERS = [
   { id: 'mock-cara', displayName: 'Cara', role: 'Design' },
   { id: 'mock-dan', displayName: 'Dan', role: 'Ops' },
 ] as const;
+
+/**
+ * Seed Closed so each card can show Closed tasks + Pending (approval) tasks inside.
+ * New tasks added after close stay under the Pending tag until approved.
+ */
+export function mockSeedPlanIsClosed(_userId: string): boolean {
+  return true;
+}
 
 export function mockTeamMemberIds(): string[] {
   return MOCK_TEAM_MEMBERS.map((m) => m.id);

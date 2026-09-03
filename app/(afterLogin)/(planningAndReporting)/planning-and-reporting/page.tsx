@@ -437,12 +437,20 @@ function Page() {
   const [selectedPlanningTargetId, setSelectedPlanningTargetId] = useState<
     string | null
   >(null);
+  /** Composer for tasks with no key result (from KR panel +). */
+  const [unlinkedPlanComposer, setUnlinkedPlanComposer] = useState(false);
 
   const activePlanningTarget = useMemo(
     () =>
       planningTargets.find((t) => t.id === selectedPlanningTargetId) ?? null,
     [planningTargets, selectedPlanningTargetId],
   );
+
+  const showPlanComposer =
+    inlinePlanningMode &&
+    (!!inlineEditPlanId ||
+      !!selectedPlanningTargetId ||
+      unlinkedPlanComposer);
 
   const inlinePlanningPeriodLabel = useMemo(() => {
     if (mockEnabled) return 'Plan';
@@ -453,7 +461,10 @@ function Page() {
   }, [mockEnabled, processedPlanningPeriods, activePlanPeriod]);
 
   useEffect(() => {
-    if (!inlinePlanningMode) setSelectedPlanningTargetId(null);
+    if (!inlinePlanningMode) {
+      setSelectedPlanningTargetId(null);
+      setUnlinkedPlanComposer(false);
+    }
   }, [inlinePlanningMode]);
 
   useEffect(() => {
@@ -477,11 +488,16 @@ function Page() {
   }, [inlineEditPlanId]);
 
   useEffect(() => {
-    if (activeTab !== 1) {
+    if (activeTab !== 1 && !(mockEnabled && activeTab === 2)) {
       setInlinePlanningMode(false);
       setMobilePlanComposerOpen(false);
     }
-  }, [activeTab, setInlinePlanningMode, setMobilePlanComposerOpen]);
+  }, [
+    activeTab,
+    mockEnabled,
+    setInlinePlanningMode,
+    setMobilePlanComposerOpen,
+  ]);
 
   const [highlightedKRId, setHighlightedKRId] = useState<string | null>(null);
   const [activeThread, setActiveThread] = useState<{
@@ -524,19 +540,38 @@ function Page() {
     setMobilePlanComposerOpen(false);
     setInlinePlanningMode(false);
     setSelectedPlanningTargetId(null);
+    setUnlinkedPlanComposer(false);
     setInlineEditPlanId(null);
   }, [setMobilePlanComposerOpen, setInlinePlanningMode, setInlineEditPlanId]);
 
   const handleMobileInlineExit = useCallback(() => {
     setSelectedPlanningTargetId(null);
+    setUnlinkedPlanComposer(false);
     setMobilePlanComposerOpen(false);
     setInlineEditPlanId(null);
   }, [setMobilePlanComposerOpen, setInlineEditPlanId]);
 
   const handleInlineWorkspaceExit = useCallback(() => {
     setSelectedPlanningTargetId(null);
+    setUnlinkedPlanComposer(false);
     setInlineEditPlanId(null);
   }, [setInlineEditPlanId]);
+
+  const handleStartAddPlan = useCallback(() => {
+    setSelectedPlanningTargetId(null);
+    setUnlinkedPlanComposer(false);
+    setInlineEditPlanId(null);
+  }, [setInlineEditPlanId]);
+
+  const handlePickPlanningTarget = useCallback((t: { id: string }) => {
+    setUnlinkedPlanComposer(false);
+    setSelectedPlanningTargetId(t.id);
+  }, []);
+
+  const handlePickUnlinkedPlan = useCallback(() => {
+    setSelectedPlanningTargetId(null);
+    setUnlinkedPlanComposer(true);
+  }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const mobileComposerWorkspaceRef =
@@ -645,43 +680,6 @@ function Page() {
               data-cy="planning-period-pills"
               className="flex min-w-0 w-full flex-1 flex-wrap items-center justify-end gap-2 overflow-visible sm:min-h-10 sm:flex-nowrap sm:gap-3"
             >
-              {activeTab === 2 && DURATION_TAB_ITEMS.length > 0 ? (
-                <div
-                  data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-406"
-                  role="tablist"
-                  aria-label="Reporting duration"
-                  className="flex min-w-0 flex-wrap items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/70 p-1.5 sm:shrink-0 sm:flex-nowrap"
-                >
-                  {DURATION_TAB_ITEMS.map(({ key, kind, label }) => {
-                    const n = Number(key);
-                    const isActive = activePlanPeriod === n;
-                    return (
-                      <button
-                        key={kind}
-                        type="button"
-                        role="tab"
-                        aria-selected={isActive}
-                        data-cy={`planning-period-pill-${n}`}
-                        onClick={() => {
-                          setActivePlanPeriod(n);
-                          const periodId = cadenceAssignments[kind]?.periodId;
-                          if (periodId) setActivePlanPeriodId(periodId);
-                        }}
-                        className={classNames(
-                          'inline-flex h-9 shrink-0 items-center rounded-md border font-medium transition-colors',
-                          'text-xs sm:text-sm',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45 focus-visible:ring-offset-2',
-                          isActive
-                            ? 'border-slate-200 bg-white px-2.5 text-slate-800 shadow-sm hover:bg-slate-100 sm:px-3'
-                            : 'border-transparent bg-transparent px-2 text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-800 sm:px-2.5',
-                        )}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : null}
               <div
                 data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
                 className="shrink-0 self-center"
@@ -697,10 +695,12 @@ function Page() {
             ref={containerRef}
             className={classNames(
               'grid min-h-0 w-full min-w-0 max-w-full grid-cols-1 gap-4',
-              'lg:grid-cols-[clamp(220px,28%,22rem)_minmax(0,1fr)] xl:grid-cols-[clamp(240px,26%,24rem)_minmax(0,1fr)]',
+              activeTab === 1 &&
+                'lg:grid-cols-[clamp(220px,28%,22rem)_minmax(0,1fr)] xl:grid-cols-[clamp(240px,26%,24rem)_minmax(0,1fr)]',
             )}
             style={{ height: isDesktop ? panelHeight : undefined }}
           >
+            {activeTab === 1 ? (
             <div
               className="hidden min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] lg:flex lg:h-full"
               data-cy="planning-kr-panel"
@@ -721,9 +721,9 @@ function Page() {
                   planningTargets={planningTargets}
                   planningTargetsLoading={planningTargetsLoading}
                   selectedPlanningTargetId={selectedPlanningTargetId}
-                  onPickPlanningTarget={(t) =>
-                    setSelectedPlanningTargetId(t.id)
-                  }
+                  onPickPlanningTarget={handlePickPlanningTarget}
+                  unlinkedPlanSelected={unlinkedPlanComposer}
+                  onPickUnlinkedPlan={handlePickUnlinkedPlan}
                   userKeyResultItems={userKeyResultItems}
                   objectiveMilestonesByKrId={objectiveMilestonesByKrId}
                   onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
@@ -732,11 +732,14 @@ function Page() {
                 />
               )}
             </div>
+            ) : null}
 
             <div
               className={classNames(
                 'min-h-0 min-w-0 w-full max-w-full overflow-x-hidden scrollbar-hide',
-                'mx-auto max-w-2xl md:max-w-3xl lg:mx-0 lg:max-w-none',
+                activeTab === 1
+                  ? 'mx-auto max-w-2xl md:max-w-3xl lg:mx-0 lg:max-w-none'
+                  : 'mx-auto max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl',
                 isDesktop ? 'h-full overflow-y-auto' : 'overflow-y-visible',
               )}
               data-cy="planning-main-panel"
@@ -752,7 +755,7 @@ function Page() {
                     : 'space-y-4',
                 )}
               >
-                {inlinePlanningMode &&
+                {showPlanComposer &&
                 isDesktop &&
                 !isDeadlinePlanningMockEnabled() ? (
                   <section
@@ -763,8 +766,21 @@ function Page() {
                     <InlinePlanningWorkspace
                       planningPeriodLabel={inlinePlanningPeriodLabel}
                       activeTarget={activePlanningTarget}
+                      planningTargets={planningTargets}
                       userKeyResultItems={userKeyResultItems}
-                      onClearTarget={() => setSelectedPlanningTargetId(null)}
+                      onClearTarget={() => {
+                        setSelectedPlanningTargetId(null);
+                        setUnlinkedPlanComposer(true);
+                      }}
+                      onSelectTarget={(t) => {
+                        if (t) {
+                          setUnlinkedPlanComposer(false);
+                          setSelectedPlanningTargetId(t.id);
+                        } else {
+                          setSelectedPlanningTargetId(null);
+                          setUnlinkedPlanComposer(true);
+                        }
+                      }}
                       onExit={handleInlineWorkspaceExit}
                       editPlanId={inlineEditPlanId}
                     />
@@ -777,15 +793,29 @@ function Page() {
                   transformedData={transformedData}
                   isLoading={planningLoading}
                   totalItems={planSummaries.length}
+                  onStartAddPlan={handleStartAddPlan}
                   addPlanComposer={
                     isDeadlinePlanningMockEnabled() &&
-                    inlinePlanningMode &&
+                    showPlanComposer &&
                     isDesktop ? (
                       <InlinePlanningWorkspace
                         planningPeriodLabel={inlinePlanningPeriodLabel}
                         activeTarget={activePlanningTarget}
+                        planningTargets={planningTargets}
                         userKeyResultItems={userKeyResultItems}
-                        onClearTarget={() => setSelectedPlanningTargetId(null)}
+                        onClearTarget={() => {
+                          setSelectedPlanningTargetId(null);
+                          setUnlinkedPlanComposer(true);
+                        }}
+                        onSelectTarget={(t) => {
+                          if (t) {
+                            setUnlinkedPlanComposer(false);
+                            setSelectedPlanningTargetId(t.id);
+                          } else {
+                            setSelectedPlanningTargetId(null);
+                            setUnlinkedPlanComposer(true);
+                          }
+                        }}
                         onExit={handleInlineWorkspaceExit}
                         editPlanId={inlineEditPlanId}
                         embedded
@@ -802,6 +832,35 @@ function Page() {
                 <Reporting
                   onHoverKR={setHighlightedKRId}
                   onOpenThread={handleOpenThread}
+                  onStartAddPlan={handleStartAddPlan}
+                  addPlanComposer={
+                    isDeadlinePlanningMockEnabled() &&
+                    showPlanComposer &&
+                    isDesktop ? (
+                      <InlinePlanningWorkspace
+                        planningPeriodLabel={inlinePlanningPeriodLabel}
+                        activeTarget={activePlanningTarget}
+                        planningTargets={planningTargets}
+                        userKeyResultItems={userKeyResultItems}
+                        onClearTarget={() => {
+                          setSelectedPlanningTargetId(null);
+                          setUnlinkedPlanComposer(true);
+                        }}
+                        onSelectTarget={(t) => {
+                          if (t) {
+                            setUnlinkedPlanComposer(false);
+                            setSelectedPlanningTargetId(t.id);
+                          } else {
+                            setSelectedPlanningTargetId(null);
+                            setUnlinkedPlanComposer(true);
+                          }
+                        }}
+                        onExit={handleInlineWorkspaceExit}
+                        editPlanId={inlineEditPlanId}
+                        embedded
+                      />
+                    ) : null
+                  }
                 />
               </div>
             </div>
@@ -845,7 +904,11 @@ function Page() {
         placement="bottom"
         height="100%"
         zIndex={1100}
-        open={mobilePlanComposerOpen && !isDesktop && activeTab === 1}
+        open={
+          mobilePlanComposerOpen &&
+          !isDesktop &&
+          (activeTab === 1 || (mockEnabled && activeTab === 2))
+        }
         onClose={closeMobilePlanComposer}
         destroyOnClose
         closable={false}
@@ -895,7 +958,9 @@ function Page() {
                 planningTargets={planningTargets}
                 planningTargetsLoading={planningTargetsLoading}
                 selectedPlanningTargetId={selectedPlanningTargetId}
-                onPickPlanningTarget={(t) => setSelectedPlanningTargetId(t.id)}
+                onPickPlanningTarget={handlePickPlanningTarget}
+                unlinkedPlanSelected={unlinkedPlanComposer}
+                onPickUnlinkedPlan={handlePickUnlinkedPlan}
                 userKeyResultItems={userKeyResultItems}
                 objectiveMilestonesByKrId={objectiveMilestonesByKrId}
                 onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
@@ -908,16 +973,40 @@ function Page() {
             data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-613"
             className="min-h-0 flex-1 overflow-y-auto bg-white p-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:p-3"
           >
-            <InlinePlanningWorkspace
-              ref={mobileComposerWorkspaceRef}
-              hideHeaderCloseButton
-              planningPeriodLabel={inlinePlanningPeriodLabel}
-              activeTarget={activePlanningTarget}
-              userKeyResultItems={userKeyResultItems}
-              onClearTarget={() => setSelectedPlanningTargetId(null)}
-              onExit={handleMobileInlineExit}
-              editPlanId={inlineEditPlanId}
-            />
+            {showPlanComposer ? (
+              <InlinePlanningWorkspace
+                ref={mobileComposerWorkspaceRef}
+                hideHeaderCloseButton
+                planningPeriodLabel={inlinePlanningPeriodLabel}
+                activeTarget={activePlanningTarget}
+                planningTargets={planningTargets}
+                userKeyResultItems={userKeyResultItems}
+                onClearTarget={() => {
+                  setSelectedPlanningTargetId(null);
+                  setUnlinkedPlanComposer(true);
+                }}
+                onSelectTarget={(t) => {
+                  if (t) {
+                    setUnlinkedPlanComposer(false);
+                    setSelectedPlanningTargetId(t.id);
+                  } else {
+                    setSelectedPlanningTargetId(null);
+                    setUnlinkedPlanComposer(true);
+                  }
+                }}
+                onExit={handleMobileInlineExit}
+                editPlanId={inlineEditPlanId}
+                embedded
+              />
+            ) : (
+              <p
+                data-cy="mobile-plan-pick-hint"
+                className="px-3 py-8 text-center text-[13px] text-[#8F94A3]"
+              >
+                Select a key result above, or tap + to plan without a key
+                result.
+              </p>
+            )}
           </div>
         </div>
       </Drawer>

@@ -401,6 +401,7 @@ function PlanningMetricsRow({
   targetValue,
   setTargetValue,
   keyResultForBounds,
+  compact = false,
 }: {
   metricTypeName: string | null | undefined;
   isDailySlot: boolean;
@@ -409,8 +410,15 @@ function PlanningMetricsRow({
   targetValue: number | null;
   setTargetValue: (v: number | null) => void;
   keyResultForBounds?: any | null;
+  compact?: boolean;
 }) {
   const showTarget = shouldShowPlanningTarget(metricTypeName, isDailySlot);
+  const controlH = compact
+    ? '[&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!min-h-7 [&_.ant-select-selector]:!py-0 [&_.ant-select-selection-item]:!flex [&_.ant-select-selection-item]:!items-center [&_.ant-select-selection-item]:!text-[12px]'
+    : controlH40;
+  const inputH = compact
+    ? '[&_.ant-input-number]:!h-7 [&_.ant-input-number-input-wrap]:!h-7 [&_.ant-input-number-input]:!h-7 [&_.ant-input-number-input]:!py-0 [&_.ant-input-number-input]:!text-[12px]'
+    : inputNumH40;
   return (
     <div
       data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1006"
@@ -420,7 +428,8 @@ function PlanningMetricsRow({
     >
       <Select
         placeholder="Priority"
-        className={`w-full min-w-0 rounded-lg ${controlH40} [&_.ant-select-selector]:!rounded-lg`}
+        size={compact ? 'small' : undefined}
+        className={`w-full min-w-0 rounded-lg ${controlH} [&_.ant-select-selector]:!rounded-lg`}
         value={priority}
         onChange={setPriority}
         options={priorityOptions}
@@ -430,7 +439,8 @@ function PlanningMetricsRow({
           placeholder="Target"
           min={getMetricValueInputMin(keyResultForBounds)}
           max={getMetricValueInputMax(keyResultForBounds)}
-          className={`w-full min-w-0 rounded-lg ${inputNumH40} [&_.ant-input-number]:!rounded-lg`}
+          size={compact ? 'small' : undefined}
+          className={`w-full min-w-0 rounded-lg ${inputH} [&_.ant-input-number]:!rounded-lg`}
           value={targetValue ?? undefined}
           onChange={(v) => {
             if (v == null) {
@@ -454,37 +464,13 @@ function PlanningMetricsRow({
   );
 }
 
-/** Shown in Plan tasks empty body when no key result is selected yet */
-const INLINE_KEY_RESULT_INSTRUCTION = (
-  <>
-    <span
-      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-278"
-      className="lg:hidden"
-    >
-      Click the{' '}
-      <span
-        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-279"
-        className="font-semibold text-[#1E40AF]"
-      >
-        +
-      </span>{' '}
-      on a key result above to plan.
-    </span>
-    <span
-      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-282"
-      className="hidden lg:inline"
-    >
-      Click the{' '}
-      <span
-        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-283"
-        className="font-semibold text-[#1E40AF]"
-      >
-        +
-      </span>{' '}
-      on a key result in the left panel to plan.
-    </span>
-  </>
-);
+/** Resolve keyResultId for the live API (sentinel → null). */
+function apiKeyResultId(id: string | null | undefined): string | null {
+  if (!id || id === UNLINKED_KR_ID) return null;
+  return String(id);
+}
+
+const NO_KEY_RESULT_VALUE = '__none__';
 
 const DEFAULT_INLINE_PRIORITY = 'medium';
 const PLAN_TASK_WEIGHT = 0;
@@ -570,10 +556,14 @@ interface InlinePlanningWorkspaceProps {
   /** Active period name from toolbar (e.g. Weekly, Monthly) */
   planningPeriodLabel: string;
   activeTarget: PlanningTarget | null;
+  /** Selectable KR/milestone slots for the optional key-result dropdown */
+  planningTargets?: PlanningTarget[];
   /** User KR API — hides add (+) UI when target KR is achieved */
   userKeyResultItems?: any[];
-  /** Clear selected key result / slot (closes composer until + is used again) */
+  /** Clear selected key result / slot */
   onClearTarget: () => void;
+  /** Set or clear the active planning target (dropdown / left-panel +) */
+  onSelectTarget?: (target: PlanningTarget | null) => void;
   onExit: () => void;
   /** When true, omit the header back/close control (e.g. parent Drawer supplies it) */
   hideHeaderCloseButton?: boolean;
@@ -593,8 +583,10 @@ const InlinePlanningWorkspace = forwardRef<
   {
     planningPeriodLabel,
     activeTarget,
+    planningTargets = [],
     userKeyResultItems = [],
     onClearTarget,
+    onSelectTarget,
     onExit,
     hideHeaderCloseButton = false,
     embedded = false,
@@ -956,21 +948,6 @@ const InlinePlanningWorkspace = forwardRef<
       return;
     }
 
-    if (!activeTarget) {
-      if (mockEnabled) {
-        // Mock: allow unlinked tasks without picking a KR first.
-      } else {
-        const wideLayout =
-          typeof window !== 'undefined' &&
-          window.matchMedia('(min-width: 1024px)').matches;
-        message.info(
-          wideLayout
-            ? 'Choose a key result (or weekly task) on the left with + first.'
-            : 'Choose a key result (or weekly task) above with + first.',
-        );
-        return;
-      }
-    }
     if (
       activeTarget &&
       shouldShowPlanningTarget(
@@ -1012,7 +989,7 @@ const InlinePlanningWorkspace = forwardRef<
     }
 
     const label = !activeTarget
-      ? 'Unlinked'
+      ? 'General (no key result)'
       : activeTarget.isDailySlot
         ? `${activeTarget.keyResultTitle} · ${activeTarget.parentTaskTitle || 'Task'}`
         : activeTarget.milestoneId
@@ -1037,7 +1014,7 @@ const InlinePlanningWorkspace = forwardRef<
       achieveMK,
       metricTypeName: activeTarget?.metricTypeName ?? null,
       isDailySlot: activeTarget?.isDailySlot ?? false,
-      keyResultTitle: activeTarget?.keyResultTitle ?? 'Unlinked',
+      keyResultTitle: activeTarget?.keyResultTitle ?? 'General (no key result)',
       milestoneTitle: activeTarget?.milestoneTitle ?? null,
       start: startIso,
       deadline: deadlineIso,
@@ -1147,7 +1124,7 @@ const InlinePlanningWorkspace = forwardRef<
         userId: String(pvUserId || userId),
         planningPeriodId: String(ppId || ''),
         planningUserId: String(pvPlanningUserId || ''),
-        keyResultId: String(l.keyResultId),
+        keyResultId: apiKeyResultId(l.keyResultId),
         milestoneId: l.milestoneId ? String(l.milestoneId) : null,
         parentTaskId: l.parentTaskId ? String(l.parentTaskId) : null,
         parentPlanId: l.parentPlanId ? String(l.parentPlanId) : null,
@@ -1237,7 +1214,7 @@ const InlinePlanningWorkspace = forwardRef<
             userId: String(userId),
             planningPeriodId: group.planningPeriodId,
             planningUserId: String(group.planningUserId || ''),
-            keyResultId: String(l.keyResultId),
+            keyResultId: apiKeyResultId(l.keyResultId),
             milestoneId: l.milestoneId ? String(l.milestoneId) : null,
             parentTaskId: l.parentTaskId ? String(l.parentTaskId) : null,
             parentPlanId: l.parentPlanId ? String(l.parentPlanId) : null,
@@ -1278,8 +1255,12 @@ const InlinePlanningWorkspace = forwardRef<
   };
 
   const showDraftAndSubmit = draftLines.length > 0;
-  const showEmptyInstruction =
-    !isEditMode && !activeTarget && draftLines.length === 0;
+  /** Composer is available without a key result (unlinked / general tasks). */
+  const showComposer =
+    !composerCollapsed &&
+    !editingDraftId &&
+    !loadingEditPlan &&
+    (!activeTarget || !activeTargetBlocked);
 
   const exitInlinePlanning = useCallback(() => {
     setDraftLines([]);
@@ -1349,6 +1330,86 @@ const InlinePlanningWorkspace = forwardRef<
       activeTarget.isDailySlot,
       activeTarget.milestoneId,
     );
+
+  const keyResultSelectOptions = useMemo(() => {
+    const seen = new Set<string>();
+    const opts: { value: string; label: string }[] = [
+      { value: NO_KEY_RESULT_VALUE, label: 'No key result' },
+    ];
+    for (const t of planningTargets) {
+      if (t.isDailySlot || t.isCompleted || t.milestoneId) continue;
+      const id = String(t.keyResultId);
+      if (!id || seen.has(id)) continue;
+      seen.add(id);
+      opts.push({
+        value: id,
+        label: (t.keyResultTitle || 'Key result').trim() || 'Key result',
+      });
+    }
+    return opts;
+  }, [planningTargets]);
+
+  const selectedKeyResultValue = activeTarget?.keyResultId
+    ? String(activeTarget.keyResultId)
+    : NO_KEY_RESULT_VALUE;
+
+  const planningWithoutKeyResult =
+    selectedKeyResultValue === NO_KEY_RESULT_VALUE;
+
+  const handleKeyResultSelect = useCallback(
+    (value: string) => {
+      if (!value || value === NO_KEY_RESULT_VALUE) {
+        onSelectTarget?.(null);
+        onClearTarget();
+        return;
+      }
+      const match =
+        planningTargets.find(
+          (t) =>
+            String(t.keyResultId) === value &&
+            !t.milestoneId &&
+            !t.isDailySlot &&
+            !t.isCompleted,
+        ) ||
+        planningTargets.find(
+          (t) => String(t.keyResultId) === value && !t.isDailySlot,
+        );
+      if (match) {
+        onSelectTarget?.(match);
+      }
+    },
+    [planningTargets, onSelectTarget, onClearTarget],
+  );
+
+  const keyResultSelectControl = (
+    <Select
+      value={selectedKeyResultValue}
+      onChange={handleKeyResultSelect}
+      options={keyResultSelectOptions}
+      placeholder="Key result (optional)"
+      allowClear
+      size={embedded && planningWithoutKeyResult ? 'small' : undefined}
+      onClear={() => {
+        onSelectTarget?.(null);
+        onClearTarget();
+      }}
+      aria-label="Key result (optional)"
+      data-cy="inline-plan-key-result-select"
+      className={classNames(
+        'min-w-0 [&_.ant-select-selector]:!rounded-lg',
+        embedded && planningWithoutKeyResult
+          ? 'w-[138px] shrink-0 [&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!min-h-7 [&_.ant-select-selection-item]:!text-[12px]'
+          : classNames(
+              'w-full',
+              embedded
+                ? '[&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8'
+                : '[&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10',
+            ),
+      )}
+      popupMatchSelectWidth={!(embedded && planningWithoutKeyResult)}
+    />
+  );
+
   return (
     <div
       className={classNames(
@@ -1431,33 +1492,7 @@ const InlinePlanningWorkspace = forwardRef<
             <InlinePlanningEditSkeleton />
           ) : null}
 
-          {showEmptyInstruction ? (
-            <div
-              className={classNames(
-                'flex flex-col items-center justify-center text-center',
-                embedded
-                  ? 'min-h-0 px-2 py-4'
-                  : 'min-h-[336px] px-6 py-12',
-              )}
-              data-cy="inline-plan-empty-draft"
-            >
-              <p
-                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-947"
-                className={classNames(
-                  'max-w-lg leading-relaxed text-[#575B7A]',
-                  embedded ? 'text-[13px]' : 'text-[15px] leading-8',
-                )}
-              >
-                {INLINE_KEY_RESULT_INSTRUCTION}
-              </p>
-            </div>
-          ) : null}
-
-          {activeTarget &&
-          !activeTargetBlocked &&
-          !composerCollapsed &&
-          !editingDraftId &&
-          !loadingEditPlan ? (
+          {showComposer ? (
             <div
               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1039"
               className={classNames(
@@ -1476,41 +1511,25 @@ const InlinePlanningWorkspace = forwardRef<
                   embedded ? 'min-h-7' : 'gap-3 md:items-start',
                 )}
               >
-                <div
-                  data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-963"
-                  className="min-w-0 flex-1"
-                >
-                  <p
-                    data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-964"
-                    className={classNames(
-                      'font-semibold uppercase tracking-wider text-[#8F94A3]',
-                      embedded ? 'text-[9px] leading-none' : 'text-[10px]',
-                    )}
+                {embedded && planningWithoutKeyResult ? (
+                  <span className="min-w-0 flex-1" />
+                ) : (
+                  <div
+                    data-cy="inline-plan-key-result-select-wrap"
+                    className="min-w-0 flex-1"
                   >
-                    Adding to
-                  </p>
-                  <p
-                    data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-967"
-                    className={classNames(
-                      'min-w-0 font-semibold leading-snug text-[#161A2C]',
-                      embedded
-                        ? 'mt-0.5 text-[12px] line-clamp-1'
-                        : 'mt-0.5 text-[13px] line-clamp-3 md:line-clamp-4',
-                    )}
-                  >
-                    {(activeTarget.keyResultTitle || 'Key result').trim() ||
-                      'Key result'}
-                  </p>
-                </div>
+                    {keyResultSelectControl}
+                  </div>
+                )}
                 <button
-                  data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-button-1066"
+                  data-cy="inline-plan-composer-close"
                   type="button"
-                  onClick={onClearTarget}
+                  onClick={requestExitInlinePlanning}
                   className={classNames(
                     'flex flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#E8EAF0] hover:text-[#574CFF]',
                     embedded ? 'h-7 w-7' : 'h-9 w-9',
                   )}
-                  aria-label="Clear planning target"
+                  aria-label="Close plan composer"
                 >
                   <CloseOutlined
                     className={embedded ? 'text-[12px]' : 'text-[15px]'}
@@ -1570,15 +1589,30 @@ const InlinePlanningWorkspace = forwardRef<
                         : 'gap-4 lg:gap-5',
                     )}
                   >
-                    <PlanningMetricsRow
-                      metricTypeName={activeTarget.metricTypeName}
-                      isDailySlot={activeTarget.isDailySlot}
-                      priority={priority}
-                      setPriority={setPriority}
-                      targetValue={targetValue}
-                      setTargetValue={setTargetValue}
-                      keyResultForBounds={activeKeyResultForBounds}
-                    />
+                    <div
+                      className={classNames(
+                        'flex min-w-0 flex-1 items-end gap-2',
+                        embedded && planningWithoutKeyResult
+                          ? 'flex-row'
+                          : '',
+                      )}
+                    >
+                      {embedded && planningWithoutKeyResult ? (
+                        <div data-cy="inline-plan-key-result-select-wrap">
+                          {keyResultSelectControl}
+                        </div>
+                      ) : null}
+                      <PlanningMetricsRow
+                        metricTypeName={activeTarget?.metricTypeName}
+                        isDailySlot={!!activeTarget?.isDailySlot}
+                        priority={priority}
+                        setPriority={setPriority}
+                        targetValue={targetValue}
+                        setTargetValue={setTargetValue}
+                        keyResultForBounds={activeKeyResultForBounds}
+                        compact={embedded && planningWithoutKeyResult}
+                      />
+                    </div>
                     <Button
                       type="default"
                       icon={<PlusOutlined className="text-[12px]" />}
@@ -1598,7 +1632,7 @@ const InlinePlanningWorkspace = forwardRef<
             </div>
           ) : null}
 
-          {activeTarget &&
+          {(activeTarget || draftLines.length > 0) &&
           composerCollapsed &&
           draftLines.length > 0 &&
           !editingDraftId ? (
@@ -1626,31 +1660,6 @@ const InlinePlanningWorkspace = forwardRef<
                 <PlusOutlined className="text-[11px]" />
                 Additional Plans
               </button>
-            </div>
-          ) : null}
-
-          {!activeTarget && draftLines.length > 0 ? (
-            <div
-              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1064"
-              className={classNames(
-                'text-[13px] text-[#575B7A]',
-                embedded
-                  ? 'px-0 py-2'
-                  : 'border-b border-[#F1F2F6] px-4 py-3 md:px-5',
-              )}
-            >
-              <span
-                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1065"
-                className="lg:hidden"
-              >
-                Use + above to pick a key result and add more tasks.
-              </span>
-              <span
-                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1068"
-                className="hidden lg:inline"
-              >
-                Use + on the left to pick a key result and add more tasks.
-              </span>
             </div>
           ) : null}
 

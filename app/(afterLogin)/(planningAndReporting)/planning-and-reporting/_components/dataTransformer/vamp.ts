@@ -163,6 +163,9 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
   if (viewMode === 'planning') {
     baseTask.target = task.targetValue || task.target || 0;
     baseTask.status = task.status;
+    if (task.isPendingApproval) {
+      baseTask.isPendingApproval = true;
+    }
   } else {
     baseTask.achieved =
       task.actualValue || task.achievedValue || task.achieved || 0;
@@ -776,6 +779,7 @@ export const transformToPlanSummary = (
   return {
     id: dataItem.id || '',
     ownerUserId: dataItem?.userId ?? '',
+    isReported: Boolean(dataItem?.isReported ?? true),
     cadence: cadence,
     owner: {
       name: fullName,

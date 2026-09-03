@@ -59,9 +59,11 @@ function mockTaskToApiTask(task: MockPlanTask, plan: MockUserPlan) {
     deadline: task.deadline,
     isPendingApproval: task.isPendingApproval,
     keyResultId: krId,
+    kind: task.kind,
+    parentId: task.parentId,
     keyResult:
       krId === UNLINKED_KR_ID
-        ? { id: UNLINKED_KR_ID, title: 'Unlinked' }
+        ? { id: UNLINKED_KR_ID, title: 'General (no key result)' }
         : { id: krId, title: task.keyResultTitle ?? 'Key result' },
     parentTask: parent ? { id: parent.id, task: parent.title } : null,
     milestone: null,
@@ -112,40 +114,45 @@ export function mockPlansToReportingItems(
   durationKind: DeadlineKind,
   today: string = todayIso(),
 ): any[] {
-  return plans.flatMap((plan) =>
-    plan.reportHistory.flatMap((record) => {
-      const archived = plan.archivedTasks.filter((t) =>
-        record.taskIds.includes(t.id),
-      );
-      const filtered = archived.filter((task) =>
-        filterMockTasksByDuration([task], durationKind, today).length > 0,
-      );
-      if (filtered.length === 0) return [];
+  void durationKind;
+  void today;
+  return plans.flatMap((plan) => {
+    if (plan.reportHistory.length === 0) return [];
 
-      const periodName =
-        filtered.length > 0
-          ? kindToPeriodName(filtered[0].kind)
-          : 'Weekly';
+    const reportedTaskIds = new Set(
+      plan.reportHistory.flatMap((record) => record.taskIds),
+    );
+    const filtered = plan.archivedTasks.filter((task) =>
+      reportedTaskIds.has(task.id),
+    );
+    if (filtered.length === 0) return [];
 
-      return [
-        {
-          id: record.id,
-          userId: plan.userId,
-          isValidated: true,
-          isReported: true,
-          createdAt: record.submittedAt,
-          _periodName: periodName,
-          tasks: filtered.map((t) => ({
-            ...mockTaskToApiTask(t, plan),
-            status: t.done ? 'Done' : 'Not',
-            isAchieved: t.done,
-            actualValue: t.actualValue ?? 0,
-            customReason: t.reportNote ?? '',
-          })),
-        },
-      ];
-    }),
-  );
+    const latestSubmittedAt = plan.reportHistory
+      .map((record) => record.submittedAt)
+      .sort((a, b) => String(b).localeCompare(String(a)))[0];
+
+    const periodName =
+      filtered.length > 0 ? kindToPeriodName(filtered[0].kind) : 'Weekly';
+
+    return [
+      {
+        id: `report-plan-${plan.userId}`,
+        planId: plan.planId,
+        userId: plan.userId,
+        isValidated: true,
+        isReported: true,
+        createdAt: latestSubmittedAt,
+        _periodName: periodName,
+        tasks: filtered.map((t) => ({
+          ...mockTaskToApiTask(t, plan),
+          status: t.done ? 'Done' : 'Not',
+          isAchieved: t.done,
+          actualValue: t.actualValue ?? 0,
+          customReason: t.reportNote ?? '',
+        })),
+      },
+    ];
+  });
 }
 
 export function mockActiveTasksForReport(

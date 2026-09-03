@@ -28,6 +28,7 @@ const groupTasksByKeyResultId = (plans: any) => {
         parentTask: task?.parentTask,
         achieveMK: task?.achieveMK,
         status: task?.status,
+        isPendingApproval: task?.isPendingApproval,
         milestone: { ...task?.milestone },
         startDate: task?.startDate || task?.start,
         endDate: task?.endDate || task?.end || task?.deadline,
@@ -66,6 +67,7 @@ const groupByMilestone = (tasks: any[]) => {
       parentTask: task?.parentTask,
       achieveMK: task?.achieveMK,
       status: task?.status,
+      isPendingApproval: task?.isPendingApproval,
       keyResult: { ...task.keyResult },
     });
     return acc;
@@ -97,6 +99,7 @@ const groupByParentTask = (tasks: any[]) => {
       targetValue: task.targetValue,
       achieveMK: task.achieveMK,
       status: task?.status,
+      isPendingApproval: task?.isPendingApproval,
       weight: task.weight,
     });
   });

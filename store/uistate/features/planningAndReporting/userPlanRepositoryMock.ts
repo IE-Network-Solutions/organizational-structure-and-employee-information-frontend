@@ -15,6 +15,8 @@ import {
   childKindForParent,
   countChildren,
   MOCK_KEY_RESULTS,
+  MOCK_PLAN_SEED_VERSION,
+  mockSeedPlanIsClosed,
   UNLINKED_KR_ID,
 } from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/prototype/mockPlanningConstants';
 
@@ -49,6 +51,8 @@ export type MockUserPlan = {
   archivedTasks: MockPlanTask[];
   reportHistory: MockReportRecord[];
   pendingReopenRequest: boolean;
+  /** When set, ensurePlan rebuilds if it does not match MOCK_PLAN_SEED_VERSION. */
+  seedVersion?: number;
 };
 
 function krTitleForId(keyResultId: string | null | undefined): string | undefined {
@@ -112,6 +116,48 @@ const buildMockUserPlan = (
       weight: 20,
     },
     {
+      id: tid('daily-under-sprint-1'),
+      title: 'Outline demo narrative',
+      start: today,
+      deadline: today,
+      spanDays: 1,
+      kind: 'daily',
+      parentId: tid('week-1'),
+      done: false,
+      keyResultId: 'kr-q-demo',
+      keyResultTitle: 'Q-demo delivery',
+      priority: 'high',
+      weight: 3,
+    },
+    {
+      id: tid('daily-under-sprint-2'),
+      title: 'Build slide skeleton',
+      start: plus(1),
+      deadline: plus(1),
+      spanDays: 1,
+      kind: 'daily',
+      parentId: tid('week-1'),
+      done: false,
+      keyResultId: 'kr-q-demo',
+      keyResultTitle: 'Q-demo delivery',
+      priority: 'medium',
+      weight: 4,
+    },
+    {
+      id: tid('daily-under-sprint-3'),
+      title: 'Rehearse with team',
+      start: plus(2),
+      deadline: plus(2),
+      spanDays: 1,
+      kind: 'daily',
+      parentId: tid('week-1'),
+      done: false,
+      keyResultId: 'kr-q-demo',
+      keyResultTitle: 'Q-demo delivery',
+      priority: 'medium',
+      weight: 3,
+    },
+    {
       id: monthId,
       title: 'Q-end cleanup',
       start: monthStart,
@@ -134,8 +180,66 @@ const buildMockUserPlan = (
       kind: 'week',
       parentId: monthId,
       done: false,
+      keyResultId: 'kr-q-demo',
+      keyResultTitle: 'Q-demo delivery',
       priority: 'low',
       weight: 5,
+    },
+    {
+      id: tid('daily-under-week-1'),
+      title: 'Cleanup: Monday triage',
+      start: today,
+      deadline: today,
+      spanDays: 1,
+      kind: 'daily',
+      parentId: tid('week-slice-1'),
+      done: false,
+      keyResultId: 'kr-q-demo',
+      keyResultTitle: 'Q-demo delivery',
+      priority: 'medium',
+      weight: 2,
+    },
+    {
+      id: tid('daily-under-week-2'),
+      title: 'Cleanup: archive old tickets',
+      start: plus(1),
+      deadline: plus(1),
+      spanDays: 1,
+      kind: 'daily',
+      parentId: tid('week-slice-1'),
+      done: false,
+      keyResultId: 'kr-q-demo',
+      keyResultTitle: 'Q-demo delivery',
+      priority: 'low',
+      weight: 2,
+    },
+    {
+      id: tid('daily-under-week-3'),
+      title: 'Cleanup: update runbooks',
+      start: plus(2),
+      deadline: plus(2),
+      spanDays: 1,
+      kind: 'daily',
+      parentId: tid('week-slice-1'),
+      done: false,
+      keyResultId: 'kr-q-demo',
+      keyResultTitle: 'Q-demo delivery',
+      priority: 'low',
+      weight: 2,
+    },
+    {
+      id: tid('daily-under-week-4'),
+      title: 'Cleanup: close stale PRs',
+      start: plus(3),
+      deadline: plus(3),
+      spanDays: 1,
+      kind: 'daily',
+      parentId: tid('week-slice-1'),
+      done: false,
+      keyResultId: 'kr-q-demo',
+      keyResultTitle: 'Q-demo delivery',
+      priority: 'medium',
+      weight: 2,
     },
     {
       id: tid('future-1'),
@@ -176,18 +280,123 @@ const buildMockUserPlan = (
       priority: 'medium',
       weight: 10,
     },
+    {
+      id: tid('pending-2'),
+      title: 'Follow-up stakeholder sync (pending approval)',
+      start: plus(1),
+      deadline: plus(3),
+      spanDays: 3,
+      kind: 'daily',
+      parentId: null,
+      done: false,
+      isPendingApproval: true,
+      keyResultId: 'kr-team-cadence',
+      keyResultTitle: 'Team cadence',
+      priority: 'high',
+      weight: 10,
+    },
   ];
+
+  // ── Pre-seeded report history ──────────────────────────────────────────────
+  // Give every user two already-submitted reports so the Reports tab has data
+  // without the user having to manually check & report tasks first.
+
+  const pastDaily1: MockPlanTask = {
+    id: tid('arch-d1'),
+    title: 'Daily standup sync',
+    start: plus(-7),
+    deadline: plus(-7),
+    spanDays: 1,
+    kind: 'daily',
+    parentId: null,
+    done: true,
+    isReported: true,
+    keyResultId: 'kr-team-cadence',
+    keyResultTitle: 'Team cadence',
+    priority: 'medium',
+    weight: 3,
+    actualValue: 1,
+  };
+
+  const pastDaily2: MockPlanTask = {
+    id: tid('arch-d2'),
+    title: 'Write unit tests for auth module',
+    start: plus(-6),
+    deadline: plus(-6),
+    spanDays: 1,
+    kind: 'daily',
+    parentId: null,
+    done: true,
+    isReported: true,
+    keyResultId: 'kr-q-demo',
+    keyResultTitle: 'Q-demo delivery',
+    priority: 'high',
+    weight: 5,
+    actualValue: 1,
+  };
+
+  const pastWeekly1: MockPlanTask = {
+    id: tid('arch-w1'),
+    title: 'Deliver initial feature prototype',
+    start: plus(-14),
+    deadline: plus(-8),
+    spanDays: 7,
+    kind: 'week',
+    parentId: null,
+    done: true,
+    isReported: true,
+    keyResultId: 'kr-q-demo',
+    keyResultTitle: 'Q-demo delivery',
+    priority: 'high',
+    weight: 20,
+    actualValue: 100,
+  };
+
+  const pastDaily3: MockPlanTask = {
+    id: tid('arch-d3'),
+    title: 'Reviewed PR and left feedback',
+    start: plus(-3),
+    deadline: plus(-3),
+    spanDays: 1,
+    kind: 'daily',
+    parentId: null,
+    done: false,
+    isReported: true,
+    keyResultId: 'kr-team-cadence',
+    keyResultTitle: 'Team cadence',
+    priority: 'low',
+    weight: 2,
+    actualValue: 0,
+    reportNote: 'Partially done – pending second pass',
+  };
+
+  const archivedTasks: MockPlanTask[] = [pastDaily1, pastDaily2, pastWeekly1, pastDaily3];
+
+  const reportRecord1: MockReportRecord = {
+    id: `rep-${uid}-1`,
+    submittedAt: plus(-7) + 'T09:00:00.000Z',
+    taskIds: [pastDaily1.id, pastDaily2.id],
+    taskTitles: [pastDaily1.title, pastDaily2.title],
+  };
+
+  const reportRecord2: MockReportRecord = {
+    id: `rep-${uid}-2`,
+    submittedAt: plus(-8) + 'T17:30:00.000Z',
+    taskIds: [pastWeekly1.id, pastDaily3.id],
+    taskTitles: [pastWeekly1.title, pastDaily3.title],
+  };
 
   return {
     userId,
     displayName,
     planId: `plan-${userId}`,
-    // Open so owner can edit/add continuously in the mock prototype.
-    isValidated: false,
+    // Closed so the card shows Closed tasks + Pending (approval) tasks inside.
+    isValidated: mockSeedPlanIsClosed(userId),
     activeTasks,
-    archivedTasks: [],
-    reportHistory: [],
+    archivedTasks,
+    reportHistory: [reportRecord2, reportRecord1],
     pendingReopenRequest: false,
+    seedVersion: MOCK_PLAN_SEED_VERSION,
   };
 };
 
@@ -232,15 +441,11 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
     plansByUserId: {},
     ensurePlan: (userId, displayName = 'My') => {
       const existing = get().plansByUserId[userId];
-      // Rebuild stale seeds that used global task ids (pre unique-per-user).
+      // Only rebuild when seed version or display name changes.
+      // Do not wipe user-added tasks (UUID ids) or open/close state.
       const seedIsStale =
         !!existing &&
-        (existing.activeTasks.some(
-          (t) =>
-            !String(t.id).startsWith(`${userId}-`) ||
-            typeof t.weight !== 'number' ||
-            !t.deadline,
-        ) ||
+        (existing.seedVersion !== MOCK_PLAN_SEED_VERSION ||
           existing.displayName !== displayName);
       if (existing && !seedIsStale) return existing;
       const plan = buildMockUserPlan(userId, displayName, todayIso());
@@ -285,7 +490,8 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
             kind: 'daily',
             parentId: parent.id,
             done: false,
-            isPendingApproval: !plan.isValidated,
+            // New adds always land under the Pending tag until approved.
+            isPendingApproval: true,
             keyResultId: parent.keyResultId ?? null,
             keyResultTitle: parent.keyResultTitle,
             priority: input.priority ?? 'medium',
@@ -316,7 +522,9 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
           kind: 'week',
           parentId: parent.id,
           done: false,
-          isPendingApproval: !plan.isValidated,
+          isPendingApproval: true,
+          keyResultId: parent.keyResultId ?? null,
+          keyResultTitle: parent.keyResultTitle,
           priority: input.priority ?? 'medium',
         };
         set({
@@ -341,7 +549,8 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
       if (!built.ok) return built;
       const task: MockPlanTask = {
         ...built.task,
-        isPendingApproval: plan.isValidated,
+        // New adds always land under the Pending tag until approved.
+        isPendingApproval: true,
         keyResultId: input.keyResultId ?? UNLINKED_KR_ID,
         keyResultTitle: krTitleForId(input.keyResultId),
         priority: input.priority ?? 'medium',

@@ -31,6 +31,8 @@ export interface PlanTask {
   deadline?: string;
   startDate?: string;
   endDate?: string;
+  /** Task added after plan close; awaits manager approval. */
+  isPendingApproval?: boolean;
 }
 
 export interface Milestone {

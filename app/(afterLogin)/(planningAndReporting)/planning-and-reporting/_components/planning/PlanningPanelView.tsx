@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Avatar, Dropdown, Spin } from 'antd';
+import { Avatar, Dropdown, Spin, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { BsKey } from 'react-icons/bs';
 import { MdExpandMore, MdChevronRight } from 'react-icons/md';
@@ -9,7 +9,6 @@ import { IoArrowBack } from 'react-icons/io5';
 import { MessageOutlined, PlusOutlined } from '@ant-design/icons';
 import PlanCard from '../cards/PlanCard';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
-import StatusBadge from '../StatusBadge';
 import {
   isMilestoneAchievedForPlanning,
   formatKrMetricTypeDisplayName,
@@ -31,7 +30,6 @@ import type {
   KeyResult,
   Cadence,
   PlanOwner,
-  PlanStatus,
   ViewMode,
 } from '../types';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -1215,6 +1213,9 @@ export interface KRPanelProps {
   planningTargetsLoading?: boolean;
   selectedPlanningTargetId?: string | null;
   onPickPlanningTarget?: (target: PlanningTarget) => void;
+  /** Plan without linking a key result (small + in pick toolbar). */
+  unlinkedPlanSelected?: boolean;
+  onPickUnlinkedPlan?: () => void;
   /** Flat list from GET …/key-results/user/:userId (merged with plan-backed KRs, deduped by id). */
   userKeyResultItems?: any[];
   /** Objective milestones by KR id (same rows createPlanObjective lists). */
@@ -1241,6 +1242,8 @@ export function KRLeftPanel({
   planningTargetsLoading = false,
   selectedPlanningTargetId = null,
   onPickPlanningTarget,
+  unlinkedPlanSelected = false,
+  onPickUnlinkedPlan,
   userKeyResultItems = [],
   objectiveMilestonesByKrId,
   onRefreshMilestoneStatus,
@@ -1361,6 +1364,40 @@ export function KRLeftPanel({
         />
       ) : (
         <>
+          {showInlinePick ? (
+            <div
+              data-cy="planning-kr-pick-toolbar"
+              className="flex flex-shrink-0 items-center justify-between gap-2 border-b border-[#E8EAF0] bg-[#F8FAFC] px-3 py-2"
+            >
+              <p className="m-0 min-w-0 flex-1 text-[11px] font-medium leading-snug text-[#64748B]">
+                Select a key result to plan
+              </p>
+              {onPickUnlinkedPlan ? (
+                <Tooltip title="Plan without key result">
+                  <button
+                    type="button"
+                    data-cy="plan-without-key-result-button"
+                    aria-label="Plan without key result"
+                    aria-pressed={unlinkedPlanSelected}
+                    onClick={onPickUnlinkedPlan}
+                    className={`relative flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border transition-all ${
+                      unlinkedPlanSelected
+                        ? 'border-[#1E40AF] bg-[#1E40AF] text-white shadow-[0_0_0_2px_rgba(30,64,175,0.18)]'
+                        : 'border-[#E5E7EB] bg-white text-[#1E40AF] hover:border-[#1E40AF]/40 hover:bg-[#EFF6FF]'
+                    }`}
+                  >
+                    <PlusOutlined className="text-[12px]" />
+                    <span
+                      aria-hidden
+                      className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border border-white ${
+                        unlinkedPlanSelected ? 'bg-[#34D399]' : 'bg-[#574CFF]'
+                      }`}
+                    />
+                  </button>
+                </Tooltip>
+              ) : null}
+            </div>
+          ) : null}
           {!isChildCadence && !isSingleOwner && (
             <div
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-853"
@@ -1566,25 +1603,8 @@ export default function PlanningPanelView({
   const myPlans = plans.filter(isOwnPlan);
   const otherPlans = plans.filter((plan) => !isOwnPlan(plan));
 
-  /** Keep My Plan first, then everyone else, within a status bucket. */
+  /** My Plan always first, then everyone else. */
   const orderedPlans = [...myPlans, ...otherPlans];
-  const pendingPlans = orderedPlans.filter(
-    (plan) => plan.status?.label !== 'Closed',
-  );
-  const closedPlans = orderedPlans.filter(
-    (plan) => plan.status?.label === 'Closed',
-  );
-
-  const pendingSectionStatus: PlanStatus = pendingPlans[0]?.status ?? {
-    label: 'Open',
-    updatedAt: '',
-    tone: 'warning',
-  };
-  const closedSectionStatus: PlanStatus = closedPlans[0]?.status ?? {
-    label: 'Closed',
-    updatedAt: '',
-    tone: 'success',
-  };
 
   const renderPlanCard = (plan: PlanSummary, pinned: boolean) => {
     const originalDataItem = transformedData?.find(
@@ -1708,50 +1728,7 @@ export default function PlanningPanelView({
       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-995"
       className="min-w-0 max-w-full space-y-4 pr-1"
     >
-      {viewMode === 'planning' && pendingPlans.length > 0 ? (
-        <div
-          className="space-y-3"
-          data-cy="planning-pending-section"
-        >
-          <div
-            className="flex items-center gap-2"
-            data-cy="planning-pending-section-header"
-          >
-            <StatusBadge status={pendingSectionStatus} />
-            <span className="text-[12px] font-medium text-[#8F94A3]">
-              New & unclosed plans
-            </span>
-          </div>
-          <div className="space-y-4">
-            {pendingPlans.map((plan) =>
-              renderPlanCard(plan, isOwnPlan(plan)),
-            )}
-          </div>
-        </div>
-      ) : null}
-
-      {viewMode === 'planning' && closedPlans.length > 0 ? (
-        <div
-          className="space-y-3"
-          data-cy="planning-closed-section"
-        >
-          <div
-            className="flex items-center gap-2"
-            data-cy="planning-closed-section-header"
-          >
-            <StatusBadge status={closedSectionStatus} />
-          </div>
-          <div className="space-y-4">
-            {closedPlans.map((plan) =>
-              renderPlanCard(plan, isOwnPlan(plan)),
-            )}
-          </div>
-        </div>
-      ) : null}
-
-      {viewMode !== 'planning'
-        ? orderedPlans.map((plan) => renderPlanCard(plan, isOwnPlan(plan)))
-        : null}
+      {orderedPlans.map((plan) => renderPlanCard(plan, isOwnPlan(plan)))}
 
       {paginationNode && (
         <div
