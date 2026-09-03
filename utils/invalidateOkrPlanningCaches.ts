@@ -41,12 +41,20 @@ export function invalidatePlanningCaches(
 /** Report list/detail — after report create/update/approve. */
 export function invalidateReportingCaches(
   queryClient: QueryClient,
+  options?: { applyToOkr?: boolean },
 ): Promise<unknown[]> {
-  return Promise.all([
+  const applyToOkr = options?.applyToOkr !== false;
+  const reportList = [
     queryClient.invalidateQueries(['okrReports'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrReportsKrPanel'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrReport'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrPlannedData'], REFETCH_OPTS),
+  ];
+  if (!applyToOkr) {
+    return Promise.all(reportList);
+  }
+  return Promise.all([
+    ...reportList,
     queryClient.invalidateQueries(['fetchObjectives'], REFETCH_OPTS),
     queryClient.invalidateQueries(['ObjectiveInformation'], REFETCH_OPTS),
     queryClient.invalidateQueries(['teamObjectiveInformation'], REFETCH_OPTS),

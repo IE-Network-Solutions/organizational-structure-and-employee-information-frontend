@@ -41,6 +41,8 @@ import {
   rememberAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
 import { buildReportTaskStatusPatches } from '@/utils/recentReportTaskStatuses';
+import { usePlanningPeriodOkrEffect } from '@/hooks/usePlanningPeriodOkrEffect';
+import { ReportingOnlyOkrNote } from '../createReport/ReportingOnlyOkrNote';
 
 const { TextArea } = Input;
 
@@ -57,6 +59,7 @@ function EditReport() {
     setStatus,
     selectedStatuses,
     resetStatuses,
+    activePlanPeriodId,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
@@ -79,6 +82,11 @@ function EditReport() {
 
   const planningPeriodName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
+  const planningPeriodId =
+    activePlanPeriodId ||
+    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+  const { affectsOkr, countingPeriodName } =
+    usePlanningPeriodOkrEffect(planningPeriodId);
 
   const { data: allReportedPlanning } = useGetReportedPlanning(selectedPlanId);
 
@@ -141,17 +149,19 @@ function EditReport() {
           .filter((id): id is string => Boolean(id)),
       ),
     );
-    if (reopenedMilestoneIds.length > 0 || reopenedKeyResultIds.length > 0) {
-      markMilestonesReopenedInOkrCaches(queryClient, {
-        milestoneIds: reopenedMilestoneIds,
-        keyResultIds: reopenedKeyResultIds,
+    if (affectsOkr) {
+      if (reopenedMilestoneIds.length > 0 || reopenedKeyResultIds.length > 0) {
+        markMilestonesReopenedInOkrCaches(queryClient, {
+          milestoneIds: reopenedMilestoneIds,
+          keyResultIds: reopenedKeyResultIds,
+        });
+      }
+      clearReopenedPlanningTargets({
+        milestoneIds: achievedIds,
+        keyResultIds: achievedKeyResultIds,
       });
+      rememberAchievedMilestones(achievedIds);
     }
-    clearReopenedPlanningTargets({
-      milestoneIds: achievedIds,
-      keyResultIds: achievedKeyResultIds,
-    });
-    rememberAchievedMilestones(achievedIds);
 
     const statusByPlanTaskId = buildReportTaskStatusPatches(
       values,
@@ -169,12 +179,15 @@ function EditReport() {
       {
         values,
         selectedReportId,
-        achievedMilestoneIds: achievedIds,
+        achievedMilestoneIds: affectsOkr ? achievedIds : [],
         reportTaskStatuses: statusByPlanTaskId,
+        applyToOkr: affectsOkr,
       },
       {
         onSuccess: () => {
-          markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          if (affectsOkr) {
+            markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          }
           onClose();
         },
       },
@@ -539,6 +552,9 @@ function EditReport() {
               onFinish={handleOnFinish}
               className="px-2"
             >
+              {!affectsOkr ? (
+                <ReportingOnlyOkrNote countingPeriodName={countingPeriodName} />
+              ) : null}
               <div id="edit-report-collapse" data-cy="edit-report-collapse">
                 <Collapse
                   defaultActiveKey={formattedData?.flatMap((obj: any) =>

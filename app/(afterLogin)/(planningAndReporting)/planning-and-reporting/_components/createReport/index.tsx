@@ -22,6 +22,8 @@ import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/
 import { CreateReportFormCollapse } from './CreateReportFormCollapse';
 import { computeReportTotalWeight } from './reportFormUtils';
 import { useCreateReportFormEffects } from './useCreateReportFormEffects';
+import { ReportingOnlyOkrNote } from './ReportingOnlyOkrNote';
+import { usePlanningPeriodOkrEffect } from '@/hooks/usePlanningPeriodOkrEffect';
 
 function CreateReport() {
   const {
@@ -69,6 +71,8 @@ function CreateReport() {
   const planningPeriodName = getPlanningPeriodDetail(
     planningPeriodId ?? '',
   )?.name;
+  const { affectsOkr, countingPeriodName } =
+    usePlanningPeriodOkrEffect(planningPeriodId);
 
   useEffect(() => {
     if (openReportModal) {
@@ -91,29 +95,34 @@ function CreateReport() {
     const milestoneToKrId = buildMilestoneKeyResultMap(
       Array.isArray(formattedData) ? formattedData : null,
     );
-    clearReopenedPlanningTargets({
-      milestoneIds: achievedIds,
-      keyResultIds: Array.from(
-        new Set(
-          achievedIds
-            .map((id) => milestoneToKrId[id])
-            .filter((id): id is string => Boolean(id)),
+    if (affectsOkr) {
+      clearReopenedPlanningTargets({
+        milestoneIds: achievedIds,
+        keyResultIds: Array.from(
+          new Set(
+            achievedIds
+              .map((id) => milestoneToKrId[id])
+              .filter((id): id is string => Boolean(id)),
+          ),
         ),
-      ),
-    });
-    // Session remember before mutate so + disable does not wait on invalidate.
-    rememberAchievedMilestones(achievedIds);
+      });
+      // Session remember before mutate so + disable does not wait on invalidate.
+      rememberAchievedMilestones(achievedIds);
+    }
 
     createReport(
       {
         values: values,
         planningPeriodId: planningPeriodId,
         planId: allPlannedTaskForReport?.[0]?.plan?.id,
-        achievedMilestoneIds: achievedIds,
+        achievedMilestoneIds: affectsOkr ? achievedIds : [],
+        applyToOkr: affectsOkr,
       },
       {
         onSuccess: () => {
-          markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          if (affectsOkr) {
+            markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          }
           onClose();
         },
       },
@@ -233,6 +242,9 @@ function CreateReport() {
               onFinish={handleOnFinish}
               className="px-2"
             >
+              {!affectsOkr ? (
+                <ReportingOnlyOkrNote countingPeriodName={countingPeriodName} />
+              ) : null}
               <CreateReportFormCollapse
                 formattedData={formattedData}
                 planningPeriodName={planningPeriodName}
