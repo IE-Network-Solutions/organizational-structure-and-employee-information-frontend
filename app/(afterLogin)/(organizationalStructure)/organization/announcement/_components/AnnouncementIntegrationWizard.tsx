@@ -8,6 +8,7 @@ import {
   Form,
   Input,
   Modal,
+  Radio,
   Steps,
   message,
 } from 'antd';
@@ -21,9 +22,17 @@ import {
   SPACE_COLORS,
   useAnnouncementChannelsStore,
 } from '@/store/uistate/features/organizationStructure/announcementChannels';
+import {
+  isCollabAdminRole,
+  useCollaborationBootstrap,
+  useCollaborationCatalog,
+  useCreateCollabChannel,
+  useCreateCollabSpace,
+} from '@/store/server/features/collaboration';
 import type { CollaborationSpace } from '@/app/(afterLogin)/(organizationalStructure)/organization/announcement/_components/mockAnnouncementService';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { SpaceVisibilityCards } from './CreateSpaceChannelModals';
+import { useCollaborationMemberLookup } from './useCollaborationMemberLookup';
 
 const SELECT_STEP_ITEMS = [
   { title: 'Select Space' },
@@ -38,10 +47,13 @@ const CREATE_STEP_ITEMS = [
 type WizardMode = 'select' | 'create-space' | 'create-channel';
 
 type SpaceVisibility = 'public' | 'private';
+type ChannelLayout = 'posts' | 'threads';
 
 type CreateSpaceChannelDraft = {
   name: string;
   description?: string;
+  isPrivate?: boolean;
+  layout?: ChannelLayout;
 };
 
 type CreateSpaceWithChannelForm = {
@@ -132,7 +144,7 @@ const ChannelDraftList = ({ dataCyPrefix }: { dataCyPrefix: string }) => (
                 {...field}
                 name={[field.name, 'description']}
                 label="Description"
-                className="!mb-0"
+                className="!mb-3"
                 rules={[{ max: 255, message: 'Max 255 characters' }]}
               >
                 <Input.TextArea
@@ -143,6 +155,42 @@ const ChannelDraftList = ({ dataCyPrefix }: { dataCyPrefix: string }) => (
                   data-cy={`${dataCyPrefix}-description-${index}`}
                 />
               </Form.Item>
+              <Form.Item
+                {...field}
+                name={[field.name, 'layout']}
+                label="Channel format"
+                className="!mb-3"
+                rules={[{ required: true, message: 'Choose a channel format' }]}
+                data-cy={`${dataCyPrefix}-layout-field-${index}`}
+              >
+                <Radio.Group
+                  buttonStyle="solid"
+                  data-cy={`${dataCyPrefix}-layout-${index}`}
+                >
+                  <Radio.Button
+                    value="posts"
+                    data-cy={`${dataCyPrefix}-layout-announcement-${index}`}
+                  >
+                    Announcement
+                  </Radio.Button>
+                  <Radio.Button
+                    value="threads"
+                    data-cy={`${dataCyPrefix}-layout-thread-${index}`}
+                  >
+                    Thread
+                  </Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item
+                {...field}
+                name={[field.name, 'isPrivate']}
+                valuePropName="checked"
+                className="!mb-0"
+              >
+                <Checkbox data-cy={`${dataCyPrefix}-private-${index}`}>
+                  Private channel — invitation only
+                </Checkbox>
+              </Form.Item>
             </div>
           ))}
         </div>
@@ -151,7 +199,14 @@ const ChannelDraftList = ({ dataCyPrefix }: { dataCyPrefix: string }) => (
           block
           icon={<PlusOutlined />}
           className="mb-1"
-          onClick={() => add({ name: '', description: '' })}
+          onClick={() =>
+            add({
+              name: '',
+              description: '',
+              layout: 'posts',
+              isPrivate: false,
+            })
+          }
           data-cy={`${dataCyPrefix}-add`}
         >
           Add channel
@@ -227,19 +282,26 @@ const AnnouncementIntegrationWizard = ({
   focusSpaceId,
   onClose,
 }: AnnouncementIntegrationWizardProps) => {
-  const spaces = useAnnouncementChannelsStore((state) => state.spaces);
+  const memberLookup = useCollaborationMemberLookup();
+  const bootstrapQuery = useCollaborationBootstrap(open);
+  const { data: spaces = [] } = useCollaborationCatalog(
+    memberLookup,
+    open && bootstrapQuery.isSuccess,
+  );
   const enabledChannelIds = useAnnouncementChannelsStore(
     (state) => state.enabledChannelIds,
   );
   const addEnabledChannels = useAnnouncementChannelsStore(
     (state) => state.addEnabledChannels,
   );
-  const createSpace = useAnnouncementChannelsStore(
-    (state) => state.createSpace,
+  const addSidebarSpaceIds = useAnnouncementChannelsStore(
+    (state) => state.addSidebarSpaceIds,
   );
-  const createChannel = useAnnouncementChannelsStore(
-    (state) => state.createChannel,
+  const registerLocalSpace = useAnnouncementChannelsStore(
+    (state) => state.registerLocalSpace,
   );
+  const createSpaceMutation = useCreateCollabSpace();
+  const createChannelMutation = useCreateCollabChannel();
 
   const [mode, setMode] = useState<WizardMode>('select');
   const [current, setCurrent] = useState(0);
@@ -256,6 +318,9 @@ const AnnouncementIntegrationWizard = ({
   const draftSpaceName = Form.useWatch('spaceName', createSpaceForm);
 
   const selectedSpace = spaces.find((space) => space.id === selectedSpaceId);
+  const canCreateChannelInSelectedSpace = isCollabAdminRole(
+    selectedSpace?.currentUserRole,
+  );
 
   const filteredSpaces = useMemo(() => {
     const query = spaceSearch.trim().toLowerCase();
@@ -344,7 +409,14 @@ const AnnouncementIntegrationWizard = ({
       color: SPACE_COLORS[0],
       spaceDescription: '',
       visibility: 'public',
-      channels: [{ name: '', description: '' }],
+      channels: [
+        {
+          name: '',
+          description: '',
+          layout: 'posts',
+          isPrivate: false,
+        },
+      ],
     });
     setCreateStep(0);
     setMode('create-space');
@@ -352,7 +424,14 @@ const AnnouncementIntegrationWizard = ({
 
   const enterCreateChannelMode = () => {
     createChannelForm.setFieldsValue({
-      channels: [{ name: '', description: '' }],
+      channels: [
+        {
+          name: '',
+          description: '',
+          layout: 'posts',
+          isPrivate: false,
+        },
+      ],
     });
     setMode('create-channel');
   };
@@ -384,12 +463,24 @@ const AnnouncementIntegrationWizard = ({
 
   const handleCreateSpaceContinue = async () => {
     try {
-      await createSpaceForm.validateFields([
+      const values = await createSpaceForm.validateFields([
         'spaceName',
         'spaceDescription',
         'color',
         'visibility',
       ]);
+      const name = String(values.spaceName || '').trim();
+      if (!name) {
+        message.warning('Enter a space name');
+        return;
+      }
+      // Re-apply so the value survives step change even if a field remounts.
+      createSpaceForm.setFieldsValue({
+        spaceName: name,
+        spaceDescription: values.spaceDescription,
+        color: values.color || SPACE_COLORS[0],
+        visibility: values.visibility || 'public',
+      });
       setCreateStep(1);
     } catch {
       /* validation */
@@ -419,49 +510,83 @@ const AnnouncementIntegrationWizard = ({
         return;
       }
 
-      const space = createSpace({
-        name: values.spaceName,
-        description: values.spaceDescription,
+      const spaceName = String(
+        values.spaceName || createSpaceForm.getFieldValue('spaceName') || '',
+      ).trim();
+      if (!spaceName) {
+        message.warning('Enter a space name');
+        setCreateStep(0);
+        return;
+      }
+
+      const space = await createSpaceMutation.mutateAsync({
+        name: spaceName,
+        description: values.spaceDescription
+          ? String(values.spaceDescription).trim()
+          : undefined,
+        type: values.visibility === 'private' ? 'private' : 'public',
         color: values.color || SPACE_COLORS[0],
-        isPrivate: values.visibility === 'private',
       });
 
-      const createdChannels = [];
-      for (const draft of drafts) {
-        const channel = createChannel({
-          spaceId: space.id,
-          name: draft.name,
-          description: draft.description,
-          channelType: 'posts',
-          enableForAnnouncement: true,
-        });
-        if (!channel) {
-          NotificationMessage.error({
-            message: 'Could not create channel',
-            description: `#${draft.name} could not be created.`,
-          });
-          return;
-        }
-        createdChannels.push(channel);
+      if (!space?.id) {
+        throw new Error('Space was created but no id was returned');
       }
+
+      registerLocalSpace(space.id);
+
+      const createdChannelIds: string[] = [];
+      for (const draft of drafts) {
+        const channelName = draft.name
+          .trim()
+          .replace(/^#/, '')
+          .toLowerCase()
+          .replace(/\s+/g, '-');
+        const channel = await createChannelMutation.mutateAsync({
+          spaceId: space.id,
+          name: channelName,
+          description: draft.description?.trim(),
+          layout: draft.layout ?? 'posts',
+          type: draft.isPrivate ? 'private' : 'public',
+        });
+        if (!channel?.id) {
+          throw new Error(`Channel "${channelName}" was created without an id`);
+        }
+        createdChannelIds.push(channel.id);
+      }
+
+      addEnabledChannels(createdChannelIds);
+      addSidebarSpaceIds([space.id]);
 
       NotificationMessage.success({
         message: 'Space & channels added',
-        description: `${space.name} · ${createdChannels.length} channel${
-          createdChannels.length === 1 ? '' : 's'
-        } ready on Announcement.`,
+        description: `${space.name} · ${createdChannelIds.length} channel${
+          createdChannelIds.length === 1 ? '' : 's'
+        } ready on Announcement. You are the space admin.`,
       });
       resetCreateForms();
       setCreateStep(0);
       onClose();
-    } catch {
-      /* validation */
+    } catch (error) {
+      if (error && typeof error === 'object' && 'errorFields' in error) {
+        return; // antd form validation
+      }
+      NotificationMessage.error({
+        message: 'Could not create space',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Check the form and try again.',
+      });
     }
   };
 
   const handleCreateChannel = async () => {
     if (!selectedSpaceId) {
       message.warning('Select a space first');
+      return;
+    }
+    if (!canCreateChannelInSelectedSpace) {
+      message.error('Only a space owner or admin can create channels');
       return;
     }
     try {
@@ -488,20 +613,18 @@ const AnnouncementIntegrationWizard = ({
 
       const createdIds: string[] = [];
       for (const draft of drafts) {
-        const channel = createChannel({
+        const channelName = draft.name
+          .trim()
+          .replace(/^#/, '')
+          .toLowerCase()
+          .replace(/\s+/g, '-');
+        const channel = await createChannelMutation.mutateAsync({
           spaceId: selectedSpaceId,
-          name: draft.name,
-          description: draft.description,
-          channelType: 'posts',
-          enableForAnnouncement: false,
+          name: channelName,
+          description: draft.description?.trim(),
+          layout: draft.layout ?? 'posts',
+          type: draft.isPrivate ? 'private' : 'public',
         });
-        if (!channel) {
-          NotificationMessage.error({
-            message: 'Could not create channel',
-            description: `#${draft.name} could not be created. It may already exist.`,
-          });
-          return;
-        }
         createdIds.push(channel.id);
       }
 
@@ -518,7 +641,7 @@ const AnnouncementIntegrationWizard = ({
       createChannelForm.resetFields();
       setMode('select');
     } catch {
-      /* validation */
+      /* validation or mutation */
     }
   };
 
@@ -551,6 +674,9 @@ const AnnouncementIntegrationWizard = ({
     }
 
     addEnabledChannels(selectedChannelIds);
+    if (selectedSpaceId) {
+      addSidebarSpaceIds([selectedSpaceId]);
+    }
     message.success(
       `${selectedChannelIds.length} channel${
         selectedChannelIds.length === 1 ? '' : 's'
@@ -655,11 +781,21 @@ const AnnouncementIntegrationWizard = ({
               form={createSpaceForm}
               layout="vertical"
               requiredMark={false}
+              // Keep step-0 values (spaceName, color, …) when those fields
+              // unmount on step 1. Without this, submit sends name: "".
+              preserve
               initialValues={{
                 color: SPACE_COLORS[0],
                 spaceDescription: '',
                 visibility: 'public',
-                channels: [{ name: '', description: '' }],
+                channels: [
+                  {
+                    name: '',
+                    description: '',
+                    layout: 'posts',
+                    isPrivate: false,
+                  },
+                ],
               }}
               data-cy="announcement-integration-create-space-form"
             >
@@ -780,15 +916,22 @@ const AnnouncementIntegrationWizard = ({
               data-cy="organization-announcement-components-announcementintegrationwizard-tsx-announcementintegrationwizard-p-734"
               className="mb-3 text-sm text-gray-500"
             >
-              Create one or more posts channels in this space, then select them
-              to integrate.
+              Create one or more announcement or thread channels in this space,
+              then select them to integrate.
             </p>
             <Form
               form={createChannelForm}
               layout="vertical"
               requiredMark={false}
               initialValues={{
-                channels: [{ name: '', description: '' }],
+                channels: [
+                  {
+                    name: '',
+                    description: '',
+                    layout: 'posts',
+                    isPrivate: false,
+                  },
+                ],
               }}
               data-cy="announcement-integration-create-channel-form"
             >
@@ -881,7 +1024,12 @@ const AnnouncementIntegrationWizard = ({
                 type="primary"
                 icon={<PlusOutlined />}
                 className="shrink-0"
-                disabled={!selectedSpaceId}
+                disabled={!selectedSpaceId || !canCreateChannelInSelectedSpace}
+                title={
+                  canCreateChannelInSelectedSpace
+                    ? undefined
+                    : 'Only a space owner or admin can create channels'
+                }
                 onClick={enterCreateChannelMode}
                 data-cy="announcement-integration-create-channel"
               >

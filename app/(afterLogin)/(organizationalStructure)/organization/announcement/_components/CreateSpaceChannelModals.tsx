@@ -10,8 +10,11 @@ import type {
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   SPACE_COLORS,
-  useAnnouncementChannelsStore,
 } from '@/store/uistate/features/organizationStructure/announcementChannels';
+import {
+  useUpdateCollabChannel,
+  useUpdateCollabSpace,
+} from '@/store/server/features/collaboration';
 import { collaborationColors } from './collaborationColors';
 
 type SpaceVisibility = 'public' | 'private';
@@ -114,9 +117,7 @@ export const EditSpaceModal = ({
   onClose,
 }: EditSpaceModalProps) => {
   const [form] = Form.useForm<SpaceFormValues>();
-  const updateSpace = useAnnouncementChannelsStore(
-    (state) => state.updateSpace,
-  );
+  const updateSpaceMutation = useUpdateCollabSpace();
   const colorValue =
     Form.useWatch('color', form) || space?.color || SPACE_COLORS[0];
 
@@ -129,19 +130,18 @@ export const EditSpaceModal = ({
     if (!space) return;
     try {
       const values = await form.validateFields();
-      const updated = updateSpace(space.id, {
-        name: values.name,
-        description: values.description,
-        color: values.color || SPACE_COLORS[0],
-        isPrivate: values.visibility === 'private',
+      await updateSpaceMutation.mutateAsync({
+        spaceId: space.id,
+        data: {
+          name: values.name.trim(),
+          description: values.description?.trim(),
+          color: values.color || SPACE_COLORS[0],
+          type: values.visibility === 'private' ? 'private' : 'public',
+        },
       });
-      if (!updated) {
-        NotificationMessage.error({ message: 'Could not update space' });
-        return;
-      }
       NotificationMessage.success({
         message: 'Space updated',
-        description: `${updated.name} settings were saved.`,
+        description: `${values.name.trim()} settings were saved.`,
       });
       handleClose();
     } catch {
@@ -287,9 +287,7 @@ export const EditChannelModal = ({
   onClose,
 }: EditChannelModalProps) => {
   const [form] = Form.useForm<EditChannelForm>();
-  const updateChannel = useAnnouncementChannelsStore(
-    (state) => state.updateChannel,
-  );
+  const updateChannelMutation = useUpdateCollabChannel();
 
   const handleClose = () => {
     form.resetFields();
@@ -300,20 +298,21 @@ export const EditChannelModal = ({
     if (!spaceId || !channel) return;
     try {
       const values = await form.validateFields();
-      const updated = updateChannel(spaceId, channel.id, {
-        name: values.name,
-        description: values.description,
+      const nextName = values.name
+        .trim()
+        .replace(/^#/, '')
+        .toLowerCase()
+        .replace(/\s+/g, '-');
+      await updateChannelMutation.mutateAsync({
+        channelId: channel.id,
+        data: {
+          name: nextName,
+          description: values.description?.trim(),
+        },
       });
-      if (!updated) {
-        NotificationMessage.error({
-          message: 'Could not update channel',
-          description: 'Channel name may already exist in this space.',
-        });
-        return;
-      }
       NotificationMessage.success({
         message: 'Channel updated',
-        description: `#${updated.name} settings were saved.`,
+        description: `#${nextName} settings were saved.`,
       });
       handleClose();
     } catch {

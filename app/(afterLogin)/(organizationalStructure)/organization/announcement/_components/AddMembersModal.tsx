@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
-import { Avatar, Checkbox, Input, Modal } from 'antd';
+import { Avatar, Checkbox, Input, Modal, Spin } from 'antd';
 import { PlusOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons';
 import type { SpaceMember } from './mockAnnouncementService';
 import { collaborationColors } from './collaborationColors';
@@ -11,6 +11,7 @@ type AddMembersModalProps = {
   title: string;
   description?: ReactNode;
   members: SpaceMember[];
+  loading?: boolean;
   emptyText?: string;
   onClose: () => void;
   onAdd: (memberIds: string[]) => void;
@@ -21,6 +22,7 @@ const AddMembersModal = ({
   title,
   description,
   members,
+  loading = false,
   emptyText = 'No members available to add.',
   onClose,
   onAdd,
@@ -66,7 +68,7 @@ const AddMembersModal = ({
       onOk={handleAdd}
       okText="Add"
       okButtonProps={{
-        disabled: selectedIds.length === 0,
+        disabled: selectedIds.length === 0 || loading,
         icon: <PlusOutlined />,
       }}
       width={420}
@@ -84,7 +86,7 @@ const AddMembersModal = ({
       <Input
         allowClear
         prefix={<SearchOutlined className="text-gray-400" />}
-        placeholder="Search members..."
+        placeholder="Search org employees..."
         value={search}
         onChange={(event) => setSearch(event.target.value)}
         className="mb-3"
@@ -94,7 +96,11 @@ const AddMembersModal = ({
         className="flex max-h-[280px] flex-col gap-1 overflow-y-auto"
         data-cy="announcement-add-members-list"
       >
-        {filteredMembers.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-8">
+            <Spin size="small" />
+          </div>
+        ) : filteredMembers.length === 0 ? (
           <p
             className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-sm text-gray-400"
             data-cy="announcement-add-members-empty"

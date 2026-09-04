@@ -77,6 +77,8 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
 };
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useCollaborationMentionNotifications } from '@/store/server/features/collaboration';
+import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
 import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
@@ -373,6 +375,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
+  const enabledAnnouncementChannelIds = useAnnouncementChannelsStore(
+    (state) => state.enabledChannelIds,
+  );
+  const { data: collaborationMentionNotifications = [] } =
+    useCollaborationMentionNotifications();
+  const hasAnnouncementMention = React.useMemo(() => {
+    const integratedChannelIds = new Set(enabledAnnouncementChannelIds);
+    return collaborationMentionNotifications.some(
+      (notification) =>
+        notification.unread &&
+        notification.channelId &&
+        integratedChannelIds.has(notification.channelId),
+    );
+  }, [collaborationMentionNotifications, enabledAnnouncementChannelIds]);
   useGetEmployee(userId);
   // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
@@ -1847,7 +1863,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       icon={
                         <span
                           data-cy="nav-sider-announcement-icon-wrap"
-                          className={`flex items-center justify-center text-[21px] leading-none transition-colors ${
+                          className={`relative flex items-center justify-center text-[21px] leading-none transition-colors ${
                             isAnnouncementActive ? '' : 'text-black'
                           }`}
                           style={
@@ -1860,6 +1876,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                             size={21}
                             data-cy="nav-sider-announcement-icon"
                           />
+                          {collapsed && hasAnnouncementMention ? (
+                            <span
+                              className="absolute -right-2 -top-1 inline-flex items-center justify-center text-xs font-bold leading-none text-[#ff4d4f]"
+                              aria-label="You were mentioned in an announcement channel"
+                              title="Mention"
+                              data-cy="nav-sider-announcement-mention"
+                            >
+                              @
+                            </span>
+                          ) : null}
                         </span>
                       }
                       className={`
@@ -1902,15 +1928,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                           >
                             Announcement
                           </span>
-                          <span
-                            className="inline-flex shrink-0 items-center justify-start font-bold leading-none text-[#ff4d4f]"
-                            style={{ fontSize }}
-                            aria-label="You were mentioned"
-                            title="Mention"
-                            data-cy="nav-sider-announcement-mention"
-                          >
-                            @
-                          </span>
+                          {hasAnnouncementMention ? (
+                            <span
+                              className="inline-flex shrink-0 items-center justify-start font-bold leading-none text-[#ff4d4f]"
+                              style={{ fontSize }}
+                              aria-label="You were mentioned in an announcement channel"
+                              title="Mention"
+                              data-cy="nav-sider-announcement-mention"
+                            >
+                              @
+                            </span>
+                          ) : null}
                         </span>
                       )}
                     </Button>

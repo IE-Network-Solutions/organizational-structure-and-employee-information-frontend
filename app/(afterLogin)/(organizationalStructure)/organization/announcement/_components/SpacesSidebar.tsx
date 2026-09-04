@@ -19,6 +19,7 @@ import type {
   CollaborationChannel,
   CollaborationSpace,
 } from './mockAnnouncementService';
+import { isCollabAdminRole } from '@/store/server/features/collaboration';
 
 const { Text } = Typography;
 
@@ -36,10 +37,17 @@ type SpacesSidebarProps = {
   onAddSpaceMembers?: (spaceId: string) => void;
   onEditSpace?: (spaceId: string) => void;
   onEditChannel?: (target: SelectedChannelTarget) => void;
+  mentionChannelIds?: ReadonlySet<string>;
 };
 
-const SpaceActivityIndicator = ({ space }: { space: CollaborationSpace }) => {
-  if (space.hasMention) {
+const SpaceActivityIndicator = ({
+  space,
+  hasMention,
+}: {
+  space: CollaborationSpace;
+  hasMention: boolean;
+}) => {
+  if (hasMention) {
     return (
       <span
         className="inline-flex shrink-0 items-center text-sm font-semibold leading-none text-[#EF4444]"
@@ -102,10 +110,12 @@ const getSpaceHeaderMenuItems = (
 
 const SpacePanelHeader = ({
   space,
+  hasMention,
   onAddSpaceMembers,
   onEditSpace,
 }: {
   space: CollaborationSpace;
+  hasMention: boolean;
   onAddSpaceMembers?: (spaceId: string) => void;
   onEditSpace?: (spaceId: string) => void;
 }) => (
@@ -133,7 +143,7 @@ const SpacePanelHeader = ({
         >
           {space.name}
         </span>
-        <SpaceActivityIndicator space={space} />
+        <SpaceActivityIndicator space={space} hasMention={hasMention} />
       </div>
       <div
         data-cy="organization-announcement-components-spacessidebar-tsx-spacessidebar-div-94"
@@ -177,11 +187,13 @@ const SpacePanelHeader = ({
 const ChannelRow = ({
   channel,
   selected,
+  hasMention,
   onSelect,
   onEditChannel,
 }: {
   channel: CollaborationChannel;
   selected: boolean;
+  hasMention: boolean;
   onSelect: () => void;
   onEditChannel?: () => void;
 }) => (
@@ -216,6 +228,16 @@ const ChannelRow = ({
       >
         {channel.name}
       </span>
+      {hasMention ? (
+        <span
+          className="inline-flex shrink-0 items-center font-semibold leading-none text-[#EF4444]"
+          aria-label="You were mentioned in this channel"
+          title="Mention"
+          data-cy={`announcement-channel-mention-${channel.id}`}
+        >
+          @
+        </span>
+      ) : null}
     </button>
     {onEditChannel ? (
       <Dropdown
@@ -258,46 +280,54 @@ const SpacesSidebar = ({
   onAddSpaceMembers,
   onEditSpace,
   onEditChannel,
+  mentionChannelIds = new Set<string>(),
 }: SpacesSidebarProps) => {
-  const items = spaces.map((space) => ({
-    key: space.id,
-    label: (
-      <SpacePanelHeader
-        space={space}
-        onAddSpaceMembers={onAddSpaceMembers}
-        onEditSpace={onEditSpace}
-      />
-    ),
-    children: (
-      <div
-        className="flex flex-col gap-0.5 pb-1 pl-1"
-        data-cy={`announcement-space-channels-${space.id}`}
-      >
-        {space.channels.map((channel) => (
-          <ChannelRow
-            key={channel.id}
-            channel={channel}
-            selected={
-              selected?.spaceId === space.id &&
-              selected?.channelId === channel.id
-            }
-            onSelect={() =>
-              onSelectChannel({ spaceId: space.id, channelId: channel.id })
-            }
-            onEditChannel={
-              onEditChannel
-                ? () =>
-                    onEditChannel({
-                      spaceId: space.id,
-                      channelId: channel.id,
-                    })
-                : undefined
-            }
-          />
-        ))}
-      </div>
-    ),
-  }));
+  const items = spaces.map((space) => {
+    const canManageSpace = isCollabAdminRole(space.currentUserRole);
+    return {
+      key: space.id,
+      label: (
+        <SpacePanelHeader
+          space={space}
+          hasMention={space.channels.some((channel) =>
+            mentionChannelIds.has(channel.id),
+          )}
+          onAddSpaceMembers={canManageSpace ? onAddSpaceMembers : undefined}
+          onEditSpace={canManageSpace ? onEditSpace : undefined}
+        />
+      ),
+      children: (
+        <div
+          className="flex flex-col gap-0.5 pb-1 pl-1"
+          data-cy={`announcement-space-channels-${space.id}`}
+        >
+          {space.channels.map((channel) => (
+            <ChannelRow
+              key={channel.id}
+              channel={channel}
+              selected={
+                selected?.spaceId === space.id &&
+                selected?.channelId === channel.id
+              }
+              hasMention={mentionChannelIds.has(channel.id)}
+              onSelect={() =>
+                onSelectChannel({ spaceId: space.id, channelId: channel.id })
+              }
+              onEditChannel={
+                canManageSpace && onEditChannel
+                  ? () =>
+                      onEditChannel({
+                        spaceId: space.id,
+                        channelId: channel.id,
+                      })
+                  : undefined
+              }
+            />
+          ))}
+        </div>
+      ),
+    };
+  });
 
   return (
     <aside

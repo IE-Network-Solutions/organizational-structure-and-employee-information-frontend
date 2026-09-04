@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Avatar, Button } from 'antd';
+import { Avatar, Button, Spin } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { MdOutlineCampaign } from 'react-icons/md';
 import dayjs from 'dayjs';
@@ -9,13 +9,15 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import { collaborationColors } from './collaborationColors';
 import AnnouncementComposerPanel from './AnnouncementComposerPanel';
 import {
-  listCollaborationNotifications,
-  type CollabNotification,
-} from './mockCollaborationNotifications';
+  mapCollabNotification,
+  useCollaborationNotifications,
+} from '@/store/server/features/collaboration';
 
 dayjs.extend(relativeTime);
 
 type WidgetView = 'mentions' | 'compose';
+
+type CollabNotification = ReturnType<typeof mapCollabNotification>;
 
 const kindLabel = (kind: CollabNotification['kind']): string => {
   if (kind === 'mention') return 'mentioned you';
@@ -38,7 +40,12 @@ const CollaborationNotificationsWidget = ({
 }) => {
   const [view, setView] = useState<WidgetView>('mentions');
   const [composeWide, setComposeWide] = useState(false);
-  const notifications = useMemo(() => listCollaborationNotifications(), []);
+  const { data: rawNotifications = [], isLoading } =
+    useCollaborationNotifications();
+  const notifications = useMemo(
+    () => rawNotifications.map(mapCollabNotification),
+    [rawNotifications],
+  );
   const unreadCount = notifications.filter((item) => item.unread).length;
   const isCompose = view === 'compose';
   /** Typing expands over Approvals; card may grow down over calendar. */
@@ -155,7 +162,11 @@ const CollaborationNotificationsWidget = ({
                 className="min-h-0 flex-1 overflow-y-auto scrollbar-none"
                 data-cy="collaboration-notifications-body"
               >
-                {notifications.length === 0 ? (
+                {isLoading ? (
+                  <div className="flex h-full min-h-[190px] items-center justify-center">
+                    <Spin size="small" />
+                  </div>
+                ) : notifications.length === 0 ? (
                   <p
                     className="m-0 flex h-full min-h-[190px] items-center justify-center text-lg font-light text-gray-500"
                     data-cy="collaboration-notifications-empty"

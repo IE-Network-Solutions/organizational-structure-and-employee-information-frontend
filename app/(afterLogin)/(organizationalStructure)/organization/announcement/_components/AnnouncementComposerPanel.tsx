@@ -6,7 +6,6 @@ import { Avatar, Form, Input, Popover, Select, Spin, Tag } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import {
   BsCodeSlash,
-  BsEmojiSmile,
   BsFileEarmarkText,
   BsHighlighter,
   BsImage,
@@ -24,11 +23,22 @@ import {
 import { MdKeyboardArrowDown, MdTag } from 'react-icons/md';
 import type ReactQuillType from 'react-quill';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { collaborationColors } from './collaborationColors';
-import { createAnnouncement } from './mockAnnouncementService';
+import {
+  useChannelMembers,
+  useCollaborationCatalog,
+  useCreateCollabMessage,
+} from '@/store/server/features/collaboration';
 import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
+import { useCollaborationMemberLookup } from './useCollaborationMemberLookup';
+import {
+  getMentionToken,
+  resolveMentionsForPayload,
+  spaceMembersToMentionUsers,
+  type MentionUser,
+} from './mentionUtils';
+import { EmojiPickerButton } from './NativeEmojiPicker';
 
 const AnnouncementQuillField = dynamic(
   () => import('./AnnouncementQuillField'),
@@ -88,36 +98,11 @@ type AnnouncementFormValues = {
   channelId: string;
 };
 
-type MentionUser = {
+type PendingAttachment = {
   id: string;
   name: string;
-  email: string;
-  profileImage?: string;
-};
-
-const normalizeUsers = (data: any): any[] => {
-  if (Array.isArray(data)) return data;
-  if (Array.isArray(data?.items)) return data.items;
-  if (Array.isArray(data?.data)) return data.data;
-  if (Array.isArray(data?.data?.items)) return data.data.items;
-  return [];
-};
-
-const getUserName = (user: any) => {
-  const employeeInfo = user?.employeeInformation;
-  const fullName =
-    user?.fullName ||
-    employeeInfo?.fullName ||
-    [
-      user?.firstName || employeeInfo?.firstName,
-      user?.middleName || employeeInfo?.middleName,
-      user?.lastName || employeeInfo?.lastName,
-    ]
-      .filter(Boolean)
-      .join(' ') ||
-    user?.email;
-
-  return String(fullName || 'Unknown user').trim();
+  kind: 'file' | 'image';
+  file: File;
 };
 
 const getUserAvatarText = (name: string) =>
@@ -144,22 +129,6 @@ const getAvatarColor = (userId: string) => {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 };
 
-const getMentionToken = (name: string) => `@${name.trim().replace(/\s+/g, '')}`;
-
-const toMentionUser = (user: any): MentionUser | null => {
-  if (!user?.id) return null;
-  return {
-    id: String(user.id),
-    name: getUserName(user),
-    email: String(user?.email || ''),
-    profileImage:
-      user?.profileImage ||
-      user?.employeeInformation?.profileImage ||
-      user?.avatar ||
-      undefined,
-  };
-};
-
 const AnnouncementComposerPanel = ({
   active,
   onCancel,
@@ -173,7 +142,11 @@ const AnnouncementComposerPanel = ({
   const [form] = Form.useForm<AnnouncementFormValues>();
   const [submitting, setSubmitting] = useState(false);
   const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
-  const spaces = useAnnouncementChannelsStore((state) => state.spaces);
+  const [pendingFiles, setPendingFiles] = useState<PendingAttachment[]>([]);
+  const createMessage = useCreateCollabMessage();
+  const memberLookup = useCollaborationMemberLookup();
+  const { userId: currentUserId } = useAuthenticationStore();
+  const { data: spaces = [] } = useCollaborationCatalog(memberLookup);
   const enabledChannelIds = useAnnouncementChannelsStore(
     (state) => state.enabledChannelIds,
   );
@@ -201,7 +174,8 @@ const AnnouncementComposerPanel = ({
   const bodyValue = Form.useWatch('body', form);
   const spaceIdValue = Form.useWatch('spaceId', form);
   const channelIdValue = Form.useWatch('channelId', form);
-  const canSend = !isQuillEmpty(bodyValue) && !submitting;
+  const canSend =
+    (!isQuillEmpty(bodyValue) || pendingFiles.length > 0) && !submitting;
   const onBodyActivityRef = useRef(onBodyActivity);
   onBodyActivityRef.current = onBodyActivity;
 
@@ -213,27 +187,54 @@ const AnnouncementComposerPanel = ({
     if (active) return;
     form.resetFields();
     setMentionedUserIds([]);
+    setPendingFiles([]);
     notifyBodyActivity(false);
   }, [active, form]);
 
   useEffect(() => {
     if (!active) return;
     setMentionedUserIds([]);
+    setPendingFiles([]);
+    form.setFieldsValue({ body: '' });
+    notifyBodyActivity(false);
+  }, [active, form, lockedSpaceId, lockedChannelId]);
+
+  // Fill default channel once catalog is ready, without wiping an in-progress draft.
+  useEffect(() => {
+    if (!active) return;
+    const currentChannelId = form.getFieldValue('channelId');
+    if (currentChannelId && !lockedChannelId) return;
+
+    const options = spaces.flatMap((space) =>
+      space.channels
+        .filter((channel) => enabledChannelIds.includes(channel.id))
+        .map((channel) => ({
+          id: channel.id,
+          spaceId: space.id,
+        })),
+    );
     const defaultChannel =
       (lockedSpaceId &&
         lockedChannelId &&
-        channelOptions.find(
+        options.find(
           (item) =>
             item.spaceId === lockedSpaceId && item.id === lockedChannelId,
         )) ||
-      channelOptions[0];
+      options[0];
+    if (!defaultChannel) return;
+
     form.setFieldsValue({
-      body: '',
-      spaceId: defaultChannel?.spaceId,
-      channelId: defaultChannel?.id,
+      spaceId: defaultChannel.spaceId,
+      channelId: defaultChannel.id,
     });
-    notifyBodyActivity(false);
-  }, [active, form, lockedSpaceId, lockedChannelId, channelOptions]);
+  }, [
+    active,
+    form,
+    spaces,
+    enabledChannelIds,
+    lockedSpaceId,
+    lockedChannelId,
+  ]);
 
   useEffect(() => {
     if (!active || !lockedSpaceId || !lockedChannelId) return;
@@ -263,29 +264,77 @@ const AnnouncementComposerPanel = ({
     if (submitting) return;
     form.resetFields();
     setMentionedUserIds([]);
+    setPendingFiles([]);
     notifyBodyActivity(false);
     onCancel();
   };
 
+  const selectedChannelId = channelIdValue || lockedChannelId || undefined;
+  const selectedSpaceId = spaceIdValue || lockedSpaceId || undefined;
+  const selectedSpace = selectedSpaceId
+    ? findSpaceById(spaces, selectedSpaceId)
+    : undefined;
+  const {
+    data: channelMembers = [],
+    isLoading: channelMembersLoading,
+  } = useChannelMembers(selectedChannelId, memberLookup, active);
+
+  // Public channels inherit space members — mention list is space roster ∪
+  // GET /channel-members.
+  const mentionableUsers = useMemo(() => {
+    const byId = new Map<string, { id: string; name: string; email?: string; avatarUrl?: string }>();
+    (selectedSpace?.members ?? []).forEach((member) =>
+      byId.set(member.id, member),
+    );
+    channelMembers.forEach((member) => byId.set(member.id, member));
+    return spaceMembersToMentionUsers(
+      Array.from(byId.values()),
+      currentUserId,
+    );
+  }, [selectedSpace?.members, channelMembers, currentUserId]);
+
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
+      const hasBody = !isQuillEmpty(values.body);
+      if (!hasBody && pendingFiles.length === 0) {
+        NotificationMessage.warning({
+          message: 'Add a message or attachment',
+        });
+        return;
+      }
+
       setSubmitting(true);
-      await createAnnouncement(
-        {
-          body: values.body,
-          spaceId: values.spaceId,
-          channelId: values.channelId,
-          mentionedUserIds,
-        },
-        { findSpaceById, findChannel },
+      const mentions = resolveMentionsForPayload(
+        values.body || '',
+        mentionedUserIds,
+        mentionableUsers,
       );
+
+      if (mentionedUserIds.length > 0 && mentions.length === 0) {
+        NotificationMessage.warning({
+          message: 'Mentioned users could not be resolved',
+          description: 'Pick a person from the @ list and try again.',
+        });
+        setSubmitting(false);
+        return;
+      }
+
+      await createMessage.mutateAsync({
+        channelId: values.channelId,
+        content: hasBody
+          ? values.body
+          : `<p>${pendingFiles.map((file) => file.name).join(', ')}</p>`,
+        mentions,
+        files: pendingFiles.map((item) => item.file),
+      });
       NotificationMessage.success({
         message: 'Posted to Collaboration',
         description: 'Your announcement was sent to Selamnew Collaboration.',
       });
       form.setFieldsValue({ body: '' });
       setMentionedUserIds([]);
+      setPendingFiles([]);
       notifyBodyActivity(false);
       onSuccess();
     } catch (error) {
@@ -304,10 +353,12 @@ const AnnouncementComposerPanel = ({
     }
   };
 
-  const lockedSpace = lockedSpaceId ? findSpaceById(lockedSpaceId) : undefined;
+  const lockedSpace = lockedSpaceId
+    ? findSpaceById(spaces, lockedSpaceId)
+    : undefined;
   const lockedChannel =
     lockedSpaceId && lockedChannelId
-      ? findChannel(lockedSpaceId, lockedChannelId)
+      ? findChannel(spaces, lockedSpaceId, lockedChannelId)
       : undefined;
   const selectedChannelOption = channelOptions.find(
     (item) => item.id === channelIdValue,
@@ -472,6 +523,10 @@ const AnnouncementComposerPanel = ({
               submitting={submitting}
               canSend={canSend}
               growUpward={growWithContent}
+              attachments={pendingFiles}
+              mentionableUsers={mentionableUsers}
+              mentionUsersLoading={channelMembersLoading}
+              onAttachmentsChange={setPendingFiles}
               onSend={() => void handleSubmit()}
               onMentionUser={(userId) =>
                 setMentionedUserIds((current) =>
@@ -510,6 +565,10 @@ type CollaborationComposerProps = {
   submitting: boolean;
   canSend: boolean;
   growUpward?: boolean;
+  attachments: PendingAttachment[];
+  mentionableUsers: MentionUser[];
+  mentionUsersLoading?: boolean;
+  onAttachmentsChange: (files: PendingAttachment[]) => void;
   onSend: () => void;
   onMentionUser: (userId: string) => void;
 };
@@ -521,11 +580,13 @@ const CollaborationComposer = ({
   submitting,
   canSend,
   growUpward = false,
+  attachments,
+  mentionableUsers,
+  mentionUsersLoading = false,
+  onAttachmentsChange,
   onSend,
   onMentionUser,
 }: CollaborationComposerProps) => {
-  const { userId: currentUserId } = useAuthenticationStore();
-  const { data: usersData } = useGetAllUsers();
   const quillRef = useRef<ReactQuillType | null>(null);
   const [editorReady, setEditorReady] = useState(false);
   const [mentionQuery, setMentionQuery] = useState<string | null>(null);
@@ -533,9 +594,6 @@ const CollaborationComposer = ({
   const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
   const [showFormatToolbar, setShowFormatToolbar] = useState(false);
   const [attachOpen, setAttachOpen] = useState(false);
-  const [attachments, setAttachments] = useState<
-    { id: string; name: string; kind: 'file' | 'image' }[]
-  >([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const canSendRef = useRef(canSend);
@@ -547,20 +605,10 @@ const CollaborationComposer = ({
     if (!active) {
       setShowFormatToolbar(false);
       setAttachOpen(false);
-      setAttachments([]);
+      setMentionQuery(null);
+      setMentionStartIndex(-1);
     }
   }, [active]);
-
-  const mentionableUsers = useMemo(() => {
-    return normalizeUsers(usersData)
-      .map(toMentionUser)
-      .filter((user): user is MentionUser => {
-        if (!user) return false;
-        if (currentUserId && user.id === currentUserId) return false;
-        return user.name !== 'Unknown user';
-      })
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [currentUserId, usersData]);
 
   const filteredMentionUsers = useMemo(() => {
     if (mentionQuery === null) return [];
@@ -586,7 +634,8 @@ const CollaborationComposer = ({
     if (!selection) return;
 
     const textBeforeCursor = quill.getText(0, selection.index);
-    const mentionMatch = textBeforeCursor.match(/@([A-Za-z0-9._-]*)$/);
+    // Allow letters/digits/._- after @ (same idea as employee name search).
+    const mentionMatch = textBeforeCursor.match(/@([^\s@]*)$/);
 
     if (mentionMatch) {
       setMentionQuery(mentionMatch[1]);
@@ -605,6 +654,8 @@ const CollaborationComposer = ({
     if (!quill || mentionStartIndex < 0) return;
 
     const mentionToken = getMentionToken(user.name);
+    // Invisible Collab mention marker + visible @Name (Quill strips custom protocols like mention://).
+    const mentionMarkup = `<@${user.id}>${mentionToken}`;
     const selection = quill.getSelection(true);
     const cursor = selection?.index ?? quill.getLength();
     const deleteLength = Math.max(cursor - mentionStartIndex, 0);
@@ -613,13 +664,38 @@ const CollaborationComposer = ({
     if (deleteLength > 0) {
       quill.deleteText(mentionStartIndex, deleteLength, 'user');
     }
-    quill.insertText(mentionStartIndex, `${mentionToken} `, 'user');
-    quill.setSelection(mentionStartIndex + mentionToken.length + 1, 0, 'user');
+    quill.insertText(
+      mentionStartIndex,
+      mentionMarkup,
+      {
+        bold: true,
+        color: collaborationColors.primary,
+      },
+      'user',
+    );
+    quill.insertText(
+      mentionStartIndex + mentionMarkup.length,
+      ' ',
+      { bold: false, color: false },
+      'user',
+    );
+    quill.setSelection(mentionStartIndex + mentionMarkup.length + 1, 0, 'user');
 
     onMentionUser(user.id);
     setMentionQuery(null);
     setMentionStartIndex(-1);
     setSelectedMentionIndex(0);
+  };
+
+  const insertEmoji = (emoji: string) => {
+    const quill = getQuill();
+    if (!quill) return;
+    const selection = quill.getSelection(true);
+    const index = selection?.index ?? Math.max(quill.getLength() - 1, 0);
+
+    quill.focus();
+    quill.insertText(index, emoji, 'user');
+    quill.setSelection(index + emoji.length, 0, 'user');
   };
 
   const applyFormat = (
@@ -730,12 +806,15 @@ const CollaborationComposer = ({
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
 
-    setAttachments((current) => [
-      ...current,
+    onAttachmentsChange([
+      ...attachments,
       ...files.map((file) => ({
-        id: `${kind}-${file.name}-${file.size}-${file.lastModified}`,
+        id: `${kind}-${file.name}-${file.size}-${file.lastModified}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`,
         name: file.name,
         kind,
+        file,
       })),
     ]);
     setAttachOpen(false);
@@ -771,8 +850,7 @@ const CollaborationComposer = ({
     </div>
   );
 
-  const showMentionMenu =
-    mentionQuery !== null && filteredMentionUsers.length > 0;
+  const showMentionMenu = mentionQuery !== null;
 
   const formatIconClass =
     'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#334155] transition hover:bg-[#F1F5F9]';
@@ -785,59 +863,69 @@ const CollaborationComposer = ({
           style={{ borderColor: collaborationColors.accent }}
           data-cy="create-announcement-mention-dropdown"
         >
-          {filteredMentionUsers.map((user, index) => {
-            const selected = index === selectedMentionIndex;
-            return (
-              <button
-                key={user.id}
-                type="button"
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => insertMention(user)}
-                className="flex w-full items-center gap-2.5 border-0 px-3 py-2 text-left transition"
-                style={{
-                  background: selected
-                    ? collaborationColors.surface
-                    : '#ffffff',
-                }}
-                data-cy={`create-announcement-mention-option-${user.id}`}
-              >
-                <Avatar
-                  size={28}
-                  src={user.profileImage || undefined}
-                  icon={!user.profileImage ? <UserOutlined /> : undefined}
+          {mentionUsersLoading ? (
+            <div className="flex items-center justify-center px-3 py-4">
+              <Spin size="small" />
+            </div>
+          ) : filteredMentionUsers.length === 0 ? (
+            <p className="m-0 px-3 py-3 text-center text-sm text-gray-400">
+              No channel members found
+            </p>
+          ) : (
+            filteredMentionUsers.map((user, index) => {
+              const selected = index === selectedMentionIndex;
+              return (
+                <button
+                  key={user.id}
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => insertMention(user)}
+                  className="flex w-full items-center gap-2.5 border-0 px-3 py-2 text-left transition"
                   style={{
-                    backgroundColor: user.profileImage
-                      ? undefined
-                      : getAvatarColor(user.id),
-                    fontSize: 11,
-                    fontWeight: 600,
+                    background: selected
+                      ? collaborationColors.surface
+                      : '#ffffff',
                   }}
+                  data-cy={`create-announcement-mention-option-${user.id}`}
                 >
-                  {!user.profileImage ? getUserAvatarText(user.name) : null}
-                </Avatar>
-                <div
-                  data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-788"
-                  className="min-w-0 flex-1"
-                >
-                  <div
-                    data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-789"
-                    className="truncate text-sm font-medium"
-                    style={{ color: collaborationColors.primary }}
+                  <Avatar
+                    size={28}
+                    src={user.profileImage || undefined}
+                    icon={!user.profileImage ? <UserOutlined /> : undefined}
+                    style={{
+                      backgroundColor: user.profileImage
+                        ? undefined
+                        : getAvatarColor(user.id),
+                      fontSize: 11,
+                      fontWeight: 600,
+                    }}
                   >
-                    {user.name}
-                  </div>
-                  {user.email ? (
+                    {!user.profileImage ? getUserAvatarText(user.name) : null}
+                  </Avatar>
+                  <div
+                    data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-788"
+                    className="min-w-0 flex-1"
+                  >
                     <div
-                      data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-796"
-                      className="truncate text-xs text-gray-500"
+                      data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-789"
+                      className="truncate text-sm font-medium"
+                      style={{ color: collaborationColors.primary }}
                     >
-                      {user.email}
+                      {user.name}
                     </div>
-                  ) : null}
-                </div>
-              </button>
-            );
-          })}
+                    {user.email ? (
+                      <div
+                        data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-div-796"
+                        className="truncate text-xs text-gray-500"
+                      >
+                        {user.email}
+                      </div>
+                    ) : null}
+                  </div>
+                </button>
+              );
+            })
+          )}
         </div>
       ) : null}
 
@@ -998,8 +1086,8 @@ const CollaborationComposer = ({
                 key={file.id}
                 closable
                 onClose={() =>
-                  setAttachments((current) =>
-                    current.filter((item) => item.id !== file.id),
+                  onAttachmentsChange(
+                    attachments.filter((item) => item.id !== file.id),
                   )
                 }
                 className="m-0 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs"
@@ -1121,16 +1209,13 @@ const CollaborationComposer = ({
             >
               <BsTypeUnderline size={18} />
             </button>
-            <button
-              type="button"
+            <EmojiPickerButton
+              onSelect={insertEmoji}
+              iconSize={18}
               className="p-1"
               style={{ color: collaborationColors.primary, opacity: 0.55 }}
-              aria-label="Emoji"
-              tabIndex={-1}
-              data-cy="create-announcement-emoji"
-            >
-              <BsEmojiSmile size={18} />
-            </button>
+              dataCy="create-announcement-emoji"
+            />
             <button
               type="button"
               disabled={!canSend}

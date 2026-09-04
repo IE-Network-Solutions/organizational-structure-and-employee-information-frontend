@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Avatar, Button, Input, Spin, Tooltip } from 'antd';
 import {
   CloseOutlined,
@@ -8,7 +8,6 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import {
-  BsEmojiSmile,
   BsPaperclip,
   BsSendFill,
   BsTypeUnderline,
@@ -18,18 +17,47 @@ import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import isToday from 'dayjs/plugin/isToday';
 import isYesterday from 'dayjs/plugin/isYesterday';
-import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
-  useAnnouncementChannelsStore,
-  type ChannelPost,
+  collaborationQueryKeys,
+  getChannelMembersQueryKey,
+  isCollabAdminRole,
+  mergeChannelMembers,
+  mergeMembersIntoCatalogSpaces,
+  resolveCollabUserId,
+  useAddCollabChannelMembers,
+  useChannelMembers,
+  useChannelPosts,
+  useCreateCollabMessage,
+  useMessageThread,
+  useReplyToCollabMessage,
+} from '@/store/server/features/collaboration';
+import type {
+  ChannelPost,
+  PostReply,
 } from '@/store/uistate/features/organizationStructure/announcementChannels';
 import type {
   CollaborationChannel,
   CollaborationSpace,
+  SpaceMember,
 } from './mockAnnouncementService';
 import AddMembersModal from './AddMembersModal';
+import ChannelMentionTextArea from './ChannelMentionTextArea';
+import MessageAttachments from './MessageAttachments';
+import MessageReactions from './MessageReactions';
 import { collaborationColors } from './collaborationColors';
+import {
+  useAvailableOrgMembers,
+  useCollaborationMemberLookup,
+} from './useCollaborationMemberLookup';
+import {
+  resolveMentionsForPayload,
+  spaceMembersToMentionUsers,
+  type MentionUser,
+} from './mentionUtils';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useQueryClient } from 'react-query';
+import { EmojiPickerButton } from './NativeEmojiPicker';
 
 dayjs.extend(relativeTime);
 dayjs.extend(isToday);
@@ -59,22 +87,32 @@ const stripHtml = (html: string) =>
 const NewPostCard = ({
   channelName,
   submitting,
+  mentionUsers,
+  mentionUsersLoading,
   onCancel,
   onSubmit,
 }: {
   channelName: string;
   submitting: boolean;
+  mentionUsers: MentionUser[];
+  mentionUsersLoading?: boolean;
   onCancel: () => void;
-  onSubmit: (values: { title: string; body: string }) => void;
+  onSubmit: (values: {
+    title: string;
+    body: string;
+    files: File[];
+    mentions: ReturnType<typeof resolveMentionsForPayload>;
+  }) => void;
 }) => {
   const { userData } = useAuthenticationStore();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const authorName =
-    userData?.firstName || userData?.fullName || userData?.email || 'You';
+  const [files, setFiles] = useState<File[]>([]);
+  const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const avatarUrl = userData?.profileImage;
-
-  const canSend = Boolean(title.trim() || body.trim()) && !submitting;
+  const canSend =
+    Boolean(title.trim() || body.trim() || files.length > 0) && !submitting;
 
   return (
     <div
@@ -82,12 +120,12 @@ const NewPostCard = ({
       data-cy="announcement-new-post-card"
     >
       <div
-        data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-84"
         className="mb-3 flex items-start justify-between gap-3"
+        data-cy="announcement-new-post-header"
       >
         <div
-          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-85"
           className="flex min-w-0 items-center gap-2.5"
+          data-cy="announcement-new-post-author"
         >
           <Avatar
             size={32}
@@ -99,19 +137,16 @@ const NewPostCard = ({
                 : collaborationColors.primary,
             }}
           />
-          <div
-            data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-96"
-            className="min-w-0"
-          >
+          <div className="min-w-0" data-cy="announcement-new-post-context">
             <p
-              data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-p-97"
               className="m-0 text-[11px] font-semibold uppercase tracking-wide text-gray-400"
+              data-cy="announcement-new-post-label"
             >
               New post
             </p>
             <p
-              data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-p-100"
               className="m-0 truncate text-sm font-semibold text-gray-900"
+              data-cy="announcement-new-post-channel"
             >
               Post for #{channelName}
             </p>
@@ -140,27 +175,77 @@ const NewPostCard = ({
         className="rounded-xl border border-[#E8EDF2] bg-white px-3 py-2.5"
         data-cy="announcement-new-post-body-wrap"
       >
-        <Input.TextArea
-          placeholder="Type a message"
+        <ChannelMentionTextArea
           value={body}
-          onChange={(event) => setBody(event.target.value)}
+          onChange={setBody}
+          mentionUsers={mentionUsers}
+          mentionUsersLoading={mentionUsersLoading}
+          mentionedUserIds={mentionedUserIds}
+          onMentionedUserIdsChange={setMentionedUserIds}
+          placeholder="Type a message — use @ to mention channel members"
           autoSize={{ minRows: 3, maxRows: 10 }}
           className="!resize-none !border-0 !px-0 !shadow-none focus:!shadow-none"
-          data-cy="announcement-new-post-body"
+          dataCy="announcement-new-post-body"
         />
+        {files.length > 0 ? (
+          <div
+            className="mt-2 flex flex-wrap gap-1.5"
+            data-cy="announcement-new-post-attachments"
+          >
+            {files.map((file, index) => (
+              <span
+                key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
+                className="inline-flex items-center gap-1 rounded-md border border-[#E8EDF2] bg-[#F8FAFB] px-2 py-0.5 text-xs text-gray-600"
+                data-cy={`announcement-new-post-attachment-${index}`}
+              >
+                {file.name}
+                <button
+                  type="button"
+                  className="border-0 bg-transparent p-0 text-gray-400 hover:text-gray-700"
+                  aria-label={`Remove ${file.name}`}
+                  onClick={() =>
+                    setFiles((current) =>
+                      current.filter(
+                        (currentFile, fileIndex) =>
+                          Boolean(currentFile) && fileIndex !== index,
+                      ),
+                    )
+                  }
+                  data-cy={`announcement-new-post-remove-attachment-${index}`}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div
-          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-136"
           className="mt-2 flex items-center justify-between gap-2"
+          data-cy="announcement-new-post-toolbar"
         >
           <div
-            data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-137"
             className="flex items-center gap-1"
+            data-cy="announcement-new-post-toolbar-actions"
           >
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={(event) => {
+                const next = Array.from(event.target.files ?? []);
+                if (next.length === 0) return;
+                setFiles((current) => [...current, ...next]);
+                event.target.value = '';
+              }}
+              data-cy="announcement-new-post-attach-input"
+            />
             <Tooltip title="Attach">
               <button
                 type="button"
                 className="rounded-md p-1.5 text-gray-500 hover:bg-gray-50"
                 aria-label="Attach"
+                onClick={() => fileInputRef.current?.click()}
                 data-cy="announcement-new-post-attach"
               >
                 <BsPaperclip size={16} />
@@ -176,21 +261,28 @@ const NewPostCard = ({
                 <BsTypeUnderline size={16} />
               </button>
             </Tooltip>
-            <Tooltip title="Emoji">
-              <button
-                type="button"
-                className="rounded-md p-1.5 text-gray-500 hover:bg-gray-50"
-                aria-label="Emoji"
-                data-cy="announcement-new-post-emoji"
-              >
-                <BsEmojiSmile size={16} />
-              </button>
-            </Tooltip>
+            <EmojiPickerButton
+              onSelect={(emoji) =>
+                setBody((current) => `${current}${emoji}`)
+              }
+              dataCy="announcement-new-post-emoji"
+            />
           </div>
           <button
             type="button"
             disabled={!canSend}
-            onClick={() => onSubmit({ title, body })}
+            onClick={() =>
+              onSubmit({
+                title,
+                body,
+                files,
+                mentions: resolveMentionsForPayload(
+                  body,
+                  mentionedUserIds,
+                  mentionUsers,
+                ),
+              })
+            }
             className="flex h-8 w-8 items-center justify-center rounded-lg transition disabled:cursor-not-allowed disabled:opacity-35"
             style={{ color: collaborationColors.primary }}
             aria-label="Send post"
@@ -200,19 +292,114 @@ const NewPostCard = ({
           </button>
         </div>
       </div>
-      <span
-        data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-span-182"
-        className="sr-only"
-      >
-        {authorName}
-      </span>
     </div>
   );
 };
 
-const PostCard = ({ post }: { post: ChannelPost }) => {
+const ReplyRow = ({ reply }: { reply: PostReply }) => (
+  <div
+    className="flex items-start gap-2.5 py-2"
+    data-cy={`announcement-post-reply-item-${reply.id}`}
+  >
+    <Avatar
+      size={24}
+      src={reply.authorAvatarUrl || undefined}
+      icon={!reply.authorAvatarUrl ? <UserOutlined /> : undefined}
+      style={{
+        backgroundColor: reply.authorAvatarUrl
+          ? undefined
+          : collaborationColors.primary,
+        flexShrink: 0,
+      }}
+    />
+    <div
+      className="min-w-0 flex-1"
+      data-cy={`announcement-reply-content-${reply.id}`}
+    >
+      <p
+        className="m-0 text-xs text-gray-400"
+        data-cy={`announcement-reply-meta-${reply.id}`}
+      >
+        <span
+          className="font-medium text-gray-700"
+          data-cy={`announcement-reply-author-${reply.id}`}
+        >
+          {reply.authorName}
+        </span>
+        {' · '}
+        {formatPostTimestamp(reply.createdAt)}
+      </p>
+      <p
+        className="m-0 mt-0.5 whitespace-pre-wrap text-sm text-gray-700"
+        data-cy={`announcement-reply-body-${reply.id}`}
+      >
+        {stripHtml(reply.body)}
+      </p>
+      <MessageAttachments
+        attachments={reply.attachments}
+        compact
+        dataCyPrefix={`announcement-post-reply-${reply.id}`}
+      />
+      <MessageReactions
+        messageId={reply.id}
+        initialReactions={reply.reactions}
+        dataCyPrefix={`announcement-post-reply-${reply.id}`}
+      />
+    </div>
+  </div>
+);
+
+const PostCard = ({
+  post,
+  channelId,
+  memberLookup,
+  mentionUsers,
+  mentionUsersLoading,
+}: {
+  post: ChannelPost;
+  channelId: string;
+  memberLookup: Map<string, SpaceMember>;
+  mentionUsers: MentionUser[];
+  mentionUsersLoading?: boolean;
+}) => {
   const { userData } = useAuthenticationStore();
-  const replyAvatar = userData?.profileImage || post.authorAvatarUrl;
+  const replyMutation = useReplyToCollabMessage();
+  const { data: replies = [], isLoading: repliesLoading } = useMessageThread(
+    post.id,
+    memberLookup,
+  );
+  const [replyText, setReplyText] = useState('');
+  const [replyFiles, setReplyFiles] = useState<File[]>([]);
+  const [mentionedUserIds, setMentionedUserIds] = useState<string[]>([]);
+  const replyFileInputRef = useRef<HTMLInputElement | null>(null);
+  const replyAvatar = userData?.profileImage;
+  const canSendReply =
+    Boolean(replyText.trim() || replyFiles.length > 0) &&
+    !replyMutation.isLoading;
+
+  const handleSubmitReply = async () => {
+    const content = replyText.trim();
+    if (!content && replyFiles.length === 0) return;
+
+    try {
+      await replyMutation.mutateAsync({
+        parentMessageId: post.id,
+        channelId,
+        content: content || replyFiles.map((file) => file.name).join(', '),
+        files: replyFiles,
+        mentions: resolveMentionsForPayload(
+          content,
+          mentionedUserIds,
+          mentionUsers,
+        ),
+      });
+      setReplyText('');
+      setReplyFiles([]);
+      setMentionedUserIds([]);
+    } catch {
+      /* mutation toast */
+    }
+  };
 
   return (
     <article
@@ -220,8 +407,8 @@ const PostCard = ({ post }: { post: ChannelPost }) => {
       data-cy={`announcement-post-${post.id}`}
     >
       <div
-        data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-196"
         className="flex items-start gap-3"
+        data-cy={`announcement-post-header-${post.id}`}
       >
         <Avatar
           size={40}
@@ -235,8 +422,8 @@ const PostCard = ({ post }: { post: ChannelPost }) => {
           }}
         />
         <div
-          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-208"
           className="min-w-0 flex-1"
+          data-cy={`announcement-post-content-${post.id}`}
         >
           {post.title ? (
             <h3
@@ -262,23 +449,42 @@ const PostCard = ({ post }: { post: ChannelPost }) => {
       >
         {stripHtml(post.body)}
       </p>
+      <MessageAttachments
+        attachments={post.attachments}
+        dataCyPrefix={`announcement-post-${post.id}`}
+      />
 
       <div
         className="mt-3 border-t border-[#F0F0F0] pt-2.5"
         data-cy={`announcement-post-reactions-${post.id}`}
       >
-        <button
-          type="button"
-          className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-[#E8EDF2] bg-transparent text-gray-400 transition hover:border-gray-300 hover:text-gray-600"
-          aria-label="Add reaction"
-          data-cy={`announcement-post-react-${post.id}`}
-        >
-          <BsEmojiSmile size={14} />
-        </button>
+        <MessageReactions
+          messageId={post.id}
+          initialReactions={post.reactions}
+          dataCyPrefix={`announcement-post-${post.id}`}
+        />
       </div>
 
+      {repliesLoading ? (
+        <div
+          className="mt-2.5 flex justify-center border-t border-[#F0F0F0] py-3"
+          data-cy={`announcement-post-replies-loading-${post.id}`}
+        >
+          <Spin size="small" />
+        </div>
+      ) : replies.length > 0 ? (
+        <div
+          className="mt-2.5 border-t border-[#F0F0F0] pt-1"
+          data-cy={`announcement-post-replies-${post.id}`}
+        >
+          {replies.map((reply) => (
+            <ReplyRow key={reply.id} reply={reply} />
+          ))}
+        </div>
+      ) : null}
+
       <div
-        className="mt-2.5 flex items-center gap-2.5 border-t border-[#F0F0F0] pt-3"
+        className="mt-2.5 flex items-start gap-2.5 border-t border-[#F0F0F0] pt-3"
         data-cy={`announcement-post-reply-${post.id}`}
       >
         <Avatar
@@ -292,11 +498,101 @@ const PostCard = ({ post }: { post: ChannelPost }) => {
             flexShrink: 0,
           }}
         />
-        <Input
-          placeholder="Write a reply..."
-          className="!rounded-full !border-[#E8EDF2] !bg-white !px-4 !py-1.5 !text-sm placeholder:!text-gray-400"
-          data-cy={`announcement-post-reply-input-${post.id}`}
-        />
+        <div
+          className="min-w-0 flex-1"
+          data-cy={`announcement-reply-composer-${post.id}`}
+        >
+          {replyFiles.length > 0 ? (
+            <div
+              className="mb-2 flex flex-wrap gap-1.5"
+              data-cy={`announcement-post-reply-pending-attachments-${post.id}`}
+            >
+              {replyFiles.map((file, index) => (
+                <span
+                  key={`${file.name}-${file.lastModified}-${index}`}
+                  className="inline-flex items-center gap-1 rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-600"
+                  data-cy={`announcement-post-reply-pending-attachment-${post.id}-${index}`}
+                >
+                  {file.name}
+                  <button
+                    type="button"
+                    className="border-0 bg-transparent p-0 text-gray-500"
+                    onClick={() =>
+                      setReplyFiles((current) =>
+                        current.filter((_, fileIndex) => fileIndex !== index),
+                      )
+                    }
+                    aria-label={`Remove ${file.name}`}
+                    data-cy={`announcement-post-reply-remove-attachment-${post.id}-${index}`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          ) : null}
+          <div className="flex items-center gap-1.5">
+            <input
+              ref={replyFileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={(event) => {
+                const selected = Array.from(event.target.files ?? []);
+                setReplyFiles((current) => [...current, ...selected]);
+                event.target.value = '';
+              }}
+              data-cy={`announcement-post-reply-file-input-${post.id}`}
+            />
+            <ChannelMentionTextArea
+              singleLine
+              value={replyText}
+              onChange={setReplyText}
+              mentionUsers={mentionUsers}
+              mentionUsersLoading={mentionUsersLoading}
+              mentionedUserIds={mentionedUserIds}
+              onMentionedUserIdsChange={setMentionedUserIds}
+              placeholder="Write a reply... use @ to mention"
+              disabled={replyMutation.isLoading}
+              onPressEnter={() => void handleSubmitReply()}
+              className="!rounded-full !border-[#E8EDF2] !bg-white !px-4 !py-1.5 !text-sm placeholder:!text-gray-400"
+              dataCy={`announcement-post-reply-input-${post.id}`}
+            />
+            <EmojiPickerButton
+              onSelect={(emoji) =>
+                setReplyText((current) => `${current}${emoji}`)
+              }
+              disabled={replyMutation.isLoading}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border-0 bg-transparent text-gray-500 disabled:opacity-35"
+              dataCy={`announcement-post-reply-emoji-${post.id}`}
+            />
+            <button
+              type="button"
+              disabled={replyMutation.isLoading}
+              onClick={() => replyFileInputRef.current?.click()}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border-0 bg-transparent text-gray-500 disabled:opacity-35"
+              aria-label="Attach files to reply"
+              data-cy={`announcement-post-reply-attach-${post.id}`}
+            >
+              <BsPaperclip size={15} />
+            </button>
+            <button
+              type="button"
+              disabled={!canSendReply}
+              onClick={() => void handleSubmitReply()}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border-0 bg-transparent transition disabled:cursor-not-allowed disabled:opacity-35"
+              style={{ color: collaborationColors.primary }}
+              aria-label="Send reply"
+              data-cy={`announcement-post-reply-send-${post.id}`}
+            >
+              {replyMutation.isLoading ? (
+                <Spin size="small" />
+              ) : (
+                <BsSendFill size={14} />
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </article>
   );
@@ -307,83 +603,157 @@ const ChannelPostsView = ({
   channel,
   onBack,
 }: ChannelPostsViewProps) => {
-  const { userData } = useAuthenticationStore();
-  const posts = useAnnouncementChannelsStore((state) => state.posts);
-  const channelMemberIds = useAnnouncementChannelsStore(
-    (state) => state.channelMemberIds,
+  const memberLookup = useCollaborationMemberLookup();
+  const { userId: currentUserId, tenantId } = useAuthenticationStore();
+  const queryClient = useQueryClient();
+  const createMessage = useCreateCollabMessage();
+  const addChannelMembers = useAddCollabChannelMembers();
+  const { data: channelPosts = [], isLoading } = useChannelPosts(
+    channel.id,
+    space.id,
+    memberLookup,
   );
-  const addPost = useAnnouncementChannelsStore((state) => state.addPost);
-  const addChannelMembers = useAnnouncementChannelsStore(
-    (state) => state.addChannelMembers,
-  );
+  const { data: channelMembers = [], isLoading: channelMembersLoading } =
+    useChannelMembers(channel.id, memberLookup);
+
   const [composerOpen, setComposerOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const canManageMembers = isCollabAdminRole(space.currentUserRole);
 
-  const channelPosts = useMemo(
-    () => posts.filter((post) => post.channelId === channel.id),
-    [posts, channel.id],
+  // Public channels inherit the space roster. Private channels expose only
+  // users explicitly returned by GET /channel-members.
+  const rosterMembers = useMemo(() => {
+    const byId = new Map<string, SpaceMember>();
+    if (!channel.isPrivate) {
+      (space.members ?? []).forEach((member) => byId.set(member.id, member));
+    }
+    channelMembers.forEach((member) => byId.set(member.id, member));
+    return Array.from(byId.values());
+  }, [channel.isPrivate, space.members, channelMembers]);
+
+  const mentionUsers = useMemo(
+    () => spaceMembersToMentionUsers(rosterMembers, currentUserId),
+    [rosterMembers, currentUserId],
   );
 
-  const addedMemberIds = channelMemberIds[channel.id] ?? [];
-
-  const availableSpaceMembers = useMemo(
-    () =>
-      (space.members ?? []).filter(
-        (member) => !addedMemberIds.includes(member.id),
-      ),
-    [space.members, addedMemberIds],
+  const existingMemberIds = useMemo(
+    () => new Set(rosterMembers.map((member) => member.id)),
+    [rosterMembers],
   );
+
+  // Public channels add people to the space. Private channels invite anyone
+  // not already in that channel, including existing space members.
+  const { members: availableOrgMembers, isLoading: orgMembersLoading } =
+    useAvailableOrgMembers(existingMemberIds);
 
   useEffect(() => {
     setComposerOpen(false);
-    setSubmitting(false);
     setAddMemberOpen(false);
   }, [channel.id]);
 
-  const handleAddMembers = (memberIds: string[]) => {
-    addChannelMembers(channel.id, memberIds);
-    NotificationMessage.success({
-      message: 'Members added',
-      description: `${memberIds.length} member${
-        memberIds.length === 1 ? '' : 's'
-      } added to #${channel.name}.`,
-    });
-  };
+  const handleAddMembers = async (memberIds: string[]) => {
+    const membersQueryKey = getChannelMembersQueryKey(
+      tenantId,
+      resolveCollabUserId(),
+      channel.id,
+    );
 
-  const handleCreatePost = (values: { title: string; body: string }) => {
-    const title = values.title.trim();
-    const body = values.body.trim();
-    if (!title && !body) {
-      NotificationMessage.warning({
-        message: 'Add a subject or message',
+    let addedIds: string[] = [];
+    try {
+      // Public channels: POST /space-members only (members join public channels
+      // by default). Private channels also get POST /channel-members/bulk.
+      addedIds = await addChannelMembers.mutateAsync({
+        channelId: channel.id,
+        spaceId: space.id,
+        isPrivateChannel: Boolean(channel.isPrivate),
+        memberIds,
+        existingSpaceMemberIds: (space.members ?? []).map(
+          (member) => member.id,
+        ),
+        memberLookup,
+      });
+    } catch (error) {
+      NotificationMessage.error({
+        message: 'Could not add members',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'Check Collaboration permissions and try again.',
       });
       return;
     }
 
-    setSubmitting(true);
-    window.setTimeout(() => {
-      addPost({
-        spaceId: space.id,
-        channelId: channel.id,
-        title: title || stripHtml(body).slice(0, 80),
-        body: body || title,
-        authorName:
-          [userData?.firstName, userData?.middleName, userData?.lastName]
-            .filter(Boolean)
-            .join(' ') ||
-          userData?.fullName ||
-          userData?.email ||
-          'You',
-        authorAvatarUrl: userData?.profileImage,
+    const confirmedIds = addedIds.length > 0 ? addedIds : memberIds;
+
+    // Seed mention/count caches immediately from API-confirmed ids.
+    queryClient.setQueryData<SpaceMember[]>(membersQueryKey, (prev) =>
+      mergeChannelMembers(prev, confirmedIds, memberLookup),
+    );
+    queryClient.setQueriesData(
+      collaborationQueryKeys.catalog,
+      (prev: CollaborationSpace[] | undefined) =>
+        mergeMembersIntoCatalogSpaces(
+          prev,
+          space.id,
+          confirmedIds,
+          memberLookup,
+        ),
+    );
+
+    void queryClient.invalidateQueries(collaborationQueryKeys.catalog);
+    void queryClient
+      .refetchQueries(membersQueryKey)
+      .then(() =>
+        queryClient.setQueryData<SpaceMember[]>(membersQueryKey, (prev) =>
+          mergeChannelMembers(prev, confirmedIds, memberLookup),
+        ),
+      )
+      .catch(() => {
+        /* keep seeded list */
       });
-      setSubmitting(false);
+
+    NotificationMessage.success({
+      message: 'Members added',
+      description: `${confirmedIds.length} member${
+        confirmedIds.length === 1 ? '' : 's'
+      } added to ${space.name}${
+        channel.isPrivate ? ` / #${channel.name}` : ''
+      }.`,
+    });
+  };
+
+  const handleCreatePost = async (values: {
+    title: string;
+    body: string;
+    files: File[];
+    mentions: ReturnType<typeof resolveMentionsForPayload>;
+  }) => {
+    const title = values.title.trim();
+    const body = values.body.trim();
+    if (!title && !body && values.files.length === 0) {
+      NotificationMessage.warning({
+        message: 'Add a subject, message, or attachment',
+      });
+      return;
+    }
+
+    try {
+      await createMessage.mutateAsync({
+        channelId: channel.id,
+        title: title || stripHtml(body).slice(0, 80) || values.files[0]?.name,
+        content:
+          body || title || values.files.map((file) => file.name).join(', '),
+        mentions: values.mentions,
+        files: values.files,
+      });
       setComposerOpen(false);
       NotificationMessage.success({
         message: 'Post created',
         description: `Your post was published to #${channel.name}.`,
       });
-    }, 400);
+    } catch {
+      /* mutation toast */
+    }
   };
 
   return (
@@ -397,8 +767,8 @@ const ChannelPostsView = ({
         data-cy="announcement-channel-topbar"
       >
         <div
-          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-367"
           className="flex min-w-0 flex-wrap items-center gap-3"
+          data-cy="announcement-channel-identity"
         >
           {onBack ? (
             <button
@@ -411,15 +781,13 @@ const ChannelPostsView = ({
             </button>
           ) : null}
           <div
-            data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-378"
             className="flex min-w-0 items-center gap-2"
+            data-cy="announcement-channel-title"
           >
             <span
-              data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-span-379"
               className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white"
-              style={{
-                color: collaborationColors.primary,
-              }}
+              style={{ color: collaborationColors.primary }}
+              data-cy="announcement-channel-icon"
             >
               <MdOutlineCampaign size={16} />
             </span>
@@ -433,8 +801,8 @@ const ChannelPostsView = ({
         </div>
 
         <div
-          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-396"
           className="flex items-center gap-2"
+          data-cy="announcement-channel-actions"
         >
           <Button
             type="primary"
@@ -443,15 +811,27 @@ const ChannelPostsView = ({
           >
             + Add post
           </Button>
-          <Tooltip title="Add member">
-            <Button
-              type="default"
-              icon={<UserAddOutlined />}
-              onClick={() => setAddMemberOpen(true)}
-              aria-label="Add member"
-              data-cy="announcement-add-member"
-            />
-          </Tooltip>
+          {canManageMembers ? (
+            <Tooltip
+              title={
+                channel.isPrivate
+                  ? 'Invite member to private channel'
+                  : 'Add member to space'
+              }
+            >
+              <Button
+                type="default"
+                icon={<UserAddOutlined />}
+                onClick={() => setAddMemberOpen(true)}
+                aria-label={
+                  channel.isPrivate
+                    ? 'Invite member to private channel'
+                    : 'Add member to space'
+                }
+                data-cy="announcement-add-member"
+              />
+            </Tooltip>
+          ) : null}
         </div>
       </header>
 
@@ -460,40 +840,51 @@ const ChannelPostsView = ({
         data-cy="announcement-channel-feed"
       >
         <div
-          data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-div-420"
           className="mx-auto flex w-full max-w-2xl flex-col gap-4"
+          data-cy="announcement-channel-feed-content"
         >
           {composerOpen ? (
             <NewPostCard
               channelName={channel.name}
-              submitting={submitting}
+              submitting={createMessage.isLoading}
+              mentionUsers={mentionUsers}
+              mentionUsersLoading={channelMembersLoading}
               onCancel={() => setComposerOpen(false)}
-              onSubmit={handleCreatePost}
+              onSubmit={(values) => void handleCreatePost(values)}
             />
           ) : null}
 
-          {channelPosts.length === 0 && !composerOpen ? (
+          {isLoading ? (
+            <div
+              className="flex min-h-[220px] items-center justify-center"
+              data-cy="announcement-posts-loading"
+            >
+              <Spin />
+            </div>
+          ) : null}
+
+          {!isLoading && channelPosts.length === 0 && !composerOpen ? (
             <div
               className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-[#D1D5DB] bg-transparent px-4"
               data-cy="announcement-posts-empty"
             >
               <p
-                data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-p-435"
                 className="m-0 text-center text-sm text-gray-500"
+                data-cy="announcement-posts-empty-text"
               >
                 No posts yet. Create a new post.
               </p>
             </div>
           ) : null}
 
-          {channelPosts.length === 0 && composerOpen ? (
+          {!isLoading && channelPosts.length === 0 && composerOpen ? (
             <div
               className="flex min-h-[140px] items-center justify-center rounded-xl border border-dashed border-[#D1D5DB] px-4"
               data-cy="announcement-posts-empty-behind-composer"
             >
               <p
-                data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-p-446"
                 className="m-0 text-center text-sm text-gray-500"
+                data-cy="announcement-posts-empty-composer-text"
               >
                 No posts yet. Create a new post.
               </p>
@@ -501,27 +892,62 @@ const ChannelPostsView = ({
           ) : null}
 
           {channelPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard
+              key={post.id}
+              post={post}
+              channelId={channel.id}
+              memberLookup={memberLookup}
+              mentionUsers={mentionUsers}
+              mentionUsersLoading={channelMembersLoading}
+            />
           ))}
         </div>
       </div>
 
       <AddMembersModal
         open={addMemberOpen}
-        title={`Add members to #${channel.name}`}
-        description={
-          <>
-            Choose members from{' '}
-            <strong data-cy="organization-announcement-components-channelpostsview-tsx-channelpostsview-strong-463">
-              {space.name}
-            </strong>{' '}
-            to add to this channel.
-          </>
+        title={
+          channel.isPrivate
+            ? `Invite members to #${channel.name}`
+            : `Add members to ${space.name}`
         }
-        members={availableSpaceMembers}
-        emptyText="All space members are already on this channel."
+        description={
+          channel.isPrivate ? (
+            <>
+              Only invited members can access{' '}
+              <strong data-cy="announcement-private-channel-name">
+                #{channel.name}
+              </strong>
+              . People outside{' '}
+              <strong data-cy="announcement-private-channel-space-name">
+                {space.name}
+              </strong>{' '}
+              will be added to the space before receiving the private-channel
+              invitation.
+            </>
+          ) : (
+            <>
+              Add people to{' '}
+              <strong data-cy="announcement-public-channel-space-name">
+                {space.name}
+              </strong>
+              . Public channels like{' '}
+              <strong data-cy="announcement-public-channel-name">
+                #{channel.name}
+              </strong>{' '}
+              inherit the space roster automatically.
+            </>
+          )
+        }
+        members={availableOrgMembers}
+        loading={orgMembersLoading}
+        emptyText={
+          channel.isPrivate
+            ? 'All organization employees are already invited to this channel.'
+            : 'All organization employees are already members of this space.'
+        }
         onClose={() => setAddMemberOpen(false)}
-        onAdd={handleAddMembers}
+        onAdd={(memberIds) => void handleAddMembers(memberIds)}
       />
     </div>
   );

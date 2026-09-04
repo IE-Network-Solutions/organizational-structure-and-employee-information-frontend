@@ -10,6 +10,7 @@ import {
   Modal,
   Popconfirm,
   Row,
+  Spin,
   Typography,
   type MenuProps,
 } from 'antd';
@@ -22,7 +23,9 @@ import {
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
 import { MdTag } from 'react-icons/md';
 import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
+import { useCollaborationCatalog } from '@/store/server/features/collaboration';
 import AnnouncementIntegrationWizard from './AnnouncementIntegrationWizard';
+import { useCollaborationMemberLookup } from './useCollaborationMemberLookup';
 
 const { Title, Paragraph } = Typography;
 
@@ -34,7 +37,8 @@ type AnnouncementSettingsPanelProps = {
 const AnnouncementSettingsPanel = ({
   showIntro = true,
 }: AnnouncementSettingsPanelProps) => {
-  const spaces = useAnnouncementChannelsStore((state) => state.spaces);
+  const memberLookup = useCollaborationMemberLookup();
+  const { data: spaces = [], isLoading } = useCollaborationCatalog(memberLookup);
   const enabledChannelIds = useAnnouncementChannelsStore(
     (state) => state.enabledChannelIds,
   );
@@ -81,13 +85,15 @@ const AnnouncementSettingsPanel = ({
   };
 
   const confirmRemoveSpace = (spaceId: string, spaceName: string) => {
+    const space = spaces.find((item) => item.id === spaceId);
+    const channelIds = space?.channels.map((channel) => channel.id) ?? [];
     Modal.confirm({
       title: 'Remove this space from Announcement?',
       content: `All integrated channels from “${spaceName}” will be removed.`,
       okText: 'Remove',
       okButtonProps: { danger: true },
       cancelText: 'Cancel',
-      onOk: () => removeSpaceIntegration(spaceId),
+      onOk: () => removeSpaceIntegration(spaceId, channelIds),
     });
   };
 
@@ -141,7 +147,11 @@ const AnnouncementSettingsPanel = ({
         onClose={closeIntegrationWizard}
       />
 
-      {isEmpty ? (
+      {isLoading ? (
+        <div className="flex min-h-[160px] items-center justify-center">
+          <Spin />
+        </div>
+      ) : isEmpty ? (
         <Card
           className="mx-1 border border-dashed border-[#D9D9D9] shadow-none"
           data-cy="org-settings-announcement-empty"

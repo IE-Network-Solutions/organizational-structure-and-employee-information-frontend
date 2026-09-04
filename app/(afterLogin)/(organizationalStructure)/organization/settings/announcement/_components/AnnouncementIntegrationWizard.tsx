@@ -5,7 +5,12 @@ import { Button, Checkbox, Input, Modal, Steps, message } from 'antd';
 import { LockOutlined, SearchOutlined } from '@ant-design/icons';
 import { MdTag } from 'react-icons/md';
 import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
+import {
+  useCollaborationBootstrap,
+  useCollaborationCatalog,
+} from '@/store/server/features/collaboration';
 import type { CollaborationSpace } from '@/app/(afterLogin)/(organizationalStructure)/organization/announcement/_components/mockAnnouncementService';
+import { useCollaborationMemberLookup } from '@/app/(afterLogin)/(organizationalStructure)/organization/announcement/_components/useCollaborationMemberLookup';
 
 const STEP_ITEMS = [{ title: 'Select Space' }, { title: 'Select Channel' }];
 
@@ -80,7 +85,12 @@ const AnnouncementIntegrationWizard = ({
   focusSpaceId,
   onClose,
 }: AnnouncementIntegrationWizardProps) => {
-  const spaces = useAnnouncementChannelsStore((state) => state.spaces);
+  const memberLookup = useCollaborationMemberLookup();
+  const bootstrapQuery = useCollaborationBootstrap(open);
+  const { data: spaces = [] } = useCollaborationCatalog(
+    memberLookup,
+    open && bootstrapQuery.isSuccess,
+  );
   const enabledChannelIds = useAnnouncementChannelsStore(
     (state) => state.enabledChannelIds,
   );

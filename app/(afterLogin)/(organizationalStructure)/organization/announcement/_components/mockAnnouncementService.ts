@@ -108,7 +108,7 @@ export type CollaborationChannel = {
   description?: string;
   /** Threads = chat timeline; Posts = announcements / forum. */
   channelType?: 'threads' | 'posts';
-  /** Channels created from Announcement are always public. */
+  /** Private channels use an explicit channel-member roster. */
   isPrivate?: boolean;
 };
 
@@ -120,6 +120,8 @@ export type CollaborationSpace = {
   description?: string;
   memberCount?: number;
   isPrivate?: boolean;
+  /** Current user's effective role in the Collaboration space. */
+  currentUserRole?: string | null;
   /** True when the current user has an unread @mention in this space. */
   hasMention?: boolean;
   /** True when there is unread activity without a mention (red dot). */
