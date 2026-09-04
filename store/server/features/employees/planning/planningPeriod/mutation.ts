@@ -12,6 +12,13 @@ import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 
+function invalidatePlanningPeriodAssignmentQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
+  queryClient.invalidateQueries('planningPeriods');
+  queryClient.invalidateQueries('assignedUserPlanningPeriods');
+}
+
 const updatePlanningPeriod = async (id: string, data: PlanningPeriodItem) => {
   const token = await getCurrentToken();
   return crudRequest({
@@ -98,7 +105,8 @@ export const useUpdatePlanningPeriod = () => {
       updatePlanningPeriod(params.id, params.data),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('planningPeriods'); // Adjust the query key as necessary
+        queryClient.invalidateQueries('planningPeriods');
+        queryClient.invalidateQueries('assignedUserPlanningPeriods');
         NotificationMessage.success({
           message: 'Successfully Updated',
           description: 'Planning period successfully updated.',
@@ -123,7 +131,7 @@ export const useDeletePlanningPeriod = () => {
 
   return useMutation((id: string) => deletePlanningPeriod(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries('planningPeriods'); // Adjust the query key as necessary
+      invalidatePlanningPeriodAssignmentQueries(queryClient);
       NotificationMessage.success({
         message: 'Successfully Deleted',
         description: 'Planning period successfully deleted.',
@@ -139,7 +147,7 @@ export const useAssignPlanningPeriodToUsers = () => {
       onSuccess: () => {
         // Invalidate all queries that start with 'allPlanningPeriodUser' to catch all parameter variations
         queryClient.invalidateQueries(['allPlanningPeriodUser']);
-        queryClient.invalidateQueries(['planningPeriods']);
+        invalidatePlanningPeriodAssignmentQueries(queryClient);
         queryClient.invalidateQueries(['allPlanningPeriodUserGroupedByUser']);
         NotificationMessage.success({
           message: 'Successfully Assigned',
@@ -157,7 +165,7 @@ export const useUpdateAssignPlanningPeriodToUsers = () => {
       onSuccess: () => {
         // Invalidate all queries that start with 'allPlanningPeriodUser' to catch all parameter variations
         queryClient.invalidateQueries(['allPlanningPeriodUser']);
-        queryClient.invalidateQueries(['planningPeriods']);
+        invalidatePlanningPeriodAssignmentQueries(queryClient);
         queryClient.invalidateQueries(['allPlanningPeriodUserGroupedByUser']);
         NotificationMessage.success({
           message: 'Successfully Updated',
@@ -185,7 +193,7 @@ export const useDeletePlanningUser = () => {
       onSuccess: () => {
         // Invalidate all queries that start with 'allPlanningPeriodUser' to catch all parameter variations
         queryClient.invalidateQueries(['allPlanningPeriodUser']);
-        queryClient.invalidateQueries(['planningPeriods']);
+        invalidatePlanningPeriodAssignmentQueries(queryClient);
         queryClient.invalidateQueries(['allPlanningPeriodUserGroupedByUser']);
         NotificationMessage.success({
           message: 'Successfully Deleted',
@@ -201,7 +209,8 @@ export const useUpdatePlanningStatus = () => {
     (planningPeriodId: any) => updatePlanningPeriodStatus(planningPeriodId),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries('planningPeriods'); // Adjust the query key as necessary
+        queryClient.invalidateQueries('planningPeriods');
+        queryClient.invalidateQueries('assignedUserPlanningPeriods');
         NotificationMessage.success({
           message: 'Successfully Deleted',
           description: 'Planning User successfully Deleted.',

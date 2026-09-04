@@ -37,7 +37,9 @@ export function useReportingData(enabled = true) {
   const effectiveSelectedUsers = useEffectivePlanUserIds();
 
   const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ||
+    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId ||
+    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
   const sessionId =
     selectedSessionIds.length > 0

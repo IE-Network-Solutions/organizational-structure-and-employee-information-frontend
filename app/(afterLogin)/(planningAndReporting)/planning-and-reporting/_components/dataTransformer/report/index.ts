@@ -1,3 +1,5 @@
+import { getReportTaskDisplayScore } from '@/utils/reportTaskDisplayScore';
+
 export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
   if (reportTasks.length === 0) return [];
   const keyResultMap = reportTasks?.reduce((acc: any, task: any) => {
@@ -18,8 +20,8 @@ export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
       taskName: task.planTask?.task,
       priority: task?.planTask?.priority,
       status: task?.status,
-      actualValue: task?.actualValue || 0,
-      targetValue: task?.planTask?.targetValue || 0,
+      actualValue: getReportTaskDisplayScore(task),
+      targetValue: task?.planTask?.targetValue ?? 0,
       keyResult: task?.planTask?.keyResult,
       isAchieved: task.isAchieved,
       achieveMK: task?.planTask?.achieveMK,

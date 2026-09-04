@@ -200,9 +200,13 @@ const getAllPlanningPeriods = async () => {
   });
 };
 
+/** Assigned periods for the logged-in user — not the tenant period catalog. */
+export const ASSIGNED_USER_PLANNING_PERIODS_QUERY_KEY =
+  'assignedUserPlanningPeriods';
+
 export const AllPlanningPeriods = () => {
   return useQuery<AssignedPlanningPeriodLogArray>(
-    'planningPeriods',
+    ASSIGNED_USER_PLANNING_PERIODS_QUERY_KEY,
     getAllPlanningPeriods,
     { staleTime: 5 * 60_000 },
   );

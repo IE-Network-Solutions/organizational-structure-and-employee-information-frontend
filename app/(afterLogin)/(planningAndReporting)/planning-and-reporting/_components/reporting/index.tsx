@@ -26,6 +26,7 @@ import { canApproveSubordinateWork, formatPlanningReportDate } from '../utils';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
+import { usePlanningPeriodOkrEffect } from '@/hooks/usePlanningPeriodOkrEffect';
 
 function Reporting({
   onHoverKR,
@@ -110,7 +111,7 @@ function Reporting({
   };
 
   const handleApproveHandler = (id: string, value: boolean) => {
-    ReportApproval({ id, value });
+    ReportApproval({ id, value, applyToOkr: affectsOkr });
   };
 
   const isDataFromActiveSession = (createdAt: string): boolean => {
@@ -132,6 +133,7 @@ function Reporting({
   };
 
   const cadence = (activeTabName?.toLowerCase() as Cadence) || 'weekly';
+  const { affectsOkr } = usePlanningPeriodOkrEffect(planningPeriodId);
   const isDesktop = !isMobile && !isTablet;
   const [inlineEditingReport, setInlineEditingReport] = useState<{
     reportId: string;
