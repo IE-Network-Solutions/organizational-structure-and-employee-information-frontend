@@ -535,24 +535,6 @@ export const transformReportToPlanSummary = (
       finalMilestones = [];
     }
 
-    // Collect ALL tasks from this key result including:
-    // - Direct tasks
-    // - Tasks in milestones (only for milestone metric type)
-    // - Tasks in parent tasks within milestones (only for milestone metric type)
-    // - Tasks in parent tasks at key result level
-    const allTasks = [
-      ...finalTasks.filter((t: any) => reportGroupedTaskHasContent(t)),
-      ...finalMilestones.flatMap((m: any) => [
-        ...(m.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
-        ...(m.parentTask || []).flatMap((p: any) =>
-          (p.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
-        ),
-      ]),
-      ...finalParentTasks.flatMap((p: any) =>
-        (p.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
-      ),
-    ];
-
     const currentValue = getKeyResultCurrentValue(kr);
     const initialValue = kr.initialValue;
     const resolvedTarget = kr.targetValue || 0;
