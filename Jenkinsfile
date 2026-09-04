@@ -134,7 +134,10 @@ pipeline {
                                 rm -rf "${env.REPO_DIR}"
                                 git clone ${env.REPO_URL} -b ${env.BRANCH_NAME} ${env.REPO_DIR}
                             else
-                                cd ${env.REPO_DIR} && git reset --hard HEAD && git pull origin ${env.BRANCH_NAME}
+                                cd ${env.REPO_DIR} &&
+                                git fetch origin ${env.BRANCH_NAME} &&
+                                git reset --hard origin/${env.BRANCH_NAME} &&
+                                git clean -fdx
                             fi
                         '
                     """
