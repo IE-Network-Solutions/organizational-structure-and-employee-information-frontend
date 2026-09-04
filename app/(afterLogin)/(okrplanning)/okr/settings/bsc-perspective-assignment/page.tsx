@@ -1,10 +1,13 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Input, Select, Space } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import React, { useMemo, useState } from 'react';
+import { Button, Popover, Select } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useRouter } from 'next/navigation';
 import EmptyState from '@/components/empty';
+import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
+import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import {
   useGetBscCycles,
   useGetBscKpiLibrary,
@@ -14,10 +17,9 @@ import { useBscUiStore } from '@/store/uistate/features/bsc';
 import { buildRoleList } from '../bsc-setup/_utils/roleList';
 import AssignPerspectivesModal from './_components/AssignPerspectivesModal';
 
-const { Option } = Select;
-
 export default function BscPerspectiveAssignmentPage() {
   const router = useRouter();
+  const [filterOpen, setFilterOpen] = useState(false);
   const {
     roleSearch,
     setRoleSearch,
@@ -107,30 +109,92 @@ export default function BscPerspectiveAssignmentPage() {
           </div>
         ) : (
           <>
-            <Space className="mb-6 w-full" wrap>
-              <Input
-                allowClear
+            <div
+              className="mb-6 flex justify-between gap-4"
+              data-cy="bsc-assignment-toolbar"
+            >
+              <BscSearchInput
                 placeholder="Search roles or departments"
-                prefix={<SearchOutlined />}
                 value={roleSearch}
-                onChange={(e) => setRoleSearch(e.target.value)}
-                className="w-72"
+                onChange={setRoleSearch}
                 data-cy="bsc-assignment-role-search"
               />
-              <Select
-                allowClear
-                placeholder="Filter by department"
-                className="w-56"
-                value={roleDepartmentFilter}
-                onChange={setRoleDepartmentFilter}
+              <Popover
+                content={
+                  <div
+                    className="w-[320px] max-w-[320px]"
+                    data-cy="bsc-assignment-filter-popover"
+                  >
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-gray-700">
+                        Department
+                      </label>
+                      <Select
+                        allowClear
+                        showSearch
+                        placeholder="Filter by department"
+                        className="w-full h-10 rounded-lg"
+                        value={roleDepartmentFilter}
+                        onChange={setRoleDepartmentFilter}
+                        options={departments.map((d) => ({
+                          value: d,
+                          label: d,
+                        }))}
+                        data-cy="bsc-assignment-filter-dept-select"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100">
+                      <Button
+                        onClick={() => setRoleDepartmentFilter(undefined)}
+                        className="h-8 px-4 rounded-lg text-xs text-gray-700 border-gray-300"
+                      >
+                        Reset
+                      </Button>
+                      <Button
+                        type="primary"
+                        onClick={() => setFilterOpen(false)}
+                        className="h-8 px-4 rounded-lg text-xs bg-okr-primary border-okr-primary"
+                      >
+                        Save Filter
+                      </Button>
+                    </div>
+                  </div>
+                }
+                title={
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-base font-bold text-gray-900 m-0">
+                        Filter
+                      </h3>
+                      <p className="text-xs text-gray-500 mt-1 mb-0">
+                        Select all filters that apply
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setFilterOpen(false)}
+                      className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"
+                    >
+                      <CloseOutlined />
+                    </button>
+                  </div>
+                }
+                trigger="click"
+                open={filterOpen}
+                onOpenChange={setFilterOpen}
+                placement="bottomRight"
+                arrow={false}
               >
-                {departments.map((d) => (
-                  <Option key={d} value={d}>
-                    {d}
-                  </Option>
-                ))}
-              </Select>
-            </Space>
+                <Button
+                  type="default"
+                  className={bscFilterButtonClassName}
+                  icon={<FilterAltOutlinedIcon className="py-1" />}
+                  data-cy="bsc-assignment-filter"
+                >
+                  Filter
+                </Button>
+              </Popover>
+            </div>
 
             <div
               data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-126"
@@ -178,17 +242,17 @@ export default function BscPerspectiveAssignmentPage() {
                           <div
                             data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-159"
                             key={name}
-                            className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
+                            className="rounded-[6px] border border-[#91caff] bg-[#e6f4ff] px-3 py-1.5 text-[12px] text-[#1677ff]"
                           >
-                            {name} {weight}%
+                            {name} {Number(weight)}%
                           </div>
                         ))
                       ) : (
                         <div
-                          data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-167"
-                          className="rounded-[6px] border border-[#d9d9d9] bg-[#fafafa] px-3 py-1.5 text-[12px] text-[#595959]"
+                          data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-168"
+                          className="rounded-[6px] border border-dashed border-[#d9d9d9] bg-white px-3 py-1.5 text-[12px] text-[#8c8c8c]"
                         >
-                          Not assigned
+                          No perspectives yet
                         </div>
                       )}
                     </div>
@@ -199,7 +263,7 @@ export default function BscPerspectiveAssignmentPage() {
 
             {!filtered.length && (
               <div
-                data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-178"
+                data-cy="okr-settings-bsc-perspective-assignment-page-tsx-page-div-180"
                 className="py-12 text-center text-gray-400"
               >
                 No roles match your search

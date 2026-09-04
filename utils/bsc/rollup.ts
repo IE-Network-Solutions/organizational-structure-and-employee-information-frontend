@@ -1,9 +1,10 @@
 import {
   EmployeeScorecard,
   KpiApprovalStatus,
+  ScorecardKpiTarget,
   ScorecardStatus,
 } from '@/types/bsc';
-import { computeCompositeScore } from '@/utils/bsc/scoring';
+import { computeCompositeScore, normalizeRatio } from '@/utils/bsc/scoring';
 
 export function isScorecardEvaluated(scorecard: EmployeeScorecard): boolean {
   return (
@@ -113,4 +114,198 @@ export function departmentRollups(cards: EmployeeScorecard[]): RollupSummary[] {
   return names.map((name) =>
     computeRollup(cards, { scope: 'department', departmentName: name }),
   );
+}
+
+/** Achievement % for a single target; null when not yet reported. */
+export function targetScorePercent(target: ScorecardKpiTarget): number | null {
+  if (target.actualValue == null) return null;
+  const { ratio } = normalizeRatio(
+    target.actualValue,
+    target.targetValue,
+    target.targetLogic,
+    { worstCase: target.worstCase, bestCase: target.bestCase },
+  );
+  return Math.min(Math.max(ratio, 0), 1) * 100;
+}
+
+export type KpiContributor = {
+  scorecard: EmployeeScorecard;
+  target: ScorecardKpiTarget;
+  score: number | null;
+  evaluated: boolean;
+};
+
+function averageFromScores(scores: number[]): number {
+  if (!scores.length) return 0;
+  return scores.reduce((sum, value) => sum + value, 0) / scores.length;
+}
+
+function rollupFromScores(
+  scores: Array<number | null>,
+  label: string,
+  scope: 'company' | 'department',
+  departmentName?: string,
+): RollupSummary {
+  const evaluated = scores.filter((s): s is number => s != null);
+  return {
+    scope,
+    label,
+    departmentName,
+    averageScore: averageFromScores(evaluated),
+    evaluatedCount: evaluated.length,
+    totalCount: scores.length,
+    pendingCount: scores.length - evaluated.length,
+  };
+}
+
+export function kpiContributors(
+  cards: EmployeeScorecard[],
+  kpiLibraryId: string,
+): KpiContributor[] {
+  const rows: KpiContributor[] = [];
+  for (const scorecard of cards) {
+    for (const target of scorecard.targets) {
+      if (target.kpiLibraryId !== kpiLibraryId) continue;
+      const score = targetScorePercent(target);
+      rows.push({
+        scorecard,
+        target,
+        score,
+        evaluated: score != null,
+      });
+    }
+  }
+  return rows.sort((a, b) => {
+    if (a.evaluated !== b.evaluated) return a.evaluated ? -1 : 1;
+    return (b.score || 0) - (a.score || 0);
+  });
+}
+
+export function computeKpiRollup(
+  cards: EmployeeScorecard[],
+  kpiLibraryId: string,
+  options?: { scope: 'company' | 'department'; departmentName?: string },
+): RollupSummary {
+  const scope = options?.scope || 'company';
+  const departmentName = options?.departmentName;
+  const pool =
+    scope === 'department' && departmentName
+      ? cards.filter((c) => c.departmentName === departmentName)
+      : cards;
+  const contributors = kpiContributors(pool, kpiLibraryId);
+  return rollupFromScores(
+    contributors.map((c) => c.score),
+    scope === 'department' && departmentName ? departmentName : 'Company-wide',
+    scope,
+    departmentName,
+  );
+}
+
+export function departmentRollupsForKpi(
+  cards: EmployeeScorecard[],
+  kpiLibraryId: string,
+): RollupSummary[] {
+  const names = Array.from(
+    new Set(
+      kpiContributors(cards, kpiLibraryId)
+        .map((c) => c.scorecard.departmentName)
+        .filter((name): name is string => Boolean(name)),
+    ),
+  ).sort();
+  return names.map((name) =>
+    computeKpiRollup(cards, kpiLibraryId, {
+      scope: 'department',
+      departmentName: name,
+    }),
+  );
+}
+
+export type PerspectiveKpiProgress = {
+  kpiLibraryId: string;
+  kpiName: string;
+  measurementUnit: string;
+  averageScore: number;
+  evaluatedCount: number;
+  totalCount: number;
+  pendingCount: number;
+};
+
+/** Perspective-level score for one person (avg of reported KPIs in that perspective). */
+export function perspectiveScoreOnScorecard(
+  scorecard: EmployeeScorecard,
+  perspectiveName: string,
+): number | null {
+  const scores = scorecard.targets
+    .filter((t) => t.perspective === perspectiveName)
+    .map(targetScorePercent)
+    .filter((s): s is number => s != null);
+  if (!scores.length) return null;
+  return averageFromScores(scores);
+}
+
+export function computePerspectiveRollup(
+  cards: EmployeeScorecard[],
+  perspectiveName: string,
+  options?: { scope: 'company' | 'department'; departmentName?: string },
+): RollupSummary {
+  const scope = options?.scope || 'company';
+  const departmentName = options?.departmentName;
+  const pool =
+    scope === 'department' && departmentName
+      ? cards.filter((c) => c.departmentName === departmentName)
+      : cards;
+  const withPerspective = pool.filter((c) =>
+    c.targets.some((t) => t.perspective === perspectiveName),
+  );
+  const scores = withPerspective.map((c) =>
+    perspectiveScoreOnScorecard(c, perspectiveName),
+  );
+  return rollupFromScores(
+    scores,
+    scope === 'department' && departmentName ? departmentName : 'Company-wide',
+    scope,
+    departmentName,
+  );
+}
+
+export function departmentRollupsForPerspective(
+  cards: EmployeeScorecard[],
+  perspectiveName: string,
+): RollupSummary[] {
+  const names = Array.from(
+    new Set(
+      cards
+        .filter((c) => c.targets.some((t) => t.perspective === perspectiveName))
+        .map((c) => c.departmentName)
+        .filter((name): name is string => Boolean(name)),
+    ),
+  ).sort();
+  return names.map((name) =>
+    computePerspectiveRollup(cards, perspectiveName, {
+      scope: 'department',
+      departmentName: name,
+    }),
+  );
+}
+
+export function perspectiveKpiProgressList(
+  cards: EmployeeScorecard[],
+  kpiLibraryIds: Array<{
+    id: string;
+    name: string;
+    measurementUnit: string;
+  }>,
+): PerspectiveKpiProgress[] {
+  return kpiLibraryIds.map((kpi) => {
+    const rollup = computeKpiRollup(cards, kpi.id);
+    return {
+      kpiLibraryId: kpi.id,
+      kpiName: kpi.name,
+      measurementUnit: kpi.measurementUnit,
+      averageScore: rollup.averageScore,
+      evaluatedCount: rollup.evaluatedCount,
+      totalCount: rollup.totalCount,
+      pendingCount: rollup.pendingCount,
+    };
+  });
 }

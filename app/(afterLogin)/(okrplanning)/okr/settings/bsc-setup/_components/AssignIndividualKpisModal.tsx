@@ -1,19 +1,36 @@
+'use client';
+
 import React, { useEffect, useMemo, useState } from 'react';
 import {
+  Avatar,
+  Button,
   Checkbox,
-  Collapse,
   InputNumber,
   Modal,
+  Popover,
   Select,
   Steps,
   Tag,
 } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  MinusOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
+import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAppendIndividualBscKpis } from '@/store/server/features/bsc/mutation';
 import { useGetBscKpiLibrary } from '@/store/server/features/bsc/queries';
-import { EmployeeScorecard, KpiLibraryItem, TargetLogic } from '@/types/bsc';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  BscEvaluatorStep,
+  BscEvaluatorStepKind,
+  EmployeeScorecard,
+  KpiLibraryItem,
+  TargetLogic,
+} from '@/types/bsc';
 import { validateWeights } from '@/utils/bsc/scoring';
 
 type PersonOption = {
@@ -38,7 +55,6 @@ type WeightRow = {
 type Props = {
   open: boolean;
   scorecard: EmployeeScorecard | null;
-  /** When set and scorecard is null, user can pick a person first */
   personOptions?: PersonOption[];
   evaluationConfigId?: string;
   onClose: () => void;
@@ -48,7 +64,65 @@ function kpiKey(kpi: Pick<KpiLibraryItem, 'perspective' | 'name'>) {
   return `${kpi.perspective}::${kpi.name}`;
 }
 
-const STEPS = [{ title: 'KPIs' }, { title: 'Weights' }];
+function targetLogicLabel(logic?: TargetLogic): string {
+  if (logic === TargetLogic.LowerBetter) return 'Lower is better';
+  if (logic === TargetLogic.Bounded) return 'Bounded';
+  return 'Higher is better';
+}
+
+function asList(data: unknown): any[] {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (typeof data === 'object' && Array.isArray((data as any).items)) {
+    return (data as any).items;
+  }
+  return [];
+}
+
+function defaultEvaluationFlow(): BscEvaluatorStep[] {
+  return [{ kind: 'self' }, { kind: 'directManager' }];
+}
+
+function normalizeEvaluationFlow(
+  flow?: BscEvaluatorStep[] | null,
+): BscEvaluatorStep[] {
+  if (!flow?.length) return defaultEvaluationFlow();
+  return flow.map((step) => ({
+    kind: step.kind,
+    userId: step.kind === 'user' ? step.userId ?? null : null,
+  }));
+}
+
+function evaluatorStepDisplayName(
+  step: BscEvaluatorStep,
+  employeeById: Map<string, { label: string }>,
+): string {
+  if (step.kind === 'self') return 'Employee (self)';
+  if (step.kind === 'directManager') return 'Direct manager';
+  if (step.userId) {
+    return employeeById.get(step.userId)?.label || 'Selected person';
+  }
+  return 'Select person';
+}
+
+function truncateName(name: string, max = 18): string {
+  return name.length > max ? `${name.slice(0, max)}…` : name;
+}
+
+const EVALUATOR_STEP_OPTIONS: {
+  value: BscEvaluatorStepKind;
+  label: string;
+}[] = [
+  { value: 'self', label: 'Employee (self)' },
+  { value: 'directManager', label: 'Direct manager' },
+  { value: 'user', label: 'Specific person' },
+];
+
+const STEPS = [
+  { title: 'KPIs' },
+  { title: 'Weights' },
+  { title: 'Evaluation' },
+];
 
 export default function AssignIndividualKpisModal({
   open,
@@ -58,16 +132,23 @@ export default function AssignIndividualKpisModal({
   onClose,
 }: Props) {
   const { data: allKpis } = useGetBscKpiLibrary();
+  const { data: allUsersData } = useGetAllUsers();
   const appendKpis = useAppendIndividualBscKpis();
   const [current, setCurrent] = useState(0);
   const [selectedScorecardId, setSelectedScorecardId] = useState<string>();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [kpiSearch, setKpiSearch] = useState('');
   const [personWeights, setPersonWeights] = useState<Record<string, number>>(
     {},
   );
   const [measureTargets, setMeasureTargets] = useState<
     Record<string, number | null>
   >({});
+  const [kpiEvaluationFlows, setKpiEvaluationFlows] = useState<
+    Record<string, BscEvaluatorStep[]>
+  >({});
+  const [addStepKpiId, setAddStepKpiId] = useState<string | null>(null);
+  const [employeePickerSearch, setEmployeePickerSearch] = useState('');
 
   const lastStep = STEPS.length - 1;
 
@@ -82,6 +163,45 @@ export default function AssignIndividualKpisModal({
 
   const resolvedConfigId = evaluationConfigId || activeScorecard?.cycleId || '';
 
+  const employeeOptions = useMemo(() => {
+    return asList(allUsersData?.items || allUsersData || []).map(
+      (user: any) => {
+        const label =
+          `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
+            .replace(/\s+/g, ' ')
+            .trim() ||
+          user.email ||
+          'Employee';
+        const initials = label
+          .split(' ')
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part: string) => part[0]?.toUpperCase() || '')
+          .join('');
+        return {
+          value: String(user.id),
+          label,
+          initials: initials || '?',
+          profileImage: user.profileImage || null,
+        };
+      },
+    );
+  }, [allUsersData]);
+
+  const employeeById = useMemo(() => {
+    const map = new Map<string, (typeof employeeOptions)[number]>();
+    for (const option of employeeOptions) map.set(option.value, option);
+    return map;
+  }, [employeeOptions]);
+
+  const filteredPickerEmployees = useMemo(() => {
+    const q = employeePickerSearch.trim().toLowerCase();
+    if (!q) return employeeOptions;
+    return employeeOptions.filter((option) =>
+      option.label.toLowerCase().includes(q),
+    );
+  }, [employeeOptions, employeePickerSearch]);
+
   const alreadyOnScorecard = useMemo(() => {
     const names = new Set(
       (activeScorecard?.targets || []).map(
@@ -94,10 +214,10 @@ export default function AssignIndividualKpisModal({
     return { names, ids };
   }, [activeScorecard]);
 
-  const catalogByPerspective = useMemo(() => {
-    const map = new Map<string, KpiLibraryItem[]>();
-    if (!activeScorecard) return map;
+  const availableKpis = useMemo(() => {
+    if (!activeScorecard) return [] as KpiLibraryItem[];
     const seen = new Set<string>();
+    const list: KpiLibraryItem[] = [];
     for (const kpi of allKpis || []) {
       const key = kpiKey(kpi);
       if (seen.has(key)) continue;
@@ -121,27 +241,30 @@ export default function AssignIndividualKpisModal({
         continue;
       }
       seen.add(key);
-      const list = map.get(kpi.perspective) || [];
       list.push(kpi);
-      map.set(kpi.perspective, list);
     }
-    for (const list of map.values()) {
-      list.sort((a, b) => a.name.localeCompare(b.name));
-    }
-    return map;
+    return list.sort((a, b) => {
+      const byPerspective = a.perspective.localeCompare(b.perspective);
+      if (byPerspective) return byPerspective;
+      return a.name.localeCompare(b.name);
+    });
   }, [allKpis, alreadyOnScorecard, activeScorecard, resolvedConfigId]);
 
-  const perspectives = useMemo(
-    () => Array.from(catalogByPerspective.keys()).sort(),
-    [catalogByPerspective],
-  );
-
-  const selectedKpis = useMemo(() => {
-    const all = perspectives.flatMap(
-      (name) => catalogByPerspective.get(name) || [],
+  const filteredCatalogKpis = useMemo(() => {
+    const q = kpiSearch.trim().toLowerCase();
+    if (!q) return availableKpis;
+    return availableKpis.filter(
+      (kpi) =>
+        kpi.name.toLowerCase().includes(q) ||
+        (kpi.perspective || '').toLowerCase().includes(q) ||
+        (kpi.measurementUnit || '').toLowerCase().includes(q),
     );
-    return all.filter((kpi) => selectedIds.includes(kpi.id));
-  }, [perspectives, catalogByPerspective, selectedIds]);
+  }, [availableKpis, kpiSearch]);
+
+  const selectedKpis = useMemo(
+    () => availableKpis.filter((kpi) => selectedIds.includes(kpi.id)),
+    [availableKpis, selectedIds],
+  );
 
   const weightRows: WeightRow[] = useMemo(() => {
     if (!activeScorecard) return [];
@@ -186,25 +309,21 @@ export default function AssignIndividualKpisModal({
     if (!open) return;
     setCurrent(0);
     setSelectedIds([]);
+    setKpiSearch('');
     setPersonWeights({});
     setMeasureTargets({});
+    setKpiEvaluationFlows({});
+    setAddStepKpiId(null);
+    setEmployeePickerSearch('');
     setSelectedScorecardId(scorecard?.id);
   }, [open, scorecard?.id]);
 
-  const handleToggle = (kpi: KpiLibraryItem, checked: boolean) => {
-    setSelectedIds((prev) =>
-      checked ? [...prev, kpi.id] : prev.filter((id) => id !== kpi.id),
-    );
-  };
-
   const seedPersonWeights = () => {
     if (!activeScorecard || !selectedKpis.length) return;
-
     const next: Record<string, number> = {};
     activeScorecard.targets.forEach((target) => {
       next[`existing:${target.id}`] = target.weightPercentage;
     });
-    // New KPIs start blank — user sets weights and rebalances the person total.
     selectedKpis.forEach((kpi) => {
       next[`new:${kpi.id}`] = 0;
     });
@@ -218,6 +337,38 @@ export default function AssignIndividualKpisModal({
     setMeasureTargets((prev) => ({ ...prev, ...targets }));
   };
 
+  const seedKpiEvaluationFlows = () => {
+    const next: Record<string, BscEvaluatorStep[]> = {};
+    for (const kpi of selectedKpis) {
+      next[kpi.id] = kpiEvaluationFlows[kpi.id]?.length
+        ? normalizeEvaluationFlow(kpiEvaluationFlows[kpi.id])
+        : defaultEvaluationFlow();
+    }
+    setKpiEvaluationFlows(next);
+  };
+
+  const updateKpiFlow = (kpiId: string, flow: BscEvaluatorStep[]) => {
+    setKpiEvaluationFlows((prev) => ({
+      ...prev,
+      [kpiId]: normalizeEvaluationFlow(flow),
+    }));
+  };
+
+  const closeEmployeePicker = () => {
+    setAddStepKpiId(null);
+    setEmployeePickerSearch('');
+  };
+
+  const addEvaluatorFromPicker = (step: BscEvaluatorStep) => {
+    if (!addStepKpiId) return;
+    const currentFlow =
+      kpiEvaluationFlows[addStepKpiId]?.length
+        ? kpiEvaluationFlows[addStepKpiId]
+        : defaultEvaluationFlow();
+    updateKpiFlow(addStepKpiId, [...currentFlow, step]);
+    closeEmployeePicker();
+  };
+
   const weightSum = weightRows.reduce(
     (sum, row) => sum + (Number(personWeights[row.key]) || 0),
     0,
@@ -227,6 +378,27 @@ export default function AssignIndividualKpisModal({
     weightRows.map((row) => row.perspective),
   );
 
+  const validateEvaluationStep = () => {
+    for (const kpi of selectedKpis) {
+      const flow = normalizeEvaluationFlow(kpiEvaluationFlows[kpi.id]);
+      if (!flow.length) {
+        NotificationMessage.error({
+          message: `Add at least one evaluator for ${kpi.name}`,
+        });
+        return false;
+      }
+      for (const step of flow) {
+        if (step.kind === 'user' && !step.userId) {
+          NotificationMessage.error({
+            message: `Select a person for ${kpi.name}`,
+          });
+          return false;
+        }
+      }
+    }
+    return true;
+  };
+
   const handleSave = async () => {
     if (!activeScorecard || !selectedKpis.length) return;
     if (!weightCheck.valid) {
@@ -235,6 +407,7 @@ export default function AssignIndividualKpisModal({
       });
       return;
     }
+    if (!validateEvaluationStep()) return;
 
     for (const kpi of selectedKpis) {
       const target = measureTargets[`new:${kpi.id}`];
@@ -259,6 +432,7 @@ export default function AssignIndividualKpisModal({
         worstCase:
           kpi.targetLogic === TargetLogic.Bounded ? kpi.worstCase : null,
         bestCase: kpi.targetLogic === TargetLogic.Bounded ? kpi.bestCase : null,
+        evaluationFlow: normalizeEvaluationFlow(kpiEvaluationFlows[kpi.id]),
       })),
     });
     onClose();
@@ -284,6 +458,26 @@ export default function AssignIndividualKpisModal({
       setCurrent(1);
       return;
     }
+    if (current === 1) {
+      if (!weightCheck.valid) {
+        NotificationMessage.error({
+          message: weightCheck.message || 'Weights must sum to 100%',
+        });
+        return;
+      }
+      for (const kpi of selectedKpis) {
+        const target = measureTargets[`new:${kpi.id}`];
+        if (target == null || Number.isNaN(Number(target))) {
+          NotificationMessage.error({
+            message: `Enter a target for ${kpi.name}`,
+          });
+          return;
+        }
+      }
+      seedKpiEvaluationFlows();
+      setCurrent(2);
+      return;
+    }
     await handleSave();
   };
 
@@ -299,29 +493,20 @@ export default function AssignIndividualKpisModal({
       closeIcon={<CloseOutlined />}
       destroyOnClose
       title={
-        <div data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-1">
-          <h2
-            className="m-0 text-xl font-bold text-black"
-            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-h2-2"
-          >
+        <div data-cy="bsc-assign-individual-title">
+          <h2 className="m-0 text-xl font-bold text-black">
             Add individual KPIs
           </h2>
-          <p
-            className="m-0 mt-1 text-sm font-normal text-[#595959]"
-            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-3"
-          >
+          <p className="m-0 mt-1 text-sm font-normal text-[#595959]">
             {activeScorecard
-              ? `Select KPIs for ${activeScorecard.userName}, then assign this person's weights.`
-              : 'Choose a person, select KPIs, then assign weights.'}
+              ? `Select KPIs for ${activeScorecard.userName}, set weights, then define evaluators.`
+              : 'Choose a person, select KPIs, set weights, then define evaluators.'}
           </p>
         </div>
       }
       data-cy="bsc-assign-individual-kpis-modal"
     >
-      <div
-        className="mb-4 mt-2 hidden sm:block"
-        data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-4"
-      >
+      <div className="mb-4 mt-2 hidden sm:block">
         <Steps
           current={current}
           progressDot
@@ -332,21 +517,12 @@ export default function AssignIndividualKpisModal({
         />
       </div>
 
-      <div
-        className="mt-2"
-        data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-5"
-      >
+      <div className="mt-2">
         {current === 0 && (
           <>
             {needsPersonPick ? (
-              <div
-                className="mb-4"
-                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-6"
-              >
-                <p
-                  className="mb-2 text-[13px] font-semibold text-[#262626]"
-                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-7"
-                >
+              <div className="mb-4">
+                <p className="mb-2 text-[13px] font-semibold text-[#262626]">
                   Person
                 </p>
                 <Select
@@ -360,6 +536,7 @@ export default function AssignIndividualKpisModal({
                     setSelectedScorecardId(value);
                     setSelectedIds([]);
                     setMeasureTargets({});
+                    setKpiEvaluationFlows({});
                   }}
                   options={personOptions.map((option) => ({
                     value: option.scorecard.id,
@@ -370,182 +547,107 @@ export default function AssignIndividualKpisModal({
               </div>
             ) : null}
 
-            <p
-              className="mb-1 text-[13px] font-semibold text-[#262626]"
-              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-8"
-            >
-              KPIs by perspective
-            </p>
-            <p
-              className="mb-4 text-[12px] text-[#8F94A3]"
-              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-9"
-            >
-              Expand each perspective and select the KPIs to append for this
-              person only. Weights are assigned in the next step.
-            </p>
-
-            {activeScorecard ? (
-              <div
-                className="mb-4 flex flex-wrap items-center gap-2"
-                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-10"
-              >
-                <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                  {
-                    activeScorecard.targets.filter(
-                      (t) => (t.assignmentSource || 'shared') === 'shared',
-                    ).length
-                  }{' '}
-                  shared
-                </Tag>
-                <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                  {
-                    activeScorecard.targets.filter(
-                      (t) => t.assignmentSource === 'individual',
-                    ).length
-                  }{' '}
-                  individual
-                </Tag>
+            <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="mb-1 text-[13px] font-semibold text-[#262626]">
+                  KPIs
+                </p>
+                <p className="mb-0 text-[12px] text-[#8F94A3]">
+                  Select the KPIs to append for this person only. Weights are
+                  assigned in the next step.
+                </p>
               </div>
-            ) : null}
+              {activeScorecard && availableKpis.length ? (
+                <BscSearchInput
+                  value={kpiSearch}
+                  onChange={setKpiSearch}
+                  placeholder="Search KPIs"
+                  data-cy="bsc-assign-individual-kpi-search"
+                />
+              ) : null}
+            </div>
 
             {!activeScorecard ? (
-              <p
-                className="text-[13px] text-[#94A3B8]"
-                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-11"
-              >
+              <p className="text-[13px] text-[#94A3B8]">
                 Select a person to choose KPIs.
               </p>
-            ) : !perspectives.length ? (
-              <p
-                className="text-[13px] text-[#94A3B8]"
-                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-12"
-              >
+            ) : !availableKpis.length ? (
+              <p className="text-[13px] text-[#94A3B8]">
                 No additional catalog KPIs available for this person.
               </p>
             ) : (
-              <Collapse
-                accordion={false}
-                defaultActiveKey={perspectives.slice(0, 1)}
-                className="max-h-[440px] overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white [&_.ant-collapse-item]:border-b [&_.ant-collapse-item]:border-[#E5E7EB] [&_.ant-collapse-item:last-child]:border-b-0 [&_.ant-collapse-header]:px-4 [&_.ant-collapse-header]:py-3 [&_.ant-collapse-content-box]:px-4 [&_.ant-collapse-content-box]:pb-4 [&_.ant-collapse-content-box]:pt-0"
-                data-cy="bsc-individual-kpi-accordion"
+              <div
+                className="flex max-h-[440px] flex-col gap-1 overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white p-2"
+                data-cy="bsc-assign-individual-kpi-list"
               >
-                {perspectives.map((perspective) => {
-                  const kpis = catalogByPerspective.get(perspective) || [];
-                  const selectedCount = kpis.filter((kpi) =>
-                    selectedIds.includes(kpi.id),
-                  ).length;
-                  return (
-                    <Collapse.Panel
-                      key={perspective}
-                      header={
-                        <div
-                          className="flex items-center justify-between gap-3 pr-2"
-                          data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-13"
-                        >
-                          <span
-                            className="text-[14px] font-semibold text-[#262626]"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-14"
-                          >
-                            {perspective}
-                          </span>
-                          <span
-                            className="text-[11px] font-normal text-[#8F94A3]"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-15"
-                          >
-                            {selectedCount} of {kpis.length} selected
-                          </span>
-                        </div>
-                      }
-                    >
-                      <div
-                        className="flex flex-col gap-2"
-                        data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-16"
+                  {filteredCatalogKpis.map((kpi) => {
+                    const checked = selectedIds.includes(kpi.id);
+                    return (
+                      <label
+                        key={kpi.id}
+                        className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#F9FAFB]"
+                        data-cy={`bsc-assign-individual-kpi-row-${kpi.id}`}
                       >
-                        {kpis.map((kpi) => {
-                          const checked = selectedIds.includes(kpi.id);
-                          return (
-                            <div
-                              key={kpi.id}
-                              className="rounded-lg bg-[#F9FAFB] px-3 py-2"
-                              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-17"
-                            >
-                              <Checkbox
-                                checked={checked}
-                                onChange={(e) =>
-                                  handleToggle(kpi, e.target.checked)
-                                }
-                              >
-                                <span
-                                  className="text-[13px] font-medium text-[#262626]"
-                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-18"
-                                >
-                                  {kpi.name}
-                                </span>
-                                <span
-                                  className="ml-2 text-[11px] text-[#8F94A3]"
-                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-19"
-                                >
-                                  {kpi.measurementUnit}
-                                </span>
-                              </Checkbox>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </Collapse.Panel>
-                  );
-                })}
-              </Collapse>
+                        <Checkbox
+                          checked={checked}
+                          onChange={(e) => {
+                            setSelectedIds((prev) =>
+                              e.target.checked
+                                ? [...prev, kpi.id]
+                                : prev.filter((id) => id !== kpi.id),
+                            );
+                          }}
+                        />
+                        <span className="min-w-0 flex-1 text-[13px] font-medium text-[#262626]">
+                          {kpi.name}
+                        </span>
+                        {kpi.perspective ? (
+                          <Tag className="m-0 h-5 shrink-0 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                            {kpi.perspective}
+                          </Tag>
+                        ) : null}
+                        {kpi.measurementUnit ? (
+                          <span className="shrink-0 text-[11px] text-[#8F94A3]">
+                            {kpi.measurementUnit}
+                          </span>
+                        ) : null}
+                      </label>
+                    );
+                  })}
+              </div>
             )}
           </>
         )}
 
         {current === 1 && (
           <>
-            <p
-              className="mb-1 text-[13px] font-semibold text-[#262626]"
-              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-20"
-            >
+            <p className="mb-1 text-[13px] font-semibold text-[#262626]">
               Weights & targets
             </p>
-            <p
-              className="mb-4 text-[12px] text-[#8F94A3]"
-              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-21"
-            >
+            <p className="mb-4 text-[12px] text-[#8F94A3]">
               Set every KPI weight for {activeScorecard?.userName} only (sum
               100%). New KPI weights start empty — lower shared weights as
-              needed so the total still adds to 100%.
+              needed so the total still adds to 100%. Targets are prefilled from
+              the catalog when available.
             </p>
 
-            <div
-              className="mb-3 flex flex-wrap items-center gap-2 text-[12px]"
-              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-22"
-            >
+            <div className="mb-3 flex flex-wrap items-center gap-2 text-[12px]">
               <span
                 className={
                   Math.abs(weightSum - 100) <= 0.01
                     ? 'text-[#389E0D]'
                     : 'text-[#CF1322]'
                 }
-                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-23"
               >
                 Total {Math.round(weightSum * 100) / 100}%
               </span>
               {!weightCheck.valid && weightSum > 0 ? (
-                <span
-                  className="text-[#CF1322]"
-                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-24"
-                >
-                  {weightCheck.message}
-                </span>
+                <span className="text-[#CF1322]">{weightCheck.message}</span>
               ) : null}
             </div>
 
             {!weightRowsByPerspective.length ? (
-              <p
-                className="text-[13px] text-[#94A3B8]"
-                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-25"
-              >
+              <p className="text-[13px] text-[#94A3B8]">
                 No KPIs selected. Go back and select KPIs first.
               </p>
             ) : (
@@ -555,64 +657,47 @@ export default function AssignIndividualKpisModal({
               >
                 {weightRowsByPerspective.map(([perspective, rows]) => {
                   const allocated = rows.reduce(
-                    (sum, row) => sum + (Number(personWeights[row.key]) || 0),
+                    (sum, row) =>
+                      sum + (Number(personWeights[row.key]) || 0),
                     0,
                   );
                   return (
                     <div
                       key={perspective}
                       className="rounded-xl border border-[#E5E7EB] p-4"
-                      data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-26"
                     >
-                      <div
-                        className="mb-3 flex flex-wrap items-center justify-between gap-3"
-                        data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-27"
-                      >
-                        <p
-                          className="m-0 text-[14px] font-semibold text-[#262626]"
-                          data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-28"
-                        >
+                      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                        <p className="m-0 text-[14px] font-semibold text-[#262626]">
                           {perspective}
-                          <span
-                            className="ml-2 text-[11px] font-normal text-[#8F94A3]"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-29"
-                          >
+                          <span className="ml-2 text-[11px] font-normal text-[#8F94A3]">
                             {rows.length} KPI{rows.length === 1 ? '' : 's'}
                           </span>
                         </p>
-                        <span
-                          className="text-[12px] text-[#595959]"
-                          data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-30"
-                        >
+                        <span className="text-[12px] text-[#595959]">
                           {Math.round(allocated * 100) / 100}%
                         </span>
                       </div>
 
-                      <div
-                        className="flex flex-col gap-3"
-                        data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-31"
-                      >
+                      <div className="flex flex-col gap-3">
                         {rows.map((row) => (
                           <div
                             key={row.key}
                             className="rounded-lg bg-[#F9FAFB] px-3 py-3"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-32"
                           >
-                            <div
-                              className="mb-2 flex flex-wrap items-start justify-between gap-2"
-                              data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-33"
-                            >
-                              <div data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-34">
-                                <p
-                                  className="m-0 text-[13px] font-medium text-[#262626]"
-                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-35"
-                                >
+                            <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
+                              <div>
+                                <p className="m-0 text-[13px] font-medium text-[#262626]">
                                   {row.name}
                                 </p>
-                                <div
-                                  className="mt-1 flex flex-wrap gap-1"
-                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-36"
-                                >
+                                <p className="m-0 text-[11px] text-[#8F94A3]">
+                                  {row.measurementUnit || '—'} ·{' '}
+                                  {targetLogicLabel(row.targetLogic)}
+                                  {row.kind === 'new' &&
+                                  row.defaultTarget != null
+                                    ? ` · catalog default ${row.defaultTarget}`
+                                    : ''}
+                                </p>
+                                <div className="mt-1 flex flex-wrap gap-1">
                                   <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                                     {row.source === 'individual'
                                       ? 'Individual'
@@ -623,24 +708,10 @@ export default function AssignIndividualKpisModal({
                                       New
                                     </Tag>
                                   ) : null}
-                                  {row.measurementUnit ? (
-                                    <span
-                                      className="text-[11px] text-[#8F94A3]"
-                                      data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-37"
-                                    >
-                                      {row.measurementUnit}
-                                    </span>
-                                  ) : null}
                                 </div>
                               </div>
-                              <div
-                                className="flex items-center gap-2"
-                                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-38"
-                              >
-                                <span
-                                  className="text-[11px] text-[#595959]"
-                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-39"
-                                >
+                              <div className="flex items-center gap-2">
+                                <span className="text-[11px] text-[#595959]">
                                   Weight %
                                 </span>
                                 <InputNumber
@@ -667,18 +738,9 @@ export default function AssignIndividualKpisModal({
                             </div>
 
                             {row.kind === 'new' ? (
-                              <div
-                                className="flex flex-wrap gap-3"
-                                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-40"
-                              >
-                                <div
-                                  className="flex items-center gap-2"
-                                  data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-41"
-                                >
-                                  <span
-                                    className="text-[11px] text-[#595959]"
-                                    data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-span-42"
-                                  >
+                              <div className="flex flex-wrap gap-3">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[11px] text-[#595959]">
                                     Target
                                   </span>
                                   <InputNumber
@@ -688,7 +750,9 @@ export default function AssignIndividualKpisModal({
                                         ? String(row.defaultTarget)
                                         : 'Enter target'
                                     }
-                                    value={measureTargets[row.key] ?? undefined}
+                                    value={
+                                      measureTargets[row.key] ?? undefined
+                                    }
                                     onChange={(value) =>
                                       setMeasureTargets((prev) => ({
                                         ...prev,
@@ -701,10 +765,7 @@ export default function AssignIndividualKpisModal({
                                 </div>
                               </div>
                             ) : row.existingTarget != null ? (
-                              <p
-                                className="m-0 text-[11px] text-[#8F94A3]"
-                                data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-p-43"
-                              >
+                              <p className="m-0 text-[11px] text-[#8F94A3]">
                                 Target {row.existingTarget}
                               </p>
                             ) : null}
@@ -719,10 +780,383 @@ export default function AssignIndividualKpisModal({
           </>
         )}
 
-        <div
-          className="mt-6 flex justify-between gap-3"
-          data-cy="-okrplanning-okr-settings-bsc-setup-assignindividualkpismodal-div-44"
-        >
+        {current === 2 && (
+          <>
+            <p
+              className="mb-1 text-[13px] font-semibold text-[#262626]"
+              data-cy="bsc-assign-individual-evaluation-title"
+            >
+              Evaluation
+            </p>
+            <p className="mb-4 text-[12px] text-[#8F94A3]">
+              Define who evaluates each new KPI, in order. Any combination of
+              self, direct manager, and specific people is allowed.
+            </p>
+
+            {!selectedKpis.length ? (
+              <p className="text-[13px] text-[#94A3B8]">
+                No KPIs selected. Go back and select KPIs first.
+              </p>
+            ) : (
+              <div
+                className="flex max-h-[440px] flex-col gap-2 overflow-y-auto pr-1"
+                data-cy="bsc-assign-individual-evaluation-list"
+              >
+                {selectedKpis.map((kpi) => {
+                  const flow = kpiEvaluationFlows[kpi.id]?.length
+                    ? kpiEvaluationFlows[kpi.id]
+                    : defaultEvaluationFlow();
+
+                  return (
+                    <div
+                      key={kpi.id}
+                      className="rounded-xl border border-[#E5E7EB] px-3 py-3"
+                      data-cy={`bsc-assign-eval-row-${kpi.id}`}
+                    >
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <span className="text-[13px] font-medium text-[#262626]">
+                          {kpi.name}
+                        </span>
+                        {kpi.perspective ? (
+                          <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                            {kpi.perspective}
+                          </Tag>
+                        ) : null}
+                      </div>
+
+                      <div className="w-full overflow-x-auto">
+                        <div className="flex min-w-max items-center gap-1.5 py-1">
+                          {flow.map((step, index) => {
+                            const displayName = evaluatorStepDisplayName(
+                              step,
+                              employeeById,
+                            );
+                            const employee =
+                              step.kind === 'user' && step.userId
+                                ? employeeById.get(step.userId)
+                                : undefined;
+                            const needsPerson =
+                              step.kind === 'user' && !step.userId;
+
+                            const editor = (
+                              <div className="w-[240px] p-1">
+                                <p className="mb-2 text-[12px] font-medium text-[#262626]">
+                                  Step {index + 1}
+                                </p>
+                                <Select
+                                  className="mb-2 w-full"
+                                  size="small"
+                                  value={step.kind}
+                                  options={EVALUATOR_STEP_OPTIONS}
+                                  onChange={(kind: BscEvaluatorStepKind) => {
+                                    const next = [...flow];
+                                    next[index] = {
+                                      kind,
+                                      userId:
+                                        kind === 'user'
+                                          ? step.userId || null
+                                          : null,
+                                    };
+                                    updateKpiFlow(kpi.id, next);
+                                  }}
+                                />
+                                {step.kind === 'user' ? (
+                                  <Select
+                                    className="mb-2 w-full"
+                                    size="small"
+                                    allowClear
+                                    showSearch
+                                    placeholder="Select employee"
+                                    options={employeeOptions}
+                                    optionFilterProp="label"
+                                    value={step.userId || undefined}
+                                    onChange={(userId) => {
+                                      const next = [...flow];
+                                      next[index] = {
+                                        kind: 'user',
+                                        userId: userId || null,
+                                      };
+                                      updateKpiFlow(kpi.id, next);
+                                    }}
+                                  />
+                                ) : null}
+                                <div className="flex justify-between gap-1">
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    disabled={index === 0}
+                                    onClick={() => {
+                                      if (index === 0) return;
+                                      const next = [...flow];
+                                      [next[index - 1], next[index]] = [
+                                        next[index],
+                                        next[index - 1],
+                                      ];
+                                      updateKpiFlow(kpi.id, next);
+                                    }}
+                                  >
+                                    Move left
+                                  </Button>
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    disabled={index === flow.length - 1}
+                                    onClick={() => {
+                                      if (index >= flow.length - 1) return;
+                                      const next = [...flow];
+                                      [next[index], next[index + 1]] = [
+                                        next[index + 1],
+                                        next[index],
+                                      ];
+                                      updateKpiFlow(kpi.id, next);
+                                    }}
+                                  >
+                                    Move right
+                                  </Button>
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    disabled={flow.length <= 1}
+                                    onClick={() => {
+                                      if (flow.length <= 1) return;
+                                      updateKpiFlow(
+                                        kpi.id,
+                                        flow.filter((_, i) => i !== index),
+                                      );
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            );
+
+                            return (
+                              <React.Fragment key={`${kpi.id}-step-${index}`}>
+                                {index > 0 ? (
+                                  <div className="inline-flex h-5 min-w-6 shrink-0 items-center justify-center rounded-full border border-[#E3E7FF] bg-[#F7F8FF] px-1 text-[11px] font-semibold text-[#5B67D9]">
+                                    →
+                                  </div>
+                                ) : null}
+                                <div className="flex shrink-0 items-center gap-2">
+                                  <div className="relative h-8 w-8 shrink-0">
+                                    <Popover
+                                      trigger="click"
+                                      placement="bottomLeft"
+                                      content={editor}
+                                    >
+                                      <div
+                                        role="button"
+                                        tabIndex={0}
+                                        className="cursor-pointer"
+                                      >
+                                        {employee?.profileImage ? (
+                                          <Avatar
+                                            size={32}
+                                            src={employee.profileImage}
+                                          />
+                                        ) : (
+                                          <Avatar
+                                            size={32}
+                                            icon={
+                                              step.kind === 'user' ? undefined : (
+                                                <UserOutlined />
+                                              )
+                                            }
+                                            className={
+                                              step.kind === 'self'
+                                                ? 'bg-[#E6F4FF] text-[#1677ff]'
+                                                : step.kind === 'directManager'
+                                                  ? 'bg-[#F0F5FF] text-[#5B67D9]'
+                                                  : 'bg-[#EFF6FF] text-[#1D4ED8]'
+                                            }
+                                          >
+                                            {step.kind === 'user'
+                                              ? employee?.initials || '?'
+                                              : null}
+                                          </Avatar>
+                                        )}
+                                      </div>
+                                    </Popover>
+                                    <button
+                                      type="button"
+                                      className="absolute -right-1 -top-1 z-[1] inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-white bg-[#f5f5f5] text-[8px] leading-none text-[#8c8c8c] hover:bg-[#fff1f0] hover:text-[#ff4d4f] disabled:cursor-not-allowed disabled:opacity-35"
+                                      disabled={flow.length <= 1}
+                                      title="Remove step"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        if (flow.length <= 1) return;
+                                        updateKpiFlow(
+                                          kpi.id,
+                                          flow.filter((_, i) => i !== index),
+                                        );
+                                      }}
+                                    >
+                                      <MinusOutlined />
+                                    </button>
+                                  </div>
+                                  <Popover
+                                    trigger="click"
+                                    placement="bottomLeft"
+                                    content={editor}
+                                  >
+                                    <div
+                                      role="button"
+                                      tabIndex={0}
+                                      className={`max-w-[120px] cursor-pointer truncate text-[12px] font-medium transition-opacity hover:opacity-80 ${
+                                        needsPerson
+                                          ? 'text-[#cf1322]'
+                                          : 'text-[#595959]'
+                                      }`}
+                                      title={displayName}
+                                    >
+                                      {truncateName(displayName)}
+                                    </div>
+                                  </Popover>
+                                </div>
+                              </React.Fragment>
+                            );
+                          })}
+
+                          <div className="inline-flex h-5 min-w-6 shrink-0 items-center justify-center rounded-full border border-[#E3E7FF] bg-[#F7F8FF] px-1 text-[11px] font-semibold text-[#5B67D9]">
+                            →
+                          </div>
+                          <Popover
+                            trigger="click"
+                            open={addStepKpiId === kpi.id}
+                            onOpenChange={(openPicker) => {
+                              if (openPicker) {
+                                setEmployeePickerSearch('');
+                                setAddStepKpiId(kpi.id);
+                              } else {
+                                closeEmployeePicker();
+                              }
+                            }}
+                            placement="bottomLeft"
+                            arrow={false}
+                            zIndex={1100}
+                            getPopupContainer={() => document.body}
+                            overlayInnerStyle={{ padding: 12, width: 320 }}
+                            title={
+                              <div className="mb-1 flex items-start justify-between gap-2">
+                                <div>
+                                  <h3 className="m-0 text-base font-bold text-gray-900">
+                                    Add evaluator
+                                  </h3>
+                                  <p className="mb-0 mt-1 text-xs text-gray-500">
+                                    Search and select who evaluates next
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={closeEmployeePicker}
+                                  className="cursor-pointer border-none bg-transparent p-1 text-gray-400 hover:text-gray-600"
+                                >
+                                  <CloseOutlined />
+                                </button>
+                              </div>
+                            }
+                            content={
+                              <div>
+                                <div className="mb-2 w-full [&_.ant-input-affix-wrapper]:!w-full [&_input]:!w-full">
+                                  <BscSearchInput
+                                    value={employeePickerSearch}
+                                    onChange={setEmployeePickerSearch}
+                                    placeholder="Search employees"
+                                    className="!w-full !max-w-none"
+                                  />
+                                </div>
+                                <div className="flex max-h-[280px] flex-col gap-0.5 overflow-y-auto">
+                                  <button
+                                    type="button"
+                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                    onClick={() =>
+                                      addEvaluatorFromPicker({ kind: 'self' })
+                                    }
+                                  >
+                                    <Avatar
+                                      size={28}
+                                      icon={<UserOutlined />}
+                                      className="shrink-0 bg-[#E6F4FF] text-[#1677ff]"
+                                    />
+                                    <span className="text-[13px] font-medium text-[#262626]">
+                                      Employee (self)
+                                    </span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                    onClick={() =>
+                                      addEvaluatorFromPicker({
+                                        kind: 'directManager',
+                                      })
+                                    }
+                                  >
+                                    <Avatar
+                                      size={28}
+                                      icon={<UserOutlined />}
+                                      className="shrink-0 bg-[#F0F5FF] text-[#5B67D9]"
+                                    />
+                                    <span className="text-[13px] font-medium text-[#262626]">
+                                      Direct manager
+                                    </span>
+                                  </button>
+                                  {filteredPickerEmployees.map((option) => (
+                                    <button
+                                      key={option.value}
+                                      type="button"
+                                      className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                      onClick={() =>
+                                        addEvaluatorFromPicker({
+                                          kind: 'user',
+                                          userId: option.value,
+                                        })
+                                      }
+                                    >
+                                      {option.profileImage ? (
+                                        <Avatar
+                                          size={28}
+                                          src={option.profileImage}
+                                          className="shrink-0"
+                                        />
+                                      ) : (
+                                        <Avatar
+                                          size={28}
+                                          className="shrink-0 bg-[#EFF6FF] text-[#1D4ED8]"
+                                        >
+                                          {option.initials}
+                                        </Avatar>
+                                      )}
+                                      <span className="truncate text-[13px] font-medium text-[#262626]">
+                                        {option.label}
+                                      </span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            }
+                          >
+                            <button
+                              type="button"
+                              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-dashed border-[#91caff] bg-[#e6f4ff] text-[#1677ff] hover:bg-[#bae0ff]"
+                              title="Add evaluator"
+                              data-cy={`bsc-assign-eval-add-${kpi.id}`}
+                            >
+                              +
+                            </button>
+                          </Popover>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        <div className="mt-6 flex justify-between gap-3">
           <CustomButton
             type="default"
             title={current === 0 ? 'Cancel' : 'Back'}

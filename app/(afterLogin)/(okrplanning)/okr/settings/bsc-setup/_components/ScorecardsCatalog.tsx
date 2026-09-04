@@ -4,26 +4,25 @@ import React, { useMemo, useState } from 'react';
 import {
   Avatar,
   Button,
-  Dropdown,
-  Input,
+  Popover,
   Select,
-  Space,
   Table,
   Tag,
   Empty,
 } from 'antd';
-import type { MenuProps, TableColumnsType } from 'antd';
+import type { TableColumnsType } from 'antd';
 import {
-  EllipsisOutlined,
-  PlusOutlined,
-  SearchOutlined,
+  CloseOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useRouter } from 'next/navigation';
 import EmptyState from '@/components/empty';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
+import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import {
   useGetBscCycles,
   useGetBscScorecards,
@@ -36,10 +35,8 @@ import {
   EmployeeScorecard,
   EvaluationCycle,
 } from '@/types/bsc';
-import AssignIndividualKpisModal from './AssignIndividualKpisModal';
+import { latestScorecardsByEmployee } from '@/utils/bsc/rollup';
 import BscSetupModal from './BscSetupModal';
-
-const { Option } = Select;
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
@@ -69,6 +66,7 @@ function nameInitials(name: string): string {
 }
 
 function resolveScopeLabel(config: EvaluationCycle): string {
+  if (config.scopeTarget) return config.scopeTarget;
   if (config.employeeIds?.length) return BscScopeTarget.Individual;
   if (config.positionIds?.length || config.positionTitles?.length) {
     return BscScopeTarget.Role;
@@ -76,7 +74,7 @@ function resolveScopeLabel(config: EvaluationCycle): string {
   if (config.departmentIds?.length || config.departmentNames?.length) {
     return BscScopeTarget.Department;
   }
-  return 'Unscoped';
+  return BscScopeTarget.Company;
 }
 
 function horizonLabel(config: EvaluationCycle): string {
@@ -84,8 +82,6 @@ function horizonLabel(config: EvaluationCycle): string {
   if (config.setupKind === BscSetupKind.Permanent) return 'Permanent';
   return config.useCustomDates ? 'Temporary' : 'Permanent';
 }
-
-type CatalogView = 'scorecards' | 'people';
 
 type IndividualAssignee = {
   scorecard: EmployeeScorecard;
@@ -101,14 +97,13 @@ export default function ScorecardsCatalog() {
     setRoleSearch,
     roleDepartmentFilter,
     setRoleDepartmentFilter,
+    bscCatalogView: view,
+    setBscCatalogView,
   } = useBscUiStore();
-  const [view, setView] = useState<CatalogView>('scorecards');
   const [peopleSearch, setPeopleSearch] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [assignOpen, setAssignOpen] = useState(false);
-  const [assignScorecard, setAssignScorecard] =
-    useState<EmployeeScorecard | null>(null);
   const { isMobile, isTablet } = useIsMobile();
 
   const { data: configs, isLoading: configsLoading } = useGetBscCycles();
@@ -135,54 +130,19 @@ export default function ScorecardsCatalog() {
     return map;
   }, [scorecards]);
 
-  const personOptions = useMemo(() => {
-    const byKey = new Map<
-      string,
-      { scorecard: EmployeeScorecard; label: string }
-    >();
-    for (const card of peopleScorecards || []) {
-      const key = `${card.userId}::${card.cycleId}`;
-      const label = [
-        card.userName,
-        card.positionTitle,
-        configLabelById.get(card.cycleId) || card.cycleLabel,
-      ]
-        .filter(Boolean)
-        .join(' · ');
-      const existing = byKey.get(key);
-      if (
-        !existing ||
-        (card.targets?.length || 0) > (existing.scorecard.targets?.length || 0)
-      ) {
-        byKey.set(key, { scorecard: card, label });
-      }
-    }
-    return Array.from(byKey.values()).sort((a, b) =>
-      a.scorecard.userName.localeCompare(b.scorecard.userName),
-    );
-  }, [peopleScorecards, configLabelById]);
-
-  const peopleWithIndividualKpis = useMemo(() => {
-    const rows: IndividualAssignee[] = [];
-    for (const card of peopleScorecards || []) {
-      const individualCount = card.targets.filter(
+  const peopleAssignees = useMemo(() => {
+    return latestScorecardsByEmployee(peopleScorecards).map((card) => ({
+      scorecard: card,
+      individualCount: card.targets.filter(
         (t) => t.assignmentSource === 'individual',
-      ).length;
-      if (!individualCount) continue;
-      rows.push({
-        scorecard: card,
-        individualCount,
-        configLabel: configLabelById.get(card.cycleId) || card.cycleLabel,
-      });
-    }
-    return rows.sort((a, b) =>
-      (a.scorecard.userName || '').localeCompare(b.scorecard.userName || ''),
-    );
+      ).length,
+      configLabel: configLabelById.get(card.cycleId) || card.cycleLabel,
+    }));
   }, [peopleScorecards, configLabelById]);
 
   const filteredPeople = useMemo(() => {
     const q = peopleSearch.trim().toLowerCase();
-    return peopleWithIndividualKpis.filter((row) => {
+    return peopleAssignees.filter((row) => {
       if (!q) return true;
       const person = row.scorecard;
       return (
@@ -192,27 +152,18 @@ export default function ScorecardsCatalog() {
         row.configLabel.toLowerCase().includes(q)
       );
     });
-  }, [peopleWithIndividualKpis, peopleSearch]);
+  }, [peopleAssignees, peopleSearch]);
 
   const pagedPeople = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredPeople.slice(start, start + pageSize);
   }, [filteredPeople, currentPage, pageSize]);
 
-  const openPersonOnScorecard = (row: IndividualAssignee) => {
+  const openPersonScorecard = (row: IndividualAssignee) => {
+    setBscCatalogView('people');
     router.push(
-      `/bsc/setup/${row.scorecard.cycleId}?person=${encodeURIComponent(row.scorecard.userId)}`,
+      `/bsc/employees/${encodeURIComponent(row.scorecard.userId)}?scorecard=${encodeURIComponent(row.scorecard.id)}&from=individual`,
     );
-  };
-
-  const openAssignForPerson = (scorecard: EmployeeScorecard | null) => {
-    setAssignScorecard(scorecard);
-    setAssignOpen(true);
-  };
-
-  const closeAssign = () => {
-    setAssignOpen(false);
-    setAssignScorecard(null);
   };
 
   const peopleColumns: TableColumnsType<IndividualAssignee> = [
@@ -322,55 +273,14 @@ export default function ScorecardsCatalog() {
       key: 'extras',
       width: 110,
       align: 'right',
-      render: (unused, row) => (
-        <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-          {row.individualCount} KPI{row.individualCount === 1 ? '' : 's'}
-        </Tag>
-      ),
-    },
-    {
-      title: (
-        <span
-          className={`${tableHeaderClassName} whitespace-nowrap`}
-          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-11"
-        >
-          Action
-        </span>
-      ),
-      key: 'actions',
-      width: 88,
-      align: 'center',
-      onHeaderCell: () => ({
-        className: 'whitespace-nowrap',
-      }),
-      render: (unused, row) => {
-        const items: MenuProps['items'] = [
-          {
-            key: 'edit',
-            label: 'Edit',
-            onClick: ({ domEvent }) => {
-              domEvent.stopPropagation();
-              openAssignForPerson(row.scorecard);
-            },
-          },
-        ];
-        return (
-          <Dropdown
-            menu={{ items }}
-            trigger={['click']}
-            placement="bottomRight"
-          >
-            <button
-              type="button"
-              className="flex h-8 w-8 items-center justify-center border-none bg-transparent text-[#8c8c8c] transition-colors hover:text-[#262626] cursor-pointer"
-              onClick={(event) => event.stopPropagation()}
-              data-cy={`bsc-individual-row-menu-${row.scorecard.id}`}
-            >
-              <EllipsisOutlined style={{ fontSize: 14 }} />
-            </button>
-          </Dropdown>
-        );
-      },
+      render: (unused, row) =>
+        row.individualCount > 0 ? (
+          <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+            {row.individualCount} KPI{row.individualCount === 1 ? '' : 's'}
+          </Tag>
+        ) : (
+          <span className={tableCellClassName}>—</span>
+        ),
     },
   ];
 
@@ -392,7 +302,7 @@ export default function ScorecardsCatalog() {
         return false;
       }
       if (!q) return true;
-      const peopleMatch = peopleWithIndividualKpis.some(
+      const peopleMatch = peopleAssignees.some(
         (row) =>
           row.scorecard.cycleId === c.id &&
           (row.scorecard.userName.toLowerCase().includes(q) ||
@@ -409,7 +319,7 @@ export default function ScorecardsCatalog() {
         horizonLabel(c).toLowerCase().includes(q)
       );
     });
-  }, [scorecards, roleSearch, roleDepartmentFilter, peopleWithIndividualKpis]);
+  }, [scorecards, roleSearch, roleDepartmentFilter, peopleAssignees]);
 
   const loading = configsLoading || peopleLoading;
 
@@ -441,84 +351,124 @@ export default function ScorecardsCatalog() {
         ) : (
           <>
             <div
-              className="mb-6 flex flex-wrap items-center justify-between gap-3"
+              className="mb-6 flex justify-between gap-4"
               data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-12"
             >
-              <Space wrap>
+              {view === 'scorecards' ? (
+                <BscSearchInput
+                  placeholder="Search scorecards"
+                  value={roleSearch}
+                  onChange={setRoleSearch}
+                  data-cy="bsc-scorecard-search"
+                />
+              ) : (
+                <BscSearchInput
+                  placeholder="Search by name, role, or department"
+                  value={peopleSearch}
+                  onChange={(value) => {
+                    setPeopleSearch(value);
+                    setCurrentPage(1);
+                  }}
+                  data-cy="bsc-individual-people-search"
+                />
+              )}
+              <div
+                className="flex flex-wrap items-center gap-2"
+                data-cy="bsc-catalog-toolbar-actions"
+              >
+                <Select
+                  value={view}
+                  onChange={(value) =>
+                    setBscCatalogView(value as 'scorecards' | 'people')
+                  }
+                  className="w-44"
+                  options={[
+                    { value: 'scorecards', label: 'Scorecards' },
+                    { value: 'people', label: 'Individual KPIs' },
+                  ]}
+                  data-cy="bsc-catalog-view-filter"
+                />
                 {view === 'scorecards' ? (
-                  <>
-                    <Input
-                      allowClear
-                      placeholder="Search scorecards"
-                      prefix={<SearchOutlined />}
-                      value={roleSearch}
-                      onChange={(e) => setRoleSearch(e.target.value)}
-                      className="w-72"
-                      data-cy="bsc-scorecard-search"
-                    />
-                    <Select
-                      value={view}
-                      onChange={(value) => setView(value as CatalogView)}
-                      className="w-56"
-                      options={[
-                        { value: 'scorecards', label: 'Scorecards' },
-                        { value: 'people', label: 'Individual KPIs' },
-                      ]}
-                      data-cy="bsc-catalog-view-filter"
-                    />
-                    <Select
-                      allowClear
-                      placeholder="Filter by department"
-                      className="w-56"
-                      value={roleDepartmentFilter}
-                      onChange={setRoleDepartmentFilter}
+                  <Popover
+                    content={
+                      <div
+                        className="w-[320px] max-w-[320px]"
+                        data-cy="bsc-scorecard-filter-popover"
+                      >
+                        <div
+                          className="flex flex-col gap-2"
+                          data-cy="bsc-scorecard-filter-dept"
+                        >
+                          <label className="text-sm font-medium text-gray-700">
+                            Department
+                          </label>
+                          <Select
+                            allowClear
+                            showSearch
+                            placeholder="Filter by department"
+                            className="w-full h-10 rounded-lg"
+                            value={roleDepartmentFilter}
+                            onChange={setRoleDepartmentFilter}
+                            options={departments.map((d) => ({
+                              value: d,
+                              label: d,
+                            }))}
+                            data-cy="bsc-scorecard-filter-dept-select"
+                          />
+                        </div>
+                        <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100">
+                          <Button
+                            onClick={() => setRoleDepartmentFilter(undefined)}
+                            className="h-8 px-4 rounded-lg text-xs text-gray-700 border-gray-300"
+                          >
+                            Reset
+                          </Button>
+                          <Button
+                            type="primary"
+                            onClick={() => setFilterOpen(false)}
+                            className="h-8 px-4 rounded-lg text-xs bg-okr-primary border-okr-primary"
+                          >
+                            Save Filter
+                          </Button>
+                        </div>
+                      </div>
+                    }
+                    title={
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-base font-bold text-gray-900 m-0">
+                            Filter
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-1 mb-0">
+                            Select all filters that apply
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setFilterOpen(false)}
+                          className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"
+                        >
+                          <CloseOutlined />
+                        </button>
+                      </div>
+                    }
+                    trigger="click"
+                    open={filterOpen}
+                    onOpenChange={setFilterOpen}
+                    placement="bottomRight"
+                    arrow={false}
+                  >
+                    <Button
+                      type="default"
+                      className={bscFilterButtonClassName}
+                      icon={<FilterAltOutlinedIcon className="py-1" />}
+                      data-cy="bsc-scorecard-filter"
                     >
-                      {departments.map((d) => (
-                        <Option key={d} value={d}>
-                          {d}
-                        </Option>
-                      ))}
-                    </Select>
-                  </>
-                ) : (
-                  <>
-                    <Input
-                      allowClear
-                      placeholder="Search by name, role, or department"
-                      prefix={<SearchOutlined />}
-                      value={peopleSearch}
-                      onChange={(e) => {
-                        setPeopleSearch(e.target.value);
-                        setCurrentPage(1);
-                      }}
-                      className="w-80"
-                      data-cy="bsc-individual-people-search"
-                    />
-                    <Select
-                      value={view}
-                      onChange={(value) => setView(value as CatalogView)}
-                      className="w-56"
-                      options={[
-                        { value: 'scorecards', label: 'Scorecards' },
-                        { value: 'people', label: 'Individual KPIs' },
-                      ]}
-                      data-cy="bsc-catalog-view-filter"
-                    />
-                  </>
-                )}
-              </Space>
-              {view === 'people' ? (
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={() => openAssignForPerson(null)}
-                  disabled={!personOptions.length}
-                  className="bg-[#2b54ad]"
-                  data-cy="bsc-individual-add-from-catalog"
-                >
-                  Add individual KPIs
-                </Button>
-              ) : null}
+                      {!isMobile && 'Filter'}
+                    </Button>
+                  </Popover>
+                ) : null}
+              </div>
             </div>
 
             {view === 'scorecards' ? (
@@ -580,7 +530,7 @@ export default function ScorecardsCatalog() {
               </>
             ) : (
               <div data-cy="bsc-individual-assignees-panel">
-                {!peopleWithIndividualKpis.length ? (
+                {!peopleAssignees.length ? (
                   <div
                     className="rounded-[12px] border border-dashed border-[#d9d9d9] bg-[#F9FAFB] px-4 py-10 text-center"
                     data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-17"
@@ -589,25 +539,15 @@ export default function ScorecardsCatalog() {
                       className="m-0 text-[14px] font-medium text-[#262626]"
                       data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-p-18"
                     >
-                      No individual KPI assignments yet
+                      No employee scorecards yet
                     </p>
                     <p
                       className="m-0 mt-1 text-[13px] text-[#8F94A3]"
                       data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-p-19"
                     >
-                      Use Add individual KPIs to append person-only KPIs to an
-                      employee scorecard.
+                      Create a scorecard program so employees appear here. Open
+                      a person to add individual KPIs on their scorecard.
                     </p>
-                    <Button
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      className="mt-4 bg-[#2b54ad]"
-                      onClick={() => openAssignForPerson(null)}
-                      disabled={!personOptions.length}
-                      data-cy="bsc-individual-add-empty"
-                    >
-                      Add individual KPIs
-                    </Button>
                   </div>
                 ) : !filteredPeople.length ? (
                   <div className="py-12" data-cy="bsc-individual-people-empty">
@@ -625,9 +565,9 @@ export default function ScorecardsCatalog() {
                         dataSource={pagedPeople}
                         rowKey={(row) => row.scorecard.id}
                         pagination={false}
-                        scroll={{ x: isMobile ? 'max-content' : 1000 }}
+                        scroll={{ x: isMobile ? 'max-content' : 900 }}
                         onRow={(row) => ({
-                          onClick: () => openPersonOnScorecard(row),
+                          onClick: () => openPersonScorecard(row),
                         })}
                         rowHoverable={false}
                         rowClassName={(unused, index) =>
@@ -671,13 +611,6 @@ export default function ScorecardsCatalog() {
         )}
       </div>
       <BscSetupModal />
-      <AssignIndividualKpisModal
-        open={assignOpen}
-        scorecard={assignScorecard}
-        personOptions={assignScorecard ? [] : personOptions}
-        evaluationConfigId={assignScorecard?.cycleId}
-        onClose={closeAssign}
-      />
     </div>
   );
 }

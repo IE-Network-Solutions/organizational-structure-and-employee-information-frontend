@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Button, Popover, Progress, Select, Table, Tag } from 'antd';
+import { Avatar, Button, Popover, Progress, Select, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseOutlined, UserOutlined } from '@ant-design/icons';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useRouter } from 'next/navigation';
 import CustomPagination from '@/components/customPagination';
@@ -11,14 +11,13 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { TableSkeleton } from '@/components/tableSkeleton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetBscScorecards } from '@/store/server/features/bsc/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { EmployeeScorecard } from '@/types/bsc';
 import {
   computeRollup,
   departmentRollups,
   formatScore,
-  isScorecardApproved,
   latestScorecardsByEmployee,
-  scorecardTotal,
   type RollupSummary,
 } from '@/utils/bsc/rollup';
 
@@ -29,10 +28,33 @@ const rollupCardShellClass =
   'flex flex-col gap-4 h-[148px] min-w-[260px] flex-none rounded-lg border border-[#D9D9D9] bg-white p-4 text-left shadow-none transition-shadow hover:shadow-sm cursor-pointer';
 
 type EmployeeKpiRow = EmployeeScorecard & {
-  kpiScore: number;
   kpiCount: number;
   individualCount: number;
 };
+
+function resolveProfileImageSrc(profileImage: unknown): string | undefined {
+  if (!profileImage || typeof profileImage !== 'string') return undefined;
+  try {
+    const parsed = JSON.parse(profileImage);
+    if (
+      parsed?.url &&
+      typeof parsed.url === 'string' &&
+      parsed.url.startsWith('http')
+    ) {
+      return parsed.url;
+    }
+  } catch {
+    if (profileImage.startsWith('http')) return profileImage;
+  }
+  return undefined;
+}
+
+function nameInitials(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
 
 function RollupProgressCard({
   rollup,
@@ -112,6 +134,16 @@ export default function EmployeeKpiTable() {
   const [pageSize, setPageSize] = useState(10);
   const { isMobile, isTablet } = useIsMobile();
   const { data: scorecards, isLoading } = useGetBscScorecards();
+  const { data: allUsers } = useGetAllUsers();
+
+  const profileImageByUserId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const user of allUsers?.items || []) {
+      const src = resolveProfileImageSrc(user?.profileImage);
+      if (user?.id && src) map.set(user.id, src);
+    }
+    return map;
+  }, [allUsers]);
 
   const latestByEmployee = useMemo(
     () => latestScorecardsByEmployee(scorecards),
@@ -151,7 +183,6 @@ export default function EmployeeKpiTable() {
       .filter((row) => !department || row.departmentName === department)
       .map((row) => ({
         ...row,
-        kpiScore: scorecardTotal(row),
         kpiCount: row.targets.length,
         individualCount: row.targets.filter(
           (t) => t.assignmentSource === 'individual',
@@ -193,29 +224,28 @@ export default function EmployeeKpiTable() {
       ),
       dataIndex: 'userName',
       key: 'userName',
-      width: 200,
-      render: (name: string) => (
-        <span className={tableCellClassName} data-cy="bsc-all-employee-name">
-          {name}
-        </span>
-      ),
-    },
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="bsc-all-employee-col-title"
+      width: 240,
+      render: (name: string, row) => (
+        <div
+          className="flex min-w-0 items-center gap-2"
+          data-cy="bsc-all-employee-name-cell"
         >
-          Job Title
-        </span>
-      ),
-      dataIndex: 'positionTitle',
-      key: 'positionTitle',
-      width: 220,
-      render: (title: string) => (
-        <span className={tableCellClassName} data-cy="bsc-all-employee-title">
-          {title || '—'}
-        </span>
+          <Avatar
+            size={28}
+            src={profileImageByUserId.get(row.userId)}
+            icon={<UserOutlined />}
+            className="shrink-0 bg-[#E6F4FF] text-[#1677ff]"
+            data-cy={`bsc-all-employee-avatar-${row.userId}`}
+          >
+            {nameInitials(name)}
+          </Avatar>
+          <span
+            className={`min-w-0 truncate ${tableCellClassName}`}
+            data-cy="bsc-all-employee-name"
+          >
+            {name}
+          </span>
+        </div>
       ),
     },
     {
@@ -233,23 +263,6 @@ export default function EmployeeKpiTable() {
       render: (name: string) => (
         <span className={tableCellClassName} data-cy="bsc-all-employee-dept">
           {name || '—'}
-        </span>
-      ),
-    },
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="bsc-all-employee-col-period"
-        >
-          Period
-        </span>
-      ),
-      dataIndex: 'cycleLabel',
-      key: 'cycleLabel',
-      render: (label: string) => (
-        <span className={tableCellClassName} data-cy="bsc-all-employee-period">
-          {label}
         </span>
       ),
     },
@@ -285,44 +298,6 @@ export default function EmployeeKpiTable() {
           ) : null}
         </div>
       ),
-    },
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="bsc-all-employee-col-score"
-        >
-          KPI Score
-        </span>
-      ),
-      dataIndex: 'kpiScore',
-      key: 'kpiScore',
-      width: 110,
-      render: (score: number) => (
-        <span className={tableCellClassName} data-cy="bsc-all-employee-score">
-          {formatScore(score)}%
-        </span>
-      ),
-    },
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="bsc-all-employee-col-status"
-        >
-          Status
-        </span>
-      ),
-      key: 'approval',
-      width: 110,
-      render: (unused: unknown, record: EmployeeKpiRow) =>
-        isScorecardApproved(record) ? (
-          <Tag color="green" data-cy="bsc-all-employee-status-approved">
-            Approved
-          </Tag>
-        ) : (
-          <Tag data-cy="bsc-all-employee-status-pending">Pending</Tag>
-        ),
     },
   ];
 
@@ -451,23 +426,41 @@ export default function EmployeeKpiTable() {
         data-cy="bsc-all-employee-table-card"
       >
         <div
-          className="flex justify-between items-center gap-3 mb-2 px-3 pt-3"
+          className="flex flex-wrap items-center justify-between gap-3 mb-2 px-3 pt-3"
           data-cy="bsc-all-employee-toolbar"
         >
-          <Select
-            showSearch
-            allowClear
-            placeholder="Search Employee"
-            value={userId}
-            onChange={(value) => {
-              setUserId(value);
-              setCurrentPage(1);
-            }}
-            className="h-10 w-full sm:w-[300px]"
-            options={employeeOptions}
-            optionFilterProp="label"
-            data-cy="bsc-all-employee-search"
-          />
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+            <Select
+              showSearch
+              allowClear
+              placeholder="Search Employee"
+              value={userId}
+              onChange={(value) => {
+                setUserId(value);
+                setCurrentPage(1);
+              }}
+              className="h-10 w-full sm:w-[240px]"
+              options={employeeOptions}
+              optionFilterProp="label"
+              data-cy="bsc-all-employee-search"
+            />
+            <Select
+              allowClear
+              showSearch
+              placeholder="Department"
+              value={department}
+              onChange={(value) => {
+                setDepartment(value);
+                setCurrentPage(1);
+              }}
+              className="h-10 w-full sm:w-[220px]"
+              options={departmentOptions.map((name) => ({
+                value: name,
+                label: name,
+              }))}
+              data-cy="bsc-all-employee-department-select"
+            />
+          </div>
           <Popover
             content={filterPopover}
             title={
@@ -522,7 +515,7 @@ export default function EmployeeKpiTable() {
         >
           {isLoading ? (
             <div data-cy="bsc-all-employee-kpi-table-skeleton">
-              <TableSkeleton columns={columns} scroll={{ x: 1000 }} />
+              <TableSkeleton columns={columns} scroll={{ x: 520 }} />
             </div>
           ) : (
             <Table
@@ -531,7 +524,7 @@ export default function EmployeeKpiTable() {
               dataSource={paged}
               pagination={false}
               loading={false}
-              scroll={{ x: 1000 }}
+              scroll={{ x: 520 }}
               rowKey="id"
               rowHoverable={false}
               onRow={(row) => ({

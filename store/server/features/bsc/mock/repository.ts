@@ -2,6 +2,7 @@ import {
   AssignScorecardInput,
   AppendIndividualKpisInput,
   BscPerspectiveDefinition,
+  BscScopeTarget,
   BscSetupKind,
   CreateEvaluationConfigInput,
   CreateKpiLibraryInput,
@@ -462,19 +463,25 @@ export class BscMockRepository {
     if (!hasPeriods && !hasDates) {
       throw new Error('Select a fiscal period or set a custom date range');
     }
-    if (
-      !input.departmentIds?.length &&
-      !input.positionIds?.length &&
-      !input.employeeIds?.length
-    ) {
-      throw new Error('Select at least one department, role, or individual');
-    }
+    // Empty dept/role/employee lists are valid for Company-wide scope.
+    const isCompanyScope =
+      input.scopeTarget === BscScopeTarget.Company ||
+      (!input.departmentIds?.length &&
+        !input.positionIds?.length &&
+        !input.employeeIds?.length);
     const cycle: EvaluationCycle = {
       id: uid('config'),
       ...input,
       description: input.description?.trim() || null,
+      scopeTarget:
+        input.scopeTarget ||
+        (isCompanyScope ? BscScopeTarget.Company : undefined),
       employeeIds: input.employeeIds || [],
       employeeNames: input.employeeNames || [],
+      evaluatorMode: input.evaluatorMode || 'directManager',
+      evaluatorUserId: input.evaluatorUserId ?? null,
+      kpiEvaluators: input.kpiEvaluators || {},
+      kpiEvaluationFlows: input.kpiEvaluationFlows || {},
       setupKind:
         input.setupKind ||
         (input.useCustomDates
@@ -573,6 +580,32 @@ export class BscMockRepository {
         bestCase: t.bestCase ?? kpi.bestCase,
         approvalStatus: KpiApprovalStatus.Pending,
         assignmentSource: 'shared',
+        evaluationFlow: t.evaluationFlow?.length
+          ? t.evaluationFlow.map((step) => ({
+              kind: step.kind,
+              userId: step.kind === 'user' ? step.userId ?? null : null,
+            }))
+          : [
+              {
+                kind:
+                  t.evaluatorMode === 'user'
+                    ? ('user' as const)
+                    : ('directManager' as const),
+                userId:
+                  t.evaluatorMode === 'user' ? t.evaluatorUserId ?? null : null,
+              },
+            ],
+        evaluatorMode:
+          t.evaluatorMode ||
+          (t.evaluationFlow?.find(
+            (s) => s.kind === 'user' || s.kind === 'directManager',
+          )?.kind === 'user'
+            ? 'user'
+            : 'directManager'),
+        evaluatorUserId:
+          t.evaluatorUserId ??
+          t.evaluationFlow?.find((s) => s.kind === 'user')?.userId ??
+          null,
       };
     });
 
@@ -677,6 +710,16 @@ export class BscMockRepository {
 
     for (const row of input.kpis) {
       const kpi = libraryMap.get(row.kpiLibraryId)!;
+      const evaluationFlow =
+        row.evaluationFlow?.length
+          ? row.evaluationFlow.map((step) => ({
+              kind: step.kind,
+              userId: step.kind === 'user' ? step.userId ?? null : null,
+            }))
+          : [
+              { kind: 'self' as const, userId: null },
+              { kind: 'directManager' as const, userId: null },
+            ];
       sc.targets.push({
         id: uid('target'),
         scorecardId: sc.id,
@@ -691,6 +734,7 @@ export class BscMockRepository {
         bestCase: row.bestCase ?? kpi.bestCase,
         approvalStatus: KpiApprovalStatus.Pending,
         assignmentSource: 'individual',
+        evaluationFlow,
       });
     }
 
@@ -846,6 +890,10 @@ export class BscMockRepository {
       target.submittedAt = new Date().toISOString();
       target.approvalStatus = KpiApprovalStatus.Pending;
       target.rejectionReason = null;
+      // Stay on self step until submitFinal advances the chain.
+      if (target.evaluationStepIndex == null) {
+        target.evaluationStepIndex = 0;
+      }
     }
 
     return delay(this.cloneScorecard(sc));
@@ -880,6 +928,13 @@ export class BscMockRepository {
     const from = sc.status;
     sc.status = ScorecardStatus.PendingEval;
     sc.updatedAt = new Date().toISOString();
+    for (const t of sc.targets) {
+      if (t.approvalStatus === KpiApprovalStatus.Approved) continue;
+      const flowLen = t.evaluationFlow?.length || 2;
+      t.evaluationStepIndex = Math.min(1, Math.max(flowLen - 1, 0));
+      t.approvalStatus = KpiApprovalStatus.Pending;
+      t.rejectionReason = null;
+    }
     this.recordTransition(
       sc,
       from,
@@ -929,10 +984,30 @@ export class BscMockRepository {
     }
     const target = sc.targets.find((t) => t.id === targetId);
     if (!target) throw new Error('KPI target not found');
-    target.approvalStatus = approved
-      ? KpiApprovalStatus.Approved
-      : KpiApprovalStatus.Rejected;
-    target.rejectionReason = approved ? null : rejectionReason || 'Rejected';
+
+    if (!approved) {
+      target.approvalStatus = KpiApprovalStatus.Rejected;
+      target.rejectionReason = rejectionReason || 'Rejected';
+      target.evaluationStepIndex = 0;
+      sc.updatedAt = new Date().toISOString();
+      return delay(this.cloneScorecard(sc));
+    }
+
+    const flowLen = target.evaluationFlow?.length || 2;
+    const stepIndex = Math.min(
+      Math.max(target.evaluationStepIndex ?? 0, 0),
+      Math.max(flowLen - 1, 0),
+    );
+    const isLast = stepIndex >= flowLen - 1;
+    if (isLast) {
+      target.approvalStatus = KpiApprovalStatus.Approved;
+      target.rejectionReason = null;
+    } else {
+      // Intermediate evaluator accepted — advance to next step, keep pending.
+      target.evaluationStepIndex = stepIndex + 1;
+      target.approvalStatus = KpiApprovalStatus.Pending;
+      target.rejectionReason = null;
+    }
     sc.updatedAt = new Date().toISOString();
     return delay(this.cloneScorecard(sc));
   }

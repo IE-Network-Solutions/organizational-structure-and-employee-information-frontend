@@ -645,6 +645,8 @@ function buildRoleTargets(
     targetValue: kpi.defaultTarget ?? 0,
     actualValue: actuals[i] ?? null,
     assignmentSource: 'shared' as const,
+    evaluationFlow: [{ kind: 'self' as const }, { kind: 'directManager' as const }],
+    evaluationStepIndex: scored ? 1 : 0,
     approvalStatus:
       actuals[i] == null
         ? KpiApprovalStatus.Pending
@@ -672,6 +674,7 @@ function seedScorecardForMonth(opts: {
   userName?: string;
   positionTitle?: string;
   departmentName?: string;
+  managerId?: string;
 }): EmployeeScorecard {
   const meta = monthMeta(opts.offsetMonths);
   const cycleId =
@@ -679,11 +682,37 @@ function seedScorecardForMonth(opts: {
       ? 'config-seed-current'
       : `config-seed-${meta.year}-${String(meta.month).padStart(2, '0')}`;
   const positionTitle = opts.positionTitle || 'HR Director';
+  const status = opts.status;
+  const ownerId = opts.userId || 'demo-user';
+  const managerId =
+    opts.managerId ||
+    (ownerId === 'demo-user' ? 'demo-manager' : 'demo-user');
+  const targets = buildRoleTargets(
+    opts.id,
+    positionTitle,
+    opts.actuals,
+    opts.status,
+  );
+  // Pending evaluation = self already submitted; waiting on manager (step 1).
+  if (status === ScorecardStatus.PendingEval) {
+    for (const t of targets) {
+      t.evaluationStepIndex = 1;
+      t.approvalStatus = KpiApprovalStatus.Pending;
+    }
+  }
+  // Needs resubmit = manager sent back; owner acts again at self step.
+  if (status === ScorecardStatus.NeedsResubmit) {
+    for (const t of targets) {
+      t.evaluationStepIndex = 0;
+      t.approvalStatus = KpiApprovalStatus.Rejected;
+      t.rejectionReason = t.rejectionReason || 'Please revise actuals for this period';
+    }
+  }
   return {
     id: opts.id,
-    userId: opts.userId || 'demo-user',
+    userId: ownerId,
     userName: opts.userName || 'Alex Morgan',
-    managerId: 'demo-manager',
+    managerId,
     departmentId: null,
     departmentName: opts.departmentName || 'Human Resources',
     positionId: null,
@@ -693,14 +722,9 @@ function seedScorecardForMonth(opts: {
     periodMonthName: meta.monthName,
     periodYear: meta.year,
     status: opts.status,
-    targets: buildRoleTargets(
-      opts.id,
-      positionTitle,
-      opts.actuals,
-      opts.status,
-    ),
+    targets,
     acknowledgedAt: now,
-    acknowledgedBy: opts.userId || 'demo-user',
+    acknowledgedBy: ownerId,
     acknowledgmentSignature: `sig-${opts.id}`,
     finalEvaluation:
       opts.compositeScore != null
@@ -708,7 +732,7 @@ function seedScorecardForMonth(opts: {
             compositeScore: opts.compositeScore,
             managerNote: opts.managerNote || 'Solid delivery against targets.',
             evaluatedAt: now,
-            evaluatorUserId: 'demo-manager',
+            evaluatorUserId: managerId,
           }
         : null,
     createdAt: now,
@@ -789,6 +813,69 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     departmentName: 'Customer Support',
   }),
   seedScorecardForMonth({
+    id: 'sc-sup-prev-1',
+    offsetMonths: -1,
+    status: ScorecardStatus.Completed,
+    actuals: [88, 68, 7],
+    compositeScore: 84.1,
+    userId: 'emp-sup-sam',
+    userName: 'Sam Rivera',
+    positionTitle: 'Support Team Lead',
+    departmentName: 'Customer Support',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-sup-morgan',
+    offsetMonths: 0,
+    status: ScorecardStatus.Scored,
+    actuals: [95, 78, 12],
+    compositeScore: 93.5,
+    userId: 'emp-sup-morgan',
+    userName: 'Morgan Blake',
+    positionTitle: 'Support Team Lead',
+    departmentName: 'Customer Support',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-sup-avery',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [87, 74, 9],
+    userId: 'emp-sup-avery',
+    userName: 'Avery Quinn',
+    positionTitle: 'Support Team Lead',
+    departmentName: 'Enterprise Support',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-sup-avery-prev',
+    offsetMonths: -1,
+    status: ScorecardStatus.Completed,
+    actuals: [84, 70, 6],
+    compositeScore: 81.0,
+    userId: 'emp-sup-avery',
+    userName: 'Avery Quinn',
+    positionTitle: 'Support Team Lead',
+    departmentName: 'Enterprise Support',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-t1-jamie',
+    offsetMonths: 0,
+    status: ScorecardStatus.Active,
+    actuals: [91, 28, 8],
+    userId: 'emp-t1-jamie',
+    userName: 'Jamie Ortiz',
+    positionTitle: 'Tier 1 Support Agent',
+    departmentName: 'Customer Support',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-t1-drew',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [86, 35, 11],
+    userId: 'emp-t1-drew',
+    userName: 'Drew Patel',
+    positionTitle: 'Tier 1 Support Agent',
+    departmentName: 'Field Services',
+  }),
+  seedScorecardForMonth({
     id: 'sc-eng-current',
     offsetMonths: 0,
     status: ScorecardStatus.Scored,
@@ -800,6 +887,27 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     departmentName: 'Information Technology',
   }),
   seedScorecardForMonth({
+    id: 'sc-eng-taylor',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [99.2, 22, 7],
+    userId: 'emp-eng-taylor',
+    userName: 'Taylor Ng',
+    positionTitle: 'Lead Software Engineer',
+    departmentName: 'Platform Engineering',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-eng-taylor-prev',
+    offsetMonths: -1,
+    status: ScorecardStatus.Completed,
+    actuals: [98.8, 25, 5],
+    compositeScore: 88.4,
+    userId: 'emp-eng-taylor',
+    userName: 'Taylor Ng',
+    positionTitle: 'Lead Software Engineer',
+    departmentName: 'Platform Engineering',
+  }),
+  seedScorecardForMonth({
     id: 'sc-ae-current',
     offsetMonths: 0,
     status: ScorecardStatus.PendingEval,
@@ -808,6 +916,94 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     userName: 'Casey Brooks',
     positionTitle: 'Account Executive',
     departmentName: 'Sales Operations',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-ae-skyler',
+    offsetMonths: 0,
+    status: ScorecardStatus.Scored,
+    actuals: [5, 102, 1],
+    compositeScore: 94.0,
+    userId: 'emp-ae-skyler',
+    userName: 'Skyler Amin',
+    positionTitle: 'Account Executive',
+    departmentName: 'Commercial Sales',
+  }),
+  /** Dedicated Check-in mocks for demo-user inbox */
+  seedScorecardForMonth({
+    id: 'sc-checkin-self',
+    offsetMonths: 0,
+    status: ScorecardStatus.Active,
+    actuals: [null, null, null],
+    userId: 'demo-user',
+    userName: 'Alex Morgan',
+    positionTitle: 'HR Director',
+    departmentName: 'Human Resources',
+    managerId: 'demo-manager',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-checkin-self-resubmit',
+    offsetMonths: 0,
+    status: ScorecardStatus.NeedsResubmit,
+    actuals: [36, 28, 70],
+    userId: 'demo-user',
+    userName: 'Alex Morgan',
+    positionTitle: 'HR Director',
+    departmentName: 'Human Resources',
+    managerId: 'demo-manager',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-checkin-review-sam',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [94, 76, 10],
+    userId: 'emp-checkin-sam',
+    userName: 'Sam Rivera',
+    positionTitle: 'Support Team Lead',
+    departmentName: 'Customer Support',
+    managerId: 'demo-user',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-checkin-review-jordan',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [4.5, 36, 1],
+    userId: 'emp-checkin-jordan',
+    userName: 'Jordan Hale',
+    positionTitle: 'Talent Acquisition Specialist',
+    departmentName: 'Human Resources',
+    managerId: 'demo-user',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-checkin-review-avery',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [89, 72, 9],
+    userId: 'emp-checkin-avery',
+    userName: 'Avery Quinn',
+    positionTitle: 'Support Team Lead',
+    departmentName: 'Enterprise Support',
+    managerId: 'demo-user',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-ta-priya',
+    offsetMonths: 0,
+    status: ScorecardStatus.Active,
+    actuals: [4.6, 35, 1],
+    userId: 'emp-ta-priya',
+    userName: 'Priya Nair',
+    positionTitle: 'Talent Acquisition Specialist',
+    departmentName: 'People Operations',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-ta-priya-prev',
+    offsetMonths: -1,
+    status: ScorecardStatus.Completed,
+    actuals: [4.4, 40, 1],
+    compositeScore: 82.5,
+    userId: 'emp-ta-priya',
+    userName: 'Priya Nair',
+    positionTitle: 'Talent Acquisition Specialist',
+    departmentName: 'People Operations',
   }),
 ].map((sc) => {
   // Demo: Alex Morgan has one person-only KPI on the current scorecard
@@ -850,6 +1046,11 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
         actualValue: null,
         approvalStatus: KpiApprovalStatus.Pending,
         assignmentSource: 'individual' as const,
+        evaluationFlow: [
+          { kind: 'self' as const },
+          { kind: 'directManager' as const },
+        ],
+        evaluationStepIndex: 0,
       },
     ],
   };

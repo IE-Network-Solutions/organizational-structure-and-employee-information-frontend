@@ -1,6 +1,7 @@
 import {
   BscCadence,
   BscPerspective,
+  BscScopeTarget,
   KpiApprovalStatus,
   ScorecardStatus,
 } from '@/types/bsc';
@@ -180,6 +181,63 @@ describe('bsc mock repository contract', () => {
     expect((await repo.listScorecards()).length).toBe(before);
   });
 
+  it('allows company-wide configs with empty scope ID lists', async () => {
+    const repo = new BscMockRepository();
+    const cycle = await repo.createCycle({
+      label: 'Company scorecard',
+      cadence: BscCadence.Monthly,
+      scopeTarget: BscScopeTarget.Company,
+      fiscalYearId: 'permanent',
+      fiscalYearName: 'Permanent',
+      periodIds: [],
+      periodLabels: ['Ongoing'],
+      startDate: '2026-01-01',
+      endDate: '2099-12-31',
+      isRecurring: true,
+      departmentIds: [],
+      departmentNames: [],
+      positionIds: [],
+      positionTitles: [],
+      employeeIds: [],
+      evaluatorMode: 'user',
+      evaluatorUserId: 'mgr-1',
+      kpiEvaluationFlows: {
+        'kpi-hr-dir-enps': [
+          { kind: 'user', userId: 'mgr-1' },
+          { kind: 'directManager' },
+        ],
+      },
+    });
+    expect(cycle.scopeTarget).toBe(BscScopeTarget.Company);
+    expect(cycle.evaluatorMode).toBe('user');
+    expect(cycle.evaluatorUserId).toBe('mgr-1');
+    expect(cycle.departmentIds).toEqual([]);
+    expect(cycle.kpiEvaluationFlows?.['kpi-hr-dir-enps']).toEqual([
+      { kind: 'user', userId: 'mgr-1' },
+      { kind: 'directManager' },
+    ]);
+  });
+
+  it('copies evaluationFlow onto scorecard KPI targets', async () => {
+    const repo = new BscMockRepository();
+    const flow = [
+      { kind: 'self' as const, userId: null },
+      { kind: 'user' as const, userId: 'mgr-1' },
+      { kind: 'directManager' as const, userId: null },
+    ];
+    const created = await repo.createScorecard({
+      userId: 'emp-flow',
+      userName: 'Flow Emp',
+      managerId: 'mgr-1',
+      cycleId: 'config-seed-current',
+      targets: HR_TARGETS.map((t) => ({
+        ...t,
+        evaluationFlow: flow,
+      })),
+    });
+    expect(created.targets[0].evaluationFlow).toEqual(flow);
+  });
+
   it('persists KPI perspective on role sync', async () => {
     const repo = new BscMockRepository();
     const kpis = await repo.listKpis({ positionTitle: 'HR Director' });
@@ -298,6 +356,10 @@ describe('bsc mock repository contract', () => {
     );
     expect(individual).toHaveLength(1);
     expect(individual[0].weightPercentage).toBe(20);
+    expect(individual[0].evaluationFlow).toEqual([
+      { kind: 'self', userId: null },
+      { kind: 'directManager', userId: null },
+    ]);
     const sharedSum = updated.targets
       .filter((t) => (t.assignmentSource || 'shared') === 'shared')
       .reduce((s, t) => s + t.weightPercentage, 0);
@@ -335,6 +397,11 @@ describe('bsc mock repository contract', () => {
           kpiLibraryId: 'kpi-ta-hm-sat',
           weightPercentage: 20,
           targetValue: 90,
+          evaluationFlow: [
+            { kind: 'self' },
+            { kind: 'directManager' },
+            { kind: 'self' },
+          ],
         },
       ],
     });
@@ -342,6 +409,14 @@ describe('bsc mock repository contract', () => {
     expect(
       updated.targets.reduce((s, t) => s + t.weightPercentage, 0),
     ).toBeCloseTo(100, 2);
+    const appended = updated.targets.find(
+      (t) => t.kpiLibraryId === 'kpi-ta-hm-sat',
+    );
+    expect(appended?.evaluationFlow).toEqual([
+      { kind: 'self', userId: null },
+      { kind: 'directManager', userId: null },
+      { kind: 'self', userId: null },
+    ]);
     for (const row of existingWeights) {
       const target = updated.targets.find((t) => t.id === row.targetId);
       expect(target?.weightPercentage).toBe(row.weightPercentage);

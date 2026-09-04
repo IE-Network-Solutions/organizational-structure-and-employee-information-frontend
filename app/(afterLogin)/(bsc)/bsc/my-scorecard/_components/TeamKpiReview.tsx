@@ -7,6 +7,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { CloseOutlined, MoreOutlined } from '@ant-design/icons';
 import { IoCheckmarkSharp } from 'react-icons/io5';
 import { EmptyImage } from '@/components/emptyIndicator';
+import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
 import { useGetBscScorecards } from '@/store/server/features/bsc/queries';
 import {
   useAdjustBscReportedKpis,
@@ -425,11 +426,23 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
 export default function TeamKpiReview() {
   const { userId } = useAuthenticationStore();
   const { data: scorecards, isLoading } = useGetBscScorecards();
+  const [search, setSearch] = useState('');
 
   const team = useMemo(
     () => latestTeamScorecards(scorecards, [userId, 'demo-user']),
     [scorecards, userId],
   );
+
+  const filteredTeam = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return team;
+    return team.filter(
+      (card) =>
+        card.userName.toLowerCase().includes(q) ||
+        (card.positionTitle || '').toLowerCase().includes(q) ||
+        (card.departmentName || '').toLowerCase().includes(q),
+    );
+  }, [team, search]);
 
   if (isLoading) {
     return (
@@ -452,9 +465,29 @@ export default function TeamKpiReview() {
 
   return (
     <div data-cy="bsc-team-kpi-tab-content">
-      {team.map((card) => (
-        <TeamScorecardCard key={card.id} scorecard={card} />
-      ))}
+      <div
+        className="flex justify-between gap-4 mb-4"
+        data-cy="bsc-team-kpi-toolbar"
+      >
+        <BscSearchInput
+          placeholder="Search team member"
+          value={search}
+          onChange={setSearch}
+          data-cy="bsc-team-kpi-search"
+        />
+      </div>
+      {!filteredTeam.length ? (
+        <div
+          className="py-12 text-center text-gray-400"
+          data-cy="bsc-team-kpi-search-empty"
+        >
+          No team members match your search
+        </div>
+      ) : (
+        filteredTeam.map((card) => (
+          <TeamScorecardCard key={card.id} scorecard={card} />
+        ))
+      )}
     </div>
   );
 }

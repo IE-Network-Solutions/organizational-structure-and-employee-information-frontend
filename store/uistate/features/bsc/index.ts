@@ -34,7 +34,8 @@ interface BscUiState {
   myScorecardSessionId: string | undefined;
   myScorecardMonthId: string | undefined;
   myScorecardSessionMonths: Month[];
-  scorecardTab: 'mine' | 'team' | 'all' | 'kpis' | 'bsc';
+  scorecardTab: 'mine' | 'team' | 'all' | 'kpis' | 'bsc' | 'checkin';
+  bscCatalogView: 'scorecards' | 'people';
   setSetupModalOpen: (v: boolean) => void;
   setEditingConfig: (v: EvaluationCycle | null) => void;
   openCreateSetup: () => void;
@@ -62,7 +63,10 @@ interface BscUiState {
   setMyScorecardSessionId: (v: string | undefined) => void;
   setMyScorecardMonthId: (v: string | undefined) => void;
   setMyScorecardSessionMonths: (v: Month[]) => void;
-  setScorecardTab: (v: 'mine' | 'team' | 'all' | 'kpis' | 'bsc') => void;
+  setScorecardTab: (
+    v: 'mine' | 'team' | 'all' | 'kpis' | 'bsc' | 'checkin',
+  ) => void;
+  setBscCatalogView: (v: 'scorecards' | 'people') => void;
 }
 
 export const useBscUiStore = create<BscUiState>((set) => ({
@@ -87,6 +91,7 @@ export const useBscUiStore = create<BscUiState>((set) => ({
   myScorecardMonthId: undefined,
   myScorecardSessionMonths: [],
   scorecardTab: 'mine',
+  bscCatalogView: 'scorecards',
   setSetupModalOpen: (setupModalOpen) => set({ setupModalOpen }),
   setEditingConfig: (editingConfig) => set({ editingConfig }),
   openCreateSetup: () => set({ setupModalOpen: true, editingConfig: null }),
@@ -129,4 +134,5 @@ export const useBscUiStore = create<BscUiState>((set) => ({
   setMyScorecardSessionMonths: (myScorecardSessionMonths) =>
     set({ myScorecardSessionMonths }),
   setScorecardTab: (scorecardTab) => set({ scorecardTab }),
+  setBscCatalogView: (bscCatalogView) => set({ bscCatalogView }),
 }));

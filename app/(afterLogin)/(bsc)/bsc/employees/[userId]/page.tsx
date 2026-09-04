@@ -1,56 +1,31 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Button, Empty, Table, Tag } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Button, Empty, Progress, Select, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { LeftOutlined } from '@ant-design/icons';
+import { LeftOutlined, PlusOutlined } from '@ant-design/icons';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { useGetBscScorecards } from '@/store/server/features/bsc/queries';
+import AssignIndividualKpisModal from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-setup/_components/AssignIndividualKpisModal';
+import KpiEvaluationFlowCompact from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiEvaluationFlowCompact';
+import {
+  useGetBscCycles,
+  useGetBscScorecards,
+} from '@/store/server/features/bsc/queries';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   EmployeeScorecard,
-  KpiApprovalStatus,
+  EvaluationCycle,
   ScorecardKpiTarget,
   ScorecardStatus,
-  TargetLogic,
 } from '@/types/bsc';
-import { computeCompositeScore } from '@/utils/bsc/scoring';
+import { targetScorePercent } from '@/utils/bsc/rollup';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
-
-function targetLogicLabel(logic: TargetLogic): string {
-  if (logic === TargetLogic.LowerBetter) return 'Lower is better';
-  if (logic === TargetLogic.Bounded) return 'Bounded';
-  return 'Higher is better';
-}
-
-function approvalTag(status: KpiApprovalStatus) {
-  if (status === KpiApprovalStatus.Approved) {
-    return <Tag color="green">Approved</Tag>;
-  }
-  if (status === KpiApprovalStatus.Rejected) {
-    return <Tag color="red">Rejected</Tag>;
-  }
-  return <Tag>Pending</Tag>;
-}
-
-function scorecardTotal(scorecard: EmployeeScorecard): number {
-  const evaluated =
-    scorecard.status === ScorecardStatus.Scored ||
-    scorecard.status === ScorecardStatus.Completed ||
-    scorecard.finalEvaluation?.compositeScore != null;
-  if (!evaluated) return 0;
-  const result = computeCompositeScore(scorecard.targets);
-  let total = 0;
-  for (const t of scorecard.targets) {
-    const item = result.items.find((b) => b.targetId === t.id);
-    const ratio = item ? Math.min(item.ratio, 1) : 0;
-    total += ratio * t.weightPercentage;
-  }
-  return Math.min(total, 100);
-}
+const blueTagClassName =
+  'm-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]';
 
 function formatScore(value: number): string {
   if (!Number.isFinite(value)) return '0';
@@ -59,18 +34,111 @@ function formatScore(value: number): string {
     : value.toFixed(1);
 }
 
-function isScorecardApproved(scorecard: EmployeeScorecard): boolean {
-  if (
-    scorecard.status === ScorecardStatus.Scored ||
-    scorecard.status === ScorecardStatus.Completed
-  ) {
-    return true;
+function ScoreProgressBar({
+  value,
+  dataCy,
+}: {
+  value: number | null;
+  dataCy: string;
+}) {
+  if (value == null) {
+    return (
+      <span className={tableCellClassName} data-cy={dataCy}>
+        —
+      </span>
+    );
   }
+  const percent = Math.min(Math.max(value, 0), 100);
   return (
-    scorecard.targets.length > 0 &&
-    scorecard.targets.every(
-      (t) => t.approvalStatus === KpiApprovalStatus.Approved,
-    )
+    <div className="flex min-w-0 items-center gap-2" data-cy={dataCy}>
+      <Progress
+        percent={percent}
+        showInfo={false}
+        strokeColor="#1f4fd8"
+        trailColor="#e5e7eb"
+        size="small"
+        className="m-0 min-w-0 flex-1"
+        data-cy={`${dataCy}-bar`}
+      />
+      <span
+        className="shrink-0 text-sm font-normal text-[#4d4d4d]"
+        data-cy={`${dataCy}-label`}
+      >
+        {formatScore(percent)}%
+      </span>
+    </div>
+  );
+}
+
+function currentMonthName(): string {
+  return new Date().toLocaleString('en-US', { month: 'long' });
+}
+
+function currentYear(): number {
+  return new Date().getFullYear();
+}
+
+function periodLabel(card: EmployeeScorecard): string {
+  if (card.periodMonthName) {
+    return card.periodYear
+      ? `${card.periodMonthName} ${card.periodYear}`
+      : card.periodMonthName;
+  }
+  return card.cycleLabel || 'Period';
+}
+
+function scorecardOptionLabel(
+  card: EmployeeScorecard,
+  cycleById: Map<string, EvaluationCycle>,
+): string {
+  const cadence = cycleById.get(card.cycleId)?.cadence;
+  const period = periodLabel(card);
+  const program = (card.cycleLabel || '').trim();
+  const periodLower = period.toLowerCase();
+  const programLower = program.toLowerCase();
+  const cadenceLower = (cadence || '').toLowerCase();
+
+  // Prefer a short period label; only add program when it adds new info.
+  const programIsRedundant =
+    !program ||
+    programLower === periodLower ||
+    programLower.includes(periodLower) ||
+    periodLower.includes(programLower.replace(/\s*\([^)]*\)\s*/g, '').trim());
+
+  const parts: string[] = [];
+  if (!programIsRedundant) parts.push(program);
+  parts.push(period);
+  if (
+    cadence &&
+    !parts.some((part) => part.toLowerCase().includes(cadenceLower))
+  ) {
+    parts.push(cadence);
+  }
+  return parts.join(' · ');
+}
+
+function pickDefaultScorecard(
+  list: EmployeeScorecard[],
+  preferredId?: string,
+): EmployeeScorecard | null {
+  if (!list.length) return null;
+  if (preferredId) {
+    const preferred = list.find((card) => card.id === preferredId);
+    if (preferred) return preferred;
+  }
+  const thisMonth = currentMonthName();
+  const year = currentYear();
+  const currentPeriod =
+    list.find(
+      (s) =>
+        s.periodMonthName?.toLowerCase() === thisMonth.toLowerCase() &&
+        (s.periodYear == null || s.periodYear === year),
+    ) || null;
+  if (currentPeriod) return currentPeriod;
+  const active = list.find((s) => s.status === ScorecardStatus.Active);
+  if (active) return active;
+  return list.reduce((latest, card) =>
+    (card.updatedAt || '') > (latest.updatedAt || '') ? card : latest,
   );
 }
 
@@ -78,25 +146,158 @@ export default function EmployeeKpiDetailPage() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  const setScorecardTab = useBscUiStore((s) => s.setScorecardTab);
+  const { setScorecardTab, setBscCatalogView } = useBscUiStore();
   const userId = decodeURIComponent(String(params?.userId || ''));
   const preferredScorecardId = searchParams.get('scorecard') || undefined;
+  const fromIndividual = searchParams.get('from') === 'individual';
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [selectedScorecardId, setSelectedScorecardId] = useState<
+    string | undefined
+  >(preferredScorecardId);
 
   const { data: scorecards, isLoading } = useGetBscScorecards();
+  const { data: cycles } = useGetBscCycles();
+  const { data: allUsers } = useGetAllUsers();
+
+  const cycleById = useMemo(() => {
+    const map = new Map<string, EvaluationCycle>();
+    for (const cycle of cycles || []) map.set(cycle.id, cycle);
+    return map;
+  }, [cycles]);
+
+  const employeeById = useMemo(() => {
+    const map = new Map<
+      string,
+      { label: string; initials?: string; profileImage?: string | null }
+    >();
+    for (const user of allUsers?.items || []) {
+      const rawName =
+        `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
+          .replace(/\s+/g, ' ')
+          .trim();
+      const label: string =
+        rawName ||
+        (typeof user.email === 'string' && user.email) ||
+        'Employee';
+      const initials = label
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() || '')
+        .join('');
+      let profileImage: string | null = null;
+      if (typeof user.profileImage === 'string') {
+        try {
+          const parsed = JSON.parse(user.profileImage);
+          if (parsed?.url && typeof parsed.url === 'string') {
+            profileImage = parsed.url;
+          } else if (user.profileImage.startsWith('http')) {
+            profileImage = user.profileImage;
+          }
+        } catch {
+          if (user.profileImage.startsWith('http')) {
+            profileImage = user.profileImage;
+          }
+        }
+      }
+      if (user.id) {
+        map.set(user.id, {
+          label,
+          initials: initials || '?',
+          profileImage,
+        });
+      }
+    }
+    return map;
+  }, [allUsers]);
+
+  const personScorecards = useMemo(() => {
+    return [...(scorecards || [])]
+      .filter((card) => card.userId === userId)
+      .sort((a, b) => {
+        const byCycle = (a.cycleLabel || '').localeCompare(b.cycleLabel || '');
+        if (byCycle) return byCycle;
+        const yearA = a.periodYear ?? 0;
+        const yearB = b.periodYear ?? 0;
+        if (yearA !== yearB) return yearB - yearA;
+        return (b.updatedAt || '').localeCompare(a.updatedAt || '');
+      });
+  }, [scorecards, userId]);
+
+  useEffect(() => {
+    if (!personScorecards.length) {
+      setSelectedScorecardId(undefined);
+      return;
+    }
+    const stillValid = personScorecards.some(
+      (card) => card.id === selectedScorecardId,
+    );
+    if (stillValid) return;
+    const fallback = pickDefaultScorecard(
+      personScorecards,
+      preferredScorecardId,
+    );
+    setSelectedScorecardId(fallback?.id);
+  }, [personScorecards, preferredScorecardId, selectedScorecardId]);
 
   const scorecard = useMemo(() => {
-    const list = (scorecards || []).filter((card) => card.userId === userId);
-    if (!list.length) return null;
-    if (preferredScorecardId) {
-      const preferred = list.find((card) => card.id === preferredScorecardId);
-      if (preferred) return preferred;
-    }
-    return list.reduce((latest, card) =>
-      (card.updatedAt || '') > (latest.updatedAt || '') ? card : latest,
+    if (!personScorecards.length) return null;
+    return (
+      personScorecards.find((card) => card.id === selectedScorecardId) ||
+      pickDefaultScorecard(personScorecards, preferredScorecardId)
     );
-  }, [scorecards, userId, preferredScorecardId]);
+  }, [personScorecards, selectedScorecardId, preferredScorecardId]);
 
-  const backToAll = () => {
+  const periodOptions = useMemo(
+    () =>
+      personScorecards.map((card) => ({
+        value: card.id,
+        label: scorecardOptionLabel(card, cycleById),
+      })),
+    [personScorecards, cycleById],
+  );
+
+  const averageScoreByKpiId = useMemo(() => {
+    const scoresByKpi = new Map<string, number[]>();
+    const cycleId = scorecard?.cycleId;
+    for (const card of personScorecards) {
+      if (cycleId && card.cycleId !== cycleId) continue;
+      for (const target of card.targets) {
+        const score = targetScorePercent(target);
+        if (score == null) continue;
+        const list = scoresByKpi.get(target.kpiLibraryId) || [];
+        list.push(score);
+        scoresByKpi.set(target.kpiLibraryId, list);
+      }
+    }
+    const averages = new Map<string, number>();
+    scoresByKpi.forEach((scores, kpiId) => {
+      if (!scores.length) return;
+      averages.set(
+        kpiId,
+        scores.reduce((sum, value) => sum + value, 0) / scores.length,
+      );
+    });
+    return averages;
+  }, [personScorecards, scorecard?.cycleId]);
+
+  const selectPeriod = (scorecardId: string) => {
+    setSelectedScorecardId(scorecardId);
+    const next = new URLSearchParams(searchParams.toString());
+    next.set('scorecard', scorecardId);
+    router.replace(
+      `/bsc/employees/${encodeURIComponent(userId)}?${next.toString()}`,
+      { scroll: false },
+    );
+  };
+
+  const back = () => {
+    if (fromIndividual) {
+      setBscCatalogView('people');
+      setScorecardTab('bsc');
+      router.push('/bsc/my-scorecard');
+      return;
+    }
     setScorecardTab('all');
     router.push('/bsc/my-scorecard');
   };
@@ -129,9 +330,7 @@ export default function EmployeeKpiDetailPage() {
             data-cy="-bsc-bsc-employees-userid-page-div-4"
           >
             {row.assignmentSource === 'individual' ? (
-              <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                Individual
-              </Tag>
+              <Tag className={blueTagClassName}>Individual</Tag>
             ) : null}
             <span
               className="text-xs text-gray-500"
@@ -140,28 +339,14 @@ export default function EmployeeKpiDetailPage() {
               {row.perspective}
             </span>
           </div>
+          <div className="mt-1">
+            <KpiEvaluationFlowCompact
+              flow={row.evaluationFlow}
+              employeeById={employeeById}
+              dataCy={`bsc-employee-kpi-eval-${row.id}`}
+            />
+          </div>
         </div>
-      ),
-    },
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="-bsc-bsc-employees-userid-page-span-6"
-        >
-          Direction
-        </span>
-      ),
-      dataIndex: 'targetLogic',
-      key: 'targetLogic',
-      width: 140,
-      render: (logic: TargetLogic) => (
-        <span
-          className={tableCellClassName}
-          data-cy="-bsc-bsc-employees-userid-page-span-7"
-        >
-          {targetLogicLabel(logic)}
-        </span>
       ),
     },
     {
@@ -197,33 +382,14 @@ export default function EmployeeKpiDetailPage() {
       dataIndex: 'targetValue',
       key: 'targetValue',
       width: 100,
-      render: (value: number) => (
+      render: (value: number, row) => (
         <span
           className={tableCellClassName}
           data-cy="-bsc-bsc-employees-userid-page-span-11"
         >
-          {value == null ? '—' : String(value)}
-        </span>
-      ),
-    },
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="-bsc-bsc-employees-userid-page-span-12"
-        >
-          Metric
-        </span>
-      ),
-      dataIndex: 'measurementUnit',
-      key: 'measurementUnit',
-      width: 120,
-      render: (unit: string) => (
-        <span
-          className={tableCellClassName}
-          data-cy="-bsc-bsc-employees-userid-page-span-13"
-        >
-          {unit?.trim() || '—'}
+          {value == null
+            ? '—'
+            : `${value}${row.measurementUnit ? ` ${row.measurementUnit}` : ''}`}
         </span>
       ),
     },
@@ -233,38 +399,46 @@ export default function EmployeeKpiDetailPage() {
           className={tableHeaderClassName}
           data-cy="-bsc-bsc-employees-userid-page-span-14"
         >
-          Actual
+          Recent Score
         </span>
       ),
-      dataIndex: 'actualValue',
-      key: 'actualValue',
-      width: 100,
-      render: (value: number | null) => (
-        <span
-          className={tableCellClassName}
-          data-cy="-bsc-bsc-employees-userid-page-span-15"
-        >
-          {value == null ? '—' : String(value)}
-        </span>
-      ),
+      key: 'recentScore',
+      width: 120,
+      render: (unused: unknown, row: ScorecardKpiTarget) => {
+        const score = targetScorePercent(row);
+        return (
+          <span
+            className={tableCellClassName}
+            data-cy="-bsc-bsc-employees-userid-page-span-15"
+          >
+            {score != null ? `${formatScore(score)}%` : '—'}
+          </span>
+        );
+      },
     },
     {
       title: (
         <span
           className={tableHeaderClassName}
-          data-cy="-bsc-bsc-employees-userid-page-span-16"
+          data-cy="bsc-employee-col-average"
         >
-          Status
+          Average Score
         </span>
       ),
-      dataIndex: 'approvalStatus',
-      key: 'approvalStatus',
-      width: 110,
-      render: (status: KpiApprovalStatus) => approvalTag(status),
+      key: 'averageScore',
+      width: 220,
+      render: (unused: unknown, row: ScorecardKpiTarget) => (
+        <ScoreProgressBar
+          value={averageScoreByKpiId.get(row.kpiLibraryId) ?? null}
+          dataCy="bsc-employee-average-score"
+        />
+      ),
     },
   ];
 
-  const score = scorecard ? scorecardTotal(scorecard) : 0;
+  const selectedCadence = scorecard
+    ? cycleById.get(scorecard.cycleId)?.cadence
+    : undefined;
 
   return (
     <div className="w-full" data-cy="bsc-employee-kpi-detail-page">
@@ -275,7 +449,8 @@ export default function EmployeeKpiDetailPage() {
             ? [
                 scorecard.positionTitle,
                 scorecard.departmentName,
-                scorecard.cycleLabel,
+                periodLabel(scorecard),
+                selectedCadence,
               ]
                 .filter(Boolean)
                 .join(' · ') || 'Scorecard detail'
@@ -287,11 +462,11 @@ export default function EmployeeKpiDetailPage() {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={backToAll}
+          onClick={back}
           className="!px-0 text-[#595959]"
           data-cy="bsc-employee-kpi-detail-back"
         >
-          All Employee KPI
+          {fromIndividual ? 'Individual KPIs' : 'All Employee KPI'}
         </Button>
       </div>
 
@@ -315,10 +490,13 @@ export default function EmployeeKpiDetailPage() {
           data-cy="-bsc-bsc-employees-userid-page-div-20"
         >
           <div
-            className="flex flex-wrap items-start justify-between gap-3 px-5 py-4 border-b border-[#F0F0F0]"
+            className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-[#F0F0F0]"
             data-cy="-bsc-bsc-employees-userid-page-div-21"
           >
-            <div data-cy="-bsc-bsc-employees-userid-page-div-22">
+            <div
+              className="min-w-0 flex-1"
+              data-cy="-bsc-bsc-employees-userid-page-div-22"
+            >
               <h2
                 className="m-0 text-lg font-semibold text-[#262626]"
                 data-cy="-bsc-bsc-employees-userid-page-h2-23"
@@ -342,18 +520,33 @@ export default function EmployeeKpiDetailPage() {
               className="flex flex-wrap items-center gap-2"
               data-cy="-bsc-bsc-employees-userid-page-div-25"
             >
-              <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                {scorecard.targets.length} KPI
-                {scorecard.targets.length === 1 ? '' : 's'}
-              </Tag>
-              <Tag className="m-0 h-5 rounded border border-[#d9d9d9] bg-[#fafafa] px-1.5 text-[11px] font-normal leading-5 text-[#595959]">
-                Score {formatScore(score)}%
-              </Tag>
-              {isScorecardApproved(scorecard) ? (
-                <Tag color="green">Approved</Tag>
+              {periodOptions.length > 1 ? (
+                <Select
+                  size="small"
+                  className="w-[200px]"
+                  value={scorecard.id}
+                  options={periodOptions}
+                  onChange={selectPeriod}
+                  showSearch
+                  optionFilterProp="label"
+                  data-cy="bsc-employee-period-select"
+                />
               ) : (
-                <Tag>Pending</Tag>
+                <Tag className={blueTagClassName}>
+                  {[periodLabel(scorecard), selectedCadence]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </Tag>
               )}
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setAssignOpen(true)}
+                className="bg-[#2b54ad]"
+                data-cy="bsc-employee-add-individual-kpis"
+              >
+                Add individual KPIs
+              </Button>
             </div>
           </div>
 
@@ -375,6 +568,13 @@ export default function EmployeeKpiDetailPage() {
           </div>
         </div>
       )}
+
+      <AssignIndividualKpisModal
+        open={assignOpen}
+        scorecard={scorecard}
+        evaluationConfigId={scorecard?.cycleId}
+        onClose={() => setAssignOpen(false)}
+      />
     </div>
   );
 }

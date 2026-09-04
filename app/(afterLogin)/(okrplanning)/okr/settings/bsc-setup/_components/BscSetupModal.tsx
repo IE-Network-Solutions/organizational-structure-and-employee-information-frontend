@@ -2,20 +2,30 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
+  Avatar,
+  Button,
   Checkbox,
-  Collapse,
   DatePicker,
   Form,
   Input,
   InputNumber,
   Modal,
+  Popover,
   Radio,
   Select,
   Steps,
+  Tag,
 } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  MinusOutlined,
+  PlusOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
+import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
 import {
   useCreateBscCycle,
   useCreateBscScorecard,
@@ -35,6 +45,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   BscCadence,
+  BscEvaluatorMode,
+  BscEvaluatorStep,
+  BscEvaluatorStepKind,
+  BscKpiEvaluatorAssignment,
   BscScopeTarget,
   BscSetupKind,
   KpiLibraryItem,
@@ -107,13 +121,101 @@ const PERMANENT_START = () => dayjs().format('YYYY-MM-DD');
 const PERMANENT_END = '2099-12-31';
 
 function resolveScopeTarget(config: {
+  scopeTarget?: BscScopeTarget;
   departmentIds?: string[];
   positionIds?: string[];
   employeeIds?: string[];
 }): BscScopeTarget {
+  if (config.scopeTarget) return config.scopeTarget;
   if (config.employeeIds?.length) return BscScopeTarget.Individual;
   if (config.positionIds?.length) return BscScopeTarget.Role;
-  return BscScopeTarget.Department;
+  if (config.departmentIds?.length) return BscScopeTarget.Department;
+  return BscScopeTarget.Company;
+}
+
+const DEFAULT_EVALUATION_FLOW: BscEvaluatorStep[] = [
+  { kind: 'self' },
+  { kind: 'directManager' },
+];
+
+const EVALUATOR_STEP_OPTIONS: {
+  value: BscEvaluatorStepKind;
+  label: string;
+}[] = [
+  { value: 'self', label: 'Employee (self)' },
+  { value: 'directManager', label: 'Direct manager' },
+  { value: 'user', label: 'Specific person' },
+];
+
+function defaultEvaluationFlow(): BscEvaluatorStep[] {
+  return DEFAULT_EVALUATION_FLOW.map((step) => ({ ...step }));
+}
+
+function normalizeEvaluationFlow(flow?: BscEvaluatorStep[] | null): BscEvaluatorStep[] {
+  if (!flow?.length) return defaultEvaluationFlow();
+  return flow.map((step) => ({
+    kind: step.kind,
+    userId: step.kind === 'user' ? step.userId ?? null : null,
+  }));
+}
+
+/** Map legacy single assignment / scorecard defaults into a flow. */
+function legacyAssignmentToFlow(
+  assignment?: BscKpiEvaluatorAssignment | null,
+  fallbackMode?: BscEvaluatorMode,
+  fallbackUserId?: string | null,
+): BscEvaluatorStep[] {
+  const mode = assignment?.mode || fallbackMode || 'directManager';
+  if (mode === 'user') {
+    return [
+      {
+        kind: 'user',
+        userId: assignment?.userId || fallbackUserId || null,
+      },
+    ];
+  }
+  return [{ kind: 'directManager' }];
+}
+
+function resolveKpiFlow(
+  kpiId: string,
+  flows?: Record<string, BscEvaluatorStep[]> | null,
+  legacy?: Record<string, BscKpiEvaluatorAssignment> | null,
+  fallbackMode?: BscEvaluatorMode,
+  fallbackUserId?: string | null,
+): BscEvaluatorStep[] {
+  if (flows?.[kpiId]?.length) return normalizeEvaluationFlow(flows[kpiId]);
+  if (legacy?.[kpiId]) {
+    return legacyAssignmentToFlow(legacy[kpiId], fallbackMode, fallbackUserId);
+  }
+  if (fallbackMode || fallbackUserId) {
+    return legacyAssignmentToFlow(null, fallbackMode, fallbackUserId);
+  }
+  return defaultEvaluationFlow();
+}
+
+function evaluatorStepDisplayName(
+  step: BscEvaluatorStep,
+  employeeById: Map<string, { label: string }>,
+): string {
+  if (step.kind === 'self') return 'Employee (self)';
+  if (step.kind === 'directManager') return 'Direct manager';
+  if (step.userId) {
+    return employeeById.get(step.userId)?.label || 'Selected person';
+  }
+  return 'Select person';
+}
+
+function truncateName(name: string, max = 18): string {
+  return name.length > max ? `${name.slice(0, max)}…` : name;
+}
+
+function firstManagerLikeStep(
+  flow: BscEvaluatorStep[],
+): BscEvaluatorStep | undefined {
+  return flow.find(
+    (step) => step.kind === 'directManager' || step.kind === 'user',
+  );
 }
 
 const STEPS = [
@@ -121,6 +223,7 @@ const STEPS = [
   { title: 'Scope' },
   { title: 'KPIs' },
   { title: 'Weights' },
+  { title: 'Evaluation' },
 ];
 
 type PerspectiveRow = { name?: string; weight?: number | null };
@@ -159,15 +262,19 @@ function seedPerspectiveRows(names: string[]): PerspectiveRow[] {
 /**
  * Standard BSC cascade (Kaplan & Norton):
  * 1) Define the scorecard (identity, horizon, cadence)
- * 2) Set organizational scope (department, role, or individual)
+ * 2) Set organizational scope (company, department, role, or individual)
  * 3) Select KPIs from all perspectives under the scorecard
  * 4) Assign perspective / KPI weights and cycle targets
+ * 5) Choose scorecard-level evaluation default
  */
 export default function BscSetupModal() {
   const [form] = Form.useForm();
   const [current, setCurrent] = useState(0);
   const [savingAll, setSavingAll] = useState(false);
   const [selectedKpiIds, setSelectedKpiIds] = useState<string[]>([]);
+  const [kpiSearch, setKpiSearch] = useState('');
+  const [addStepKpiId, setAddStepKpiId] = useState<string | null>(null);
+  const [employeePickerSearch, setEmployeePickerSearch] = useState('');
   const {
     setupModalOpen,
     editingConfig,
@@ -204,26 +311,61 @@ export default function BscSetupModal() {
     departmentName: p.departmentName || p.department?.name || null,
   }));
   const employeeOptions = asList(allUsersData?.items || allUsersData || []).map(
-    (user: any) => ({
-      value: String(user.id),
-      label:
+    (user: any) => {
+      const label =
         `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
           .replace(/\s+/g, ' ')
           .trim() ||
         user.email ||
-        'Employee',
-      departmentId:
-        user.employeeInformation?.departmentId ||
-        user.departmentId ||
-        user.department?.id ||
-        null,
-      positionId:
-        user.employeeJobInformation?.[0]?.positionId ||
-        user.positionId ||
-        user.position?.id ||
-        null,
-    }),
+        'Employee';
+      const initials = label
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part: string) => part[0]?.toUpperCase() || '')
+        .join('');
+      return {
+        value: String(user.id),
+        label,
+        initials: initials || '?',
+        profileImage: user.profileImage || null,
+        departmentId:
+          user.employeeInformation?.departmentId ||
+          user.departmentId ||
+          user.department?.id ||
+          null,
+        positionId:
+          user.employeeJobInformation?.[0]?.positionId ||
+          user.positionId ||
+          user.position?.id ||
+          null,
+        managerId:
+          user.delegatedTo?.id ||
+          user.reportingTo?.id ||
+          user.employeeJobInformation?.[0]?.reportingToId ||
+          null,
+      };
+    },
   );
+
+  const employeeById = useMemo(() => {
+    const map = new Map<string, (typeof employeeOptions)[number]>();
+    for (const option of employeeOptions) map.set(option.value, option);
+    return map;
+  }, [employeeOptions]);
+
+  const filteredPickerEmployees = useMemo(() => {
+    const q = employeePickerSearch.trim().toLowerCase();
+    if (!q) return employeeOptions;
+    return employeeOptions.filter((option) =>
+      option.label.toLowerCase().includes(q),
+    );
+  }, [employeeOptions, employeePickerSearch]);
+
+  const closeEmployeePicker = () => {
+    setAddStepKpiId(null);
+    setEmployeePickerSearch('');
+  };
 
   const setupKind = Form.useWatch('setupKind', form) as
     | BscSetupKind
@@ -252,6 +394,8 @@ export default function BscSetupModal() {
   const scopeTarget = Form.useWatch('scopeTarget', form) as
     | BscScopeTarget
     | undefined;
+  const kpiEvaluationFlows = (Form.useWatch('kpiEvaluationFlows', form) ||
+    {}) as Record<string, BscEvaluatorStep[]>;
 
   const showCadence =
     isPermanent || (isTemporary && isRecurringChoice === true);
@@ -299,11 +443,6 @@ export default function BscSetupModal() {
     return Array.from(byName.values());
   }, [catalogPerspectiveNames, catalogKpisByPerspective, allKpis]);
 
-  const scorecardPerspectiveNames = useMemo(
-    () => catalogPerspectiveNames,
-    [catalogPerspectiveNames],
-  );
-
   const selectedKpis = useMemo(
     () => uniqueCatalogKpis.filter((kpi) => selectedKpiIds.includes(kpi.id)),
     [uniqueCatalogKpis, selectedKpiIds],
@@ -326,6 +465,9 @@ export default function BscSetupModal() {
     if (!setupModalOpen) return;
     setCurrent(0);
     setSelectedKpiIds([]);
+    setKpiSearch('');
+    setAddStepKpiId(null);
+    setEmployeePickerSearch('');
     editPrefillKeyRef.current = null;
     if (editingConfig) {
       const kind = resolveSetupKind(editingConfig);
@@ -342,6 +484,7 @@ export default function BscSetupModal() {
         departmentIds: editingConfig.departmentIds,
         positionIds: editingConfig.positionIds,
         employeeIds: editingConfig.employeeIds || [],
+        kpiEvaluationFlows: editingConfig.kpiEvaluationFlows || {},
         dateRange:
           kind === BscSetupKind.Temporary &&
           editingConfig.startDate &&
@@ -367,6 +510,7 @@ export default function BscSetupModal() {
         departmentIds: [],
         positionIds: [],
         employeeIds: [],
+        kpiEvaluationFlows: {},
         perspectiveRows: seedPerspectiveRows(catalogPerspectiveNames),
         measureWeights: {},
         measureTargets: {},
@@ -442,12 +586,25 @@ export default function BscSetupModal() {
 
     editPrefillKeyRef.current = editingConfig.id;
     setSelectedKpiIds(selectedIds);
+
+    const nextFlows: Record<string, BscEvaluatorStep[]> = {};
+    for (const id of selectedIds) {
+      nextFlows[id] = resolveKpiFlow(
+        id,
+        editingConfig.kpiEvaluationFlows,
+        editingConfig.kpiEvaluators,
+        editingConfig.evaluatorMode,
+        editingConfig.evaluatorUserId,
+      );
+    }
+
     form.setFieldsValue({
       perspectiveRows,
       measureWeights,
       measureTargets,
       measureWorstCases,
       measureBestCases,
+      kpiEvaluationFlows: nextFlows,
     });
   }, [
     setupModalOpen,
@@ -478,6 +635,8 @@ export default function BscSetupModal() {
   const handleClose = () => {
     form.resetFields();
     setSelectedKpiIds([]);
+    setKpiSearch('');
+    closeEmployeePicker();
     setCurrent(0);
     closeSetupModal();
   };
@@ -522,6 +681,39 @@ export default function BscSetupModal() {
       ? `Temporary · ${Boolean(values.isRecurring) ? values.cadence : 'One-time'} · ${periodLabel}`
       : `Permanent · ${values.cadence}`;
 
+    const rawFlows = (values.kpiEvaluationFlows || {}) as Record<
+      string,
+      BscEvaluatorStep[]
+    >;
+    const kpiEvaluationFlowsPayload: Record<string, BscEvaluatorStep[]> = {};
+    for (const id of selectedKpiIds) {
+      kpiEvaluationFlowsPayload[id] = normalizeEvaluationFlow(rawFlows[id]);
+    }
+
+    const managerSteps = selectedKpiIds
+      .map((id) => firstManagerLikeStep(kpiEvaluationFlowsPayload[id] || []))
+      .filter((step): step is BscEvaluatorStep => Boolean(step));
+    const allSameUser =
+      managerSteps.length > 0 &&
+      managerSteps.every(
+        (step) =>
+          step.kind === 'user' &&
+          step.userId &&
+          step.userId === managerSteps[0].userId,
+      );
+    const mode: BscEvaluatorMode = allSameUser ? 'user' : 'directManager';
+
+    // Keep a thin legacy map for older consumers
+    const kpiEvaluatorsPayload: Record<string, BscKpiEvaluatorAssignment> = {};
+    for (const id of selectedKpiIds) {
+      const step = firstManagerLikeStep(kpiEvaluationFlowsPayload[id] || []);
+      if (step?.kind === 'user') {
+        kpiEvaluatorsPayload[id] = { mode: 'user', userId: step.userId || null };
+      } else {
+        kpiEvaluatorsPayload[id] = { mode: 'directManager', userId: null };
+      }
+    }
+
     return {
       label: name || fallbackLabel,
       description,
@@ -537,12 +729,17 @@ export default function BscSetupModal() {
       endDate,
       isRecurring: isTemp ? Boolean(values.isRecurring) : true,
       useCustomDates: isTemp,
+      scopeTarget: target,
       departmentIds,
       departmentNames,
       positionIds,
       positionTitles,
       employeeIds,
       employeeNames,
+      evaluatorMode: mode,
+      evaluatorUserId: allSameUser ? managerSteps[0].userId || null : null,
+      kpiEvaluators: kpiEvaluatorsPayload,
+      kpiEvaluationFlows: kpiEvaluationFlowsPayload,
     };
   };
 
@@ -578,6 +775,10 @@ export default function BscSetupModal() {
   const validateScopeStep = async () => {
     const values = await form.validateFields(['scopeTarget']);
     const target = values.scopeTarget as BscScopeTarget;
+
+    if (target === BscScopeTarget.Company) {
+      return;
+    }
 
     if (target === BscScopeTarget.Department) {
       const { departmentIds } = await form.validateFields(['departmentIds']);
@@ -622,7 +823,8 @@ export default function BscSetupModal() {
     }
 
     NotificationMessage.error({
-      message: 'Choose whether to assign by department, role, or individual',
+      message:
+        'Choose whether to assign by company, department, role, or individual',
     });
     throw new Error('scope target required');
   };
@@ -634,6 +836,71 @@ export default function BscSetupModal() {
       });
       throw new Error('measures required');
     }
+  };
+
+  const validateEvaluationStep = async () => {
+    const values = form.getFieldsValue(true);
+    const map = (values.kpiEvaluationFlows || {}) as Record<
+      string,
+      BscEvaluatorStep[]
+    >;
+
+    for (const kpi of selectedKpis) {
+      const flow = map[kpi.id] || [];
+      if (!flow.length) {
+        NotificationMessage.error({
+          message: `Add at least one evaluation step for “${kpi.name}”`,
+        });
+        throw new Error('evaluation flow required');
+      }
+      for (let i = 0; i < flow.length; i++) {
+        const step = flow[i];
+        if (step.kind === 'user' && !step.userId) {
+          NotificationMessage.error({
+            message: `Select the evaluating person for “${kpi.name}” (step ${i + 1})`,
+          });
+          throw new Error('evaluator user required');
+        }
+      }
+    }
+  };
+
+  const seedKpiEvaluationFlows = () => {
+    const current =
+      (form.getFieldValue('kpiEvaluationFlows') as Record<
+        string,
+        BscEvaluatorStep[]
+      >) || {};
+    const next: Record<string, BscEvaluatorStep[]> = {};
+    for (const id of selectedKpiIds) {
+      next[id] = current[id]?.length
+        ? normalizeEvaluationFlow(current[id])
+        : defaultEvaluationFlow();
+    }
+    form.setFieldsValue({ kpiEvaluationFlows: next });
+  };
+
+  const updateKpiFlow = (kpiId: string, flow: BscEvaluatorStep[]) => {
+    form.setFieldsValue({
+      kpiEvaluationFlows: {
+        ...kpiEvaluationFlows,
+        [kpiId]: flow,
+      },
+    });
+  };
+
+  const addEvaluatorFromPicker = (step: BscEvaluatorStep) => {
+    if (!addStepKpiId) return;
+    const current =
+      (form.getFieldValue('kpiEvaluationFlows') as Record<
+        string,
+        BscEvaluatorStep[]
+      >) || {};
+    const existing = current[addStepKpiId]?.length
+      ? current[addStepKpiId]
+      : defaultEvaluationFlow();
+    updateKpiFlow(addStepKpiId, [...existing, step]);
+    closeEmployeePicker();
   };
 
   const seedMeasureTargetsFromCatalog = () => {
@@ -848,6 +1115,10 @@ export default function BscSetupModal() {
       }
       if (current === 3) {
         await validateWeightsStep();
+        seedKpiEvaluationFlows();
+      }
+      if (current === 4) {
+        await validateEvaluationStep();
         if (isEdit) await handleUpdateWithCascade();
         else await handleCreateWithCascade();
         return;
@@ -934,37 +1205,83 @@ export default function BscSetupModal() {
       await cascadeTargets(role);
     }
 
+    const target = values.scopeTarget as BscScopeTarget;
     if (!roles.length) {
-      const departmentIds: string[] = values.departmentIds || [];
-      for (let i = 0; i < departmentIds.length; i++) {
-        const option = deptOptions.find((d) => d.value === departmentIds[i]);
-        const departmentName = option?.label || departmentIds[i];
+      if (target === BscScopeTarget.Company) {
         await cascadeTargets({
           positionId: null,
-          positionTitle: departmentName,
-          departmentName,
+          positionTitle: 'Company',
+          departmentName: null,
         });
+      } else {
+        const departmentIds: string[] = values.departmentIds || [];
+        for (let i = 0; i < departmentIds.length; i++) {
+          const option = deptOptions.find((d) => d.value === departmentIds[i]);
+          const departmentName = option?.label || departmentIds[i];
+          await cascadeTargets({
+            positionId: null,
+            positionTitle: departmentName,
+            departmentName,
+          });
+        }
       }
     }
 
-    const employeeIds: string[] = values.employeeIds || [];
+    const resolveManagerId = (employeeId: string) => {
+      const map = (values.kpiEvaluationFlows || {}) as Record<
+        string,
+        BscEvaluatorStep[]
+      >;
+      const managerSteps = selectedKpiIds
+        .map((id) => firstManagerLikeStep(map[id] || []))
+        .filter((step): step is BscEvaluatorStep => Boolean(step));
+      const allSameUser =
+        managerSteps.length > 0 &&
+        managerSteps.every(
+          (step) =>
+            step.kind === 'user' &&
+            step.userId &&
+            step.userId === managerSteps[0].userId,
+        );
+      if (allSameUser) return String(managerSteps[0].userId);
+      const option = employeeOptions.find((e) => e.value === employeeId);
+      return option?.managerId || actorUserId || 'system';
+    };
+
+    const employeeIds: string[] =
+      target === BscScopeTarget.Company
+        ? employeeOptions.map((e) => e.value)
+        : values.employeeIds || [];
     if (options?.createIndividuals !== false) {
+      const flowMap = (values.kpiEvaluationFlows || {}) as Record<
+        string,
+        BscEvaluatorStep[]
+      >;
       for (const employeeId of employeeIds) {
         const option = employeeOptions.find((e) => e.value === employeeId);
         await createScorecard.mutateAsync({
           userId: employeeId,
           userName: option?.label || employeeId,
-          managerId: actorUserId || 'system',
+          managerId: resolveManagerId(employeeId),
           departmentId: option?.departmentId || null,
           positionId: option?.positionId || null,
           cycleId: configId,
-          targets: measureRows.map((row) => ({
-            kpiLibraryId: row.kpiId!,
-            weightPercentage: Number(row.weight),
-            targetValue: Number(row.targetValue),
-            worstCase: row.worstCase ?? undefined,
-            bestCase: row.bestCase ?? undefined,
-          })),
+          targets: measureRows.map((row) => {
+            const flow = normalizeEvaluationFlow(flowMap[row.kpiId!]);
+            const managerStep = firstManagerLikeStep(flow);
+            return {
+              kpiLibraryId: row.kpiId!,
+              weightPercentage: Number(row.weight),
+              targetValue: Number(row.targetValue),
+              worstCase: row.worstCase ?? undefined,
+              bestCase: row.bestCase ?? undefined,
+              evaluationFlow: flow,
+              evaluatorMode:
+                managerStep?.kind === 'user' ? 'user' : 'directManager',
+              evaluatorUserId:
+                managerStep?.kind === 'user' ? managerStep.userId || null : null,
+            };
+          }),
         });
       }
     }
@@ -1043,8 +1360,8 @@ export default function BscSetupModal() {
             data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-3"
           >
             {isEdit
-              ? 'Update definition, scope, KPIs, and weights.'
-              : 'Define the scorecard, set scope, select KPIs, then assign weights.'}
+              ? 'Update definition, scope, KPIs, weights, and evaluation.'
+              : 'Define the scorecard, set scope, select KPIs, then assign weights and evaluation.'}
           </p>
         </div>
       }
@@ -1225,12 +1542,13 @@ export default function BscSetupModal() {
               rules={[
                 {
                   required: true,
-                  message: 'Select department, role, or individual',
+                  message:
+                    'Select company, department, role, or individual',
                 },
               ]}
             >
               <Radio.Group
-                className="flex flex-col gap-2 sm:flex-row sm:gap-6"
+                className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-6"
                 data-cy="bsc-scorecard-scope-target"
                 onChange={() => {
                   form.setFieldsValue({
@@ -1240,6 +1558,12 @@ export default function BscSetupModal() {
                   });
                 }}
               >
+                <Radio
+                  value={BscScopeTarget.Company}
+                  data-cy="bsc-scope-company"
+                >
+                  Company
+                </Radio>
                 <Radio
                   value={BscScopeTarget.Department}
                   data-cy="bsc-scope-department"
@@ -1257,6 +1581,15 @@ export default function BscSetupModal() {
                 </Radio>
               </Radio.Group>
             </Form.Item>
+
+            {scopeTarget === BscScopeTarget.Company ? (
+              <p
+                className="mb-0 text-[12px] text-[#8F94A3]"
+                data-cy="bsc-scope-company-hint"
+              >
+                Applies the scorecard template organization-wide.
+              </p>
+            ) : null}
 
             {scopeTarget === BscScopeTarget.Department ? (
               <Form.Item
@@ -1332,115 +1665,98 @@ export default function BscSetupModal() {
               className="mb-1 text-[13px] font-semibold text-[#262626]"
               data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-7"
             >
-              KPIs by perspective
+              KPIs
             </p>
             <p
-              className="mb-4 text-[12px] text-[#8F94A3]"
+              className="mb-3 text-[12px] text-[#8F94A3]"
               data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-8"
             >
-              Expand each perspective and select the KPIs to include on this
-              scorecard. Weights are assigned in the next step.
+              Select the KPIs to include on this scorecard. Weights are assigned
+              in the next step.
             </p>
 
-            {!scorecardPerspectiveNames.length ? (
+            {!uniqueCatalogKpis.length ? (
               <p
                 className="text-[13px] text-[#94A3B8]"
                 data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-9"
               >
-                No perspectives in the catalog yet. Add them on the KPIs tab
-                first.
+                No catalog KPIs yet. Add them on the KPIs tab first.
               </p>
             ) : (
-              <Collapse
-                accordion={false}
-                defaultActiveKey={scorecardPerspectiveNames.slice(0, 1)}
-                className="max-h-[440px] overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white [&_.ant-collapse-item]:border-b [&_.ant-collapse-item]:border-[#E5E7EB] [&_.ant-collapse-item:last-child]:border-b-0 [&_.ant-collapse-header]:px-4 [&_.ant-collapse-header]:py-3 [&_.ant-collapse-content-box]:px-4 [&_.ant-collapse-content-box]:pb-4 [&_.ant-collapse-content-box]:pt-0"
-                data-cy="bsc-scorecard-kpi-accordion"
-              >
-                {scorecardPerspectiveNames.map((perspective) => {
-                  const kpis = uniqueCatalogKpis.filter(
-                    (kpi) => kpi.perspective === perspective,
-                  );
-                  const selectedCount = kpis.filter((kpi) =>
-                    selectedKpiIds.includes(kpi.id),
-                  ).length;
-
-                  return (
-                    <Collapse.Panel
-                      key={perspective}
-                      header={
-                        <div
-                          className="flex items-center justify-between gap-3 pr-2"
-                          data-cy={`bsc-scorecard-perspective-${perspective}`}
+              <>
+                <div
+                  className="mb-3 flex flex-wrap items-center justify-between gap-2"
+                  data-cy="bsc-scorecard-kpi-toolbar"
+                >
+                  <BscSearchInput
+                    value={kpiSearch}
+                    onChange={setKpiSearch}
+                    placeholder="Search KPIs"
+                    data-cy="bsc-scorecard-kpi-search"
+                  />
+                  <span
+                    className="text-[12px] text-[#8F94A3]"
+                    data-cy="bsc-scorecard-kpi-selected-count"
+                  >
+                    {selectedKpiIds.length} KPI
+                    {selectedKpiIds.length === 1 ? '' : 's'} selected
+                  </span>
+                </div>
+                <div
+                  className="flex max-h-[440px] flex-col gap-1 overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white p-2"
+                  data-cy="bsc-scorecard-kpi-list"
+                >
+                  {uniqueCatalogKpis
+                    .filter((kpi) => {
+                      const q = kpiSearch.trim().toLowerCase();
+                      if (!q) return true;
+                      return (
+                        kpi.name.toLowerCase().includes(q) ||
+                        (kpi.perspective || '').toLowerCase().includes(q)
+                      );
+                    })
+                    .map((kpi) => {
+                      const checked = selectedKpiIds.includes(kpi.id);
+                      return (
+                        <label
+                          key={kpi.id}
+                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#F9FAFB]"
+                          data-cy={`bsc-scorecard-kpi-row-${kpi.id}`}
                         >
+                          <Checkbox
+                            checked={checked}
+                            onChange={(e) => {
+                              setSelectedKpiIds((prev) =>
+                                e.target.checked
+                                  ? [...prev, kpi.id]
+                                  : prev.filter((id) => id !== kpi.id),
+                              );
+                            }}
+                          />
                           <span
-                            className="text-[14px] font-semibold text-[#262626]"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-10"
+                            className="min-w-0 flex-1 text-[13px] font-medium text-[#262626]"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-15"
                           >
-                            {perspective}
+                            {kpi.name}
                           </span>
-                          <span
-                            className="text-[11px] font-normal text-[#8F94A3]"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-11"
-                          >
-                            {selectedCount} of {kpis.length} selected
-                          </span>
-                        </div>
-                      }
-                    >
-                      {!kpis.length ? (
-                        <p
-                          className="m-0 text-[12px] text-[#94A3B8]"
-                          data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-12"
-                        >
-                          No catalog KPIs for this perspective yet. Add them on
-                          the KPIs tab.
-                        </p>
-                      ) : (
-                        <div
-                          className="flex flex-col gap-2"
-                          data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-13"
-                        >
-                          {kpis.map((kpi) => {
-                            const checked = selectedKpiIds.includes(kpi.id);
-                            return (
-                              <div
-                                key={kpi.id}
-                                className="rounded-lg bg-[#F9FAFB] px-3 py-2"
-                                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-14"
-                              >
-                                <Checkbox
-                                  checked={checked}
-                                  onChange={(e) => {
-                                    setSelectedKpiIds((prev) =>
-                                      e.target.checked
-                                        ? [...prev, kpi.id]
-                                        : prev.filter((id) => id !== kpi.id),
-                                    );
-                                  }}
-                                >
-                                  <span
-                                    className="text-[13px] font-medium text-[#262626]"
-                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-15"
-                                  >
-                                    {kpi.name}
-                                  </span>
-                                  <span
-                                    className="ml-2 text-[11px] text-[#8F94A3]"
-                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-16"
-                                  >
-                                    {kpi.measurementUnit}
-                                  </span>
-                                </Checkbox>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </Collapse.Panel>
-                  );
-                })}
-              </Collapse>
+                          {kpi.perspective ? (
+                            <Tag className="m-0 h-5 shrink-0 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                              {kpi.perspective}
+                            </Tag>
+                          ) : null}
+                          {kpi.measurementUnit ? (
+                            <span
+                              className="shrink-0 text-[11px] text-[#8F94A3]"
+                              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-16"
+                            >
+                              {kpi.measurementUnit}
+                            </span>
+                          ) : null}
+                        </label>
+                      );
+                    })}
+                </div>
+              </>
             )}
           </>
         )}
@@ -1718,6 +2034,441 @@ export default function BscSetupModal() {
                             </div>
                           );
                         })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {current === 4 && (
+          <>
+            <p
+              className="mb-1 text-[13px] font-semibold text-[#262626]"
+              data-cy="bsc-scorecard-evaluation-title"
+            >
+              Evaluation
+            </p>
+            <p
+              className="mb-4 text-[12px] text-[#8F94A3]"
+              data-cy="bsc-scorecard-evaluation-desc"
+            >
+              Define who evaluates each selected KPI, in order. Any combination
+              of self, direct manager, and specific people is allowed.
+            </p>
+
+            <Form.Item name="kpiEvaluationFlows" hidden>
+              <Input />
+            </Form.Item>
+
+            {!selectedKpis.length ? (
+              <p
+                className="text-[13px] text-[#94A3B8]"
+                data-cy="bsc-scorecard-evaluation-empty"
+              >
+                No KPIs selected. Go back and select KPIs first.
+              </p>
+            ) : (
+              <div
+                className="flex max-h-[440px] flex-col gap-2 overflow-y-auto pr-1"
+                data-cy="bsc-scorecard-evaluation-list"
+              >
+                {selectedKpis.map((kpi) => {
+                  const flow = kpiEvaluationFlows[kpi.id]?.length
+                    ? kpiEvaluationFlows[kpi.id]
+                    : defaultEvaluationFlow();
+
+                  return (
+                    <div
+                      key={kpi.id}
+                      className="rounded-xl border border-[#E5E7EB] px-3 py-3"
+                      data-cy={`bsc-scorecard-evaluation-row-${kpi.id}`}
+                    >
+                      <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <span className="text-[13px] font-medium text-[#262626]">
+                          {kpi.name}
+                        </span>
+                        {kpi.perspective ? (
+                          <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                            {kpi.perspective}
+                          </Tag>
+                        ) : null}
+                      </div>
+
+                      <div
+                        className="w-full overflow-x-auto"
+                        data-cy={`bsc-eval-flow-${kpi.id}`}
+                      >
+                        <div className="flex min-w-max items-center gap-1.5 py-1">
+                          {flow.map((step, index) => {
+                            const displayName = evaluatorStepDisplayName(
+                              step,
+                              employeeById,
+                            );
+                            const employee =
+                              step.kind === 'user' && step.userId
+                                ? employeeById.get(step.userId)
+                                : undefined;
+                            const needsPerson =
+                              step.kind === 'user' && !step.userId;
+
+                            const editor = (
+                              <div className="w-[240px] p-1">
+                                <p className="mb-2 text-[12px] font-medium text-[#262626]">
+                                  Step {index + 1}
+                                </p>
+                                <Select
+                                  className="mb-2 w-full"
+                                  size="small"
+                                  value={step.kind}
+                                  options={EVALUATOR_STEP_OPTIONS}
+                                  onChange={(kind: BscEvaluatorStepKind) => {
+                                    const next = [...flow];
+                                    next[index] = {
+                                      kind,
+                                      userId:
+                                        kind === 'user'
+                                          ? step.userId || null
+                                          : null,
+                                    };
+                                    updateKpiFlow(kpi.id, next);
+                                  }}
+                                  data-cy={`bsc-eval-step-kind-${kpi.id}-${index}`}
+                                />
+                                {step.kind === 'user' ? (
+                                  <Select
+                                    className="mb-2 w-full"
+                                    size="small"
+                                    allowClear
+                                    showSearch
+                                    placeholder="Select employee"
+                                    options={employeeOptions}
+                                    optionFilterProp="label"
+                                    value={step.userId || undefined}
+                                    onChange={(userId) => {
+                                      const next = [...flow];
+                                      next[index] = {
+                                        kind: 'user',
+                                        userId: userId || null,
+                                      };
+                                      updateKpiFlow(kpi.id, next);
+                                    }}
+                                    data-cy={`bsc-eval-step-user-${kpi.id}-${index}`}
+                                  />
+                                ) : null}
+                                <div className="flex justify-between gap-1">
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    disabled={index === 0}
+                                    onClick={() => {
+                                      if (index === 0) return;
+                                      const next = [...flow];
+                                      [next[index - 1], next[index]] = [
+                                        next[index],
+                                        next[index - 1],
+                                      ];
+                                      updateKpiFlow(kpi.id, next);
+                                    }}
+                                    data-cy={`bsc-eval-step-up-${kpi.id}-${index}`}
+                                  >
+                                    Move left
+                                  </Button>
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    disabled={index === flow.length - 1}
+                                    onClick={() => {
+                                      if (index >= flow.length - 1) return;
+                                      const next = [...flow];
+                                      [next[index], next[index + 1]] = [
+                                        next[index + 1],
+                                        next[index],
+                                      ];
+                                      updateKpiFlow(kpi.id, next);
+                                    }}
+                                    data-cy={`bsc-eval-step-down-${kpi.id}-${index}`}
+                                  >
+                                    Move right
+                                  </Button>
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    disabled={flow.length <= 1}
+                                    onClick={() => {
+                                      if (flow.length <= 1) return;
+                                      updateKpiFlow(
+                                        kpi.id,
+                                        flow.filter((_, i) => i !== index),
+                                      );
+                                    }}
+                                    data-cy={`bsc-eval-step-remove-menu-${kpi.id}-${index}`}
+                                  />
+                                </div>
+                              </div>
+                            );
+
+                            return (
+                              <React.Fragment key={`${kpi.id}-step-${index}`}>
+                                {index > 0 ? (
+                                  <div
+                                    className="inline-flex h-5 min-w-6 shrink-0 items-center justify-center rounded-full border border-[#E3E7FF] bg-[#F7F8FF] px-1 text-[11px] font-semibold text-[#5B67D9]"
+                                    data-cy={`bsc-eval-connector-${kpi.id}-${index}`}
+                                  >
+                                    →
+                                  </div>
+                                ) : null}
+                                <div className="flex shrink-0 items-center gap-2">
+                                  <div className="relative h-8 w-8 shrink-0">
+                                    <Popover
+                                      trigger="click"
+                                      placement="bottomLeft"
+                                      content={editor}
+                                    >
+                                      <div
+                                        role="button"
+                                        tabIndex={0}
+                                        className="cursor-pointer"
+                                        data-cy={`bsc-eval-step-avatar-${kpi.id}-${index}`}
+                                        onKeyDown={(e) => {
+                                          if (
+                                            e.key === 'Enter' ||
+                                            e.key === ' '
+                                          ) {
+                                            e.currentTarget.click();
+                                          }
+                                        }}
+                                      >
+                                        {employee?.profileImage ? (
+                                          <Avatar
+                                            size={32}
+                                            src={employee.profileImage}
+                                          />
+                                        ) : (
+                                          <Avatar
+                                            size={32}
+                                            icon={
+                                              step.kind === 'user' ? undefined : (
+                                                <UserOutlined />
+                                              )
+                                            }
+                                            className={
+                                              step.kind === 'self'
+                                                ? 'bg-[#E6F4FF] text-[#1677ff]'
+                                                : step.kind === 'directManager'
+                                                  ? 'bg-[#F0F5FF] text-[#5B67D9]'
+                                                  : 'bg-[#EFF6FF] text-[#1D4ED8]'
+                                            }
+                                          >
+                                            {step.kind === 'user'
+                                              ? employee?.initials || '?'
+                                              : null}
+                                          </Avatar>
+                                        )}
+                                      </div>
+                                    </Popover>
+                                    <button
+                                      type="button"
+                                      className="absolute -right-1 -top-1 z-[1] inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-white bg-[#f5f5f5] text-[8px] leading-none text-[#8c8c8c] hover:bg-[#fff1f0] hover:text-[#ff4d4f] disabled:cursor-not-allowed disabled:opacity-35"
+                                      disabled={flow.length <= 1}
+                                      title="Remove step"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        if (flow.length <= 1) return;
+                                        updateKpiFlow(
+                                          kpi.id,
+                                          flow.filter((_, i) => i !== index),
+                                        );
+                                      }}
+                                      data-cy={`bsc-eval-step-remove-${kpi.id}-${index}`}
+                                    >
+                                      <MinusOutlined />
+                                    </button>
+                                  </div>
+                                  <Popover
+                                    trigger="click"
+                                    placement="bottomLeft"
+                                    content={editor}
+                                  >
+                                    <div
+                                      role="button"
+                                      tabIndex={0}
+                                      className={`max-w-[120px] cursor-pointer truncate text-[12px] font-medium transition-opacity hover:opacity-80 ${
+                                        needsPerson
+                                          ? 'text-[#cf1322]'
+                                          : 'text-[#595959]'
+                                      }`}
+                                      title={displayName}
+                                      data-cy={`bsc-eval-step-${kpi.id}-${index}`}
+                                      onKeyDown={(e) => {
+                                        if (
+                                          e.key === 'Enter' ||
+                                          e.key === ' '
+                                        ) {
+                                          e.currentTarget.click();
+                                        }
+                                      }}
+                                    >
+                                      {truncateName(displayName)}
+                                    </div>
+                                  </Popover>
+                                </div>
+                              </React.Fragment>
+                            );
+                          })}
+
+                          <div
+                            className="inline-flex h-5 min-w-6 shrink-0 items-center justify-center rounded-full border border-[#E3E7FF] bg-[#F7F8FF] px-1 text-[11px] font-semibold text-[#5B67D9]"
+                            data-cy={`bsc-eval-connector-add-${kpi.id}`}
+                          >
+                            →
+                          </div>
+                          <Popover
+                            trigger="click"
+                            open={addStepKpiId === kpi.id}
+                            onOpenChange={(open) => {
+                              if (open) {
+                                setEmployeePickerSearch('');
+                                setAddStepKpiId(kpi.id);
+                              } else {
+                                closeEmployeePicker();
+                              }
+                            }}
+                            placement="bottomLeft"
+                            arrow={false}
+                            zIndex={1100}
+                            getPopupContainer={() => document.body}
+                            overlayClassName="bsc-eval-employee-picker-dropdown"
+                            overlayInnerStyle={{ padding: 12, width: 320 }}
+                            title={
+                              <div className="mb-1 flex items-start justify-between gap-2">
+                                <div>
+                                  <h3 className="m-0 text-base font-bold text-gray-900">
+                                    Add evaluator
+                                  </h3>
+                                  <p className="mb-0 mt-1 text-xs text-gray-500">
+                                    Search and select who evaluates next
+                                  </p>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={closeEmployeePicker}
+                                  className="cursor-pointer border-none bg-transparent p-1 text-gray-400 hover:text-gray-600"
+                                  data-cy="bsc-eval-employee-picker-close"
+                                >
+                                  <CloseOutlined />
+                                </button>
+                              </div>
+                            }
+                            content={
+                              <div data-cy="bsc-eval-employee-picker-dropdown">
+                                <div className="mb-2 w-full [&_.ant-input-affix-wrapper]:!w-full [&_input]:!w-full">
+                                  <BscSearchInput
+                                    value={employeePickerSearch}
+                                    onChange={setEmployeePickerSearch}
+                                    placeholder="Search employees"
+                                    className="!w-full !max-w-none"
+                                    data-cy="bsc-eval-employee-picker-search"
+                                  />
+                                </div>
+                                <div
+                                  className="flex max-h-[280px] flex-col gap-0.5 overflow-y-auto"
+                                  data-cy="bsc-eval-employee-picker-list"
+                                >
+                                  <button
+                                    type="button"
+                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                    onClick={() =>
+                                      addEvaluatorFromPicker({ kind: 'self' })
+                                    }
+                                    data-cy="bsc-eval-picker-self"
+                                  >
+                                    <Avatar
+                                      size={28}
+                                      icon={<UserOutlined />}
+                                      className="shrink-0 bg-[#E6F4FF] text-[#1677ff]"
+                                    />
+                                    <span className="text-[13px] font-medium text-[#262626]">
+                                      Employee (self)
+                                    </span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                    onClick={() =>
+                                      addEvaluatorFromPicker({
+                                        kind: 'directManager',
+                                      })
+                                    }
+                                    data-cy="bsc-eval-picker-manager"
+                                  >
+                                    <Avatar
+                                      size={28}
+                                      icon={<UserOutlined />}
+                                      className="shrink-0 bg-[#F0F5FF] text-[#5B67D9]"
+                                    />
+                                    <span className="text-[13px] font-medium text-[#262626]">
+                                      Direct manager
+                                    </span>
+                                  </button>
+                                  <div className="my-1 border-t border-[#F0F0F0]" />
+                                  {!filteredPickerEmployees.length ? (
+                                    <p className="m-0 px-2 py-4 text-center text-[13px] text-[#8F94A3]">
+                                      No employees match your search.
+                                    </p>
+                                  ) : (
+                                    filteredPickerEmployees.map((option) => (
+                                      <button
+                                        key={option.value}
+                                        type="button"
+                                        className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                        onClick={() =>
+                                          addEvaluatorFromPicker({
+                                            kind: 'user',
+                                            userId: option.value,
+                                          })
+                                        }
+                                        data-cy={`bsc-eval-picker-user-${option.value}`}
+                                      >
+                                        {option.profileImage ? (
+                                          <Avatar
+                                            size={28}
+                                            src={option.profileImage}
+                                            className="shrink-0"
+                                          />
+                                        ) : (
+                                          <Avatar
+                                            size={28}
+                                            className="shrink-0 bg-[#EFF6FF] text-[#1D4ED8]"
+                                          >
+                                            {option.initials}
+                                          </Avatar>
+                                        )}
+                                        <span className="truncate text-[13px] font-medium text-[#262626]">
+                                          {option.label}
+                                        </span>
+                                      </button>
+                                    ))
+                                  )}
+                                </div>
+                              </div>
+                            }
+                          >
+                            <button
+                              type="button"
+                              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-transparent text-[#8F94A3] transition-opacity hover:opacity-70"
+                              title="Add evaluator"
+                              data-cy={`bsc-eval-add-step-${kpi.id}`}
+                            >
+                              <PlusOutlined />
+                            </button>
+                          </Popover>
+                        </div>
                       </div>
                     </div>
                   );

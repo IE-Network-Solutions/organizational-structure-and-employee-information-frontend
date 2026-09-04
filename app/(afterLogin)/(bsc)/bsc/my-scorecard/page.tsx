@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo } from 'react';
-import { Button, Tabs } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Button, Select, Tabs } from 'antd';
 import type { RenderTabBar } from 'rc-tabs/es/interface';
 import Link from 'next/link';
 import { FaPlus } from 'react-icons/fa';
@@ -17,11 +17,17 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   EmployeeScorecard,
+  EvaluationCycle,
   KpiLibraryItem,
   ScorecardStatus,
   TargetLogic,
 } from '@/types/bsc';
 import { normalizeRatio } from '@/utils/bsc/scoring';
+import { targetScorePercent } from '@/utils/bsc/rollup';
+import {
+  filterScorecardsInSeries,
+  scorecardContextLabel,
+} from '@/utils/bsc/series';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -31,8 +37,10 @@ import PerspectiveKpiCard, {
 import EmployeeKpiTable from './_components/EmployeeKpiTable';
 import ScorecardPeriodFilter from './_components/ScorecardPeriodFilter';
 import TeamKpiReview from './_components/TeamKpiReview';
+import CheckinQueue from './_components/CheckinQueue';
 import PerspectivesCatalog from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-perspectives/_components/PerspectivesCatalog';
 import ScorecardsCatalog from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-setup/_components/ScorecardsCatalog';
+import { buildCheckinQueue } from '@/utils/bsc/checkin';
 
 function currentMonthName(): string {
   return new Date().toLocaleString('en-US', { month: 'long' });
@@ -40,14 +48,6 @@ function currentMonthName(): string {
 
 function currentYear(): number {
   return new Date().getFullYear();
-}
-
-function daysUntil(endDate?: string | null): number | null {
-  if (!endDate) return null;
-  const diff = Math.ceil(
-    (new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-  );
-  return Number.isFinite(diff) ? Math.max(0, diff) : null;
 }
 
 function kpiProgressPercent(
@@ -94,6 +94,15 @@ export default function MyBscScorecardPage() {
   const { data: allKpis, isLoading: kpisLoading } = useGetBscKpiLibrary();
   const { data: cycles } = useGetBscCycles();
   const { data: allocations } = useGetBscRolePerspectives();
+  const [selectedScorecardId, setSelectedScorecardId] = useState<
+    string | undefined
+  >();
+
+  const cycleById = useMemo(() => {
+    const map = new Map<string, EvaluationCycle>();
+    for (const cycle of cycles || []) map.set(cycle.id, cycle);
+    return map;
+  }, [cycles]);
 
   const mine = useMemo(() => {
     const list = scorecards || [];
@@ -197,15 +206,39 @@ export default function MyBscScorecardPage() {
     myScorecardSessionMonths,
   ]);
 
-  const activeScorecard: EmployeeScorecard | null =
-    visibleScorecards[0] || null;
+  const scorecardOptions = useMemo(() => {
+    const pool = isHistoryFilterActive ? visibleScorecards : mine;
+    return pool.map((card) => ({
+      value: card.id,
+      label: scorecardContextLabel(card, cycleById.get(card.cycleId)),
+    }));
+  }, [mine, visibleScorecards, isHistoryFilterActive, cycleById]);
 
-  const evaluated = Boolean(
-    activeScorecard &&
-    (activeScorecard.status === ScorecardStatus.Scored ||
-      activeScorecard.status === ScorecardStatus.Completed ||
-      activeScorecard.finalEvaluation?.compositeScore != null),
-  );
+  useEffect(() => {
+    if (!scorecardOptions.length) {
+      setSelectedScorecardId(undefined);
+      return;
+    }
+    setSelectedScorecardId((prev) => {
+      if (prev && scorecardOptions.some((o) => o.value === prev)) return prev;
+      const preferred =
+        visibleScorecards[0]?.id ||
+        mine.find((s) => s.status === ScorecardStatus.Active)?.id ||
+        scorecardOptions[0]?.value;
+      return preferred;
+    });
+  }, [scorecardOptions, visibleScorecards, mine]);
+
+  const activeScorecard: EmployeeScorecard | null = useMemo(() => {
+    if (selectedScorecardId) {
+      return (
+        mine.find((s) => s.id === selectedScorecardId) ||
+        visibleScorecards.find((s) => s.id === selectedScorecardId) ||
+        null
+      );
+    }
+    return visibleScorecards[0] || null;
+  }, [selectedScorecardId, mine, visibleScorecards]);
 
   const cycle = useMemo(
     () =>
@@ -215,6 +248,40 @@ export default function MyBscScorecardPage() {
       ),
     [cycles, activeScorecard, assignedKpis],
   );
+
+  const seriesCards = useMemo(() => {
+    if (!activeScorecard) return [];
+    return filterScorecardsInSeries(mine, activeScorecard, cycleById);
+  }, [mine, activeScorecard, cycleById]);
+
+  const averageScoreByKpiId = useMemo(() => {
+    const scoresByKpi = new Map<string, number[]>();
+    for (const card of seriesCards) {
+      for (const target of card.targets) {
+        const score = targetScorePercent(target);
+        if (score == null) continue;
+        const list = scoresByKpi.get(target.kpiLibraryId) || [];
+        list.push(score);
+        scoresByKpi.set(target.kpiLibraryId, list);
+      }
+    }
+    const averages = new Map<
+      string,
+      { average: number; count: number; cadence?: string }
+    >();
+    const cadence = activeScorecard
+      ? cycleById.get(activeScorecard.cycleId)?.cadence
+      : undefined;
+    scoresByKpi.forEach((scores, kpiId) => {
+      if (!scores.length) return;
+      averages.set(kpiId, {
+        average: scores.reduce((sum, value) => sum + value, 0) / scores.length,
+        count: scores.length,
+        cadence,
+      });
+    });
+    return averages;
+  }, [seriesCards, activeScorecard, cycleById]);
 
   const allocation = useMemo(
     () =>
@@ -256,6 +323,7 @@ export default function MyBscScorecardPage() {
           target.targetLogic ||
           catalog?.targetLogic ||
           TargetLogic.HigherBetter;
+        const avgMeta = averageScoreByKpiId.get(target.kpiLibraryId);
         return {
           id: target.kpiLibraryId,
           name: target.kpiName,
@@ -267,6 +335,12 @@ export default function MyBscScorecardPage() {
           unit: target.measurementUnit || catalog?.measurementUnit || '',
           targetLogic: logic,
           progress: kpiProgressPercent(actual, goal, logic),
+          averageScore: avgMeta?.average ?? null,
+          averageCaption: avgMeta
+            ? `Avg of ${avgMeta.count}${
+                avgMeta.cadence ? ` ${avgMeta.cadence}` : ''
+              } period${avgMeta.count === 1 ? '' : 's'}`
+            : null,
           targetId: target.id,
           approvalStatus: target.approvalStatus,
           assignmentSource: target.assignmentSource || 'shared',
@@ -284,6 +358,7 @@ export default function MyBscScorecardPage() {
     const rows: ScorecardKpiRow[] = assignedKpis.map((kpi) => {
       const actual = null;
       const goal = kpi.defaultTarget ?? null;
+      const avgMeta = averageScoreByKpiId.get(kpi.id);
       return {
         id: kpi.id,
         name: kpi.name,
@@ -295,6 +370,12 @@ export default function MyBscScorecardPage() {
         unit: kpi.measurementUnit || '',
         targetLogic: kpi.targetLogic,
         progress: 0,
+        averageScore: avgMeta?.average ?? null,
+        averageCaption: avgMeta
+          ? `Avg of ${avgMeta.count}${
+              avgMeta.cadence ? ` ${avgMeta.cadence}` : ''
+            } period${avgMeta.count === 1 ? '' : 's'}`
+          : null,
         assignmentSource: 'shared',
       };
     });
@@ -303,7 +384,20 @@ export default function MyBscScorecardPage() {
         (order.get(a.perspective || '') ?? 99) -
         (order.get(b.perspective || '') ?? 99),
     );
-  }, [activeScorecard, allKpis, assignedKpis, perspectiveNames]);
+  }, [
+    activeScorecard,
+    allKpis,
+    assignedKpis,
+    averageScoreByKpiId,
+    perspectiveNames,
+  ]);
+
+  const checkinCount = useMemo(() => {
+    const preferred = userId || 'demo-user';
+    const primary = buildCheckinQueue(scorecards, preferred, cycleById);
+    if (primary.length || preferred === 'demo-user') return primary.length;
+    return buildCheckinQueue(scorecards, 'demo-user', cycleById).length;
+  }, [scorecards, userId, cycleById]);
 
   const loading = scorecardsLoading || kpisLoading;
   const activeTab =
@@ -315,10 +409,32 @@ export default function MyBscScorecardPage() {
           ? 'all'
           : scorecardTab === 'team' && canViewTeamKpi
             ? 'team'
-            : 'mine';
+            : scorecardTab === 'checkin'
+              ? 'checkin'
+              : 'mine';
   const isCompactTabBar = isMobile || isTablet;
 
-  const myScorecardFilters = <ScorecardPeriodFilter />;
+  const myScorecardFilters = (
+    <div className="flex flex-wrap items-center gap-2">
+      {scorecardOptions.length > 1 ? (
+        <Select
+          className="w-full min-w-[200px] sm:w-[280px]"
+          value={selectedScorecardId}
+          options={scorecardOptions}
+          onChange={setSelectedScorecardId}
+          showSearch
+          optionFilterProp="label"
+          placeholder="Scorecard context"
+          data-cy="bsc-my-scorecard-context-select"
+        />
+      ) : null}
+      <ScorecardPeriodFilter />
+    </div>
+  );
+
+  const contextLabel = activeScorecard
+    ? scorecardContextLabel(activeScorecard, cycle)
+    : null;
 
   const myScorecardBody = (
     <div data-cy="bsc-my-scorecard-tab-content">
@@ -340,9 +456,9 @@ export default function MyBscScorecardPage() {
         <PerspectiveKpiCard
           title="KPI Progress"
           kpis={kpiRows}
-          daysLeft={daysUntil(cycle?.endDate)}
-          evaluated={evaluated}
           scorecard={activeScorecard}
+          cadence={cycle?.cadence}
+          contextLabel={contextLabel}
         />
       )}
     </div>
@@ -365,28 +481,18 @@ export default function MyBscScorecardPage() {
       label: tabLabel('mine', 'My Scorecard'),
       children: myScorecardBody,
     },
-    ...(canViewTeamKpi
-      ? [
-          {
-            key: 'team',
-            label: tabLabel('team', 'Team KPI'),
-            children: <TeamKpiReview />,
-          },
-        ]
-      : []),
-    ...(canViewAllEmployeeKpi
-      ? [
-          {
-            key: 'all',
-            label: tabLabel('all', 'All Employee KPI'),
-            children: (
-              <div data-cy="bsc-all-employee-kpi-tab-content">
-                <EmployeeKpiTable />
-              </div>
-            ),
-          },
-        ]
-      : []),
+    {
+      key: 'checkin',
+      label: tabLabel(
+        'checkin',
+        checkinCount > 0 ? `Check-in (${checkinCount})` : 'Check-in',
+      ),
+      children: (
+        <div data-cy="bsc-checkin-tab-content">
+          <CheckinQueue />
+        </div>
+      ),
+    },
     ...(canManageBscAdmin
       ? [
           {
@@ -404,6 +510,28 @@ export default function MyBscScorecardPage() {
             children: (
               <div data-cy="bsc-setup-admin-tab-content">
                 <ScorecardsCatalog />
+              </div>
+            ),
+          },
+        ]
+      : []),
+    ...(canViewTeamKpi
+      ? [
+          {
+            key: 'team',
+            label: tabLabel('team', 'Team KPI'),
+            children: <TeamKpiReview />,
+          },
+        ]
+      : []),
+    ...(canViewAllEmployeeKpi
+      ? [
+          {
+            key: 'all',
+            label: tabLabel('all', 'All Employee KPI'),
+            children: (
+              <div data-cy="bsc-all-employee-kpi-tab-content">
+                <EmployeeKpiTable />
               </div>
             ),
           },
@@ -439,7 +567,7 @@ export default function MyBscScorecardPage() {
           className="hidden sm:inline ml-2"
           data-cy="-bsc-bsc-my-scorecard-page-span-2"
         >
-          Add
+          Add scorecard
         </span>
       </Button>
     ) : null;
@@ -482,7 +610,7 @@ export default function MyBscScorecardPage() {
             data-cy="-bsc-bsc-my-scorecard-page-tsx-page-span-387"
             className="text-2xl font-bold text-gray-900"
           >
-            My Scorecard
+            KPI
           </span>
         }
         subtitle={
@@ -496,8 +624,8 @@ export default function MyBscScorecardPage() {
               className="flex items-center space-x-2"
             >
               <li data-cy="-bsc-bsc-my-scorecard-page-tsx-page-li-395">
-                <Link className="!text-gray-800" href="/okr">
-                  Performance
+                <Link className="!text-gray-800" href="/bsc/my-scorecard">
+                  KPI
                 </Link>
               </li>
               <li data-cy="-bsc-bsc-my-scorecard-page-tsx-page-li-400">
@@ -513,7 +641,19 @@ export default function MyBscScorecardPage() {
                   data-cy="-bsc-bsc-my-scorecard-page-tsx-page-span-404"
                   className="text-gray-900"
                 >
-                  My Scorecard
+                  {activeTab === 'mine'
+                    ? 'My Scorecard'
+                    : activeTab === 'checkin'
+                      ? 'Check-in'
+                      : activeTab === 'kpis'
+                        ? 'KPIs'
+                        : activeTab === 'bsc'
+                          ? 'BSC'
+                          : activeTab === 'team'
+                            ? 'Team KPI'
+                            : activeTab === 'all'
+                              ? 'All Employee KPI'
+                              : 'My Scorecard'}
                 </span>
               </li>
             </ol>
@@ -524,7 +664,9 @@ export default function MyBscScorecardPage() {
       <Tabs
         activeKey={activeTab}
         onChange={(key) =>
-          setScorecardTab(key as 'mine' | 'team' | 'all' | 'kpis' | 'bsc')
+          setScorecardTab(
+            key as 'mine' | 'checkin' | 'team' | 'all' | 'kpis' | 'bsc',
+          )
         }
         items={tabItems}
         moreIcon={false}

@@ -80,10 +80,29 @@ export enum BscSetupKind {
 
 /** Who the scorecard is assigned to in settings scope */
 export enum BscScopeTarget {
+  Company = 'Company',
   Department = 'Department',
   Role = 'Role',
   Individual = 'Individual',
 }
+
+/** Who evaluates assignees on a scorecard template */
+export type BscEvaluatorMode = 'directManager' | 'user';
+
+/** @deprecated prefer BscEvaluatorStep chains via kpiEvaluationFlows */
+export type BscKpiEvaluatorAssignment = {
+  mode: BscEvaluatorMode;
+  userId?: string | null;
+};
+
+/** Step in a per-KPI evaluation chain (any order / combination allowed) */
+export type BscEvaluatorStepKind = 'self' | 'directManager' | 'user';
+
+export type BscEvaluatorStep = {
+  kind: BscEvaluatorStepKind;
+  /** Required when kind === 'user' */
+  userId?: string | null;
+};
 
 /** Fiscal-year-backed evaluation period + dept/role scope (replaces free-form cycles) */
 export interface EvaluationCycle {
@@ -106,6 +125,8 @@ export interface EvaluationCycle {
   isRecurring: boolean;
   /** True when start/end came from the temporary duration selector */
   useCustomDates: boolean;
+  /** Persisted assign-to choice; preferred over inferring from ID lists */
+  scopeTarget?: BscScopeTarget;
   departmentIds: string[];
   departmentNames: string[];
   positionIds: string[];
@@ -113,6 +134,13 @@ export interface EvaluationCycle {
   /** Optional direct assignees (individuals) */
   employeeIds?: string[];
   employeeNames?: string[];
+  /** Scorecard-level default evaluator (derived / fallback) */
+  evaluatorMode?: BscEvaluatorMode;
+  evaluatorUserId?: string | null;
+  /** @deprecated prefer kpiEvaluationFlows */
+  kpiEvaluators?: Record<string, BscKpiEvaluatorAssignment>;
+  /** Per-KPI ordered evaluation chains keyed by catalog KPI id */
+  kpiEvaluationFlows?: Record<string, BscEvaluatorStep[]>;
   /** @deprecated kept for assign UI display fallback */
   year?: number;
   month?: number;
@@ -164,6 +192,16 @@ export interface ScorecardKpiTarget {
    * individual = appended to this person only
    */
   assignmentSource?: 'shared' | 'individual';
+  /** Ordered evaluation chain for this KPI */
+  evaluationFlow?: BscEvaluatorStep[];
+  /**
+   * Index into evaluationFlow for the step currently awaiting action.
+   * 0 = first step (usually self). Advanced on submit / approve.
+   */
+  evaluationStepIndex?: number;
+  /** @deprecated prefer evaluationFlow */
+  evaluatorMode?: BscEvaluatorMode;
+  evaluatorUserId?: string | null;
 }
 
 export interface FinalEvaluation {
@@ -239,6 +277,7 @@ export interface CreateEvaluationConfigInput {
   endDate: string;
   isRecurring?: boolean;
   useCustomDates?: boolean;
+  scopeTarget?: BscScopeTarget;
   departmentIds: string[];
   departmentNames: string[];
   positionIds: string[];
@@ -246,6 +285,11 @@ export interface CreateEvaluationConfigInput {
   /** Optional direct assignees (individuals) */
   employeeIds?: string[];
   employeeNames?: string[];
+  evaluatorMode?: BscEvaluatorMode;
+  evaluatorUserId?: string | null;
+  /** @deprecated prefer kpiEvaluationFlows */
+  kpiEvaluators?: Record<string, BscKpiEvaluatorAssignment>;
+  kpiEvaluationFlows?: Record<string, BscEvaluatorStep[]>;
 }
 
 export interface UpdateEvaluationConfigInput extends Partial<CreateEvaluationConfigInput> {
@@ -268,6 +312,10 @@ export interface AssignScorecardInput {
     targetValue: number;
     worstCase?: number | null;
     bestCase?: number | null;
+    evaluationFlow?: BscEvaluatorStep[];
+    /** @deprecated prefer evaluationFlow */
+    evaluatorMode?: BscEvaluatorMode;
+    evaluatorUserId?: string | null;
   }>;
 }
 
@@ -280,6 +328,7 @@ export interface AppendIndividualKpisInput {
     targetValue: number;
     worstCase?: number | null;
     bestCase?: number | null;
+    evaluationFlow?: BscEvaluatorStep[];
   }>;
   /**
    * Optional explicit weights for existing targets on this person.

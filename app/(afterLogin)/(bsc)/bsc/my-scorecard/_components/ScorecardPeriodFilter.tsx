@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Button, Popover, Select } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 
@@ -166,7 +167,7 @@ export default function ScorecardPeriodFilter() {
       >
         <Button
           type="default"
-          className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#D9D9D9] rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 h-10"
+          className={bscFilterButtonClassName}
           icon={<FilterAltOutlinedIcon className="py-1" />}
           data-cy="bsc-my-sc-filter"
         >
