@@ -33,7 +33,6 @@ function Planning({
   planSummaries: planSummariesFromParent,
   transformedData: transformedDataFromParent,
   isLoading: planningLoadingFromParent,
-  totalItems: totalItemsFromParent,
   addPlanComposer,
   onStartAddPlan,
 }: {
@@ -74,7 +73,6 @@ function Planning({
   const approvePending = useUserPlanRepositoryMock((s) => s.approvePending);
   const openPlanDirect = useUserPlanRepositoryMock((s) => s.openPlanDirect);
   const mockEnabled = isDeadlinePlanningMockEnabled();
-  const getPlan = useUserPlanRepositoryMock((s) => s.getPlan);
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods, isLoading: userPlanningPeriodsLoading } =
     AllPlanningPeriods();
@@ -110,22 +108,17 @@ function Planning({
     }
   }, [activeTab, resetStatuses, resetWeights, setInlineReportPlanId]);
 
-  const activePlanningItems = useMemo(() => {
-    return transformedData ?? [];
-  }, [transformedData]);
-
   const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
 
   const { data: plannedTasksForReport, isLoading: plannedForReportLoading } =
     useGetPlannedTaskForReport(planningPeriodId, {
       enabled: activeTab === 1 && !!planningPeriodId && !mockEnabled,
     });
-  const ownerCanOpenSubmitReport =
-    mockEnabled
-      ? false // Mock: tick checkbox = done & reported (no Report button)
-      : !plannedForReportLoading &&
-        Array.isArray(plannedTasksForReport) &&
-        plannedTasksForReport.length > 0;
+  const ownerCanOpenSubmitReport = mockEnabled
+    ? false // Mock: tick checkbox = done & reported (no Report button)
+    : !plannedForReportLoading &&
+      Array.isArray(plannedTasksForReport) &&
+      plannedTasksForReport.length > 0;
   const closeInlineReport = useCallback(() => {
     resetStatuses();
     resetWeights();

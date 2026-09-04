@@ -24,7 +24,7 @@ export const MOCK_TEAM_MEMBERS = [
  * Seed Closed so each card can show Closed tasks + Pending (approval) tasks inside.
  * New tasks added after close stay under the Pending tag until approved.
  */
-export function mockSeedPlanIsClosed(_userId: string): boolean {
+export function mockSeedPlanIsClosed(): boolean {
   return true;
 }
 

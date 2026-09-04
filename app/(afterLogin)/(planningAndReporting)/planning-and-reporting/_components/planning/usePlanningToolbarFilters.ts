@@ -262,10 +262,7 @@ export function usePlanningToolbarFilters() {
   const employeeOptions = useMemo(() => {
     if (mockEnabled) {
       const options = buildMockEmployeeFilterOptions();
-      if (
-        planningFilterDepartment &&
-        planningFilterDepartment !== 'all'
-      ) {
+      if (planningFilterDepartment && planningFilterDepartment !== 'all') {
         const allowed = new Set(
           mockUserIdsForDepartment(planningFilterDepartment),
         );
@@ -280,12 +277,7 @@ export function usePlanningToolbarFilters() {
       employeeData,
       departmentData,
     );
-  }, [
-    mockEnabled,
-    employeeData,
-    planningFilterDepartment,
-    departmentData,
-  ]);
+  }, [mockEnabled, employeeData, planningFilterDepartment, departmentData]);
 
   const getSelectedEmployeeValue = () => {
     const currentValue = selectedUser?.[0];

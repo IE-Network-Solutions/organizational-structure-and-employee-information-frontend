@@ -31,9 +31,12 @@ describe('selectTopDeadlineRoots', () => {
   });
 
   it('limits to N roots', () => {
-    const tasks = Array.from({ length: 8 }, (_, i) =>
-      task(`t${i}`, `2026-09-${String(i + 1).padStart(2, '0')}`),
-    );
+    const tasks = [];
+    for (let index = 0; index < 8; index += 1) {
+      tasks.push(
+        task(`t${index}`, `2026-09-${String(index + 1).padStart(2, '0')}`),
+      );
+    }
     expect(selectTopDeadlineRoots(tasks, 5)).toHaveLength(5);
   });
 });

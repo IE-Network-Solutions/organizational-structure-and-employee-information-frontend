@@ -24,7 +24,10 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useUserPlanRepositoryMock } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
 import { usePlanTaskDatesStore } from '@/store/uistate/features/planningAndReporting/taskDates';
 import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
-import { todayIso, parseDate } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
+import {
+  todayIso,
+  parseDate,
+} from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
 import type { DeadlineKind } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/types';
 import CustomButton from '@/components/common/buttons/customButton';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
@@ -135,11 +138,7 @@ function resolveTaskDeadlineIso(
 ): string | null {
   const overlay = datesByTaskId?.[String(task?.id ?? '')];
   const raw =
-    overlay?.deadline ||
-    task?.deadline ||
-    task?.endDate ||
-    task?.end ||
-    null;
+    overlay?.deadline || task?.deadline || task?.endDate || task?.end || null;
   if (!raw) return null;
   const iso = String(raw).slice(0, 10);
   return parseDate(iso).isValid() ? iso : null;
@@ -240,7 +239,6 @@ export default function PlanCard({
   canEdit = false,
   isApprovalLoading = false,
   dateLabel,
-  onHoverKR,
   planningPeriodId,
   onOpenThread,
   onSubmitReport,
@@ -254,7 +252,9 @@ export default function PlanCard({
   inlineReportContent,
 }: PlanCardProps) {
   const { mutate: updateStatus } = useUpdateStatus();
-  const togglePreAchieved = useUserPlanRepositoryMock((s) => s.togglePreAchieved);
+  const togglePreAchieved = useUserPlanRepositoryMock(
+    (s) => s.togglePreAchieved,
+  );
   const reportMockTasks = useUserPlanRepositoryMock((s) => s.reportTasks);
   const mockPlansByUserId = useUserPlanRepositoryMock((s) => s.plansByUserId);
   const mockEnabled = isDeadlinePlanningMockEnabled();
@@ -541,6 +541,173 @@ export default function PlanCard({
     (s) => s.byReport[String(plan.id)],
   );
 
+  // ─── Planning view ─────────────────────────────────────────────────────
+
+  const mockPlanRecord = React.useMemo(() => {
+    if (!mockEnabled || !plan.ownerUserId) return null;
+    return mockPlansByUserId[plan.ownerUserId] ?? null;
+  }, [mockEnabled, mockPlansByUserId, plan.ownerUserId]);
+
+  const mockActiveTasks: MockPlanTask[] = React.useMemo(() => {
+    return (mockPlanRecord?.activeTasks ?? []).filter((t) => !t.isReported);
+  }, [mockPlanRecord]);
+
+  const mockReportedTasks: MockPlanTask[] = React.useMemo(() => {
+    return mockPlanRecord?.archivedTasks ?? [];
+  }, [mockPlanRecord]);
+
+  const mapMockTaskToPlanningTask = useCallback((t: MockPlanTask) => {
+    return {
+      id: t.id,
+      title: t.title,
+      task: t.title,
+      taskName: t.title,
+      priority:
+        t.priority === 'high'
+          ? 'High'
+          : t.priority === 'medium'
+            ? 'Medium'
+            : t.priority === 'priority'
+              ? 'Priority'
+              : 'Low',
+      weight: t.weight ?? 0,
+      status: t.done ? 'pre_achieved' : 'pre_pending',
+      deadline: t.deadline,
+      startDate: t.start,
+      endDate: t.deadline,
+      isPendingApproval: t.isPendingApproval,
+      kind: t.kind,
+      parentId: t.parentId,
+    };
+  }, []);
+
+  const rawPlanningTasks = React.useMemo(() => {
+    if (mockEnabled && plan.ownerUserId) {
+      const confirmedSource = plan.isReported
+        ? mockReportedTasks
+        : mockActiveTasks.filter((t) => !t.isPendingApproval);
+      const pendingSource = mockActiveTasks.filter(
+        (t) => !!t.isPendingApproval,
+      );
+      return [...confirmedSource, ...pendingSource].map(
+        mapMockTaskToPlanningTask,
+      );
+    }
+    return flattenAllTasks(plan).flatMap((s) =>
+      s.tasks.map((t: any) => ({
+        ...t,
+        _krId: s.krId,
+        _metricType: s.metricType,
+      })),
+    );
+  }, [
+    plan,
+    mockEnabled,
+    mockActiveTasks,
+    mockReportedTasks,
+    plan.ownerUserId,
+    mapMockTaskToPlanningTask,
+  ]);
+
+  const pendingTasks = rawPlanningTasks.filter(
+    (t: any) => !!t.isPendingApproval,
+  );
+  const allConfirmedTasks = rawPlanningTasks.filter(
+    (t: any) => !t.isPendingApproval,
+  );
+
+  // Always respect Today / This Week / This Month (including Closed plans).
+  // Pending tasks stay visible regardless of duration.
+  const confirmedTasks = React.useMemo(() => {
+    if (mockEnabled) {
+      const today = todayIso();
+      const confirmedSource = plan.isReported
+        ? mockReportedTasks
+        : mockActiveTasks.filter((t) => !t.isPendingApproval);
+      const filtered = filterMockTasksByDuration(
+        confirmedSource,
+        durationKind,
+        today,
+      );
+      const ids = new Set(filtered.map((t) => t.id));
+      return allConfirmedTasks.filter((t: any) => ids.has(t.id));
+    }
+    const today = todayIso();
+    return allConfirmedTasks.filter((task: any) =>
+      durationFilterMatchesTask(
+        task,
+        durationKind,
+        today,
+        datesByTaskId,
+        durationKind,
+      ),
+    );
+  }, [
+    allConfirmedTasks,
+    durationKind,
+    datesByTaskId,
+    mockEnabled,
+    mockActiveTasks,
+    mockReportedTasks,
+    plan.isReported,
+  ]);
+
+  const showClosedSection =
+    plan.status?.label === 'Closed' && confirmedTasks.length > 0;
+  const showPendingSection = pendingTasks.length > 0;
+
+  /** Confirmed tasks shown without a Closed tag (open plans). */
+  const flatTasks = !showClosedSection ? confirmedTasks : [];
+  const visibleTaskCount =
+    (showClosedSection ? confirmedTasks.length : flatTasks.length) +
+    pendingTasks.length;
+
+  const mockPendingTasks = useMemo(
+    () => mockActiveTasks.filter((t) => !!t.isPendingApproval),
+    [mockActiveTasks],
+  );
+  const mockConfirmedForTree = useMemo(() => {
+    if (!mockEnabled) return [] as MockPlanTask[];
+    const treeSource = plan.isReported
+      ? mockReportedTasks
+      : mockActiveTasks.filter((t) => !t.isPendingApproval);
+    const matchIds = new Set(confirmedTasks.map((t: any) => t.id));
+
+    // Today: flat matching tasks only (no ancestor accordion nesting).
+    if (durationKind === 'daily') {
+      return treeSource.filter(
+        (t) => !t.isPendingApproval && matchIds.has(t.id),
+      );
+    }
+
+    // Week → only direct daily children; Month → only direct weekly children.
+    // Do not pull ancestors (keeps weeks as roots on week filter).
+    const expectedChildKind: DeadlineKind =
+      durationKind === 'week' ? 'daily' : 'week';
+    const include = new Set<string>(matchIds);
+
+    for (const id of matchIds) {
+      for (const t of treeSource) {
+        if (
+          t.parentId === id &&
+          !t.isPendingApproval &&
+          t.kind === expectedChildKind
+        ) {
+          include.add(t.id);
+        }
+      }
+    }
+
+    return treeSource.filter((t) => !t.isPendingApproval && include.has(t.id));
+  }, [
+    mockEnabled,
+    mockActiveTasks,
+    mockReportedTasks,
+    confirmedTasks,
+    durationKind,
+    plan.isReported,
+  ]);
+
   if (viewMode === 'reporting') {
     const reportTasks = sections.flatMap((s) =>
       s.tasks.map((t: any) => ({
@@ -664,11 +831,7 @@ export default function PlanCard({
                   <FaRegThumbsUp className="text-[11px]" />
                 </div>
               ) : null}
-              {plan.status &&
-              (viewMode !== 'planning' ||
-                plan.status.label !== 'Closed') ? (
-                <StatusBadge status={plan.status} />
-              ) : null}
+              {plan.status ? <StatusBadge status={plan.status} /> : null}
               {inlineReportActive && onCloseInlineReport ? (
                 <button
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-button-437"
@@ -1061,172 +1224,6 @@ export default function PlanCard({
     );
   }
 
-  // ─── Planning view ─────────────────────────────────────────────────────
-
-  const mockPlanRecord = React.useMemo(() => {
-    if (!mockEnabled || !plan.ownerUserId) return null;
-    return mockPlansByUserId[plan.ownerUserId] ?? null;
-  }, [mockEnabled, mockPlansByUserId, plan.ownerUserId]);
-
-  const mockActiveTasks: MockPlanTask[] = React.useMemo(() => {
-    return (mockPlanRecord?.activeTasks ?? []).filter((t) => !t.isReported);
-  }, [mockPlanRecord]);
-
-  const mockReportedTasks: MockPlanTask[] = React.useMemo(() => {
-    return mockPlanRecord?.archivedTasks ?? [];
-  }, [mockPlanRecord]);
-
-  const mapMockTaskToPlanningTask = useCallback((t: MockPlanTask) => {
-    return {
-      id: t.id,
-      title: t.title,
-      task: t.title,
-      taskName: t.title,
-      priority:
-        t.priority === 'high'
-          ? 'High'
-          : t.priority === 'medium'
-            ? 'Medium'
-            : t.priority === 'priority'
-              ? 'Priority'
-              : 'Low',
-      weight: t.weight ?? 0,
-      status: t.done ? 'pre_achieved' : 'pre_pending',
-      deadline: t.deadline,
-      startDate: t.start,
-      endDate: t.deadline,
-      isPendingApproval: t.isPendingApproval,
-      kind: t.kind,
-      parentId: t.parentId,
-    };
-  }, []);
-
-  const rawPlanningTasks = React.useMemo(() => {
-    if (mockEnabled && plan.ownerUserId) {
-      const confirmedSource = plan.isReported
-        ? mockReportedTasks
-        : mockActiveTasks.filter((t) => !t.isPendingApproval);
-      const pendingSource = mockActiveTasks.filter((t) => !!t.isPendingApproval);
-      return [...confirmedSource, ...pendingSource].map(mapMockTaskToPlanningTask);
-    }
-    return flattenAllTasks(plan).flatMap((s) =>
-      s.tasks.map((t: any) => ({
-        ...t,
-        _krId: s.krId,
-        _metricType: s.metricType,
-      })),
-    );
-  }, [
-    plan,
-    mockEnabled,
-    mockActiveTasks,
-    mockReportedTasks,
-    plan.ownerUserId,
-    mapMockTaskToPlanningTask,
-  ]);
-
-  const pendingTasks = rawPlanningTasks.filter((t: any) => !!t.isPendingApproval);
-  const allConfirmedTasks = rawPlanningTasks.filter(
-    (t: any) => !t.isPendingApproval,
-  );
-
-  // Always respect Today / This Week / This Month (including Closed plans).
-  // Pending tasks stay visible regardless of duration.
-  const confirmedTasks = React.useMemo(() => {
-    if (mockEnabled) {
-      const today = todayIso();
-      const confirmedSource = plan.isReported
-        ? mockReportedTasks
-        : mockActiveTasks.filter((t) => !t.isPendingApproval);
-      const filtered = filterMockTasksByDuration(
-        confirmedSource,
-        durationKind,
-        today,
-      );
-      const ids = new Set(filtered.map((t) => t.id));
-      return allConfirmedTasks.filter((t: any) => ids.has(t.id));
-    }
-    const today = todayIso();
-    return allConfirmedTasks.filter((task: any) =>
-      durationFilterMatchesTask(
-        task,
-        durationKind,
-        today,
-        datesByTaskId,
-        durationKind,
-      ),
-    );
-  }, [
-    allConfirmedTasks,
-    durationKind,
-    datesByTaskId,
-    mockEnabled,
-    mockActiveTasks,
-    mockReportedTasks,
-    plan.isReported,
-  ]);
-
-  const showClosedSection =
-    plan.status?.label === 'Closed' && confirmedTasks.length > 0;
-  const showPendingSection = pendingTasks.length > 0;
-
-  /** Confirmed tasks shown without a Closed tag (open plans). */
-  const flatTasks = !showClosedSection ? confirmedTasks : [];
-  const visibleTaskCount =
-    (showClosedSection ? confirmedTasks.length : flatTasks.length) +
-    pendingTasks.length;
-
-  const isMyPlanCard =
-    plan.summary === 'My Plan' || plan.owner?.name === 'My Plan';
-
-  const mockPendingTasks = useMemo(
-    () => mockActiveTasks.filter((t) => !!t.isPendingApproval),
-    [mockActiveTasks],
-  );
-  const mockConfirmedForTree = useMemo(() => {
-    if (!mockEnabled) return [] as MockPlanTask[];
-    const treeSource = plan.isReported
-      ? mockReportedTasks
-      : mockActiveTasks.filter((t) => !t.isPendingApproval);
-    const matchIds = new Set(confirmedTasks.map((t: any) => t.id));
-
-    // Today: flat matching tasks only (no ancestor accordion nesting).
-    if (durationKind === 'daily') {
-      return treeSource.filter(
-        (t) => !t.isPendingApproval && matchIds.has(t.id),
-      );
-    }
-
-    // Week → only direct daily children; Month → only direct weekly children.
-    // Do not pull ancestors (keeps weeks as roots on week filter).
-    const expectedChildKind: DeadlineKind =
-      durationKind === 'week' ? 'daily' : 'week';
-    const include = new Set<string>(matchIds);
-
-    for (const id of matchIds) {
-      for (const t of treeSource) {
-        if (
-          t.parentId === id &&
-          !t.isPendingApproval &&
-          t.kind === expectedChildKind
-        ) {
-          include.add(t.id);
-        }
-      }
-    }
-
-    return treeSource.filter(
-      (t) => !t.isPendingApproval && include.has(t.id),
-    );
-  }, [
-    mockEnabled,
-    mockActiveTasks,
-    mockReportedTasks,
-    confirmedTasks,
-    durationKind,
-    plan.isReported,
-  ]);
-
   const renderPlanningTaskRow = (
     task: any,
     opts?: {
@@ -1276,67 +1273,76 @@ export default function PlanCard({
         className={`group/row flex items-start gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150 ${
           isChecked ? 'bg-[#52c41a]/[0.04]' : 'hover:bg-[#FAFBFC]'
         }`}
-        style={prefix ? undefined : depth > 0 ? { paddingLeft: 10 + depth * 12 } : undefined}
+        style={
+          prefix
+            ? undefined
+            : depth > 0
+              ? { paddingLeft: 10 + depth * 12 }
+              : undefined
+        }
       >
         {prefix}
         {!hideCheckbox &&
           (isTeammatePlan ? (
-          <span
-            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1104"
-            className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
-              isCompleted
-                ? 'border-[#D1D5DB] bg-[#F3F4F6]'
-                : isChecked
-                  ? 'border-[#52c41a] bg-[#52c41a] shadow-[0_0_0_2px_rgba(82,196,26,0.15)]'
-                  : 'border-current bg-white text-[#D1D5DB]'
-            }`}
-            aria-hidden
-          >
-            {isChecked || isCompleted ? (
-              <CheckOutlined
-                className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
-              />
-            ) : (
-              <span
-                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1119"
-                className="inline-block h-1.5 w-1.5 rounded-full bg-current"
-                aria-hidden
-              />
-            )}
-          </span>
-        ) : (
-          <button
-            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-button-1126"
-            type="button"
-            onClick={() =>
-              !isPlanReadOnly &&
-              !isCompleted &&
-              !isLoading &&
-              handleTaskToggle(task.id, effectiveStatus ?? '')
-            }
-            disabled={isPlanReadOnly || isCompleted || isLoading}
-            aria-label={
-              isChecked ? 'Mark task not achieved' : 'Mark task achieved'
-            }
-            className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
-              isPlanReadOnly || isCompleted
-                ? 'border-[#D1D5DB] bg-[#F3F4F6] cursor-not-allowed'
-                : isChecked
-                  ? 'border-[#52c41a] bg-[#52c41a] shadow-[0_0_0_2px_rgba(82,196,26,0.15)]'
-                  : 'border-[#D1D5DB] bg-white hover:border-[#52c41a]/45 hover:shadow-[0_0_0_2px_rgba(82,196,26,0.08)] cursor-pointer'
-            }`}
-          >
-            {isLoading ? (
-              <LuLoader className="h-3 w-3 animate-spin text-[#52c41a]" />
-            ) : isChecked || isCompleted ? (
-              <CheckOutlined
-                className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
-              />
-            ) : null}
-          </button>
-        ))}
+            <span
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1104"
+              className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
+                isCompleted
+                  ? 'border-[#D1D5DB] bg-[#F3F4F6]'
+                  : isChecked
+                    ? 'border-[#52c41a] bg-[#52c41a] shadow-[0_0_0_2px_rgba(82,196,26,0.15)]'
+                    : 'border-current bg-white text-[#D1D5DB]'
+              }`}
+              aria-hidden
+            >
+              {isChecked || isCompleted ? (
+                <CheckOutlined
+                  className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
+                />
+              ) : (
+                <span
+                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1119"
+                  className="inline-block h-1.5 w-1.5 rounded-full bg-current"
+                  aria-hidden
+                />
+              )}
+            </span>
+          ) : (
+            <button
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-button-1126"
+              type="button"
+              onClick={() =>
+                !isPlanReadOnly &&
+                !isCompleted &&
+                !isLoading &&
+                handleTaskToggle(task.id, effectiveStatus ?? '')
+              }
+              disabled={isPlanReadOnly || isCompleted || isLoading}
+              aria-label={
+                isChecked ? 'Mark task not achieved' : 'Mark task achieved'
+              }
+              className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
+                isPlanReadOnly || isCompleted
+                  ? 'border-[#D1D5DB] bg-[#F3F4F6] cursor-not-allowed'
+                  : isChecked
+                    ? 'border-[#52c41a] bg-[#52c41a] shadow-[0_0_0_2px_rgba(82,196,26,0.15)]'
+                    : 'border-[#D1D5DB] bg-white hover:border-[#52c41a]/45 hover:shadow-[0_0_0_2px_rgba(82,196,26,0.08)] cursor-pointer'
+              }`}
+            >
+              {isLoading ? (
+                <LuLoader className="h-3 w-3 animate-spin text-[#52c41a]" />
+              ) : isChecked || isCompleted ? (
+                <CheckOutlined
+                  className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
+                />
+              ) : null}
+            </button>
+          ))}
 
-        <div className="flex min-w-0 flex-1 items-start gap-1">
+        <div
+          data-cy="plancard-1345"
+          className="flex min-w-0 flex-1 items-start gap-1"
+        >
           <p
             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-1153"
             className={`min-w-0 flex-1 break-words text-[14px] leading-snug line-clamp-2 transition-all duration-200 ${
@@ -1362,10 +1368,12 @@ export default function PlanCard({
             className={classNames(meta.pri, 'flex justify-end')}
           >
             <span
+              data-cy="plancard-span-1370"
               className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[11px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[12px]"
               style={{ backgroundColor: pc.bg, color: pc.text }}
             >
               <span
+                data-cy="plancard-span-1374"
                 className="inline-block h-2 w-2 shrink-0 rounded-full"
                 style={{ backgroundColor: pc.dot }}
               />
@@ -1477,8 +1485,7 @@ export default function PlanCard({
               />
             ) : null}
             {!inlineReportActive &&
-            (showMockReportButton ||
-              (showSubmitReport && onSubmitReport)) ? (
+            (showMockReportButton || (showSubmitReport && onSubmitReport)) ? (
               <CustomButton
                 title={
                   showMockReportButton
@@ -1559,10 +1566,7 @@ export default function PlanCard({
         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-819"
         className="px-3 md:px-4 pb-2"
       >
-        {!inlineReportActive &&
-        visibleTaskCount === 0 &&
-        !addPlanComposer &&
-        isMyPlanCard ? (
+        {!inlineReportActive && visibleTaskCount === 0 && !addPlanComposer ? (
           <p
             data-cy={`plan-card-empty-duration-${plan.id}`}
             className="px-2 py-4 text-center text-[13px] text-[#8F94A3]"
@@ -1570,32 +1574,28 @@ export default function PlanCard({
             No tasks for this period
           </p>
         ) : null}
-        {/* Duration filter + column titles — keep filter visible even when period is empty */}
-        {!inlineReportActive && (visibleTaskCount > 0 || isMyPlanCard) && (
+        {/* Duration filter + column titles — same control on own & subordinate plans */}
+        {!inlineReportActive && (
           <div
             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-822"
             className="mb-0.5 mt-1 flex items-center justify-between gap-2 px-2.5 pb-1"
           >
-            {isMyPlanCard ? (
-              <div data-cy={`plan-card-duration-tabs-${plan.id}`}>
-                <Select
-                  size="small"
-                  value={durationKind}
-                  onChange={(value: DeadlineKind) => setDurationKind(value)}
-                  options={DURATION_TAB_ITEMS.map(({ kind, label }) => ({
-                    value: kind,
-                    label,
-                  }))}
-                  aria-label="Plan duration filter"
-                  data-cy={`plan-card-duration-select-${plan.id}`}
-                  className="[&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!min-h-7 [&_.ant-select-selector]:!rounded-md [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!bg-[#F8FAFC] [&_.ant-select-selection-item]:!text-[12px] [&_.ant-select-selection-item]:!leading-7"
-                  style={{ width: 118 }}
-                  popupMatchSelectWidth={false}
-                />
-              </div>
-            ) : (
-              <span />
-            )}
+            <div data-cy={`plan-card-duration-tabs-${plan.id}`}>
+              <Select
+                size="small"
+                value={durationKind}
+                onChange={(value: DeadlineKind) => setDurationKind(value)}
+                options={DURATION_TAB_ITEMS.map(({ kind, label }) => ({
+                  value: kind,
+                  label,
+                }))}
+                aria-label="Plan duration filter"
+                data-cy={`plan-card-duration-select-${plan.id}`}
+                className="[&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!min-h-7 [&_.ant-select-selector]:!rounded-md [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!bg-[#F8FAFC] [&_.ant-select-selection-item]:!text-[12px] [&_.ant-select-selection-item]:!leading-7"
+                style={{ width: 118 }}
+                popupMatchSelectWidth={false}
+              />
+            </div>
             <div
               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-845"
               className="flex flex-shrink-0 items-center"
@@ -1604,8 +1604,12 @@ export default function PlanCard({
                 data-cy="plan-card-col-priority"
                 className={classNames(meta.pri, metaHead)}
               >
-                <span className="sm:hidden">Pri</span>
-                <span className="hidden sm:inline">Priority</span>
+                <span data-cy="plancard-1605" className="sm:hidden">
+                  Pri
+                </span>
+                <span data-cy="plancard-1606" className="hidden sm:inline">
+                  Priority
+                </span>
               </div>
               <div
                 data-cy="plan-card-col-weight"
@@ -1623,8 +1627,12 @@ export default function PlanCard({
                 data-cy="plan-card-col-days-left"
                 className={classNames(meta.daysLeft, metaHead)}
               >
-                <span className="sm:hidden">Left</span>
-                <span className="hidden sm:inline">Days left</span>
+                <span data-cy="plancard-1624" className="sm:hidden">
+                  Left
+                </span>
+                <span data-cy="plancard-1625" className="hidden sm:inline">
+                  Days left
+                </span>
               </div>
             </div>
           </div>
@@ -1656,7 +1664,9 @@ export default function PlanCard({
                 <MockPlanHierarchy
                   ownerUserId={plan.ownerUserId}
                   tasks={mockConfirmedForTree}
-                  allActiveTasks={plan.isReported ? mockReportedTasks : mockActiveTasks}
+                  allActiveTasks={
+                    plan.isReported ? mockReportedTasks : mockActiveTasks
+                  }
                   isTeammatePlan={isTeammatePlan}
                   canAddSubtasks={canAddMockSubtasks}
                   durationKind={durationKind}
@@ -1671,16 +1681,23 @@ export default function PlanCard({
 
           {!inlineReportActive && flatTasks.length > 0 ? (
             mockEnabled && plan.ownerUserId ? (
-              <MockPlanHierarchy
-                ownerUserId={plan.ownerUserId}
-                tasks={mockConfirmedForTree}
-                allActiveTasks={plan.isReported ? mockReportedTasks : mockActiveTasks}
-                isTeammatePlan={isTeammatePlan}
-                canAddSubtasks={canAddMockSubtasks}
-                durationKind={durationKind}
-                hideInteractiveMarkers={!!plan.isReported}
-                renderTaskRow={renderPlanningTaskRow}
-              />
+              <div
+                className="space-y-[2px] rounded-lg bg-[#F8FAFC] px-1 py-1.5"
+                data-cy={`plan-card-confirmed-section-${plan.id}`}
+              >
+                <MockPlanHierarchy
+                  ownerUserId={plan.ownerUserId}
+                  tasks={mockConfirmedForTree}
+                  allActiveTasks={
+                    plan.isReported ? mockReportedTasks : mockActiveTasks
+                  }
+                  isTeammatePlan={isTeammatePlan}
+                  canAddSubtasks={canAddMockSubtasks}
+                  durationKind={durationKind}
+                  hideInteractiveMarkers={!!plan.isReported}
+                  renderTaskRow={renderPlanningTaskRow}
+                />
+              </div>
             ) : (
               flatTasks.map((task) => renderPlanningTaskRow(task))
             )

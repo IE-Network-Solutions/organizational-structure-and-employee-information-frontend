@@ -1,9 +1,5 @@
 import dayjs, { type Dayjs } from 'dayjs';
-import {
-  DATE_FORMAT,
-  type DeadlineKind,
-  type DeadlineTask,
-} from './types';
+import { DATE_FORMAT, type DeadlineKind, type DeadlineTask } from './types';
 
 export const parseDate = (iso: string): Dayjs =>
   dayjs(`${iso.slice(0, 10)}T00:00:00`);
@@ -39,9 +35,7 @@ export const kindLabel = (kind: DeadlineKind): string => {
 };
 
 /** Monday–Sunday containing `today`. */
-export const weekBounds = (
-  today: string,
-): { start: string; end: string } => {
+export const weekBounds = (today: string): { start: string; end: string } => {
   const day = toDay(today);
   if (!day) return { start: today, end: today };
   const weekday = day.day();
@@ -53,9 +47,7 @@ export const weekBounds = (
   };
 };
 
-export const monthBounds = (
-  today: string,
-): { start: string; end: string } => {
+export const monthBounds = (today: string): { start: string; end: string } => {
   const day = toDay(today);
   if (!day) return { start: today, end: today };
   return {
@@ -91,7 +83,8 @@ export const rangesOverlap = (
 };
 
 export const isOverdue = (task: DeadlineTask, today: string): boolean =>
-  !task.done && !!toDay(task.deadline)?.isBefore(toDay(today) ?? dayjs(), 'day');
+  !task.done &&
+  !!toDay(task.deadline)?.isBefore(toDay(today) ?? dayjs(), 'day');
 
 export type RangeResult =
   | { ok: true; spanDays: number; kind: DeadlineKind }
@@ -200,7 +193,10 @@ export const appearsInToday = (
   return false;
 };
 
-export const appearsInThisWeek = (task: DeadlineTask, today: string): boolean => {
+export const appearsInThisWeek = (
+  task: DeadlineTask,
+  today: string,
+): boolean => {
   if (task.kind !== 'week') return false;
   const week = weekBounds(today);
   if (rangesOverlap(task.start, task.deadline, week.start, week.end)) {

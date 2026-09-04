@@ -27,7 +27,6 @@ function Reporting({
   onHoverKR,
   onOpenThread,
   onStartAddPlan,
-  addPlanComposer,
 }: {
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
@@ -36,6 +35,7 @@ function Reporting({
 }) {
   void onHoverKR;
   void onOpenThread;
+  void onStartAddPlan;
 
   const mockEnabled = isDeadlinePlanningMockEnabled();
   const {
@@ -61,9 +61,7 @@ function Reporting({
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
 
-  const { reportSummaries, reportingItems } = useReportingData(
-    activeTab === 2,
-  );
+  const { reportSummaries, reportingItems } = useReportingData(activeTab === 2);
 
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
@@ -112,10 +110,6 @@ function Reporting({
     setInlineEditingReport(null);
   }, []);
 
-  const handleAddPlan = useCallback(() => {
-    onStartAddPlan?.();
-  }, [onStartAddPlan]);
-
   const startInlineEditReport = useCallback(
     (reportId: string) => {
       const row = reportingItems?.find((item: any) => item.id === reportId);
@@ -148,7 +142,10 @@ function Reporting({
 
   const visibleReports = useMemo(() => {
     const start = (pageReporting - 1) * pageSizeReporting;
-    return [...myReports, ...otherReports.slice(start, start + pageSizeReporting)];
+    return [
+      ...myReports,
+      ...otherReports.slice(start, start + pageSizeReporting),
+    ];
   }, [myReports, otherReports, pageReporting, pageSizeReporting]);
 
   const paginationNode = showPagination ? (
@@ -218,12 +215,12 @@ function Reporting({
         isApprovalLoading={isApprovalLoading}
         dateLabel={getDateLabel(dataItem?.createdAt ?? '')}
         inlineReportActive={
-          !mockEnabled &&
-          inlineEditingReport?.reportId === String(dataItem.id)
+          !mockEnabled && inlineEditingReport?.reportId === String(dataItem.id)
         }
         onCloseInlineReport={closeInlineEditReport}
         inlineReportContent={
-          !mockEnabled && inlineEditingReport?.reportId === String(dataItem.id) ? (
+          !mockEnabled &&
+          inlineEditingReport?.reportId === String(dataItem.id) ? (
             <PlanCardInlineReportForm
               reportId={String(dataItem.id)}
               planId={dataItem.planId || dataItem?.plan?.id}
@@ -249,7 +246,7 @@ function Reporting({
         className="mt-0 flex min-h-0 flex-1 flex-col"
       >
         {isLoading ? (
-          <div className="space-y-4">
+          <div data-cy="index-253" className="space-y-4">
             {[0, 1, 2].map((i) => (
               <PlanCardSkeleton key={i} reporting />
             ))}
@@ -269,12 +266,30 @@ function Reporting({
             role="status"
             aria-live="polite"
           >
-            <div className="flex w-full max-w-md flex-col items-center justify-center px-6 py-14">
-              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]">
-                <BsFileEarmarkText size={26} className="text-[#D1D5DB]" aria-hidden />
+            <div
+              data-cy="index-273"
+              className="flex w-full max-w-md flex-col items-center justify-center px-6 py-14"
+            >
+              <div
+                data-cy="index-274"
+                className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
+              >
+                <BsFileEarmarkText
+                  size={26}
+                  className="text-[#D1D5DB]"
+                  aria-hidden
+                />
               </div>
-              <p className="text-sm font-medium text-[#161A2C]">No reports yet</p>
-              <p className="mt-2 text-xs leading-relaxed text-[#8F94A3]">
+              <p
+                data-cy="index-281"
+                className="text-sm font-medium text-[#161A2C]"
+              >
+                No reports yet
+              </p>
+              <p
+                data-cy="index-284"
+                className="mt-2 text-xs leading-relaxed text-[#8F94A3]"
+              >
                 {activeTabName
                   ? `No submitted reports for ${activeTabName} with the current filters.`
                   : 'No submitted reports for this period.'}

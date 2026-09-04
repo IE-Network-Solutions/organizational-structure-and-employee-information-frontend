@@ -184,12 +184,7 @@ export const durationFilterMatchesTask = (
 ): boolean => {
   const { start, deadline } = resolveTaskDates(task, overlay);
   const resolved = resolveSpan(start, deadline);
-  const mapped = plannedTaskToDeadlineTask(
-    task,
-    overlay,
-    fallbackKind,
-    today,
-  );
+  const mapped = plannedTaskToDeadlineTask(task, overlay, fallbackKind, today);
   if (!mapped) return fallbackKind === filterKind;
 
   if (filterKind === 'daily') {

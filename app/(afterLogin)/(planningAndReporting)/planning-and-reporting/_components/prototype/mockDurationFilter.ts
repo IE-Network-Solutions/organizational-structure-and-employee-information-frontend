@@ -21,7 +21,9 @@ export function filterMockTasksByDuration(
   return active.filter((t) => appearsInThisMonth(t, today));
 }
 
-export function mockKrTitle(keyResultId: string | null | undefined): string | undefined {
+export function mockKrTitle(
+  keyResultId: string | null | undefined,
+): string | undefined {
   if (!keyResultId || keyResultId === '__unlinked__') return undefined;
   return undefined;
 }

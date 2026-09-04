@@ -47,7 +47,10 @@ const priorityOptions = [
 function TaskMeta({ task, today }: { task: MockPlanTask; today: string }) {
   const overdue = isOverdue(task, today);
   return (
-    <p className="m-0 text-xs text-[#64748B]">
+    <p
+      data-cy="deadlineplanningprototype-50"
+      className="m-0 text-xs text-[#64748B]"
+    >
       {task.keyResultTitle ? `${task.keyResultTitle} · ` : 'Unlinked · '}
       {task.spanDays} day{task.spanDays === 1 ? '' : 's'} · {task.deadline}
       {task.isPendingApproval ? ' · Pending approval' : ''}
@@ -68,7 +71,9 @@ export function DeadlinePlanningPrototype({
   view: 'planning' | 'reporting';
 }) {
   const today = todayIso();
-  const plan = useUserPlanRepositoryMock((s) => s.plansByUserId[userId] ?? null);
+  const plan = useUserPlanRepositoryMock(
+    (s) => s.plansByUserId[userId] ?? null,
+  );
   const ensurePlan = useUserPlanRepositoryMock((s) => s.ensurePlan);
   const appendTask = useUserPlanRepositoryMock((s) => s.appendTask);
   const approvePending = useUserPlanRepositoryMock((s) => s.approvePending);
@@ -76,8 +81,12 @@ export function DeadlinePlanningPrototype({
   const requestReopen = useUserPlanRepositoryMock((s) => s.requestReopen);
   const approveReopen = useUserPlanRepositoryMock((s) => s.approveReopen);
   const openPlanDirect = useUserPlanRepositoryMock((s) => s.openPlanDirect);
-  const dismissReopen = useUserPlanRepositoryMock((s) => s.dismissReopenRequest);
-  const togglePreAchieved = useUserPlanRepositoryMock((s) => s.togglePreAchieved);
+  const dismissReopen = useUserPlanRepositoryMock(
+    (s) => s.dismissReopenRequest,
+  );
+  const togglePreAchieved = useUserPlanRepositoryMock(
+    (s) => s.togglePreAchieved,
+  );
   const removeTask = useUserPlanRepositoryMock((s) => s.removeTask);
 
   React.useEffect(() => {
@@ -142,8 +151,7 @@ export function DeadlinePlanningPrototype({
     }
     const childStart =
       parent.kind === 'week' ? formatDate(dayjs()) : parent.start;
-    const childDeadline =
-      parent.kind === 'week' ? childStart : parent.deadline;
+    const childDeadline = parent.kind === 'week' ? childStart : parent.deadline;
     const result = appendTask(userId, {
       title: childTitle,
       start: childStart,
@@ -194,15 +202,24 @@ export function DeadlinePlanningPrototype({
 
     return (
       <div
+        data-cy="deadline-proto-div-201"
         key={task.id}
         className={classNames(
           'rounded-lg border border-[#E5E7EB] bg-white p-3',
           nested && 'ml-6',
         )}
       >
-        <p className="m-0 text-sm font-medium text-[#161A2C]">{task.title}</p>
+        <p
+          data-cy="deadlineplanningprototype-208"
+          className="m-0 text-sm font-medium text-[#161A2C]"
+        >
+          {task.title}
+        </p>
         <TaskMeta task={task} today={today} />
-        <div className="mt-3 flex flex-wrap items-center gap-3">
+        <div
+          data-cy="deadlineplanningprototype-210"
+          className="mt-3 flex flex-wrap items-center gap-3"
+        >
           {isDaily ? (
             <Checkbox
               checked={draft.status === 'Done'}
@@ -287,15 +304,26 @@ export function DeadlinePlanningPrototype({
     const canAddChild = cap > 0 && !plan?.isValidated;
 
     return (
-      <div key={task.id} className={nested ? 'ml-6' : ''}>
-        <div className="flex items-start gap-3 rounded-lg border border-[#E5E7EB] bg-white p-3">
+      <div
+        data-cy="deadlineplanningprototype-295"
+        key={task.id}
+        className={nested ? 'ml-6' : ''}
+      >
+        <div
+          data-cy="deadlineplanningprototype-296"
+          className="flex items-start gap-3 rounded-lg border border-[#E5E7EB] bg-white p-3"
+        >
           <Checkbox
             checked={task.done}
             onChange={() => togglePreAchieved(userId, task.id)}
             className="mt-1"
           />
-          <div className="min-w-0 flex-1">
+          <div
+            data-cy="deadlineplanningprototype-302"
+            className="min-w-0 flex-1"
+          >
             <p
+              data-cy="deadline-proto-p-303"
               className={classNames(
                 'm-0 text-sm font-medium text-[#161A2C]',
                 task.done && 'text-[#94A3B8] line-through',
@@ -306,12 +334,11 @@ export function DeadlinePlanningPrototype({
             <TaskMeta task={task} today={today} />
             {canAddChild ? (
               <button
+                data-cy="deadline-proto-button-313"
                 type="button"
                 className="mt-2 text-xs font-semibold text-[#574CFF]"
                 onClick={() =>
-                  setExpandedParent((cur) =>
-                    cur === task.id ? null : task.id,
-                  )
+                  setExpandedParent((cur) => (cur === task.id ? null : task.id))
                 }
               >
                 {expandedParent === task.id ? 'Hide' : 'Add'} subtasks (
@@ -319,7 +346,10 @@ export function DeadlinePlanningPrototype({
               </button>
             ) : null}
             {expandedParent === task.id && canAddChild ? (
-              <div className="mt-2 flex gap-2">
+              <div
+                data-cy="deadlineplanningprototype-325"
+                className="mt-2 flex gap-2"
+              >
                 <Input
                   placeholder="Subtask title"
                   value={childTitle}
@@ -350,17 +380,34 @@ export function DeadlinePlanningPrototype({
 
   return (
     <div className="space-y-4" data-cy="deadline-planning-prototype">
-      <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h2 className="m-0 text-lg font-bold text-[#161A2C]">{planTitle}</h2>
-            <p className="m-0 mt-1 text-sm text-[#64748B]">
+      <div
+        data-cy="deadlineplanningprototype-356"
+        className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm"
+      >
+        <div
+          data-cy="deadlineplanningprototype-357"
+          className="flex flex-wrap items-start justify-between gap-3"
+        >
+          <div data-cy="deadlineplanningprototype-358">
+            <h2
+              data-cy="deadlineplanningprototype-359"
+              className="m-0 text-lg font-bold text-[#161A2C]"
+            >
+              {planTitle}
+            </h2>
+            <p
+              data-cy="deadlineplanningprototype-362"
+              className="m-0 mt-1 text-sm text-[#64748B]"
+            >
               {durationFilterLabel(durationKind)} ·{' '}
               {plan.isValidated ? 'Closed' : 'Open'}
               {plan.pendingReopenRequest ? ' · Reopen requested' : ''}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div
+            data-cy="deadlineplanningprototype-368"
+            className="flex flex-wrap gap-2"
+          >
             {pendingCount > 0 ? (
               <Button
                 type="primary"
@@ -415,10 +462,16 @@ export function DeadlinePlanningPrototype({
               className="rounded-xl border border-[#E5E7EB] bg-[#FAFBFC] p-4"
               data-cy="mock-task-composer"
             >
-              <p className="m-0 mb-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+              <p
+                data-cy="deadlineplanningprototype-423"
+                className="m-0 mb-3 text-xs font-semibold uppercase tracking-wide text-[#64748B]"
+              >
                 Add task (no weight)
               </p>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div
+                data-cy="deadlineplanningprototype-426"
+                className="grid gap-3 md:grid-cols-2"
+              >
                 <Input
                   placeholder="Task title"
                   value={title}
@@ -458,11 +511,17 @@ export function DeadlinePlanningPrototype({
               className="rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] p-4"
               data-cy="mock-closed-add"
             >
-              <p className="m-0 mb-3 text-sm text-[#64748B]">
+              <p
+                data-cy="deadlineplanningprototype-466"
+                className="m-0 mb-3 text-sm text-[#64748B]"
+              >
                 Plan is closed. Add tasks — they stay pending until the manager
                 approves.
               </p>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div
+                data-cy="deadlineplanningprototype-470"
+                className="grid gap-3 md:grid-cols-2"
+              >
                 <Input
                   placeholder="Task title"
                   value={title}
@@ -494,9 +553,12 @@ export function DeadlinePlanningPrototype({
             </div>
           )}
 
-          <div className="space-y-2">
+          <div data-cy="deadlineplanningprototype-502" className="space-y-2">
             {roots.length === 0 ? (
-              <p className="py-8 text-center text-sm text-[#94A3B8]">
+              <p
+                data-cy="deadlineplanningprototype-504"
+                className="py-8 text-center text-sm text-[#94A3B8]"
+              >
                 No tasks for {durationFilterLabel(durationKind).toLowerCase()}.
               </p>
             ) : (
@@ -506,16 +568,23 @@ export function DeadlinePlanningPrototype({
         </>
       ) : (
         <>
-          <div className="space-y-2">
+          <div data-cy="deadlineplanningprototype-514" className="space-y-2">
             {filtered.length === 0 ? (
-              <p className="py-8 text-center text-sm text-[#94A3B8]">
+              <p
+                data-cy="deadlineplanningprototype-516"
+                className="py-8 text-center text-sm text-[#94A3B8]"
+              >
                 Nothing to report for this window.
               </p>
             ) : (
               filtered
                 .filter((t) => t.parentId == null)
                 .map((t) => (
-                  <div key={t.id} className="space-y-2">
+                  <div
+                    data-cy="deadlineplanningprototype-523"
+                    key={t.id}
+                    className="space-y-2"
+                  >
                     {renderReportRow(t)}
                     {childrenOf(activeTasks, t.id).map((c) =>
                       renderReportRow(c, true),
@@ -531,13 +600,22 @@ export function DeadlinePlanningPrototype({
           ) : null}
 
           {plan.reportHistory.length > 0 ? (
-            <div className="rounded-xl border border-[#E5E7EB] bg-[#FAFBFC] p-4">
-              <p className="m-0 mb-2 text-sm font-semibold text-[#161A2C]">
+            <div
+              data-cy="deadlineplanningprototype-539"
+              className="rounded-xl border border-[#E5E7EB] bg-[#FAFBFC] p-4"
+            >
+              <p
+                data-cy="deadlineplanningprototype-540"
+                className="m-0 mb-2 text-sm font-semibold text-[#161A2C]"
+              >
                 Report history (archived from active plan)
               </p>
-              <ul className="m-0 list-disc pl-5 text-sm text-[#64748B]">
+              <ul
+                data-cy="deadlineplanningprototype-543"
+                className="m-0 list-disc pl-5 text-sm text-[#64748B]"
+              >
                 {plan.reportHistory.map((r) => (
-                  <li key={r.id}>
+                  <li data-cy="deadlineplanningprototype-545" key={r.id}>
                     {new Date(r.submittedAt).toLocaleString()} —{' '}
                     {r.taskTitles.join(', ')}
                   </li>

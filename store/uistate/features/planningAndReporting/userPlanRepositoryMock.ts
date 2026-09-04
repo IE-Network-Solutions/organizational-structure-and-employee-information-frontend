@@ -9,7 +9,7 @@ import {
   validateDailySubtask,
   validateWeeklySubtask,
 } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
-import type { DeadlineKind, DeadlineTask } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/types';
+import type { DeadlineTask } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/types';
 import {
   childCapForParent,
   childKindForParent,
@@ -55,7 +55,9 @@ export type MockUserPlan = {
   seedVersion?: number;
 };
 
-function krTitleForId(keyResultId: string | null | undefined): string | undefined {
+function krTitleForId(
+  keyResultId: string | null | undefined,
+): string | undefined {
   if (!keyResultId || keyResultId === UNLINKED_KR_ID) return undefined;
   return MOCK_KEY_RESULTS.find((k) => k.id === keyResultId)?.title;
 }
@@ -370,7 +372,12 @@ const buildMockUserPlan = (
     reportNote: 'Partially done – pending second pass',
   };
 
-  const archivedTasks: MockPlanTask[] = [pastDaily1, pastDaily2, pastWeekly1, pastDaily3];
+  const archivedTasks: MockPlanTask[] = [
+    pastDaily1,
+    pastDaily2,
+    pastWeekly1,
+    pastDaily3,
+  ];
 
   const reportRecord1: MockReportRecord = {
     id: `rep-${uid}-1`,
@@ -391,7 +398,7 @@ const buildMockUserPlan = (
     displayName,
     planId: `plan-${userId}`,
     // Closed so the card shows Closed tasks + Pending (approval) tasks inside.
-    isValidated: mockSeedPlanIsClosed(userId),
+    isValidated: mockSeedPlanIsClosed(),
     activeTasks,
     archivedTasks,
     reportHistory: [reportRecord2, reportRecord1],
@@ -467,7 +474,11 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
       if (input.parentId) {
         const parent = plan.activeTasks.find((t) => t.id === input.parentId);
         if (!parent) return { ok: false, error: 'Parent task not found.' };
-        const cap = childCapForParent(parent.kind, parent.start, parent.deadline);
+        const cap = childCapForParent(
+          parent.kind,
+          parent.start,
+          parent.deadline,
+        );
         const childKind = childKindForParent(parent.kind);
         if (!childKind) {
           return { ok: false, error: 'This task cannot have subtasks.' };

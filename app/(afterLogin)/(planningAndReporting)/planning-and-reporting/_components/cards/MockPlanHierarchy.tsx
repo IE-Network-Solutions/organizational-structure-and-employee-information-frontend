@@ -226,7 +226,9 @@ export default function MockPlanHierarchy({
         return;
       }
       message.success(
-        childKind === 'daily' ? 'Daily subtask added.' : 'Weekly subtask added.',
+        childKind === 'daily'
+          ? 'Daily subtask added.'
+          : 'Weekly subtask added.',
       );
       setAddingUnderId(null);
       setChildTitle('');
@@ -247,7 +249,7 @@ export default function MockPlanHierarchy({
         <Tooltip title={`Under: ${parentTask.title}`}>
           <span
             data-cy={`mock-plan-parent-link-${task.id}`}
-            className="mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded text-[#6366F1]"
+            className="mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded bg-[#F3F4F6] text-[#6366F1]"
             aria-label={`Parent task: ${parentTask.title}`}
           >
             <LinkOutlined className="text-[12px]" />
@@ -272,7 +274,10 @@ export default function MockPlanHierarchy({
   const renderFlatRow = (task: MockPlanTask) => {
     const parentLink = renderParentLink(task);
     const prefix = parentLink ?? (
-      <span className="mt-0.5 inline-block h-[18px] w-[18px] shrink-0" />
+      <span
+        data-cy="mockplanhierarchy-277"
+        className="mt-0.5 inline-block h-[18px] w-[18px] shrink-0 rounded bg-[#F3F4F6]"
+      />
     );
     return (
       <div key={task.id} data-cy={`mock-plan-node-${task.id}`}>
@@ -298,8 +303,7 @@ export default function MockPlanHierarchy({
     const canAddAtThisLevel =
       (durationKind === 'week' && task.kind === 'week') ||
       (durationKind === 'month' && task.kind === 'month');
-    const canHaveChildren =
-      canAddAtThisLevel && cap > 0 && !!childKind;
+    const canHaveChildren = canAddAtThisLevel && cap > 0 && !!childKind;
     const expanded = expandedIds.has(task.id);
     const capacityLabel = canAddAtThisLevel
       ? parentCapacitySummary(task, allActiveTasks)
@@ -308,7 +312,10 @@ export default function MockPlanHierarchy({
 
     const prefix =
       kidsInSlice.length > 0 ? (
-        <div className="mt-0.5 flex shrink-0 items-center gap-0.5">
+        <div
+          data-cy="mockplanhierarchy-312"
+          className="mt-0.5 flex shrink-0 items-center gap-0.5"
+        >
           <button
             type="button"
             data-cy={`mock-plan-expand-${task.id}`}
@@ -324,7 +331,10 @@ export default function MockPlanHierarchy({
           </button>
         </div>
       ) : depth > 0 ? undefined : (
-        <span className="mt-0.5 inline-block h-[18px] w-[18px] shrink-0" />
+        <span
+          data-cy="mockplanhierarchy-328"
+          className="mt-0.5 inline-block h-[18px] w-[18px] shrink-0 rounded bg-[#F3F4F6]"
+        />
       );
 
     const addSubtaskBtn =
@@ -355,7 +365,12 @@ export default function MockPlanHierarchy({
             }
           >
             {addingUnderId === task.id ? (
-              <span className="text-[12px] font-bold leading-none">×</span>
+              <span
+                data-cy="mockplanhierarchy-359"
+                className="text-[12px] font-bold leading-none"
+              >
+                ×
+              </span>
             ) : (
               <PlusOutlined className="text-[11px]" />
             )}
@@ -371,7 +386,7 @@ export default function MockPlanHierarchy({
         data-cy={`mock-plan-node-${task.id}`}
         className={classNames(focused && 'rounded-lg ring-2 ring-[#574CFF]/35')}
       >
-        <div className="relative">
+        <div data-cy="mockplanhierarchy-375" className="relative">
           {renderTaskRow(toRowTask(task), {
             depth,
             prefix,
@@ -379,7 +394,10 @@ export default function MockPlanHierarchy({
             hideCheckbox: hideInteractiveMarkers,
           })}
           {showMeta ? (
-            <div className="flex flex-wrap items-center gap-2 px-2.5 pb-1 pl-[66px]">
+            <div
+              data-cy="mockplanhierarchy-383"
+              className="flex flex-wrap items-center gap-2 px-2.5 pb-1 pl-[66px]"
+            >
               {capacityLabel ? (
                 <span
                   data-cy={`mock-plan-capacity-${task.id}`}
@@ -408,7 +426,10 @@ export default function MockPlanHierarchy({
               onChange={(e) => setChildTitle(e.target.value)}
               data-cy={`mock-plan-subtask-title-${task.id}`}
             />
-            <div className="flex flex-wrap gap-2">
+            <div
+              data-cy="mockplanhierarchy-412"
+              className="flex flex-wrap gap-2"
+            >
               <DatePicker
                 size="small"
                 value={childStart}
@@ -437,7 +458,10 @@ export default function MockPlanHierarchy({
                 Add
               </Button>
             </div>
-            <p className="m-0 text-[11px] text-[#8F94A3]">
+            <p
+              data-cy="mockplanhierarchy-441"
+              className="m-0 text-[11px] text-[#8F94A3]"
+            >
               Within parent {task.start} → {task.deadline}
             </p>
           </div>

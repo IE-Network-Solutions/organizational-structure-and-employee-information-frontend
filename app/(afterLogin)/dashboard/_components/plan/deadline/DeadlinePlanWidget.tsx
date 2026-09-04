@@ -39,15 +39,19 @@ const TaskRow = ({
         className="mt-0.5 [&_.ant-checkbox-checked_.ant-checkbox-inner]:!bg-[#52C41A] [&_.ant-checkbox-checked_.ant-checkbox-inner]:!border-[#52C41A]"
         data-cy={`deadline-plan-checkbox-${task.id}`}
       />
-      <div className="min-w-0 flex-1">
+      <div data-cy="deadlineplanwidget-42" className="min-w-0 flex-1">
         <p
+          data-cy="deadline-widget-p-43"
           className={`m-0 text-sm text-gray-800 ${
             task.done ? 'text-gray-400 line-through' : ''
           }`}
         >
           {task.title}
         </p>
-        <p className="m-0 text-xs text-gray-500">
+        <p
+          data-cy="deadlineplanwidget-50"
+          className="m-0 text-xs text-gray-500"
+        >
           {task.keyResultTitle ? `${task.keyResultTitle} · ` : ''}
           {task.spanDays} day{task.spanDays === 1 ? '' : 's'} · {task.deadline}
           {overdue ? ' · Overdue' : ''}
@@ -58,7 +62,10 @@ const TaskRow = ({
 };
 
 const EmptyState = () => (
-  <p className="m-0 flex min-h-[190px] items-center justify-center text-lg font-light">
+  <p
+    data-cy="deadlineplanwidget-61"
+    className="m-0 flex min-h-[190px] items-center justify-center text-lg font-light"
+  >
     No upcoming tasks
   </p>
 );
@@ -66,13 +73,12 @@ const EmptyState = () => (
 const DeadlinePlanWidget = () => {
   const { tasks, isLoading } = useDashboardDeadlineTasks();
   const { userId } = useAuthenticationStore();
-  const togglePreAchieved = useUserPlanRepositoryMock((s) => s.togglePreAchieved);
+  const togglePreAchieved = useUserPlanRepositoryMock(
+    (s) => s.togglePreAchieved,
+  );
   const today = todayIso();
 
-  const topRoots = useMemo(
-    () => selectTopDeadlineRoots(tasks),
-    [tasks],
-  );
+  const topRoots = useMemo(() => selectTopDeadlineRoots(tasks), [tasks]);
 
   const onToggle = (task: DeadlineTask) => {
     if (task.sourceStatus === 'completed' || !userId) return;
@@ -90,7 +96,7 @@ const DeadlinePlanWidget = () => {
     <EmptyState />
   ) : (
     topRoots.map((task) => (
-      <div key={task.id}>
+      <div data-cy="deadlineplanwidget-92" key={task.id}>
         <TaskRow task={task} today={today} onToggle={onToggle} />
         {accompanyingChildrenForRoot(tasks, task, today).map((child) => (
           <TaskRow
@@ -120,7 +126,10 @@ const DeadlinePlanWidget = () => {
             Planning
           </span>
         </div>
-        <span className="text-xs text-gray-500" data-cy="deadline-plan-subtitle">
+        <span
+          className="text-xs text-gray-500"
+          data-cy="deadline-plan-subtitle"
+        >
           Next 5 deadlines
         </span>
       </div>

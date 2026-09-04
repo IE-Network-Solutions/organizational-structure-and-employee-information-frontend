@@ -279,9 +279,7 @@ const AttendanceDevicesPage = () => {
           </div>
           <Button
             type="primary"
-            icon={
-              <ReloadOutlined data-cy="attendance-devices-discover-icon" />
-            }
+            icon={<ReloadOutlined data-cy="attendance-devices-discover-icon" />}
             loading={discoveredQuery.isFetching}
             onClick={() => discoveredQuery.refetch()}
             data-cy="attendance-devices-discover-button"

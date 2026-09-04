@@ -156,10 +156,8 @@ export function useReportingData(enabled = true) {
     const currentUserId = String(userId ?? '');
     const putMineFirst = (items: PlanSummary[]) =>
       [...items].sort((a, b) => {
-        const aMine =
-          String(a.ownerUserId ?? '') === currentUserId ? 0 : 1;
-        const bMine =
-          String(b.ownerUserId ?? '') === currentUserId ? 0 : 1;
+        const aMine = String(a.ownerUserId ?? '') === currentUserId ? 0 : 1;
+        const bMine = String(b.ownerUserId ?? '') === currentUserId ? 0 : 1;
         if (aMine !== bMine) return aMine - bMine;
         return 0;
       });

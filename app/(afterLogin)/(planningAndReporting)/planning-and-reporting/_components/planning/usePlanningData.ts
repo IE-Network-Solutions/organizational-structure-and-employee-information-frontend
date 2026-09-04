@@ -445,8 +445,10 @@ export function usePlanningData(enabled = true) {
             avatarInitials:
               title === 'My Plan'
                 ? 'MP'
-                : title.slice(0, 2).toUpperCase().replace(/[^A-Z]/g, 'U') ||
-                  'PL',
+                : title
+                    .slice(0, 2)
+                    .toUpperCase()
+                    .replace(/[^A-Z]/g, 'U') || 'PL',
           },
         };
       }) || [];

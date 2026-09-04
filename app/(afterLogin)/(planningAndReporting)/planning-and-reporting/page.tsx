@@ -31,10 +31,7 @@ import { useGetUserObjective } from '@/store/server/features/okrplanning/okr/obj
 import { usePlanningData } from './_components/planning/usePlanningData';
 import { usePlanningTargets } from './_components/planning/usePlanningTargets';
 import { isPlanningTargetBlocked } from './_components/planning/buildPlanningTargets';
-import {
-  cadenceAssignmentByKind,
-  DURATION_TAB_ITEMS,
-} from './_components/planning/durationFilter';
+import { cadenceAssignmentByKind } from './_components/planning/durationFilter';
 import { useReportingData } from './_components/planning/useReportingData';
 import { KRPanelSkeleton } from './_components/cards/PlanCardSkeleton';
 import {
@@ -448,9 +445,7 @@ function Page() {
 
   const showPlanComposer =
     inlinePlanningMode &&
-    (!!inlineEditPlanId ||
-      !!selectedPlanningTargetId ||
-      unlinkedPlanComposer);
+    (!!inlineEditPlanId || !!selectedPlanningTargetId || unlinkedPlanComposer);
 
   const inlinePlanningPeriodLabel = useMemo(() => {
     if (mockEnabled) return 'Plan';
@@ -701,37 +696,37 @@ function Page() {
             style={{ height: isDesktop ? panelHeight : undefined }}
           >
             {activeTab === 1 ? (
-            <div
-              className="hidden min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] lg:flex lg:h-full"
-              data-cy="planning-kr-panel"
-            >
-              {krPanelBlockingLoading ? (
-                <KRPanelSkeleton />
-              ) : (
-                <KRLeftPanel
-                  plans={krPanelPlans}
-                  transformedData={krPanelTransformedData}
-                  userId={userId}
-                  highlightedKRId={highlightedKRId}
-                  activeThread={activeThread}
-                  onCloseThread={handleCloseThread}
-                  threadEntities={threadEntities}
-                  inlinePlanningMode={inlinePlanningMode}
-                  activeTab={activeTab}
-                  planningTargets={planningTargets}
-                  planningTargetsLoading={planningTargetsLoading}
-                  selectedPlanningTargetId={selectedPlanningTargetId}
-                  onPickPlanningTarget={handlePickPlanningTarget}
-                  unlinkedPlanSelected={unlinkedPlanComposer}
-                  onPickUnlinkedPlan={handlePickUnlinkedPlan}
-                  userKeyResultItems={userKeyResultItems}
-                  objectiveMilestonesByKrId={objectiveMilestonesByKrId}
-                  onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
-                  parentPlanContext={parentPlanContext}
-                  planningPickReady={planningPickReady}
-                />
-              )}
-            </div>
+              <div
+                className="hidden min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] lg:flex lg:h-full"
+                data-cy="planning-kr-panel"
+              >
+                {krPanelBlockingLoading ? (
+                  <KRPanelSkeleton />
+                ) : (
+                  <KRLeftPanel
+                    plans={krPanelPlans}
+                    transformedData={krPanelTransformedData}
+                    userId={userId}
+                    highlightedKRId={highlightedKRId}
+                    activeThread={activeThread}
+                    onCloseThread={handleCloseThread}
+                    threadEntities={threadEntities}
+                    inlinePlanningMode={inlinePlanningMode}
+                    activeTab={activeTab}
+                    planningTargets={planningTargets}
+                    planningTargetsLoading={planningTargetsLoading}
+                    selectedPlanningTargetId={selectedPlanningTargetId}
+                    onPickPlanningTarget={handlePickPlanningTarget}
+                    unlinkedPlanSelected={unlinkedPlanComposer}
+                    onPickUnlinkedPlan={handlePickUnlinkedPlan}
+                    userKeyResultItems={userKeyResultItems}
+                    objectiveMilestonesByKrId={objectiveMilestonesByKrId}
+                    onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
+                    parentPlanContext={parentPlanContext}
+                    planningPickReady={planningPickReady}
+                  />
+                )}
+              </div>
             ) : null}
 
             <div
@@ -887,7 +882,10 @@ function Page() {
             data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-545"
             className="truncate text-sm font-semibold leading-tight text-[#161A2C] sm:text-base"
           >
-            New {isDeadlinePlanningMockEnabled() ? 'tasks' : inlinePlanningPeriodLabel}
+            New{' '}
+            {isDeadlinePlanningMockEnabled()
+              ? 'tasks'
+              : inlinePlanningPeriodLabel}
           </span>
         }
         extra={

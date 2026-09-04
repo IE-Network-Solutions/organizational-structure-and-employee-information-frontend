@@ -277,11 +277,8 @@ export function buildOwnerKRGroups(
 
   for (const plan of plans) {
     if (!plan.keyResults || plan.keyResults.length === 0) continue;
-    const ownerUserId = plan.ownerUserId
-      ? String(plan.ownerUserId)
-      : undefined;
-    const ownerKey =
-      ownerUserId || plan.owner?.name || plan.id;
+    const ownerUserId = plan.ownerUserId ? String(plan.ownerUserId) : undefined;
+    const ownerKey = ownerUserId || plan.owner?.name || plan.id;
     if (!ownerMap.has(ownerKey)) {
       ownerMap.set(ownerKey, {
         owner: plan.owner,
@@ -1369,7 +1366,10 @@ export function KRLeftPanel({
               data-cy="planning-kr-pick-toolbar"
               className="flex flex-shrink-0 items-center justify-between gap-2 border-b border-[#E8EAF0] bg-[#F8FAFC] px-3 py-2"
             >
-              <p className="m-0 min-w-0 flex-1 text-[11px] font-medium leading-snug text-[#64748B]">
+              <p
+                data-cy="planningpanelview-1369"
+                className="m-0 min-w-0 flex-1 text-[11px] font-medium leading-snug text-[#64748B]"
+              >
                 Select a key result to plan
               </p>
               {onPickUnlinkedPlan ? (
@@ -1388,6 +1388,7 @@ export function KRLeftPanel({
                   >
                     <PlusOutlined className="text-[12px]" />
                     <span
+                      data-cy="planning-panel-span-1387"
                       aria-hidden
                       className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border border-white ${
                         unlinkedPlanSelected ? 'bg-[#34D399]' : 'bg-[#574CFF]'
@@ -1612,8 +1613,7 @@ export default function PlanningPanelView({
     );
     if (!originalDataItem) return null;
 
-    const ownerUserId =
-      originalDataItem?.userId ?? originalDataItem?.createdBy;
+    const ownerUserId = originalDataItem?.userId ?? originalDataItem?.createdBy;
 
     const card =
       viewMode === 'reporting' ? (
@@ -1704,9 +1704,7 @@ export default function PlanningPanelView({
             ownerUserId === userId && onAddPlan ? onAddPlan : undefined
           }
           showAddPlan={ownerUserId === userId && !!onAddPlan}
-          addPlanComposer={
-            ownerUserId === userId ? addPlanComposer : undefined
-          }
+          addPlanComposer={ownerUserId === userId ? addPlanComposer : undefined}
           inlineReportActive={inlineReportPlanId === plan.id}
           onCloseInlineReport={onCloseInlineReport}
           planningPeriodLabel={planningPeriodLabel}
@@ -1716,7 +1714,9 @@ export default function PlanningPanelView({
     return (
       <div
         key={plan.id}
-        data-cy={pinned ? `pinned-plan-card-${plan.id}` : `plan-card-wrap-${plan.id}`}
+        data-cy={
+          pinned ? `pinned-plan-card-${plan.id}` : `plan-card-wrap-${plan.id}`
+        }
       >
         {card}
       </div>

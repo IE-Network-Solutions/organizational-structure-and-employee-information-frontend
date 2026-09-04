@@ -48,7 +48,6 @@ import {
   useUserPlanRepositoryMock,
 } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
 import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import { NAME } from '@/types/enumTypes';
 import {
   getMetricValueInputMax,
@@ -629,11 +628,8 @@ const InlinePlanningWorkspace = forwardRef<
 
   const isEditMode = Boolean(editPlanId);
   const loadingEditPlan =
-    isEditMode &&
-    !mockEnabled &&
-    (loadingPlanGroup || loadingHierarchy);
+    isEditMode && !mockEnabled && (loadingPlanGroup || loadingHierarchy);
   const editHydratedRef = useRef<string | null>(null);
-  const { isMobile } = useIsMobile();
 
   const [draftLines, setDraftLines] = useState<DraftLine[]>([]);
   const [task, setTask] = useState('');
@@ -1412,76 +1408,71 @@ const InlinePlanningWorkspace = forwardRef<
 
   return (
     <div
-      className={classNames(
-        'min-w-0 max-w-full',
-        embedded ? '' : 'pr-1',
-      )}
+      className={classNames('min-w-0 max-w-full', embedded ? '' : 'pr-1')}
       data-cy="inline-planning-workspace"
       data-embedded={embedded ? 'true' : undefined}
     >
       <div
         className={classNames(
           'overflow-hidden bg-white',
-          embedded
-            ? ''
-            : 'rounded-xl border border-[#F1F2F6]',
+          embedded ? '' : 'rounded-xl border border-[#F1F2F6]',
         )}
         data-cy="inline-plan-draft-card"
       >
         {!embedded ? (
-        <div
-          data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-872"
-          className="flex min-h-[48px] items-center justify-between gap-2 border-b border-[#F1F2F6] bg-[#FAFBFC] px-3 py-2 md:min-h-[60px] md:gap-4 md:px-5 md:py-4"
-        >
           <div
-            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-873"
-            className="flex min-w-0 flex-1 items-center gap-2 md:gap-3"
+            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-872"
+            className="flex min-h-[48px] items-center justify-between gap-2 border-b border-[#F1F2F6] bg-[#FAFBFC] px-3 py-2 md:min-h-[60px] md:gap-4 md:px-5 md:py-4"
           >
-            {!hideHeaderCloseButton ? (
-              <button
-                type="button"
-                onClick={requestExitInlinePlanning}
-                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-white hover:text-[#574CFF] hover:shadow-sm md:h-10 md:w-10"
-                aria-label="Exit plan creation"
-                data-cy="inline-plan-close"
-              >
-                <CloseOutlined className="text-[15px] md:text-[17px]" />
-              </button>
-            ) : null}
-            <span
-              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-885"
-              className="min-w-0 truncate text-[12px] font-semibold leading-snug text-[#161A2C] md:text-sm"
+            <div
+              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-873"
+              className="flex min-w-0 flex-1 items-center gap-2 md:gap-3"
             >
-              {headerHeadline}
-            </span>
-          </div>
-          <div
-            data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-889"
-            className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2 md:gap-3"
-          >
-            <span
-              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-890"
-              className="whitespace-nowrap text-[12px] tabular-nums text-[#475569] md:text-sm"
-            >
-              {draftLines.length} task{draftLines.length !== 1 ? 's' : ''}
-            </span>
-            {showDraftAndSubmit ? (
-              <Button
-                type="primary"
-                loading={isLoading}
-                onClick={() => handleSubmit()}
-                className="!m-0 !h-9 !min-h-9 !w-auto !min-w-0 rounded-lg !border-[#1E40AF] !bg-[#1E40AF] !px-3.5 text-[12px] font-semibold !text-white hover:!border-[#1E3A8A] hover:!bg-[#1E3A8A] md:!h-10 md:!min-h-10 md:!px-5 md:text-[13px]"
-                data-cy="inline-plan-create-plan"
+              {!hideHeaderCloseButton ? (
+                <button
+                  type="button"
+                  onClick={requestExitInlinePlanning}
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-white hover:text-[#574CFF] hover:shadow-sm md:h-10 md:w-10"
+                  aria-label="Exit plan creation"
+                  data-cy="inline-plan-close"
+                >
+                  <CloseOutlined className="text-[15px] md:text-[17px]" />
+                </button>
+              ) : null}
+              <span
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-885"
+                className="min-w-0 truncate text-[12px] font-semibold leading-snug text-[#161A2C] md:text-sm"
               >
-                {isEditMode
-                  ? 'Save changes'
-                  : isDeadlinePlanningMockEnabled()
-                    ? 'Add to plan'
-                    : 'Save plan'}
-              </Button>
-            ) : null}
+                {headerHeadline}
+              </span>
+            </div>
+            <div
+              data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-889"
+              className="flex min-w-0 flex-shrink-0 flex-wrap items-center justify-end gap-1.5 sm:gap-2 md:gap-3"
+            >
+              <span
+                data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-890"
+                className="whitespace-nowrap text-[12px] tabular-nums text-[#475569] md:text-sm"
+              >
+                {draftLines.length} task{draftLines.length !== 1 ? 's' : ''}
+              </span>
+              {showDraftAndSubmit ? (
+                <Button
+                  type="primary"
+                  loading={isLoading}
+                  onClick={() => handleSubmit()}
+                  className="!m-0 !h-9 !min-h-9 !w-auto !min-w-0 rounded-lg !border-[#1E40AF] !bg-[#1E40AF] !px-3.5 text-[12px] font-semibold !text-white hover:!border-[#1E3A8A] hover:!bg-[#1E3A8A] md:!h-10 md:!min-h-10 md:!px-5 md:text-[13px]"
+                  data-cy="inline-plan-create-plan"
+                >
+                  {isEditMode
+                    ? 'Save changes'
+                    : isDeadlinePlanningMockEnabled()
+                      ? 'Add to plan'
+                      : 'Save plan'}
+                </Button>
+              ) : null}
+            </div>
           </div>
-        </div>
         ) : null}
 
         <div
@@ -1512,7 +1503,10 @@ const InlinePlanningWorkspace = forwardRef<
                 )}
               >
                 {embedded && planningWithoutKeyResult ? (
-                  <span className="min-w-0 flex-1" />
+                  <span
+                    data-cy="inlineplanningworkspace-1508"
+                    className="min-w-0 flex-1"
+                  />
                 ) : (
                   <div
                     data-cy="inline-plan-key-result-select-wrap"
@@ -1584,17 +1578,14 @@ const InlinePlanningWorkspace = forwardRef<
                     data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1005"
                     className={classNames(
                       'flex flex-col lg:flex-row lg:items-end lg:justify-between',
-                      embedded
-                        ? 'gap-2 lg:gap-3'
-                        : 'gap-4 lg:gap-5',
+                      embedded ? 'gap-2 lg:gap-3' : 'gap-4 lg:gap-5',
                     )}
                   >
                     <div
+                      data-cy="inline-planning-div-1583"
                       className={classNames(
                         'flex min-w-0 flex-1 items-end gap-2',
-                        embedded && planningWithoutKeyResult
-                          ? 'flex-row'
-                          : '',
+                        embedded && planningWithoutKeyResult ? 'flex-row' : '',
                       )}
                     >
                       {embedded && planningWithoutKeyResult ? (
@@ -1794,7 +1785,10 @@ const InlinePlanningWorkspace = forwardRef<
                     className="group flex min-h-9 items-center gap-2 rounded-lg px-2 py-1.5 transition-colors hover:bg-[#F8F9FB]"
                   >
                     <OutcomeTaskListIcon line={l} />
-                    <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+                    <div
+                      data-cy="inlineplanningworkspace-1786"
+                      className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden"
+                    >
                       <span
                         data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1182"
                         className="min-w-0 truncate text-[13px] font-semibold text-[#161A2C]"
@@ -1983,7 +1977,10 @@ const InlinePlanningWorkspace = forwardRef<
               className="flex flex-wrap items-center justify-end gap-2 px-0 py-2"
               data-cy="inline-plan-embedded-actions"
             >
-              <span className="mr-auto text-[12px] tabular-nums text-[#475569]">
+              <span
+                data-cy="inlineplanningworkspace-1975"
+                className="mr-auto text-[12px] tabular-nums text-[#475569]"
+              >
                 {draftLines.length} task{draftLines.length !== 1 ? 's' : ''}
               </span>
               <Button

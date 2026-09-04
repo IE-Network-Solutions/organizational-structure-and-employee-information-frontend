@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
 import { childrenOf, todayIso, weekDailiesForSection } from './bucket';
 import type { DeadlineTask } from './types';
 
@@ -11,7 +10,6 @@ export function selectTopDeadlineRoots(
   tasks: DeadlineTask[],
   limit = DASHBOARD_TOP_N,
 ): DeadlineTask[] {
-  const today = todayIso();
   const roots = tasks.filter((t) => t.parentId == null);
   const active = roots.filter((t) => t.sourceStatus !== 'completed');
   return [...active]
