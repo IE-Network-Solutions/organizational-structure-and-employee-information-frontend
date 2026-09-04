@@ -14,6 +14,7 @@ import {
   toMetricTypeObject,
 } from '@/utils/okrKeyResultProgressDisplay';
 import { applyReportTaskStatusOverride } from '@/utils/recentReportTaskStatuses';
+import { getReportTaskDisplayScore } from '@/utils/reportTaskDisplayScore';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
 const planGroupedTaskHasContent = (task: any): boolean =>
@@ -149,11 +150,10 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
   }
 
   if (viewMode === 'planning') {
-    baseTask.target = task.targetValue || task.target || 0;
+    baseTask.target = task.targetValue ?? task.target ?? 0;
     baseTask.status = task.status;
   } else {
-    baseTask.achieved =
-      task.actualValue || task.achievedValue || task.achieved || 0;
+    baseTask.achieved = getReportTaskDisplayScore(task);
     baseTask.status = getTaskStatus(task, viewMode);
     // For reporting, use weightPlan if available
     baseTask.weight =
@@ -382,8 +382,8 @@ export const transformReportToPlanSummary = (
       title,
       priority: normalizePriority(task.planTask?.priority || task.priority),
       weight: task.weightPlan || task.planTask?.weight || task.weight || 0,
-      achieved: task.actualValue || task.achievedValue || 0,
-      target: task.planTask?.targetValue || task.targetValue || 0,
+      achieved: getReportTaskDisplayScore(task),
+      target: task.planTask?.targetValue ?? task.targetValue ?? 0,
       status: getTaskStatus(task, 'reporting'),
       hasAttachment: task.hasAttachment || false,
       parentTask: task?.planTask?.parentTask, // Include parentTask reference for grouping
