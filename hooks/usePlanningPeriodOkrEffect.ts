@@ -1,10 +1,14 @@
 'use client';
 
 import { useMemo } from 'react';
-import { AllPlanningPeriods } from '@/store/server/features/okrPlanningAndReporting/queries';
+import {
+  AllPlanningPeriods,
+  useDefaultPlanningPeriods,
+} from '@/store/server/features/okrPlanningAndReporting/queries';
 import {
   doesPlanningPeriodAffectOkr,
   getOkrCountingPeriodName,
+  resolveAssignedPlanningPeriods,
 } from '@/utils/okrCountingPlanningPeriod';
 
 /**
@@ -18,12 +22,21 @@ export function usePlanningPeriodOkrEffect(
   countingPeriodName: string;
 } {
   const { data: assignments } = AllPlanningPeriods();
+  const { data: catalog } = useDefaultPlanningPeriods();
+
+  const resolvedAssignments = useMemo(
+    () => resolveAssignedPlanningPeriods(assignments, catalog?.items),
+    [assignments, catalog?.items],
+  );
 
   return useMemo(
     () => ({
-      affectsOkr: doesPlanningPeriodAffectOkr(planningPeriodId, assignments),
-      countingPeriodName: getOkrCountingPeriodName(assignments),
+      affectsOkr: doesPlanningPeriodAffectOkr(
+        planningPeriodId,
+        resolvedAssignments,
+      ),
+      countingPeriodName: getOkrCountingPeriodName(resolvedAssignments),
     }),
-    [planningPeriodId, assignments],
+    [planningPeriodId, resolvedAssignments],
   );
 }

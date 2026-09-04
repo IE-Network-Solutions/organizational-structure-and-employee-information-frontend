@@ -24,14 +24,22 @@ const MILESTONE_STATUS_QUERY_KEYS = [
 /** Plan-list / hierarchy / KR panel — after plan create/update/approve. */
 export function invalidatePlanningCaches(
   queryClient: QueryClient,
+  options?: { applyToOkr?: boolean },
 ): Promise<unknown[]> {
-  return Promise.all([
+  const applyToOkr = options?.applyToOkr !== false;
+  const planList = [
     queryClient.invalidateQueries(['okrPlans'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrPlansKrPanel'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrUserPlans'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrPlan'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrPlannedData'], REFETCH_OPTS),
     queryClient.invalidateQueries(['planningPeriodsHierarchy'], REFETCH_OPTS),
+  ];
+  if (!applyToOkr) {
+    return Promise.all(planList);
+  }
+  return Promise.all([
+    ...planList,
     queryClient.invalidateQueries(['fetchObjectives'], REFETCH_OPTS),
     queryClient.invalidateQueries(['ObjectiveInformation'], REFETCH_OPTS),
     queryClient.invalidateQueries(['keyResult'], REFETCH_OPTS),

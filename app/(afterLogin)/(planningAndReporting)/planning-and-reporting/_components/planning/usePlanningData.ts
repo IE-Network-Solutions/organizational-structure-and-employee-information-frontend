@@ -172,7 +172,9 @@ export function usePlanningData(enabled = true) {
   }, [userId, employeesFetched, employeeData]);
 
   const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ||
+    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriodId ||
+    userPlanningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
 
   const sessionId =
     selectedSessionIds.length > 0

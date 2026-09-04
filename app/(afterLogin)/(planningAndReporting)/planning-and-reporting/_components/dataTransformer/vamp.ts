@@ -36,11 +36,7 @@ const hasUsableMetricValue = (value: unknown): boolean =>
   value !== '' &&
   Number.isFinite(Number(value));
 
-const getKeyResultCurrentValue = (
-  rawKeyResult: any,
-  allTasks: Array<{ achieved?: number; status?: string; weight?: number }>,
-  viewMode: ViewMode,
-) => {
+const getKeyResultCurrentValue = (rawKeyResult: any) => {
   const metricTypeName = getMetricTypeName(rawKeyResult);
 
   if (metricTypeName === 'Milestone') {
@@ -51,16 +47,9 @@ const getKeyResultCurrentValue = (
     return Number(rawKeyResult.currentValue);
   }
 
-  if (viewMode === 'reporting') {
-    const summedAchieved = allTasks.reduce(
-      (sum, task) => sum + (Number(task.achieved) || 0),
-      0,
-    );
-    if (summedAchieved > 0) {
-      return summedAchieved;
-    }
-  }
-
+  // Never sum this cadence's report/plan tasks into KR progress. Child
+  // cadences (Daily under Weekly/Monthly) would move the shared bar, then
+  // the parent report would snap it back.
   return 0;
 };
 
@@ -248,7 +237,7 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   const targetValue = allTasks.reduce((sum, t) => sum + (t.target || 0), 0);
   // Calculate achieved as sum of weights of completed/achieved tasks for this key result only
   // IMPORTANT: Sum the WEIGHTS of completed tasks, not the achieved values
-  const currentValue = getKeyResultCurrentValue(keyResult, allTasks, viewMode);
+  const currentValue = getKeyResultCurrentValue(keyResult);
   const initialValue = keyResult.initialValue;
   const resolvedTarget = keyResult.targetValue ?? targetValue;
 
@@ -564,7 +553,7 @@ export const transformReportToPlanSummary = (
       ),
     ];
 
-    const currentValue = getKeyResultCurrentValue(kr, allTasks, 'reporting');
+    const currentValue = getKeyResultCurrentValue(kr);
     const initialValue = kr.initialValue;
     const resolvedTarget = kr.targetValue || 0;
     const okrMilestonesForProgress = isMilestoneMetric

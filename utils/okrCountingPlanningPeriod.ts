@@ -18,6 +18,7 @@ const NAME_RANK_DAYS: Record<string, number> = {
 };
 
 export type PlanningPeriodIntervalFields = {
+  id?: string | null;
   name?: string | null;
   intervalLength?: unknown;
   intervalType?: string | null;
@@ -104,24 +105,64 @@ export function getHighestAssignedPlanningPeriod<
 export function getOkrCountingPeriodName(
   assignments: AssignedPlanningPeriodLike[] | null | undefined,
 ): string {
-  const highest = getHighestAssignedPlanningPeriod(assignments);
+  const highest = getHighestAssignedPlanningPeriod(
+    normalizeAssignedPlanningPeriods(assignments),
+  );
   const name = String(highest?.planningPeriod?.name || '').trim();
   return name || 'highest assigned';
 }
 
+/** Accept a raw assignment API payload (array or `{ items }`). */
+export function normalizeAssignedPlanningPeriods(
+  data: unknown,
+): AssignedPlanningPeriodLike[] {
+  if (Array.isArray(data)) return data;
+  if (data && typeof data === 'object') {
+    const items = (data as { items?: unknown }).items;
+    if (Array.isArray(items)) return items;
+  }
+  return [];
+}
+
+/**
+ * Fill missing nested `planningPeriod` from the tenant catalog so ranking
+ * still works when the assignment endpoint only returns ids.
+ */
+export function resolveAssignedPlanningPeriods(
+  data: unknown,
+  catalog?: PlanningPeriodIntervalFields[] | null,
+): AssignedPlanningPeriodLike[] {
+  const list = normalizeAssignedPlanningPeriods(data);
+  if (!catalog?.length) return list;
+  return list.map((assignment) => {
+    if (planningPeriodIntervalRank(assignment.planningPeriod) > 0) {
+      return assignment;
+    }
+    const id = getAssignmentPlanningPeriodId(assignment);
+    const fromCatalog = catalog.find((period) => String(period.id) === id);
+    if (!fromCatalog) return assignment;
+    return {
+      ...assignment,
+      planningPeriod: { ...fromCatalog, ...assignment.planningPeriod },
+    };
+  });
+}
+
 /**
  * True when this period is the employee's highest assigned cadence.
- * Unknown assignment lists fail open (count) so we never drop a real OKR report.
+ * Unknown / empty assignment lists fail closed so a child cadence (Daily)
+ * never writes OKR while Weekly/Monthly is still loading.
  */
 export function doesPlanningPeriodAffectOkr(
   planningPeriodId: string | null | undefined,
-  assignments: AssignedPlanningPeriodLike[] | null | undefined,
+  assignments: unknown,
 ): boolean {
-  if (!planningPeriodId) return true;
-  if (!Array.isArray(assignments) || assignments.length === 0) return true;
-  const highest = getHighestAssignedPlanningPeriod(assignments);
+  if (!planningPeriodId) return false;
+  const list = normalizeAssignedPlanningPeriods(assignments);
+  if (list.length === 0) return false;
+  const highest = getHighestAssignedPlanningPeriod(list);
   const highestId = getAssignmentPlanningPeriodId(highest);
-  if (!highestId) return true;
+  if (!highestId) return false;
   return String(planningPeriodId) === highestId;
 }
 

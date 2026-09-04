@@ -339,7 +339,7 @@ export const useCreateReportForUnReportedtasks = () => {
           applyAchievedMilestoneIds(queryClient, variables.achievedMilestoneIds);
         }
         void invalidateReportingCaches(queryClient, { applyToOkr });
-        void invalidatePlanningCaches(queryClient);
+        void invalidatePlanningCaches(queryClient, { applyToOkr });
         if (applyToOkr) {
           scheduleOkrMilestoneStatusRefetch(
             queryClient,

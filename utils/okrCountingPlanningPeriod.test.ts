@@ -5,6 +5,7 @@ import {
   getHighestAssignedPlanningPeriod,
   getOkrCountingPeriodName,
   planningPeriodIntervalRank,
+  resolveAssignedPlanningPeriods,
 } from './okrCountingPlanningPeriod';
 
 const daily = {
@@ -70,10 +71,28 @@ describe('okrCountingPlanningPeriod', () => {
     expect(doesPlanningPeriodAffectOkr('monthly-id', assigned)).toBe(true);
   });
 
-  it('fails open when assignments are unknown', () => {
-    expect(doesPlanningPeriodAffectOkr('weekly-id', [])).toBe(true);
-    expect(doesPlanningPeriodAffectOkr('weekly-id', null)).toBe(true);
-    expect(doesPlanningPeriodAffectOkr('', [weekly])).toBe(true);
+  it('fails closed when assignments are unknown so Daily cannot write OKR early', () => {
+    expect(doesPlanningPeriodAffectOkr('weekly-id', [])).toBe(false);
+    expect(doesPlanningPeriodAffectOkr('weekly-id', null)).toBe(false);
+    expect(doesPlanningPeriodAffectOkr('', [weekly])).toBe(false);
+  });
+
+  it('reads assignment lists wrapped in { items }', () => {
+    const wrapped = { items: [daily, weekly] };
+    expect(doesPlanningPeriodAffectOkr('daily-id', wrapped)).toBe(false);
+    expect(doesPlanningPeriodAffectOkr('weekly-id', wrapped)).toBe(true);
+  });
+
+  it('ranks assignment ids against the period catalog when nested period is missing', () => {
+    const assigned = [{ planningPeriodId: 'weekly-id' }];
+    const catalog = [
+      { id: 'daily-id', name: 'Daily', intervalLength: 1 },
+      { id: 'weekly-id', name: 'Weekly', intervalLength: 7 },
+    ];
+    const resolved = resolveAssignedPlanningPeriods(assigned, catalog);
+    expect(doesPlanningPeriodAffectOkr('daily-id', resolved)).toBe(false);
+    expect(doesPlanningPeriodAffectOkr('weekly-id', resolved)).toBe(true);
+    expect(getOkrCountingPeriodName(resolved)).toBe('Weekly');
   });
 
   it('ranks {days}/{months} intervalLength objects', () => {
