@@ -63,9 +63,9 @@ export function buildSanitizedReportPayload(
 
 export { coerceNonNegativeNumber as parseReportActualValue };
 
-/** Strip thousand separators so Ant Design InputNumber keeps a real number. */
+/** Ant Design InputNumber parser: locale commas in, finite number out. */
 export function parseReportActualValueInput(
-  value: string | number | undefined,
-): string {
-  return String(value ?? '').replace(/,/g, '');
+  displayValue: string | undefined,
+): number {
+  return coerceNonNegativeNumber(displayValue);
 }
