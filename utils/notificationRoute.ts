@@ -376,6 +376,27 @@ function isPlanningNotification(
   );
 }
 
+function isAttendancePolicyViolationNotification(
+  pathname: string,
+  params: URLSearchParams,
+  text: string,
+): boolean {
+  const notificationType = (params.get('notificationType') ?? '').toLowerCase();
+  return (
+    notificationType === 'attendance_violation' ||
+    pathname.includes('attendance-violations') ||
+    text.includes('attendance_violation') ||
+    text.includes('attendance policy violation') ||
+    text.includes('late check-in') ||
+    text.includes('late check in') ||
+    text.includes('early check-out') ||
+    text.includes('early check out') ||
+    text.includes('missed check-in') ||
+    text.includes('missed check in') ||
+    text.includes('exceeded break')
+  );
+}
+
 function isTimesheetNotification(
   pathname: string,
   source: string,
@@ -384,6 +405,7 @@ function isTimesheetNotification(
   return (
     pathname.includes('timesheet') ||
     pathname.includes('time-and-attendance') ||
+    pathname.includes('attendance-violations') ||
     source.includes('time-and-attendance') ||
     text.includes('leave') ||
     text.includes('work from home') ||
@@ -392,7 +414,12 @@ function isTimesheetNotification(
     text.includes('check in') ||
     text.includes('check out') ||
     text.includes('rule violation') ||
-    text.includes('late arrival')
+    text.includes('late arrival') ||
+    text.includes('late check-in') ||
+    text.includes('early check-out') ||
+    text.includes('missed check-in') ||
+    text.includes('exceeded break') ||
+    text.includes('attendance_violation')
   );
 }
 
@@ -569,7 +596,13 @@ function resolveTimesheetPath(
   }
 
   const isWfh = text.includes('work from home') || /\bwfh\b/.test(text);
+  const isPolicyViolation = isAttendancePolicyViolationNotification(
+    pathname,
+    params,
+    text,
+  );
   const isViolation =
+    isPolicyViolation ||
     text.includes('rule violation') ||
     text.includes('late arrival') ||
     text.includes('absent');
@@ -577,6 +610,7 @@ function resolveTimesheetPath(
     pathname.includes('leave-management') || text.includes('leave management');
   const isEmployeeAttendance =
     pathname.includes('employee-attendance') ||
+    pathname.includes('attendance-violations') ||
     isViolation ||
     (text.includes('attendance') &&
       !pathname.includes('my-timesheet') &&
@@ -603,9 +637,15 @@ function resolveTimesheetPath(
     return withParams('/timesheet/leave-management/leaves', params);
   }
 
-  if (isEmployeeAttendance) {
+  // Backend route: /timesheet/attendance-violations?notificationType=attendance_violation
+  // → Employee Attendance → Violations tab (managers / HR review).
+  if (isPolicyViolation || isEmployeeAttendance) {
     if (!params.get('tab')) {
       params.set('tab', isViolation ? 'violations' : 'attendance');
+    }
+    if (employeeId) {
+      params.set('employeeId', employeeId);
+      params.set('userId', employeeId);
     }
     return withParams('/timesheet/employee-attendance', params);
   }
