@@ -18,34 +18,34 @@ pipeline {
                             script: "git rev-parse --abbrev-ref HEAD",
                             returnStdout: true
                         ).trim()
-echo "Current Branch: ${branchName}"
-if (branchName.contains('develop-redesign-branch')) {
-    env.REMOTE_SERVER = REMOTE_SERVER_TEST
-    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env-redesign'
-    env.SECRET_KEY = 'peptest'
-
-} else if (branchName.contains('develop')) {
-    env.REMOTE_SERVER = REMOTE_SERVER_TEST
-    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
-    env.SECRET_KEY = 'peptest'
-
-} else if (branchName.contains('staging')) {
-    env.REMOTE_SERVER = REMOTE_SERVER_PROD
-    env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
-    env.SECRET_KEY = 'pepproduction'
-
-} else if (branchName.contains('core-production')) {
-    env.REMOTE_SERVER = REMOTE_SERVER_PROD
-    env.SECRETS_PATH = '/home/ubuntu/secrets/.core-workspace-env'
-    env.SECRET_KEY = 'pepproduction'
-                        
-} else if (branchName.contains('production')) {
-    env.REMOTE_SERVER = REMOTE_SERVER_PROD
-    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
-    env.SECRET_KEY = 'pepproduction'
-}  else {
-    error "No matching environment found for branch: ${branchName}"
-}
+                    echo "Current Branch: ${branchName}"
+                    if (branchName.contains('develop-redesign-branch')) {
+                        env.REMOTE_SERVER = REMOTE_SERVER_TEST
+                        env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env-redesign'
+                        env.SECRET_KEY = 'peptest'
+                    
+                    } else if (branchName.contains('develop')) {
+                        env.REMOTE_SERVER = REMOTE_SERVER_TEST
+                        env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+                        env.SECRET_KEY = 'peptest'
+                    
+                    } else if (branchName.contains('staging')) {
+                        env.REMOTE_SERVER = REMOTE_SERVER_PROD
+                        env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
+                        env.SECRET_KEY = 'pepproduction'
+                    
+                    } else if (branchName.contains('core-production')) {
+                        env.REMOTE_SERVER = REMOTE_SERVER_PROD
+                        env.SECRETS_PATH = '/home/ubuntu/secrets/.core-workspace-env'
+                        env.SECRET_KEY = 'pepproduction'
+                                            
+                    } else if (branchName.contains('production')) {
+                        env.REMOTE_SERVER = REMOTE_SERVER_PROD
+                        env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+                        env.SECRET_KEY = 'pepproduction'
+                    }  else {
+                        error "No matching environment found for branch: ${branchName}"
+                    }
 
                 echo """
                 Deployment Configuration:
@@ -134,10 +134,14 @@ if (branchName.contains('develop-redesign-branch')) {
                 sshagent(credentials: [env.SECRET_KEY]) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                            if [ ! -d "${env.REPO_DIR}/.git" ]; then
+                            if [ ! -d "${env.REPO_DIR}/.git" ] || ! git -C "${env.REPO_DIR}" rev-parse HEAD >/dev/null 2>&1; then
+                                rm -rf "${env.REPO_DIR}"
                                 git clone ${env.REPO_URL} -b ${env.BRANCH_NAME} ${env.REPO_DIR}
                             else
-                                cd ${env.REPO_DIR} && git reset --hard HEAD && git pull origin ${env.BRANCH_NAME}
+                                cd ${env.REPO_DIR} &&
+                                git fetch origin ${env.BRANCH_NAME} &&
+                                git reset --hard origin/${env.BRANCH_NAME} &&
+                                git clean -fdx
                             fi
                         '
                     """
@@ -322,7 +326,7 @@ if (branchName.contains('develop-redesign-branch')) {
                 """,
                 from: 'selamnew@ienetworksolutions.com',
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'biniyam.l@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
+                to: 'yordanos.z@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
             )
         }
     }
