@@ -518,9 +518,10 @@ const PostCard = ({
                     type="button"
                     className="border-0 bg-transparent p-0 text-gray-500"
                     onClick={() =>
-                      setReplyFiles((current) =>
-                        current.filter((_, fileIndex) => fileIndex !== index),
-                      )
+                      setReplyFiles((current) => [
+                        ...current.slice(0, index),
+                        ...current.slice(index + 1),
+                      ])
                     }
                     aria-label={`Remove ${file.name}`}
                     data-cy={`announcement-post-reply-remove-attachment-${post.id}-${index}`}
@@ -531,7 +532,10 @@ const PostCard = ({
               ))}
             </div>
           ) : null}
-          <div className="flex items-center gap-1.5">
+          <div
+            className="flex items-center gap-1.5"
+            data-cy={`announcement-post-reply-actions-${post.id}`}
+          >
             <input
               ref={replyFileInputRef}
               type="file"

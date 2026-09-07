@@ -127,7 +127,12 @@ const MessageReactions = ({
             aria-pressed={reaction.selected}
             data-cy={`${dataCyPrefix}-reaction-${reactionDataCyKey}`}
           >
-            <span aria-hidden="true">{getReactionEmoji(reaction.content)}</span>
+            <span
+              aria-hidden="true"
+              data-cy={`${dataCyPrefix}-reaction-${reactionDataCyKey}-emoji`}
+            >
+              {getReactionEmoji(reaction.content)}
+            </span>
             <span
               data-cy={`${dataCyPrefix}-reaction-${reactionDataCyKey}-count`}
             >

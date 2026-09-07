@@ -864,11 +864,17 @@ const CollaborationComposer = ({
           data-cy="create-announcement-mention-dropdown"
         >
           {mentionUsersLoading ? (
-            <div className="flex items-center justify-center px-3 py-4">
+            <div
+              className="flex items-center justify-center px-3 py-4"
+              data-cy="create-announcement-mention-loading"
+            >
               <Spin size="small" />
             </div>
           ) : filteredMentionUsers.length === 0 ? (
-            <p className="m-0 px-3 py-3 text-center text-sm text-gray-400">
+            <p
+              className="m-0 px-3 py-3 text-center text-sm text-gray-400"
+              data-cy="create-announcement-mention-empty"
+            >
               No channel members found
             </p>
           ) : (

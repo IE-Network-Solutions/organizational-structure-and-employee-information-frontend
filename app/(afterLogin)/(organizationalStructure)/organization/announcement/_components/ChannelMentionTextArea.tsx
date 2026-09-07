@@ -163,7 +163,7 @@ const ChannelMentionTextArea = ({
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" data-cy="channel-mention-textarea-wrap">
       {showMenu ? (
         <div
           className="absolute bottom-full left-0 right-0 z-30 mb-2 max-h-52 overflow-y-auto rounded-xl border bg-white py-1 shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
@@ -171,11 +171,17 @@ const ChannelMentionTextArea = ({
           data-cy="channel-mention-dropdown"
         >
           {mentionUsersLoading ? (
-            <div className="flex justify-center px-3 py-3">
+            <div
+              className="flex justify-center px-3 py-3"
+              data-cy="channel-mention-loading"
+            >
               <Spin size="small" />
             </div>
           ) : filteredUsers.length === 0 ? (
-            <p className="m-0 px-3 py-3 text-center text-sm text-gray-400">
+            <p
+              className="m-0 px-3 py-3 text-center text-sm text-gray-400"
+              data-cy="channel-mention-empty"
+            >
               No channel members found
             </p>
           ) : (
@@ -205,7 +211,12 @@ const ChannelMentionTextArea = ({
                     flexShrink: 0,
                   }}
                 />
-                <span className="truncate text-sm text-gray-800">{user.name}</span>
+                <span
+                  className="truncate text-sm text-gray-800"
+                  data-cy={`channel-mention-option-name-${user.id}`}
+                >
+                  {user.name}
+                </span>
               </button>
             ))
           )}

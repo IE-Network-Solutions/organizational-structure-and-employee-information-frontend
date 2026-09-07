@@ -82,7 +82,7 @@ export const useAnnouncementChannelsStore = create<AnnouncementChannelsStore>()(
       integrationFocusSpaceId: null,
 
       setEnabledChannelIds: (channelIds) =>
-        set((state) => {
+        set(() => {
           const unique = Array.from(new Set(channelIds));
           return { enabledChannelIds: unique };
         }),

@@ -163,7 +163,10 @@ const CollaborationNotificationsWidget = ({
                 data-cy="collaboration-notifications-body"
               >
                 {isLoading ? (
-                  <div className="flex h-full min-h-[190px] items-center justify-center">
+                  <div
+                    className="flex h-full min-h-[190px] items-center justify-center"
+                    data-cy="collaboration-notifications-loading"
+                  >
                     <Spin size="small" />
                   </div>
                 ) : notifications.length === 0 ? (

@@ -112,9 +112,10 @@ const ThreadReplyComposer = ({
                 type="button"
                 className="border-0 bg-transparent p-0 text-gray-500"
                 onClick={() =>
-                  setFiles((current) =>
-                    current.filter((_, fileIndex) => fileIndex !== index),
-                  )
+                  setFiles((current) => [
+                    ...current.slice(0, index),
+                    ...current.slice(index + 1),
+                  ])
                 }
                 aria-label={`Remove ${file.name}`}
                 data-cy={`announcement-thread-reply-remove-attachment-${conversationId}-${index}`}
@@ -125,7 +126,10 @@ const ThreadReplyComposer = ({
           ))}
         </div>
       ) : null}
-      <div className="flex items-end gap-2">
+      <div
+        className="flex items-end gap-2"
+        data-cy={`announcement-thread-reply-actions-${conversationId}`}
+      >
         <input
           ref={fileInputRef}
           type="file"

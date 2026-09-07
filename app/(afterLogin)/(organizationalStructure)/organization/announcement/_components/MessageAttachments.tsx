@@ -264,13 +264,16 @@ const AttachmentCard = ({
       {image ? (
         <ImagePreview file={file} dataCyPrefix={dataCyPrefix} />
       ) : null}
-      <div className="flex min-w-0 items-center gap-2 px-2.5 py-2">
+      <div
+        className="flex min-w-0 items-center gap-2 px-2.5 py-2"
+        data-cy={`${dataCyPrefix}-meta`}
+      >
         {image ? (
           <FileImageOutlined className="shrink-0 text-blue-500" />
         ) : (
           <FileOutlined className="shrink-0 text-gray-500" />
         )}
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1" data-cy={`${dataCyPrefix}-details`}>
           <p
             className="m-0 truncate text-xs font-medium text-gray-700"
             title={file.fileName}

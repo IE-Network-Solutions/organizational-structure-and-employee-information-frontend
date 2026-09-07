@@ -97,7 +97,10 @@ const AddMembersModal = ({
         data-cy="announcement-add-members-list"
       >
         {loading ? (
-          <div className="flex items-center justify-center py-8">
+          <div
+            className="flex items-center justify-center py-8"
+            data-cy="announcement-add-members-loading"
+          >
             <Spin size="small" />
           </div>
         ) : filteredMembers.length === 0 ? (

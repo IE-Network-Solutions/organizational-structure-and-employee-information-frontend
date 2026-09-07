@@ -148,7 +148,10 @@ const AnnouncementSettingsPanel = ({
       />
 
       {isLoading ? (
-        <div className="flex min-h-[160px] items-center justify-center">
+        <div
+          className="flex min-h-[160px] items-center justify-center"
+          data-cy="org-settings-announcement-loading"
+        >
           <Spin />
         </div>
       ) : isEmpty ? (
