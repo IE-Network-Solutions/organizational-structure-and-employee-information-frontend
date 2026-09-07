@@ -701,7 +701,7 @@ export const useMarkCollabMentionsRead = () => {
         queryClient.setQueriesData<CollabMappedNotification[]>(
           collaborationQueryKeys.mentionNotifications,
           (notifications) =>
-            notifications?.filter(
+            (notifications ?? []).filter(
               (notification) => !readIds.has(notification.notificationId),
             ),
         );
