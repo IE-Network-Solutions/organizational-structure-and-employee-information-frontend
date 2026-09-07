@@ -1,7 +1,15 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
-import { Button, Dropdown, Select, Tooltip } from 'antd';
+import {
+  Button,
+  DatePicker,
+  Dropdown,
+  Pagination,
+  Select,
+  Tooltip,
+  message,
+} from 'antd';
 import type { MenuProps } from 'antd';
 import {
   MoreOutlined,
@@ -14,6 +22,7 @@ import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
 import { LuLoader } from 'react-icons/lu';
+import dayjs from 'dayjs';
 import { PlanSummary, PlanTask, ViewMode, Cadence } from '../types';
 import { formatPlanningReportDate } from '../utils';
 import UserInfo from '../UserInfo';
@@ -27,18 +36,28 @@ import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import {
   todayIso,
   parseDate,
+  formatDate,
 } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
 import type { DeadlineKind } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/types';
 import CustomButton from '@/components/common/buttons/customButton';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 import {
-  DURATION_TAB_ITEMS,
+  PLAN_FILTER_OPTIONS,
+  defaultHistoryRange,
   durationFilterMatchesTask,
+  isPlanHistoryFilter,
+  taskInHistoryRange,
+  type PlanFilterValue,
 } from '../planning/durationFilter';
 import MockPlanHierarchy from './MockPlanHierarchy';
 import type { MockPlanTask } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
-import { filterMockTasksByDuration } from '../prototype/mockDurationFilter';
+import {
+  filterMockHistoryTasks,
+  filterMockTasksByDuration,
+} from '../prototype/mockDurationFilter';
+
+const HISTORY_PAGE_SIZE = 8;
 
 interface PlanCardProps {
   plan: PlanSummary;
@@ -256,6 +275,7 @@ export default function PlanCard({
     (s) => s.togglePreAchieved,
   );
   const reportMockTasks = useUserPlanRepositoryMock((s) => s.reportTasks);
+  const archiveMockTasks = useUserPlanRepositoryMock((s) => s.archiveTasks);
   const mockPlansByUserId = useUserPlanRepositoryMock((s) => s.plansByUserId);
   const mockEnabled = isDeadlinePlanningMockEnabled();
   const viewerUserId = useAuthenticationStore((s) => s.userId);
@@ -312,7 +332,16 @@ export default function PlanCard({
     top: number;
     text: string;
   } | null>(null);
-  const [durationKind, setDurationKind] = useState<DeadlineKind>('daily');
+  const [durationFilter, setDurationFilter] =
+    useState<PlanFilterValue>('daily');
+  const isHistoryMode = isPlanHistoryFilter(durationFilter);
+  const durationKind: DeadlineKind = isHistoryMode ? 'daily' : durationFilter;
+  const initialHistoryRange = defaultHistoryRange(todayIso());
+  const [historyRange, setHistoryRange] = useState<{
+    from: string;
+    to: string;
+  }>(initialHistoryRange);
+  const [historyPage, setHistoryPage] = useState(1);
   const datesByTaskId = usePlanTaskDatesStore((s) => s.datesByTaskId);
 
   const serverTaskStatusMap = React.useMemo(() => {
@@ -474,6 +503,46 @@ export default function PlanCard({
       ),
       onClick: onEdit,
     },
+    ...(mockEnabled &&
+    viewMode === 'planning' &&
+    plan.ownerUserId &&
+    !isTeammatePlan
+      ? [
+          {
+            key: 'archive-old',
+            label: (
+              <Tooltip title="Move tasks with deadlines before this month into History">
+                <span data-cy={`plan-card-archive-old-${plan.id}`}>
+                  Archive old tasks
+                </span>
+              </Tooltip>
+            ),
+            onClick: () => {
+              const ownerId = plan.ownerUserId;
+              if (!ownerId) return;
+              const monthStart = formatDate(
+                parseDate(todayIso()).startOf('month'),
+              );
+              const mockPlan = mockPlansByUserId[ownerId];
+              const ids = (mockPlan?.activeTasks ?? [])
+                .filter(
+                  (t) =>
+                    !t.isPendingApproval &&
+                    String(t.deadline).slice(0, 10) < monthStart,
+                )
+                .map((t) => t.id);
+              const { archivedCount } = archiveMockTasks(ownerId, ids);
+              if (archivedCount === 0) {
+                message.info('No old tasks to archive.');
+                return;
+              }
+              message.success(
+                `Archived ${archivedCount} task${archivedCount === 1 ? '' : 's'} to History.`,
+              );
+            },
+          },
+        ]
+      : []),
   ];
 
   const getDateLabel = (): string => {
@@ -707,6 +776,57 @@ export default function PlanCard({
     durationKind,
     plan.isReported,
   ]);
+
+  const historySourceTasks = useMemo(() => {
+    if (mockEnabled) return mockReportedTasks;
+    // Live path: treat completed/failed tasks as history candidates.
+    return allConfirmedTasks.filter((t: any) => {
+      const s = String(t.status ?? '')
+        .trim()
+        .toLowerCase();
+      return (
+        s === 'completed' ||
+        s === 'done' ||
+        s === 'failed' ||
+        t.isAchieved === true ||
+        t.isAchieved === false
+      );
+    });
+  }, [mockEnabled, mockReportedTasks, allConfirmedTasks]);
+
+  const historyFilteredTasks = useMemo(() => {
+    if (mockEnabled) {
+      return filterMockHistoryTasks(
+        historySourceTasks as MockPlanTask[],
+        historyRange.from,
+        historyRange.to,
+      ).map(mapMockTaskToPlanningTask);
+    }
+    return (historySourceTasks as any[]).filter((task) =>
+      taskInHistoryRange(task, historyRange.from, historyRange.to),
+    );
+  }, [
+    mockEnabled,
+    historySourceTasks,
+    historyRange.from,
+    historyRange.to,
+    mapMockTaskToPlanningTask,
+  ]);
+
+  const historyTotal = historyFilteredTasks.length;
+  const historyPageCount = Math.max(
+    1,
+    Math.ceil(historyTotal / HISTORY_PAGE_SIZE),
+  );
+  const historyPageSafe = Math.min(historyPage, historyPageCount);
+  const historyPageTasks = useMemo(() => {
+    const start = (historyPageSafe - 1) * HISTORY_PAGE_SIZE;
+    return historyFilteredTasks.slice(start, start + HISTORY_PAGE_SIZE);
+  }, [historyFilteredTasks, historyPageSafe]);
+
+  useEffect(() => {
+    setHistoryPage(1);
+  }, [durationFilter, historyRange.from, historyRange.to, plan.id]);
 
   if (viewMode === 'reporting') {
     const reportTasks = sections.flatMap((s) =>
@@ -1566,7 +1686,10 @@ export default function PlanCard({
         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-819"
         className="px-3 md:px-4 pb-2"
       >
-        {!inlineReportActive && visibleTaskCount === 0 && !addPlanComposer ? (
+        {!inlineReportActive &&
+        !isHistoryMode &&
+        visibleTaskCount === 0 &&
+        !addPlanComposer ? (
           <p
             data-cy={`plan-card-empty-duration-${plan.id}`}
             className="px-2 py-4 text-center text-[13px] text-[#8F94A3]"
@@ -1583,65 +1706,121 @@ export default function PlanCard({
             <div data-cy={`plan-card-duration-tabs-${plan.id}`}>
               <Select
                 size="small"
-                value={durationKind}
-                onChange={(value: DeadlineKind) => setDurationKind(value)}
-                options={DURATION_TAB_ITEMS.map(({ kind, label }) => ({
-                  value: kind,
+                value={durationFilter}
+                onChange={(value: PlanFilterValue) => setDurationFilter(value)}
+                options={PLAN_FILTER_OPTIONS.map(({ value, label }) => ({
+                  value,
                   label,
                 }))}
                 aria-label="Plan duration filter"
                 data-cy={`plan-card-duration-select-${plan.id}`}
                 className="[&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!min-h-7 [&_.ant-select-selector]:!rounded-md [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!bg-[#F8FAFC] [&_.ant-select-selection-item]:!text-[12px] [&_.ant-select-selection-item]:!leading-7"
-                style={{ width: 118 }}
+                style={{ width: 128 }}
                 popupMatchSelectWidth={false}
               />
             </div>
-            <div
-              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-845"
-              className="flex flex-shrink-0 items-center"
-            >
+            {!isHistoryMode ? (
               <div
-                data-cy="plan-card-col-priority"
-                className={classNames(meta.pri, metaHead)}
+                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-845"
+                className="flex flex-shrink-0 items-center"
               >
-                <span data-cy="plancard-1605" className="sm:hidden">
-                  Pri
-                </span>
-                <span data-cy="plancard-1606" className="hidden sm:inline">
-                  Priority
-                </span>
+                <div
+                  data-cy="plan-card-col-priority"
+                  className={classNames(meta.pri, metaHead)}
+                >
+                  <span data-cy="plancard-1605" className="sm:hidden">
+                    Pri
+                  </span>
+                  <span data-cy="plancard-1606" className="hidden sm:inline">
+                    Priority
+                  </span>
+                </div>
+                <div
+                  data-cy="plan-card-col-weight"
+                  className={classNames(meta.wt, metaHead)}
+                >
+                  Wt
+                </div>
+                <div
+                  data-cy="plan-card-col-deadline"
+                  className={classNames(meta.deadline, metaHead)}
+                >
+                  Deadline
+                </div>
+                <div
+                  data-cy="plan-card-col-days-left"
+                  className={classNames(meta.daysLeft, metaHead)}
+                >
+                  <span data-cy="plancard-1624" className="sm:hidden">
+                    Left
+                  </span>
+                  <span data-cy="plancard-1625" className="hidden sm:inline">
+                    Days left
+                  </span>
+                </div>
               </div>
-              <div
-                data-cy="plan-card-col-weight"
-                className={classNames(meta.wt, metaHead)}
-              >
-                Wt
-              </div>
-              <div
-                data-cy="plan-card-col-deadline"
-                className={classNames(meta.deadline, metaHead)}
-              >
-                Deadline
-              </div>
-              <div
-                data-cy="plan-card-col-days-left"
-                className={classNames(meta.daysLeft, metaHead)}
-              >
-                <span data-cy="plancard-1624" className="sm:hidden">
-                  Left
-                </span>
-                <span data-cy="plancard-1625" className="hidden sm:inline">
-                  Days left
-                </span>
-              </div>
-            </div>
+            ) : (
+              <DatePicker.RangePicker
+                size="small"
+                allowClear={false}
+                value={[dayjs(historyRange.from), dayjs(historyRange.to)]}
+                onChange={(values) => {
+                  if (!values?.[0] || !values?.[1]) return;
+                  setHistoryRange({
+                    from: values[0].format('YYYY-MM-DD'),
+                    to: values[1].format('YYYY-MM-DD'),
+                  });
+                }}
+                className="max-w-[240px]"
+                data-cy={`plan-card-history-range-${plan.id}`}
+              />
+            )}
           </div>
         )}
         <div
           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-862"
           className="space-y-3"
         >
-          {!inlineReportActive && showClosedSection ? (
+          {!inlineReportActive && isHistoryMode ? (
+            <div
+              className="space-y-[2px] rounded-lg bg-[#F8FAFC] px-1 py-1.5"
+              data-cy={`plan-card-history-section-${plan.id}`}
+            >
+              {historyTotal === 0 ? (
+                <p
+                  data-cy={`plan-card-history-empty-${plan.id}`}
+                  className="px-2 py-4 text-center text-[13px] text-[#8F94A3]"
+                >
+                  No history in this range
+                </p>
+              ) : (
+                <>
+                  {historyPageTasks.map((task: any) =>
+                    renderPlanningTaskRow(task, {
+                      hideCheckbox: true,
+                    }),
+                  )}
+                  {historyTotal > HISTORY_PAGE_SIZE ? (
+                    <div
+                      className="flex justify-end px-2 pb-1 pt-2"
+                      data-cy={`plan-card-history-pagination-${plan.id}`}
+                    >
+                      <Pagination
+                        size="small"
+                        current={historyPageSafe}
+                        pageSize={HISTORY_PAGE_SIZE}
+                        total={historyTotal}
+                        onChange={setHistoryPage}
+                        showSizeChanger={false}
+                      />
+                    </div>
+                  ) : null}
+                </>
+              )}
+            </div>
+          ) : null}
+
+          {!inlineReportActive && !isHistoryMode && showClosedSection ? (
             <div
               className="space-y-[2px] rounded-lg bg-[#F8FAFC] px-1 py-1.5"
               data-cy={`plan-card-closed-section-${plan.id}`}
@@ -1679,7 +1858,7 @@ export default function PlanCard({
             </div>
           ) : null}
 
-          {!inlineReportActive && flatTasks.length > 0 ? (
+          {!inlineReportActive && !isHistoryMode && flatTasks.length > 0 ? (
             mockEnabled && plan.ownerUserId ? (
               <div
                 className="space-y-[2px] rounded-lg bg-[#F8FAFC] px-1 py-1.5"
@@ -1703,7 +1882,7 @@ export default function PlanCard({
             )
           ) : null}
 
-          {!inlineReportActive && showPendingSection ? (
+          {!inlineReportActive && !isHistoryMode && showPendingSection ? (
             <div
               className="space-y-[2px] rounded-lg bg-[#F8FAFC] px-1 py-1.5"
               data-cy={`plan-card-pending-section-${plan.id}`}
@@ -1755,7 +1934,7 @@ export default function PlanCard({
           ) : null}
         </div>
 
-        {addPlanComposer ? (
+        {!isHistoryMode && addPlanComposer ? (
           <div
             data-cy={`plan-card-add-composer-${plan.id}`}
             className="min-w-0 mt-3 border-t border-transparent bg-white pt-3"

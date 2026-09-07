@@ -413,10 +413,10 @@ function PlanningMetricsRow({
 }) {
   const showTarget = shouldShowPlanningTarget(metricTypeName, isDailySlot);
   const controlH = compact
-    ? '[&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!min-h-7 [&_.ant-select-selector]:!py-0 [&_.ant-select-selection-item]:!flex [&_.ant-select-selection-item]:!items-center [&_.ant-select-selection-item]:!text-[12px]'
+    ? '[&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!min-h-9 [&_.ant-select-selector]:!py-0 [&_.ant-select-selection-item]:!flex [&_.ant-select-selection-item]:!items-center [&_.ant-select-selection-item]:!text-[12px]'
     : controlH40;
   const inputH = compact
-    ? '[&_.ant-input-number]:!h-7 [&_.ant-input-number-input-wrap]:!h-7 [&_.ant-input-number-input]:!h-7 [&_.ant-input-number-input]:!py-0 [&_.ant-input-number-input]:!text-[12px]'
+    ? '!h-9 !min-h-9 [&_.ant-input-number-input-wrap]:!h-9 [&_.ant-input-number-input]:!h-9 [&_.ant-input-number-input]:!py-0 [&_.ant-input-number-input]:!text-[12px]'
     : inputNumH40;
   return (
     <div
@@ -427,7 +427,6 @@ function PlanningMetricsRow({
     >
       <Select
         placeholder="Priority"
-        size={compact ? 'small' : undefined}
         className={`w-full min-w-0 rounded-lg ${controlH} [&_.ant-select-selector]:!rounded-lg`}
         value={priority}
         onChange={setPriority}
@@ -438,8 +437,7 @@ function PlanningMetricsRow({
           placeholder="Target"
           min={getMetricValueInputMin(keyResultForBounds)}
           max={getMetricValueInputMax(keyResultForBounds)}
-          size={compact ? 'small' : undefined}
-          className={`w-full min-w-0 rounded-lg ${inputH} [&_.ant-input-number]:!rounded-lg`}
+          className={`w-full min-w-0 rounded-lg ${inputH}`}
           value={targetValue ?? undefined}
           onChange={(v) => {
             if (v == null) {
@@ -489,11 +487,14 @@ const DeadlineSpanFields = ({
   deadline,
   onStart,
   onDeadline,
+  variant = 'default',
 }: {
   start: Dayjs | null;
   deadline: Dayjs | null;
   onStart: (value: Dayjs | null) => void;
   onDeadline: (value: Dayjs | null) => void;
+  /** `embedded-grid`: date cells for a parent CSS grid (full-width composer). */
+  variant?: 'default' | 'embedded-grid';
 }) => {
   const startIso = start ? formatDate(start) : todayIso();
   const deadlineIso = deadline ? formatDate(deadline) : null;
@@ -501,47 +502,86 @@ const DeadlineSpanFields = ({
     deadlineIso != null ? resolveSpan(startIso, deadlineIso) : null;
   const invalid =
     deadlineIso != null && validateRange(startIso, deadlineIso).ok === false;
+
+  const embeddedPickerClass =
+    'w-full !h-9 !min-h-9 [&_.ant-picker-input>input]:!text-[12px]';
+
+  const startPicker = (
+    <DatePicker
+      className={variant === 'embedded-grid' ? embeddedPickerClass : 'w-full'}
+      value={start}
+      onChange={onStart}
+      placeholder="Start"
+      allowClear={false}
+      data-cy="inline-plan-start-date"
+    />
+  );
+  const endPicker = (
+    <DatePicker
+      className={variant === 'embedded-grid' ? embeddedPickerClass : 'w-full'}
+      value={deadline}
+      onChange={onDeadline}
+      placeholder="End date"
+      disabledDate={(current) =>
+        start ? current.isBefore(start, 'day') : false
+      }
+      data-cy="inline-plan-end-date"
+    />
+  );
+  const hint = invalid ? (
+    <p
+      className="m-0 text-[12px] text-[#DC2626]"
+      data-cy="inline-plan-deadline-error"
+    >
+      Deadline must be on or after the start date.
+    </p>
+  ) : resolved ? (
+    <p
+      className="m-0 text-[12px] text-[#575B7A]"
+      data-cy="inline-plan-deadline-hint"
+    >
+      {resolved.spanDays} day{resolved.spanDays === 1 ? '' : 's'} · shown in{' '}
+      {durationFilterLabel(resolved.kind)}
+    </p>
+  ) : null;
+
+  if (variant === 'embedded-grid') {
+    return (
+      <>
+        <div
+          className="min-w-0 sm:col-span-1 lg:col-span-3 lg:row-start-1"
+          data-cy="inline-plan-start-wrap"
+        >
+          {startPicker}
+        </div>
+        <div
+          className="min-w-0 sm:col-span-1 lg:col-span-3 lg:row-start-1"
+          data-cy="inline-plan-end-wrap"
+        >
+          {endPicker}
+        </div>
+        {hint ? (
+          <div
+            className="min-w-0 sm:col-span-2 lg:col-span-12 lg:row-start-2"
+            data-cy="inline-plan-deadline-hint-wrap"
+          >
+            {hint}
+          </div>
+        ) : null}
+      </>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-2" data-cy="inline-plan-deadline-fields">
       <div
         className="flex flex-col gap-2 sm:flex-row"
         data-cy="inline-plan-deadline-pickers"
       >
-        <DatePicker
-          className="w-full"
-          value={start}
-          onChange={onStart}
-          placeholder="Start"
-          allowClear={false}
-          data-cy="inline-plan-start-date"
-        />
-        <DatePicker
-          className="w-full"
-          value={deadline}
-          onChange={onDeadline}
-          placeholder="End date"
-          disabledDate={(current) =>
-            start ? current.isBefore(start, 'day') : false
-          }
-          data-cy="inline-plan-end-date"
-        />
+        {startPicker}
+        {endPicker}
       </div>
-      {invalid ? (
-        <p
-          className="m-0 text-[12px] text-[#DC2626]"
-          data-cy="inline-plan-deadline-error"
-        >
-          Deadline must be on or after the start date.
-        </p>
-      ) : resolved ? (
-        <p
-          className="m-0 text-[12px] text-[#575B7A]"
-          data-cy="inline-plan-deadline-hint"
-        >
-          {resolved.spanDays} day{resolved.spanDays === 1 ? '' : 's'} · shown in{' '}
-          {durationFilterLabel(resolved.kind)}
-        </p>
-      ) : null}
+      {hint}
     </div>
   );
 };
@@ -1349,9 +1389,6 @@ const InlinePlanningWorkspace = forwardRef<
     ? String(activeTarget.keyResultId)
     : NO_KEY_RESULT_VALUE;
 
-  const planningWithoutKeyResult =
-    selectedKeyResultValue === NO_KEY_RESULT_VALUE;
-
   const handleKeyResultSelect = useCallback(
     (value: string) => {
       if (!value || value === NO_KEY_RESULT_VALUE) {
@@ -1384,7 +1421,6 @@ const InlinePlanningWorkspace = forwardRef<
       options={keyResultSelectOptions}
       placeholder="Key result (optional)"
       allowClear
-      size={embedded && planningWithoutKeyResult ? 'small' : undefined}
       onClear={() => {
         onSelectTarget?.(null);
         onClearTarget();
@@ -1392,17 +1428,12 @@ const InlinePlanningWorkspace = forwardRef<
       aria-label="Key result (optional)"
       data-cy="inline-plan-key-result-select"
       className={classNames(
-        'min-w-0 [&_.ant-select-selector]:!rounded-lg',
-        embedded && planningWithoutKeyResult
-          ? 'w-[138px] shrink-0 [&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!min-h-7 [&_.ant-select-selection-item]:!text-[12px]'
-          : classNames(
-              'w-full',
-              embedded
-                ? '[&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!min-h-8'
-                : '[&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10',
-            ),
+        'min-w-0 w-full [&_.ant-select-selector]:!rounded-lg',
+        embedded
+          ? '[&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!min-h-9 [&_.ant-select-selection-item]:!flex [&_.ant-select-selection-item]:!items-center [&_.ant-select-selection-item]:!text-[12px]'
+          : '[&_.ant-select-selector]:!h-10 [&_.ant-select-selector]:!min-h-10',
       )}
-      popupMatchSelectWidth={!(embedded && planningWithoutKeyResult)}
+      popupMatchSelectWidth
     />
   );
 
@@ -1488,7 +1519,7 @@ const InlinePlanningWorkspace = forwardRef<
               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1039"
               className={classNames(
                 embedded
-                  ? 'space-y-2 rounded-lg bg-[#F5F6F9] px-2.5 py-2'
+                  ? 'w-full space-y-3 rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] px-3 py-3'
                   : 'space-y-4 px-3 py-3 md:px-5 md:py-5',
                 !embedded && draftLines.length > 0
                   ? 'border-b border-[#F1F2F6]'
@@ -1499,34 +1530,24 @@ const InlinePlanningWorkspace = forwardRef<
                 data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-962"
                 className={classNames(
                   'flex items-center justify-between gap-2',
-                  embedded ? 'min-h-7' : 'gap-3 md:items-start',
+                  embedded ? 'gap-2' : 'gap-3 md:items-start',
                 )}
               >
-                {embedded && planningWithoutKeyResult ? (
-                  <span
-                    data-cy="inlineplanningworkspace-1508"
-                    className="min-w-0 flex-1"
-                  />
-                ) : (
-                  <div
-                    data-cy="inline-plan-key-result-select-wrap"
-                    className="min-w-0 flex-1"
-                  >
-                    {keyResultSelectControl}
-                  </div>
-                )}
+                <div
+                  data-cy="inline-plan-key-result-select-wrap"
+                  className="min-w-0 flex-1"
+                >
+                  {keyResultSelectControl}
+                </div>
                 <button
                   data-cy="inline-plan-composer-close"
                   type="button"
                   onClick={requestExitInlinePlanning}
-                  className={classNames(
-                    'flex flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#E8EAF0] hover:text-[#574CFF]',
-                    embedded ? 'h-7 w-7' : 'h-9 w-9',
-                  )}
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#E8EAF0] hover:text-[#574CFF]"
                   aria-label="Close plan composer"
                 >
                   <CloseOutlined
-                    className={embedded ? 'text-[12px]' : 'text-[15px]'}
+                    className={embedded ? 'text-[13px]' : 'text-[15px]'}
                   />
                 </button>
               </div>
@@ -1541,7 +1562,7 @@ const InlinePlanningWorkspace = forwardRef<
               >
                 <div
                   data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-983"
-                  className={embedded ? 'space-y-2' : 'space-y-4'}
+                  className={embedded ? 'space-y-2.5' : 'space-y-4'}
                 >
                   <Input
                     value={task}
@@ -1549,15 +1570,9 @@ const InlinePlanningWorkspace = forwardRef<
                     placeholder="What will you accomplish?"
                     disabled={planAsAchieve && showAchieveOptionForAdd}
                     className={classNames(
-                      'rounded-lg border-[#E5E7EB] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]',
-                      embedded ? '!h-8' : '!h-10',
+                      'w-full rounded-lg border-[#E5E7EB] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]',
+                      embedded ? '!h-9' : '!h-10',
                     )}
-                  />
-                  <DeadlineSpanFields
-                    start={startDate}
-                    deadline={endDate}
-                    onStart={setStartDate}
-                    onDeadline={setEndDate}
                   />
                   {showAchieveOptionForAdd && activeTarget ? (
                     <OutcomeTaskSwitchRow
@@ -1574,50 +1589,84 @@ const InlinePlanningWorkspace = forwardRef<
                       }}
                     />
                   ) : null}
-                  <div
-                    data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1005"
-                    className={classNames(
-                      'flex flex-col lg:flex-row lg:items-end lg:justify-between',
-                      embedded ? 'gap-2 lg:gap-3' : 'gap-4 lg:gap-5',
-                    )}
-                  >
+                  {embedded ? (
                     <div
-                      data-cy="inline-planning-div-1583"
-                      className={classNames(
-                        'flex min-w-0 flex-1 items-end gap-2',
-                        embedded && planningWithoutKeyResult ? 'flex-row' : '',
-                      )}
+                      data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1005"
+                      className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-12 lg:items-end lg:gap-3"
                     >
-                      {embedded && planningWithoutKeyResult ? (
-                        <div data-cy="inline-plan-key-result-select-wrap">
-                          {keyResultSelectControl}
-                        </div>
-                      ) : null}
-                      <PlanningMetricsRow
-                        metricTypeName={activeTarget?.metricTypeName}
-                        isDailySlot={!!activeTarget?.isDailySlot}
-                        priority={priority}
-                        setPriority={setPriority}
-                        targetValue={targetValue}
-                        setTargetValue={setTargetValue}
-                        keyResultForBounds={activeKeyResultForBounds}
-                        compact={embedded && planningWithoutKeyResult}
+                      <DeadlineSpanFields
+                        start={startDate}
+                        deadline={endDate}
+                        onStart={setStartDate}
+                        onDeadline={setEndDate}
+                        variant="embedded-grid"
                       />
+                      <div
+                        data-cy="inline-planning-div-1583"
+                        className="min-w-0 sm:col-span-1 lg:col-span-4 lg:row-start-1"
+                      >
+                        <PlanningMetricsRow
+                          metricTypeName={activeTarget?.metricTypeName}
+                          isDailySlot={!!activeTarget?.isDailySlot}
+                          priority={priority}
+                          setPriority={setPriority}
+                          targetValue={targetValue}
+                          setTargetValue={setTargetValue}
+                          keyResultForBounds={activeKeyResultForBounds}
+                          compact
+                        />
+                      </div>
+                      <div
+                        className="min-w-0 sm:col-span-1 lg:col-span-2 lg:row-start-1"
+                        data-cy="inline-plan-add-wrap"
+                      >
+                        <Button
+                          type="default"
+                          icon={<PlusOutlined className="text-[12px]" />}
+                          onClick={handleSaveLine}
+                          className={`!m-0 !h-9 w-full px-3 text-[12px] ${inlineComposerOutlineBtnClass}`}
+                        >
+                          Add to plan
+                        </Button>
+                      </div>
                     </div>
-                    <Button
-                      type="default"
-                      icon={<PlusOutlined className="text-[12px]" />}
-                      onClick={handleSaveLine}
-                      className={classNames(
-                        '!m-0 w-full shrink-0 lg:ml-2 lg:w-auto',
-                        embedded
-                          ? `!h-8 px-3 text-[12px] ${inlineComposerOutlineBtnClass}`
-                          : `!h-10 px-5 ${inlineComposerOutlineBtnClass}`,
-                      )}
-                    >
-                      Add to plan
-                    </Button>
-                  </div>
+                  ) : (
+                    <>
+                      <DeadlineSpanFields
+                        start={startDate}
+                        deadline={endDate}
+                        onStart={setStartDate}
+                        onDeadline={setEndDate}
+                      />
+                      <div
+                        data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1005"
+                        className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-5"
+                      >
+                        <div
+                          data-cy="inline-planning-div-1583"
+                          className="flex min-w-0 flex-1 items-end gap-2"
+                        >
+                          <PlanningMetricsRow
+                            metricTypeName={activeTarget?.metricTypeName}
+                            isDailySlot={!!activeTarget?.isDailySlot}
+                            priority={priority}
+                            setPriority={setPriority}
+                            targetValue={targetValue}
+                            setTargetValue={setTargetValue}
+                            keyResultForBounds={activeKeyResultForBounds}
+                          />
+                        </div>
+                        <Button
+                          type="default"
+                          icon={<PlusOutlined className="text-[12px]" />}
+                          onClick={handleSaveLine}
+                          className={`!m-0 !h-10 w-full shrink-0 px-5 lg:ml-2 lg:w-auto ${inlineComposerOutlineBtnClass}`}
+                        >
+                          Add to plan
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

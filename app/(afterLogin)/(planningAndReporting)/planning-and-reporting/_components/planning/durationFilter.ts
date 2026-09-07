@@ -26,6 +26,20 @@ export const durationFilterLabel = (kind: DeadlineKind): string => {
   return 'This Month';
 };
 
+/** Card filter: active windows + History for archived/reported tasks. */
+export type PlanFilterValue = DeadlineKind | 'history';
+
+export const PLAN_FILTER_HISTORY = 'history' as const;
+
+export const isPlanHistoryFilter = (
+  value: PlanFilterValue,
+): value is typeof PLAN_FILTER_HISTORY => value === PLAN_FILTER_HISTORY;
+
+export const planFilterLabel = (value: PlanFilterValue): string => {
+  if (isPlanHistoryFilter(value)) return 'History';
+  return durationFilterLabel(value);
+};
+
 /** UI tab index (1-based) → duration window kind. */
 export const activePlanPeriodToKind = (
   activePlanPeriod: number,
@@ -44,6 +58,26 @@ export const DURATION_TAB_ITEMS: ReadonlyArray<{
   { key: '2', kind: 'week', label: 'This Week' },
   { key: '3', kind: 'month', label: 'This Month' },
 ] as const;
+
+/** Same control as duration tabs, plus History (minimal UI addition). */
+export const PLAN_FILTER_OPTIONS: ReadonlyArray<{
+  value: PlanFilterValue;
+  label: string;
+}> = [
+  ...DURATION_TAB_ITEMS.map(({ kind, label }) => ({
+    value: kind as PlanFilterValue,
+    label,
+  })),
+  { value: PLAN_FILTER_HISTORY, label: 'History' },
+];
+
+/** Default History range: last 90 days through today. */
+export const defaultHistoryRange = (
+  today: string = todayIso(),
+): { from: string; to: string } => ({
+  from: formatDate(parseDate(today).subtract(90, 'day')),
+  to: today,
+});
 
 export const defaultSpanForKind = (
   kind: DeadlineKind,
@@ -76,6 +110,24 @@ export const toIsoDate = (value?: string | null): string | null => {
   if (value == null || value === '') return null;
   const sliced = String(value).slice(0, 10);
   return /^\d{4}-\d{2}-\d{2}$/.test(sliced) ? sliced : null;
+};
+
+/** Keep tasks whose deadline (or start) falls inside [from, to] inclusive. */
+export const taskInHistoryRange = (
+  task: {
+    start?: string | null;
+    deadline?: string | null;
+    endDate?: string | null;
+  },
+  from: string,
+  to: string,
+): boolean => {
+  const deadline =
+    toIsoDate(task.deadline) ||
+    toIsoDate(task.endDate) ||
+    toIsoDate(task.start);
+  if (!deadline) return false;
+  return deadline >= from && deadline <= to;
 };
 
 export const resolveTaskDates = (

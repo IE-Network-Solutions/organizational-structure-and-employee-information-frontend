@@ -2,11 +2,13 @@ import {
   activePlanPeriodToKind,
   cadenceAssignmentByKind,
   collectDeadlineTasksFromPlans,
+  defaultHistoryRange,
   durationFilterLabel,
   groupLinesByDeadlineCadence,
   planItemMatchesDurationFilter,
   plannedTaskToDeadlineTask,
   resolveSpan,
+  taskInHistoryRange,
 } from './durationFilter';
 
 describe('duration tab helpers', () => {
@@ -17,6 +19,32 @@ describe('duration tab helpers', () => {
     expect(durationFilterLabel('daily')).toBe('Today');
     expect(durationFilterLabel('week')).toBe('This Week');
     expect(durationFilterLabel('month')).toBe('This Month');
+  });
+});
+
+describe('history range helpers', () => {
+  it('defaults to last 90 days through today', () => {
+    expect(defaultHistoryRange('2026-09-07')).toEqual({
+      from: '2026-06-09',
+      to: '2026-09-07',
+    });
+  });
+
+  it('keeps tasks whose deadline falls in range', () => {
+    expect(
+      taskInHistoryRange(
+        { deadline: '2026-08-01' },
+        '2026-07-01',
+        '2026-08-31',
+      ),
+    ).toBe(true);
+    expect(
+      taskInHistoryRange(
+        { deadline: '2026-06-01' },
+        '2026-07-01',
+        '2026-08-31',
+      ),
+    ).toBe(false);
   });
 });
 

@@ -27,6 +27,8 @@ const newId = () =>
 
 export type MockPlanTask = DeadlineTask & {
   isReported?: boolean;
+  /** Shelved without a formal report submit. */
+  isManuallyArchived?: boolean;
   isPendingApproval?: boolean;
   priority?: string;
   weight?: number;
@@ -441,6 +443,11 @@ interface UserPlanRepositoryState {
   dismissReopenRequest: (userId: string) => void;
   togglePreAchieved: (userId: string, taskId: string) => void;
   removeTask: (userId: string, taskId: string) => void;
+  /** Move active (non-pending) tasks into history without a report submit. */
+  archiveTasks: (
+    userId: string,
+    taskIds: string[],
+  ) => { archivedCount: number };
 }
 
 export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
@@ -710,6 +717,36 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
           },
         },
       });
+    },
+    archiveTasks: (userId, taskIds) => {
+      const plan = get().plansByUserId[userId];
+      if (!plan || taskIds.length === 0) return { archivedCount: 0 };
+      const ids = new Set(taskIds);
+      // Also pull direct children of selected parents into history.
+      plan.activeTasks.forEach((t) => {
+        if (t.parentId && ids.has(t.parentId)) ids.add(t.id);
+      });
+      const toArchive = plan.activeTasks
+        .filter((t) => ids.has(t.id) && !t.isPendingApproval)
+        .map((t) => ({
+          ...t,
+          isReported: true,
+          isManuallyArchived: true,
+          isPendingApproval: false,
+        }));
+      if (toArchive.length === 0) return { archivedCount: 0 };
+      const archivedIds = new Set(toArchive.map((t) => t.id));
+      set({
+        plansByUserId: {
+          ...get().plansByUserId,
+          [userId]: {
+            ...plan,
+            activeTasks: plan.activeTasks.filter((t) => !archivedIds.has(t.id)),
+            archivedTasks: [...toArchive, ...plan.archivedTasks],
+          },
+        },
+      });
+      return { archivedCount: toArchive.length };
     },
   })),
 );
