@@ -50,6 +50,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSearchParams } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { planningPeriodIntervalRank } from '@/utils/okrCountingPlanningPeriod';
 
 interface PlanningPeriod {
   id: string;
@@ -142,7 +143,8 @@ function Page() {
 
     mergedPlanningPeriods.sort(
       (a, b) =>
-        a.planningPeriod.intervalLength - b.planningPeriod.intervalLength,
+        planningPeriodIntervalRank(a.planningPeriod) -
+        planningPeriodIntervalRank(b.planningPeriod),
     );
 
     return hasPermission ? mergedPlanningPeriods : safePlanningPeriods;

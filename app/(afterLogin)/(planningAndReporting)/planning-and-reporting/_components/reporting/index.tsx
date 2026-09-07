@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from 'react-query';
 import {
   AllPlanningPeriods,
+  fetchAssignedPlanningPeriodsForUser,
   useDefaultPlanningPeriods,
   useGetReporting,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -26,7 +28,11 @@ import { canApproveSubordinateWork, formatPlanningReportDate } from '../utils';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
-import { usePlanningPeriodOkrEffect } from '@/hooks/usePlanningPeriodOkrEffect';
+import {
+  doesPlanningPeriodAffectOkr,
+  fallbackAssignedPlanningPeriodId,
+  resolveAssignedPlanningPeriods,
+} from '@/utils/okrCountingPlanningPeriod';
 
 function Reporting({
   onHoverKR,
@@ -48,6 +54,7 @@ function Reporting({
     allSessionsOfYear,
     planningDefaultFilterApplied,
   } = PlanningAndReportingStore();
+  const queryClient = useQueryClient();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
@@ -62,7 +69,8 @@ function Reporting({
   const { mutate: ReportApproval, isLoading: isApprovalLoading } =
     useApprovalReporting();
   const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ||
+    fallbackAssignedPlanningPeriodId(userPlanningPeriods, activePlanPeriod);
 
   const {
     data: allReporting,
@@ -110,8 +118,34 @@ function Reporting({
     return employeeData?.items?.find((emp: any) => emp?.id === id) || {};
   };
 
-  const handleApproveHandler = (id: string, value: boolean) => {
-    ReportApproval({ id, value, applyToOkr: affectsOkr });
+  const handleApproveHandler = async (id: string, value: boolean) => {
+    if (isApprovalLoading) return;
+    const row = allReporting?.items?.find((item: any) => item?.id === id);
+    const ownerId = String(row?.userId ?? row?.createdBy ?? userId ?? '');
+    const periodId = String(
+      row?.planningPeriodId ??
+        row?.planningPeriod?.id ??
+        row?.plan?.planningPeriodId ??
+        planningPeriodId ??
+        '',
+    );
+    let applyToOkr = false;
+    if (ownerId && periodId) {
+      try {
+        const assignments = await queryClient.fetchQuery(
+          ['assignedUserPlanningPeriodsForUser', ownerId],
+          () => fetchAssignedPlanningPeriodsForUser(ownerId),
+          { staleTime: 5 * 60_000 },
+        );
+        applyToOkr = doesPlanningPeriodAffectOkr(
+          periodId,
+          resolveAssignedPlanningPeriods(assignments, planningPeriods?.items),
+        );
+      } catch {
+        applyToOkr = false;
+      }
+    }
+    ReportApproval({ id, value, applyToOkr });
   };
 
   const isDataFromActiveSession = (createdAt: string): boolean => {
@@ -133,7 +167,6 @@ function Reporting({
   };
 
   const cadence = (activeTabName?.toLowerCase() as Cadence) || 'weekly';
-  const { affectsOkr } = usePlanningPeriodOkrEffect(planningPeriodId);
   const isDesktop = !isMobile && !isTablet;
   const [inlineEditingReport, setInlineEditingReport] = useState<{
     reportId: string;

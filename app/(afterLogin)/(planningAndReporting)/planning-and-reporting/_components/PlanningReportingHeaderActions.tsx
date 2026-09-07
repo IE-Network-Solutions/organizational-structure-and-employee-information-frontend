@@ -11,6 +11,7 @@ import {
   useGetUserPlanning,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { fallbackAssignedPlanningPeriodId } from '@/utils/okrCountingPlanningPeriod';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 /**
@@ -35,7 +36,8 @@ export function PlanningReportingHeaderActions() {
   const { data: userPlanningPeriods } = AllPlanningPeriods();
 
   const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ||
+    fallbackAssignedPlanningPeriodId(userPlanningPeriods, activePlanPeriod);
   const userPlanningPeriodId = userPlanningPeriods?.find(
     (item) => item?.planningPeriodId === planningPeriodId,
   )?.planningPeriodId;

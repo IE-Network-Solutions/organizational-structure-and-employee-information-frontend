@@ -34,6 +34,7 @@ import { PlanCardInlineReportFormSkeleton } from './PlanCardInlineReportFormSkel
 import { useCreateReportFormEffects } from './useCreateReportFormEffects';
 import { ReportingOnlyOkrNote } from './ReportingOnlyOkrNote';
 import { usePlanningPeriodOkrEffect } from '@/hooks/usePlanningPeriodOkrEffect';
+import { buildSanitizedReportPayload, parseReportActualValue } from '@/utils/reportSubmitPayload';
 
 type PlanCardInlineReportFormProps = {
   planId: string;
@@ -104,7 +105,7 @@ export function PlanCardInlineReportForm({
     useCreateReportForUnReportedtasks();
   const { mutate: editReport, isLoading: editReportLoading } =
     useEditReportByReportId();
-  const { affectsOkr, countingPeriodName } =
+  const { affectsOkr, countingPeriodName, isAssignmentReady } =
     usePlanningPeriodOkrEffect(planningPeriodId);
   const { data: reportingById, isLoading: reportingByIdLoading } =
     useGetReportingById(reportId || '');
@@ -115,7 +116,7 @@ export function PlanCardInlineReportForm({
       (acc: any, task: any) => {
         acc[task.planTaskId] = {
           status: task?.status ?? '',
-          actualValue: Number(task?.actualValue ?? 0),
+          actualValue: parseReportActualValue(task?.actualValue),
           customReason: task?.customReason ?? '',
         };
         return acc;
@@ -142,7 +143,10 @@ export function PlanCardInlineReportForm({
   };
 
   const handleFinish = (values: Record<string, any>) => {
-    if (Object.entries(values).length === 0) return;
+    if (!isAssignmentReady) return;
+
+    const payload = buildSanitizedReportPayload(values, selectedStatuses);
+    if (Object.keys(payload).length === 0) return;
 
     const formData = hasReportTaskRows ? formattedData : null;
     const achievedIds = collectAchievedMilestoneIdsFromReport(
@@ -216,7 +220,7 @@ export function PlanCardInlineReportForm({
       );
       editReport(
         {
-          values,
+          values: payload,
           selectedReportId: reportId,
           achievedMilestoneIds: affectsOkr ? achievedIds : [],
           reportTaskStatuses: statusByPlanTaskId,
@@ -237,7 +241,7 @@ export function PlanCardInlineReportForm({
     if (!planningPeriodId) return;
     createReport(
       {
-        values,
+        values: payload,
         planningPeriodId,
         planId,
         achievedMilestoneIds: affectsOkr ? achievedIds : [],
@@ -267,7 +271,7 @@ export function PlanCardInlineReportForm({
           onFinish={handleFinish}
           className="px-0"
         >
-          {!affectsOkr ? (
+          {isAssignmentReady && !affectsOkr ? (
             <ReportingOnlyOkrNote countingPeriodName={countingPeriodName} />
           ) : null}
           <PlanCardInlineReportFields formattedData={formattedData} />
@@ -324,7 +328,8 @@ export function PlanCardInlineReportForm({
               </Button>
               <Button
                 type="primary"
-                loading={isSubmitting}
+                loading={isSubmitting || !isAssignmentReady}
+                disabled={!isAssignmentReady}
                 onClick={() => form.submit()}
                 className="h-8 rounded-lg border-0 bg-[#1E40AF] px-4 text-xs font-semibold hover:bg-[#1E3A8A]"
               >

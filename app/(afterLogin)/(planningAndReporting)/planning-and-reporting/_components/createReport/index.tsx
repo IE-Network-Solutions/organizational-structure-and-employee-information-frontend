@@ -24,6 +24,7 @@ import { computeReportTotalWeight } from './reportFormUtils';
 import { useCreateReportFormEffects } from './useCreateReportFormEffects';
 import { ReportingOnlyOkrNote } from './ReportingOnlyOkrNote';
 import { usePlanningPeriodOkrEffect } from '@/hooks/usePlanningPeriodOkrEffect';
+import { buildSanitizedReportPayload } from '@/utils/reportSubmitPayload';
 
 function CreateReport() {
   const {
@@ -71,7 +72,7 @@ function CreateReport() {
   const planningPeriodName = getPlanningPeriodDetail(
     planningPeriodId ?? '',
   )?.name;
-  const { affectsOkr, countingPeriodName } =
+  const { affectsOkr, countingPeriodName, isAssignmentReady } =
     usePlanningPeriodOkrEffect(planningPeriodId);
 
   useEffect(() => {
@@ -85,7 +86,10 @@ function CreateReport() {
     groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
 
   const handleOnFinish = (values: Record<string, any>) => {
-    if (Object.entries(values).length === 0 || !planningPeriodId) return;
+    if (!isAssignmentReady || !planningPeriodId) return;
+
+    const payload = buildSanitizedReportPayload(values, selectedStatuses);
+    if (Object.keys(payload).length === 0) return;
 
     const achievedIds = collectAchievedMilestoneIdsFromReport(
       Array.isArray(formattedData) ? formattedData : null,
@@ -112,7 +116,7 @@ function CreateReport() {
 
     createReport(
       {
-        values: values,
+        values: payload,
         planningPeriodId: planningPeriodId,
         planId: allPlannedTaskForReport?.[0]?.plan?.id,
         achievedMilestoneIds: affectsOkr ? achievedIds : [],
@@ -166,7 +170,8 @@ function CreateReport() {
           data-cy="submit-report-button-for-planning-and-reporting"
           type="primary"
           className="rounded-xl bg-[#1E40AF] px-6 py-3 text-white hover:bg-[#1E3A8A] sm:px-10 sm:py-6"
-          loading={createReportLoading}
+          loading={createReportLoading || !isAssignmentReady}
+          disabled={!isAssignmentReady}
           onClick={() => form.submit()}
         >
           {planningPeriodName ? `Submit ${planningPeriodName}` : 'Submit'}
@@ -242,7 +247,7 @@ function CreateReport() {
               onFinish={handleOnFinish}
               className="px-2"
             >
-              {!affectsOkr ? (
+              {isAssignmentReady && !affectsOkr ? (
                 <ReportingOnlyOkrNote countingPeriodName={countingPeriodName} />
               ) : null}
               <CreateReportFormCollapse

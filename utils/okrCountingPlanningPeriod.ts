@@ -163,13 +163,34 @@ export function doesPlanningPeriodAffectOkr(
   const highest = getHighestAssignedPlanningPeriod(list);
   const highestId = getAssignmentPlanningPeriodId(highest);
   if (!highestId) return false;
+  // Unrankable periods (id only, catalog missing) fail closed.
+  if (planningPeriodIntervalRank(highest?.planningPeriod) <= 0) return false;
   return String(planningPeriodId) === highestId;
 }
 
+/** Planning-period id on an assignment row — never the assignment row `.id`. */
+export function fallbackAssignedPlanningPeriodId(
+  assignments: unknown,
+  oneBasedIndex: number,
+): string {
+  const list = normalizeAssignedPlanningPeriods(assignments);
+  return getAssignmentPlanningPeriodId(list[oneBasedIndex - 1]);
+}
+
+/**
+ * Query flag for whether this report writes OKR.
+ *
+ * Never send `applyToOkr=false` as a query string: many backends treat the
+ * non-empty string "false" as truthy and still update KR currentValue.
+ * Child cadences omit applyToOkr and send skipOkr=true instead.
+ */
 export function appendApplyToOkrQuery(
   url: string,
   applyToOkr: boolean,
 ): string {
   const join = url.includes('?') ? '&' : '?';
-  return `${url}${join}applyToOkr=${applyToOkr ? 'true' : 'false'}`;
+  if (applyToOkr) {
+    return `${url}${join}applyToOkr=true`;
+  }
+  return `${url}${join}skipOkr=true`;
 }

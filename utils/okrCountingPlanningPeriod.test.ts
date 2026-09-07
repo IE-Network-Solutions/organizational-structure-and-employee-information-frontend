@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import {
   appendApplyToOkrQuery,
   doesPlanningPeriodAffectOkr,
+  fallbackAssignedPlanningPeriodId,
   getHighestAssignedPlanningPeriod,
   getOkrCountingPeriodName,
   planningPeriodIntervalRank,
@@ -77,6 +78,21 @@ describe('okrCountingPlanningPeriod', () => {
     expect(doesPlanningPeriodAffectOkr('', [weekly])).toBe(false);
   });
 
+  it('fails closed when assignment rows cannot be ranked', () => {
+    expect(
+      doesPlanningPeriodAffectOkr('weekly-id', [{ planningPeriodId: 'weekly-id' }]),
+    ).toBe(false);
+  });
+
+  it('reads the planning-period id from an assignment row, not the row id', () => {
+    expect(
+      fallbackAssignedPlanningPeriodId(
+        [{ id: 'assignment-row', planningPeriodId: 'weekly-id' }],
+        1,
+      ),
+    ).toBe('weekly-id');
+  });
+
   it('reads assignment lists wrapped in { items }', () => {
     const wrapped = { items: [daily, weekly] };
     expect(doesPlanningPeriodAffectOkr('daily-id', wrapped)).toBe(false);
@@ -110,10 +126,8 @@ describe('okrCountingPlanningPeriod', () => {
     ).toBe(30);
   });
 
-  it('appends applyToOkr to urls with or without an existing query', () => {
-    expect(appendApplyToOkrQuery('/report', false)).toBe(
-      '/report?applyToOkr=false',
-    );
+  it('does not send applyToOkr=false (string "false" is truthy on many APIs)', () => {
+    expect(appendApplyToOkrQuery('/report', false)).toBe('/report?skipOkr=true');
     expect(appendApplyToOkrQuery('/report?planningId=1', true)).toBe(
       '/report?planningId=1&applyToOkr=true',
     );

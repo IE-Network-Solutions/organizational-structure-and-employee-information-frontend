@@ -17,6 +17,7 @@ import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from './PlanningPanelView';
 import { Cadence, PlanSummary } from '../types';
 import { canApproveSubordinateWork, formatPlanningReportDate } from '../utils';
+import { fallbackAssignedPlanningPeriodId } from '@/utils/okrCountingPlanningPeriod';
 
 export interface PlanningExposedData {
   planSummaries: PlanSummary[];
@@ -74,7 +75,8 @@ function Planning({
   };
 
   const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ||
+    fallbackAssignedPlanningPeriodId(userPlanningPeriods, activePlanPeriod);
 
   const planSummaries = planSummariesFromParent ?? [];
   const transformedData = transformedDataFromParent ?? [];
