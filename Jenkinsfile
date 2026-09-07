@@ -18,55 +18,52 @@ pipeline {
                             script: "git rev-parse --abbrev-ref HEAD",
                             returnStdout: true
                         ).trim()
+echo "Current Branch: ${branchName}"
+if (branchName.contains('develop-redesign-branch')) {
+    env.REMOTE_SERVER = REMOTE_SERVER_TEST
+    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env-redesign'
+    env.SECRET_KEY = 'peptest'
 
-                        // strip any 'origin/' prefix so matches are exact, not substring-based
-                        branchName = branchName.replaceFirst(/^origin\//, '')
+} else if (branchName.contains('develop')) {
+    env.REMOTE_SERVER = REMOTE_SERVER_TEST
+    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+    env.SECRET_KEY = 'peptest'
 
-                        // stash the resolved branch name for later reference —
-                        // env.BRANCH_NAME gets overwritten by the Fetch Application Variables stage
-                        env.RESOLVED_BRANCH = branchName
+} else if (branchName.contains('staging')) {
+    env.REMOTE_SERVER = REMOTE_SERVER_PROD
+    env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
+    env.SECRET_KEY = 'pepproduction'
 
-                        // exact match only — no .contains(), so there's no ordering trap between
-                        // 'production' and 'core-production' (previously 'production' was checked
-                        // before 'core-production', and since "core-production".contains('production")
-                        // is true, core-production builds were silently using production's secrets)
-                        if (branchName == 'develop-redesign-branch') {
-                            env.REMOTE_SERVER = REMOTE_SERVER_TEST
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env-redesign'
-                            env.SECRET_KEY = 'peptest'
+} else if (branchName.contains('core-production')) {
+    env.REMOTE_SERVER = REMOTE_SERVER_PROD
+    env.SECRETS_PATH = '/home/ubuntu/secrets/.core-workspace-env'
+    env.SECRET_KEY = 'pepproduction'
+                        
+} else if (branchName.contains('production')) {
+    env.REMOTE_SERVER = REMOTE_SERVER_PROD
+    env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
+    env.SECRET_KEY = 'pepproduction'
+}  else {
+    error "No matching environment found for branch: ${branchName}"
+}
 
-                        } else if (branchName == 'develop') {
-                            env.REMOTE_SERVER = REMOTE_SERVER_TEST
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
-                            env.SECRET_KEY = 'peptest'
-
-                        } else if (branchName == 'staging') {
-                            env.REMOTE_SERVER = REMOTE_SERVER_PROD
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
-                            env.SECRET_KEY = 'pepproduction'
-
-                        } else if (branchName == 'core-production') {
-                            env.REMOTE_SERVER = REMOTE_SERVER_PROD
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/.core-workspace-env'
-                            env.SECRET_KEY = 'pepproduction'
-
-                        } else if (branchName == 'production') {
-                            env.REMOTE_SERVER = REMOTE_SERVER_PROD
-                            env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
-                            env.SECRET_KEY = 'pepproduction'
-
-                        } else {
-                            error "Unrecognized branch '${branchName}': no matching environment (develop/develop-redesign-branch/staging/production/core-production)."
-                        }
-                    }
+                echo """
+                Deployment Configuration:
+                -------------------------
+                Branch        : ${branchName}
+                Remote Server : ${env.REMOTE_SERVER}
+                Secrets Path  : ${env.SECRETS_PATH}
+                Secret Key    : ${env.SECRET_KEY}
+                """
                 }
             }
         }
+    }      
 
         stage('Fetch Application Variables') {
             steps {
                 sshagent(credentials: [env.SECRET_KEY]) {
-                    script {
+                script {
                         def secretsFile = env.SECRETS_PATH
 
                         env.REPO_URL = sh(
@@ -93,7 +90,6 @@ pipeline {
                             script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep SERVICE_NAME ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
-
                         env.VAULT_ADDR = sh(
                             script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_ADDR ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
@@ -113,12 +109,6 @@ pipeline {
                             script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_SECRET_PATH ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
-
-                        if (!env.REPO_URL?.trim())       { error "REPO_URL is empty — check ${secretsFile} (permission or missing key)" }
-                        if (!env.BRANCH_NAME?.trim())    { error "BRANCH_NAME is empty — check ${secretsFile} (permission or missing key)" }
-                        if (!env.REPO_DIR?.trim())       { error "REPO_DIR is empty — check ${secretsFile} (permission or missing key)" }
-                        if (!env.DOCKERHUB_REPO?.trim()) { error "DOCKERHUB_REPO is empty — check ${secretsFile} (permission or missing key)" }
-                        if (!env.SERVICE_NAME?.trim())   { error "SERVICE_NAME is empty — check ${secretsFile} (permission or missing key)" }
                     }
                 }
             }
@@ -147,10 +137,7 @@ pipeline {
                             if [ ! -d "${env.REPO_DIR}/.git" ]; then
                                 git clone ${env.REPO_URL} -b ${env.BRANCH_NAME} ${env.REPO_DIR}
                             else
-                                cd ${env.REPO_DIR} &&
-                                git fetch origin ${env.BRANCH_NAME} &&
-                                git reset --hard origin/${env.BRANCH_NAME} &&
-                                git clean -fdx
+                                cd ${env.REPO_DIR} && git reset --hard HEAD && git pull origin ${env.BRANCH_NAME}
                             fi
                         '
                     """
@@ -168,35 +155,35 @@ pipeline {
                             passwordVariable: 'DOCKERHUB_PASSWORD'
                         )
                     ]) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} "
-                                set -e
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} "
+                            set -e
 
-                                echo 'Logging into Docker Hub...'
-                                echo '${DOCKERHUB_PASSWORD}' | docker login -u '${DOCKERHUB_USERNAME}' --password-stdin || { echo 'Docker login failed'; exit 1; }
+                            echo 'Logging into Docker Hub...'
+                            echo '${DOCKERHUB_PASSWORD}' | docker login -u '${DOCKERHUB_USERNAME}' --password-stdin || { echo 'Docker login failed'; exit 1; }
 
-                                echo 'Building Docker image...'
-                                cd ${env.REPO_DIR}
-                                docker build \\
-                                    --build-arg VAULT_ADDR='${env.VAULT_ADDR}' \\
-                                    --build-arg VAULT_USERNAME='${env.VAULT_USERNAME}' \\
-                                    --build-arg VAULT_PASSWORD='${env.VAULT_PASSWORD}' \\
-                                    --build-arg VAULT_SECRET_PATH='${env.VAULT_SECRET_PATH}' \\
-                                    --build-arg VAULT_CACHE_BUSTER=\$(date +%s) \\
-                                    -t ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} . || { echo 'Docker build failed'; exit 1; }
+                            echo 'Building Docker image...'
+                            cd ${env.REPO_DIR}
+                            docker build \\
+                                --build-arg VAULT_ADDR='${env.VAULT_ADDR}' \\
+                                --build-arg VAULT_USERNAME='${env.VAULT_USERNAME}' \\
+                                --build-arg VAULT_PASSWORD='${env.VAULT_PASSWORD}' \\
+                                --build-arg VAULT_SECRET_PATH='${env.VAULT_SECRET_PATH}' \\
+                                --build-arg VAULT_CACHE_BUSTER=\$(date +%s) \\
+                                -t ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} . || { echo 'Docker build failed'; exit 1; }
 
-                                echo 'Pushing Docker image...'
-                                docker push ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} || { echo 'Docker push failed'; exit 1; }
+                            echo 'Pushing Docker image...'
+                            docker push ${env.DOCKERHUB_REPO}:${env.BRANCH_NAME} || { echo 'Docker push failed'; exit 1; }
 
-                                echo 'Cleaning up old images...'
-                                docker image prune -f
+                            echo 'Cleaning up old images...'
+                            docker image prune -f
 
-                                echo 'Build and push completed successfully.'
-                            "
-                        """
-                    }
+                            echo 'Build and push completed successfully.'
+                        "
+                    """
                 }
             }
+        }
         }
 
         stage('Deploy Service') {
@@ -209,36 +196,36 @@ pipeline {
                             passwordVariable: 'DOCKERHUB_PASSWORD'
                         )
                     ]) {
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                                set -ex
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                            set -ex
 
-                                echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin || { echo "Docker login failed"; exit 1; }
+                            echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin || { echo "Docker login failed"; exit 1; }
 
-                                docker pull ${DOCKERHUB_REPO}:${BRANCH_NAME} || { echo "Docker pull failed"; exit 1; }
+                            docker pull ${DOCKERHUB_REPO}:${BRANCH_NAME} || { echo "Docker pull failed"; exit 1; }
 
-                                if docker service inspect ${SERVICE_NAME} >/dev/null 2>&1; then
-                                    echo "Updating existing service ${SERVICE_NAME}..."
-                                    docker service update \\
-                                        --image ${DOCKERHUB_REPO}:${BRANCH_NAME} \\
-                                        --with-registry-auth \\
-                                        --force ${SERVICE_NAME} || { echo "Service update failed"; exit 1; }
+                            if docker service inspect ${SERVICE_NAME} >/dev/null 2>&1; then
+                                echo "Updating existing service ${SERVICE_NAME}..."
+                                docker service update \\
+                                    --image ${DOCKERHUB_REPO}:${BRANCH_NAME} \\
+                                    --with-registry-auth \\
+                                    --force ${SERVICE_NAME} || { echo "Service update failed"; exit 1; }
+                            else
+                                if [ "${BRANCH_NAME}" = "staging" ]; then
+                                    docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
+                                elif [ "${BRANCH_NAME}" = "develop-redesign-branch" ]; then
+                                    docker stack deploy --with-registry-auth -c redesign-docker-compose.yml redesign || { echo "Stack deploy (redesign) failed"; exit 1; }
+                                elif [ "${BRANCH_NAME}" = "core-production" ]; then
+                                    docker stack deploy --with-registry-auth -c core-docker-compose.yml service || { echo "Stack deploy (core-prod) failed"; exit 1; }    
                                 else
-                                    if [ "${BRANCH_NAME}" = "staging" ]; then
-                                        docker stack deploy --with-registry-auth -c stage-docker-compose.yml staging || { echo "Stack deploy (staging) failed"; exit 1; }
-                                    elif [ "${BRANCH_NAME}" = "develop-redesign-branch" ]; then
-                                        docker stack deploy --with-registry-auth -c redesign-docker-compose.yml redesign || { echo "Stack deploy (redesign) failed"; exit 1; }
-                                    elif [ "${BRANCH_NAME}" = "core-production" ]; then
-                                        docker stack deploy --with-registry-auth -c core-docker-compose.yml service || { echo "Stack deploy (core-prod) failed"; exit 1; }
-                                    else
-                                        docker stack deploy --with-registry-auth -c docker-compose.yml pep || { echo "Stack deploy (prod/develop) failed"; exit 1; }
-                                    fi
+                                    docker stack deploy --with-registry-auth -c docker-compose.yml pep || { echo "Stack deploy (prod/develop) failed"; exit 1; }
                                 fi
-                            '
-                        """
-                    }
+                            fi
+                        '
+                    """
                 }
             }
+        }
         }
 
         stage('Verify Deployment') {
@@ -268,102 +255,6 @@ pipeline {
                             done
                         '
                     """
-                }
-            }
-        }
-
-        stage('Sync core-develop from develop') {
-            when {
-                expression { env.RESOLVED_BRANCH == 'develop' }
-            }
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'github-pat',
-                        usernameVariable: 'GH_USER',
-                        passwordVariable: 'GH_TOKEN'
-                    )
-                ]) {
-                    sh '''
-                        set -e
-                        rm -rf sync-tmp
-                        git clone "https://${GH_TOKEN}@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git" sync-tmp
-                        cd sync-tmp
-                        git config user.email "jenkins@ienetworks.co"
-                        git config user.name "Jenkins CI"
-                        git fetch origin develop core-develop
-
-                        # Switch to core-develop
-                        git checkout core-develop
-
-                        # Make core-develop EXACTLY match develop...
-                        git reset --hard origin/develop
-
-                        # ...except keep core-develop's own Jenkinsfile (different env/branch logic)
-                        git checkout origin/core-develop -- Jenkinsfile
-                        git clean -fd
-
-                        # Only push if something actually changed
-                        if git diff --quiet origin/core-develop -- . ':!Jenkinsfile' 2>/dev/null && \
-                           git diff --quiet HEAD --; then
-                            echo "core-develop already matches develop (excl. Jenkinsfile) — nothing to sync."
-                        else
-                            git add -A
-                            git commit -m "Sync from develop (build ${BUILD_NUMBER})" || echo "nothing to commit"
-                            git push origin HEAD:core-develop --force
-                        fi
-
-                        cd ..
-                        rm -rf sync-tmp
-                    '''
-                }
-            }
-        }
-
-        stage('Sync core-production from production') {
-            when {
-                expression { env.RESOLVED_BRANCH == 'production' }
-            }
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'github-pat',
-                        usernameVariable: 'GH_USER',
-                        passwordVariable: 'GH_TOKEN'
-                    )
-                ]) {
-                    sh '''
-                        set -e
-                        rm -rf sync-tmp
-                        git clone "https://${GH_TOKEN}@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git" sync-tmp
-                        cd sync-tmp
-                        git config user.email "jenkins@ienetworks.co"
-                        git config user.name "Jenkins CI"
-                        git fetch origin production core-production
-
-                        # Switch to core-production
-                        git checkout core-production
-
-                        # Make core-production EXACTLY match production...
-                        git reset --hard origin/production
-
-                        # ...except keep core-production's own Jenkinsfile (different env/branch logic)
-                        git checkout origin/core-production -- Jenkinsfile
-                        git clean -fd
-
-                        # Only push if something actually changed
-                        if git diff --quiet origin/core-production -- . ':!Jenkinsfile' 2>/dev/null && \
-                           git diff --quiet HEAD --; then
-                            echo "core-production already matches production (excl. Jenkinsfile) — nothing to sync."
-                        else
-                            git add -A
-                            git commit -m "Sync from production (build ${BUILD_NUMBER})" || echo "nothing to commit"
-                            git push origin HEAD:core-production --force
-                        fi
-
-                        cd ..
-                        rm -rf sync-tmp
-                    '''
                 }
             }
         }
@@ -431,7 +322,7 @@ pipeline {
                 """,
                 from: 'selamnew@ienetworksolutions.com',
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'yordanos.z@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
+                to: 'biniyam.l@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
             )
         }
     }
