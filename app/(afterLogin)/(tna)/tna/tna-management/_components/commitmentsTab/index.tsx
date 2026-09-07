@@ -177,7 +177,10 @@ const CommitmentsTab: FC = () => {
             }}
             data-cy="tna-admin-commitments-status-filter"
           />
-          <AccessGuard permissions={[Permissions.ConfirmTnaCommitment]}>
+          <AccessGuard
+            explicit
+            permissions={[Permissions.ConfirmTnaCommitment]}
+          >
             <Button
               className="h-10 w-full rounded-md border-[#D9D9D9] px-4 md:w-auto"
               loading={isRecalculating}

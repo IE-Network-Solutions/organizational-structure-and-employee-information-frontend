@@ -6,7 +6,6 @@ import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries
 import {
   useAddAttendanceViolationsToDeduction,
   useCreateVpDeduction,
-  useUpdateViolationActionStatus,
 } from '@/store/server/features/timesheet/attendance/mutation';
 import { AttendanceActionType } from '@/types/timesheet/attendance';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
@@ -70,10 +69,6 @@ const MoveToDeductionModal = ({
     useAddAttendanceViolationsToDeduction();
   const { mutateAsync: createVpDeduction, isLoading: isVpLoading } =
     useCreateVpDeduction();
-  const {
-    mutateAsync: updateActionStatus,
-    isLoading: isActionStatusLoading,
-  } = useUpdateViolationActionStatus();
 
   const salaryViolations = useMemo(
     () =>
@@ -129,18 +124,6 @@ const MoveToDeductionModal = ({
 
     try {
       if (salaryViolations.length > 0 && selectedPayPeriodId) {
-        // Mark salary deduction applied so backend calculates minutes/amount
-        // for minute-based LATE rules, then push to payroll deduction.
-        await Promise.all(
-          salaryViolations.map((violation) =>
-            updateActionStatus({
-              violationId: violation.id,
-              actionType: AttendanceActionType.SALARY_DEDUCTION,
-              taken: true,
-            }),
-          ),
-        );
-
         await addToDeduction({
           payPeriodId: selectedPayPeriodId,
           violationIds: salaryViolations.map((v) => v.id),
@@ -161,8 +144,7 @@ const MoveToDeductionModal = ({
     }
   };
 
-  const isLoading =
-    isSalaryLoading || isVpLoading || isActionStatusLoading;
+  const isLoading = isSalaryLoading || isVpLoading;
 
   return (
     <Modal

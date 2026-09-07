@@ -2,7 +2,7 @@
 import React from 'react';
 import { Tabs } from 'antd';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import AccessGuard from '@/utils/permissionGuard';
+import AccessGuard, { useHasPermission } from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import RequestsTab from './_components/requestsTab';
 import CommitmentsTab from './_components/commitmentsTab';
@@ -17,6 +17,7 @@ const TnaManagementAdminPage = () => {
   const canViewAll = AccessGuard.checkAccess({
     permissions: [Permissions.ViewAllTna],
   });
+  const canConfirm = useHasPermission(Permissions.ConfirmTnaCommitment);
 
   const items = [
     ...(canViewAll
@@ -40,13 +41,19 @@ const TnaManagementAdminPage = () => {
       label: <span data-cy="tna-admin-tab-approvals">My Approvals</span>,
       children: <TrainingApprovalTable />,
     },
-    {
-      key: 'confirmation',
-      label: (
-        <span data-cy="tna-admin-tab-confirmation">Awaiting Confirmation</span>
-      ),
-      children: <ConfirmationTab />,
-    },
+    ...(canConfirm
+      ? [
+          {
+            key: 'confirmation',
+            label: (
+              <span data-cy="tna-admin-tab-confirmation">
+                Awaiting Confirmation
+              </span>
+            ),
+            children: <ConfirmationTab />,
+          },
+        ]
+      : []),
   ];
 
   return (

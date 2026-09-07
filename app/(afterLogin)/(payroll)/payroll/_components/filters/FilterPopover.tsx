@@ -129,6 +129,15 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
   }, [getAllFiscalYears]);
 
   useEffect(() => {
+    if (defaultValues?.payPeriodId && !form.getFieldValue('payPeriodId')) {
+      form.setFieldsValue({ payPeriodId: defaultValues.payPeriodId });
+    }
+  }, [defaultValues?.payPeriodId]);
+
+  useEffect(() => {
+    if (defaultValues?.payPeriodId) {
+      return;
+    }
     if (
       payroll?.items &&
       payroll.items.length > 0 &&
