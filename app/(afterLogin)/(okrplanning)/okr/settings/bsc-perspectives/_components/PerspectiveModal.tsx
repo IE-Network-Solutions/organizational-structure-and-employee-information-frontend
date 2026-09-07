@@ -25,7 +25,11 @@ function hasKpiContent(row?: OptionalKpiRow | null) {
   return Boolean(row.name?.trim() || row.description?.trim());
 }
 
-export default function PerspectiveModal() {
+export default function PerspectiveModal({
+  perspectivesOnly = false,
+}: {
+  perspectivesOnly?: boolean;
+}) {
   const [form] = Form.useForm();
   const { perspectiveModalOpen, editingPerspective, closePerspectiveModal } =
     useBscUiStore();
@@ -77,18 +81,20 @@ export default function PerspectiveModal() {
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
-    const kpiRows: OptionalKpiRow[] = values.kpis || [];
-    for (let i = 0; i < kpiRows.length; i += 1) {
-      const row = kpiRows[i];
-      if (!hasKpiContent(row)) continue;
-      if (!row.name?.trim()) {
-        form.setFields([
-          {
-            name: ['kpis', i, 'name'],
-            errors: ['KPI name is required'],
-          },
-        ]);
-        return;
+    const kpiRows: OptionalKpiRow[] = perspectivesOnly ? [] : values.kpis || [];
+    if (!perspectivesOnly) {
+      for (let i = 0; i < kpiRows.length; i += 1) {
+        const row = kpiRows[i];
+        if (!hasKpiContent(row)) continue;
+        if (!row.name?.trim()) {
+          form.setFields([
+            {
+              name: ['kpis', i, 'name'],
+              errors: ['KPI name is required'],
+            },
+          ]);
+          return;
+        }
       }
     }
 
@@ -102,10 +108,14 @@ export default function PerspectiveModal() {
         id: editingPerspective.id,
         input: payload,
       });
-      await createOptionalKpis(payload.name, kpiRows);
+      if (!perspectivesOnly) {
+        await createOptionalKpis(payload.name, kpiRows);
+      }
     } else {
       await createPerspective.mutateAsync(payload);
-      await createOptionalKpis(payload.name, kpiRows);
+      if (!perspectivesOnly) {
+        await createOptionalKpis(payload.name, kpiRows);
+      }
     }
     handleClose();
   };
@@ -149,98 +159,103 @@ export default function PerspectiveModal() {
           />
         </Form.Item>
 
-        <div
-          className="mb-2 flex items-center justify-between"
-          data-cy="bsc-perspective-optional-kpis-header"
-        >
-          <div data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-div-1">
-            <p
-              className="m-0 text-[13px] font-semibold text-[#262626]"
-              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-p-2"
-            >
-              KPIs{' '}
-              <span
-                className="font-normal text-[#8F94A3]"
-                data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-span-3"
-              >
-                (optional)
-              </span>
-            </p>
-            <p
-              className="m-0 mt-0.5 text-[12px] text-[#8F94A3]"
-              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-p-4"
-            >
-              Add measures under this perspective now, or later from the list.
-            </p>
-          </div>
-        </div>
-
-        <Form.List name="kpis">
-          {(fields, { add, remove }) => (
+        {!perspectivesOnly ? (
+          <>
             <div
-              className="flex flex-col gap-3 mb-4"
-              data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-div-5"
+              className="mb-2 flex items-center justify-between"
+              data-cy="bsc-perspective-optional-kpis-header"
             >
-              {fields.map((field, index) => (
-                <div
-                  key={field.key}
-                  className="rounded-xl bg-[#F9FAFB] px-3.5 py-3"
-                  data-cy={`bsc-perspective-kpi-row-${field.key}`}
+              <div data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-div-1">
+                <p
+                  className="m-0 text-[13px] font-semibold text-[#262626]"
+                  data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-p-2"
                 >
-                  <div
-                    className="mb-2 flex items-center justify-between"
-                    data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-div-6"
+                  KPIs{' '}
+                  <span
+                    className="font-normal text-[#8F94A3]"
+                    data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-span-3"
                   >
-                    <span
-                      className="text-[11px] font-semibold uppercase tracking-wider text-[#8F94A3]"
-                      data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-span-7"
-                    >
-                      KPI {index + 1}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => remove(field.name)}
-                      className="border-none bg-transparent p-0 text-[12px] text-[#94A3B8] cursor-pointer hover:text-[#DC2626]"
-                      data-cy={`bsc-perspective-kpi-remove-${field.name}`}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <Form.Item
-                    name={[field.name, 'name']}
-                    label="Name"
-                    className="mb-2"
-                  >
-                    <Input
-                      placeholder="KPI name"
-                      data-cy={`bsc-perspective-kpi-name-${field.name}`}
-                    />
-                  </Form.Item>
-                  <Form.Item
-                    name={[field.name, 'description']}
-                    label="Description"
-                    className="mb-0"
-                  >
-                    <TextArea
-                      rows={2}
-                      placeholder="What this KPI measures"
-                      data-cy={`bsc-perspective-kpi-description-${field.name}`}
-                    />
-                  </Form.Item>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => add({})}
-                className="inline-flex items-center gap-1.5 border-none bg-transparent p-0 text-[13px] font-semibold text-[#2b54ad] cursor-pointer hover:text-[#3d66c2]"
-                data-cy="bsc-perspective-kpi-add-row"
-              >
-                <PlusOutlined className="text-[12px]" />
-                Add KPI
-              </button>
+                    (optional)
+                  </span>
+                </p>
+                <p
+                  className="m-0 mt-0.5 text-[12px] text-[#8F94A3]"
+                  data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-p-4"
+                >
+                  Add measures under this perspective now, or later from the
+                  list.
+                </p>
+              </div>
             </div>
-          )}
-        </Form.List>
+
+            <Form.List name="kpis">
+              {(fields, { add, remove }) => (
+                <div
+                  className="flex flex-col gap-3 mb-4"
+                  data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-div-5"
+                >
+                  {fields.map((field, index) => (
+                    <div
+                      key={field.key}
+                      className="rounded-xl bg-[#F9FAFB] px-3.5 py-3"
+                      data-cy={`bsc-perspective-kpi-row-${field.key}`}
+                    >
+                      <div
+                        className="mb-2 flex items-center justify-between"
+                        data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-div-6"
+                      >
+                        <span
+                          className="text-[11px] font-semibold uppercase tracking-wider text-[#8F94A3]"
+                          data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivemodal-span-7"
+                        >
+                          KPI {index + 1}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => remove(field.name)}
+                          className="border-none bg-transparent p-0 text-[12px] text-[#94A3B8] cursor-pointer hover:text-[#DC2626]"
+                          data-cy={`bsc-perspective-kpi-remove-${field.name}`}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <Form.Item
+                        name={[field.name, 'name']}
+                        label="Name"
+                        className="mb-2"
+                      >
+                        <Input
+                          placeholder="KPI name"
+                          data-cy={`bsc-perspective-kpi-name-${field.name}`}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        name={[field.name, 'description']}
+                        label="Description"
+                        className="mb-0"
+                      >
+                        <TextArea
+                          rows={2}
+                          placeholder="What this KPI measures"
+                          data-cy={`bsc-perspective-kpi-description-${field.name}`}
+                        />
+                      </Form.Item>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => add({})}
+                    className="inline-flex items-center gap-1.5 border-none bg-transparent p-0 text-[13px] font-semibold text-[#2b54ad] cursor-pointer hover:text-[#3d66c2]"
+                    data-cy="bsc-perspective-kpi-add-row"
+                  >
+                    <PlusOutlined className="text-[12px]" />
+                    Add KPI
+                  </button>
+                </div>
+              )}
+            </Form.List>
+          </>
+        ) : null}
 
         <div
           data-cy="settings-bsc-perspectives-components-perspectivemodal-tsx-perspectivemodal-div-91"

@@ -26,6 +26,7 @@ import {
   type KpiContributor,
   type RollupSummary,
 } from '@/utils/bsc/rollup';
+import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
@@ -226,7 +227,7 @@ export default function BscKpiDetailPage() {
       return;
     }
     setScorecardTab('kpis');
-    router.push('/bsc/my-scorecard');
+    router.push(scorecardTabHref('kpis'));
   };
 
   const openEmployee = (row: ContributorRow) => {
@@ -335,9 +336,7 @@ export default function BscKpiDetailPage() {
       render: (unused: unknown, row) => (
         <span className={tableCellClassName} data-cy="bsc-kpi-target">
           {row.target.targetValue}
-          {row.target.measurementUnit
-            ? ` ${row.target.measurementUnit}`
-            : ''}
+          {row.target.measurementUnit ? ` ${row.target.measurementUnit}` : ''}
         </span>
       ),
     },
@@ -380,7 +379,10 @@ export default function BscKpiDetailPage() {
           data-cy="bsc-kpi-filter-grid"
         >
           <div className="flex flex-col gap-2" data-cy="bsc-kpi-filter-dept">
-            <label className="text-sm font-medium text-gray-700">
+            <label
+              data-cy="page-label-382"
+              className="text-sm font-medium text-gray-700"
+            >
               Department
             </label>
             <Select
@@ -402,7 +404,10 @@ export default function BscKpiDetailPage() {
               className="flex flex-col gap-2"
               data-cy="bsc-kpi-filter-employee"
             >
-              <label className="text-sm font-medium text-gray-700">
+              <label
+                data-cy="page-label-404"
+                className="text-sm font-medium text-gray-700"
+              >
                 Employee
               </label>
               <Select
@@ -420,7 +425,10 @@ export default function BscKpiDetailPage() {
           ) : null}
         </div>
       </div>
-      <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100">
+      <div
+        data-cy="page-div-422"
+        className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100"
+      >
         <Button
           onClick={handleResetFilters}
           className="h-8 px-4 rounded-lg text-xs text-gray-700 border-gray-300"
@@ -538,16 +546,26 @@ export default function BscKpiDetailPage() {
                   <Popover
                     content={filterPopover}
                     title={
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-base font-bold text-gray-900 m-0">
+                      <div
+                        data-cy="page-div-540"
+                        className="flex justify-between items-start"
+                      >
+                        <div data-cy="page-div-541">
+                          <h3
+                            data-cy="page-h3-542"
+                            className="text-base font-bold text-gray-900 m-0"
+                          >
                             Filter
                           </h3>
-                          <p className="text-xs text-gray-500 mt-1 mb-0">
+                          <p
+                            data-cy="page-p-545"
+                            className="text-xs text-gray-500 mt-1 mb-0"
+                          >
                             Select all filters that apply
                           </p>
                         </div>
                         <button
+                          data-cy="page-button-549"
                           type="button"
                           onClick={() => setFilterOpen(false)}
                           className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"

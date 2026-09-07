@@ -1,18 +1,21 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Avatar,
   Button,
+  Card,
+  Dropdown,
+  Modal,
   Popover,
   Select,
-  Table,
+  Spin,
   Tag,
-  Empty,
 } from 'antd';
-import type { TableColumnsType } from 'antd';
+import type { MenuProps } from 'antd';
 import {
   CloseOutlined,
+  EllipsisOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
@@ -22,7 +25,10 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
+import PeopleAssigneesGridSkeleton from '@/app/(afterLogin)/(bsc)/bsc/_components/PeopleAssigneesGridSkeleton';
+import ScorecardsGridSkeleton from '@/app/(afterLogin)/(bsc)/bsc/_components/ScorecardsGridSkeleton';
 import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
+import { useDeleteBscCycle } from '@/store/server/features/bsc/mutation';
 import {
   useGetBscCycles,
   useGetBscScorecards,
@@ -31,15 +37,16 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   BscScopeTarget,
-  BscSetupKind,
   EmployeeScorecard,
   EvaluationCycle,
 } from '@/types/bsc';
 import { latestScorecardsByEmployee } from '@/utils/bsc/rollup';
 import BscSetupModal from './BscSetupModal';
 
-const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
-const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
+const blueTagClassName =
+  'm-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]';
+const metaTagClassName =
+  'm-0 rounded-md border border-[#d9d9d9] bg-white px-3 py-0.5 text-xs font-normal text-[#8c8c8c]';
 
 function resolveProfileImageSrc(profileImage: unknown): string | undefined {
   if (!profileImage || typeof profileImage !== 'string') return undefined;
@@ -77,12 +84,6 @@ function resolveScopeLabel(config: EvaluationCycle): string {
   return BscScopeTarget.Company;
 }
 
-function horizonLabel(config: EvaluationCycle): string {
-  if (config.setupKind === BscSetupKind.Temporary) return 'Temporary';
-  if (config.setupKind === BscSetupKind.Permanent) return 'Permanent';
-  return config.useCustomDates ? 'Temporary' : 'Permanent';
-}
-
 type IndividualAssignee = {
   scorecard: EmployeeScorecard;
   individualCount: number;
@@ -93,6 +94,7 @@ export default function ScorecardsCatalog() {
   const router = useRouter();
   const {
     openCreateSetup,
+    openEditSetup,
     roleSearch,
     setRoleSearch,
     roleDepartmentFilter,
@@ -105,6 +107,7 @@ export default function ScorecardsCatalog() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { isMobile, isTablet } = useIsMobile();
+  const deleteCycle = useDeleteBscCycle();
 
   const { data: configs, isLoading: configsLoading } = useGetBscCycles();
   const { data: peopleScorecards, isLoading: peopleLoading } =
@@ -166,123 +169,42 @@ export default function ScorecardsCatalog() {
     );
   };
 
-  const peopleColumns: TableColumnsType<IndividualAssignee> = [
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-1"
-        >
-          Person
-        </span>
-      ),
-      key: 'person',
-      ellipsis: true,
-      render: (unused, row) => (
-        <div
-          className={`flex items-center gap-2 ${tableCellClassName}`}
-          data-cy={`bsc-individual-person-cell-${row.scorecard.id}`}
-        >
-          <Avatar
-            size={32}
-            src={profileImageByUserId.get(row.scorecard.userId)}
-            icon={<UserOutlined />}
-            className="shrink-0 bg-[#E6F4FF] text-[#1677ff]"
-            data-cy={`bsc-individual-person-avatar-${row.scorecard.id}`}
-          >
-            {nameInitials(row.scorecard.userName)}
-          </Avatar>
-          <span
-            className="min-w-0 truncate font-medium"
-            data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-3"
-          >
-            {row.scorecard.userName}
-          </span>
-        </div>
-      ),
+  const confirmDeleteScorecard = useCallback(
+    (config: EvaluationCycle) => {
+      Modal.confirm({
+        title: 'Delete this scorecard?',
+        content: `"${config.label}" and its assignments will be removed.`,
+        okText: 'Delete',
+        okType: 'danger',
+        cancelText: 'Cancel',
+        onOk: () => deleteCycle.mutateAsync(config.id),
+      });
     },
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-4"
-        >
-          Role
-        </span>
-      ),
-      key: 'role',
-      ellipsis: true,
-      render: (unused, row) => (
-        <span
-          className={tableCellClassName}
-          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-5"
-        >
-          {row.scorecard.positionTitle || '—'}
-        </span>
-      ),
-    },
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-6"
-        >
-          Department
-        </span>
-      ),
-      key: 'department',
-      ellipsis: true,
-      render: (unused, row) => (
-        <span
-          className={tableCellClassName}
-          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-7"
-        >
-          {row.scorecard.departmentName || '—'}
-        </span>
-      ),
-    },
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-8"
-        >
-          Scorecard
-        </span>
-      ),
-      key: 'scorecard',
-      ellipsis: true,
-      render: (unused, row) => (
-        <span
-          className={tableCellClassName}
-          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-9"
-        >
-          {row.configLabel}
-        </span>
-      ),
-    },
-    {
-      title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-span-10"
-        >
-          Extras
-        </span>
-      ),
-      key: 'extras',
-      width: 110,
-      align: 'right',
-      render: (unused, row) =>
-        row.individualCount > 0 ? (
-          <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-            {row.individualCount} KPI{row.individualCount === 1 ? '' : 's'}
-          </Tag>
-        ) : (
-          <span className={tableCellClassName}>—</span>
-        ),
-    },
-  ];
+    [deleteCycle],
+  );
+
+  const scorecardMenuItems = useCallback(
+    (config: EvaluationCycle): MenuProps['items'] => [
+      {
+        key: 'edit',
+        label: 'Edit',
+        onClick: () => openEditSetup(config),
+      },
+      {
+        key: 'open',
+        label: 'Open details',
+        onClick: () => router.push(`/bsc/setup/${config.id}`),
+      },
+      { type: 'divider' },
+      {
+        key: 'delete',
+        label: 'Delete',
+        danger: true,
+        onClick: () => confirmDeleteScorecard(config),
+      },
+    ],
+    [confirmDeleteScorecard, openEditSetup, router],
+  );
 
   const departments = useMemo(() => {
     const set = new Set<string>();
@@ -315,44 +237,50 @@ export default function ScorecardsCatalog() {
         (c.departmentNames || []).some((d) => d.toLowerCase().includes(q)) ||
         (c.positionTitles || []).some((p) => p.toLowerCase().includes(q)) ||
         (c.employeeNames || []).some((n) => n.toLowerCase().includes(q)) ||
-        resolveScopeLabel(c).toLowerCase().includes(q) ||
-        horizonLabel(c).toLowerCase().includes(q)
+        resolveScopeLabel(c).toLowerCase().includes(q)
       );
     });
   }, [scorecards, roleSearch, roleDepartmentFilter, peopleAssignees]);
 
   const loading = configsLoading || peopleLoading;
 
+  const loadingSkeleton =
+    view === 'people' ? (
+      <PeopleAssigneesGridSkeleton />
+    ) : (
+      <ScorecardsGridSkeleton />
+    );
+
   return (
     <div className="w-full" data-cy="bsc-setup-page">
-      <div
-        data-cy="okr-settings-bsc-setup-page-tsx-page-div-65"
-        className="rounded-xl pt-5 px-8 pb-8 bg-white min-h-[400px]"
-      >
-        {loading ? (
+      {loading && scorecards.length === 0 ? (
+        <Spin
+          spinning={loading}
+          data-cy="okr-settings-bsc-setup-page-tsx-page-div-67"
+        >
+          <ScorecardsGridSkeleton />
+        </Spin>
+      ) : scorecards.length === 0 ? (
+        <div
+          data-cy="okr-settings-bsc-setup-page-tsx-page-div-69"
+          className="flex min-h-[240px] items-center justify-center py-8"
+        >
+          <EmptyState
+            title="No scorecards yet"
+            description="Create a scorecard with scope, KPIs, and weights to get started."
+            actionText="Add scorecard"
+            onAction={openCreateSetup}
+          />
+        </div>
+      ) : (
+        <>
           <div
-            data-cy="okr-settings-bsc-setup-page-tsx-page-div-67"
-            className="py-16 text-center text-gray-400"
+            className="mb-4 flex flex-wrap items-center gap-3"
+            data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-12"
           >
-            Loading…
-          </div>
-        ) : scorecards.length === 0 ? (
-          <div
-            data-cy="okr-settings-bsc-setup-page-tsx-page-div-69"
-            className="flex min-h-[280px] items-center justify-center py-8"
-          >
-            <EmptyState
-              title="No scorecards yet"
-              description="Create a scorecard with scope, KPIs, and weights to get started."
-              actionText="Add"
-              onAction={openCreateSetup}
-            />
-          </div>
-        ) : (
-          <>
             <div
-              className="mb-6 flex justify-between gap-4"
-              data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-12"
+              data-cy="scorecardscatalog-div-281"
+              className="min-w-[200px] flex-1"
             >
               {view === 'scorecards' ? (
                 <BscSearchInput
@@ -372,154 +300,204 @@ export default function ScorecardsCatalog() {
                   data-cy="bsc-individual-people-search"
                 />
               )}
-              <div
-                className="flex flex-wrap items-center gap-2"
-                data-cy="bsc-catalog-toolbar-actions"
-              >
-                <Select
-                  value={view}
-                  onChange={(value) =>
-                    setBscCatalogView(value as 'scorecards' | 'people')
-                  }
-                  className="w-44"
-                  options={[
-                    { value: 'scorecards', label: 'Scorecards' },
-                    { value: 'people', label: 'Individual KPIs' },
-                  ]}
-                  data-cy="bsc-catalog-view-filter"
-                />
-                {view === 'scorecards' ? (
-                  <Popover
-                    content={
-                      <div
-                        className="w-[320px] max-w-[320px]"
-                        data-cy="bsc-scorecard-filter-popover"
-                      >
-                        <div
-                          className="flex flex-col gap-2"
-                          data-cy="bsc-scorecard-filter-dept"
-                        >
-                          <label className="text-sm font-medium text-gray-700">
-                            Department
-                          </label>
-                          <Select
-                            allowClear
-                            showSearch
-                            placeholder="Filter by department"
-                            className="w-full h-10 rounded-lg"
-                            value={roleDepartmentFilter}
-                            onChange={setRoleDepartmentFilter}
-                            options={departments.map((d) => ({
-                              value: d,
-                              label: d,
-                            }))}
-                            data-cy="bsc-scorecard-filter-dept-select"
-                          />
-                        </div>
-                        <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100">
-                          <Button
-                            onClick={() => setRoleDepartmentFilter(undefined)}
-                            className="h-8 px-4 rounded-lg text-xs text-gray-700 border-gray-300"
-                          >
-                            Reset
-                          </Button>
-                          <Button
-                            type="primary"
-                            onClick={() => setFilterOpen(false)}
-                            className="h-8 px-4 rounded-lg text-xs bg-okr-primary border-okr-primary"
-                          >
-                            Save Filter
-                          </Button>
-                        </div>
-                      </div>
-                    }
-                    title={
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="text-base font-bold text-gray-900 m-0">
-                            Filter
-                          </h3>
-                          <p className="text-xs text-gray-500 mt-1 mb-0">
-                            Select all filters that apply
-                          </p>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setFilterOpen(false)}
-                          className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"
-                        >
-                          <CloseOutlined />
-                        </button>
-                      </div>
-                    }
-                    trigger="click"
-                    open={filterOpen}
-                    onOpenChange={setFilterOpen}
-                    placement="bottomRight"
-                    arrow={false}
-                  >
-                    <Button
-                      type="default"
-                      className={bscFilterButtonClassName}
-                      icon={<FilterAltOutlinedIcon className="py-1" />}
-                      data-cy="bsc-scorecard-filter"
-                    >
-                      {!isMobile && 'Filter'}
-                    </Button>
-                  </Popover>
-                ) : null}
-              </div>
             </div>
-
-            {view === 'scorecards' ? (
-              <>
-                <div
-                  data-cy="okr-settings-bsc-setup-page-tsx-page-div-104"
-                  className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-                >
-                  {filtered.map((config) => {
-                    const scope = resolveScopeLabel(config);
-                    return (
+            <div
+              className="flex shrink-0 flex-wrap items-center gap-2"
+              data-cy="bsc-catalog-toolbar-actions"
+            >
+              <Select
+                value={view}
+                onChange={(value) => {
+                  setBscCatalogView(value as 'scorecards' | 'people');
+                  setCurrentPage(1);
+                }}
+                className="w-44"
+                options={[
+                  { value: 'scorecards', label: 'Scorecards' },
+                  { value: 'people', label: 'Individual KPIs' },
+                ]}
+                data-cy="bsc-catalog-view-filter"
+              />
+              {view === 'scorecards' ? (
+                <Popover
+                  content={
+                    <div
+                      className="w-[320px] max-w-[320px]"
+                      data-cy="bsc-scorecard-filter-popover"
+                    >
                       <div
-                        key={config.id}
-                        className="relative cursor-pointer rounded-[12px] border border-[#E5E7EB] bg-[#F9FAFB] p-5 transition-shadow hover:shadow-sm"
-                        onClick={() => router.push(`/bsc/setup/${config.id}`)}
-                        data-cy={`bsc-scorecard-card-${config.id}`}
+                        className="flex flex-col gap-2"
+                        data-cy="bsc-scorecard-filter-dept"
                       >
-                        <div
-                          className="mb-3 flex flex-wrap items-center gap-2"
-                          data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-13"
+                        <label
+                          data-cy="scorecardscatalog-label-329"
+                          className="text-sm font-medium text-gray-700"
                         >
-                          <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                            {horizonLabel(config)}
-                          </Tag>
-                          <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                            {scope}
-                          </Tag>
-                          <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                            {config.cadence}
-                          </Tag>
-                        </div>
-                        <p
-                          data-cy="okr-settings-bsc-setup-page-tsx-page-p-116"
-                          className="mb-0 text-[15px] font-semibold leading-tight text-[#262626]"
-                        >
-                          {config.label}
-                        </p>
-                        {config.description ? (
-                          <p
-                            className="mb-0 mt-1 line-clamp-2 text-[12px] text-[#8F94A3]"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-p-14"
-                          >
-                            {config.description}
-                          </p>
-                        ) : null}
+                          Department
+                        </label>
+                        <Select
+                          allowClear
+                          showSearch
+                          placeholder="Filter by department"
+                          className="h-10 w-full rounded-lg"
+                          value={roleDepartmentFilter}
+                          onChange={setRoleDepartmentFilter}
+                          options={departments.map((d) => ({
+                            value: d,
+                            label: d,
+                          }))}
+                          data-cy="bsc-scorecard-filter-dept-select"
+                        />
                       </div>
-                    );
-                  })}
-                </div>
+                      <div
+                        data-cy="scorecardscatalog-div-346"
+                        className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-4"
+                      >
+                        <Button
+                          onClick={() => setRoleDepartmentFilter(undefined)}
+                          className="h-8 rounded-lg border-gray-300 px-4 text-xs text-gray-700"
+                        >
+                          Reset
+                        </Button>
+                        <Button
+                          type="primary"
+                          onClick={() => setFilterOpen(false)}
+                          className="h-8 rounded-lg border-okr-primary bg-okr-primary px-4 text-xs"
+                        >
+                          Save Filter
+                        </Button>
+                      </div>
+                    </div>
+                  }
+                  title={
+                    <div
+                      data-cy="scorecardscatalog-div-364"
+                      className="flex items-start justify-between"
+                    >
+                      <div data-cy="scorecardscatalog-div-365">
+                        <h3
+                          data-cy="scorecardscatalog-h3-366"
+                          className="m-0 text-base font-bold text-gray-900"
+                        >
+                          Filter
+                        </h3>
+                        <p
+                          data-cy="scorecardscatalog-p-369"
+                          className="mb-0 mt-1 text-xs text-gray-500"
+                        >
+                          Select all filters that apply
+                        </p>
+                      </div>
+                      <button
+                        data-cy="scorecardscatalog-button-373"
+                        type="button"
+                        onClick={() => setFilterOpen(false)}
+                        className="cursor-pointer border-none bg-transparent p-1 text-gray-400 hover:text-gray-600"
+                      >
+                        <CloseOutlined />
+                      </button>
+                    </div>
+                  }
+                  trigger="click"
+                  open={filterOpen}
+                  onOpenChange={setFilterOpen}
+                  placement="bottomRight"
+                  arrow={false}
+                >
+                  <Button
+                    type="default"
+                    className={bscFilterButtonClassName}
+                    icon={<FilterAltOutlinedIcon className="py-1" />}
+                    data-cy="bsc-scorecard-filter"
+                  >
+                    {!isMobile && 'Filter'}
+                  </Button>
+                </Popover>
+              ) : null}
+            </div>
+          </div>
 
-                {!filtered.length && (
+          <Spin spinning={loading}>
+            {loading ? (
+              loadingSkeleton
+            ) : view === 'scorecards' ? (
+              <>
+                {filtered.length ? (
+                  <div
+                    data-cy="okr-settings-bsc-setup-page-tsx-page-div-104"
+                    className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+                  >
+                    {filtered.map((config) => {
+                      const scope = resolveScopeLabel(config);
+                      return (
+                        <div
+                          key={config.id}
+                          role="button"
+                          tabIndex={0}
+                          className="relative cursor-pointer rounded-[12px] bg-[#F9FAFB] p-5 transition-shadow hover:shadow-sm"
+                          onClick={() => router.push(`/bsc/setup/${config.id}`)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              router.push(`/bsc/setup/${config.id}`);
+                            }
+                          }}
+                          data-cy={`bsc-scorecard-card-${config.id}`}
+                        >
+                          <div
+                            className="mb-3 flex items-start justify-between gap-2"
+                            data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-13"
+                          >
+                            <p
+                              data-cy="okr-settings-bsc-setup-page-tsx-page-p-116"
+                              className="mb-0 mr-2 flex-1 text-[15px] font-semibold leading-tight text-[#262626]"
+                            >
+                              {config.label}
+                            </p>
+                            <Dropdown
+                              menu={{ items: scorecardMenuItems(config) }}
+                              trigger={['click']}
+                              placement="bottomRight"
+                            >
+                              <button
+                                type="button"
+                                className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center border-none bg-transparent text-[#8c8c8c] transition-colors hover:text-[#262626]"
+                                onClick={(e) => e.stopPropagation()}
+                                data-cy={`bsc-scorecard-card-menu-${config.id}`}
+                              >
+                                <EllipsisOutlined style={{ fontSize: 14 }} />
+                              </button>
+                            </Dropdown>
+                          </div>
+                          {config.description ? (
+                            <p
+                              className="mb-3 line-clamp-2 text-[12px] text-[#8F94A3]"
+                              data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-p-14"
+                            >
+                              {config.description}
+                            </p>
+                          ) : null}
+                          <div
+                            data-cy="scorecardscatalog-div-461"
+                            className="flex flex-wrap items-center gap-2"
+                          >
+                            <Tag className={blueTagClassName}>{scope}</Tag>
+                            <Tag className={blueTagClassName}>
+                              {config.isActive === false
+                                ? 'Inactive'
+                                : 'Active'}
+                            </Tag>
+                            {config.effectiveFrom || config.startDate ? (
+                              <Tag className={blueTagClassName}>
+                                From {config.effectiveFrom || config.startDate}
+                              </Tag>
+                            ) : null}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
                   <div
                     data-cy="okr-settings-bsc-setup-page-tsx-page-div-142"
                     className="py-12 text-center text-gray-400"
@@ -532,49 +510,94 @@ export default function ScorecardsCatalog() {
               <div data-cy="bsc-individual-assignees-panel">
                 {!peopleAssignees.length ? (
                   <div
-                    className="rounded-[12px] border border-dashed border-[#d9d9d9] bg-[#F9FAFB] px-4 py-10 text-center"
+                    className="flex min-h-[240px] items-center justify-center py-8"
                     data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-17"
                   >
-                    <p
-                      className="m-0 text-[14px] font-medium text-[#262626]"
-                      data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-p-18"
-                    >
-                      No employee scorecards yet
-                    </p>
-                    <p
-                      className="m-0 mt-1 text-[13px] text-[#8F94A3]"
-                      data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-p-19"
-                    >
-                      Create a scorecard program so employees appear here. Open
-                      a person to add individual KPIs on their scorecard.
-                    </p>
+                    <EmptyState
+                      title="No employee scorecards yet"
+                      description="Create a scorecard program so employees appear here. Open a person to add individual KPIs on their scorecard."
+                      actionText="Add scorecard"
+                      onAction={openCreateSetup}
+                    />
                   </div>
                 ) : !filteredPeople.length ? (
-                  <div className="py-12" data-cy="bsc-individual-people-empty">
-                    <Empty description="No people match your filters" />
+                  <div
+                    className="py-12 text-center text-gray-400"
+                    data-cy="bsc-individual-people-empty"
+                  >
+                    No people match your search
                   </div>
                 ) : (
                   <>
                     <div
-                      className="mt-2 overflow-x-auto"
-                      data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-20"
+                      className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+                      data-cy="bsc-individual-people-grid"
                     >
-                      <Table
-                        className="w-full cursor-pointer"
-                        columns={peopleColumns}
-                        dataSource={pagedPeople}
-                        rowKey={(row) => row.scorecard.id}
-                        pagination={false}
-                        scroll={{ x: isMobile ? 'max-content' : 900 }}
-                        onRow={(row) => ({
-                          onClick: () => openPersonScorecard(row),
-                        })}
-                        rowHoverable={false}
-                        rowClassName={(unused, index) =>
-                          index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
-                        }
-                        data-cy="bsc-individual-people-table"
-                      />
+                      {pagedPeople.map((row) => {
+                        const avatarSrc = profileImageByUserId.get(
+                          row.scorecard.userId,
+                        );
+                        return (
+                          <Card
+                            key={row.scorecard.id}
+                            bordered={false}
+                            className="cursor-pointer rounded-xl transition-shadow hover:shadow-sm"
+                            style={{ background: '#F9FAFB', boxShadow: 'none' }}
+                            bodyStyle={{ padding: '16px' }}
+                            onClick={() => openPersonScorecard(row)}
+                            data-cy={`bsc-individual-person-card-${row.scorecard.id}`}
+                          >
+                            <div
+                              data-cy="scorecardscatalog-div-528"
+                              className="flex items-start gap-3"
+                            >
+                              <Avatar
+                                size={40}
+                                src={avatarSrc}
+                                icon={<UserOutlined />}
+                                className="shrink-0 bg-[#EFF6FF] font-semibold text-[#1D4ED8]"
+                                data-cy={`bsc-individual-person-avatar-${row.scorecard.id}`}
+                              >
+                                {nameInitials(row.scorecard.userName)}
+                              </Avatar>
+                              <div
+                                data-cy="scorecardscatalog-div-538"
+                                className="min-w-0 flex-1"
+                              >
+                                <p
+                                  data-cy="scorecardscatalog-p-539"
+                                  className="m-0 truncate text-sm font-semibold leading-5 text-gray-800"
+                                >
+                                  {row.scorecard.userName}
+                                </p>
+                                <p
+                                  data-cy="scorecardscatalog-p-542"
+                                  className="m-0 mt-1 truncate text-xs text-[#8F94A3]"
+                                >
+                                  {row.scorecard.positionTitle || '—'}
+                                  {row.scorecard.departmentName
+                                    ? ` · ${row.scorecard.departmentName}`
+                                    : ''}
+                                </p>
+                                <div
+                                  data-cy="scorecardscatalog-div-548"
+                                  className="mt-2 flex flex-wrap items-center gap-2"
+                                >
+                                  <Tag className={metaTagClassName}>
+                                    {row.configLabel}
+                                  </Tag>
+                                  {row.individualCount > 0 ? (
+                                    <Tag className={blueTagClassName}>
+                                      {row.individualCount} extra KPI
+                                      {row.individualCount === 1 ? '' : 's'}
+                                    </Tag>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+                          </Card>
+                        );
+                      })}
                     </div>
                     {isMobile || isTablet ? (
                       <CustomMobilePagination
@@ -607,9 +630,9 @@ export default function ScorecardsCatalog() {
                 )}
               </div>
             )}
-          </>
-        )}
-      </div>
+          </Spin>
+        </>
+      )}
       <BscSetupModal />
     </div>
   );

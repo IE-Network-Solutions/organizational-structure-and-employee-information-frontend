@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
+import { unitTagClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/TargetValueCell';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAppendIndividualBscKpis } from '@/store/server/features/bsc/mutation';
 import { useGetBscKpiLibrary } from '@/store/server/features/bsc/queries';
@@ -32,6 +33,10 @@ import {
   TargetLogic,
 } from '@/types/bsc';
 import { validateWeights } from '@/utils/bsc/scoring';
+import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
+
+const KPI_LIST_ROW_GRID =
+  'grid grid-cols-[32px_minmax(0,1fr)_120px_120px] gap-x-6 items-center px-2';
 
 type PersonOption = {
   scorecard: EmployeeScorecard;
@@ -89,7 +94,7 @@ function normalizeEvaluationFlow(
   if (!flow?.length) return defaultEvaluationFlow();
   return flow.map((step) => ({
     kind: step.kind,
-    userId: step.kind === 'user' ? step.userId ?? null : null,
+    userId: step.kind === 'user' ? (step.userId ?? null) : null,
   }));
 }
 
@@ -295,16 +300,6 @@ export default function AssignIndividualKpisModal({
     return [...existing, ...incoming];
   }, [activeScorecard, selectedKpis]);
 
-  const weightRowsByPerspective = useMemo(() => {
-    const map = new Map<string, WeightRow[]>();
-    for (const row of weightRows) {
-      const list = map.get(row.perspective) || [];
-      list.push(row);
-      map.set(row.perspective, list);
-    }
-    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
-  }, [weightRows]);
-
   useEffect(() => {
     if (!open) return;
     setCurrent(0);
@@ -361,10 +356,9 @@ export default function AssignIndividualKpisModal({
 
   const addEvaluatorFromPicker = (step: BscEvaluatorStep) => {
     if (!addStepKpiId) return;
-    const currentFlow =
-      kpiEvaluationFlows[addStepKpiId]?.length
-        ? kpiEvaluationFlows[addStepKpiId]
-        : defaultEvaluationFlow();
+    const currentFlow = kpiEvaluationFlows[addStepKpiId]?.length
+      ? kpiEvaluationFlows[addStepKpiId]
+      : defaultEvaluationFlow();
     updateKpiFlow(addStepKpiId, [...currentFlow, step]);
     closeEmployeePicker();
   };
@@ -494,10 +488,16 @@ export default function AssignIndividualKpisModal({
       destroyOnClose
       title={
         <div data-cy="bsc-assign-individual-title">
-          <h2 className="m-0 text-xl font-bold text-black">
+          <h2
+            data-cy="assignindividualkpismodal-h2-491"
+            className="m-0 text-xl font-bold text-black"
+          >
             Add individual KPIs
           </h2>
-          <p className="m-0 mt-1 text-sm font-normal text-[#595959]">
+          <p
+            data-cy="assignindividualkpismodal-p-494"
+            className="m-0 mt-1 text-sm font-normal text-[#595959]"
+          >
             {activeScorecard
               ? `Select KPIs for ${activeScorecard.userName}, set weights, then define evaluators.`
               : 'Choose a person, select KPIs, set weights, then define evaluators.'}
@@ -506,7 +506,10 @@ export default function AssignIndividualKpisModal({
       }
       data-cy="bsc-assign-individual-kpis-modal"
     >
-      <div className="mb-4 mt-2 hidden sm:block">
+      <div
+        data-cy="assignindividualkpismodal-div-503"
+        className="mb-4 mt-2 hidden sm:block"
+      >
         <Steps
           current={current}
           progressDot
@@ -517,12 +520,15 @@ export default function AssignIndividualKpisModal({
         />
       </div>
 
-      <div className="mt-2">
+      <div data-cy="assignindividualkpismodal-div-514" className="mt-2">
         {current === 0 && (
           <>
             {needsPersonPick ? (
-              <div className="mb-4">
-                <p className="mb-2 text-[13px] font-semibold text-[#262626]">
+              <div data-cy="assignindividualkpismodal-div-518" className="mb-4">
+                <p
+                  data-cy="assignindividualkpismodal-p-519"
+                  className="mb-2 text-[13px] font-semibold text-[#262626]"
+                >
                   Person
                 </p>
                 <Select
@@ -547,12 +553,24 @@ export default function AssignIndividualKpisModal({
               </div>
             ) : null}
 
-            <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <p className="mb-1 text-[13px] font-semibold text-[#262626]">
+            <div
+              data-cy="assignindividualkpismodal-div-544"
+              className="mb-3 flex flex-wrap items-start justify-between gap-3"
+            >
+              <div
+                data-cy="assignindividualkpismodal-div-545"
+                className="min-w-0 flex-1"
+              >
+                <p
+                  data-cy="assignindividualkpismodal-p-546"
+                  className="mb-1 text-[13px] font-semibold text-[#262626]"
+                >
                   KPIs
                 </p>
-                <p className="mb-0 text-[12px] text-[#8F94A3]">
+                <p
+                  data-cy="assignindividualkpismodal-p-549"
+                  className="mb-0 text-[12px] text-[#8F94A3]"
+                >
                   Select the KPIs to append for this person only. Weights are
                   assigned in the next step.
                 </p>
@@ -568,213 +586,328 @@ export default function AssignIndividualKpisModal({
             </div>
 
             {!activeScorecard ? (
-              <p className="text-[13px] text-[#94A3B8]">
+              <p
+                data-cy="assignindividualkpismodal-p-565"
+                className="text-[13px] text-[#94A3B8]"
+              >
                 Select a person to choose KPIs.
               </p>
             ) : !availableKpis.length ? (
-              <p className="text-[13px] text-[#94A3B8]">
+              <p
+                data-cy="assignindividualkpismodal-p-569"
+                className="text-[13px] text-[#94A3B8]"
+              >
                 No additional catalog KPIs available for this person.
               </p>
             ) : (
-              <div
-                className="flex max-h-[440px] flex-col gap-1 overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white p-2"
-                data-cy="bsc-assign-individual-kpi-list"
-              >
-                  {filteredCatalogKpis.map((kpi) => {
-                    const checked = selectedIds.includes(kpi.id);
-                    return (
-                      <label
-                        key={kpi.id}
-                        className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#F9FAFB]"
-                        data-cy={`bsc-assign-individual-kpi-row-${kpi.id}`}
-                      >
-                        <Checkbox
-                          checked={checked}
-                          onChange={(e) => {
-                            setSelectedIds((prev) =>
-                              e.target.checked
-                                ? [...prev, kpi.id]
-                                : prev.filter((id) => id !== kpi.id),
-                            );
-                          }}
-                        />
-                        <span className="min-w-0 flex-1 text-[13px] font-medium text-[#262626]">
-                          {kpi.name}
-                        </span>
-                        {kpi.perspective ? (
-                          <Tag className="m-0 h-5 shrink-0 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                            {kpi.perspective}
-                          </Tag>
-                        ) : null}
-                        {kpi.measurementUnit ? (
-                          <span className="shrink-0 text-[11px] text-[#8F94A3]">
-                            {kpi.measurementUnit}
+              <>
+                <div
+                  className="mb-3 flex flex-wrap items-center justify-between gap-2"
+                  data-cy="bsc-assign-individual-kpi-toolbar"
+                >
+                  <span
+                    className="text-[12px] text-[#8F94A3]"
+                    data-cy="bsc-assign-individual-kpi-selected-count"
+                  >
+                    {selectedIds.length} KPI
+                    {selectedIds.length === 1 ? '' : 's'} selected
+                  </span>
+                </div>
+                <div
+                  className="max-h-[440px] overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white p-2"
+                  data-cy="bsc-assign-individual-kpi-list"
+                >
+                  <div
+                    className={`${KPI_LIST_ROW_GRID} border-b border-[#E5E7EB] py-2 pb-2.5`}
+                    data-cy="bsc-assign-individual-kpi-list-header"
+                  >
+                    <span
+                      data-cy="assignindividualkpismodal-span-594"
+                      aria-hidden
+                    />
+                    <span
+                      data-cy="assignindividualkpismodal-span-595"
+                      className="text-[11px] font-semibold uppercase tracking-wide text-[#8F94A3]"
+                    >
+                      KPI
+                    </span>
+                    <span
+                      data-cy="assignindividualkpismodal-span-598"
+                      className="text-[11px] font-semibold uppercase tracking-wide text-[#8F94A3]"
+                    >
+                      Perspective
+                    </span>
+                    <span
+                      data-cy="assignindividualkpismodal-span-601"
+                      className="text-[11px] font-semibold uppercase tracking-wide text-[#8F94A3]"
+                    >
+                      Unit
+                    </span>
+                  </div>
+                  <div
+                    data-cy="assignindividualkpismodal-div-605"
+                    className="flex flex-col gap-0.5 pt-1"
+                  >
+                    {filteredCatalogKpis.map((kpi) => {
+                      const checked = selectedIds.includes(kpi.id);
+                      return (
+                        <label
+                          key={kpi.id}
+                          className={`${KPI_LIST_ROW_GRID} cursor-pointer rounded-lg py-2 hover:bg-[#F9FAFB]`}
+                          data-cy={`bsc-assign-individual-kpi-row-${kpi.id}`}
+                        >
+                          <Checkbox
+                            checked={checked}
+                            onChange={(e) => {
+                              setSelectedIds((prev) =>
+                                e.target.checked
+                                  ? [...prev, kpi.id]
+                                  : prev.filter((id) => id !== kpi.id),
+                              );
+                            }}
+                          />
+                          <span
+                            data-cy="assignindividualkpismodal-span-624"
+                            className="min-w-0 text-[13px] font-medium leading-snug text-[#262626]"
+                          >
+                            {kpi.name}
                           </span>
-                        ) : null}
-                      </label>
-                    );
-                  })}
-              </div>
+                          <div
+                            data-cy="assignindividualkpismodal-div-627"
+                            className="flex items-center"
+                          >
+                            {kpi.perspective ? (
+                              <Tag className="m-0 h-5 shrink-0 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                                {kpi.perspective}
+                              </Tag>
+                            ) : (
+                              <span
+                                data-cy="assignindividualkpismodal-span-633"
+                                className="text-[11px] text-[#94A3B8]"
+                              >
+                                —
+                              </span>
+                            )}
+                          </div>
+                          <div
+                            data-cy="assignindividualkpismodal-div-638"
+                            className="flex items-center"
+                          >
+                            {(() => {
+                              const unitLabel = measurementUnitLabel(
+                                kpi.measurementUnit,
+                              );
+                              return unitLabel ? (
+                                <Tag className={unitTagClassName}>
+                                  {unitLabel}
+                                </Tag>
+                              ) : (
+                                <span
+                                  data-cy="assignindividualkpismodal-span-648"
+                                  className="text-[11px] text-[#94A3B8]"
+                                >
+                                  —
+                                </span>
+                              );
+                            })()}
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
             )}
           </>
         )}
 
         {current === 1 && (
           <>
-            <p className="mb-1 text-[13px] font-semibold text-[#262626]">
+            <p
+              data-cy="assignindividualkpismodal-p-666"
+              className="mb-1 text-[13px] font-semibold text-[#262626]"
+            >
               Weights & targets
             </p>
-            <p className="mb-4 text-[12px] text-[#8F94A3]">
+            <p
+              data-cy="assignindividualkpismodal-p-669"
+              className="mb-4 text-[12px] text-[#8F94A3]"
+            >
               Set every KPI weight for {activeScorecard?.userName} only (sum
               100%). New KPI weights start empty — lower shared weights as
               needed so the total still adds to 100%. Targets are prefilled from
               the catalog when available.
             </p>
 
-            <div className="mb-3 flex flex-wrap items-center gap-2 text-[12px]">
-              <span
-                className={
-                  Math.abs(weightSum - 100) <= 0.01
-                    ? 'text-[#389E0D]'
-                    : 'text-[#CF1322]'
-                }
+            {!weightRows.length ? (
+              <p
+                data-cy="assignindividualkpismodal-p-677"
+                className="text-[13px] text-[#94A3B8]"
               >
-                Total {Math.round(weightSum * 100) / 100}%
-              </span>
-              {!weightCheck.valid && weightSum > 0 ? (
-                <span className="text-[#CF1322]">{weightCheck.message}</span>
-              ) : null}
-            </div>
-
-            {!weightRowsByPerspective.length ? (
-              <p className="text-[13px] text-[#94A3B8]">
                 No KPIs selected. Go back and select KPIs first.
               </p>
             ) : (
               <div
-                className="flex max-h-[440px] flex-col gap-4 overflow-y-auto pr-1"
+                className="flex max-h-[440px] flex-col gap-3 overflow-y-auto pr-1"
                 data-cy="bsc-assign-individual-weights"
               >
-                {weightRowsByPerspective.map(([perspective, rows]) => {
-                  const allocated = rows.reduce(
-                    (sum, row) =>
-                      sum + (Number(personWeights[row.key]) || 0),
-                    0,
-                  );
-                  return (
+                <div
+                  data-cy="assignindividualkpismodal-div-685"
+                  className="flex items-center justify-between rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2"
+                >
+                  <span
+                    data-cy="assignindividualkpismodal-span-686"
+                    className="text-[12px] text-[#595959]"
+                  >
+                    Total KPI weight
+                  </span>
+                  <span
+                    className={`text-[13px] font-semibold ${
+                      Math.abs(weightSum - 100) < 0.01
+                        ? 'text-[#1677ff]'
+                        : 'text-[#CF1322]'
+                    }`}
+                    data-cy="bsc-assign-individual-weight-total"
+                  >
+                    {`${Math.round(weightSum * 100) / 100}%`}
+                  </span>
+                </div>
+                {!weightCheck.valid && weightSum > 0 ? (
+                  <p
+                    data-cy="assignindividualkpismodal-p-701"
+                    className="m-0 text-[12px] text-[#CF1322]"
+                  >
+                    {weightCheck.message}
+                  </p>
+                ) : null}
+
+                {weightRows.map((row) => (
+                  <div
+                    key={row.key}
+                    className="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-3"
+                    data-cy={`bsc-assign-weight-row-${row.key}`}
+                  >
                     <div
-                      key={perspective}
-                      className="rounded-xl border border-[#E5E7EB] p-4"
+                      data-cy="assignindividualkpismodal-div-712"
+                      className="mb-2 flex flex-wrap items-start justify-between gap-2"
                     >
-                      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                        <p className="m-0 text-[14px] font-semibold text-[#262626]">
-                          {perspective}
-                          <span className="ml-2 text-[11px] font-normal text-[#8F94A3]">
-                            {rows.length} KPI{rows.length === 1 ? '' : 's'}
-                          </span>
-                        </p>
-                        <span className="text-[12px] text-[#595959]">
-                          {Math.round(allocated * 100) / 100}%
-                        </span>
-                      </div>
-
-                      <div className="flex flex-col gap-3">
-                        {rows.map((row) => (
-                          <div
-                            key={row.key}
-                            className="rounded-lg bg-[#F9FAFB] px-3 py-3"
+                      <div
+                        data-cy="assignindividualkpismodal-div-713"
+                        className="min-w-0"
+                      >
+                        <div
+                          data-cy="assignindividualkpismodal-div-714"
+                          className="mb-1 flex flex-wrap items-center gap-2"
+                        >
+                          <p
+                            data-cy="assignindividualkpismodal-p-715"
+                            className="m-0 text-[13px] font-medium text-[#262626]"
                           >
-                            <div className="mb-2 flex flex-wrap items-start justify-between gap-2">
-                              <div>
-                                <p className="m-0 text-[13px] font-medium text-[#262626]">
-                                  {row.name}
-                                </p>
-                                <p className="m-0 text-[11px] text-[#8F94A3]">
-                                  {row.measurementUnit || '—'} ·{' '}
-                                  {targetLogicLabel(row.targetLogic)}
-                                  {row.kind === 'new' &&
-                                  row.defaultTarget != null
-                                    ? ` · catalog default ${row.defaultTarget}`
-                                    : ''}
-                                </p>
-                                <div className="mt-1 flex flex-wrap gap-1">
-                                  <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                                    {row.source === 'individual'
-                                      ? 'Individual'
-                                      : 'Shared'}
-                                  </Tag>
-                                  {row.kind === 'new' ? (
-                                    <Tag className="m-0 h-5 rounded border border-[#b7eb8f] bg-[#f6ffed] px-1.5 text-[11px] font-normal leading-5 text-[#389E0D]">
-                                      New
-                                    </Tag>
-                                  ) : null}
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-[11px] text-[#595959]">
-                                  Weight %
-                                </span>
-                                <InputNumber
-                                  className="w-20"
-                                  min={1}
-                                  max={100}
-                                  placeholder={
-                                    row.kind === 'new' ? 'Enter' : undefined
-                                  }
-                                  value={
-                                    personWeights[row.key]
-                                      ? personWeights[row.key]
-                                      : undefined
-                                  }
-                                  onChange={(value) =>
-                                    setPersonWeights((prev) => ({
-                                      ...prev,
-                                      [row.key]: Number(value) || 0,
-                                    }))
-                                  }
-                                  data-cy={`bsc-assign-weight-${row.key}`}
-                                />
-                              </div>
-                            </div>
-
-                            {row.kind === 'new' ? (
-                              <div className="flex flex-wrap gap-3">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[11px] text-[#595959]">
-                                    Target
-                                  </span>
-                                  <InputNumber
-                                    className="w-28"
-                                    placeholder={
-                                      row.defaultTarget != null
-                                        ? String(row.defaultTarget)
-                                        : 'Enter target'
-                                    }
-                                    value={
-                                      measureTargets[row.key] ?? undefined
-                                    }
-                                    onChange={(value) =>
-                                      setMeasureTargets((prev) => ({
-                                        ...prev,
-                                        [row.key]:
-                                          value == null ? null : Number(value),
-                                      }))
-                                    }
-                                    data-cy={`bsc-assign-target-${row.key}`}
-                                  />
-                                </div>
-                              </div>
-                            ) : row.existingTarget != null ? (
-                              <p className="m-0 text-[11px] text-[#8F94A3]">
-                                Target {row.existingTarget}
-                              </p>
-                            ) : null}
-                          </div>
-                        ))}
+                            {row.name}
+                          </p>
+                          {row.perspective ? (
+                            <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                              {row.perspective}
+                            </Tag>
+                          ) : null}
+                          <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                            {row.source === 'individual'
+                              ? 'Individual'
+                              : 'Shared'}
+                          </Tag>
+                          {row.kind === 'new' ? (
+                            <Tag className="m-0 h-5 rounded border border-[#b7eb8f] bg-[#f6ffed] px-1.5 text-[11px] font-normal leading-5 text-[#389E0D]">
+                              New
+                            </Tag>
+                          ) : null}
+                        </div>
+                        <p
+                          data-cy="assignindividualkpismodal-p-734"
+                          className="m-0 text-[11px] text-[#8F94A3]"
+                        >
+                          {row.measurementUnit || '—'} ·{' '}
+                          {targetLogicLabel(row.targetLogic)}
+                          {row.kind === 'new' && row.defaultTarget != null
+                            ? ` · catalog default ${row.defaultTarget}`
+                            : ''}
+                        </p>
+                      </div>
+                      <div
+                        data-cy="assignindividualkpismodal-div-742"
+                        className="flex items-center gap-2"
+                      >
+                        <span
+                          data-cy="assignindividualkpismodal-span-743"
+                          className="text-[11px] text-[#595959]"
+                        >
+                          Weight %
+                        </span>
+                        <InputNumber
+                          className="w-20"
+                          min={1}
+                          max={100}
+                          placeholder={
+                            row.kind === 'new' ? 'Weight' : undefined
+                          }
+                          value={
+                            personWeights[row.key]
+                              ? personWeights[row.key]
+                              : undefined
+                          }
+                          onChange={(value) =>
+                            setPersonWeights((prev) => ({
+                              ...prev,
+                              [row.key]: Number(value) || 0,
+                            }))
+                          }
+                          data-cy={`bsc-assign-weight-${row.key}`}
+                        />
                       </div>
                     </div>
-                  );
-                })}
+
+                    <div
+                      data-cy="assignindividualkpismodal-div-769"
+                      className="flex flex-wrap items-center gap-3"
+                    >
+                      {row.kind === 'new' ? (
+                        <div
+                          data-cy="assignindividualkpismodal-div-771"
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            data-cy="assignindividualkpismodal-span-772"
+                            className="text-[11px] text-[#595959]"
+                          >
+                            Target
+                          </span>
+                          <InputNumber
+                            className="w-28"
+                            placeholder={
+                              row.defaultTarget != null
+                                ? String(row.defaultTarget)
+                                : 'Enter target'
+                            }
+                            value={measureTargets[row.key] ?? undefined}
+                            onChange={(value) =>
+                              setMeasureTargets((prev) => ({
+                                ...prev,
+                                [row.key]: value == null ? null : Number(value),
+                              }))
+                            }
+                            data-cy={`bsc-assign-target-${row.key}`}
+                          />
+                        </div>
+                      ) : row.existingTarget != null ? (
+                        <span
+                          data-cy="assignindividualkpismodal-span-793"
+                          className="text-[11px] text-[#8F94A3]"
+                        >
+                          Target {row.existingTarget}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </>
@@ -788,13 +921,19 @@ export default function AssignIndividualKpisModal({
             >
               Evaluation
             </p>
-            <p className="mb-4 text-[12px] text-[#8F94A3]">
+            <p
+              className="mb-4 text-[12px] text-[#8F94A3]"
+              data-cy="bsc-assign-individual-evaluation-desc"
+            >
               Define who evaluates each new KPI, in order. Any combination of
               self, direct manager, and specific people is allowed.
             </p>
 
             {!selectedKpis.length ? (
-              <p className="text-[13px] text-[#94A3B8]">
+              <p
+                data-cy="assignindividualkpismodal-p-822"
+                className="text-[13px] text-[#94A3B8]"
+              >
                 No KPIs selected. Go back and select KPIs first.
               </p>
             ) : (
@@ -810,11 +949,17 @@ export default function AssignIndividualKpisModal({
                   return (
                     <div
                       key={kpi.id}
-                      className="rounded-xl border border-[#E5E7EB] px-3 py-3"
+                      className="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-3"
                       data-cy={`bsc-assign-eval-row-${kpi.id}`}
                     >
-                      <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <span className="text-[13px] font-medium text-[#262626]">
+                      <div
+                        data-cy="assignindividualkpismodal-div-841"
+                        className="mb-2 flex flex-wrap items-center gap-2"
+                      >
+                        <span
+                          data-cy="assignindividualkpismodal-span-842"
+                          className="text-[13px] font-medium text-[#262626]"
+                        >
                           {kpi.name}
                         </span>
                         {kpi.perspective ? (
@@ -824,8 +969,14 @@ export default function AssignIndividualKpisModal({
                         ) : null}
                       </div>
 
-                      <div className="w-full overflow-x-auto">
-                        <div className="flex min-w-max items-center gap-1.5 py-1">
+                      <div
+                        className="w-full overflow-x-auto"
+                        data-cy={`bsc-eval-flow-${kpi.id}`}
+                      >
+                        <div
+                          data-cy="assignindividualkpismodal-div-856"
+                          className="flex min-w-max items-center gap-1.5 py-1"
+                        >
                           {flow.map((step, index) => {
                             const displayName = evaluatorStepDisplayName(
                               step,
@@ -839,8 +990,14 @@ export default function AssignIndividualKpisModal({
                               step.kind === 'user' && !step.userId;
 
                             const editor = (
-                              <div className="w-[240px] p-1">
-                                <p className="mb-2 text-[12px] font-medium text-[#262626]">
+                              <div
+                                data-cy="assignindividualkpismodal-div-870"
+                                className="w-[240px] p-1"
+                              >
+                                <p
+                                  data-cy="assignindividualkpismodal-p-871"
+                                  className="mb-2 text-[12px] font-medium text-[#262626]"
+                                >
                                   Step {index + 1}
                                 </p>
                                 <Select
@@ -859,6 +1016,7 @@ export default function AssignIndividualKpisModal({
                                     };
                                     updateKpiFlow(kpi.id, next);
                                   }}
+                                  data-cy={`bsc-eval-step-kind-${kpi.id}-${index}`}
                                 />
                                 {step.kind === 'user' ? (
                                   <Select
@@ -878,9 +1036,13 @@ export default function AssignIndividualKpisModal({
                                       };
                                       updateKpiFlow(kpi.id, next);
                                     }}
+                                    data-cy={`bsc-eval-step-user-${kpi.id}-${index}`}
                                   />
                                 ) : null}
-                                <div className="flex justify-between gap-1">
+                                <div
+                                  data-cy="assignindividualkpismodal-div-913"
+                                  className="flex justify-between gap-1"
+                                >
                                   <Button
                                     type="text"
                                     size="small"
@@ -894,6 +1056,7 @@ export default function AssignIndividualKpisModal({
                                       ];
                                       updateKpiFlow(kpi.id, next);
                                     }}
+                                    data-cy={`bsc-eval-step-up-${kpi.id}-${index}`}
                                   >
                                     Move left
                                   </Button>
@@ -910,6 +1073,7 @@ export default function AssignIndividualKpisModal({
                                       ];
                                       updateKpiFlow(kpi.id, next);
                                     }}
+                                    data-cy={`bsc-eval-step-down-${kpi.id}-${index}`}
                                   >
                                     Move right
                                   </Button>
@@ -923,9 +1087,10 @@ export default function AssignIndividualKpisModal({
                                       if (flow.length <= 1) return;
                                       updateKpiFlow(
                                         kpi.id,
-                                        flow.filter((_, i) => i !== index),
+                                        flow.filter((unused, i) => i !== index),
                                       );
                                     }}
+                                    data-cy={`bsc-eval-step-remove-menu-${kpi.id}-${index}`}
                                   />
                                 </div>
                               </div>
@@ -934,12 +1099,21 @@ export default function AssignIndividualKpisModal({
                             return (
                               <React.Fragment key={`${kpi.id}-step-${index}`}>
                                 {index > 0 ? (
-                                  <div className="inline-flex h-5 min-w-6 shrink-0 items-center justify-center rounded-full border border-[#E3E7FF] bg-[#F7F8FF] px-1 text-[11px] font-semibold text-[#5B67D9]">
+                                  <div
+                                    className="inline-flex h-5 min-w-6 shrink-0 items-center justify-center rounded-full border border-[#E3E7FF] bg-[#F7F8FF] px-1 text-[11px] font-semibold text-[#5B67D9]"
+                                    data-cy={`bsc-eval-connector-${kpi.id}-${index}`}
+                                  >
                                     →
                                   </div>
                                 ) : null}
-                                <div className="flex shrink-0 items-center gap-2">
-                                  <div className="relative h-8 w-8 shrink-0">
+                                <div
+                                  data-cy="assignindividualkpismodal-div-977"
+                                  className="flex shrink-0 items-center gap-2"
+                                >
+                                  <div
+                                    data-cy="assignindividualkpismodal-div-978"
+                                    className="relative h-8 w-8 shrink-0"
+                                  >
                                     <Popover
                                       trigger="click"
                                       placement="bottomLeft"
@@ -949,6 +1123,15 @@ export default function AssignIndividualKpisModal({
                                         role="button"
                                         tabIndex={0}
                                         className="cursor-pointer"
+                                        data-cy={`bsc-eval-step-avatar-${kpi.id}-${index}`}
+                                        onKeyDown={(e) => {
+                                          if (
+                                            e.key === 'Enter' ||
+                                            e.key === ' '
+                                          ) {
+                                            e.currentTarget.click();
+                                          }
+                                        }}
                                       >
                                         {employee?.profileImage ? (
                                           <Avatar
@@ -959,7 +1142,8 @@ export default function AssignIndividualKpisModal({
                                           <Avatar
                                             size={32}
                                             icon={
-                                              step.kind === 'user' ? undefined : (
+                                              step.kind ===
+                                              'user' ? undefined : (
                                                 <UserOutlined />
                                               )
                                             }
@@ -979,6 +1163,7 @@ export default function AssignIndividualKpisModal({
                                       </div>
                                     </Popover>
                                     <button
+                                      data-cy="assignindividualkpismodal-button-1027"
                                       type="button"
                                       className="absolute -right-1 -top-1 z-[1] inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-white bg-[#f5f5f5] text-[8px] leading-none text-[#8c8c8c] hover:bg-[#fff1f0] hover:text-[#ff4d4f] disabled:cursor-not-allowed disabled:opacity-35"
                                       disabled={flow.length <= 1}
@@ -989,7 +1174,9 @@ export default function AssignIndividualKpisModal({
                                         if (flow.length <= 1) return;
                                         updateKpiFlow(
                                           kpi.id,
-                                          flow.filter((_, i) => i !== index),
+                                          flow.filter(
+                                            (unused, i) => i !== index,
+                                          ),
                                         );
                                       }}
                                     >
@@ -1010,6 +1197,7 @@ export default function AssignIndividualKpisModal({
                                           : 'text-[#595959]'
                                       }`}
                                       title={displayName}
+                                      data-cy={`bsc-eval-step-label-${kpi.id}-${index}`}
                                     >
                                       {truncateName(displayName)}
                                     </div>
@@ -1019,7 +1207,10 @@ export default function AssignIndividualKpisModal({
                             );
                           })}
 
-                          <div className="inline-flex h-5 min-w-6 shrink-0 items-center justify-center rounded-full border border-[#E3E7FF] bg-[#F7F8FF] px-1 text-[11px] font-semibold text-[#5B67D9]">
+                          <div
+                            data-cy="assignindividualkpismodal-div-1069"
+                            className="inline-flex h-5 min-w-6 shrink-0 items-center justify-center rounded-full border border-[#E3E7FF] bg-[#F7F8FF] px-1 text-[11px] font-semibold text-[#5B67D9]"
+                          >
                             →
                           </div>
                           <Popover
@@ -1039,16 +1230,26 @@ export default function AssignIndividualKpisModal({
                             getPopupContainer={() => document.body}
                             overlayInnerStyle={{ padding: 12, width: 320 }}
                             title={
-                              <div className="mb-1 flex items-start justify-between gap-2">
-                                <div>
-                                  <h3 className="m-0 text-base font-bold text-gray-900">
+                              <div
+                                data-cy="assignindividualkpismodal-div-1089"
+                                className="mb-1 flex items-start justify-between gap-2"
+                              >
+                                <div data-cy="assignindividualkpismodal-div-1090">
+                                  <h3
+                                    data-cy="assignindividualkpismodal-h3-1091"
+                                    className="m-0 text-base font-bold text-gray-900"
+                                  >
                                     Add evaluator
                                   </h3>
-                                  <p className="mb-0 mt-1 text-xs text-gray-500">
+                                  <p
+                                    data-cy="assignindividualkpismodal-p-1094"
+                                    className="mb-0 mt-1 text-xs text-gray-500"
+                                  >
                                     Search and select who evaluates next
                                   </p>
                                 </div>
                                 <button
+                                  data-cy="assignindividualkpismodal-button-1098"
                                   type="button"
                                   onClick={closeEmployeePicker}
                                   className="cursor-pointer border-none bg-transparent p-1 text-gray-400 hover:text-gray-600"
@@ -1058,8 +1259,11 @@ export default function AssignIndividualKpisModal({
                               </div>
                             }
                             content={
-                              <div>
-                                <div className="mb-2 w-full [&_.ant-input-affix-wrapper]:!w-full [&_input]:!w-full">
+                              <div data-cy="assignindividualkpismodal-div-1108">
+                                <div
+                                  data-cy="assignindividualkpismodal-div-1109"
+                                  className="mb-2 w-full [&_.ant-input-affix-wrapper]:!w-full [&_input]:!w-full"
+                                >
                                   <BscSearchInput
                                     value={employeePickerSearch}
                                     onChange={setEmployeePickerSearch}
@@ -1067,8 +1271,12 @@ export default function AssignIndividualKpisModal({
                                     className="!w-full !max-w-none"
                                   />
                                 </div>
-                                <div className="flex max-h-[280px] flex-col gap-0.5 overflow-y-auto">
+                                <div
+                                  data-cy="assignindividualkpismodal-div-1117"
+                                  className="flex max-h-[280px] flex-col gap-0.5 overflow-y-auto"
+                                >
                                   <button
+                                    data-cy="assignindividualkpismodal-button-1118"
                                     type="button"
                                     className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
                                     onClick={() =>
@@ -1080,11 +1288,15 @@ export default function AssignIndividualKpisModal({
                                       icon={<UserOutlined />}
                                       className="shrink-0 bg-[#E6F4FF] text-[#1677ff]"
                                     />
-                                    <span className="text-[13px] font-medium text-[#262626]">
+                                    <span
+                                      data-cy="assignindividualkpismodal-span-1130"
+                                      className="text-[13px] font-medium text-[#262626]"
+                                    >
                                       Employee (self)
                                     </span>
                                   </button>
                                   <button
+                                    data-cy="assignindividualkpismodal-button-1134"
                                     type="button"
                                     className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
                                     onClick={() =>
@@ -1098,12 +1310,16 @@ export default function AssignIndividualKpisModal({
                                       icon={<UserOutlined />}
                                       className="shrink-0 bg-[#F0F5FF] text-[#5B67D9]"
                                     />
-                                    <span className="text-[13px] font-medium text-[#262626]">
+                                    <span
+                                      data-cy="assignindividualkpismodal-span-1148"
+                                      className="text-[13px] font-medium text-[#262626]"
+                                    >
                                       Direct manager
                                     </span>
                                   </button>
                                   {filteredPickerEmployees.map((option) => (
                                     <button
+                                      data-cy="assignindividualkpismodal-button-1153"
                                       key={option.value}
                                       type="button"
                                       className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
@@ -1128,7 +1344,10 @@ export default function AssignIndividualKpisModal({
                                           {option.initials}
                                         </Avatar>
                                       )}
-                                      <span className="truncate text-[13px] font-medium text-[#262626]">
+                                      <span
+                                        data-cy="assignindividualkpismodal-span-1178"
+                                        className="truncate text-[13px] font-medium text-[#262626]"
+                                      >
                                         {option.label}
                                       </span>
                                     </button>
@@ -1156,7 +1375,10 @@ export default function AssignIndividualKpisModal({
           </>
         )}
 
-        <div className="mt-6 flex justify-between gap-3">
+        <div
+          data-cy="assignindividualkpismodal-div-1206"
+          className="mt-6 flex justify-between gap-3"
+        >
           <CustomButton
             type="default"
             title={current === 0 ? 'Cancel' : 'Back'}

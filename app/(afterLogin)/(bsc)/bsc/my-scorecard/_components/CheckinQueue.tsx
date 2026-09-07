@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { Button, Empty, Input, Table, Tag, Tooltip } from 'antd';
+import { Empty, Input, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { CloseOutlined } from '@ant-design/icons';
-import { IoCheckmarkSharp } from 'react-icons/io5';
 import CustomButton from '@/components/common/buttons/customButton';
 import KpiEvaluationFlowCompact from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiEvaluationFlowCompact';
+import {
+  TargetMetricUnitTag,
+  TargetMetricValue,
+} from '@/app/(afterLogin)/(bsc)/bsc/_components/TargetValueCell';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   useGetBscCycles,
@@ -22,19 +24,12 @@ import {
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EvaluationCycle, KpiApprovalStatus } from '@/types/bsc';
 import { formatScore } from '@/utils/bsc/rollup';
-import {
-  buildCheckinQueue,
-  type CheckinItem,
-} from '@/utils/bsc/checkin';
+import { buildCheckinQueue, type CheckinItem } from '@/utils/bsc/checkin';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
 
-function SelfCheckinGroup({
-  items,
-}: {
-  items: CheckinItem[];
-}) {
+function SelfCheckinGroup({ items }: { items: CheckinItem[] }) {
   const scorecard = items[0].scorecard;
   const [drafts, setDrafts] = useState<Record<string, number | null>>(() =>
     Object.fromEntries(
@@ -74,11 +69,17 @@ function SelfCheckinGroup({
 
   const columns: ColumnsType<CheckinItem> = [
     {
-      title: <span className={tableHeaderClassName}>KPI</span>,
+      title: (
+        <span data-cy="checkinqueue-span-72" className={tableHeaderClassName}>
+          KPI
+        </span>
+      ),
       key: 'kpi',
-      render: (_, row) => (
-        <div className="flex flex-col gap-1">
-          <span className={tableCellClassName}>{row.target.kpiName}</span>
+      render: (unused, row) => (
+        <div data-cy="checkinqueue-div-75" className="flex flex-col gap-1">
+          <span data-cy="checkinqueue-span-76" className={tableCellClassName}>
+            {row.target.kpiName}
+          </span>
           <KpiEvaluationFlowCompact
             flow={row.flow}
             dataCy={`bsc-checkin-self-flow-${row.target.id}`}
@@ -87,23 +88,50 @@ function SelfCheckinGroup({
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Target</span>,
-      key: 'target',
-      width: 100,
-      render: (_, row) => (
-        <span className={tableCellClassName}>
-          {row.target.targetValue}
-          {row.target.measurementUnit
-            ? ` ${row.target.measurementUnit}`
-            : ''}
+      title: (
+        <span data-cy="checkinqueue-span-85" className={tableHeaderClassName}>
+          Target
         </span>
+      ),
+      key: 'target',
+      width: 90,
+      render: (unused, row) => (
+        <TargetMetricValue
+          value={row.target.targetValue}
+          unit={row.target.measurementUnit}
+          worstCase={row.target.worstCase}
+          bestCase={row.target.bestCase}
+          dataCy={`bsc-checkin-self-target-${row.target.id}`}
+        />
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Actual</span>,
+      title: (
+        <span data-cy="checkinqueue-span-99" className={tableHeaderClassName}>
+          Unit
+        </span>
+      ),
+      key: 'unit',
+      width: 100,
+      render: (unused, row) => (
+        <TargetMetricUnitTag
+          value={row.target.targetValue}
+          unit={row.target.measurementUnit}
+          worstCase={row.target.worstCase}
+          bestCase={row.target.bestCase}
+          dataCy={`bsc-checkin-self-unit-${row.target.id}`}
+        />
+      ),
+    },
+    {
+      title: (
+        <span data-cy="checkinqueue-span-113" className={tableHeaderClassName}>
+          Actual
+        </span>
+      ),
       key: 'actual',
       width: 130,
-      render: (_, row) => {
+      render: (unused, row) => {
         const value = drafts[row.target.id];
         return (
           <Input
@@ -126,11 +154,17 @@ function SelfCheckinGroup({
       },
     },
     {
-      title: <span className={tableHeaderClassName}>Period</span>,
+      title: (
+        <span data-cy="checkinqueue-span-139" className={tableHeaderClassName}>
+          Period
+        </span>
+      ),
       key: 'period',
       width: 140,
-      render: (_, row) => (
-        <span className={tableCellClassName}>{row.periodLabel}</span>
+      render: (unused, row) => (
+        <span data-cy="checkinqueue-span-143" className={tableCellClassName}>
+          {row.periodLabel}
+        </span>
       ),
     },
   ];
@@ -140,12 +174,21 @@ function SelfCheckinGroup({
       className="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white"
       data-cy={`bsc-checkin-self-group-${scorecard.id}`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 px-4 py-3 sm:px-5">
-        <div>
-          <h3 className="mb-0 text-base font-semibold text-gray-900">
+      <div
+        data-cy="checkinqueue-div-153"
+        className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 px-4 py-3 sm:px-5"
+      >
+        <div data-cy="checkinqueue-div-154">
+          <h3
+            data-cy="checkinqueue-h3-155"
+            className="mb-0 text-base font-semibold text-gray-900"
+          >
             My Evaluation
           </h3>
-          <p className="mb-0 mt-1 text-sm text-gray-500">
+          <p
+            data-cy="checkinqueue-p-158"
+            className="mb-0 mt-1 text-sm text-gray-500"
+          >
             {items[0].contextLabel}
           </p>
         </div>
@@ -165,7 +208,7 @@ function SelfCheckinGroup({
         columns={columns}
         dataSource={items}
         pagination={false}
-        scroll={{ x: 640 }}
+        scroll={{ x: 720 }}
         data-cy={`bsc-checkin-self-table-${scorecard.id}`}
       />
     </div>
@@ -209,20 +252,13 @@ function ReviewCheckinGroup({
     adjust({ scorecardId: scorecard.id, adjustments }, { onSuccess: onDone });
   };
 
-  const decide = (targetId: string, approved: boolean) => {
+  const decide = (targetId: string) => {
     saveEdits(async () => {
       const latest = await setApprovalAsync({
         scorecardId: scorecard.id,
         targetId,
-        approved,
-        rejectionReason: approved ? undefined : 'Needs revision',
+        approved: true,
       });
-      if (!approved) {
-        NotificationMessage.success({
-          message: 'Returned for resubmit',
-        });
-        return;
-      }
       const stillPending = latest.targets.filter(
         (t) => t.approvalStatus === KpiApprovalStatus.Pending,
       );
@@ -240,37 +276,19 @@ function ReviewCheckinGroup({
     });
   };
 
-  const decideAll = async (approved: boolean) => {
-    saveEdits(async () => {
-      let latest = scorecard;
-      for (const item of items) {
-        latest = await setApprovalAsync({
-          scorecardId: scorecard.id,
-          targetId: item.target.id,
-          approved,
-          rejectionReason: approved ? undefined : 'Needs revision',
-        });
-      }
-      const stillPending = latest.targets.filter(
-        (t) => t.approvalStatus === KpiApprovalStatus.Pending,
-      );
-      if (approved && stillPending.length === 0) {
-        await finalizeAsync(scorecard.id);
-        NotificationMessage.success({
-          message: 'Check-in closed',
-          description: 'Final scores now reflect on the scorecard.',
-        });
-      }
-    });
-  };
-
   const columns: ColumnsType<CheckinItem> = [
     {
-      title: <span className={tableHeaderClassName}>KPI</span>,
+      title: (
+        <span data-cy="checkinqueue-span-248" className={tableHeaderClassName}>
+          KPI
+        </span>
+      ),
       key: 'kpi',
-      render: (_, row) => (
-        <div className="flex flex-col gap-1">
-          <span className={tableCellClassName}>{row.target.kpiName}</span>
+      render: (unused, row) => (
+        <div data-cy="checkinqueue-div-251" className="flex flex-col gap-1">
+          <span data-cy="checkinqueue-span-252" className={tableCellClassName}>
+            {row.target.kpiName}
+          </span>
           <KpiEvaluationFlowCompact
             flow={row.flow}
             dataCy={`bsc-checkin-review-flow-${row.target.id}`}
@@ -279,36 +297,64 @@ function ReviewCheckinGroup({
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Reported</span>,
-      key: 'reported',
-      width: 110,
-      render: (_, row) => (
-        <span className={tableCellClassName}>
-          {row.target.actualValue == null
-            ? '—'
-            : `${row.target.actualValue}${
-                row.target.measurementUnit
-                  ? ` ${row.target.measurementUnit}`
-                  : ''
-              }`}
+      title: (
+        <span data-cy="checkinqueue-span-261" className={tableHeaderClassName}>
+          Reported
         </span>
+      ),
+      key: 'reported',
+      width: 90,
+      render: (unused, row) => (
+        <TargetMetricValue
+          value={row.target.actualValue}
+          unit={row.target.measurementUnit}
+          worstCase={row.target.worstCase}
+          bestCase={row.target.bestCase}
+          dataCy={`bsc-checkin-review-reported-${row.target.id}`}
+        />
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Score</span>,
+      title: (
+        <span data-cy="checkinqueue-span-275" className={tableHeaderClassName}>
+          Unit
+        </span>
+      ),
+      key: 'unit',
+      width: 100,
+      render: (unused, row) => (
+        <TargetMetricUnitTag
+          value={row.target.actualValue}
+          unit={row.target.measurementUnit}
+          worstCase={row.target.worstCase}
+          bestCase={row.target.bestCase}
+          dataCy={`bsc-checkin-review-unit-${row.target.id}`}
+        />
+      ),
+    },
+    {
+      title: (
+        <span data-cy="checkinqueue-span-289" className={tableHeaderClassName}>
+          Score
+        </span>
+      ),
       key: 'score',
       width: 90,
-      render: (_, row) => (
-        <span className={tableCellClassName}>
+      render: (unused, row) => (
+        <span data-cy="checkinqueue-span-293" className={tableCellClassName}>
           {row.score == null ? '—' : `${formatScore(row.score)}%`}
         </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Adjust</span>,
+      title: (
+        <span data-cy="checkinqueue-span-299" className={tableHeaderClassName}>
+          Adjust
+        </span>
+      ),
       key: 'adjust',
       width: 120,
-      render: (_, row) => {
+      render: (unused, row) => {
         const value = drafts[row.target.id];
         return (
           <Input
@@ -330,34 +376,23 @@ function ReviewCheckinGroup({
       },
     },
     {
-      title: <span className={tableHeaderClassName}>Action</span>,
+      title: (
+        <span data-cy="checkinqueue-span-324" className={tableHeaderClassName}>
+          Action
+        </span>
+      ),
       key: 'action',
-      width: 160,
-      render: (_, row) => (
-        <div className="flex items-center gap-1">
-          <Tooltip title="Approve / pass to next (or close if final)">
-            <Button
-              type="text"
-              size="small"
-              className="!text-green-600"
-              icon={<IoCheckmarkSharp />}
-              disabled={busy}
-              onClick={() => decide(row.target.id, true)}
-              data-cy={`bsc-checkin-approve-${row.target.id}`}
-            />
-          </Tooltip>
-          <Tooltip title="Reject back to employee">
-            <Button
-              type="text"
-              size="small"
-              danger
-              icon={<CloseOutlined />}
-              disabled={busy}
-              onClick={() => decide(row.target.id, false)}
-              data-cy={`bsc-checkin-reject-${row.target.id}`}
-            />
-          </Tooltip>
-        </div>
+      width: 120,
+      render: (unused, row) => (
+        <CustomButton
+          title="Approve"
+          id={`bsc-checkin-approve-${row.target.id}`}
+          size="small"
+          disabled={busy}
+          onClick={() => decide(row.target.id)}
+          className="!h-8 !rounded-md !bg-[#1E40AF] !px-3 !text-white hover:!bg-[#1E3A8A]"
+          textClassName="text-sm font-medium"
+        />
       ),
     },
   ];
@@ -367,40 +402,23 @@ function ReviewCheckinGroup({
       className="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white"
       data-cy={`bsc-checkin-review-group-${scorecard.id}`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 px-4 py-3 sm:px-5">
-        <div>
-          <h3 className="mb-0 text-base font-semibold text-gray-900">
+      <div
+        data-cy="checkinqueue-div-346"
+        className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 px-4 py-3 sm:px-5"
+      >
+        <div data-cy="checkinqueue-div-347">
+          <h3
+            data-cy="checkinqueue-h3-348"
+            className="mb-0 text-base font-semibold text-gray-900"
+          >
             {ownerName}
           </h3>
-          <p className="mb-0 mt-1 text-sm text-gray-500">
+          <p
+            data-cy="checkinqueue-p-351"
+            className="mb-0 mt-1 text-sm text-gray-500"
+          >
             {items[0].contextLabel} · prior check-in result shown
           </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            size="small"
-            className="!text-green-700"
-            icon={<IoCheckmarkSharp />}
-            loading={busy}
-            onClick={() => {
-              void decideAll(true);
-            }}
-            data-cy={`bsc-checkin-approve-all-${scorecard.id}`}
-          >
-            Approve all
-          </Button>
-          <Button
-            size="small"
-            danger
-            icon={<CloseOutlined />}
-            loading={busy}
-            onClick={() => {
-              void decideAll(false);
-            }}
-            data-cy={`bsc-checkin-reject-all-${scorecard.id}`}
-          >
-            Reject all
-          </Button>
         </div>
       </div>
       <Table
@@ -408,7 +426,7 @@ function ReviewCheckinGroup({
         columns={columns}
         dataSource={items}
         pagination={false}
-        scroll={{ x: 720 }}
+        scroll={{ x: 820 }}
         data-cy={`bsc-checkin-review-table-${scorecard.id}`}
       />
     </div>
@@ -465,14 +483,20 @@ export default function CheckinQueue() {
 
   return (
     <div data-cy="bsc-checkin-queue">
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div
+        data-cy="checkinqueue-div-418"
+        className="mb-4 flex flex-wrap items-center gap-2"
+      >
         <Tag color="blue">My Evaluation · {selfItems.length}</Tag>
         <Tag color="purple">To review · {reviewItems.length}</Tag>
       </div>
 
       {/* My Evaluation always first */}
       <section data-cy="bsc-checkin-self-section" className="mb-6">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h2
+          data-cy="checkinqueue-h2-425"
+          className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500"
+        >
           My Evaluation
         </h2>
         {selfItems.length ? (
@@ -491,7 +515,10 @@ export default function CheckinQueue() {
 
       {reviewItems.length ? (
         <section data-cy="bsc-checkin-review-section">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <h2
+            data-cy="checkinqueue-h2-444"
+            className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500"
+          >
             Assigned to me (prior result visible)
           </h2>
           {groupByScorecard(reviewItems).map((group) => (

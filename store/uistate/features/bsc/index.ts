@@ -30,11 +30,13 @@ interface BscUiState {
   perspectiveKpiModalOpen: boolean;
   perspectiveKpiContext: string | null;
   viewingPerspectiveKpis: BscPerspectiveDefinition | null;
+  catalogKpiFormOpen: boolean;
+  catalogEditingKpi: KpiLibraryItem | null;
   assignModalOpen: boolean;
   myScorecardSessionId: string | undefined;
   myScorecardMonthId: string | undefined;
   myScorecardSessionMonths: Month[];
-  scorecardTab: 'mine' | 'team' | 'all' | 'kpis' | 'bsc' | 'checkin';
+  scorecardTab: 'mine' | 'team' | 'all' | 'results' | 'kpis' | 'bsc' | 'checkin';
   bscCatalogView: 'scorecards' | 'people';
   setSetupModalOpen: (v: boolean) => void;
   setEditingConfig: (v: EvaluationCycle | null) => void;
@@ -57,6 +59,8 @@ interface BscUiState {
   closePerspectiveKpiModal: () => void;
   openViewPerspectiveKpis: (item: BscPerspectiveDefinition) => void;
   closeViewPerspectiveKpis: () => void;
+  openCatalogKpiForm: (kpi?: KpiLibraryItem | null) => void;
+  closeCatalogKpiForm: () => void;
   openAssignPerspectives: () => void;
   closeAssignModal: () => void;
   setAssignModalOpen: (v: boolean) => void;
@@ -64,7 +68,7 @@ interface BscUiState {
   setMyScorecardMonthId: (v: string | undefined) => void;
   setMyScorecardSessionMonths: (v: Month[]) => void;
   setScorecardTab: (
-    v: 'mine' | 'team' | 'all' | 'kpis' | 'bsc' | 'checkin',
+    v: 'mine' | 'team' | 'all' | 'results' | 'kpis' | 'bsc' | 'checkin',
   ) => void;
   setBscCatalogView: (v: 'scorecards' | 'people') => void;
 }
@@ -86,6 +90,8 @@ export const useBscUiStore = create<BscUiState>((set) => ({
   perspectiveKpiModalOpen: false,
   perspectiveKpiContext: null,
   viewingPerspectiveKpis: null,
+  catalogKpiFormOpen: false,
+  catalogEditingKpi: null,
   assignModalOpen: false,
   myScorecardSessionId: undefined,
   myScorecardMonthId: undefined,
@@ -125,6 +131,10 @@ export const useBscUiStore = create<BscUiState>((set) => ({
   openViewPerspectiveKpis: (viewingPerspectiveKpis) =>
     set({ viewingPerspectiveKpis }),
   closeViewPerspectiveKpis: () => set({ viewingPerspectiveKpis: null }),
+  openCatalogKpiForm: (catalogEditingKpi = null) =>
+    set({ catalogKpiFormOpen: true, catalogEditingKpi }),
+  closeCatalogKpiForm: () =>
+    set({ catalogKpiFormOpen: false, catalogEditingKpi: null }),
   openAssignPerspectives: () => set({ assignModalOpen: true }),
   closeAssignModal: () => set({ assignModalOpen: false }),
   setAssignModalOpen: (assignModalOpen) => set({ assignModalOpen }),

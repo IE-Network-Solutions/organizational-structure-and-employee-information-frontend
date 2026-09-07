@@ -52,10 +52,14 @@ export function scorecardContextLabel(
   card: EmployeeScorecard,
   cycle?: EvaluationCycle | null,
 ): string {
+  const cadence =
+    cycle?.cadence && cycle.cadence !== BscCadence.Custom
+      ? cycle.cadence
+      : null;
   const parts = [
     scorecardProgramName(card, cycle),
     periodLabel(card),
-    cycle?.cadence,
+    cadence,
   ].filter(Boolean);
   return parts.join(' · ');
 }

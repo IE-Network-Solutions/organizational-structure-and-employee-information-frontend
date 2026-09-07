@@ -21,6 +21,10 @@ import {
   ScorecardStatus,
 } from '@/types/bsc';
 import { targetScorePercent } from '@/utils/bsc/rollup';
+import {
+  scorecardResultsHref,
+  scorecardTabHref,
+} from '@/utils/bsc/scorecardTab';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
@@ -176,9 +180,7 @@ export default function EmployeeKpiDetailPage() {
           .replace(/\s+/g, ' ')
           .trim();
       const label: string =
-        rawName ||
-        (typeof user.email === 'string' && user.email) ||
-        'Employee';
+        rawName || (typeof user.email === 'string' && user.email) || 'Employee';
       const initials = label
         .split(' ')
         .filter(Boolean)
@@ -295,11 +297,11 @@ export default function EmployeeKpiDetailPage() {
     if (fromIndividual) {
       setBscCatalogView('people');
       setScorecardTab('bsc');
-      router.push('/bsc/my-scorecard');
+      router.push(scorecardTabHref('bsc'));
       return;
     }
-    setScorecardTab('all');
-    router.push('/bsc/my-scorecard');
+    setScorecardTab('results');
+    router.push(scorecardResultsHref('all'));
   };
 
   const columns: ColumnsType<ScorecardKpiTarget> = [
@@ -339,7 +341,7 @@ export default function EmployeeKpiDetailPage() {
               {row.perspective}
             </span>
           </div>
-          <div className="mt-1">
+          <div data-cy="page-div-344" className="mt-1">
             <KpiEvaluationFlowCompact
               flow={row.evaluationFlow}
               employeeById={employeeById}

@@ -3,11 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Avatar, Button, Empty, Progress, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import {
-  EditOutlined,
-  LeftOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { EditOutlined, LeftOutlined, UserOutlined } from '@ant-design/icons';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
@@ -20,13 +16,14 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   BscScopeTarget,
-  BscSetupKind,
   EvaluationCycle,
   KpiLibraryItem,
   TargetLogic,
 } from '@/types/bsc';
 import BscSetupModal from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-setup/_components/BscSetupModal';
 import { computeKpiRollup, formatScore } from '@/utils/bsc/rollup';
+import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
+import { cadenceLabel, checkInDayLabel } from '@/utils/bsc/checkInSchedule';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
@@ -55,24 +52,6 @@ function nameInitials(name: string): string {
   if (!parts.length) return '?';
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-}
-
-function horizonLabel(config?: EvaluationCycle | null): string {
-  if (!config) return '—';
-  if (config.setupKind === BscSetupKind.Temporary) return 'Temporary';
-  if (config.setupKind === BscSetupKind.Permanent) return 'Permanent';
-  return config.useCustomDates ? 'Temporary' : 'Permanent';
-}
-
-function isPermanentSetup(config: EvaluationCycle): boolean {
-  if (config.setupKind === BscSetupKind.Permanent) return true;
-  if (config.setupKind === BscSetupKind.Temporary) return false;
-  return !config.useCustomDates;
-}
-
-function activePeriodLabel(config: EvaluationCycle): string {
-  const labels = config.periodLabels || [];
-  return labels[labels.length - 1] || labels[0] || '—';
 }
 
 function resolveScopeLabel(config: EvaluationCycle): string {
@@ -147,17 +126,29 @@ function AssignmentSection({
       className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white"
       data-cy={dataCy}
     >
-      <div className="px-5 pb-3 pt-4">
-        <h2 className="m-0 text-lg font-semibold text-[#262626]">{title}</h2>
+      <div data-cy="page-div-129" className="px-5 pb-3 pt-4">
+        <h2
+          data-cy="page-h2-130"
+          className="m-0 text-lg font-semibold text-[#262626]"
+        >
+          {title}
+        </h2>
         {description ? (
-          <p className="mb-3 mt-1 text-[12px] text-[#8F94A3]">{description}</p>
+          <p
+            data-cy="page-p-132"
+            className="mb-3 mt-1 text-[12px] text-[#8F94A3]"
+          >
+            {description}
+          </p>
         ) : (
-          <div className="mb-3" />
+          <div data-cy="page-div-134" className="mb-3" />
         )}
         {!items.length ? (
-          <p className="m-0 text-[13px] text-[#94A3B8]">{emptyText}</p>
+          <p data-cy="page-p-137" className="m-0 text-[13px] text-[#94A3B8]">
+            {emptyText}
+          </p>
         ) : (
-          <div className="flex flex-wrap gap-1.5">
+          <div data-cy="page-div-139" className="flex flex-wrap gap-1.5">
             {items.map((item) => (
               <Tag key={item} className={blueTagClassName}>
                 {item}
@@ -247,7 +238,7 @@ export default function BscScorecardDetailPage() {
 
   const backToBsc = () => {
     setScorecardTab('bsc');
-    router.push('/bsc/my-scorecard');
+    router.push(scorecardTabHref('bsc'));
   };
 
   useEffect(() => {
@@ -263,20 +254,35 @@ export default function BscScorecardDetailPage() {
 
   const kpiColumns: ColumnsType<KpiLibraryItem> = [
     {
-      title: <span className={tableHeaderClassName}>KPI</span>,
+      title: (
+        <span data-cy="page-span-245" className={tableHeaderClassName}>
+          KPI
+        </span>
+      ),
       dataIndex: 'name',
       key: 'name',
       render: (name: string, row) => (
-        <div className="flex flex-col gap-1">
-          <span className={tableCellClassName}>{name}</span>
+        <div data-cy="page-div-249" className="flex flex-col gap-1">
+          <span data-cy="page-span-250" className={tableCellClassName}>
+            {name}
+          </span>
           {row.description ? (
-            <span className="text-[12px] text-[#8F94A3]">{row.description}</span>
+            <span
+              data-cy="page-span-252"
+              className="text-[12px] text-[#8F94A3]"
+            >
+              {row.description}
+            </span>
           ) : null}
         </div>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Perspective</span>,
+      title: (
+        <span data-cy="page-span-260" className={tableHeaderClassName}>
+          Perspective
+        </span>
+      ),
       dataIndex: 'perspective',
       key: 'perspective',
       width: 180,
@@ -285,20 +291,30 @@ export default function BscScorecardDetailPage() {
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Weight</span>,
+      title: (
+        <span data-cy="page-span-269" className={tableHeaderClassName}>
+          Weight
+        </span>
+      ),
       dataIndex: 'weight',
       key: 'weight',
       width: 100,
       render: (weight: number) => (
-        <span className={tableCellClassName}>{weight}%</span>
+        <span data-cy="page-span-274" className={tableCellClassName}>
+          {weight}%
+        </span>
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Target</span>,
+      title: (
+        <span data-cy="page-span-278" className={tableHeaderClassName}>
+          Target
+        </span>
+      ),
       key: 'target',
       width: 140,
       render: (unused, row) => (
-        <span className={tableCellClassName}>
+        <span data-cy="page-span-282" className={tableCellClassName}>
           {row.defaultTarget != null
             ? `${row.defaultTarget}${row.measurementUnit ? ` ${row.measurementUnit}` : ''}`
             : '—'}
@@ -306,7 +322,35 @@ export default function BscScorecardDetailPage() {
       ),
     },
     {
-      title: <span className={tableHeaderClassName}>Avg progress</span>,
+      title: (
+        <span data-cy="page-span-290" className={tableHeaderClassName}>
+          Check-in
+        </span>
+      ),
+      key: 'checkIn',
+      width: 160,
+      render: (unused, row) => {
+        const cadence = cadenceLabel(row.cadence);
+        const day = checkInDayLabel(row.cadence, row.checkInDay);
+        if (!cadence)
+          return (
+            <span data-cy="page-span-296" className={tableCellClassName}>
+              —
+            </span>
+          );
+        return (
+          <span data-cy="page-span-298" className={tableCellClassName}>
+            {[cadence, day].filter(Boolean).join(' · ')}
+          </span>
+        );
+      },
+    },
+    {
+      title: (
+        <span data-cy="page-span-305" className={tableHeaderClassName}>
+          Avg progress
+        </span>
+      ),
       key: 'avgProgress',
       width: 200,
       render: (unused, row) => {
@@ -322,12 +366,18 @@ export default function BscScorecardDetailPage() {
       },
     },
     {
-      title: <span className={tableHeaderClassName}>Logic</span>,
+      title: (
+        <span data-cy="page-span-321" className={tableHeaderClassName}>
+          Logic
+        </span>
+      ),
       dataIndex: 'targetLogic',
       key: 'targetLogic',
       width: 140,
       render: (logic: TargetLogic) => (
-        <span className={tableCellClassName}>{targetLogicLabel(logic)}</span>
+        <span data-cy="page-span-326" className={tableCellClassName}>
+          {targetLogicLabel(logic)}
+        </span>
       ),
     },
   ];
@@ -356,11 +406,11 @@ export default function BscScorecardDetailPage() {
         subtitle={
           config
             ? [
-                horizonLabel(config),
-                config.cadence,
-                isPermanentSetup(config)
-                  ? activePeriodLabel(config)
-                  : (config.periodLabels || [])[0],
+                resolveScopeLabel(config),
+                config.isActive === false ? 'Inactive' : 'Active',
+                config.effectiveFrom || config.startDate
+                  ? `From ${config.effectiveFrom || config.startDate}`
+                  : null,
               ]
                 .filter(Boolean)
                 .join(' · ')
@@ -396,21 +446,36 @@ export default function BscScorecardDetailPage() {
           </Empty>
         </div>
       ) : (
-        <div className="flex flex-col gap-4" data-cy="bsc-scorecard-detail-body">
+        <div
+          className="flex flex-col gap-4"
+          data-cy="bsc-scorecard-detail-body"
+        >
           <div
             className="flex flex-wrap items-start justify-between gap-3"
             data-cy="bsc-scorecard-detail-header"
           >
-            <div className="min-w-0">
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <Tag className={blueTagClassName}>{horizonLabel(config)}</Tag>
-                <Tag className={blueTagClassName}>{config.cadence}</Tag>
+            <div data-cy="page-div-403" className="min-w-0">
+              <div
+                data-cy="page-div-404"
+                className="mb-2 flex flex-wrap items-center gap-2"
+              >
                 <Tag className={blueTagClassName}>
                   {assignmentSummary.scope}
                 </Tag>
+                <Tag className={blueTagClassName}>
+                  {config.isActive === false ? 'Inactive' : 'Active'}
+                </Tag>
+                {config.effectiveFrom || config.startDate ? (
+                  <Tag className={blueTagClassName}>
+                    From {config.effectiveFrom || config.startDate}
+                  </Tag>
+                ) : null}
               </div>
               {config.description ? (
-                <p className="m-0 max-w-3xl text-[13px] text-[#8F94A3]">
+                <p
+                  data-cy="page-p-418"
+                  className="m-0 max-w-3xl text-[13px] text-[#8F94A3]"
+                >
                   {config.description}
                 </p>
               ) : null}
@@ -430,12 +495,21 @@ export default function BscScorecardDetailPage() {
             className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white"
             data-cy="bsc-scorecard-detail-kpis"
           >
-            <div className="flex flex-wrap items-center justify-between gap-3 px-5 pb-2 pt-4">
-              <div>
-                <h2 className="m-0 text-lg font-semibold text-[#262626]">
+            <div
+              data-cy="page-div-438"
+              className="flex flex-wrap items-center justify-between gap-3 px-5 pb-2 pt-4"
+            >
+              <div data-cy="page-div-439">
+                <h2
+                  data-cy="page-h2-440"
+                  className="m-0 text-lg font-semibold text-[#262626]"
+                >
                   Scorecard KPIs
                 </h2>
-                <p className="mb-0 mt-1 text-[12px] text-[#8F94A3]">
+                <p
+                  data-cy="page-p-443"
+                  className="mb-0 mt-1 text-[12px] text-[#8F94A3]"
+                >
                   Shared KPIs on this scorecard template.
                 </p>
               </div>
@@ -448,14 +522,14 @@ export default function BscScorecardDetailPage() {
             </div>
 
             {!uniqueKpis.length ? (
-              <div className="px-5 pb-8 pt-4">
+              <div data-cy="page-div-456" className="px-5 pb-8 pt-4">
                 <Empty
                   description="No KPIs linked yet"
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
                 />
               </div>
             ) : !filteredKpis.length ? (
-              <div className="px-5 pb-8 pt-4">
+              <div data-cy="page-div-463" className="px-5 pb-8 pt-4">
                 <Empty
                   description="No KPIs match your search"
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -486,10 +560,16 @@ export default function BscScorecardDetailPage() {
               className="rounded-xl border border-[#E5E7EB] bg-white px-5 py-4"
               data-cy="bsc-scorecard-detail-company"
             >
-              <h2 className="m-0 text-lg font-semibold text-[#262626]">
+              <h2
+                data-cy="page-h2-494"
+                className="m-0 text-lg font-semibold text-[#262626]"
+              >
                 Company
               </h2>
-              <p className="mb-0 mt-1 text-[13px] text-[#8F94A3]">
+              <p
+                data-cy="page-p-497"
+                className="mb-0 mt-1 text-[13px] text-[#8F94A3]"
+              >
                 Applies the scorecard template organization-wide.
               </p>
             </div>
@@ -556,15 +636,24 @@ export default function BscScorecardDetailPage() {
             className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white"
             data-cy="bsc-scorecard-detail-people"
           >
-            <div className="px-5 pb-3 pt-4">
-              <h2 className="m-0 text-lg font-semibold text-[#262626]">
+            <div data-cy="page-div-564" className="px-5 pb-3 pt-4">
+              <h2
+                data-cy="page-h2-565"
+                className="m-0 text-lg font-semibold text-[#262626]"
+              >
                 People
               </h2>
-              <p className="mb-3 mt-1 text-[12px] text-[#8F94A3]">
+              <p
+                data-cy="page-p-568"
+                className="mb-3 mt-1 text-[12px] text-[#8F94A3]"
+              >
                 Assignees with scorecards on this program.
               </p>
               {!people.length ? (
-                <p className="m-0 text-[13px] text-[#94A3B8]">
+                <p
+                  data-cy="page-p-572"
+                  className="m-0 text-[13px] text-[#94A3B8]"
+                >
                   No employee scorecards for this program yet
                 </p>
               ) : (
@@ -596,7 +685,10 @@ export default function BscScorecardDetailPage() {
                       >
                         {nameInitials(person.userName)}
                       </Avatar>
-                      <span className="truncate text-[12px] font-medium text-[#1677ff]">
+                      <span
+                        data-cy="page-span-604"
+                        className="truncate text-[12px] font-medium text-[#1677ff]"
+                      >
                         {person.userName}
                       </span>
                     </button>

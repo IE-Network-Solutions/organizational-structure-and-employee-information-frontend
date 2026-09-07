@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {
   BscEvaluatorStep,
   EmployeeScorecard,
@@ -6,6 +7,12 @@ import {
   ScorecardKpiTarget,
   ScorecardStatus,
 } from '@/types/bsc';
+import {
+  cadenceLabel,
+  checkInDayLabel,
+  isCheckInWindowOpen,
+} from '@/utils/bsc/checkInSchedule';
+import { isScorecardTemplateLive } from '@/utils/bsc/effectiveDate';
 import { periodLabel, scorecardContextLabel } from '@/utils/bsc/series';
 import { targetScorePercent } from '@/utils/bsc/rollup';
 
@@ -96,6 +103,7 @@ export function buildCheckinQueue(
   for (const scorecard of scorecards || []) {
     if (!isCheckinOpenStatus(scorecard.status)) continue;
     const cycle = cycleById?.get(scorecard.cycleId);
+    if (!isScorecardTemplateLive(cycle)) continue;
     const context = scorecardContextLabel(scorecard, cycle);
     const period = periodLabel(scorecard);
 
@@ -109,6 +117,15 @@ export function buildCheckinQueue(
       if (isSelf) {
         if (
           scorecard.status !== ScorecardStatus.Active &&
+          scorecard.status !== ScorecardStatus.NeedsResubmit
+        ) {
+          continue;
+        }
+        if (
+          !isCheckInWindowOpen(target.cadence, target.checkInDay, dayjs(), {
+            effectiveFrom: cycle?.effectiveFrom || cycle?.startDate,
+            endDate: cycle?.endDate,
+          }) &&
           scorecard.status !== ScorecardStatus.NeedsResubmit
         ) {
           continue;
@@ -133,6 +150,13 @@ export function buildCheckinQueue(
         if (target.actualValue == null) continue;
       }
 
+      const schedule = [
+        cadenceLabel(target.cadence),
+        checkInDayLabel(target.cadence, target.checkInDay),
+      ]
+        .filter(Boolean)
+        .join(' · ');
+
       items.push({
         key: `${scorecard.id}:${target.id}`,
         scorecard,
@@ -142,7 +166,7 @@ export function buildCheckinQueue(
         step,
         flow,
         periodLabel: period,
-        contextLabel: context,
+        contextLabel: [context, schedule].filter(Boolean).join(' · '),
         score: targetScorePercent(target),
       });
     }

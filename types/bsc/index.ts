@@ -66,6 +66,7 @@ export enum KpiApprovalStatus {
 
 export enum BscCadence {
   Weekly = 'Weekly',
+  BiWeekly = 'BiWeekly',
   Monthly = 'Monthly',
   Quarterly = 'Quarterly',
   Yearly = 'Yearly',
@@ -111,11 +112,22 @@ export interface EvaluationCycle {
   /** Optional purpose / strategy note for this scorecard */
   description?: string | null;
   status: CycleStatus;
+  /**
+   * @deprecated Prefer per-KPI cadence on KpiLibraryItem / ScorecardKpiTarget.
+   * Kept for catalog labels and legacy seed data.
+   */
   cadence: BscCadence;
-  /** Permanent = ongoing; Temporary = fixed active window */
+  /** @deprecated Horizon removed from setup Define; kept for legacy configs */
   setupKind?: BscSetupKind;
   fiscalYearId: string;
   fiscalYearName: string;
+  /** True when this scorecard template is turned on */
+  isActive?: boolean;
+  /**
+   * Calendar day counting / check-in may begin.
+   * When Active and unset, treat as today.
+   */
+  effectiveFrom?: string | null;
   /** Month IDs (Monthly) or Session IDs (Quarterly); empty when using custom dates only */
   periodIds: string[];
   periodLabels: string[];
@@ -165,6 +177,13 @@ export interface KpiLibraryItem {
   suggestedWeight?: number | null;
   worstCase?: number | null;
   bestCase?: number | null;
+  /** How often this KPI expects a check-in */
+  cadence?: BscCadence | null;
+  /**
+   * Check-in day within the cadence period:
+   * Weekly: 1–7 (Mon–Sun), BiWeekly: 1–14, Monthly: 1–31
+   */
+  checkInDay?: number | null;
   createdAt: string;
 }
 
@@ -180,6 +199,13 @@ export interface ScorecardKpiTarget {
   targetValue: number;
   worstCase?: number | null;
   bestCase?: number | null;
+  /** How often this KPI expects a check-in */
+  cadence?: BscCadence | null;
+  /**
+   * Check-in day within the cadence period:
+   * Weekly: 1–7 (Mon–Sun), BiWeekly: 1–14, Monthly: 1–31
+   */
+  checkInDay?: number | null;
   actualValue?: number | null;
   evidenceUrl?: string | null;
   evidenceFileName?: string | null;
@@ -262,13 +288,21 @@ export interface CreateKpiLibraryInput {
   suggestedWeight?: number | null;
   worstCase?: number | null;
   bestCase?: number | null;
+  cadence?: BscCadence | null;
+  checkInDay?: number | null;
 }
 
 export interface CreateEvaluationConfigInput {
   label: string;
   description?: string | null;
+  /** @deprecated Prefer per-KPI cadence */
   cadence: BscCadence;
+  /** @deprecated */
   setupKind?: BscSetupKind;
+  /** Whether the scorecard template is turned on */
+  isActive?: boolean;
+  /** From which day counting / check-in may begin (YYYY-MM-DD) */
+  effectiveFrom?: string | null;
   fiscalYearId: string;
   fiscalYearName: string;
   periodIds: string[];
@@ -312,6 +346,8 @@ export interface AssignScorecardInput {
     targetValue: number;
     worstCase?: number | null;
     bestCase?: number | null;
+    cadence?: BscCadence | null;
+    checkInDay?: number | null;
     evaluationFlow?: BscEvaluatorStep[];
     /** @deprecated prefer evaluationFlow */
     evaluatorMode?: BscEvaluatorMode;
@@ -328,6 +364,8 @@ export interface AppendIndividualKpisInput {
     targetValue: number;
     worstCase?: number | null;
     bestCase?: number | null;
+    cadence?: BscCadence | null;
+    checkInDay?: number | null;
     evaluationFlow?: BscEvaluatorStep[];
   }>;
   /**

@@ -89,7 +89,18 @@ const MENU_ROUTES: MenuRouteNode[] = [
         permissions: ['manage_planning_reporting'],
       },
       { key: '/weekly-priority', permissions: ['view_weekly_priority'] },
+      {
+        key: 'bsc-menu',
+        permissions: ['view_okr_overview'],
+        children: [
+          { key: '/bsc/kpi', permissions: ['view_okr_overview'] },
+          { key: '/bsc/my-scorecard', permissions: ['view_okr_overview'] },
+          { key: '/bsc/settings', permissions: ['view_okr_overview'] },
+        ],
+      },
+      { key: '/bsc/kpi', permissions: ['view_okr_overview'] },
       { key: '/bsc/my-scorecard', permissions: ['view_okr_overview'] },
+      { key: '/bsc/settings', permissions: ['view_okr_overview'] },
       { key: '/bsc/perspectives', permissions: ['view_okr_overview'] },
       { key: '/bsc/kpis', permissions: ['view_okr_overview'] },
       { key: '/bsc/employees', permissions: ['view_okr_overview'] },

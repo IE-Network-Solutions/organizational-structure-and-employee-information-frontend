@@ -36,6 +36,7 @@ type Props = {
   segments: BscDonutSegment[];
   dataCy: string;
   sizeClassName?: string;
+  centerClassName?: string;
 };
 
 /**
@@ -48,6 +49,7 @@ export default function BscScoreDonut({
   segments,
   dataCy,
   sizeClassName = 'h-[120px] w-[120px] md:h-[140px] md:w-[140px]',
+  centerClassName = 'text-xl font-bold text-gray-900 md:text-2xl',
 }: Props) {
   const chartData = useMemo(() => {
     const values = segments.map((s) => Math.max(0, Number(s.value) || 0));
@@ -97,19 +99,13 @@ export default function BscScoreDonut({
   );
 
   return (
-    <div
-      className={`relative flex-shrink-0 ${sizeClassName}`}
-      data-cy={dataCy}
-    >
+    <div className={`relative flex-shrink-0 ${sizeClassName}`} data-cy={dataCy}>
       <Doughnut data={chartData} options={chartOptions} />
       <div
         className="pointer-events-none absolute inset-0 flex items-center justify-center"
         data-cy={`${dataCy}-center`}
       >
-        <span
-          className="text-xl font-bold text-gray-900 md:text-2xl"
-          data-cy={`${dataCy}-center-value`}
-        >
+        <span className={centerClassName} data-cy={`${dataCy}-center-value`}>
           {formatScore(centerValue)}
           {centerSuffix}
         </span>

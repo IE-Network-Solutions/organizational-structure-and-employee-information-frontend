@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Select, Tabs } from 'antd';
+import { Select, Tabs } from 'antd';
 import type { RenderTabBar } from 'rc-tabs/es/interface';
 import Link from 'next/link';
-import { FaPlus } from 'react-icons/fa';
+import { useRouter, useSearchParams } from 'next/navigation';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { EmptyImage } from '@/components/emptyIndicator';
 import {
@@ -34,13 +34,17 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import PerspectiveKpiCard, {
   ScorecardKpiRow,
 } from './_components/PerspectiveKpiCard';
-import EmployeeKpiTable from './_components/EmployeeKpiTable';
 import ScorecardPeriodFilter from './_components/ScorecardPeriodFilter';
-import TeamKpiReview from './_components/TeamKpiReview';
 import CheckinQueue from './_components/CheckinQueue';
-import PerspectivesCatalog from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-perspectives/_components/PerspectivesCatalog';
-import ScorecardsCatalog from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-setup/_components/ScorecardsCatalog';
-import { buildCheckinQueue } from '@/utils/bsc/checkin';
+import ResultsKpiView from './_components/ResultsKpiView';
+import { computeKpiProgressPercent } from '@/app/(afterLogin)/dashboard/_components/header/KpiProgressHeaderCard';
+import {
+  bscKpiAdminHref,
+  parseScorecardTab,
+  scorecardResultsHref,
+  scorecardTabHref,
+  type ScorecardTab,
+} from '@/utils/bsc/scorecardTab';
 
 function currentMonthName(): string {
   return new Date().toLocaleString('en-US', { month: 'long' });
@@ -61,6 +65,8 @@ function kpiProgressPercent(
 }
 
 export default function MyBscScorecardPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { userId } = useAuthenticationStore();
   const {
     myScorecardSessionId,
@@ -68,8 +74,6 @@ export default function MyBscScorecardPage() {
     myScorecardSessionMonths,
     scorecardTab,
     setScorecardTab,
-    openCreateSetup,
-    openCreatePerspective,
   } = useBscUiStore();
   const { isMobile, isTablet } = useIsMobile();
   const canViewAllEmployeeKpi = AccessGuard.checkAccess({
@@ -88,6 +92,49 @@ export default function MyBscScorecardPage() {
     AccessGuard.checkAccess({
       permissions: [Permissions.ViewCompanyOkr],
     });
+
+  const tabFromUrl = parseScorecardTab(searchParams);
+
+  useEffect(() => {
+    if (scorecardTab !== tabFromUrl) {
+      setScorecardTab(tabFromUrl);
+    }
+  }, [scorecardTab, setScorecardTab, tabFromUrl]);
+
+  useEffect(() => {
+    if (tabFromUrl === 'kpis' || tabFromUrl === 'bsc') {
+      router.replace(
+        canManageBscAdmin
+          ? bscKpiAdminHref(tabFromUrl)
+          : scorecardTabHref('mine'),
+      );
+      return;
+    }
+
+    const ensureAllowedTab = (tab: ScorecardTab): ScorecardTab => {
+      if (tab === 'results' || tab === 'team' || tab === 'all') {
+        return canViewTeamKpi || canViewAllEmployeeKpi ? 'results' : 'mine';
+      }
+      return tab;
+    };
+
+    const allowed = ensureAllowedTab(tabFromUrl);
+    if (allowed !== tabFromUrl) {
+      if (allowed === 'results') {
+        router.replace(
+          scorecardResultsHref(canViewAllEmployeeKpi ? 'all' : 'team'),
+        );
+      } else {
+        router.replace(scorecardTabHref(allowed));
+      }
+    }
+  }, [
+    canManageBscAdmin,
+    canViewAllEmployeeKpi,
+    canViewTeamKpi,
+    router,
+    tabFromUrl,
+  ]);
 
   const { data: scorecards, isLoading: scorecardsLoading } =
     useGetBscScorecards();
@@ -392,30 +439,19 @@ export default function MyBscScorecardPage() {
     perspectiveNames,
   ]);
 
-  const checkinCount = useMemo(() => {
-    const preferred = userId || 'demo-user';
-    const primary = buildCheckinQueue(scorecards, preferred, cycleById);
-    if (primary.length || preferred === 'demo-user') return primary.length;
-    return buildCheckinQueue(scorecards, 'demo-user', cycleById).length;
-  }, [scorecards, userId, cycleById]);
-
   const loading = scorecardsLoading || kpisLoading;
   const activeTab =
-    scorecardTab === 'kpis' && canManageBscAdmin
-      ? 'kpis'
-      : scorecardTab === 'bsc' && canManageBscAdmin
-        ? 'bsc'
-        : scorecardTab === 'all' && canViewAllEmployeeKpi
-          ? 'all'
-          : scorecardTab === 'team' && canViewTeamKpi
-            ? 'team'
-            : scorecardTab === 'checkin'
-              ? 'checkin'
-              : 'mine';
-  const isCompactTabBar = isMobile || isTablet;
+    (scorecardTab === 'results' ||
+      scorecardTab === 'team' ||
+      scorecardTab === 'all') &&
+    (canViewTeamKpi || canViewAllEmployeeKpi)
+      ? 'results'
+      : scorecardTab === 'checkin'
+        ? 'checkin'
+        : 'mine';
 
   const myScorecardFilters = (
-    <div className="flex flex-wrap items-center gap-2">
+    <div data-cy="page-div-454" className="flex flex-wrap items-center gap-2">
       {scorecardOptions.length > 1 ? (
         <Select
           className="w-full min-w-[200px] sm:w-[280px]"
@@ -436,6 +472,11 @@ export default function MyBscScorecardPage() {
     ? scorecardContextLabel(activeScorecard, cycle)
     : null;
 
+  const scorecardProgress = useMemo(
+    () => computeKpiProgressPercent(activeScorecard),
+    [activeScorecard],
+  );
+
   const myScorecardBody = (
     <div data-cy="bsc-my-scorecard-tab-content">
       {loading ? (
@@ -453,20 +494,24 @@ export default function MyBscScorecardPage() {
           <EmptyImage />
         </div>
       ) : (
-        <PerspectiveKpiCard
-          title="KPI Progress"
-          kpis={kpiRows}
-          scorecard={activeScorecard}
-          cadence={cycle?.cadence}
-          contextLabel={contextLabel}
-        />
+        <div data-cy="page-div-497" className="flex flex-col gap-4">
+          <PerspectiveKpiCard
+            title="KPI Progress"
+            kpis={kpiRows}
+            scorecard={activeScorecard}
+            contextLabel={contextLabel}
+            progressPercent={loading ? undefined : scorecardProgress}
+          />
+        </div>
       )}
     </div>
   );
 
+  const isCompactTabBar = isMobile || isTablet;
+
   const tabLabel = (key: string, label: string) => (
     <div
-      className={`text-base font-normal m-0 ${
+      className={`text-sm font-medium ${
         activeTab === key ? 'text-okr-primary font-semibold' : 'text-gray-800'
       }`}
       data-cy={`bsc-scorecard-tab-${key}`}
@@ -475,7 +520,7 @@ export default function MyBscScorecardPage() {
     </div>
   );
 
-  const tabItems = [
+  const scorecardSectionTabs = [
     {
       key: 'mine',
       label: tabLabel('mine', 'My Scorecard'),
@@ -483,105 +528,35 @@ export default function MyBscScorecardPage() {
     },
     {
       key: 'checkin',
-      label: tabLabel(
-        'checkin',
-        checkinCount > 0 ? `Check-in (${checkinCount})` : 'Check-in',
-      ),
+      label: tabLabel('checkin', 'Check-in'),
       children: (
         <div data-cy="bsc-checkin-tab-content">
           <CheckinQueue />
         </div>
       ),
     },
-    ...(canManageBscAdmin
+    ...(canViewTeamKpi || canViewAllEmployeeKpi
       ? [
           {
-            key: 'kpis',
-            label: tabLabel('kpis', 'KPIs'),
+            key: 'results',
+            label: tabLabel('results', 'Results'),
             children: (
-              <div data-cy="bsc-kpis-admin-tab-content">
-                <PerspectivesCatalog />
-              </div>
-            ),
-          },
-          {
-            key: 'bsc',
-            label: tabLabel('bsc', 'BSC'),
-            children: (
-              <div data-cy="bsc-setup-admin-tab-content">
-                <ScorecardsCatalog />
-              </div>
-            ),
-          },
-        ]
-      : []),
-    ...(canViewTeamKpi
-      ? [
-          {
-            key: 'team',
-            label: tabLabel('team', 'Team KPI'),
-            children: <TeamKpiReview />,
-          },
-        ]
-      : []),
-    ...(canViewAllEmployeeKpi
-      ? [
-          {
-            key: 'all',
-            label: tabLabel('all', 'All Employee KPI'),
-            children: (
-              <div data-cy="bsc-all-employee-kpi-tab-content">
-                <EmployeeKpiTable />
-              </div>
+              <ResultsKpiView
+                canViewTeamKpi={canViewTeamKpi}
+                canViewAllEmployeeKpi={canViewAllEmployeeKpi}
+              />
             ),
           },
         ]
       : []),
   ];
 
-  const adminTabActions =
-    activeTab === 'kpis' ? (
-      <Button
-        icon={<FaPlus />}
-        onClick={openCreatePerspective}
-        className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-9 px-3 sm:px-4 text-white border-none rounded-lg flex items-center justify-center font-medium"
-        type="primary"
-        data-cy="bsc-perspective-add"
-      >
-        <span
-          className="hidden sm:inline ml-2"
-          data-cy="-bsc-bsc-my-scorecard-page-span-1"
-        >
-          Add Perspective
-        </span>
-      </Button>
-    ) : activeTab === 'bsc' ? (
-      <Button
-        icon={<FaPlus />}
-        onClick={openCreateSetup}
-        className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-9 px-3 sm:px-4 text-white border-none rounded-lg flex items-center justify-center font-medium"
-        type="primary"
-        data-cy="bsc-setup-add"
-      >
-        <span
-          className="hidden sm:inline ml-2"
-          data-cy="-bsc-bsc-my-scorecard-page-span-2"
-        >
-          Add scorecard
-        </span>
-      </Button>
-    ) : null;
-
   const tabBarExtraContent =
     activeTab === 'mine'
       ? isCompactTabBar
         ? { right: myScorecardFilters }
         : myScorecardFilters
-      : adminTabActions
-        ? isCompactTabBar
-          ? { right: adminTabActions }
-          : adminTabActions
-        : undefined;
+      : undefined;
 
   const tabsClassName = [
     '[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-content-holder]:mt-6',
@@ -601,6 +576,25 @@ export default function MyBscScorecardPage() {
     );
   };
 
+  const activeTabLabel =
+    activeTab === 'mine'
+      ? 'My Scorecard'
+      : activeTab === 'checkin'
+        ? 'Check-in'
+        : activeTab === 'results'
+          ? 'Results'
+          : 'My Scorecard';
+
+  const handleScorecardSectionChange = (key: string) => {
+    const next = key as ScorecardTab;
+    setScorecardTab(next);
+    if (next === 'results') {
+      router.push(scorecardResultsHref(canViewAllEmployeeKpi ? 'all' : 'team'));
+      return;
+    }
+    router.push(scorecardTabHref(next));
+  };
+
   return (
     <div className="w-full" data-cy="bsc-my-scorecard-page">
       <CustomBreadcrumb
@@ -610,7 +604,7 @@ export default function MyBscScorecardPage() {
             data-cy="-bsc-bsc-my-scorecard-page-tsx-page-span-387"
             className="text-2xl font-bold text-gray-900"
           >
-            KPI
+            My Scorecard
           </span>
         }
         subtitle={
@@ -624,8 +618,11 @@ export default function MyBscScorecardPage() {
               className="flex items-center space-x-2"
             >
               <li data-cy="-bsc-bsc-my-scorecard-page-tsx-page-li-395">
-                <Link className="!text-gray-800" href="/bsc/my-scorecard">
-                  KPI
+                <Link
+                  className="!text-gray-800"
+                  href={scorecardTabHref('mine')}
+                >
+                  BSC
                 </Link>
               </li>
               <li data-cy="-bsc-bsc-my-scorecard-page-tsx-page-li-400">
@@ -641,19 +638,7 @@ export default function MyBscScorecardPage() {
                   data-cy="-bsc-bsc-my-scorecard-page-tsx-page-span-404"
                   className="text-gray-900"
                 >
-                  {activeTab === 'mine'
-                    ? 'My Scorecard'
-                    : activeTab === 'checkin'
-                      ? 'Check-in'
-                      : activeTab === 'kpis'
-                        ? 'KPIs'
-                        : activeTab === 'bsc'
-                          ? 'BSC'
-                          : activeTab === 'team'
-                            ? 'Team KPI'
-                            : activeTab === 'all'
-                              ? 'All Employee KPI'
-                              : 'My Scorecard'}
+                  {activeTabLabel}
                 </span>
               </li>
             </ol>
@@ -663,12 +648,8 @@ export default function MyBscScorecardPage() {
 
       <Tabs
         activeKey={activeTab}
-        onChange={(key) =>
-          setScorecardTab(
-            key as 'mine' | 'checkin' | 'team' | 'all' | 'kpis' | 'bsc',
-          )
-        }
-        items={tabItems}
+        onChange={handleScorecardSectionChange}
+        items={scorecardSectionTabs}
         moreIcon={false}
         tabBarStyle={{
           marginBottom: 0,

@@ -179,6 +179,8 @@ export class BscMockRepository {
       defaultTarget?: number | null;
       worstCase?: number | null;
       bestCase?: number | null;
+      cadence?: CreateKpiLibraryInput['cadence'];
+      checkInDay?: number | null;
     }>;
     existingIds: string[];
   }): Promise<KpiLibraryItem[]> {
@@ -259,6 +261,14 @@ export class BscMockRepository {
             row.bestCase !== undefined
               ? row.bestCase
               : this.kpiLibrary[idx].bestCase,
+          cadence:
+            row.cadence !== undefined
+              ? row.cadence
+              : this.kpiLibrary[idx].cadence,
+          checkInDay:
+            row.checkInDay !== undefined
+              ? row.checkInDay
+              : this.kpiLibrary[idx].checkInDay,
           positionId: input.positionId,
           positionTitle: input.positionTitle,
           departmentName:
@@ -281,6 +291,8 @@ export class BscMockRepository {
           defaultTarget: row.defaultTarget ?? null,
           worstCase: row.worstCase ?? null,
           bestCase: row.bestCase ?? null,
+          cadence: row.cadence ?? null,
+          checkInDay: row.checkInDay ?? null,
           weight: Number(row.weight),
           suggestedWeight: Number(row.weight),
           createdAt: new Date().toISOString(),
@@ -487,6 +499,9 @@ export class BscMockRepository {
         (input.useCustomDates
           ? BscSetupKind.Temporary
           : BscSetupKind.Permanent),
+      isActive: input.isActive !== false,
+      effectiveFrom:
+        input.effectiveFrom || input.startDate || new Date().toISOString().slice(0, 10),
       isRecurring: Boolean(input.isRecurring),
       useCustomDates: Boolean(input.useCustomDates),
       periodIds: input.periodIds || [],
@@ -578,6 +593,8 @@ export class BscMockRepository {
         targetValue: t.targetValue,
         worstCase: t.worstCase ?? kpi.worstCase,
         bestCase: t.bestCase ?? kpi.bestCase,
+        cadence: t.cadence ?? kpi.cadence ?? null,
+        checkInDay: t.checkInDay ?? kpi.checkInDay ?? null,
         approvalStatus: KpiApprovalStatus.Pending,
         assignmentSource: 'shared',
         evaluationFlow: t.evaluationFlow?.length
@@ -732,6 +749,8 @@ export class BscMockRepository {
         targetValue: Number(row.targetValue),
         worstCase: row.worstCase ?? kpi.worstCase,
         bestCase: row.bestCase ?? kpi.bestCase,
+        cadence: row.cadence ?? kpi.cadence ?? null,
+        checkInDay: row.checkInDay ?? kpi.checkInDay ?? null,
         approvalStatus: KpiApprovalStatus.Pending,
         assignmentSource: 'individual',
         evaluationFlow,

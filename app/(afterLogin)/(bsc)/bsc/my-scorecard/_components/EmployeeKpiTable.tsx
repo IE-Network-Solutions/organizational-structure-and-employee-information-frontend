@@ -1,35 +1,47 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { Avatar, Button, Popover, Progress, Select, Table, Tag } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Avatar, Button, Popover, Select, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { CloseOutlined, UserOutlined } from '@ant-design/icons';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useGetBscScorecards } from '@/store/server/features/bsc/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
 import { EmployeeScorecard } from '@/types/bsc';
 import {
   computeRollup,
   departmentRollups,
-  formatScore,
   latestScorecardsByEmployee,
-  type RollupSummary,
 } from '@/utils/bsc/rollup';
+import {
+  parseResultsScope,
+  scorecardResultsHref,
+  type ResultsScope,
+} from '@/utils/bsc/scorecardTab';
+import RollupProgressCard from '@/app/(afterLogin)/(bsc)/bsc/_components/RollupProgressCard';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
 
-const rollupCardShellClass =
-  'flex flex-col gap-4 h-[148px] min-w-[260px] flex-none rounded-lg border border-[#D9D9D9] bg-white p-4 text-left shadow-none transition-shadow hover:shadow-sm cursor-pointer';
+const filterButtonClassName =
+  'inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50';
 
 type EmployeeKpiRow = EmployeeScorecard & {
   kpiCount: number;
   individualCount: number;
+};
+
+type Props = {
+  canViewTeamKpi?: boolean;
+  canViewAllEmployeeKpi?: boolean;
 };
 
 function resolveProfileImageSrc(profileImage: unknown): string | undefined {
@@ -56,85 +68,96 @@ function nameInitials(name: string): string {
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
 }
 
-function RollupProgressCard({
-  rollup,
-  onClick,
-  dataCy,
-}: {
-  rollup: RollupSummary;
-  onClick: () => void;
-  dataCy: string;
-}) {
-  const percent = Number(rollup.averageScore || 0);
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={rollupCardShellClass}
-      data-cy={dataCy}
-    >
-      <div
-        className="flex items-center justify-between"
-        data-cy={`${dataCy}-header`}
-      >
-        <div
-          className="rounded-[4px] bg-[#E6F4FF] flex items-center justify-center w-[34px] h-[34px]"
-          data-cy={`${dataCy}-icon`}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24px"
-            viewBox="0 -960 960 960"
-            width="24px"
-            fill="#1677FF"
-            aria-hidden
-            data-cy={`${dataCy}-icon-svg`}
-          >
-            <path
-              d="M160-160v-320h160v320H160Zm240 0v-560h160v560H400Zm240 0v-200h160v200H640Z"
-              data-cy={`${dataCy}-icon-path`}
-            />
-          </svg>
-        </div>
-        <div
-          className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900"
-          data-cy={`${dataCy}-value`}
-        >
-          {formatScore(percent)}%
-        </div>
-      </div>
-      <div className="flex flex-col mt-3" data-cy={`${dataCy}-body`}>
-        <div
-          className="text-gray-500 w-full font-normal text-base text-start truncate"
-          data-cy={`${dataCy}-label`}
-        >
-          {rollup.scope === 'company'
-            ? 'Company-wide Scorecard'
-            : `${rollup.label} Scorecard`}
-        </div>
-        <div className="flex gap-2 items-center" data-cy={`${dataCy}-progress`}>
-          <Progress
-            percent={percent}
-            showInfo={false}
-            strokeColor="#1f4fd8"
-            trailColor="#e5e7eb"
-          />
-        </div>
-      </div>
-    </button>
-  );
+function resolveTeamManagerId(
+  actorId: string | undefined,
+  scorecards: EmployeeScorecard[],
+): string {
+  const preferred = actorId || 'demo-user';
+
+  const isDirectReport = (card: EmployeeScorecard, managerId: string) =>
+    card.managerId === managerId &&
+    card.userId !== managerId &&
+    card.userId !== 'demo-user';
+
+  const countReports = (managerId: string) =>
+    scorecards.filter((card) => isDirectReport(card, managerId)).length;
+
+  if (countReports(preferred) > 0) return preferred;
+
+  // Mock/demo fallback when the signed-in user has no direct reports in seed data.
+  if (preferred !== 'demo-user' && countReports('demo-user') > 0) {
+    return 'demo-user';
+  }
+
+  return preferred;
 }
 
-export default function EmployeeKpiTable() {
+export default function EmployeeKpiTable({
+  canViewTeamKpi: canViewTeamProp,
+  canViewAllEmployeeKpi: canViewAllProp,
+}: Props = {}) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { userId: actorId } = useAuthenticationStore();
+  const canViewTeamKpi =
+    canViewTeamProp ??
+    AccessGuard.checkAccess({ permissions: [Permissions.ViewTeamOkr] });
+  const canViewAllEmployeeKpi =
+    canViewAllProp ??
+    AccessGuard.checkAccess({ permissions: [Permissions.ViewCompanyOkr] });
+
+  const scopeOptions = useMemo(() => {
+    const options: { value: ResultsScope; label: string }[] = [];
+    if (canViewTeamKpi)
+      options.push({ value: 'team', label: 'Subordinate KPI' });
+    if (canViewAllEmployeeKpi) {
+      options.push({ value: 'all', label: 'All Employees KPI' });
+    }
+    return options;
+  }, [canViewTeamKpi, canViewAllEmployeeKpi]);
+
+  const allowedScopes = useMemo(
+    () => scopeOptions.map((option) => option.value),
+    [scopeOptions],
+  );
+
+  const scopeFromUrl = parseResultsScope(searchParams);
+  const scope: ResultsScope = allowedScopes.includes(scopeFromUrl)
+    ? scopeFromUrl
+    : allowedScopes[0] || 'all';
+
+  useEffect(() => {
+    if (!allowedScopes.length) return;
+    if (scope !== scopeFromUrl) {
+      router.replace(scorecardResultsHref(scope));
+    }
+  }, [allowedScopes.length, router, scope, scopeFromUrl]);
+
+  useEffect(() => {
+    setUserId(undefined);
+    setDepartment(undefined);
+    setCurrentPage(1);
+  }, [scope]);
+
   const [userId, setUserId] = useState<string | undefined>();
   const [department, setDepartment] = useState<string | undefined>();
+  const [draftScope, setDraftScope] = useState<ResultsScope>(scope);
+  const [draftUserId, setDraftUserId] = useState<string | undefined>();
+  const [draftDepartment, setDraftDepartment] = useState<string | undefined>();
   const [filterOpen, setFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { isMobile, isTablet } = useIsMobile();
   const { data: scorecards, isLoading } = useGetBscScorecards();
   const { data: allUsers } = useGetAllUsers();
+
+  useEffect(() => {
+    if (filterOpen) {
+      setDraftScope(scope);
+      setDraftUserId(userId);
+      setDraftDepartment(scope === 'team' ? undefined : department);
+    }
+  }, [filterOpen, scope, userId, department]);
 
   const profileImageByUserId = useMemo(() => {
     const map = new Map<string, string>();
@@ -145,9 +168,19 @@ export default function EmployeeKpiTable() {
     return map;
   }, [allUsers]);
 
+  const scopedScorecards = useMemo(() => {
+    const list = scorecards || [];
+    if (scope !== 'team') return list;
+    const manager = resolveTeamManagerId(actorId, list);
+    const skip = new Set([manager, 'demo-user'].filter(Boolean));
+    return list.filter(
+      (card) => card.managerId === manager && !skip.has(card.userId),
+    );
+  }, [scorecards, scope, actorId]);
+
   const latestByEmployee = useMemo(
-    () => latestScorecardsByEmployee(scorecards),
-    [scorecards],
+    () => latestScorecardsByEmployee(scopedScorecards),
+    [scopedScorecards],
   );
 
   const companyRollup = useMemo(
@@ -156,8 +189,8 @@ export default function EmployeeKpiTable() {
   );
 
   const deptRollups = useMemo(
-    () => departmentRollups(latestByEmployee),
-    [latestByEmployee],
+    () => (scope === 'all' ? departmentRollups(latestByEmployee) : []),
+    [latestByEmployee, scope],
   );
 
   const employeeOptions = useMemo(
@@ -203,12 +236,12 @@ export default function EmployeeKpiTable() {
   };
 
   const openCompanyRollup = () => {
-    router.push('/bsc/roll-up?scope=company');
+    router.push('/bsc/roll-up');
   };
 
-  const openDepartmentRollup = (name: string) => {
+  const openDepartmentRollup = (departmentName: string) => {
     router.push(
-      `/bsc/roll-up?scope=department&department=${encodeURIComponent(name)}`,
+      `/bsc/roll-up?department=${encodeURIComponent(departmentName)}`,
     );
   };
 
@@ -216,83 +249,90 @@ export default function EmployeeKpiTable() {
     {
       title: (
         <span
+          data-cy="employeekpitable-span-250"
           className={tableHeaderClassName}
-          data-cy="bsc-all-employee-col-name"
         >
-          Employee Name
+          Employee
         </span>
       ),
-      dataIndex: 'userName',
-      key: 'userName',
-      width: 240,
-      render: (name: string, row) => (
-        <div
-          className="flex min-w-0 items-center gap-2"
-          data-cy="bsc-all-employee-name-cell"
-        >
-          <Avatar
-            size={28}
-            src={profileImageByUserId.get(row.userId)}
-            icon={<UserOutlined />}
-            className="shrink-0 bg-[#E6F4FF] text-[#1677ff]"
-            data-cy={`bsc-all-employee-avatar-${row.userId}`}
+      key: 'employee',
+      render: (unused, row) => {
+        const src = profileImageByUserId.get(row.userId);
+        return (
+          <div
+            data-cy="employeekpitable-div-255"
+            className="flex items-center gap-3 min-w-0"
           >
-            {nameInitials(name)}
-          </Avatar>
-          <span
-            className={`min-w-0 truncate ${tableCellClassName}`}
-            data-cy="bsc-all-employee-name"
-          >
-            {name}
-          </span>
-        </div>
-      ),
+            <Avatar
+              size={36}
+              src={src}
+              icon={!src ? <UserOutlined /> : undefined}
+              className="shrink-0 bg-[#E6F4FF] text-[#1677FF]"
+            >
+              {!src ? nameInitials(row.userName) : null}
+            </Avatar>
+            <div
+              data-cy="employeekpitable-div-264"
+              className="min-w-0 flex flex-col"
+            >
+              <span
+                data-cy="employeekpitable-span-265"
+                className={`${tableCellClassName} truncate`}
+              >
+                {row.userName}
+              </span>
+              <span
+                data-cy="employeekpitable-span-268"
+                className="text-xs text-gray-500 truncate"
+              >
+                {row.positionTitle || '—'}
+              </span>
+            </div>
+          </div>
+        );
+      },
     },
     {
       title: (
         <span
+          data-cy="employeekpitable-span-277"
           className={tableHeaderClassName}
-          data-cy="bsc-all-employee-col-dept"
         >
           Department
         </span>
       ),
       dataIndex: 'departmentName',
-      key: 'departmentName',
-      width: 180,
-      render: (name: string) => (
-        <span className={tableCellClassName} data-cy="bsc-all-employee-dept">
-          {name || '—'}
+      key: 'department',
+      render: (value: string | null | undefined) => (
+        <span
+          data-cy="employeekpitable-span-281"
+          className={tableCellClassName}
+        >
+          {value || '—'}
         </span>
       ),
     },
     {
       title: (
         <span
+          data-cy="employeekpitable-span-285"
           className={tableHeaderClassName}
-          data-cy="bsc-all-employee-col-kpis"
         >
           KPIs
         </span>
       ),
-      key: 'kpiCount',
+      key: 'kpis',
       width: 120,
-      render: (unused: unknown, row: EmployeeKpiRow) => (
-        <div
-          className="flex flex-wrap items-center gap-1"
-          data-cy="bsc-all-employee-kpi-cell"
-        >
+      render: (unused, row) => (
+        <div data-cy="employeekpitable-div-289" className="flex flex-col gap-1">
           <span
+            data-cy="employeekpitable-span-290"
             className={tableCellClassName}
-            data-cy="bsc-all-employee-kpi-count"
           >
             {row.kpiCount}
           </span>
           {row.individualCount > 0 ? (
-            <Tag
-              className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]"
-              data-cy="bsc-all-employee-individual-tag"
-            >
+            <Tag className="m-0 w-fit border-[#91caff] bg-[#e6f4ff] text-[#1677ff]">
               {row.individualCount} individual
             </Tag>
           ) : null}
@@ -301,25 +341,68 @@ export default function EmployeeKpiTable() {
     },
   ];
 
+  const applyFilters = () => {
+    setUserId(draftUserId);
+    setDepartment(draftScope === 'team' ? undefined : draftDepartment);
+    setCurrentPage(1);
+    if (draftScope !== scope) {
+      router.push(scorecardResultsHref(draftScope));
+    }
+    setFilterOpen(false);
+  };
+
   const handleReset = () => {
+    const defaultScope = allowedScopes[0] || 'all';
+    setDraftUserId(undefined);
+    setDraftDepartment(undefined);
+    setDraftScope(defaultScope);
     setUserId(undefined);
     setDepartment(undefined);
     setCurrentPage(1);
+    if (defaultScope !== scope) {
+      router.push(scorecardResultsHref(defaultScope));
+    }
+    setFilterOpen(false);
   };
 
   const filterBody = (
-    <div className="flex flex-col gap-4" data-cy="bsc-all-employee-filter-body">
+    <div className="flex flex-col gap-4" data-cy="bsc-results-filter-body">
       <div
         className="grid grid-cols-1 gap-4 sm:grid-cols-2"
-        data-cy="bsc-all-employee-filter-grid"
+        data-cy="bsc-results-filter-grid"
       >
+        {scopeOptions.length > 1 ? (
+          <div
+            className="flex flex-col gap-2 sm:col-span-2"
+            data-cy="bsc-results-filter-scope"
+          >
+            <label
+              className="text-sm font-medium text-gray-700"
+              data-cy="bsc-results-filter-scope-label"
+            >
+              Scope
+            </label>
+            <Select
+              value={draftScope}
+              onChange={(value: ResultsScope) => {
+                setDraftScope(value);
+                if (value === 'team') {
+                  setDraftDepartment(undefined);
+                }
+              }}
+              options={scopeOptions}
+              className="w-full h-10 rounded-lg"
+              data-cy="bsc-results-filter-scope-select"
+            />
+          </div>
+        ) : null}
         <div
           className="flex flex-col gap-2"
-          data-cy="bsc-all-employee-filter-employee"
+          data-cy="bsc-results-filter-employee"
         >
           <label
             className="text-sm font-medium text-gray-700"
-            data-cy="bsc-all-employee-filter-employee-label"
+            data-cy="bsc-results-filter-employee-label"
           >
             Employee
           </label>
@@ -328,41 +411,35 @@ export default function EmployeeKpiTable() {
             allowClear
             placeholder="Select employee"
             className="w-full h-10 rounded-lg"
-            value={userId}
-            onChange={(value) => {
-              setUserId(value);
-              setCurrentPage(1);
-            }}
+            value={draftUserId}
+            onChange={(value) => setDraftUserId(value)}
             options={employeeOptions}
             optionFilterProp="label"
-            data-cy="bsc-all-employee-filter-employee-select"
+            data-cy="bsc-results-filter-employee-select"
           />
         </div>
-        <div
-          className="flex flex-col gap-2"
-          data-cy="bsc-all-employee-filter-dept"
-        >
+        <div className="flex flex-col gap-2" data-cy="bsc-results-filter-dept">
           <label
-            className="text-sm font-medium text-gray-700"
-            data-cy="bsc-all-employee-filter-dept-label"
+            className={`text-sm font-medium ${
+              draftScope === 'team' ? 'text-gray-400' : 'text-gray-700'
+            }`}
+            data-cy="bsc-results-filter-dept-label"
           >
             Department
           </label>
           <Select
             allowClear
             showSearch
-            placeholder="Filter by department"
+            disabled={draftScope === 'team'}
+            placeholder="Department"
             className="w-full h-10 rounded-lg"
-            value={department}
-            onChange={(value) => {
-              setDepartment(value);
-              setCurrentPage(1);
-            }}
+            value={draftScope === 'team' ? undefined : draftDepartment}
+            onChange={(value) => setDraftDepartment(value)}
             options={departmentOptions.map((name) => ({
               value: name,
               label: name,
             }))}
-            data-cy="bsc-all-employee-filter-dept-select"
+            data-cy="bsc-results-filter-dept-select"
           />
         </div>
       </div>
@@ -372,31 +449,42 @@ export default function EmployeeKpiTable() {
   const filterPopover = (
     <div
       className="w-[460px] max-w-[460px]"
-      data-cy="bsc-all-employee-filter-popover"
+      data-cy="bsc-results-filter-popover"
     >
       {filterBody}
       <div
         className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100"
-        data-cy="bsc-all-employee-filter-actions"
+        data-cy="bsc-results-filter-actions"
       >
         <Button
           onClick={handleReset}
           className="h-8 px-4 rounded-lg text-xs text-gray-700 border-gray-300"
-          data-cy="bsc-all-employee-filter-reset"
+          data-cy="bsc-results-filter-reset"
         >
           Reset
         </Button>
         <Button
           type="primary"
-          onClick={() => setFilterOpen(false)}
+          onClick={applyFilters}
           className="h-8 px-4 rounded-lg text-xs bg-okr-primary border-okr-primary"
-          data-cy="bsc-all-employee-filter-save"
+          data-cy="bsc-results-filter-save"
         >
           Save Filter
         </Button>
       </div>
     </div>
   );
+
+  if (!allowedScopes.length) {
+    return (
+      <div
+        className="py-16 text-center text-gray-400"
+        data-cy="bsc-results-empty-permission"
+      >
+        You do not have access to KPI results.
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4" data-cy="bsc-all-employee-kpi-table">
@@ -408,6 +496,11 @@ export default function EmployeeKpiTable() {
           rollup={companyRollup}
           onClick={openCompanyRollup}
           dataCy="bsc-company-rollup-card"
+          label={
+            scope === 'team'
+              ? 'Subordinate Scorecard'
+              : 'Company-wide Scorecard'
+          }
         />
         {deptRollups.map((row) => (
           <RollupProgressCard
@@ -429,7 +522,10 @@ export default function EmployeeKpiTable() {
           className="flex flex-wrap items-center justify-between gap-3 mb-2 px-3 pt-3"
           data-cy="bsc-all-employee-toolbar"
         >
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+          <div
+            data-cy="employeekpitable-div-482"
+            className="flex min-w-0 flex-1 flex-wrap items-center gap-2"
+          >
             <Select
               showSearch
               allowClear
@@ -444,69 +540,65 @@ export default function EmployeeKpiTable() {
               optionFilterProp="label"
               data-cy="bsc-all-employee-search"
             />
-            <Select
-              allowClear
-              showSearch
-              placeholder="Department"
-              value={department}
-              onChange={(value) => {
-                setDepartment(value);
-                setCurrentPage(1);
-              }}
-              className="h-10 w-full sm:w-[220px]"
-              options={departmentOptions.map((name) => ({
-                value: name,
-                label: name,
-              }))}
-              data-cy="bsc-all-employee-department-select"
-            />
           </div>
-          <Popover
-            content={filterPopover}
-            title={
-              <div
-                className="flex justify-between items-start"
-                data-cy="bsc-all-employee-filter-title"
-              >
-                <div data-cy="bsc-all-employee-filter-title-text">
-                  <h3
-                    className="text-base font-bold text-gray-900 m-0"
-                    data-cy="bsc-all-employee-filter-heading"
-                  >
-                    Filter
-                  </h3>
-                  <p
-                    className="text-xs text-gray-500 mt-1 mb-0"
-                    data-cy="bsc-all-employee-filter-hint"
-                  >
-                    Select all filters that apply
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setFilterOpen(false)}
-                  className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"
-                  data-cy="bsc-all-employee-filter-close"
-                >
-                  <CloseOutlined />
-                </button>
-              </div>
-            }
-            trigger="click"
-            open={filterOpen}
-            onOpenChange={setFilterOpen}
-            placement="bottomRight"
-            arrow={false}
+          <div
+            id="okr-filter-button-wrapper"
+            data-cy="bsc-results-filter-button-wrapper"
+            className="flex-shrink-0"
           >
-            <Button
-              type="default"
-              className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#D9D9D9] rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 h-10"
-              icon={<FilterAltOutlinedIcon className="py-1" />}
-              data-cy="bsc-all-employee-filter"
+            <Popover
+              content={filterPopover}
+              title={
+                <div
+                  className="flex justify-between items-start"
+                  data-cy="bsc-results-filter-title"
+                >
+                  <div data-cy="bsc-results-filter-title-text">
+                    <h3
+                      className="text-base font-bold text-gray-900 m-0"
+                      data-cy="bsc-results-filter-heading"
+                    >
+                      Filter
+                    </h3>
+                    <p
+                      className="text-xs text-gray-500 mt-1 mb-0"
+                      data-cy="bsc-results-filter-hint"
+                    >
+                      Select all filters that apply
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFilterOpen(false)}
+                    className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"
+                    data-cy="bsc-results-filter-close"
+                  >
+                    <CloseOutlined />
+                  </button>
+                </div>
+              }
+              trigger="click"
+              open={filterOpen}
+              onOpenChange={setFilterOpen}
+              placement="bottomRight"
+              arrow={false}
             >
-              Filter
-            </Button>
-          </Popover>
+              <Button
+                id="desktop-filter-button"
+                type="default"
+                className={filterButtonClassName}
+                icon={
+                  <FilterAltOutlinedIcon
+                    className="py-1"
+                    sx={{ fontSize: 22 }}
+                  />
+                }
+                data-cy="bsc-results-filter-button"
+              >
+                Filter
+              </Button>
+            </Popover>
+          </div>
         </div>
 
         <div
@@ -534,6 +626,12 @@ export default function EmployeeKpiTable() {
                 index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
               }
               data-cy="bsc-all-employee-table"
+              locale={{
+                emptyText:
+                  scope === 'team'
+                    ? 'No subordinate KPI results'
+                    : 'No employee KPI results',
+              }}
             />
           )}
         </div>

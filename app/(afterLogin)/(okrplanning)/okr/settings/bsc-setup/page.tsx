@@ -2,17 +2,15 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useBscUiStore } from '@/store/uistate/features/bsc';
+import { bscKpiAdminHref } from '@/utils/bsc/scorecardTab';
 
-/** Legacy settings route — BSC scorecards live under My Scorecard. */
+/** Legacy settings route — scorecards live under BSC → KPI. */
 export default function BscSetupRedirectPage() {
   const router = useRouter();
-  const setScorecardTab = useBscUiStore((s) => s.setScorecardTab);
 
   useEffect(() => {
-    setScorecardTab('bsc');
-    router.replace('/bsc/my-scorecard');
-  }, [router, setScorecardTab]);
+    router.replace(bscKpiAdminHref('bsc'));
+  }, [router]);
 
   return (
     <div

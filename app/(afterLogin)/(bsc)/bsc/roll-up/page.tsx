@@ -16,6 +16,7 @@ import {
   latestScorecardsByEmployee,
   scorecardTotal,
 } from '@/utils/bsc/rollup';
+import { scorecardResultsHref } from '@/utils/bsc/scorecardTab';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
@@ -65,8 +66,8 @@ export default function BscRollupDetailPage() {
       : 'Company-wide roll-up';
 
   const backToAll = () => {
-    setScorecardTab('all');
-    router.push('/bsc/my-scorecard');
+    setScorecardTab('results');
+    router.push(scorecardResultsHref('all'));
   };
 
   const openEmployee = (row: ContributorRow) => {

@@ -125,8 +125,11 @@ export default function BscPerspectiveAssignmentPage() {
                     className="w-[320px] max-w-[320px]"
                     data-cy="bsc-assignment-filter-popover"
                   >
-                    <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-gray-700">
+                    <div data-cy="page-div-128" className="flex flex-col gap-2">
+                      <label
+                        data-cy="page-label-129"
+                        className="text-sm font-medium text-gray-700"
+                      >
                         Department
                       </label>
                       <Select
@@ -143,7 +146,10 @@ export default function BscPerspectiveAssignmentPage() {
                         data-cy="bsc-assignment-filter-dept-select"
                       />
                     </div>
-                    <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100">
+                    <div
+                      data-cy="page-div-146"
+                      className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100"
+                    >
                       <Button
                         onClick={() => setRoleDepartmentFilter(undefined)}
                         className="h-8 px-4 rounded-lg text-xs text-gray-700 border-gray-300"
@@ -161,16 +167,26 @@ export default function BscPerspectiveAssignmentPage() {
                   </div>
                 }
                 title={
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-base font-bold text-gray-900 m-0">
+                  <div
+                    data-cy="page-div-164"
+                    className="flex justify-between items-start"
+                  >
+                    <div data-cy="page-div-165">
+                      <h3
+                        data-cy="page-h3-166"
+                        className="text-base font-bold text-gray-900 m-0"
+                      >
                         Filter
                       </h3>
-                      <p className="text-xs text-gray-500 mt-1 mb-0">
+                      <p
+                        data-cy="page-p-169"
+                        className="text-xs text-gray-500 mt-1 mb-0"
+                      >
                         Select all filters that apply
                       </p>
                     </div>
                     <button
+                      data-cy="page-button-173"
                       type="button"
                       onClick={() => setFilterOpen(false)}
                       className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"

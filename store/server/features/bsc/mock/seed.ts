@@ -442,6 +442,12 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
   },
 ];
 
+// Default check-in: monthly on today's day-of-month so seeded Active scorecards show in Check-in.
+for (const kpi of SEED_KPI_LIBRARY) {
+  if (kpi.cadence == null) kpi.cadence = BscCadence.Monthly;
+  if (kpi.checkInDay == null) kpi.checkInDay = new Date().getDate();
+}
+
 function emptySeedWeights(): Record<BscPerspective, number> {
   return {
     [BscPerspective.Customer]: 0,
@@ -503,6 +509,8 @@ function seedEvaluationConfig(): EvaluationCycle {
     periodLabels: [label],
     startDate: start.toISOString().slice(0, 10),
     endDate: '2099-12-31',
+    isActive: true,
+    effectiveFrom: start.toISOString().slice(0, 10),
     isRecurring: true,
     useCustomDates: false,
     departmentIds: ['dept-hr', 'dept-cs', 'dept-it', 'dept-sales'],
@@ -561,6 +569,8 @@ export const SEED_CYCLES: EvaluationCycle[] = [
       periodLabels: [`Q${q} ${year}`],
       startDate: start.toISOString().slice(0, 10),
       endDate: end.toISOString().slice(0, 10),
+      isActive: true,
+      effectiveFrom: start.toISOString().slice(0, 10),
       isRecurring: true,
       useCustomDates: true,
       departmentIds: ['dept-hr'],
@@ -593,6 +603,8 @@ export const SEED_CYCLES: EvaluationCycle[] = [
       ],
       startDate: start.toISOString().slice(0, 10),
       endDate: end.toISOString().slice(0, 10),
+      isActive: true,
+      effectiveFrom: start.toISOString().slice(0, 10),
       isRecurring: false,
       useCustomDates: true,
       departmentIds: [],
@@ -643,6 +655,8 @@ function buildRoleTargets(
     measurementUnit: kpi.measurementUnit,
     weightPercentage: kpi.weight,
     targetValue: kpi.defaultTarget ?? 0,
+    cadence: kpi.cadence ?? BscCadence.Monthly,
+    checkInDay: kpi.checkInDay ?? new Date().getDate(),
     actualValue: actuals[i] ?? null,
     assignmentSource: 'shared' as const,
     evaluationFlow: [{ kind: 'self' as const }, { kind: 'directManager' as const }],
@@ -756,6 +770,8 @@ export const SEED_PAST_CYCLES: EvaluationCycle[] = [-1, -2].map((offset) => {
     periodLabels: [meta.label],
     startDate: meta.start.toISOString().slice(0, 10),
     endDate: meta.end.toISOString().slice(0, 10),
+    isActive: false,
+    effectiveFrom: meta.start.toISOString().slice(0, 10),
     isRecurring: false,
     useCustomDates: true,
     departmentIds: ['dept-hr'],

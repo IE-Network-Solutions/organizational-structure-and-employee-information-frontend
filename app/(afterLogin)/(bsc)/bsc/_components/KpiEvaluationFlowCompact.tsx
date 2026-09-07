@@ -33,8 +33,15 @@ function stepShort(
     const emp = employeeById?.get(step.userId);
     if (emp?.initials) return emp.initials;
     const label = emp?.label || 'Person';
-    return label.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('')
-      .toUpperCase() || '?';
+    return (
+      label
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((p) => p[0])
+        .join('')
+        .toUpperCase() || '?'
+    );
   }
   return '?';
 }
@@ -51,10 +58,9 @@ export default function KpiEvaluationFlowCompact({
   employeeById,
   dataCy = 'bsc-kpi-eval-compact',
 }: Props) {
-  const steps =
-    flow?.length
-      ? flow
-      : ([{ kind: 'self' }, { kind: 'directManager' }] as BscEvaluatorStep[]);
+  const steps = flow?.length
+    ? flow
+    : ([{ kind: 'self' }, { kind: 'directManager' }] as BscEvaluatorStep[]);
 
   return (
     <div
@@ -87,9 +93,7 @@ export default function KpiEvaluationFlowCompact({
                 ) : (
                   <Avatar
                     size={16}
-                    icon={
-                      step.kind === 'user' ? undefined : <UserOutlined />
-                    }
+                    icon={step.kind === 'user' ? undefined : <UserOutlined />}
                     className={
                       step.kind === 'self'
                         ? 'bg-[#E6F4FF] text-[8px] text-[#1677ff]'
@@ -103,7 +107,10 @@ export default function KpiEvaluationFlowCompact({
                       : null}
                   </Avatar>
                 )}
-                <span className="text-[10px] font-medium text-[#595959]">
+                <span
+                  data-cy="kpievaluationflowcompact-span-110"
+                  className="text-[10px] font-medium text-[#595959]"
+                >
                   {step.kind === 'user'
                     ? stepShort(step, employeeById)
                     : step.kind === 'self'

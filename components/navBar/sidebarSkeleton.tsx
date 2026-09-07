@@ -69,6 +69,21 @@ const SidebarSkeleton: React.FC = () => {
           ></div>
         </div>
 
+        {/* KPI */}
+        <div
+          className="flex items-center gap-3 p-3"
+          data-cy="sidebar-skeleton-item-kpi"
+        >
+          <div
+            className="w-5 h-5 bg-gray-200 rounded animate-pulse"
+            data-cy="sidebar-skeleton-icon-kpi"
+          ></div>
+          <div
+            className="w-8 h-4 bg-gray-200 rounded animate-pulse"
+            data-cy="sidebar-skeleton-text-kpi"
+          ></div>
+        </div>
+
         {/* CFR */}
         <div
           className="flex items-center gap-3 p-3"

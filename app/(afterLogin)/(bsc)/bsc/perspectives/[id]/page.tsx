@@ -45,6 +45,7 @@ import {
   perspectiveKpiProgressList,
   type PerspectiveKpiProgress,
 } from '@/utils/bsc/rollup';
+import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
 
 const { TextArea } = Input;
 
@@ -133,7 +134,7 @@ export default function BscPerspectiveDetailPage() {
 
   const backToKpis = () => {
     setScorecardTab('kpis');
-    router.push('/bsc/my-scorecard');
+    router.push(scorecardTabHref('kpis'));
   };
 
   const openKpi = (row: PerspectiveKpiProgress) => {

@@ -5,6 +5,7 @@ import {
   Avatar,
   Button,
   Checkbox,
+  Col,
   DatePicker,
   Form,
   Input,
@@ -12,6 +13,7 @@ import {
   Modal,
   Popover,
   Radio,
+  Row,
   Select,
   Steps,
   Tag,
@@ -26,6 +28,7 @@ import {
 import dayjs, { Dayjs } from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
+import { unitTagClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/TargetValueCell';
 import {
   useCreateBscCycle,
   useCreateBscScorecard,
@@ -55,12 +58,20 @@ import {
   TargetLogic,
 } from '@/types/bsc';
 import {
-  validatePerspectiveWeights,
-  validateWeights,
-} from '@/utils/bsc/scoring';
+  checkInDayOptions,
+  eligibleCheckInCadences,
+  filterCheckInDayOptions,
+  formatCheckInDate,
+  isKpiCheckInCadence,
+  KPI_CHECKIN_CADENCES,
+  cadenceLabel,
+  resolveFirstCheckInDate,
+} from '@/utils/bsc/checkInSchedule';
+import { resolveEffectiveFrom } from '@/utils/bsc/effectiveDate';
+import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
+import { validateWeights } from '@/utils/bsc/scoring';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
-const { RangePicker } = DatePicker;
 const { TextArea } = Input;
 
 function asList(data: any): any[] {
@@ -70,55 +81,12 @@ function asList(data: any): any[] {
   return [];
 }
 
-function formCadence(cadence?: BscCadence): BscCadence {
-  if (
-    cadence === BscCadence.Weekly ||
-    cadence === BscCadence.Monthly ||
-    cadence === BscCadence.Yearly ||
-    cadence === BscCadence.Quarterly
-  ) {
-    return cadence;
-  }
-  return BscCadence.Monthly;
-}
-
-function resolveSetupKind(config: {
-  setupKind?: BscSetupKind;
-  useCustomDates?: boolean;
-}): BscSetupKind {
-  if (config.setupKind === BscSetupKind.Temporary) {
-    return BscSetupKind.Temporary;
-  }
-  if (config.setupKind === BscSetupKind.Permanent) {
-    return BscSetupKind.Permanent;
-  }
-  return config.useCustomDates
-    ? BscSetupKind.Temporary
-    : BscSetupKind.Permanent;
-}
-
-const CADENCE_OPTIONS = [
-  { value: BscCadence.Weekly, label: 'Weekly', minDays: 7 },
-  { value: BscCadence.Monthly, label: 'Monthly', minDays: 28 },
-  { value: BscCadence.Quarterly, label: 'Quarterly', minDays: 90 },
-  { value: BscCadence.Yearly, label: 'Yearly', minDays: 365 },
-];
-
-function periodDayCount(range?: [Dayjs, Dayjs] | null): number {
-  if (!range?.[0] || !range?.[1]) return 0;
-  return Math.max(
-    range[1].startOf('day').diff(range[0].startOf('day'), 'day') + 1,
-    0,
-  );
-}
-
-function cadenceOptionsForPeriod(dayCount: number) {
-  if (dayCount <= 0) return [];
-  return CADENCE_OPTIONS.filter((option) => option.minDays <= dayCount);
-}
-
-const PERMANENT_START = () => dayjs().format('YYYY-MM-DD');
 const PERMANENT_END = '2099-12-31';
+
+const KPI_CADENCE_OPTIONS = KPI_CHECKIN_CADENCES.map((value) => ({
+  value,
+  label: cadenceLabel(value) || value,
+}));
 
 function resolveScopeTarget(config: {
   scopeTarget?: BscScopeTarget;
@@ -151,11 +119,13 @@ function defaultEvaluationFlow(): BscEvaluatorStep[] {
   return DEFAULT_EVALUATION_FLOW.map((step) => ({ ...step }));
 }
 
-function normalizeEvaluationFlow(flow?: BscEvaluatorStep[] | null): BscEvaluatorStep[] {
+function normalizeEvaluationFlow(
+  flow?: BscEvaluatorStep[] | null,
+): BscEvaluatorStep[] {
   if (!flow?.length) return defaultEvaluationFlow();
   return flow.map((step) => ({
     kind: step.kind,
-    userId: step.kind === 'user' ? step.userId ?? null : null,
+    userId: step.kind === 'user' ? (step.userId ?? null) : null,
   }));
 }
 
@@ -239,7 +209,12 @@ type MeasureRow = {
   targetValue?: number | null;
   worstCase?: number | null;
   bestCase?: number | null;
+  cadence?: BscCadence | null;
+  checkInDay?: number | null;
 };
+
+const KPI_LIST_ROW_GRID =
+  'grid grid-cols-[32px_minmax(0,1fr)_120px_120px] gap-x-6 items-center px-2';
 
 function targetLogicLabel(logic?: TargetLogic): string {
   if (logic === TargetLogic.LowerBetter) return 'Lower is better';
@@ -261,11 +236,11 @@ function seedPerspectiveRows(names: string[]): PerspectiveRow[] {
 
 /**
  * Standard BSC cascade (Kaplan & Norton):
- * 1) Define the scorecard (identity, horizon, cadence)
+ * 1) Define the scorecard (identity, active, effective date)
  * 2) Set organizational scope (company, department, role, or individual)
  * 3) Select KPIs from all perspectives under the scorecard
- * 4) Assign perspective / KPI weights and cycle targets
- * 5) Choose scorecard-level evaluation default
+ * 4) Assign KPI weights (sum 100%), targets, and check-in schedule
+ * 5) Choose evaluation flow per KPI
  */
 export default function BscSetupModal() {
   const [form] = Form.useForm();
@@ -367,22 +342,6 @@ export default function BscSetupModal() {
     setEmployeePickerSearch('');
   };
 
-  const setupKind = Form.useWatch('setupKind', form) as
-    | BscSetupKind
-    | undefined;
-  const isTemporary = setupKind === BscSetupKind.Temporary;
-  const isPermanent = setupKind === BscSetupKind.Permanent;
-  const isRecurringChoice = Form.useWatch('isRecurring', form) as
-    | boolean
-    | undefined;
-  const dateRange = Form.useWatch('dateRange', form) as
-    | [Dayjs, Dayjs]
-    | undefined;
-  const selectedCadence = Form.useWatch('cadence', form) as
-    | BscCadence
-    | undefined;
-  const perspectiveRows: PerspectiveRow[] =
-    Form.useWatch('perspectiveRows', form) || [];
   const measureWeights: Record<string, number | null | undefined> =
     Form.useWatch('measureWeights', form) || {};
   const measureTargets: Record<string, number | null | undefined> =
@@ -391,24 +350,22 @@ export default function BscSetupModal() {
     Form.useWatch('measureWorstCases', form) || {};
   const measureBestCases: Record<string, number | null | undefined> =
     Form.useWatch('measureBestCases', form) || {};
+  const measureCadences: Record<string, BscCadence | null | undefined> =
+    Form.useWatch('measureCadences', form) || {};
+  const measureCheckInDays: Record<string, number | null | undefined> =
+    Form.useWatch('measureCheckInDays', form) || {};
+  const setupKindWatch = Form.useWatch('setupKind', form) as
+    | BscSetupKind
+    | undefined;
+  const effectiveFromWatch = Form.useWatch('effectiveFrom', form) as
+    | Dayjs
+    | undefined;
+  const endDateWatch = Form.useWatch('endDate', form) as Dayjs | undefined;
   const scopeTarget = Form.useWatch('scopeTarget', form) as
     | BscScopeTarget
     | undefined;
   const kpiEvaluationFlows = (Form.useWatch('kpiEvaluationFlows', form) ||
     {}) as Record<string, BscEvaluatorStep[]>;
-
-  const showCadence =
-    isPermanent || (isTemporary && isRecurringChoice === true);
-
-  const temporaryDayCount = useMemo(
-    () => (isTemporary ? periodDayCount(dateRange) : 0),
-    [isTemporary, dateRange],
-  );
-
-  const cadenceOptions = useMemo(() => {
-    if (!isTemporary) return CADENCE_OPTIONS;
-    return cadenceOptionsForPeriod(temporaryDayCount);
-  }, [isTemporary, temporaryDayCount]);
 
   const catalogPerspectiveNames = useMemo(
     () => (catalog || []).map((item) => item.name),
@@ -448,18 +405,66 @@ export default function BscSetupModal() {
     [uniqueCatalogKpis, selectedKpiIds],
   );
 
+  const isTemporarySetup = setupKindWatch === BscSetupKind.Temporary;
+
+  const eligibleCadenceOptions = useMemo(() => {
+    if (!isTemporarySetup) return KPI_CADENCE_OPTIONS;
+    return KPI_CADENCE_OPTIONS.filter((option) =>
+      eligibleCheckInCadences(effectiveFromWatch, endDateWatch).includes(
+        option.value,
+      ),
+    );
+  }, [isTemporarySetup, effectiveFromWatch, endDateWatch]);
+
+  useEffect(() => {
+    if (!isTemporarySetup || !effectiveFromWatch || !endDateWatch) return;
+
+    const allowedCadences = new Set(
+      eligibleCheckInCadences(effectiveFromWatch, endDateWatch),
+    );
+    const cadences: Record<string, BscCadence | null | undefined> =
+      form.getFieldValue('measureCadences') || {};
+    const days: Record<string, number | null | undefined> =
+      form.getFieldValue('measureCheckInDays') || {};
+    const nextCadences = { ...cadences };
+    const nextDays = { ...days };
+    let changed = false;
+
+    for (const id of Object.keys(cadences)) {
+      const cadence = cadences[id];
+      if (!cadence || !isKpiCheckInCadence(cadence)) continue;
+
+      if (!allowedCadences.has(cadence)) {
+        nextCadences[id] = undefined;
+        nextDays[id] = undefined;
+        changed = true;
+        continue;
+      }
+
+      const allowedDays = filterCheckInDayOptions(
+        cadence,
+        effectiveFromWatch,
+        endDateWatch,
+      ).map((option) => option.value);
+      const day = days[id];
+      if (day != null && !allowedDays.includes(Number(day))) {
+        nextDays[id] = undefined;
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      form.setFieldsValue({
+        measureCadences: nextCadences,
+        measureCheckInDays: nextDays,
+      });
+    }
+  }, [isTemporarySetup, effectiveFromWatch, endDateWatch, form]);
+
   const activePerspectiveNames = useMemo(
     () => [...new Set(selectedKpis.map((kpi) => kpi.perspective))],
     [selectedKpis],
   );
-
-  useEffect(() => {
-    if (!isTemporary || !selectedCadence) return;
-    const stillValid = cadenceOptions.some(
-      (option) => option.value === selectedCadence,
-    );
-    if (!stillValid) form.setFieldsValue({ cadence: undefined });
-  }, [isTemporary, selectedCadence, cadenceOptions, form]);
 
   useEffect(() => {
     if (!setupModalOpen) return;
@@ -470,42 +475,42 @@ export default function BscSetupModal() {
     setEmployeePickerSearch('');
     editPrefillKeyRef.current = null;
     if (editingConfig) {
-      const kind = resolveSetupKind(editingConfig);
       form.setFieldsValue({
         name: editingConfig.label,
         description: editingConfig.description || '',
-        setupKind: kind,
-        isRecurring:
-          kind === BscSetupKind.Temporary
-            ? Boolean(editingConfig.isRecurring)
-            : true,
-        cadence: formCadence(editingConfig.cadence),
+        setupKind: editingConfig.setupKind || BscSetupKind.Permanent,
+        effectiveFrom: editingConfig.effectiveFrom
+          ? dayjs(editingConfig.effectiveFrom)
+          : editingConfig.startDate
+            ? dayjs(editingConfig.startDate)
+            : dayjs(),
+        endDate:
+          editingConfig.setupKind === BscSetupKind.Temporary &&
+          editingConfig.endDate &&
+          !editingConfig.endDate.startsWith('2099')
+            ? dayjs(editingConfig.endDate)
+            : undefined,
         scopeTarget: resolveScopeTarget(editingConfig),
         departmentIds: editingConfig.departmentIds,
         positionIds: editingConfig.positionIds,
         employeeIds: editingConfig.employeeIds || [],
         kpiEvaluationFlows: editingConfig.kpiEvaluationFlows || {},
-        dateRange:
-          kind === BscSetupKind.Temporary &&
-          editingConfig.startDate &&
-          editingConfig.endDate
-            ? [dayjs(editingConfig.startDate), dayjs(editingConfig.endDate)]
-            : undefined,
         perspectiveRows: seedPerspectiveRows(catalogPerspectiveNames),
         measureWeights: {},
         measureTargets: {},
         measureWorstCases: {},
         measureBestCases: {},
+        measureCadences: {},
+        measureCheckInDays: {},
       });
     } else {
       form.resetFields();
       form.setFieldsValue({
         name: '',
         description: '',
-        setupKind: undefined,
-        isRecurring: undefined,
-        cadence: undefined,
-        dateRange: undefined,
+        setupKind: BscSetupKind.Permanent,
+        effectiveFrom: dayjs(),
+        endDate: undefined,
         scopeTarget: undefined,
         departmentIds: [],
         positionIds: [],
@@ -516,6 +521,8 @@ export default function BscSetupModal() {
         measureTargets: {},
         measureWorstCases: {},
         measureBestCases: {},
+        measureCadences: {},
+        measureCheckInDays: {},
       });
     }
   }, [setupModalOpen, editingConfig, form]);
@@ -539,6 +546,8 @@ export default function BscSetupModal() {
     const measureTargets: Record<string, number> = {};
     const measureWorstCases: Record<string, number> = {};
     const measureBestCases: Record<string, number> = {};
+    const measureCadences: Record<string, BscCadence> = {};
+    const measureCheckInDays: Record<string, number> = {};
 
     for (const catalogKpi of uniqueCatalogKpis) {
       const existing = byKey.get(
@@ -555,6 +564,12 @@ export default function BscSetupModal() {
       }
       if (existing.bestCase != null) {
         measureBestCases[catalogKpi.id] = existing.bestCase;
+      }
+      if (isKpiCheckInCadence(existing.cadence)) {
+        measureCadences[catalogKpi.id] = existing.cadence;
+      }
+      if (existing.checkInDay != null) {
+        measureCheckInDays[catalogKpi.id] = existing.checkInDay;
       }
     }
 
@@ -604,6 +619,8 @@ export default function BscSetupModal() {
       measureTargets,
       measureWorstCases,
       measureBestCases,
+      measureCadences,
+      measureCheckInDays,
       kpiEvaluationFlows: nextFlows,
     });
   }, [
@@ -642,21 +659,21 @@ export default function BscSetupModal() {
   };
 
   const buildConfigPayload = (values: any) => {
-    const kind = values.setupKind as BscSetupKind;
-    const isTemp = kind === BscSetupKind.Temporary;
-    const customRange = isTemp
-      ? (values.dateRange as [Dayjs, Dayjs] | undefined)
-      : undefined;
-
-    const startDate = isTemp
-      ? customRange![0].format('YYYY-MM-DD')
-      : PERMANENT_START();
-    const endDate = isTemp
-      ? customRange![1].format('YYYY-MM-DD')
+    const isActive = true;
+    const effectiveFrom = resolveEffectiveFrom(
+      isActive,
+      values.effectiveFrom as Dayjs | string | null | undefined,
+    );
+    const startDate = effectiveFrom;
+    const setupKind =
+      values.setupKind === BscSetupKind.Temporary
+        ? BscSetupKind.Temporary
+        : BscSetupKind.Permanent;
+    const isTemporary = setupKind === BscSetupKind.Temporary;
+    const endDate = isTemporary
+      ? dayjs(values.endDate as Dayjs).format('YYYY-MM-DD')
       : PERMANENT_END;
-    const periodLabel = isTemp
-      ? `${customRange![0].format('MMM D, YYYY')} – ${customRange![1].format('MMM D, YYYY')}`
-      : 'Ongoing';
+    const periodLabel = isTemporary ? `${startDate} – ${endDate}` : 'Ongoing';
 
     const target = values.scopeTarget as BscScopeTarget;
     const departmentIds =
@@ -677,9 +694,6 @@ export default function BscSetupModal() {
     );
     const name = String(values.name || '').trim();
     const description = values.description?.trim() || null;
-    const fallbackLabel = isTemp
-      ? `Temporary · ${Boolean(values.isRecurring) ? values.cadence : 'One-time'} · ${periodLabel}`
-      : `Permanent · ${values.cadence}`;
 
     const rawFlows = (values.kpiEvaluationFlows || {}) as Record<
       string,
@@ -708,27 +722,31 @@ export default function BscSetupModal() {
     for (const id of selectedKpiIds) {
       const step = firstManagerLikeStep(kpiEvaluationFlowsPayload[id] || []);
       if (step?.kind === 'user') {
-        kpiEvaluatorsPayload[id] = { mode: 'user', userId: step.userId || null };
+        kpiEvaluatorsPayload[id] = {
+          mode: 'user',
+          userId: step.userId || null,
+        };
       } else {
         kpiEvaluatorsPayload[id] = { mode: 'directManager', userId: null };
       }
     }
 
     return {
-      label: name || fallbackLabel,
+      label: name || 'Scorecard',
       description,
-      cadence: (isTemp && !values.isRecurring
-        ? BscCadence.Custom
-        : values.cadence) as BscCadence,
-      setupKind: kind,
-      fiscalYearId: isTemp ? 'temporary' : 'permanent',
-      fiscalYearName: isTemp ? 'Temporary' : 'Permanent',
+      // Cycle-level cadence is unused; check-in schedule lives on each KPI.
+      cadence: BscCadence.Custom,
+      setupKind,
+      isActive,
+      effectiveFrom,
+      fiscalYearId: isTemporary ? 'temporary' : 'permanent',
+      fiscalYearName: isTemporary ? 'Temporary' : 'Permanent',
       periodIds: [] as string[],
       periodLabels: [periodLabel],
       startDate,
       endDate,
-      isRecurring: isTemp ? Boolean(values.isRecurring) : true,
-      useCustomDates: isTemp,
+      isRecurring: !isTemporary,
+      useCustomDates: isTemporary,
       scopeTarget: target,
       departmentIds,
       departmentNames,
@@ -744,30 +762,21 @@ export default function BscSetupModal() {
   };
 
   const validateDefineStep = async () => {
-    const fields = ['name', 'setupKind'];
-    const values = form.getFieldsValue(true);
-    if (values.setupKind === BscSetupKind.Temporary) {
-      fields.push('dateRange', 'isRecurring');
-      if (values.isRecurring) fields.push('cadence');
-    } else if (values.setupKind === BscSetupKind.Permanent) {
-      fields.push('cadence');
+    const fields: (string | number)[] = ['name', 'effectiveFrom', 'setupKind'];
+    if (form.getFieldValue('setupKind') === BscSetupKind.Temporary) {
+      fields.push('endDate');
     }
     await form.validateFields(fields);
-
-    if (
-      values.setupKind === BscSetupKind.Temporary &&
-      values.isRecurring &&
-      values.cadence
-    ) {
-      const allowed = cadenceOptionsForPeriod(periodDayCount(values.dateRange));
-      if (!allowed.some((o) => o.value === values.cadence)) {
-        form.setFields([
-          {
-            name: 'cadence',
-            errors: ['Reporting cadence cannot exceed the scorecard period'],
-          },
-        ]);
-        throw new Error('invalid cadence');
+    if (form.getFieldValue('setupKind') === BscSetupKind.Temporary) {
+      const effective = dayjs(form.getFieldValue('effectiveFrom')).startOf(
+        'day',
+      );
+      const end = dayjs(form.getFieldValue('endDate')).startOf('day');
+      if (!end.isValid() || end.isBefore(effective)) {
+        NotificationMessage.error({
+          message: 'End date must be on or after the effective date',
+        });
+        throw new Error('invalid end date');
       }
     }
   };
@@ -956,30 +965,6 @@ export default function BscSetupModal() {
     const selected = uniqueCatalogKpis.filter((kpi) =>
       selectedKpiIds.includes(kpi.id),
     );
-    const activePerspectives = [
-      ...new Set(selected.map((kpi) => kpi.perspective)),
-    ];
-
-    const weights: Record<string, number> = {};
-    for (const name of activePerspectives) {
-      const row = perspectiveRows.find((r) => r.name === name);
-      const weight = Number(row?.weight || 0);
-      if (!weight) {
-        NotificationMessage.error({
-          message: `Set a weight for ${name}`,
-        });
-        throw new Error('perspective weight required');
-      }
-      weights[name] = weight;
-    }
-
-    const check = validatePerspectiveWeights(weights);
-    if (!check.valid) {
-      NotificationMessage.error({
-        message: check.message || 'Perspective weights must sum to 100%',
-      });
-      throw new Error(check.message);
-    }
 
     for (const kpi of selected) {
       const target = measureTargets[kpi.id];
@@ -1000,44 +985,61 @@ export default function BscSetupModal() {
           throw new Error('bounded bounds required');
         }
       }
+      const cadence = measureCadences[kpi.id];
+      const allowedCadences =
+        setupKindWatch === BscSetupKind.Temporary
+          ? eligibleCheckInCadences(effectiveFromWatch, endDateWatch)
+          : [...KPI_CHECKIN_CADENCES];
+      if (
+        !cadence ||
+        !isKpiCheckInCadence(cadence) ||
+        !allowedCadences.includes(cadence)
+      ) {
+        NotificationMessage.error({
+          message:
+            setupKindWatch === BscSetupKind.Temporary
+              ? `Select an evaluation cadence that fits the temporary deadline for ${kpi.name}`
+              : `Select an evaluation cadence for ${kpi.name}`,
+        });
+        throw new Error('cadence required');
+      }
+      const checkInDay = measureCheckInDays[kpi.id];
+      const allowedDays = (
+        setupKindWatch === BscSetupKind.Temporary
+          ? filterCheckInDayOptions(cadence, effectiveFromWatch, endDateWatch)
+          : checkInDayOptions(cadence)
+      ).map((o) => o.value);
+      if (checkInDay == null || !allowedDays.includes(Number(checkInDay))) {
+        NotificationMessage.error({
+          message: `Select a check-in day for ${kpi.name}`,
+        });
+        throw new Error('check-in day required');
+      }
     }
 
-    const rows = buildMeasureRows(weights);
+    const rows = buildMeasureRows();
+    for (const row of rows) {
+      if (!row.weight || Number(row.weight) <= 0) {
+        NotificationMessage.error({
+          message: `Set a weight for ${row.name}`,
+        });
+        throw new Error('kpi weight required');
+      }
+    }
+
     const weightCheck = validateWeights(
       rows.map((r) => Number(r.weight || 0)),
       rows.map((r) => r.perspective as string),
     );
     if (!weightCheck.valid) {
       NotificationMessage.error({
-        message: weightCheck.message || 'Invalid KPI weights',
+        message: weightCheck.message || 'KPI weights must sum to 100%',
       });
       throw new Error(weightCheck.message);
     }
-
-    for (const [perspective, allocated] of Object.entries(weights)) {
-      const sum = rows
-        .filter((r) => r.perspective === perspective)
-        .reduce((s, r) => s + Number(r.weight || 0), 0);
-      if (Math.abs(sum - allocated) > 0.01) {
-        NotificationMessage.error({
-          message: `${perspective} KPIs must total ${allocated}% (currently ${sum}%)`,
-        });
-        throw new Error('perspective measure mismatch');
-      }
-    }
   };
 
-  const buildMeasureRows = (
-    perspectiveWeightMap?: Record<string, number>,
-  ): MeasureRow[] => {
-    const weightMap: Record<string, number> = perspectiveWeightMap || {};
-    if (!perspectiveWeightMap) {
-      for (const row of perspectiveRows) {
-        if (!row?.name) continue;
-        weightMap[row.name] = Number(row.weight || 0);
-      }
-    }
-
+  const buildMeasureRows = (): MeasureRow[] => {
     const selected = uniqueCatalogKpis.filter((kpi) =>
       selectedKpiIds.includes(kpi.id),
     );
@@ -1050,24 +1052,8 @@ export default function BscSetupModal() {
 
     const rows: MeasureRow[] = [];
     for (const [perspective, kpis] of byPerspective) {
-      const allocated = weightMap[perspective] || 0;
-      const manualSum = kpis.reduce(
-        (sum, kpi) => sum + Number(measureWeights[kpi.id] || 0),
-        0,
-      );
-      kpis.forEach((kpi, index) => {
-        let weight = Number(measureWeights[kpi.id]);
-        if (!weight || weight <= 0) {
-          if (manualSum > 0) {
-            weight = 0;
-          } else {
-            const base = Math.floor((allocated / kpis.length) * 100) / 100;
-            weight =
-              index === kpis.length - 1
-                ? Math.round((allocated - base * (kpis.length - 1)) * 100) / 100
-                : base;
-          }
-        }
+      for (const kpi of kpis) {
+        const weight = Number(measureWeights[kpi.id] || 0);
         rows.push({
           kpiId: kpi.id,
           name: kpi.name,
@@ -1089,8 +1075,15 @@ export default function BscSetupModal() {
             measureBestCases[kpi.id] != null
               ? Number(measureBestCases[kpi.id])
               : (kpi.bestCase ?? null),
+          cadence: isKpiCheckInCadence(measureCadences[kpi.id])
+            ? measureCadences[kpi.id]
+            : null,
+          checkInDay:
+            measureCheckInDays[kpi.id] != null
+              ? Number(measureCheckInDays[kpi.id])
+              : null,
         });
-      });
+      }
     }
     return rows;
   };
@@ -1140,11 +1133,8 @@ export default function BscSetupModal() {
     const perspectiveWeights: Record<string, number> = {};
     for (const row of measureRows) {
       if (!row.perspective) continue;
-      if (perspectiveWeights[row.perspective] != null) continue;
-      const match = (values.perspectiveRows || []).find(
-        (r: PerspectiveRow) => r?.name === row.perspective,
-      );
-      perspectiveWeights[row.perspective] = Number(match?.weight || 0);
+      perspectiveWeights[row.perspective] =
+        (perspectiveWeights[row.perspective] || 0) + Number(row.weight || 0);
     }
 
     const kpiRowsBase = measureRows.map((row) => ({
@@ -1157,6 +1147,8 @@ export default function BscSetupModal() {
       defaultTarget: row.targetValue ?? null,
       worstCase: row.worstCase ?? null,
       bestCase: row.bestCase ?? null,
+      cadence: row.cadence ?? null,
+      checkInDay: row.checkInDay ?? null,
     }));
 
     const cascadeTargets = async (target: {
@@ -1275,11 +1267,15 @@ export default function BscSetupModal() {
               targetValue: Number(row.targetValue),
               worstCase: row.worstCase ?? undefined,
               bestCase: row.bestCase ?? undefined,
+              cadence: row.cadence ?? null,
+              checkInDay: row.checkInDay ?? null,
               evaluationFlow: flow,
               evaluatorMode:
                 managerStep?.kind === 'user' ? 'user' : 'directManager',
               evaluatorUserId:
-                managerStep?.kind === 'user' ? managerStep.userId || null : null,
+                managerStep?.kind === 'user'
+                  ? managerStep.userId || null
+                  : null,
             };
           }),
         });
@@ -1413,110 +1409,58 @@ export default function BscSetupModal() {
 
             <Form.Item
               name="setupKind"
-              label="Horizon"
-              rules={[
-                {
-                  required: true,
-                  message: 'Select permanent or temporary horizon',
-                },
-              ]}
+              label="Planning type"
+              rules={[{ required: true, message: 'Select planning type' }]}
             >
-              <Radio.Group
-                className="flex flex-col gap-2 sm:flex-row sm:gap-6"
-                data-cy="bsc-setup-kind"
-                onChange={() => {
-                  form.setFieldsValue({
-                    isRecurring: undefined,
-                    cadence: undefined,
-                    dateRange: undefined,
-                  });
-                }}
-              >
-                <Radio
-                  value={BscSetupKind.Permanent}
-                  data-cy="bsc-setup-permanent"
-                >
-                  Permanent
-                </Radio>
-                <Radio
-                  value={BscSetupKind.Temporary}
-                  data-cy="bsc-setup-temporary"
-                >
-                  Temporary
-                </Radio>
+              <Radio.Group data-cy="bsc-scorecard-setup-kind">
+                <Radio value={BscSetupKind.Permanent}>Permanent</Radio>
+                <Radio value={BscSetupKind.Temporary}>Temporary</Radio>
               </Radio.Group>
             </Form.Item>
 
-            {isTemporary ? (
-              <>
+            <Row gutter={16}>
+              <Col
+                xs={24}
+                sm={setupKindWatch === BscSetupKind.Temporary ? 12 : 24}
+              >
                 <Form.Item
-                  name="dateRange"
-                  label="Scorecard period"
+                  name="effectiveFrom"
+                  label="Effective date"
                   rules={[
                     {
                       required: true,
-                      message: 'Select when this scorecard is active',
+                      message: 'Select an effective date',
                     },
                   ]}
                 >
-                  <RangePicker
+                  <DatePicker
                     className="w-full"
                     format="YYYY-MM-DD"
-                    data-cy="bsc-setup-date-range"
-                    onChange={() => {
-                      form.setFieldsValue({ cadence: undefined });
-                    }}
+                    data-cy="bsc-scorecard-effective-from"
                   />
                 </Form.Item>
-
-                <Form.Item
-                  name="isRecurring"
-                  label="Reporting schedule"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Choose whether reporting is recurring',
-                    },
-                  ]}
-                >
-                  <Radio.Group
-                    className="flex flex-col gap-2 sm:flex-row sm:gap-6"
-                    data-cy="bsc-setup-temporary-recurring"
-                    onChange={() => {
-                      form.setFieldsValue({ cadence: undefined });
-                    }}
+              </Col>
+              {setupKindWatch === BscSetupKind.Temporary ? (
+                <Col xs={24} sm={12}>
+                  <Form.Item
+                    name="endDate"
+                    label="End date"
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Select an end date',
+                      },
+                    ]}
                   >
-                    <Radio value={true}>Recurring</Radio>
-                    <Radio value={false}>One-time</Radio>
-                  </Radio.Group>
-                </Form.Item>
-              </>
-            ) : null}
-
-            {showCadence ? (
-              <Form.Item
-                name="cadence"
-                label="Reporting cadence"
-                rules={[
-                  { required: true, message: 'Select reporting cadence' },
-                ]}
-                extra={
-                  isTemporary && temporaryDayCount > 0
-                    ? `Only cadences that fit the ${temporaryDayCount}-day period are shown.`
-                    : undefined
-                }
-              >
-                <Select
-                  placeholder="Select cadence"
-                  options={cadenceOptions.map(({ value, label }) => ({
-                    value,
-                    label,
-                  }))}
-                  disabled={isTemporary && cadenceOptions.length === 0}
-                  data-cy="bsc-setup-cadence"
-                />
-              </Form.Item>
-            ) : null}
+                    <DatePicker
+                      className="w-full"
+                      format="YYYY-MM-DD"
+                      data-cy="bsc-scorecard-end-date"
+                    />
+                  </Form.Item>
+                </Col>
+              ) : null}
+            </Row>
           </>
         )}
 
@@ -1542,8 +1486,7 @@ export default function BscSetupModal() {
               rules={[
                 {
                   required: true,
-                  message:
-                    'Select company, department, role, or individual',
+                  message: 'Select company, department, role, or individual',
                 },
               ]}
             >
@@ -1662,17 +1605,10 @@ export default function BscSetupModal() {
         {current === 2 && (
           <>
             <p
-              className="mb-1 text-[13px] font-semibold text-[#262626]"
+              className="mb-3 text-[13px] font-semibold text-[#262626]"
               data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-7"
             >
               KPIs
-            </p>
-            <p
-              className="mb-3 text-[12px] text-[#8F94A3]"
-              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-8"
-            >
-              Select the KPIs to include on this scorecard. Weights are assigned
-              in the next step.
             </p>
 
             {!uniqueCatalogKpis.length ? (
@@ -1692,6 +1628,7 @@ export default function BscSetupModal() {
                     value={kpiSearch}
                     onChange={setKpiSearch}
                     placeholder="Search KPIs"
+                    className="!w-[400px]"
                     data-cy="bsc-scorecard-kpi-search"
                   />
                   <span
@@ -1703,58 +1640,116 @@ export default function BscSetupModal() {
                   </span>
                 </div>
                 <div
-                  className="flex max-h-[440px] flex-col gap-1 overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white p-2"
+                  className="max-h-[440px] overflow-y-auto rounded-xl border border-[#E5E7EB] bg-white p-2"
                   data-cy="bsc-scorecard-kpi-list"
                 >
-                  {uniqueCatalogKpis
-                    .filter((kpi) => {
-                      const q = kpiSearch.trim().toLowerCase();
-                      if (!q) return true;
-                      return (
-                        kpi.name.toLowerCase().includes(q) ||
-                        (kpi.perspective || '').toLowerCase().includes(q)
-                      );
-                    })
-                    .map((kpi) => {
-                      const checked = selectedKpiIds.includes(kpi.id);
-                      return (
-                        <label
-                          key={kpi.id}
-                          className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#F9FAFB]"
-                          data-cy={`bsc-scorecard-kpi-row-${kpi.id}`}
-                        >
-                          <Checkbox
-                            checked={checked}
-                            onChange={(e) => {
-                              setSelectedKpiIds((prev) =>
-                                e.target.checked
-                                  ? [...prev, kpi.id]
-                                  : prev.filter((id) => id !== kpi.id),
-                              );
-                            }}
-                          />
-                          <span
-                            className="min-w-0 flex-1 text-[13px] font-medium text-[#262626]"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-15"
+                  <div
+                    className={`${KPI_LIST_ROW_GRID} border-b border-[#E5E7EB] py-2 pb-2.5`}
+                    data-cy="bsc-scorecard-kpi-list-header"
+                  >
+                    <span data-cy="bscsetupmodal-span-1650" aria-hidden />
+                    <span
+                      data-cy="bscsetupmodal-span-1651"
+                      className="text-[11px] font-semibold uppercase tracking-wide text-[#8F94A3]"
+                    >
+                      KPI
+                    </span>
+                    <span
+                      data-cy="bscsetupmodal-span-1654"
+                      className="text-[11px] font-semibold uppercase tracking-wide text-[#8F94A3]"
+                    >
+                      Perspective
+                    </span>
+                    <span
+                      data-cy="bscsetupmodal-span-1657"
+                      className="text-[11px] font-semibold uppercase tracking-wide text-[#8F94A3]"
+                    >
+                      Unit
+                    </span>
+                  </div>
+                  <div
+                    data-cy="bscsetupmodal-div-1661"
+                    className="flex flex-col gap-0.5 pt-1"
+                  >
+                    {uniqueCatalogKpis
+                      .filter((kpi) => {
+                        const q = kpiSearch.trim().toLowerCase();
+                        if (!q) return true;
+                        return (
+                          kpi.name.toLowerCase().includes(q) ||
+                          (kpi.perspective || '').toLowerCase().includes(q)
+                        );
+                      })
+                      .map((kpi) => {
+                        const checked = selectedKpiIds.includes(kpi.id);
+                        return (
+                          <label
+                            key={kpi.id}
+                            className={`${KPI_LIST_ROW_GRID} cursor-pointer rounded-lg py-2 hover:bg-[#F9FAFB]`}
+                            data-cy={`bsc-scorecard-kpi-row-${kpi.id}`}
                           >
-                            {kpi.name}
-                          </span>
-                          {kpi.perspective ? (
-                            <Tag className="m-0 h-5 shrink-0 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                              {kpi.perspective}
-                            </Tag>
-                          ) : null}
-                          {kpi.measurementUnit ? (
+                            <Checkbox
+                              checked={checked}
+                              onChange={(e) => {
+                                setSelectedKpiIds((prev) =>
+                                  e.target.checked
+                                    ? [...prev, kpi.id]
+                                    : prev.filter((id) => id !== kpi.id),
+                                );
+                              }}
+                            />
                             <span
-                              className="shrink-0 text-[11px] text-[#8F94A3]"
-                              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-16"
+                              className="min-w-0 text-[13px] font-medium leading-snug text-[#262626]"
+                              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-15"
                             >
-                              {kpi.measurementUnit}
+                              {kpi.name}
                             </span>
-                          ) : null}
-                        </label>
-                      );
-                    })}
+                            <div
+                              data-cy="bscsetupmodal-div-1695"
+                              className="flex items-center"
+                            >
+                              {kpi.perspective ? (
+                                <Tag className="m-0 h-5 shrink-0 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                                  {kpi.perspective}
+                                </Tag>
+                              ) : (
+                                <span
+                                  data-cy="bscsetupmodal-span-1701"
+                                  className="text-[11px] text-[#94A3B8]"
+                                >
+                                  —
+                                </span>
+                              )}
+                            </div>
+                            <div
+                              data-cy="bscsetupmodal-div-1706"
+                              className="flex items-center"
+                            >
+                              {(() => {
+                                const unitLabel = measurementUnitLabel(
+                                  kpi.measurementUnit,
+                                );
+                                return unitLabel ? (
+                                  <Tag
+                                    className={unitTagClassName}
+                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-16"
+                                  >
+                                    {unitLabel}
+                                  </Tag>
+                                ) : (
+                                  <span
+                                    className="text-[11px] text-[#94A3B8]"
+                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-16"
+                                  >
+                                    —
+                                  </span>
+                                );
+                              })()}
+                            </div>
+                          </label>
+                        );
+                      })}
+                  </div>
                 </div>
               </>
             )}
@@ -1773,9 +1768,15 @@ export default function BscSetupModal() {
               className="mb-4 text-[12px] text-[#8F94A3]"
               data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-18"
             >
-              Set perspective weights (sum 100%). Targets are prefilled from the
-              KPI catalog when available — overwrite if this scorecard needs a
-              different number. Leave KPI weights blank to auto-split.
+              Assign each KPI a weight (all KPIs must sum to 100%). Each KPI is
+              tagged by its perspective.
+              {isTemporarySetup ? (
+                <>
+                  {' '}
+                  Evaluation cadences are limited to periods that fit the
+                  effective–end date window.
+                </>
+              ) : null}
             </p>
 
             <Form.Item name="perspectiveRows" hidden>
@@ -1793,8 +1794,14 @@ export default function BscSetupModal() {
             <Form.Item name="measureBestCases" hidden>
               <Input />
             </Form.Item>
+            <Form.Item name="measureCadences" hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item name="measureCheckInDays" hidden>
+              <Input />
+            </Form.Item>
 
-            {!activePerspectiveNames.length ? (
+            {!selectedKpis.length ? (
               <p
                 className="text-[13px] text-[#94A3B8]"
                 data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-19"
@@ -1803,237 +1810,290 @@ export default function BscSetupModal() {
               </p>
             ) : (
               <div
-                className="flex max-h-[440px] flex-col gap-4 overflow-y-auto pr-1"
+                className="flex max-h-[440px] flex-col gap-3 overflow-y-auto pr-1"
                 data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-20"
               >
-                {activePerspectiveNames.map((perspective) => {
-                  const kpis = selectedKpis.filter(
-                    (kpi) => kpi.perspective === perspective,
+                <div
+                  data-cy="bscsetupmodal-div-1795"
+                  className="flex items-center justify-between rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2"
+                >
+                  <span
+                    data-cy="bscsetupmodal-span-1796"
+                    className="text-[12px] text-[#595959]"
+                  >
+                    Total KPI weight
+                  </span>
+                  <span
+                    className={`text-[13px] font-semibold ${
+                      Math.abs(
+                        selectedKpis.reduce(
+                          (sum, kpi) =>
+                            sum + Number(measureWeights[kpi.id] || 0),
+                          0,
+                        ) - 100,
+                      ) < 0.01
+                        ? 'text-[#1677ff]'
+                        : 'text-[#CF1322]'
+                    }`}
+                    data-cy="bsc-scorecard-kpi-weight-total"
+                  >
+                    {`${
+                      Math.round(
+                        selectedKpis.reduce(
+                          (sum, kpi) =>
+                            sum + Number(measureWeights[kpi.id] || 0),
+                          0,
+                        ) * 100,
+                      ) / 100
+                    }%`}
+                  </span>
+                </div>
+                {selectedKpis.map((kpi) => {
+                  const isBounded = kpi.targetLogic === TargetLogic.Bounded;
+                  const kpiCadence = measureCadences[kpi.id];
+                  const dayOptions =
+                    isTemporarySetup && effectiveFromWatch && endDateWatch
+                      ? filterCheckInDayOptions(
+                          kpiCadence,
+                          effectiveFromWatch,
+                          endDateWatch,
+                        )
+                      : checkInDayOptions(kpiCadence);
+                  const checkInDayLabelText = 'Check-in date';
+                  const firstCheckInDate = resolveFirstCheckInDate(
+                    kpiCadence,
+                    measureCheckInDays[kpi.id],
+                    effectiveFromWatch,
                   );
-                  const rowIndex = perspectiveRows.findIndex(
-                    (r) => r.name === perspective,
-                  );
-                  const allocated =
-                    (rowIndex >= 0
-                      ? perspectiveRows[rowIndex]?.weight
-                      : undefined) || 0;
-
+                  const firstCheckInLabel = firstCheckInDate
+                    ? formatCheckInDate(firstCheckInDate)
+                    : null;
                   return (
                     <div
-                      key={perspective}
-                      className="rounded-xl border border-[#E5E7EB] p-4"
-                      data-cy={`bsc-scorecard-weight-perspective-${perspective}`}
+                      key={kpi.id}
+                      className="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-3"
+                      data-cy={`bsc-scorecard-weight-kpi-${kpi.id}`}
                     >
                       <div
-                        className="mb-3 flex flex-wrap items-center justify-between gap-3"
-                        data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-21"
+                        data-cy="bscsetupmodal-div-1850"
+                        className="mb-2 flex flex-wrap items-start justify-between gap-2"
                       >
-                        <p
-                          className="m-0 text-[14px] font-semibold text-[#262626]"
-                          data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-22"
-                        >
-                          {perspective}
-                          <span
-                            className="ml-2 text-[11px] font-normal text-[#8F94A3]"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-23"
-                          >
-                            {kpis.length} KPI{kpis.length === 1 ? '' : 's'}
-                          </span>
-                        </p>
                         <div
+                          data-cy="bscsetupmodal-div-1851"
+                          className="min-w-0"
+                        >
+                          <div
+                            data-cy="bscsetupmodal-div-1852"
+                            className="mb-1 flex flex-wrap items-center gap-2"
+                          >
+                            <p
+                              data-cy="bscsetupmodal-p-1853"
+                              className="m-0 text-[13px] font-medium text-[#262626]"
+                            >
+                              {kpi.name}
+                            </p>
+                            {kpi.perspective ? (
+                              <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
+                                {kpi.perspective}
+                              </Tag>
+                            ) : null}
+                          </div>
+                          <p
+                            data-cy="bscsetupmodal-p-1862"
+                            className="m-0 text-[11px] text-[#8F94A3]"
+                          >
+                            {kpi.measurementUnit} ·{' '}
+                            {targetLogicLabel(kpi.targetLogic)}
+                            {kpi.defaultTarget != null
+                              ? ` · catalog default ${kpi.defaultTarget}`
+                              : ''}
+                          </p>
+                        </div>
+                        <div
+                          data-cy="bscsetupmodal-div-1870"
                           className="flex items-center gap-2"
-                          data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-24"
                         >
                           <span
-                            className="text-[12px] text-[#595959]"
-                            data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-25"
+                            data-cy="bscsetupmodal-span-1871"
+                            className="text-[11px] text-[#595959]"
                           >
                             Weight %
                           </span>
                           <InputNumber
-                            className="w-24"
+                            className="w-20"
                             min={1}
                             max={100}
-                            value={allocated || undefined}
+                            placeholder="Weight"
+                            value={measureWeights[kpi.id] ?? undefined}
                             onChange={(value) => {
-                              const next = [...perspectiveRows];
-                              if (rowIndex >= 0) {
-                                next[rowIndex] = {
-                                  ...next[rowIndex],
-                                  name: perspective,
-                                  weight: value,
-                                };
-                              } else {
-                                next.push({
-                                  name: perspective,
-                                  weight: value,
-                                });
-                              }
                               form.setFieldsValue({
-                                perspectiveRows: next,
+                                measureWeights: {
+                                  ...measureWeights,
+                                  [kpi.id]: value,
+                                },
                               });
                             }}
-                            data-cy={`bsc-scorecard-perspective-weight-${perspective}`}
+                            data-cy={`bsc-scorecard-kpi-weight-${kpi.id}`}
                           />
                         </div>
                       </div>
-
                       <div
-                        className="flex flex-col gap-3"
-                        data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-26"
+                        data-cy="bscsetupmodal-div-1892"
+                        className="flex flex-wrap items-center gap-3"
                       >
-                        {kpis.map((kpi) => {
-                          const isBounded =
-                            kpi.targetLogic === TargetLogic.Bounded;
-                          return (
+                        <div
+                          data-cy="bscsetupmodal-div-1893"
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            data-cy="bscsetupmodal-span-1894"
+                            className="text-[11px] text-[#595959]"
+                          >
+                            Target
+                          </span>
+                          <InputNumber
+                            className="w-28"
+                            placeholder={
+                              kpi.defaultTarget != null
+                                ? String(kpi.defaultTarget)
+                                : 'Enter target'
+                            }
+                            value={measureTargets[kpi.id] ?? undefined}
+                            onChange={(value) => {
+                              form.setFieldsValue({
+                                measureTargets: {
+                                  ...measureTargets,
+                                  [kpi.id]: value,
+                                },
+                              });
+                            }}
+                            data-cy={`bsc-scorecard-kpi-target-${kpi.id}`}
+                          />
+                        </div>
+                        {isBounded ? (
+                          <>
                             <div
-                              key={kpi.id}
-                              className="rounded-lg bg-[#F9FAFB] px-3 py-3"
-                              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-27"
+                              data-cy="bscsetupmodal-div-1918"
+                              className="flex items-center gap-2"
                             >
-                              <div
-                                className="mb-2 flex flex-wrap items-start justify-between gap-2"
-                                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-28"
+                              <span
+                                data-cy="bscsetupmodal-span-1919"
+                                className="text-[11px] text-[#595959]"
                               >
-                                <div data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-29">
-                                  <p
-                                    className="m-0 text-[13px] font-medium text-[#262626]"
-                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-30"
-                                  >
-                                    {kpi.name}
-                                  </p>
-                                  <p
-                                    className="m-0 text-[11px] text-[#8F94A3]"
-                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-31"
-                                  >
-                                    {kpi.measurementUnit} ·{' '}
-                                    {targetLogicLabel(kpi.targetLogic)}
-                                    {kpi.defaultTarget != null
-                                      ? ` · catalog default ${kpi.defaultTarget}`
-                                      : ''}
-                                  </p>
-                                </div>
-                                <div
-                                  className="flex items-center gap-2"
-                                  data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-32"
-                                >
-                                  <span
-                                    className="text-[11px] text-[#595959]"
-                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-33"
-                                  >
-                                    Weight %
-                                  </span>
-                                  <InputNumber
-                                    className="w-20"
-                                    min={1}
-                                    max={100}
-                                    placeholder="Auto"
-                                    value={measureWeights[kpi.id] ?? undefined}
-                                    onChange={(value) => {
-                                      form.setFieldsValue({
-                                        measureWeights: {
-                                          ...measureWeights,
-                                          [kpi.id]: value,
-                                        },
-                                      });
-                                    }}
-                                    data-cy={`bsc-scorecard-kpi-weight-${kpi.id}`}
-                                  />
-                                </div>
-                              </div>
-                              <div
-                                className="flex flex-wrap gap-3"
-                                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-34"
-                              >
-                                <div
-                                  className="flex items-center gap-2"
-                                  data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-35"
-                                >
-                                  <span
-                                    className="text-[11px] text-[#595959]"
-                                    data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-36"
-                                  >
-                                    Target
-                                  </span>
-                                  <InputNumber
-                                    className="w-28"
-                                    placeholder={
-                                      kpi.defaultTarget != null
-                                        ? String(kpi.defaultTarget)
-                                        : 'Enter target'
-                                    }
-                                    value={measureTargets[kpi.id] ?? undefined}
-                                    onChange={(value) => {
-                                      form.setFieldsValue({
-                                        measureTargets: {
-                                          ...measureTargets,
-                                          [kpi.id]: value,
-                                        },
-                                      });
-                                    }}
-                                    data-cy={`bsc-scorecard-kpi-target-${kpi.id}`}
-                                  />
-                                </div>
-                                {isBounded ? (
-                                  <>
-                                    <div
-                                      className="flex items-center gap-2"
-                                      data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-37"
-                                    >
-                                      <span
-                                        className="text-[11px] text-[#595959]"
-                                        data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-38"
-                                      >
-                                        Worst
-                                      </span>
-                                      <InputNumber
-                                        className="w-24"
-                                        value={
-                                          measureWorstCases[kpi.id] ?? undefined
-                                        }
-                                        onChange={(value) => {
-                                          form.setFieldsValue({
-                                            measureWorstCases: {
-                                              ...measureWorstCases,
-                                              [kpi.id]: value,
-                                            },
-                                          });
-                                        }}
-                                        data-cy={`bsc-scorecard-kpi-worst-${kpi.id}`}
-                                      />
-                                    </div>
-                                    <div
-                                      className="flex items-center gap-2"
-                                      data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-39"
-                                    >
-                                      <span
-                                        className="text-[11px] text-[#595959]"
-                                        data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-span-40"
-                                      >
-                                        Best
-                                      </span>
-                                      <InputNumber
-                                        className="w-24"
-                                        value={
-                                          measureBestCases[kpi.id] ?? undefined
-                                        }
-                                        onChange={(value) => {
-                                          form.setFieldsValue({
-                                            measureBestCases: {
-                                              ...measureBestCases,
-                                              [kpi.id]: value,
-                                            },
-                                          });
-                                        }}
-                                        data-cy={`bsc-scorecard-kpi-best-${kpi.id}`}
-                                      />
-                                    </div>
-                                  </>
-                                ) : null}
-                              </div>
+                                Worst
+                              </span>
+                              <InputNumber
+                                className="w-24"
+                                value={measureWorstCases[kpi.id] ?? undefined}
+                                onChange={(value) => {
+                                  form.setFieldsValue({
+                                    measureWorstCases: {
+                                      ...measureWorstCases,
+                                      [kpi.id]: value,
+                                    },
+                                  });
+                                }}
+                                data-cy={`bsc-scorecard-kpi-worst-${kpi.id}`}
+                              />
                             </div>
-                          );
-                        })}
+                            <div
+                              data-cy="bscsetupmodal-div-1936"
+                              className="flex items-center gap-2"
+                            >
+                              <span
+                                data-cy="bscsetupmodal-span-1937"
+                                className="text-[11px] text-[#595959]"
+                              >
+                                Best
+                              </span>
+                              <InputNumber
+                                className="w-24"
+                                value={measureBestCases[kpi.id] ?? undefined}
+                                onChange={(value) => {
+                                  form.setFieldsValue({
+                                    measureBestCases: {
+                                      ...measureBestCases,
+                                      [kpi.id]: value,
+                                    },
+                                  });
+                                }}
+                                data-cy={`bsc-scorecard-kpi-best-${kpi.id}`}
+                              />
+                            </div>
+                          </>
+                        ) : null}
+                        <div
+                          className="flex items-center gap-2"
+                          data-cy={`bsc-scorecard-kpi-checkin-${kpi.id}`}
+                        >
+                          <span
+                            data-cy="bscsetupmodal-span-1960"
+                            className="text-[11px] text-[#595959] whitespace-nowrap"
+                          >
+                            Evaluation cadence
+                          </span>
+                          <Select
+                            className="min-w-[120px]"
+                            placeholder={
+                              eligibleCadenceOptions.length
+                                ? 'Select cadence'
+                                : 'No cadence fits deadline'
+                            }
+                            options={eligibleCadenceOptions}
+                            disabled={!eligibleCadenceOptions.length}
+                            value={kpiCadence ?? undefined}
+                            onChange={(value: BscCadence) => {
+                              form.setFieldsValue({
+                                measureCadences: {
+                                  ...measureCadences,
+                                  [kpi.id]: value,
+                                },
+                                measureCheckInDays: {
+                                  ...measureCheckInDays,
+                                  [kpi.id]: undefined,
+                                },
+                              });
+                            }}
+                            data-cy={`bsc-scorecard-kpi-cadence-${kpi.id}`}
+                          />
+                        </div>
+                        <div
+                          data-cy="bscsetupmodal-div-1988"
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            data-cy="bscsetupmodal-span-1989"
+                            className="text-[11px] text-[#595959] whitespace-nowrap"
+                          >
+                            {checkInDayLabelText}
+                          </span>
+                          <Select
+                            className="min-w-[120px]"
+                            placeholder={
+                              kpiCadence ? 'Select day' : 'Select cadence first'
+                            }
+                            options={dayOptions}
+                            disabled={!kpiCadence}
+                            value={measureCheckInDays[kpi.id] ?? undefined}
+                            onChange={(value: number) => {
+                              form.setFieldsValue({
+                                measureCheckInDays: {
+                                  ...measureCheckInDays,
+                                  [kpi.id]: value,
+                                },
+                              });
+                            }}
+                            data-cy={`bsc-scorecard-kpi-checkin-day-${kpi.id}`}
+                          />
+                          {firstCheckInLabel ? (
+                            <Tag
+                              className="m-0 h-5 shrink-0 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]"
+                              data-cy={`bsc-scorecard-kpi-checkin-preview-${kpi.id}`}
+                            >
+                              First check-in: {firstCheckInLabel}
+                            </Tag>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   );
@@ -2086,8 +2146,14 @@ export default function BscSetupModal() {
                       className="rounded-xl border border-[#E5E7EB] px-3 py-3"
                       data-cy={`bsc-scorecard-evaluation-row-${kpi.id}`}
                     >
-                      <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <span className="text-[13px] font-medium text-[#262626]">
+                      <div
+                        data-cy="bscsetupmodal-div-2071"
+                        className="mb-2 flex flex-wrap items-center gap-2"
+                      >
+                        <span
+                          data-cy="bscsetupmodal-span-2072"
+                          className="text-[13px] font-medium text-[#262626]"
+                        >
                           {kpi.name}
                         </span>
                         {kpi.perspective ? (
@@ -2101,7 +2167,10 @@ export default function BscSetupModal() {
                         className="w-full overflow-x-auto"
                         data-cy={`bsc-eval-flow-${kpi.id}`}
                       >
-                        <div className="flex min-w-max items-center gap-1.5 py-1">
+                        <div
+                          data-cy="bscsetupmodal-div-2086"
+                          className="flex min-w-max items-center gap-1.5 py-1"
+                        >
                           {flow.map((step, index) => {
                             const displayName = evaluatorStepDisplayName(
                               step,
@@ -2115,8 +2184,14 @@ export default function BscSetupModal() {
                               step.kind === 'user' && !step.userId;
 
                             const editor = (
-                              <div className="w-[240px] p-1">
-                                <p className="mb-2 text-[12px] font-medium text-[#262626]">
+                              <div
+                                data-cy="bscsetupmodal-div-2100"
+                                className="w-[240px] p-1"
+                              >
+                                <p
+                                  data-cy="bscsetupmodal-p-2101"
+                                  className="mb-2 text-[12px] font-medium text-[#262626]"
+                                >
                                   Step {index + 1}
                                 </p>
                                 <Select
@@ -2158,7 +2233,10 @@ export default function BscSetupModal() {
                                     data-cy={`bsc-eval-step-user-${kpi.id}-${index}`}
                                   />
                                 ) : null}
-                                <div className="flex justify-between gap-1">
+                                <div
+                                  data-cy="bscsetupmodal-div-2143"
+                                  className="flex justify-between gap-1"
+                                >
                                   <Button
                                     type="text"
                                     size="small"
@@ -2203,7 +2281,7 @@ export default function BscSetupModal() {
                                       if (flow.length <= 1) return;
                                       updateKpiFlow(
                                         kpi.id,
-                                        flow.filter((_, i) => i !== index),
+                                        flow.filter((unused, i) => i !== index),
                                       );
                                     }}
                                     data-cy={`bsc-eval-step-remove-menu-${kpi.id}-${index}`}
@@ -2222,8 +2300,14 @@ export default function BscSetupModal() {
                                     →
                                   </div>
                                 ) : null}
-                                <div className="flex shrink-0 items-center gap-2">
-                                  <div className="relative h-8 w-8 shrink-0">
+                                <div
+                                  data-cy="bscsetupmodal-div-2207"
+                                  className="flex shrink-0 items-center gap-2"
+                                >
+                                  <div
+                                    data-cy="bscsetupmodal-div-2208"
+                                    className="relative h-8 w-8 shrink-0"
+                                  >
                                     <Popover
                                       trigger="click"
                                       placement="bottomLeft"
@@ -2252,7 +2336,8 @@ export default function BscSetupModal() {
                                           <Avatar
                                             size={32}
                                             icon={
-                                              step.kind === 'user' ? undefined : (
+                                              step.kind ===
+                                              'user' ? undefined : (
                                                 <UserOutlined />
                                               )
                                             }
@@ -2282,7 +2367,9 @@ export default function BscSetupModal() {
                                         if (flow.length <= 1) return;
                                         updateKpiFlow(
                                           kpi.id,
-                                          flow.filter((_, i) => i !== index),
+                                          flow.filter(
+                                            (unused, i) => i !== index,
+                                          ),
                                         );
                                       }}
                                       data-cy={`bsc-eval-step-remove-${kpi.id}-${index}`}
@@ -2346,12 +2433,21 @@ export default function BscSetupModal() {
                             overlayClassName="bsc-eval-employee-picker-dropdown"
                             overlayInnerStyle={{ padding: 12, width: 320 }}
                             title={
-                              <div className="mb-1 flex items-start justify-between gap-2">
-                                <div>
-                                  <h3 className="m-0 text-base font-bold text-gray-900">
+                              <div
+                                data-cy="bscsetupmodal-div-2332"
+                                className="mb-1 flex items-start justify-between gap-2"
+                              >
+                                <div data-cy="bscsetupmodal-div-2333">
+                                  <h3
+                                    data-cy="bscsetupmodal-h3-2334"
+                                    className="m-0 text-base font-bold text-gray-900"
+                                  >
                                     Add evaluator
                                   </h3>
-                                  <p className="mb-0 mt-1 text-xs text-gray-500">
+                                  <p
+                                    data-cy="bscsetupmodal-p-2337"
+                                    className="mb-0 mt-1 text-xs text-gray-500"
+                                  >
                                     Search and select who evaluates next
                                   </p>
                                 </div>
@@ -2367,7 +2463,10 @@ export default function BscSetupModal() {
                             }
                             content={
                               <div data-cy="bsc-eval-employee-picker-dropdown">
-                                <div className="mb-2 w-full [&_.ant-input-affix-wrapper]:!w-full [&_input]:!w-full">
+                                <div
+                                  data-cy="bscsetupmodal-div-2353"
+                                  className="mb-2 w-full [&_.ant-input-affix-wrapper]:!w-full [&_input]:!w-full"
+                                >
                                   <BscSearchInput
                                     value={employeePickerSearch}
                                     onChange={setEmployeePickerSearch}
@@ -2393,7 +2492,10 @@ export default function BscSetupModal() {
                                       icon={<UserOutlined />}
                                       className="shrink-0 bg-[#E6F4FF] text-[#1677ff]"
                                     />
-                                    <span className="text-[13px] font-medium text-[#262626]">
+                                    <span
+                                      data-cy="bscsetupmodal-span-2379"
+                                      className="text-[13px] font-medium text-[#262626]"
+                                    >
                                       Employee (self)
                                     </span>
                                   </button>
@@ -2412,13 +2514,22 @@ export default function BscSetupModal() {
                                       icon={<UserOutlined />}
                                       className="shrink-0 bg-[#F0F5FF] text-[#5B67D9]"
                                     />
-                                    <span className="text-[13px] font-medium text-[#262626]">
+                                    <span
+                                      data-cy="bscsetupmodal-span-2398"
+                                      className="text-[13px] font-medium text-[#262626]"
+                                    >
                                       Direct manager
                                     </span>
                                   </button>
-                                  <div className="my-1 border-t border-[#F0F0F0]" />
+                                  <div
+                                    data-cy="bscsetupmodal-div-2402"
+                                    className="my-1 border-t border-[#F0F0F0]"
+                                  />
                                   {!filteredPickerEmployees.length ? (
-                                    <p className="m-0 px-2 py-4 text-center text-[13px] text-[#8F94A3]">
+                                    <p
+                                      data-cy="bscsetupmodal-p-2404"
+                                      className="m-0 px-2 py-4 text-center text-[13px] text-[#8F94A3]"
+                                    >
                                       No employees match your search.
                                     </p>
                                   ) : (
@@ -2449,7 +2560,10 @@ export default function BscSetupModal() {
                                             {option.initials}
                                           </Avatar>
                                         )}
-                                        <span className="truncate text-[13px] font-medium text-[#262626]">
+                                        <span
+                                          data-cy="bscsetupmodal-span-2435"
+                                          className="truncate text-[13px] font-medium text-[#262626]"
+                                        >
                                           {option.label}
                                         </span>
                                       </button>
