@@ -22,7 +22,6 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { isMobile } = useIsMobile();
-
   const {
     data: activeFiscalYear,
     refetch,
