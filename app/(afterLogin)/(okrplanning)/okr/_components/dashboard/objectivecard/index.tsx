@@ -290,8 +290,13 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const isAnyKeyResultInlineEditActive = Boolean(activeInlineKeyResultId);
 
   const completedKeyResults =
-    objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
-  const totalKeyResults = objective?.keyResults?.length || 0;
+    (Array.isArray(objective?.keyResults)
+      ? objective.keyResults.filter((kr: any) => kr?.progress === 100)
+      : []
+    ).length || 0;
+  const totalKeyResults = Array.isArray(objective?.keyResults)
+    ? objective.keyResults.length
+    : 0;
 
   const canManageOkr =
     AccessGuard.checkAccess({ permissions: [Permissions.UpdateObjectives] }) ||
@@ -325,7 +330,8 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const selectedObjective = objective?.id === objectiveId ? objective : null;
   const relatedKeyResults =
     (selectedObjective &&
-      selectedObjective?.keyResults?.filter(
+      Array.isArray(selectedObjective?.keyResults) &&
+      selectedObjective.keyResults.filter(
         (kr: any) => kr.objectiveId === objectiveId,
       )) ||
     [];

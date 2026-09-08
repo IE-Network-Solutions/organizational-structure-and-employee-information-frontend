@@ -103,7 +103,9 @@ AccessGuard.checkAccess = ({
   const { userData, userId } = useAuthenticationStore.getState();
 
   const role = userData?.role?.slug || '';
-  const userPermissions = userData?.userPermissions || [];
+  const userPermissions = Array.isArray(userData?.userPermissions)
+    ? userData.userPermissions
+    : [];
 
   const isOwner = role === 'owner';
 
@@ -113,7 +115,7 @@ AccessGuard.checkAccess = ({
     ? permissions.every((permission) =>
         userPermissions.some(
           (userPermission: { permission: { slug: string } }) =>
-            userPermission.permission?.slug === permission,
+            userPermission?.permission?.slug === permission,
         ),
       )
     : true;

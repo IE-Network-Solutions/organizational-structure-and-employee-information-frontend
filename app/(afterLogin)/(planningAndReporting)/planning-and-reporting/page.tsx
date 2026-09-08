@@ -50,11 +50,17 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSearchParams } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { planningPeriodIntervalRank } from '@/utils/okrCountingPlanningPeriod';
+import {
+  getAssignmentPlanningPeriodId,
+  normalizeAssignedPlanningPeriods,
+  planningPeriodIntervalRank,
+  resolveAssignedPlanningPeriods,
+} from '@/utils/okrCountingPlanningPeriod';
 
 interface PlanningPeriod {
   id: string;
   userId: string;
+  planningPeriodId?: string;
   planningPeriod: {
     id: string;
     name: string;
@@ -103,43 +109,47 @@ function Page() {
   });
 
   const processedPlanningPeriods = useMemo(() => {
-    const safePlanningPeriods = Array.isArray(planningPeriods)
-      ? planningPeriods
-      : [];
-    const safeDefaultPlanningPeriods = Array.isArray(
-      defaultPlanningPeriods?.items,
-    )
+    const catalog = Array.isArray(defaultPlanningPeriods?.items)
       ? defaultPlanningPeriods.items
       : [];
+    const resolved = resolveAssignedPlanningPeriods(
+      normalizeAssignedPlanningPeriods(planningPeriods),
+      catalog,
+    ) as PlanningPeriod[];
+
+    const safePlanningPeriods = resolved.filter((item) => {
+      const periodId = getAssignmentPlanningPeriodId(item);
+      return Boolean(periodId && item?.planningPeriod);
+    });
 
     if (safePlanningPeriods.length === 0) return [];
 
     const existingUserId = safePlanningPeriods[0]?.userId || 'N/A';
     const existingPlanningPeriodIds = new Set(
-      safePlanningPeriods.map(
-        (item: PlanningPeriod) => item?.planningPeriod?.id,
-      ),
+      safePlanningPeriods.map((item) => getAssignmentPlanningPeriodId(item)),
     );
 
-    const missingPlanningPeriods = safeDefaultPlanningPeriods
-      .filter((item: any) => !existingPlanningPeriodIds.has(item.id))
-      .map((item: any) => ({
-        id: crypto.randomUUID(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        deletedAt: null,
-        createdBy: 'system',
-        updatedBy: 'system',
-        userId: existingUserId,
-        tenantId: item.tenantId,
-        planningPeriodId: item.id,
-        planningPeriod: item,
-      }));
+    const missingPlanningPeriods = hasPermission
+      ? catalog
+          .filter((item: any) => item?.id && !existingPlanningPeriodIds.has(item.id))
+          .map((item: any) => ({
+            id: `catalog-${item.id}`,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            deletedAt: null,
+            createdBy: 'system',
+            updatedBy: 'system',
+            userId: existingUserId,
+            tenantId: item.tenantId,
+            planningPeriodId: item.id,
+            planningPeriod: item,
+          }))
+      : [];
 
     const mergedPlanningPeriods = [
       ...safePlanningPeriods,
       ...missingPlanningPeriods,
-    ];
+    ] as PlanningPeriod[];
 
     mergedPlanningPeriods.sort(
       (a, b) =>
@@ -147,24 +157,30 @@ function Page() {
         planningPeriodIntervalRank(b.planningPeriod),
     );
 
-    return hasPermission ? mergedPlanningPeriods : safePlanningPeriods;
+    return mergedPlanningPeriods;
   }, [planningPeriods, defaultPlanningPeriods, hasPermission]);
 
   const tabItems = useMemo(() => {
     return processedPlanningPeriods.map(
-      (item: PlanningPeriod, index: number) => ({
-        label: (
-          <span
-            data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-110"
-            className="font-semibold text-sm"
-          >
-            {item.planningPeriod.name || 'No name available'}
-          </span>
-        ),
-        id: item.planningPeriod.id,
-        key: String(index + 1),
-        children: null,
-      }),
+      (item: PlanningPeriod, index: number) => {
+        const periodId =
+          getAssignmentPlanningPeriodId(item) ||
+          item?.planningPeriod?.id ||
+          `period-${index}`;
+        return {
+          label: (
+            <span
+              data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-110"
+              className="font-semibold text-sm"
+            >
+              {item?.planningPeriod?.name || 'No name available'}
+            </span>
+          ),
+          id: periodId,
+          key: String(index + 1),
+          children: null,
+        };
+      },
     );
   }, [processedPlanningPeriods]);
 
@@ -616,9 +632,13 @@ function Page() {
                     (item: PlanningPeriod, index: number) => {
                       const n = index + 1;
                       const isActive = activePlanPeriod === n;
+                      const periodId =
+                        getAssignmentPlanningPeriodId(item) ||
+                        item?.planningPeriod?.id ||
+                        `period-${n}`;
                       return (
                         <button
-                          key={item.planningPeriod.id}
+                          key={periodId}
                           type="button"
                           role="tab"
                           aria-selected={isActive}
@@ -633,7 +653,7 @@ function Page() {
                               : 'border-transparent bg-transparent px-2 text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-800 sm:px-2.5',
                           )}
                         >
-                          {item.planningPeriod.name || 'No name available'}
+                          {item?.planningPeriod?.name || 'No name available'}
                         </button>
                       );
                     },

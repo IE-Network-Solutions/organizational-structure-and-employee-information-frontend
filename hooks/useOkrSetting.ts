@@ -42,6 +42,7 @@ export function useOkrSetting() {
 
   // Check setting on mount: refetch for all when exists; show modal for all when no setting
   useEffect(() => {
+    if (isChecking) return;
     if (checkData) {
       if (!checkData.exists && !okrMode) {
         // Setting doesn't exist and we don't have a mode yet, show modal
@@ -52,7 +53,7 @@ export function useOkrSetting() {
         refetchSetting();
       }
     }
-  }, [checkData, okrMode, refetchSetting]);
+  }, [checkData, okrMode, refetchSetting, isChecking]);
 
   // Update mode when setting is loaded
   useEffect(() => {

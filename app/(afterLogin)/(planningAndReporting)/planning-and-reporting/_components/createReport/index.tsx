@@ -60,7 +60,8 @@ function CreateReport() {
     return planningPeriodDetail || {};
   };
   const planningPeriodId =
-    activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ??
+    planningPeriods?.items?.[activePlanPeriod - 1]?.id;
   const {
     data: allPlannedTaskForReport,
     isLoading: plannedTaskForReportLoading,

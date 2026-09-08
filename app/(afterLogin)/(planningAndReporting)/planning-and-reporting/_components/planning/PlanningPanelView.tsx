@@ -45,18 +45,25 @@ import { canApproveSubordinateWork } from '../utils';
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
-function getAllKRTasks(kr: KeyResult): any[] {
+function getAllKRTasks(kr: KeyResult | null | undefined): any[] {
   const tasks: any[] = [];
-  if (kr.tasks) tasks.push(...kr.tasks);
-  kr.milestones?.forEach((m: any) => {
-    if (m.tasks) tasks.push(...m.tasks);
-    m.parentTask?.forEach((p: any) => {
-      if (p.tasks) tasks.push(...p.tasks);
+  if (!kr || typeof kr !== 'object') return tasks;
+  if (Array.isArray(kr.tasks)) tasks.push(...kr.tasks);
+  if (Array.isArray(kr.milestones)) {
+    kr.milestones.forEach((m: any) => {
+      if (Array.isArray(m?.tasks)) tasks.push(...m.tasks);
+      if (Array.isArray(m?.parentTask)) {
+        m.parentTask.forEach((p: any) => {
+          if (Array.isArray(p?.tasks)) tasks.push(...p.tasks);
+        });
+      }
     });
-  });
-  kr.parentTask?.forEach((p: any) => {
-    if (p.tasks) tasks.push(...p.tasks);
-  });
+  }
+  if (Array.isArray(kr.parentTask)) {
+    kr.parentTask.forEach((p: any) => {
+      if (Array.isArray(p?.tasks)) tasks.push(...p.tasks);
+    });
+  }
   return tasks;
 }
 
@@ -272,7 +279,7 @@ export function buildOwnerKRGroups(
     const entry = ownerMap.get(ownerKey)!;
 
     for (const kr of plan.keyResults) {
-      if (entry.seenKRs.has(kr.id)) continue;
+      if (!kr?.id || entry.seenKRs.has(kr.id)) continue;
       entry.seenKRs.add(kr.id);
 
       const allTasks = getAllKRTasks(kr);
