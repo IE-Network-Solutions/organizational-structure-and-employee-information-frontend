@@ -44,7 +44,6 @@ export default function OkrTab({
   'data-cy': dataCy,
 }: OkrTabProps) {
   const [isMounted, setIsMounted] = useState(false);
-  const [activeKey, setActiveKey] = useState<string>('1');
   const { userId } = useAuthenticationStore();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
@@ -82,19 +81,42 @@ export default function OkrTab({
       ?.find((i: any) => i.id == searchObjParams?.departmentId)
       ?.users?.map((user: any) => user.id) || [];
 
+  const canVieTeamOkr = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewTeamOkr],
+  });
+  const canVieCompanyOkr = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewCompanyOkr],
+  });
+
+  const allowedTabKeys = useMemo(() => {
+    return TAB_CONFIG.filter((tab) => {
+      if (tab.key === '2' && !canVieTeamOkr) return false;
+      if ((tab.key === '3' || tab.key === '4') && !canVieCompanyOkr)
+        return false;
+      return true;
+    }).map((tab) => tab.key);
+  }, [canVieTeamOkr, canVieCompanyOkr]);
+
+  // Zustand okrTab is source of truth; clamp to a permitted tab without useEffect.
+  const activeKey = useMemo(() => {
+    const current = String(okrTab);
+    if (allowedTabKeys.includes(current)) return current;
+    return allowedTabKeys[0] ?? '1';
+  }, [okrTab, allowedTabKeys]);
+
   const keyResultDeadlineFilter = useMemo(
     () =>
-      String(okrTab) === '1'
+      activeKey === '1'
         ? toKeyResultDeadlineFilter(okrStatusPillId)
         : undefined,
-    [okrStatusPillId, okrTab],
+    [okrStatusPillId, activeKey],
   );
 
   useEffect(() => {
-    if (String(okrTab) !== '1') {
+    if (activeKey !== '1') {
       setOkrStatusPillId(null);
     }
-  }, [okrTab, setOkrStatusPillId]);
+  }, [activeKey, setOkrStatusPillId]);
 
   const {
     data: userObjectives,
@@ -108,7 +130,7 @@ export default function OkrTab({
     fiscalYearId,
     sessionIds,
     keyResultDeadlineFilter,
-    { enabled: String(activeKey) === '1' },
+    { enabled: activeKey === '1' },
   );
   const {
     data: teamObjective,
@@ -123,7 +145,7 @@ export default function OkrTab({
     fiscalYearId,
     sessionIds,
     undefined,
-    { enabled: String(activeKey) === '2' },
+    { enabled: activeKey === '2' },
   );
 
   const {
@@ -140,52 +162,41 @@ export default function OkrTab({
     fiscalYearId,
     sessionIds,
     undefined,
-    { enabled: String(activeKey) === '3' },
+    { enabled: activeKey === '3' },
   );
 
   const isUserLoading = isLoading;
   const isTeamLoading = teamLoading;
   const isCompanyLoading = companyLoading;
 
-  const canVieTeamOkr = AccessGuard.checkAccess({
-    permissions: [Permissions.ViewTeamOkr],
-  });
-  const canVieCompanyOkr = AccessGuard.checkAccess({
-    permissions: [Permissions.ViewCompanyOkr],
-  });
-
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (isMounted && String(activeKey) === '1') {
+    if (isMounted && activeKey === '1') {
       userRefetch();
     }
   }, [pageSize, currentPage, isMounted, activeKey]);
 
   useEffect(() => {
-    if (isMounted && String(activeKey) === '2') {
+    if (isMounted && activeKey === '2') {
       refetch();
     }
   }, [teamPageSize, teamCurrentPage, isMounted, activeKey]);
 
   // Refetch Team OKR when year/session filters change
   useEffect(() => {
-    if (isMounted && String(activeKey) === '2') {
+    if (isMounted && activeKey === '2') {
       refetch();
     }
   }, [fiscalYearId, sessionIds, isMounted, activeKey]);
 
   useEffect(() => {
-    if (isMounted && String(activeKey) === '3') {
+    if (isMounted && activeKey === '3') {
       CompanyRefetch();
     }
   }, [companyPageSize, companyCurrentPage, isMounted, activeKey]);
-
-  useEffect(() => {
-    setActiveKey(String(okrTab));
-  }, [okrTab]);
 
   // Return null or loading state during SSR
   if (!isMounted) {
@@ -201,28 +212,11 @@ export default function OkrTab({
 
   const handleTabChange = (key: string) => {
     setOkrTab(key);
-    setActiveKey(key);
   };
 
-  const visibleTabs = TAB_CONFIG.filter((tab) => {
-    if (tab.key === '2' && !canVieTeamOkr) return false;
-    if ((tab.key === '3' || tab.key === '4') && !canVieCompanyOkr) return false;
-    return true;
-  });
-
-  useEffect(() => {
-    const allowed = TAB_CONFIG.filter((tab) => {
-      if (tab.key === '2' && !canVieTeamOkr) return false;
-      if ((tab.key === '3' || tab.key === '4') && !canVieCompanyOkr)
-        return false;
-      return true;
-    }).map((tab) => tab.key);
-    if (allowed.length > 0 && !allowed.includes(String(activeKey))) {
-      const fallback = allowed[0];
-      setActiveKey(fallback);
-      setOkrTab(fallback);
-    }
-  }, [activeKey, canVieTeamOkr, canVieCompanyOkr, setOkrTab]);
+  const visibleTabs = TAB_CONFIG.filter((tab) =>
+    allowedTabKeys.includes(tab.key),
+  );
 
   const myObjectiveItems = Array.isArray(userObjectives?.items)
     ? userObjectives.items
