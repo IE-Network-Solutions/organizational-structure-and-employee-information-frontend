@@ -36,6 +36,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useIsMobile } from '@/hooks/useIsMobile';
 import OKRInlineSuggestions from '@/components/ai/OKRInlineSuggestions';
 import { useIsBasicOkr } from '../../_utils/okrMode';
+import { sanitizeCreateObjectivePayload, toOptionalUuid } from '@/utils/sanitizeCreateObjectivePayload';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -246,25 +247,38 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
           // Transfer key results from objective to objectiveValue for submission
           const formValues = form.getFieldsValue();
-          const modifiedObjectiveValue = {
-            ...objectiveValue,
-            keyResults: keyResults,
-            // Merge form values as safety net (form holds user's latest input)
-            title: formValues.title ?? objectiveValue?.title,
-            allignedKeyResultId:
-              formValues.allignedKeyResultId ??
-              objectiveValue?.allignedKeyResultId,
-            deadline: formValues.ObjectiveDeadline
-              ? dayjs(formValues.ObjectiveDeadline).format('YYYY-MM-DD')
-              : objectiveValue?.deadline,
-          };
+          const modifiedObjectiveValue = sanitizeCreateObjectivePayload(
+            {
+              ...objectiveValue,
+              keyResults: keyResults,
+              // Merge form values as safety net (form holds user's latest input)
+              title: formValues.title ?? objectiveValue?.title,
+              allignedKeyResultId:
+                formValues.allignedKeyResultId ??
+                objectiveValue?.allignedKeyResultId,
+              deadline: formValues.ObjectiveDeadline
+                ? dayjs(formValues.ObjectiveDeadline).format('YYYY-MM-DD')
+                : objectiveValue?.deadline,
+            },
+            userId,
+          );
 
-          if (
-            modifiedObjectiveValue?.allignedKeyResultId === '' ||
-            modifiedObjectiveValue?.allignedKeyResultId === null
-          ) {
-            delete modifiedObjectiveValue.allignedKeyResultId;
+          if (!modifiedObjectiveValue.userId) {
+            NotificationMessage.warning({
+              message: 'User session is missing. Please refresh and try again.',
+            });
+            return;
           }
+
+          const missingMetric = (keyResults as any[]).some((kr, index) => {
+            if (toOptionalUuid(kr?.metricTypeId)) return false;
+            NotificationMessage.warning({
+              message: `On Number: ${index + 1} Title:${kr?.title || ''} Please select a metric type before creating the objective.`,
+            });
+            return true;
+          });
+          if (missingMetric) return;
+
           // If all checks pass, proceed with the objective creation
           createObjective(modifiedObjectiveValue, {
             onSuccess: () => {
@@ -387,6 +401,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       (metric: any) => metric.name === actualMetricName,
     );
     const metricTypeId = metricType?.id || '';
+    if (!metricTypeId) {
+      NotificationMessage.warning({
+        message: `Metric type "${actualMetricName}" is not available. Please refresh and try again.`,
+      });
+      return;
+    }
 
     // Add key result with the correct metricTypeId
     addKeyResult(key, metricTypeId);
@@ -710,12 +730,21 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     data-cy="okr-drawer-mobile-alignment-label"
                   >
                     Alignment{' '}
-                    <span
-                      className="text-red-500"
-                      data-cy="okr-drawer-mobile-alignment-required"
-                    >
-                      *
-                    </span>{' '}
+                    {reportsToId ? (
+                      <span
+                        className="text-red-500"
+                        data-cy="okr-drawer-mobile-alignment-required"
+                      >
+                        *
+                      </span>
+                    ) : (
+                      <span
+                        className="text-gray-400 text-xs ml-1"
+                        data-cy="okr-drawer-alignment-optional"
+                      >
+                        (optional)
+                      </span>
+                    )}{' '}
                     <Tooltip
                       title={
                         <div
@@ -742,20 +771,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     >
                       <QuestionCircleOutlined className="text-gray-400 cursor-help" />
                     </Tooltip>
-                    {!reportsToId && (
-                      <span
-                        className="text-gray-400 text-xs ml-1"
-                        data-cy="okr-drawer-alignment-optional"
-                      >
-                        (optional)
-                      </span>
-                    )}
                   </span>
                 }
                 rules={[
                   {
-                    required: reportsToId ? true : false,
-                    message: 'Please enter the Objective name',
+                    required: Boolean(reportsToId),
+                    message: 'Please select alignment',
                   },
                 ]}
               >
@@ -764,10 +785,11 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   data-cy="okr-drawer-mobile-alignment-select-dropdown"
                   className="h-11 w-full rounded-lg"
                   showSearch
+                  allowClear={!reportsToId}
                   placeholder="Select"
-                  value={objectiveValue?.allignedKeyResultId}
+                  value={objectiveValue?.allignedKeyResultId || undefined}
                   onChange={(value) =>
-                    handleObjectiveChange(value, 'allignedKeyResultId')
+                    handleObjectiveChange(value || null, 'allignedKeyResultId')
                   }
                   filterOption={(input: string, option: any) =>
                     option.children.toLowerCase().includes(input.toLowerCase())
@@ -917,12 +939,21 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   data-cy="okr-drawer-desktop-alignment-label"
                 >
                   Alignment{' '}
-                  <span
-                    className="text-red-500"
-                    data-cy="okr-drawer-desktop-alignment-required"
-                  >
-                    *
-                  </span>{' '}
+                  {reportsToId ? (
+                    <span
+                      className="text-red-500"
+                      data-cy="okr-drawer-desktop-alignment-required"
+                    >
+                      *
+                    </span>
+                  ) : (
+                    <span
+                      className="text-gray-400 text-xs ml-1"
+                      data-cy="okr-drawer-desktop-alignment-optional"
+                    >
+                      (optional)
+                    </span>
+                  )}{' '}
                   <Tooltip
                     title={
                       <div
@@ -949,19 +980,11 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   >
                     <QuestionCircleOutlined className="text-gray-400 cursor-help" />
                   </Tooltip>
-                  {!reportsToId && (
-                    <span
-                      className="text-gray-400 text-xs ml-1"
-                      data-cy="okr-drawer-desktop-alignment-optional"
-                    >
-                      (optional)
-                    </span>
-                  )}
                 </span>
               }
               rules={[
                 {
-                  required: reportsToId ? true : false,
+                  required: Boolean(reportsToId),
                   message: 'Please select alignment',
                 },
               ]}
@@ -971,10 +994,11 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 data-cy="okr-drawer-desktop-alignment-select-dropdown"
                 className="h-11 w-full"
                 showSearch
+                allowClear={!reportsToId}
                 placeholder="Select"
-                value={objectiveValue?.allignedKeyResultId}
+                value={objectiveValue?.allignedKeyResultId || undefined}
                 onChange={(value) =>
-                  handleObjectiveChange(value, 'allignedKeyResultId')
+                  handleObjectiveChange(value || null, 'allignedKeyResultId')
                 }
                 filterOption={(input: string, option: any) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
