@@ -6,6 +6,7 @@ import { Button, Form, Spin } from 'antd';
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { useCreateReportForUnReportedtasks } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import {
+  AllPlanningPeriods,
   useDefaultPlanningPeriods,
   useGetPlannedTaskForReport,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -25,6 +26,7 @@ import { useCreateReportFormEffects } from './useCreateReportFormEffects';
 import { ReportingOnlyOkrNote } from './ReportingOnlyOkrNote';
 import { usePlanningPeriodOkrEffect } from '@/hooks/usePlanningPeriodOkrEffect';
 import { buildSanitizedReportPayload } from '@/utils/reportSubmitPayload';
+import { fallbackAssignedPlanningPeriodId } from '@/utils/okrCountingPlanningPeriod';
 
 function CreateReport() {
   const {
@@ -49,6 +51,7 @@ function CreateReport() {
   };
 
   const { data: planningPeriods } = useDefaultPlanningPeriods();
+  const { data: userPlanningPeriods } = AllPlanningPeriods();
 
   const { mutate: createReport, isLoading: createReportLoading } =
     useCreateReportForUnReportedtasks();
@@ -60,8 +63,8 @@ function CreateReport() {
     return planningPeriodDetail || {};
   };
   const planningPeriodId =
-    activePlanPeriodId ??
-    planningPeriods?.items?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ||
+    fallbackAssignedPlanningPeriodId(userPlanningPeriods, activePlanPeriod);
   const {
     data: allPlannedTaskForReport,
     isLoading: plannedTaskForReportLoading,

@@ -117,10 +117,36 @@ function Page() {
       catalog,
     ) as PlanningPeriod[];
 
-    const safePlanningPeriods = resolved.filter((item) => {
-      const periodId = getAssignmentPlanningPeriodId(item);
-      return Boolean(periodId && item?.planningPeriod);
-    });
+    // Keep any assignment with a resolvable period id. If nested planningPeriod
+    // is missing, attach catalog match or a minimal stub so tabs/lists still render.
+    const safePlanningPeriods = resolved
+      .map((item) => {
+        const periodId = getAssignmentPlanningPeriodId(item);
+        if (!periodId) return null;
+        if (item?.planningPeriod?.id || item?.planningPeriod?.name) {
+          return {
+            ...item,
+            planningPeriodId: periodId,
+            planningPeriod: {
+              ...item.planningPeriod,
+              id: item.planningPeriod?.id || periodId,
+            },
+          } as PlanningPeriod;
+        }
+        const fromCatalog = catalog.find(
+          (period: any) => String(period?.id) === periodId,
+        );
+        return {
+          ...item,
+          planningPeriodId: periodId,
+          planningPeriod: fromCatalog || {
+            id: periodId,
+            name: 'Planning period',
+            intervalLength: 0,
+          },
+        } as PlanningPeriod;
+      })
+      .filter(Boolean) as PlanningPeriod[];
 
     if (safePlanningPeriods.length === 0) return [];
 
@@ -131,7 +157,10 @@ function Page() {
 
     const missingPlanningPeriods = hasPermission
       ? catalog
-          .filter((item: any) => item?.id && !existingPlanningPeriodIds.has(item.id))
+          .filter(
+            (item: any) =>
+              item?.id && !existingPlanningPeriodIds.has(String(item.id)),
+          )
           .map((item: any) => ({
             id: `catalog-${item.id}`,
             createdAt: new Date().toISOString(),
@@ -157,7 +186,7 @@ function Page() {
         planningPeriodIntervalRank(b.planningPeriod),
     );
 
-    return mergedPlanningPeriods;
+    return hasPermission ? mergedPlanningPeriods : safePlanningPeriods;
   }, [planningPeriods, defaultPlanningPeriods, hasPermission]);
 
   const tabItems = useMemo(() => {

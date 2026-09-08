@@ -102,21 +102,14 @@ const OKR: React.FC<any> = () => {
       );
     }
   }
-  // Show modal if setting doesn't exist
-  if (showModal) {
-    return (
-      <>
-        <OkrModeSelectionModal
-          open={showModal}
-          onSuccess={handleOkrModeSuccess}
-          saveOkrMode={saveOkrMode}
-        />
-      </>
-    );
-  }
-
+  // Keep Objectives mounted when the mode modal is open so lists still load.
   return (
     <div id="okr-page-div-container" data-cy="okr-page-div-container">
+      <OkrModeSelectionModal
+        open={showModal}
+        onSuccess={handleOkrModeSuccess}
+        saveOkrMode={saveOkrMode}
+      />
       <div id="okr-page-div-header" data-cy="okr-page-div-header">
         <div data-cy="okr-page-header-content">
           <CustomBreadcrumb
