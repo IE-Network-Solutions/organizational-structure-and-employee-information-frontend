@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Select, Tabs } from 'antd';
+import { Tabs } from 'antd';
 import type { RenderTabBar } from 'rc-tabs/es/interface';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -35,6 +35,9 @@ import PerspectiveKpiCard, {
   ScorecardKpiRow,
 } from './_components/PerspectiveKpiCard';
 import ScorecardPeriodFilter from './_components/ScorecardPeriodFilter';
+import CheckinInboxToggle, {
+  type CheckinInbox,
+} from './_components/CheckinInboxToggle';
 import CheckinQueue from './_components/CheckinQueue';
 import ResultsKpiView from './_components/ResultsKpiView';
 import { computeKpiProgressPercent } from '@/app/(afterLogin)/dashboard/_components/header/KpiProgressHeaderCard';
@@ -144,6 +147,7 @@ export default function MyBscScorecardPage() {
   const [selectedScorecardId, setSelectedScorecardId] = useState<
     string | undefined
   >();
+  const [checkinInbox, setCheckinInbox] = useState<CheckinInbox>('mine');
 
   const cycleById = useMemo(() => {
     const map = new Map<string, EvaluationCycle>();
@@ -451,21 +455,11 @@ export default function MyBscScorecardPage() {
         : 'mine';
 
   const myScorecardFilters = (
-    <div data-cy="page-div-454" className="flex flex-wrap items-center gap-2">
-      {scorecardOptions.length > 1 ? (
-        <Select
-          className="w-full min-w-[200px] sm:w-[280px]"
-          value={selectedScorecardId}
-          options={scorecardOptions}
-          onChange={setSelectedScorecardId}
-          showSearch
-          optionFilterProp="label"
-          placeholder="Scorecard context"
-          data-cy="bsc-my-scorecard-context-select"
-        />
-      ) : null}
-      <ScorecardPeriodFilter />
-    </div>
+    <ScorecardPeriodFilter
+      scorecardValue={selectedScorecardId}
+      scorecardOptions={scorecardOptions}
+      onScorecardChange={setSelectedScorecardId}
+    />
   );
 
   const contextLabel = activeScorecard
@@ -531,7 +525,7 @@ export default function MyBscScorecardPage() {
       label: tabLabel('checkin', 'Check-in'),
       children: (
         <div data-cy="bsc-checkin-tab-content">
-          <CheckinQueue />
+          <CheckinQueue inbox={checkinInbox} />
         </div>
       ),
     },
@@ -551,12 +545,20 @@ export default function MyBscScorecardPage() {
       : []),
   ];
 
+  const checkinInboxToggle = (
+    <CheckinInboxToggle value={checkinInbox} onChange={setCheckinInbox} />
+  );
+
   const tabBarExtraContent =
     activeTab === 'mine'
       ? isCompactTabBar
         ? { right: myScorecardFilters }
         : myScorecardFilters
-      : undefined;
+      : activeTab === 'checkin'
+        ? isCompactTabBar
+          ? { right: checkinInboxToggle }
+          : checkinInboxToggle
+        : undefined;
 
   const tabsClassName = [
     '[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-content-holder]:mt-6',

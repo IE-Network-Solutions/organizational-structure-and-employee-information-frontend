@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button, Dropdown, Modal, Spin, Table, Tag } from 'antd';
+import { Dropdown, Modal, Spin, Table, Tag } from 'antd';
 import type { MenuProps } from 'antd';
-import { MoreOutlined } from '@ant-design/icons';
+import { EllipsisOutlined } from '@ant-design/icons';
 import EmptyState from '@/components/empty';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
@@ -21,10 +21,14 @@ import { TableColumnsType } from '@/types/table/table';
 import { cadenceLabel, checkInDayLabel } from '@/utils/bsc/checkInSchedule';
 import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
 import { unitTagClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/TargetValueCell';
+import {
+  bscTableCellClassName as tableCellClassName,
+  bscTableClassName as tableClassName,
+  bscTableHeaderClassName as tableHeaderClassName,
+  bscTableRowClassName,
+} from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import KpiCatalogFormModal from './KpiCatalogFormModal';
 
-const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
-const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
 const blueTagClassName =
   'm-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]';
 const unknownPerspectiveTagClassName =
@@ -97,7 +101,6 @@ export default function KpiCatalog() {
         label: 'Edit',
         onClick: () => openCatalogKpiForm(row),
       },
-      { type: 'divider' },
       {
         key: 'delete',
         label: 'Delete',
@@ -187,7 +190,7 @@ export default function KpiCatalog() {
       ),
       dataIndex: 'targetLogic',
       key: 'targetLogic',
-      width: 140,
+      width: 150,
       render: (logic: TargetLogic) => (
         <span data-cy="kpicatalog-span-167" className={tableCellClassName}>
           {targetLogicLabel(logic)}
@@ -201,7 +204,7 @@ export default function KpiCatalog() {
         </span>
       ),
       key: 'defaultTarget',
-      width: 130,
+      width: 160,
       render: (unused, row) => (
         <span data-cy="kpicatalog-span-175" className={tableCellClassName}>
           {row.defaultTarget != null ? row.defaultTarget : '—'}
@@ -244,15 +247,17 @@ export default function KpiCatalog() {
           menu={{ items: kpiMenuItems(row) }}
           trigger={['click']}
           placement="bottomRight"
+          overlayClassName="okr-actions-dropdown"
         >
-          <Button
-            type="text"
-            size="small"
-            icon={<MoreOutlined className="text-lg" />}
-            className="text-[#595959]"
+          <button
+            type="button"
+            aria-label="KPI actions"
+            className="flex h-8 w-8 items-center justify-center border-none bg-transparent text-[#8c8c8c] transition-colors hover:text-[#262626] cursor-pointer"
             onClick={(e) => e.stopPropagation()}
             data-cy={`bsc-kpi-catalog-menu-${row.id}`}
-          />
+          >
+            <EllipsisOutlined style={{ fontSize: 14 }} />
+          </button>
         </Dropdown>
       ),
     },
@@ -310,12 +315,15 @@ export default function KpiCatalog() {
                   className="flex w-full overflow-x-auto scrollbar-none"
                 >
                   <Table
-                    className="w-full [&_.ant-table]:!border-[#D9D9D9]"
+                    className={tableClassName}
                     columns={columns}
                     dataSource={paginatedKpis}
                     pagination={false}
                     rowKey="id"
-                    scroll={{ x: 980 }}
+                    scroll={{ x: 1020 }}
+                    rowClassName={(unused, index) =>
+                      bscTableRowClassName(index)
+                    }
                     data-cy="bsc-kpi-catalog-table"
                   />
                 </div>

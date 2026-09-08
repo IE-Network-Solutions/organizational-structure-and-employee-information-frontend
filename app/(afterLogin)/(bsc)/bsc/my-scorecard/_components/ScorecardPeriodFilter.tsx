@@ -8,7 +8,19 @@ import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_componen
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 
-export default function ScorecardPeriodFilter() {
+type ScorecardOption = { value: string; label: string };
+
+type Props = {
+  scorecardValue?: string;
+  scorecardOptions?: ScorecardOption[];
+  onScorecardChange?: (id: string) => void;
+};
+
+export default function ScorecardPeriodFilter({
+  scorecardValue,
+  scorecardOptions = [],
+  onScorecardChange,
+}: Props) {
   const [filterOpen, setFilterOpen] = useState(false);
   const { data: activeFy } = useGetActiveFiscalYears();
   const {
@@ -44,8 +56,35 @@ export default function ScorecardPeriodFilter() {
     >
       <div
         data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-41"
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+        className="flex flex-col gap-4"
       >
+        {scorecardOptions.length > 1 && onScorecardChange ? (
+          <div
+            className="flex flex-col gap-2"
+            data-cy="bsc-my-scorecard-filter-scorecard"
+          >
+            <label
+              className="text-sm font-medium text-gray-700"
+              data-cy="bsc-my-scorecard-filter-scorecard-label"
+            >
+              Scorecard
+            </label>
+            <Select
+              className="w-full h-10 rounded-lg"
+              value={scorecardValue}
+              options={scorecardOptions}
+              onChange={onScorecardChange}
+              showSearch
+              optionFilterProp="label"
+              placeholder="Select scorecard"
+              data-cy="bsc-my-scorecard-context-select"
+            />
+          </div>
+        ) : null}
+        <div
+          data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-41-grid"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+        >
         <div
           data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-42"
           className="flex flex-col gap-2"
@@ -94,6 +133,7 @@ export default function ScorecardPeriodFilter() {
             }))}
             data-cy="bsc-my-sc-month"
           />
+        </div>
         </div>
       </div>
     </div>

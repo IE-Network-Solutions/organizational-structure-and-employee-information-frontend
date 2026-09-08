@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Avatar, Button, Empty, Progress, Table, Tag } from 'antd';
+import { Avatar, Button, Empty, Modal, Progress, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { EditOutlined, LeftOutlined, UserOutlined } from '@ant-design/icons';
+import { CloseOutlined, EditOutlined, UserOutlined } from '@ant-design/icons';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
+import { BscKpiCountCard } from '@/app/(afterLogin)/(bsc)/bsc/_components/BscKpiMetricCard';
 import {
   useGetBscCycle,
   useGetBscKpiLibrary,
@@ -16,6 +17,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   BscScopeTarget,
+  EmployeeScorecard,
   EvaluationCycle,
   KpiLibraryItem,
   TargetLogic,
@@ -24,11 +26,17 @@ import BscSetupModal from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-set
 import { computeKpiRollup, formatScore } from '@/utils/bsc/rollup';
 import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
 import { cadenceLabel, checkInDayLabel } from '@/utils/bsc/checkInSchedule';
+import {
+  bscTableCellClassName as tableCellClassName,
+  bscTableClassName as tableClassName,
+  bscTableHeaderClassName as tableHeaderClassName,
+  bscTableRowClassName,
+} from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 
-const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
-const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
 const blueTagClassName =
   'm-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]';
+
+type ListKind = 'departments' | 'roles' | 'people';
 
 function resolveProfileImageSrc(profileImage: unknown): string | undefined {
   if (!profileImage || typeof profileImage !== 'string') return undefined;
@@ -108,59 +116,6 @@ function ScoreProgressBar({
   );
 }
 
-function AssignmentSection({
-  title,
-  description,
-  items,
-  emptyText,
-  dataCy,
-}: {
-  title: string;
-  description?: string;
-  items: string[];
-  emptyText: string;
-  dataCy: string;
-}) {
-  return (
-    <div
-      className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white"
-      data-cy={dataCy}
-    >
-      <div data-cy="page-div-129" className="px-5 pb-3 pt-4">
-        <h2
-          data-cy="page-h2-130"
-          className="m-0 text-lg font-semibold text-[#262626]"
-        >
-          {title}
-        </h2>
-        {description ? (
-          <p
-            data-cy="page-p-132"
-            className="mb-3 mt-1 text-[12px] text-[#8F94A3]"
-          >
-            {description}
-          </p>
-        ) : (
-          <div data-cy="page-div-134" className="mb-3" />
-        )}
-        {!items.length ? (
-          <p data-cy="page-p-137" className="m-0 text-[13px] text-[#94A3B8]">
-            {emptyText}
-          </p>
-        ) : (
-          <div data-cy="page-div-139" className="flex flex-wrap gap-1.5">
-            {items.map((item) => (
-              <Tag key={item} className={blueTagClassName}>
-                {item}
-              </Tag>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export default function BscScorecardDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -169,6 +124,8 @@ export default function BscScorecardDetailPage() {
   const focusPersonId = searchParams?.get('person') || '';
   const { openEditSetup, setScorecardTab } = useBscUiStore();
   const [kpiSearch, setKpiSearch] = useState('');
+  const [listModal, setListModal] = useState<ListKind | null>(null);
+  const [listSearch, setListSearch] = useState('');
 
   const { data: config, isLoading: configLoading } = useGetBscCycle(configId);
   const { data: allKpis, isLoading: kpisLoading } = useGetBscKpiLibrary({
@@ -208,6 +165,16 @@ export default function BscScorecardDetailPage() {
     [peopleScorecards],
   );
 
+  const uniquePeople = useMemo(() => {
+    const byUser = new Map<string, EmployeeScorecard>();
+    for (const person of people) {
+      if (!byUser.has(person.userId)) byUser.set(person.userId, person);
+    }
+    return Array.from(byUser.values()).sort((a, b) =>
+      (a.userName || '').localeCompare(b.userName || ''),
+    );
+  }, [people]);
+
   const kpiRollupById = useMemo(() => {
     const map = new Map<
       string,
@@ -242,15 +209,10 @@ export default function BscScorecardDetailPage() {
   };
 
   useEffect(() => {
-    if (!focusPersonId || !people.length) return;
-    const timer = window.setTimeout(() => {
-      const el = document.querySelector(
-        `[data-cy="bsc-scorecard-person-row-${focusPersonId}"]`,
-      );
-      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 120);
-    return () => window.clearTimeout(timer);
-  }, [focusPersonId, people]);
+    if (!focusPersonId || !uniquePeople.length) return;
+    setListSearch('');
+    setListModal('people');
+  }, [focusPersonId, uniquePeople.length]);
 
   const kpiColumns: ColumnsType<KpiLibraryItem> = [
     {
@@ -399,6 +361,48 @@ export default function BscScorecardDetailPage() {
     };
   }, [config]);
 
+  const openListModal = (kind: ListKind) => {
+    setListSearch('');
+    setListModal(kind);
+  };
+
+  const modalTitle =
+    listModal === 'departments'
+      ? 'Departments'
+      : listModal === 'roles'
+        ? 'Roles'
+        : 'People';
+
+  const modalSearchPlaceholder =
+    listModal === 'departments'
+      ? 'Search departments'
+      : listModal === 'roles'
+        ? 'Search roles'
+        : 'Search people';
+
+  const filteredNames = useMemo(() => {
+    const q = listSearch.trim().toLowerCase();
+    const source =
+      listModal === 'departments'
+        ? assignmentSummary.departments
+        : listModal === 'roles'
+          ? assignmentSummary.roles
+          : [];
+    if (!q) return source;
+    return source.filter((name) => name.toLowerCase().includes(q));
+  }, [listModal, listSearch, assignmentSummary]);
+
+  const filteredPeople = useMemo(() => {
+    const q = listSearch.trim().toLowerCase();
+    if (!q) return uniquePeople;
+    return uniquePeople.filter(
+      (person) =>
+        person.userName.toLowerCase().includes(q) ||
+        (person.positionTitle || '').toLowerCase().includes(q) ||
+        (person.departmentName || '').toLowerCase().includes(q),
+    );
+  }, [listSearch, uniquePeople]);
+
   return (
     <div className="w-full" data-cy="bsc-scorecard-detail-page">
       <CustomBreadcrumb
@@ -416,19 +420,9 @@ export default function BscScorecardDetailPage() {
                 .join(' · ')
             : 'Scorecard detail'
         }
+        onBack={backToBsc}
+        backControlDataCy="bsc-scorecard-detail-back"
       />
-
-      <div className="mb-4" data-cy="bsc-scorecard-detail-back-wrap">
-        <Button
-          type="text"
-          icon={<LeftOutlined />}
-          onClick={backToBsc}
-          className="!px-0 text-[#595959]"
-          data-cy="bsc-scorecard-detail-back"
-        >
-          BSC
-        </Button>
-      </div>
 
       {loading ? (
         <div
@@ -451,35 +445,42 @@ export default function BscScorecardDetailPage() {
           data-cy="bsc-scorecard-detail-body"
         >
           <div
-            className="flex flex-wrap items-start justify-between gap-3"
-            data-cy="bsc-scorecard-detail-header"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+            data-cy="bsc-scorecard-detail-summary-cards"
           >
-            <div data-cy="page-div-403" className="min-w-0">
-              <div
-                data-cy="page-div-404"
-                className="mb-2 flex flex-wrap items-center gap-2"
-              >
-                <Tag className={blueTagClassName}>
-                  {assignmentSummary.scope}
-                </Tag>
-                <Tag className={blueTagClassName}>
-                  {config.isActive === false ? 'Inactive' : 'Active'}
-                </Tag>
-                {config.effectiveFrom || config.startDate ? (
-                  <Tag className={blueTagClassName}>
-                    From {config.effectiveFrom || config.startDate}
-                  </Tag>
-                ) : null}
-              </div>
-              {config.description ? (
-                <p
-                  data-cy="page-p-418"
-                  className="m-0 max-w-3xl text-[13px] text-[#8F94A3]"
-                >
-                  {config.description}
-                </p>
-              ) : null}
-            </div>
+            <BscKpiCountCard
+              label="Departments"
+              items={assignmentSummary.departments}
+              dataCy="bsc-scorecard-detail-departments-card"
+              onViewMore={() => openListModal('departments')}
+              className="w-full min-w-0"
+            />
+            <BscKpiCountCard
+              label="Roles"
+              items={assignmentSummary.roles}
+              dataCy="bsc-scorecard-detail-roles-card"
+              onViewMore={() => openListModal('roles')}
+              className="w-full min-w-0"
+            />
+            <BscKpiCountCard
+              label="People"
+              items={uniquePeople.map((person) => person.userName)}
+              dataCy="bsc-scorecard-detail-people-card"
+              onViewMore={() => openListModal('people')}
+              className="w-full min-w-0"
+            />
+          </div>
+
+          <div
+            className="flex flex-wrap items-center justify-between gap-3"
+            data-cy="bsc-scorecard-detail-toolbar"
+          >
+            <BscSearchInput
+              placeholder="Search KPIs"
+              value={kpiSearch}
+              onChange={setKpiSearch}
+              data-cy="bsc-scorecard-detail-kpi-search"
+            />
             <Button
               type="primary"
               icon={<EditOutlined />}
@@ -491,45 +492,16 @@ export default function BscScorecardDetailPage() {
             </Button>
           </div>
 
-          <div
-            className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white"
-            data-cy="bsc-scorecard-detail-kpis"
-          >
-            <div
-              data-cy="page-div-438"
-              className="flex flex-wrap items-center justify-between gap-3 px-5 pb-2 pt-4"
-            >
-              <div data-cy="page-div-439">
-                <h2
-                  data-cy="page-h2-440"
-                  className="m-0 text-lg font-semibold text-[#262626]"
-                >
-                  Scorecard KPIs
-                </h2>
-                <p
-                  data-cy="page-p-443"
-                  className="mb-0 mt-1 text-[12px] text-[#8F94A3]"
-                >
-                  Shared KPIs on this scorecard template.
-                </p>
-              </div>
-              <BscSearchInput
-                placeholder="Search KPIs"
-                value={kpiSearch}
-                onChange={setKpiSearch}
-                data-cy="bsc-scorecard-detail-kpi-search"
-              />
-            </div>
-
+          <div data-cy="bsc-scorecard-detail-kpis">
             {!uniqueKpis.length ? (
-              <div data-cy="page-div-456" className="px-5 pb-8 pt-4">
+              <div data-cy="page-div-456" className="py-8">
                 <Empty
                   description="No KPIs linked yet"
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
                 />
               </div>
             ) : !filteredKpis.length ? (
-              <div data-cy="page-div-463" className="px-5 pb-8 pt-4">
+              <div data-cy="page-div-463" className="py-8">
                 <Empty
                   description="No KPIs match your search"
                   image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -537,137 +509,61 @@ export default function BscScorecardDetailPage() {
               </div>
             ) : (
               <Table
-                className="w-full [&_.ant-table]:!border-[#D9D9D9]"
+                className={tableClassName}
                 columns={kpiColumns}
                 dataSource={filteredKpis}
                 pagination={false}
                 rowKey="id"
                 scroll={{ x: 1020 }}
+                rowClassName={(unused, index) =>
+                  bscTableRowClassName(index, 'cursor-pointer')
+                }
                 onRow={(row) => ({
                   onClick: () =>
                     router.push(
                       `/bsc/kpis/${encodeURIComponent(row.id)}?perspective=${encodeURIComponent(row.perspective)}&scorecard=${encodeURIComponent(configId)}`,
                     ),
-                  className: 'cursor-pointer',
                 })}
                 data-cy="bsc-scorecard-detail-kpi-table"
               />
             )}
           </div>
+        </div>
+      )}
 
-          {assignmentSummary.scope === BscScopeTarget.Company ? (
-            <div
-              className="rounded-xl border border-[#E5E7EB] bg-white px-5 py-4"
-              data-cy="bsc-scorecard-detail-company"
-            >
-              <h2
-                data-cy="page-h2-494"
-                className="m-0 text-lg font-semibold text-[#262626]"
-              >
-                Company
-              </h2>
-              <p
-                data-cy="page-p-497"
-                className="mb-0 mt-1 text-[13px] text-[#8F94A3]"
-              >
-                Applies the scorecard template organization-wide.
-              </p>
-            </div>
-          ) : (
-            (() => {
-              const showDepartments =
-                assignmentSummary.scope === BscScopeTarget.Department ||
-                assignmentSummary.departments.length > 0;
-              const showRoles =
-                assignmentSummary.scope === BscScopeTarget.Role ||
-                assignmentSummary.roles.length > 0;
-              const showEmployees =
-                assignmentSummary.scope === BscScopeTarget.Individual ||
-                assignmentSummary.individuals.length > 0;
-              const sectionCount =
-                Number(showDepartments) +
-                Number(showRoles) +
-                Number(showEmployees);
-
-              if (!sectionCount) return null;
-
-              return (
-                <div
-                  className={`grid grid-cols-1 gap-4 ${
-                    sectionCount > 1 ? 'md:grid-cols-2' : ''
-                  }`}
-                  data-cy="bsc-scorecard-detail-assignments"
-                >
-                  {showDepartments ? (
-                    <AssignmentSection
-                      title="Departments"
-                      description="Departments included in this scorecard scope."
-                      items={assignmentSummary.departments}
-                      emptyText="No departments assigned"
-                      dataCy="bsc-scorecard-detail-departments"
-                    />
-                  ) : null}
-
-                  {showRoles ? (
-                    <AssignmentSection
-                      title="Roles"
-                      description="Roles included in this scorecard scope."
-                      items={assignmentSummary.roles}
-                      emptyText="No roles assigned"
-                      dataCy="bsc-scorecard-detail-roles"
-                    />
-                  ) : null}
-
-                  {showEmployees ? (
-                    <AssignmentSection
-                      title="Employees"
-                      description="Individuals assigned directly to this scorecard."
-                      items={assignmentSummary.individuals}
-                      emptyText="No employees assigned"
-                      dataCy="bsc-scorecard-detail-employees"
-                    />
-                  ) : null}
-                </div>
-              );
-            })()
-          )}
-
+      <Modal
+        open={listModal != null}
+        onCancel={() => setListModal(null)}
+        footer={null}
+        centered
+        width={480}
+        destroyOnClose
+        closeIcon={<CloseOutlined />}
+        title={modalTitle}
+        data-cy="bsc-scorecard-detail-list-modal"
+      >
+        <div className="mt-2" data-cy="bsc-scorecard-detail-list-modal-body">
+          <BscSearchInput
+            placeholder={modalSearchPlaceholder}
+            value={listSearch}
+            onChange={setListSearch}
+            className="!w-full"
+            data-cy="bsc-scorecard-detail-list-search"
+          />
           <div
-            className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white"
-            data-cy="bsc-scorecard-detail-people"
+            className="mt-4 max-h-[360px] overflow-y-auto"
+            data-cy="bsc-scorecard-detail-list-results"
           >
-            <div data-cy="page-div-564" className="px-5 pb-3 pt-4">
-              <h2
-                data-cy="page-h2-565"
-                className="m-0 text-lg font-semibold text-[#262626]"
-              >
-                People
-              </h2>
-              <p
-                data-cy="page-p-568"
-                className="mb-3 mt-1 text-[12px] text-[#8F94A3]"
-              >
-                Assignees with scorecards on this program.
-              </p>
-              {!people.length ? (
-                <p
-                  data-cy="page-p-572"
-                  className="m-0 text-[13px] text-[#94A3B8]"
-                >
-                  No employee scorecards for this program yet
-                </p>
-              ) : (
-                <div
-                  className="flex flex-wrap gap-1.5"
-                  data-cy="bsc-scorecard-detail-people-list"
-                >
-                  {people.map((person) => (
+            {listModal === 'people' ? (
+              filteredPeople.length ? (
+                <div className="flex flex-col gap-1">
+                  {filteredPeople.map((person) => (
                     <button
-                      key={person.id}
+                      key={person.userId}
                       type="button"
-                      className={`inline-flex max-w-[220px] items-center gap-1.5 rounded-md border border-[#91caff] bg-[#e6f4ff] py-0.5 pl-0.5 pr-2 text-left transition-opacity hover:opacity-90 ${
+                      className={`flex w-full items-center gap-3 rounded-lg border-none bg-transparent px-2 py-2 text-left hover:bg-[#FAFAFA] ${
                         focusPersonId && person.userId === focusPersonId
-                          ? 'ring-1 ring-[#1677ff]'
+                          ? 'bg-[#E6F4FF]'
                           : ''
                       }`}
                       onClick={() =>
@@ -678,27 +574,61 @@ export default function BscScorecardDetailPage() {
                       data-cy={`bsc-scorecard-person-row-${person.userId}`}
                     >
                       <Avatar
-                        size={22}
+                        size={32}
                         src={profileImageByUserId.get(person.userId)}
                         icon={<UserOutlined />}
-                        className="shrink-0 bg-white text-[#1677ff]"
+                        className="shrink-0 bg-[#E6F4FF] text-[#1677ff]"
                       >
                         {nameInitials(person.userName)}
                       </Avatar>
-                      <span
-                        data-cy="page-span-604"
-                        className="truncate text-[12px] font-medium text-[#1677ff]"
-                      >
-                        {person.userName}
-                      </span>
+                      <div className="min-w-0 flex flex-col">
+                        <span className="truncate text-sm font-medium text-[#262626]">
+                          {person.userName}
+                        </span>
+                        <span className="truncate text-xs text-[#8F94A3]">
+                          {[person.positionTitle, person.departmentName]
+                            .filter(Boolean)
+                            .join(' · ') || '—'}
+                        </span>
+                      </div>
                     </button>
                   ))}
                 </div>
-              )}
-            </div>
+              ) : (
+                <Empty
+                  image={Empty.PRESENTED_IMAGE_SIMPLE}
+                  description={
+                    listSearch.trim()
+                      ? 'No people match your search'
+                      : 'No people assigned'
+                  }
+                />
+              )
+            ) : filteredNames.length ? (
+              <div className="flex flex-col gap-1">
+                {filteredNames.map((name) => (
+                  <div
+                    key={name}
+                    className="rounded-lg px-3 py-2 text-sm text-[#262626] hover:bg-[#FAFAFA]"
+                    data-cy={`bsc-scorecard-list-item-${name}`}
+                  >
+                    {name}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description={
+                  listSearch.trim()
+                    ? `No ${modalTitle.toLowerCase()} match your search`
+                    : `No ${modalTitle.toLowerCase()} assigned`
+                }
+              />
+            )}
           </div>
         </div>
-      )}
+      </Modal>
 
       <BscSetupModal />
     </div>

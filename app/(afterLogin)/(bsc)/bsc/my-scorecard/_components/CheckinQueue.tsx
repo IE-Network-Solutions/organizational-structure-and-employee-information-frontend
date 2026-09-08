@@ -1,14 +1,21 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { Empty, Input, Table, Tag } from 'antd';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Empty, Input, Modal, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
 import KpiEvaluationFlowCompact from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiEvaluationFlowCompact';
 import {
   TargetMetricUnitTag,
   TargetMetricValue,
 } from '@/app/(afterLogin)/(bsc)/bsc/_components/TargetValueCell';
+import {
+  bscTableCellClassName as tableCellClassName,
+  bscTableClassName as tableClassName,
+  bscTableHeaderClassName as tableHeaderClassName,
+  bscTableRowClassName,
+} from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   useGetBscCycles,
@@ -24,13 +31,82 @@ import {
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EvaluationCycle, KpiApprovalStatus } from '@/types/bsc';
 import { formatScore } from '@/utils/bsc/rollup';
-import { buildCheckinQueue, type CheckinItem } from '@/utils/bsc/checkin';
+import { buildCheckinQueue, dedupeSelfCheckinItems, type CheckinItem } from '@/utils/bsc/checkin';
+import type { CheckinInbox } from './CheckinInboxToggle';
 
-const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
-const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
+function evaluationDecisionCounts(
+  groups: CheckinItem[][],
+  decisions: Record<string, boolean>,
+) {
+  let left = 0;
+  let accepted = 0;
+  let rejected = 0;
+  for (const group of groups) {
+    for (const item of group) {
+      const decided = decisions[item.target.id];
+      if (decided === true) accepted += 1;
+      else if (decided === false) rejected += 1;
+      else left += 1;
+    }
+  }
+  return { left, accepted, rejected };
+}
 
-function SelfCheckinGroup({ items }: { items: CheckinItem[] }) {
-  const scorecard = items[0].scorecard;
+function EvaluationCountPills({
+  left,
+  accepted,
+  rejected,
+}: {
+  left: number;
+  accepted: number;
+  rejected: number;
+}) {
+  return (
+    <div
+      className="flex flex-wrap items-center justify-end gap-2"
+      data-cy="bsc-checkin-eval-counts"
+    >
+      <span
+        className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-sm text-slate-600"
+        data-cy="bsc-checkin-eval-left"
+      >
+        <span className="font-semibold tabular-nums text-slate-900">{left}</span>
+        left
+      </span>
+      <span
+        className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-sm text-emerald-700"
+        data-cy="bsc-checkin-eval-accepted"
+      >
+        <span className="font-semibold tabular-nums text-emerald-800">
+          {accepted}
+        </span>
+        accepted
+      </span>
+      <span
+        className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-sm text-red-600"
+        data-cy="bsc-checkin-eval-rejected"
+      >
+        <span className="font-semibold tabular-nums text-red-700">
+          {rejected}
+        </span>
+        rejected
+      </span>
+    </div>
+  );
+}
+
+function groupByScorecard(list: CheckinItem[]) {
+  const map = new Map<string, CheckinItem[]>();
+  for (const item of list) {
+    const key = item.scorecard.id;
+    const arr = map.get(key) || [];
+    arr.push(item);
+    map.set(key, arr);
+  }
+  return Array.from(map.values());
+}
+
+function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
   const [drafts, setDrafts] = useState<Record<string, number | null>>(() =>
     Object.fromEntries(
       items.map((i) => [i.target.id, i.target.actualValue ?? null]),
@@ -40,6 +116,18 @@ function SelfCheckinGroup({ items }: { items: CheckinItem[] }) {
   const { mutateAsync: submitAsync, isLoading: submitting } =
     useSubmitBscFinal();
   const saving = reporting || submitting;
+
+  useEffect(() => {
+    setDrafts((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        if (!(item.target.id in next)) {
+          next[item.target.id] = item.target.actualValue ?? null;
+        }
+      }
+      return next;
+    });
+  }, [items]);
 
   const submit = async () => {
     for (const item of items) {
@@ -51,16 +139,19 @@ function SelfCheckinGroup({ items }: { items: CheckinItem[] }) {
         return;
       }
     }
-    await reportAsync({
-      scorecardId: scorecard.id,
-      reports: items.map((item) => ({
-        targetId: item.target.id,
-        actualValue: drafts[item.target.id] as number,
-        evidenceFileName: `${item.target.kpiName.replace(/\s+/g, '-')}.pdf`,
-        evidenceUrl: `https://mock.evidence/${scorecard.id}/${item.target.id}`,
-      })),
-    });
-    await submitAsync(scorecard.id);
+    for (const group of groupByScorecard(items)) {
+      const scorecard = group[0].scorecard;
+      await reportAsync({
+        scorecardId: scorecard.id,
+        reports: group.map((item) => ({
+          targetId: item.target.id,
+          actualValue: drafts[item.target.id] as number,
+          evidenceFileName: `${item.target.kpiName.replace(/\s+/g, '-')}.pdf`,
+          evidenceUrl: `https://mock.evidence/${scorecard.id}/${item.target.id}`,
+        })),
+      });
+      await submitAsync(scorecard.id);
+    }
     NotificationMessage.success({
       message: 'Check-in submitted',
       description: 'Sent to the next evaluator.',
@@ -79,6 +170,9 @@ function SelfCheckinGroup({ items }: { items: CheckinItem[] }) {
         <div data-cy="checkinqueue-div-75" className="flex flex-col gap-1">
           <span data-cy="checkinqueue-span-76" className={tableCellClassName}>
             {row.target.kpiName}
+          </span>
+          <span className="text-xs text-gray-500 leading-snug">
+            {row.contextLabel}
           </span>
           <KpiEvaluationFlowCompact
             flow={row.flow}
@@ -170,31 +264,14 @@ function SelfCheckinGroup({ items }: { items: CheckinItem[] }) {
   ];
 
   return (
-    <div
-      className="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white"
-      data-cy={`bsc-checkin-self-group-${scorecard.id}`}
-    >
+    <div data-cy="bsc-checkin-self-table-wrap">
       <div
         data-cy="checkinqueue-div-153"
-        className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 px-4 py-3 sm:px-5"
+        className="mb-2 flex flex-wrap items-center justify-end gap-3"
       >
-        <div data-cy="checkinqueue-div-154">
-          <h3
-            data-cy="checkinqueue-h3-155"
-            className="mb-0 text-base font-semibold text-gray-900"
-          >
-            My Evaluation
-          </h3>
-          <p
-            data-cy="checkinqueue-p-158"
-            className="mb-0 mt-1 text-sm text-gray-500"
-          >
-            {items[0].contextLabel}
-          </p>
-        </div>
         <CustomButton
           title="Submit check-in"
-          id={`bsc-checkin-self-submit-${scorecard.id}`}
+          id="bsc-checkin-self-submit"
           size="small"
           loading={saving}
           onClick={() => {
@@ -204,12 +281,14 @@ function SelfCheckinGroup({ items }: { items: CheckinItem[] }) {
         />
       </div>
       <Table
+        className={tableClassName}
         rowKey="key"
         columns={columns}
         dataSource={items}
         pagination={false}
         scroll={{ x: 720 }}
-        data-cy={`bsc-checkin-self-table-${scorecard.id}`}
+        rowClassName={(unused, index) => bscTableRowClassName(index)}
+        data-cy="bsc-checkin-self-table"
       />
     </div>
   );
@@ -218,9 +297,15 @@ function SelfCheckinGroup({ items }: { items: CheckinItem[] }) {
 function ReviewCheckinGroup({
   ownerName,
   items,
+  decisions,
+  onDecision,
+  counts,
 }: {
   ownerName: string;
   items: CheckinItem[];
+  decisions: Record<string, boolean>;
+  onDecision: (targetId: string, approved: boolean) => void;
+  counts: { left: number; accepted: number; rejected: number };
 }) {
   const scorecard = items[0].scorecard;
   const [drafts, setDrafts] = useState<Record<string, number | null>>(() =>
@@ -228,16 +313,30 @@ function ReviewCheckinGroup({
       items.map((i) => [i.target.id, i.target.actualValue ?? null]),
     ),
   );
+  const [rejectTargetId, setRejectTargetId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+  const [actingId, setActingId] = useState<string | null>(null);
   const { mutate: adjust } = useAdjustBscReportedKpis();
-  const { mutateAsync: setApprovalAsync, isLoading: approving } =
-    useSetBscKpiApproval();
-  const { mutateAsync: finalizeAsync, isLoading: finalizing } =
-    useFinalizeBscApprovals();
-  const busy = approving || finalizing;
+  const { mutateAsync: setApprovalAsync } = useSetBscKpiApproval();
+  const { mutateAsync: finalizeAsync } = useFinalizeBscApprovals();
+  const busy = actingId != null;
+
+  useEffect(() => {
+    setDrafts((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        if (!(item.target.id in next)) {
+          next[item.target.id] = item.target.actualValue ?? null;
+        }
+      }
+      return next;
+    });
+  }, [items]);
 
   const saveEdits = (onDone?: () => void) => {
     const adjustments = items
       .filter((i) => {
+        if (decisions[i.target.id] != null) return false;
         const next = drafts[i.target.id];
         return next != null && next !== i.target.actualValue;
       })
@@ -252,26 +351,35 @@ function ReviewCheckinGroup({
     adjust({ scorecardId: scorecard.id, adjustments }, { onSuccess: onDone });
   };
 
-  const decide = (targetId: string) => {
+  const decide = (
+    targetId: string,
+    approved: boolean,
+    rejectionReason?: string,
+  ) => {
     saveEdits(async () => {
-      const latest = await setApprovalAsync({
-        scorecardId: scorecard.id,
-        targetId,
-        approved: true,
-      });
-      const stillPending = latest.targets.filter(
-        (t) => t.approvalStatus === KpiApprovalStatus.Pending,
-      );
-      if (stillPending.length === 0) {
-        await finalizeAsync(scorecard.id);
-        NotificationMessage.success({
-          message: 'Check-in closed',
-          description: 'Final scores now reflect on the scorecard.',
+      setActingId(targetId);
+      try {
+        const latest = await setApprovalAsync({
+          scorecardId: scorecard.id,
+          targetId,
+          approved,
+          rejectionReason,
         });
-      } else {
-        NotificationMessage.success({
-          message: 'Passed to next evaluator',
-        });
+        onDecision(targetId, approved);
+        const stillPending = latest.targets.filter(
+          (t) => t.approvalStatus === KpiApprovalStatus.Pending,
+        );
+        if (stillPending.length === 0) {
+          await finalizeAsync(scorecard.id);
+          NotificationMessage.success({
+            message: approved ? 'Check-in closed' : 'Check-in rejected',
+            description: approved
+              ? 'Final scores now reflect on the scorecard.'
+              : 'Sent back for the employee to correct.',
+          });
+        }
+      } finally {
+        setActingId(null);
       }
     });
   };
@@ -355,11 +463,24 @@ function ReviewCheckinGroup({
       key: 'adjust',
       width: 120,
       render: (unused, row) => {
+        const decided = decisions[row.target.id];
         const value = drafts[row.target.id];
+        if (decided != null) {
+          return (
+            <TargetMetricValue
+              value={drafts[row.target.id] ?? row.target.actualValue}
+              unit={row.target.measurementUnit}
+              worstCase={row.target.worstCase}
+              bestCase={row.target.bestCase}
+              dataCy={`bsc-checkin-review-actual-${row.target.id}`}
+            />
+          );
+        }
         return (
           <Input
             className="!w-[96px] h-8 text-sm"
             value={value == null ? '' : String(value)}
+            disabled={busy}
             onChange={(e) => {
               const raw = e.target.value.replace(/[^\d.-]/g, '');
               if (raw === '' || raw === '-') {
@@ -382,29 +503,53 @@ function ReviewCheckinGroup({
         </span>
       ),
       key: 'action',
-      width: 120,
-      render: (unused, row) => (
-        <CustomButton
-          title="Approve"
-          id={`bsc-checkin-approve-${row.target.id}`}
-          size="small"
-          disabled={busy}
-          onClick={() => decide(row.target.id)}
-          className="!h-8 !rounded-md !bg-[#1E40AF] !px-3 !text-white hover:!bg-[#1E3A8A]"
-          textClassName="text-sm font-medium"
-        />
-      ),
+      width: 240,
+      className: 'whitespace-nowrap',
+      render: (unused, row) => {
+        const decided = decisions[row.target.id];
+        if (decided === true) {
+          return <Tag color="green">Approved</Tag>;
+        }
+        if (decided === false) {
+          return <Tag color="red">Rejected</Tag>;
+        }
+        const rowBusy = actingId === row.target.id;
+        return (
+          <div className="flex flex-nowrap items-center gap-2 whitespace-nowrap">
+            <CustomButton
+              title="Approve"
+              id={`bsc-checkin-approve-${row.target.id}`}
+              size="small"
+              disabled={busy}
+              loading={rowBusy}
+              onClick={() => decide(row.target.id, true)}
+              className="!h-8 !shrink-0 !rounded-md !bg-[#1E40AF] !px-3 !text-white hover:!bg-[#1E3A8A]"
+              textClassName="text-sm font-medium"
+            />
+            <CustomButton
+              title="Reject"
+              id={`bsc-checkin-reject-${row.target.id}`}
+              size="small"
+              type="default"
+              disabled={busy}
+              onClick={() => {
+                setRejectReason('');
+                setRejectTargetId(row.target.id);
+              }}
+              className="!h-8 !shrink-0 !rounded-md !px-3"
+              textClassName="text-sm font-medium"
+            />
+          </div>
+        );
+      },
     },
   ];
 
   return (
-    <div
-      className="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white"
-      data-cy={`bsc-checkin-review-group-${scorecard.id}`}
-    >
+    <div data-cy={`bsc-checkin-review-group-${scorecard.id}`}>
       <div
         data-cy="checkinqueue-div-346"
-        className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 px-4 py-3 sm:px-5"
+        className="mb-2 flex flex-wrap items-center justify-between gap-3"
       >
         <div data-cy="checkinqueue-div-347">
           <h3
@@ -417,18 +562,232 @@ function ReviewCheckinGroup({
             data-cy="checkinqueue-p-351"
             className="mb-0 mt-1 text-sm text-gray-500"
           >
-            {items[0].contextLabel} · prior check-in result shown
+            {items[0].contextLabel}
           </p>
         </div>
+        <EvaluationCountPills
+          left={counts.left}
+          accepted={counts.accepted}
+          rejected={counts.rejected}
+        />
       </div>
       <Table
+        className={tableClassName}
         rowKey="key"
         columns={columns}
         dataSource={items}
         pagination={false}
-        scroll={{ x: 820 }}
+        scroll={{ x: 1020 }}
+        rowClassName={(unused, index) => bscTableRowClassName(index)}
         data-cy={`bsc-checkin-review-table-${scorecard.id}`}
       />
+      <Modal
+        title="Reject reported KPI"
+        open={rejectTargetId != null}
+        centered
+        onCancel={() => setRejectTargetId(null)}
+        onOk={() => {
+          if (!rejectTargetId) return;
+          decide(rejectTargetId, false, rejectReason.trim() || 'Rejected');
+          setRejectTargetId(null);
+        }}
+        okText="Reject"
+        okButtonProps={{ danger: true }}
+        data-cy="bsc-checkin-reject-modal"
+      >
+        <p className="mb-2 text-sm text-gray-600">
+          Tell the employee what to correct before they resubmit.
+        </p>
+        <Input.TextArea
+          rows={3}
+          value={rejectReason}
+          onChange={(e) => setRejectReason(e.target.value)}
+          placeholder="Rejection reason"
+          data-cy="bsc-checkin-reject-reason"
+        />
+      </Modal>
+    </div>
+  );
+}
+
+function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
+  const ANIM_MS = 340;
+  const [orderIds, setOrderIds] = useState<string[]>([]);
+  const [snapshots, setSnapshots] = useState<Record<string, CheckinItem[]>>(
+    {},
+  );
+  const [decisions, setDecisions] = useState<Record<string, boolean>>({});
+  const [page, setPage] = useState(1);
+  const [anim, setAnim] = useState<'in' | 'out' | 'from'>('in');
+  const [animDir, setAnimDir] = useState<'next' | 'prev'>('next');
+  const animatingRef = useRef(false);
+  const advancedFromRef = useRef<Set<string>>(new Set());
+  const pageRef = useRef(page);
+  pageRef.current = page;
+
+  useEffect(() => {
+    setOrderIds((prev) => {
+      const next = [...prev];
+      for (const group of groups) {
+        const id = group[0].scorecard.id;
+        if (!next.includes(id)) next.push(id);
+      }
+      return next;
+    });
+    setSnapshots((prev) => {
+      const next = { ...prev };
+      for (const group of groups) {
+        const id = group[0].scorecard.id;
+        if (!next[id]) next[id] = group;
+      }
+      return next;
+    });
+  }, [groups]);
+
+  const displayGroups = useMemo(
+    () =>
+      orderIds
+        .map((id) => snapshots[id])
+        .filter((group): group is CheckinItem[] => Boolean(group?.length)),
+    [orderIds, snapshots],
+  );
+
+  const pendingIds = useMemo(
+    () => new Set(groups.map((group) => group[0].scorecard.id)),
+    [groups],
+  );
+
+  const goToPage = useCallback((nextPage: number, dir: 'next' | 'prev') => {
+    if (animatingRef.current) return;
+    if (nextPage === pageRef.current) return;
+    animatingRef.current = true;
+    setAnimDir(dir);
+    setAnim('out');
+    window.setTimeout(() => {
+      setPage(nextPage);
+      setAnim('from');
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setAnim('in');
+          window.setTimeout(() => {
+            animatingRef.current = false;
+          }, ANIM_MS);
+        });
+      });
+    }, ANIM_MS);
+  }, []);
+
+  useEffect(() => {
+    if (!displayGroups.length) {
+      setPage(1);
+      return;
+    }
+    if (page > displayGroups.length) setPage(displayGroups.length);
+  }, [displayGroups.length, page]);
+
+  const current = displayGroups[page - 1];
+  const counts = useMemo(
+    () => evaluationDecisionCounts(displayGroups, decisions),
+    [displayGroups, decisions],
+  );
+
+  useEffect(() => {
+    if (!current?.length || animatingRef.current) return;
+    const id = current[0].scorecard.id;
+    if (advancedFromRef.current.has(id)) return;
+    const allDecided = current.every(
+      (item) => decisions[item.target.id] != null,
+    );
+    if (!allDecided) return;
+
+    advancedFromRef.current.add(id);
+    const n = orderIds.length;
+    let nextPage: number | null = null;
+    for (let step = 1; step < n; step += 1) {
+      const idx = (page - 1 + step) % n;
+      if (pendingIds.has(orderIds[idx])) {
+        nextPage = idx + 1;
+        break;
+      }
+    }
+    if (nextPage != null) goToPage(nextPage, 'next');
+  }, [current, decisions, goToPage, orderIds, page, pendingIds]);
+
+  if (!displayGroups.length || !current?.length) {
+    return (
+      <div
+        className="rounded-lg border border-dashed border-gray-200 bg-white px-4 py-8 text-center text-sm text-gray-400"
+        data-cy="bsc-checkin-review-empty"
+      >
+        No assigned evaluations waiting
+      </div>
+    );
+  }
+
+  const slideOut =
+    animDir === 'next' ? '-translate-x-8' : 'translate-x-8';
+  const slideFrom =
+    animDir === 'next' ? 'translate-x-8' : '-translate-x-8';
+  const slideClass =
+    anim === 'in'
+      ? 'opacity-100 translate-x-0 scale-100'
+      : anim === 'out'
+        ? `opacity-0 ${slideOut} scale-[0.98]`
+        : `opacity-0 ${slideFrom} scale-[0.98]`;
+
+  return (
+    <div data-cy="bsc-checkin-review-section">
+      <div
+        className={[
+          'origin-top motion-reduce:transform-none motion-reduce:transition-none',
+          anim === 'from'
+            ? 'transition-none'
+            : 'transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+          slideClass,
+        ].join(' ')}
+        data-cy="bsc-checkin-assigned-stage"
+      >
+        <ReviewCheckinGroup
+          key={current[0].scorecard.id}
+          ownerName={current[0].scorecard.userName}
+          items={current}
+          decisions={decisions}
+          counts={counts}
+          onDecision={(targetId, approved) =>
+            setDecisions((prev) => ({ ...prev, [targetId]: approved }))
+          }
+        />
+      </div>
+      {displayGroups.length > 1 ? (
+        <div
+          className="mt-3 flex items-center justify-end gap-2"
+          data-cy="bsc-checkin-assigned-pagination"
+        >
+          <button
+            type="button"
+            aria-label="Previous approval"
+            disabled={page <= 1 || anim !== 'in'}
+            onClick={() => goToPage(page - 1, 'prev')}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
+            data-cy="bsc-checkin-assigned-prev"
+          >
+            <LeftOutlined />
+          </button>
+          <span className="min-w-[4.5rem] text-center text-sm text-gray-600">
+            {page} of {displayGroups.length}
+          </span>
+          <button
+            type="button"
+            aria-label="Next approval"
+            disabled={page >= displayGroups.length || anim !== 'in'}
+            onClick={() => goToPage(page + 1, 'next')}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
+            data-cy="bsc-checkin-assigned-next"
+          >
+            <RightOutlined />
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -437,7 +796,7 @@ function resolveCheckinActorId(userId?: string): string {
   return userId || 'demo-user';
 }
 
-export default function CheckinQueue() {
+export default function CheckinQueue({ inbox }: { inbox: CheckinInbox }) {
   const { userId } = useAuthenticationStore();
   const preferredActor = resolveCheckinActorId(userId);
   const { data: scorecards, isLoading } = useGetBscScorecards();
@@ -452,23 +811,15 @@ export default function CheckinQueue() {
   const queue = useMemo(() => {
     const primary = buildCheckinQueue(scorecards, preferredActor, cycleById);
     if (primary.length || preferredActor === 'demo-user') return primary;
-    // Demo fallback when signed-in user has no mock inbox yet.
     return buildCheckinQueue(scorecards, 'demo-user', cycleById);
   }, [scorecards, preferredActor, cycleById]);
 
-  const selfItems = queue.filter((i) => i.role === 'self');
-  const reviewItems = queue.filter((i) => i.role === 'evaluator');
-
-  const groupByScorecard = (list: CheckinItem[]) => {
-    const map = new Map<string, CheckinItem[]>();
-    for (const item of list) {
-      const key = item.scorecard.id;
-      const arr = map.get(key) || [];
-      arr.push(item);
-      map.set(key, arr);
-    }
-    return Array.from(map.values());
-  };
+  const selfItems = dedupeSelfCheckinItems(
+    queue.filter((i) => i.role === 'self'),
+  );
+  const reviewGroups = groupByScorecard(
+    queue.filter((i) => i.role === 'evaluator'),
+  );
 
   if (isLoading) {
     return (
@@ -481,59 +832,26 @@ export default function CheckinQueue() {
     );
   }
 
+  if (inbox === 'assigned') {
+    return (
+      <div data-cy="bsc-checkin-queue">
+        <AssignedCheckinQueue groups={reviewGroups} />
+      </div>
+    );
+  }
+
   return (
     <div data-cy="bsc-checkin-queue">
-      <div
-        data-cy="checkinqueue-div-418"
-        className="mb-4 flex flex-wrap items-center gap-2"
-      >
-        <Tag color="blue">My Evaluation · {selfItems.length}</Tag>
-        <Tag color="purple">To review · {reviewItems.length}</Tag>
-      </div>
-
-      {/* My Evaluation always first */}
-      <section data-cy="bsc-checkin-self-section" className="mb-6">
-        <h2
-          data-cy="checkinqueue-h2-425"
-          className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500"
+      {selfItems.length ? (
+        <SelfCheckinTable items={selfItems} />
+      ) : (
+        <div
+          className="flex justify-center py-6"
+          data-cy="bsc-checkin-self-empty"
         >
-          My Evaluation
-        </h2>
-        {selfItems.length ? (
-          groupByScorecard(selfItems).map((group) => (
-            <SelfCheckinGroup key={group[0].scorecard.id} items={group} />
-          ))
-        ) : (
-          <div
-            className="rounded-lg border border-dashed border-gray-200 bg-white px-4 py-8 text-center text-sm text-gray-400"
-            data-cy="bsc-checkin-self-empty"
-          >
-            No self check-ins waiting
-          </div>
-        )}
-      </section>
-
-      {reviewItems.length ? (
-        <section data-cy="bsc-checkin-review-section">
-          <h2
-            data-cy="checkinqueue-h2-444"
-            className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500"
-          >
-            Assigned to me (prior result visible)
-          </h2>
-          {groupByScorecard(reviewItems).map((group) => (
-            <ReviewCheckinGroup
-              key={group[0].scorecard.id}
-              ownerName={group[0].scorecard.userName}
-              items={group}
-            />
-          ))}
-        </section>
-      ) : !selfItems.length ? (
-        <div className="flex justify-center py-6" data-cy="bsc-checkin-empty">
-          <Empty description="No check-ins waiting for you" />
+          <Empty description="No self check-ins waiting" />
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

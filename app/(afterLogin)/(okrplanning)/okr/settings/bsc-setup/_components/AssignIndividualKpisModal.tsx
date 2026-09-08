@@ -1377,7 +1377,7 @@ export default function AssignIndividualKpisModal({
 
         <div
           data-cy="assignindividualkpismodal-div-1206"
-          className="mt-6 flex justify-between gap-3"
+          className="mt-6 flex justify-end gap-3"
         >
           <CustomButton
             type="default"

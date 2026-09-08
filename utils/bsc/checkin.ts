@@ -178,3 +178,34 @@ export function buildCheckinQueue(
     return a.target.kpiName.localeCompare(b.target.kpiName);
   });
 }
+
+function selfCheckinDedupeKey(item: CheckinItem): string {
+  return [
+    item.scorecard.userId,
+    item.target.kpiLibraryId || item.target.kpiName,
+    item.scorecard.periodYear ?? '',
+    item.scorecard.periodMonthName ?? item.periodLabel,
+  ].join('::');
+}
+
+function selfCheckinPriority(item: CheckinItem): number {
+  if (item.scorecard.status === ScorecardStatus.NeedsResubmit) return 3;
+  if (item.target.approvalStatus === KpiApprovalStatus.Rejected) return 2;
+  if (item.target.actualValue != null) return 1;
+  return 0;
+}
+
+/** One row per KPI in a period — overlapping mock/live scorecards collapse together. */
+export function dedupeSelfCheckinItems(items: CheckinItem[]): CheckinItem[] {
+  const best = new Map<string, CheckinItem>();
+  for (const item of items) {
+    const key = selfCheckinDedupeKey(item);
+    const existing = best.get(key);
+    if (!existing || selfCheckinPriority(item) > selfCheckinPriority(existing)) {
+      best.set(key, item);
+    }
+  }
+  return Array.from(best.values()).sort((a, b) =>
+    a.target.kpiName.localeCompare(b.target.kpiName),
+  );
+}

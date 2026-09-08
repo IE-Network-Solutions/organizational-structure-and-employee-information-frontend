@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import { Progress } from 'antd';
 import { formatScore } from '@/utils/bsc/rollup';
 
@@ -115,3 +115,173 @@ export default function BscKpiMetricCard({
     </div>
   );
 }
+
+const chipClassName =
+  'm-0 inline-flex h-5 max-w-[148px] shrink-0 truncate rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]';
+
+type OverflowChipRowProps = {
+  items: string[];
+  onViewMore?: () => void;
+  dataCy: string;
+};
+
+function OverflowChipRow({ items, onViewMore, dataCy }: OverflowChipRowProps) {
+  const visibleRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
+  const moreMeasureRef = useRef<HTMLButtonElement>(null);
+  const [visibleCount, setVisibleCount] = useState(items.length);
+
+  useLayoutEffect(() => {
+    const visible = visibleRef.current;
+    const measure = measureRef.current;
+    if (!visible || !measure) return;
+
+    const update = () => {
+      const available = visible.clientWidth;
+      const chips = Array.from(
+        measure.querySelectorAll<HTMLElement>('[data-name-chip]'),
+      );
+      const moreWidth = moreMeasureRef.current?.offsetWidth ?? 72;
+      const gap = 6;
+      let used = 0;
+      let count = 0;
+
+      for (let i = 0; i < chips.length; i += 1) {
+        const width = chips[i].offsetWidth;
+        const isLast = i === chips.length - 1;
+        const extra = isLast ? 0 : moreWidth + gap;
+        const next = used + width + (count > 0 ? gap : 0) + extra;
+        if (next > available) break;
+        used += width + (count > 0 ? gap : 0);
+        count += 1;
+      }
+
+      setVisibleCount(count);
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(visible);
+    return () => observer.disconnect();
+  }, [items]);
+
+  if (!items.length) {
+    return (
+      <span
+        className="text-[12px] text-[#8F94A3]"
+        data-cy={`${dataCy}-empty`}
+      >
+        None assigned
+      </span>
+    );
+  }
+
+  const hasMore = visibleCount < items.length;
+  const shown = items.slice(0, Math.max(visibleCount, 0));
+
+  return (
+    <div className="relative min-w-0" data-cy={`${dataCy}-chips`}>
+      <div
+        ref={measureRef}
+        className="pointer-events-none invisible absolute left-0 top-0 flex h-5 items-center gap-1.5 whitespace-nowrap"
+        aria-hidden
+      >
+        {items.map((item, index) => (
+          <span key={`${item}-${index}`} data-name-chip className={chipClassName}>
+            {item}
+          </span>
+        ))}
+        <button
+          ref={moreMeasureRef}
+          type="button"
+          tabIndex={-1}
+          className="shrink-0 border-none bg-transparent p-0 text-[12px] font-medium text-[#1677ff]"
+        >
+          View more
+        </button>
+      </div>
+      <div
+        ref={visibleRef}
+        className="flex min-w-0 items-center gap-1.5 overflow-hidden"
+      >
+        {shown.map((item, index) => (
+          <span
+            key={`${item}-${index}`}
+            data-name-chip
+            className={chipClassName}
+            title={item}
+          >
+            {item}
+          </span>
+        ))}
+        {hasMore ? (
+          <button
+            type="button"
+            onClick={onViewMore}
+            className="shrink-0 cursor-pointer border-none bg-transparent p-0 text-[12px] font-medium text-[#1677ff] hover:underline"
+            data-cy={`${dataCy}-view-more`}
+          >
+            View more
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+type CountCardProps = {
+  label: string;
+  items: string[];
+  dataCy: string;
+  onViewMore?: () => void;
+  className?: string;
+};
+
+/** Count tile matching KPI card chrome (Departments, Roles, People). */
+export function BscKpiCountCard({
+  label,
+  items,
+  dataCy,
+  onViewMore,
+  className = '',
+}: CountCardProps) {
+  return (
+    <div
+      className={`${bscKpiMetricCardShellClass} justify-between ${className}`}
+      data-cy={dataCy}
+    >
+      <div
+        className="flex items-center justify-between gap-2"
+        data-cy={`${dataCy}-header`}
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          <div
+            className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[4px] bg-[#E6F4FF]"
+            data-cy={`${dataCy}-icon`}
+          >
+            {kpiIcon}
+          </div>
+          <span
+            className="truncate text-base font-normal text-gray-500"
+            data-cy={`${dataCy}-label`}
+          >
+            {label}
+          </span>
+        </div>
+        <div
+          className="shrink-0 font-semibold text-[27px] leading-7 tracking-normal text-gray-900"
+          data-cy={`${dataCy}-value`}
+        >
+          {items.length}
+        </div>
+      </div>
+      <OverflowChipRow
+        items={items}
+        onViewMore={onViewMore}
+        dataCy={dataCy}
+      />
+    </div>
+  );
+}
+
+

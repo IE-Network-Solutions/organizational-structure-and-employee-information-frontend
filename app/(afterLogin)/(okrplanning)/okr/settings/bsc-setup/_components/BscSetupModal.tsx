@@ -2593,7 +2593,7 @@ export default function BscSetupModal() {
         )}
 
         <div
-          className="mt-6 flex justify-between gap-3"
+          className="mt-6 flex justify-end gap-3"
           data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-41"
         >
           <CustomButton

@@ -465,7 +465,7 @@ export default function ScorecardsCatalog() {
                                 onClick={(e) => e.stopPropagation()}
                                 data-cy={`bsc-scorecard-card-menu-${config.id}`}
                               >
-                                <EllipsisOutlined style={{ fontSize: 14 }} />
+                                <EllipsisOutlined style={{ fontSize: 22 }} />
                               </button>
                             </Dropdown>
                           </div>

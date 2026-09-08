@@ -3,12 +3,18 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Empty, Popover, Progress, Select, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { CloseOutlined, LeftOutlined } from '@ant-design/icons';
+import { CloseOutlined } from '@ant-design/icons';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
-import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
+import {
+  bscFilterButtonClassName,
+  bscTableCellClassName as tableCellClassName,
+  bscTableClassName as tableClassName,
+  bscTableHeaderClassName as tableHeaderClassName,
+  bscTableRowClassName,
+} from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   useGetBscCycle,
@@ -27,9 +33,6 @@ import {
   type RollupSummary,
 } from '@/utils/bsc/rollup';
 import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
-
-const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
-const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
 
 type ContributionView = 'department' | 'employee';
 
@@ -239,6 +242,7 @@ export default function BscKpiDetailPage() {
   const handleResetFilters = () => {
     setEmployeeId(undefined);
     setDepartment(undefined);
+    setView('department');
   };
 
   const handleViewChange = (next: ContributionView) => {
@@ -277,7 +281,7 @@ export default function BscKpiDetailPage() {
         </span>
       ),
       key: 'recentScore',
-      width: 120,
+      width: 160,
       render: (unused: unknown, row) => (
         <span className={tableCellClassName} data-cy="bsc-kpi-dept-recent">
           {row.recentScore != null ? `${formatScore(row.recentScore)}%` : '—'}
@@ -347,7 +351,7 @@ export default function BscKpiDetailPage() {
         </span>
       ),
       key: 'recentScore',
-      width: 120,
+      width: 160,
       render: (unused: unknown, row) => (
         <span className={tableCellClassName} data-cy="bsc-kpi-recent-score">
           {row.recentScore != null ? `${formatScore(row.recentScore)}%` : '—'}
@@ -378,6 +382,24 @@ export default function BscKpiDetailPage() {
           className="grid grid-cols-1 gap-4 sm:grid-cols-2"
           data-cy="bsc-kpi-filter-grid"
         >
+          <div className="flex flex-col gap-2" data-cy="bsc-kpi-filter-view">
+            <label
+              data-cy="bsc-kpi-filter-view-label"
+              className="text-sm font-medium text-gray-700"
+            >
+              View
+            </label>
+            <Select
+              value={view}
+              onChange={(value) => handleViewChange(value as ContributionView)}
+              className="w-full h-10 rounded-lg"
+              options={[
+                { value: 'department', label: 'Departments' },
+                { value: 'employee', label: 'Employees' },
+              ]}
+              data-cy="bsc-kpi-contribution-view"
+            />
+          </div>
           <div className="flex flex-col gap-2" data-cy="bsc-kpi-filter-dept">
             <label
               data-cy="page-label-382"
@@ -471,23 +493,9 @@ export default function BscKpiDetailPage() {
                 .join(' · ')
             : 'Contributions for this KPI'
         }
+        onBack={back}
+        backControlDataCy="bsc-kpi-detail-back"
       />
-
-      <div className="mb-4" data-cy="bsc-kpi-detail-back-wrap">
-        <Button
-          type="text"
-          icon={<LeftOutlined />}
-          onClick={back}
-          className="!px-0 text-[#595959]"
-          data-cy="bsc-kpi-detail-back"
-        >
-          {scorecardConfigId
-            ? 'Scorecard'
-            : perspectiveId
-              ? 'Perspective'
-              : 'KPIs'}
-        </Button>
-      </div>
 
       {loading ? (
         <div
@@ -503,94 +511,69 @@ export default function BscKpiDetailPage() {
       ) : (
         <div className="flex flex-col gap-4" data-cy="bsc-kpi-detail-body">
           <div
-            className="rounded-xl border border-[#E5E7EB] bg-white overflow-hidden"
+            className="flex flex-col gap-4"
             data-cy="bsc-kpi-contributors-card"
           >
             <div
-              className="flex flex-wrap items-center justify-between gap-3 px-5 pt-4 pb-2"
+              className="flex flex-wrap items-center justify-between gap-3"
               data-cy="bsc-kpi-contributors-header"
             >
-              <h2
-                className="m-0 text-lg font-semibold text-[#262626]"
-                data-cy="bsc-kpi-contributors-title"
-              >
-                Contributions
-              </h2>
-              {contributors.length ? (
-                <div
-                  className="flex flex-wrap items-center justify-end gap-2"
-                  data-cy="bsc-kpi-contributors-toolbar"
-                >
-                  <Select
-                    value={view}
-                    onChange={(value) =>
-                      handleViewChange(value as ContributionView)
-                    }
-                    className="w-44 h-10 sm:h-8"
-                    options={[
-                      { value: 'department', label: 'Departments' },
-                      { value: 'employee', label: 'Employees' },
-                    ]}
-                    data-cy="bsc-kpi-contribution-view"
-                  />
-                  <BscSearchInput
-                    placeholder={
-                      view === 'department'
-                        ? 'Search department'
-                        : 'Search employee'
-                    }
-                    value={search}
-                    onChange={setSearch}
-                    data-cy="bsc-kpi-contributors-search"
-                  />
-                  <Popover
-                    content={filterPopover}
-                    title={
-                      <div
-                        data-cy="page-div-540"
-                        className="flex justify-between items-start"
-                      >
-                        <div data-cy="page-div-541">
-                          <h3
-                            data-cy="page-h3-542"
-                            className="text-base font-bold text-gray-900 m-0"
-                          >
-                            Filter
-                          </h3>
-                          <p
-                            data-cy="page-p-545"
-                            className="text-xs text-gray-500 mt-1 mb-0"
-                          >
-                            Select all filters that apply
-                          </p>
-                        </div>
-                        <button
-                          data-cy="page-button-549"
-                          type="button"
-                          onClick={() => setFilterOpen(false)}
-                          className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"
-                        >
-                          <CloseOutlined />
-                        </button>
-                      </div>
-                    }
-                    trigger="click"
-                    open={filterOpen}
-                    onOpenChange={setFilterOpen}
-                    placement="bottomRight"
-                    arrow={false}
+              <BscSearchInput
+                placeholder={
+                  view === 'department'
+                    ? 'Search department'
+                    : 'Search employee'
+                }
+                value={search}
+                onChange={setSearch}
+                data-cy="bsc-kpi-contributors-search"
+              />
+              <Popover
+                content={filterPopover}
+                title={
+                  <div
+                    data-cy="page-div-540"
+                    className="flex justify-between items-start"
                   >
-                    <Button
-                      type="default"
-                      className={bscFilterButtonClassName}
-                      icon={<FilterAltOutlinedIcon className="py-1" />}
-                      data-cy="bsc-kpi-contributors-filter"
+                    <div data-cy="page-div-541">
+                      <h3
+                        data-cy="page-h3-542"
+                        className="text-base font-bold text-gray-900 m-0"
+                      >
+                        Filter
+                      </h3>
+                      <p
+                        data-cy="page-p-545"
+                        className="text-xs text-gray-500 mt-1 mb-0"
+                      >
+                        Select all filters that apply
+                      </p>
+                    </div>
+                    <button
+                      data-cy="page-button-549"
+                      type="button"
+                      onClick={() => setFilterOpen(false)}
+                      className="text-gray-400 hover:text-gray-600 p-1 border-none bg-transparent cursor-pointer"
                     >
-                      {!isMobile && 'Filter'}
-                    </Button>
-                  </Popover>
-                </div>
-              ) : null}
+                      <CloseOutlined />
+                    </button>
+                  </div>
+                }
+                trigger="click"
+                open={filterOpen}
+                onOpenChange={setFilterOpen}
+                placement="bottomRight"
+                arrow={false}
+              >
+                <Button
+                  type="default"
+                  className={bscFilterButtonClassName}
+                  icon={<FilterAltOutlinedIcon className="py-1" />}
+                  data-cy="bsc-kpi-contributors-filter"
+                >
+                  {!isMobile && 'Filter'}
+                </Button>
+              </Popover>
             </div>
 
             {!contributors.length ? (
@@ -610,16 +593,13 @@ export default function BscKpiDetailPage() {
                 data-cy="bsc-kpi-department-table-wrap"
               >
                 <Table
-                  className="w-full"
+                  className={tableClassName}
                   columns={departmentColumns}
                   dataSource={filteredDepartments}
                   pagination={false}
                   rowKey={(row) => row.departmentName || row.label}
-                  rowHoverable={false}
                   scroll={{ x: 700 }}
-                  rowClassName={(unused, index) =>
-                    index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
-                  }
+                  rowClassName={(unused, index) => bscTableRowClassName(index)}
                   data-cy="bsc-kpi-department-table"
                 />
               </div>
@@ -629,18 +609,17 @@ export default function BscKpiDetailPage() {
                 data-cy="bsc-kpi-contributors-table-wrap"
               >
                 <Table
-                  className="w-full cursor-pointer"
+                  className={`${tableClassName} cursor-pointer`}
                   columns={employeeColumns}
                   dataSource={filteredEmployees}
                   pagination={false}
                   rowKey={(row) => row.target.id}
-                  rowHoverable={false}
                   scroll={{ x: 900 }}
                   onRow={(row) => ({
                     onClick: () => openEmployee(row),
                   })}
                   rowClassName={(unused, index) =>
-                    index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
+                    bscTableRowClassName(index)
                   }
                   data-cy="bsc-kpi-contributors-table"
                 />

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Tag } from 'antd';
 import { useRouter } from 'next/navigation';
 import {
@@ -10,6 +10,7 @@ import {
   TargetLogic,
 } from '@/types/bsc';
 import ScoreProgressBar from '@/app/(afterLogin)/(bsc)/bsc/_components/ScoreProgressBar';
+import { bscTableRowClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import { formatScore } from '@/utils/bsc/rollup';
 
 export type ScorecardKpiRow = {
@@ -51,15 +52,17 @@ const mutedTagClassName =
 
 function KpiRow({
   kpi,
+  index,
   openKpi,
 }: {
   kpi: ScorecardKpiRow;
+  index: number;
   openKpi: (kpi: ScorecardKpiRow) => void;
 }) {
   return (
     <tr
       key={kpi.targetId || kpi.id}
-      className="hover:bg-gray-50 cursor-pointer"
+      className={bscTableRowClassName(index, 'cursor-pointer')}
       data-cy={`bsc-scorecard-kpi-row-${kpi.targetId || kpi.id}`}
       onClick={() => openKpi(kpi)}
       onKeyDown={(e) => {
@@ -81,7 +84,7 @@ function KpiRow({
         >
           <span
             data-cy="perspectivekpicard-span-76"
-            className="text-[#1f4fd8] hover:underline"
+            className="font-semibold text-gray-800"
           >
             {kpi.name}
           </span>
@@ -172,21 +175,8 @@ export default function PerspectiveKpiCard({
     );
   };
 
-  const sharedKpis = useMemo(
-    () => kpis.filter((k) => k.assignmentSource !== 'individual'),
-    [kpis],
-  );
-  const individualKpis = useMemo(
-    () => kpis.filter((k) => k.assignmentSource === 'individual'),
-    [kpis],
-  );
-  const showSections = sharedKpis.length > 0 && individualKpis.length > 0;
-
   return (
-    <div
-      className="mb-6 bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
-      data-cy="bsc-kpi-progress-card"
-    >
+    <div className="mb-6 overflow-hidden" data-cy="bsc-kpi-progress-card">
       <div
         data-cy="perspectivekpicard-div-155"
         className="px-4 pt-4 pb-2 sm:px-6 sm:pt-6 flex items-start justify-between gap-3"
@@ -275,7 +265,7 @@ export default function PerspectiveKpiCard({
           </thead>
           <tbody
             data-cy="perspectivekpicard-tbody-211"
-            className="bg-white divide-y divide-gray-200 text-sm"
+            className="divide-y divide-gray-200 text-sm [&_.bsc-table-row-odd>td]:bg-white [&_.bsc-table-row-even>td]:bg-[#FAFAFA] [&_.bsc-table-row-odd:hover>td]:!bg-[#f5f5f5] [&_.bsc-table-row-even:hover>td]:!bg-[#f5f5f5]"
           >
             {kpis.length === 0 ? (
               <tr data-cy="perspectivekpicard-tr-213">
@@ -287,52 +277,12 @@ export default function PerspectiveKpiCard({
                   No KPIs assigned yet
                 </td>
               </tr>
-            ) : showSections ? (
-              <>
-                <tr
-                  data-cy="perspectivekpicard-tr-223"
-                  className="bg-gray-50/80"
-                >
-                  <td
-                    data-cy="perspectivekpicard-td-224"
-                    colSpan={5}
-                    className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:px-6"
-                  >
-                    Role / shared KPIs
-                  </td>
-                </tr>
-                {sharedKpis.map((kpi) => (
-                  <KpiRow
-                    key={kpi.targetId || kpi.id}
-                    kpi={kpi}
-                    openKpi={openKpi}
-                  />
-                ))}
-                <tr
-                  data-cy="perspectivekpicard-tr-238"
-                  className="bg-gray-50/80"
-                >
-                  <td
-                    data-cy="perspectivekpicard-td-239"
-                    colSpan={5}
-                    className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:px-6"
-                  >
-                    Individual KPIs
-                  </td>
-                </tr>
-                {individualKpis.map((kpi) => (
-                  <KpiRow
-                    key={kpi.targetId || kpi.id}
-                    kpi={kpi}
-                    openKpi={openKpi}
-                  />
-                ))}
-              </>
             ) : (
-              kpis.map((kpi) => (
+              kpis.map((kpi, index) => (
                 <KpiRow
                   key={kpi.targetId || kpi.id}
                   kpi={kpi}
+                  index={index}
                   openKpi={openKpi}
                 />
               ))
