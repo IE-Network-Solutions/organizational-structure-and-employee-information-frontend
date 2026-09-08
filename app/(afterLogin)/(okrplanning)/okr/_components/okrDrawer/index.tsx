@@ -36,7 +36,7 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useIsMobile } from '@/hooks/useIsMobile';
 import OKRInlineSuggestions from '@/components/ai/OKRInlineSuggestions';
 import { useIsBasicOkr } from '../../_utils/okrMode';
-import { sanitizeCreateObjectivePayload, toOptionalUuid } from '@/utils/sanitizeCreateObjectivePayload';
+import { sanitizeCreateObjectivePayload } from '@/utils/sanitizeCreateObjectivePayload';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -263,22 +263,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             userId,
           );
 
-          if (!modifiedObjectiveValue.userId) {
-            NotificationMessage.warning({
-              message: 'User session is missing. Please refresh and try again.',
-            });
-            return;
-          }
-
-          const missingMetric = (keyResults as any[]).some((kr, index) => {
-            if (toOptionalUuid(kr?.metricTypeId)) return false;
-            NotificationMessage.warning({
-              message: `On Number: ${index + 1} Title:${kr?.title || ''} Please select a metric type before creating the objective.`,
-            });
-            return true;
-          });
-          if (missingMetric) return;
-
           // If all checks pass, proceed with the objective creation
           createObjective(modifiedObjectiveValue, {
             onSuccess: () => {
@@ -398,17 +382,13 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     // Find the metric type ID for the selected key type
     const actualMetricName = metricNameMapping[key] || key;
     const metricType = metrics?.items?.find(
-      (metric: any) => metric.name === actualMetricName,
+      (metric: any) =>
+        String(metric?.name || '').toLowerCase() ===
+        String(actualMetricName).toLowerCase(),
     );
     const metricTypeId = metricType?.id || '';
-    if (!metricTypeId) {
-      NotificationMessage.warning({
-        message: `Metric type "${actualMetricName}" is not available. Please refresh and try again.`,
-      });
-      return;
-    }
 
-    // Add key result with the correct metricTypeId
+    // Add key result with the correct metricTypeId (unchanged flow)
     addKeyResult(key, metricTypeId);
   };
 
