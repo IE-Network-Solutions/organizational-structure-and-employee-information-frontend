@@ -210,6 +210,30 @@ export default function OkrTab({
     return true;
   });
 
+  useEffect(() => {
+    const allowed = TAB_CONFIG.filter((tab) => {
+      if (tab.key === '2' && !canVieTeamOkr) return false;
+      if ((tab.key === '3' || tab.key === '4') && !canVieCompanyOkr)
+        return false;
+      return true;
+    }).map((tab) => tab.key);
+    if (allowed.length > 0 && !allowed.includes(String(activeKey))) {
+      const fallback = allowed[0];
+      setActiveKey(fallback);
+      setOkrTab(fallback);
+    }
+  }, [activeKey, canVieTeamOkr, canVieCompanyOkr, setOkrTab]);
+
+  const myObjectiveItems = Array.isArray(userObjectives?.items)
+    ? userObjectives.items
+    : null;
+  const teamObjectiveItems = Array.isArray(teamObjective?.items)
+    ? teamObjective.items
+    : null;
+  const companyObjectiveItems = Array.isArray(companyObjective?.items)
+    ? companyObjective.items
+    : null;
+
   const tabContent = [
     {
       key: '1',
@@ -223,12 +247,12 @@ export default function OkrTab({
               showAssignee={false}
             />
           ) : null}
-          {userObjectives?.items?.length !== 0 && (
+          {!isUserLoading && myObjectiveItems && myObjectiveItems.length > 0 && (
             <div
               id="my-okr-objectives-list"
               data-cy="okr-my-okr-objectives-list"
             >
-              {userObjectives?.items?.map((obj: any) =>
+              {myObjectiveItems.map((obj: any) =>
                 isBasicOkr ? (
                   <ObjectiveBasic
                     data-cy={`okr-my-okr-objective-basic-card-${obj?.id}`}
@@ -276,7 +300,9 @@ export default function OkrTab({
               )}
             </div>
           )}
-          {userObjectives?.items?.length === 0 && (
+          {!isUserLoading &&
+            myObjectiveItems &&
+            myObjectiveItems.length === 0 && (
             <div
               id="my-okr-empty-state"
               data-cy="okr-my-okr-empty-state"
@@ -302,12 +328,14 @@ export default function OkrTab({
                     showAssignee={true}
                   />
                 ) : null}
-                {teamObjective?.items?.length !== 0 && (
+                {!isTeamLoading &&
+                  teamObjectiveItems &&
+                  teamObjectiveItems.length > 0 && (
                   <div
                     id="team-okr-objectives-list"
                     data-cy="okr-team-okr-objectives-list"
                   >
-                    {teamObjective?.items?.map((obj: any) =>
+                    {teamObjectiveItems.map((obj: any) =>
                       isBasicOkr ? (
                         <ObjectiveBasic
                           key={obj.id}
@@ -354,7 +382,9 @@ export default function OkrTab({
                     )}
                   </div>
                 )}
-                {teamObjective?.items?.length === 0 && (
+                {!isTeamLoading &&
+                  teamObjectiveItems &&
+                  teamObjectiveItems.length === 0 && (
                   <div
                     id="team-okr-empty-state"
                     data-cy="okr-team-okr-empty-state"
@@ -385,12 +415,14 @@ export default function OkrTab({
                     showAssignee={true}
                   />
                 ) : null}
-                {companyObjective?.items?.length !== 0 && (
+                {!isCompanyLoading &&
+                  companyObjectiveItems &&
+                  companyObjectiveItems.length > 0 && (
                   <div
                     id="company-okr-objectives-list"
                     data-cy="okr-company-okr-objectives-list"
                   >
-                    {companyObjective?.items?.map((obj: any) =>
+                    {companyObjectiveItems.map((obj: any) =>
                       isBasicOkr ? (
                         <ObjectiveBasic
                           data-cy={`okr-company-okr-objective-basic-card-${obj?.id}`}
@@ -439,7 +471,9 @@ export default function OkrTab({
                     )}
                   </div>
                 )}
-                {companyObjective?.items?.length === 0 && (
+                {!isCompanyLoading &&
+                  companyObjectiveItems &&
+                  companyObjectiveItems.length === 0 && (
                   <div
                     id="company-okr-empty-state"
                     data-cy="okr-company-okr-empty-state"

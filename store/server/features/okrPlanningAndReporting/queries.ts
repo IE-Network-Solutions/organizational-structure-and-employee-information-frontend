@@ -7,7 +7,6 @@ import {
   DataType,
   PlanningRequestBody,
 } from './interface';
-import { normalizeAssignedPlanningPeriods } from '@/utils/okrCountingPlanningPeriod';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
 const getPlanningData = async (params: DataType) => {
@@ -192,12 +191,11 @@ export async function fetchAssignedPlanningPeriodsForUser(userId: string) {
     Authorization: `Bearer ${token}`,
   };
 
-  const response = await crudRequest({
+  return await crudRequest({
     url: `${OKR_URL}/planning-periods/assignment/assigneduser/${userId}`,
     method: 'GET',
     headers,
   });
-  return normalizeAssignedPlanningPeriods(response) as AssignedPlanningPeriodLogArray;
 }
 
 const getAllPlanningPeriods = async () => {
@@ -206,8 +204,7 @@ const getAllPlanningPeriods = async () => {
 };
 
 /** Assigned periods for the logged-in user — not the tenant period catalog. */
-export const ASSIGNED_USER_PLANNING_PERIODS_QUERY_KEY =
-  'assignedUserPlanningPeriods';
+export const ASSIGNED_USER_PLANNING_PERIODS_QUERY_KEY = 'planningPeriods';
 
 export const AllPlanningPeriods = () => {
   return useQuery<AssignedPlanningPeriodLogArray>(

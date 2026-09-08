@@ -39,7 +39,11 @@ export function useReportingData(enabled = true) {
 
   const planningPeriodId =
     activePlanPeriodId ||
-    fallbackAssignedPlanningPeriodId(userPlanningPeriods, activePlanPeriod);
+    fallbackAssignedPlanningPeriodId(userPlanningPeriods, activePlanPeriod) ||
+    (Array.isArray(userPlanningPeriods)
+      ? userPlanningPeriods?.[activePlanPeriod - 1]?.id
+      : '') ||
+    '';
 
   const sessionId =
     selectedSessionIds.length > 0

@@ -711,10 +711,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   >
                     Alignment{' '}
                     <span
-                      className="text-red-500"
-                      data-cy="okr-drawer-mobile-alignment-required"
+                      className="text-gray-400 text-xs ml-1"
+                      data-cy="okr-drawer-alignment-optional"
                     >
-                      *
+                      (optional)
                     </span>{' '}
                     <Tooltip
                       title={
@@ -742,32 +742,20 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     >
                       <QuestionCircleOutlined className="text-gray-400 cursor-help" />
                     </Tooltip>
-                    {!reportsToId && (
-                      <span
-                        className="text-gray-400 text-xs ml-1"
-                        data-cy="okr-drawer-alignment-optional"
-                      >
-                        (optional)
-                      </span>
-                    )}
                   </span>
                 }
-                rules={[
-                  {
-                    required: reportsToId ? true : false,
-                    message: 'Please enter the Objective name',
-                  },
-                ]}
+                rules={[]}
               >
                 <Select
                   id="okr-drawer-mobile-alignment-select-dropdown"
                   data-cy="okr-drawer-mobile-alignment-select-dropdown"
                   className="h-11 w-full rounded-lg"
                   showSearch
+                  allowClear
                   placeholder="Select"
-                  value={objectiveValue?.allignedKeyResultId}
+                  value={objectiveValue?.allignedKeyResultId || undefined}
                   onChange={(value) =>
-                    handleObjectiveChange(value, 'allignedKeyResultId')
+                    handleObjectiveChange(value || null, 'allignedKeyResultId')
                   }
                   filterOption={(input: string, option: any) =>
                     option.children.toLowerCase().includes(input.toLowerCase())
@@ -918,10 +906,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 >
                   Alignment{' '}
                   <span
-                    className="text-red-500"
-                    data-cy="okr-drawer-desktop-alignment-required"
+                    className="text-gray-400 text-xs ml-1"
+                    data-cy="okr-drawer-desktop-alignment-optional"
                   >
-                    *
+                    (optional)
                   </span>{' '}
                   <Tooltip
                     title={
@@ -949,32 +937,20 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   >
                     <QuestionCircleOutlined className="text-gray-400 cursor-help" />
                   </Tooltip>
-                  {!reportsToId && (
-                    <span
-                      className="text-gray-400 text-xs ml-1"
-                      data-cy="okr-drawer-desktop-alignment-optional"
-                    >
-                      (optional)
-                    </span>
-                  )}
                 </span>
               }
-              rules={[
-                {
-                  required: reportsToId ? true : false,
-                  message: 'Please select alignment',
-                },
-              ]}
+              rules={[]}
             >
               <Select
                 id="okr-drawer-desktop-alignment-select-dropdown"
                 data-cy="okr-drawer-desktop-alignment-select-dropdown"
                 className="h-11 w-full"
                 showSearch
+                allowClear
                 placeholder="Select"
-                value={objectiveValue?.allignedKeyResultId}
+                value={objectiveValue?.allignedKeyResultId || undefined}
                 onChange={(value) =>
-                  handleObjectiveChange(value, 'allignedKeyResultId')
+                  handleObjectiveChange(value || null, 'allignedKeyResultId')
                 }
                 filterOption={(input: string, option: any) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
