@@ -5,19 +5,16 @@ import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import { sanitizeCreateObjectivePayload } from '@/utils/sanitizeCreateObjectivePayload';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 const createObjective = async (values: any) => {
   const token = await getCurrentToken();
-  const userId = useAuthenticationStore.getState().userId;
-  const data = sanitizeCreateObjectivePayload(values, userId);
   try {
     await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective`,
       method: 'POST',
-      data,
+      data: values,
       headers: {
         Authorization: `Bearer ${token}`, // Pass the token in the Authorization header
         tenantId: tenantId, // Pass tenantId in the headers

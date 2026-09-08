@@ -68,7 +68,7 @@ export interface Objective {
   sessionId?: string;
 }
 export const defaultObjective: Objective = {
-  allignedKeyResultId: null,
+  allignedKeyResultId: '',
   title: '',
   deadline: '',
   userId: '',

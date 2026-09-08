@@ -223,13 +223,12 @@ export default function OkrTab({
               showAssignee={false}
             />
           ) : null}
-          {Array.isArray(userObjectives?.items) &&
-            userObjectives.items.length > 0 && (
+          {userObjectives?.items?.length !== 0 && (
             <div
               id="my-okr-objectives-list"
               data-cy="okr-my-okr-objectives-list"
             >
-              {userObjectives.items.map((obj: any) =>
+              {userObjectives?.items?.map((obj: any) =>
                 isBasicOkr ? (
                   <ObjectiveBasic
                     data-cy={`okr-my-okr-objective-basic-card-${obj?.id}`}
@@ -277,8 +276,7 @@ export default function OkrTab({
               )}
             </div>
           )}
-          {Array.isArray(userObjectives?.items) &&
-            userObjectives.items.length === 0 && (
+          {userObjectives?.items?.length === 0 && (
             <div
               id="my-okr-empty-state"
               data-cy="okr-my-okr-empty-state"
