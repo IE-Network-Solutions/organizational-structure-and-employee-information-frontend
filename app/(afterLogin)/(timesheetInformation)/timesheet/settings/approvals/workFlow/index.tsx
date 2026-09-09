@@ -15,6 +15,7 @@ import {
   Select,
   Steps,
   Tag,
+  Alert,
 } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -25,15 +26,12 @@ import {
 
 const STEP_LABELS = ['Choose Approval Type', 'Setup Approval', 'Finalize'];
 
-type TimesheetApprovalTypeValue = 'Leave' | 'WorkFromHome';
-
-const TIMESHEET_APPROVAL_TYPE_OPTIONS: {
-  label: string;
-  value: TimesheetApprovalTypeValue;
-}[] = [
-  { label: 'Leave', value: 'Leave' },
-  { label: 'Work From Home', value: 'WorkFromHome' },
-];
+import {
+  DEFAULT_TIMESHEET_APPROVAL_TYPES,
+  formatTimesheetApprovalType,
+  TIMESHEET_APPROVAL_TYPE_OPTIONS,
+  TimesheetApprovalTypeValue,
+} from '@/utils/approval/timesheetApprovalTypes';
 
 const ApprovalWorkflowSteps = React.memo(({ current }: { current: number }) => {
   const stepItems = useMemo(
@@ -124,6 +122,11 @@ const ApprovalWorkFlowModal = ({
   const { data: usersData } = useGetAllUsers();
   const { data: departmentsData } = useGetDepartments();
   const [current, setCurrent] = useState(0);
+  const selectedApprovalTypes = Form.useWatch(
+    'timesheetApprovalTypes',
+    form,
+  ) as TimesheetApprovalTypeValue[] | undefined;
+  const includesShiftSwap = selectedApprovalTypes?.includes('ShiftSwap');
 
   useEffect(() => {
     if (!openApprovalModal) return;
@@ -551,6 +554,17 @@ const ApprovalWorkFlowModal = ({
           />
         </Form.Item>
 
+        {includesShiftSwap && (
+          <Alert
+            type="info"
+            showIcon
+            className="mb-4"
+            message="Shift swap approval order"
+            description="The employee selected as peer approves first when a swap is requested. After peer approval, the approvers configured in this workflow (direct manager, HR, or assigned users) complete the final approval step."
+            data-cy="approval-workflow-shift-swap-info"
+          />
+        )}
+
         <Form.Item
           name="workflowName"
           label="Workflow Name"
@@ -784,9 +798,7 @@ const ApprovalWorkFlowModal = ({
                     (form.getFieldValue('timesheetApprovalTypes') ||
                       []) as string[]
                   )
-                    .map((value) =>
-                      value === 'WorkFromHome' ? 'Work From Home' : value,
-                    )
+                    .map((value) => formatTimesheetApprovalType(value))
                     .join(' and ') || '-'}
                 </span>
               </div>

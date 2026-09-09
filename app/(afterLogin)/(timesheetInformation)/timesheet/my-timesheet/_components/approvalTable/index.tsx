@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useGetApprovalLeaveRequestAllStatus } from '@/store/server/features/timesheet/leaveRequest/queries';
 import { useGetWorkFromHomeApprovalAllStatus } from '@/store/server/features/timesheet/workFromHome/queries';
+import { useGetShiftSwapApprovalAllStatus } from '@/store/server/features/timesheet/shiftSwap/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { TableColumnsType } from '@/types/table/table';
 import {
@@ -23,6 +24,11 @@ import {
   useSetRejectLeaveRequest,
 } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { useSetFinalWorkFromHomeRequest } from '@/store/server/features/timesheet/workFromHome/mutation';
+import {
+  usePeerApproveShiftSwap,
+  usePeerRejectShiftSwap,
+  useSetFinalShiftSwapRequest,
+} from '@/store/server/features/timesheet/shiftSwap/mutation';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useCurrentLeaveApprovalStore } from '@/store/uistate/features/timesheet/myTimesheet/currentApproval';
 import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesheet/myTimesheet/allCurentApproved';
@@ -33,10 +39,13 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { TableSkeleton } from '@/components/tableSkeleton';
 
+type ApprovalTypeFilter = 'Leave' | 'WorkFromHome' | 'ShiftSwap';
+
 const DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
 
 /** Min width for horizontal scroll on narrow viewports (aligned with leave table pattern). */
-const APPROVAL_TABLE_SCROLL_X = 960;
+const APPROVAL_TABLE_SCROLL_X_LEAVE = 960;
+const APPROVAL_TABLE_SCROLL_X_SHIFT_SWAP = 1480;
 
 const ApprovalTable = () => {
   const { pageSize, userCurrentPage, setUserCurrentPage, setPageSize } =
@@ -54,6 +63,11 @@ const ApprovalTable = () => {
   const { mutate: finalApprover } = useSetFinalApproveLeaveRequest();
   const { mutate: finalWorkFromHomeApprover } =
     useSetFinalWorkFromHomeRequest();
+  const { mutate: finalShiftSwapApprover } = useSetFinalShiftSwapRequest();
+  const { mutate: peerApproveShiftSwap, isLoading: isPeerApproving } =
+    usePeerApproveShiftSwap();
+  const { mutate: peerRejectShiftSwap, isLoading: isPeerRejecting } =
+    usePeerRejectShiftSwap();
   const { mutate: allApprover, isLoading: allApproveIsLoading } =
     useSetAllApproveLeaveRequest();
   const { mutate: allReject, isLoading: allRejectIsLoading } =
@@ -62,9 +76,8 @@ const ApprovalTable = () => {
 
   const [searchEmployee, setSearchEmployee] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('');
-  const [approvalTypeFilter, setApprovalTypeFilter] = useState<
-    'Leave' | 'WorkFromHome'
-  >('Leave');
+  const [approvalTypeFilter, setApprovalTypeFilter] =
+    useState<ApprovalTypeFilter>('Leave');
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const { data: allUsersData } = useGetAllUsers();
@@ -85,11 +98,12 @@ const ApprovalTable = () => {
     { label: 'Rejected', value: LeaveRequestStatus.DECLINED },
   ];
   const approvalTypePills: Array<{
-    id: 'Leave' | 'WorkFromHome';
+    id: ApprovalTypeFilter;
     label: string;
   }> = [
     { id: 'Leave', label: 'Leave' },
     { id: 'WorkFromHome', label: 'Work From Home' },
+    { id: 'ShiftSwap', label: 'Shift Swap' },
   ];
 
   useEffect(() => {
@@ -101,6 +115,8 @@ const ApprovalTable = () => {
     const type = (searchParams.get('type') ?? '').replace(/[-_]/g, '');
     if (/^workfromhome$/i.test(type) || /^wfh$/i.test(type)) {
       setApprovalTypeFilter('WorkFromHome');
+    } else if (/^shiftswap$/i.test(type) || /^swap$/i.test(type)) {
+      setApprovalTypeFilter('ShiftSwap');
     } else if (/^leave$/i.test(type)) {
       setApprovalTypeFilter('Leave');
     }
@@ -135,6 +151,18 @@ const ApprovalTable = () => {
     filterStatus || undefined,
     approvalTypeFilter === 'WorkFromHome',
   );
+  const {
+    data: shiftSwapApprovalData,
+    isLoading: isLoadingShiftSwapApproval,
+    refetch: refetchShiftSwap,
+  } = useGetShiftSwapApprovalAllStatus(
+    userId ?? '',
+    userCurrentPage,
+    pageSize,
+    searchEmployee || undefined,
+    filterStatus || undefined,
+    approvalTypeFilter === 'ShiftSwap',
+  );
 
   // Reset to page 1 when filters change
   useEffect(() => {
@@ -150,23 +178,36 @@ const ApprovalTable = () => {
   const isApprovalListLoading =
     approvalTypeFilter === 'WorkFromHome'
       ? isLoadingWorkFromHomeApproval
-      : isLoadingLeaveApproval;
+      : approvalTypeFilter === 'ShiftSwap'
+        ? isLoadingShiftSwapApproval
+        : isLoadingLeaveApproval;
 
   // Normalize response: support both { items, meta } and { data: { items, meta } }
   const approvalData =
     approvalTypeFilter === 'WorkFromHome'
       ? workFromHomeApprovalData
-      : leaveApprovalData;
+      : approvalTypeFilter === 'ShiftSwap'
+        ? shiftSwapApprovalData
+        : leaveApprovalData;
   const payload = approvalData?.data ?? approvalData;
   const rawItems = payload?.items ?? approvalData?.items ?? [];
   const isWorkFromHome = approvalTypeFilter === 'WorkFromHome';
+  const isShiftSwap = approvalTypeFilter === 'ShiftSwap';
   const requestLabel = isWorkFromHome
     ? 'work from home request'
-    : 'leave request';
+    : isShiftSwap
+      ? 'shift swap request'
+      : 'leave request';
+  const refetchCurrent = () => {
+    if (isWorkFromHome) refetchWorkFromHome();
+    else if (isShiftSwap) refetchShiftSwap();
+    else refetchLeave();
+  };
   const finalApproval = (
     e: {
       leaveRequestId?: string;
       workFromHomeRequestId?: string;
+      shiftSwapRequestId?: string;
       status: 'approved' | 'declined';
     },
     options?: { onSuccess?: () => void },
@@ -175,6 +216,14 @@ const ApprovalTable = () => {
       finalWorkFromHomeApprover(
         {
           workFromHomeRequestId: e.workFromHomeRequestId || '',
+          status: e.status,
+        },
+        { onSuccess: () => options?.onSuccess?.() },
+      );
+    } else if (isShiftSwap) {
+      finalShiftSwapApprover(
+        {
+          shiftSwapRequestId: e.shiftSwapRequestId || '',
           status: e.status,
         },
         { onSuccess: () => options?.onSuccess?.() },
@@ -202,13 +251,18 @@ const ApprovalTable = () => {
     editApprover(e, {
       onSuccess: () => {
         setRejectComment('');
+        // Shift swap decline is synced by approval-module → T&A escalate.
+        // A second frontend escalate fails once status is no longer PENDING_APPROVAL.
+        if (isShiftSwap) {
+          refetchCurrent();
+          return;
+        }
         finalApproval(
           isWorkFromHome
             ? { workFromHomeRequestId: e.requestId, status: 'declined' }
             : { leaveRequestId: e.requestId, status: 'declined' },
           {
-            onSuccess: () =>
-              isWorkFromHome ? refetchWorkFromHome() : refetchLeave(),
+            onSuccess: () => refetchCurrent(),
           },
         );
       },
@@ -226,41 +280,78 @@ const ApprovalTable = () => {
   }) => {
     editApprover(e, {
       onSuccess: (data) => {
+        // Shift swap finalization is synced by approval-module → T&A escalate.
+        // Calling escalate again after COMPLETED returns 400.
+        if (isShiftSwap) {
+          refetchCurrent();
+          return;
+        }
         if (data?.last === true) {
           finalApproval(
             isWorkFromHome
               ? { workFromHomeRequestId: e.requestId, status: 'approved' }
               : { leaveRequestId: e.requestId, status: 'approved' },
             {
-              onSuccess: () =>
-                isWorkFromHome ? refetchWorkFromHome() : refetchLeave(),
+              onSuccess: () => refetchCurrent(),
             },
           );
         } else {
-          if (isWorkFromHome) {
-            refetchWorkFromHome();
-          } else {
-            refetchLeave();
-          }
+          refetchCurrent();
         }
       },
     });
   };
 
   const cancel: any = () => {};
-  const isPending = (item: any) => item?.nextApprover?.[0]?.userId === userId;
+  const isPeerPendingItem = (item: any) =>
+    !!item?.isPeerApproval ||
+    item?.status === 'PENDING_PEER' ||
+    String(item?.status || '').toLowerCase() === 'pending_peer';
+  const isPending = (item: any) => {
+    if (isPeerPendingItem(item)) {
+      return (
+        item?.peerUserId === userId ||
+        (item?.nextApprover || []).some((a: any) => a?.userId === userId)
+      );
+    }
+    return (item?.nextApprover || []).some((a: any) => a?.userId === userId);
+  };
   const allFilterData = useMemo(
     () =>
       rawItems.map((item: any, index: number) => {
         const pending = isPending(item);
+        const peerPending = isPeerPendingItem(item);
+        const typeLabel = isWorkFromHome
+          ? 'Work From Home'
+          : isShiftSwap
+            ? peerPending
+              ? 'Shift Swap (Peer)'
+              : 'Shift Swap'
+            : item?.leaveType?.title;
         return {
           key: item?.id ?? index,
           id: item?.id,
-          userId: item?.userId,
-          startAt: item?.startAt,
-          endAt: item?.endAt,
-          days: item?.days,
-          leaveType: isWorkFromHome ? 'Work From Home' : item?.leaveType?.title,
+          userId: item?.userId || item?.requesterUserId,
+          peerUserId: item?.peerUserId,
+          requesterUserId: item?.requesterUserId,
+          requesterShiftId: item?.requesterShiftId,
+          targetShiftId: item?.targetShiftId,
+          peerShiftId: item?.peerShiftId,
+          requesterShiftLabel: item?.requesterShiftLabel,
+          targetShiftLabel: item?.targetShiftLabel,
+          peerShiftLabel: item?.peerShiftLabel,
+          reason: item?.reason,
+          startAt: item?.startAt || item?.startDate,
+          endAt: item?.endAt || item?.endDate,
+          days:
+            item?.days ??
+            (isShiftSwap && (item?.startAt || item?.startDate) && (item?.endAt || item?.endDate)
+              ? dayjs(item?.endAt || item?.endDate).diff(
+                  dayjs(item?.startAt || item?.startDate),
+                  'day',
+                ) + 1
+              : undefined),
+          leaveType: typeLabel,
           status: item?.status,
           action: (
             <div
@@ -274,6 +365,13 @@ const ApprovalTable = () => {
                     title="Approve Request"
                     description={`Are you sure to approve this ${requestLabel}?`}
                     onConfirm={() => {
+                      if (peerPending) {
+                        peerApproveShiftSwap(
+                          { id: item?.id },
+                          { onSuccess: () => refetchCurrent() },
+                        );
+                        return;
+                      }
                       confirm({
                         approvalWorkflowId: item?.approvalWorkflowId,
                         stepOrder: item?.nextApprover?.[0]?.stepOrder,
@@ -290,6 +388,8 @@ const ApprovalTable = () => {
                     disabled={
                       isApprovalListLoading ||
                       isLoadingEditApprover ||
+                      isPeerApproving ||
+                      isPeerRejecting ||
                       allApproveIsLoading ||
                       allRejectIsLoading
                     }
@@ -321,6 +421,18 @@ const ApprovalTable = () => {
                       </>
                     }
                     onConfirm={() => {
+                      if (peerPending) {
+                        peerRejectShiftSwap(
+                          { id: item?.id, comment: rejectComment },
+                          {
+                            onSuccess: () => {
+                              setRejectComment('');
+                              refetchCurrent();
+                            },
+                          },
+                        );
+                        return;
+                      }
                       reject({
                         approvalWorkflowId: item?.approvalWorkflowId,
                         stepOrder: item?.nextApprover?.[0]?.stepOrder,
@@ -343,6 +455,8 @@ const ApprovalTable = () => {
                     disabled={
                       isApprovalListLoading ||
                       isLoadingEditApprover ||
+                      isPeerApproving ||
+                      isPeerRejecting ||
                       allApproveIsLoading ||
                       allRejectIsLoading
                     }
@@ -360,16 +474,32 @@ const ApprovalTable = () => {
               ) : (
                 <Tag
                   color={
-                    item?.status === LeaveRequestStatus.APPROVED
+                    item?.status === LeaveRequestStatus.APPROVED ||
+                    item?.status === 'APPROVED' ||
+                    item?.status === 'approved' ||
+                    item?.status === 'COMPLETED' ||
+                    item?.status === 'completed'
                       ? 'success'
                       : 'error'
                   }
                   id={`time-attendance-approval-table-row-${index}-status-tag`}
                   data-cy={`time-attendance-approval-table-row-${index}-status-tag`}
                 >
-                  {item?.status === LeaveRequestStatus.APPROVED
+                  {item?.status === LeaveRequestStatus.APPROVED ||
+                  item?.status === 'APPROVED' ||
+                  item?.status === 'approved' ||
+                  item?.status === 'COMPLETED' ||
+                  item?.status === 'completed'
                     ? 'Approved'
-                    : 'Rejected'}
+                    : item?.status === LeaveRequestStatus.DECLINED ||
+                        item?.status === 'declined' ||
+                        item?.status === 'DECLINED' ||
+                        item?.status === 'rejected' ||
+                        item?.status === 'REJECTED' ||
+                        item?.status === 'PEER_REJECTED' ||
+                        item?.status === 'APPROVAL_REJECTED'
+                      ? 'Rejected'
+                      : String(item?.status || 'Rejected').replace(/_/g, ' ')}
                 </Tag>
               )}
             </div>
@@ -383,21 +513,40 @@ const ApprovalTable = () => {
       tenantId,
       rejectComment,
       isWorkFromHome,
+      isShiftSwap,
       requestLabel,
       isApprovalListLoading,
       isLoadingEditApprover,
+      isPeerApproving,
+      isPeerRejecting,
       allApproveIsLoading,
       allRejectIsLoading,
+      peerApproveShiftSwap,
+      peerRejectShiftSwap,
       refetchLeave,
       refetchWorkFromHome,
+      refetchShiftSwap,
     ],
   );
   const EmpRender = ({ userId }: any) => {
+    const fromDirectory = userOptions.find((u) => u.value === userId)?.label;
     const {
       isLoading,
       data: employeeData,
       isError,
-    } = useGetSimpleEmployee(userId);
+    } = useGetSimpleEmployee(fromDirectory ? '' : userId);
+
+    if (fromDirectory) {
+      return (
+        <div
+          className="text-sm text-gray-900"
+          id={`time-attendance-approval-table-employee-${userId}-container`}
+          data-cy={`time-attendance-approval-table-employee-${userId}-container`}
+        >
+          {fromDirectory}
+        </div>
+      );
+    }
 
     if (isLoading)
       return (
@@ -428,77 +577,154 @@ const ApprovalTable = () => {
   const rowCellPadding = { paddingTop: 8, paddingBottom: 8 };
   const rowCellClass = 'text-sm py-2 text-gray-900';
 
-  const columns: TableColumnsType<any> = [
-    {
-      title: 'Employee',
-      dataIndex: 'userId',
-      key: 'userId',
-      width: 200,
-      ellipsis: true,
-      onCell: () => ({ style: rowCellPadding }),
-      render: (text: string) => <EmpRender userId={text} />,
-    },
-    {
-      title: 'Type',
-      dataIndex: 'leaveType',
-      key: 'leaveType',
-      width: 180,
-      ellipsis: true,
-      onCell: () => ({ style: rowCellPadding }),
-    },
-    {
-      title: 'Start Date',
-      dataIndex: 'startAt',
-      key: 'startAt',
-      width: 128,
-      onCell: () => ({ style: rowCellPadding }),
-      render: (val: string) => (
-        <span
-          className={`${rowCellClass} whitespace-nowrap`}
-          data-cy="time-attendance-approval-table-cell-start-date"
-        >
-          {val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-'}
-        </span>
-      ),
-    },
-    {
-      title: 'End Date',
-      dataIndex: 'endAt',
-      key: 'endAt',
-      width: 128,
-      onCell: () => ({ style: rowCellPadding }),
-      render: (val: string) => (
-        <span
-          className={`${rowCellClass} whitespace-nowrap`}
-          data-cy="time-attendance-approval-table-cell-end-date"
-        >
-          {val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-'}
-        </span>
-      ),
-    },
-    {
-      title: 'Days',
-      dataIndex: 'days',
-      key: 'days',
-      width: 72,
-      onCell: () => ({ style: rowCellPadding }),
-      render: (v: number) => (
-        <span
-          className={`${rowCellClass} whitespace-nowrap`}
-          data-cy="time-attendance-approval-table-cell-days"
-        >
-          {v}
-        </span>
-      ),
-    },
-    {
-      title: 'Action',
-      dataIndex: 'action',
-      key: 'action',
-      width: 260,
-      onCell: () => ({ style: rowCellPadding }),
-    },
-  ];
+  const columns: TableColumnsType<any> = useMemo(() => {
+    const base: TableColumnsType<any> = [
+      {
+        title: isShiftSwap ? 'Requester' : 'Employee',
+        dataIndex: 'userId',
+        key: 'userId',
+        width: 200,
+        ellipsis: true,
+        onCell: () => ({ style: rowCellPadding }),
+        render: (text: string) => <EmpRender userId={text} />,
+      },
+    ];
+
+    if (isShiftSwap) {
+      base.push({
+        title: 'Swap With',
+        dataIndex: 'peerUserId',
+        key: 'peerUserId',
+        width: 200,
+        ellipsis: true,
+        onCell: () => ({ style: rowCellPadding }),
+        render: (peerId: string) =>
+          peerId ? <EmpRender userId={peerId} /> : '-',
+      });
+      base.push({
+        title: 'Shifts',
+        key: 'shifts',
+        width: 260,
+        ellipsis: true,
+        onCell: () => ({ style: rowCellPadding }),
+        render: (_: unknown, row: any) => {
+          const from =
+            row?.requesterShiftLabel ||
+            row?.requesterShiftId ||
+            null;
+          const to =
+            row?.targetShiftLabel ||
+            row?.peerShiftLabel ||
+            row?.targetShiftId ||
+            null;
+          if (!from && !to) {
+            return (
+              <span
+                className={rowCellClass}
+                data-cy="time-attendance-approval-table-cell-shifts"
+              >
+                -
+              </span>
+            );
+          }
+          return (
+            <div
+              className={`${rowCellClass} leading-snug`}
+              data-cy="time-attendance-approval-table-cell-shifts"
+            >
+              <div>{from || '-'}</div>
+              <div className="text-xs text-gray-500">↔ {to || '-'}</div>
+            </div>
+          );
+        },
+      });
+      base.push({
+        title: 'Reason',
+        dataIndex: 'reason',
+        key: 'reason',
+        width: 160,
+        ellipsis: true,
+        onCell: () => ({ style: rowCellPadding }),
+        render: (reason: string) => (
+          <span
+            className={`${rowCellClass}`}
+            data-cy="time-attendance-approval-table-cell-swap-reason"
+          >
+            {reason || '-'}
+          </span>
+        ),
+      });
+    }
+
+    base.push(
+      {
+        title: 'Type',
+        dataIndex: 'leaveType',
+        key: 'leaveType',
+        width: isShiftSwap ? 140 : 180,
+        ellipsis: true,
+        onCell: () => ({ style: rowCellPadding }),
+      },
+      {
+        title: 'Start Date',
+        dataIndex: 'startAt',
+        key: 'startAt',
+        width: 128,
+        onCell: () => ({ style: rowCellPadding }),
+        render: (val: string) => (
+          <span
+            className={`${rowCellClass} whitespace-nowrap`}
+            data-cy="time-attendance-approval-table-cell-start-date"
+          >
+            {val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-'}
+          </span>
+        ),
+      },
+      {
+        title: 'End Date',
+        dataIndex: 'endAt',
+        key: 'endAt',
+        width: 128,
+        onCell: () => ({ style: rowCellPadding }),
+        render: (val: string) => (
+          <span
+            className={`${rowCellClass} whitespace-nowrap`}
+            data-cy="time-attendance-approval-table-cell-end-date"
+          >
+            {val ? dayjs(val).format(DATE_DISPLAY_FORMAT) : '-'}
+          </span>
+        ),
+      },
+      {
+        title: 'Days',
+        dataIndex: 'days',
+        key: 'days',
+        width: 72,
+        onCell: () => ({ style: rowCellPadding }),
+        render: (v: number) => (
+          <span
+            className={`${rowCellClass} whitespace-nowrap`}
+            data-cy="time-attendance-approval-table-cell-days"
+          >
+            {v ?? '-'}
+          </span>
+        ),
+      },
+      {
+        title: 'Action',
+        dataIndex: 'action',
+        key: 'action',
+        width: 260,
+        onCell: () => ({ style: rowCellPadding }),
+      },
+    );
+
+    return base;
+  }, [isShiftSwap, rowCellClass, userOptions]);
+
+  const tableScrollX = isShiftSwap
+    ? APPROVAL_TABLE_SCROLL_X_SHIFT_SWAP
+    : APPROVAL_TABLE_SCROLL_X_LEAVE;
 
   const rowSelection = {
     selectedRowKeys,
@@ -631,7 +857,7 @@ const ApprovalTable = () => {
               );
             })}
           </div>
-          {!isWorkFromHome && selectedRowKeys.length > 0 && (
+          {!isWorkFromHome && !isShiftSwap && selectedRowKeys.length > 0 && (
             <>
               <Popconfirm
                 title="All Reject Request"
@@ -711,16 +937,20 @@ const ApprovalTable = () => {
         <TableSkeleton columns={columns} />
       ) : (
         <Table
-          rowSelection={!isWorkFromHome ? rowSelection : undefined}
+          rowSelection={
+            !isWorkFromHome && !isShiftSwap ? rowSelection : undefined
+          }
           columns={columns}
           dataSource={allFilterData}
           pagination={false}
           // Single horizontal scroll: only Ant Design’s table body (no outer overflow-x wrapper).
-          scroll={{ x: APPROVAL_TABLE_SCROLL_X }}
+          scroll={{ x: tableScrollX }}
           locale={{
             emptyText: isWorkFromHome
               ? 'No work from home approvals'
-              : 'No leave requests',
+              : isShiftSwap
+                ? 'No shift swap approvals'
+                : 'No leave requests',
           }}
           className="mx-3 [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.my-timesheet-approval-table-row-even>td]:!bg-[#FAFAFA] [&_tr.my-timesheet-approval-table-row-odd>td]:!bg-white"
           rowClassName={(record, index) => {

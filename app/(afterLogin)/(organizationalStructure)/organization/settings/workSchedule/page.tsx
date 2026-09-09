@@ -15,6 +15,7 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useEffect, useMemo } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ScheduleDetail {
   id: string;
@@ -39,6 +40,15 @@ interface ScheduleItem {
   name: string;
   standardHours: number;
   detail: ScheduleDetail[];
+  shifts?: Array<{
+    id?: string;
+    name: string;
+    startTime: string;
+    endTime: string;
+    isSwappable?: boolean;
+    applyToAllDays?: boolean;
+    days?: string[];
+  }>;
 }
 
 function WorkScheduleTab() {
@@ -56,6 +66,7 @@ function WorkScheduleTab() {
     setPageSize,
     searchQuery,
     setSearchQuery,
+    setShifts,
   } = useScheduleStore();
   const { isMobile, isTablet } = useIsMobile();
   const { data: workScheudleData, refetch: refetchSchedules } =
@@ -99,6 +110,43 @@ function WorkScheduleTab() {
         setStandardHours(useScheduleStore.getState().standardHours + duration);
       }
     });
+
+    setShifts(
+      (data.shifts?.length
+        ? data.shifts
+        : [
+            {
+              name: 'Standard',
+              startTime: '9:00 AM',
+              endTime: '5:00 PM',
+              isSwappable: false,
+              applyToAllDays: true,
+              days: [],
+              breaks: [],
+            },
+          ]
+      ).map((shift) => ({
+        key: uuidv4(),
+        id: shift.id,
+        name: shift.name,
+        startTime: shift.startTime,
+        endTime: shift.endTime,
+        isSwappable: !!shift.isSwappable,
+        applyToAllDays: shift.applyToAllDays !== false,
+        days: shift.days ?? [],
+        breaks: (shift.breaks ?? []).map((br, index) => ({
+          breakTypeId: br.breakTypeId,
+          sortOrder: br.sortOrder ?? index,
+          startAt: br.startAt ?? null,
+          endAt: br.endAt ?? null,
+          startAtFrom: br.startAtFrom ?? null,
+          startAtTo: br.startAtTo ?? null,
+          endAtFrom: br.endAtFrom ?? null,
+          endAtTo: br.endAtTo ?? null,
+        })),
+      })),
+    );
+
     openDrawer();
     setEditMode(true);
   };

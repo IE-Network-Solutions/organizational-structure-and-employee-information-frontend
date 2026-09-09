@@ -48,6 +48,15 @@ export interface WorkSchedule {
   detail: WorkScheduleDetail[];
   standardHours: number;
   tenantId: string;
+  shifts?: Array<{
+    id?: string;
+    name: string;
+    startTime: string;
+    endTime: string;
+    isSwappable?: boolean;
+    applyToAllDays?: boolean;
+    days?: string[];
+  }>;
 }
 export type EditState = {
   addresses: boolean;

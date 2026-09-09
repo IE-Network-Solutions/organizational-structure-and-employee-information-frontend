@@ -8,11 +8,22 @@ export interface DayOfWeek {
   duration?: number;
 }
 
+export interface WorkScheduleShift {
+  id?: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  isSwappable?: boolean;
+  applyToAllDays?: boolean;
+  days?: string[];
+}
+
 export interface Schedule {
   name?: string;
   scheduleName?: string;
   standardHours?: number;
   detail: DayOfWeek[];
+  shifts?: WorkScheduleShift[];
 }
 
 export interface DayOfWeekResponse {
@@ -27,9 +38,11 @@ export interface DayOfWeekResponse {
 }
 
 export interface ResponseSchedule {
+  id?: string;
   name: string;
   standardHours: number;
   detail: DayOfWeekResponse[];
+  shifts?: WorkScheduleShift[];
 }
 
 export interface ScheduleResponse {
