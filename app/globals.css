@@ -2434,7 +2434,8 @@ h6 {
   margin-bottom: 2px !important;
   pointer-events: none !important;
 }
-.planning-target-pick-menu .planning-target-pick-heading.ant-dropdown-menu-item-disabled {
+.planning-target-pick-menu
+  .planning-target-pick-heading.ant-dropdown-menu-item-disabled {
   color: #64748b !important;
   cursor: default !important;
   opacity: 1 !important;
@@ -2610,7 +2611,8 @@ h6 {
 }
 
 .copilot-float-expanded-enter {
-  animation: copilot-float-expand-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: copilot-float-expand-in 0.32s cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
 }
 
 .copilot-float-surface {

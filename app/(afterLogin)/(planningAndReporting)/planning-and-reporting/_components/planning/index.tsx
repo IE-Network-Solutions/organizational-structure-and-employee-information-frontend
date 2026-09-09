@@ -16,7 +16,7 @@ import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from './PlanningPanelView';
 import { Cadence, PlanSummary } from '../types';
-import { formatPlanningReportDate } from '../utils';
+import { canApproveSubordinateWork, formatPlanningReportDate } from '../utils';
 
 export interface PlanningExposedData {
   planSummaries: PlanSummary[];
@@ -213,16 +213,10 @@ function Planning({
                       handleApproveHandler(originalDataItem.id, false)
                     }
                     onEdit={() => handleEdit(originalDataItem.id)}
-                    canApprove={
-                      String(userId ?? '') ===
-                      String(
-                        getEmployeeData(originalDataItem?.userId)?.delegatedTo
-                          ?.id ||
-                          getEmployeeData(originalDataItem?.userId)?.reportingTo
-                            ?.id ||
-                          '',
-                      )
-                    }
+                    canApprove={canApproveSubordinateWork(
+                      userId,
+                      getEmployeeData(originalDataItem?.userId),
+                    )}
                     canEdit={
                       String(userId ?? '') ===
                         String(originalDataItem?.userId ?? '') &&
