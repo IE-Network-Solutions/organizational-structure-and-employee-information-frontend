@@ -8,9 +8,7 @@ import type {
   CollaborationSpace,
 } from './mockAnnouncementService';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import {
-  SPACE_COLORS,
-} from '@/store/uistate/features/organizationStructure/announcementChannels';
+import { SPACE_COLORS } from '@/store/uistate/features/organizationStructure/announcementChannels';
 import {
   useUpdateCollabChannel,
   useUpdateCollabSpace,

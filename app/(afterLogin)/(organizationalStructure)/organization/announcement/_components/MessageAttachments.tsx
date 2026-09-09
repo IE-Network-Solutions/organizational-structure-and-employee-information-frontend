@@ -261,9 +261,7 @@ const AttachmentCard = ({
       }`}
       data-cy={dataCyPrefix}
     >
-      {image ? (
-        <ImagePreview file={file} dataCyPrefix={dataCyPrefix} />
-      ) : null}
+      {image ? <ImagePreview file={file} dataCyPrefix={dataCyPrefix} /> : null}
       <div
         className="flex min-w-0 items-center gap-2 px-2.5 py-2"
         data-cy={`${dataCyPrefix}-meta`}
@@ -331,10 +329,7 @@ const MessageAttachments = ({
   if (attachments.length === 0) return null;
 
   return (
-    <div
-      className="mt-2 grid gap-2"
-      data-cy={`${dataCyPrefix}-attachments`}
-    >
+    <div className="mt-2 grid gap-2" data-cy={`${dataCyPrefix}-attachments`}>
       {attachments.map((file, index) => (
         <AttachmentCard
           key={`${file.id}-${index}`}

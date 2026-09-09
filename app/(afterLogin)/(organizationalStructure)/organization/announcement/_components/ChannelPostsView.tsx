@@ -7,11 +7,7 @@ import {
   UserAddOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import {
-  BsPaperclip,
-  BsSendFill,
-  BsTypeUnderline,
-} from 'react-icons/bs';
+import { BsPaperclip, BsSendFill, BsTypeUnderline } from 'react-icons/bs';
 import { MdOutlineCampaign } from 'react-icons/md';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -262,9 +258,7 @@ const NewPostCard = ({
               </button>
             </Tooltip>
             <EmojiPickerButton
-              onSelect={(emoji) =>
-                setBody((current) => `${current}${emoji}`)
-              }
+              onSelect={(emoji) => setBody((current) => `${current}${emoji}`)}
               dataCy="announcement-new-post-emoji"
             />
           </div>

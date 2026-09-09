@@ -227,14 +227,7 @@ const AnnouncementComposerPanel = ({
       spaceId: defaultChannel.spaceId,
       channelId: defaultChannel.id,
     });
-  }, [
-    active,
-    form,
-    spaces,
-    enabledChannelIds,
-    lockedSpaceId,
-    lockedChannelId,
-  ]);
+  }, [active, form, spaces, enabledChannelIds, lockedSpaceId, lockedChannelId]);
 
   useEffect(() => {
     if (!active || !lockedSpaceId || !lockedChannelId) return;
@@ -274,23 +267,21 @@ const AnnouncementComposerPanel = ({
   const selectedSpace = selectedSpaceId
     ? findSpaceById(spaces, selectedSpaceId)
     : undefined;
-  const {
-    data: channelMembers = [],
-    isLoading: channelMembersLoading,
-  } = useChannelMembers(selectedChannelId, memberLookup, active);
+  const { data: channelMembers = [], isLoading: channelMembersLoading } =
+    useChannelMembers(selectedChannelId, memberLookup, active);
 
   // Public channels inherit space members — mention list is space roster ∪
   // GET /channel-members.
   const mentionableUsers = useMemo(() => {
-    const byId = new Map<string, { id: string; name: string; email?: string; avatarUrl?: string }>();
+    const byId = new Map<
+      string,
+      { id: string; name: string; email?: string; avatarUrl?: string }
+    >();
     (selectedSpace?.members ?? []).forEach((member) =>
       byId.set(member.id, member),
     );
     channelMembers.forEach((member) => byId.set(member.id, member));
-    return spaceMembersToMentionUsers(
-      Array.from(byId.values()),
-      currentUserId,
-    );
+    return spaceMembersToMentionUsers(Array.from(byId.values()), currentUserId);
   }, [selectedSpace?.members, channelMembers, currentUserId]);
 
   const handleSubmit = async () => {

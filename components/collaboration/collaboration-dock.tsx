@@ -151,9 +151,7 @@ export function CollaborationDock() {
       const bounds = container.getBoundingClientRect();
       // `bounds.width` still caps separately: on a narrow window the container
       // is the tighter limit, and the panel must not outgrow it.
-      setPanelWidth(
-        Math.min(bounds.width, bounds.right - event.clientX),
-      );
+      setPanelWidth(Math.min(bounds.width, bounds.right - event.clientX));
     };
 
     const handleUp = () => setDragging(false);

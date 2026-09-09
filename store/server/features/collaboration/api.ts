@@ -74,9 +74,7 @@ export const fetchCollabFileBlob = async (
   });
 };
 
-const pickArrayField = (
-  source: Record<string, unknown>,
-): unknown[] | null => {
+const pickArrayField = (source: Record<string, unknown>): unknown[] | null => {
   for (const key of [
     'items',
     'members',
@@ -137,7 +135,10 @@ export const normalizeCollabEntity = <T extends Record<string, unknown>>(
 };
 
 export const createCollabUploadId = () => {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
     return crypto.randomUUID();
   }
   return `upload-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
