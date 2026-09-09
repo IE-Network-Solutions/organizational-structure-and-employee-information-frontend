@@ -148,6 +148,7 @@ const ExternalApplicantForm: React.FC<ExternalApplicantFormProps> = ({
             className="flex items-center justify-center"
           >
             <Image
+              unoptimized
               src={CV_UPLOAD_IMAGE_URL}
               alt="Upload"
               width={30}

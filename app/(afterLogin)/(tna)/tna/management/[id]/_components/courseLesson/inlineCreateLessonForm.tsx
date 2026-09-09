@@ -46,6 +46,8 @@ function pendingRowToNestedPayload(
     article: row.article,
     videos: row.videos,
     attachments: row.attachments,
+    referenceMaterials: row.referenceMaterials,
+    images: row.images,
     order: row.order,
     timeToFinishMinutes: row.timeToFinishMinutes,
   };

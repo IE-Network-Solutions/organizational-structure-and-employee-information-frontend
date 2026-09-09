@@ -204,6 +204,7 @@ export const AllPlanningPeriods = () => {
   return useQuery<AssignedPlanningPeriodLogArray>(
     'planningPeriods',
     getAllPlanningPeriods,
+    { staleTime: 5 * 60_000 },
   );
 };
 
@@ -224,17 +225,133 @@ const getDefaultPlanningPeriods = async () => {
 };
 
 export const useDefaultPlanningPeriods = () => {
-  return useQuery('defaultPlanningPeriods', getDefaultPlanningPeriods);
+  return useQuery('defaultPlanningPeriods', getDefaultPlanningPeriods, {
+    staleTime: 5 * 60_000,
+  });
 };
 
-export const useGetPlanning = (params: DataType) => {
+const KR_PANEL_PAGE_SIZE = 100;
+const KR_PANEL_CONCURRENT_PAGE_BATCH = 4;
+
+function mergePaginatedPages(firstPage: any, extraPages: any[]) {
+  const items = [
+    ...(firstPage?.items ?? []),
+    ...extraPages.flatMap((page) => page?.items ?? []),
+  ];
+  return {
+    ...firstPage,
+    items,
+    meta: {
+      ...(firstPage?.meta ?? {}),
+      itemCount: items.length,
+      totalItems: firstPage?.meta?.totalItems ?? items.length,
+    },
+  };
+}
+
+async function fetchPagesInBatches<T>(
+  pageNumbers: number[],
+  fetchPage: (page: number) => Promise<T>,
+): Promise<T[]> {
+  const pages: T[] = [];
+  for (
+    let index = 0;
+    index < pageNumbers.length;
+    index += KR_PANEL_CONCURRENT_PAGE_BATCH
+  ) {
+    const batch = pageNumbers.slice(
+      index,
+      index + KR_PANEL_CONCURRENT_PAGE_BATCH,
+    );
+    pages.push(...(await Promise.all(batch.map((page) => fetchPage(page)))));
+  }
+  return pages;
+}
+
+async function fetchAllPlanningData(params: DataType) {
+  const firstPage = await getPlanningData({
+    ...params,
+    page: 1,
+    pageSize: KR_PANEL_PAGE_SIZE,
+  });
+  const totalPages = Number(firstPage?.meta?.totalPages ?? 1);
+  const totalItems = Number(
+    firstPage?.meta?.totalItems ?? firstPage?.items?.length ?? 0,
+  );
+  if (totalPages <= 1 || (firstPage?.items?.length ?? 0) >= totalItems) {
+    return firstPage;
+  }
+
+  const extraPages = await fetchPagesInBatches(
+    Array.from({ length: totalPages - 1 }, (unused, index) => index + 2),
+    (page) =>
+      getPlanningData({
+        ...params,
+        page,
+        pageSize: KR_PANEL_PAGE_SIZE,
+      }),
+  );
+  return mergePaginatedPages(firstPage, extraPages);
+}
+
+async function fetchAllReportingData(params: DataType) {
+  const firstPage = await getReportingData({
+    ...params,
+    pageReporting: 1,
+    pageSizeReporting: KR_PANEL_PAGE_SIZE,
+  });
+  const totalPages = Number(firstPage?.meta?.totalPages ?? 1);
+  const totalItems = Number(
+    firstPage?.meta?.totalItems ?? firstPage?.items?.length ?? 0,
+  );
+  if (totalPages <= 1 || (firstPage?.items?.length ?? 0) >= totalItems) {
+    return firstPage;
+  }
+
+  const extraPages = await fetchPagesInBatches(
+    Array.from({ length: totalPages - 1 }, (unused, index) => index + 2),
+    (page) =>
+      getReportingData({
+        ...params,
+        pageReporting: page,
+        pageSizeReporting: KR_PANEL_PAGE_SIZE,
+      }),
+  );
+  return mergePaginatedPages(firstPage, extraPages);
+}
+
+export const useGetPlanning = (
+  params: DataType,
+  options?: { enabled?: boolean },
+) => {
   return useQuery<any>(['okrPlans', params], () => getPlanningData(params), {
     enabled:
+      (options?.enabled ?? true) &&
       params &&
       params.userId !== undefined &&
       params.planPeriodId !== undefined &&
       params.planPeriodId !== '',
+    staleTime: 30_000,
   });
+};
+
+export const useGetAllPlanningForKrPanel = (
+  params: DataType,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<any>(
+    ['okrPlansKrPanel', params],
+    () => fetchAllPlanningData(params),
+    {
+      enabled:
+        (options?.enabled ?? true) &&
+        params &&
+        params.userId !== undefined &&
+        params.planPeriodId !== undefined &&
+        params.planPeriodId !== '',
+      staleTime: 30_000,
+    },
+  );
 };
 export const useGetUserPlanning = (planPeriodId: string, forPlan: string) => {
   return useQuery<any>(
@@ -242,6 +359,7 @@ export const useGetUserPlanning = (planPeriodId: string, forPlan: string) => {
     () => getUserPlanningData(planPeriodId, forPlan),
     {
       enabled: planPeriodId !== undefined && planPeriodId !== '',
+      staleTime: 30_000,
     },
   );
 };
@@ -249,12 +367,14 @@ export const useGetUserPlanning = (planPeriodId: string, forPlan: string) => {
 export const useGetPlanningPeriodsHierarchy = (
   userId: string,
   planningPeriodId: string,
+  options?: { enabled?: boolean },
 ) => {
   return useQuery<any>(
     ['planningPeriodsHierarchy', { userId, planningPeriodId }],
     () => getPlanningPeriodsHierarchy(userId, planningPeriodId),
     {
-      enabled: !!userId && !!planningPeriodId, // Ensure both are truthy
+      enabled: (options?.enabled ?? true) && !!userId && !!planningPeriodId,
+      staleTime: 5 * 60_000,
     },
   );
 };
@@ -265,18 +385,38 @@ export const useGetPlanningById = (planningId: string) => {
     () => getPlanningDataById(planningId),
     {
       enabled: planningId !== null && planningId !== '',
+      staleTime: 30_000,
     },
   );
 };
-export const useGetReporting = (params: DataType) => {
+export const useGetReporting = (
+  params: DataType,
+  options?: { enabled?: boolean },
+) => {
   return useQuery<any>(['okrReports', params], () => getReportingData(params), {
-    enabled: !!params?.planPeriodId, // Enable the query only when planningPeriodId is defined
+    enabled: (options?.enabled ?? true) && !!params?.planPeriodId,
+    staleTime: 30_000,
   });
+};
+
+export const useGetAllReportingForKrPanel = (
+  params: DataType,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery<any>(
+    ['okrReportsKrPanel', params],
+    () => fetchAllReportingData(params),
+    {
+      enabled: (options?.enabled ?? true) && !!params?.planPeriodId,
+      staleTime: 30_000,
+    },
+  );
 };
 
 export const useGetReportingById = (id: string) => {
   return useQuery<any>(['okrReport', id], () => getReportingDataById(id), {
-    enabled: !!id, // Enable the query only when planningPeriodId is defined
+    enabled: !!id,
+    staleTime: 30_000,
   });
 };
 
@@ -288,18 +428,21 @@ export const useGetUnReportedPlanning = (
     ['okrPlan', planningPeriodId],
     () => getAllUnReportedPlanningTask(planningPeriodId, forPlan),
     {
-      enabled: !!planningPeriodId, // Enable the query only when planningPeriodId is defined
+      enabled: !!planningPeriodId,
+      staleTime: 30_000,
     },
   );
 };
 export const useGetPlannedTaskForReport = (
   planningPeriodId: string | undefined,
+  options?: { enabled?: boolean },
 ) => {
   return useQuery<any>(
     ['okrPlannedData', planningPeriodId],
     () => getAllPlannedTasksForReport(planningPeriodId),
     {
-      enabled: !!planningPeriodId, // Enable the query only when planningPeriodId is defined
+      enabled: (options?.enabled ?? true) && !!planningPeriodId,
+      staleTime: 30_000,
     },
   );
 };

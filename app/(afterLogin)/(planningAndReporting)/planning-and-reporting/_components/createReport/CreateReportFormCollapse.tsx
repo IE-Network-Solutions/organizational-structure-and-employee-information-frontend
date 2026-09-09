@@ -4,6 +4,11 @@ import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { Col, Collapse, Form, Input, InputNumber, Row } from 'antd';
 import { NAME } from '@/types/enumTypes';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import {
+  getMetricValueInputMax,
+  getMetricValueInputMin,
+  validateMetricValueAgainstInitial,
+} from '@/utils/okrMetricValueBounds';
 import { metricAddonSymbol } from './reportFormUtils';
 
 const { TextArea } = Input;
@@ -98,6 +103,15 @@ export function CreateReportFormCollapse({
                           );
                         }
 
+                        const initialBoundError =
+                          validateMetricValueAgainstInitial(
+                            numericValue,
+                            keyresult,
+                          );
+                        if (initialBoundError) {
+                          return Promise.reject(new Error(initialBoundError));
+                        }
+
                         if (isDone && numericValue < task?.targetValue) {
                           return Promise.reject(
                             new Error(
@@ -121,7 +135,8 @@ export function CreateReportFormCollapse({
                     id={`create-report-actual-value-input-${task.taskId}`}
                     data-cy={`create-report-actual-value-input-${task.taskId}`}
                     className="h-8 w-14 rounded-md border-gray-300 sm:h-9 sm:w-28"
-                    min={0}
+                    min={getMetricValueInputMin(keyresult)}
+                    max={getMetricValueInputMax(keyresult)}
                     placeholder="Value"
                     formatter={(value) =>
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')

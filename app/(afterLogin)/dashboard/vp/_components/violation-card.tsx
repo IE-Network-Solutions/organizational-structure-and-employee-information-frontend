@@ -155,7 +155,7 @@ const ViolationCard = ({ userId }: ViolationCardProps) => {
           data-cy="vp-criteria-breakdown-violation-footer"
         >
           <div
-            className="flex flex-wrap items-center gap-2"
+            className="flex max-h-20 flex-wrap items-center gap-2 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-none"
             data-cy="vp-criteria-breakdown-violation-chips"
           >
             {violationNameLabels.map((label) => (

@@ -183,11 +183,9 @@ const NavMenuItem: React.FC<{
   const handleChildNavigate = (child: any) => {
     if (isItemDisabled) return;
     const path = String(child.key);
-    if (pathname !== path) {
-      triggerRouteLoaderStart();
-      router.push(path);
-      setSelectedKeys([path]);
-    }
+    triggerRouteLoaderStart();
+    router.push(path);
+    setSelectedKeys([path]);
     setFlyoutOpen(false);
     onNavigate?.();
   };
@@ -764,6 +762,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             key: '/tna/management',
             className: 'font-bold',
             permissions: ['manage_training'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-tna-management">TNA Management</span>
+            ),
+            key: '/tna/tna-management',
+            className: 'font-bold',
+            permissions: ['manage_tna'],
           },
           {
             title: <span data-cy="nav-tree-tna-settings">Settings</span>,
@@ -1662,6 +1668,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     className="w-full flex justify-center"
                   >
                     <Image
+                      unoptimized
                       src="/image/selamnew-workspace-logo-collapsed.svg"
                       alt="SelamNew Workspace Logo"
                       width={32}
@@ -1671,6 +1678,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   </div>
                 ) : (
                   <Image
+                    unoptimized
                     src="/image/selamnew-workspace-logo.svg"
                     alt="SelamNew Workspace Logo"
                     width={150}

@@ -373,6 +373,7 @@ const ChatBot: React.FC<ChatBotProps> = ({ open, onClose }) => {
                   className="w-[68px] h-[68px] rounded-[20px] flex items-center justify-center relative shadow-[0_18px_45px_rgba(102,126,234,0.25)]"
                 >
                   <Image
+                    unoptimized
                     src="/icons/256.png"
                     alt="SelamNew"
                     width={36}

@@ -17,6 +17,7 @@ import {
   UserCoords,
   formatDistanceMeters,
   getAllowedAreaCircleBounds,
+  getAreaRadiusMeters,
   getCircleEdgeLatLng,
 } from '@/helpers/geofenceHelper';
 
@@ -211,7 +212,7 @@ const AttendanceLocationMapInner: React.FC<AttendanceLocationMapProps> = ({
             </Tooltip>
           </Marker>
           {allowedAreas.map((area) => {
-            const radiusMeters = Number(area.distance) || 0;
+            const radiusMeters = getAreaRadiusMeters(area);
             const areaCenter = [area.latitude, area.longitude] as [
               number,
               number,

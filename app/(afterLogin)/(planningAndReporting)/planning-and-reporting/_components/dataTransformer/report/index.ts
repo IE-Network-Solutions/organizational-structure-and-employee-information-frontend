@@ -80,12 +80,18 @@ export const groupUnReportedTasksByKeyResultAndMilestone = (
       status: task?.status, // Add status field to track pre-achieved tasks
       actualValue: task?.actualValue || 0,
       targetValue: task?.targetValue || 0,
-      achieveMK: task?.planTask?.achieveMK,
-      milestone: task.planTask?.milestone,
-      keyResult: task?.planTask?.keyResult,
+      // Prefer flat plan-task fields; do not overwrite with undefined nested planTask.
+      achieveMK: task?.achieveMK ?? task?.planTask?.achieveMK,
+      milestone: task?.milestone ?? task?.planTask?.milestone,
+      milestoneId:
+        task?.milestoneId ??
+        task?.milestone?.id ??
+        task?.planTask?.milestoneId ??
+        task?.planTask?.milestone?.id,
+      keyResult: task?.keyResult ?? task?.planTask?.keyResult,
       isAchieved: task?.isAchieved,
       weight: task?.weight,
-      weightPlan: task?.planTask?.weight,
+      weightPlan: task?.weight ?? task?.planTask?.weight,
     };
 
     // If milestone is null or undefined, push task directly to the tasks array

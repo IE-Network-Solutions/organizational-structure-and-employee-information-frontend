@@ -828,6 +828,7 @@ const ApprovalWorkFlowModal = ({
                       data-cy={`approval-workflow-final-assigned-avatar-wrap-${idx}`}
                     >
                       <Image
+                        unoptimized
                         src={GENDER_NEUTRAL_AVATAR_URL}
                         alt="avatar"
                         fill

@@ -31,6 +31,7 @@ const AddFormResult: React.FC = () => {
               className="flex items-center justify-center"
             >
               <Image
+                unoptimized
                 src={SuccessResult}
                 alt="Success result Image"
                 width={120}

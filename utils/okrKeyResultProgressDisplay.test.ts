@@ -1,7 +1,10 @@
+import { describe, expect, it } from '@jest/globals';
 import {
+  buildKrPlanningSource,
   formatKrMetricTypeDisplayName,
   getKeyResultProgressPercent,
   getKeyResultProgressRatioText,
+  isKeyResultFullyCompletedForPlanning,
   mergeKeyResultWithUserApi,
   resolveKrPanelMetricType,
   resolveOkrMilestones,
@@ -60,8 +63,35 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
 
     const merged = mergeKeyResultWithUserApi(planKr, [apiKrCase1]);
 
-    expect(getKeyResultProgressPercent(merged)).toBe(34);
+    expect(getKeyResultProgressPercent(merged)).toBe(33);
     expect(getKeyResultProgressRatioText(merged)).toBe('1/3');
+  });
+
+  it('counts full objective milestone list for progress (not status-only subset)', () => {
+    const apiKr = {
+      id: 'kr-abdu',
+      metricType: { name: 'Milestone' },
+      progress: 20,
+      milestones: [
+        { id: 'm5', title: 'Abdu5', status: 'Completed' },
+        { id: 'm4', title: 'Abdu4', status: 'Completed' },
+      ],
+    };
+    const objectiveMilestones = [
+      { id: 'm5', title: 'Abdu5', status: 'Completed' },
+      { id: 'm4', title: 'Abdu4', status: 'Completed' },
+      { id: 'm3', title: 'Abdu3' },
+      { id: 'm2', title: 'Abdu2' },
+      { id: 'm1', title: 'Abdu1' },
+    ];
+    const source = buildKrPlanningSource(
+      { metricType: 'Milestone', progress: 20, milestones: [] },
+      apiKr,
+      objectiveMilestones,
+    );
+
+    expect(getKeyResultProgressRatioText(source)).toBe('2/5');
+    expect(getKeyResultProgressPercent(source)).toBe(40);
   });
 
   it('uses OKR API metric over plan payload for every metric type', () => {
@@ -178,5 +208,80 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
     expect(resolveOkrMilestones(planOnly)).toEqual([]);
     expect(getKeyResultProgressPercent(planOnly)).toBe(0);
     expect(resolveKrPanelMetricType(planOnly)).toBe('Milestone');
+  });
+
+  it('keeps status-null OKR milestones plan-eligible alongside completed ones', () => {
+    const kr = {
+      metricType: { name: 'Milestone' },
+      progress: 50,
+      milestones: [
+        { id: 'm-done', title: '12345555', status: 'Completed' },
+        {
+          id: 'm-open',
+          title:
+            'Finalize Selamnew Collaboration New Feature  Implimentationes',
+          status: null,
+        },
+      ],
+    };
+
+    expect(resolveOkrMilestones(kr)).toHaveLength(2);
+    expect(getKeyResultProgressRatioText(kr)).toBe('1/2');
+    expect(getKeyResultProgressPercent(kr)).toBe(50);
+    expect(isKeyResultFullyCompletedForPlanning(kr)).toBe(false);
+  });
+
+  it('excludes plan-grouping rows while keeping null-status OKR milestones', () => {
+    const kr = {
+      metricType: { name: 'Milestone' },
+      progress: 50,
+      milestones: [
+        { id: 'm-done', status: 'Completed' },
+        { id: 'm-open', status: null },
+        { id: 'plan-shell', tasks: [{ id: 't1' }] },
+      ],
+    };
+
+    expect(resolveOkrMilestones(kr)).toHaveLength(2);
+    expect(isKeyResultFullyCompletedForPlanning(kr)).toBe(false);
+  });
+
+  it('does not zero numeric progress when panel lacks API initialValue', () => {
+    const source = buildKrPlanningSource(
+      {
+        metricType: 'Numeric',
+        progress: 50,
+        currentValue: 50,
+        targetValue: 100,
+      },
+      null,
+    );
+    expect(getKeyResultProgressPercent(source)).toBe(50);
+  });
+
+  it('prefers API metric + progress when plan payload is thin', () => {
+    const planKr = {
+      id: 'kr-thin',
+      progress: 0,
+      targetValue: 100,
+      currentValue: 0,
+      milestones: [{ id: 'plan-ms', tasks: [{ id: 't1' }] }],
+    };
+    const apiKr = {
+      id: 'kr-thin',
+      metricType: { name: 'Milestone' },
+      progress: 25,
+      milestones: [
+        { id: 'm1', status: 'completed' },
+        { id: 'm2', status: 'pending' },
+        { id: 'm3', status: 'pending' },
+        { id: 'm4', status: 'pending' },
+      ],
+    };
+
+    const merged = mergeKeyResultWithUserApi(planKr, [apiKr]);
+    expect(resolveKrPanelMetricType(planKr, apiKr)).toBe('Milestone');
+    expect(getKeyResultProgressPercent(merged)).toBe(25);
+    expect(getKeyResultProgressRatioText(merged)).toBe('1/4');
   });
 });

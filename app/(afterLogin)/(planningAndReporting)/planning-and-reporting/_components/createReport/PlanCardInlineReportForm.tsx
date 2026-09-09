@@ -3,6 +3,7 @@
 import classNames from 'classnames';
 import { useEffect } from 'react';
 import { Button, Form } from 'antd';
+import { useQueryClient } from 'react-query';
 import {
   useCreateReportForUnReportedtasks,
   useEditReportByReportId,
@@ -13,6 +14,19 @@ import {
   useGetReportingById,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import {
+  markMilestonesCompletedInOkrCaches,
+  markMilestonesReopenedInOkrCaches,
+  patchReportTaskStatusesInCaches,
+} from '@/utils/invalidateOkrPlanningCaches';
+import {
+  buildMilestoneKeyResultMap,
+  clearReopenedPlanningTargets,
+  collectAchievedMilestoneIdsFromReport,
+  mergePreviousAchievedWithSession,
+  rememberAchievedMilestones,
+} from '@/utils/recentlyAchievedMilestones';
+import { buildReportTaskStatusPatches } from '@/utils/recentReportTaskStatuses';
 import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/report';
 import { PlanCardInlineReportFields } from './PlanCardInlineReportFields';
 import { computeReportTotalWeight } from './reportFormUtils';
@@ -41,6 +55,7 @@ export function PlanCardInlineReportForm({
   const resetWeights = PlanningAndReportingStore((s) => s.resetWeights);
   const setStatus = PlanningAndReportingStore((s) => s.setStatus);
   const isEditMode = Boolean(reportId);
+  const queryClient = useQueryClient();
 
   const {
     data: allPlannedTaskForReport,
@@ -124,11 +139,85 @@ export function PlanCardInlineReportForm({
 
   const handleFinish = (values: Record<string, any>) => {
     if (Object.entries(values).length === 0) return;
+
+    const formData = hasReportTaskRows ? formattedData : null;
+    const achievedIds = collectAchievedMilestoneIdsFromReport(
+      formData,
+      selectedStatuses,
+      values,
+    );
+    const milestoneToKrId = buildMilestoneKeyResultMap(formData);
+    const achievedKeyResultIds = Array.from(
+      new Set(
+        achievedIds
+          .map((id) => milestoneToKrId[id])
+          .filter((id): id is string => Boolean(id)),
+      ),
+    );
+
+    // Reopen sticky disables only when editing (Done → Not / unachieved).
+    // On create, never reopen siblings — that was wiping achieve-disable.
+    if (isEditMode) {
+      const previousStatuses = reportingById?.reportTask?.reduce(
+        (acc: Record<string, string>, task: any) => {
+          if (task?.planTaskId != null) {
+            acc[String(task.planTaskId)] = String(task?.status ?? '');
+          }
+          return acc;
+        },
+        {},
+      );
+      const previousAchievedIds = mergePreviousAchievedWithSession(
+        formData,
+        collectAchievedMilestoneIdsFromReport(formData, previousStatuses),
+      );
+      const reopenedMilestoneIds = previousAchievedIds.filter(
+        (id) => !achievedIds.includes(id),
+      );
+      const reopenedKeyResultIds = Array.from(
+        new Set(
+          reopenedMilestoneIds
+            .map((id) => milestoneToKrId[id])
+            .filter((id): id is string => Boolean(id)),
+        ),
+      );
+      if (reopenedMilestoneIds.length > 0 || reopenedKeyResultIds.length > 0) {
+        markMilestonesReopenedInOkrCaches(queryClient, {
+          milestoneIds: reopenedMilestoneIds,
+          keyResultIds: reopenedKeyResultIds,
+        });
+      }
+    }
+
+    clearReopenedPlanningTargets({
+      milestoneIds: achievedIds,
+      keyResultIds: achievedKeyResultIds,
+    });
+    // Session remember before mutate so + disable does not wait on invalidate.
+    rememberAchievedMilestones(achievedIds);
+
+    const statusByPlanTaskId = buildReportTaskStatusPatches(
+      values,
+      selectedStatuses,
+    );
+
     if (isEditMode && reportId) {
+      // Instant UI update; mutation re-applies after invalidate so stale refetch can't stick.
+      patchReportTaskStatusesInCaches(
+        queryClient,
+        reportId,
+        statusByPlanTaskId,
+      );
       editReport(
-        { values, selectedReportId: reportId },
+        {
+          values,
+          selectedReportId: reportId,
+          achievedMilestoneIds: achievedIds,
+          reportTaskStatuses: statusByPlanTaskId,
+        },
         {
           onSuccess: () => {
+            markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
             handleClose();
           },
         },
@@ -138,9 +227,15 @@ export function PlanCardInlineReportForm({
 
     if (!planningPeriodId) return;
     createReport(
-      { values, planningPeriodId, planId },
+      {
+        values,
+        planningPeriodId,
+        planId,
+        achievedMilestoneIds: achievedIds,
+      },
       {
         onSuccess: () => {
+          markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
           handleClose();
         },
       },

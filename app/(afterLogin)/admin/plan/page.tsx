@@ -1321,6 +1321,7 @@ const PlanPage = () => {
                         />
                       ) : (
                         <Image
+                          unoptimized
                           src="/icons/file-download.svg"
                           alt="Download"
                           width={25}

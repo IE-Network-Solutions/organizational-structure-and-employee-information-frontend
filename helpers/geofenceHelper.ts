@@ -25,12 +25,17 @@ export function getDistanceMeters(
   return L.latLng(lat1, lng1).distanceTo(L.latLng(lat2, lng2));
 }
 
+/** The backend stores/returns AllowedArea#distance in kilometers. */
+export function getAreaRadiusMeters(area: AllowedArea): number {
+  return (Number(area.distance) || 0) * 1000;
+}
+
 export function isInsideAllowedArea(
   userLat: number,
   userLng: number,
   area: AllowedArea,
 ): boolean {
-  const radiusMeters = Number(area.distance) || 0;
+  const radiusMeters = getAreaRadiusMeters(area);
   return (
     getDistanceMeters(userLat, userLng, area.latitude, area.longitude) <=
     radiusMeters
@@ -58,7 +63,7 @@ export function getCircleEdgeLatLng(
 export function getAllowedAreaCircleBounds(
   area: AllowedArea,
 ): L.LatLngBounds | null {
-  const radiusMeters = Number(area.distance) || 0;
+  const radiusMeters = getAreaRadiusMeters(area);
   if (radiusMeters <= 0) return null;
 
   const lat = area.latitude;
@@ -110,7 +115,7 @@ export function getAreaDistanceSummaries(
       return {
         area,
         distanceMeters,
-        isInside: distanceMeters <= (Number(area.distance) || 0),
+        isInside: distanceMeters <= getAreaRadiusMeters(area),
       };
     })
     .sort((a, b) => a.distanceMeters - b.distanceMeters);

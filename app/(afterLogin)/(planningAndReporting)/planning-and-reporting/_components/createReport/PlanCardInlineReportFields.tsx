@@ -6,6 +6,11 @@ import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { Form, Input, InputNumber } from 'antd';
 import { NAME } from '@/types/enumTypes';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import {
+  getMetricValueInputMax,
+  getMetricValueInputMin,
+  validateMetricValueAgainstInitial,
+} from '@/utils/okrMetricValueBounds';
 import { metricAddonSymbol } from './reportFormUtils';
 
 const { TextArea } = Input;
@@ -76,6 +81,13 @@ export function PlanCardInlineReportFields({
         const numericValue = Number(value);
         if (isNaN(numericValue)) {
           return Promise.reject(new Error('Please enter a valid number.'));
+        }
+        const initialBoundError = validateMetricValueAgainstInitial(
+          numericValue,
+          keyresult,
+        );
+        if (initialBoundError) {
+          return Promise.reject(new Error(initialBoundError));
         }
         if (
           selectedStatuses[task.taskId] === 'Done' &&
@@ -227,7 +239,8 @@ export function PlanCardInlineReportFields({
               >
                 <InputNumber
                   id={`inline-report-actual-${task.taskId}`}
-                  min={0}
+                  min={getMetricValueInputMin(keyresult)}
+                  max={getMetricValueInputMax(keyresult)}
                   placeholder="0"
                   aria-label="Achieved value"
                   addonAfter={

@@ -59,6 +59,7 @@ const IncentiveCards: React.FC = () => {
             className="flex items-center mb-5"
           >
             <Image
+              unoptimized
               id="incentive-cards-recognized-employees-icon"
               data-cy="incentive-cards-recognized-employees-icon"
               src={RecognizedEmployees}
@@ -105,6 +106,7 @@ const IncentiveCards: React.FC = () => {
             className="flex items-center mb-5"
           >
             <Image
+              unoptimized
               id="incentive-cards-criteria-icon"
               data-cy="incentive-cards-criteria-icon"
               src={Criterion}
@@ -151,6 +153,7 @@ const IncentiveCards: React.FC = () => {
             className="flex items-center mb-5"
           >
             <Image
+              unoptimized
               id="incentive-cards-amount-icon"
               data-cy="incentive-cards-amount-icon"
               src={IncentiveAmount}
@@ -205,6 +208,7 @@ const IncentiveCards: React.FC = () => {
             className="flex items-center mb-5"
           >
             <Image
+              unoptimized
               id="incentive-cards-projects-icon"
               data-cy="incentive-cards-projects-icon"
               src={Projects}

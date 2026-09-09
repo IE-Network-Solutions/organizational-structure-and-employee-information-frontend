@@ -613,6 +613,7 @@ const Performance: React.FC = () => {
                       data-cy={`okr-performance-admin-employee-avatar-wrapper-${employee.id}`}
                     >
                       <Image
+                        unoptimized
                         src={employee.profileImage || GENDER_NEUTRAL_AVATAR_URL}
                         alt="Employee profile"
                         layout="fill"

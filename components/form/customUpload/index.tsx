@@ -1,4 +1,10 @@
-import { Dispatch, ReactNode, SetStateAction, useEffect } from 'react';
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useCallback,
+  useEffect,
+} from 'react';
 import { RcFile, UploadProps } from 'antd/es/upload';
 // import { fileUpload } from '@/utils/fileUpload';
 import { Button, Flex, Form, Input, Upload } from 'antd';
@@ -36,7 +42,12 @@ interface CustomUploadProps extends UploadProps {
   setIsLoading?: Dispatch<SetStateAction<boolean>>;
   onAddLink?: (link: string) => void;
   value?: UploadFile[];
-  targetState?: 'fileList' | 'fileAttachmentList'; // Required to differentiate video and attachment
+  /** Required so concurrently rendered uploads keep separate lists in the store. */
+  targetState?:
+    | 'fileList'
+    | 'fileAttachmentList'
+    | 'fileReferenceList'
+    | 'fileImageList';
   /** Used by `dragWithLinkStacked` for the link input placeholder */
   linkPlaceholder?: string;
 }
@@ -70,56 +81,65 @@ const CustomUpload = ({
     isFileUploadLoading,
     setIsFileUploadLoading,
     setFileAttachmentList,
+    fileReferenceList,
+    setFileReferenceList,
+    fileImageList,
+    setFileImageList,
   } = useTnaManagementCoursePageStore();
   const [form] = Form.useForm();
 
   // Select the appropriate state based on targetState
-  const effectiveFileList =
-    value !== undefined
-      ? value
-      : targetState === 'fileAttachmentList'
-        ? fileAttachmentList
-        : fileList;
+  const storeFileList =
+    targetState === 'fileAttachmentList'
+      ? fileAttachmentList
+      : targetState === 'fileReferenceList'
+        ? fileReferenceList
+        : targetState === 'fileImageList'
+          ? fileImageList
+          : fileList;
+
+  const effectiveFileList = value !== undefined ? value : storeFileList;
+
+  const setStoreFileList = useCallback(
+    (next: UploadFile[]) => {
+      switch (targetState) {
+        case 'fileAttachmentList':
+          setFileAttachmentList(next);
+          break;
+        case 'fileReferenceList':
+          setFileReferenceList(next);
+          break;
+        case 'fileImageList':
+          setFileImageList(next);
+          break;
+        default:
+          setFileList(next);
+      }
+    },
+    [
+      targetState,
+      setFileAttachmentList,
+      setFileReferenceList,
+      setFileImageList,
+      setFileList,
+    ],
+  );
 
   useEffect(() => {
     // Sync the appropriate store state with the controlled value or external fileList prop
     if (value !== undefined) {
-      if (targetState === 'fileAttachmentList') {
-        setFileAttachmentList(value.slice(0, listLimit));
-      } else {
-        setFileList(value.slice(0, listLimit));
-      }
+      setStoreFileList(value.slice(0, listLimit));
     } else if (fList && fList.length > 0) {
-      const limitedList = fList.slice(0, listLimit);
-      if (targetState === 'fileAttachmentList') {
-        setFileAttachmentList(limitedList);
-      } else {
-        setFileList(limitedList);
-      }
+      setStoreFileList(fList.slice(0, listLimit));
     } else {
       // Clear the appropriate state when fList is empty
-      if (targetState === 'fileAttachmentList') {
-        setFileAttachmentList([]);
-      } else {
-        setFileList([]);
-      }
+      setStoreFileList([]);
     }
-  }, [
-    value,
-    fList,
-    targetState,
-    setFileList,
-    setFileAttachmentList,
-    listLimit,
-  ]);
+  }, [value, fList, setStoreFileList, listLimit]);
 
   const triggerChange = (newFileList: UploadFile[]) => {
     const limitedList = newFileList.slice(0, listLimit);
-    if (targetState === 'fileAttachmentList') {
-      setFileAttachmentList(limitedList);
-    } else {
-      setFileList(limitedList);
-    }
+    setStoreFileList(limitedList);
     if (onChange) {
       onChange(limitedList as any);
     }

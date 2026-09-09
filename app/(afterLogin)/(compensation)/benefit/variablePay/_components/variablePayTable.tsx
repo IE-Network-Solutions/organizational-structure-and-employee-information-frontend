@@ -55,7 +55,7 @@ const ExpandedVPDetailsSkeleton = () => (
     aria-busy="true"
   >
     <div
-      className="min-w-0 w-full max-w-full overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
+      className="min-w-0 w-full max-w-full overflow-x-auto overscroll-x-contain scrollbar-none [-webkit-overflow-scrolling:touch]"
       data-cy="expanded-vp-details-skeleton-cards-grid"
     >
       <div
@@ -302,7 +302,7 @@ const ExpandedVPDetails = ({
       </style>
       {/* Scroll only the cards strip (Total + criteria) */}
       <div
-        className="min-w-0 w-full overflow-x-auto animate-slideDownCards"
+        className="min-w-0 w-full overflow-x-auto scrollbar-none animate-slideDownCards"
         data-cy="expanded-vp-details-cards-grid"
       >
         <div
@@ -1011,6 +1011,7 @@ const VariablePayTable = () => {
             ) : (
               <Table
                 className="[&_.ant-table]:text-[14px] [&_.ant-table-thead>tr>th]:text-[14px]"
+                tableLayout="fixed"
                 rowClassName={(record, index) =>
                   index % 2 !== 0 ? 'bg-gray-50' : 'bg-white'
                 }

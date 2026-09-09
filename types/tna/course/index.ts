@@ -15,8 +15,22 @@ export interface CourseLessonMaterial extends DateInfo {
   article: string | null;
   videos: string[];
   attachments: string[];
+  /** Supporting reading material (docs, slide decks, external links). */
+  referenceMaterials: string[] | null;
+  /** Supplementary images shown as a gallery on the material page. */
+  images: string[] | null;
   order: number;
   timeToFinishMinutes: number | null;
+  tenantId: string;
+}
+
+/** A private note an employee writes while going through a lesson material. */
+export interface CourseLessonMaterialNote extends DateInfo {
+  id: string;
+  courseLessonMaterialId: string;
+  userId: string;
+  title: string;
+  content: string | null;
   tenantId: string;
 }
 

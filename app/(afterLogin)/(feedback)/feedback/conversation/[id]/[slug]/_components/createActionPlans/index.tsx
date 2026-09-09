@@ -106,6 +106,7 @@ const CreateActionPlans: React.FC<PropsData> = ({ slug, onFinish, form2 }) => {
                     data-cy={`create-action-plan-assignee-option-${item.id}`}
                   >
                     <Image
+                      unoptimized
                       src={item?.profileImage ?? Avatar}
                       alt="pep"
                       className="rounded-full w-4 h-4 mt-2"

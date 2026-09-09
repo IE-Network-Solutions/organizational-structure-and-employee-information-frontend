@@ -17,10 +17,15 @@ import CustomPagination from '@/components/customPagination';
 import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from '../planning/PlanningPanelView';
-import { transformReportToPlanSummary } from '../dataTransformer/vamp';
+import {
+  useEffectivePlanUserIds,
+  usePlanningFilterScopeReady,
+} from '../planning/usePlanningData';
 import { Cadence } from '../types';
-import { formatPlanningReportDate } from '../utils';
+import { canApproveSubordinateWork, formatPlanningReportDate } from '../utils';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
+import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
+import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 
 function Reporting({
   onHoverKR,
@@ -30,7 +35,6 @@ function Reporting({
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
 }) {
   const {
-    selectedUser,
     activePlanPeriod,
     activeTab,
     pageReporting,
@@ -41,11 +45,14 @@ function Reporting({
     selectedSessionIds,
     selectedFiscalYearId,
     allSessionsOfYear,
+    planningDefaultFilterApplied,
   } = PlanningAndReportingStore();
   const { data: employeeData } = useGetAllUsers();
   const { userId } = useAuthenticationStore();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
+  const effectiveSelectedUsers = useEffectivePlanUserIds();
+  const { isFilterScopePending } = usePlanningFilterScopeReady();
   const { isMobile, isTablet } = useIsMobile();
   const { data: selectedFiscalYear } = useGetFiscalYearById(
     selectedFiscalYearId || '',
@@ -56,18 +63,36 @@ function Reporting({
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
 
-  const { data: allReporting, isLoading: getReportLoading } = useGetReporting({
-    userId: selectedUser,
-    planPeriodId: planningPeriodId ?? '',
-    pageReporting,
-    pageSizeReporting,
-    sessionId:
-      selectedSessionIds.length > 0
-        ? selectedSessionIds
-        : allSessionsOfYear.length > 0
-          ? allSessionsOfYear
-          : [],
-  });
+  const {
+    data: allReporting,
+    isLoading: isReportingQueryLoading,
+    isFetching: isReportingQueryFetching,
+  } = useGetReporting(
+    {
+      userId: effectiveSelectedUsers,
+      planPeriodId: planningPeriodId ?? '',
+      pageReporting,
+      pageSizeReporting,
+      sessionId:
+        selectedSessionIds.length > 0
+          ? selectedSessionIds
+          : allSessionsOfYear.length > 0
+            ? allSessionsOfYear
+            : [],
+    },
+    {
+      enabled:
+        activeTab === 2 &&
+        !!planningPeriodId &&
+        planningDefaultFilterApplied &&
+        effectiveSelectedUsers.length > 0,
+    },
+  );
+
+  const getReportLoading =
+    isFilterScopePending ||
+    isReportingQueryLoading ||
+    (isReportingQueryFetching && allReporting === undefined);
 
   const getPlanningPeriodDetail = (id: string) => {
     return planningPeriods?.items?.find((p: any) => p?.id === id) || {};
@@ -130,15 +155,18 @@ function Reporting({
     [allReporting?.items],
   );
 
+  const reportTaskOverrides = useRecentReportTaskStatuses((s) => s.byReport);
+
   const reportSummaries = useMemo(() => {
     if (!allReporting?.items) return [];
-    return allReporting.items.map((dataItem: any) =>
+    return allReporting?.items?.map((dataItem: any) =>
       transformReportToPlanSummary(dataItem, cadence, employeeData),
     );
-  }, [allReporting?.items, cadence, employeeData]);
+  }, [allReporting?.items, cadence, employeeData, reportTaskOverrides]);
 
   const totalReportingItems = allReporting?.meta?.totalItems ?? 0;
-  const showReportingPagination = totalReportingItems > pageSizeReporting;
+  const showReportingPagination =
+    !getReportLoading && totalReportingItems > pageSizeReporting;
 
   const paginationNode = !showReportingPagination ? null : isMobile ||
     isTablet ? (
@@ -208,13 +236,12 @@ function Reporting({
                     onApprove={() => handleApproveHandler(dataItem.id, true)}
                     onOpen={() => handleApproveHandler(dataItem.id, false)}
                     onEdit={() => startInlineEditReport(dataItem.id)}
-                    canApprove={
-                      userId ===
-                      (getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
-                        ?.reportingTo?.id ||
-                        getEmployeeData(dataItem?.userId ?? dataItem?.createdBy)
-                          ?.delegatedTo?.id)
-                    }
+                    canApprove={canApproveSubordinateWork(
+                      userId,
+                      getEmployeeData(
+                        dataItem?.userId ?? dataItem?.createdBy,
+                      ),
+                    )}
                     canEdit={
                       userId === (dataItem?.userId ?? dataItem?.createdBy) &&
                       dataItem?.plan?.isReportValidated == false &&

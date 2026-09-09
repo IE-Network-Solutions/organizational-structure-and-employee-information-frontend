@@ -125,7 +125,7 @@ const CriteriaBreakdown = () => {
       </div>
 
       <div
-        className="grid grid-cols-2 gap-3 md:grid-cols-3"
+        className="grid grid-cols-2 gap-3 md:grid-cols-3 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-none"
         data-cy="vp-criteria-breakdown-metrics-grid"
       >
         {isLoading ? (

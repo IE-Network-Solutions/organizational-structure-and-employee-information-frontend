@@ -11,6 +11,7 @@ import {
   formatCoordinates,
   formatDistanceMeters,
   getAreaDistanceSummaries,
+  getAreaRadiusMeters,
   getNearestAreaSummary,
 } from '@/helpers/geofenceHelper';
 
@@ -207,7 +208,7 @@ const AttendanceLocationErrorModal = () => {
                           >
                             Radius:{' '}
                             {formatDistanceMeters(
-                              Number(summary.area.distance),
+                              getAreaRadiusMeters(summary.area),
                             )}
                             {summary.area.isGlobal ? ' · Global' : ''}
                           </Text>

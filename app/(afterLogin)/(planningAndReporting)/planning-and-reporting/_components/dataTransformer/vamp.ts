@@ -13,6 +13,7 @@ import {
   getMetricTypeName,
   toMetricTypeObject,
 } from '@/utils/okrKeyResultProgressDisplay';
+import { applyReportTaskStatusOverride } from '@/utils/recentReportTaskStatuses';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
 const planGroupedTaskHasContent = (task: any): boolean =>
@@ -83,6 +84,28 @@ const getTaskStatus = (
   viewMode: ViewMode,
 ): 'completed' | 'pending' | 'failed' | undefined => {
   if (viewMode === 'reporting') {
+    // Prefer explicit report status over isAchieved — backend can lag and keep
+    // isAchieved=true after the user sets Done → Not (unachieved).
+    const raw = String(task?.status ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/[\s-]+/g, '_');
+    if (
+      raw === 'not' ||
+      raw === 'failed' ||
+      raw === 'not_done' ||
+      raw === 'unachieved'
+    ) {
+      return 'failed';
+    }
+    if (
+      raw === 'done' ||
+      raw === 'completed' ||
+      raw === 'complete' ||
+      raw === 'achieved'
+    ) {
+      return 'completed';
+    }
     if (task.isAchieved === true) return 'completed';
     if (task.isAchieved === false) return 'failed';
     return task.status || 'pending';
@@ -302,7 +325,9 @@ export const transformReportToPlanSummary = (
     employee?.employeeJobInformation?.[0]?.department?.name || 'N/A';
 
   // Transform keyResults from reportTask data
-  const reportTasks = dataItem?.reportTask || [];
+  const reportTasks = (dataItem?.reportTask || []).map((task: any) =>
+    applyReportTaskStatusOverride(dataItem?.id, task),
+  );
   const keyResultsMap: Record<string, any> = {};
 
   reportTasks.forEach((task: any) => {
@@ -352,7 +377,7 @@ export const transformReportToPlanSummary = (
         : '') ||
       'Untitled Task';
 
-    const taskObj: PlanTask & { parentTask?: any } = {
+    const taskObj: PlanTask & { parentTask?: any; planTaskId?: string } = {
       id: task.id || task.taskId || '',
       title,
       priority: normalizePriority(task.planTask?.priority || task.priority),
@@ -364,6 +389,13 @@ export const transformReportToPlanSummary = (
       parentTask: task?.planTask?.parentTask, // Include parentTask reference for grouping
       customReason:
         typeof task.customReason === 'string' ? task.customReason.trim() : '',
+      planTaskId:
+        task.planTaskId != null
+          ? String(task.planTaskId)
+          : task.planTask?.id != null
+            ? String(task.planTask.id)
+            : undefined,
+      isAchieved: task.isAchieved === true,
     };
     if (achieveMK) {
       taskObj.achieveMK = true;

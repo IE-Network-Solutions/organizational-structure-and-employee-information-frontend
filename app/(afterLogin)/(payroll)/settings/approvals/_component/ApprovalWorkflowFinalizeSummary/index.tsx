@@ -129,6 +129,7 @@ export const ApprovalWorkflowFinalizeSummary: React.FC<
                   id={`approval-payroll-workflow-final-assigned-avatar-wrap-${i}`}
                 >
                   <Image
+                    unoptimized
                     src={Avatar}
                     alt="avatar"
                     fill

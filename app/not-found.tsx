@@ -11,6 +11,7 @@ export default function Custom404() {
       data-cy="not-found-page"
     >
       <Image
+        unoptimized
         width={200}
         height={200}
         src="/icons/404.svg"

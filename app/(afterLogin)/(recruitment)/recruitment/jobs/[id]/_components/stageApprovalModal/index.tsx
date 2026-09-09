@@ -574,6 +574,7 @@ const StageApprovalModal = () => {
                                 >
                                   {displayId && userImage(displayId) ? (
                                     <Image
+                                      unoptimized
                                       src={userImage(displayId) ?? ''}
                                       alt={userData(displayId)}
                                       width={avatarPx}

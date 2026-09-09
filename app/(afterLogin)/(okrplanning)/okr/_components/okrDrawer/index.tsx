@@ -305,38 +305,59 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     Boolean(objectiveValue?.deadline) &&
     Boolean(objective?.keyResults?.length);
 
+  // Adding another key result only makes sense while there's weight left to give.
+  const canAddKeyResult =
+    Boolean(objectiveValue?.title?.trim()) && totalWeight < 100;
+
   const footer = (
     <div
       id="okr-drawer-modal-footer"
       data-cy="okr-drawer-modal-footer"
-      className="w-full flex justify-end items-center pt-2 gap-3"
+      className="w-full flex justify-between items-center pt-2 gap-3"
     >
-      <Button
-        id="okr-drawer-cancel-button"
-        data-cy="okr-drawer-cancel-button"
-        type="default"
-        size="middle"
-        onClick={handleDrawerClose}
-        className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm font-normal border-gray-300 text-gray-700 inline-flex items-center justify-center"
+      <span
+        data-cy="okr-drawer-footer-total-weight"
+        className="text-sm text-gray-600 font-medium"
       >
-        Cancel
-      </Button>
-      <Button
-        id="okr-drawer-save-button"
-        data-cy="okr-drawer-save-button"
-        type="default"
-        size="middle"
-        onClick={onSubmit}
-        loading={isLoading}
-        disabled={!isCreateActionEnabled}
-        className={`w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm font-normal inline-flex items-center justify-center ${
-          isCreateActionEnabled
-            ? 'bg-okr-primary border-okr-primary !text-white hover:!bg-blue-800 hover:!text-white'
-            : 'border border-gray-300 text-gray-400 cursor-not-allowed'
-        }`}
+        Total Weight:{' '}
+        <span
+          data-cy="okr-drawer-footer-total-weight-value"
+          className={`font-bold ${totalWeight === 100 ? 'text-green-600' : 'text-red-600'}`}
+        >
+          {totalWeight}%
+        </span>
+      </span>
+      <div
+        className="flex items-center gap-3"
+        data-cy="okr-drawer-footer-actions"
       >
-        Create
-      </Button>
+        <Button
+          id="okr-drawer-cancel-button"
+          data-cy="okr-drawer-cancel-button"
+          type="default"
+          size="middle"
+          onClick={handleDrawerClose}
+          className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm font-normal border-gray-300 text-gray-700 inline-flex items-center justify-center"
+        >
+          Cancel
+        </Button>
+        <Button
+          id="okr-drawer-save-button"
+          data-cy="okr-drawer-save-button"
+          type="default"
+          size="middle"
+          onClick={onSubmit}
+          loading={isLoading}
+          disabled={!isCreateActionEnabled}
+          className={`w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm font-normal inline-flex items-center justify-center ${
+            isCreateActionEnabled
+              ? 'bg-okr-primary border-okr-primary !text-white hover:!bg-blue-800 hover:!text-white'
+              : 'border border-gray-300 text-gray-400 cursor-not-allowed'
+          }`}
+        >
+          Create
+        </Button>
+      </div>
     </div>
   );
 
@@ -1054,7 +1075,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   id="okr-drawer-desktop-add-keyresult-button"
                   data-cy="okr-drawer-desktop-add-keyresult-button"
                   className={`w-10 h-10 flex items-center justify-center p-0 rounded-lg ${
-                    objectiveValue?.title && objectiveValue.title.trim() !== ''
+                    canAddKeyResult
                       ? 'bg-okr-primary border-okr-primary text-white hover:bg-blue-800'
                       : 'border border-gray-300 text-gray-400 cursor-not-allowed'
                   }`}
@@ -1067,9 +1088,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                         }
                       : () => setShowMetricSelector(!showMetricSelector)
                   }
-                  disabled={
-                    !objectiveValue?.title || objectiveValue.title.trim() === ''
-                  }
+                  disabled={!canAddKeyResult}
                   icon={<PlusOutlined />}
                 />
               ) : (
@@ -1078,7 +1097,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   id="okr-drawer-desktop-add-keyresult-button"
                   data-cy="okr-drawer-desktop-add-keyresult-button"
                   className={`flex items-center gap-2 text-sm font-medium rounded-lg ${
-                    objectiveValue?.title && objectiveValue.title.trim() !== ''
+                    canAddKeyResult
                       ? 'bg-okr-primary border-okr-primary text-white hover:bg-blue-800'
                       : 'border border-gray-300 text-gray-400 cursor-not-allowed'
                   }`}
@@ -1091,9 +1110,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                         }
                       : () => setShowMetricSelector(!showMetricSelector)
                   }
-                  disabled={
-                    !objectiveValue?.title || objectiveValue.title.trim() === ''
-                  }
+                  disabled={!canAddKeyResult}
                   icon={<PlusOutlined />}
                 >
                   Add Key Result

@@ -315,10 +315,15 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
   const validateFormula = (formula: string): string => {
     if (!formula || !formula.trim()) return 'Formula cannot be empty.';
 
-    // Create regex pattern using dynamic criteria names
+    // Longest first so e.g. "Total Deal Won Of Company" is not
+    // partially consumed by shorter "Total Deal Won".
+    const criteriaByLength = [...(allowedCriteria || [])].sort(
+      (a, b) => b.length - a.length,
+    );
+
     const criteriaPattern =
-      allowedCriteria?.length > 0
-        ? allowedCriteria
+      criteriaByLength.length > 0
+        ? criteriaByLength
             .map((name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
             .join('|')
         : '';
@@ -334,16 +339,13 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     // Check for invalid characters by removing all valid tokens and seeing if anything remains
     let remainingFormula = formula;
 
-    // Remove all valid criteria
-    if (allowedCriteria && allowedCriteria.length > 0) {
-      allowedCriteria.forEach((criteria: string) => {
-        const criteriaRegex = new RegExp(
-          criteria.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-          'g',
-        );
-        remainingFormula = remainingFormula.replace(criteriaRegex, '');
-      });
-    }
+    criteriaByLength.forEach((criteria: string) => {
+      const criteriaRegex = new RegExp(
+        criteria.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+        'g',
+      );
+      remainingFormula = remainingFormula.replace(criteriaRegex, '');
+    });
 
     // Remove all numbers and operators
     remainingFormula = remainingFormula.replace(/\d+(?:\.\d+)?/g, ''); // Remove numbers

@@ -34,6 +34,7 @@ import { useGetPayPeriod } from '@/store/server/features/payroll/payroll/queries
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
 import GenerateModal from './payroll-detail/generateModal';
+import { useNotificationDeepLink } from '@/hooks/useNotificationDeepLink';
 function normalizeRecognitionList(raw: unknown): any[] {
   if (!raw) return [];
   if (Array.isArray(raw)) return raw;
@@ -68,6 +69,13 @@ const Page = () => {
   const { mutate: exportIncentiveData } = useExportIncentiveData();
 
   const { searchParams, setSearchParams } = useIncentiveStore();
+  const { employeeId: linkedEmployee } = useNotificationDeepLink();
+
+  useEffect(() => {
+    if (linkedEmployee) {
+      setSearchParams('employee_name', linkedEmployee);
+    }
+  }, [linkedEmployee, setSearchParams]);
   const { data: payPeriodData } = useGetPayPeriod();
   const handleExport = (values: any, generateAll: boolean) => {
     const formattedValues = {

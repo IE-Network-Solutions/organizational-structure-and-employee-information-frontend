@@ -137,10 +137,11 @@ const EmployeeInformation = () => {
   const dataSource: DataSource[] =
     EmployeeData?.map((employee: Employee) => {
       const activeSalary =
-        employee.basicSalaries.find((salary) => salary.status === true)
+        employee?.basicSalaries?.find((salary) => salary.status === true)
           ?.basicSalary || 'Not Available';
       const position =
-        employee.employeeJobInformation[0]?.position?.name || 'Not Available';
+        employee?.employeeJobInformation?.[0]?.position?.name ||
+        'Not Available';
 
       return {
         key: employee.id,

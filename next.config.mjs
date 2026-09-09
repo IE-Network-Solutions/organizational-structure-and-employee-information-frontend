@@ -15,9 +15,7 @@ try {
   const init = mod && mod.default ? mod.default : mod;
   if (typeof init === 'function') withPWA = init;
 } catch {
-  console.warn(
-    '[workspace] next-pwa not installed — building without PWA/service worker.',
-  );
+ 
 }
 
 // In Core mode the app is served behind the reverse proxy at `<host>/workspace`;
@@ -37,12 +35,7 @@ const nextConfig = {
   // The codebase has pre-existing lint and strict-TS errors that `next dev` never
   // enforced; production builds elsewhere run `npm run lint || true`. Don't let
   // them fail `next build`.
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+ 
   experimental: {
     // This can help reduce memory usage during builds on servers with many cores.
     cpus: 1,

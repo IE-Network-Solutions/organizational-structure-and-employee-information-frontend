@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import OkrDrawer from './_components/okrDrawer';
 import Dashboard from './_components/dashboard';
@@ -18,6 +18,7 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import { Button } from 'antd';
 import Link from 'next/link';
 import { toKeyResultDeadlineFilter } from './_constants/okrStatusPills';
+import { useNotificationDeepLink } from '@/hooks/useNotificationDeepLink';
 
 const OKR: React.FC<any> = () => {
   const { userId } = useAuthenticationStore();
@@ -32,7 +33,30 @@ const OKR: React.FC<any> = () => {
     okrStatusPillId,
     fiscalYearId,
     sessionIds,
+    setEmployeeSearchObjParams,
+    setOkrTab,
+    setSearchObjParams,
   } = useOKRStore();
+  const { employeeId: linkedEmployee, tab: deepLinkTab } =
+    useNotificationDeepLink();
+
+  useEffect(() => {
+    if (deepLinkTab === '2' || deepLinkTab === 'team') {
+      setOkrTab(2);
+    } else if (deepLinkTab === '4' || deepLinkTab === 'all') {
+      setOkrTab(4);
+    }
+    if (linkedEmployee) {
+      setEmployeeSearchObjParams('userId', linkedEmployee);
+      setSearchObjParams('userId', linkedEmployee);
+    }
+  }, [
+    linkedEmployee,
+    deepLinkTab,
+    setOkrTab,
+    setEmployeeSearchObjParams,
+    setSearchObjParams,
+  ]);
 
   const keyResultDeadlineFilter = useMemo(
     () =>

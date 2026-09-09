@@ -340,6 +340,127 @@ export const CourseMaterialAttachmentsFormItem: FC<
   </Form.Item>
 );
 
+export interface CourseMaterialReferenceMaterialsFormItemProps {
+  itemDataCy: string;
+  label?: string;
+  formItemClassName?: string;
+  formItemProps?: Partial<FormItemProps>;
+  uploadClassName: string;
+  uploadTitle: string;
+  uploadSubtitle?: string;
+  uploadLinkPlaceholder?: string;
+  uploadDataCy: string;
+  uploadId?: string;
+  uploadIcon?: ReactNode;
+  accept?: string;
+}
+
+/**
+ * Optional supporting reading material (docs, decks, external links) trainers
+ * attach alongside the session content.
+ */
+export const CourseMaterialReferenceMaterialsFormItem: FC<
+  CourseMaterialReferenceMaterialsFormItemProps
+> = ({
+  itemDataCy,
+  label = 'Reference Materials',
+  formItemClassName,
+  formItemProps,
+  uploadClassName,
+  uploadTitle,
+  uploadSubtitle,
+  uploadLinkPlaceholder = 'Link',
+  uploadDataCy,
+  uploadId,
+  uploadIcon,
+  accept,
+}) => (
+  <Form.Item
+    {...formItemProps}
+    name="referenceMaterials"
+    label={label}
+    valuePropName="fileList"
+    getValueFromEvent={fileListFromEvent}
+    className={mergeItemClass(formItemClassName)}
+    data-cy={itemDataCy}
+  >
+    <CustomUpload
+      id={uploadId}
+      mode="dragWithLinkStacked"
+      className={uploadClassName}
+      listType="picture"
+      icon={uploadIcon}
+      title={uploadTitle}
+      subtitle={uploadSubtitle}
+      linkPlaceholder={uploadLinkPlaceholder}
+      maxCount={10}
+      targetState="fileReferenceList"
+      uploadType="reference"
+      data-cy={uploadDataCy}
+      accept={accept}
+    />
+  </Form.Item>
+);
+
+export interface CourseMaterialImagesFormItemProps {
+  itemDataCy: string;
+  label?: string;
+  formItemClassName?: string;
+  formItemProps?: Partial<FormItemProps>;
+  uploadClassName: string;
+  uploadTitle: string;
+  uploadSubtitle?: string;
+  uploadLinkPlaceholder?: string;
+  uploadDataCy: string;
+  uploadId?: string;
+  uploadIcon?: ReactNode;
+  accept?: string;
+}
+
+/** Optional supplementary images rendered as a gallery on the material page. */
+export const CourseMaterialImagesFormItem: FC<
+  CourseMaterialImagesFormItemProps
+> = ({
+  itemDataCy,
+  label = 'Supplementary Images',
+  formItemClassName,
+  formItemProps,
+  uploadClassName,
+  uploadTitle,
+  uploadSubtitle,
+  uploadLinkPlaceholder = 'Image link',
+  uploadDataCy,
+  uploadId,
+  uploadIcon,
+  accept = 'image/*',
+}) => (
+  <Form.Item
+    {...formItemProps}
+    name="images"
+    label={label}
+    valuePropName="fileList"
+    getValueFromEvent={fileListFromEvent}
+    className={mergeItemClass(formItemClassName)}
+    data-cy={itemDataCy}
+  >
+    <CustomUpload
+      id={uploadId}
+      mode="dragWithLinkStacked"
+      className={uploadClassName}
+      listType="picture"
+      icon={uploadIcon}
+      title={uploadTitle}
+      subtitle={uploadSubtitle}
+      linkPlaceholder={uploadLinkPlaceholder}
+      maxCount={10}
+      targetState="fileImageList"
+      uploadType="image"
+      data-cy={uploadDataCy}
+      accept={accept}
+    />
+  </Form.Item>
+);
+
 export const courseMaterialVideoUploadIcon = (
   <InboxOutlined style={{ fontSize: 40 }} />
 );

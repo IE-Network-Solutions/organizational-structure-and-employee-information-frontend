@@ -324,6 +324,7 @@ const LeaveRequestDetailModal = () => {
                             >
                               {displayId && userImage(displayId) ? (
                                 <Image
+                                  unoptimized
                                   src={userImage(displayId) ?? ''}
                                   alt={userData(displayId)}
                                   width={avatarPx}
@@ -385,6 +386,7 @@ const LeaveRequestDetailModal = () => {
                             '',
                         ) ? (
                           <Image
+                            unoptimized
                             src={
                               userImage(
                                 rejectorStep.displayUserId ??

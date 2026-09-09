@@ -7,6 +7,10 @@ export interface BreakType extends DateInfo {
   description: string | null;
   startAt: string;
   endAt: string;
+  startAtFrom?: string | null;
+  startAtTo?: string | null;
+  endAtFrom?: string | null;
+  endAtTo?: string | null;
 }
 export interface BreakTypeList {
   item: BreakType;

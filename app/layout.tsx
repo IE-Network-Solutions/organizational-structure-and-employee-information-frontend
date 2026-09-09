@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import './globals.css';
 import { App as AntdApp } from 'antd';
@@ -12,7 +13,7 @@ import { PWAProvider } from '@/providers/PWAProvider';
 import { NotificationSocketProvider } from '@/providers/NotificationSocketProvider';
 import RouteTopLoader from '@/components/RouteTopLoader';
 import CopilotFloatEntry from '@/components/copilot/CopilotFloatEntry';
-
+import ProductIframeRouteReporter from '@/providers/ProductIframeRouteReporter';
 // Disable static prerendering globally; ensure all pages are rendered dynamically
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -356,6 +357,9 @@ export default function RootLayout({
                       <RecaptchaProvider>
                         <AuthBridge />
                         <UserSessionRefresher />
+                        <Suspense fallback={null}>
+                          <ProductIframeRouteReporter />
+                        </Suspense>
                         <ConditionalNav>{children}</ConditionalNav>
                         <CopilotFloatEntry />
                         {/* <ChatBotButton /> */}

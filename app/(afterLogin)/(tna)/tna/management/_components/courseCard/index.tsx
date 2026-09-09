@@ -70,6 +70,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           data-cy={`tna-course-card-thumbnail-wrap-${item?.id}`}
         >
           <Image
+            unoptimized
             alt={item?.title || 'thumbnail'}
             src={item?.thumbnail || '/default-thumbnail.png'}
             fill

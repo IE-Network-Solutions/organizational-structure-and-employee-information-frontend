@@ -10,12 +10,17 @@ import {
   Tooltip,
 } from 'antd';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
+import { DeleteOutlined } from '@ant-design/icons';
+import {
+  useOKRStore,
+  useMilestoneFormStore,
+  useAchieveOrNotStore,
+  useKeyResultFormStore,
+} from '@/store/uistate/features/okrplanning/okr';
 import { defaultObjective } from '@/store/uistate/features/okrplanning/okr/interface';
 import dayjs from 'dayjs';
 import KeyResultForm from '../../keyresultForm';
 import {
-  KeyResultSelectedBadge,
   KeyResultFieldLabel,
   KEY_RESULT_TOOLTIP,
   WEIGHT_TOOLTIP,
@@ -51,7 +56,6 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     objective,
     addKeyResult,
     updateKeyResult,
-    removeKeyResult,
     addKeyResultValue,
     setAlignment,
     deletedKeyResultIds,
@@ -71,6 +75,9 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const { isMobile } = useIsMobile();
   const { data: metrics } = useGetMetrics();
   const isBasic = useIsBasicOkr();
+  const resetMilestoneForm = useMilestoneFormStore((s) => s.resetMilestoneForm);
+  const resetAchieveOrNot = useAchieveOrNotStore((s) => s.resetAchieveOrNot);
+  const resetKeyResultForm = useKeyResultFormStore((s) => s.resetKeyResultForm);
   /** Advanced mode: show inline metric type pills (same as Create OKR) instead of dropdown. */
   const [showMetricSelector, setShowMetricSelector] = React.useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
@@ -83,12 +90,29 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const [krForm] = Form.useForm();
 
   const isEditDisabled = hasAnyProgress(objectiveValue?.keyResults || []);
-  const canEditObjectiveMetricType =
-    Number(objectiveValue?.objectiveProgress ?? 0) === 0;
   const objectiveValueNew = { ...objectiveValue }; // Create a copy of objectiveValue
   delete objectiveValueNew.daysLeft;
   delete objectiveValueNew.completedKeyResults;
   delete objectiveValueNew.objectiveProgress;
+
+  // Total weight across existing + newly added key results.
+  const totalKeyResultWeight = [
+    ...(objectiveValue?.keyResults ?? []),
+    ...(objective?.keyResults ?? []),
+  ].reduce((sum: number, kr: any) => sum + Number(kr?.weight || 0), 0);
+  // Add is always available while the objective has no progress. Adding a key
+  // result re-splits every weight equally so the new one takes its share and
+  // the total stays at 100% (no need to free up weight first).
+  const canAddKeyResult = !isEditDisabled;
+  const addKeyResultButtonClass = `shadow-sm rounded-lg text-sm ${
+    isMobile
+      ? 'flex items-center justify-center h-11 w-11 p-0'
+      : 'flex items-center gap-2 px-4 py-2'
+  } ${
+    canAddKeyResult
+      ? 'bg-okr-primary hover:!bg-blue-700 border-okr-primary !text-white hover:!text-white'
+      : '!bg-gray-100 !border-gray-300 !text-gray-400 cursor-not-allowed'
+  }`;
 
   // Validation function that can be reused
   const validateKeyResults = () => {
@@ -156,6 +180,10 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     setShowAddKrForm(false);
     krForm.resetFields();
     form.resetFields(); // Reset all form fields
+    // Clear per-metric form state so stale milestones/card views don't leak into the next open
+    resetMilestoneForm();
+    resetAchieveOrNot();
+    resetKeyResultForm();
     setObjectiveValue(defaultObjective); // Reset the objectiveValue state
     setObjective(defaultObjective); // Reset the objective state (which contains keyResults)
     setDeletedKeyResultIds([]); // Clear deleted key result IDs when canceling
@@ -341,26 +369,43 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     <div
       id="okr-edit-objective-modal-footer"
       data-cy="okr-edit-objective-modal-footer"
-      className="w-full flex justify-end items-center pt-2 gap-3"
+      className="w-full flex justify-between items-center pt-2 gap-3"
     >
-      <Button
-        id="okr-edit-objective-cancel-button"
-        data-cy="okr-edit-objective-cancel-button"
-        onClick={handleModalClose}
-        className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm border-gray-300 text-gray-700 inline-flex items-center justify-center"
+      <span
+        data-cy="okr-edit-objective-footer-total-weight"
+        className="text-sm text-gray-600 font-medium"
       >
-        Cancel
-      </Button>
-      <Button
-        id="okr-edit-objective-save-button"
-        data-cy="okr-edit-objective-save-button"
-        type="primary"
-        onClick={onSubmit}
-        loading={isLoading}
-        className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm inline-flex items-center justify-center bg-okr-primary border-okr-primary"
+        Total Weight:{' '}
+        <span
+          data-cy="okr-edit-objective-footer-total-weight-value"
+          className={`font-bold ${totalKeyResultWeight === 100 ? 'text-green-600' : 'text-red-600'}`}
+        >
+          {totalKeyResultWeight}%
+        </span>
+      </span>
+      <div
+        className="flex items-center gap-3"
+        data-cy="okr-edit-objective-footer-actions"
       >
-        Save
-      </Button>
+        <Button
+          id="okr-edit-objective-cancel-button"
+          data-cy="okr-edit-objective-cancel-button"
+          onClick={handleModalClose}
+          className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm border-gray-300 text-gray-700 inline-flex items-center justify-center"
+        >
+          Cancel
+        </Button>
+        <Button
+          id="okr-edit-objective-save-button"
+          data-cy="okr-edit-objective-save-button"
+          type="primary"
+          onClick={onSubmit}
+          loading={isLoading}
+          className="w-[70px] min-w-[70px] !h-[32px] p-0 rounded-lg text-sm inline-flex items-center justify-center bg-okr-primary border-okr-primary"
+        >
+          Save
+        </Button>
+      </div>
     </div>
   );
 
@@ -423,6 +468,35 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     { label: 'Achieved or Not', value: 'Achieved' },
   ];
 
+  /**
+   * Split 100% equally across all key results (existing + new) so the total is
+   * always 100. Extra points from rounding go to the first key results.
+   * Reads the latest store state so it can run right after add/remove.
+   */
+  const distributeKeyResultWeightsEqually = () => {
+    const state = useOKRStore.getState();
+    const existing = state.objectiveValue?.keyResults ?? [];
+    const news = state.objective?.keyResults ?? [];
+    const total = existing.length + news.length;
+    if (total === 0) return;
+    const base = Math.floor(100 / total);
+    const remainder = 100 - base * total;
+    let cursor = 0;
+    const assignWeight = (kr: any) => {
+      const weight = base + (cursor < remainder ? 1 : 0);
+      cursor += 1;
+      return { ...kr, weight };
+    };
+    state.setObjectiveValue({
+      ...state.objectiveValue,
+      keyResults: existing.map(assignWeight),
+    });
+    state.setObjective({
+      ...state.objective,
+      keyResults: news.map(assignWeight),
+    });
+  };
+
   const handleAddKeyResultType = ({ key }: { key: string }) => {
     // Create a mapping for the dropdown values to actual metric names
     const metricNameMapping: { [key: string]: string } = {
@@ -442,6 +516,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
 
     // Add key result with the correct metricTypeId
     addKeyResult(key, metricTypeId);
+    // Auto-fill weights so every key result gets an equal share summing to 100
+    distributeKeyResultWeightsEqually();
     // Open the form for the newly added KR so user can enter title/weight (like Create modal)
     const newIndex =
       (objectiveValue?.keyResults ?? []).length +
@@ -482,11 +558,40 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const mergedKRs = [...existingKRs, ...newKRs];
   const existingKRCount = existingKRs.length;
 
-  const getMetricLabel = (kr: any) => {
+  // Render order: newly added key results on top (newest first) so the user
+  // sees what they're adding above the already existing ones. The values below
+  // are the canonical mergedKRs indices, so all handler/index math is unchanged.
+  const keyResultDisplayIndices = [
+    ...[...newKRs.keys()].map((i: number) => existingKRCount + i).reverse(),
+    ...[...existingKRs.keys()],
+  ];
+
+  /**
+   * Metric summary shown on the collapsed key result card:
+   * - Milestone -> "Milestone (n)" where n = number of milestones
+   * - Currency/Numeric/Percentage -> "<Metric> (1)" + a Target pill
+   * - Achieve -> "Achieve or not"
+   */
+  const getMetricTagInfo = (kr: any) => {
     const name = kr?.metricType?.name || kr?.key_type || '';
-    if (name === 'Achieve') return 'Achieve or not';
-    if (name === 'Achieved') return 'Achieve or not';
-    return name || 'Key Result';
+    if (name === 'Milestone') {
+      return {
+        label: 'Milestone',
+        count: Array.isArray(kr?.milestones) ? kr.milestones.length : 0,
+        target: null as number | string | null,
+      };
+    }
+    if (name === 'Currency' || name === 'Numeric' || name === 'Percentage') {
+      return {
+        label: name,
+        count: 1,
+        target: kr?.targetValue ?? 0,
+      };
+    }
+    if (name === 'Achieve' || name === 'Achieved') {
+      return { label: 'Achieve or not', count: null, target: null };
+    }
+    return { label: name || 'Key Result', count: null, target: null };
   };
 
   /** Normalize key result for KeyResultForm (ensure key_type set from metricType, weight as number). Basic mode: force Achieve. */
@@ -601,38 +706,6 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               className="flex w-full gap-4 mb-10"
             >
               <Form.Item
-                id="mobile-metric-type-select"
-                data-cy="okr-edit-objective-mobile-metric-type-select"
-                className="h-11 w-1/2 mb-0"
-                name="metricTypeId"
-                label="Metric Type"
-                rules={[
-                  { required: true, message: 'Please select a metric type' },
-                ]}
-              >
-                <Select
-                  id="mobile-metric-type-select-dropdown"
-                  data-cy="okr-edit-objective-mobile-metric-type-select-dropdown"
-                  className="h-11"
-                  showSearch
-                  disabled={!canEditObjectiveMetricType}
-                  placeholder="Select metric type"
-                  filterOption={(input: string, option: any) =>
-                    option.children.toLowerCase().includes(input.toLowerCase())
-                  }
-                  style={{ fontSize: '14px', height: '44px' }}
-                  onChange={(value) =>
-                    handleObjectiveChange(value, 'metricTypeId')
-                  }
-                >
-                  {metrics?.items?.map((metric: any) => (
-                    <Select.Option key={metric.id} value={metric.id}>
-                      {metric.name}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Form.Item>
-              <Form.Item
                 id="mobile-alignment-select"
                 data-cy="okr-edit-objective-mobile-alignment-select"
                 className="h-11 w-1/2 mb-0"
@@ -734,45 +807,6 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   handleObjectiveChange(e.target.value, 'title');
                 }}
               />
-            </Form.Item>
-            <Form.Item
-              id="desktop-metric-type-select"
-              data-cy="okr-edit-objective-desktop-metric-type-select"
-              className="h-11 mb-10 w-1/4"
-              name="metricTypeId"
-              label="Metric Type"
-              rules={[
-                { required: true, message: 'Please select a metric type' },
-              ]}
-            >
-              <Select
-                id="desktop-metric-type-select-dropdown"
-                data-cy="okr-edit-objective-desktop-metric-type-dropdown"
-                className="h-11 w-full"
-                showSearch
-                disabled={!canEditObjectiveMetricType}
-                placeholder="Select metric type"
-                filterOption={(input: string, option: any) =>
-                  option.children.toLowerCase().includes(input.toLowerCase())
-                }
-                style={{
-                  fontSize: isMobile ? '14px' : '12px',
-                  height: '44px',
-                }}
-                onChange={(value) =>
-                  handleObjectiveChange(value, 'metricTypeId')
-                }
-              >
-                {metrics?.items?.map((metric: any) => (
-                  <Select.Option
-                    data-cy="okr-edit-objective-desktop-metric-type-option"
-                    key={metric.id}
-                    value={metric.id}
-                  >
-                    {metric.name}
-                  </Select.Option>
-                ))}
-              </Select>
             </Form.Item>
             <Form.Item
               id="desktop-alignment-select"
@@ -881,12 +915,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   type="primary"
                   id="desktop-add-keyresult-button"
                   data-cy="okr-edit-objective-desktop-add-keyresult-button"
-                  disabled={isEditDisabled}
-                  className={
-                    isMobile
-                      ? 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm flex items-center justify-center text-sm h-11 w-11 p-0 rounded-lg !text-white hover:!text-white'
-                      : 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm inline-flex items-center gap-2 text-sm px-4 py-2 rounded-lg !text-white hover:!text-white'
-                  }
+                  disabled={!canAddKeyResult}
+                  className={addKeyResultButtonClass}
                   aria-label="Add Key Result"
                   onClick={handleAddBasicKeyResult}
                 >
@@ -896,7 +926,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="text-white"
+                    className={canAddKeyResult ? 'text-white' : 'text-gray-400'}
                     data-cy="okr-edit-objective-add-keyresult-icon"
                   >
                     <path
@@ -915,12 +945,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   type="primary"
                   id="desktop-add-keyresult-button"
                   data-cy="okr-edit-objective-desktop-add-keyresult-button"
-                  disabled={isEditDisabled}
-                  className={
-                    isMobile
-                      ? 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm flex items-center justify-center text-sm h-11 w-11 p-0 rounded-lg !text-white hover:!text-white'
-                      : 'bg-okr-primary hover:!bg-blue-700 border-okr-primary shadow-sm flex items-center gap-2 text-sm px-4 py-2 rounded-lg !text-white hover:!text-white'
-                  }
+                  disabled={!canAddKeyResult}
+                  className={addKeyResultButtonClass}
                   aria-label="Add Key Result"
                   onClick={() => setShowMetricSelector(!showMetricSelector)}
                 >
@@ -930,7 +956,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                     viewBox="0 0 24 24"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
-                    className="text-white"
+                    className={canAddKeyResult ? 'text-white' : 'text-gray-400'}
                     data-cy="okr-edit-objective-add-keyresult-icon"
                   >
                     <path
@@ -1120,7 +1146,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             data-cy="okr-edit-objective-key-results-list"
             className="space-y-4"
           >
-            {mergedKRs.map((kr: any, listIndex: number) => {
+            {keyResultDisplayIndices.map((listIndex: number) => {
+              const kr = mergedKRs[listIndex];
               const isEditing = editingKeyResultIndex === listIndex;
               const isExisting = listIndex < existingKRCount;
               const normalizedKr = normalizeKeyItemForForm(kr);
@@ -1136,6 +1163,9 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 }
               };
               const removeForMerged = (idx: number) => {
+                // Deleting a key result frees up its weight (the total drops),
+                // which re-enables the Add button. We intentionally do NOT
+                // redistribute here so the user can add a replacement.
                 if (idx < existingKRCount) {
                   const id = mergedKRs[idx]?.id;
                   if (id) setDeletedKeyResultIds([...deletedKeyResultIds, id]);
@@ -1147,7 +1177,14 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                     ),
                   });
                 } else {
-                  removeKeyResult(idx - existingKRCount);
+                  const newIdx = idx - existingKRCount;
+                  setObjective({
+                    ...objective,
+                    keyResults: (objective.keyResults ?? []).filter(
+                      //eslint-disable-next-line
+                      (_: any, i: number) => i !== newIdx,
+                    ),
+                  });
                 }
                 setEditingKeyResultIndex(null);
               };
@@ -1171,8 +1208,25 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                       disableMetricTypeEdit={
                         Number(normalizedKr?.progress ?? 0) !== 0
                       }
+                      /* Existing KRs: hide the form's remove "X" so closing the
+                         editor collapses back to the card (delete lives on the card). */
+                      hideRemoveButton={isExisting}
                       onSaveSuccess={() => setEditingKeyResultIndex(null)}
                     />
+                    <div
+                      className="flex justify-end mt-2"
+                      data-cy={`okr-edit-objective-inline-kr-done-row-${listIndex}`}
+                    >
+                      <Button
+                        type="primary"
+                        htmlType="button"
+                        onClick={() => setEditingKeyResultIndex(null)}
+                        className="h-9 px-5 rounded-lg bg-okr-primary border-okr-primary"
+                        data-cy={`okr-edit-objective-inline-kr-done-${listIndex}`}
+                      >
+                        Done
+                      </Button>
+                    </div>
                   </div>
                 );
               }
@@ -1185,42 +1239,37 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                   data-cy={`okr-edit-objective-kr-card-${listIndex}`}
                   className="mb-3 rounded-lg border border-gray-200 bg-white shadow-sm p-4"
                 >
-                  <KeyResultSelectedBadge
-                    label={getMetricLabel(kr)}
-                    data-cy={`okr-edit-objective-kr-card-badge-${listIndex}`}
-                  />
-                  <div
-                    className="flex flex-wrap gap-2 mb-2"
-                    data-cy={`okr-edit-objective-kr-card-meta-${listIndex}`}
-                  >
-                    <span
-                      className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
-                      data-cy={`okr-edit-objective-kr-card-weight-${listIndex}`}
-                    >
-                      Weight {kr?.weight ?? 0}%
-                    </span>
-                    {(kr?.metricType?.name === 'Numeric' ||
-                      kr?.metricType?.name === 'Currency' ||
-                      kr?.metricType?.name === 'Percentage' ||
-                      kr?.key_type === 'Numeric' ||
-                      kr?.key_type === 'Currency' ||
-                      kr?.key_type === 'Percentage') && (
-                      <>
+                  {(() => {
+                    const tag = getMetricTagInfo(kr);
+                    return (
+                      <div
+                        className="flex flex-wrap items-center gap-2 mb-3"
+                        data-cy={`okr-edit-objective-kr-card-meta-${listIndex}`}
+                      >
                         <span
                           className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
-                          data-cy={`okr-edit-objective-kr-card-initial-${listIndex}`}
+                          data-cy={`okr-edit-objective-kr-card-weight-${listIndex}`}
                         >
-                          Initial Value : {kr?.initialValue ?? 0}
+                          Weight {kr?.weight ?? 0}%
                         </span>
                         <span
-                          className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
-                          data-cy={`okr-edit-objective-kr-card-target-${listIndex}`}
+                          className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-[#E6F4FF] text-okr-primary border border-[#91CAFF]"
+                          data-cy={`okr-edit-objective-kr-card-metric-${listIndex}`}
                         >
-                          Target Value : {kr?.targetValue ?? 0}
+                          {tag.label}
+                          {tag.count != null ? ` (${tag.count})` : ''}
                         </span>
-                      </>
-                    )}
-                  </div>
+                        {tag.target != null && (
+                          <span
+                            className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200"
+                            data-cy={`okr-edit-objective-kr-card-target-${listIndex}`}
+                          >
+                            Target {tag.target}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
                   <div
                     className="flex items-start justify-between gap-3"
                     data-cy={`okr-edit-objective-kr-card-content-${listIndex}`}
@@ -1240,17 +1289,33 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                         </span>
                       )}
                     </p>
-                    <Tooltip title="Edit">
-                      <button
-                        type="button"
-                        onClick={() => setEditingKeyResultIndex(listIndex)}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
-                        aria-label="Edit key result"
-                        data-cy={`okr-edit-objective-kr-card-edit-${listIndex}`}
-                      >
-                        <EditOutlinedIcon className="text-sm" />
-                      </button>
-                    </Tooltip>
+                    <div
+                      className="flex items-center gap-2 flex-shrink-0"
+                      data-cy={`okr-edit-objective-kr-card-actions-${listIndex}`}
+                    >
+                      <Tooltip title="Edit">
+                        <button
+                          type="button"
+                          onClick={() => setEditingKeyResultIndex(listIndex)}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 border border-gray-200 text-gray-600 hover:bg-gray-200 transition-colors flex-shrink-0"
+                          aria-label="Edit key result"
+                          data-cy={`okr-edit-objective-kr-card-edit-${listIndex}`}
+                        >
+                          <EditOutlinedIcon className="text-sm" />
+                        </button>
+                      </Tooltip>
+                      <Tooltip title="Delete">
+                        <button
+                          type="button"
+                          onClick={() => removeForMerged(listIndex)}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white border border-red-200 text-red-500 hover:bg-red-50 transition-colors flex-shrink-0"
+                          aria-label="Delete key result"
+                          data-cy={`okr-edit-objective-kr-card-delete-${listIndex}`}
+                        >
+                          <DeleteOutlined className="text-sm" />
+                        </button>
+                      </Tooltip>
+                    </div>
                   </div>
                 </div>
               );
