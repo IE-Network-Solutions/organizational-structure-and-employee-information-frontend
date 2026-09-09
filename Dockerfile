@@ -1,17 +1,17 @@
 # =========================
 # Stage 1: Dependencies
 # =========================
-FROM node:18-alpine AS deps
+FROM node:20-alpine AS deps
 WORKDIR /app
 
 # Install dependencies with caching support
 COPY package.json package-lock.json* ./
-# RUN npm ci --include=dev
 RUN npm install
+
 # =========================
 # Stage 2: Builder
 # =========================
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Install tools: Vault CLI, jq, curl, unzip, bash
@@ -43,7 +43,7 @@ RUN set -e && \
     echo "✅ Secrets written to .env" && \
     echo "Running lint and format checks..." && \
     npm run lint || true && \
-    npm run format || true && \
+    # npm run format || true && \
     echo "✅ Lint and formatting complete" && \
     echo "Building Next.js app..." && \
     NODE_OPTIONS=--max-old-space-size=4096 npm run build && \
@@ -54,7 +54,7 @@ RUN set -e && \
 # =========================
 # Stage 3: Runner
 # =========================
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
