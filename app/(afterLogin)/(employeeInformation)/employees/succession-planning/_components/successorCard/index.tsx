@@ -97,7 +97,10 @@ export const SuccessorSummaryCard: React.FC<SuccessorSummaryCardProps> = ({
       onClick={onOpen}
       data-cy={`cr-detail-successor-card-${successor.id}`}
     >
-      <div className="flex flex-col gap-3 h-full">
+      <div
+        data-cy="succession-planning-components-successorcard-index-tsx-index-div-100"
+        className="flex flex-col gap-3 h-full"
+      >
         <PersonIdentity
           role="Successor"
           name={successor.name}
@@ -117,7 +120,10 @@ export const SuccessorSummaryCard: React.FC<SuccessorSummaryCardProps> = ({
         />
 
         {successor.readiness ? (
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div
+            data-cy="succession-planning-components-successorcard-index-tsx-index-div-120"
+            className="flex flex-wrap items-center gap-1.5"
+          >
             <Tag
               color={readinessColor[successor.readiness]}
               className="m-0"
@@ -128,20 +134,35 @@ export const SuccessorSummaryCard: React.FC<SuccessorSummaryCardProps> = ({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-3 pt-1 border-t border-[#F0F0F0]">
-          <div>
-            <p className="text-sm text-[#bababa] font-normal m-0 mb-0.5">
+        <div
+          data-cy="succession-planning-components-successorcard-index-tsx-index-div-131"
+          className="grid grid-cols-2 gap-3 pt-1 border-t border-[#F0F0F0]"
+        >
+          <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-132">
+            <p
+              data-cy="succession-planning-components-successorcard-index-tsx-index-p-133"
+              className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
+            >
               Score
             </p>
-            <p className="text-sm font-normal text-[#4d4d4d] m-0 tabular-nums">
+            <p
+              data-cy="succession-planning-components-successorcard-index-tsx-index-p-136"
+              className="text-sm font-normal text-[#4d4d4d] m-0 tabular-nums"
+            >
               {evaluations.length > 0 ? `${totalScore} / ${totalWeight}` : '—'}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-[#bababa] font-normal m-0 mb-0.5">
+          <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-140">
+            <p
+              data-cy="succession-planning-components-successorcard-index-tsx-index-p-141"
+              className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
+            >
               Evaluated
             </p>
-            <p className="text-sm font-normal text-[#4d4d4d] m-0 tabular-nums">
+            <p
+              data-cy="succession-planning-components-successorcard-index-tsx-index-p-144"
+              className="text-sm font-normal text-[#4d4d4d] m-0 tabular-nums"
+            >
               {evaluations.length > 0
                 ? `${evaluatedCount}/${evaluations.length}`
                 : '—'}
@@ -407,42 +428,84 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
 
   const competencyColumns: TableColumnsType<CompetencyEvaluation> = [
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Criteria</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-successorcard-index-tsx-index-span-410"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Criteria
+        </span>
+      ),
       key: 'name',
-      render: (_: unknown, record) => (
+      render: (unusedValue: unknown, record) => (
         <button
+          data-cy="succession-planning-components-successorcard-index-tsx-index-button-413"
           type="button"
           className="text-left group min-w-0"
           onClick={() => setSelectedEvaluation(record)}
         >
-          <div className="text-sm font-medium text-primary group-hover:underline truncate">
+          <div
+            data-cy="succession-planning-components-successorcard-index-tsx-index-div-418"
+            className="text-sm font-medium text-primary group-hover:underline truncate"
+          >
             {record.competencyName}
           </div>
           {record.category ? (
-            <div className="text-xs text-gray-400">{record.category}</div>
+            <div
+              data-cy="succession-planning-components-successorcard-index-tsx-index-div-422"
+              className="text-xs text-gray-400"
+            >
+              {record.category}
+            </div>
           ) : null}
         </button>
       ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Weight</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-successorcard-index-tsx-index-span-428"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Weight
+        </span>
+      ),
       key: 'weight',
       width: 90,
-      render: (_: unknown, record) => (
-        <span className="text-sm text-[#4d4d4d] tabular-nums">
+      render: (unusedValue: unknown, record) => (
+        <span
+          data-cy="succession-planning-components-successorcard-index-tsx-index-span-432"
+          className="text-sm text-[#4d4d4d] tabular-nums"
+        >
           {record.weight != null ? `${record.weight}%` : '—'}
         </span>
       ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Result</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-successorcard-index-tsx-index-span-438"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Result
+        </span>
+      ),
       key: 'result',
       width: 120,
-      render: (_: unknown, record) => {
+      render: (unusedValue: unknown, record) => {
         const scored = record.status === 'Evaluated' && record.score != null;
-        if (!scored) return <span className="text-sm text-gray-400">—</span>;
+        if (!scored)
+          return (
+            <span
+              data-cy="succession-planning-components-successorcard-index-tsx-index-span-443"
+              className="text-sm text-gray-400"
+            >
+              —
+            </span>
+          );
         return (
           <span
+            data-cy="succession-planning-components-successorcard-index-tsx-index-span-445"
             className={`inline-flex items-center px-2 py-0.5 rounded border text-sm font-semibold tabular-nums ${getScoreBadgeClass(
               scoreAchievementPercent(record.score!, record.weight ?? 0),
             )}`}
@@ -455,11 +518,16 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
     },
     {
       title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Evaluator</span>
+        <span
+          data-cy="succession-planning-components-successorcard-index-tsx-index-span-458"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Evaluator
+        </span>
       ),
       key: 'evaluator',
       width: 220,
-      render: (_: unknown, record) => {
+      render: (unusedValue: unknown, record) => {
         if (!canUpdateCriticalRole) {
           const evaluatorName =
             record.evaluatorName ||
@@ -517,7 +585,12 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
         tabBarGutter={16}
         tabBarExtraContent={
           tabBarExtra ? (
-            <div className="flex items-center py-2">{tabBarExtra}</div>
+            <div
+              data-cy="succession-planning-components-successorcard-index-tsx-index-div-520"
+              className="flex items-center py-2"
+            >
+              {tabBarExtra}
+            </div>
           ) : null
         }
         className="[&_.ant-tabs-nav]:mb-2 [&_.ant-tabs-nav]:mt-1 [&_.ant-tabs-nav]:min-h-[52px] [&_.ant-tabs-nav]:items-center"
@@ -526,23 +599,41 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             key: 'assessment',
             label: 'Assessment',
             children: (
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <div className="text-xs text-gray-400 mb-0.5">
+              <div
+                data-cy="succession-planning-components-successorcard-index-tsx-index-div-529"
+                className="flex flex-col gap-3"
+              >
+                <div
+                  data-cy="succession-planning-components-successorcard-index-tsx-index-div-530"
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"
+                >
+                  <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-531">
+                    <div
+                      data-cy="succession-planning-components-successorcard-index-tsx-index-div-532"
+                      className="text-xs text-gray-400 mb-0.5"
+                    >
                       Readiness
                     </div>
-                    <div className="text-gray-800 font-medium">
+                    <div
+                      data-cy="succession-planning-components-successorcard-index-tsx-index-div-535"
+                      className="text-gray-800 font-medium"
+                    >
                       {successor.readiness || '—'}
                     </div>
                   </div>
-                  <div />
+                  <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-539" />
                   <div
                     className="sm:col-span-2 rounded-md border border-[#E5E7EB] bg-[#FAFAFA] p-3"
                     data-cy={`position-match-${successor.id}`}
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                      <div className="text-xs text-gray-400">
+                    <div
+                      data-cy="succession-planning-components-successorcard-index-tsx-index-div-544"
+                      className="flex flex-wrap items-center justify-between gap-2 mb-2"
+                    >
+                      <div
+                        data-cy="succession-planning-components-successorcard-index-tsx-index-div-545"
+                        className="text-xs text-gray-400"
+                      >
                         Current position match
                       </div>
                       <Tag
@@ -552,22 +643,37 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                         {positionMatch}
                       </Tag>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <div className="text-xs text-gray-400 mb-0.5">
+                    <div
+                      data-cy="succession-planning-components-successorcard-index-tsx-index-div-555"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                    >
+                      <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-556">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-557"
+                          className="text-xs text-gray-400 mb-0.5"
+                        >
                           Role requirement
                         </div>
-                        <div className="text-gray-800 font-medium">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-560"
+                          className="text-gray-800 font-medium"
+                        >
                           {(role.requiredCurrentPositions ?? []).length > 0
                             ? role.requiredCurrentPositions.join(', ')
                             : '—'}
                         </div>
                       </div>
-                      <div>
-                        <div className="text-xs text-gray-400 mb-0.5">
+                      <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-566">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-567"
+                          className="text-xs text-gray-400 mb-0.5"
+                        >
                           Successor position
                         </div>
-                        <div className="text-gray-800 font-medium">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-570"
+                          className="text-gray-800 font-medium"
+                        >
                           {successor.currentPosition ||
                             successor.jobTitle ||
                             '—'}
@@ -579,11 +685,20 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                     className="sm:col-span-2 rounded-md border border-[#E5E7EB] bg-[#FAFAFA] p-3"
                     data-cy={`education-match-${successor.id}`}
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                      <div className="text-xs text-gray-400">
+                    <div
+                      data-cy="succession-planning-components-successorcard-index-tsx-index-div-582"
+                      className="flex flex-wrap items-center justify-between gap-2 mb-2"
+                    >
+                      <div
+                        data-cy="succession-planning-components-successorcard-index-tsx-index-div-583"
+                        className="text-xs text-gray-400"
+                      >
                         Education match
                       </div>
-                      <div className="flex flex-wrap items-center gap-1">
+                      <div
+                        data-cy="succession-planning-components-successorcard-index-tsx-index-div-586"
+                        className="flex flex-wrap items-center gap-1"
+                      >
                         <Tag
                           color={educationMatchTagColor[educationMatch]}
                           className="m-0"
@@ -597,20 +712,35 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                         ) : null}
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <div className="text-xs text-gray-400 mb-0.5">
+                    <div
+                      data-cy="succession-planning-components-successorcard-index-tsx-index-div-600"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                    >
+                      <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-601">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-602"
+                          className="text-xs text-gray-400 mb-0.5"
+                        >
                           Role requirement
                         </div>
-                        <div className="text-gray-800 font-medium">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-605"
+                          className="text-gray-800 font-medium"
+                        >
                           {roleRequiredEducationLabel(role)}
                         </div>
                       </div>
-                      <div>
-                        <div className="text-xs text-gray-400 mb-0.5">
+                      <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-609">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-610"
+                          className="text-xs text-gray-400 mb-0.5"
+                        >
                           Successor background
                         </div>
-                        <div className="text-gray-800 font-medium">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-613"
+                          className="text-gray-800 font-medium"
+                        >
                           {successorEducationLabel || '—'}
                         </div>
                       </div>
@@ -618,7 +748,10 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                     {canManageSuccessorDevelopment &&
                     educationMatchOptions.allowRelated &&
                     educationMatch === 'Field mismatch' ? (
-                      <div className="mt-3">
+                      <div
+                        data-cy="succession-planning-components-successorcard-index-tsx-index-div-621"
+                        className="mt-3"
+                      >
                         <Button
                           type="primary"
                           size="small"
@@ -635,7 +768,10 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                       </div>
                     ) : null}
                     {canManageSuccessorDevelopment && educationRelatedMarked ? (
-                      <div className="mt-3">
+                      <div
+                        data-cy="succession-planning-components-successorcard-index-tsx-index-div-638"
+                        className="mt-3"
+                      >
                         <Button
                           size="small"
                           className="h-8 font-normal border border-[#D9D9D9] text-[#4d4d4d]"
@@ -655,11 +791,20 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                     className="sm:col-span-2 rounded-md border border-[#E5E7EB] bg-[#FAFAFA] p-3"
                     data-cy={`experience-match-${successor.id}`}
                   >
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                      <div className="text-xs text-gray-400">
+                    <div
+                      data-cy="succession-planning-components-successorcard-index-tsx-index-div-658"
+                      className="flex flex-wrap items-center justify-between gap-2 mb-2"
+                    >
+                      <div
+                        data-cy="succession-planning-components-successorcard-index-tsx-index-div-659"
+                        className="text-xs text-gray-400"
+                      >
                         Experience match
                       </div>
-                      <div className="flex flex-wrap items-center gap-1">
+                      <div
+                        data-cy="succession-planning-components-successorcard-index-tsx-index-div-662"
+                        className="flex flex-wrap items-center gap-1"
+                      >
                         <Tag
                           color={experienceMatchTagColor[experienceMatch]}
                           className="m-0"
@@ -677,26 +822,44 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                         ) : null}
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <div className="text-xs text-gray-400 mb-0.5">
+                    <div
+                      data-cy="succession-planning-components-successorcard-index-tsx-index-div-680"
+                      className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                    >
+                      <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-681">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-682"
+                          className="text-xs text-gray-400 mb-0.5"
+                        >
                           Role requirement
                         </div>
-                        <div className="text-gray-800 font-medium">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-685"
+                          className="text-gray-800 font-medium"
+                        >
                           {formatYearsLabel(role.requiredRelevantExperience)}
                         </div>
                       </div>
-                      <div>
-                        <div className="text-xs text-gray-400 mb-0.5">
+                      <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-689">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-690"
+                          className="text-xs text-gray-400 mb-0.5"
+                        >
                           Successor service years
                         </div>
-                        <div className="text-gray-800 font-medium">
+                        <div
+                          data-cy="succession-planning-components-successorcard-index-tsx-index-div-693"
+                          className="text-gray-800 font-medium"
+                        >
                           {formatYearsLabel(successor.relevantExperience)}
                         </div>
                       </div>
                     </div>
                     {experienceReadinessHint ? (
-                      <div className="text-xs text-gray-500 mt-2">
+                      <div
+                        data-cy="succession-planning-components-successorcard-index-tsx-index-div-699"
+                        className="text-xs text-gray-500 mt-2"
+                      >
                         {experienceReadinessHint}
                       </div>
                     ) : null}
@@ -710,7 +873,10 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             label: 'Competencies',
             children:
               evaluations.length === 0 ? (
-                <div className="py-2">
+                <div
+                  data-cy="succession-planning-components-successorcard-index-tsx-index-div-713"
+                  className="py-2"
+                >
                   <Empty
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                     description={
@@ -721,18 +887,21 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                   />
                 </div>
               ) : (
-                <div>
+                <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-724">
                   <Table
                     columns={competencyColumns}
                     dataSource={evaluations}
                     rowKey={(r) => r.competencyName + '-' + r.category}
                     pagination={false}
                     size="small"
-                    rowClassName={(_, index) =>
+                    rowClassName={(unusedRecord, index) =>
                       index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
                     }
                   />
-                  <div className="px-1 py-2 text-xs text-gray-500">
+                  <div
+                    data-cy="succession-planning-components-successorcard-index-tsx-index-div-735"
+                    className="px-1 py-2 text-xs text-gray-500"
+                  >
                     {evaluatedCount}/{evaluations.length} criteria evaluated
                   </div>
                 </div>
@@ -742,7 +911,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             key: 'gaps',
             label: `Gaps${openGaps ? ` (${openGaps})` : ''}`,
             children: (
-              <div>
+              <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-745">
                 <SuccessorGapsPanel
                   gaps={gaps}
                   actions={actions}
@@ -768,7 +937,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             key: 'actions',
             label: `Actions${actions.length ? ` (${actions.length})` : ''}`,
             children: (
-              <div>
+              <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-771">
                 <DevelopmentActionsPanel
                   actions={actions}
                   gaps={gaps}
@@ -794,7 +963,7 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
             key: 'idp',
             label: `IDP${idpCount ? ` (${idpCount})` : ''}`,
             children: (
-              <div>
+              <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-797">
                 <IdpPanel
                   idp={successor.idp}
                   hideToolbarButtons
@@ -843,22 +1012,49 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
         destroyOnClose
       >
         {selectedEvaluation ? (
-          <div className="flex flex-col gap-4 pt-1">
-            <div>
-              <div className="text-xs text-gray-400 mb-1">Successor</div>
-              <div className="text-sm font-medium text-gray-800">
+          <div
+            data-cy="succession-planning-components-successorcard-index-tsx-index-div-846"
+            className="flex flex-col gap-4 pt-1"
+          >
+            <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-847">
+              <div
+                data-cy="succession-planning-components-successorcard-index-tsx-index-div-848"
+                className="text-xs text-gray-400 mb-1"
+              >
+                Successor
+              </div>
+              <div
+                data-cy="succession-planning-components-successorcard-index-tsx-index-div-849"
+                className="text-sm font-medium text-gray-800"
+              >
                 {successor.name}
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Criteria</div>
-                <div className="text-sm font-medium text-gray-800">
+            <div
+              data-cy="succession-planning-components-successorcard-index-tsx-index-div-853"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+            >
+              <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-854">
+                <div
+                  data-cy="succession-planning-components-successorcard-index-tsx-index-div-855"
+                  className="text-xs text-gray-400 mb-1"
+                >
+                  Criteria
+                </div>
+                <div
+                  data-cy="succession-planning-components-successorcard-index-tsx-index-div-856"
+                  className="text-sm font-medium text-gray-800"
+                >
                   {selectedEvaluation.competencyName}
                 </div>
               </div>
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Importance</div>
+              <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-860">
+                <div
+                  data-cy="succession-planning-components-successorcard-index-tsx-index-div-861"
+                  className="text-xs text-gray-400 mb-1"
+                >
+                  Importance
+                </div>
                 <Tag
                   color={importanceColor[selectedEvaluation.importance]}
                   className="m-0"
@@ -867,35 +1063,67 @@ export const SuccessorDetailPanel: React.FC<SuccessorDetailPanelProps> = ({
                 </Tag>
               </div>
             </div>
-            <div>
-              <div className="text-xs text-gray-400 mb-1">Evaluator</div>
+            <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-870">
+              <div
+                data-cy="succession-planning-components-successorcard-index-tsx-index-div-871"
+                className="text-xs text-gray-400 mb-1"
+              >
+                Evaluator
+              </div>
               {selectedEvaluation.evaluatorId ? (
-                <div className="inline-flex items-center gap-1.5 bg-gray-100 px-2 py-1 rounded-lg">
+                <div
+                  data-cy="succession-planning-components-successorcard-index-tsx-index-div-873"
+                  className="inline-flex items-center gap-1.5 bg-gray-100 px-2 py-1 rounded-lg"
+                >
                   <Avatar
                     size={20}
                     icon={<UserOutlined />}
                     style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
                   />
-                  <span className="text-sm text-gray-800">
+                  <span
+                    data-cy="succession-planning-components-successorcard-index-tsx-index-span-879"
+                    className="text-sm text-gray-800"
+                  >
                     {selectedEvaluation.evaluatorName || '—'}
                   </span>
                 </div>
               ) : (
-                <span className="text-sm text-gray-400">Not assigned</span>
+                <span
+                  data-cy="succession-planning-components-successorcard-index-tsx-index-span-884"
+                  className="text-sm text-gray-400"
+                >
+                  Not assigned
+                </span>
               )}
             </div>
-            <div>
-              <div className="text-xs text-gray-400 mb-1">Rating</div>
-              <span className="text-sm font-medium text-gray-800 tabular-nums">
+            <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-887">
+              <div
+                data-cy="succession-planning-components-successorcard-index-tsx-index-div-888"
+                className="text-xs text-gray-400 mb-1"
+              >
+                Rating
+              </div>
+              <span
+                data-cy="succession-planning-components-successorcard-index-tsx-index-span-889"
+                className="text-sm font-medium text-gray-800 tabular-nums"
+              >
                 {selectedEvaluation.rating != null
                   ? `${selectedEvaluation.rating} / 100`
                   : '—'}
               </span>
             </div>
             {selectedEvaluation.comment ? (
-              <div>
-                <div className="text-xs text-gray-400 mb-1">Feedback</div>
-                <p className="text-sm text-gray-700 mb-0 whitespace-pre-wrap">
+              <div data-cy="succession-planning-components-successorcard-index-tsx-index-div-896">
+                <div
+                  data-cy="succession-planning-components-successorcard-index-tsx-index-div-897"
+                  className="text-xs text-gray-400 mb-1"
+                >
+                  Feedback
+                </div>
+                <p
+                  data-cy="succession-planning-components-successorcard-index-tsx-index-p-898"
+                  className="text-sm text-gray-700 mb-0 whitespace-pre-wrap"
+                >
                   {selectedEvaluation.comment}
                 </p>
               </div>

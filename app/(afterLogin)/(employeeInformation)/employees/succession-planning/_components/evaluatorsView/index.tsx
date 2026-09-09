@@ -96,10 +96,7 @@ const filterSelectPopupContainer = (trigger: HTMLElement) =>
 const isPlaceholderSuccessorName = (name?: string) =>
   !name || name === 'Successor' || name === 'Employee';
 
-const resolvedSuccessorName = (
-  catalogName?: string,
-  apiName?: string,
-) => {
+const resolvedSuccessorName = (catalogName?: string, apiName?: string) => {
   if (!isPlaceholderSuccessorName(catalogName)) return catalogName as string;
   if (!isPlaceholderSuccessorName(apiName)) return apiName as string;
   return catalogName || apiName || 'Successor';
@@ -196,9 +193,11 @@ export const mapServerEvaluatorAssignments = (
       department: role?.department ?? '—',
       successorId: assignment.criticalRoleSuccessorId,
       successorUserId: assignment.successorUserId || successor?.userId,
-      successorName: resolvedSuccessorName(successor?.name, assignment.successorName),
-      successorJobTitle:
-        successor?.jobTitle ?? assignment.successorJobTitle,
+      successorName: resolvedSuccessorName(
+        successor?.name,
+        assignment.successorName,
+      ),
+      successorJobTitle: successor?.jobTitle ?? assignment.successorJobTitle,
       competencyName: assignment.competencyName,
       category: assignment.category,
       importance: assignment.importance as CompetencyImportance,
@@ -501,7 +500,10 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
             data-cy="evaluators-scope-selector"
           />
         ) : (
-          <span className="text-sm font-medium text-gray-700">
+          <span
+            data-cy="succession-planning-components-evaluatorsview-index-tsx-index-span-503"
+            className="text-sm font-medium text-gray-700"
+          >
             My assignments
           </span>
         )}
@@ -532,7 +534,10 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
           className="w-[min(100%,300px)] h-10 sm:h-8 pr-0 py-0"
           data-cy="evaluators-view-search"
           suffix={
-            <div className="text-gray-400 border-l border-gray-300 py-1 px-2">
+            <div
+              data-cy="succession-planning-components-evaluatorsview-index-tsx-index-div-534"
+              className="text-gray-400 border-l border-gray-300 py-1 px-2"
+            >
               <SearchOutlined />
             </div>
           }
@@ -548,6 +553,7 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
               data-cy={`evaluators-filter-tag-${filter.key}`}
             >
               <span
+                data-cy="succession-planning-components-evaluatorsview-index-tsx-index-span-549"
                 onClick={filter.clear}
                 className="text-primary hover:!text-[#FF8787] mr-2 text-lg leading-none cursor-pointer"
               >
@@ -569,18 +575,33 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                 onMouseDown={(event) => event.stopPropagation()}
                 onClick={(event) => event.stopPropagation()}
               >
-                <div className="px-5 pt-4 pb-1">
-                  <h3 className="text-base font-bold text-[#4d4d4d] m-0 mb-1">
+                <div
+                  data-cy="succession-planning-components-evaluatorsview-index-tsx-index-div-571"
+                  className="px-5 pt-4 pb-1"
+                >
+                  <h3
+                    data-cy="succession-planning-components-evaluatorsview-index-tsx-index-h3-572"
+                    className="text-base font-bold text-[#4d4d4d] m-0 mb-1"
+                  >
                     Filter
                   </h3>
-                  <p className="text-sm text-[#8c8c8c] m-0 font-normal">
+                  <p
+                    data-cy="succession-planning-components-evaluatorsview-index-tsx-index-p-575"
+                    className="text-sm text-[#8c8c8c] m-0 font-normal"
+                  >
                     Select all filters that apply
                   </p>
                 </div>
 
-                <div className="px-5 py-3 flex flex-col gap-3">
+                <div
+                  data-cy="succession-planning-components-evaluatorsview-index-tsx-index-div-580"
+                  className="px-5 py-3 flex flex-col gap-3"
+                >
                   <div data-cy="evaluators-filter-status">
-                    <label className="text-sm font-medium text-gray-800 mb-1.5 block">
+                    <label
+                      data-cy="succession-planning-components-evaluatorsview-index-tsx-index-label-582"
+                      className="text-sm font-medium text-gray-800 mb-1.5 block"
+                    >
                       Status
                     </label>
                     <Select
@@ -604,7 +625,10 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
 
                   {!isMine && (
                     <div data-cy="evaluators-filter-evaluator">
-                      <label className="text-sm font-medium text-gray-800 mb-1.5 block">
+                      <label
+                        data-cy="succession-planning-components-evaluatorsview-index-tsx-index-label-606"
+                        className="text-sm font-medium text-gray-800 mb-1.5 block"
+                      >
                         Evaluator
                       </label>
                       <Select
@@ -626,7 +650,10 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                   )}
 
                   <div data-cy="evaluators-filter-successor">
-                    <label className="text-sm font-medium text-gray-800 mb-1.5 block">
+                    <label
+                      data-cy="succession-planning-components-evaluatorsview-index-tsx-index-label-628"
+                      className="text-sm font-medium text-gray-800 mb-1.5 block"
+                    >
                       Successor
                     </label>
                     <Select
@@ -647,7 +674,10 @@ const EvaluatorsView: React.FC<EvaluatorsViewProps> = ({
                   </div>
                 </div>
 
-                <div className="px-5 py-3 flex justify-end gap-2 border-t border-gray-200">
+                <div
+                  data-cy="succession-planning-components-evaluatorsview-index-tsx-index-div-649"
+                  className="px-5 py-3 flex justify-end gap-2 border-t border-gray-200"
+                >
                   <Button
                     onClick={resetFilters}
                     className="h-8 border border-[#D9D9D9] text-sm font-normal text-[#4d4d4d]"

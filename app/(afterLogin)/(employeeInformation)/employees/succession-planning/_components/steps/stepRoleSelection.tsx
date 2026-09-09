@@ -42,7 +42,10 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
       className="flex flex-col gap-6 pt-2"
       data-cy="step-role-selection-container"
     >
-      <p className="text-sm text-gray-500 -mt-2">
+      <p
+        data-cy="succession-planning-components-steps-steproleselection-tsx-steproleselection-p-45"
+        className="text-sm text-gray-500 -mt-2"
+      >
         Select a position from the organizational structure to define as a
         critical role.
       </p>
@@ -54,7 +57,10 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
         <Form.Item
           name="positionId"
           label={
-            <span className="text-sm font-medium text-gray-700">
+            <span
+              data-cy="succession-planning-components-steps-steproleselection-tsx-steproleselection-span-57"
+              className="text-sm font-medium text-gray-700"
+            >
               Position / Role
             </span>
           }
@@ -84,11 +90,20 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
                       label={pos.title}
                       data-cy={`position-option-${pos.id}`}
                     >
-                      <div className="flex flex-col py-0.5">
-                        <span className="text-sm font-medium text-gray-800">
+                      <div
+                        data-cy="succession-planning-components-steps-steproleselection-tsx-steproleselection-div-87"
+                        className="flex flex-col py-0.5"
+                      >
+                        <span
+                          data-cy="succession-planning-components-steps-steproleselection-tsx-steproleselection-span-88"
+                          className="text-sm font-medium text-gray-800"
+                        >
                           {pos.title}
                         </span>
-                        <span className="text-xs text-gray-400">
+                        <span
+                          data-cy="succession-planning-components-steps-steproleselection-tsx-steproleselection-span-91"
+                          className="text-xs text-gray-400"
+                        >
                           {pos.department}
                         </span>
                       </div>
@@ -103,7 +118,12 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
         <Form.Item
           name="priority"
           label={
-            <span className="text-sm font-medium text-gray-700">Priority</span>
+            <span
+              data-cy="succession-planning-components-steps-steproleselection-tsx-steproleselection-span-106"
+              className="text-sm font-medium text-gray-700"
+            >
+              Priority
+            </span>
           }
           rules={[{ required: true, message: 'Please select a priority' }]}
           data-cy="step-role-selection-priority-item"
@@ -155,8 +175,17 @@ const StepRoleSelection: React.FC<StepRoleSelectionProps> = ({ form }) => {
       <Form.Item
         name="notes"
         label={
-          <span className="text-sm font-medium text-gray-700">
-            Notes <span className="text-gray-400 font-normal">(optional)</span>
+          <span
+            data-cy="succession-planning-components-steps-steproleselection-tsx-steproleselection-span-158"
+            className="text-sm font-medium text-gray-700"
+          >
+            Notes{' '}
+            <span
+              data-cy="succession-planning-components-steps-steproleselection-tsx-steproleselection-span-159"
+              className="text-gray-400 font-normal"
+            >
+              (optional)
+            </span>
           </span>
         }
         data-cy="step-role-selection-notes-item"

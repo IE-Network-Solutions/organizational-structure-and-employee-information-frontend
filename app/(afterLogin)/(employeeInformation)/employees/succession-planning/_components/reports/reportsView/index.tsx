@@ -119,33 +119,94 @@ const ReportsView: React.FC<ReportsViewProps> = ({
 
   const readinessColumns: TableColumnsType<ReadinessReportRow> = [
     {
-      title: <span className={headerClass}>Role</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-122"
+          className={headerClass}
+        >
+          Role
+        </span>
+      ),
       dataIndex: 'role',
       ellipsis: true,
       render: (v: string) => (
-        <span className={`${cellClass} font-medium`}>{v}</span>
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-126"
+          className={`${cellClass} font-medium`}
+        >
+          {v}
+        </span>
       ),
     },
     {
-      title: <span className={headerClass}>Department</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-130"
+          className={headerClass}
+        >
+          Department
+        </span>
+      ),
       dataIndex: 'department',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-133"
+          className={cellClass}
+        >
+          {v}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Successor</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-136"
+          className={headerClass}
+        >
+          Successor
+        </span>
+      ),
       dataIndex: 'successor',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-139"
+          className={cellClass}
+        >
+          {v}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Current Position</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-142"
+          className={headerClass}
+        >
+          Current Position
+        </span>
+      ),
       dataIndex: 'position',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v || '—'}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-145"
+          className={cellClass}
+        >
+          {v || '—'}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Readiness</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-148"
+          className={headerClass}
+        >
+          Readiness
+        </span>
+      ),
       dataIndex: 'readiness',
       width: 170,
       render: (v: string) =>
@@ -157,52 +218,146 @@ const ReportsView: React.FC<ReportsViewProps> = ({
             {v}
           </Tag>
         ) : (
-          <span className={cellClass}>—</span>
+          <span
+            data-cy="-components-reports-reportsview-index-tsx-index-span-160"
+            className={cellClass}
+          >
+            —
+          </span>
         ),
     },
     {
-      title: <span className={headerClass}>Education</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-164"
+          className={headerClass}
+        >
+          Education
+        </span>
+      ),
       dataIndex: 'education',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v || '—'}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-167"
+          className={cellClass}
+        >
+          {v || '—'}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Relevant Experience</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-170"
+          className={headerClass}
+        >
+          Relevant Experience
+        </span>
+      ),
       dataIndex: 'experience',
       width: 160,
-      render: (v: string) => <span className={cellClass}>{v || '—'}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-173"
+          className={cellClass}
+        >
+          {v || '—'}
+        </span>
+      ),
     },
   ];
 
   const gapColumns: TableColumnsType<GapReportRow> = [
     {
-      title: <span className={headerClass}>Role</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-179"
+          className={headerClass}
+        >
+          Role
+        </span>
+      ),
       dataIndex: 'role',
       ellipsis: true,
       render: (v: string) => (
-        <span className={`${cellClass} font-medium`}>{v}</span>
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-183"
+          className={`${cellClass} font-medium`}
+        >
+          {v}
+        </span>
       ),
     },
     {
-      title: <span className={headerClass}>Successor</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-187"
+          className={headerClass}
+        >
+          Successor
+        </span>
+      ),
       dataIndex: 'successor',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-190"
+          className={cellClass}
+        >
+          {v}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Required Competency</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-193"
+          className={headerClass}
+        >
+          Required Competency
+        </span>
+      ),
       dataIndex: 'competency',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-196"
+          className={cellClass}
+        >
+          {v}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Category</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-199"
+          className={headerClass}
+        >
+          Category
+        </span>
+      ),
       dataIndex: 'category',
       width: 110,
-      render: (v: string) => <span className={cellClass}>{v}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-202"
+          className={cellClass}
+        >
+          {v}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Importance</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-205"
+          className={headerClass}
+        >
+          Importance
+        </span>
+      ),
       dataIndex: 'importance',
       width: 120,
       render: (v: string) => (
@@ -215,19 +370,54 @@ const ReportsView: React.FC<ReportsViewProps> = ({
       ),
     },
     {
-      title: <span className={headerClass}>Required Level</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-218"
+          className={headerClass}
+        >
+          Required Level
+        </span>
+      ),
       dataIndex: 'required',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v || '—'}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-221"
+          className={cellClass}
+        >
+          {v || '—'}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Current Level</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-224"
+          className={headerClass}
+        >
+          Current Level
+        </span>
+      ),
       dataIndex: 'current',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v || '—'}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-227"
+          className={cellClass}
+        >
+          {v || '—'}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Severity</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-230"
+          className={headerClass}
+        >
+          Severity
+        </span>
+      ),
       dataIndex: 'severity',
       width: 110,
       render: (v: string) => (
@@ -240,82 +430,226 @@ const ReportsView: React.FC<ReportsViewProps> = ({
       ),
     },
     {
-      title: <span className={headerClass}>Status</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-243"
+          className={headerClass}
+        >
+          Status
+        </span>
+      ),
       dataIndex: 'status',
       width: 120,
-      render: (v: string) => <span className={cellClass}>{v}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-246"
+          className={cellClass}
+        >
+          {v}
+        </span>
+      ),
     },
   ];
 
   const idpColumns: TableColumnsType<IdpReportRow> = [
     {
-      title: <span className={headerClass}>Role</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-252"
+          className={headerClass}
+        >
+          Role
+        </span>
+      ),
       dataIndex: 'role',
       ellipsis: true,
       render: (v: string) => (
-        <span className={`${cellClass} font-medium`}>{v}</span>
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-256"
+          className={`${cellClass} font-medium`}
+        >
+          {v}
+        </span>
       ),
     },
     {
-      title: <span className={headerClass}>Successor</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-260"
+          className={headerClass}
+        >
+          Successor
+        </span>
+      ),
       dataIndex: 'successor',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-263"
+          className={cellClass}
+        >
+          {v}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>IDP Status</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-266"
+          className={headerClass}
+        >
+          IDP Status
+        </span>
+      ),
       dataIndex: 'idpStatus',
       width: 110,
-      render: (v: string) => <span className={cellClass}>{v || '—'}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-269"
+          className={cellClass}
+        >
+          {v || '—'}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Activity Type</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-272"
+          className={headerClass}
+        >
+          Activity Type
+        </span>
+      ),
       dataIndex: 'type',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v || '—'}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-275"
+          className={cellClass}
+        >
+          {v || '—'}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Activity</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-278"
+          className={headerClass}
+        >
+          Activity
+        </span>
+      ),
       dataIndex: 'activity',
       ellipsis: true,
-      render: (v: string) => <span className={cellClass}>{v || '—'}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-281"
+          className={cellClass}
+        >
+          {v || '—'}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Target Date</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-284"
+          className={headerClass}
+        >
+          Target Date
+        </span>
+      ),
       dataIndex: 'target',
       width: 120,
       render: (v: string) => (
-        <span className={`${cellClass} tabular-nums`}>{v || '—'}</span>
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-288"
+          className={`${cellClass} tabular-nums`}
+        >
+          {v || '—'}
+        </span>
       ),
     },
     {
-      title: <span className={headerClass}>Activity Status</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-292"
+          className={headerClass}
+        >
+          Activity Status
+        </span>
+      ),
       dataIndex: 'activityStatus',
       width: 130,
-      render: (v: string) => <span className={cellClass}>{v || '—'}</span>,
+      render: (v: string) => (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-295"
+          className={cellClass}
+        >
+          {v || '—'}
+        </span>
+      ),
     },
     {
-      title: <span className={headerClass}>Open Actions</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-298"
+          className={headerClass}
+        >
+          Open Actions
+        </span>
+      ),
       dataIndex: 'openActions',
       width: 120,
       render: (v: number) => (
-        <span className={`${cellClass} tabular-nums`}>{v}</span>
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-302"
+          className={`${cellClass} tabular-nums`}
+        >
+          {v}
+        </span>
       ),
     },
     {
-      title: <span className={headerClass}>Completed</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-306"
+          className={headerClass}
+        >
+          Completed
+        </span>
+      ),
       dataIndex: 'completedActions',
       width: 110,
       render: (v: number) => (
-        <span className={`${cellClass} tabular-nums`}>{v}</span>
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-310"
+          className={`${cellClass} tabular-nums`}
+        >
+          {v}
+        </span>
       ),
     },
     {
-      title: <span className={headerClass}>Progress %</span>,
+      title: (
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-314"
+          className={headerClass}
+        >
+          Progress %
+        </span>
+      ),
       dataIndex: 'progress',
       width: 110,
       render: (v: number) => (
-        <span className={`${cellClass} tabular-nums`}>{v}%</span>
+        <span
+          data-cy="-components-reports-reportsview-index-tsx-index-span-318"
+          className={`${cellClass} tabular-nums`}
+        >
+          {v}%
+        </span>
       ),
     },
   ];
@@ -346,7 +680,10 @@ const ReportsView: React.FC<ReportsViewProps> = ({
           className="w-[min(100%,280px)] pr-0 py-0 h-10 sm:h-8"
           data-cy="succession-reports-search-input"
           suffix={
-            <div className="text-gray-400 border-l border-gray-300 py-1 px-2">
+            <div
+              data-cy="-components-reports-reportsview-index-tsx-index-div-349"
+              className="text-gray-400 border-l border-gray-300 py-1 px-2"
+            >
               <SearchOutlined />
             </div>
           }
@@ -390,7 +727,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({
                 />
               ),
             }}
-            rowClassName={(_, index) =>
+            rowClassName={(unusedRecord, index) =>
               index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
             }
             data-cy="succession-readiness-report-table"
@@ -411,7 +748,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({
                 />
               ),
             }}
-            rowClassName={(_, index) =>
+            rowClassName={(unusedRecord, index) =>
               index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
             }
             data-cy="succession-gaps-report-table"
@@ -432,7 +769,7 @@ const ReportsView: React.FC<ReportsViewProps> = ({
                 />
               ),
             }}
-            rowClassName={(_, index) =>
+            rowClassName={(unusedRecord, index) =>
               index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
             }
             data-cy="succession-idp-report-table"

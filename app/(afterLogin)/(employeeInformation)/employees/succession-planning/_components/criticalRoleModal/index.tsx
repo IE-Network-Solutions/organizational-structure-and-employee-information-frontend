@@ -286,8 +286,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
                 importance: comp.importance,
                 weight: comp.weight,
                 evaluatorId,
-                evaluatorName:
-                  evaluator?.name ?? previous?.evaluatorName ?? '',
+                evaluatorName: evaluator?.name ?? previous?.evaluatorName ?? '',
                 status: sameEvaluator
                   ? (previous?.status ?? 'Pending')
                   : 'Pending',
@@ -412,10 +411,16 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
 
   const modalTitle = (
     <div data-cy="critical-role-modal-header">
-      <h2 className="text-xl font-bold text-black mb-1">
+      <h2
+        data-cy="succession-planning-components-criticalrolemodal-index-tsx-index-h2-414"
+        className="text-xl font-bold text-black mb-1"
+      >
         {isEditing ? 'Edit Critical Role' : 'Add Critical Role'}
       </h2>
-      <p className="text-sm text-black font-normal">
+      <p
+        data-cy="succession-planning-components-criticalrolemodal-index-tsx-index-p-417"
+        className="text-sm text-black font-normal"
+      >
         {isEditing
           ? 'Update the role, competencies, successors, and evaluators.'
           : 'Define the role and successors. Competencies and evaluators can be added now or managed later from the role details.'}
@@ -470,7 +475,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
         className="my-4 sm:my-6"
         data-cy="critical-role-modal-steps-container"
       >
-        <style>{`
+        <style data-cy="succession-planning-components-criticalrolemodal-index-tsx-index-style-472">{`
           .cr-modal-steps .ant-steps-item-title {
             white-space: nowrap !important;
             font-size: 12px !important;
@@ -487,10 +492,16 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
           className="sm:hidden text-center mb-2"
           data-cy="critical-role-modal-mobile-step"
         >
-          <div className="text-xs text-gray-400 mb-0.5">
+          <div
+            data-cy="succession-planning-components-criticalrolemodal-index-tsx-index-div-489"
+            className="text-xs text-gray-400 mb-0.5"
+          >
             Step {current + 1} of {TOTAL_STEPS}
           </div>
-          <div className="text-sm font-semibold text-[#1E40AF]">
+          <div
+            data-cy="succession-planning-components-criticalrolemodal-index-tsx-index-div-492"
+            className="text-sm font-semibold text-[#1E40AF]"
+          >
             {STEP_LABELS[current]}
           </div>
         </div>
@@ -632,7 +643,10 @@ const StepNavButtons: React.FC<StepNavButtonsProps> = ({
       className="w-full flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-2 mt-4"
       data-cy="critical-role-modal-nav-row"
     >
-      <div className="w-full sm:w-auto">
+      <div
+        data-cy="succession-planning-components-criticalrolemodal-index-tsx-index-div-634"
+        className="w-full sm:w-auto"
+      >
         {current === 0 ? (
           <Popconfirm
             title="Discard changes?"

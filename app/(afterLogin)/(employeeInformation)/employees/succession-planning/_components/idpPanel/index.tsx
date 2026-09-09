@@ -86,20 +86,40 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
 
   const columns: TableColumnsType<IdpActivity> = [
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Type</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-idppanel-index-tsx-index-span-89"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Type
+        </span>
+      ),
       dataIndex: 'type',
       width: 180,
       render: (value: string) => (
-        <span className="text-sm text-[#4d4d4d]">{value}</span>
+        <span
+          data-cy="succession-planning-components-idppanel-index-tsx-index-span-93"
+          className="text-sm text-[#4d4d4d]"
+        >
+          {value}
+        </span>
       ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Activity</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-idppanel-index-tsx-index-span-97"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Activity
+        </span>
+      ),
       dataIndex: 'title',
       ellipsis: true,
       render: (value: string, record) =>
         canManageSuccessorDevelopment ? (
           <button
+            data-cy="succession-planning-components-idppanel-index-tsx-index-button-102"
             type="button"
             className="text-left text-sm font-medium text-primary hover:underline"
             onClick={() => openActivity(record)}
@@ -116,17 +136,34 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
         ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Target</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-idppanel-index-tsx-index-span-119"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Target
+        </span>
+      ),
       dataIndex: 'targetDate',
       width: 110,
       render: (value?: string) => (
-        <span className="text-sm text-[#4d4d4d] tabular-nums">
+        <span
+          data-cy="succession-planning-components-idppanel-index-tsx-index-span-123"
+          className="text-sm text-[#4d4d4d] tabular-nums"
+        >
           {value || '—'}
         </span>
       ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Status</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-idppanel-index-tsx-index-span-129"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Status
+        </span>
+      ),
       dataIndex: 'status',
       width: 120,
       render: (value: IdpActivityStatus) => (
@@ -140,7 +177,10 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
   return (
     <div className="flex flex-col gap-3" data-cy="idp-panel">
       {!hideToolbarButtons && canManageSuccessorDevelopment ? (
-        <div className="flex flex-wrap justify-end gap-2">
+        <div
+          data-cy="succession-planning-components-idppanel-index-tsx-index-div-143"
+          className="flex flex-wrap justify-end gap-2"
+        >
           <Button
             type="primary"
             size="small"
@@ -172,7 +212,7 @@ const IdpPanel: React.FC<IdpPanelProps> = ({
             />
           ),
         }}
-        rowClassName={(_, index) =>
+        rowClassName={(unusedRecord, index) =>
           index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
         }
         data-cy="idp-activities-table"

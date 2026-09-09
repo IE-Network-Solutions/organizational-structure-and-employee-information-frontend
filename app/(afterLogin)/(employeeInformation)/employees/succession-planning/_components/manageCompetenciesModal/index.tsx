@@ -292,10 +292,16 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
       onCancel={handleCancel}
       title={
         <div data-cy="manage-competencies-modal-header">
-          <h2 className="text-xl font-bold text-black mb-1">
+          <h2
+            data-cy="succession-planning-components-managecompetenciesmodal-index-tsx-index-h2-295"
+            className="text-xl font-bold text-black mb-1"
+          >
             Manage Competencies
           </h2>
-          <p className="text-sm text-black font-normal">
+          <p
+            data-cy="succession-planning-components-managecompetenciesmodal-index-tsx-index-p-298"
+            className="text-sm text-black font-normal"
+          >
             Update criteria for {role.roleName}. Changes apply to all
             successors; assign or change evaluators per successor.
           </p>
@@ -327,7 +333,7 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
       }
     >
       <div className="my-4 sm:my-6" data-cy="manage-competencies-steps">
-        <style>{`
+        <style data-cy="succession-planning-components-managecompetenciesmodal-index-tsx-index-style-330">{`
           .mc-modal-steps .ant-steps-item-title {
             white-space: nowrap !important;
             font-size: 12px !important;
@@ -340,11 +346,20 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
             color: #d9d9d9 !important;
           }
         `}</style>
-        <div className="sm:hidden text-center mb-2">
-          <div className="text-xs text-gray-400 mb-0.5">
+        <div
+          data-cy="succession-planning-components-managecompetenciesmodal-index-tsx-index-div-343"
+          className="sm:hidden text-center mb-2"
+        >
+          <div
+            data-cy="succession-planning-components-managecompetenciesmodal-index-tsx-index-div-344"
+            className="text-xs text-gray-400 mb-0.5"
+          >
             Step {current + 1} of {STEP_LABELS.length}
           </div>
-          <div className="text-sm font-semibold text-[#1E40AF]">
+          <div
+            data-cy="succession-planning-components-managecompetenciesmodal-index-tsx-index-div-347"
+            className="text-sm font-semibold text-[#1E40AF]"
+          >
             {STEP_LABELS[current]}
           </div>
         </div>

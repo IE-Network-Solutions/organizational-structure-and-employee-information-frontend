@@ -367,16 +367,33 @@ const SuccessionPlanningPage: React.FC = () => {
       className="bg-white rounded-lg border border-gray-200 min-w-[280px] sm:min-w-[320px] overflow-hidden shadow-md"
       data-cy="succession-planning-filter-panel"
     >
-      <div className="px-5 pt-4 pb-1">
-        <h3 className="text-base font-bold text-[#4d4d4d] m-0 mb-1">Filter</h3>
-        <p className="text-sm text-[#8c8c8c] m-0 font-normal">
+      <div
+        data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-div-370"
+        className="px-5 pt-4 pb-1"
+      >
+        <h3
+          data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-h3-371"
+          className="text-base font-bold text-[#4d4d4d] m-0 mb-1"
+        >
+          Filter
+        </h3>
+        <p
+          data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-p-372"
+          className="text-sm text-[#8c8c8c] m-0 font-normal"
+        >
           Select all filters that apply
         </p>
       </div>
 
-      <div className="px-5 py-3 flex flex-col gap-3">
-        <div>
-          <label className="text-sm font-medium text-gray-800 mb-1.5 block">
+      <div
+        data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-div-377"
+        className="px-5 py-3 flex flex-col gap-3"
+      >
+        <div data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-div-378">
+          <label
+            data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-label-379"
+            className="text-sm font-medium text-gray-800 mb-1.5 block"
+          >
             Priority
           </label>
           <Select
@@ -394,7 +411,10 @@ const SuccessionPlanningPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="px-5 py-3 flex justify-end gap-2 border-t border-gray-200">
+      <div
+        data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-div-397"
+        className="px-5 py-3 flex justify-end gap-2 border-t border-gray-200"
+      >
         <Button
           onClick={() => {
             setPriorityFilter('');
@@ -583,7 +603,12 @@ const SuccessionPlanningPage: React.FC = () => {
                     }
                     data-cy="succession-reports-btn"
                   >
-                    <span className="hidden sm:inline">Download Reports</span>
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-586"
+                      className="hidden sm:inline"
+                    >
+                      Download Reports
+                    </span>
                   </Button>
                 </Dropdown>
               </AccessGuard>
@@ -601,7 +626,10 @@ const SuccessionPlanningPage: React.FC = () => {
                   onClick={openAddModal}
                   data-cy="add-critical-role-btn"
                 >
-                  <span className="hidden sm:inline font-normal">
+                  <span
+                    data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-604"
+                    className="hidden sm:inline font-normal"
+                  >
                     Add Critical Role
                   </span>
                 </Button>
@@ -625,7 +653,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-628"
+                      className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center"
+                    >
                       <AccountTreeOutlinedIcon
                         className="text-blue"
                         fontSize="small"
@@ -644,7 +675,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-647"
+                      className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center"
+                    >
                       <PersonOffOutlinedIcon
                         className="text-error"
                         fontSize="small"
@@ -663,7 +697,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-[#f6ffed] flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-666"
+                      className="w-8 h-8 rounded-sm bg-[#f6ffed] flex items-center justify-center"
+                    >
                       <BoltOutlinedIcon
                         className="text-success"
                         fontSize="small"
@@ -682,7 +719,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-685"
+                      className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center"
+                    >
                       <ScheduleOutlinedIcon
                         className="text-orangebg"
                         fontSize="small"
@@ -701,7 +741,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-704"
+                      className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center"
+                    >
                       <CheckCircleOutlineOutlinedIcon
                         className="text-blue"
                         fontSize="small"
@@ -723,7 +766,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-726"
+                      className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center"
+                    >
                       <PeopleAltOutlinedIcon
                         className="text-blue"
                         fontSize="small"
@@ -750,7 +796,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-753"
+                      className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center"
+                    >
                       <AssignmentOutlinedIcon
                         className="text-orangebg"
                         fontSize="small"
@@ -777,7 +826,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-780"
+                      className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center"
+                    >
                       <WarningAmberOutlinedIcon
                         className="text-error"
                         fontSize="small"
@@ -800,7 +852,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-[#f6ffed] flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-803"
+                      className="w-8 h-8 rounded-sm bg-[#f6ffed] flex items-center justify-center"
+                    >
                       <CheckCircleOutlineOutlinedIcon
                         className="text-success"
                         fontSize="small"
@@ -822,7 +877,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-825"
+                      className="w-8 h-8 rounded-sm bg-lightblue flex items-center justify-center"
+                    >
                       <BoltOutlinedIcon
                         className="text-blue"
                         fontSize="small"
@@ -841,7 +899,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-844"
+                      className="w-8 h-8 rounded-sm bg-[#fff1f0] flex items-center justify-center"
+                    >
                       <WarningAmberOutlinedIcon
                         className="text-error"
                         fontSize="small"
@@ -860,7 +921,10 @@ const SuccessionPlanningPage: React.FC = () => {
               >
                 <StatsCard
                   icon={
-                    <span className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center">
+                    <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-863"
+                      className="w-8 h-8 rounded-sm bg-lightorange flex items-center justify-center"
+                    >
                       <AssignmentOutlinedIcon
                         className="text-orangebg"
                         fontSize="small"
@@ -897,7 +961,10 @@ const SuccessionPlanningPage: React.FC = () => {
                 className="w-[min(100%,300px)] pr-0 py-0 h-10 sm:h-8"
                 data-cy="succession-planning-search-input"
                 suffix={
-                  <div className="text-gray-400 border-l border-gray-300 py-1 px-2">
+                  <div
+                    data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-div-900"
+                    className="text-gray-400 border-l border-gray-300 py-1 px-2"
+                  >
                     <SearchOutlined />
                   </div>
                 }
@@ -914,6 +981,7 @@ const SuccessionPlanningPage: React.FC = () => {
                     data-cy={`succession-planning-filter-tag-${filter.key}`}
                   >
                     <span
+                      data-cy="-employeeinformation-employees-succession-planning-page-tsx-page-span-916"
                       onClick={filter.clear}
                       className="text-primary hover:!text-[#FF8787] mr-2 text-lg leading-none cursor-pointer"
                     >

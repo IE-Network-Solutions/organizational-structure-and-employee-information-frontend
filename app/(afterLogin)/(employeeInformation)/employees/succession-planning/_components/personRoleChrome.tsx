@@ -79,16 +79,37 @@ export const PersonIdentity: React.FC<PersonIdentityProps> = ({
     data-cy={dataCy ?? `person-identity-${role.toLowerCase()}`}
   >
     <PersonRoleAvatar role={role} size={avatarSize} />
-    <div className="min-w-0 flex-1">
+    <div
+      data-cy="employees-succession-planning-components-personrolechrome-tsx-personrolechrome-div-82"
+      className="min-w-0 flex-1"
+    >
       <PersonRoleLabel role={role} />
-      <div className="flex items-center justify-between gap-2 min-w-0">
-        <div className="text-sm font-semibold text-gray-800 truncate">
+      <div
+        data-cy="employees-succession-planning-components-personrolechrome-tsx-personrolechrome-div-84"
+        className="flex items-center justify-between gap-2 min-w-0"
+      >
+        <div
+          data-cy="employees-succession-planning-components-personrolechrome-tsx-personrolechrome-div-85"
+          className="text-sm font-semibold text-gray-800 truncate"
+        >
           {name}
         </div>
-        {trailing ? <div className="shrink-0">{trailing}</div> : null}
+        {trailing ? (
+          <div
+            data-cy="employees-succession-planning-components-personrolechrome-tsx-personrolechrome-div-88"
+            className="shrink-0"
+          >
+            {trailing}
+          </div>
+        ) : null}
       </div>
       {caption ? (
-        <div className="text-xs text-gray-500 truncate">{caption}</div>
+        <div
+          data-cy="employees-succession-planning-components-personrolechrome-tsx-personrolechrome-div-91"
+          className="text-xs text-gray-500 truncate"
+        >
+          {caption}
+        </div>
       ) : null}
     </div>
   </div>
