@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Empty, Input, Modal, Table, Tag } from 'antd';
+import { Empty, Input, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
@@ -313,8 +313,6 @@ function ReviewCheckinGroup({
       items.map((i) => [i.target.id, i.target.actualValue ?? null]),
     ),
   );
-  const [rejectTargetId, setRejectTargetId] = useState<string | null>(null);
-  const [rejectReason, setRejectReason] = useState('');
   const [actingId, setActingId] = useState<string | null>(null);
   const { mutate: adjust } = useAdjustBscReportedKpis();
   const { mutateAsync: setApprovalAsync } = useSetBscKpiApproval();
@@ -351,31 +349,24 @@ function ReviewCheckinGroup({
     adjust({ scorecardId: scorecard.id, adjustments }, { onSuccess: onDone });
   };
 
-  const decide = (
-    targetId: string,
-    approved: boolean,
-    rejectionReason?: string,
-  ) => {
+  const decide = (targetId: string) => {
     saveEdits(async () => {
       setActingId(targetId);
       try {
         const latest = await setApprovalAsync({
           scorecardId: scorecard.id,
           targetId,
-          approved,
-          rejectionReason,
+          approved: true,
         });
-        onDecision(targetId, approved);
+        onDecision(targetId, true);
         const stillPending = latest.targets.filter(
           (t) => t.approvalStatus === KpiApprovalStatus.Pending,
         );
         if (stillPending.length === 0) {
           await finalizeAsync(scorecard.id);
           NotificationMessage.success({
-            message: approved ? 'Check-in closed' : 'Check-in rejected',
-            description: approved
-              ? 'Final scores now reflect on the scorecard.'
-              : 'Sent back for the employee to correct.',
+            message: 'Check-in closed',
+            description: 'Final scores now reflect on the scorecard.',
           });
         }
       } finally {
@@ -503,43 +494,25 @@ function ReviewCheckinGroup({
         </span>
       ),
       key: 'action',
-      width: 240,
+      width: 120,
       className: 'whitespace-nowrap',
       render: (unused, row) => {
         const decided = decisions[row.target.id];
         if (decided === true) {
           return <Tag color="green">Approved</Tag>;
         }
-        if (decided === false) {
-          return <Tag color="red">Rejected</Tag>;
-        }
         const rowBusy = actingId === row.target.id;
         return (
-          <div className="flex flex-nowrap items-center gap-2 whitespace-nowrap">
-            <CustomButton
-              title="Approve"
-              id={`bsc-checkin-approve-${row.target.id}`}
-              size="small"
-              disabled={busy}
-              loading={rowBusy}
-              onClick={() => decide(row.target.id, true)}
-              className="!h-8 !shrink-0 !rounded-md !bg-[#1E40AF] !px-3 !text-white hover:!bg-[#1E3A8A]"
-              textClassName="text-sm font-medium"
-            />
-            <CustomButton
-              title="Reject"
-              id={`bsc-checkin-reject-${row.target.id}`}
-              size="small"
-              type="default"
-              disabled={busy}
-              onClick={() => {
-                setRejectReason('');
-                setRejectTargetId(row.target.id);
-              }}
-              className="!h-8 !shrink-0 !rounded-md !px-3"
-              textClassName="text-sm font-medium"
-            />
-          </div>
+          <CustomButton
+            title="Approve"
+            id={`bsc-checkin-approve-${row.target.id}`}
+            size="small"
+            disabled={busy}
+            loading={rowBusy}
+            onClick={() => decide(row.target.id)}
+            className="!h-8 !shrink-0 !rounded-md !bg-[#1E40AF] !px-3 !text-white hover:!bg-[#1E3A8A]"
+            textClassName="text-sm font-medium"
+          />
         );
       },
     },
@@ -581,31 +554,6 @@ function ReviewCheckinGroup({
         rowClassName={(unused, index) => bscTableRowClassName(index)}
         data-cy={`bsc-checkin-review-table-${scorecard.id}`}
       />
-      <Modal
-        title="Reject reported KPI"
-        open={rejectTargetId != null}
-        centered
-        onCancel={() => setRejectTargetId(null)}
-        onOk={() => {
-          if (!rejectTargetId) return;
-          decide(rejectTargetId, false, rejectReason.trim() || 'Rejected');
-          setRejectTargetId(null);
-        }}
-        okText="Reject"
-        okButtonProps={{ danger: true }}
-        data-cy="bsc-checkin-reject-modal"
-      >
-        <p className="mb-2 text-sm text-gray-600">
-          Tell the employee what to correct before they resubmit.
-        </p>
-        <Input.TextArea
-          rows={3}
-          value={rejectReason}
-          onChange={(e) => setRejectReason(e.target.value)}
-          placeholder="Rejection reason"
-          data-cy="bsc-checkin-reject-reason"
-        />
-      </Modal>
     </div>
   );
 }
