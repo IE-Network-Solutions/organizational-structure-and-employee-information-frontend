@@ -1,7 +1,8 @@
 'use client';
 import React, { useMemo, useState } from 'react';
 import { Avatar, Empty, Form, Input, Select, Table } from 'antd';
-import type { TableColumnsType, TableRowSelection } from 'antd';
+import type { TableColumnsType } from 'antd';
+import type { TableRowSelection } from 'antd/es/table/interface';
 import { SearchOutlined, UserOutlined } from '@ant-design/icons';
 import { SUCCESSOR_AVATAR_COLOR } from '../personRoleChrome';
 import type { SuccessorReadiness } from '../successionTypes';
