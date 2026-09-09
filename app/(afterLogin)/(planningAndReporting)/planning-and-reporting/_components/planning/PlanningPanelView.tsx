@@ -459,6 +459,7 @@ function KRProgressCard({
     ...(dropdownSlotItems ?? []),
   ];
 
+  // Always open the select menu — including when only one milestone remains.
   const pickButton =
     showPickControl && onPickPlanningTarget ? (
       <Dropdown
