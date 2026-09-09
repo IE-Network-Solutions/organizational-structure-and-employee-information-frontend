@@ -27,8 +27,10 @@ export const useRestoreKeyResultMetric = () => {
     onSuccess: () => {
       queryClient.invalidateQueries('ObjectiveInformation');
       queryClient.invalidateQueries(['okrPlans']);
+      queryClient.invalidateQueries(['okrPlansKrPanel']);
       queryClient.invalidateQueries(['okrUserPlans']);
       queryClient.invalidateQueries(['okrReports']);
+      queryClient.invalidateQueries(['okrReportsKrPanel']);
       queryClient.invalidateQueries(['okrReport']);
       queryClient.refetchQueries('ObjectiveDashboard');
       NotificationMessage.success({

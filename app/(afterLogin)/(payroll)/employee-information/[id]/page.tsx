@@ -18,7 +18,13 @@ import {
   UserOutlined,
   DownloadOutlined,
 } from '@ant-design/icons';
-import React, { useEffect, useLayoutEffect, useRef, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useMemo,
+  useState,
+} from 'react';
 import {
   useGetActivePayroll,
   useGetPayPeriod,
@@ -215,7 +221,13 @@ const EmployeeProfile = () => {
         }_Payslip_${periodLabel}.pdf`,
       );
     });
-  }, [payslipPayroll, payslipPeriod, templatePayroll, templatePeriod, employee]);
+  }, [
+    payslipPayroll,
+    payslipPeriod,
+    templatePayroll,
+    templatePeriod,
+    employee,
+  ]);
 
   useEffect(() => {
     if (payPeriodData && activeMergedPayroll?.payPeriodId) {
@@ -1628,7 +1640,9 @@ const EmployeeProfile = () => {
                 className=" text-2xl font-bold"
                 data-cy="payroll-employee-detail-payslip-basic-value"
               >
-                {templatePayroll?.employeeInfo?.basicSalaries?.[0]?.basicSalary}{' '}
+                {
+                  templatePayroll?.employeeInfo?.basicSalaries?.[0]?.basicSalary
+                }{' '}
               </span>
             </div>
           </div>

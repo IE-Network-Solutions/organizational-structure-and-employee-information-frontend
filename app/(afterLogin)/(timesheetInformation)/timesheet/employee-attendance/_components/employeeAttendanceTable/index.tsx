@@ -38,6 +38,7 @@ import { CustomMobilePagination } from '@/components/customPagination/mobilePagi
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import { usePathname } from 'next/navigation';
+import { useNotificationDeepLink } from '@/hooks/useNotificationDeepLink';
 import usePagination from '@/utils/usePagination';
 import { Key } from 'react';
 import EmployeeAttendanceSideBar from '../sideBar';
@@ -196,6 +197,13 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setAttendanceRecordDate,
   } = useEmployeeAttendanceStore();
   const { filter, setFilter } = useEmployeeAttendanceStore();
+  const { employeeId: linkedEmployee } = useNotificationDeepLink();
+
+  useEffect(() => {
+    if (!linkedEmployee) return;
+    const current = useEmployeeAttendanceStore.getState().filter;
+    setFilter({ ...(current || {}), userIds: [linkedEmployee] });
+  }, [linkedEmployee, setFilter]);
   const { data: breakTypeData } = useGetBreakTypes();
   const hasBreakTypeFilter = !!filter?.breakTypeId;
   const selectedBreakType = breakTypeData?.items?.find(

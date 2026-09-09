@@ -234,7 +234,7 @@ const TransferTalentPoolToCandidateModal: React.FC<
                         aria-label="Remove job information"
                         className="cursor-pointer text-xs text-gray-400 hover:text-gray-600"
                         onClick={() => removeJobInformation(item.id)}
-                        onKeyDown={(e) => {
+                        onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
                           if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
                             removeJobInformation(item.id);

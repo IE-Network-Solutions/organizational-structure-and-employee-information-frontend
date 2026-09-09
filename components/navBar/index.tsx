@@ -180,11 +180,9 @@ const NavMenuItem: React.FC<{
   const handleChildNavigate = (child: any) => {
     if (isItemDisabled) return;
     const path = String(child.key);
-    if (pathname !== path) {
-      triggerRouteLoaderStart();
-      router.push(path);
-      setSelectedKeys([path]);
-    }
+    triggerRouteLoaderStart();
+    router.push(path);
+    setSelectedKeys([path]);
     setFlyoutOpen(false);
     onNavigate?.();
   };
@@ -745,6 +743,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             key: '/tna/management',
             className: 'font-bold',
             permissions: ['manage_training'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-tna-management">TNA Management</span>
+            ),
+            key: '/tna/tna-management',
+            className: 'font-bold',
+            permissions: ['manage_tna'],
           },
           {
             title: <span data-cy="nav-tree-tna-settings">Settings</span>,

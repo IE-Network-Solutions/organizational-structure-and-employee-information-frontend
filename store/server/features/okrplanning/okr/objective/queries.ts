@@ -239,8 +239,7 @@ export const useGetTeamObjective = (
     {
       keepPreviousData: true,
       staleTime: 30_000,
-      enabled:
-        (queryOptions?.enabled ?? true) && users.length > 0 && !!userId,
+      enabled: (queryOptions?.enabled ?? true) && users.length > 0 && !!userId,
     },
   );
 
