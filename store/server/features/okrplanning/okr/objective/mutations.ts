@@ -301,16 +301,23 @@ export const useDeleteObjective = () => {
 export const useCreateObjective = () => {
   const queryClient = useQueryClient();
   return useMutation(createObjective, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('ObjectiveInformation');
-      queryClient.invalidateQueries(['okrPlans']);
-      queryClient.invalidateQueries(['okrPlansKrPanel']);
-      queryClient.invalidateQueries(['okrUserPlans']);
-      queryClient.invalidateQueries(['okrReports']);
-      queryClient.invalidateQueries(['okrReportsKrPanel']);
-      queryClient.invalidateQueries(['okrReport']);
-      // Refetch all ObjectiveDashboard queries
-      queryClient.refetchQueries('ObjectiveDashboard');
+    onSuccess: async () => {
+      // Force active OKR lists to reload so the new objective appears immediately.
+      await Promise.all([
+        queryClient.invalidateQueries('ObjectiveInformation'),
+        queryClient.invalidateQueries('teamObjectiveInformation'),
+        queryClient.invalidateQueries('companyObjectiveInformation'),
+        queryClient.invalidateQueries(['okrPlans']),
+        queryClient.invalidateQueries(['okrPlansKrPanel']),
+        queryClient.invalidateQueries(['okrUserPlans']),
+        queryClient.invalidateQueries(['okrReports']),
+        queryClient.invalidateQueries(['okrReportsKrPanel']),
+        queryClient.invalidateQueries(['okrReport']),
+      ]);
+      await Promise.all([
+        queryClient.refetchQueries('ObjectiveInformation'),
+        queryClient.refetchQueries('ObjectiveDashboard'),
+      ]);
     },
   });
 };

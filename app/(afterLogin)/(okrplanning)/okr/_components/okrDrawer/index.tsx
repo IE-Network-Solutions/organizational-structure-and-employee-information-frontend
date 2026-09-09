@@ -246,9 +246,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
           // Transfer key results from objective to objectiveValue for submission
           const formValues = form.getFieldsValue();
+          const activeSessionId = sessionIds?.[0];
           const modifiedObjectiveValue = {
             ...objectiveValue,
-            keyResults: keyResults,
+            keyResults: keyResults.map((kr: Record<string, any>) => ({
+              ...kr,
+              ...(activeSessionId && !kr?.sessionId
+                ? { sessionId: activeSessionId }
+                : {}),
+            })),
             // Merge form values as safety net (form holds user's latest input)
             title: formValues.title ?? objectiveValue?.title,
             allignedKeyResultId:
@@ -257,6 +263,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             deadline: formValues.ObjectiveDeadline
               ? dayjs(formValues.ObjectiveDeadline).format('YYYY-MM-DD')
               : objectiveValue?.deadline,
+            userId: userId || objectiveValue?.userId,
+            ...(activeSessionId ? { sessionId: activeSessionId } : {}),
           };
 
           if (
@@ -268,6 +276,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           // If all checks pass, proceed with the objective creation
           createObjective(modifiedObjectiveValue, {
             onSuccess: () => {
+              // Reset list filters that can hide a freshly created objective.
+              const store = useOKRStore.getState();
+              store.setCurrentPage(1);
+              store.setOkrStatusPillId(null);
               handleDrawerClose();
             },
           });
