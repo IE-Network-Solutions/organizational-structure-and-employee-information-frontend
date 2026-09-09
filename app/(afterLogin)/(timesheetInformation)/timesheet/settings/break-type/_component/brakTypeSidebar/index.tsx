@@ -1,6 +1,16 @@
 import CustomLabel from '@/components/form/customLabel/customLabel';
 import { useSetBreakType } from '@/store/server/features/timesheet/breakType/mutation';
+import { useGetBreakType } from '@/store/server/features/timesheet/breakType/queries';
+import { useFetchSchedule } from '@/store/server/features/organizationStructure/workSchedule/queries';
 import { useTimesheetSettingsStore } from '@/store/uistate/features/timesheet/settings';
+import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { crudRequest } from '@/utils/crudRequest';
+import { getCurrentToken } from '@/utils/getCurrentToken';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import {
+  BREAK_OUTSIDE_SHIFT_WARNING,
+  doesBreakFitShiftWindow,
+} from '@/helpers/breakShiftWindow';
 import {
   Button,
   Col,
@@ -9,16 +19,53 @@ import {
   Input,
   Modal,
   Row,
+  Select,
   TimePicker,
 } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import React from 'react';
+import React, { useMemo } from 'react';
+import { useQuery } from 'react-query';
 
 const parseTime = (value?: string | null) =>
   value ? dayjs(value, ['HH:mm:ss', 'HH:mm']) : undefined;
 
 const formatTime = (value?: Dayjs | null) =>
   value ? value.format('HH:mm') : undefined;
+
+type ShiftOption = {
+  label: string;
+  value: string;
+  startTime?: string;
+  endTime?: string;
+  disabled?: boolean;
+};
+
+const unwrapShiftList = (payload: unknown): any[] => {
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== 'object') return [];
+  const data = payload as Record<string, unknown>;
+  if (Array.isArray(data.items)) return data.items;
+  if (Array.isArray(data.data)) return data.data;
+  if (data.data && typeof data.data === 'object') {
+    const nested = data.data as Record<string, unknown>;
+    if (Array.isArray(nested.items)) return nested.items;
+  }
+  if (Array.isArray(data.shifts)) return data.shifts;
+  return [];
+};
+
+const fetchShiftsForSchedule = async (scheduleId: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/work-schedules/${scheduleId}/shifts`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId,
+    },
+  });
+};
 
 const windowAfterValidator =
   (fromField: string, message: string) =>
@@ -47,33 +94,150 @@ const BreakTypeSidebar = () => {
   } = useTimesheetSettingsStore();
   const [form] = Form.useForm();
   const { mutate: setBreakType } = useSetBreakType();
+  const { data: scheduleData, isLoading: schedulesLoading } = useFetchSchedule(
+    1,
+    100,
+  );
+  const { data: breakTypeDetail } = useGetBreakType(
+    selectedBreakType?.id || '',
+  );
   const [startWindowOpen, setStartWindowOpen] = React.useState(false);
   const [endWindowOpen, setEndWindowOpen] = React.useState(false);
+  const watchedStartAt = Form.useWatch('startAt', form) as Dayjs | undefined;
+  const watchedEndAt = Form.useWatch('endAt', form) as Dayjs | undefined;
+  const watchedShiftIds = Form.useWatch('shiftIds', form) as
+    | string[]
+    | undefined;
   const itemClass = 'font-semibold text-xs';
   const controlClass = 'mt-2.5 h-[40px] w-full';
+
+  const scheduleItems = useMemo(() => {
+    const raw =
+      (scheduleData as any)?.items ??
+      (scheduleData as any)?.data?.items ??
+      (Array.isArray(scheduleData) ? scheduleData : []);
+    return Array.isArray(raw) ? raw : [];
+  }, [scheduleData]);
+
+  const scheduleIdsKey = scheduleItems
+    .map((s: any) => s?.id)
+    .filter(Boolean)
+    .join(',');
+
+  const { data: shiftOptions = [], isLoading: shiftsLoading } = useQuery(
+    ['break-type-shift-options', scheduleIdsKey],
+    async () => {
+      const options: ShiftOption[] = [];
+      for (const schedule of scheduleItems) {
+        const scheduleId = schedule?.id;
+        const scheduleName = schedule?.name || 'Work Schedule';
+        if (!scheduleId) continue;
+
+        let shifts = Array.isArray(schedule?.shifts) ? schedule.shifts : [];
+        if (!shifts.length) {
+          try {
+            const payload = await fetchShiftsForSchedule(scheduleId);
+            shifts = unwrapShiftList(payload);
+          } catch {
+            shifts = [];
+          }
+        }
+
+        for (const shift of shifts) {
+          if (!shift?.id) continue;
+          const hours =
+            shift.startTime && shift.endTime
+              ? ` · ${shift.startTime}–${shift.endTime}`
+              : '';
+          options.push({
+            value: shift.id,
+            label: `${shift.name || 'Shift'} (${scheduleName})${hours}`,
+            startTime: shift.startTime,
+            endTime: shift.endTime,
+          });
+        }
+      }
+      return options;
+    },
+    {
+      enabled: isShow && scheduleItems.length > 0,
+      keepPreviousData: true,
+    },
+  );
+
+  const breakStart = formatTime(watchedStartAt);
+  const breakEnd = formatTime(watchedEndAt);
+
+  const shiftSelectOptions = useMemo(() => {
+    return shiftOptions.map((option) => {
+      if (!breakStart || !breakEnd) {
+        return { ...option, disabled: false };
+      }
+      const fits = doesBreakFitShiftWindow(
+        breakStart,
+        breakEnd,
+        option.startTime,
+        option.endTime,
+      );
+      return {
+        ...option,
+        disabled: !fits,
+        label: fits
+          ? option.label
+          : `${option.label} — break outside shift hours`,
+      };
+    });
+  }, [shiftOptions, breakStart, breakEnd]);
+
+  const incompatibleSelected = useMemo(() => {
+    if (!breakStart || !breakEnd || !watchedShiftIds?.length) return [];
+    return watchedShiftIds.filter((id) => {
+      const option = shiftOptions.find((o) => o.value === id);
+      if (!option) return false;
+      return !doesBreakFitShiftWindow(
+        breakStart,
+        breakEnd,
+        option.startTime,
+        option.endTime,
+      );
+    });
+  }, [watchedShiftIds, shiftOptions, breakStart, breakEnd]);
+
+  React.useEffect(() => {
+    if (!incompatibleSelected.length) return;
+    const next = (watchedShiftIds || []).filter(
+      (id) => !incompatibleSelected.includes(id),
+    );
+    form.setFieldsValue({ shiftIds: next });
+  }, [incompatibleSelected, watchedShiftIds, form]);
+
   React.useEffect(() => {
     if (selectedBreakType) {
+      const detailItem =
+        (breakTypeDetail as any)?.item ??
+        (breakTypeDetail as any)?.data?.item ??
+        null;
+      const shiftIds = detailItem?.shiftIds ?? selectedBreakType.shiftIds ?? [];
+      const source = detailItem ?? selectedBreakType;
       const formattedBreakType = {
-        ...selectedBreakType,
-        startAt: parseTime(selectedBreakType.startAt),
-        endAt: parseTime(selectedBreakType.endAt),
-        startAtFrom: parseTime(selectedBreakType.startAtFrom),
-        startAtTo: parseTime(selectedBreakType.startAtTo),
-        endAtFrom: parseTime(selectedBreakType.endAtFrom),
-        endAtTo: parseTime(selectedBreakType.endAtTo),
+        ...source,
+        shiftIds,
+        startAt: parseTime(source.startAt),
+        endAt: parseTime(source.endAt),
+        startAtFrom: parseTime(source.startAtFrom),
+        startAtTo: parseTime(source.startAtTo),
+        endAtFrom: parseTime(source.endAtFrom),
+        endAtTo: parseTime(source.endAtTo),
       };
       form.setFieldsValue(formattedBreakType);
-      setStartWindowOpen(
-        Boolean(selectedBreakType.startAtFrom || selectedBreakType.startAtTo),
-      );
-      setEndWindowOpen(
-        Boolean(selectedBreakType.endAtFrom || selectedBreakType.endAtTo),
-      );
+      setStartWindowOpen(Boolean(source.startAtFrom || source.startAtTo));
+      setEndWindowOpen(Boolean(source.endAtFrom || source.endAtTo));
     } else {
+      form.resetFields();
       setStartWindowOpen(false);
       setEndWindowOpen(false);
     }
-  }, [selectedBreakType, form]);
+  }, [selectedBreakType, breakTypeDetail, form]);
 
   const onFinish = (values: any) => {
     const {
@@ -83,14 +247,40 @@ const BreakTypeSidebar = () => {
       startAtTo,
       endAtFrom,
       endAtTo,
+      shiftIds,
       ...otherValues
     } = values;
+
+    const formattedStart = startAt.format('HH:mm');
+    const formattedEnd = endAt.format('HH:mm');
+
+    const compatibleShiftIds = (shiftIds as string[]).filter((id) => {
+      const option = shiftOptions.find((o) => o.value === id);
+      if (!option?.startTime || !option?.endTime) return false;
+      return doesBreakFitShiftWindow(
+        formattedStart,
+        formattedEnd,
+        option.startTime,
+        option.endTime,
+      );
+    });
+
+    if (!compatibleShiftIds.length) {
+      form.setFields([
+        {
+          name: 'shiftIds',
+          errors: [BREAK_OUTSIDE_SHIFT_WARNING],
+        },
+      ]);
+      return;
+    }
 
     const formattedValues = {
       ...otherValues,
       ...(selectedBreakType ? { id: selectedBreakType.id } : {}),
-      startAt: startAt.format('HH:mm'),
-      endAt: endAt.format('HH:mm'),
+      shiftIds: compatibleShiftIds,
+      startAt: formattedStart,
+      endAt: formattedEnd,
       ...(formatTime(startAtFrom) && { startAtFrom: formatTime(startAtFrom) }),
       ...(formatTime(startAtTo) && { startAtTo: formatTime(startAtTo) }),
       ...(formatTime(endAtFrom) && { endAtFrom: formatTime(endAtFrom) }),
@@ -186,6 +376,50 @@ const BreakTypeSidebar = () => {
               className={controlClass}
               id="time-attendance-settings-break-type-sidebar-title-input"
               data-cy="time-attendance-settings-break-type-sidebar-title-input"
+            />
+          </Form.Item>
+          <Form.Item
+            name="shiftIds"
+            label={
+              <span
+                className="text-sm font-normal text-gray-900 pr-1"
+                data-cy="time-attendance-settings-break-type-sidebar-shift-ids-label"
+              >
+                Apply to shifts
+              </span>
+            }
+            extra={BREAK_OUTSIDE_SHIFT_WARNING}
+            rules={[
+              {
+                required: true,
+                type: 'array',
+                min: 1,
+                message: 'Please select at least one shift',
+              },
+            ]}
+            data-cy="time-attendance-settings-break-type-sidebar-shift-ids"
+          >
+            <Select
+              mode="multiple"
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              placeholder={
+                schedulesLoading || shiftsLoading
+                  ? 'Loading shifts...'
+                  : shiftOptions.length
+                    ? 'Select shifts'
+                    : 'No shifts found — create a work schedule shift first'
+              }
+              loading={schedulesLoading || shiftsLoading}
+              className="w-full"
+              options={shiftSelectOptions}
+              notFoundContent={
+                schedulesLoading || shiftsLoading
+                  ? 'Loading...'
+                  : 'No shifts available'
+              }
+              data-cy="time-attendance-settings-break-type-sidebar-shift-select"
             />
           </Form.Item>
           <div

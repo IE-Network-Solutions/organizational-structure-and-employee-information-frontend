@@ -36,6 +36,7 @@ export const useGetBreakType = (id: string) => {
     () => getBreakType(id),
     {
       keepPreviousData: true,
+      enabled: !!id,
     },
   );
 };
