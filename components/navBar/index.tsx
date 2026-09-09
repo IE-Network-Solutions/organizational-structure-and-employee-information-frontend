@@ -78,6 +78,12 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useCollaborationMentionNotifications } from '@/store/server/features/collaboration';
+import { useCollaboration } from '@/components/collaboration/collaboration-context';
+import { COLLABORATION_SPACES_PATH } from '@/utils/collaboration';
+import {
+  CollaborationDock,
+  useCollaborationPanelStore,
+} from '@/components/collaboration/collaboration-dock';
 import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
 import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
@@ -387,6 +393,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         integratedChannelIds.has(notification.channelId),
     );
   }, [collaborationMentionNotifications, enabledAnnouncementChannelIds]);
+  const {
+    enabled: collaborationEnabled,
+    isOpen: collaborationOpen,
+    toggle: toggleCollaboration,
+  } = useCollaboration();
+  const collaborationPanelWidth = useCollaborationPanelStore(
+    (state) => state.panelWidth,
+  );
   useGetEmployee(userId);
   // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
@@ -1848,9 +1862,15 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
               >
                 {(() => {
-                  const isAnnouncementActive = pathname.startsWith(
-                    '/organization/announcement',
-                  );
+                  // Announcement is the collaboration panel's launcher on
+                  // desktop, so it reads as active whenever the panel is open —
+                  // not only on the standalone page, which stays reachable at
+                  // its own URL.
+                  const opensCollaborationPanel =
+                    collaborationEnabled && !isMobile;
+                  const isAnnouncementActive = opensCollaborationPanel
+                    ? collaborationOpen
+                    : pathname.startsWith('/organization/announcement');
                   const announcementButton = (
                     <Button
                       data-cy="nav-sider-announcement-btn"
@@ -1906,6 +1926,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       }
                       onClick={() => {
                         if (hasEndedFiscalYear) return;
+                        // The panel has no room on a phone (it is hidden below
+                        // `md`), so mobile keeps navigating to the page.
+                        if (opensCollaborationPanel) {
+                          toggleCollaboration({
+                            title: 'Announcement',
+                            module: 'announcement',
+                            // Land on the spaces list rather than the embedded
+                            // app's own home — post channels live there, and
+                            // `channels=posts` has already narrowed it to them.
+                            path: COLLABORATION_SPACES_PATH,
+                          });
+                          return;
+                        }
                         triggerRouteLoaderStart();
                         router.push('/organization/announcement');
                         setSelectedKeys(['/organization/announcement']);
@@ -2029,11 +2062,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               display: isMobile ? 'none' : 'flex',
               alignItems: 'center',
               position: 'fixed',
+              // Fixed, so it is sized off the viewport rather than off its flex
+              // parent — the collaboration panel's width has to come out by hand
+              // or the header runs underneath it.
               width: isMobile
                 ? '100%'
-                : collapsed
-                  ? 'calc(100% - 80px)'
-                  : 'calc(100% - 280px)',
+                : `calc(100% - ${collapsed ? 80 : 280}px${
+                    collaborationOpen ? ` - ${collaborationPanelWidth}px` : ''
+                  })`,
               zIndex: 40,
               top: 0,
               left: isMobile ? 0 : collapsed ? 80 : 280,
@@ -2123,6 +2159,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           />
         )}
       </Layout>
+
+      {/* Inline collaboration panel — a flex sibling of the content column
+          above, so opening it narrows the page instead of covering it. */}
+      <CollaborationDock />
     </Layout>
   );
 };
