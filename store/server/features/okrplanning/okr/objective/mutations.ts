@@ -5,13 +5,14 @@ import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
 // const logUserId = useAuthenticationStore.getState().userId;
 const createObjective = async (values: any) => {
   const token = await getCurrentToken();
   try {
-    await crudRequest({
+    const response = await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective`,
       method: 'POST',
       data: values,
@@ -26,6 +27,7 @@ const createObjective = async (values: any) => {
       message: 'Successfully Created',
       description: 'Objective successfully Created.',
     });
+    return response;
   } catch (error) {
     // Handle error (optional)
     throw error; // Re-throw error if needed for further handling
@@ -301,22 +303,32 @@ export const useDeleteObjective = () => {
 export const useCreateObjective = () => {
   const queryClient = useQueryClient();
   return useMutation(createObjective, {
-    onSuccess: async () => {
-      // Force active OKR lists to reload so the new objective appears immediately.
+    onSuccess: async (created: any) => {
+      const createdSessionId =
+        created?.sessionId ||
+        created?.data?.sessionId ||
+        created?.items?.sessionId;
+      const store = useOKRStore.getState();
+      store.setCurrentPage(1);
+      store.setOkrStatusPillId(null);
+      store.setOkrTab(1);
+      if (createdSessionId) {
+        store.setSessionIds([String(createdSessionId)]);
+      }
+
+      // Drop cached lists so the next fetch uses the synced session filter.
+      queryClient.removeQueries('ObjectiveInformation');
+      queryClient.removeQueries('teamObjectiveInformation');
+      queryClient.removeQueries('companyObjectiveInformation');
+      queryClient.removeQueries('ObjectiveDashboard');
+
       await Promise.all([
-        queryClient.invalidateQueries('ObjectiveInformation'),
-        queryClient.invalidateQueries('teamObjectiveInformation'),
-        queryClient.invalidateQueries('companyObjectiveInformation'),
         queryClient.invalidateQueries(['okrPlans']),
         queryClient.invalidateQueries(['okrPlansKrPanel']),
         queryClient.invalidateQueries(['okrUserPlans']),
         queryClient.invalidateQueries(['okrReports']),
         queryClient.invalidateQueries(['okrReportsKrPanel']),
         queryClient.invalidateQueries(['okrReport']),
-      ]);
-      await Promise.all([
-        queryClient.refetchQueries('ObjectiveInformation'),
-        queryClient.refetchQueries('ObjectiveDashboard'),
       ]);
     },
   });

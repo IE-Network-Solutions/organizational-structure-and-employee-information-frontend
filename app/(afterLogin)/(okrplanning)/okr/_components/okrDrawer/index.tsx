@@ -275,11 +275,16 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           }
           // If all checks pass, proceed with the objective creation
           createObjective(modifiedObjectiveValue, {
-            onSuccess: () => {
-              // Reset list filters that can hide a freshly created objective.
+            onSuccess: (created: any) => {
               const store = useOKRStore.getState();
+              const createdSessionId =
+                created?.sessionId || created?.data?.sessionId;
+              if (createdSessionId) {
+                store.setSessionIds([String(createdSessionId)]);
+              }
               store.setCurrentPage(1);
               store.setOkrStatusPillId(null);
+              store.setOkrTab(1);
               handleDrawerClose();
             },
           });
