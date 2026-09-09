@@ -16,12 +16,12 @@ export function resolveEmployeeAndPlanType(state: {
   }
 
   if (
-    planType === 'all' &&
+    planType !== 'myPlan' &&
     selectedUser.length === 1 &&
     selectedUser[0] !== 'all' &&
     selectedUser[0] !== 'subordinate'
   ) {
-    return { employeeSelect: selectedUser[0], planType: 'all' };
+    return { employeeSelect: selectedUser[0], planType };
   }
 
   return { employeeSelect: 'all', planType };

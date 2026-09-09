@@ -1,6 +1,8 @@
 // useStore.ts
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import type { PlanFilterValue } from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/planning/durationFilter';
+import { defaultHistoryRange } from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/planning/durationFilter';
 type MkAsATask = {
   title: string | null;
   mid: string | null;
@@ -94,6 +96,12 @@ export interface PlanningAndReporting {
   /** InlinePlanningWorkspace: edit existing plan (plan id) */
   inlineEditPlanId: string | null;
   setInlineEditPlanId: (id: string | null) => void;
+
+  /** Page-level Today / Week / Month / History (replaces per-card duration). */
+  planningDurationFilter: PlanFilterValue;
+  setPlanningDurationFilter: (value: PlanFilterValue) => void;
+  planningHistoryRange: { from: string; to: string };
+  setPlanningHistoryRange: (range: { from: string; to: string }) => void;
 }
 
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
@@ -227,5 +235,14 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     inlineEditPlanId: null,
     setInlineEditPlanId: (inlineEditPlanId: string | null) =>
       set({ inlineEditPlanId }),
+
+    planningDurationFilter: 'daily',
+    setPlanningDurationFilter: (planningDurationFilter: PlanFilterValue) =>
+      set({ planningDurationFilter }),
+    planningHistoryRange: defaultHistoryRange(),
+    setPlanningHistoryRange: (planningHistoryRange: {
+      from: string;
+      to: string;
+    }) => set({ planningHistoryRange }),
   })),
 );

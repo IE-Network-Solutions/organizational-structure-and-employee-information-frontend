@@ -42,6 +42,12 @@ import {
   type KRPanelOwnerGroup,
   type ParentPlanContext,
 } from './mergeKRPanelGroups';
+import { isOwnPlanSummary } from './planOwnership';
+import PlanAssigneeDivider from './PlanAssigneeDivider';
+import {
+  planCardAssigneeLabel,
+  type PlanCardDisplayMode,
+} from './planCardDisplay';
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
@@ -1547,6 +1553,7 @@ export function KRLeftPanel({
 
 export interface PlanningPanelViewProps {
   plans: PlanSummary[];
+  cardDisplayMode?: PlanCardDisplayMode;
   transformedData: any[];
   cadence: Cadence;
   userId: string;
@@ -1573,6 +1580,7 @@ export interface PlanningPanelViewProps {
 
 export default function PlanningPanelView({
   plans,
+  cardDisplayMode = 'full',
   transformedData,
   cadence,
   userId,
@@ -1597,9 +1605,7 @@ export default function PlanningPanelView({
 }: PlanningPanelViewProps) {
   const currentUserId = String(userId ?? '');
   const isOwnPlan = (plan: PlanSummary) =>
-    String(plan.ownerUserId ?? '') === currentUserId ||
-    plan.summary === 'My Plan' ||
-    plan.owner?.name === 'My Plan';
+    isOwnPlanSummary(plan, currentUserId);
 
   const myPlans = plans.filter(isOwnPlan);
   const otherPlans = plans.filter((plan) => !isOwnPlan(plan));
@@ -1664,6 +1670,7 @@ export default function PlanningPanelView({
         <PlanCard
           plan={plan}
           viewMode="planning"
+          displayMode={cardDisplayMode}
           activeCadence={cadence}
           onApprove={() => onApprove(originalDataItem.id, true)}
           onOpen={() => onApprove(originalDataItem.id, false)}
@@ -1728,7 +1735,17 @@ export default function PlanningPanelView({
       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-995"
       className="min-w-0 max-w-full space-y-4 pr-1"
     >
-      {orderedPlans.map((plan) => renderPlanCard(plan, isOwnPlan(plan)))}
+      {orderedPlans.map((plan, index) => (
+        <React.Fragment key={plan.id}>
+          {cardDisplayMode === 'team' && index > 0 ? (
+            <PlanAssigneeDivider
+              name={planCardAssigneeLabel(plan.owner?.name)}
+              role={plan.owner?.role}
+            />
+          ) : null}
+          {renderPlanCard(plan, isOwnPlan(plan))}
+        </React.Fragment>
+      ))}
 
       {paginationNode && (
         <div

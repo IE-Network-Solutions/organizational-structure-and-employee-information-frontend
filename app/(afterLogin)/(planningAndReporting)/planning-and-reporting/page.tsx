@@ -14,6 +14,8 @@ import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndR
 import { useFiscalYearSessionSync } from './_components/filters/useFiscalYearSessionSync';
 import Planning from './_components/planning';
 import PlanningToolbarFilters from './_components/planning/PlanningToolbarFilters';
+import AssigneeFilterChips from './_components/planning/AssigneeFilterChips';
+import PlanningDurationFilter from './_components/planning/PlanningDurationFilter';
 import InlinePlanningWorkspace, {
   type InlinePlanningWorkspaceHandle,
 } from './_components/planning/InlinePlanningWorkspace';
@@ -673,14 +675,32 @@ function Page() {
             </div>
             <div
               data-cy="planning-period-pills"
-              className="flex min-w-0 w-full flex-1 flex-wrap items-center justify-end gap-2 overflow-visible sm:min-h-10 sm:flex-nowrap sm:gap-3"
+              className="flex min-w-0 w-full flex-1 flex-col items-end gap-1.5 overflow-visible"
             >
-              <div
-                data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
-                className="shrink-0 self-center"
-              >
-                <PlanningToolbarFilters />
+              <div className="flex flex-wrap items-center justify-end gap-2 sm:flex-nowrap sm:gap-3">
+                {activeTab === 1 ? (
+                  <div
+                    data-cy="planning-duration-filter-wrap"
+                    className="shrink-0 self-center"
+                  >
+                    <PlanningDurationFilter />
+                  </div>
+                ) : null}
+                <div
+                  data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
+                  className="shrink-0 self-center"
+                >
+                  <PlanningToolbarFilters />
+                </div>
               </div>
+              {activeTab === 1 ? (
+                <div
+                  data-cy="planning-assignee-chips-row"
+                  className="w-full min-w-0 overflow-visible sm:w-auto"
+                >
+                  <AssigneeFilterChips />
+                </div>
+              ) : null}
             </div>
           </div>
 

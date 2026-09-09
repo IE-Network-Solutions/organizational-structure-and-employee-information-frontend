@@ -49,6 +49,21 @@ export const activePlanPeriodToKind = (
   return 'week';
 };
 
+/** Toolbar duration filter → fetch/card window kind. */
+export const planFilterValueToKind = (value: PlanFilterValue): DeadlineKind => {
+  if (isPlanHistoryFilter(value)) return 'daily';
+  return value;
+};
+
+/** Keep legacy activePlanPeriod in sync with toolbar duration. */
+export const planFilterValueToActivePeriod = (
+  value: PlanFilterValue,
+): number => {
+  if (value === 'month') return 3;
+  if (value === 'week') return 2;
+  return 1;
+};
+
 export const DURATION_TAB_ITEMS: ReadonlyArray<{
   key: string;
   kind: DeadlineKind;

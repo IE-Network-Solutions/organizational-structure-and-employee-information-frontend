@@ -14,19 +14,13 @@ import { useGetDepartmentUsersAllLevels } from '@/store/server/features/employee
 import type { Session } from '@/store/server/features/organizationStructure/fiscalYear/interface';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
-  buildEmployeeOptions,
   commitPlanningDraft,
   initPlanningFilterDraftFromStore,
-  planTypeOptions,
   usePlanningToolbarFilters,
   type PlanningFilterDraft,
 } from './usePlanningToolbarFilters';
 import { extractDepartmentUserIds } from './departmentUsers';
 import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
-import {
-  buildMockEmployeeFilterOptions,
-  mockUserIdsForDepartment,
-} from '../prototype/mockPlanningConstants';
 
 const { Option } = Select;
 
@@ -57,12 +51,8 @@ export default function PlanningToolbarFilters() {
 
   const { userId } = useAuthenticationStore();
   const mockEnabled = isDeadlinePlanningMockEnabled();
-  const {
-    employeeData,
-    isEmployeesLoading,
-    departmentData,
-    departmentOptions,
-  } = usePlanningToolbarFilters();
+  const { employeeData, departmentData, departmentOptions } =
+    usePlanningToolbarFilters();
   const { data: allFiscalYears, isLoading: loadingYears } =
     useGetAllFiscalYears();
   const { data: draftFiscalYearData, isLoading: loadingSessions } =
@@ -81,58 +71,6 @@ export default function PlanningToolbarFilters() {
       mockEnabled ? [] : extractDepartmentUserIds(allLevelDepartmentUsers),
     [mockEnabled, allLevelDepartmentUsers],
   );
-
-  const employeeOptions = useMemo(() => {
-    if (mockEnabled) {
-      const options = buildMockEmployeeFilterOptions();
-      const dept = draft?.department;
-      if (dept && dept !== 'all') {
-        const allowed = new Set(mockUserIdsForDepartment(dept));
-        return options.filter(
-          (opt) => opt.value === 'all' || allowed.has(opt.value),
-        );
-      }
-      return options;
-    }
-    const options = buildEmployeeOptions(
-      draft?.department ?? 'all',
-      employeeData,
-      departmentData,
-      allLevelDepartmentUserIds,
-    );
-    const selectedId = draft?.employeeSelect;
-    if (
-      selectedId &&
-      selectedId !== 'all' &&
-      selectedId !== 'subordinate' &&
-      !options.some((option) => option.value === selectedId)
-    ) {
-      const emp = employeeData?.items?.find(
-        (item: any) => item.id === selectedId,
-      );
-      const name = emp
-        ? `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim()
-        : '';
-      if (name) {
-        options.push({ label: name, value: selectedId });
-      }
-    }
-    return options;
-  }, [
-    mockEnabled,
-    draft?.department,
-    draft?.employeeSelect,
-    employeeData,
-    departmentData,
-    allLevelDepartmentUserIds,
-  ]);
-
-  const employeeSelectValue = useMemo(() => {
-    if (!draft) return 'all';
-    const v = draft.employeeSelect;
-    if (v === 'all' || v === 'subordinate') return 'all';
-    return v;
-  }, [draft]);
 
   const captureSnapshot = (): Snapshot => {
     const s = PlanningAndReportingStore.getState();
@@ -239,71 +177,6 @@ export default function PlanningToolbarFilters() {
       >
         {draft ? (
           <Row gutter={[16, 16]}>
-            <Col span={24}>
-              <div
-                data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-168"
-                className="flex flex-col gap-2"
-              >
-                <span
-                  data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-169"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Employee
-                </span>
-                <Select
-                  className={planningSelectClass}
-                  placeholder="Select employee"
-                  options={employeeOptions}
-                  onChange={(value: string) =>
-                    updateDraft({ employeeSelect: value, planType: 'all' })
-                  }
-                  value={employeeSelectValue}
-                  loading={isEmployeesLoading}
-                  size="large"
-                  showSearch
-                  optionFilterProp="label"
-                  filterOption={(input, option) =>
-                    option?.label
-                      ?.toString()
-                      .toLowerCase()
-                      .includes(input.toLowerCase()) ?? false
-                  }
-                  notFoundContent={
-                    isEmployeesLoading ? 'Loading...' : 'No employees found'
-                  }
-                  data-cy="planning-toolbar-filter-employee"
-                />
-              </div>
-            </Col>
-            <Col xs={24} sm={12}>
-              <div
-                data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-198"
-                className="flex flex-col gap-2"
-              >
-                <span
-                  data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-199"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Plan type
-                </span>
-                <Select
-                  id="planning-plan-type-select"
-                  data-cy="planning-plan-type-select"
-                  className={planningSelectClass}
-                  placeholder="Plan type"
-                  options={planTypeOptions}
-                  onChange={(value: string) =>
-                    updateDraft({
-                      planType: value,
-                      employeeSelect:
-                        value === 'all' ? draft.employeeSelect : 'all',
-                    })
-                  }
-                  value={draft.planType}
-                  size="large"
-                />
-              </div>
-            </Col>
             <Col xs={24} sm={12}>
               <div
                 data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-215"
@@ -322,7 +195,7 @@ export default function PlanningToolbarFilters() {
                   placeholder="Department"
                   options={departmentOptions}
                   onChange={(value: string) =>
-                    updateDraft({ department: value, employeeSelect: 'all' })
+                    updateDraft({ department: value })
                   }
                   value={draft.department}
                   size="large"

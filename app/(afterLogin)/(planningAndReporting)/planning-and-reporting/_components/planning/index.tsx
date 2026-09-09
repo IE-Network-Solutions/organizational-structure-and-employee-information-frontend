@@ -18,6 +18,15 @@ import CustomPagination from '@/components/customPagination';
 import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from './PlanningPanelView';
+import { isOwnPlanSummary } from './planOwnership';
+import PlanAssigneeDivider from './PlanAssigneeDivider';
+import {
+  planCardAssigneeLabel,
+  resolvePlanCardDisplayMode,
+} from './planCardDisplay';
+import { buildPlanningEmptyStateCopy } from './planningEmptyState';
+import { useAssigneeChipRoster } from './useAssigneeChipRoster';
+import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Cadence, PlanSummary } from '../types';
 import { formatPlanningReportDate } from '../utils';
 
@@ -64,8 +73,12 @@ function Planning({
     setInlineReportPlanId,
     resetStatuses,
     resetWeights,
+    planningFilterDepartment,
   } = PlanningAndReportingStore();
+  const { selectedIds, hasTeam } = useAssigneeChipRoster();
+  const cardDisplayMode = resolvePlanCardDisplayMode(selectedIds.length);
   const { data: employeeData } = useGetAllUsers();
+  const { data: departmentData } = useGetDepartmentsWithUsers();
   const { isMobile, isTablet } = useIsMobile();
   const { userId } = useAuthenticationStore();
   const { mutate: approvalPlanningPeriod, isLoading: isApprovalLoading } =
@@ -171,20 +184,32 @@ function Planning({
     }
   };
 
+  const currentUserId = String(userId ?? '');
+
   const { myPlans, otherPlans } = useMemo(() => {
     const mine: typeof planSummaries = [];
     const others: typeof planSummaries = [];
-    const currentUserId = String(userId ?? '');
     for (const plan of planSummaries) {
-      const isMine =
-        String(plan.ownerUserId ?? '') === currentUserId ||
-        plan.summary === 'My Plan' ||
-        plan.owner?.name === 'My Plan';
-      if (isMine) mine.push(plan);
+      if (isOwnPlanSummary(plan, currentUserId)) mine.push(plan);
       else others.push(plan);
     }
     return { myPlans: mine, otherPlans: others };
-  }, [planSummaries, userId]);
+  }, [planSummaries, currentUserId]);
+
+  const departmentName = useMemo(() => {
+    if (!planningFilterDepartment) return undefined;
+    return departmentData?.find((d: any) => d.id === planningFilterDepartment)
+      ?.name;
+  }, [planningFilterDepartment, departmentData]);
+
+  const emptyStateCopy = buildPlanningEmptyStateCopy({
+    selectedAssigneeCount: selectedIds.length,
+    onlySelfSelected:
+      selectedIds.length === 1 && selectedIds[0] === currentUserId,
+    periodLabel: activeTabName,
+    departmentName,
+    hasTeam,
+  });
 
   const visiblePlanSummaries = useMemo(() => {
     const start = (page - 1) * pageSize;
@@ -249,6 +274,7 @@ function Planning({
                     key={plan.id}
                     plan={plan}
                     viewMode="planning"
+                    displayMode={cardDisplayMode}
                     activeCadence={currentCadence}
                     onApprove={() =>
                       handleApproveHandler(originalDataItem.id, true)
@@ -320,13 +346,24 @@ function Planning({
                   data-cy="planning-and-reporting-components-planning-index-tsx-index-div-319"
                   className="space-y-6"
                 >
-                  {visiblePlanSummaries.map(renderMobileCard)}
+                  {visiblePlanSummaries.map((plan, index) => (
+                    <React.Fragment key={plan.id}>
+                      {cardDisplayMode === 'team' && index > 0 ? (
+                        <PlanAssigneeDivider
+                          name={planCardAssigneeLabel(plan.owner?.name)}
+                          role={plan.owner?.role}
+                        />
+                      ) : null}
+                      {renderMobileCard(plan)}
+                    </React.Fragment>
+                  ))}
                 </div>
               );
             })()
           ) : (
             <PlanningPanelView
               plans={visiblePlanSummaries}
+              cardDisplayMode={cardDisplayMode}
               transformedData={transformedData}
               cadence={currentCadence}
               userId={userId}
@@ -378,24 +415,22 @@ function Planning({
                 data-cy="planning-and-reporting-components-planning-index-tsx-index-p-594"
                 className="text-sm font-medium text-[#161A2C]"
               >
-                No plans yet
+                {emptyStateCopy.title}
               </p>
               <p
                 data-cy="planning-and-reporting-components-planning-index-tsx-index-p-427"
                 className="mt-2 text-xs leading-relaxed text-[#8F94A3]"
               >
-                {activeTabName
-                  ? `There are no planned tasks for ${activeTabName} with the current filters and session.`
-                  : 'There are no planned tasks for this period with the current filters and session.'}
+                {emptyStateCopy.description}
               </p>
-              <p
-                data-cy="planning-and-reporting-components-planning-index-tsx-index-p-432"
-                className="mt-2 text-xs leading-relaxed text-[#C4C7CE]"
-              >
-                {isDesktop
-                  ? 'Use Add Plan, then pick a key result — or tap + to plan without one.'
-                  : 'Use Add Plan, then pick a key result — or tap + to plan without one.'}
-              </p>
+              {emptyStateCopy.hint ? (
+                <p
+                  data-cy="planning-and-reporting-components-planning-index-tsx-index-p-432"
+                  className="mt-2 text-xs leading-relaxed text-[#C4C7CE]"
+                >
+                  {emptyStateCopy.hint}
+                </p>
+              ) : null}
             </div>
           </div>
         )}

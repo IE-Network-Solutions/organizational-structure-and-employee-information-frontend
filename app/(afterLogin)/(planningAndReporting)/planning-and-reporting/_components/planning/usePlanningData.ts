@@ -18,9 +18,11 @@ import { transformToPlanSummary } from '../dataTransformer/vamp';
 import { ViewMode, Cadence, PlanSummary } from '../types';
 import { todayIso } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
 import {
-  activePlanPeriodToKind,
   cadenceAssignmentByKind,
+  isPlanHistoryFilter,
   periodNameToKind,
+  planFilterValueToActivePeriod,
+  planFilterValueToKind,
   planItemMatchesDurationFilter,
 } from './durationFilter';
 import {
@@ -32,6 +34,7 @@ import {
 import {
   mockDisplayNameForUserId,
   mockRoleForUserId,
+  mockTeamMemberIds,
   resolveMockScopeUserIds,
 } from '../prototype/mockPlanningConstants';
 import {
@@ -178,9 +181,9 @@ const ALL_CADENCE_PAGE_SIZE = 100;
 export function usePlanningData(enabled = true) {
   const mockEnabled = isDeadlinePlanningMockEnabled();
   const {
-    activePlanPeriod,
     pageSize,
     activePlanPeriodId,
+    planningDurationFilter,
     planningDefaultFilterApplied,
     planningFilterPlanType,
     selectedUser,
@@ -208,7 +211,6 @@ export function usePlanningData(enabled = true) {
     if (!userId) return;
 
     if (mockEnabled) {
-      // Drop live employee ids from prior sessions; keep mock roster only.
       const hasLiveSelection = selectedUser.some(
         (id) =>
           id &&
@@ -217,10 +219,13 @@ export function usePlanningData(enabled = true) {
           String(id) !== String(userId) &&
           !String(id).startsWith('mock-'),
       );
-      if (!planningDefaultFilterApplied || hasLiveSelection) {
+      const hasLegacyTokens =
+        selectedUser.includes('all') || selectedUser.includes('subordinate');
+      if (!planningDefaultFilterApplied || hasLiveSelection || hasLegacyTokens) {
+        const teamIds = [...(userId ? [userId] : []), ...mockTeamMemberIds()];
         setPlanningFilterPlanType('all');
         setPlanningFilterEmployee('all');
-        setSelectedUser(['all']);
+        setSelectedUser(Array.from(new Set(teamIds)));
         setPlanningDefaultFilterApplied(true);
       }
       return;
@@ -307,9 +312,13 @@ export function usePlanningData(enabled = true) {
   );
 
   const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ||
+    userPlanningPeriods?.[
+      planFilterValueToActivePeriod(planningDurationFilter) - 1
+    ]?.id;
 
-  const filterKind = activePlanPeriodToKind(activePlanPeriod);
+  const isHistoryList = isPlanHistoryFilter(planningDurationFilter);
+  const filterKind = planFilterValueToKind(planningDurationFilter);
   const isLoading = mockEnabled
     ? false
     : loadingDaily || loadingWeekly || loadingMonthly;
@@ -356,13 +365,15 @@ export function usePlanningData(enabled = true) {
     const filtered = mockEnabled
       ? activeOnly
       : activeOnly.filter((item: any) =>
-          planItemMatchesDurationFilter(
-            item,
-            filterKind,
-            today,
-            datesByTaskId,
-            periodNameToKind(item?._periodName),
-          ),
+          isHistoryList
+            ? true
+            : planItemMatchesDurationFilter(
+                item,
+                filterKind,
+                today,
+                datesByTaskId,
+                periodNameToKind(item?._periodName),
+              ),
         );
     return [...filtered].sort((a: any, b: any) => {
       const aMine = String(a?.userId ?? '') === currentUserId ? 0 : 1;
@@ -372,7 +383,14 @@ export function usePlanningData(enabled = true) {
       const tb = new Date(b?.createdAt || 0).getTime();
       return tb - ta;
     });
-  }, [mergedPlanningItems, mockEnabled, userId, filterKind, datesByTaskId]);
+  }, [
+    mergedPlanningItems,
+    mockEnabled,
+    userId,
+    filterKind,
+    isHistoryList,
+    datesByTaskId,
+  ]);
 
   const transformedData =
     groupPlanTasksByKeyResultAndMilestone(activePlanningItems);

@@ -38,4 +38,13 @@ describe('resolveEmployeeAndPlanType', () => {
       }),
     ).toEqual({ employeeSelect: 'all', planType: 'myPlan' });
   });
+
+  it('restores subordinate drill-down employee', () => {
+    expect(
+      resolveEmployeeAndPlanType({
+        planningFilterPlanType: 'subordinatePlan',
+        selectedUser: ['emp-3'],
+      }),
+    ).toEqual({ employeeSelect: 'emp-3', planType: 'subordinatePlan' });
+  });
 });

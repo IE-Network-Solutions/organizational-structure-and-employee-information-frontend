@@ -1,15 +1,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
-import {
-  Button,
-  DatePicker,
-  Dropdown,
-  Pagination,
-  Select,
-  Tooltip,
-  message,
-} from 'antd';
+import { Button, Dropdown, Pagination, Tooltip, message } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   MoreOutlined,
@@ -22,7 +14,6 @@ import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
 import { LuLoader } from 'react-icons/lu';
-import dayjs from 'dayjs';
 import { PlanSummary, PlanTask, ViewMode, Cadence } from '../types';
 import { formatPlanningReportDate } from '../utils';
 import UserInfo from '../UserInfo';
@@ -32,6 +23,7 @@ import { useUpdateStatus } from '@/store/server/features/okrPlanningAndReporting
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useUserPlanRepositoryMock } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
 import { usePlanTaskDatesStore } from '@/store/uistate/features/planningAndReporting/taskDates';
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import {
   todayIso,
@@ -43,13 +35,15 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 import {
-  PLAN_FILTER_OPTIONS,
-  defaultHistoryRange,
   durationFilterMatchesTask,
   isPlanHistoryFilter,
+  planFilterValueToKind,
   taskInHistoryRange,
-  type PlanFilterValue,
 } from '../planning/durationFilter';
+import {
+  planCardAssigneeLabel,
+  type PlanCardDisplayMode,
+} from '../planning/planCardDisplay';
 import MockPlanHierarchy from './MockPlanHierarchy';
 import type { MockPlanTask } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
 import {
@@ -87,6 +81,8 @@ interface PlanCardProps {
   planningPeriodLabel?: string;
   /** Optional custom inline section (used for report edit mode). */
   inlineReportContent?: React.ReactNode;
+  /** Layout driven by assignee chip selection (compact / team / full). */
+  displayMode?: PlanCardDisplayMode;
 }
 
 function flattenAllTasks(plan: PlanSummary) {
@@ -269,6 +265,7 @@ export default function PlanCard({
   onCloseInlineReport,
   planningPeriodLabel,
   inlineReportContent,
+  displayMode = 'full',
 }: PlanCardProps) {
   const { mutate: updateStatus } = useUpdateStatus();
   const togglePreAchieved = useUserPlanRepositoryMock(
@@ -332,15 +329,13 @@ export default function PlanCard({
     top: number;
     text: string;
   } | null>(null);
-  const [durationFilter, setDurationFilter] =
-    useState<PlanFilterValue>('daily');
-  const isHistoryMode = isPlanHistoryFilter(durationFilter);
-  const durationKind: DeadlineKind = isHistoryMode ? 'daily' : durationFilter;
-  const initialHistoryRange = defaultHistoryRange(todayIso());
-  const [historyRange, setHistoryRange] = useState<{
-    from: string;
-    to: string;
-  }>(initialHistoryRange);
+  const { planningDurationFilter, planningHistoryRange } =
+    PlanningAndReportingStore();
+  const isHistoryMode = isPlanHistoryFilter(planningDurationFilter);
+  const durationKind: DeadlineKind = planFilterValueToKind(
+    planningDurationFilter,
+  );
+  const historyRange = planningHistoryRange;
   const [historyPage, setHistoryPage] = useState(1);
   const datesByTaskId = usePlanTaskDatesStore((s) => s.datesByTaskId);
 
@@ -826,7 +821,41 @@ export default function PlanCard({
 
   useEffect(() => {
     setHistoryPage(1);
-  }, [durationFilter, historyRange.from, historyRange.to, plan.id]);
+  }, [
+    planningDurationFilter,
+    historyRange.from,
+    historyRange.to,
+    plan.id,
+  ]);
+
+  const cardSurfaceClass = classNames(
+    'group/card min-w-0 max-w-full overflow-hidden rounded-xl border bg-white transition-all duration-200',
+    displayMode !== 'full' && isTeammatePlan
+      ? 'border-[#F3F4F6] hover:border-[#E5E7EB] hover:shadow-none'
+      : 'border-[#F1F2F6] hover:border-[#D6D3FF] hover:shadow-[0_4px_20px_rgba(87,76,255,0.06)]',
+  );
+
+  const renderPlanningOwnerHeader = () => {
+    if (displayMode === 'full') {
+      return (
+        <UserInfo
+          owner={plan.owner}
+          notificationCount={plan.notificationCount}
+        />
+      );
+    }
+    if (displayMode === 'team') {
+      return (
+        <p
+          data-cy={`plan-card-assignee-label-${plan.id}`}
+          className="min-w-0 truncate text-[13px] font-semibold text-[#161A2C]"
+        >
+          {planCardAssigneeLabel(plan.owner?.name)}
+        </p>
+      );
+    }
+    return <div className="min-w-0 flex-1" aria-hidden />;
+  };
 
   if (viewMode === 'reporting') {
     const reportTasks = sections.flatMap((s) =>
@@ -1539,13 +1568,17 @@ export default function PlanCard({
   return (
     <article
       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
-      className="group/card min-w-0 max-w-full overflow-hidden rounded-xl border border-[#F1F2F6] bg-white transition-all duration-200 hover:border-[#D6D3FF] hover:shadow-[0_4px_20px_rgba(87,76,255,0.06)]"
+      className={cardSurfaceClass}
       data-active-cadence={activeCadence}
+      data-display-mode={displayMode}
     >
       {/* ── Header ────────────────────────────────────────────── */}
       <div
         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-728"
-        className="px-4 pt-3.5 pb-3 md:px-5"
+        className={classNames(
+          'px-4 md:px-5',
+          displayMode === 'compact' ? 'pt-2.5 pb-2' : 'pt-3.5 pb-3',
+        )}
       >
         <div
           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-729"
@@ -1555,10 +1588,7 @@ export default function PlanCard({
             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-730"
             className="flex items-center gap-3 flex-1 min-w-0"
           >
-            <UserInfo
-              owner={plan.owner}
-              notificationCount={plan.notificationCount}
-            />
+            {renderPlanningOwnerHeader()}
           </div>
 
           <div
@@ -1624,7 +1654,8 @@ export default function PlanCard({
                 className="!h-7 !min-h-7 !w-auto !min-w-0 !shrink-0 !rounded-md !px-2.5 !py-0 !border !border-[#1E40AF] !bg-white !text-[#1E40AF] hover:!bg-[#EFF6FF]"
               />
             ) : null}
-            {plan.status && viewMode !== 'planning' ? (
+            {plan.status &&
+            (viewMode !== 'planning' || displayMode === 'compact') ? (
               <StatusBadge status={plan.status} />
             ) : null}
             {inlineReportActive && onCloseInlineReport ? (
@@ -1697,86 +1728,52 @@ export default function PlanCard({
             No tasks for this period
           </p>
         ) : null}
-        {/* Duration filter + column titles — same control on own & subordinate plans */}
-        {!inlineReportActive && (
+        {!inlineReportActive && !isHistoryMode ? (
           <div
             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-822"
-            className="mb-0.5 mt-1 flex items-center justify-between gap-2 px-2.5 pb-1"
+            className="mb-0.5 mt-1 flex items-center justify-end gap-2 px-2.5 pb-1"
           >
-            <div data-cy={`plan-card-duration-tabs-${plan.id}`}>
-              <Select
-                size="small"
-                value={durationFilter}
-                onChange={(value: PlanFilterValue) => setDurationFilter(value)}
-                options={PLAN_FILTER_OPTIONS.map(({ value, label }) => ({
-                  value,
-                  label,
-                }))}
-                aria-label="Plan duration filter"
-                data-cy={`plan-card-duration-select-${plan.id}`}
-                className="[&_.ant-select-selector]:!h-7 [&_.ant-select-selector]:!min-h-7 [&_.ant-select-selector]:!rounded-md [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!bg-[#F8FAFC] [&_.ant-select-selection-item]:!text-[12px] [&_.ant-select-selection-item]:!leading-7"
-                style={{ width: 128 }}
-                popupMatchSelectWidth={false}
-              />
-            </div>
-            {!isHistoryMode ? (
+            <div
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-845"
+              className="flex flex-shrink-0 items-center"
+            >
               <div
-                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-845"
-                className="flex flex-shrink-0 items-center"
+                data-cy="plan-card-col-priority"
+                className={classNames(meta.pri, metaHead)}
               >
-                <div
-                  data-cy="plan-card-col-priority"
-                  className={classNames(meta.pri, metaHead)}
-                >
-                  <span data-cy="plancard-1605" className="sm:hidden">
-                    Pri
-                  </span>
-                  <span data-cy="plancard-1606" className="hidden sm:inline">
-                    Priority
-                  </span>
-                </div>
-                <div
-                  data-cy="plan-card-col-weight"
-                  className={classNames(meta.wt, metaHead)}
-                >
-                  Wt
-                </div>
-                <div
-                  data-cy="plan-card-col-deadline"
-                  className={classNames(meta.deadline, metaHead)}
-                >
-                  Deadline
-                </div>
-                <div
-                  data-cy="plan-card-col-days-left"
-                  className={classNames(meta.daysLeft, metaHead)}
-                >
-                  <span data-cy="plancard-1624" className="sm:hidden">
-                    Left
-                  </span>
-                  <span data-cy="plancard-1625" className="hidden sm:inline">
-                    Days left
-                  </span>
-                </div>
+                <span data-cy="plancard-1605" className="sm:hidden">
+                  Pri
+                </span>
+                <span data-cy="plancard-1606" className="hidden sm:inline">
+                  Priority
+                </span>
               </div>
-            ) : (
-              <DatePicker.RangePicker
-                size="small"
-                allowClear={false}
-                value={[dayjs(historyRange.from), dayjs(historyRange.to)]}
-                onChange={(values) => {
-                  if (!values?.[0] || !values?.[1]) return;
-                  setHistoryRange({
-                    from: values[0].format('YYYY-MM-DD'),
-                    to: values[1].format('YYYY-MM-DD'),
-                  });
-                }}
-                className="max-w-[240px]"
-                data-cy={`plan-card-history-range-${plan.id}`}
-              />
-            )}
+              <div
+                data-cy="plan-card-col-weight"
+                className={classNames(meta.wt, metaHead)}
+              >
+                Wt
+              </div>
+              <div
+                data-cy="plan-card-col-deadline"
+                className={classNames(meta.deadline, metaHead)}
+              >
+                Deadline
+              </div>
+              <div
+                data-cy="plan-card-col-days-left"
+                className={classNames(meta.daysLeft, metaHead)}
+              >
+                <span data-cy="plancard-1624" className="sm:hidden">
+                  Left
+                </span>
+                <span data-cy="plancard-1625" className="hidden sm:inline">
+                  Days left
+                </span>
+              </div>
+            </div>
           </div>
-        )}
+        ) : null}
         <div
           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-862"
           className="space-y-3"

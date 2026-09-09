@@ -55,19 +55,18 @@ export function getSubordinateIds(employeeData: any, managerId: string) {
     .filter(Boolean);
 }
 
+/** Default assignee chips: me + direct reports (all selected). */
 export function resolveDefaultPlanScope(
   userId: string,
   subordinateIds: string[],
 ) {
-  if (subordinateIds.length > 0) {
-    return {
-      planningFilterPlanType: 'subordinatePlan',
-      selectedUser: ['subordinate', ...subordinateIds],
-    };
-  }
+  const ids = userId
+    ? [userId, ...subordinateIds.filter((id) => String(id) !== String(userId))]
+    : [...subordinateIds];
+  const unique = Array.from(new Set(ids.filter(Boolean)));
   return {
-    planningFilterPlanType: 'myPlan',
-    selectedUser: userId ? [userId] : [],
+    planningFilterPlanType: 'all',
+    selectedUser: unique.length > 0 ? unique : userId ? [userId] : [],
   };
 }
 

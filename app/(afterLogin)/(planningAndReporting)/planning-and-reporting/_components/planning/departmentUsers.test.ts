@@ -49,13 +49,13 @@ describe('department user helpers', () => {
     ).toEqual(['a', 'b']);
   });
 
-  it('defaults managers to subordinate scope and others to my plan', () => {
+  it('defaults to all assignee chips selected (me + direct reports)', () => {
     expect(resolveDefaultPlanScope('mgr', ['a', 'b'])).toEqual({
-      planningFilterPlanType: 'subordinatePlan',
-      selectedUser: ['subordinate', 'a', 'b'],
+      planningFilterPlanType: 'all',
+      selectedUser: ['mgr', 'a', 'b'],
     });
     expect(resolveDefaultPlanScope('me', [])).toEqual({
-      planningFilterPlanType: 'myPlan',
+      planningFilterPlanType: 'all',
       selectedUser: ['me'],
     });
   });
