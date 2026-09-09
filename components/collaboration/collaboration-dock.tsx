@@ -18,7 +18,25 @@ const WORKSPACE_BORDER = '#E2E8F0';
 
 export const COLLABORATION_MIN_PANEL_WIDTH = 240;
 export const COLLABORATION_DEFAULT_PANEL_WIDTH = 480;
+/**
+ * Hard ceiling on the panel. Past this the embed stops being a companion column
+ * and starts crowding the page it is meant to sit beside — and the host's own
+ * content is the reason the user is here. Kept in step with CRM and Operations.
+ */
+export const COLLABORATION_MAX_PANEL_WIDTH = 760;
 const PANEL_WIDTH_STORAGE_KEY = 'collaboration-panel-width';
+
+/**
+ * The one place a width becomes legal. Applied on write rather than only while
+ * dragging, so a width stored before the ceiling existed is pulled back into
+ * range on the next load instead of persisting forever.
+ */
+function clampPanelWidth(width: number): number {
+  return Math.min(
+    COLLABORATION_MAX_PANEL_WIDTH,
+    Math.max(COLLABORATION_MIN_PANEL_WIDTH, Math.round(width)),
+  );
+}
 
 type CollaborationPanelStore = {
   panelWidth: number;
@@ -38,7 +56,7 @@ function readStoredPanelWidth(): number {
       Number.isFinite(savedWidth) &&
       savedWidth >= COLLABORATION_MIN_PANEL_WIDTH
     ) {
-      return Math.round(savedWidth);
+      return clampPanelWidth(savedWidth);
     }
   } catch {
     // Fall through to the default when browser storage is unavailable.
@@ -57,7 +75,8 @@ export const useCollaborationPanelStore = create<CollaborationPanelStore>(
     // Hydrate synchronously so a hard reload does not paint at 480 then jump.
     panelWidth: readStoredPanelWidth(),
     dragging: false,
-    setPanelWidth: (panelWidth) => {
+    setPanelWidth: (width) => {
+      const panelWidth = clampPanelWidth(width);
       try {
         window.localStorage.setItem(
           PANEL_WIDTH_STORAGE_KEY,
@@ -130,11 +149,11 @@ export function CollaborationDock() {
       if (!container) return;
 
       const bounds = container.getBoundingClientRect();
-      const nextWidth = Math.min(
-        bounds.width,
-        Math.max(COLLABORATION_MIN_PANEL_WIDTH, bounds.right - event.clientX),
+      // `bounds.width` still caps separately: on a narrow window the container
+      // is the tighter limit, and the panel must not outgrow it.
+      setPanelWidth(
+        Math.min(bounds.width, bounds.right - event.clientX),
       );
-      setPanelWidth(Math.round(nextWidth));
     };
 
     const handleUp = () => setDragging(false);
