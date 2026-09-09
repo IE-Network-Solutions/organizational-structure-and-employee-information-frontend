@@ -487,6 +487,58 @@ const buildZktSyncRequestData = async (filter?: {
   };
 };
 
+type AttendanceDateFilter = {
+  date: { from: string; to: string };
+};
+
+const calculateAbsentAttendance = async (filter?: AttendanceDateFilter) => {
+  const today = getTodayDate();
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/sync-absent`,
+    method: 'POST',
+    headers: requestHeaders,
+    data: {
+      filter: filter || {
+        date: { from: today, to: today },
+      },
+    },
+  });
+};
+
+export const useCalculateAbsentAttendance = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (filter?: AttendanceDateFilter) => calculateAbsentAttendance(filter),
+    {
+      onSuccess: (response: any) => {
+        queryClient.invalidateQueries('attendance');
+
+        const item = response?.item ?? response?.data?.item ?? response;
+        NotificationMessage.success({
+          message: item?.message || 'Absent calculation completed',
+          description:
+            String(item?.absented ?? 0) +
+            ' marked absent; ' +
+            String(item?.skippedLeave ?? 0) +
+            ' skipped on leave; ' +
+            String(item?.skippedExisting ?? 0) +
+            ' skipped with existing attendance.',
+        });
+      },
+      onError(error: any) {
+        NotificationMessage.error({
+          message: 'Error',
+          description:
+            error?.response?.data?.message ||
+            error?.message ||
+            'Failed to calculate absent attendance.',
+        });
+      },
+    },
+  );
+};
+
 type ZktImportWarning = {
   line?: number;
   warning?: string;

@@ -1,13 +1,21 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Select, Tag, Avatar, Popover, Button, DatePicker, Table } from 'antd';
+import {
+  Select,
+  Tag,
+  Avatar,
+  Popover,
+  Button,
+  DatePicker,
+  Table,
+} from 'antd';
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
   SearchOutlined,
 } from '@ant-design/icons';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetAggregateAuditPostLogs } from '@/store/server/features/tenant-management/audit-logs/queries';
 import { AggregateAuditLogParams } from '@/store/server/features/tenant-management/audit-logs/interface';
@@ -39,24 +47,57 @@ const ALL_AUDIT_LOG_MODULE_VALUES = AUDIT_LOG_MODULES.map(
 );
 
 const AuditLogPage = () => {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(
-    undefined,
-  );
-  const [selectedModule, setSelectedModule] = useState<string | undefined>(
-    undefined,
-  );
-  const [selectedAction, setSelectedAction] = useState<string | undefined>(
-    undefined,
-  );
+  const [currentPage, setCurrentPage] = useState(() => {
+    const raw = searchParams.get('page');
+    const parsed = raw ? Number.parseInt(raw, 10) : 1;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+  });
+  const [pageSize, setPageSize] = useState(() => {
+    const raw = searchParams.get('limit');
+    const parsed = raw ? Number.parseInt(raw, 10) : 10;
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 10;
+  });
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>(() => {
+    const performedBy = searchParams.get('performedBy');
+    return performedBy || undefined;
+  });
+  const [selectedModule, setSelectedModule] = useState<string | undefined>(() => {
+    const direct = searchParams.get('module');
+    if (direct) return direct;
+
+    // Backward/compat: if the page is opened as `/audit-log?modules=foo`
+    // and `modules` contains exactly one module, use it as `module`.
+    const modules = searchParams.get('modules');
+    if (modules) {
+      const parts = modules
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (parts.length === 1) return parts[0];
+    }
+    return undefined;
+  });
+  const [selectedAction, setSelectedAction] = useState<string | undefined>(() => {
+    const action = searchParams.get('action');
+    return action || undefined;
+  });
+  const [employeeOrRemarksSearch, setEmployeeOrRemarksSearch] = useState<
+    string
+  >(() => searchParams.get('q') || '');
   const [orderDirection, setOrderDirection] = useState<'ASC' | 'DESC'>('DESC');
   const { isMobile, isTablet } = useIsMobile();
   const { data: allUsers, isLoading: isLoadingUsers } = useGetAllUsers();
   const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
-  const [dateFrom, setDateFrom] = useState<Dayjs | null>(null);
-  const [dateTo, setDateTo] = useState<Dayjs | null>(null);
+  const [dateFrom, setDateFrom] = useState<Dayjs | null>(() => {
+    const startDate = searchParams.get('startDate');
+    return startDate ? dayjs(startDate, 'YYYY-MM-DD') : null;
+  });
+  const [dateTo, setDateTo] = useState<Dayjs | null>(() => {
+    const endDate = searchParams.get('endDate');
+    return endDate ? dayjs(endDate, 'YYYY-MM-DD') : null;
+  });
 
   const queryParams = useMemo(() => {
     const params: AggregateAuditLogParams = {
@@ -91,7 +132,54 @@ const AuditLogPage = () => {
   const auditLogsData = useMemo(() => {
     return auditLogsResponse?.items ?? [];
   }, [auditLogsResponse]);
-  const totalItems = auditLogsResponse?.meta?.totalItems || 0;
+  const filteredAuditLogsData = useMemo(() => {
+    const q = employeeOrRemarksSearch.trim().toLowerCase();
+    return auditLogsData.filter((log: AuditLog) => {
+      const performedAtValue = log?.performedAt || (log as any)?.createdAt;
+      if (dateFrom || dateTo) {
+        // When filtering by date, exclude rows that have no date value.
+        if (!performedAtValue) return false;
+
+        const performedAt = dayjs(performedAtValue);
+        if (dateFrom && performedAt.isBefore(dateFrom.startOf('day')))
+          return false;
+        if (dateTo && performedAt.isAfter(dateTo.endOf('day')))
+          return false;
+      }
+
+      const user = log?.performedByUser;
+      const fullName = user
+        ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
+        : '';
+      const remarks = (log?.remarks || '').toString().toLowerCase();
+      if (!q) return true;
+      return (
+        remarks.includes(q) ||
+        fullName.toLowerCase().includes(q) ||
+        (log?.performedBy || '').toString().toLowerCase().includes(q)
+      );
+    });
+  }, [auditLogsData, employeeOrRemarksSearch, dateFrom, dateTo]);
+
+  const totalItems = useMemo(() => {
+    // When searching client-side, we can only count matches within the
+    // currently fetched page of results.
+    if (
+      employeeOrRemarksSearch.trim() ||
+      dateFrom !== null ||
+      dateTo !== null
+    ) {
+      return filteredAuditLogsData.length;
+    }
+    // within the currently fetched page of results.
+    return auditLogsResponse?.meta?.totalItems || 0;
+  }, [
+    auditLogsResponse,
+    filteredAuditLogsData.length,
+    employeeOrRemarksSearch,
+    dateFrom,
+    dateTo,
+  ]);
 
   const actions = useMemo(() => {
     const defaultActions = ['CREATE', 'UPDATE', 'DELETE'];
@@ -104,8 +192,6 @@ const AuditLogPage = () => {
     });
     return Array.from(uniqueActions).sort();
   }, [auditLogsData]);
-
-  const filteredAuditLogsData = auditLogsData;
 
   const getActionColor = (action: string) => {
     const actionLower = action?.toLowerCase();
@@ -295,6 +381,7 @@ const AuditLogPage = () => {
     selectedModule,
     selectedAction,
     selectedUserId,
+    employeeOrRemarksSearch,
     orderDirection,
     dateFrom,
     dateTo,
@@ -456,6 +543,7 @@ const AuditLogPage = () => {
             setDateTo(null);
             setSelectedModule(undefined);
             setSelectedAction(undefined);
+            setEmployeeOrRemarksSearch('');
             setCurrentPage(1);
           }}
           className="transition-colors hover:bg-gray-100 hover:border-gray-300 active:bg-gray-200 active:border-gray-400"
@@ -476,6 +564,53 @@ const AuditLogPage = () => {
       </div>
     </div>
   );
+
+  // Keep filters stable when navigating to `/audit-log/[id]` and pressing back
+  // by reflecting the filter state in the URL.
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams.toString());
+
+    // Normalize module key
+    next.delete('modules');
+
+    if (selectedModule) next.set('module', selectedModule);
+    else next.delete('module');
+
+    if (selectedAction) next.set('action', selectedAction);
+    else next.delete('action');
+
+    if (dateFrom) next.set('startDate', dateFrom.format('YYYY-MM-DD'));
+    else next.delete('startDate');
+
+    if (dateTo) next.set('endDate', dateTo.format('YYYY-MM-DD'));
+    else next.delete('endDate');
+
+    if (selectedUserId) next.set('performedBy', selectedUserId);
+    else next.delete('performedBy');
+
+    if (employeeOrRemarksSearch.trim()) next.set('q', employeeOrRemarksSearch);
+    else next.delete('q');
+
+    next.set('page', String(currentPage));
+    next.set('limit', String(pageSize));
+
+    const nextString = next.toString();
+    const currentString = searchParams.toString();
+    if (nextString !== currentString) {
+      router.replace(`?${nextString}`, { scroll: false });
+    }
+  }, [
+    searchParams,
+    router,
+    selectedAction,
+    selectedModule,
+    selectedUserId,
+    employeeOrRemarksSearch,
+    dateFrom,
+    dateTo,
+    currentPage,
+    pageSize,
+  ]);
 
   return (
     <div
@@ -508,10 +643,15 @@ const AuditLogPage = () => {
             id="audit-log-filters-row"
           >
             <Select
-              placeholder="Search Employee"
+              placeholder="Search Employee / Remarks"
               value={selectedUserId}
               onChange={(value) => {
                 setSelectedUserId(value || undefined);
+                setEmployeeOrRemarksSearch('');
+                setCurrentPage(1);
+              }}
+              onSearch={(value) => {
+                setEmployeeOrRemarksSearch(value);
                 setCurrentPage(1);
               }}
               allowClear

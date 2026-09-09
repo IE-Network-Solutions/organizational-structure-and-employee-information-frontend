@@ -10,6 +10,7 @@ import {
   markMilestonesCompletedInOkrCaches,
   markMilestonesReopenedInOkrCaches,
   patchReportTaskStatusesInCaches,
+  scheduleDashboardAndVpRefetch,
   scheduleOkrMilestoneStatusRefetch,
 } from '@/utils/invalidateOkrPlanningCaches';
 import { useRecentlyAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
@@ -317,6 +318,7 @@ export const useCreateReportForUnReportedtasks = () => {
           750,
           variables.achievedMilestoneIds,
         );
+        scheduleDashboardAndVpRefetch(queryClient, 1000);
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',
@@ -371,6 +373,7 @@ export const useEditReportByReportId = () => {
           750,
           variables.achievedMilestoneIds,
         );
+        scheduleDashboardAndVpRefetch(queryClient, 1000);
         NotificationMessage.success({
           message: 'Successfully updated',
           description: 'OKR plan status successfully updated',
@@ -447,6 +450,7 @@ export const useApprovalReporting = () => {
       }
       void invalidateReportingCaches(queryClient);
       scheduleOkrMilestoneStatusRefetch(queryClient, 750, achievedIds);
+      scheduleDashboardAndVpRefetch(queryClient, 1000);
       NotificationMessage.success({
         message: 'Successfully updated',
         description: 'okr plan status successfully updated',

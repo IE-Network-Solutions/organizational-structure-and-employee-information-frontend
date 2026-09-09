@@ -47,8 +47,33 @@ export function invalidateReportingCaches(
     queryClient.invalidateQueries(['okrPlannedData'], REFETCH_OPTS),
     queryClient.invalidateQueries(['fetchObjectives'], REFETCH_OPTS),
     queryClient.invalidateQueries(['ObjectiveInformation'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['teamObjectiveInformation'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['companyObjectiveInformation'], REFETCH_OPTS),
     queryClient.invalidateQueries(['keyResult'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['ObjectiveDashboard'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['VPScores'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['variablePay'], REFETCH_OPTS),
   ]);
+}
+
+/**
+ * Dashboard OKR totals + VP recalculate async after report.
+ * Re-invalidate shortly after so cards pick up the finished summary/VP.
+ */
+export function scheduleDashboardAndVpRefetch(
+  queryClient: QueryClient,
+  delayMs = 1000,
+): void {
+  if (typeof window === 'undefined') return;
+  window.setTimeout(() => {
+    void Promise.all([
+      queryClient.invalidateQueries(['ObjectiveDashboard'], REFETCH_OPTS),
+      queryClient.invalidateQueries(['VPScores'], REFETCH_OPTS),
+      queryClient.invalidateQueries(['variablePay'], REFETCH_OPTS),
+      queryClient.invalidateQueries(['ObjectiveInformation'], REFETCH_OPTS),
+      queryClient.invalidateQueries(['fetchObjectives'], REFETCH_OPTS),
+    ]);
+  }, delayMs);
 }
 
 /**
@@ -74,6 +99,9 @@ export function invalidateOkrPlanningCaches(
       ['companyObjectiveInformation'],
       ['keyResult'],
       ['keyResultForEdit'],
+      ['ObjectiveDashboard'],
+      ['VPScores'],
+      ['variablePay'],
     ].map((key) => queryClient.invalidateQueries(key, REFETCH_OPTS)),
   ]);
 }

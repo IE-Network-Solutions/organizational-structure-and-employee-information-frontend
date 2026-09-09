@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_AND_EMP_URL, TENANT_MGMT_URL } from '@/utils/constants';
+import { CORE_API_URL, ORG_AND_EMP_URL, TENANT_MGMT_URL } from '@/utils/constants';
 import { useMutation, useQuery } from 'react-query';
 import { crudRequest } from '@/utils/crudRequest';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
@@ -31,7 +31,7 @@ export const usePasswordReset = () => {
       };
 
       const response = await crudRequest({
-        url: `${ORG_AND_EMP_URL}/users/resetPassword`,
+        url: `${CORE_API_URL}/users/resetPassword`,
         method: 'POST',
         data: values,
       });

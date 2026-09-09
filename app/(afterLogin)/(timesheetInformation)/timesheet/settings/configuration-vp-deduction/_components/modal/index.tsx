@@ -38,6 +38,8 @@ interface VpDeductionSectionValues {
   endTime?: number;
   applyAdditionalRules?: boolean;
   deductibleAmount?: number;
+  salaryDeductionEnabled?: boolean;
+  salaryDeductionMinutes?: number;
   description?: string;
   missedClockout?: boolean;
   isAbsent?: boolean;
@@ -54,6 +56,8 @@ const DEFAULT_SECTION_VALUES: VpDeductionSectionValues = {
   endTime: undefined,
   applyAdditionalRules: false,
   deductibleAmount: undefined,
+  salaryDeductionEnabled: false,
+  salaryDeductionMinutes: undefined,
   description: undefined,
   missedClockout: false,
   isAbsent: false,
@@ -103,6 +107,10 @@ const ConfigureVpDeductionModal = () => {
     form,
   );
   const isAbsent = Form.useWatch(['lateArrival', 'isAbsent'], form);
+  const salaryDeductionEnabled = Form.useWatch(
+    [activeFormKey, 'salaryDeductionEnabled'],
+    form,
+  );
 
   const isEditMode = Boolean(vpDeductionConfigId);
 
@@ -140,6 +148,12 @@ const ConfigureVpDeductionModal = () => {
       form.setFieldValue(['lateArrival', 'attendanceRuleId'], undefined);
     }
   }, [isAbsent, form]);
+
+  useEffect(() => {
+    if (!salaryDeductionEnabled) {
+      form.setFieldValue([activeFormKey, 'salaryDeductionMinutes'], undefined);
+    }
+  }, [salaryDeductionEnabled, activeFormKey, form]);
 
   const onClose = useCallback(() => {
     form.resetFields();
@@ -179,6 +193,10 @@ const ConfigureVpDeductionModal = () => {
         endTime: item.toMinutes ?? undefined,
         applyAdditionalRules: !item.missedClockout && item.toMinutes == null,
         deductibleAmount: item.deductableAmount ?? undefined,
+        salaryDeductionEnabled:
+          item.salaryDeductionMinutes != null &&
+          Number(item.salaryDeductionMinutes) > 0,
+        salaryDeductionMinutes: item.salaryDeductionMinutes ?? undefined,
         description: item.description ?? undefined,
         missedClockout: Boolean(item.missedClockout),
         isAbsent: Boolean(item.isAbsent),
@@ -195,6 +213,8 @@ const ConfigureVpDeductionModal = () => {
       endTime: section.endTime,
       applyAdditionalRules: section.applyAdditionalRules,
       deductibleAmount: section.deductibleAmount,
+      salaryDeductionEnabled: section.salaryDeductionEnabled,
+      salaryDeductionMinutes: section.salaryDeductionMinutes,
       description: section.description,
       missedClockout:
         activeTab === 'early_checkout' ? section.missedClockout : false,
@@ -528,6 +548,77 @@ const ConfigureVpDeductionModal = () => {
                 data-cy="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount"
               />
             </Form.Item>
+
+            <div
+              className="mb-4 rounded-lg border border-[#D9D9D9] bg-[#FAFAFA] px-4 py-3"
+              data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-section"
+            >
+              <div
+                className="flex items-start justify-between gap-4"
+                data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-header"
+              >
+                <div
+                  className="min-w-0 flex-1"
+                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-copy"
+                >
+                  <p
+                    className="mb-0 text-sm font-medium text-[#262626]"
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-title"
+                  >
+                    Salary Deduction by Minutes
+                  </p>
+                  <p
+                    className="mb-0 mt-1 text-xs text-gray-500"
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-description"
+                  >
+                    When enabled, configure how many minutes of salary to deduct
+                    for this time range. VP points stay unchanged.
+                  </p>
+                </div>
+                <Form.Item
+                  name={[activeFormKey, 'salaryDeductionEnabled']}
+                  valuePropName="checked"
+                  className="mb-0"
+                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-enabled-field"
+                >
+                  <Switch
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-enabled-switch"
+                    aria-label="Salary Deduction by Minutes"
+                  />
+                </Form.Item>
+              </div>
+
+              {salaryDeductionEnabled && (
+                <Form.Item
+                  name={[activeFormKey, 'salaryDeductionMinutes']}
+                  label={
+                    <span
+                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes-label"
+                      className="text-sm font-normal text-gray-900"
+                    >
+                      Salary Deduction Minutes
+                    </span>
+                  }
+                  className="mb-0 mt-4"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Salary deduction minutes are required',
+                    },
+                  ]}
+                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes-field"
+                >
+                  <InputNumber
+                    className={controlClass}
+                    placeholder="Minutes of salary to deduct"
+                    min={0}
+                    controls={false}
+                    id="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes"
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes"
+                  />
+                </Form.Item>
+              )}
+            </div>
 
             <Form.Item
               name={[activeFormKey, 'description']}
