@@ -217,8 +217,7 @@ const BreakTypeSidebar = () => {
         (breakTypeDetail as any)?.item ??
         (breakTypeDetail as any)?.data?.item ??
         null;
-      const shiftIds =
-        detailItem?.shiftIds ?? selectedBreakType.shiftIds ?? [];
+      const shiftIds = detailItem?.shiftIds ?? selectedBreakType.shiftIds ?? [];
       const source = detailItem ?? selectedBreakType;
       const formattedBreakType = {
         ...source,
@@ -382,7 +381,10 @@ const BreakTypeSidebar = () => {
           <Form.Item
             name="shiftIds"
             label={
-              <span className="text-sm font-normal text-gray-900 pr-1">
+              <span
+                className="text-sm font-normal text-gray-900 pr-1"
+                data-cy="time-attendance-settings-break-type-sidebar-shift-ids-label"
+              >
                 Apply to shifts
               </span>
             }

@@ -24,7 +24,11 @@ import {
   useGetAllUsers,
   useGetEmployee,
 } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetWorkSchedule, useGetWorkScheduleShifts, useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
+import {
+  useGetWorkSchedule,
+  useGetWorkScheduleShifts,
+  useGetWorkSchedules,
+} from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 import { useAllApproval } from '@/store/server/features/approver/queries';
 import {
   useGetMySchedule,
@@ -56,17 +60,9 @@ const STATUS_COLORS: Record<string, string> = {
 
 type SwapTabKey = 'pending' | 'approved' | 'rejected';
 
-const PENDING_STATUSES = [
-  'PENDING_PEER',
-  'PEER_APPROVED',
-  'PENDING_APPROVAL',
-];
+const PENDING_STATUSES = ['PENDING_PEER', 'PEER_APPROVED', 'PENDING_APPROVAL'];
 const APPROVED_STATUSES = ['APPROVED', 'COMPLETED'];
-const REJECTED_STATUSES = [
-  'PEER_REJECTED',
-  'APPROVAL_REJECTED',
-  'CANCELLED',
-];
+const REJECTED_STATUSES = ['PEER_REJECTED', 'APPROVAL_REJECTED', 'CANCELLED'];
 
 function formatTimeRange(start?: string | null, end?: string | null) {
   if (!start && !end) return null;
@@ -156,9 +152,7 @@ export default function MySchedulePage() {
     activeJob?.workSchedule;
 
   const myAssignedShiftId =
-    activeJob?.workScheduleShiftId ||
-    activeJob?.workScheduleShift?.id ||
-    null;
+    activeJob?.workScheduleShiftId || activeJob?.workScheduleShift?.id || null;
 
   // Prefer dedicated shifts API; fall back to nested schedule / job payload
   const scheduleShifts = (() => {
@@ -183,13 +177,10 @@ export default function MySchedulePage() {
 
   const employeeDisplayName =
     personName(employeeData) ||
-    [employeeData?.firstName, employeeData?.lastName].filter(Boolean).join(' ') ||
+    [employeeData?.firstName, employeeData?.lastName]
+      .filter(Boolean)
+      .join(' ') ||
     'Employee';
-  const employeeRole =
-    activeJob?.position?.name ||
-    activeJob?.jobPosition?.name ||
-    activeJob?.employementType?.name ||
-    '';
 
   const departmentId =
     activeJob?.departmentId ||
@@ -315,7 +306,8 @@ export default function MySchedulePage() {
       );
     };
 
-    return Array.from({ length: 7 }, (_, i) => {
+    return Array.from({ length: 7 }, (unusedSlot, i) => {
+      void unusedSlot;
       const date = weekStart.add(i, 'day');
       const key = date.format('YYYY-MM-DD');
       const entry = byDate.get(key) as any;
@@ -431,12 +423,15 @@ export default function MySchedulePage() {
   const weekOptions = useMemo(() => {
     const monthStart = weekStart.startOf('month');
     const options: { value: string; label: string }[] = [];
-    let cursor = monthStart.startOf('isoWeek');
+    const cursor = monthStart.startOf('isoWeek');
     // Cover weeks that touch this month
     for (let i = 0; i < 6; i++) {
       const start = cursor.add(i, 'week');
       const end = start.add(6, 'day');
-      if (end.isBefore(monthStart) || start.isAfter(monthStart.endOf('month'))) {
+      if (
+        end.isBefore(monthStart) ||
+        start.isAfter(monthStart.endOf('month'))
+      ) {
         continue;
       }
       options.push({
@@ -496,7 +491,7 @@ export default function MySchedulePage() {
     {
       title: 'Dates',
       key: 'dates',
-      render: (_: any, row: any) =>
+      render: (unusedValue: any, row: any) =>
         `${dayjs(row.startDate).format('MMM D, YYYY')} – ${dayjs(row.endDate).format('MMM D, YYYY')}`,
     },
     {
@@ -529,10 +524,9 @@ export default function MySchedulePage() {
     {
       title: 'Action',
       key: 'action',
-      render: (_: any, row: any) =>
+      render: (unusedValue: any, row: any) =>
         row.requesterUserId === userId &&
-        (row.status === 'PENDING_PEER' ||
-          row.status === 'PENDING_APPROVAL') ? (
+        (row.status === 'PENDING_PEER' || row.status === 'PENDING_APPROVAL') ? (
           <Button
             type="link"
             danger
@@ -556,7 +550,7 @@ export default function MySchedulePage() {
     {
       title: 'Dates',
       key: 'dates',
-      render: (_: any, row: any) =>
+      render: (unusedValue: any, row: any) =>
         `${dayjs(row.startDate).format('MMM D')} – ${dayjs(row.endDate).format('MMM D, YYYY')}`,
     },
     {
@@ -572,7 +566,7 @@ export default function MySchedulePage() {
     {
       title: 'Action',
       key: 'action',
-      render: (_: any, row: any) => (
+      render: (unusedValue: any, row: any) => (
         <AccessGuard permissions={[Permissions.ApproveShiftSwapPeer]}>
           <Space>
             <Button
@@ -607,55 +601,61 @@ export default function MySchedulePage() {
         : 'No rejected swap requests.';
 
   return (
-      <div
-        className="space-y-8 w-full max-w-full pt-2"
-        id="time-attendance-my-timesheet-schedule-page"
-        data-cy="time-attendance-my-timesheet-schedule-page"
-      >
-        {/* My Schedule */}
-        <section data-cy="my-schedule-section">
-          <div className="mb-4" data-cy="my-schedule-heading">
-            <h2 className="text-xl font-semibold m-0 text-[#1f1f1f]">
-              My Schedule
-            </h2>
-            <p className="text-sm text-gray-500 m-0 mt-1">
-              Week of {weekStart.format('MMM D')} - {weekEnd.format('MMM D')}
-              {employeeDisplayName ? ` - ${employeeDisplayName}` : ''}
-            </p>
-          </div>
-
-          <div
-            className="flex flex-wrap items-center gap-3 mb-4"
-            data-cy="my-schedule-controls"
+    <div
+      className="space-y-8 w-full max-w-full pt-2"
+      id="time-attendance-my-timesheet-schedule-page"
+      data-cy="time-attendance-my-timesheet-schedule-page"
+    >
+      {/* My Schedule */}
+      <section data-cy="my-schedule-section">
+        <div className="mb-4" data-cy="my-schedule-heading">
+          <h2
+            className="text-xl font-semibold m-0 text-[#1f1f1f]"
+            data-cy="my-schedule-title"
           >
-            <DatePicker
-              picker="month"
-              value={weekStart}
-              allowClear={false}
-              format="MMMM YYYY"
-              className="min-w-[160px]"
-              onChange={(value) => {
-                if (!value) return;
-                const next = value.startOf('month').startOf('isoWeek');
-                // Prefer the week that contains the 1st if it overlaps; else first week of month
-                setWeekStart(
-                  value.startOf('month').isoWeekday() === 1
-                    ? value.startOf('month')
-                    : next.isBefore(value.startOf('month'))
-                      ? next.add(1, 'week')
-                      : next,
-                );
-              }}
-              data-cy="my-schedule-month-picker"
-            />
-            <Select
-              className="min-w-[240px]"
-              value={weekStart.format('YYYY-MM-DD')}
-              options={weekOptions}
-              onChange={(value) => setWeekStart(dayjs(value))}
-              data-cy="my-schedule-week-select"
-            />
-            {/* <Select
+            My Schedule
+          </h2>
+          <p
+            className="text-sm text-gray-500 m-0 mt-1"
+            data-cy="my-schedule-subtitle"
+          >
+            Week of {weekStart.format('MMM D')} - {weekEnd.format('MMM D')}
+            {employeeDisplayName ? ` - ${employeeDisplayName}` : ''}
+          </p>
+        </div>
+
+        <div
+          className="flex flex-wrap items-center gap-3 mb-4"
+          data-cy="my-schedule-controls"
+        >
+          <DatePicker
+            picker="month"
+            value={weekStart}
+            allowClear={false}
+            format="MMMM YYYY"
+            className="min-w-[160px]"
+            onChange={(value) => {
+              if (!value) return;
+              const next = value.startOf('month').startOf('isoWeek');
+              // Prefer the week that contains the 1st if it overlaps; else first week of month
+              setWeekStart(
+                value.startOf('month').isoWeekday() === 1
+                  ? value.startOf('month')
+                  : next.isBefore(value.startOf('month'))
+                    ? next.add(1, 'week')
+                    : next,
+              );
+            }}
+            data-cy="my-schedule-month-picker"
+          />
+          <Select
+            className="min-w-[240px]"
+            value={weekStart.format('YYYY-MM-DD')}
+            options={weekOptions}
+            onChange={(value) => setWeekStart(dayjs(value))}
+            data-cy="my-schedule-week-select"
+          />
+          {/* <Select
               className="min-w-[260px] flex-1 max-w-[360px]"
               value={userId}
               disabled
@@ -669,237 +669,271 @@ export default function MySchedulePage() {
               ]}
               data-cy="my-schedule-employee-select"
             /> */}
+          <Button
+            type="primary"
+            icon={<FaPlus />}
+            className="ml-auto"
+            onClick={() => {
+              if (departmentId) getDepartmentApproval();
+              if (userId) getUserApproval();
+              setIsModalOpen(true);
+            }}
+            data-cy="shift-swap-new-request-btn"
+          >
+            New Request
+          </Button>
+        </div>
+
+        {isScheduleLoading ? (
+          <Skeleton active paragraph={{ rows: 8 }} />
+        ) : !myScheduleId && !isScheduleLoading ? (
+          <div
+            className="py-10 text-center text-gray-500 text-sm border border-dashed border-gray-200 rounded-lg"
+            data-cy="my-schedule-no-work-schedule"
+          >
+            No work schedule is assigned to your active job. Please contact HR
+            to assign a work schedule.
+          </div>
+        ) : (
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3"
+            data-cy="my-schedule-week-grid"
+          >
+            {days.map(({ date, cards }) => (
+              <div
+                key={date.format('YYYY-MM-DD')}
+                className="rounded-xl border border-gray-200 bg-white min-h-[180px] p-3 flex flex-col"
+                data-cy={`my-schedule-day-${date.format('YYYY-MM-DD')}`}
+              >
+                <div
+                  className="flex items-start justify-between mb-3"
+                  data-cy={`my-schedule-day-header-${date.format('YYYY-MM-DD')}`}
+                >
+                  <div
+                    data-cy={`my-schedule-day-title-wrap-${date.format('YYYY-MM-DD')}`}
+                  >
+                    <div
+                      className="text-sm font-semibold text-[#1f1f1f]"
+                      data-cy={`my-schedule-day-title-${date.format('YYYY-MM-DD')}`}
+                    >
+                      {date.format('ddd')}{' '}
+                      <span
+                        className="font-normal text-gray-600"
+                        data-cy={`my-schedule-day-date-${date.format('YYYY-MM-DD')}`}
+                      >
+                        {date.format('MMM D')}
+                      </span>
+                    </div>
+                  </div>
+                  <DownOutlined className="text-gray-400 text-xs mt-1" />
+                </div>
+
+                <div
+                  className="flex flex-col gap-2 flex-1"
+                  data-cy={`my-schedule-day-cards-${date.format('YYYY-MM-DD')}`}
+                >
+                  {cards.length > 0 ? (
+                    cards.map((card: any, idx: number) => (
+                      <div
+                        key={`${date.format('YYYY-MM-DD')}-${idx}`}
+                        className="rounded-lg bg-[#f5f5f5] px-3 py-2"
+                        data-cy={`my-schedule-shift-card-${date.format('YYYY-MM-DD')}-${idx}`}
+                      >
+                        <div
+                          className="text-sm font-semibold text-[#1f1f1f]"
+                          data-cy={`my-schedule-shift-time-${date.format('YYYY-MM-DD')}-${idx}`}
+                        >
+                          {formatTimeRange(card.startTime, card.endTime)}
+                        </div>
+                        <div
+                          className="text-xs text-gray-500 mt-0.5"
+                          data-cy={`my-schedule-shift-name-${date.format('YYYY-MM-DD')}-${idx}`}
+                        >
+                          {card.name}
+                        </div>
+                        {card.isOverride && (
+                          <Tag color="orange" className="mt-1 m-0 text-[10px]">
+                            Swap
+                          </Tag>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div
+                      className="flex-1 flex items-center justify-center text-xs text-gray-400"
+                      data-cy={`my-schedule-day-off-${date.format('YYYY-MM-DD')}`}
+                    >
+                      Off
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Peer approvals inbox */}
+      {peerItems.length > 0 && (
+        <section data-cy="shift-swap-peer-pending-section">
+          <h3
+            className="text-base font-semibold mb-3 text-[#1f1f1f]"
+            data-cy="shift-swap-peer-pending-title"
+          >
+            Requests awaiting your approval
+          </h3>
+          <Table
+            rowKey="id"
+            columns={peerColumns}
+            dataSource={peerItems}
+            pagination={false}
+            size="small"
+            scroll={{ x: 720 }}
+            data-cy="shift-swap-peer-pending-table"
+          />
+        </section>
+      )}
+
+      {/* Swap Requests */}
+      <section data-cy="swap-requests-section">
+        <h2
+          className="text-xl font-semibold m-0 mb-3 text-[#1f1f1f]"
+          data-cy="swap-requests-title"
+        >
+          Swap Requests
+        </h2>
+        <Tabs
+          activeKey={swapTab}
+          onChange={(key) => setSwapTab(key as SwapTabKey)}
+          items={[
+            {
+              key: 'pending',
+              label: `Pending (${pendingCount})`,
+            },
+            {
+              key: 'approved',
+              label: `Approved (${approvedCount})`,
+            },
+            {
+              key: 'rejected',
+              label: `Rejected (${rejectedCount})`,
+            },
+          ]}
+          data-cy="swap-requests-status-tabs"
+        />
+
+        {isRequestsLoading ? (
+          <TableSkeleton columns={requestColumns} />
+        ) : filteredRequests.length === 0 ? (
+          <div
+            className="py-10 text-center text-gray-500 text-sm border border-dashed border-gray-200 rounded-lg"
+            data-cy="swap-requests-empty"
+          >
+            {emptySwapMessage}
+          </div>
+        ) : (
+          <Table
+            rowKey="id"
+            columns={requestColumns}
+            dataSource={filteredRequests}
+            pagination={false}
+            scroll={{ x: 900 }}
+            data-cy="swap-requests-table"
+          />
+        )}
+      </section>
+
+      <Modal
+        open={isModalOpen}
+        title="New Shift Swap Request"
+        onCancel={() => {
+          form.resetFields();
+          setIsModalOpen(false);
+        }}
+        footer={null}
+        destroyOnClose
+        centered
+        data-cy="shift-swap-create-modal"
+      >
+        {hasNoApprover && (
+          <p
+            className="text-red-600 text-sm mb-3"
+            data-cy="shift-swap-no-approver-message"
+          >
+            You lack approver please contact your team lead for more information
+          </p>
+        )}
+        <Form layout="vertical" form={form} onFinish={onFinish}>
+          <Form.Item
+            name="peerUserId"
+            label="Peer"
+            rules={[{ required: true, message: 'Select a peer' }]}
+          >
+            <Select
+              showSearch
+              optionFilterProp="label"
+              options={peerOptions}
+              placeholder="Select peer employee"
+              disabled={hasNoApprover}
+            />
+          </Form.Item>
+          <Form.Item
+            name="targetShiftId"
+            label="Target shift (shift you want)"
+            rules={[{ required: true, message: 'Select a shift' }]}
+          >
+            <Select
+              placeholder={targetShiftPlaceholder}
+              disabled={hasNoApprover || !swappableShifts.length}
+              options={swappableShifts.map((s: any) => ({
+                value: s.id,
+                label: `${s.name} (${s.startTime} – ${s.endTime})${
+                  isShiftMarkedSwappable(s) ? '' : ' — not swappable'
+                }`,
+                disabled: !isShiftMarkedSwappable(s),
+              }))}
+            />
+          </Form.Item>
+          <Form.Item
+            name="dateRange"
+            label="Date range"
+            rules={[{ required: true, message: 'Select dates' }]}
+          >
+            <DatePicker.RangePicker
+              className="w-full"
+              format={DATE_FORMAT}
+              disabled={hasNoApprover}
+              disabledDate={(current) =>
+                !!current && current.isBefore(dayjs().startOf('day'))
+              }
+            />
+          </Form.Item>
+          <Form.Item name="reason" label="Reason (optional)">
+            <Input.TextArea rows={3} disabled={hasNoApprover} />
+          </Form.Item>
+          <div
+            className="flex justify-end gap-2"
+            data-cy="shift-swap-create-modal-actions"
+          >
+            <Button
+              onClick={() => {
+                form.resetFields();
+                setIsModalOpen(false);
+              }}
+            >
+              Cancel
+            </Button>
             <Button
               type="primary"
-              icon={<FaPlus />}
-              className="ml-auto"
-              onClick={() => {
-                if (departmentId) getDepartmentApproval();
-                if (userId) getUserApproval();
-                setIsModalOpen(true);
-              }}
-              data-cy="shift-swap-new-request-btn"
+              htmlType="submit"
+              loading={isCreating}
+              disabled={hasNoApprover}
             >
-              New Request
+              Submit
             </Button>
           </div>
-
-          {isScheduleLoading ? (
-            <Skeleton active paragraph={{ rows: 8 }} />
-          ) : !myScheduleId && !isScheduleLoading ? (
-            <div
-              className="py-10 text-center text-gray-500 text-sm border border-dashed border-gray-200 rounded-lg"
-              data-cy="my-schedule-no-work-schedule"
-            >
-              No work schedule is assigned to your active job. Please contact HR
-              to assign a work schedule.
-            </div>
-          ) : (
-            <div
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3"
-              data-cy="my-schedule-week-grid"
-            >
-              {days.map(({ date, cards }) => (
-                <div
-                  key={date.format('YYYY-MM-DD')}
-                  className="rounded-xl border border-gray-200 bg-white min-h-[180px] p-3 flex flex-col"
-                  data-cy={`my-schedule-day-${date.format('YYYY-MM-DD')}`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <div className="text-sm font-semibold text-[#1f1f1f]">
-                        {date.format('ddd')}{' '}
-                        <span className="font-normal text-gray-600">
-                          {date.format('MMM D')}
-                        </span>
-                      </div>
-                    </div>
-                    <DownOutlined className="text-gray-400 text-xs mt-1" />
-                  </div>
-
-                  <div className="flex flex-col gap-2 flex-1">
-                    {cards.length > 0 ? (
-                      cards.map((card: any, idx: number) => (
-                        <div
-                          key={`${date.format('YYYY-MM-DD')}-${idx}`}
-                          className="rounded-lg bg-[#f5f5f5] px-3 py-2"
-                          data-cy={`my-schedule-shift-card-${date.format('YYYY-MM-DD')}-${idx}`}
-                        >
-                          <div className="text-sm font-semibold text-[#1f1f1f]">
-                            {formatTimeRange(card.startTime, card.endTime)}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-0.5">
-                            {card.name}
-                          </div>
-                          {card.isOverride && (
-                            <Tag color="orange" className="mt-1 m-0 text-[10px]">
-                              Swap
-                            </Tag>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="flex-1 flex items-center justify-center text-xs text-gray-400">
-                        Off
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Peer approvals inbox */}
-        {peerItems.length > 0 && (
-          <section data-cy="shift-swap-peer-pending-section">
-            <h3 className="text-base font-semibold mb-3 text-[#1f1f1f]">
-            Requests awaiting your approval
-            </h3>
-            <Table
-              rowKey="id"
-              columns={peerColumns}
-              dataSource={peerItems}
-              pagination={false}
-              size="small"
-              scroll={{ x: 720 }}
-              data-cy="shift-swap-peer-pending-table"
-            />
-          </section>
-        )}
-
-        {/* Swap Requests */}
-        <section data-cy="swap-requests-section">
-          <h2 className="text-xl font-semibold m-0 mb-3 text-[#1f1f1f]">
-            Swap Requests
-          </h2>
-          <Tabs
-            activeKey={swapTab}
-            onChange={(key) => setSwapTab(key as SwapTabKey)}
-            items={[
-              {
-                key: 'pending',
-                label: `Pending (${pendingCount})`,
-              },
-              {
-                key: 'approved',
-                label: `Approved (${approvedCount})`,
-              },
-              {
-                key: 'rejected',
-                label: `Rejected (${rejectedCount})`,
-              },
-            ]}
-            data-cy="swap-requests-status-tabs"
-          />
-
-          {isRequestsLoading ? (
-            <TableSkeleton columns={requestColumns} />
-          ) : filteredRequests.length === 0 ? (
-            <div
-              className="py-10 text-center text-gray-500 text-sm border border-dashed border-gray-200 rounded-lg"
-              data-cy="swap-requests-empty"
-            >
-              {emptySwapMessage}
-            </div>
-          ) : (
-            <Table
-              rowKey="id"
-              columns={requestColumns}
-              dataSource={filteredRequests}
-              pagination={false}
-              scroll={{ x: 900 }}
-              data-cy="swap-requests-table"
-            />
-          )}
-        </section>
-
-        <Modal
-          open={isModalOpen}
-          title="New Shift Swap Request"
-          onCancel={() => {
-            form.resetFields();
-            setIsModalOpen(false);
-          }}
-          footer={null}
-          destroyOnClose
-          centered
-          data-cy="shift-swap-create-modal"
-        >
-          {hasNoApprover && (
-            <p className="text-red-600 text-sm mb-3">
-              You lack approver please contact your team lead for more
-              information
-            </p>
-          )}
-          <Form layout="vertical" form={form} onFinish={onFinish}>
-            <Form.Item
-              name="peerUserId"
-              label="Peer"
-              rules={[{ required: true, message: 'Select a peer' }]}
-            >
-              <Select
-                showSearch
-                optionFilterProp="label"
-                options={peerOptions}
-                placeholder="Select peer employee"
-                disabled={hasNoApprover}
-              />
-            </Form.Item>
-            <Form.Item
-              name="targetShiftId"
-              label="Target shift (shift you want)"
-              rules={[{ required: true, message: 'Select a shift' }]}
-            >
-              <Select
-                placeholder={targetShiftPlaceholder}
-                disabled={hasNoApprover || !swappableShifts.length}
-                options={swappableShifts.map((s: any) => ({
-                  value: s.id,
-                  label: `${s.name} (${s.startTime} – ${s.endTime})${
-                    isShiftMarkedSwappable(s) ? '' : ' — not swappable'
-                  }`,
-                  disabled: !isShiftMarkedSwappable(s),
-                }))}
-              />
-            </Form.Item>
-            <Form.Item
-              name="dateRange"
-              label="Date range"
-              rules={[{ required: true, message: 'Select dates' }]}
-            >
-              <DatePicker.RangePicker
-                className="w-full"
-                format={DATE_FORMAT}
-                disabled={hasNoApprover}
-                disabledDate={(current) =>
-                  !!current && current.isBefore(dayjs().startOf('day'))
-                }
-              />
-            </Form.Item>
-            <Form.Item name="reason" label="Reason (optional)">
-              <Input.TextArea rows={3} disabled={hasNoApprover} />
-            </Form.Item>
-            <div className="flex justify-end gap-2">
-              <Button
-                onClick={() => {
-                  form.resetFields();
-                  setIsModalOpen(false);
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={isCreating}
-                disabled={hasNoApprover}
-              >
-                Submit
-              </Button>
-            </div>
-          </Form>
-        </Modal>
-      </div>
+        </Form>
+      </Modal>
+    </div>
   );
 }

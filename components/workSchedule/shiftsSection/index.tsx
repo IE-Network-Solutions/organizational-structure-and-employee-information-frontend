@@ -82,7 +82,7 @@ export function mapShiftsToApiPayload(shifts: ShiftDraft[]) {
     endTime: shift.endTime,
     isSwappable: !!shift.isSwappable,
     applyToAllDays: !!shift.applyToAllDays,
-    days: shift.applyToAllDays ? [] : shift.days ?? [],
+    days: shift.applyToAllDays ? [] : (shift.days ?? []),
     breaks: (shift.breaks ?? [])
       .filter((br) => br.startAt && br.endAt)
       .map((br, index) => ({
@@ -110,10 +110,7 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
     useGetBreakTypes();
   const enrichedOnce = useRef(false);
 
-  const breakTypes = useMemo(
-    () => breakTypeData?.items ?? [],
-    [breakTypeData],
-  );
+  const breakTypes = useMemo(() => breakTypeData?.items ?? [], [breakTypeData]);
 
   // Stamp catalog times onto loaded attachments and drop ones outside the
   // shift window once break types are available.
@@ -214,7 +211,10 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
                 className="flex flex-wrap gap-3 items-start"
                 data-cy={`${dataCyPrefix}-card-row-${index}`}
               >
-                <div className="min-w-[140px] flex-1">
+                <div
+                  className="min-w-[140px] flex-1"
+                  data-cy={`${dataCyPrefix}-name-field-${index}`}
+                >
                   <label
                     className="text-xs text-gray-600 block mb-1"
                     data-cy={`${dataCyPrefix}-name-label-${index}`}
@@ -227,8 +227,7 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
                     onChange={(value) => {
                       if (value === 'Custom') {
                         updateShift(shift.key, {
-                          name:
-                            isPreset || !shift.name ? 'Custom' : shift.name,
+                          name: isPreset || !shift.name ? 'Custom' : shift.name,
                         });
                       } else {
                         updateShift(shift.key, { name: value });
@@ -255,7 +254,10 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
                   )}
                 </div>
 
-                <div className="min-w-[120px]">
+                <div
+                  className="min-w-[120px]"
+                  data-cy={`${dataCyPrefix}-start-field-${index}`}
+                >
                   <label
                     className="text-xs text-gray-600 block mb-1"
                     data-cy={`${dataCyPrefix}-start-label-${index}`}
@@ -267,9 +269,7 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
                     format="h:mm A"
                     use12Hours
                     value={
-                      shift.startTime
-                        ? dayjs(shift.startTime, 'h:mm A')
-                        : null
+                      shift.startTime ? dayjs(shift.startTime, 'h:mm A') : null
                     }
                     onChange={(time) =>
                       applyShiftHours({
@@ -280,7 +280,10 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
                   />
                 </div>
 
-                <div className="min-w-[120px]">
+                <div
+                  className="min-w-[120px]"
+                  data-cy={`${dataCyPrefix}-end-field-${index}`}
+                >
                   <label
                     className="text-xs text-gray-600 block mb-1"
                     data-cy={`${dataCyPrefix}-end-label-${index}`}
@@ -303,7 +306,10 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
                   />
                 </div>
 
-                <div className="pt-5">
+                <div
+                  className="pt-5"
+                  data-cy={`${dataCyPrefix}-remove-field-${index}`}
+                >
                   <Button
                     type="text"
                     danger
@@ -321,7 +327,10 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
                 className="flex flex-wrap gap-6 mt-4"
                 data-cy={`${dataCyPrefix}-switches-${index}`}
               >
-                <div className="flex items-center gap-2">
+                <div
+                  className="flex items-center gap-2"
+                  data-cy={`${dataCyPrefix}-swappable-row-${index}`}
+                >
                   <Switch
                     size="small"
                     checked={!!shift.isSwappable}
@@ -330,9 +339,17 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
                     }
                     data-cy={`${dataCyPrefix}-swappable-${index}`}
                   />
-                  <span className="text-sm text-gray-700">Swappable</span>
+                  <span
+                    className="text-sm text-gray-700"
+                    data-cy={`${dataCyPrefix}-swappable-label-${index}`}
+                  >
+                    Swappable
+                  </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div
+                  className="flex items-center gap-2"
+                  data-cy={`${dataCyPrefix}-all-days-row-${index}`}
+                >
                   <Switch
                     size="small"
                     checked={!!shift.applyToAllDays}
@@ -344,7 +361,10 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
                     }
                     data-cy={`${dataCyPrefix}-all-days-${index}`}
                   />
-                  <span className="text-sm text-gray-700">
+                  <span
+                    className="text-sm text-gray-700"
+                    data-cy={`${dataCyPrefix}-all-days-label-${index}`}
+                  >
                     Apply to all days
                   </span>
                 </div>
@@ -352,7 +372,10 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
 
               {!shift.applyToAllDays && (
                 <div className="mt-3" data-cy={`${dataCyPrefix}-days-${index}`}>
-                  <label className="text-xs text-gray-600 block mb-1">
+                  <label
+                    className="text-xs text-gray-600 block mb-1"
+                    data-cy={`${dataCyPrefix}-days-label-${index}`}
+                  >
                     Days
                   </label>
                   <Select
@@ -371,7 +394,10 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
               )}
 
               <div className="mt-4" data-cy={`${dataCyPrefix}-breaks-${index}`}>
-                <label className="text-xs text-gray-600 block mb-1">
+                <label
+                  className="text-xs text-gray-600 block mb-1"
+                  data-cy={`${dataCyPrefix}-breaks-label-${index}`}
+                >
                   Breaks
                 </label>
                 <Select

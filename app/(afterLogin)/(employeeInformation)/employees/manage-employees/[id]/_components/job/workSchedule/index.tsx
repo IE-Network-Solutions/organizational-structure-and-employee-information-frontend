@@ -280,9 +280,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
 
   const activeShift =
     availableShifts.find((s) => s.id && s.id === resolvedShiftId) ||
-    (activeJob?.workScheduleShift?.name
-      ? activeJob.workScheduleShift
-      : null);
+    (activeJob?.workScheduleShift?.name ? activeJob.workScheduleShift : null);
 
   // Working-day count still comes from the schedule calendar.
   const workingDays =

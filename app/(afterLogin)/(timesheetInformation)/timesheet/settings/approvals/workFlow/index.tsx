@@ -27,7 +27,6 @@ import {
 const STEP_LABELS = ['Choose Approval Type', 'Setup Approval', 'Finalize'];
 
 import {
-  DEFAULT_TIMESHEET_APPROVAL_TYPES,
   formatTimesheetApprovalType,
   TIMESHEET_APPROVAL_TYPE_OPTIONS,
   TimesheetApprovalTypeValue,

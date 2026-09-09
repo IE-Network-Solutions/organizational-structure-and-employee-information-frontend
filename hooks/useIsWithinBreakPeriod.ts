@@ -12,13 +12,18 @@ import dayjs from 'dayjs';
 export const useIsWithinBreakPeriod = (): boolean => {
   const userId = useAuthenticationStore((s) => s.userId);
   const today = dayjs().format('YYYY-MM-DD');
-  const { data: scheduleData } = useGetMySchedule(userId, today, today, !!userId);
+  const { data: scheduleData } = useGetMySchedule(
+    userId,
+    today,
+    today,
+    !!userId,
+  );
   const [withinBreakPeriod, setWithinBreakPeriod] = useState<boolean>(false);
 
   const effectiveBreakTypes = useMemo((): BreakType[] => {
     const days = Array.isArray(scheduleData)
       ? scheduleData
-      : scheduleData?.days ?? [];
+      : (scheduleData?.days ?? []);
     const todayDay = days.find((d) => d.date === today);
     const resolved = todayDay?.breaks ?? [];
     return resolved.map((br) => ({

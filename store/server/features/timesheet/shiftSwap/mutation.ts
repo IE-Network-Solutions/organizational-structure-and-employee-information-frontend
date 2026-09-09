@@ -76,7 +76,9 @@ const finalApproveShiftSwap = async (data: {
   });
 };
 
-const invalidateShiftSwapQueries = (queryClient: ReturnType<typeof useQueryClient>) => {
+const invalidateShiftSwapQueries = (
+  queryClient: ReturnType<typeof useQueryClient>,
+) => {
   queryClient.invalidateQueries(['shift-swap-requests']);
   queryClient.invalidateQueries(['shift-swap-peer-pending']);
   queryClient.invalidateQueries(['shift-swap-approval-all-status']);

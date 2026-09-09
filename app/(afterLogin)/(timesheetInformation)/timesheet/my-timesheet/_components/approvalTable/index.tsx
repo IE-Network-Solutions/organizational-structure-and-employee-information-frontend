@@ -345,7 +345,9 @@ const ApprovalTable = () => {
           endAt: item?.endAt || item?.endDate,
           days:
             item?.days ??
-            (isShiftSwap && (item?.startAt || item?.startDate) && (item?.endAt || item?.endDate)
+            (isShiftSwap &&
+            (item?.startAt || item?.startDate) &&
+            (item?.endAt || item?.endDate)
               ? dayjs(item?.endAt || item?.endDate).diff(
                   dayjs(item?.startAt || item?.startDate),
                   'day',
@@ -607,11 +609,10 @@ const ApprovalTable = () => {
         width: 260,
         ellipsis: true,
         onCell: () => ({ style: rowCellPadding }),
-        render: (_: unknown, row: any) => {
+        render: (unusedValue: unknown, row: any) => {
+          void unusedValue;
           const from =
-            row?.requesterShiftLabel ||
-            row?.requesterShiftId ||
-            null;
+            row?.requesterShiftLabel || row?.requesterShiftId || null;
           const to =
             row?.targetShiftLabel ||
             row?.peerShiftLabel ||
@@ -632,8 +633,15 @@ const ApprovalTable = () => {
               className={`${rowCellClass} leading-snug`}
               data-cy="time-attendance-approval-table-cell-shifts"
             >
-              <div>{from || '-'}</div>
-              <div className="text-xs text-gray-500">↔ {to || '-'}</div>
+              <div data-cy="time-attendance-approval-table-cell-shifts-from">
+                {from || '-'}
+              </div>
+              <div
+                className="text-xs text-gray-500"
+                data-cy="time-attendance-approval-table-cell-shifts-to"
+              >
+                ↔ {to || '-'}
+              </div>
             </div>
           );
         },

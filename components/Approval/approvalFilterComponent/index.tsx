@@ -240,7 +240,9 @@ const ApprovalFilterComponent = ({
                     data-cy="approval-filter-approval-type-select"
                     maxTagCount="responsive"
                     onClear={() =>
-                      setDraftApprovalType([...DEFAULT_TIMESHEET_APPROVAL_TYPES])
+                      setDraftApprovalType([
+                        ...DEFAULT_TIMESHEET_APPROVAL_TYPES,
+                      ])
                     }
                     options={TIMESHEET_APPROVAL_TYPE_OPTIONS}
                   />

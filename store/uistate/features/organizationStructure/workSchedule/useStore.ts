@@ -103,9 +103,7 @@ const useScheduleStore = create<ScheduleState>((set, get) => ({
     })),
   updateShift: (key, data) =>
     set((state) => ({
-      shifts: state.shifts.map((s) =>
-        s.key === key ? { ...s, ...data } : s,
-      ),
+      shifts: state.shifts.map((s) => (s.key === key ? { ...s, ...data } : s)),
     })),
   removeShift: (key) =>
     set((state) => ({
