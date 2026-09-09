@@ -26,17 +26,20 @@ export const useIsWithinBreakPeriod = (): boolean => {
       : (scheduleData?.days ?? []);
     const todayDay = days.find((d) => d.date === today);
     const resolved = todayDay?.breaks ?? [];
-    return resolved.map((br) => ({
-      id: br.breakTypeId ?? br.id,
-      title: br.title ?? '',
-      description: null,
-      startAt: br.startAt,
-      endAt: br.endAt,
-      startAtFrom: br.startAtFrom,
-      startAtTo: br.startAtTo,
-      endAtFrom: br.endAtFrom,
-      endAtTo: br.endAtTo,
-    }));
+    return resolved.map(
+      (br) =>
+        ({
+          id: br.breakTypeId ?? br.id,
+          title: br.title ?? '',
+          description: null,
+          startAt: br.startAt ?? '',
+          endAt: br.endAt ?? '',
+          startAtFrom: br.startAtFrom,
+          startAtTo: br.startAtTo,
+          endAtFrom: br.endAtFrom,
+          endAtTo: br.endAtTo,
+        }) as BreakType,
+    );
   }, [scheduleData, today]);
 
   useEffect(() => {

@@ -48,6 +48,16 @@ interface ScheduleItem {
     isSwappable?: boolean;
     applyToAllDays?: boolean;
     days?: string[];
+    breaks?: Array<{
+      breakTypeId: string;
+      sortOrder?: number;
+      startAt?: string | null;
+      endAt?: string | null;
+      startAtFrom?: string | null;
+      startAtTo?: string | null;
+      endAtFrom?: string | null;
+      endAtTo?: string | null;
+    }>;
   }>;
 }
 
@@ -116,6 +126,7 @@ function WorkScheduleTab() {
         ? data.shifts
         : [
             {
+              id: undefined,
               name: 'Standard',
               startTime: '9:00 AM',
               endTime: '5:00 PM',

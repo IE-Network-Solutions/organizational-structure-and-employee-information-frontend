@@ -229,16 +229,14 @@ export default function MySchedulePage() {
     usePeerRejectShiftSwap();
   const { mutate: cancelRequest } = useCancelShiftSwapRequest();
 
-  const peerOptions = useMemo(
-    () =>
-      (allUsers?.items ?? [])
-        .filter((u: any) => u.id !== userId)
-        .map((u: any) => ({
-          value: u.id,
-          label: personName(u),
-        })),
-    [allUsers?.items, userId],
-  );
+  const peerOptions = useMemo((): Array<{ value: string; label: string }> => {
+    return (allUsers?.items ?? [])
+      .filter((u: any) => u.id !== userId)
+      .map((u: any) => ({
+        value: u.id,
+        label: personName(u),
+      }));
+  }, [allUsers?.items, userId]);
 
   const requestItems = (
     Array.isArray(myRequests?.items)

@@ -81,16 +81,14 @@ const ApprovalTable = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const { data: allUsersData } = useGetAllUsers();
-  const userOptions = useMemo(
-    () =>
-      (allUsersData?.items ?? []).map((user: any) => ({
-        label: [user?.firstName, user?.middleName, user?.lastName]
-          .filter(Boolean)
-          .join(' '),
-        value: user?.id ?? '',
-      })),
-    [allUsersData?.items],
-  );
+  const userOptions = useMemo((): Array<{ label: string; value: string }> => {
+    return (allUsersData?.items ?? []).map((user: any) => ({
+      label: [user?.firstName, user?.middleName, user?.lastName]
+        .filter(Boolean)
+        .join(' '),
+      value: user?.id ?? '',
+    }));
+  }, [allUsersData?.items]);
 
   const statusFilterOptions = [
     { label: 'Pending', value: LeaveRequestStatus.PENDING },

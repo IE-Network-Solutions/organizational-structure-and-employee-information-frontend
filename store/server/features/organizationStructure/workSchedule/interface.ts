@@ -8,6 +8,17 @@ export interface DayOfWeek {
   duration?: number;
 }
 
+export interface WorkScheduleShiftBreak {
+  breakTypeId: string;
+  sortOrder?: number;
+  startAt?: string | null;
+  endAt?: string | null;
+  startAtFrom?: string | null;
+  startAtTo?: string | null;
+  endAtFrom?: string | null;
+  endAtTo?: string | null;
+}
+
 export interface WorkScheduleShift {
   id?: string;
   name: string;
@@ -16,6 +27,7 @@ export interface WorkScheduleShift {
   isSwappable?: boolean;
   applyToAllDays?: boolean;
   days?: string[];
+  breaks?: WorkScheduleShiftBreak[];
 }
 
 export interface Schedule {
