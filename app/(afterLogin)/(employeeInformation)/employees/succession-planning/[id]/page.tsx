@@ -257,7 +257,7 @@ const CriticalRoleDetailPage: React.FC = () => {
           data-cy="employees-succession-planning-id-page-tsx-page-span-199"
           className={td + ' tabular-nums'}
         >
-          {value != null ? value + '%' : '—'}
+          {value != null ? value + '%' : 'â€”'}
         </span>
       ),
     },
@@ -278,7 +278,7 @@ const CriticalRoleDetailPage: React.FC = () => {
           data-cy="employees-succession-planning-id-page-tsx-page-span-210"
           className="text-sm text-gray-500"
         >
-          {value || '—'}
+          {value || 'â€”'}
         </span>
       ),
     },
@@ -523,7 +523,7 @@ const CriticalRoleDetailPage: React.FC = () => {
           <MetaField label="Required Current Positions">
             {(role.requiredCurrentPositions ?? []).length > 0
               ? role.requiredCurrentPositions.join(', ')
-              : '—'}
+              : 'â€”'}
           </MetaField>
         </div>
 
