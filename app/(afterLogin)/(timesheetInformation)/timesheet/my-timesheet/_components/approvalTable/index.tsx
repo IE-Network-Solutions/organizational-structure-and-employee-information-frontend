@@ -29,7 +29,7 @@ import { useAllCurrentLeaveApprovedStore } from '@/store/uistate/features/timesh
 import { AllLeaveRequestApproveData } from '@/store/server/features/timesheet/leaveRequest/interface';
 import dayjs from 'dayjs';
 import CustomPagination from '@/components/customPagination';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { TableSkeleton } from '@/components/tableSkeleton';
 
@@ -43,6 +43,7 @@ const ApprovalTable = () => {
     useCurrentLeaveApprovalStore();
   const { allPageSize, allUserCurrentPage } = useAllCurrentLeaveApprovedStore();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const tenantId = useAuthenticationStore.getState().tenantId;
   const { userId } = useAuthenticationStore();
@@ -95,6 +96,21 @@ const ApprovalTable = () => {
     setUserCurrentPage(1);
     setPageSize(10);
   }, [pathname]);
+
+  useEffect(() => {
+    const type = (searchParams.get('type') ?? '').replace(/[-_]/g, '');
+    if (/^workfromhome$/i.test(type) || /^wfh$/i.test(type)) {
+      setApprovalTypeFilter('WorkFromHome');
+    } else if (/^leave$/i.test(type)) {
+      setApprovalTypeFilter('Leave');
+    }
+
+    const linkedEmployee =
+      searchParams.get('employeeId') || searchParams.get('userId') || '';
+    if (linkedEmployee && linkedEmployee !== userId) {
+      setSearchEmployee(linkedEmployee);
+    }
+  }, [searchParams, userId]);
 
   const {
     data: leaveApprovalData,

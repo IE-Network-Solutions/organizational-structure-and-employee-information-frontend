@@ -20,7 +20,11 @@ const fetchObjectives = async (id: string) => {
 
 type FetchObjectivesQueryOptions = Pick<
   UseQueryOptions<any>,
-  'refetchOnMount' | 'staleTime' | 'keepPreviousData' | 'refetchOnWindowFocus'
+  | 'refetchOnMount'
+  | 'staleTime'
+  | 'keepPreviousData'
+  | 'refetchOnWindowFocus'
+  | 'enabled'
 >;
 
 export const useFetchObjectives = (

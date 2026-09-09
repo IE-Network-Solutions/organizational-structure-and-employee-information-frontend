@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import type { AxiosError } from 'axios';
-import { invalidateOkrPlanningCaches } from '@/utils/invalidateOkrPlanningCaches';
+import { invalidatePlanningCaches } from '@/utils/invalidateOkrPlanningCaches';
 import { rememberReopenedPlanningTargets } from '@/utils/recentlyAchievedMilestones';
 
 const tenantId = useAuthenticationStore.getState().tenantId;
@@ -63,7 +63,7 @@ export const useCreatePlanTasks = () => {
             )
             .map((task: any) => task.milestoneId) ?? [],
       });
-      void invalidateOkrPlanningCaches(queryClient);
+      void invalidatePlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Created ',
         description: ' ',
@@ -103,7 +103,7 @@ export const useUpdatePlanTasks = () => {
             )
             .map((task: any) => task.milestoneId) ?? [],
       });
-      void invalidateOkrPlanningCaches(queryClient);
+      void invalidatePlanningCaches(queryClient);
       NotificationMessage.success({
         message: 'Successfully Updated ',
         description: ' ',

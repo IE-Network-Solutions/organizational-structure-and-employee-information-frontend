@@ -5,6 +5,7 @@ import LeaveManagementTable from './_components/leaveManagementTable';
 import { Button, Modal, Popover, Space, Tabs, Tooltip } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import LeaveRequestDetailModal from './_components/leaveRequestDetailModal';
+import LeaveManagementDeepLink from './_components/LeaveManagementDeepLink';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import { useEffect, useState } from 'react';
 import { LeaveRequestBody } from '@/store/server/features/timesheet/leaveRequest/interface';
@@ -376,6 +377,7 @@ const LeaveManagement = () => {
         </p>
       </Modal>
 
+      <LeaveManagementDeepLink />
       <LeaveRequestDetailModal data-cy="time-attendance-leave-request-detail-modal" />
       <LeaveRequestSidebar data-cy="time-attendance-leave-management-request-sidebar" />
     </>

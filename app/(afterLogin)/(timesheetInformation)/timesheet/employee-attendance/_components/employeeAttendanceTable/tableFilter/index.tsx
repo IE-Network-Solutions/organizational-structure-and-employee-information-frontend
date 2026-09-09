@@ -8,6 +8,7 @@ import {
   Dropdown,
   Button,
   Tooltip,
+  Modal,
 } from 'antd';
 import {
   CloseOutlined,
@@ -27,10 +28,7 @@ import { CommonObject } from '@/types/commons/commonObject';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
-import {
-  useSyncZktAttendance,
-  useSyncZktBreak,
-} from '@/store/server/features/timesheet/attendance/mutation';
+import { useCalculateAbsentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -45,12 +43,12 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   const { data: breakTypeData } = useGetBreakTypes();
   const { isShowMobileFilters, setIsShowMobileFilters, filter } =
     useEmployeeAttendanceStore();
-  const { mutate: syncZktAttendance, isLoading: isSyncingZkt } =
-    useSyncZktAttendance();
-  const { mutate: syncZktBreak, isLoading: isSyncingZktBreak } =
-    useSyncZktBreak();
+  const {
+    mutateAsync: calculateAbsentAttendance,
+    isLoading: isCalculatingAbsent,
+  } = useCalculateAbsentAttendance();
 
-  const getSyncDateFilter = () => {
+  const getAbsentDateFilter = () => {
     const today = dayjs().format('YYYY-MM-DD');
     if (filter?.date?.from && filter?.date?.to) {
       return { date: { from: filter.date.from, to: filter.date.to } };
@@ -65,25 +63,20 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
     return { date: { from, to } };
   };
 
-  const getSyncBreakTypeId = () =>
-    filter?.breakTypeId || form.getFieldValue('breakTypeId');
-
-  const selectedBreakTypeId = getSyncBreakTypeId();
-  const isBreakZktSync = Boolean(selectedBreakTypeId);
-  const syncLabel = isBreakZktSync
-    ? 'Sync break from Attendance Machine'
-    : 'Sync from Attendance Machine';
-
-  const handleSyncZkt = () => {
-    const dateFilter = getSyncDateFilter();
-    const breakTypeId = getSyncBreakTypeId();
-
-    if (breakTypeId) {
-      syncZktBreak({ breakTypeId, filter: dateFilter });
-      return;
-    }
-
-    syncZktAttendance(dateFilter);
+  const handleCalculateAbsent = () => {
+    const dateFilter = getAbsentDateFilter();
+    Modal.confirm({
+      title: 'Calculate absent attendance?',
+      content:
+        'This will calculate absence for all employees from ' +
+        dateFilter.date.from +
+        ' to ' +
+        dateFilter.date.to +
+        '.',
+      okText: 'Calculate Absent',
+      cancelText: 'Cancel',
+      onOk: () => calculateAbsentAttendance(dateFilter),
+    });
   };
 
   const employeeOptions =
@@ -548,22 +541,18 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
             data-cy="time-attendance-employee-attendance-filter-actions"
           >
             {isMobile ? (
-              <Tooltip title={syncLabel}>
-                <span data-cy="time-attendance-employee-attendance-sync-zkt-tooltip-wrapper">
+              <Tooltip title="Calculate Absent">
+                <span data-cy="time-attendance-employee-attendance-calculate-absent-tooltip-wrapper">
                   <Button
                     type="primary"
                     size="large"
                     className="w-10 h-10 p-0 flex items-center justify-center text-base font-normal text-white"
-                    id="time-attendance-employee-attendance-sync-zkt-button"
-                    data-cy={
-                      isBreakZktSync
-                        ? 'time-attendance-employee-attendance-sync-zkt-break-button'
-                        : 'time-attendance-employee-attendance-sync-zkt-button'
-                    }
+                    id="time-attendance-employee-attendance-calculate-absent-button"
+                    data-cy="time-attendance-employee-attendance-calculate-absent-button"
                     icon={<ReloadOutlined />}
-                    loading={isSyncingZkt || isSyncingZktBreak}
-                    onClick={handleSyncZkt}
-                    aria-label={syncLabel}
+                    loading={isCalculatingAbsent}
+                    onClick={handleCalculateAbsent}
+                    aria-label="Calculate Absent"
                   />
                 </span>
               </Tooltip>
@@ -572,17 +561,13 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                 type="primary"
                 size="large"
                 className="h-10 text-base font-normal text-white"
-                id="time-attendance-employee-attendance-sync-zkt-button"
-                data-cy={
-                  isBreakZktSync
-                    ? 'time-attendance-employee-attendance-sync-zkt-break-button'
-                    : 'time-attendance-employee-attendance-sync-zkt-button'
-                }
-                loading={isSyncingZkt || isSyncingZktBreak}
-                onClick={handleSyncZkt}
-                aria-label={syncLabel}
+                id="time-attendance-employee-attendance-calculate-absent-button"
+                data-cy="time-attendance-employee-attendance-calculate-absent-button"
+                loading={isCalculatingAbsent}
+                onClick={handleCalculateAbsent}
+                aria-label="Calculate Absent"
               >
-                {syncLabel}
+                Calculate Absent
               </Button>
             )}
             <Dropdown

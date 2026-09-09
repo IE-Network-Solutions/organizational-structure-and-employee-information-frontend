@@ -43,7 +43,7 @@ export function usePlanningTargets(
     refetchOnMount: true,
     staleTime: 30_000,
     keepPreviousData: true,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
   });
   const {
     data: hierarchy,

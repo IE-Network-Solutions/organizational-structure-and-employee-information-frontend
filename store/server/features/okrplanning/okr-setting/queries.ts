@@ -62,6 +62,7 @@ export const useCheckOkrSetting = (enabled: boolean = true) => {
       retry: false,
       refetchOnWindowFocus: false,
       enabled,
+      staleTime: 5 * 60_000,
     },
   );
 };
@@ -71,5 +72,6 @@ export const useGetOkrSetting = () => {
     retry: false,
     refetchOnWindowFocus: false,
     enabled: false, // Only fetch when explicitly called
+    staleTime: 5 * 60_000,
   });
 };
