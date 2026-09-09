@@ -183,11 +183,9 @@ const getReportingDataById = async (id: string) => {
   });
 };
 
-const getAllPlanningPeriods = async () => {
+export async function fetchAssignedPlanningPeriodsForUser(userId: string) {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
-  const userId = useAuthenticationStore.getState().userId;
-
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
@@ -198,11 +196,19 @@ const getAllPlanningPeriods = async () => {
     method: 'GET',
     headers,
   });
+}
+
+const getAllPlanningPeriods = async () => {
+  const userId = useAuthenticationStore.getState().userId;
+  return fetchAssignedPlanningPeriodsForUser(userId);
 };
+
+/** Assigned periods for the logged-in user — not the tenant period catalog. */
+export const ASSIGNED_USER_PLANNING_PERIODS_QUERY_KEY = 'planningPeriods';
 
 export const AllPlanningPeriods = () => {
   return useQuery<AssignedPlanningPeriodLogArray>(
-    'planningPeriods',
+    ASSIGNED_USER_PLANNING_PERIODS_QUERY_KEY,
     getAllPlanningPeriods,
     { staleTime: 5 * 60_000 },
   );

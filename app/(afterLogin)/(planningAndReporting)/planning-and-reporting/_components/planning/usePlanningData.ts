@@ -9,6 +9,7 @@ import { useGetAllUsersData } from '@/store/server/features/employees/employeeMa
 import { groupPlanTasksByKeyResultAndMilestone } from '../dataTransformer/plan';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { fallbackAssignedPlanningPeriodId } from '@/utils/okrCountingPlanningPeriod';
 import { transformToPlanSummary } from '../dataTransformer/vamp';
 import { ViewMode, Cadence, PlanSummary } from '../types';
 import {
@@ -172,7 +173,8 @@ export function usePlanningData(enabled = true) {
   }, [userId, employeesFetched, employeeData]);
 
   const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ||
+    fallbackAssignedPlanningPeriodId(userPlanningPeriods, activePlanPeriod);
 
   const sessionId =
     selectedSessionIds.length > 0

@@ -12,6 +12,7 @@ import {
   validateMetricValueAgainstInitial,
 } from '@/utils/okrMetricValueBounds';
 import { metricAddonSymbol } from './reportFormUtils';
+import { parseReportActualValueInput } from '@/utils/reportSubmitPayload';
 
 const { TextArea } = Input;
 
@@ -255,6 +256,7 @@ export function PlanCardInlineReportFields({
                   formatter={(value) =>
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   }
+                  parser={parseReportActualValueInput}
                   controls={false}
                 />
               </Form.Item>

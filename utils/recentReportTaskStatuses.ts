@@ -25,6 +25,7 @@ type RecentReportTaskStatusesState = {
       planTaskId?: string | number | null;
       status?: string | null;
       isAchieved?: boolean | null;
+      actualValue?: number | null;
     }>,
   ) => void;
   clearReport: (reportId: string) => void;
@@ -45,9 +46,52 @@ function isDoneStatus(raw: unknown): boolean {
   );
 }
 
+const SESSION_KEY = 'okr-recent-report-task-statuses';
+
+function readSessionByReport(): Record<
+  string,
+  Record<string, ReportTaskStatusOverride>
+> {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = window.sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeSessionByReport(
+  byReport: Record<string, Record<string, ReportTaskStatusOverride>>,
+): void {
+  if (typeof window === 'undefined') return;
+  try {
+    window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(byReport));
+  } catch {
+    // quota / private mode
+  }
+}
+
+function actualValuesMatch(
+  override: ReportTaskStatusOverride,
+  api: { actualValue?: number | null },
+): boolean {
+  if (override.actualValue === undefined) return true;
+  if (api.actualValue == null) return false;
+  const apiNum = Number(api.actualValue);
+  if (!Number.isFinite(apiNum) || apiNum < 0) return false;
+  return apiNum === Number(override.actualValue);
+}
+
 function statusesMatch(
   override: ReportTaskStatusOverride,
-  api: { status?: string | null; isAchieved?: boolean | null },
+  api: {
+    status?: string | null;
+    isAchieved?: boolean | null;
+    actualValue?: number | null;
+  },
 ): boolean {
   // Never treat a missing override status as "matched" — that cleared sticky
   // patches and left the progress bar on the old Done value.
@@ -56,24 +100,26 @@ function statusesMatch(
   }
   const wantDone = isDoneStatus(override.status);
   if (wantDone) {
-    return isDoneStatus(api.status) || api.isAchieved === true;
+    const doneMatched = isDoneStatus(api.status) || api.isAchieved === true;
+    return doneMatched && actualValuesMatch(override, api);
   }
   const apiStatus = normalizeStatus(api.status);
-  return (
+  const statusMatched =
     apiStatus === 'not' ||
     apiStatus === 'failed' ||
     apiStatus === 'not_done' ||
     apiStatus === 'unachieved' ||
-    api.isAchieved === false
-  );
+    api.isAchieved === false;
+  return statusMatched && actualValuesMatch(override, api);
 }
 
 export const useRecentReportTaskStatuses =
   create<RecentReportTaskStatusesState>()((set, get) => ({
-    byReport: {},
+    byReport: readSessionByReport(),
     remember: (reportId, statusByPlanTaskId) => {
       if (!reportId || !statusByPlanTaskId) return;
       const nextForReport = {
+        ...(readSessionByReport()[reportId] ?? {}),
         ...(get().byReport[reportId] ?? {}),
       };
       let changed = false;
@@ -97,20 +143,29 @@ export const useRecentReportTaskStatuses =
         changed = true;
       }
       if (!changed) return;
-      set({
-        byReport: {
-          ...get().byReport,
-          [reportId]: nextForReport,
-        },
-      });
+      const byReport = {
+        ...get().byReport,
+        [reportId]: nextForReport,
+      };
+      set({ byReport });
+      writeSessionByReport(byReport);
     },
     getOverride: (reportId, planTaskId) => {
       if (reportId == null || planTaskId == null) return null;
-      return get().byReport[String(reportId)]?.[String(planTaskId)] ?? null;
+      const reportKey = String(reportId);
+      const taskKey = String(planTaskId);
+      return (
+        get().byReport[reportKey]?.[taskKey] ??
+        readSessionByReport()[reportKey]?.[taskKey] ??
+        null
+      );
     },
     reconcile: (reportId, apiTasks) => {
-      const current = get().byReport[reportId];
-      if (!current) return;
+      const current = {
+        ...(readSessionByReport()[reportId] ?? {}),
+        ...(get().byReport[reportId] ?? {}),
+      };
+      if (Object.keys(current).length === 0) return;
       const next = { ...current };
       let changed = false;
       for (const task of apiTasks) {
@@ -122,21 +177,26 @@ export const useRecentReportTaskStatuses =
         }
       }
       if (!changed) return;
-      const byReport = { ...get().byReport };
+      const byReport = { ...get().byReport, ...readSessionByReport() };
       if (Object.keys(next).length === 0) {
         delete byReport[reportId];
       } else {
         byReport[reportId] = next;
       }
       set({ byReport });
+      writeSessionByReport(byReport);
     },
     clearReport: (reportId) => {
-      if (!get().byReport[reportId]) return;
-      const byReport = { ...get().byReport };
+      const byReport = { ...get().byReport, ...readSessionByReport() };
+      if (!byReport[reportId]) return;
       delete byReport[reportId];
       set({ byReport });
+      writeSessionByReport(byReport);
     },
-    clear: () => set({ byReport: {} }),
+    clear: () => {
+      set({ byReport: {} });
+      writeSessionByReport({});
+    },
   }));
 
 export function rememberReportTaskStatuses(
@@ -246,6 +306,7 @@ export function reconcileReportTaskStatusOverrides(
     planTaskId?: string | number | null;
     status?: string | null;
     isAchieved?: boolean | null;
+    actualValue?: number | null;
   }>,
 ): void {
   useRecentReportTaskStatuses.getState().reconcile(reportId, apiTasks);

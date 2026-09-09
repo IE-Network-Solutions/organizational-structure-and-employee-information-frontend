@@ -1,3 +1,6 @@
+import { getReportTaskDisplayScore } from '@/utils/reportTaskDisplayScore';
+import { parseReportActualValue } from '@/utils/reportSubmitPayload';
+
 export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
   if (reportTasks.length === 0) return [];
   const keyResultMap = reportTasks?.reduce((acc: any, task: any) => {
@@ -18,8 +21,8 @@ export const groupTasksByKeyResultAndMilestone = (reportTasks: any) => {
       taskName: task.planTask?.task,
       priority: task?.planTask?.priority,
       status: task?.status,
-      actualValue: task?.actualValue || 0,
-      targetValue: task?.planTask?.targetValue || 0,
+      actualValue: getReportTaskDisplayScore(task),
+      targetValue: task?.planTask?.targetValue ?? 0,
       keyResult: task?.planTask?.keyResult,
       isAchieved: task.isAchieved,
       achieveMK: task?.planTask?.achieveMK,
@@ -78,7 +81,7 @@ export const groupUnReportedTasksByKeyResultAndMilestone = (
       taskName: task?.task,
       priority: task?.priority,
       status: task?.status, // Add status field to track pre-achieved tasks
-      actualValue: task?.actualValue || 0,
+      actualValue: parseReportActualValue(task?.actualValue),
       targetValue: task?.targetValue || 0,
       // Prefer flat plan-task fields; do not overwrite with undefined nested planTask.
       achieveMK: task?.achieveMK ?? task?.planTask?.achieveMK,

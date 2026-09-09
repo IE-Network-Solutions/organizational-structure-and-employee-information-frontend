@@ -50,10 +50,16 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useSearchParams } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import {
+  getAssignmentPlanningPeriodId,
+  normalizeAssignedPlanningPeriods,
+  planningPeriodIntervalRank,
+} from '@/utils/okrCountingPlanningPeriod';
 
 interface PlanningPeriod {
   id: string;
   userId: string;
+  planningPeriodId?: string;
   planningPeriod: {
     id: string;
     name: string;
@@ -102,9 +108,12 @@ function Page() {
   });
 
   const processedPlanningPeriods = useMemo(() => {
-    const safePlanningPeriods = Array.isArray(planningPeriods)
-      ? planningPeriods
-      : [];
+    // Same shape as develop: use assigned rows as-is when they are an array.
+    const safePlanningPeriods = (
+      Array.isArray(planningPeriods)
+        ? planningPeriods
+        : normalizeAssignedPlanningPeriods(planningPeriods)
+    ) as PlanningPeriod[];
     const safeDefaultPlanningPeriods = Array.isArray(
       defaultPlanningPeriods?.items,
     )
@@ -116,12 +125,13 @@ function Page() {
     const existingUserId = safePlanningPeriods[0]?.userId || 'N/A';
     const existingPlanningPeriodIds = new Set(
       safePlanningPeriods.map(
-        (item: PlanningPeriod) => item?.planningPeriod?.id,
+        (item: PlanningPeriod) =>
+          getAssignmentPlanningPeriodId(item) || item?.planningPeriod?.id,
       ),
     );
 
     const missingPlanningPeriods = safeDefaultPlanningPeriods
-      .filter((item: any) => !existingPlanningPeriodIds.has(item.id))
+      .filter((item: any) => item?.id && !existingPlanningPeriodIds.has(item.id))
       .map((item: any) => ({
         id: crypto.randomUUID(),
         createdAt: new Date().toISOString(),
@@ -138,12 +148,19 @@ function Page() {
     const mergedPlanningPeriods = [
       ...safePlanningPeriods,
       ...missingPlanningPeriods,
-    ];
+    ] as PlanningPeriod[];
 
-    mergedPlanningPeriods.sort(
-      (a, b) =>
-        a.planningPeriod.intervalLength - b.planningPeriod.intervalLength,
-    );
+    mergedPlanningPeriods.sort((a, b) => {
+      const aRank =
+        planningPeriodIntervalRank(a?.planningPeriod) ||
+        Number(a?.planningPeriod?.intervalLength) ||
+        0;
+      const bRank =
+        planningPeriodIntervalRank(b?.planningPeriod) ||
+        Number(b?.planningPeriod?.intervalLength) ||
+        0;
+      return aRank - bRank;
+    });
 
     return hasPermission ? mergedPlanningPeriods : safePlanningPeriods;
   }, [planningPeriods, defaultPlanningPeriods, hasPermission]);
@@ -156,10 +173,13 @@ function Page() {
             data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-110"
             className="font-semibold text-sm"
           >
-            {item.planningPeriod.name || 'No name available'}
+            {item?.planningPeriod?.name || 'No name available'}
           </span>
         ),
-        id: item.planningPeriod.id,
+        id:
+          item?.planningPeriod?.id ||
+          getAssignmentPlanningPeriodId(item) ||
+          `period-${index}`,
         key: String(index + 1),
         children: null,
       }),
@@ -614,9 +634,13 @@ function Page() {
                     (item: PlanningPeriod, index: number) => {
                       const n = index + 1;
                       const isActive = activePlanPeriod === n;
+                      const periodId =
+                        getAssignmentPlanningPeriodId(item) ||
+                        item?.planningPeriod?.id ||
+                        `period-${n}`;
                       return (
                         <button
-                          key={item.planningPeriod.id}
+                          key={periodId}
                           type="button"
                           role="tab"
                           aria-selected={isActive}
@@ -631,7 +655,7 @@ function Page() {
                               : 'border-transparent bg-transparent px-2 text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-800 sm:px-2.5',
                           )}
                         >
-                          {item.planningPeriod.name || 'No name available'}
+                          {item?.planningPeriod?.name || 'No name available'}
                         </button>
                       );
                     },

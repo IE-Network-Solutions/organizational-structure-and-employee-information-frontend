@@ -3,6 +3,7 @@
 import type { FormInstance } from 'antd';
 import { useEffect } from 'react';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { parseReportActualValue } from '@/utils/reportSubmitPayload';
 
 /** Plan tasks use `pre_achieved`; some payloads used `pre-achieved`. */
 function isPreAchievedStatus(status: unknown): boolean {
@@ -72,12 +73,12 @@ export function useCreateReportFormEffects(
               if (selectedStatuses[task.taskId] === 'Done') {
                 initialValues[task.taskId] = {
                   status: selectedStatuses[task.taskId],
-                  actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
+                  actualValue: parseReportActualValue(task?.targetValue),
                 };
               } else if (selectedStatuses[task.taskId] === 'Not') {
                 initialValues[task.taskId] = {
                   status: selectedStatuses[task.taskId],
-                  actualValue: Number(task?.actualValue ?? 0)?.toLocaleString(),
+                  actualValue: parseReportActualValue(task?.actualValue),
                 };
               }
             }
@@ -88,7 +89,7 @@ export function useCreateReportFormEffects(
             if (selectedStatuses[task.taskId] === 'Done') {
               initialValues[task.taskId] = {
                 status: selectedStatuses[task.taskId],
-                actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
+                actualValue: parseReportActualValue(task?.targetValue),
               };
             } else if (selectedStatuses[task.taskId] === 'Not') {
               initialValues[task.taskId] = {

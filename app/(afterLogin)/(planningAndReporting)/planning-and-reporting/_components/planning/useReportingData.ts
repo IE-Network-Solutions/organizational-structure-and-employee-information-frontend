@@ -7,6 +7,7 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { fallbackAssignedPlanningPeriodId } from '@/utils/okrCountingPlanningPeriod';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence, PlanSummary } from '../types';
 import { getEmployeeItems } from './departmentUsers';
@@ -37,7 +38,8 @@ export function useReportingData(enabled = true) {
   const effectiveSelectedUsers = useEffectivePlanUserIds();
 
   const planningPeriodId =
-    activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ||
+    fallbackAssignedPlanningPeriodId(userPlanningPeriods, activePlanPeriod);
 
   const sessionId =
     selectedSessionIds.length > 0

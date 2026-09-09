@@ -10,6 +10,7 @@ import {
   validateMetricValueAgainstInitial,
 } from '@/utils/okrMetricValueBounds';
 import { metricAddonSymbol } from './reportFormUtils';
+import { parseReportActualValueInput } from '@/utils/reportSubmitPayload';
 
 const { TextArea } = Input;
 
@@ -80,9 +81,7 @@ export function CreateReportFormCollapse({
                 <Form.Item
                   name={[task.taskId, 'actualValue']}
                   className="mb-0"
-                  initialValue={
-                    Number(task?.actualValue)?.toLocaleString() || 0
-                  }
+                  initialValue={Number(task?.actualValue) || 0}
                   rules={[
                     {
                       validator(unusedRule, value) {
@@ -141,6 +140,7 @@ export function CreateReportFormCollapse({
                     formatter={(value) =>
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                     }
+                    parser={parseReportActualValueInput}
                     addonAfter={
                       <span
                         data-cy="planning-and-reporting-components-createreport-createreportformcollapse-tsx-createreportformcollapse-span-126"

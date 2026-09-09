@@ -14,6 +14,8 @@ import {
   scheduleOkrMilestoneStatusRefetch,
 } from '@/utils/invalidateOkrPlanningCaches';
 import { useRecentlyAchievedMilestones } from '@/utils/recentlyAchievedMilestones';
+import { appendApplyToOkrQuery } from '@/utils/okrCountingPlanningPeriod';
+import { buildSanitizedReportPayload } from '@/utils/reportSubmitPayload';
 
 const approveOrRejectPlanningPeriods = async (planningData: any) => {
   const token = await getCurrentToken();
@@ -38,10 +40,19 @@ const approveOrRejectReporting = async (reportingData: any) => {
     Authorization: `Bearer ${token}`,
   };
 
+  const applyToOkr = reportingData?.applyToOkr === true;
+  const url = appendApplyToOkrQuery(
+    `${OKR_URL}/okr-report/validate/${reportingData?.id}?value=${String(reportingData?.value)}`,
+    applyToOkr,
+  );
+
   return await crudRequest({
-    url: `${OKR_URL}/okr-report/validate/${reportingData?.id}?value=${String(reportingData?.value)}`,
+    url,
     method: 'post',
-    headers,
+    headers: {
+      ...headers,
+      ...(applyToOkr ? { 'x-apply-to-okr': '1' } : { 'x-skip-okr': '1', 'x-apply-to-okr': '0' }),
+    },
   });
 };
 
@@ -77,6 +88,7 @@ const createReportForUnReportedtasks = async (
   values: any,
   planningPeriodId: string,
   planId?: string,
+  applyToOkr = false,
 ) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
@@ -85,30 +97,39 @@ const createReportForUnReportedtasks = async (
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
+    ...(applyToOkr ? { 'x-apply-to-okr': '1' } : { 'x-skip-okr': '1', 'x-apply-to-okr': '0' }),
   };
-  const url = planId
+  const baseUrl = planId
     ? `${OKR_URL}/okr-report-task/create-report/${userId}/${planningPeriodId}?planningId=${planId}`
     : `${OKR_URL}/okr-report-task/create-report/${userId}/${planningPeriodId}`;
 
   return await crudRequest({
-    url,
+    url: appendApplyToOkrQuery(baseUrl, applyToOkr),
     method: 'POST',
-    data: values,
+    data: buildSanitizedReportPayload(values),
     headers,
   });
 };
-const editReport = async (values: any, selectedReportId: string) => {
+const editReport = async (
+  values: any,
+  selectedReportId: string,
+  applyToOkr = false,
+) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   const headers = {
     tenantId: tenantId,
     Authorization: `Bearer ${token}`,
+    ...(applyToOkr ? { 'x-apply-to-okr': '1' } : { 'x-skip-okr': '1', 'x-apply-to-okr': '0' }),
   };
   return await crudRequest({
-    url: `${OKR_URL}/okr-report-task/update-report-tasks/${selectedReportId}`,
+    url: appendApplyToOkrQuery(
+      `${OKR_URL}/okr-report-task/update-report-tasks/${selectedReportId}`,
+      applyToOkr,
+    ),
     method: 'patch',
-    data: values,
+    data: buildSanitizedReportPayload(values),
     headers,
   });
 };
@@ -300,28 +321,44 @@ export const useCreateReportForUnReportedtasks = () => {
       values,
       planningPeriodId,
       planId,
+      applyToOkr = false,
     }: {
       values: any;
       planningPeriodId: string;
       planId?: string;
+      /** When false, this cadence is tracking-only and must not write OKR. */
+      applyToOkr?: boolean;
       /** Milestone IDs completed by this report (Done + achieveMK). */
       achievedMilestoneIds?: Array<string | number | null | undefined>;
-    }) => createReportForUnReportedtasks(values, planningPeriodId, planId),
+    }) =>
+      createReportForUnReportedtasks(
+        values,
+        planningPeriodId,
+        planId,
+        applyToOkr,
+      ),
     {
       onSuccess: (data, variables) => {
         void data;
-        applyAchievedMilestoneIds(queryClient, variables.achievedMilestoneIds);
-        void invalidateReportingCaches(queryClient);
-        void invalidatePlanningCaches(queryClient);
-        scheduleOkrMilestoneStatusRefetch(
-          queryClient,
-          750,
-          variables.achievedMilestoneIds,
-        );
-        scheduleDashboardAndVpRefetch(queryClient, 1000);
+        const applyToOkr = variables.applyToOkr === true;
+        if (applyToOkr) {
+          applyAchievedMilestoneIds(queryClient, variables.achievedMilestoneIds);
+        }
+        void invalidateReportingCaches(queryClient, { applyToOkr });
+        void invalidatePlanningCaches(queryClient, { applyToOkr });
+        if (applyToOkr) {
+          scheduleOkrMilestoneStatusRefetch(
+            queryClient,
+            750,
+            variables.achievedMilestoneIds,
+          );
+          scheduleDashboardAndVpRefetch(queryClient, 1000);
+        }
         NotificationMessage.success({
           message: 'Successfully updated',
-          description: 'OKR plan status successfully updated',
+          description: applyToOkr
+            ? 'OKR plan status successfully updated'
+            : 'Report submitted for tracking',
         });
       },
     },
@@ -335,9 +372,11 @@ export const useEditReportByReportId = () => {
     ({
       values,
       selectedReportId,
+      applyToOkr = false,
     }: {
       values: any;
       selectedReportId: string;
+      applyToOkr?: boolean;
       achievedMilestoneIds?: Array<string | number | null | undefined>;
       reportTaskStatuses?: Record<
         string,
@@ -347,11 +386,14 @@ export const useEditReportByReportId = () => {
           customReason?: string;
         }
       >;
-    }) => editReport(values, selectedReportId),
+    }) => editReport(values, selectedReportId, applyToOkr),
     {
       onSuccess: async (data, variables) => {
         void data;
-        applyAchievedMilestoneIds(queryClient, variables.achievedMilestoneIds);
+        const applyToOkr = variables.applyToOkr === true;
+        if (applyToOkr) {
+          applyAchievedMilestoneIds(queryClient, variables.achievedMilestoneIds);
+        }
         if (variables.selectedReportId && variables.reportTaskStatuses) {
           patchReportTaskStatusesInCaches(
             queryClient,
@@ -359,7 +401,7 @@ export const useEditReportByReportId = () => {
             variables.reportTaskStatuses,
           );
         }
-        await invalidateReportingCaches(queryClient);
+        await invalidateReportingCaches(queryClient, { applyToOkr });
         // Stale refetch often lands with old Done — re-apply sticky overrides.
         if (variables.selectedReportId && variables.reportTaskStatuses) {
           patchReportTaskStatusesInCaches(
@@ -368,15 +410,19 @@ export const useEditReportByReportId = () => {
             variables.reportTaskStatuses,
           );
         }
-        scheduleOkrMilestoneStatusRefetch(
-          queryClient,
-          750,
-          variables.achievedMilestoneIds,
-        );
-        scheduleDashboardAndVpRefetch(queryClient, 1000);
+        if (applyToOkr) {
+          scheduleOkrMilestoneStatusRefetch(
+            queryClient,
+            750,
+            variables.achievedMilestoneIds,
+          );
+          scheduleDashboardAndVpRefetch(queryClient, 1000);
+        }
         NotificationMessage.success({
           message: 'Successfully updated',
-          description: 'OKR plan status successfully updated',
+          description: applyToOkr
+            ? 'OKR plan status successfully updated'
+            : 'Report submitted for tracking',
         });
       },
     },
@@ -430,8 +476,9 @@ export const useApprovalReporting = () => {
   return useMutation(approveOrRejectReporting, {
     onSuccess: (data, variables) => {
       void data;
+      const applyToOkr = variables?.applyToOkr === true;
       let achievedIds: string[] = [];
-      if (variables?.id) {
+      if (variables?.id && applyToOkr) {
         const { milestoneIds, keyResultIds } =
           collectMilestoneIdsFromApprovedReport(
             queryClient,
@@ -448,12 +495,16 @@ export const useApprovalReporting = () => {
           });
         }
       }
-      void invalidateReportingCaches(queryClient);
-      scheduleOkrMilestoneStatusRefetch(queryClient, 750, achievedIds);
-      scheduleDashboardAndVpRefetch(queryClient, 1000);
+      void invalidateReportingCaches(queryClient, { applyToOkr });
+      if (applyToOkr) {
+        scheduleOkrMilestoneStatusRefetch(queryClient, 750, achievedIds);
+        scheduleDashboardAndVpRefetch(queryClient, 1000);
+      }
       NotificationMessage.success({
         message: 'Successfully updated',
-        description: 'okr plan status successfully updated',
+        description: applyToOkr
+          ? 'okr plan status successfully updated'
+          : 'Report status updated',
       });
     },
   });

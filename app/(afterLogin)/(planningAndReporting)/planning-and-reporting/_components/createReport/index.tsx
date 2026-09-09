@@ -6,6 +6,7 @@ import { Button, Form, Spin } from 'antd';
 import { CustomizeRenderEmpty } from '@/components/emptyIndicator';
 import { useCreateReportForUnReportedtasks } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import {
+  AllPlanningPeriods,
   useDefaultPlanningPeriods,
   useGetPlannedTaskForReport,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
@@ -22,6 +23,10 @@ import { groupUnReportedTasksByKeyResultAndMilestone } from '../dataTransformer/
 import { CreateReportFormCollapse } from './CreateReportFormCollapse';
 import { computeReportTotalWeight } from './reportFormUtils';
 import { useCreateReportFormEffects } from './useCreateReportFormEffects';
+import { ReportingOnlyOkrNote } from './ReportingOnlyOkrNote';
+import { usePlanningPeriodOkrEffect } from '@/hooks/usePlanningPeriodOkrEffect';
+import { buildSanitizedReportPayload } from '@/utils/reportSubmitPayload';
+import { fallbackAssignedPlanningPeriodId } from '@/utils/okrCountingPlanningPeriod';
 
 function CreateReport() {
   const {
@@ -46,6 +51,7 @@ function CreateReport() {
   };
 
   const { data: planningPeriods } = useDefaultPlanningPeriods();
+  const { data: userPlanningPeriods } = AllPlanningPeriods();
 
   const { mutate: createReport, isLoading: createReportLoading } =
     useCreateReportForUnReportedtasks();
@@ -57,7 +63,8 @@ function CreateReport() {
     return planningPeriodDetail || {};
   };
   const planningPeriodId =
-    activePlanPeriodId ?? planningPeriods?.[activePlanPeriod - 1]?.id;
+    activePlanPeriodId ||
+    fallbackAssignedPlanningPeriodId(userPlanningPeriods, activePlanPeriod);
   const {
     data: allPlannedTaskForReport,
     isLoading: plannedTaskForReportLoading,
@@ -69,6 +76,8 @@ function CreateReport() {
   const planningPeriodName = getPlanningPeriodDetail(
     planningPeriodId ?? '',
   )?.name;
+  const { affectsOkr, countingPeriodName, isAssignmentReady } =
+    usePlanningPeriodOkrEffect(planningPeriodId);
 
   useEffect(() => {
     if (openReportModal) {
@@ -81,7 +90,10 @@ function CreateReport() {
     groupUnReportedTasksByKeyResultAndMilestone(allPlannedTaskForReport);
 
   const handleOnFinish = (values: Record<string, any>) => {
-    if (Object.entries(values).length === 0 || !planningPeriodId) return;
+    if (!isAssignmentReady || !planningPeriodId) return;
+
+    const payload = buildSanitizedReportPayload(values, selectedStatuses);
+    if (Object.keys(payload).length === 0) return;
 
     const achievedIds = collectAchievedMilestoneIdsFromReport(
       Array.isArray(formattedData) ? formattedData : null,
@@ -91,29 +103,34 @@ function CreateReport() {
     const milestoneToKrId = buildMilestoneKeyResultMap(
       Array.isArray(formattedData) ? formattedData : null,
     );
-    clearReopenedPlanningTargets({
-      milestoneIds: achievedIds,
-      keyResultIds: Array.from(
-        new Set(
-          achievedIds
-            .map((id) => milestoneToKrId[id])
-            .filter((id): id is string => Boolean(id)),
+    if (affectsOkr) {
+      clearReopenedPlanningTargets({
+        milestoneIds: achievedIds,
+        keyResultIds: Array.from(
+          new Set(
+            achievedIds
+              .map((id) => milestoneToKrId[id])
+              .filter((id): id is string => Boolean(id)),
+          ),
         ),
-      ),
-    });
-    // Session remember before mutate so + disable does not wait on invalidate.
-    rememberAchievedMilestones(achievedIds);
+      });
+      // Session remember before mutate so + disable does not wait on invalidate.
+      rememberAchievedMilestones(achievedIds);
+    }
 
     createReport(
       {
-        values: values,
+        values: payload,
         planningPeriodId: planningPeriodId,
         planId: allPlannedTaskForReport?.[0]?.plan?.id,
-        achievedMilestoneIds: achievedIds,
+        achievedMilestoneIds: affectsOkr ? achievedIds : [],
+        applyToOkr: affectsOkr,
       },
       {
         onSuccess: () => {
-          markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          if (affectsOkr) {
+            markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          }
           onClose();
         },
       },
@@ -157,7 +174,8 @@ function CreateReport() {
           data-cy="submit-report-button-for-planning-and-reporting"
           type="primary"
           className="rounded-xl bg-[#1E40AF] px-6 py-3 text-white hover:bg-[#1E3A8A] sm:px-10 sm:py-6"
-          loading={createReportLoading}
+          loading={createReportLoading || !isAssignmentReady}
+          disabled={!isAssignmentReady}
           onClick={() => form.submit()}
         >
           {planningPeriodName ? `Submit ${planningPeriodName}` : 'Submit'}
@@ -233,6 +251,9 @@ function CreateReport() {
               onFinish={handleOnFinish}
               className="px-2"
             >
+              {isAssignmentReady && !affectsOkr ? (
+                <ReportingOnlyOkrNote countingPeriodName={countingPeriodName} />
+              ) : null}
               <CreateReportFormCollapse
                 formattedData={formattedData}
                 planningPeriodName={planningPeriodName}

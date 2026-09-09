@@ -44,7 +44,6 @@ export default function OkrTab({
   'data-cy': dataCy,
 }: OkrTabProps) {
   const [isMounted, setIsMounted] = useState(false);
-  const [activeKey, setActiveKey] = useState<string>('1');
   const { userId } = useAuthenticationStore();
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
@@ -82,19 +81,42 @@ export default function OkrTab({
       ?.find((i: any) => i.id == searchObjParams?.departmentId)
       ?.users?.map((user: any) => user.id) || [];
 
+  const canVieTeamOkr = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewTeamOkr],
+  });
+  const canVieCompanyOkr = AccessGuard.checkAccess({
+    permissions: [Permissions.ViewCompanyOkr],
+  });
+
+  const allowedTabKeys = useMemo(() => {
+    return TAB_CONFIG.filter((tab) => {
+      if (tab.key === '2' && !canVieTeamOkr) return false;
+      if ((tab.key === '3' || tab.key === '4') && !canVieCompanyOkr)
+        return false;
+      return true;
+    }).map((tab) => tab.key);
+  }, [canVieTeamOkr, canVieCompanyOkr]);
+
+  // Zustand okrTab is source of truth; clamp to a permitted tab without useEffect.
+  const activeKey = useMemo(() => {
+    const current = String(okrTab);
+    if (allowedTabKeys.includes(current)) return current;
+    return allowedTabKeys[0] ?? '1';
+  }, [okrTab, allowedTabKeys]);
+
   const keyResultDeadlineFilter = useMemo(
     () =>
-      String(okrTab) === '1'
+      activeKey === '1'
         ? toKeyResultDeadlineFilter(okrStatusPillId)
         : undefined,
-    [okrStatusPillId, okrTab],
+    [okrStatusPillId, activeKey],
   );
 
   useEffect(() => {
-    if (String(okrTab) !== '1') {
+    if (activeKey !== '1') {
       setOkrStatusPillId(null);
     }
-  }, [okrTab, setOkrStatusPillId]);
+  }, [activeKey, setOkrStatusPillId]);
 
   const {
     data: userObjectives,
@@ -108,7 +130,7 @@ export default function OkrTab({
     fiscalYearId,
     sessionIds,
     keyResultDeadlineFilter,
-    { enabled: String(activeKey) === '1' },
+    { enabled: activeKey === '1' },
   );
   const {
     data: teamObjective,
@@ -123,7 +145,7 @@ export default function OkrTab({
     fiscalYearId,
     sessionIds,
     undefined,
-    { enabled: String(activeKey) === '2' },
+    { enabled: activeKey === '2' },
   );
 
   const {
@@ -140,52 +162,41 @@ export default function OkrTab({
     fiscalYearId,
     sessionIds,
     undefined,
-    { enabled: String(activeKey) === '3' },
+    { enabled: activeKey === '3' },
   );
 
   const isUserLoading = isLoading;
   const isTeamLoading = teamLoading;
   const isCompanyLoading = companyLoading;
 
-  const canVieTeamOkr = AccessGuard.checkAccess({
-    permissions: [Permissions.ViewTeamOkr],
-  });
-  const canVieCompanyOkr = AccessGuard.checkAccess({
-    permissions: [Permissions.ViewCompanyOkr],
-  });
-
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (isMounted && String(activeKey) === '1') {
+    if (isMounted && activeKey === '1') {
       userRefetch();
     }
   }, [pageSize, currentPage, isMounted, activeKey]);
 
   useEffect(() => {
-    if (isMounted && String(activeKey) === '2') {
+    if (isMounted && activeKey === '2') {
       refetch();
     }
   }, [teamPageSize, teamCurrentPage, isMounted, activeKey]);
 
   // Refetch Team OKR when year/session filters change
   useEffect(() => {
-    if (isMounted && String(activeKey) === '2') {
+    if (isMounted && activeKey === '2') {
       refetch();
     }
   }, [fiscalYearId, sessionIds, isMounted, activeKey]);
 
   useEffect(() => {
-    if (isMounted && String(activeKey) === '3') {
+    if (isMounted && activeKey === '3') {
       CompanyRefetch();
     }
   }, [companyPageSize, companyCurrentPage, isMounted, activeKey]);
-
-  useEffect(() => {
-    setActiveKey(String(okrTab));
-  }, [okrTab]);
 
   // Return null or loading state during SSR
   if (!isMounted) {
@@ -201,14 +212,21 @@ export default function OkrTab({
 
   const handleTabChange = (key: string) => {
     setOkrTab(key);
-    setActiveKey(key);
   };
 
-  const visibleTabs = TAB_CONFIG.filter((tab) => {
-    if (tab.key === '2' && !canVieTeamOkr) return false;
-    if ((tab.key === '3' || tab.key === '4') && !canVieCompanyOkr) return false;
-    return true;
-  });
+  const visibleTabs = TAB_CONFIG.filter((tab) =>
+    allowedTabKeys.includes(tab.key),
+  );
+
+  const myObjectiveItems = Array.isArray(userObjectives?.items)
+    ? userObjectives.items
+    : null;
+  const teamObjectiveItems = Array.isArray(teamObjective?.items)
+    ? teamObjective.items
+    : null;
+  const companyObjectiveItems = Array.isArray(companyObjective?.items)
+    ? companyObjective.items
+    : null;
 
   const tabContent = [
     {
@@ -223,12 +241,12 @@ export default function OkrTab({
               showAssignee={false}
             />
           ) : null}
-          {userObjectives?.items?.length !== 0 && (
+          {!isUserLoading && myObjectiveItems && myObjectiveItems.length > 0 && (
             <div
               id="my-okr-objectives-list"
               data-cy="okr-my-okr-objectives-list"
             >
-              {userObjectives?.items?.map((obj: any) =>
+              {myObjectiveItems.map((obj: any) =>
                 isBasicOkr ? (
                   <ObjectiveBasic
                     data-cy={`okr-my-okr-objective-basic-card-${obj?.id}`}
@@ -276,7 +294,9 @@ export default function OkrTab({
               )}
             </div>
           )}
-          {userObjectives?.items?.length === 0 && (
+          {!isUserLoading &&
+            myObjectiveItems &&
+            myObjectiveItems.length === 0 && (
             <div
               id="my-okr-empty-state"
               data-cy="okr-my-okr-empty-state"
@@ -302,12 +322,14 @@ export default function OkrTab({
                     showAssignee={true}
                   />
                 ) : null}
-                {teamObjective?.items?.length !== 0 && (
+                {!isTeamLoading &&
+                  teamObjectiveItems &&
+                  teamObjectiveItems.length > 0 && (
                   <div
                     id="team-okr-objectives-list"
                     data-cy="okr-team-okr-objectives-list"
                   >
-                    {teamObjective?.items?.map((obj: any) =>
+                    {teamObjectiveItems.map((obj: any) =>
                       isBasicOkr ? (
                         <ObjectiveBasic
                           key={obj.id}
@@ -354,7 +376,9 @@ export default function OkrTab({
                     )}
                   </div>
                 )}
-                {teamObjective?.items?.length === 0 && (
+                {!isTeamLoading &&
+                  teamObjectiveItems &&
+                  teamObjectiveItems.length === 0 && (
                   <div
                     id="team-okr-empty-state"
                     data-cy="okr-team-okr-empty-state"
@@ -385,12 +409,14 @@ export default function OkrTab({
                     showAssignee={true}
                   />
                 ) : null}
-                {companyObjective?.items?.length !== 0 && (
+                {!isCompanyLoading &&
+                  companyObjectiveItems &&
+                  companyObjectiveItems.length > 0 && (
                   <div
                     id="company-okr-objectives-list"
                     data-cy="okr-company-okr-objectives-list"
                   >
-                    {companyObjective?.items?.map((obj: any) =>
+                    {companyObjectiveItems.map((obj: any) =>
                       isBasicOkr ? (
                         <ObjectiveBasic
                           data-cy={`okr-company-okr-objective-basic-card-${obj?.id}`}
@@ -439,7 +465,9 @@ export default function OkrTab({
                     )}
                   </div>
                 )}
-                {companyObjective?.items?.length === 0 && (
+                {!isCompanyLoading &&
+                  companyObjectiveItems &&
+                  companyObjectiveItems.length === 0 && (
                   <div
                     id="company-okr-empty-state"
                     data-cy="okr-company-okr-empty-state"

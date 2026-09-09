@@ -14,6 +14,7 @@ import {
   toMetricTypeObject,
 } from '@/utils/okrKeyResultProgressDisplay';
 import { applyReportTaskStatusOverride } from '@/utils/recentReportTaskStatuses';
+import { getReportTaskDisplayScore } from '@/utils/reportTaskDisplayScore';
 
 /** Raw grouped plan task: keep rows that have text or are achieveMK outcome tasks. */
 const planGroupedTaskHasContent = (task: any): boolean =>
@@ -35,11 +36,7 @@ const hasUsableMetricValue = (value: unknown): boolean =>
   value !== '' &&
   Number.isFinite(Number(value));
 
-const getKeyResultCurrentValue = (
-  rawKeyResult: any,
-  allTasks: Array<{ achieved?: number; status?: string; weight?: number }>,
-  viewMode: ViewMode,
-) => {
+const getKeyResultCurrentValue = (rawKeyResult: any) => {
   const metricTypeName = getMetricTypeName(rawKeyResult);
 
   if (metricTypeName === 'Milestone') {
@@ -50,16 +47,9 @@ const getKeyResultCurrentValue = (
     return Number(rawKeyResult.currentValue);
   }
 
-  if (viewMode === 'reporting') {
-    const summedAchieved = allTasks.reduce(
-      (sum, task) => sum + (Number(task.achieved) || 0),
-      0,
-    );
-    if (summedAchieved > 0) {
-      return summedAchieved;
-    }
-  }
-
+  // Never sum this cadence's report/plan tasks into KR progress. Child
+  // cadences (Daily under Weekly/Monthly) would move the shared bar, then
+  // the parent report would snap it back.
   return 0;
 };
 
@@ -149,11 +139,10 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
   }
 
   if (viewMode === 'planning') {
-    baseTask.target = task.targetValue || task.target || 0;
+    baseTask.target = task.targetValue ?? task.target ?? 0;
     baseTask.status = task.status;
   } else {
-    baseTask.achieved =
-      task.actualValue || task.achievedValue || task.achieved || 0;
+    baseTask.achieved = getReportTaskDisplayScore(task);
     baseTask.status = getTaskStatus(task, viewMode);
     // For reporting, use weightPlan if available
     baseTask.weight =
@@ -248,7 +237,7 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
   const targetValue = allTasks.reduce((sum, t) => sum + (t.target || 0), 0);
   // Calculate achieved as sum of weights of completed/achieved tasks for this key result only
   // IMPORTANT: Sum the WEIGHTS of completed tasks, not the achieved values
-  const currentValue = getKeyResultCurrentValue(keyResult, allTasks, viewMode);
+  const currentValue = getKeyResultCurrentValue(keyResult);
   const initialValue = keyResult.initialValue;
   const resolvedTarget = keyResult.targetValue ?? targetValue;
 
@@ -382,8 +371,8 @@ export const transformReportToPlanSummary = (
       title,
       priority: normalizePriority(task.planTask?.priority || task.priority),
       weight: task.weightPlan || task.planTask?.weight || task.weight || 0,
-      achieved: task.actualValue || task.achievedValue || 0,
-      target: task.planTask?.targetValue || task.targetValue || 0,
+      achieved: getReportTaskDisplayScore(task),
+      target: task.planTask?.targetValue ?? task.targetValue ?? 0,
       status: getTaskStatus(task, 'reporting'),
       hasAttachment: task.hasAttachment || false,
       parentTask: task?.planTask?.parentTask, // Include parentTask reference for grouping
@@ -546,25 +535,7 @@ export const transformReportToPlanSummary = (
       finalMilestones = [];
     }
 
-    // Collect ALL tasks from this key result including:
-    // - Direct tasks
-    // - Tasks in milestones (only for milestone metric type)
-    // - Tasks in parent tasks within milestones (only for milestone metric type)
-    // - Tasks in parent tasks at key result level
-    const allTasks = [
-      ...finalTasks.filter((t: any) => reportGroupedTaskHasContent(t)),
-      ...finalMilestones.flatMap((m: any) => [
-        ...(m.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
-        ...(m.parentTask || []).flatMap((p: any) =>
-          (p.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
-        ),
-      ]),
-      ...finalParentTasks.flatMap((p: any) =>
-        (p.tasks || []).filter((t: any) => reportGroupedTaskHasContent(t)),
-      ),
-    ];
-
-    const currentValue = getKeyResultCurrentValue(kr, allTasks, 'reporting');
+    const currentValue = getKeyResultCurrentValue(kr);
     const initialValue = kr.initialValue;
     const resolvedTarget = kr.targetValue || 0;
     const okrMilestonesForProgress = isMilestoneMetric

@@ -41,6 +41,13 @@ import {
   rememberAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
 import { buildReportTaskStatusPatches } from '@/utils/recentReportTaskStatuses';
+import { usePlanningPeriodOkrEffect } from '@/hooks/usePlanningPeriodOkrEffect';
+import { ReportingOnlyOkrNote } from '../createReport/ReportingOnlyOkrNote';
+import {
+  buildSanitizedReportPayload,
+  parseReportActualValue,
+  parseReportActualValueInput,
+} from '@/utils/reportSubmitPayload';
 
 const { TextArea } = Input;
 
@@ -57,6 +64,7 @@ function EditReport() {
     setStatus,
     selectedStatuses,
     resetStatuses,
+    activePlanPeriodId,
   } = PlanningAndReportingStore();
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
@@ -79,6 +87,11 @@ function EditReport() {
 
   const planningPeriodName =
     planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.name;
+  const planningPeriodId =
+    activePlanPeriodId ||
+    planningPeriods?.[activePlanPeriod - 1]?.planningPeriod?.id;
+  const { affectsOkr, countingPeriodName, isAssignmentReady } =
+    usePlanningPeriodOkrEffect(planningPeriodId);
 
   const { data: allReportedPlanning } = useGetReportedPlanning(selectedPlanId);
 
@@ -98,7 +111,10 @@ function EditReport() {
     );
 
   const handleOnFinish = (values: Record<string, any>) => {
-    if (Object.entries(values).length === 0) return;
+    if (!isAssignmentReady) return;
+
+    const payload = buildSanitizedReportPayload(values, selectedStatuses);
+    if (Object.keys(payload).length === 0) return;
 
     const previousStatuses = reportedData?.reportTask?.reduce(
       (acc: Record<string, string>, task: any) => {
@@ -141,17 +157,19 @@ function EditReport() {
           .filter((id): id is string => Boolean(id)),
       ),
     );
-    if (reopenedMilestoneIds.length > 0 || reopenedKeyResultIds.length > 0) {
-      markMilestonesReopenedInOkrCaches(queryClient, {
-        milestoneIds: reopenedMilestoneIds,
-        keyResultIds: reopenedKeyResultIds,
+    if (affectsOkr) {
+      if (reopenedMilestoneIds.length > 0 || reopenedKeyResultIds.length > 0) {
+        markMilestonesReopenedInOkrCaches(queryClient, {
+          milestoneIds: reopenedMilestoneIds,
+          keyResultIds: reopenedKeyResultIds,
+        });
+      }
+      clearReopenedPlanningTargets({
+        milestoneIds: achievedIds,
+        keyResultIds: achievedKeyResultIds,
       });
+      rememberAchievedMilestones(achievedIds);
     }
-    clearReopenedPlanningTargets({
-      milestoneIds: achievedIds,
-      keyResultIds: achievedKeyResultIds,
-    });
-    rememberAchievedMilestones(achievedIds);
 
     const statusByPlanTaskId = buildReportTaskStatusPatches(
       values,
@@ -167,14 +185,17 @@ function EditReport() {
 
     editReport(
       {
-        values,
+        values: payload,
         selectedReportId,
-        achievedMilestoneIds: achievedIds,
+        achievedMilestoneIds: affectsOkr ? achievedIds : [],
         reportTaskStatuses: statusByPlanTaskId,
+        applyToOkr: affectsOkr,
       },
       {
         onSuccess: () => {
-          markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          if (affectsOkr) {
+            markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          }
           onClose();
         },
       },
@@ -189,7 +210,7 @@ function EditReport() {
         (acc: any, task: any) => {
           acc[task.planTaskId] = {
             status: task?.status ?? '', // Use existing status or empty string
-            actualValue: Number(task?.actualValue ?? 0), // Default to 0 if null/undefined
+            actualValue: parseReportActualValue(task?.actualValue), // Default to 0 if null/undefined
             customReason: task?.customReason ?? '', // Default to empty string
           };
           return acc;
@@ -259,7 +280,8 @@ function EditReport() {
           id="update-report-button-for-planning-and-reporting"
           type="primary"
           className="rounded-xl bg-[#1E40AF] px-10 py-6 text-white hover:bg-[#1E3A8A]"
-          loading={editReportLoading}
+          loading={editReportLoading || !isAssignmentReady}
+          disabled={!isAssignmentReady}
           onClick={() => form.submit()}
         >
           Update Report
@@ -408,6 +430,7 @@ function EditReport() {
                     formatter={(value) =>
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                     }
+                    parser={parseReportActualValueInput}
                     addonAfter={
                       <span
                         data-cy="planning-and-reporting-components-editreport-index-tsx-index-span-287"
@@ -539,6 +562,9 @@ function EditReport() {
               onFinish={handleOnFinish}
               className="px-2"
             >
+              {isAssignmentReady && !affectsOkr ? (
+                <ReportingOnlyOkrNote countingPeriodName={countingPeriodName} />
+              ) : null}
               <div id="edit-report-collapse" data-cy="edit-report-collapse">
                 <Collapse
                   defaultActiveKey={formattedData?.flatMap((obj: any) =>

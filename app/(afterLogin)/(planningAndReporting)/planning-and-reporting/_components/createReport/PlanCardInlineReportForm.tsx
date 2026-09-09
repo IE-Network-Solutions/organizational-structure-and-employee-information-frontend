@@ -32,6 +32,9 @@ import { PlanCardInlineReportFields } from './PlanCardInlineReportFields';
 import { computeReportTotalWeight } from './reportFormUtils';
 import { PlanCardInlineReportFormSkeleton } from './PlanCardInlineReportFormSkeleton';
 import { useCreateReportFormEffects } from './useCreateReportFormEffects';
+import { ReportingOnlyOkrNote } from './ReportingOnlyOkrNote';
+import { usePlanningPeriodOkrEffect } from '@/hooks/usePlanningPeriodOkrEffect';
+import { buildSanitizedReportPayload, parseReportActualValue } from '@/utils/reportSubmitPayload';
 
 type PlanCardInlineReportFormProps = {
   planId: string;
@@ -102,6 +105,8 @@ export function PlanCardInlineReportForm({
     useCreateReportForUnReportedtasks();
   const { mutate: editReport, isLoading: editReportLoading } =
     useEditReportByReportId();
+  const { affectsOkr, countingPeriodName, isAssignmentReady } =
+    usePlanningPeriodOkrEffect(planningPeriodId);
   const { data: reportingById, isLoading: reportingByIdLoading } =
     useGetReportingById(reportId || '');
 
@@ -111,7 +116,7 @@ export function PlanCardInlineReportForm({
       (acc: any, task: any) => {
         acc[task.planTaskId] = {
           status: task?.status ?? '',
-          actualValue: Number(task?.actualValue ?? 0),
+          actualValue: parseReportActualValue(task?.actualValue),
           customReason: task?.customReason ?? '',
         };
         return acc;
@@ -138,7 +143,10 @@ export function PlanCardInlineReportForm({
   };
 
   const handleFinish = (values: Record<string, any>) => {
-    if (Object.entries(values).length === 0) return;
+    if (!isAssignmentReady) return;
+
+    const payload = buildSanitizedReportPayload(values, selectedStatuses);
+    if (Object.keys(payload).length === 0) return;
 
     const formData = hasReportTaskRows ? formattedData : null;
     const achievedIds = collectAchievedMilestoneIdsFromReport(
@@ -157,7 +165,7 @@ export function PlanCardInlineReportForm({
 
     // Reopen sticky disables only when editing (Done → Not / unachieved).
     // On create, never reopen siblings — that was wiping achieve-disable.
-    if (isEditMode) {
+    if (isEditMode && affectsOkr) {
       const previousStatuses = reportingById?.reportTask?.reduce(
         (acc: Record<string, string>, task: any) => {
           if (task?.planTaskId != null) {
@@ -189,12 +197,14 @@ export function PlanCardInlineReportForm({
       }
     }
 
-    clearReopenedPlanningTargets({
-      milestoneIds: achievedIds,
-      keyResultIds: achievedKeyResultIds,
-    });
-    // Session remember before mutate so + disable does not wait on invalidate.
-    rememberAchievedMilestones(achievedIds);
+    if (affectsOkr) {
+      clearReopenedPlanningTargets({
+        milestoneIds: achievedIds,
+        keyResultIds: achievedKeyResultIds,
+      });
+      // Session remember before mutate so + disable does not wait on invalidate.
+      rememberAchievedMilestones(achievedIds);
+    }
 
     const statusByPlanTaskId = buildReportTaskStatusPatches(
       values,
@@ -210,14 +220,17 @@ export function PlanCardInlineReportForm({
       );
       editReport(
         {
-          values,
+          values: payload,
           selectedReportId: reportId,
-          achievedMilestoneIds: achievedIds,
+          achievedMilestoneIds: affectsOkr ? achievedIds : [],
           reportTaskStatuses: statusByPlanTaskId,
+          applyToOkr: affectsOkr,
         },
         {
           onSuccess: () => {
-            markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+            if (affectsOkr) {
+              markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+            }
             handleClose();
           },
         },
@@ -228,14 +241,17 @@ export function PlanCardInlineReportForm({
     if (!planningPeriodId) return;
     createReport(
       {
-        values,
+        values: payload,
         planningPeriodId,
         planId,
-        achievedMilestoneIds: achievedIds,
+        achievedMilestoneIds: affectsOkr ? achievedIds : [],
+        applyToOkr: affectsOkr,
       },
       {
         onSuccess: () => {
-          markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          if (affectsOkr) {
+            markMilestonesCompletedInOkrCaches(queryClient, achievedIds);
+          }
           handleClose();
         },
       },
@@ -255,6 +271,9 @@ export function PlanCardInlineReportForm({
           onFinish={handleFinish}
           className="px-0"
         >
+          {isAssignmentReady && !affectsOkr ? (
+            <ReportingOnlyOkrNote countingPeriodName={countingPeriodName} />
+          ) : null}
           <PlanCardInlineReportFields formattedData={formattedData} />
           <div
             data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-div-176"
@@ -309,7 +328,8 @@ export function PlanCardInlineReportForm({
               </Button>
               <Button
                 type="primary"
-                loading={isSubmitting}
+                loading={isSubmitting || !isAssignmentReady}
+                disabled={!isAssignmentReady}
                 onClick={() => form.submit()}
                 className="h-8 rounded-lg border-0 bg-[#1E40AF] px-4 text-xs font-semibold hover:bg-[#1E3A8A]"
               >
