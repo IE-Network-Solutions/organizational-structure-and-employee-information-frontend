@@ -25,6 +25,10 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import ApproverListTable from '@/components/Approval/ApprovalListTable';
 import { APPROVALTYPES, commonClass } from '@/types/enumTypes';
 import {
+  DEFAULT_TIMESHEET_APPROVAL_TYPES,
+  formatTimesheetApprovalType,
+} from '@/utils/approval/timesheetApprovalTypes';
+import {
   findDepartmentById,
   isDepartmentEntityType,
   isUserEntityType,
@@ -71,7 +75,7 @@ const ApprovalListTable = () => {
       searchParams?.entityType ? searchParams.entityType : '',
       searchParams?.entityId ? searchParams.entityId : '',
       searchParams?.name || '',
-      searchParams?.approvalType || [APPROVALTYPES.LEAVE, 'WorkFromHome'],
+      searchParams?.approvalType || [...DEFAULT_TIMESHEET_APPROVAL_TYPES],
     );
 
   // Check if all required data is loaded
@@ -486,7 +490,9 @@ const ApprovalListTable = () => {
                             data-cy={`time-attendance-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-label`}
                             className="text-xs text-gray-500"
                           >
-                            {workflowItem?.approvalType || '-'}
+                            {formatTimesheetApprovalType(
+                              workflowItem?.approvalType || '-',
+                            )}
                           </span>
                           <span
                             data-cy={`time-attendance-settings-approvals-table-row-${index}-approval-type-${workflowIdx}-workflow-name`}

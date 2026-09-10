@@ -8,11 +8,34 @@ export interface DayOfWeek {
   duration?: number;
 }
 
+export interface WorkScheduleShiftBreak {
+  breakTypeId: string;
+  sortOrder?: number;
+  startAt?: string | null;
+  endAt?: string | null;
+  startAtFrom?: string | null;
+  startAtTo?: string | null;
+  endAtFrom?: string | null;
+  endAtTo?: string | null;
+}
+
+export interface WorkScheduleShift {
+  id?: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  isSwappable?: boolean;
+  applyToAllDays?: boolean;
+  days?: string[];
+  breaks?: WorkScheduleShiftBreak[];
+}
+
 export interface Schedule {
   name?: string;
   scheduleName?: string;
   standardHours?: number;
   detail: DayOfWeek[];
+  shifts?: WorkScheduleShift[];
 }
 
 export interface DayOfWeekResponse {
@@ -27,9 +50,11 @@ export interface DayOfWeekResponse {
 }
 
 export interface ResponseSchedule {
+  id?: string;
   name: string;
   standardHours: number;
   detail: DayOfWeekResponse[];
+  shifts?: WorkScheduleShift[];
 }
 
 export interface ScheduleResponse {
