@@ -10,7 +10,12 @@ import { useUserPlanRepositoryMock } from '@/store/uistate/features/planningAndR
 import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence, PlanSummary } from '../types';
-import { activePlanPeriodToKind } from './durationFilter';
+import {
+  isPlanHistoryFilter,
+  reportedAtMatchesDurationFilter,
+  type PlanFilterValue,
+} from './durationFilter';
+import { todayIso } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
 import {
   cadenceFromPeriodName,
   mockPlansToReportingItems,
@@ -35,6 +40,8 @@ export function useReportingData(enabled = true) {
     activePlanPeriodId,
     selectedSessionIds,
     allSessionsOfYear,
+    planningDurationFilter,
+    planningHistoryRange,
   } = PlanningAndReportingStore();
   const { userId } = useAuthenticationStore();
   const { data: planningPeriods } = useDefaultPlanningPeriods();
@@ -99,7 +106,8 @@ export function useReportingData(enabled = true) {
 
   const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
   const cadence = (activeTabName?.toLowerCase() as Cadence) || 'weekly';
-  const filterKind = activePlanPeriodToKind(activePlanPeriod);
+  const durationFilter: PlanFilterValue = planningDurationFilter || 'daily';
+  const today = todayIso();
 
   const mockEmployeeData = useMemo(
     () => ({
@@ -145,12 +153,69 @@ export function useReportingData(enabled = true) {
     const plans = mockUserIds
       .map((uid) => mockPlansByUserId[uid])
       .filter(Boolean);
-    return mockPlansToReportingItems(plans, filterKind);
-  }, [mockEnabled, mockUserIds, mockPlansByUserId, filterKind]);
+    return mockPlansToReportingItems(
+      plans,
+      durationFilter,
+      today,
+      isPlanHistoryFilter(durationFilter) ? planningHistoryRange : undefined,
+    );
+  }, [
+    mockEnabled,
+    mockUserIds,
+    mockPlansByUserId,
+    durationFilter,
+    today,
+    planningHistoryRange,
+  ]);
 
-  const reportingItems = mockEnabled
-    ? mockReportingItems
-    : (allReporting?.items ?? []);
+  const reportingItems = useMemo(() => {
+    if (mockEnabled) return mockReportingItems;
+    const historyRange = isPlanHistoryFilter(durationFilter)
+      ? planningHistoryRange
+      : undefined;
+    return (allReporting?.items ?? [])
+      .map((item: any) => {
+        const reportTasks = Array.isArray(item?.reportTask)
+          ? item.reportTask
+          : Array.isArray(item?.reportTasks)
+            ? item.reportTasks
+            : [];
+        const filteredTasks = reportTasks.filter((task: any) =>
+          reportedAtMatchesDurationFilter(
+            task?.reportedAt ||
+              task?.createdAt ||
+              task?.updatedAt ||
+              item?.createdAt,
+            durationFilter,
+            today,
+            historyRange,
+          ),
+        );
+        if (filteredTasks.length === 0) return null;
+        const latest = filteredTasks
+          .map(
+            (t: any) =>
+              t?.reportedAt || t?.createdAt || t?.updatedAt || item?.createdAt,
+          )
+          .filter(Boolean)
+          .sort((a: string, b: string) =>
+            String(b).localeCompare(String(a)),
+          )[0];
+        return {
+          ...item,
+          reportTask: filteredTasks,
+          createdAt: latest || item?.createdAt,
+        };
+      })
+      .filter(Boolean);
+  }, [
+    mockEnabled,
+    mockReportingItems,
+    allReporting?.items,
+    durationFilter,
+    today,
+    planningHistoryRange,
+  ]);
 
   const reportSummaries: PlanSummary[] = useMemo(() => {
     const currentUserId = String(userId ?? '');
@@ -178,11 +243,13 @@ export function useReportingData(enabled = true) {
             currentUserId,
             undefined,
             mockDisplayNameForUserId(planUserId, currentUserId),
+            'report',
           );
           return {
             ...summary,
             ownerUserId: planUserId,
             summary: title,
+            createdAt: dataItem?.createdAt || summary.createdAt,
             owner: {
               ...summary.owner,
               name: title,
@@ -192,16 +259,40 @@ export function useReportingData(enabled = true) {
         }),
       );
     }
-    if (!allReporting?.items) return [];
+    if (!reportingItems.length) return [];
     return putMineFirst(
-      allReporting.items.map((dataItem: any) =>
-        transformReportToPlanSummary(dataItem, cadence, mockEmployeeData),
-      ),
+      reportingItems.map((dataItem: any) => {
+        const summary = transformReportToPlanSummary(
+          dataItem,
+          cadence,
+          mockEmployeeData,
+        );
+        const planUserId = String(
+          dataItem?.userId ?? summary.ownerUserId ?? '',
+        );
+        const title = userPlanDisplayTitle(
+          planUserId,
+          currentUserId,
+          summary.owner?.name,
+          undefined,
+          'report',
+        );
+        return {
+          ...summary,
+          ownerUserId: planUserId || summary.ownerUserId,
+          summary: title,
+          createdAt: dataItem?.createdAt || summary.createdAt,
+          owner: {
+            ...summary.owner,
+            name: title,
+          },
+        };
+      }),
     );
   }, [
     mockEnabled,
     mockReportingItems,
-    allReporting?.items,
+    reportingItems,
     cadence,
     mockEmployeeData,
     userId,

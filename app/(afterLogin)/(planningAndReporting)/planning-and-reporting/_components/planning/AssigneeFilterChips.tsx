@@ -49,11 +49,10 @@ function StackedAvatarButton({
         )}
       >
         <span
+          data-cy={`assignee-chip-ring-${chip.userId}`}
           className={classNames(
             'inline-flex rounded-full',
-            selected
-              ? 'shadow-[0_0_0_2px_#1E40AF]'
-              : 'shadow-[0_0_0_2px_#fff]',
+            selected ? 'shadow-[0_0_0_2px_#1E40AF]' : 'shadow-[0_0_0_2px_#fff]',
           )}
         >
           <Avatar
@@ -83,12 +82,8 @@ function StackedAvatarButton({
 export default function AssigneeFilterChips() {
   const { userId } = useAuthenticationStore();
   const { selectedIds, roster } = useAssigneeChipRoster();
-  const {
-    subordinates,
-    allEmployees,
-    canPickAllEmployees,
-    pickerUniverseIds,
-  } = useAssigneePickerScope();
+  const { subordinates, allEmployees, canPickAllEmployees, pickerUniverseIds } =
+    useAssigneePickerScope();
   const {
     setSelectedUser,
     setPlanningFilterPlanType,
@@ -176,7 +171,10 @@ export default function AssigneeFilterChips() {
             String(id) !== String(userId) &&
             String(id) !== String(currentUserId),
         )
-      : [...normalized.filter((id) => String(id) !== String(currentUserId)), userId];
+      : [
+          ...normalized.filter((id) => String(id) !== String(currentUserId)),
+          userId,
+        ];
     applySelection(
       mergeMeWithPickerSelection(meSelected, nextOthers, currentUserId),
     );
@@ -235,7 +233,10 @@ export default function AssigneeFilterChips() {
                 style={{ zIndex: 20 + stackChips.length }}
                 className="relative -ml-2 inline-flex shrink-0 rounded-full p-px opacity-90 transition-all hover:z-[30] hover:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E40AF]/35 focus-visible:ring-offset-1"
               >
-                <span className="inline-flex rounded-full shadow-[0_0_0_2px_#fff]">
+                <span
+                  data-cy="planning-and-reporting-components-planning-assigneefilterchips-tsx-assigneefilterchips-span-235"
+                  className="inline-flex rounded-full shadow-[0_0_0_2px_#fff]"
+                >
                   <Avatar
                     size={24}
                     className="flex h-6 w-6 shrink-0 items-center justify-center"
@@ -259,9 +260,7 @@ export default function AssigneeFilterChips() {
         onClose={() => setPickerOpen(false)}
         onApply={handlePickerApply}
         initialOtherIds={otherSelectedIds}
-        subordinates={subordinates}
-        allEmployees={allEmployees}
-        canPickAllEmployees={canPickAllEmployees}
+        people={canPickAllEmployees ? allEmployees : subordinates}
       />
     </>
   );

@@ -85,6 +85,14 @@ export interface PlanningAndReporting {
   inlinePlanningMode: boolean;
   setInlinePlanningMode: (value: boolean) => void;
 
+  /** Multi-plan create modal (replaces inline create) */
+  createPlansModalOpen: boolean;
+  setCreatePlansModalOpen: (value: boolean) => void;
+
+  /** Desktop Key Results left panel collapsed to a narrow rail */
+  krLeftPanelCollapsed: boolean;
+  setKrLeftPanelCollapsed: (value: boolean) => void;
+
   /** Full-screen mobile/tablet sheet for KR pick + inline composer */
   mobilePlanComposerOpen: boolean;
   setMobilePlanComposerOpen: (value: boolean) => void;
@@ -223,6 +231,14 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     inlinePlanningMode: false,
     setInlinePlanningMode: (inlinePlanningMode: boolean) =>
       set({ inlinePlanningMode }),
+
+    createPlansModalOpen: false,
+    setCreatePlansModalOpen: (createPlansModalOpen: boolean) =>
+      set({ createPlansModalOpen }),
+
+    krLeftPanelCollapsed: false,
+    setKrLeftPanelCollapsed: (krLeftPanelCollapsed: boolean) =>
+      set({ krLeftPanelCollapsed }),
 
     mobilePlanComposerOpen: false,
     setMobilePlanComposerOpen: (mobilePlanComposerOpen: boolean) =>

@@ -1,7 +1,15 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
-import { Button, Dropdown, Pagination, Tooltip, message } from 'antd';
+import {
+  Button,
+  Dropdown,
+  Input,
+  Modal,
+  Pagination,
+  Tooltip,
+  message,
+} from 'antd';
 import type { MenuProps } from 'antd';
 import {
   MoreOutlined,
@@ -9,13 +17,16 @@ import {
   ExclamationCircleFilled,
   FlagOutlined,
   CloseOutlined,
+  LockOutlined,
+  UnlockOutlined,
+  MessageOutlined,
 } from '@ant-design/icons';
 import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
-import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
 import { LuLoader } from 'react-icons/lu';
+import { BsKey } from 'react-icons/bs';
 import { PlanSummary, PlanTask, ViewMode, Cadence } from '../types';
-import { formatPlanningReportDate } from '../utils';
+import { formatLastReportedLabel, formatPlanningReportDate } from '../utils';
 import UserInfo from '../UserInfo';
 import StatusBadge from '../StatusBadge';
 import CommentsSection from '../comments/CommentsSection';
@@ -42,14 +53,18 @@ import {
 } from '../planning/durationFilter';
 import {
   planCardAssigneeLabel,
+  planCardAssigneeRole,
   type PlanCardDisplayMode,
 } from '../planning/planCardDisplay';
 import MockPlanHierarchy from './MockPlanHierarchy';
+import LockTasksModal from './LockTasksModal';
+import TaskCommentsModal from './TaskCommentsModal';
 import type { MockPlanTask } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
 import {
   filterMockHistoryTasks,
   filterMockTasksByDuration,
 } from '../prototype/mockDurationFilter';
+import { UNLINKED_KR_ID } from '../prototype/mockPlanningConstants';
 
 const HISTORY_PAGE_SIZE = 8;
 
@@ -134,14 +149,68 @@ function formatNum(v: number | string | null | undefined): string {
   return n.toString();
 }
 
+/** Target applies only when the task is linked to a real key result. */
+function isTaskLinkedToKeyResult(task: any): boolean {
+  const id =
+    task?.keyResultId ??
+    task?._krId ??
+    task?.keyResult?.id ??
+    task?.planTask?.keyResultId ??
+    null;
+  if (id == null || id === '') return false;
+  return String(id) !== UNLINKED_KR_ID;
+}
+
+function resolveTaskKeyResultMeta(
+  task: any,
+  plan?: PlanSummary,
+): { id: string; title: string } | null {
+  if (!isTaskLinkedToKeyResult(task)) return null;
+  const id = String(
+    task?.keyResultId ??
+      task?._krId ??
+      task?.keyResult?.id ??
+      task?.planTask?.keyResultId ??
+      '',
+  );
+  if (!id) return null;
+
+  const fromTask =
+    task?.keyResultTitle ||
+    task?.keyResult?.title ||
+    task?.keyResult?.name ||
+    task?.planTask?.keyResultTitle ||
+    task?.planTask?.keyResult?.title ||
+    task?.planTask?.keyResult?.name;
+
+  const fromPlan = plan?.keyResults?.find((kr) => String(kr.id) === id);
+  const title = String(
+    fromTask || fromPlan?.title || fromPlan?.name || '',
+  ).trim();
+  if (!title) return null;
+  return { id, title };
+}
+
+function taskTargetDisplay(task: any): string {
+  if (!isTaskLinkedToKeyResult(task)) return '—';
+  const raw =
+    task?.targetValue ??
+    task?.target ??
+    task?.planTask?.targetValue ??
+    task?.weight;
+  return formatNum(raw);
+}
+
 /** Tighter meta columns on small screens; align header + task rows. */
 const meta = {
   pri: 'w-[52px] sm:w-[68px]',
-  wt: 'w-[28px] sm:w-[38px]',
+  tgtPlan: 'w-[36px] sm:w-[52px]',
   tgt: 'w-[32px] sm:w-[46px]',
   out: 'w-[13px] sm:w-[18px]',
   deadline: 'w-[72px] sm:w-[88px]',
   daysLeft: 'w-[78px] sm:w-[96px]',
+  /** Lock / comments / unlock — keep header + rows aligned. */
+  actions: 'w-[64px] sm:w-[72px]',
 } as const;
 
 const metaHead =
@@ -254,6 +323,7 @@ export default function PlanCard({
   canEdit = false,
   isApprovalLoading = false,
   dateLabel,
+  onHoverKR,
   planningPeriodId,
   onOpenThread,
   onSubmitReport,
@@ -273,6 +343,8 @@ export default function PlanCard({
   );
   const reportMockTasks = useUserPlanRepositoryMock((s) => s.reportTasks);
   const archiveMockTasks = useUserPlanRepositoryMock((s) => s.archiveTasks);
+  const lockMockTasks = useUserPlanRepositoryMock((s) => s.lockTasks);
+  const unlockMockTask = useUserPlanRepositoryMock((s) => s.unlockTask);
   const mockPlansByUserId = useUserPlanRepositoryMock((s) => s.plansByUserId);
   const mockEnabled = isDeadlinePlanningMockEnabled();
   const viewerUserId = useAuthenticationStore((s) => s.userId);
@@ -338,6 +410,17 @@ export default function PlanCard({
   const historyRange = planningHistoryRange;
   const [historyPage, setHistoryPage] = useState(1);
   const datesByTaskId = usePlanTaskDatesStore((s) => s.datesByTaskId);
+  const [lockTarget, setLockTarget] = useState<{
+    taskIds: string[];
+    titles: string[];
+    mergePending: boolean;
+  } | null>(null);
+  const [commentsTask, setCommentsTask] = useState<MockPlanTask | null>(null);
+  const [liveLockConfirm, setLiveLockConfirm] = useState<{
+    mode: 'lock' | 'unlock';
+  } | null>(null);
+  const [liveLockComment, setLiveLockComment] = useState('');
+  const [lockSubmitting, setLockSubmitting] = useState(false);
 
   const serverTaskStatusMap = React.useMemo(() => {
     const map: Record<string, string | undefined> = {};
@@ -437,50 +520,75 @@ export default function PlanCard({
     plan.status?.label === 'Open'
       ? [
           {
-            key: 'approve',
-            icon: <IoCheckmarkSharp />,
+            key: 'lock',
+            icon: <LockOutlined />,
             label: (
               <Tooltip
                 title={
                   isApprovalLoading
-                    ? 'Processing approval...'
-                    : "Approve Plan! Once you approve, you can't edit"
+                    ? 'Processing…'
+                    : "Lock plan. Once locked, the owner can't edit"
                 }
               >
-                Approve
+                Lock
               </Tooltip>
             ),
-            onClick: onApprove,
+            onClick: () => {
+              if (mockEnabled) {
+                onApprove?.();
+                return;
+              }
+              setLiveLockComment('');
+              setLiveLockConfirm({ mode: 'lock' });
+            },
             className: 'text-green-500',
           },
         ]
       : [
           {
-            key: 'open',
-            icon: <IoOpen size={16} />,
-            label: <Tooltip title="Open approved Plan">Open</Tooltip>,
-            onClick: onOpen,
+            key: 'unlock',
+            icon: <UnlockOutlined />,
+            label: <Tooltip title="Unlock plan">Unlock</Tooltip>,
+            onClick: () => {
+              if (mockEnabled) {
+                onOpen?.();
+                return;
+              }
+              setLiveLockComment('');
+              setLiveLockConfirm({ mode: 'unlock' });
+            },
             className: 'text-red-400',
           },
         ];
 
-  /** Approve/close pending (new & unclosed) tasks from the Pending tag. */
+  /** Lock pending (new & unclosed) tasks from the Pending tag. */
   const pendingApprovalMenuItems: MenuProps['items'] = [
     {
-      key: 'approve-pending',
-      icon: <IoCheckmarkSharp />,
+      key: 'lock-pending',
+      icon: <LockOutlined />,
       label: (
         <Tooltip
           title={
             isApprovalLoading
-              ? 'Processing approval...'
-              : 'Approve pending plans and merge them into the closed plan'
+              ? 'Processing…'
+              : 'Lock pending tasks and merge them into the closed plan'
           }
         >
-          Approve
+          Lock pending
         </Tooltip>
       ),
-      onClick: onApprove,
+      onClick: () => {
+        if (!mockEnabled || !plan.ownerUserId) {
+          onApprove?.();
+          return;
+        }
+        const pending = mockPendingTasks;
+        setLockTarget({
+          taskIds: pending.map((t) => t.id),
+          titles: pending.map((t) => t.title),
+          mergePending: true,
+        });
+      },
       className: 'text-green-500',
     },
   ];
@@ -542,6 +650,9 @@ export default function PlanCard({
 
   const getDateLabel = (): string => {
     if (dateLabel) return dateLabel;
+    if (viewMode === 'reporting') {
+      return formatLastReportedLabel(plan.createdAt ?? '');
+    }
     return formatPlanningReportDate(plan.createdAt ?? '');
   };
 
@@ -635,13 +746,19 @@ export default function PlanCard({
               ? 'Priority'
               : 'Low',
       weight: t.weight ?? 0,
+      targetValue: t.targetValue ?? t.weight ?? 0,
       status: t.done ? 'pre_achieved' : 'pre_pending',
       deadline: t.deadline,
       startDate: t.start,
       endDate: t.deadline,
       isPendingApproval: t.isPendingApproval,
+      isLocked: t.isLocked,
+      lockComment: t.lockComment,
+      commentCount: t.comments?.length ?? 0,
       kind: t.kind,
       parentId: t.parentId,
+      keyResultId: t.keyResultId ?? null,
+      keyResultTitle: t.keyResultTitle ?? null,
     };
   }, []);
 
@@ -821,12 +938,7 @@ export default function PlanCard({
 
   useEffect(() => {
     setHistoryPage(1);
-  }, [
-    planningDurationFilter,
-    historyRange.from,
-    historyRange.to,
-    plan.id,
-  ]);
+  }, [planningDurationFilter, historyRange.from, historyRange.to, plan.id]);
 
   const cardSurfaceClass = classNames(
     'group/card min-w-0 max-w-full overflow-hidden rounded-xl border bg-white transition-all duration-200',
@@ -836,6 +948,40 @@ export default function PlanCard({
   );
 
   const renderPlanningOwnerHeader = () => {
+    if (viewMode === 'reporting') {
+      const reportTitle = plan.owner?.name || plan.summary || 'Report';
+      if (displayMode === 'full') {
+        return (
+          <UserInfo
+            owner={plan.owner}
+            notificationCount={plan.notificationCount}
+          />
+        );
+      }
+      const role =
+        displayMode === 'team' ? planCardAssigneeRole(plan.owner?.role) : null;
+      return (
+        <div
+          data-cy={`plan-card-assignee-label-${plan.id}`}
+          className="min-w-0 flex-1"
+        >
+          <p
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-968"
+            className="m-0 min-w-0 truncate text-[15px] font-bold leading-snug tracking-tight text-[#161A2C] sm:text-[16px]"
+          >
+            {reportTitle}
+          </p>
+          {role ? (
+            <p
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-972"
+              className="mb-0 mt-0.5 min-w-0 truncate text-[12px] font-medium leading-snug text-[#8F94A3] sm:text-[13px]"
+            >
+              {role}
+            </p>
+          ) : null}
+        </div>
+      );
+    }
     if (displayMode === 'full') {
       return (
         <UserInfo
@@ -845,16 +991,36 @@ export default function PlanCard({
       );
     }
     if (displayMode === 'team') {
+      const role = planCardAssigneeRole(plan.owner?.role);
       return (
-        <p
+        <div
           data-cy={`plan-card-assignee-label-${plan.id}`}
-          className="min-w-0 truncate text-[13px] font-semibold text-[#161A2C]"
+          className="min-w-0 flex-1"
         >
-          {planCardAssigneeLabel(plan.owner?.name)}
-        </p>
+          <p
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-994"
+            className="m-0 min-w-0 truncate text-[15px] font-bold leading-snug tracking-tight text-[#161A2C] sm:text-[16px]"
+          >
+            {planCardAssigneeLabel(plan.owner?.name)}
+          </p>
+          {role ? (
+            <p
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-998"
+              className="mb-0 mt-0.5 min-w-0 truncate text-[12px] font-medium leading-snug text-[#8F94A3] sm:text-[13px]"
+            >
+              {role}
+            </p>
+          ) : null}
+        </div>
       );
     }
-    return <div className="min-w-0 flex-1" aria-hidden />;
+    return (
+      <div
+        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1005"
+        className="min-w-0 flex-1"
+        aria-hidden
+      />
+    );
   };
 
   if (viewMode === 'reporting') {
@@ -926,13 +1092,17 @@ export default function PlanCard({
     return (
       <article
         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
-        className="group/card min-w-0 max-w-full overflow-hidden rounded-xl border border-[#F1F2F6] bg-white transition-all duration-200 hover:border-[#D6D3FF] hover:shadow-[0_4px_20px_rgba(87,76,255,0.06)]"
+        className={cardSurfaceClass}
         data-active-cadence={activeCadence}
+        data-display-mode={displayMode}
       >
-        {/* Header */}
+        {/* Header — same chrome as Active Plans (compact / team / full) */}
         <div
           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-375"
-          className="px-4 pt-3.5 pb-3 md:px-5"
+          className={classNames(
+            'px-4 md:px-5',
+            displayMode === 'compact' ? 'pt-2.5 pb-2' : 'pt-3.5 pb-3',
+          )}
         >
           <div
             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-376"
@@ -940,17 +1110,14 @@ export default function PlanCard({
           >
             <div
               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-377"
-              className="flex items-center gap-3 flex-1 min-w-0"
+              className="flex min-w-0 flex-1 items-center gap-3"
             >
-              <UserInfo
-                owner={plan.owner}
-                notificationCount={plan.notificationCount}
-              />
+              {renderPlanningOwnerHeader()}
             </div>
 
             <div
               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-384"
-              className="flex items-center gap-1.5 flex-shrink-0"
+              className="flex flex-shrink-0 items-center gap-1.5"
             >
               {plan.reprimandCount && plan.reprimandCount > 0 ? (
                 <div
@@ -980,7 +1147,9 @@ export default function PlanCard({
                   <FaRegThumbsUp className="text-[11px]" />
                 </div>
               ) : null}
-              {plan.status ? <StatusBadge status={plan.status} /> : null}
+              {plan.status && displayMode === 'compact' ? (
+                <StatusBadge status={plan.status} />
+              ) : null}
               {inlineReportActive && onCloseInlineReport ? (
                 <button
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-button-437"
@@ -1044,7 +1213,11 @@ export default function PlanCard({
                 >
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-453"
-                    className="text-[13px] font-medium text-[#8F94A3]"
+                    className={
+                      viewMode === 'reporting'
+                        ? 'text-[13px] font-normal text-[#8F94A3]'
+                        : 'text-[13px] font-medium text-[#8F94A3]'
+                    }
                   >
                     {getDateLabel()}
                   </span>
@@ -1096,9 +1269,20 @@ export default function PlanCard({
                   </div>
                   <div
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-479"
-                    className={classNames(meta.wt, metaHead)}
+                    className={classNames(meta.tgtPlan, metaHead)}
                   >
-                    Wt
+                    <span
+                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1256"
+                      className="sm:hidden"
+                    >
+                      Tgt
+                    </span>
+                    <span
+                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1257"
+                      className="hidden sm:inline"
+                    >
+                      Target
+                    </span>
                   </div>
                   <div
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-480"
@@ -1158,6 +1342,7 @@ export default function PlanCard({
                 const failReason = String(
                   (task as PlanTask).customReason || taskAny.customReason || '',
                 ).trim();
+                const krMeta = resolveTaskKeyResultMeta(task, plan);
 
                 const rowClassName = `group/row flex w-full min-w-0 items-start gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150 ${
                   isCompleted
@@ -1172,6 +1357,7 @@ export default function PlanCard({
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-620"
                     className={rowClassName}
                     onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+                      if (krMeta) onHoverKR?.(krMeta.id);
                       if (isFailed && failReason) {
                         const { left, top } = clampFailReasonPanelPosition(
                           e.clientX,
@@ -1198,6 +1384,7 @@ export default function PlanCard({
                       }
                     }}
                     onMouseLeave={() => {
+                      if (krMeta) onHoverKR?.(null);
                       if (isFailed && failReason) {
                         setFailReasonCursorPanel(null);
                       }
@@ -1219,19 +1406,43 @@ export default function PlanCard({
                       )}
                     </div>
 
-                    <p
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-672"
-                      className={`min-w-0 flex-1 break-words text-[14px] leading-snug line-clamp-2 transition-all duration-200 ${
-                        isCompleted
-                          ? 'line-through text-[#B0B3C0]'
-                          : isFailed
-                            ? 'text-[#DC2626]'
-                            : 'text-[#2D2F45]'
-                      }`}
-                      title={isFailed && failReason ? undefined : taskName}
+                    <div
+                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1381"
+                      className="min-w-0 flex-1"
                     >
-                      {taskName}
-                    </p>
+                      <p
+                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-672"
+                        className={`min-w-0 break-words text-[14px] leading-snug line-clamp-2 transition-all duration-200 ${
+                          isCompleted
+                            ? 'line-through text-[#B0B3C0]'
+                            : isFailed
+                              ? 'text-[#DC2626]'
+                              : 'text-[#2D2F45]'
+                        }`}
+                        title={isFailed && failReason ? undefined : taskName}
+                      >
+                        {taskName}
+                      </p>
+                      {krMeta ? (
+                        <span
+                          data-cy={`plan-card-report-task-kr-${task.id}`}
+                          className="mt-0.5 flex max-w-full items-center gap-1 text-[11px] font-medium leading-snug text-[#94A3B8] transition-colors group-hover/row:text-[#64748B]"
+                          title={krMeta.title}
+                        >
+                          <BsKey
+                            size={10}
+                            className="shrink-0 text-[#94A3B8] group-hover/row:text-[#1E40AF]/70"
+                            aria-hidden
+                          />
+                          <span
+                            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1406"
+                            className="min-w-0 truncate"
+                          >
+                            {krMeta.title}
+                          </span>
+                        </span>
+                      ) : null}
+                    </div>
 
                     <div
                       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-590"
@@ -1257,13 +1468,13 @@ export default function PlanCard({
 
                       <div
                         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-604"
-                        className={classNames(meta.wt, 'text-right')}
+                        className={classNames(meta.tgtPlan, 'text-right')}
                       >
                         <span
                           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-605"
                           className="text-[12px] font-semibold text-[#8F94A3] tabular-nums sm:text-[13px]"
                         >
-                          {formatNum(task.weight)}
+                          {taskTargetDisplay(task)}
                         </span>
                       </div>
 
@@ -1380,6 +1591,7 @@ export default function PlanCard({
       prefix?: React.ReactNode;
       afterTitle?: React.ReactNode;
       hideCheckbox?: boolean;
+      onOpen?: () => void;
     },
   ) => {
     const taskAny = task as any;
@@ -1414,14 +1626,34 @@ export default function PlanCard({
     const prefix = opts?.prefix;
     const afterTitle = opts?.afterTitle;
     const hideCheckbox = !!opts?.hideCheckbox;
+    const onOpen = opts?.onOpen;
+    const isLocked = !!taskAny.isLocked;
+    const lockComment = String(taskAny.lockComment || '').trim();
+    const commentCount = Number(taskAny.commentCount || 0);
+    const taskLockedReadOnly = mockEnabled && isLocked;
+    const rowReadOnly = isPlanReadOnly || taskLockedReadOnly;
+    const krMeta = resolveTaskKeyResultMeta(task, plan);
 
     return (
       <div
         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1094"
         key={task.id}
+        role={onOpen ? 'button' : undefined}
+        tabIndex={onOpen ? 0 : undefined}
+        onClick={onOpen}
+        onKeyDown={
+          onOpen
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onOpen();
+                }
+              }
+            : undefined
+        }
         className={`group/row flex items-start gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150 ${
           isChecked ? 'bg-[#52c41a]/[0.04]' : 'hover:bg-[#FAFBFC]'
-        }`}
+        } ${onOpen ? 'cursor-pointer' : ''}`}
         style={
           prefix
             ? undefined
@@ -1429,6 +1661,12 @@ export default function PlanCard({
               ? { paddingLeft: 10 + depth * 12 }
               : undefined
         }
+        onMouseEnter={() => {
+          if (krMeta) onHoverKR?.(krMeta.id);
+        }}
+        onMouseLeave={() => {
+          if (krMeta) onHoverKR?.(null);
+        }}
       >
         {prefix}
         {!hideCheckbox &&
@@ -1460,18 +1698,18 @@ export default function PlanCard({
             <button
               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-button-1126"
               type="button"
-              onClick={() =>
-                !isPlanReadOnly &&
-                !isCompleted &&
-                !isLoading &&
-                handleTaskToggle(task.id, effectiveStatus ?? '')
-              }
-              disabled={isPlanReadOnly || isCompleted || isLoading}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!rowReadOnly && !isCompleted && !isLoading) {
+                  handleTaskToggle(task.id, effectiveStatus ?? '');
+                }
+              }}
+              disabled={rowReadOnly || isCompleted || isLoading}
               aria-label={
                 isChecked ? 'Mark task not achieved' : 'Mark task achieved'
               }
               className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
-                isPlanReadOnly || isCompleted
+                rowReadOnly || isCompleted
                   ? 'border-[#D1D5DB] bg-[#F3F4F6] cursor-not-allowed'
                   : isChecked
                     ? 'border-[#52c41a] bg-[#52c41a] shadow-[0_0_0_2px_rgba(82,196,26,0.15)]'
@@ -1492,25 +1730,49 @@ export default function PlanCard({
           data-cy="plancard-1345"
           className="flex min-w-0 flex-1 items-start gap-1"
         >
-          <p
-            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-1153"
-            className={`min-w-0 flex-1 break-words text-[14px] leading-snug line-clamp-2 transition-all duration-200 ${
-              isChecked
-                ? 'line-through text-[#6b7280]'
-                : isCompleted
-                  ? 'line-through text-[#D1D5DB]'
-                  : 'text-[#2D2F45]'
-            }`}
-            title={taskName}
+          <div
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1699"
+            className="min-w-0 flex-1"
           >
-            {taskName}
-          </p>
+            <p
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-1153"
+              className={`min-w-0 break-words text-[14px] leading-snug line-clamp-2 transition-all duration-200 ${
+                isChecked
+                  ? 'line-through text-[#6b7280]'
+                  : isCompleted
+                    ? 'line-through text-[#D1D5DB]'
+                    : 'text-[#2D2F45]'
+              }`}
+              title={taskName}
+            >
+              {taskName}
+            </p>
+            {krMeta ? (
+              <span
+                data-cy={`plan-card-task-kr-${task.id}`}
+                className="mt-0.5 flex max-w-full items-center gap-1 text-[11px] font-medium leading-snug text-[#94A3B8] transition-colors group-hover/row:text-[#64748B]"
+                title={krMeta.title}
+              >
+                <BsKey
+                  size={10}
+                  className="shrink-0 text-[#94A3B8] group-hover/row:text-[#1E40AF]/70"
+                  aria-hidden
+                />
+                <span
+                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1724"
+                  className="min-w-0 truncate"
+                >
+                  {krMeta.title}
+                </span>
+              </span>
+            ) : null}
+          </div>
           {afterTitle}
         </div>
 
         <div
           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-971"
-          className="flex flex-shrink-0 items-center self-center"
+          className="flex flex-shrink-0 items-center justify-end self-center"
         >
           <div
             data-cy={`plan-card-task-priority-${task.id}`}
@@ -1530,13 +1792,13 @@ export default function PlanCard({
             </span>
           </div>
           <div
-            data-cy={`plan-card-task-weight-${task.id}`}
+            data-cy={`plan-card-task-target-${task.id}`}
             className={classNames(
-              meta.wt,
+              meta.tgtPlan,
               'text-right text-[12px] font-semibold tabular-nums text-[#8F94A3] sm:text-[13px]',
             )}
           >
-            {formatNum(task.weight)}
+            {taskTargetDisplay(task)}
           </div>
           <div
             data-cy={`plan-card-task-deadline-${task.id}`}
@@ -1560,6 +1822,101 @@ export default function PlanCard({
           >
             {daysLeft.label}
           </div>
+          {mockEnabled &&
+          viewMode === 'planning' &&
+          !plan.isReported &&
+          plan.status?.label === 'Open' ? (
+            <div
+              className={classNames(
+                meta.actions,
+                'flex items-center justify-end gap-0.5',
+              )}
+              data-cy={`plan-card-task-actions-${task.id}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {isLocked ? (
+                <Tooltip
+                  title={
+                    lockComment ? `Locked: ${lockComment}` : 'Locked by manager'
+                  }
+                >
+                  <span
+                    data-cy={`plan-card-task-locked-${task.id}`}
+                    className="inline-flex h-[18px] w-[18px] items-center justify-center rounded text-[#64748B]"
+                  >
+                    <LockOutlined className="text-[11px]" />
+                  </span>
+                </Tooltip>
+              ) : null}
+              <Tooltip
+                title={
+                  commentCount > 0 ? `${commentCount} comments` : 'Comments'
+                }
+              >
+                <button
+                  type="button"
+                  data-cy={`plan-card-task-comments-${task.id}`}
+                  className="inline-flex h-[18px] items-center gap-0.5 rounded px-1 text-[#8F94A3] hover:bg-[#F1F2F6] hover:text-[#574CFF]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const full =
+                      mockActiveTasks.find((t) => t.id === task.id) ?? null;
+                    if (full) setCommentsTask(full);
+                  }}
+                  aria-label="Task comments"
+                >
+                  <MessageOutlined className="text-[11px]" />
+                  {commentCount > 0 ? (
+                    <span
+                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1828"
+                      className="text-[10px] font-bold tabular-nums"
+                    >
+                      {commentCount}
+                    </span>
+                  ) : null}
+                </button>
+              </Tooltip>
+              {canApprove ? (
+                isLocked ? (
+                  <Tooltip title="Unlock task">
+                    <button
+                      type="button"
+                      data-cy={`plan-card-task-unlock-${task.id}`}
+                      className="inline-flex h-[18px] w-[18px] items-center justify-center rounded text-[#059669] hover:bg-[#ECFDF5]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!plan.ownerUserId) return;
+                        unlockMockTask(plan.ownerUserId, String(task.id));
+                        message.success('Task unlocked.');
+                      }}
+                      aria-label="Unlock task"
+                    >
+                      <UnlockOutlined className="text-[11px]" />
+                    </button>
+                  </Tooltip>
+                ) : (
+                  <Tooltip title="Lock task">
+                    <button
+                      type="button"
+                      data-cy={`plan-card-task-lock-${task.id}`}
+                      className="inline-flex h-[18px] w-[18px] items-center justify-center rounded text-[#574CFF] hover:bg-[#EEF2FF]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLockTarget({
+                          taskIds: [String(task.id)],
+                          titles: [taskName],
+                          mergePending: false,
+                        });
+                      }}
+                      aria-label="Lock task"
+                    >
+                      <LockOutlined className="text-[11px]" />
+                    </button>
+                  </Tooltip>
+                )
+              ) : null}
+            </div>
+          ) : null}
         </div>
       </div>
     );
@@ -1749,10 +2106,21 @@ export default function PlanCard({
                 </span>
               </div>
               <div
-                data-cy="plan-card-col-weight"
-                className={classNames(meta.wt, metaHead)}
+                data-cy="plan-card-col-target"
+                className={classNames(meta.tgtPlan, metaHead)}
               >
-                Wt
+                <span
+                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-2067"
+                  className="sm:hidden"
+                >
+                  Tgt
+                </span>
+                <span
+                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-2068"
+                  className="hidden sm:inline"
+                >
+                  Target
+                </span>
               </div>
               <div
                 data-cy="plan-card-col-deadline"
@@ -1771,6 +2139,16 @@ export default function PlanCard({
                   Days left
                 </span>
               </div>
+              {mockEnabled &&
+              viewMode === 'planning' &&
+              !plan.isReported &&
+              plan.status?.label === 'Open' ? (
+                <div
+                  data-cy="plan-card-col-actions"
+                  className={classNames(meta.actions, metaHead)}
+                  aria-hidden
+                />
+              ) : null}
             </div>
           </div>
         ) : null}
@@ -1908,7 +2286,7 @@ export default function PlanCard({
                       icon={<MoreOutlined />}
                       className="text-green-600 hover:bg-transparent !p-0 !h-auto !w-auto text-base"
                       style={{ minWidth: 'auto' }}
-                      aria-label="Approve pending plans"
+                      aria-label="Lock pending plans"
                     />
                   </Dropdown>
                 ) : null}
@@ -1960,6 +2338,100 @@ export default function PlanCard({
           />
         </div>
       ) : null}
+
+      <LockTasksModal
+        open={!!lockTarget}
+        taskCount={lockTarget?.taskIds.length ?? 0}
+        taskTitles={lockTarget?.titles}
+        confirming={lockSubmitting}
+        onClose={() => setLockTarget(null)}
+        onConfirm={(comment) => {
+          if (!lockTarget || !plan.ownerUserId) return;
+          setLockSubmitting(true);
+          const { lockedCount } = lockMockTasks(
+            plan.ownerUserId,
+            lockTarget.taskIds,
+            comment,
+          );
+          if (lockTarget.mergePending) {
+            onApprove?.();
+          }
+          setLockSubmitting(false);
+          setLockTarget(null);
+          if (lockedCount > 0) {
+            message.success(
+              lockedCount === 1
+                ? 'Task locked.'
+                : `${lockedCount} tasks locked.`,
+            );
+          }
+        }}
+      />
+
+      <TaskCommentsModal
+        open={!!commentsTask}
+        ownerUserId={plan.ownerUserId ?? ''}
+        task={commentsTask}
+        onClose={() => setCommentsTask(null)}
+      />
+
+      <Modal
+        title={liveLockConfirm?.mode === 'unlock' ? 'Unlock plan' : 'Lock plan'}
+        open={!!liveLockConfirm}
+        onCancel={() => setLiveLockConfirm(null)}
+        destroyOnClose
+        centered
+        data-cy="live-plan-lock-modal"
+        footer={
+          <div
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-2331"
+            className="flex justify-end gap-2"
+          >
+            <Button onClick={() => setLiveLockConfirm(null)}>Cancel</Button>
+            <Button
+              type="primary"
+              loading={isApprovalLoading}
+              data-cy="live-plan-lock-confirm"
+              className="!border-[#574CFF] !bg-[#574CFF] hover:!bg-[#4639E8]"
+              onClick={() => {
+                if (liveLockConfirm?.mode === 'unlock') onOpen?.();
+                else onApprove?.();
+                setLiveLockConfirm(null);
+                setLiveLockComment('');
+              }}
+            >
+              {liveLockConfirm?.mode === 'unlock' ? 'Unlock' : 'Lock'}
+            </Button>
+          </div>
+        }
+      >
+        <p
+          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-2350"
+          className="mb-3 text-[13px] text-[#575B7A]"
+        >
+          {liveLockConfirm?.mode === 'unlock'
+            ? 'Unlock this plan so the owner can edit again.'
+            : 'Lock this plan. The owner will not be able to edit until it is unlocked.'}
+        </p>
+        <label
+          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-label-2355"
+          className="block"
+        >
+          <span
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-2356"
+            className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.04em] text-[#8F94A3]"
+          >
+            Comment (optional)
+          </span>
+          <Input.TextArea
+            rows={3}
+            value={liveLockComment}
+            onChange={(e) => setLiveLockComment(e.target.value)}
+            placeholder="Add a note…"
+            data-cy="live-plan-lock-comment"
+          />
+        </label>
+      </Modal>
     </article>
   );
 }

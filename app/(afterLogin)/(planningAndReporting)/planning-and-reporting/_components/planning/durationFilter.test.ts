@@ -4,9 +4,11 @@ import {
   collectDeadlineTasksFromPlans,
   defaultHistoryRange,
   durationFilterLabel,
+  formatHistoryRangeLabel,
   groupLinesByDeadlineCadence,
   planItemMatchesDurationFilter,
   plannedTaskToDeadlineTask,
+  reportedAtMatchesDurationFilter,
   resolveSpan,
   taskInHistoryRange,
 } from './durationFilter';
@@ -28,6 +30,18 @@ describe('history range helpers', () => {
       from: '2026-06-09',
       to: '2026-09-07',
     });
+  });
+
+  it('formats custom range labels for the duration trigger', () => {
+    expect(
+      formatHistoryRangeLabel({ from: '2026-03-01', to: '2026-06-09' }),
+    ).toBe('Mar 1 – Jun 9');
+    expect(
+      formatHistoryRangeLabel({ from: '2025-12-01', to: '2026-01-15' }),
+    ).toBe('Dec 1, 2025 – Jan 15, 2026');
+    expect(
+      formatHistoryRangeLabel({ from: '2026-03-01', to: '2026-03-01' }),
+    ).toBe('Mar 1, 2026');
   });
 
   it('keeps tasks whose deadline falls in range', () => {
@@ -257,5 +271,83 @@ describe('collectDeadlineTasksFromPlans', () => {
       ['d1', 'daily'],
       ['w1', 'week'],
     ]);
+  });
+});
+
+describe('reportedAtMatchesDurationFilter', () => {
+  const today = '2026-09-09'; // Wednesday
+
+  it('matches Today only on the same calendar day', () => {
+    expect(
+      reportedAtMatchesDurationFilter(
+        '2026-09-09T09:00:00.000Z',
+        'daily',
+        today,
+      ),
+    ).toBe(true);
+    expect(
+      reportedAtMatchesDurationFilter(
+        '2026-09-08T09:00:00.000Z',
+        'daily',
+        today,
+      ),
+    ).toBe(false);
+  });
+
+  it('matches This Week using Monday–Sunday bounds', () => {
+    // Week of Sep 9: Mon Sep 7 – Sun Sep 13
+    expect(
+      reportedAtMatchesDurationFilter(
+        '2026-09-07T12:00:00.000Z',
+        'week',
+        today,
+      ),
+    ).toBe(true);
+    expect(
+      reportedAtMatchesDurationFilter(
+        '2026-09-06T12:00:00.000Z',
+        'week',
+        today,
+      ),
+    ).toBe(false);
+  });
+
+  it('matches This Month and custom history ranges', () => {
+    expect(
+      reportedAtMatchesDurationFilter(
+        '2026-09-01T12:00:00.000Z',
+        'month',
+        today,
+      ),
+    ).toBe(true);
+    expect(
+      reportedAtMatchesDurationFilter(
+        '2026-08-31T12:00:00.000Z',
+        'month',
+        today,
+      ),
+    ).toBe(false);
+    expect(
+      reportedAtMatchesDurationFilter(
+        '2026-08-15T12:00:00.000Z',
+        'history',
+        today,
+        {
+          from: '2026-08-01',
+          to: '2026-08-31',
+        },
+      ),
+    ).toBe(true);
+    expect(
+      reportedAtMatchesDurationFilter(
+        '2026-09-01T12:00:00.000Z',
+        'history',
+        today,
+        {
+          from: '2026-08-01',
+          to: '2026-08-31',
+        },
+      ),
+    ).toBe(false);
   });
 });

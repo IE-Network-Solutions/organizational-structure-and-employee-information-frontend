@@ -17,8 +17,12 @@ import { BsFileEarmarkText } from 'react-icons/bs';
 import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
+import PlanningPanelView from '../planning/PlanningPanelView';
+import { isOwnPlanSummary } from '../planning/planOwnership';
+import { resolvePlanCardDisplayMode } from '../planning/planCardDisplay';
+import { useAssigneeChipRoster } from '../planning/useAssigneeChipRoster';
 import { useReportingData } from '../planning/useReportingData';
-import { formatPlanningReportDate } from '../utils';
+import { formatLastReportedLabel } from '../utils';
 import { Cadence, PlanSummary } from '../types';
 import dayjs from 'dayjs';
 import { useGetFiscalYearById } from '@/store/server/features/organizationStructure/fiscalYear/queries';
@@ -26,17 +30,12 @@ import { useGetFiscalYearById } from '@/store/server/features/organizationStruct
 function Reporting({
   onHoverKR,
   onOpenThread,
-  onStartAddPlan,
 }: {
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
   onStartAddPlan?: () => void;
   addPlanComposer?: React.ReactNode;
 }) {
-  void onHoverKR;
-  void onOpenThread;
-  void onStartAddPlan;
-
   const mockEnabled = isDeadlinePlanningMockEnabled();
   const {
     activePlanPeriod,
@@ -52,6 +51,11 @@ function Reporting({
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetAllUsers();
   const { isMobile, isTablet } = useIsMobile();
+  const { selectedIds } = useAssigneeChipRoster();
+  const cardDisplayMode = resolvePlanCardDisplayMode(
+    selectedIds.length,
+    'reporting',
+  );
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
   const { data: selectedFiscalYear } = useGetFiscalYearById(
@@ -99,7 +103,7 @@ function Reporting({
   };
 
   const getDateLabel = (createdAt: string) =>
-    formatPlanningReportDate(createdAt);
+    formatLastReportedLabel(createdAt);
 
   const [inlineEditingReport, setInlineEditingReport] = useState<{
     reportId: string;
@@ -121,17 +125,12 @@ function Reporting({
     [reportingItems],
   );
 
-  // Sort: My report first, then others
   const currentUserId = String(userId ?? '');
   const { myReports, otherReports } = useMemo(() => {
     const mine: PlanSummary[] = [];
     const others: PlanSummary[] = [];
     for (const plan of reportSummaries) {
-      const isMine =
-        String(plan.ownerUserId ?? '') === currentUserId ||
-        plan.summary === 'My Plan' ||
-        plan.owner?.name === 'My Plan';
-      if (isMine) mine.push(plan);
+      if (isOwnPlanSummary(plan, currentUserId)) mine.push(plan);
       else others.push(plan);
     }
     return { myReports: mine, otherReports: others };
@@ -181,7 +180,6 @@ function Reporting({
   ) : null;
 
   const renderCard = (plan: PlanSummary) => {
-    // Find matching raw item (mock: plan.id may directly match; live: via reportSummaries index)
     const dataItem = reportingItems?.find(
       (item: any) => item.id === plan.id || item?.plan?.id === plan.id,
     ) ?? { id: plan.id, userId: plan.ownerUserId };
@@ -190,7 +188,8 @@ function Reporting({
       <PlanCard
         key={plan.id}
         plan={plan}
-        viewMode={mockEnabled ? 'planning' : 'reporting'}
+        viewMode="reporting"
+        displayMode={cardDisplayMode}
         activeCadence={cadence}
         onApprove={() => handleApproveHandler(String(dataItem.id), true)}
         onOpen={() => handleApproveHandler(String(dataItem.id), false)}
@@ -214,6 +213,8 @@ function Reporting({
         }
         isApprovalLoading={isApprovalLoading}
         dateLabel={getDateLabel(dataItem?.createdAt ?? '')}
+        onHoverKR={onHoverKR}
+        onOpenThread={onOpenThread}
         inlineReportActive={
           !mockEnabled && inlineEditingReport?.reportId === String(dataItem.id)
         }
@@ -252,13 +253,37 @@ function Reporting({
             ))}
           </div>
         ) : visibleReports.length > 0 ? (
-          <div
-            data-cy="reporting-card-list"
-            className="min-w-0 max-w-full space-y-4 pr-1"
-          >
-            {visibleReports.map(renderCard)}
-            {paginationNode}
-          </div>
+          isMobile || isTablet ? (
+            <div
+              data-cy="reporting-card-list"
+              className="min-w-0 max-w-full space-y-4 pr-1"
+            >
+              {visibleReports.map(renderCard)}
+              {paginationNode}
+            </div>
+          ) : (
+            <PlanningPanelView
+              plans={visibleReports}
+              cardDisplayMode={cardDisplayMode}
+              transformedData={reportingItems ?? []}
+              cadence={cadence}
+              userId={String(userId ?? '')}
+              getEmployeeData={getEmployeeData}
+              isDataFromActiveSession={isDataFromActiveSession}
+              onApprove={handleApproveHandler}
+              onEdit={startInlineEditReport}
+              isApprovalLoading={isApprovalLoading}
+              getDateLabel={getDateLabel}
+              paginationNode={paginationNode}
+              planningPeriodId={planningPeriodId}
+              viewMode="reporting"
+              onHoverKR={onHoverKR}
+              onOpenThread={onOpenThread}
+              inlineReportPlanId={inlineEditingReport?.reportId ?? null}
+              onCloseInlineReport={closeInlineEditReport}
+              planningPeriodLabel={activeTabName}
+            />
+          )
         ) : (
           <div
             data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-526"

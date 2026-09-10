@@ -34,6 +34,7 @@ import type {
 } from '../types';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import {
   aggregateKeyResultForPanel,
   buildBlockedKeyResultIdSet,
@@ -43,11 +44,7 @@ import {
   type ParentPlanContext,
 } from './mergeKRPanelGroups';
 import { isOwnPlanSummary } from './planOwnership';
-import PlanAssigneeDivider from './PlanAssigneeDivider';
-import {
-  planCardAssigneeLabel,
-  type PlanCardDisplayMode,
-} from './planCardDisplay';
+import { type PlanCardDisplayMode } from './planCardDisplay';
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
@@ -671,6 +668,7 @@ function OwnerKRSection({
   userKeyResultItems = [],
   objectiveMilestonesByKrId,
   onRefreshMilestoneStatus,
+  scrollIntoViewOnMount = false,
 }: {
   group: OwnerKRGroup;
   isSingleOwner: boolean;
@@ -684,8 +682,19 @@ function OwnerKRSection({
   userKeyResultItems?: any[];
   objectiveMilestonesByKrId?: Map<string, any[]>;
   onRefreshMilestoneStatus?: () => void;
+  scrollIntoViewOnMount?: boolean;
 }) {
   const [expanded, setExpanded] = useState(defaultExpanded);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const setKrLeftPanelCollapsed = PlanningAndReportingStore(
+    (s) => s.setKrLeftPanelCollapsed,
+  );
+
+  useEffect(() => {
+    if (!scrollIntoViewOnMount || !sectionRef.current) return;
+    sectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [scrollIntoViewOnMount]);
+
   const headerLabel = isCurrentUser
     ? 'Your Key Results'
     : krPanelPersonName(group.owner?.name);
@@ -702,6 +711,7 @@ function OwnerKRSection({
   if (isSingleOwner) {
     return (
       <div
+        ref={sectionRef}
         data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-419"
         className="min-w-0"
       >
@@ -730,12 +740,29 @@ function OwnerKRSection({
                 {isCurrentUser ? 'Your Key Results' : 'Key Results'}
               </p>
             </div>
-            <span
-              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-501"
-              className={`rounded-lg px-2.5 py-1 text-[11px] font-bold ${progressBg(group.avgProgress)} ${progressTextClass(group.avgProgress)}`}
+            <div
+              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-743"
+              className="flex flex-shrink-0 items-center gap-1.5"
             >
-              {group.avgProgress}%
-            </span>
+              <span
+                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-501"
+                className={`rounded-lg px-2.5 py-1 text-[11px] font-bold ${progressBg(group.avgProgress)} ${progressTextClass(group.avgProgress)}`}
+              >
+                {group.avgProgress}%
+              </span>
+              <Tooltip title="Collapse key results">
+                <button
+                  type="button"
+                  data-cy="planning-kr-panel-collapse"
+                  aria-label="Collapse key results"
+                  aria-expanded={true}
+                  onClick={() => setKrLeftPanelCollapsed(true)}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-[#8F94A3] transition-colors hover:bg-[#F1F2F6] hover:text-[#1E40AF]"
+                >
+                  <MdChevronRight className="rotate-180 text-lg" />
+                </button>
+              </Tooltip>
+            </div>
           </div>
           <div
             data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-436"
@@ -799,6 +826,7 @@ function OwnerKRSection({
 
   return (
     <div
+      ref={sectionRef}
       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-472"
       className="mb-2 min-w-0"
     >
@@ -1257,6 +1285,19 @@ export function KRLeftPanel({
   const reopenedMilestoneIds = useRecentlyAchievedMilestones(
     (s) => s.reopenedMilestoneIds,
   );
+  const krLeftPanelCollapsed = PlanningAndReportingStore(
+    (s) => s.krLeftPanelCollapsed,
+  );
+  const setKrLeftPanelCollapsed = PlanningAndReportingStore(
+    (s) => s.setKrLeftPanelCollapsed,
+  );
+  /** Owner to expand after opening from a collapsed avatar preview. */
+  const [focusedOwnerKey, setFocusedOwnerKey] = useState<string | null>(null);
+
+  const expandKrPanel = (ownerKey: string | null = null) => {
+    setFocusedOwnerKey(ownerKey);
+    setKrLeftPanelCollapsed(false);
+  };
 
   const ownerGroups = React.useMemo(() => {
     const base = buildOwnerKRGroups(plans, userKeyResultItems);
@@ -1365,6 +1406,99 @@ export function KRLeftPanel({
           onClose={onCloseThread}
           threadKind={activeThread.kind}
         />
+      ) : krLeftPanelCollapsed ? (
+        <div
+          data-cy="planning-kr-panel-collapsed"
+          className="flex w-full flex-col items-center gap-2.5 px-1 py-3"
+        >
+          <Tooltip title="Expand key results" placement="right">
+            <button
+              type="button"
+              data-cy="planning-kr-panel-expand"
+              aria-label="Expand key results"
+              aria-expanded={false}
+              onClick={() => expandKrPanel(null)}
+              className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[#1E40AF] transition-colors hover:bg-[#EFF6FF]"
+            >
+              <MdChevronRight className="text-base" />
+            </button>
+          </Tooltip>
+
+          {ownerGroups.length > 0 ? (
+            <div
+              data-cy="planning-kr-panel-collapsed-avatars"
+              className="flex w-full flex-col items-center gap-2.5"
+            >
+              {ownerGroups.map((group) => {
+                const isCurrentUserGroup =
+                  String(group.ownerUserId ?? '') === String(userId ?? '') ||
+                  group.ownerKey === `__user_key_results_${userId}` ||
+                  group.owner?.name === 'My Plan' ||
+                  /^your key results?$/i.test(String(group.owner?.name || ''));
+                const label = isCurrentUserGroup
+                  ? 'Your Key Results'
+                  : krPanelPersonName(group.owner?.name);
+                const color = progressColor(group.avgProgress);
+
+                return (
+                  <Tooltip
+                    key={group.ownerKey}
+                    title={`${label} · ${group.krs.length} KR${
+                      group.krs.length !== 1 ? 's' : ''
+                    }`}
+                    placement="right"
+                  >
+                    <button
+                      type="button"
+                      data-cy={`planning-kr-panel-collapsed-avatar-${group.ownerKey}`}
+                      aria-label={`Open ${label}`}
+                      onClick={() => expandKrPanel(group.ownerKey)}
+                      className="relative flex-shrink-0 rounded-full transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E40AF]/30"
+                    >
+                      <Avatar
+                        size={32}
+                        src={group.owner?.avatar}
+                        style={{
+                          backgroundColor: '#DBEAFE',
+                          color: '#1E40AF',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                          lineHeight: '32px',
+                        }}
+                      >
+                        {group.owner?.avatarInitials || 'KR'}
+                      </Avatar>
+                      <span
+                        data-cy={`planning-kr-panel-collapsed-avatar-dot-${group.ownerKey}`}
+                        aria-hidden
+                        className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#FAFBFC]"
+                        style={{ backgroundColor: color }}
+                      />
+                    </button>
+                  </Tooltip>
+                );
+              })}
+            </div>
+          ) : (
+            <Tooltip title="Expand key results" placement="right">
+              <button
+                type="button"
+                data-cy="planning-kr-panel-expand-empty"
+                aria-label="Expand key results"
+                onClick={() => expandKrPanel(null)}
+                className="flex flex-col items-center gap-1.5 rounded-xl px-1 py-2 text-[#1E40AF] transition-colors hover:bg-[#EFF6FF]"
+              >
+                <BsKey size={14} />
+                <span
+                  data-cy="planning-kr-panel-collapsed-count"
+                  className="text-[10px] font-bold leading-none text-[#1E40AF]"
+                >
+                  {totalKRs}
+                </span>
+              </button>
+            </Tooltip>
+          )}
+        </div>
       ) : (
         <>
           {showInlinePick ? (
@@ -1405,26 +1539,29 @@ export function KRLeftPanel({
               ) : null}
             </div>
           ) : null}
-          {!isChildCadence && !isSingleOwner && (
+          {!isChildCadence && !isSingleOwner ? (
             <div
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-853"
               className="bg-white border-b border-[#F1F2F6] px-4 py-3.5 flex-shrink-0"
             >
               <div
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-854"
-                className="flex items-center justify-between"
+                className="flex items-center justify-between gap-2"
               >
                 <div
                   data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-855"
-                  className="flex items-center gap-2"
+                  className="flex min-w-0 items-center gap-2"
                 >
                   <div
                     data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-856"
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1E40AF]/10"
+                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-[#1E40AF]/10"
                   >
                     <BsKey size={13} className="text-[#1E40AF]" />
                   </div>
-                  <div data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-859">
+                  <div
+                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-859"
+                    className="min-w-0"
+                  >
                     <p
                       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-860"
                       className="text-[13px] font-bold text-[#161A2C] leading-tight"
@@ -1433,7 +1570,7 @@ export function KRLeftPanel({
                     </p>
                     <p
                       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-863"
-                      className="text-[10px] text-[#8F94A3] mt-0.5"
+                      className="mt-0.5 truncate text-[10px] text-[#8F94A3]"
                     >
                       {totalKRs} key result{totalKRs !== 1 ? 's' : ''} ·{' '}
                       {ownerGroups.length} owner
@@ -1441,15 +1578,32 @@ export function KRLeftPanel({
                     </p>
                   </div>
                 </div>
-                <span
-                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-870"
-                  className="rounded-lg bg-[#1E40AF]/10 px-2.5 py-1 text-[11px] font-bold text-[#1E40AF]"
+                <div
+                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-1577"
+                  className="flex flex-shrink-0 items-center gap-1.5"
                 >
-                  {totalKRs}
-                </span>
+                  <span
+                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-870"
+                    className="rounded-lg bg-[#1E40AF]/10 px-2.5 py-1 text-[11px] font-bold text-[#1E40AF]"
+                  >
+                    {totalKRs}
+                  </span>
+                  <Tooltip title="Collapse key results">
+                    <button
+                      type="button"
+                      data-cy="planning-kr-panel-collapse"
+                      aria-label="Collapse key results"
+                      aria-expanded={true}
+                      onClick={() => setKrLeftPanelCollapsed(true)}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg text-[#8F94A3] transition-colors hover:bg-[#F1F2F6] hover:text-[#1E40AF]"
+                    >
+                      <MdChevronRight className="rotate-180 text-lg" />
+                    </button>
+                  </Tooltip>
+                </div>
               </div>
             </div>
-          )}
+          ) : null}
 
           {parentPlanContext && activeTab === 1 ? (
             <ParentPlanTasksSection
@@ -1528,7 +1682,15 @@ export function KRLeftPanel({
                       group={group}
                       isSingleOwner={isSingleOwner}
                       isCurrentUser={!!isCurrentUserGroup}
-                      defaultExpanded={!!isCurrentUserGroup || isSingleOwner}
+                      defaultExpanded={
+                        focusedOwnerKey != null
+                          ? focusedOwnerKey === group.ownerKey
+                          : !!isCurrentUserGroup || isSingleOwner
+                      }
+                      scrollIntoViewOnMount={
+                        focusedOwnerKey != null &&
+                        focusedOwnerKey === group.ownerKey
+                      }
                       highlightedKRId={highlightedKRId}
                       showInlinePlanningPick={showInlinePick}
                       planningTargetsByKrId={targetsByKrId}
@@ -1615,7 +1777,10 @@ export default function PlanningPanelView({
 
   const renderPlanCard = (plan: PlanSummary, pinned: boolean) => {
     const originalDataItem = transformedData?.find(
-      (item: any) => item.id === plan.id,
+      (item: any) =>
+        item.id === plan.id ||
+        item?.plan?.id === plan.id ||
+        item?.planId === plan.id,
     );
     if (!originalDataItem) return null;
 
@@ -1626,6 +1791,7 @@ export default function PlanningPanelView({
         <PlanCard
           plan={plan}
           viewMode="reporting"
+          displayMode={cardDisplayMode}
           activeCadence={cadence}
           onApprove={() => onApprove(originalDataItem.id, true)}
           onOpen={() => onApprove(originalDataItem.id, false)}
@@ -1735,14 +1901,8 @@ export default function PlanningPanelView({
       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-995"
       className="min-w-0 max-w-full space-y-4 pr-1"
     >
-      {orderedPlans.map((plan, index) => (
+      {orderedPlans.map((plan) => (
         <React.Fragment key={plan.id}>
-          {cardDisplayMode === 'team' && index > 0 ? (
-            <PlanAssigneeDivider
-              name={planCardAssigneeLabel(plan.owner?.name)}
-              role={plan.owner?.role}
-            />
-          ) : null}
           {renderPlanCard(plan, isOwnPlan(plan))}
         </React.Fragment>
       ))}

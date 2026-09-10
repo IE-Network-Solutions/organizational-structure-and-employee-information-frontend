@@ -14,7 +14,8 @@ import { useAssigneePickerScope } from './useAssigneePickerScope';
 export function useAssigneeChipRoster() {
   const mockEnabled = isDeadlinePlanningMockEnabled();
   const { userId } = useAuthenticationStore();
-  const { planningFilterDepartment, selectedUser } = PlanningAndReportingStore();
+  const { planningFilterDepartment, selectedUser } =
+    PlanningAndReportingStore();
   const { employeeData } = usePlanningToolbarFilters();
   const { pickerUniverseIds } = useAssigneePickerScope();
 
@@ -22,20 +23,14 @@ export function useAssigneeChipRoster() {
     if (mockEnabled) {
       return buildMockAssigneeRoster(userId, planningFilterDepartment);
     }
-    return buildAssigneeRoster(
-      employeeData,
-      userId,
-      planningFilterDepartment,
-    );
+    return buildAssigneeRoster(employeeData, userId, planningFilterDepartment);
   }, [mockEnabled, userId, planningFilterDepartment, employeeData]);
 
   const rosterIds = useMemo(() => roster.map((c) => c.userId), [roster]);
 
   const selectedIds = useMemo(() => {
     const concrete = concreteSelectedUserIds(selectedUser);
-    const filtered = concrete.filter((id) =>
-      pickerUniverseIds.has(String(id)),
-    );
+    const filtered = concrete.filter((id) => pickerUniverseIds.has(String(id)));
     if (filtered.length === 0) return defaultSelectedUserIds(roster);
     return [...filtered].sort((a, b) => {
       if (userId && String(a) === String(userId)) return -1;

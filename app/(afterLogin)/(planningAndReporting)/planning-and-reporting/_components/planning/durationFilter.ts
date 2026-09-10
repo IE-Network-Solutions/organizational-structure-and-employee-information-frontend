@@ -10,6 +10,8 @@ import {
   parseDate,
   spanDays,
   todayIso,
+  weekBounds,
+  monthBounds,
 } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
 import type { TaskDateSpan } from '@/store/uistate/features/planningAndReporting/taskDates';
 
@@ -36,8 +38,23 @@ export const isPlanHistoryFilter = (
 ): value is typeof PLAN_FILTER_HISTORY => value === PLAN_FILTER_HISTORY;
 
 export const planFilterLabel = (value: PlanFilterValue): string => {
-  if (isPlanHistoryFilter(value)) return 'History';
+  if (isPlanHistoryFilter(value)) return 'Custom range…';
   return durationFilterLabel(value);
+};
+
+/** Closed-control label when a custom history range is active. */
+export const formatHistoryRangeLabel = (range: {
+  from: string;
+  to: string;
+}): string => {
+  const from = parseDate(range.from);
+  const to = parseDate(range.to);
+  if (!from.isValid() || !to.isValid()) return 'Custom range…';
+  if (from.isSame(to, 'day')) return from.format('MMM D, YYYY');
+  if (from.isSame(to, 'year')) {
+    return `${from.format('MMM D')} – ${to.format('MMM D')}`;
+  }
+  return `${from.format('MMM D, YYYY')} – ${to.format('MMM D, YYYY')}`;
 };
 
 /** UI tab index (1-based) → duration window kind. */
@@ -74,7 +91,7 @@ export const DURATION_TAB_ITEMS: ReadonlyArray<{
   { key: '3', kind: 'month', label: 'This Month' },
 ] as const;
 
-/** Same control as duration tabs, plus History (minimal UI addition). */
+/** Same control as duration tabs, plus custom date range (history). */
 export const PLAN_FILTER_OPTIONS: ReadonlyArray<{
   value: PlanFilterValue;
   label: string;
@@ -83,7 +100,7 @@ export const PLAN_FILTER_OPTIONS: ReadonlyArray<{
     value: kind as PlanFilterValue,
     label,
   })),
-  { value: PLAN_FILTER_HISTORY, label: 'History' },
+  { value: PLAN_FILTER_HISTORY, label: 'Custom range…' },
 ];
 
 /** Default History range: last 90 days through today. */
@@ -143,6 +160,37 @@ export const taskInHistoryRange = (
     toIsoDate(task.start);
   if (!deadline) return false;
   return deadline >= from && deadline <= to;
+};
+
+/**
+ * Whether a report/submission date falls in the toolbar duration window.
+ * Used on Reports so cards/tasks follow Today / Week / Month / Custom range.
+ */
+export const reportedAtMatchesDurationFilter = (
+  reportedAt: string | null | undefined,
+  filter: PlanFilterValue,
+  today: string = todayIso(),
+  historyRange?: { from: string; to: string },
+): boolean => {
+  const day = toIsoDate(reportedAt);
+  if (!day) return false;
+
+  if (isPlanHistoryFilter(filter)) {
+    const from = historyRange?.from ?? '';
+    const to = historyRange?.to ?? '';
+    if (!from || !to) return false;
+    return day >= from && day <= to;
+  }
+
+  if (filter === 'daily') return day === today;
+
+  if (filter === 'week') {
+    const week = weekBounds(today);
+    return day >= week.start && day <= week.end;
+  }
+
+  const month = monthBounds(today);
+  return day >= month.start && day <= month.end;
 };
 
 export const resolveTaskDates = (

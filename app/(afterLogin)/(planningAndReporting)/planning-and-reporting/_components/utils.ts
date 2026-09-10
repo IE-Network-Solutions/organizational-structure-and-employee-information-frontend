@@ -15,10 +15,23 @@ function getOrdinal(day: number): string {
   }
 }
 
-/** Date label format used on Plan & Report cards. */
+/** Date label format used on Plan & Report cards (legacy full datetime). */
 export function formatPlanningReportDate(date: string | Dayjs): string {
   const d = dayjs(date);
   return `${d.format('MMMM')} ${getOrdinal(d.date())} ${d.format('YYYY')}, ${d.format('h:mm:ss A')}`;
+}
+
+/** Soft Reports meta: "Last reported Sep 2" (include year when not current). */
+export function formatLastReportedLabel(
+  date: string | Dayjs | null | undefined,
+  today: Dayjs = dayjs(),
+): string {
+  if (date == null || date === '') return '';
+  const d = dayjs(date);
+  if (!d.isValid()) return '';
+  const sameYear = d.isSame(today, 'year');
+  const short = sameYear ? d.format('MMM D') : d.format('MMM D, YYYY');
+  return `Last reported ${short}`;
 }
 
 export function getCadenceLabel(cadence: Cadence): string {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckOutlined } from '@ant-design/icons';
+import { LockOutlined } from '@ant-design/icons';
 import { PiDotsThreeCircle } from 'react-icons/pi';
 import { PlanStatus } from './types';
 
@@ -9,7 +9,12 @@ interface StatusBadgeProps {
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
   const isClosed = status.label === 'Closed';
-  const displayedLabel = status.label === 'Open' ? 'Pending' : status.label;
+  const displayedLabel =
+    status.label === 'Open'
+      ? 'Pending'
+      : status.label === 'Closed'
+        ? 'Locked'
+        : status.label;
 
   return (
     <div
@@ -19,7 +24,7 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
       }`}
     >
       {isClosed ? (
-        <CheckOutlined className="text-[11px]" />
+        <LockOutlined className="text-[11px]" />
       ) : (
         <PiDotsThreeCircle className="text-[14px]" />
       )}

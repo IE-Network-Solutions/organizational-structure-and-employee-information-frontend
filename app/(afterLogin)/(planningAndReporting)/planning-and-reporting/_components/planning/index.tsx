@@ -19,11 +19,7 @@ import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from './PlanningPanelView';
 import { isOwnPlanSummary } from './planOwnership';
-import PlanAssigneeDivider from './PlanAssigneeDivider';
-import {
-  planCardAssigneeLabel,
-  resolvePlanCardDisplayMode,
-} from './planCardDisplay';
+import { resolvePlanCardDisplayMode } from './planCardDisplay';
 import { buildPlanningEmptyStateCopy } from './planningEmptyState';
 import { useAssigneeChipRoster } from './useAssigneeChipRoster';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -43,7 +39,6 @@ function Planning({
   transformedData: transformedDataFromParent,
   isLoading: planningLoadingFromParent,
   addPlanComposer,
-  onStartAddPlan,
 }: {
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
@@ -63,6 +58,7 @@ function Planning({
     setInlinePlanningMode,
     setMobilePlanComposerOpen,
     setInlineEditPlanId,
+    setCreatePlansModalOpen,
     page,
     setPage,
     pageSize,
@@ -174,14 +170,10 @@ function Planning({
   };
 
   const handleAddPlan = () => {
-    const { inlinePlanningMode } = PlanningAndReportingStore.getState();
-    if (inlinePlanningMode) return;
-    onStartAddPlan?.();
     setInlineEditPlanId(null);
-    setInlinePlanningMode(true);
-    if (isMobile || isTablet) {
-      setMobilePlanComposerOpen(true);
-    }
+    setInlinePlanningMode(false);
+    setMobilePlanComposerOpen(false);
+    setCreatePlansModalOpen(true);
   };
 
   const currentUserId = String(userId ?? '');
@@ -346,14 +338,8 @@ function Planning({
                   data-cy="planning-and-reporting-components-planning-index-tsx-index-div-319"
                   className="space-y-6"
                 >
-                  {visiblePlanSummaries.map((plan, index) => (
+                  {visiblePlanSummaries.map((plan) => (
                     <React.Fragment key={plan.id}>
-                      {cardDisplayMode === 'team' && index > 0 ? (
-                        <PlanAssigneeDivider
-                          name={planCardAssigneeLabel(plan.owner?.name)}
-                          role={plan.owner?.role}
-                        />
-                      ) : null}
                       {renderMobileCard(plan)}
                     </React.Fragment>
                   ))}

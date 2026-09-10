@@ -25,13 +25,26 @@ const newId = () =>
     ? crypto.randomUUID()
     : `task-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
+export type MockTaskComment = {
+  id: string;
+  text: string;
+  authorUserId: string;
+  createdAt: string;
+};
+
 export type MockPlanTask = DeadlineTask & {
   isReported?: boolean;
   /** Shelved without a formal report submit. */
   isManuallyArchived?: boolean;
   isPendingApproval?: boolean;
+  /** Manager lock — independent of children. */
+  isLocked?: boolean;
+  lockComment?: string;
+  comments?: MockTaskComment[];
   priority?: string;
   weight?: number;
+  /** Metric target when linked to a key result. */
+  targetValue?: number;
   keyResultId?: string | null;
   reportNote?: string;
   actualValue?: number | null;
@@ -86,8 +99,7 @@ const buildMockUserPlan = (
       kind: 'daily',
       parentId: null,
       done: false,
-      keyResultId: 'kr-team-cadence',
-      keyResultTitle: 'Team cadence',
+      keyResultId: UNLINKED_KR_ID,
       priority: 'high',
       weight: 10,
     },
@@ -142,8 +154,7 @@ const buildMockUserPlan = (
       kind: 'daily',
       parentId: tid('week-1'),
       done: false,
-      keyResultId: 'kr-q-demo',
-      keyResultTitle: 'Q-demo delivery',
+      keyResultId: UNLINKED_KR_ID,
       priority: 'medium',
       weight: 4,
     },
@@ -156,8 +167,7 @@ const buildMockUserPlan = (
       kind: 'daily',
       parentId: tid('week-1'),
       done: false,
-      keyResultId: 'kr-q-demo',
-      keyResultTitle: 'Q-demo delivery',
+      keyResultId: UNLINKED_KR_ID,
       priority: 'medium',
       weight: 3,
     },
@@ -184,8 +194,7 @@ const buildMockUserPlan = (
       kind: 'week',
       parentId: monthId,
       done: false,
-      keyResultId: 'kr-q-demo',
-      keyResultTitle: 'Q-demo delivery',
+      keyResultId: UNLINKED_KR_ID,
       priority: 'low',
       weight: 5,
     },
@@ -212,8 +221,7 @@ const buildMockUserPlan = (
       kind: 'daily',
       parentId: tid('week-slice-1'),
       done: false,
-      keyResultId: 'kr-q-demo',
-      keyResultTitle: 'Q-demo delivery',
+      keyResultId: UNLINKED_KR_ID,
       priority: 'low',
       weight: 2,
     },
@@ -226,8 +234,7 @@ const buildMockUserPlan = (
       kind: 'daily',
       parentId: tid('week-slice-1'),
       done: false,
-      keyResultId: 'kr-q-demo',
-      keyResultTitle: 'Q-demo delivery',
+      keyResultId: UNLINKED_KR_ID,
       priority: 'low',
       weight: 2,
     },
@@ -240,8 +247,7 @@ const buildMockUserPlan = (
       kind: 'daily',
       parentId: tid('week-slice-1'),
       done: false,
-      keyResultId: 'kr-q-demo',
-      keyResultTitle: 'Q-demo delivery',
+      keyResultId: UNLINKED_KR_ID,
       priority: 'medium',
       weight: 2,
     },
@@ -254,6 +260,7 @@ const buildMockUserPlan = (
       kind: 'week',
       parentId: null,
       done: false,
+      keyResultId: UNLINKED_KR_ID,
       priority: 'medium',
       weight: 15,
     },
@@ -294,8 +301,7 @@ const buildMockUserPlan = (
       parentId: null,
       done: false,
       isPendingApproval: true,
-      keyResultId: 'kr-team-cadence',
-      keyResultTitle: 'Team cadence',
+      keyResultId: UNLINKED_KR_ID,
       priority: 'high',
       weight: 10,
     },
@@ -305,18 +311,19 @@ const buildMockUserPlan = (
   // Give every user two already-submitted reports so the Reports tab has data
   // without the user having to manually check & report tasks first.
 
+  // Report submission dates drive Reports duration filter (Today / Week / Month).
+  // Seed spans today + earlier this week + prior week so each filter has data.
   const pastDaily1: MockPlanTask = {
     id: tid('arch-d1'),
     title: 'Daily standup sync',
-    start: plus(-7),
-    deadline: plus(-7),
+    start: plus(0),
+    deadline: plus(0),
     spanDays: 1,
     kind: 'daily',
     parentId: null,
     done: true,
     isReported: true,
-    keyResultId: 'kr-team-cadence',
-    keyResultTitle: 'Team cadence',
+    keyResultId: UNLINKED_KR_ID,
     priority: 'medium',
     weight: 3,
     actualValue: 1,
@@ -325,8 +332,8 @@ const buildMockUserPlan = (
   const pastDaily2: MockPlanTask = {
     id: tid('arch-d2'),
     title: 'Write unit tests for auth module',
-    start: plus(-6),
-    deadline: plus(-6),
+    start: plus(0),
+    deadline: plus(0),
     spanDays: 1,
     kind: 'daily',
     parentId: null,
@@ -359,15 +366,14 @@ const buildMockUserPlan = (
   const pastDaily3: MockPlanTask = {
     id: tid('arch-d3'),
     title: 'Reviewed PR and left feedback',
-    start: plus(-3),
-    deadline: plus(-3),
+    start: plus(-2),
+    deadline: plus(-2),
     spanDays: 1,
     kind: 'daily',
     parentId: null,
     done: false,
     isReported: true,
-    keyResultId: 'kr-team-cadence',
-    keyResultTitle: 'Team cadence',
+    keyResultId: UNLINKED_KR_ID,
     priority: 'low',
     weight: 2,
     actualValue: 0,
@@ -381,18 +387,25 @@ const buildMockUserPlan = (
     pastDaily3,
   ];
 
-  const reportRecord1: MockReportRecord = {
-    id: `rep-${uid}-1`,
-    submittedAt: plus(-7) + 'T09:00:00.000Z',
+  const reportRecordToday: MockReportRecord = {
+    id: `rep-${uid}-today`,
+    submittedAt: plus(0) + 'T09:00:00.000Z',
     taskIds: [pastDaily1.id, pastDaily2.id],
     taskTitles: [pastDaily1.title, pastDaily2.title],
   };
 
-  const reportRecord2: MockReportRecord = {
-    id: `rep-${uid}-2`,
-    submittedAt: plus(-8) + 'T17:30:00.000Z',
-    taskIds: [pastWeekly1.id, pastDaily3.id],
-    taskTitles: [pastWeekly1.title, pastDaily3.title],
+  const reportRecordThisWeek: MockReportRecord = {
+    id: `rep-${uid}-week`,
+    submittedAt: plus(-2) + 'T17:30:00.000Z',
+    taskIds: [pastDaily3.id],
+    taskTitles: [pastDaily3.title],
+  };
+
+  const reportRecordPriorWeek: MockReportRecord = {
+    id: `rep-${uid}-prior`,
+    submittedAt: plus(-8) + 'T14:00:00.000Z',
+    taskIds: [pastWeekly1.id],
+    taskTitles: [pastWeekly1.title],
   };
 
   return {
@@ -403,7 +416,11 @@ const buildMockUserPlan = (
     isValidated: mockSeedPlanIsClosed(),
     activeTasks,
     archivedTasks,
-    reportHistory: [reportRecord2, reportRecord1],
+    reportHistory: [
+      reportRecordToday,
+      reportRecordThisWeek,
+      reportRecordPriorWeek,
+    ],
     pendingReopenRequest: false,
     seedVersion: MOCK_PLAN_SEED_VERSION,
   };
@@ -443,6 +460,18 @@ interface UserPlanRepositoryState {
   dismissReopenRequest: (userId: string) => void;
   togglePreAchieved: (userId: string, taskId: string) => void;
   removeTask: (userId: string, taskId: string) => void;
+  lockTasks: (
+    userId: string,
+    taskIds: string[],
+    comment?: string,
+  ) => { lockedCount: number };
+  unlockTask: (userId: string, taskId: string) => void;
+  addTaskComment: (
+    userId: string,
+    taskId: string,
+    text: string,
+    authorUserId: string,
+  ) => { ok: true } | { ok: false; error: string };
   /** Move active (non-pending) tasks into history without a report submit. */
   archiveTasks: (
     userId: string,
@@ -717,6 +746,77 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
           },
         },
       });
+    },
+    lockTasks: (userId, taskIds, comment) => {
+      const plan = get().plansByUserId[userId];
+      if (!plan || taskIds.length === 0) return { lockedCount: 0 };
+      const ids = new Set(taskIds);
+      const note = comment?.trim() || undefined;
+      const lockedCount = plan.activeTasks.filter((t) => ids.has(t.id)).length;
+      if (lockedCount === 0) return { lockedCount: 0 };
+      set({
+        plansByUserId: {
+          ...get().plansByUserId,
+          [userId]: {
+            ...plan,
+            activeTasks: plan.activeTasks.map((t) => {
+              if (!ids.has(t.id)) return t;
+              return {
+                ...t,
+                isLocked: true,
+                lockComment: note,
+                isPendingApproval: false,
+              };
+            }),
+          },
+        },
+      });
+      return { lockedCount };
+    },
+    unlockTask: (userId, taskId) => {
+      const plan = get().plansByUserId[userId];
+      if (!plan) return;
+      set({
+        plansByUserId: {
+          ...get().plansByUserId,
+          [userId]: {
+            ...plan,
+            activeTasks: plan.activeTasks.map((t) =>
+              t.id === taskId
+                ? { ...t, isLocked: false, lockComment: undefined }
+                : t,
+            ),
+          },
+        },
+      });
+    },
+    addTaskComment: (userId, taskId, text, authorUserId) => {
+      const plan = get().plansByUserId[userId];
+      if (!plan) return { ok: false, error: 'Plan not found.' };
+      const trimmed = text.trim();
+      if (!trimmed) return { ok: false, error: 'Comment is required.' };
+      const exists = plan.activeTasks.some((t) => t.id === taskId);
+      if (!exists) return { ok: false, error: 'Task not found.' };
+      const entry: MockTaskComment = {
+        id: newId(),
+        text: trimmed,
+        authorUserId,
+        createdAt: new Date().toISOString(),
+      };
+      set({
+        plansByUserId: {
+          ...get().plansByUserId,
+          [userId]: {
+            ...plan,
+            activeTasks: plan.activeTasks.map((t) =>
+              t.id === taskId
+                ? { ...t, comments: [...(t.comments ?? []), entry] }
+                : t,
+            ),
+          },
+        },
+      });
+      return { ok: true };
     },
     archiveTasks: (userId, taskIds) => {
       const plan = get().plansByUserId[userId];

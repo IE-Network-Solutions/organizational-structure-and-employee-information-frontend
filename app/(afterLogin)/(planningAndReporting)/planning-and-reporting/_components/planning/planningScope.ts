@@ -11,7 +11,9 @@ export const PLANNING_SCOPE_OPTIONS: ReadonlyArray<{
   { label: 'All', value: 'all' },
 ];
 
-export function isPlanningScopeValue(value: string): value is PlanningScopeValue {
+export function isPlanningScopeValue(
+  value: string,
+): value is PlanningScopeValue {
   return value === 'myPlan' || value === 'subordinatePlan' || value === 'all';
 }
 
@@ -53,4 +55,3 @@ export function resolveSelectedUserForScope(
   }
   return ['all'];
 }
-

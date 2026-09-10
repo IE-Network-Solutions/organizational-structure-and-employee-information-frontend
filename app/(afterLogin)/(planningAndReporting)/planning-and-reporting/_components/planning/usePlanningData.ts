@@ -221,7 +221,11 @@ export function usePlanningData(enabled = true) {
       );
       const hasLegacyTokens =
         selectedUser.includes('all') || selectedUser.includes('subordinate');
-      if (!planningDefaultFilterApplied || hasLiveSelection || hasLegacyTokens) {
+      if (
+        !planningDefaultFilterApplied ||
+        hasLiveSelection ||
+        hasLegacyTokens
+      ) {
         const teamIds = [...(userId ? [userId] : []), ...mockTeamMemberIds()];
         setPlanningFilterPlanType('all');
         setPlanningFilterEmployee('all');
@@ -458,15 +462,20 @@ export function usePlanningData(enabled = true) {
           summary: title,
           owner: {
             ...summary.owner,
-            name: title,
+            name:
+              title === 'My Plan'
+                ? 'You'
+                : mockDisplayNameForUserId(planUserId, currentUserId),
             role: mockRoleForUserId(planUserId, currentUserId),
             avatarInitials:
               title === 'My Plan'
                 ? 'MP'
-                : title
+                : mockDisplayNameForUserId(planUserId, currentUserId)
+                    .split(/\s+/)
+                    .map((p) => p[0])
+                    .join('')
                     .slice(0, 2)
-                    .toUpperCase()
-                    .replace(/[^A-Z]/g, 'U') || 'PL',
+                    .toUpperCase() || 'PL',
           },
         };
       }) || [];

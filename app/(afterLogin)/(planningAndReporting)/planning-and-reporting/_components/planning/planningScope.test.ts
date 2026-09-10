@@ -10,16 +10,23 @@ describe('planningScope', () => {
 
   it('resolves team scope to subordinate marker + ids', () => {
     expect(
-      resolveSelectedUserForScope('subordinatePlan', 'u1', ['u2', 'u3'], undefined),
+      resolveSelectedUserForScope(
+        'subordinatePlan',
+        'u1',
+        ['u2', 'u3'],
+        undefined,
+      ),
     ).toEqual(['subordinate', 'u2', 'u3']);
   });
 
   it('scopes subordinates to department when provided', () => {
     expect(
-      resolveSelectedUserForScope('subordinatePlan', 'u1', ['u2', 'u3'], [
-        'u3',
-      ]),
+      resolveSelectedUserForScope(
+        'subordinatePlan',
+        'u1',
+        ['u2', 'u3'],
+        ['u3'],
+      ),
     ).toEqual(['subordinate', 'u3']);
   });
-
 });

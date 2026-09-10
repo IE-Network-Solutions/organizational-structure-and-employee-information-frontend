@@ -48,7 +48,6 @@ import {
   useUserPlanRepositoryMock,
 } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
 import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
-import { NAME } from '@/types/enumTypes';
 import {
   getMetricValueInputMax,
   getMetricValueInputMin,
@@ -74,46 +73,20 @@ import {
   periodNameToKind,
   resolveSpan,
 } from './durationFilter';
-
-type DraftLine = {
-  id: string;
-  task: string;
-  priority: string;
-  weight: number;
-  targetValue: number;
-  keyResultId: string;
-  milestoneId: string | null;
-  parentTaskId: string | null;
-  parentPlanId: string | null;
-  label: string;
-  /** Same as drawer / plan-tasks achieveMK — task completion drives KR or milestone outcome */
-  achieveMK: boolean;
-  metricTypeName: string | null;
-  isDailySlot: boolean;
-  /** Snapshot titles for outcome-task autofill / edit */
-  keyResultTitle?: string;
-  milestoneTitle?: string | null;
-  /** Set for rows loaded from API; omitted for new rows added while editing */
-  serverTaskId?: string | null;
-  start: string;
-  deadline: string;
-};
-
-function normalizeInlinePriority(p: string | undefined): string {
-  const t = (p || 'medium').toLowerCase();
-  if (t === 'high' || t === 'priority') return 'high';
-  if (t === 'low') return 'low';
-  return 'medium';
-}
-
-function buildLabelFromApiTask(e: any): string {
-  const kr = (e?.keyResult?.title || '').trim() || 'Key result';
-  if (e?.milestone?.id) {
-    const mt = (e?.milestone?.title || '').trim() || 'Milestone';
-    return `${kr} · ${mt}`;
-  }
-  return kr;
-}
+import {
+  DEFAULT_INLINE_PRIORITY,
+  NO_KEY_RESULT_VALUE,
+  PLAN_TASK_WEIGHT,
+  apiKeyResultId,
+  applyEqualWeightsToDailyDraftLines,
+  buildLabelFromApiTask,
+  canUseAchieveMK,
+  normalizeInlinePriority,
+  resolvePlanningTargetValue,
+  shouldShowPlanningTarget,
+  shouldShowTargetOnDraftLine,
+  type DraftLine,
+} from './planDraft';
 
 function apiTaskToDraftLine(e: any): DraftLine {
   const isDailySlot = !!(e?.parentTaskId || e?.parentPlanId);
@@ -154,10 +127,6 @@ function apiTaskToDraftLine(e: any): DraftLine {
     start,
     deadline,
   };
-}
-
-function applyEqualWeightsToDailyDraftLines(lines: DraftLine[]): DraftLine[] {
-  return lines.map((l) => ({ ...l, weight: 0 }));
 }
 
 const priorityOptions = [
@@ -205,46 +174,6 @@ const inputNumH40 =
 /** White + light border + primary blue text — matches header “Add Weekly” / #1E40AF */
 const inlineComposerOutlineBtnClass =
   '!rounded-lg !border !border-solid !border-[#E5E7EB] !bg-white !font-semibold !text-[#1E40AF] !shadow-sm hover:!border-[#D1D5DB] hover:!bg-[#F8FAFC] hover:!text-[#1E3A8A] [&_.anticon]:!text-[#1E40AF]';
-
-/** Drawer parity: Achieve KRs (KR-as-task) + Milestone-metric KRs at a milestone row (milestone-as-task). */
-function canUseAchieveMK(
-  metricTypeName: string | null | undefined,
-  isDailySlot: boolean,
-  milestoneId: string | null | undefined,
-): boolean {
-  if (isDailySlot) return false;
-  if (metricTypeName === NAME.ACHIEVE) return true;
-  if (metricTypeName === NAME.MILESTONE && milestoneId) return true;
-  return false;
-}
-
-/** Drawer parity: numeric target only for quantitative KR metrics (daily slots keep target). */
-function shouldShowPlanningTarget(
-  metricTypeName: string | null | undefined,
-  isDailySlot: boolean,
-): boolean {
-  if (isDailySlot) return true;
-  if (metricTypeName === NAME.ACHIEVE) return false;
-  if (metricTypeName === NAME.MILESTONE) return false;
-  return true;
-}
-
-function shouldShowTargetOnDraftLine(line: DraftLine): boolean {
-  if (line.achieveMK) return false;
-  return shouldShowPlanningTarget(line.metricTypeName, line.isDailySlot);
-}
-
-function resolvePlanningTargetValue(
-  raw: number | null | undefined,
-  metricTypeName: string | null | undefined,
-  isDailySlot: boolean,
-): number {
-  if (!shouldShowPlanningTarget(metricTypeName, isDailySlot)) return 0;
-  const n = Number(raw);
-  if (!Number.isFinite(n)) return 0;
-  // Sanitize: never persist a negative plan target.
-  return Math.max(0, n);
-}
 
 /** Merge API KR with metric name from the planning target when API shape is thin. */
 function buildKeyResultForBounds(
@@ -460,17 +389,6 @@ function PlanningMetricsRow({
     </div>
   );
 }
-
-/** Resolve keyResultId for the live API (sentinel → null). */
-function apiKeyResultId(id: string | null | undefined): string | null {
-  if (!id || id === UNLINKED_KR_ID) return null;
-  return String(id);
-}
-
-const NO_KEY_RESULT_VALUE = '__none__';
-
-const DEFAULT_INLINE_PRIORITY = 'medium';
-const PLAN_TASK_WEIGHT = 0;
 
 /** One-line header from the active planning period pill name */
 function inlinePlanHeadline(

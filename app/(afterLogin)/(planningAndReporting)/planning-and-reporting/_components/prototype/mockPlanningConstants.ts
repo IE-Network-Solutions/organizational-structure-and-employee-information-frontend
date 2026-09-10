@@ -4,7 +4,7 @@ import { spanDays } from '@/app/(afterLogin)/dashboard/_components/plan/deadline
 export const UNLINKED_KR_ID = '__unlinked__';
 
 /** Bump when mock seed shape/status defaults change so zustand rebuilds. */
-export const MOCK_PLAN_SEED_VERSION = 7;
+export const MOCK_PLAN_SEED_VERSION = 10;
 
 export const MOCK_KEY_RESULTS = [
   { id: 'kr-team-cadence', title: 'Team cadence' },
@@ -14,10 +14,10 @@ export const MOCK_KEY_RESULTS = [
 
 /** Fixed mock team — never from live employee APIs. */
 export const MOCK_TEAM_MEMBERS = [
-  { id: 'mock-alice', displayName: 'Alice', role: 'Engineering' },
-  { id: 'mock-bob', displayName: 'Bob', role: 'Product' },
-  { id: 'mock-cara', displayName: 'Cara', role: 'Design' },
-  { id: 'mock-dan', displayName: 'Dan', role: 'Ops' },
+  { id: 'mock-alice', displayName: 'Alice Nguyen', role: 'Engineering' },
+  { id: 'mock-bob', displayName: 'Bob Okonkwo', role: 'Product' },
+  { id: 'mock-cara', displayName: 'Cara Mendes', role: 'Design' },
+  { id: 'mock-dan', displayName: 'Dan Okello', role: 'Ops' },
 ] as const;
 
 /**

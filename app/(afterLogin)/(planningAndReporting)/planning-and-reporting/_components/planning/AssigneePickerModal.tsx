@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Avatar, Button, Checkbox, Input, Modal, Tabs } from 'antd';
+import { Avatar, Button, Checkbox, Input, Modal } from 'antd';
 import type { AssigneeChip } from './assigneeChipRoster';
 
 type AssigneePickerModalProps = {
@@ -9,9 +9,8 @@ type AssigneePickerModalProps = {
   onClose: () => void;
   onApply: (otherUserIds: string[]) => void;
   initialOtherIds: string[];
-  subordinates: AssigneeChip[];
-  allEmployees: AssigneeChip[];
-  canPickAllEmployees: boolean;
+  /** Flat list of people available to pick (no Subordinates / All tabs). */
+  people: AssigneeChip[];
 };
 
 function filterChips(chips: AssigneeChip[], query: string): AssigneeChip[] {
@@ -35,19 +34,28 @@ function AssigneeCheckboxList({
 }) {
   if (chips.length === 0) {
     return (
-      <p className="py-6 text-center text-sm text-[#8F94A3]">
+      <p
+        data-cy="planning-and-reporting-components-planning-assigneepickermodal-tsx-assigneepickermodal-p-37"
+        className="py-6 text-center text-sm text-[#8F94A3]"
+      >
         No people in this list
       </p>
     );
   }
 
   return (
-    <div className="max-h-[min(52vh,22rem)] overflow-y-auto scrollbar-hide">
+    <div
+      data-cy="planning-and-reporting-components-planning-assigneepickermodal-tsx-assigneepickermodal-div-44"
+      className="max-h-[min(60vh,28rem)] overflow-y-auto scrollbar-hide"
+    >
       <ul className="space-y-0.5" data-cy="assignee-picker-list">
         {chips.map((chip) => {
           const checked = selected.has(chip.userId);
           return (
-            <li key={chip.userId}>
+            <li
+              data-cy="planning-and-reporting-components-planning-assigneepickermodal-tsx-assigneepickermodal-li-49"
+              key={chip.userId}
+            >
               <label
                 className="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-2 hover:bg-[#F9FAFB]"
                 data-cy={`assignee-picker-row-${chip.userId}`}
@@ -78,7 +86,10 @@ function AssigneeCheckboxList({
                 >
                   {!chip.avatar ? chip.initials : null}
                 </Avatar>
-                <span className="min-w-0 truncate text-sm text-[#161A2C]">
+                <span
+                  data-cy="planning-and-reporting-components-planning-assigneepickermodal-tsx-assigneepickermodal-span-80"
+                  className="min-w-0 truncate text-sm text-[#161A2C]"
+                >
                   {chip.label}
                 </span>
               </label>
@@ -95,13 +106,8 @@ export default function AssigneePickerModal({
   onClose,
   onApply,
   initialOtherIds,
-  subordinates,
-  allEmployees,
-  canPickAllEmployees,
+  people,
 }: AssigneePickerModalProps) {
-  const [activeTab, setActiveTab] = useState<'subordinates' | 'all'>(
-    'subordinates',
-  );
   const [search, setSearch] = useState('');
   const [draft, setDraft] = useState<Set<string>>(() => new Set());
 
@@ -109,71 +115,22 @@ export default function AssigneePickerModal({
     if (!open) return;
     setDraft(new Set(initialOtherIds));
     setSearch('');
-    setActiveTab('subordinates');
   }, [open, initialOtherIds]);
 
-  const activeList =
-    activeTab === 'all' && canPickAllEmployees ? allEmployees : subordinates;
+  const filtered = useMemo(() => filterChips(people, search), [people, search]);
 
-  const filteredSubordinates = useMemo(
-    () => filterChips(subordinates, search),
-    [subordinates, search],
-  );
-
-  const filteredAllEmployees = useMemo(
-    () => filterChips(allEmployees, search),
-    [allEmployees, search],
-  );
-
-  const tabItems = useMemo(() => {
-    const items = [
-      {
-        key: 'subordinates',
-        label: `Subordinates (${subordinates.length})`,
-        children: (
-          <AssigneeCheckboxList
-            chips={filteredSubordinates}
-            selected={draft}
-            onChange={setDraft}
-          />
-        ),
-      },
-    ];
-    if (canPickAllEmployees) {
-      items.push({
-        key: 'all',
-        label: `All employees (${allEmployees.length})`,
-        children: (
-          <AssigneeCheckboxList
-            chips={filteredAllEmployees}
-            selected={draft}
-            onChange={setDraft}
-          />
-        ),
-      });
-    }
-    return items;
-  }, [
-    subordinates.length,
-    allEmployees.length,
-    canPickAllEmployees,
-    filteredSubordinates,
-    filteredAllEmployees,
-    draft,
-  ]);
-
-  const handleSelectAllTab = () => {
+  const handleSelectAll = () => {
     setDraft((prev) => {
       const next = new Set(prev);
-      for (const chip of activeList) next.add(chip.userId);
+      for (const chip of people) next.add(chip.userId);
       return next;
     });
   };
 
-  const handleClearTab = () => {
+  const handleClear = () => {
     setDraft((prev) => {
       const next = new Set(prev);
-      for (const chip of activeList) next.delete(chip.userId);
+      for (const chip of people) next.delete(chip.userId);
       return next;
     });
   };
@@ -184,16 +141,22 @@ export default function AssigneePickerModal({
       open={open}
       onCancel={onClose}
       destroyOnClose
-      width={440}
+      width={560}
       centered
       data-cy="assignee-picker-modal"
       footer={
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex gap-2">
+        <div
+          data-cy="planning-and-reporting-components-planning-assigneepickermodal-tsx-assigneepickermodal-div-136"
+          className="flex items-center justify-between gap-2"
+        >
+          <div
+            data-cy="planning-and-reporting-components-planning-assigneepickermodal-tsx-assigneepickermodal-div-137"
+            className="flex gap-2"
+          >
             <Button
               type="link"
               size="small"
-              onClick={handleSelectAllTab}
+              onClick={handleSelectAll}
               className="!p-0 !text-[#1E40AF] hover:!text-[#1E3A8A]"
             >
               Select all
@@ -201,13 +164,16 @@ export default function AssigneePickerModal({
             <Button
               type="link"
               size="small"
-              onClick={handleClearTab}
+              onClick={handleClear}
               className="!p-0 !text-[#1E40AF] hover:!text-[#1E3A8A]"
             >
               Clear
             </Button>
           </div>
-          <div className="flex gap-2">
+          <div
+            data-cy="planning-and-reporting-components-planning-assigneepickermodal-tsx-assigneepickermodal-div-155"
+            className="flex gap-2"
+          >
             <Button onClick={onClose}>Cancel</Button>
             <Button
               type="primary"
@@ -228,23 +194,11 @@ export default function AssigneePickerModal({
         className="mb-3"
         data-cy="assignee-picker-search"
       />
-      {canPickAllEmployees ? (
-        <Tabs
-          activeKey={activeTab}
-          onChange={(key) => {
-            setActiveTab(key as 'subordinates' | 'all');
-            setSearch('');
-          }}
-          items={tabItems}
-          size="small"
-        />
-      ) : (
-        <AssigneeCheckboxList
-          chips={filteredSubordinates}
-          selected={draft}
-          onChange={setDraft}
-        />
-      )}
+      <AssigneeCheckboxList
+        chips={filtered}
+        selected={draft}
+        onChange={setDraft}
+      />
     </Modal>
   );
 }

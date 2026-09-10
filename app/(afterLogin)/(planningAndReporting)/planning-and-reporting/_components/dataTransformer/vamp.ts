@@ -339,9 +339,33 @@ export const transformReportToPlanSummary = (
   const department =
     employee?.employeeJobInformation?.[0]?.department?.name || 'N/A';
 
-  // Transform keyResults from reportTask data
-  const reportTasks = (dataItem?.reportTask || []).map((task: any) =>
-    applyReportTaskStatusOverride(dataItem?.id, task),
+  // Transform keyResults from reportTask data (live + mock adapters).
+  const rawReportTasks =
+    dataItem?.reportTask ?? dataItem?.reportTasks ?? dataItem?.tasks ?? [];
+  const reportTasks = (Array.isArray(rawReportTasks) ? rawReportTasks : []).map(
+    (task: any) => {
+      const normalized =
+        task?.planTask != null
+          ? task
+          : {
+              ...task,
+              planTask: {
+                id: task?.id ?? task?.taskId,
+                task: task?.task ?? task?.taskName ?? task?.title,
+                taskName: task?.taskName ?? task?.task ?? task?.title,
+                priority: task?.priority,
+                weight: task?.weight,
+                targetValue: task?.targetValue,
+                keyResultId: task?.keyResultId,
+                keyResult: task?.keyResult,
+                keyResultTitle: task?.keyResultTitle,
+                parentTask: task?.parentTask,
+                milestone: task?.milestone,
+                achieveMK: task?.achieveMK,
+              },
+            };
+      return applyReportTaskStatusOverride(dataItem?.id, normalized);
+    },
   );
   const keyResultsMap: Record<string, any> = {};
 

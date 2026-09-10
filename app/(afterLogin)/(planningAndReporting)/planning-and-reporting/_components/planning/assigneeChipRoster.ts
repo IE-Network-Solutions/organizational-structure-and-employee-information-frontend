@@ -20,7 +20,8 @@ export type AssigneeChip = {
 const META_USER_TOKENS = new Set(['all', 'subordinate']);
 
 export function formatEmployeeDisplayName(employee: any): string {
-  const full = `${employee?.firstName || ''} ${employee?.middleName || ''} ${employee?.lastName || ''}`.trim();
+  const full =
+    `${employee?.firstName || ''} ${employee?.middleName || ''} ${employee?.lastName || ''}`.trim();
   return full || 'Unknown';
 }
 
@@ -53,9 +54,7 @@ export function resolveEmployeeProfileImageUrl(
 }
 
 export function concreteSelectedUserIds(selectedUser: string[]): string[] {
-  return selectedUser.filter(
-    (id) => id && !META_USER_TOKENS.has(id),
-  );
+  return selectedUser.filter((id) => id && !META_USER_TOKENS.has(id));
 }
 
 export function buildMockAssigneeRoster(
@@ -92,11 +91,7 @@ export function buildMockAssigneeRoster(
   return chips;
 }
 
-function mapEmployeeToChip(
-  id: string,
-  emp: any,
-  userId: string,
-): AssigneeChip {
+function mapEmployeeToChip(id: string, emp: any, userId: string): AssigneeChip {
   const isSelf = String(id) === String(userId);
   const fullName = formatEmployeeDisplayName(emp);
   const label = isSelf ? 'Me' : fullName;
@@ -237,12 +232,11 @@ export function mergeMeWithPickerSelection(
   otherIds: string[],
   userId: string,
 ): string[] {
-  const others = Array.from(
-    new Set(otherIds.filter(Boolean).map(String)),
-  );
-  const merged = meSelected && userId
-    ? [String(userId), ...others.filter((id) => id !== String(userId))]
-    : others;
+  const others = Array.from(new Set(otherIds.filter(Boolean).map(String)));
+  const merged =
+    meSelected && userId
+      ? [String(userId), ...others.filter((id) => id !== String(userId))]
+      : others;
   if (merged.length === 0 && userId) return [String(userId)];
   return merged;
 }
@@ -291,9 +285,7 @@ export function normalizeSelectedUserForRoster(
 
   const filtered = concrete.filter((id) => rosterSet.has(id));
   if (filtered.length === 0) return defaultSelectedUserIds(roster);
-  return filtered.sort(
-    (a, b) => rosterIds.indexOf(a) - rosterIds.indexOf(b),
-  );
+  return filtered.sort((a, b) => rosterIds.indexOf(a) - rosterIds.indexOf(b));
 }
 
 export function resolveDefaultAssigneeSelection(
@@ -301,10 +293,7 @@ export function resolveDefaultAssigneeSelection(
   subordinateIds: string[],
 ): { planningFilterPlanType: string; selectedUser: string[] } {
   const ids = userId
-    ? [
-        userId,
-        ...subordinateIds.filter((id) => String(id) !== String(userId)),
-      ]
+    ? [userId, ...subordinateIds.filter((id) => String(id) !== String(userId))]
     : [...subordinateIds];
   const unique = Array.from(new Set(ids.filter(Boolean)));
   return {

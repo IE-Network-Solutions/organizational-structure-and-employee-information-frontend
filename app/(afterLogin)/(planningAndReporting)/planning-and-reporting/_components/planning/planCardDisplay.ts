@@ -6,12 +6,12 @@ export function resolvePlanCardDisplayMode(
   selectedAssigneeCount: number,
   viewMode: ViewMode = 'planning',
 ): PlanCardDisplayMode {
-  if (viewMode === 'reporting') return 'full';
+  void viewMode;
   if (selectedAssigneeCount <= 1) return 'compact';
   return 'team';
 }
 
-/** One-line assignee label for team-mode cards and dividers. */
+/** Display name for team-mode card headers (keep full name; strip trailing “'s Plan”). */
 export function planCardAssigneeLabel(ownerName?: string): string {
   const n = String(ownerName || '').trim();
   if (!n) return 'Unknown';
@@ -19,4 +19,10 @@ export function planCardAssigneeLabel(ownerName?: string): string {
   const possessive = n.match(/^(.+?)'s Plan$/i);
   if (possessive?.[1]) return possessive[1].trim();
   return n;
+}
+
+export function planCardAssigneeRole(role?: string): string | null {
+  const r = String(role || '').trim();
+  if (!r || /^n\/a$/i.test(r) || /^plan$/i.test(r)) return null;
+  return r;
 }
