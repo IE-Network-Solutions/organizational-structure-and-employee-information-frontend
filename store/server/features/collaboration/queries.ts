@@ -228,7 +228,9 @@ const fetchMentionNotifications = async () => {
 
   return normalizeCollabList<CollabUserNotification>(raw)
     .map(mapCollabNotification)
-    .filter((notification) => notification.kind === 'mention' && notification.unread);
+    .filter(
+      (notification) => notification.kind === 'mention' && notification.unread,
+    );
 };
 
 const mapPersonRecord = (
