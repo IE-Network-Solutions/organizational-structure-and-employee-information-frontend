@@ -184,7 +184,10 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
       onCancel={onClose}
       title={
         <div data-cy="evaluation-modal-header">
-          <h2 className="text-xl font-bold text-black mb-0">
+          <h2
+            data-cy="succession-planning-components-evaluationmodal-index-tsx-index-h2-187"
+            className="text-xl font-bold text-black mb-0"
+          >
             {!canSubmitEvaluation
               ? 'Review Evaluation'
               : allAlreadyEvaluated
@@ -212,24 +215,51 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
             className="rounded-lg bg-[#F8FAFC] px-3 sm:px-4 py-3 border-b border-[#E5E7EB]"
             data-cy="evaluation-context-card"
           >
-            <div className="flex flex-wrap items-start gap-3 min-w-0">
+            <div
+              data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-215"
+              className="flex flex-wrap items-start gap-3 min-w-0"
+            >
               <PersonRoleAvatar role="Successor" size={40} />
-              <div className="min-w-0 flex-1">
+              <div
+                data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-217"
+                className="min-w-0 flex-1"
+              >
                 <PersonRoleLabel role="Successor" />
-                <div className="text-base font-semibold text-gray-900 truncate">
+                <div
+                  data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-219"
+                  className="text-base font-semibold text-gray-900 truncate"
+                >
                   {successor.name}
                 </div>
-                <div className="text-sm text-gray-500 truncate">
+                <div
+                  data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-222"
+                  className="text-sm text-gray-500 truncate"
+                >
                   {successor.jobTitle} · {successor.department}
                 </div>
-                <div className="mt-1.5 text-sm text-gray-600">
+                <div
+                  data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-225"
+                  className="mt-1.5 text-sm text-gray-600"
+                >
                   For{' '}
-                  <span className="font-semibold text-gray-800">
+                  <span
+                    data-cy="succession-planning-components-evaluationmodal-index-tsx-index-span-227"
+                    className="font-semibold text-gray-800"
+                  >
                     {role.roleName}
                   </span>
-                  <span className="text-gray-400"> · {role.department}</span>
+                  <span
+                    data-cy="succession-planning-components-evaluationmodal-index-tsx-index-span-230"
+                    className="text-gray-400"
+                  >
+                    {' '}
+                    · {role.department}
+                  </span>
                 </div>
-                <div className="mt-1 text-xs text-gray-500">
+                <div
+                  data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-232"
+                  className="mt-1 text-xs text-gray-500"
+                >
                   Evaluator: {evaluator?.name ?? 'Evaluator'}
                   {evaluator?.jobTitle ? ` · ${evaluator.jobTitle}` : ''}
                 </div>
@@ -254,7 +284,10 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
           >
             <Form.List name="criteria">
               {(fields) => (
-                <div className="max-h-[45vh] overflow-y-auto divide-y divide-[#F0F0F0] border-y border-[#F0F0F0]">
+                <div
+                  data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-257"
+                  className="max-h-[45vh] overflow-y-auto divide-y divide-[#F0F0F0] border-y border-[#F0F0F0]"
+                >
                   {fields.map((field) => {
                     const meta = assignedCriteria[field.name];
                     const weight = Number(meta?.weight ?? 0);
@@ -287,12 +320,24 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
                           <InputNumber />
                         </Form.Item>
 
-                        <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
-                          <div className="min-w-0">
-                            <div className="text-sm font-semibold text-gray-800">
+                        <div
+                          data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-290"
+                          className="flex flex-wrap items-start justify-between gap-2 mb-3"
+                        >
+                          <div
+                            data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-291"
+                            className="min-w-0"
+                          >
+                            <div
+                              data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-292"
+                              className="text-sm font-semibold text-gray-800"
+                            >
                               {meta?.competencyName}
                             </div>
-                            <div className="text-xs text-gray-400 mt-0.5">
+                            <div
+                              data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-295"
+                              className="text-xs text-gray-400 mt-0.5"
+                            >
                               {meta?.category}
                               {meta?.weight != null
                                 ? ` · Weight ${meta.weight}%`
@@ -313,11 +358,17 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
                             comments take the full width beneath. The previous
                             3-column grid padded the middle cell by hand to fake
                             label alignment, which never lined up. */}
-                        <div className="flex flex-wrap items-end gap-4">
+                        <div
+                          data-cy="succession-planning-components-evaluationmodal-index-tsx-index-div-316"
+                          className="flex flex-wrap items-end gap-4"
+                        >
                           <Form.Item
                             name={[field.name, 'rating']}
                             label={
-                              <span className="text-sm font-medium text-gray-700">
+                              <span
+                                data-cy="succession-planning-components-evaluationmodal-index-tsx-index-span-320"
+                                className="text-sm font-medium text-gray-700"
+                              >
                                 Rating (0–100)
                               </span>
                             }
@@ -347,10 +398,16 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
                             className="flex h-9 items-center gap-2 rounded-md bg-[#F8FAFC] px-3"
                             data-cy={`evaluation-weighted-preview-${field.key}`}
                           >
-                            <span className="text-xs text-gray-500">
+                            <span
+                              data-cy="succession-planning-components-evaluationmodal-index-tsx-index-span-350"
+                              className="text-xs text-gray-500"
+                            >
                               Weighted
                             </span>
-                            <span className="text-sm font-semibold text-gray-800 tabular-nums">
+                            <span
+                              data-cy="succession-planning-components-evaluationmodal-index-tsx-index-span-353"
+                              className="text-sm font-semibold text-gray-800 tabular-nums"
+                            >
                               {weightedPreview != null
                                 ? `${weightedPreview} / ${weight}`
                                 : `— / ${weight}`}
@@ -361,9 +418,15 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
                         <Form.Item
                           name={[field.name, 'comment']}
                           label={
-                            <span className="text-sm font-medium text-gray-700">
+                            <span
+                              data-cy="succession-planning-components-evaluationmodal-index-tsx-index-span-364"
+                              className="text-sm font-medium text-gray-700"
+                            >
                               Comments{' '}
-                              <span className="font-normal text-gray-400">
+                              <span
+                                data-cy="succession-planning-components-evaluationmodal-index-tsx-index-span-366"
+                                className="font-normal text-gray-400"
+                              >
                                 (optional)
                               </span>
                             </span>
@@ -390,7 +453,10 @@ const EvaluationModal: React.FC<EvaluationModalProps> = ({
               className="flex flex-wrap items-center justify-between gap-3 bg-[#F8FAFC] px-4 py-3 rounded-md"
               data-cy="evaluation-session-total"
             >
-              <span className="text-sm text-gray-600 font-medium">
+              <span
+                data-cy="succession-planning-components-evaluationmodal-index-tsx-index-span-393"
+                className="text-sm text-gray-600 font-medium"
+              >
                 Session total (weighted)
               </span>
               <span

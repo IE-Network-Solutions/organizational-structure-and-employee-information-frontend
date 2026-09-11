@@ -67,7 +67,12 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
             data-cy={`critical-role-edit-menu-item-${record.id}`}
           >
             <EditOutlinedIcon className="text-gray-600" fontSize="small" />
-            <span className="text-sm text-gray-700">Edit</span>
+            <span
+              data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-70"
+              className="text-sm text-gray-700"
+            >
+              Edit
+            </span>
           </div>
         ),
       },
@@ -80,7 +85,12 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
             data-cy={`critical-role-delete-menu-item-${record.id}`}
           >
             <DeleteOutlineOutlinedIcon fontSize="small" />
-            <span className="text-sm">Delete</span>
+            <span
+              data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-83"
+              className="text-sm"
+            >
+              Delete
+            </span>
           </div>
         ),
       },
@@ -89,7 +99,14 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
   const baseColumns: TableColumnsType<CriticalRole> = useMemo(
     () => [
       {
-        title: <span className={headerClass}>Role Name</span>,
+        title: (
+          <span
+            data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-92"
+            className={headerClass}
+          >
+            Role Name
+          </span>
+        ),
         dataIndex: 'roleName',
         key: 'roleName',
         ellipsis: true,
@@ -104,7 +121,14 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         ),
       },
       {
-        title: <span className={headerClass}>Department</span>,
+        title: (
+          <span
+            data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-107"
+            className={headerClass}
+          >
+            Department
+          </span>
+        ),
         dataIndex: 'department',
         key: 'department',
         ellipsis: true,
@@ -119,7 +143,14 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         ),
       },
       {
-        title: <span className={headerClass}>Priority</span>,
+        title: (
+          <span
+            data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-122"
+            className={headerClass}
+          >
+            Priority
+          </span>
+        ),
         dataIndex: 'priority',
         key: 'priority',
         width: '12%',
@@ -130,37 +161,62 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         ),
       },
       {
-        title: <span className={headerClass}>Competencies</span>,
+        title: (
+          <span
+            data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-133"
+            className={headerClass}
+          >
+            Competencies
+          </span>
+        ),
         key: 'competencies',
         dataIndex: 'competencies',
         width: '12%',
-        render: (_: unknown, record: CriticalRole) => (
+        render: (unusedValue: unknown, record: CriticalRole) => (
           <div
             className="flex items-center gap-1.5 text-[#4d4d4d] text-sm"
             data-cy="critical-role-row-competencies"
           >
             <ChecklistOutlinedIcon fontSize="small" className="text-gray-400" />
-            <span>{record.competencies?.length ?? 0}</span>
+            <span data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-143">
+              {record.competencies?.length ?? 0}
+            </span>
           </div>
         ),
       },
       {
-        title: <span className={headerClass}>Successors</span>,
+        title: (
+          <span
+            data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-148"
+            className={headerClass}
+          >
+            Successors
+          </span>
+        ),
         key: 'successors',
         dataIndex: 'successors',
         width: '12%',
-        render: (_: unknown, record: CriticalRole) => (
+        render: (unusedValue: unknown, record: CriticalRole) => (
           <div
             className="flex items-center gap-1.5 text-[#4d4d4d] text-sm"
             data-cy="critical-role-row-successors"
           >
             <PeopleAltOutlinedIcon fontSize="small" className="text-gray-400" />
-            <span>{roleSuccessorCount(record)}</span>
+            <span data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-158">
+              {roleSuccessorCount(record)}
+            </span>
           </div>
         ),
       },
       {
-        title: <span className={headerClass}>Notes</span>,
+        title: (
+          <span
+            data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-163"
+            className={headerClass}
+          >
+            Notes
+          </span>
+        ),
         dataIndex: 'notes',
         key: 'notes',
         ellipsis: true,
@@ -176,6 +232,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
       {
         title: (
           <span
+            data-cy="succession-planning-components-criticalrolestable-index-tsx-index-span-178"
             className="text-[#4d4d4d] text-xs font-bold whitespace-nowrap"
             title="Actions"
           >
@@ -192,7 +249,7 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
         onCell: () => ({
           className: 'critical-roles-actions-col',
         }),
-        render: (_: unknown, record: CriticalRole) => (
+        render: (unusedValue: unknown, record: CriticalRole) => (
           <div
             className="flex justify-center"
             onClick={(e) => e.stopPropagation()}
@@ -289,12 +346,12 @@ const CriticalRolesTable: React.FC<CriticalRolesTableProps> = ({
             />
           ),
         }}
-        rowClassName={(_, index) =>
+        rowClassName={(unusedRecord, index) =>
           index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
         }
         data-cy="critical-roles-table"
       />
-      <style>{`
+      <style data-cy="succession-planning-components-criticalrolestable-index-tsx-index-style-297">{`
         .critical-roles-table .critical-roles-actions-col {
           width: 52px !important;
           min-width: 52px !important;

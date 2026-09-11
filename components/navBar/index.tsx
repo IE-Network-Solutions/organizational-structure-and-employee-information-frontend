@@ -552,8 +552,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     (
       menuItems: CustomMenuItem[],
     ): { route: string; permissions: string[]; requireAny?: boolean }[] => {
-      const routes: { route: string; permissions: string[]; requireAny?: boolean }[] =
-        [];
+      const routes: {
+        route: string;
+        permissions: string[];
+        requireAny?: boolean;
+      }[] = [];
 
       const traverse = (items: CustomMenuItem[]) => {
         items.forEach((item) => {

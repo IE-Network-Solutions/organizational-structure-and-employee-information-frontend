@@ -103,10 +103,17 @@ const StepEmployeeSelection: React.FC<StepEmployeeSelectionProps> = ({
 
   const columns: TableColumnsType<SuccessorCandidate> = [
     {
-      title: <span className={th}>Successor</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-steps-stepemployeeselection-tsx-stepemployeeselection-span-106"
+          className={th}
+        >
+          Successor
+        </span>
+      ),
       key: 'employee',
       ellipsis: true,
-      render: (_: unknown, record) => (
+      render: (unusedValue: unknown, record) => (
         <div
           className="flex items-center gap-2"
           data-cy={`successor-employee-cell-${record.id}`}
@@ -117,24 +124,57 @@ const StepEmployeeSelection: React.FC<StepEmployeeSelectionProps> = ({
             style={{ backgroundColor: SUCCESSOR_AVATAR_COLOR }}
             className="shrink-0"
           />
-          <span className={td}>{record.name}</span>
+          <span
+            data-cy="succession-planning-components-steps-stepemployeeselection-tsx-stepemployeeselection-span-120"
+            className={td}
+          >
+            {record.name}
+          </span>
         </div>
       ),
     },
     {
-      title: <span className={th}>Position</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-steps-stepemployeeselection-tsx-stepemployeeselection-span-125"
+          className={th}
+        >
+          Position
+        </span>
+      ),
       dataIndex: 'jobTitle',
       key: 'jobTitle',
       ellipsis: true,
-      render: (value: string) => <span className={td}>{value}</span>,
+      render: (value: string) => (
+        <span
+          data-cy="succession-planning-components-steps-stepemployeeselection-tsx-stepemployeeselection-span-129"
+          className={td}
+        >
+          {value}
+        </span>
+      ),
     },
     {
-      title: <span className={th}>Department</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-steps-stepemployeeselection-tsx-stepemployeeselection-span-132"
+          className={th}
+        >
+          Department
+        </span>
+      ),
       dataIndex: 'department',
       key: 'department',
       ellipsis: true,
       width: 160,
-      render: (value: string) => <span className={td}>{value}</span>,
+      render: (value: string) => (
+        <span
+          data-cy="succession-planning-components-steps-stepemployeeselection-tsx-stepemployeeselection-span-137"
+          className={td}
+        >
+          {value}
+        </span>
+      ),
     },
   ];
 
@@ -143,10 +183,18 @@ const StepEmployeeSelection: React.FC<StepEmployeeSelectionProps> = ({
       className="flex flex-col gap-4 pt-2"
       data-cy="step-employee-selection-container"
     >
-      <p className="text-sm text-gray-500 -mt-2">
+      <p
+        data-cy="succession-planning-components-steps-stepemployeeselection-tsx-stepemployeeselection-p-146"
+        className="text-sm text-gray-500 -mt-2"
+      >
         Select potential successors for{' '}
         {position ? (
-          <span className="font-semibold text-gray-700">{position.title}</span>
+          <span
+            data-cy="succession-planning-components-steps-stepemployeeselection-tsx-stepemployeeselection-span-149"
+            className="font-semibold text-gray-700"
+          >
+            {position.title}
+          </span>
         ) : (
           'this role'
         )}
@@ -169,7 +217,10 @@ const StepEmployeeSelection: React.FC<StepEmployeeSelectionProps> = ({
           className="w-full sm:w-[280px] h-10"
           data-cy="step-employee-search-input"
           suffix={
-            <div className="text-gray-400 border-l border-gray-300 py-1 px-2">
+            <div
+              data-cy="succession-planning-components-steps-stepemployeeselection-tsx-stepemployeeselection-div-172"
+              className="text-gray-400 border-l border-gray-300 py-1 px-2"
+            >
               <SearchOutlined />
             </div>
           }
@@ -228,7 +279,7 @@ const StepEmployeeSelection: React.FC<StepEmployeeSelectionProps> = ({
             />
           ),
         }}
-        rowClassName={(_, index) =>
+        rowClassName={(unusedRecord, index) =>
           index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
         }
         data-cy="step-employee-selection-table"

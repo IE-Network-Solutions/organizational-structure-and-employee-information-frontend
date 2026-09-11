@@ -6,10 +6,7 @@ import {
   RoleCompetency,
   CompetencyImportance,
 } from './stepCompetencyDefinition';
-import {
-  SuccessorCandidate,
-  successorPersonId,
-} from './stepEmployeeSelection';
+import { SuccessorCandidate, successorPersonId } from './stepEmployeeSelection';
 import { useSuccessionOrgData } from '@/store/server/features/employees/successionPlanning/useSuccessionOrgData';
 import { EVALUATOR_AVATAR_COLOR, PersonIdentity } from '../personRoleChrome';
 
@@ -251,14 +248,25 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
       className="flex flex-col gap-4 pt-2"
       data-cy="step-evaluator-assignment-container"
     >
-      <p className="text-sm text-gray-500 -mt-2">
+      <p
+        data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-p-251"
+        className="text-sm text-gray-500 -mt-2"
+      >
         For each successor below, assign an evaluator for{' '}
-        <span className="font-medium text-gray-700">each competency</span>
+        <span
+          data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-span-253"
+          className="font-medium text-gray-700"
+        >
+          each competency
+        </span>
         {position ? (
           <>
             {' '}
             of{' '}
-            <span className="font-semibold text-gray-700">
+            <span
+              data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-span-258"
+              className="font-semibold text-gray-700"
+            >
               {position.title}
             </span>
           </>
@@ -266,10 +274,7 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
         . You can pick a different evaluator for every criterion.
       </p>
 
-      <div
-        className="overflow-hidden"
-        data-cy="step-evaluator-employee-list"
-      >
+      <div className="overflow-hidden" data-cy="step-evaluator-employee-list">
         {selectedEmployees.map((employee) => (
           <EmployeeEvaluationCard
             key={employee.id}
@@ -301,8 +306,7 @@ const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
   const successorId = successorPersonId(employee);
   // Anyone but the successor themselves can evaluate them.
   const evaluatorOptions = employees.filter(
-    (candidate) =>
-      candidate.id !== successorId && candidate.id !== employee.id,
+    (candidate) => candidate.id !== successorId && candidate.id !== employee.id,
   );
 
   return (
@@ -322,7 +326,10 @@ const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
         />
       </div>
 
-      <div className="flex flex-col">
+      <div
+        data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-div-318"
+        className="flex flex-col"
+      >
         {competencies.map((comp, index) => {
           const fieldKey = evaluationFieldKey(successorId, index);
           return (
@@ -331,14 +338,28 @@ const EmployeeEvaluationCard: React.FC<EmployeeEvaluationCardProps> = ({
               className="grid grid-cols-1 gap-2 px-4 py-3 sm:grid-cols-[1fr_80px_minmax(220px,1fr)] sm:gap-3 sm:items-center"
               data-cy={`step-evaluator-row-${employee.id}-${index}`}
             >
-              <div className="min-w-0">
-                <div className="text-sm font-medium text-gray-800 truncate">
+              <div
+                data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-div-327"
+                className="min-w-0"
+              >
+                <div
+                  data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-div-328"
+                  className="text-sm font-medium text-gray-800 truncate"
+                >
                   {comp.name}
                 </div>
-                <div className="text-xs text-gray-400">{comp.category}</div>
+                <div
+                  data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-div-331"
+                  className="text-xs text-gray-400"
+                >
+                  {comp.category}
+                </div>
               </div>
 
-              <div className="text-sm text-[#4d4d4d] tabular-nums">
+              <div
+                data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-div-334"
+                className="text-sm text-[#4d4d4d] tabular-nums"
+              >
                 {comp.weight != null ? `${comp.weight}%` : '—'}
               </div>
 
@@ -410,7 +431,10 @@ export const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
             style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
             className="shrink-0"
           />
-          <span className="text-sm text-gray-800 truncate">
+          <span
+            data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-span-406"
+            className="text-sm text-gray-800 truncate"
+          >
             {selected.name}
           </span>
           <button
@@ -464,18 +488,30 @@ export const EvaluatorPicker: React.FC<EvaluatorPickerProps> = ({
             label={opt.name}
             data-cy={`evaluator-option-${opt.id}`}
           >
-            <div className="flex items-center gap-2 py-0.5">
+            <div
+              data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-div-460"
+              className="flex items-center gap-2 py-0.5"
+            >
               <Avatar
                 size={20}
                 icon={<UserOutlined />}
                 style={{ backgroundColor: EVALUATOR_AVATAR_COLOR }}
                 className="shrink-0"
               />
-              <div className="flex flex-col min-w-0">
-                <span className="text-sm text-gray-800 truncate">
+              <div
+                data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-div-467"
+                className="flex flex-col min-w-0"
+              >
+                <span
+                  data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-span-468"
+                  className="text-sm text-gray-800 truncate"
+                >
                   {opt.name}
                 </span>
-                <span className="text-xs text-gray-400 truncate">
+                <span
+                  data-cy="succession-planning-components-steps-stepevaluatorassignment-tsx-stepevaluatorassignment-span-471"
+                  className="text-xs text-gray-400 truncate"
+                >
                   {opt.jobTitle}
                 </span>
               </div>

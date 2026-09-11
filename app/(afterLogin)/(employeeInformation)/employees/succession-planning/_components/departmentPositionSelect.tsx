@@ -56,12 +56,16 @@ const DepartmentPositionSelect: React.FC<DepartmentPositionSelectProps> = ({
 
   return (
     <div
+      data-cy="employees-succession-planning-components-departmentpositionselect-tsx-departmentpositionselect-div-58"
       className={className ?? 'grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4'}
     >
       <Form.Item
         name={departmentFieldName}
         label={
-          <span className="text-sm font-medium text-gray-700">
+          <span
+            data-cy="employees-succession-planning-components-departmentpositionselect-tsx-departmentpositionselect-span-64"
+            className="text-sm font-medium text-gray-700"
+          >
             {departmentLabel}
           </span>
         }
@@ -103,7 +107,10 @@ const DepartmentPositionSelect: React.FC<DepartmentPositionSelectProps> = ({
       <Form.Item
         name={positionFieldName}
         label={
-          <span className="text-sm font-medium text-gray-700">
+          <span
+            data-cy="employees-succession-planning-components-departmentpositionselect-tsx-departmentpositionselect-span-106"
+            className="text-sm font-medium text-gray-700"
+          >
             {positionLabel}
           </span>
         }

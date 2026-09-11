@@ -26,9 +26,19 @@ const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({
   label,
   children,
 }) => (
-  <div>
-    <p className="text-sm text-[#bababa] font-normal m-0 mb-0.5">{label}</p>
-    <div className="text-sm font-normal text-[#4d4d4d]">{children}</div>
+  <div data-cy="-id-successors-successorid-page-tsx-page-div-29">
+    <p
+      data-cy="-id-successors-successorid-page-tsx-page-p-30"
+      className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
+    >
+      {label}
+    </p>
+    <div
+      data-cy="-id-successors-successorid-page-tsx-page-div-31"
+      className="text-sm font-normal text-[#4d4d4d]"
+    >
+      {children}
+    </div>
   </div>
 );
 
@@ -79,7 +89,14 @@ const SuccessorDetailPage: React.FC = () => {
                   ),
                 },
                 {
-                  title: <span className="text-[#4d4d4d]">Not Found</span>,
+                  title: (
+                    <span
+                      data-cy="-id-successors-successorid-page-tsx-page-span-82"
+                      className="text-[#4d4d4d]"
+                    >
+                      Not Found
+                    </span>
+                  ),
                 },
               ]}
             />
@@ -163,7 +180,10 @@ const SuccessorDetailPage: React.FC = () => {
       id="successor-detail-page"
       data-cy="successor-detail-page"
     >
-      <div className="flex flex-wrap justify-between items-center pt-4 gap-3">
+      <div
+        data-cy="-id-successors-successorid-page-tsx-page-div-166"
+        className="flex flex-wrap justify-between items-center pt-4 gap-3"
+      >
         <CustomBreadcrumb
           onBack={() => router.push(roleHref)}
           title={
@@ -176,7 +196,14 @@ const SuccessorDetailPage: React.FC = () => {
               className="text-xs sm:text-sm"
               items={[
                 {
-                  title: <span className="text-gray-500">Employee</span>,
+                  title: (
+                    <span
+                      data-cy="-id-successors-successorid-page-tsx-page-span-179"
+                      className="text-gray-500"
+                    >
+                      Employee
+                    </span>
+                  ),
                 },
                 {
                   title: (
@@ -197,7 +224,12 @@ const SuccessorDetailPage: React.FC = () => {
                 },
                 {
                   title: (
-                    <span className="text-[#4d4d4d]">{successor.name}</span>
+                    <span
+                      data-cy="-id-successors-successorid-page-tsx-page-span-200"
+                      className="text-[#4d4d4d]"
+                    >
+                      {successor.name}
+                    </span>
                   ),
                 },
               ]}
@@ -213,14 +245,20 @@ const SuccessorDetailPage: React.FC = () => {
         styles={{ body: { padding: 16 } }}
         data-cy="successor-detail-header"
       >
-        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+        <div
+          data-cy="-id-successors-successorid-page-tsx-page-div-216"
+          className="flex flex-wrap items-start justify-between gap-3 mb-4"
+        >
           <PersonIdentity
             role="Successor"
             name={successor.name}
             caption={`${successor.currentPosition ?? successor.jobTitle} · ${successor.department}`}
             avatarSize={48}
           />
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <div
+            data-cy="-id-successors-successorid-page-tsx-page-div-223"
+            className="flex flex-wrap items-center gap-2 shrink-0"
+          >
             {successor.readiness ? (
               <Tag
                 color={readinessColor[successor.readiness]}
@@ -233,7 +271,10 @@ const SuccessorDetailPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+        <div
+          data-cy="-id-successors-successorid-page-tsx-page-div-236"
+          className="grid grid-cols-2 sm:grid-cols-4 gap-6"
+        >
           <MetaField label="Role">{role.roleName}</MetaField>
           <MetaField label="Education">{educationLabel || '—'}</MetaField>
           <MetaField label="Service years">

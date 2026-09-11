@@ -131,14 +131,20 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
   const columns: TableColumnsType<DevelopmentAction> = [
     {
       title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Action Item</span>
+        <span
+          data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-span-134"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Action Item
+        </span>
       ),
       dataIndex: 'actionItem',
       ellipsis: true,
       render: (value: string, record) => (
-        <div>
+        <div data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-div-139">
           {canManageSuccessorDevelopment ? (
             <button
+              data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-button-141"
               type="button"
               className="text-left text-sm font-medium text-primary hover:underline"
               onClick={() => openEdit(record)}
@@ -154,7 +160,10 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
             </span>
           )}
           {record.gapId ? (
-            <div className="text-xs text-gray-400 mt-0.5">
+            <div
+              data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-div-157"
+              className="text-xs text-gray-400 mt-0.5"
+            >
               Gap: {gapLabel(record.gapId) ?? 'Linked'}
             </div>
           ) : null}
@@ -163,29 +172,56 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
     },
     {
       title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Responsible</span>
+        <span
+          data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-span-166"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Responsible
+        </span>
       ),
       dataIndex: 'responsiblePersonName',
       width: 140,
       render: (value: string) => (
-        <span className="text-sm text-[#4d4d4d]">{value}</span>
+        <span
+          data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-span-171"
+          className="text-sm text-[#4d4d4d]"
+        >
+          {value}
+        </span>
       ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Target</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-span-175"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Target
+        </span>
+      ),
       dataIndex: 'targetCompletionDate',
       width: 110,
       render: (value: string) => (
-        <span className="text-sm text-[#4d4d4d] tabular-nums">
+        <span
+          data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-span-179"
+          className="text-sm text-[#4d4d4d] tabular-nums"
+        >
           {value || '—'}
         </span>
       ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Status</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-span-185"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Status
+        </span>
+      ),
       key: 'status',
       width: 150,
-      render: (_: unknown, record) => (
+      render: (unusedValue: unknown, record) => (
         <Select
           size="small"
           className="w-full min-w-[130px]"
@@ -199,12 +235,20 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
     },
     {
       title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Completed</span>
+        <span
+          data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-span-202"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Completed
+        </span>
       ),
       dataIndex: 'completionDate',
       width: 110,
       render: (value?: string) => (
-        <span className="text-sm text-[#4d4d4d] tabular-nums">
+        <span
+          data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-span-207"
+          className="text-sm text-[#4d4d4d] tabular-nums"
+        >
           {value || '—'}
         </span>
       ),
@@ -239,7 +283,10 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
   return (
     <div className="flex flex-col gap-3" data-cy="development-actions-panel">
       {!hideAddButton && canManageSuccessorDevelopment ? (
-        <div className="flex justify-end">
+        <div
+          data-cy="succession-planning-components-developmentactionspanel-index-tsx-index-div-242"
+          className="flex justify-end"
+        >
           <Button
             type="primary"
             size="small"
@@ -270,7 +317,7 @@ const DevelopmentActionsPanel: React.FC<DevelopmentActionsPanelProps> = ({
             />
           ),
         }}
-        rowClassName={(_, index) =>
+        rowClassName={(unusedRecord, index) =>
           index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
         }
         data-cy="development-actions-table"

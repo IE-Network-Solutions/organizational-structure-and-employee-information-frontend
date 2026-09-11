@@ -48,7 +48,7 @@ export const distributeWeightsEvenly = (count: number): number[] => {
   const remainder = 100 - base * count;
   return Array.from(
     { length: count },
-    (_unused, index) => base + (index < remainder ? 1 : 0),
+    (unusedSlot, index) => base + (index < remainder ? 1 : 0),
   );
 };
 
@@ -79,12 +79,24 @@ const RelatedEducationFieldsSwitch: React.FC = () => {
       className="rounded-md border border-[#F0F0F0] bg-[#FAFAFA] px-3 py-2"
       data-cy="step-allow-related-education-wrap"
     >
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="min-w-0">
-          <div className="text-sm font-medium text-gray-700">
+      <div
+        data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-82"
+        className="flex flex-wrap items-center justify-between gap-2"
+      >
+        <div
+          data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-83"
+          className="min-w-0"
+        >
+          <div
+            data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-84"
+            className="text-sm font-medium text-gray-700"
+          >
             Allow related fields of study
           </div>
-          <div className="text-xs text-gray-500 mt-0.5">
+          <div
+            data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-87"
+            className="text-xs text-gray-500 mt-0.5"
+          >
             {isAny
               ? 'Not needed when field of study is Any.'
               : 'When on, you can mark a successor’s non-exact field as related on their Assessment. Until marked, mismatched fields stay as Field mismatch.'}
@@ -110,7 +122,10 @@ const RelatedEducationFieldsSwitch: React.FC = () => {
         </Form.Item>
       </div>
       {!isAny && allowRelated && relatedExamples.length > 0 ? (
-        <div className="text-xs text-gray-500 mt-2">
+        <div
+          data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-113"
+          className="text-xs text-gray-500 mt-2"
+        >
           Common related examples: {relatedExamples.join(', ')}
         </div>
       ) : null}
@@ -138,10 +153,18 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
       className="flex flex-col gap-4 pt-2"
       data-cy="step-competency-definition-container"
     >
-      <p className="text-sm text-gray-500 -mt-2">
+      <p
+        data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-p-141"
+        className="text-sm text-gray-500 -mt-2"
+      >
         Define mandatory qualifications for{' '}
         {position ? (
-          <span className="font-semibold text-gray-700">{position.title}</span>
+          <span
+            data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-144"
+            className="font-semibold text-gray-700"
+          >
+            {position.title}
+          </span>
         ) : (
           'this role'
         )}
@@ -149,7 +172,10 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
         managed later from the role details page.
       </p>
 
-      <div className="text-sm font-semibold text-gray-800">
+      <div
+        data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-152"
+        className="text-sm font-semibold text-gray-800"
+      >
         Mandatory qualifications
       </div>
 
@@ -157,11 +183,17 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
         className="rounded-lg p-3 bg-white flex flex-col gap-3"
         data-cy="step-mandatory-qualifications"
       >
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div
+          data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-160"
+          className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3"
+        >
           <Form.Item
             name="requiredEducationLevel"
             label={
-              <span className="text-sm font-medium text-gray-700">
+              <span
+                data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-164"
+                className="text-sm font-medium text-gray-700"
+              >
                 Education level
               </span>
             }
@@ -184,7 +216,10 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
           <Form.Item
             name="requiredEducationField"
             label={
-              <span className="text-sm font-medium text-gray-700">
+              <span
+                data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-187"
+                className="text-sm font-medium text-gray-700"
+              >
                 Field of study
               </span>
             }
@@ -206,7 +241,10 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
           <Form.Item
             name="requiredRelevantExperience"
             label={
-              <span className="text-sm font-medium text-gray-700">
+              <span
+                data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-209"
+                className="text-sm font-medium text-gray-700"
+              >
                 Experience (years)
               </span>
             }
@@ -252,9 +290,17 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
         </div>
       </div>
 
-      <div className="text-sm font-semibold text-gray-800">
+      <div
+        data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-255"
+        className="text-sm font-semibold text-gray-800"
+      >
         Competency criteria{' '}
-        <span className="text-xs font-normal text-gray-400">(optional)</span>
+        <span
+          data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-257"
+          className="text-xs font-normal text-gray-400"
+        >
+          (optional)
+        </span>
       </div>
 
       <Form.List name="competencies">
@@ -299,8 +345,14 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
                   className="rounded-lg border border-[#D9D9D9] p-3 bg-white"
                   data-cy={`step-competency-row-${key}`}
                 >
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <div
+                    data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-302"
+                    className="flex items-start justify-between gap-2 mb-1"
+                  >
+                    <span
+                      data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-303"
+                      className="text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                    >
                       Criterion {name + 1}
                     </span>
                     <Button
@@ -319,12 +371,18 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+                  <div
+                    data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-322"
+                    className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4"
+                  >
                     <Form.Item
                       {...restField}
                       name={[name, 'name']}
                       label={
-                        <span className="text-sm font-medium text-gray-700">
+                        <span
+                          data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-327"
+                          className="text-sm font-medium text-gray-700"
+                        >
                           Competency / Skill
                         </span>
                       }
@@ -348,7 +406,10 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
                       {...restField}
                       name={[name, 'category']}
                       label={
-                        <span className="text-sm font-medium text-gray-700">
+                        <span
+                          data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-351"
+                          className="text-sm font-medium text-gray-700"
+                        >
                           Category
                         </span>
                       }
@@ -375,7 +436,10 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
                       {...restField}
                       name={[name, 'importance']}
                       label={
-                        <span className="text-sm font-medium text-gray-700">
+                        <span
+                          data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-378"
+                          className="text-sm font-medium text-gray-700"
+                        >
                           Importance
                         </span>
                       }
@@ -403,7 +467,10 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
                       {...restField}
                       name={[name, 'weight']}
                       label={
-                        <span className="text-sm font-medium text-gray-700">
+                        <span
+                          data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-406"
+                          className="text-sm font-medium text-gray-700"
+                        >
                           Weight (%)
                         </span>
                       }
@@ -433,9 +500,15 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
                     {...restField}
                     name={[name, 'description']}
                     label={
-                      <span className="text-sm font-medium text-gray-700">
+                      <span
+                        data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-436"
+                        className="text-sm font-medium text-gray-700"
+                      >
                         Description{' '}
-                        <span className="text-gray-400 font-normal">
+                        <span
+                          data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-span-438"
+                          className="text-gray-400 font-normal"
+                        >
                           (optional)
                         </span>
                       </span>
@@ -481,7 +554,10 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
                   className="flex justify-end mt-1"
                   data-cy="step-competency-total-weight"
                 >
-                  <div className="text-sm text-gray-600 font-bold">
+                  <div
+                    data-cy="succession-planning-components-steps-stepcompetencydefinition-tsx-stepcompetencydefinition-div-484"
+                    className="text-sm text-gray-600 font-bold"
+                  >
                     Total Weight:{' '}
                     <span
                       className={`font-bold ${totalWeight === 100 ? 'text-green-600' : 'text-red-600'}`}

@@ -38,7 +38,8 @@ const AnnouncementSettingsPanel = ({
   showIntro = true,
 }: AnnouncementSettingsPanelProps) => {
   const memberLookup = useCollaborationMemberLookup();
-  const { data: spaces = [], isLoading } = useCollaborationCatalog(memberLookup);
+  const { data: spaces = [], isLoading } =
+    useCollaborationCatalog(memberLookup);
   const enabledChannelIds = useAnnouncementChannelsStore(
     (state) => state.enabledChannelIds,
   );

@@ -459,9 +459,7 @@ const ChannelThreadsView = ({
         memberLookup,
       });
       void queryClient.invalidateQueries(collaborationQueryKeys.catalog);
-      void queryClient.invalidateQueries(
-        collaborationQueryKeys.channelMembers,
-      );
+      void queryClient.invalidateQueries(collaborationQueryKeys.channelMembers);
       NotificationMessage.success({
         message: channel.isPrivate ? 'Members invited' : 'Members added',
         description: `${memberIds.length} member${

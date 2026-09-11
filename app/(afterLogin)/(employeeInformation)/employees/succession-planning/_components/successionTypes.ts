@@ -365,7 +365,6 @@ export const deriveSuccessorGaps = (
 export const resolveActionStatus = (
   status: DevelopmentActionStatus,
   targetCompletionDate: string,
-  _completionDate?: string | null,
 ): DevelopmentActionStatus => {
   if (status === 'Completed') return 'Completed';
   if (!targetCompletionDate) return status;

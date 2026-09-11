@@ -12,7 +12,12 @@ import {
 } from 'antd';
 import type { TableColumnsType } from 'antd';
 import Link from 'next/link';
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from 'next/navigation';
 import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -42,9 +47,19 @@ const MetaField: React.FC<{ label: string; children: React.ReactNode }> = ({
   label,
   children,
 }) => (
-  <div>
-    <p className="text-sm text-[#bababa] font-normal m-0 mb-0.5">{label}</p>
-    <div className="text-sm font-normal text-[#4d4d4d]">{children}</div>
+  <div data-cy="employees-succession-planning-id-page-tsx-page-div-50">
+    <p
+      data-cy="employees-succession-planning-id-page-tsx-page-p-51"
+      className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
+    >
+      {label}
+    </p>
+    <div
+      data-cy="employees-succession-planning-id-page-tsx-page-div-52"
+      className="text-sm font-normal text-[#4d4d4d]"
+    >
+      {children}
+    </div>
   </div>
 );
 
@@ -97,7 +112,14 @@ const CriticalRoleDetailPage: React.FC = () => {
                   ),
                 },
                 {
-                  title: <span className="text-[#4d4d4d]">Not Found</span>,
+                  title: (
+                    <span
+                      data-cy="employees-succession-planning-id-page-tsx-page-span-105"
+                      className="text-[#4d4d4d]"
+                    >
+                      Not Found
+                    </span>
+                  ),
                 },
               ]}
             />
@@ -160,22 +182,55 @@ const CriticalRoleDetailPage: React.FC = () => {
     (typeof role.competencies)[number]
   > = [
     {
-      title: <span className={th}>Competency</span>,
+      title: (
+        <span
+          data-cy="employees-succession-planning-id-page-tsx-page-span-168"
+          className={th}
+        >
+          Competency
+        </span>
+      ),
       dataIndex: 'name',
       key: 'name',
       render: (value: string) => (
-        <span className="text-sm font-medium text-gray-800">{value}</span>
+        <span
+          data-cy="employees-succession-planning-id-page-tsx-page-span-172"
+          className="text-sm font-medium text-gray-800"
+        >
+          {value}
+        </span>
       ),
     },
     {
-      title: <span className={th}>Category</span>,
+      title: (
+        <span
+          data-cy="employees-succession-planning-id-page-tsx-page-span-176"
+          className={th}
+        >
+          Category
+        </span>
+      ),
       dataIndex: 'category',
       key: 'category',
       width: 140,
-      render: (value: string) => <span className={td}>{value}</span>,
+      render: (value: string) => (
+        <span
+          data-cy="employees-succession-planning-id-page-tsx-page-span-180"
+          className={td}
+        >
+          {value}
+        </span>
+      ),
     },
     {
-      title: <span className={th}>Importance</span>,
+      title: (
+        <span
+          data-cy="employees-succession-planning-id-page-tsx-page-span-183"
+          className={th}
+        >
+          Importance
+        </span>
+      ),
       dataIndex: 'importance',
       key: 'importance',
       width: 140,
@@ -186,23 +241,45 @@ const CriticalRoleDetailPage: React.FC = () => {
       ),
     },
     {
-      title: <span className={th}>Weight</span>,
+      title: (
+        <span
+          data-cy="employees-succession-planning-id-page-tsx-page-span-194"
+          className={th}
+        >
+          Weight
+        </span>
+      ),
       dataIndex: 'weight',
       key: 'weight',
       width: 100,
       render: (value?: number) => (
-        <span className={td + ' tabular-nums'}>
+        <span
+          data-cy="employees-succession-planning-id-page-tsx-page-span-199"
+          className={td + ' tabular-nums'}
+        >
           {value != null ? value + '%' : '—'}
         </span>
       ),
     },
     {
-      title: <span className={th}>Description</span>,
+      title: (
+        <span
+          data-cy="employees-succession-planning-id-page-tsx-page-span-205"
+          className={th}
+        >
+          Description
+        </span>
+      ),
       dataIndex: 'description',
       key: 'description',
       ellipsis: true,
       render: (value?: string) => (
-        <span className="text-sm text-gray-500">{value || '—'}</span>
+        <span
+          data-cy="employees-succession-planning-id-page-tsx-page-span-210"
+          className="text-sm text-gray-500"
+        >
+          {value || '—'}
+        </span>
       ),
     },
   ];
@@ -229,7 +306,10 @@ const CriticalRoleDetailPage: React.FC = () => {
               data-cy="cr-detail-successors-empty"
             />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div
+              data-cy="employees-succession-planning-id-page-tsx-page-div-237"
+              className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"
+            >
               {role.successors.map((successor) => (
                 <SuccessorSummaryCard
                   key={successor.id}
@@ -270,7 +350,7 @@ const CriticalRoleDetailPage: React.FC = () => {
                   />
                 ),
               }}
-              rowClassName={(_, index) =>
+              rowClassName={(unusedRecord, index) =>
                 index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
               }
               data-cy="cr-detail-competencies-table"
@@ -283,7 +363,10 @@ const CriticalRoleDetailPage: React.FC = () => {
 
   const tabBarExtra =
     activeTab === 'competencies' && canUpdateCriticalRole ? (
-      <div className="flex items-center py-2">
+      <div
+        data-cy="employees-succession-planning-id-page-tsx-page-div-291"
+        className="flex items-center py-2"
+      >
         <Button
           type="primary"
           size="small"
@@ -311,7 +394,10 @@ const CriticalRoleDetailPage: React.FC = () => {
       data-cy="critical-role-detail-page"
       className="pb-8"
     >
-      <div className="flex flex-wrap justify-between items-center pt-4 gap-3">
+      <div
+        data-cy="employees-succession-planning-id-page-tsx-page-div-319"
+        className="flex flex-wrap justify-between items-center pt-4 gap-3"
+      >
         <CustomBreadcrumb
           onBack={() => router.push('/employees/succession-planning')}
           title={
@@ -324,7 +410,14 @@ const CriticalRoleDetailPage: React.FC = () => {
               className="text-xs sm:text-sm"
               items={[
                 {
-                  title: <span className="text-gray-500">Employee</span>,
+                  title: (
+                    <span
+                      data-cy="employees-succession-planning-id-page-tsx-page-span-332"
+                      className="text-gray-500"
+                    >
+                      Employee
+                    </span>
+                  ),
                 },
                 {
                   title: (
@@ -360,16 +453,31 @@ const CriticalRoleDetailPage: React.FC = () => {
         styles={{ body: { padding: 16 } }}
         data-cy="critical-role-detail-overview"
       >
-        <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-          <div className="min-w-0">
-            <h5 className="text-sm font-normal text-[#4d4d4d] m-0">
+        <div
+          data-cy="employees-succession-planning-id-page-tsx-page-div-368"
+          className="flex flex-wrap items-start justify-between gap-3 mb-4"
+        >
+          <div
+            data-cy="employees-succession-planning-id-page-tsx-page-div-369"
+            className="min-w-0"
+          >
+            <h5
+              data-cy="employees-succession-planning-id-page-tsx-page-h5-370"
+              className="text-sm font-normal text-[#4d4d4d] m-0"
+            >
               {role.roleName}
             </h5>
-            <p className="text-sm text-[#bababa] font-normal m-0">
+            <p
+              data-cy="employees-succession-planning-id-page-tsx-page-p-373"
+              className="text-sm text-[#bababa] font-normal m-0"
+            >
               {role.department}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <div
+            data-cy="employees-succession-planning-id-page-tsx-page-div-377"
+            className="flex flex-wrap items-center gap-2 shrink-0"
+          >
             <Tag color={priorityColor[role.priority]} className="m-0">
               {role.priority} Priority
             </Tag>
@@ -398,12 +506,15 @@ const CriticalRoleDetailPage: React.FC = () => {
           data-cy="cr-detail-mandatory-qualifications"
         >
           <MetaField label="Required Education">
-            <div>
+            <div data-cy="employees-succession-planning-id-page-tsx-page-div-406">
               {roleRequiredEducationLabel(role)}
               {role.allowRelatedEducationFields &&
               role.requiredEducationField &&
               role.requiredEducationField !== 'Any' ? (
-                <div className="text-xs text-gray-500 mt-0.5">
+                <div
+                  data-cy="employees-succession-planning-id-page-tsx-page-div-411"
+                  className="text-xs text-gray-500 mt-0.5"
+                >
                   Related fields allowed
                 </div>
               ) : null}
@@ -417,7 +528,10 @@ const CriticalRoleDetailPage: React.FC = () => {
         </div>
 
         {role.notes ? (
-          <div className="pt-4 mt-4 border-t border-gray-100">
+          <div
+            data-cy="employees-succession-planning-id-page-tsx-page-div-425"
+            className="pt-4 mt-4 border-t border-gray-100"
+          >
             <MetaField label="Notes">
               <p className="m-0" data-cy="cr-detail-notes">
                 {role.notes}
@@ -437,7 +551,9 @@ const CriticalRoleDetailPage: React.FC = () => {
           if (next === 'successors') params.delete('tab');
           else params.set('tab', next);
           const qs = params.toString();
-          router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+          router.replace(qs ? `${pathname}?${qs}` : pathname, {
+            scroll: false,
+          });
         }}
         items={tabItems}
         tabBarExtraContent={tabBarExtra}

@@ -62,22 +62,46 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
 
   const columns: TableColumnsType<CompetencyGap> = [
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Required</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-successorgapspanel-index-tsx-index-span-65"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Required
+        </span>
+      ),
       key: 'required',
       minWidth: 200,
-      render: (_: unknown, record) => (
-        <div className="py-0.5 pr-2">
-          <div className="text-sm text-gray-800 leading-snug whitespace-normal break-words">
+      render: (unusedValue: unknown, record) => (
+        <div
+          data-cy="succession-planning-components-successorgapspanel-index-tsx-index-div-69"
+          className="py-0.5 pr-2"
+        >
+          <div
+            data-cy="succession-planning-components-successorgapspanel-index-tsx-index-div-70"
+            className="text-sm text-gray-800 leading-snug whitespace-normal break-words"
+          >
             {record.competencyName}
           </div>
           {record.requiredLevel ? (
-            <div className="text-xs text-gray-500 mt-0.5 leading-snug whitespace-normal break-words">
+            <div
+              data-cy="succession-planning-components-successorgapspanel-index-tsx-index-div-74"
+              className="text-xs text-gray-500 mt-0.5 leading-snug whitespace-normal break-words"
+            >
               {record.requiredLevel}
             </div>
           ) : null}
-          <div className="text-xs text-gray-400 mt-0.5">{record.category}</div>
+          <div
+            data-cy="succession-planning-components-successorgapspanel-index-tsx-index-div-78"
+            className="text-xs text-gray-400 mt-0.5"
+          >
+            {record.category}
+          </div>
           {actionCountForGap(record.id) > 0 ? (
-            <div className="text-xs text-primary mt-0.5">
+            <div
+              data-cy="succession-planning-components-successorgapspanel-index-tsx-index-div-80"
+              className="text-xs text-primary mt-0.5"
+            >
               {actionCountForGap(record.id)} action
               {actionCountForGap(record.id) === 1 ? '' : 's'} in Actions
             </div>
@@ -86,18 +110,33 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
       ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Current</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-successorgapspanel-index-tsx-index-span-89"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Current
+        </span>
+      ),
       dataIndex: 'currentLevel',
       minWidth: 220,
       render: (value: string) => (
-        <span className="text-sm text-[#4d4d4d] leading-snug whitespace-normal break-words block py-0.5 pr-2">
+        <span
+          data-cy="succession-planning-components-successorgapspanel-index-tsx-index-span-93"
+          className="text-sm text-[#4d4d4d] leading-snug whitespace-normal break-words block py-0.5 pr-2"
+        >
           {value || '—'}
         </span>
       ),
     },
     {
       title: (
-        <span className="text-[#4d4d4d] text-sm font-bold">Importance</span>
+        <span
+          data-cy="succession-planning-components-successorgapspanel-index-tsx-index-span-100"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Importance
+        </span>
       ),
       dataIndex: 'importance',
       width: 120,
@@ -108,7 +147,14 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
       ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Severity</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-successorgapspanel-index-tsx-index-span-111"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Severity
+        </span>
+      ),
       dataIndex: 'gapSeverity',
       width: 110,
       render: (value: CompetencyGap['gapSeverity']) => (
@@ -118,10 +164,17 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
       ),
     },
     {
-      title: <span className="text-[#4d4d4d] text-sm font-bold">Status</span>,
+      title: (
+        <span
+          data-cy="succession-planning-components-successorgapspanel-index-tsx-index-span-121"
+          className="text-[#4d4d4d] text-sm font-bold"
+        >
+          Status
+        </span>
+      ),
       key: 'status',
       width: 150,
-      render: (_: unknown, record) => (
+      render: (unusedValue: unknown, record) => (
         <Select
           size="small"
           className="w-full min-w-[130px]"
@@ -145,7 +198,12 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
       ? [
           {
             title: (
-              <span className="text-[#4d4d4d] text-sm font-bold">Action</span>
+              <span
+                data-cy="succession-planning-components-successorgapspanel-index-tsx-index-span-148"
+                className="text-[#4d4d4d] text-sm font-bold"
+              >
+                Action
+              </span>
             ),
             key: 'define-action',
             dataIndex: 'id',
@@ -169,8 +227,14 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
 
   return (
     <div className="flex flex-col gap-3" data-cy="successor-gaps-panel">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-gray-500 mb-0">
+      <div
+        data-cy="succession-planning-components-successorgapspanel-index-tsx-index-div-172"
+        className="flex flex-wrap items-center justify-between gap-2"
+      >
+        <p
+          data-cy="succession-planning-components-successorgapspanel-index-tsx-index-p-173"
+          className="text-sm text-gray-500 mb-0"
+        >
           {openCount} open gap{openCount === 1 ? '' : 's'} vs role requirements
         </p>
         {!hideRecalculateButton && canManageSuccessorDevelopment ? (
@@ -204,7 +268,7 @@ const SuccessorGapsPanel: React.FC<SuccessorGapsPanelProps> = ({
             />
           ),
         }}
-        rowClassName={(_, index) =>
+        rowClassName={(unusedRecord, index) =>
           index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAFA]'
         }
         data-cy="successor-gaps-table"

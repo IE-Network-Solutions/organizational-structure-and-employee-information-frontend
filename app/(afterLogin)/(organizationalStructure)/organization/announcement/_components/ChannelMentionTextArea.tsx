@@ -4,10 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Avatar, Input, Spin } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { collaborationColors } from './collaborationColors';
-import {
-  getMentionToken,
-  type MentionUser,
-} from './mentionUtils';
+import { getMentionToken, type MentionUser } from './mentionUtils';
 
 type ChannelMentionTextAreaProps = {
   value: string;
@@ -95,7 +92,9 @@ const ChannelMentionTextArea = ({
     setSelectedIndex(0);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+  const handleKeyDown = (
+    event: React.KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>,
+  ) => {
     if (mentionQuery !== null && filteredUsers.length > 0) {
       if (event.key === 'ArrowDown') {
         event.preventDefault();
@@ -122,7 +121,12 @@ const ChannelMentionTextArea = ({
       }
     }
 
-    if (event.key === 'Enter' && !event.shiftKey && singleLine && onPressEnter) {
+    if (
+      event.key === 'Enter' &&
+      !event.shiftKey &&
+      singleLine &&
+      onPressEnter
+    ) {
       event.preventDefault();
       onPressEnter();
     }
@@ -226,11 +230,7 @@ const ChannelMentionTextArea = ({
       {singleLine ? (
         <Input ref={inputRef} {...sharedProps} />
       ) : (
-        <Input.TextArea
-          ref={inputRef}
-          autoSize={autoSize}
-          {...sharedProps}
-        />
+        <Input.TextArea ref={inputRef} autoSize={autoSize} {...sharedProps} />
       )}
     </div>
   );

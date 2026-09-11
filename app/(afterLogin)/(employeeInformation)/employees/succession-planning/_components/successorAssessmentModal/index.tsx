@@ -146,11 +146,20 @@ const SuccessorAssessmentModal: React.FC<SuccessorAssessmentModalProps> = ({
         }}
         data-cy="successor-assessment-form"
       >
-        <div className="mb-4">
-          <div className="text-sm font-medium text-gray-700 mb-2">
+        <div
+          data-cy="succession-planning-components-successorassessmentmodal-index-tsx-index-div-149"
+          className="mb-4"
+        >
+          <div
+            data-cy="succession-planning-components-successorassessmentmodal-index-tsx-index-div-150"
+            className="text-sm font-medium text-gray-700 mb-2"
+          >
             Current Position
           </div>
-          <p className="text-xs text-gray-500 mb-2">
+          <p
+            data-cy="succession-planning-components-successorassessmentmodal-index-tsx-index-p-153"
+            className="text-xs text-gray-500 mb-2"
+          >
             Fetched from organizational positions (department + position).
           </p>
           <DepartmentPositionSelect
@@ -189,7 +198,10 @@ const SuccessorAssessmentModal: React.FC<SuccessorAssessmentModalProps> = ({
           label="Relevant experience (years)"
           extra={
             requiredExperienceYears != null ? (
-              <span className="text-xs text-gray-500">
+              <span
+                data-cy="succession-planning-components-successorassessmentmodal-index-tsx-index-span-192"
+                className="text-xs text-gray-500"
+              >
                 Role requires {formatYearsLabel(requiredExperienceYears)}
                 {experienceMatch === 'Not matched' && readinessHint
                   ? ` · ${readinessHint}`
@@ -215,7 +227,10 @@ const SuccessorAssessmentModal: React.FC<SuccessorAssessmentModalProps> = ({
           name="readiness"
           label="Readiness Status"
           extra={
-            <span className="text-xs text-gray-500">
+            <span
+              data-cy="succession-planning-components-successorassessmentmodal-index-tsx-index-span-218"
+              className="text-xs text-gray-500"
+            >
               Calculated from experience shortfall vs the role requirement.
             </span>
           }

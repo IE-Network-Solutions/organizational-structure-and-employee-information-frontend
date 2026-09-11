@@ -100,8 +100,16 @@ const DevelopmentActionModal: React.FC<DevelopmentActionModalProps> = ({
               className="mb-4 rounded-md border border-[#E6E6E6] bg-[#FAFAFA] px-3 py-2"
               data-cy="action-linked-gap-banner"
             >
-              <div className="text-xs text-gray-500">Linked competency gap</div>
-              <div className="text-sm font-medium text-[#4d4d4d]">
+              <div
+                data-cy="succession-planning-components-developmentactionmodal-index-tsx-index-div-103"
+                className="text-xs text-gray-500"
+              >
+                Linked competency gap
+              </div>
+              <div
+                data-cy="succession-planning-components-developmentactionmodal-index-tsx-index-div-104"
+                className="text-sm font-medium text-[#4d4d4d]"
+              >
                 {gaps.find((g) => g.id === lockedGapId)?.competencyName ??
                   'Selected gap'}
               </div>

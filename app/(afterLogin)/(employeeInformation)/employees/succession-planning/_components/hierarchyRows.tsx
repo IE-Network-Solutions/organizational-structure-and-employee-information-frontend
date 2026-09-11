@@ -36,18 +36,39 @@ export const CriteriaLine: React.FC<{
       onClick={item.onClick}
       data-cy={dataCy ? `${dataCy}-name` : undefined}
     >
-      <div className="text-sm font-medium text-primary group-hover:underline truncate">
+      <div
+        data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-div-39"
+        className="text-sm font-medium text-primary group-hover:underline truncate"
+      >
         {item.name}
       </div>
       {item.category ? (
-        <div className="text-xs text-gray-400 truncate">{item.category}</div>
+        <div
+          data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-div-43"
+          className="text-xs text-gray-400 truncate"
+        >
+          {item.category}
+        </div>
       ) : null}
     </button>
   ) : (
-    <div className="min-w-0">
-      <div className="text-sm text-gray-800 truncate">{item.name}</div>
+    <div
+      data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-div-47"
+      className="min-w-0"
+    >
+      <div
+        data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-div-48"
+        className="text-sm text-gray-800 truncate"
+      >
+        {item.name}
+      </div>
       {item.category ? (
-        <div className="text-xs text-gray-400 truncate">{item.category}</div>
+        <div
+          data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-div-50"
+          className="text-xs text-gray-400 truncate"
+        >
+          {item.category}
+        </div>
       ) : null}
     </div>
   );
@@ -57,13 +78,25 @@ export const CriteriaLine: React.FC<{
       className="flex flex-wrap items-center gap-3 px-4 py-2.5"
       data-cy={dataCy}
     >
-      <div className="min-w-0 flex-1">{nameNode}</div>
-      <div className="text-sm text-[#4d4d4d] tabular-nums w-14 shrink-0">
+      <div
+        data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-div-60"
+        className="min-w-0 flex-1"
+      >
+        {nameNode}
+      </div>
+      <div
+        data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-div-61"
+        className="text-sm text-[#4d4d4d] tabular-nums w-14 shrink-0"
+      >
         {item.weight != null ? `${item.weight}%` : '—'}
       </div>
-      <div className="w-24 shrink-0 flex justify-end">
+      <div
+        data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-div-64"
+        className="w-24 shrink-0 flex justify-end"
+      >
         {scored ? (
           <span
+            data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-span-66"
             className={`inline-flex items-center px-2 py-0.5 rounded border text-sm font-semibold tabular-nums ${getScoreBadgeClass(
               scoreAchievementPercent(item.score!, item.weight ?? 0),
             )}`}
@@ -72,11 +105,21 @@ export const CriteriaLine: React.FC<{
             {item.weight != null ? ` / ${item.weight}` : ''}
           </span>
         ) : (
-          <span className="text-sm text-gray-400">—</span>
+          <span
+            data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-span-75"
+            className="text-sm text-gray-400"
+          >
+            —
+          </span>
         )}
       </div>
       {item.trailing ? (
-        <div className="w-full sm:w-[220px] sm:shrink-0">{item.trailing}</div>
+        <div
+          data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-div-79"
+          className="w-full sm:w-[220px] sm:shrink-0"
+        >
+          {item.trailing}
+        </div>
       ) : null}
     </div>
   );
@@ -135,7 +178,10 @@ export const EvaluationSessionRow: React.FC<EvaluationSessionRowProps> = ({
       role="Successor"
       name={successorName}
       caption={
-        <span className="text-xs text-gray-500">
+        <span
+          data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-span-138"
+          className="text-xs text-gray-500"
+        >
           {successorJobTitle ? `${successorJobTitle} · ` : ''}
           {onRoleClick ? (
             <button
@@ -150,9 +196,20 @@ export const EvaluationSessionRow: React.FC<EvaluationSessionRowProps> = ({
               {roleName}
             </button>
           ) : (
-            <span className="font-medium text-gray-700">{roleName}</span>
+            <span
+              data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-span-153"
+              className="font-medium text-gray-700"
+            >
+              {roleName}
+            </span>
           )}
-          <span className="text-gray-400"> · {department}</span>
+          <span
+            data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-span-155"
+            className="text-gray-400"
+          >
+            {' '}
+            · {department}
+          </span>
         </span>
       }
       avatarSize={28}
@@ -246,7 +303,10 @@ export const EvaluatorContainer: React.FC<EvaluatorContainerProps> = ({
           avatarSize={32}
           className="min-w-0 flex-1"
         />
-        <div className="flex items-center gap-2 shrink-0">
+        <div
+          data-cy="employees-succession-planning-components-hierarchyrows-tsx-hierarchyrows-div-249"
+          className="flex items-center gap-2 shrink-0"
+        >
           {pendingSessionCount > 0 ? (
             <Tag className="m-0" color="orange">
               {pendingSessionCount} pending

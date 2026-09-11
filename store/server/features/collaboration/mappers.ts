@@ -341,7 +341,9 @@ export const mapCollabNotification = (
     spaceName: String(data.spaceName ?? data.channelName ?? 'Collaboration'),
     preview: String(data.preview ?? data.content ?? data.message ?? ''),
     createdAt: String(
-      item.createdAt ?? nestedNotification?.createdAt ?? new Date().toISOString(),
+      item.createdAt ??
+        nestedNotification?.createdAt ??
+        new Date().toISOString(),
     ),
     unread: !item.readAt && status !== 'read',
     channelId: channelId || undefined,
