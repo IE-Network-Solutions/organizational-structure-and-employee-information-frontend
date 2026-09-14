@@ -6,20 +6,54 @@ import {
   CreateKpiLibraryInput,
   CreatePerspectiveInput,
   AdjustReportedKpiInput,
+  EmployeeScorecard,
   ReportKpiInput,
   SaveRolePerspectiveInput,
+  ScorecardStatus,
   UpdateEvaluationConfigInput,
 } from '@/types/bsc';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import {
+  activateBscScorecardTemplate,
+  adjustBscCheckInKpis,
+  appendIndividualBscKpis,
+  approveBscCheckInKpi,
+  assignBscScorecard,
+  createBscKpi,
+  createBscPerspective,
+  createBscScorecardTemplate,
+  deleteBscKpi,
+  deleteBscPerspective,
+  deleteBscScorecardTemplate,
+  finalizeBscCheckIn,
+  getMyBscScorecardDetail,
+  lockBscScorecardTemplate,
+  mapAssignAssigneesToScorecards,
+  rejectBscCheckInKpi,
+  removeIndividualBscKpi,
+  submitBscCheckIn,
+  updateBscKpi,
+  updateBscPerspective,
+  updateBscScorecardTemplate,
+} from './api';
+import { USE_BSC_API } from './config';
 import { bscMockRepo } from './mock/repository';
 import { BSC_QUERY_KEYS } from './queries';
+import type {
+  CreateBscCycleApiInput,
+  UpdateBscCycleApiInput,
+} from './scorecard.mappers';
 
 function invalidateAll(qc: ReturnType<typeof useQueryClient>) {
   qc.invalidateQueries(BSC_QUERY_KEYS.kpis);
   qc.invalidateQueries(BSC_QUERY_KEYS.cycles);
   qc.invalidateQueries(BSC_QUERY_KEYS.scorecards);
+  qc.invalidateQueries(BSC_QUERY_KEYS.scorecardAssignments);
   qc.invalidateQueries(BSC_QUERY_KEYS.scorecard);
+  qc.invalidateQueries(BSC_QUERY_KEYS.scorecardResults);
+  qc.invalidateQueries(BSC_QUERY_KEYS.checkInMyQueue);
+  qc.invalidateQueries(BSC_QUERY_KEYS.checkInReviewQueue);
   qc.invalidateQueries(BSC_QUERY_KEYS.hris);
   qc.invalidateQueries(BSC_QUERY_KEYS.audit);
   qc.invalidateQueries(BSC_QUERY_KEYS.perspectives);
@@ -29,7 +63,8 @@ function invalidateAll(qc: ReturnType<typeof useQueryClient>) {
 export const useCreateBscKpi = () => {
   const qc = useQueryClient();
   return useMutation(
-    (input: CreateKpiLibraryInput) => bscMockRepo.createKpi(input),
+    (input: CreateKpiLibraryInput) =>
+      USE_BSC_API ? createBscKpi(input) : bscMockRepo.createKpi(input),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -47,7 +82,9 @@ export const useUpdateBscKpi = () => {
   const qc = useQueryClient();
   return useMutation(
     ({ id, input }: { id: string; input: Partial<CreateKpiLibraryInput> }) =>
-      bscMockRepo.updateKpi(id, input),
+      USE_BSC_API
+        ? updateBscKpi(id, input)
+        : bscMockRepo.updateKpi(id, input),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -63,16 +100,20 @@ export const useUpdateBscKpi = () => {
 
 export const useDeleteBscKpi = () => {
   const qc = useQueryClient();
-  return useMutation((id: string) => bscMockRepo.deleteKpi(id), {
-    onSuccess: () => {
-      invalidateAll(qc);
-      NotificationMessage.success({ message: 'KPI deleted' });
+  return useMutation(
+    (id: string) =>
+      USE_BSC_API ? deleteBscKpi(id) : bscMockRepo.deleteKpi(id),
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'KPI deleted' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Failed to delete KPI',
+        }),
     },
-    onError: (e: Error) =>
-      NotificationMessage.error({
-        message: e.message || 'Failed to delete KPI',
-      }),
-  });
+  );
 };
 
 export const useSaveBscRoleKpis = () => {
@@ -96,7 +137,10 @@ export const useSaveBscRoleKpis = () => {
 export const useCreateBscPerspective = () => {
   const qc = useQueryClient();
   return useMutation(
-    (input: CreatePerspectiveInput) => bscMockRepo.createPerspective(input),
+    (input: CreatePerspectiveInput) =>
+      USE_BSC_API
+        ? createBscPerspective(input)
+        : bscMockRepo.createPerspective(input),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -114,7 +158,9 @@ export const useUpdateBscPerspective = () => {
   const qc = useQueryClient();
   return useMutation(
     ({ id, input }: { id: string; input: Partial<CreatePerspectiveInput> }) =>
-      bscMockRepo.updatePerspective(id, input),
+      USE_BSC_API
+        ? updateBscPerspective(id, input)
+        : bscMockRepo.updatePerspective(id, input),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -130,16 +176,22 @@ export const useUpdateBscPerspective = () => {
 
 export const useDeleteBscPerspective = () => {
   const qc = useQueryClient();
-  return useMutation((id: string) => bscMockRepo.deletePerspective(id), {
-    onSuccess: () => {
-      invalidateAll(qc);
-      NotificationMessage.success({ message: 'Perspective deleted' });
+  return useMutation(
+    (id: string) =>
+      USE_BSC_API
+        ? deleteBscPerspective(id)
+        : bscMockRepo.deletePerspective(id),
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'Perspective deleted' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Failed to delete perspective',
+        }),
     },
-    onError: (e: Error) =>
-      NotificationMessage.error({
-        message: e.message || 'Failed to delete perspective',
-      }),
-  });
+  );
 };
 
 export const useSaveBscRolePerspectives = () => {
@@ -163,7 +215,17 @@ export const useSaveBscRolePerspectives = () => {
 export const useCreateBscCycle = () => {
   const qc = useQueryClient();
   return useMutation(
-    (input: CreateEvaluationConfigInput) => bscMockRepo.createCycle(input),
+    (input: CreateEvaluationConfigInput | CreateBscCycleApiInput) => {
+      if (!USE_BSC_API) {
+        return bscMockRepo.createCycle(input);
+      }
+      if (!('templateKpis' in input) || !input.templateKpis?.length) {
+        throw new Error(
+          'Scorecard create requires KPI lines with weights totaling 100%',
+        );
+      }
+      return createBscScorecardTemplate(input as CreateBscCycleApiInput);
+    },
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -180,8 +242,16 @@ export const useCreateBscCycle = () => {
 export const useUpdateBscCycle = () => {
   const qc = useQueryClient();
   return useMutation(
-    ({ id, input }: { id: string; input: UpdateEvaluationConfigInput }) =>
-      bscMockRepo.updateCycle(id, input),
+    ({
+      id,
+      input,
+    }: {
+      id: string;
+      input: UpdateEvaluationConfigInput | UpdateBscCycleApiInput;
+    }) =>
+      USE_BSC_API
+        ? updateBscScorecardTemplate(id, input as UpdateBscCycleApiInput)
+        : bscMockRepo.updateCycle(id, input),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -199,40 +269,132 @@ export const useUpdateBscCycle = () => {
 
 export const useLockBscCycle = () => {
   const qc = useQueryClient();
-  return useMutation((id: string) => bscMockRepo.lockCycle(id), {
-    onSuccess: () => {
-      invalidateAll(qc);
-      NotificationMessage.success({ message: 'Cycle locked' });
+  return useMutation(
+    (id: string) =>
+      USE_BSC_API
+        ? lockBscScorecardTemplate(id)
+        : bscMockRepo.lockCycle(id),
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'Cycle locked' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Failed to lock cycle',
+        }),
     },
-    onError: (e: Error) =>
-      NotificationMessage.error({
-        message: e.message || 'Failed to lock cycle',
-      }),
-  });
+  );
+};
+
+export const useActivateBscCycle = () => {
+  const qc = useQueryClient();
+  return useMutation(
+    (id: string) =>
+      USE_BSC_API
+        ? activateBscScorecardTemplate(id)
+        : bscMockRepo.updateCycle(id, { isActive: true }),
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'Scorecard activated' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Failed to activate scorecard',
+        }),
+    },
+  );
 };
 
 export const useDeleteBscCycle = () => {
   const qc = useQueryClient();
-  return useMutation((id: string) => bscMockRepo.deleteCycle(id), {
-    onSuccess: () => {
-      invalidateAll(qc);
-      NotificationMessage.success({ message: 'BSC deleted' });
+  return useMutation(
+    (id: string) =>
+      USE_BSC_API
+        ? deleteBscScorecardTemplate(id)
+        : bscMockRepo.deleteCycle(id),
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'BSC deleted' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Failed to delete BSC',
+        }),
     },
-    onError: (e: Error) =>
-      NotificationMessage.error({
-        message: e.message || 'Failed to delete BSC',
-      }),
-  });
+  );
+};
+
+export const useAssignBscScorecard = () => {
+  const qc = useQueryClient();
+  return useMutation(
+    ({
+      scorecardId,
+      asOf,
+    }: {
+      scorecardId: string;
+      asOf?: string | null;
+    }) => assignBscScorecard(scorecardId, asOf),
+    {
+      onSuccess: (result, variables) => {
+        const people = mapAssignAssigneesToScorecards(result);
+        if (people.length) {
+          qc.setQueryData(
+            [BSC_QUERY_KEYS.scorecardAssignments, variables.scorecardId],
+            people,
+          );
+          qc.setQueryData(
+            [BSC_QUERY_KEYS.scorecards, { cycleId: variables.scorecardId }],
+            people,
+          );
+        }
+        invalidateAll(qc);
+        NotificationMessage.success({
+          message: 'Scorecard assigned',
+          description: `${result.created} created, ${result.updated} updated for ${result.userCount} user(s) (${result.period.periodLabel}).`,
+        });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Failed to assign scorecard',
+        }),
+    },
+  );
 };
 
 export const useCreateBscScorecard = () => {
   const qc = useQueryClient();
   return useMutation(
-    (input: AssignScorecardInput) => bscMockRepo.createScorecard(input),
+    async (input: AssignScorecardInput) => {
+      if (!USE_BSC_API) {
+        return bscMockRepo.createScorecard(input);
+      }
+      // BE assigns the whole scope in one call (not per-user).
+      const result = await assignBscScorecard(input.cycleId);
+      const stub: EmployeeScorecard = {
+        id: result.employeeScorecardIds[0] || result.scorecardId,
+        userId: input.userId,
+        userName: input.userName,
+        managerId: input.managerId,
+        departmentId: input.departmentId ?? null,
+        positionId: input.positionId ?? null,
+        cycleId: input.cycleId,
+        cycleLabel: '',
+        status: ScorecardStatus.Active,
+        targets: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      return stub;
+    },
     {
       onSuccess: () => {
         invalidateAll(qc);
-        NotificationMessage.success({ message: 'Scorecard created' });
+        if (!USE_BSC_API) {
+          NotificationMessage.success({ message: 'Scorecard created' });
+        }
       },
       onError: (e: Error) =>
         NotificationMessage.error({
@@ -246,7 +408,9 @@ export const useAppendIndividualBscKpis = () => {
   const qc = useQueryClient();
   return useMutation(
     (input: AppendIndividualKpisInput) =>
-      bscMockRepo.appendIndividualKpis(input),
+      USE_BSC_API
+        ? appendIndividualBscKpis(input)
+        : bscMockRepo.appendIndividualKpis(input),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -266,7 +430,9 @@ export const useRemoveIndividualBscKpi = () => {
   const qc = useQueryClient();
   return useMutation(
     ({ scorecardId, targetId }: { scorecardId: string; targetId: string }) =>
-      bscMockRepo.removeIndividualKpi(scorecardId, targetId),
+      USE_BSC_API
+        ? removeIndividualBscKpi(scorecardId, targetId)
+        : bscMockRepo.removeIndividualKpi(scorecardId, targetId),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -284,6 +450,11 @@ export const useSubmitBscForAck = () => {
   const qc = useQueryClient();
   return useMutation(
     (id: string) => {
+      if (USE_BSC_API) {
+        throw new Error(
+          'Acknowledgment is not available yet on the server. Scorecards become Active after assign.',
+        );
+      }
       const actorId = useAuthenticationStore.getState().userId;
       return bscMockRepo.submitForAck(id, actorId);
     },
@@ -304,6 +475,11 @@ export const useAcknowledgeBscScorecard = () => {
   const qc = useQueryClient();
   return useMutation(
     (id: string) => {
+      if (USE_BSC_API) {
+        throw new Error(
+          'Acknowledgment is not available yet on the server. Scorecards become Active after assign.',
+        );
+      }
       const actorId = useAuthenticationStore.getState().userId;
       return bscMockRepo.acknowledge(id, actorId);
     },
@@ -329,11 +505,16 @@ export const useReportBscKpis = () => {
     }: {
       scorecardId: string;
       reports: ReportKpiInput[];
-    }) => bscMockRepo.reportKpis(scorecardId, reports),
+    }) =>
+      USE_BSC_API
+        ? submitBscCheckIn(scorecardId, reports)
+        : bscMockRepo.reportKpis(scorecardId, reports),
     {
       onSuccess: () => {
         invalidateAll(qc);
-        NotificationMessage.success({ message: 'KPI values saved' });
+        if (!USE_BSC_API) {
+          NotificationMessage.success({ message: 'KPI values saved' });
+        }
       },
       onError: (e: Error) =>
         NotificationMessage.error({ message: e.message || 'Report failed' }),
@@ -344,14 +525,24 @@ export const useReportBscKpis = () => {
 export const useSubmitBscFinal = () => {
   const qc = useQueryClient();
   return useMutation(
-    (id: string) => {
+    async (id: string) => {
+      if (USE_BSC_API) {
+        // submitBscCheckIn already advances to PendingEval; reload only.
+        try {
+          return await getMyBscScorecardDetail(id);
+        } catch {
+          return { id } as any;
+        }
+      }
       const actorId = useAuthenticationStore.getState().userId;
       return bscMockRepo.submitFinal(id, actorId);
     },
     {
       onSuccess: () => {
         invalidateAll(qc);
-        NotificationMessage.success({ message: 'Submitted for evaluation' });
+        if (!USE_BSC_API) {
+          NotificationMessage.success({ message: 'Submitted for evaluation' });
+        }
       },
       onError: (e: Error) =>
         NotificationMessage.error({ message: e.message || 'Submit failed' }),
@@ -368,7 +559,10 @@ export const useAdjustBscReportedKpis = () => {
     }: {
       scorecardId: string;
       adjustments: AdjustReportedKpiInput[];
-    }) => bscMockRepo.adjustReportedKpis(scorecardId, adjustments),
+    }) =>
+      USE_BSC_API
+        ? adjustBscCheckInKpis(scorecardId, adjustments)
+        : bscMockRepo.adjustReportedKpis(scorecardId, adjustments),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -385,7 +579,7 @@ export const useAdjustBscReportedKpis = () => {
 export const useSetBscKpiApproval = () => {
   const qc = useQueryClient();
   return useMutation(
-    ({
+    async ({
       scorecardId,
       targetId,
       approved,
@@ -395,13 +589,30 @@ export const useSetBscKpiApproval = () => {
       targetId: string;
       approved: boolean;
       rejectionReason?: string;
-    }) =>
-      bscMockRepo.setKpiApproval(
-        scorecardId,
-        targetId,
-        approved,
-        rejectionReason,
-      ),
+    }) => {
+      if (!USE_BSC_API) {
+        return bscMockRepo.setKpiApproval(
+          scorecardId,
+          targetId,
+          approved,
+          rejectionReason,
+        );
+      }
+      if (approved) {
+        await approveBscCheckInKpi(scorecardId, targetId);
+      } else {
+        await rejectBscCheckInKpi(
+          scorecardId,
+          targetId,
+          rejectionReason || 'Rejected',
+        );
+      }
+      try {
+        return await getMyBscScorecardDetail(scorecardId);
+      } catch {
+        return { id: scorecardId } as any;
+      }
+    },
     {
       onSuccess: (result, vars) => {
         void result;
@@ -420,6 +631,9 @@ export const useFinalizeBscApprovals = () => {
   const qc = useQueryClient();
   return useMutation(
     (id: string) => {
+      if (USE_BSC_API) {
+        return finalizeBscCheckIn(id);
+      }
       const actorId = useAuthenticationStore.getState().userId;
       return bscMockRepo.finalizeApprovals(id, actorId);
     },
@@ -437,7 +651,7 @@ export const useFinalizeBscApprovals = () => {
 export const useLockBscEvaluation = () => {
   const qc = useQueryClient();
   return useMutation(
-    ({
+    async ({
       scorecardId,
       managerNote,
       evaluatorUserId,
@@ -445,12 +659,39 @@ export const useLockBscEvaluation = () => {
       scorecardId: string;
       managerNote: string;
       evaluatorUserId: string;
-    }) => bscMockRepo.lockEvaluation(scorecardId, managerNote, evaluatorUserId),
+    }) => {
+      if (USE_BSC_API) {
+        // BE finalize already scores; Completed + HRIS outbox are not exposed yet.
+        void managerNote;
+        void evaluatorUserId;
+        try {
+          const detail = await getMyBscScorecardDetail(scorecardId);
+          if (
+            detail.status === ScorecardStatus.Scored ||
+            detail.status === ScorecardStatus.Completed
+          ) {
+            return detail;
+          }
+        } catch {
+          /* fall through */
+        }
+        throw new Error(
+          'Locking evaluation to HRIS is not available yet. Finalize review to score on the server (status becomes Scored).',
+        );
+      }
+      return bscMockRepo.lockEvaluation(
+        scorecardId,
+        managerNote,
+        evaluatorUserId,
+      );
+    },
     {
       onSuccess: () => {
         invalidateAll(qc);
         NotificationMessage.success({
-          message: 'Evaluation locked — score pushed to HRIS (mock)',
+          message: USE_BSC_API
+            ? 'Score already finalized on the server'
+            : 'Evaluation locked — score pushed to HRIS (mock)',
         });
       },
       onError: (e: Error) =>

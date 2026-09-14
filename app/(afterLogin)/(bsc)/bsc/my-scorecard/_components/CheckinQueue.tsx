@@ -19,8 +19,11 @@ import {
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   useGetBscCycles,
+  useGetBscMyCheckInQueue,
+  useGetBscReviewCheckInQueue,
   useGetBscScorecards,
 } from '@/store/server/features/bsc/queries';
+import { USE_BSC_API } from '@/store/server/features/bsc/config';
 import {
   useAdjustBscReportedKpis,
   useFinalizeBscApprovals,
@@ -139,7 +142,19 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
         return;
       }
     }
-    for (const group of groupByScorecard(items)) {
+    // Only Self-step KPIs that have not already advanced
+    const eligible = items.filter(
+      (item) =>
+        item.role === 'self' && (item.target.evaluationStepIndex ?? 0) === 0,
+    );
+    if (!eligible.length) {
+      NotificationMessage.error({
+        message:
+          'Nothing to submit — these KPIs are already waiting for the next evaluator. Refresh Check-in.',
+      });
+      return;
+    }
+    for (const group of groupByScorecard(eligible)) {
       const scorecard = group[0].scorecard;
       await reportAsync({
         scorecardId: scorecard.id,
@@ -150,7 +165,10 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
           evidenceUrl: `https://mock.evidence/${scorecard.id}/${item.target.id}`,
         })),
       });
-      await submitAsync(scorecard.id);
+      // Live API submit already advances to PendingEval inside reportAsync.
+      if (!USE_BSC_API) {
+        await submitAsync(scorecard.id);
+      }
     }
     NotificationMessage.success({
       message: 'Check-in submitted',
@@ -747,7 +765,11 @@ function resolveCheckinActorId(userId?: string): string {
 export default function CheckinQueue({ inbox }: { inbox: CheckinInbox }) {
   const { userId } = useAuthenticationStore();
   const preferredActor = resolveCheckinActorId(userId);
-  const { data: scorecards, isLoading } = useGetBscScorecards();
+  const { data: scorecards, isLoading: scorecardsLoading } =
+    useGetBscScorecards();
+  const { data: myQueue, isLoading: myQueueLoading } = useGetBscMyCheckInQueue();
+  const { data: reviewQueue, isLoading: reviewQueueLoading } =
+    useGetBscReviewCheckInQueue();
   const { data: cycles } = useGetBscCycles();
 
   const cycleById = useMemo(() => {
@@ -756,11 +778,28 @@ export default function CheckinQueue({ inbox }: { inbox: CheckinInbox }) {
     return map;
   }, [cycles]);
 
+  const sourceScorecards = useMemo(() => {
+    if (!USE_BSC_API) return scorecards;
+    return inbox === 'assigned' ? reviewQueue : myQueue;
+  }, [inbox, scorecards, myQueue, reviewQueue]);
+
+  const isLoading = USE_BSC_API
+    ? inbox === 'assigned'
+      ? reviewQueueLoading
+      : myQueueLoading
+    : scorecardsLoading;
+
   const queue = useMemo(() => {
-    const primary = buildCheckinQueue(scorecards, preferredActor, cycleById);
+    const primary = buildCheckinQueue(
+      sourceScorecards,
+      preferredActor,
+      cycleById,
+      USE_BSC_API ? { trustServerQueue: true } : undefined,
+    );
+    if (USE_BSC_API) return primary;
     if (primary.length || preferredActor === 'demo-user') return primary;
     return buildCheckinQueue(scorecards, 'demo-user', cycleById);
-  }, [scorecards, preferredActor, cycleById]);
+  }, [sourceScorecards, preferredActor, cycleById, scorecards]);
 
   const selfItems = dedupeSelfCheckinItems(
     queue.filter((i) => i.role === 'self'),

@@ -11,8 +11,10 @@ import {
   useGetBscCycles,
   useGetBscKpiLibrary,
   useGetBscRolePerspectives,
+  useGetBscScorecardResults,
   useGetBscScorecards,
 } from '@/store/server/features/bsc/queries';
+import { USE_BSC_API } from '@/store/server/features/bsc/config';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
@@ -23,7 +25,7 @@ import {
   TargetLogic,
 } from '@/types/bsc';
 import { normalizeRatio } from '@/utils/bsc/scoring';
-import { targetScorePercent } from '@/utils/bsc/rollup';
+import { formatScore, targetScorePercent } from '@/utils/bsc/rollup';
 import {
   filterScorecardsInSeries,
   scorecardContextLabel,
@@ -157,6 +159,14 @@ export default function MyBscScorecardPage() {
 
   const mine = useMemo(() => {
     const list = scorecards || [];
+    if (USE_BSC_API) {
+      // /bsc/my-scorecard is already scoped to the logged-in token user.
+      // Do not fall back to demo-user — that empties the UI for real assignees
+      // when auth store userId does not exactly match row.userId.
+      if (!userId) return list;
+      const matched = list.filter((s) => s.userId === userId);
+      return matched.length ? matched : list;
+    }
     if (userId) {
       const matched = list.filter((s) => s.userId === userId);
       if (matched.length) return matched;
@@ -215,17 +225,20 @@ export default function MyBscScorecardPage() {
   const visibleScorecards = useMemo(() => {
     if (!mine.length) return [];
     if (!isHistoryFilterActive) {
+      // Keep every Active assignment so the Scorecard filter can switch
+      // between company / department / role templates in the same period.
+      const active = mine.filter((s) => s.status === ScorecardStatus.Active);
+      if (active.length) return active;
+
       const thisMonth = currentMonthName();
       const year = currentYear();
-      const current =
-        mine.find(
-          (s) =>
-            s.periodMonthName?.toLowerCase() === thisMonth.toLowerCase() &&
-            (s.periodYear == null || s.periodYear === year),
-        ) ||
-        mine.find((s) => s.status === ScorecardStatus.Active) ||
-        mine[0];
-      return current ? [current] : [];
+      const byCalendarMonth = mine.filter(
+        (s) =>
+          s.periodMonthName?.toLowerCase() === thisMonth.toLowerCase() &&
+          (s.periodYear == null || s.periodYear === year),
+      );
+      if (byCalendarMonth.length) return byCalendarMonth;
+      return mine;
     }
     if (selectedMonth?.name) {
       const monthName = selectedMonth.name.toLowerCase();
@@ -258,12 +271,14 @@ export default function MyBscScorecardPage() {
   ]);
 
   const scorecardOptions = useMemo(() => {
-    const pool = isHistoryFilterActive ? visibleScorecards : mine;
-    return pool.map((card) => ({
+    return visibleScorecards.map((card) => ({
       value: card.id,
       label: scorecardContextLabel(card, cycleById.get(card.cycleId)),
     }));
-  }, [mine, visibleScorecards, isHistoryFilterActive, cycleById]);
+  }, [visibleScorecards, cycleById]);
+
+  // Stable key so refetches with the same ids do not reset the user's pick.
+  const scorecardOptionKey = scorecardOptions.map((o) => o.value).join('|');
 
   useEffect(() => {
     if (!scorecardOptions.length) {
@@ -272,24 +287,26 @@ export default function MyBscScorecardPage() {
     }
     setSelectedScorecardId((prev) => {
       if (prev && scorecardOptions.some((o) => o.value === prev)) return prev;
-      const preferred =
-        visibleScorecards[0]?.id ||
-        mine.find((s) => s.status === ScorecardStatus.Active)?.id ||
-        scorecardOptions[0]?.value;
-      return preferred;
+      return scorecardOptions[0]?.value;
     });
-  }, [scorecardOptions, visibleScorecards, mine]);
+    // scorecardOptionKey tracks option identity; scorecardOptions is read for lookup.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scorecardOptionKey]);
 
   const activeScorecard: EmployeeScorecard | null = useMemo(() => {
     if (selectedScorecardId) {
       return (
-        mine.find((s) => s.id === selectedScorecardId) ||
         visibleScorecards.find((s) => s.id === selectedScorecardId) ||
+        mine.find((s) => s.id === selectedScorecardId) ||
         null
       );
     }
     return visibleScorecards[0] || null;
   }, [selectedScorecardId, mine, visibleScorecards]);
+
+  const { data: periodResults } = useGetBscScorecardResults(
+    activeScorecard?.id || '',
+  );
 
   const cycle = useMemo(
     () =>
@@ -471,6 +488,29 @@ export default function MyBscScorecardPage() {
     [activeScorecard],
   );
 
+  const resultsSummary = useMemo(() => {
+    if (!USE_BSC_API || !periodResults) return null;
+    const current = periodResults.current as
+      | { compositeScore?: number | null; periodLabel?: string; status?: string }
+      | undefined;
+    const average =
+      typeof periodResults.averageScore === 'number'
+        ? periodResults.averageScore
+        : null;
+    const historyLen = Array.isArray(periodResults.history)
+      ? periodResults.history.length
+      : 0;
+    if (current?.compositeScore == null && average == null) return null;
+    return {
+      periodLabel: current?.periodLabel || null,
+      currentScore:
+        current?.compositeScore != null ? Number(current.compositeScore) : null,
+      averageScore: average,
+      historyLen,
+      status: current?.status || null,
+    };
+  }, [periodResults]);
+
   const myScorecardBody = (
     <div data-cy="bsc-my-scorecard-tab-content">
       {loading ? (
@@ -489,6 +529,40 @@ export default function MyBscScorecardPage() {
         </div>
       ) : (
         <div data-cy="page-div-497" className="flex flex-col gap-4">
+          {resultsSummary ? (
+            <div
+              className="flex flex-wrap items-center gap-3 rounded-xl bg-[#F5F7FB] px-4 py-3 text-sm text-[#4d4d4d]"
+              data-cy="bsc-my-scorecard-results-summary"
+            >
+              {resultsSummary.periodLabel ? (
+                <span data-cy="bsc-my-scorecard-results-period">
+                  {resultsSummary.periodLabel}
+                </span>
+              ) : null}
+              {resultsSummary.currentScore != null ? (
+                <span
+                  className="font-semibold text-[#262626]"
+                  data-cy="bsc-my-scorecard-results-current"
+                >
+                  Period score {formatScore(resultsSummary.currentScore)}
+                </span>
+              ) : (
+                <span data-cy="bsc-my-scorecard-results-pending">
+                  {resultsSummary.status || 'In progress'} — not scored yet
+                </span>
+              )}
+              {resultsSummary.averageScore != null ? (
+                <span data-cy="bsc-my-scorecard-results-average">
+                  Avg {formatScore(resultsSummary.averageScore)}
+                  {resultsSummary.historyLen
+                    ? ` across ${resultsSummary.historyLen} period${
+                        resultsSummary.historyLen === 1 ? '' : 's'
+                      }`
+                    : ''}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
           <PerspectiveKpiCard
             title="KPI Progress"
             kpis={kpiRows}

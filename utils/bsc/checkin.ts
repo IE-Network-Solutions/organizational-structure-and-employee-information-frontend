@@ -83,7 +83,8 @@ function isCheckinOpenStatus(status: ScorecardStatus): boolean {
   return (
     status === ScorecardStatus.Active ||
     status === ScorecardStatus.NeedsResubmit ||
-    status === ScorecardStatus.PendingEval
+    status === ScorecardStatus.PendingEval ||
+    status === ScorecardStatus.Draft
   );
 }
 
@@ -91,19 +92,25 @@ function isCheckinOpenStatus(status: ScorecardStatus): boolean {
  * Build the Check-in inbox for the signed-in actor:
  * - self: KPIs where current step is self and scorecard allows reporting
  * - evaluator: KPIs where current step is manager/named user and prior result exists
+ *
+ * When `trustServerQueue` is true (live my-queue / review-queue), the backend already
+ * filtered actors and windows — only keep light status/step checks so a mismatched
+ * auth-store userId cannot wipe the inbox for real assignees.
  */
 export function buildCheckinQueue(
   scorecards: EmployeeScorecard[] | undefined,
   actorId: string,
   cycleById?: Map<string, EvaluationCycle>,
+  options?: { trustServerQueue?: boolean },
 ): CheckinItem[] {
-  if (!actorId) return [];
+  const trustServerQueue = Boolean(options?.trustServerQueue);
+  if (!actorId && !trustServerQueue) return [];
   const items: CheckinItem[] = [];
 
   for (const scorecard of scorecards || []) {
     if (!isCheckinOpenStatus(scorecard.status)) continue;
     const cycle = cycleById?.get(scorecard.cycleId);
-    if (!isScorecardTemplateLive(cycle)) continue;
+    if (!trustServerQueue && !isScorecardTemplateLive(cycle)) continue;
     const context = scorecardContextLabel(scorecard, cycle);
     const period = periodLabel(scorecard);
 
@@ -111,17 +118,28 @@ export function buildCheckinQueue(
       const flow = resolveEvaluationFlow(target);
       const stepIndex = currentStepIndex(target);
       const step = flow[stepIndex];
-      if (!step || !isActorForStep(scorecard, step, actorId)) continue;
+      if (!step) continue;
+
+      const actorForCard = actorId || scorecard.userId;
+      if (
+        !trustServerQueue &&
+        !isActorForStep(scorecard, step, actorForCard)
+      ) {
+        continue;
+      }
 
       const isSelf = step.kind === 'self';
       if (isSelf) {
         if (
+          !trustServerQueue &&
           scorecard.status !== ScorecardStatus.Active &&
-          scorecard.status !== ScorecardStatus.NeedsResubmit
+          scorecard.status !== ScorecardStatus.NeedsResubmit &&
+          scorecard.status !== ScorecardStatus.Draft
         ) {
           continue;
         }
         if (
+          !trustServerQueue &&
           !isCheckInWindowOpen(target.cadence, target.checkInDay, dayjs(), {
             effectiveFrom: cycle?.effectiveFrom || cycle?.startDate,
             endDate: cycle?.endDate,
@@ -139,15 +157,26 @@ export function buildCheckinQueue(
         }
         // Skip if already moved past self with a submitted actual (unless rejected)
         if (
+          !trustServerQueue &&
           (target.evaluationStepIndex ?? 0) > 0 &&
           target.approvalStatus !== KpiApprovalStatus.Rejected
         ) {
           continue;
         }
       } else {
-        if (scorecard.status !== ScorecardStatus.PendingEval) continue;
-        if (target.approvalStatus !== KpiApprovalStatus.Pending) continue;
-        if (target.actualValue == null) continue;
+        if (
+          !trustServerQueue &&
+          scorecard.status !== ScorecardStatus.PendingEval
+        ) {
+          continue;
+        }
+        if (
+          !trustServerQueue &&
+          target.approvalStatus !== KpiApprovalStatus.Pending
+        ) {
+          continue;
+        }
+        if (target.actualValue == null && !trustServerQueue) continue;
       }
 
       const schedule = [

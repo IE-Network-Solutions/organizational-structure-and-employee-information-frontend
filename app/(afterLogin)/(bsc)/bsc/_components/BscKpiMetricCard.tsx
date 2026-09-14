@@ -123,9 +123,15 @@ type OverflowChipRowProps = {
   items: string[];
   onViewMore?: () => void;
   dataCy: string;
+  emptyLabel?: string;
 };
 
-function OverflowChipRow({ items, onViewMore, dataCy }: OverflowChipRowProps) {
+function OverflowChipRow({
+  items,
+  onViewMore,
+  dataCy,
+  emptyLabel,
+}: OverflowChipRowProps) {
   const visibleRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
   const moreMeasureRef = useRef<HTMLButtonElement>(null);
@@ -171,7 +177,7 @@ function OverflowChipRow({ items, onViewMore, dataCy }: OverflowChipRowProps) {
         className="text-[12px] text-[#8F94A3]"
         data-cy={`${dataCy}-empty`}
       >
-        None assigned
+        {emptyLabel || 'None assigned'}
       </span>
     );
   }
@@ -235,6 +241,7 @@ type CountCardProps = {
   dataCy: string;
   onViewMore?: () => void;
   className?: string;
+  emptyLabel?: string;
 };
 
 /** Count tile matching KPI card chrome (Departments, Roles, People). */
@@ -244,6 +251,7 @@ export function BscKpiCountCard({
   dataCy,
   onViewMore,
   className = '',
+  emptyLabel,
 }: CountCardProps) {
   return (
     <div
@@ -279,6 +287,7 @@ export function BscKpiCountCard({
         items={items}
         onViewMore={onViewMore}
         dataCy={dataCy}
+        emptyLabel={emptyLabel}
       />
     </div>
   );

@@ -17,7 +17,17 @@ export function isScorecardEvaluated(scorecard: EmployeeScorecard): boolean {
 export function scorecardTotal(scorecard: EmployeeScorecard): number {
   if (!isScorecardEvaluated(scorecard)) return 0;
   if (scorecard.finalEvaluation?.compositeScore != null) {
-    return Math.min(Number(scorecard.finalEvaluation.compositeScore), 100);
+    return Number(scorecard.finalEvaluation.compositeScore);
+  }
+  const fromServerScores = scorecard.targets.every(
+    (t) => t.score != null && Number.isFinite(Number(t.score)),
+  );
+  if (fromServerScores && scorecard.targets.length) {
+    const weighted = scorecard.targets.reduce(
+      (sum, t) => sum + (Number(t.score) * t.weightPercentage) / 100,
+      0,
+    );
+    return weighted;
   }
   const result = computeCompositeScore(scorecard.targets);
   let total = 0;
@@ -118,6 +128,9 @@ export function departmentRollups(cards: EmployeeScorecard[]): RollupSummary[] {
 
 /** Achievement % for a single target; null when not yet reported. */
 export function targetScorePercent(target: ScorecardKpiTarget): number | null {
+  if (target.score != null && Number.isFinite(Number(target.score))) {
+    return Number(target.score);
+  }
   if (target.actualValue == null) return null;
   const { ratio } = normalizeRatio(
     target.actualValue,

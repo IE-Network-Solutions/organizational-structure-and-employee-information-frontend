@@ -33,9 +33,13 @@ export function scorecardSeriesKey(
 
 export function periodLabel(card: EmployeeScorecard): string {
   if (card.periodMonthName) {
-    return card.periodYear
-      ? `${card.periodMonthName} ${card.periodYear}`
-      : card.periodMonthName;
+    const alreadyHasYear =
+      card.periodYear != null &&
+      String(card.periodMonthName).includes(String(card.periodYear));
+    if (card.periodYear != null && !alreadyHasYear) {
+      return `${card.periodMonthName} ${card.periodYear}`;
+    }
+    return card.periodMonthName;
   }
   return card.cycleLabel || 'Period';
 }

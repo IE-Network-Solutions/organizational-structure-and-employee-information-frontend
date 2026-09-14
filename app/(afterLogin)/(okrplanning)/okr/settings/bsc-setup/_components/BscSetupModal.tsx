@@ -30,12 +30,14 @@ import CustomButton from '@/components/common/buttons/customButton';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
 import { unitTagClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/TargetValueCell';
 import {
+  useAssignBscScorecard,
   useCreateBscCycle,
   useCreateBscScorecard,
   useSaveBscRoleKpis,
   useSaveBscRolePerspectives,
   useUpdateBscCycle,
 } from '@/store/server/features/bsc/mutation';
+import { USE_BSC_API } from '@/store/server/features/bsc/config';
 import {
   useGetBscKpiLibrary,
   useGetBscPerspectiveCatalog,
@@ -234,6 +236,28 @@ function seedPerspectiveRows(names: string[]): PerspectiveRow[] {
   });
 }
 
+/** Split 100% across KPI ids (last row absorbs remainder). */
+function splitWeightMap(ids: string[]): Record<string, number> {
+  const n = ids.length;
+  if (!n) return {};
+  const base = Math.floor((100 / n) * 100) / 100;
+  const map: Record<string, number> = {};
+  ids.forEach((id, index) => {
+    if (index < n - 1) map[id] = base;
+    else map[id] = Math.round((100 - base * (n - 1)) * 100) / 100;
+  });
+  return map;
+}
+
+/**
+ * Ant Design Form.Item + Input stringifies object values and corrupts maps like
+ * measureWeights when the field unmounts between wizard steps. Store objects
+ * via setFieldsValue / getFieldValue without an Input child.
+ */
+function FormObjectField(_props: { value?: unknown; onChange?: (v: unknown) => void }) {
+  return null;
+}
+
 /**
  * Standard BSC cascade (Kaplan & Norton):
  * 1) Define the scorecard (identity, active, effective date)
@@ -269,6 +293,7 @@ export default function BscSetupModal() {
   const savePerspectives = useSaveBscRolePerspectives();
   const saveRoleKpis = useSaveBscRoleKpis();
   const createScorecard = useCreateBscScorecard();
+  const assignScorecard = useAssignBscScorecard();
   const actorUserId = useAuthenticationStore((s) => s.userId);
   const editPrefillKeyRef = useRef<string | null>(null);
 
@@ -532,15 +557,7 @@ export default function BscSetupModal() {
     if (!setupModalOpen || !editingConfig || !kpisFetched) return;
     if (editPrefillKeyRef.current === editingConfig.id) return;
 
-    const configKpis = (allKpis || []).filter(
-      (kpi) => kpi.evaluationConfigId === editingConfig.id,
-    );
-    const byKey = new Map<string, KpiLibraryItem>();
-    for (const kpi of configKpis) {
-      const key = `${kpi.perspective}::${kpi.name}`;
-      if (!byKey.has(key)) byKey.set(key, kpi);
-    }
-
+    const templateLines = editingConfig.templateKpis || [];
     const selectedIds: string[] = [];
     const measureWeights: Record<string, number> = {};
     const measureTargets: Record<string, number> = {};
@@ -549,36 +566,80 @@ export default function BscSetupModal() {
     const measureCadences: Record<string, BscCadence> = {};
     const measureCheckInDays: Record<string, number> = {};
 
-    for (const catalogKpi of uniqueCatalogKpis) {
-      const existing = byKey.get(
-        `${catalogKpi.perspective}::${catalogKpi.name}`,
+    if (templateLines.length) {
+      for (const line of templateLines) {
+        const catalogKpi =
+          uniqueCatalogKpis.find((kpi) => kpi.id === line.kpiLibraryId) ||
+          (allKpis || []).find((kpi) => kpi.id === line.kpiLibraryId);
+        if (!catalogKpi && !line.kpiLibraryId) continue;
+        const id = catalogKpi?.id || line.kpiLibraryId;
+        selectedIds.push(id);
+        if (line.weightPercentage > 0) {
+          measureWeights[id] = line.weightPercentage;
+        }
+        if (line.targetValue != null) {
+          measureTargets[id] = line.targetValue;
+        }
+        if (line.worstCase != null) {
+          measureWorstCases[id] = line.worstCase;
+        }
+        if (line.bestCase != null) {
+          measureBestCases[id] = line.bestCase;
+        }
+        if (isKpiCheckInCadence(line.cadence)) {
+          measureCadences[id] = line.cadence;
+        }
+        if (line.checkInDay != null) {
+          measureCheckInDays[id] = line.checkInDay;
+        }
+      }
+    } else {
+      // Legacy mock: match by evaluationConfigId + name
+      const configKpis = (allKpis || []).filter(
+        (kpi) => kpi.evaluationConfigId === editingConfig.id,
       );
-      if (!existing) continue;
-      selectedIds.push(catalogKpi.id);
-      if (existing.weight > 0) measureWeights[catalogKpi.id] = existing.weight;
-      if (existing.defaultTarget != null) {
-        measureTargets[catalogKpi.id] = existing.defaultTarget;
+      const byKey = new Map<string, KpiLibraryItem>();
+      for (const kpi of configKpis) {
+        const key = `${kpi.perspective}::${kpi.name}`;
+        if (!byKey.has(key)) byKey.set(key, kpi);
       }
-      if (existing.worstCase != null) {
-        measureWorstCases[catalogKpi.id] = existing.worstCase;
-      }
-      if (existing.bestCase != null) {
-        measureBestCases[catalogKpi.id] = existing.bestCase;
-      }
-      if (isKpiCheckInCadence(existing.cadence)) {
-        measureCadences[catalogKpi.id] = existing.cadence;
-      }
-      if (existing.checkInDay != null) {
-        measureCheckInDays[catalogKpi.id] = existing.checkInDay;
+
+      for (const catalogKpi of uniqueCatalogKpis) {
+        const existing = byKey.get(
+          `${catalogKpi.perspective}::${catalogKpi.name}`,
+        );
+        if (!existing) continue;
+        selectedIds.push(catalogKpi.id);
+        if (existing.weight > 0) measureWeights[catalogKpi.id] = existing.weight;
+        if (existing.defaultTarget != null) {
+          measureTargets[catalogKpi.id] = existing.defaultTarget;
+        }
+        if (existing.worstCase != null) {
+          measureWorstCases[catalogKpi.id] = existing.worstCase;
+        }
+        if (existing.bestCase != null) {
+          measureBestCases[catalogKpi.id] = existing.bestCase;
+        }
+        if (isKpiCheckInCadence(existing.cadence)) {
+          measureCadences[catalogKpi.id] = existing.cadence;
+        }
+        if (existing.checkInDay != null) {
+          measureCheckInDays[catalogKpi.id] = existing.checkInDay;
+        }
       }
     }
 
     const activeNames = [
       ...new Set(
         selectedIds
-          .map(
-            (id) => uniqueCatalogKpis.find((kpi) => kpi.id === id)?.perspective,
-          )
+          .map((id) => {
+            const fromCatalog = uniqueCatalogKpis.find((kpi) => kpi.id === id);
+            if (fromCatalog?.perspective) return fromCatalog.perspective;
+            return (
+              templateLines.find((line) => line.kpiLibraryId === id)
+                ?.perspective || null
+            );
+          })
           .filter((name): name is string => Boolean(name)),
       ),
     ];
@@ -1050,10 +1111,46 @@ export default function BscSetupModal() {
       byPerspective.set(kpi.perspective, list);
     }
 
+    // Prefer live form store (survives step changes) over possibly stale watch.
+    const weightsFromForm =
+      (form.getFieldValue('measureWeights') as Record<
+        string,
+        number | null | undefined
+      >) || {};
+    const weights =
+      weightsFromForm && typeof weightsFromForm === 'object'
+        ? weightsFromForm
+        : measureWeights;
+    const targetsFromForm =
+      (form.getFieldValue('measureTargets') as Record<
+        string,
+        number | null | undefined
+      >) || measureTargets;
+    const worstFromForm =
+      (form.getFieldValue('measureWorstCases') as Record<
+        string,
+        number | null | undefined
+      >) || measureWorstCases;
+    const bestFromForm =
+      (form.getFieldValue('measureBestCases') as Record<
+        string,
+        number | null | undefined
+      >) || measureBestCases;
+    const cadencesFromForm =
+      (form.getFieldValue('measureCadences') as Record<
+        string,
+        BscCadence | null | undefined
+      >) || measureCadences;
+    const checkInDaysFromForm =
+      (form.getFieldValue('measureCheckInDays') as Record<
+        string,
+        number | null | undefined
+      >) || measureCheckInDays;
+
     const rows: MeasureRow[] = [];
     for (const [perspective, kpis] of byPerspective) {
       for (const kpi of kpis) {
-        const weight = Number(measureWeights[kpi.id] || 0);
+        const weight = Number(weights[kpi.id] || 0);
         rows.push({
           kpiId: kpi.id,
           name: kpi.name,
@@ -1064,26 +1161,52 @@ export default function BscSetupModal() {
           measurementUnit: kpi.measurementUnit,
           defaultTarget: kpi.defaultTarget,
           targetValue:
-            measureTargets[kpi.id] != null
-              ? Number(measureTargets[kpi.id])
+            targetsFromForm[kpi.id] != null
+              ? Number(targetsFromForm[kpi.id])
               : (kpi.defaultTarget ?? null),
           worstCase:
-            measureWorstCases[kpi.id] != null
-              ? Number(measureWorstCases[kpi.id])
+            worstFromForm[kpi.id] != null
+              ? Number(worstFromForm[kpi.id])
               : (kpi.worstCase ?? null),
           bestCase:
-            measureBestCases[kpi.id] != null
-              ? Number(measureBestCases[kpi.id])
+            bestFromForm[kpi.id] != null
+              ? Number(bestFromForm[kpi.id])
               : (kpi.bestCase ?? null),
-          cadence: isKpiCheckInCadence(measureCadences[kpi.id])
-            ? measureCadences[kpi.id]
+          cadence: isKpiCheckInCadence(cadencesFromForm[kpi.id])
+            ? cadencesFromForm[kpi.id]
             : null,
           checkInDay:
-            measureCheckInDays[kpi.id] != null
-              ? Number(measureCheckInDays[kpi.id])
+            checkInDaysFromForm[kpi.id] != null
+              ? Number(checkInDaysFromForm[kpi.id])
               : null,
         });
       }
+    }
+    return rows;
+  };
+
+  /** Ensure KPI weights sum to 100 before API create/update. */
+  const ensureMeasureRowsForApi = (): MeasureRow[] => {
+    let rows = buildMeasureRows();
+    const sum = rows.reduce((s, r) => s + Number(r.weight || 0), 0);
+    if (!rows.length) return rows;
+
+    if (Math.abs(sum - 100) > 0.01) {
+      const ids = rows.map((r) => r.kpiId!).filter(Boolean);
+      const fixed = splitWeightMap(ids);
+      form.setFieldsValue({ measureWeights: fixed });
+      rows = buildMeasureRows();
+    }
+
+    const check = validateWeights(
+      rows.map((r) => Number(r.weight || 0)),
+      rows.map((r) => r.perspective as string),
+    );
+    if (!check.valid) {
+      NotificationMessage.error({
+        message: check.message || 'KPI weights must sum to 100%',
+      });
+      throw new Error(check.message || 'KPI weights must sum to 100%');
     }
     return rows;
   };
@@ -1105,6 +1228,23 @@ export default function BscSetupModal() {
         });
         // Prefill targets from catalog defaults; user may overwrite on Weights
         seedMeasureTargetsFromCatalog();
+        // Prefill even KPI weights when none are set yet (avoids POST weight: 0).
+        const existingWeights =
+          (form.getFieldValue('measureWeights') as Record<
+            string,
+            number | null | undefined
+          >) || {};
+        const selected = uniqueCatalogKpis.filter((kpi) =>
+          selectedKpiIds.includes(kpi.id),
+        );
+        const hasAnyWeight = selected.some(
+          (kpi) => Number(existingWeights[kpi.id] || 0) > 0,
+        );
+        if (!hasAnyWeight && selected.length) {
+          form.setFieldsValue({
+            measureWeights: splitWeightMap(selected.map((kpi) => kpi.id)),
+          });
+        }
       }
       if (current === 3) {
         await validateWeightsStep();
@@ -1287,10 +1427,42 @@ export default function BscSetupModal() {
     if (!editingConfig) return;
     const values = form.getFieldsValue(true);
     const payload = buildConfigPayload(values);
-    const measureRows = buildMeasureRows();
+    const measureRows = USE_BSC_API
+      ? ensureMeasureRowsForApi()
+      : buildMeasureRows();
 
     setSavingAll(true);
     try {
+      if (USE_BSC_API) {
+        const flowMap = (values.kpiEvaluationFlows || {}) as Record<
+          string,
+          BscEvaluatorStep[]
+        >;
+        await updateConfig.mutateAsync({
+          id: editingConfig.id,
+          input: {
+            ...payload,
+            templateKpis: measureRows.map((row) => ({
+              kpiLibraryId: row.kpiId!,
+              weightPercentage: Number(row.weight),
+              targetValue: Number(row.targetValue),
+              worstCase: row.worstCase ?? undefined,
+              bestCase: row.bestCase ?? undefined,
+              cadence: row.cadence ?? null,
+              checkInDay: row.checkInDay ?? null,
+              evaluationFlow: normalizeEvaluationFlow(flowMap[row.kpiId!]),
+            })),
+          },
+        });
+        setSelectedConfigId(editingConfig.id);
+        await assignScorecard.mutateAsync({
+          scorecardId: editingConfig.id,
+          asOf: payload.effectiveFrom || payload.startDate,
+        });
+        handleClose();
+        return;
+      }
+
       await updateConfig.mutateAsync({ id: editingConfig.id, input: payload });
       setSelectedConfigId(editingConfig.id);
       await cascadeKpisToScope(editingConfig.id, values, measureRows, {
@@ -1305,10 +1477,39 @@ export default function BscSetupModal() {
   const handleCreateWithCascade = async () => {
     const values = form.getFieldsValue(true);
     const payload = buildConfigPayload(values);
-    const measureRows = buildMeasureRows();
+    const measureRows = USE_BSC_API
+      ? ensureMeasureRowsForApi()
+      : buildMeasureRows();
 
     setSavingAll(true);
     try {
+      if (USE_BSC_API) {
+        const flowMap = (values.kpiEvaluationFlows || {}) as Record<
+          string,
+          BscEvaluatorStep[]
+        >;
+        const created = await createConfig.mutateAsync({
+          ...payload,
+          templateKpis: measureRows.map((row) => ({
+            kpiLibraryId: row.kpiId!,
+            weightPercentage: Number(row.weight),
+            targetValue: Number(row.targetValue),
+            worstCase: row.worstCase ?? undefined,
+            bestCase: row.bestCase ?? undefined,
+            cadence: row.cadence ?? null,
+            checkInDay: row.checkInDay ?? null,
+            evaluationFlow: normalizeEvaluationFlow(flowMap[row.kpiId!]),
+          })),
+        });
+        setSelectedConfigId(created.id);
+        await assignScorecard.mutateAsync({
+          scorecardId: created.id,
+          asOf: created.effectiveFrom || payload.effectiveFrom || payload.startDate,
+        });
+        handleClose();
+        return;
+      }
+
       const created = await createConfig.mutateAsync(payload);
       setSelectedConfigId(created.id);
       await cascadeKpisToScope(
@@ -1333,7 +1534,8 @@ export default function BscSetupModal() {
     updateConfig.isLoading ||
     savePerspectives.isLoading ||
     saveRoleKpis.isLoading ||
-    createScorecard.isLoading;
+    createScorecard.isLoading ||
+    assignScorecard.isLoading;
 
   return (
     <Modal
@@ -1780,25 +1982,28 @@ export default function BscSetupModal() {
             </p>
 
             <Form.Item name="perspectiveRows" hidden>
-              <Input />
+              <FormObjectField />
             </Form.Item>
             <Form.Item name="measureWeights" hidden>
-              <Input />
+              <FormObjectField />
             </Form.Item>
             <Form.Item name="measureTargets" hidden>
-              <Input />
+              <FormObjectField />
             </Form.Item>
             <Form.Item name="measureWorstCases" hidden>
-              <Input />
+              <FormObjectField />
             </Form.Item>
             <Form.Item name="measureBestCases" hidden>
-              <Input />
+              <FormObjectField />
             </Form.Item>
             <Form.Item name="measureCadences" hidden>
-              <Input />
+              <FormObjectField />
             </Form.Item>
             <Form.Item name="measureCheckInDays" hidden>
-              <Input />
+              <FormObjectField />
+            </Form.Item>
+            <Form.Item name="kpiEvaluationFlows" hidden>
+              <FormObjectField />
             </Form.Item>
 
             {!selectedKpis.length ? (
@@ -2118,10 +2323,6 @@ export default function BscSetupModal() {
               Define who evaluates each selected KPI, in order. Any combination
               of self, direct manager, and specific people is allowed.
             </p>
-
-            <Form.Item name="kpiEvaluationFlows" hidden>
-              <Input />
-            </Form.Item>
 
             {!selectedKpis.length ? (
               <p

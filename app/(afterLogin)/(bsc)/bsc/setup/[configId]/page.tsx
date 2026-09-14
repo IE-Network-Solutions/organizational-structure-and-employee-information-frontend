@@ -11,9 +11,12 @@ import { BscKpiCountCard } from '@/app/(afterLogin)/(bsc)/bsc/_components/BscKpi
 import {
   useGetBscCycle,
   useGetBscKpiLibrary,
-  useGetBscScorecards,
+  useGetBscPerspectiveCatalog,
+  useGetBscScorecardAssignments,
 } from '@/store/server/features/bsc/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   BscScopeTarget,
@@ -37,6 +40,62 @@ const blueTagClassName =
   'm-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]';
 
 type ListKind = 'departments' | 'roles' | 'people';
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function looksLikeUuid(value?: string | null): boolean {
+  return Boolean(value && UUID_RE.test(value));
+}
+
+function asNamedList(data: unknown): Array<{ id: string; name: string }> {
+  const raw = Array.isArray(data)
+    ? data
+    : Array.isArray((data as { items?: unknown })?.items)
+      ? ((data as { items: unknown[] }).items)
+      : [];
+  return raw
+    .map((row: any) => ({
+      id: String(row?.id || ''),
+      name: String(
+        row?.name ||
+          row?.departmentName ||
+          row?.positionName ||
+          row?.title ||
+          '',
+      ).trim(),
+    }))
+    .filter((row) => row.id);
+}
+
+function resolveNamedLabels(
+  ids: string[] | undefined,
+  labels: string[] | undefined,
+  nameById: Map<string, string>,
+): string[] {
+  const count = Math.max(ids?.length || 0, labels?.length || 0);
+  const resolved: string[] = [];
+  for (let i = 0; i < count; i += 1) {
+    const id = ids?.[i];
+    const label = labels?.[i];
+    const fromOrg = id ? nameById.get(id) : undefined;
+    if (fromOrg) {
+      resolved.push(fromOrg);
+      continue;
+    }
+    if (label && !looksLikeUuid(label)) {
+      resolved.push(label);
+      continue;
+    }
+    if (id && !looksLikeUuid(id)) {
+      resolved.push(id);
+      continue;
+    }
+    if (label) resolved.push(label);
+    else if (id) resolved.push(id);
+  }
+  return resolved.filter(Boolean);
+}
 
 function resolveProfileImageSrc(profileImage: unknown): string | undefined {
   if (!profileImage || typeof profileImage !== 'string') return undefined;
@@ -128,16 +187,39 @@ export default function BscScorecardDetailPage() {
   const [listSearch, setListSearch] = useState('');
 
   const { data: config, isLoading: configLoading } = useGetBscCycle(configId);
-  const { data: allKpis, isLoading: kpisLoading } = useGetBscKpiLibrary({
-    evaluationConfigId: configId,
-  });
+  // Catalog enrichment only (names / perspective) — not the scorecard KPI set.
+  const { data: catalogKpis, isLoading: kpisLoading } = useGetBscKpiLibrary();
+  const { data: perspectiveCatalog } = useGetBscPerspectiveCatalog();
   const { data: peopleScorecards, isLoading: peopleLoading } =
-    useGetBscScorecards({ cycleId: configId });
+    useGetBscScorecardAssignments(configId);
   const { data: allUsers } = useGetAllUsers();
+  const { data: departmentsData } = useGetDepartments();
+  const { data: positionsData } = useGetAllPositions();
+
+  const departmentNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const dept of asNamedList(departmentsData)) {
+      if (dept.name) map.set(dept.id, dept.name);
+    }
+    return map;
+  }, [departmentsData]);
+
+  const positionNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const pos of asNamedList(positionsData)) {
+      if (pos.name) map.set(pos.id, pos.name);
+    }
+    return map;
+  }, [positionsData]);
 
   const profileImageByUserId = useMemo(() => {
     const map = new Map<string, string>();
-    for (const user of allUsers?.items || []) {
+    const list = Array.isArray(allUsers?.items)
+      ? allUsers.items
+      : Array.isArray(allUsers)
+        ? allUsers
+        : [];
+    for (const user of list) {
       const src = resolveProfileImageSrc(user?.profileImage);
       if (user?.id && src) map.set(user.id, src);
     }
@@ -145,17 +227,92 @@ export default function BscScorecardDetailPage() {
   }, [allUsers]);
 
   const uniqueKpis = useMemo(() => {
+    const catalogById = new Map(
+      (catalogKpis || []).map((kpi) => [kpi.id, kpi]),
+    );
+    const perspectiveNameById = new Map(
+      (perspectiveCatalog || []).map((p) => [p.id, p.name]),
+    );
+    const looksLikeId = (value?: string | null) =>
+      Boolean(
+        value &&
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+            value,
+          ),
+      );
+    const resolvePerspectiveName = (
+      lineName?: string | null,
+      catalogName?: string | null,
+    ) => {
+      if (catalogName && !looksLikeId(catalogName)) return catalogName;
+      if (lineName && !looksLikeId(lineName)) return lineName;
+      if (catalogName && looksLikeId(catalogName)) {
+        return perspectiveNameById.get(catalogName) || catalogName;
+      }
+      if (lineName && looksLikeId(lineName)) {
+        return perspectiveNameById.get(lineName) || lineName;
+      }
+      return 'Perspective';
+    };
+    const lines = config?.templateKpis || [];
+
+    // Prefer KPIs linked on the scorecard template (what was selected at create).
+    if (lines.length) {
+      return lines
+        .map((line): KpiLibraryItem => {
+          const catalog = catalogById.get(line.kpiLibraryId);
+          return {
+            id: line.kpiLibraryId,
+            evaluationConfigId: configId,
+            name: line.name || catalog?.name || 'KPI',
+            description: line.description ?? catalog?.description ?? null,
+            perspective: resolvePerspectiveName(
+              line.perspective,
+              catalog?.perspective,
+            ),
+            targetLogic:
+              line.targetLogic ||
+              catalog?.targetLogic ||
+              TargetLogic.HigherBetter,
+            measurementUnit:
+              line.measurementUnit || catalog?.measurementUnit || '',
+            defaultTarget: line.targetValue ?? catalog?.defaultTarget ?? null,
+            weight: line.weightPercentage,
+            suggestedWeight: line.weightPercentage,
+            worstCase: line.worstCase ?? catalog?.worstCase ?? null,
+            bestCase: line.bestCase ?? catalog?.bestCase ?? null,
+            cadence: line.cadence ?? catalog?.cadence ?? null,
+            checkInDay: line.checkInDay ?? catalog?.checkInDay ?? null,
+            createdAt: catalog?.createdAt || new Date().toISOString(),
+          };
+        })
+        .sort((a, b) => {
+          const byPerspective = a.perspective.localeCompare(b.perspective);
+          if (byPerspective) return byPerspective;
+          return a.name.localeCompare(b.name);
+        });
+    }
+
+    // Mock / legacy fallback: filter catalog by evaluationConfigId.
     const byKey = new Map<string, KpiLibraryItem>();
-    for (const kpi of allKpis || []) {
+    for (const kpi of catalogKpis || []) {
+      if (kpi.evaluationConfigId && kpi.evaluationConfigId !== configId) {
+        continue;
+      }
       const key = `${kpi.perspective}::${kpi.name}`;
-      if (!byKey.has(key)) byKey.set(key, kpi);
+      if (!byKey.has(key)) {
+        byKey.set(key, {
+          ...kpi,
+          perspective: resolvePerspectiveName(null, kpi.perspective),
+        });
+      }
     }
     return Array.from(byKey.values()).sort((a, b) => {
       const byPerspective = a.perspective.localeCompare(b.perspective);
       if (byPerspective) return byPerspective;
       return a.name.localeCompare(b.name);
     });
-  }, [allKpis]);
+  }, [catalogKpis, config?.templateKpis, configId, perspectiveCatalog]);
 
   const people = useMemo(
     () =>
@@ -166,14 +323,51 @@ export default function BscScorecardDetailPage() {
   );
 
   const uniquePeople = useMemo(() => {
+    const list = Array.isArray(allUsers?.items)
+      ? allUsers.items
+      : Array.isArray(allUsers)
+        ? allUsers
+        : [];
+    const usersById = new Map(list.map((user: any) => [user.id, user]));
     const byUser = new Map<string, EmployeeScorecard>();
     for (const person of people) {
-      if (!byUser.has(person.userId)) byUser.set(person.userId, person);
+      if (byUser.has(person.userId)) continue;
+      const user = usersById.get(person.userId);
+      const first = user?.firstName || user?.first_name || '';
+      const last = user?.lastName || user?.last_name || '';
+      const fullName = `${first} ${last}`.replace(/\s+/g, ' ').trim();
+      const resolvedName =
+        fullName ||
+        user?.email ||
+        (person.userName && !looksLikeUuid(person.userName)
+          ? person.userName
+          : '') ||
+        person.userId;
+      byUser.set(person.userId, {
+        ...person,
+        userName: resolvedName,
+        departmentName:
+          person.departmentName ||
+          (person.departmentId
+            ? departmentNameById.get(person.departmentId)
+            : null) ||
+          user?.department?.name ||
+          user?.departmentName ||
+          null,
+        positionTitle:
+          person.positionTitle ||
+          (person.positionId
+            ? positionNameById.get(person.positionId)
+            : null) ||
+          user?.position?.name ||
+          user?.positionTitle ||
+          null,
+      });
     }
     return Array.from(byUser.values()).sort((a, b) =>
       (a.userName || '').localeCompare(b.userName || ''),
     );
-  }, [people]);
+  }, [people, allUsers, departmentNameById, positionNameById]);
 
   const kpiRollupById = useMemo(() => {
     const map = new Map<
@@ -355,11 +549,25 @@ export default function BscScorecardDetailPage() {
     }
     return {
       scope: resolveScopeLabel(config),
-      departments: config.departmentNames || [],
-      roles: config.positionTitles || [],
-      individuals: config.employeeNames || [],
+      departments: resolveNamedLabels(
+        config.departmentIds,
+        config.departmentNames,
+        departmentNameById,
+      ),
+      roles: resolveNamedLabels(
+        config.positionIds,
+        config.positionTitles,
+        positionNameById,
+      ),
+      individuals: resolveNamedLabels(
+        config.employeeIds,
+        config.employeeNames,
+        new Map(
+          uniquePeople.map((person) => [person.userId, person.userName]),
+        ),
+      ),
     };
-  }, [config]);
+  }, [config, departmentNameById, positionNameById, uniquePeople]);
 
   const openListModal = (kind: ListKind) => {
     setListSearch('');
@@ -451,6 +659,7 @@ export default function BscScorecardDetailPage() {
             <BscKpiCountCard
               label="Departments"
               items={assignmentSummary.departments}
+              emptyLabel="None assigned"
               dataCy="bsc-scorecard-detail-departments-card"
               onViewMore={() => openListModal('departments')}
               className="w-full min-w-0"
@@ -458,6 +667,7 @@ export default function BscScorecardDetailPage() {
             <BscKpiCountCard
               label="Roles"
               items={assignmentSummary.roles}
+              emptyLabel="None assigned"
               dataCy="bsc-scorecard-detail-roles-card"
               onViewMore={() => openListModal('roles')}
               className="w-full min-w-0"
@@ -465,6 +675,7 @@ export default function BscScorecardDetailPage() {
             <BscKpiCountCard
               label="People"
               items={uniquePeople.map((person) => person.userName)}
+              emptyLabel="No people assigned yet"
               dataCy="bsc-scorecard-detail-people-card"
               onViewMore={() => openListModal('people')}
               className="w-full min-w-0"
@@ -600,7 +811,7 @@ export default function BscScorecardDetailPage() {
                   description={
                     listSearch.trim()
                       ? 'No people match your search'
-                      : 'No people assigned'
+                      : 'No people assigned yet'
                   }
                 />
               )

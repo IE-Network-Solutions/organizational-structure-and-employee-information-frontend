@@ -18,6 +18,7 @@ import {
   useGetBscKpiLibrary,
   useGetBscScorecards,
 } from '@/store/server/features/bsc/queries';
+import { USE_BSC_API } from '@/store/server/features/bsc/config';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
@@ -99,6 +100,11 @@ export default function MyScorecardKpiDetailPage() {
 
   const mine = useMemo(() => {
     const list = scorecards || [];
+    if (USE_BSC_API) {
+      if (!userId) return list;
+      const matched = list.filter((s) => s.userId === userId);
+      return matched.length ? matched : list;
+    }
     if (userId) {
       const matched = list.filter((s) => s.userId === userId);
       if (matched.length) return matched;

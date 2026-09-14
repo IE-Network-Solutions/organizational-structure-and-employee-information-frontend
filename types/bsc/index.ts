@@ -153,6 +153,24 @@ export interface EvaluationCycle {
   kpiEvaluators?: Record<string, BscKpiEvaluatorAssignment>;
   /** Per-KPI ordered evaluation chains keyed by catalog KPI id */
   kpiEvaluationFlows?: Record<string, BscEvaluatorStep[]>;
+  /**
+   * KPIs linked on this scorecard template (weights / targets / schedule).
+   * Prefer this over the full KPI library on detail views.
+   */
+  templateKpis?: Array<{
+    kpiLibraryId: string;
+    weightPercentage: number;
+    targetValue: number;
+    worstCase?: number | null;
+    bestCase?: number | null;
+    cadence?: BscCadence | null;
+    checkInDay?: number | null;
+    name?: string | null;
+    description?: string | null;
+    perspective?: string | null;
+    measurementUnit?: string | null;
+    targetLogic?: TargetLogic | null;
+  }>;
   /** @deprecated kept for assign UI display fallback */
   year?: number;
   month?: number;
@@ -207,6 +225,8 @@ export interface ScorecardKpiTarget {
    */
   checkInDay?: number | null;
   actualValue?: number | null;
+  /** Server-computed KPI score (0–100+); prefer over client recalculation when set */
+  score?: number | null;
   evidenceUrl?: string | null;
   evidenceFileName?: string | null;
   evidenceHash?: string | null;

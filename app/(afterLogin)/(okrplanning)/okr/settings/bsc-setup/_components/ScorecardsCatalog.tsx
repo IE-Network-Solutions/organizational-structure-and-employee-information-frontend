@@ -28,7 +28,8 @@ import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchIn
 import PeopleAssigneesGridSkeleton from '@/app/(afterLogin)/(bsc)/bsc/_components/PeopleAssigneesGridSkeleton';
 import ScorecardsGridSkeleton from '@/app/(afterLogin)/(bsc)/bsc/_components/ScorecardsGridSkeleton';
 import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
-import { useDeleteBscCycle } from '@/store/server/features/bsc/mutation';
+import { useDeleteBscCycle, useAssignBscScorecard } from '@/store/server/features/bsc/mutation';
+import { USE_BSC_API } from '@/store/server/features/bsc/config';
 import {
   useGetBscCycles,
   useGetBscScorecards,
@@ -108,6 +109,7 @@ export default function ScorecardsCatalog() {
   const [pageSize, setPageSize] = useState(10);
   const { isMobile, isTablet } = useIsMobile();
   const deleteCycle = useDeleteBscCycle();
+  const assignScorecard = useAssignBscScorecard();
 
   const { data: configs, isLoading: configsLoading } = useGetBscCycles();
   const { data: peopleScorecards, isLoading: peopleLoading } =
@@ -195,7 +197,20 @@ export default function ScorecardsCatalog() {
         label: 'Open details',
         onClick: () => router.push(`/bsc/setup/${config.id}`),
       },
-      { type: 'divider' },
+      ...(USE_BSC_API && config.isActive !== false
+        ? [
+            {
+              key: 'assign',
+              label: assignScorecard.isLoading ? 'Assigning…' : 'Assign to people',
+              onClick: () =>
+                assignScorecard.mutateAsync({
+                  scorecardId: config.id,
+                  asOf: config.effectiveFrom || config.startDate,
+                }),
+            },
+          ]
+        : []),
+      { type: 'divider' as const },
       {
         key: 'delete',
         label: 'Delete',
@@ -203,7 +218,7 @@ export default function ScorecardsCatalog() {
         onClick: () => confirmDeleteScorecard(config),
       },
     ],
-    [confirmDeleteScorecard, openEditSetup, router],
+    [confirmDeleteScorecard, openEditSetup, router, assignScorecard],
   );
 
   const departments = useMemo(() => {

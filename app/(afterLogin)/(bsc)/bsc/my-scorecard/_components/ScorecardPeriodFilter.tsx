@@ -73,7 +73,10 @@ export default function ScorecardPeriodFilter({
               className="w-full h-10 rounded-lg"
               value={scorecardValue}
               options={scorecardOptions}
-              onChange={onScorecardChange}
+              onChange={(id) => {
+                onScorecardChange(id);
+                setFilterOpen(false);
+              }}
               showSearch
               optionFilterProp="label"
               placeholder="Select scorecard"
