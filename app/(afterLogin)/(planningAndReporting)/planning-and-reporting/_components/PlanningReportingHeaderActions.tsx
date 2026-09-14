@@ -14,7 +14,7 @@ import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndR
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 /**
- * Create Plan / Submit {period} primary actions for the page header (aligned with breadcrumb title).
+ * Create Plan primary action beside Daily / Weekly / Monthly period pills.
  * Logic mirrors the buttons previously in planning/index and reporting/index.
  */
 export function PlanningReportingHeaderActions() {
@@ -107,7 +107,7 @@ export function PlanningReportingHeaderActions() {
                   }
                 }
               }}
-              className={`${!userPlanningPeriodId ? 'hidden' : ''} !h-10 !min-h-10 !w-auto !min-w-0 !bg-[#1E40AF] !text-white hover:!bg-[#1E3A8A]`}
+              className={`${!userPlanningPeriodId ? 'hidden' : ''} !h-9 !min-h-9 !w-auto !min-w-0 !bg-[#1E40AF] !text-white hover:!bg-[#1E3A8A]`}
             />
           )}
         </div>

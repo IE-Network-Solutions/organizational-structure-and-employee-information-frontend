@@ -36,11 +36,14 @@ const TAB_CONFIG = [
 
 interface OkrTabProps {
   filterComponent?: React.ReactNode;
+  /** When true, only render the logged-in user's OKR panel (Home hub). */
+  myOkrOnly?: boolean;
   'data-cy'?: string;
 }
 
 export default function OkrTab({
   filterComponent,
+  myOkrOnly = false,
   'data-cy': dataCy,
 }: OkrTabProps) {
   const [isMounted, setIsMounted] = useState(false);
@@ -187,6 +190,13 @@ export default function OkrTab({
     setActiveKey(String(okrTab));
   }, [okrTab]);
 
+  useEffect(() => {
+    if (myOkrOnly) {
+      setOkrTab('1');
+      setActiveKey('1');
+    }
+  }, [myOkrOnly, setOkrTab]);
+
   // Return null or loading state during SSR
   if (!isMounted) {
     return (
@@ -205,6 +215,7 @@ export default function OkrTab({
   };
 
   const visibleTabs = TAB_CONFIG.filter((tab) => {
+    if (myOkrOnly) return tab.key === '1';
     if (tab.key === '2' && !canVieTeamOkr) return false;
     if ((tab.key === '3' || tab.key === '4') && !canVieCompanyOkr) return false;
     return true;
@@ -550,6 +561,9 @@ export default function OkrTab({
     '[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-content-holder]:mt-6',
     isCompactTabBar
       ? '[&_.ant-tabs-nav]:min-w-0 [&_.ant-tabs-nav-wrap]:min-w-0 [&_.ant-tabs-nav-list]:!flex-nowrap [&_.ant-tabs-nav-wrap]:overflow-x-auto [&_.ant-tabs-nav-wrap]:scrollbar-none [&_.ant-tabs-extra-content]:!shrink-0'
+      : '',
+    myOkrOnly
+      ? '[&_.ant-tabs-nav]:!hidden [&_.ant-tabs-content-holder]:!mt-0'
       : '',
   ]
     .filter(Boolean)

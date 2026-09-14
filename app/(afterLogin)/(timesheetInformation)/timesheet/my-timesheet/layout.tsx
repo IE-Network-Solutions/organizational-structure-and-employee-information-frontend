@@ -1,6 +1,6 @@
 'use client';
 
-import { FC, ReactNode, useEffect, useMemo } from 'react';
+import { FC, ReactNode, useMemo } from 'react';
 import { Tabs, Breadcrumb, Button } from 'antd';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -10,18 +10,8 @@ import { FaPlus } from 'react-icons/fa';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
-import { useGetAllowedAreas } from '@/store/server/features/timesheet/allowedArea/queries';
-import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
-import ViewAttendanceSidebar from './_components/viewAttendanceSidebar';
-import CheckOutSidebar from './_components/checkOutSidebar';
-import LeaveRequestSidebar from './_components/leaveRequestSidebar';
-import LeaveRequestDetail from './_components/leaveRequestDetail';
-import WorkFromHomeRequestSidebar from './_components/workFromHomeRequestSidebar';
-import WorkFromHomeRequestDetailModal from './_components/workFromHome/WorkFromHomeRequestDetailModal';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import RemoteAttendanceCameraModals from '@/components/common/remoteAttendanceCameraModals';
-import AttendanceLocationErrorModal from '@/components/common/attendanceLocationErrorModal';
+import HomeTimesheetProviders from '@/app/(afterLogin)/home/_components/HomeTimesheetProviders';
 
 const MY_TIMESHEET_BASE = '/timesheet/my-timesheet';
 
@@ -33,28 +23,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { isMobile } = useIsMobile();
-  const {
-    setLeaveTypes,
-    setAllowedAreas,
-    setBreakTypes,
-    setIsShowLeaveRequestSidebar,
-  } = useMyTimesheetStore();
-
-  const { data: leaveTypesData } = useGetLeaveTypes();
-  const { data: allowAreasData } = useGetAllowedAreas();
-  const { data: breakTypeData } = useGetBreakTypes();
-
-  useEffect(() => {
-    setLeaveTypes(leaveTypesData?.items ?? []);
-  }, [leaveTypesData, setLeaveTypes]);
-
-  useEffect(() => {
-    setAllowedAreas(allowAreasData?.items ?? []);
-  }, [allowAreasData, setAllowedAreas]);
-
-  useEffect(() => {
-    setBreakTypes(breakTypeData?.items ?? []);
-  }, [breakTypeData, setBreakTypes]);
+  const { setIsShowLeaveRequestSidebar } = useMyTimesheetStore();
 
   const getActiveKey = (): string => {
     if (pathname.includes('/overview')) return 'overview';
@@ -288,14 +257,7 @@ const MyTimesheetLayout: FC<MyTimesheetLayoutProps> = ({ children }) => {
         </div>
       </div>
 
-      <ViewAttendanceSidebar data-cy="time-attendance-my-timesheet-view-attendance-sidebar" />
-      <LeaveRequestSidebar data-cy="time-attendance-my-timesheet-leave-request-sidebar" />
-      <WorkFromHomeRequestSidebar data-cy="time-attendance-my-timesheet-work-from-home-request-sidebar" />
-      <WorkFromHomeRequestDetailModal data-cy="time-attendance-my-timesheet-work-from-home-request-detail-modal" />
-      <LeaveRequestDetail data-cy="time-attendance-my-timesheet-leave-request-detail" />
-      <CheckOutSidebar data-cy="time-attendance-my-timesheet-check-out-sidebar" />
-      <RemoteAttendanceCameraModals />
-      <AttendanceLocationErrorModal />
+      <HomeTimesheetProviders />
     </div>
   );
 };

@@ -8,6 +8,7 @@ import { usePWA } from '@/hooks/usePWA';
 import { DownloadOutlined, UserOutlined } from '@ant-design/icons';
 import { AiOutlineDown } from 'react-icons/ai';
 import { IS_CORE } from '@/utils/constants';
+import { IS_HOME_PROTOTYPE } from '@/config/homePrototype';
 import NotificationBell from './NotificationBell';
 
 interface NavBarProps {
@@ -23,7 +24,7 @@ const NavBar = ({ handleLogout, isMobile = false }: NavBarProps) => {
   const { isInstallable, isInstalled, isStandalone, installApp } = usePWA();
 
   const handleProfileRoute = () => {
-    router.push(`/employees/manage-employees/${userId}`);
+    router.push('/home/profile');
   };
 
   const handleInstallClick = async () => {
@@ -75,7 +76,7 @@ const NavBar = ({ handleLogout, isMobile = false }: NavBarProps) => {
   return (
     <div
       data-cy="top-nav-bar"
-      className="flex justify-end items-center bg-white w-full h-full px-6"
+      className="flex flex-1 justify-end items-center bg-white w-full h-full px-6"
     >
       <div data-cy="top-nav-actions" className="flex items-center gap-5">
         {/* PWA Install Button */}
@@ -93,7 +94,7 @@ const NavBar = ({ handleLogout, isMobile = false }: NavBarProps) => {
         )}
 
         {/* Notification Bell: on mobile this renders on the left of the header instead */}
-        {!isMobile && <NotificationBell />}
+        {(!isMobile || IS_HOME_PROTOTYPE) && <NotificationBell />}
 
         {/* User Profile */}
         <Dropdown

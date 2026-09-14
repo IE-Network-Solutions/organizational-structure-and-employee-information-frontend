@@ -1,4 +1,4 @@
-import L from 'leaflet';
+import type { LatLngBounds } from 'leaflet';
 import { AllowedArea } from '@/types/timesheet/settings';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAttendanceLocationErrorStore } from '@/store/uistate/features/timesheet/attendanceLocationError';
@@ -16,13 +16,21 @@ export type AreaDistanceSummary = {
   isInside: boolean;
 };
 
+/** Haversine distance in meters — SSR-safe (no Leaflet import at module scope). */
 export function getDistanceMeters(
   lat1: number,
   lng1: number,
   lat2: number,
   lng2: number,
 ): number {
-  return L.latLng(lat1, lng1).distanceTo(L.latLng(lat2, lng2));
+  const earthRadiusMeters = 6371000;
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return earthRadiusMeters * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 /** The backend stores/returns AllowedArea#distance in kilometers. */
@@ -59,12 +67,15 @@ export function getCircleEdgeLatLng(
   return [lat, lng + deltaLng];
 }
 
-/** Bounding box for a geofence circle (no map required — unlike L.circle#getBounds). */
+/** Bounding box for a geofence circle (client-only; uses Leaflet when available). */
 export function getAllowedAreaCircleBounds(
   area: AllowedArea,
-): L.LatLngBounds | null {
+): LatLngBounds | null {
   const radiusMeters = getAreaRadiusMeters(area);
-  if (radiusMeters <= 0) return null;
+  if (radiusMeters <= 0 || typeof window === 'undefined') return null;
+
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const L = require('leaflet') as typeof import('leaflet');
 
   const lat = area.latitude;
   const lng = area.longitude;

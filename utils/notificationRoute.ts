@@ -619,18 +619,19 @@ function resolveTimesheetPath(
   const isMyTimesheetContext =
     !pathname ||
     pathname === '/timesheet' ||
-    pathname.startsWith('/timesheet/my-timesheet');
+    pathname.startsWith('/timesheet/my-timesheet') ||
+    pathname.startsWith('/home');
 
   // Both first approver ("New Leave Request") and later levels
   // ("Leave Request Approval") open My Approvals — ignore generic backend routes.
   if (isLeaveApproverActionNotification(text)) {
     params.set('type', isWfh ? 'WorkFromHome' : 'Leave');
-    return withParams('/timesheet/my-timesheet/my-approvals', params);
+    return withParams('/home/approvals', params);
   }
 
   if (isApproverNotification(text) && (isMyTimesheetContext || !pathname)) {
     params.set('type', isWfh ? 'WorkFromHome' : 'Leave');
-    return withParams('/timesheet/my-timesheet/my-approvals', params);
+    return withParams('/home/approvals', params);
   }
 
   if (isHrLeave) {
@@ -652,7 +653,7 @@ function resolveTimesheetPath(
 
   if (pathname.includes('/my-approvals')) {
     params.set('type', isWfh ? 'WorkFromHome' : 'Leave');
-    return withParams('/timesheet/my-timesheet/my-approvals', params);
+    return withParams('/home/approvals', params);
   }
 
   if (
@@ -666,18 +667,18 @@ function resolveTimesheetPath(
   if (isWfh) {
     if (isApproverLike(text)) {
       params.set('type', 'WorkFromHome');
-      return withParams('/timesheet/my-timesheet/my-approvals', params);
+      return withParams('/home/approvals', params);
     }
     ensureParam(params, 'scope', 'my');
-    return withParams('/timesheet/my-timesheet/work-from-home', params);
+    return withParams('/home/leave', params);
   }
 
   if (isOwnLeaveNotification(text) || text.includes('leave')) {
     if (isApproverLike(text)) {
       params.set('type', 'Leave');
-      return withParams('/timesheet/my-timesheet/my-approvals', params);
+      return withParams('/home/approvals', params);
     }
-    return withParams('/timesheet/my-timesheet/leave', params);
+    return withParams('/home/leave', params);
   }
 
   if (
@@ -685,7 +686,7 @@ function resolveTimesheetPath(
     text.includes('check in') ||
     text.includes('check out')
   ) {
-    return withParams('/timesheet/my-timesheet/attendance', params);
+    return withParams('/home/attendance', params);
   }
 
   if (
@@ -694,7 +695,7 @@ function resolveTimesheetPath(
     pathname === '/timesheet/my-timesheet/overview' ||
     pathname === '/timesheet'
   ) {
-    return withParams('/timesheet/my-timesheet/overview', params);
+    return withParams('/home/overview', params);
   }
 
   return withParams(pathname, params);
@@ -722,8 +723,11 @@ function resolvePlanningPath(
   const base =
     pathname.includes('planning-and-reporting') && pathname.startsWith('/')
       ? pathname.split('?')[0]
-      : '/planning-and-reporting';
-  return withParams(base, params);
+      : '/home/plan';
+  return withParams(
+    base.replace('/planning-and-reporting', '/home/plan'),
+    params,
+  );
 }
 
 function resolveTnaPath(
@@ -740,7 +744,7 @@ function resolveTnaPath(
   if (pathname.includes('management')) {
     return withParams('/tna/management', params);
   }
-  return withParams('/tna/my-training', params);
+  return withParams('/home/training', params);
 }
 
 function resolveOkrPath(
@@ -757,7 +761,7 @@ function resolveOkrPath(
     if (!params.get('tab')) {
       params.set('tab', text.includes('team') ? 'team' : 'department');
     }
-    return withParams('/weekly-priority', params);
+    return withParams('/home/weekly-priority', params);
   }
   if (
     text.includes('variable pay') ||
@@ -771,7 +775,7 @@ function resolveOkrPath(
   }
   if (pathHasUuid(pathname)) return withParams(pathname, params);
   if (!params.get('tab') && employeeId) params.set('tab', '2');
-  return withParams('/okr', params);
+  return withParams('/home/okr', params);
 }
 
 function resolveRecruitmentPath(
@@ -804,7 +808,7 @@ function resolvePayrollPath(
     text.includes('pay slip') ||
     text.includes('my payroll')
   ) {
-    return withParams('/myPayroll', params);
+    return withParams('/home/payroll', params);
   }
   if (employeeId) {
     return withParams(`/employee-information/${employeeId}`, params);

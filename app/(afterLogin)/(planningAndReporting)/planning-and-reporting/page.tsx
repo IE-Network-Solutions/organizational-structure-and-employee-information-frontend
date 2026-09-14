@@ -48,8 +48,9 @@ import { PlanningReportingHeaderActions } from './_components/PlanningReportingH
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { isHomePath } from '@/utils/navigation/personalRoutes';
 
 interface PlanningPeriod {
   id: string;
@@ -63,6 +64,8 @@ interface PlanningPeriod {
 
 function Page() {
   useFiscalYearSessionSync();
+  const pathname = usePathname();
+  const embeddedInHome = isHomePath(pathname);
   const searchParams = useSearchParams();
   const {
     setActiveTab,
@@ -546,12 +549,13 @@ function Page() {
       className="h-auto min-w-0 w-full max-w-full bg-white  rounded-md"
     >
       <div data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-132">
-        <CustomBreadcrumb
-          title="Plan & Report"
-          subtitle="Manage your plans and reports in one place."
-          isRecognition
-          titleExtra={<PlanningReportingHeaderActions />}
-        />
+        {!embeddedInHome && (
+          <CustomBreadcrumb
+            title="Plan & Report"
+            subtitle="Manage your plans and reports in one place."
+            isRecognition
+          />
+        )}
         <div
           data-cy="planning-reporting-main-card"
           className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
@@ -636,6 +640,12 @@ function Page() {
                       );
                     },
                   )}
+                </div>
+                <div
+                  data-cy="planning-reporting-add-plan-action"
+                  className="shrink-0 self-center"
+                >
+                  <PlanningReportingHeaderActions />
                 </div>
                 <div
                   data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
