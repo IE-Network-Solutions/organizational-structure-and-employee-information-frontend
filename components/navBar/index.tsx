@@ -945,7 +945,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             permissions: ['view_incentive_page'],
           },
           {
-            title: <span data-cy="nav-tree-variable-pay">Variable Pay</span>,
+            title: <span data-cy="nav-tree-variable-pay">Performance Pay</span>,
             key: '/variable-pay',
             className: 'font-bold',
             permissions: ['view_variable_pay'],

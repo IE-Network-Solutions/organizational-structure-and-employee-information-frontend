@@ -512,6 +512,7 @@ function isIncentiveNotification(
     pathname.includes('variable-pay') ||
     source.includes('incentive') ||
     text.includes('incentive') ||
+    text.includes('performance pay') ||
     text.includes('variable pay')
   );
 }
@@ -760,8 +761,10 @@ function resolveOkrPath(
     return withParams('/weekly-priority', params);
   }
   if (
+    text.includes('performance pay') ||
     text.includes('variable pay') ||
     /\bvp\b/.test(text) ||
+    /\bpp\b/.test(text) ||
     pathname.includes('/okr/dashboard')
   ) {
     return withParams(
@@ -846,7 +849,11 @@ function resolveIncentivePath(
   employeeId?: string,
 ): string {
   attachEmployee(params, employeeId);
-  if (text.includes('variable pay') || pathname.includes('variable-pay')) {
+  if (
+    text.includes('performance pay') ||
+    text.includes('variable pay') ||
+    pathname.includes('variable-pay')
+  ) {
     return withParams('/variable-pay', params);
   }
   return withParams('/incentives', params);

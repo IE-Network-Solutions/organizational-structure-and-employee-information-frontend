@@ -146,7 +146,7 @@ const ACTION_TYPE_OPTIONS = [
       'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-salary-deduction-label',
   },
   {
-    label: 'VP Deduction',
+    label: 'PP Deduction',
     value: AttendanceActionType.VP_DEDUCTION,
     dataCy:
       'time-attendance-settings-attendance-rules-create-rule-sidebar-action-type-vp-deduction-label',
@@ -321,7 +321,7 @@ const isLetterAction = (actionType?: string | string[]) => {
 
 const getActionLabel = (actionTypes?: string | string[]): string => {
   const types = normalizeActionTypes(actionTypes);
-  if (types.includes(AttendanceActionType.VP_DEDUCTION)) return 'VP Deduction';
+  if (types.includes(AttendanceActionType.VP_DEDUCTION)) return 'PP Deduction';
   if (types.includes(AttendanceActionType.SALARY_DEDUCTION))
     return 'Salary Deduction';
   if (types.includes(AttendanceActionType.REPRIMAND)) return 'Reprimand';
@@ -383,10 +383,10 @@ const getLetterBodyParagraph = (
   const types = normalizeActionTypes(actionTypes);
   const isVpDeduction = types.includes(AttendanceActionType.VP_DEDUCTION);
   const vpClause = isVpDeduction
-    ? ' As a result, {{vp deducted point}} VP points have been deducted.'
+    ? ' As a result, {{vp deducted point}} PP points have been deducted.'
     : '';
   const absentVpClause = isVpDeduction
-    ? ' As a result, {{vp deducted point}} VP points have been deducted for this absence.'
+    ? ' As a result, {{vp deducted point}} PP points have been deducted for this absence.'
     : '';
 
   switch (ruleType) {
@@ -1260,7 +1260,7 @@ const CreateRuleSidebar = () => {
                               className="mb-0 mt-1 text-xs text-gray-500"
                               data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-description"
                             >
-                              Uses salary deduction minutes from VP time
+                              Uses salary deduction minutes from PP time
                               configuration and the employee basic salary.
                               Deduction Type and Amount are not used.
                             </p>
@@ -1380,18 +1380,18 @@ const CreateRuleSidebar = () => {
                             data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-vp-deduction-amount-label"
                             className="text-sm font-normal text-gray-900 pr-1"
                           >
-                            VP Deduction Amount
+                            PP Deduction Amount
                           </span>
                         }
                         rules={decimalAmountFieldRules(
-                          'VP deduction amount is required',
+                          'PP deduction amount is required',
                         )}
                         name="vpDeductionAmount"
                       >
                         <InputNumber
                           {...decimalAmountInputNumberProps}
                           className={controlClass}
-                          placeholder="Add the VP points to be deducted"
+                          placeholder="Add the PP points to be deducted"
                           id="time-attendance-settings-attendance-rules-create-rule-sidebar-vp-deduction-amount-input"
                           data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-vp-deduction-amount-input"
                         />

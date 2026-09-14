@@ -53,7 +53,7 @@ const FailedAssignmentModal: React.FC<FailedAssignmentModalProps> = ({
         className="text-[14px] text-[#595959] mb-4"
         data-cy="okr-criteria-failed-assignment-modal-message"
       >
-        The following employees are already assigned to another VP scoring
+        The following employees are already assigned to another PP scoring
         configuration and cannot be assigned here unless removed from their
         current configuration:
       </p>

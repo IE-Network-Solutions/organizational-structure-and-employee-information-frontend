@@ -29,13 +29,13 @@ const VariablePayPage = () => {
     >
       <div data-cy="variable-pay-page-header">
         <CustomBreadcrumb
-          title={<span data-cy="page-header-title">Variable Pay</span>}
+          title={<span data-cy="page-header-title">Performance Pay</span>}
           subtitle={
             <span
               className="m-1 block font-medium text-gray-600 sm:mt-2"
               data-cy="page-header-description"
             >
-              VP
+              PP
             </span>
           }
           titleExtra={
@@ -89,7 +89,7 @@ const VariablePayPage = () => {
                     className="hidden md:inline"
                     data-cy="variable-pay-score-card-refresh-button-text"
                   >
-                    Refresh VP
+                    Refresh PP
                   </span>
                 </Button>
               </div>

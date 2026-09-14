@@ -94,7 +94,7 @@ const CriteriaBreakdown = () => {
                 data-cy="vp-criteria-breakdown-attendance-positive-points"
               >
                 {toNumber(attendanceCriteria?.score).toFixed(2)} of{' '}
-                {toNumber(attendanceCriteria?.weight).toFixed(2)} VP points
+                {toNumber(attendanceCriteria?.weight).toFixed(2)} PP points
                 deducted
               </p>
             </div>
@@ -107,14 +107,14 @@ const CriteriaBreakdown = () => {
                 className="text-sm text-[#ff4d4f]"
                 data-cy="vp-criteria-breakdown-attendance-negative-text"
               >
-                Attendance deductions impact your monthly VP.
+                Attendance deductions impact your monthly PP.
               </p>
               <p
                 className="text-xs text-[#8c8c8c] mt-1"
                 data-cy="vp-criteria-breakdown-attendance-negative-points"
               >
                 {toNumber(attendanceCriteria?.score).toFixed(2)} of{' '}
-                {toNumber(attendanceCriteria?.weight).toFixed(2)} VP points
+                {toNumber(attendanceCriteria?.weight).toFixed(2)} PP points
                 deducted
               </p>
             </div>

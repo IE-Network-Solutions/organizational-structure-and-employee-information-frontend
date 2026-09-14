@@ -444,7 +444,7 @@ const PaySlip = ({ data }: { data: any[] }) => {
                   data-cy={`payroll-payslip-bonus-variable-label-cell-${employeeData?.employeeId}`}
                   className="p-2 border border-gray-300"
                 >
-                  Variable Pay
+                  Performance Pay
                 </td>
                 <td
                   id={`payroll-payslip-bonus-variable-value-cell-${employeeData?.employeeId}`}
