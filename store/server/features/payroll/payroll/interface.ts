@@ -11,6 +11,9 @@ export interface PayPeriod {
   status: 'OPEN' | 'CLOSED';
   tenantId: string;
   activeFiscalYearId: string;
+  payslipsPublished?: boolean;
+  payslipsPublishedAt?: string | null;
+  payslipsPublishedBy?: string | null;
   createdAt?: string;
   updatedAt?: string;
   createdBy?: string | null;

@@ -76,7 +76,7 @@ export default function RecentFeedbacksCard({
   if (showSkeleton) {
     return (
       <div
-        className={`bg-white rounded-lg border border-[#E5E7EB] shadow-none p-3 h-[272px] ${className}`.trim()}
+        className={`bg-white rounded-lg border border-[#E5E7EB] shadow-none p-3 h-full min-h-[272px] ${className}`.trim()}
         data-cy="dashboard-recent-feedbacks"
       >
         <div
@@ -101,7 +101,7 @@ export default function RecentFeedbacksCard({
 
   return (
     <div
-      className={`bg-white rounded-lg border border-[#E5E7EB] shadow-none p-3 h-[272px] ${className}`.trim()}
+      className={`bg-white rounded-lg border border-[#E5E7EB] shadow-none p-3 h-full min-h-[272px] ${className}`.trim()}
       data-cy="dashboard-recent-feedbacks"
     >
       <div

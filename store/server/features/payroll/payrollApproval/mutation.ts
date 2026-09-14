@@ -14,10 +14,13 @@ const approvePayrollApproval = async (data: any) => {
   });
 };
 
-const lastApprovingPayroll = async () => {
+const lastApprovingPayroll = async (payPeriodId?: string) => {
   const requestHeaders = await requestHeader();
+  const query = payPeriodId
+    ? `?payPeriodId=${encodeURIComponent(payPeriodId)}`
+    : '';
   return await crudRequest({
-    url: `${PAYROLL_URL}/payroll-approval/lastapproving`,
+    url: `${PAYROLL_URL}/payroll-approval/lastapproving${query}`,
     method: 'PUT',
     headers: requestHeaders,
   });
@@ -30,6 +33,9 @@ export const useApprovePayrollApproval = () => {
       queryClient.invalidateQueries('pendingPayrollApprovals');
       queryClient.invalidateQueries('payroll');
       queryClient.invalidateQueries('payrollApprovalByPayPeriodId');
+      queryClient.invalidateQueries('payrollApprovals');
+      queryClient.invalidateQueries('payrollApprovalStatus');
+      queryClient.invalidateQueries('payrollApprovalLogs');
     },
     onError: (error: any) => {
       NotificationMessage.error({
@@ -48,6 +54,9 @@ export const useLastApprovingPayroll = () => {
       queryClient.invalidateQueries('pendingPayrollApprovals');
       queryClient.invalidateQueries('payroll');
       queryClient.invalidateQueries('payrollApprovalByPayPeriodId');
+      queryClient.invalidateQueries('payrollApprovals');
+      queryClient.invalidateQueries('payrollApprovalStatus');
+      queryClient.invalidateQueries('payrollApprovalLogs');
       NotificationMessage.success({
         message: 'Payroll Approved',
         description: 'Payroll has been successfully approved.',

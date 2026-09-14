@@ -7,7 +7,7 @@ import { LuExternalLink } from 'react-icons/lu';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import StatusBadge from '@/components/common/statusBadge/statusBadge';
 import EmptyState from '@/components/empty';
-import AccessGuard from '@/utils/permissionGuard';
+import { useHasPermission } from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { DATE_FORMAT } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -106,32 +106,26 @@ const ExternalTnaDetailPage = () => {
    */
   // Strict check, no owner short-circuit: the backend guards these two on the
   // real permission list, so an owner without the slug would get a 403.
-  const hasPaymentPermission = AccessGuard.hasExplicitPermission(
-    Permissions.MarkTrainingAsPaid,
-  );
-  const hasConfirmPermission = AccessGuard.hasExplicitPermission(
+  const hasPaymentPermission = useHasPermission(Permissions.MarkTrainingAsPaid);
+  const hasConfirmPermission = useHasPermission(
     Permissions.ConfirmTnaCommitment,
   );
 
   const paymentBlockedReason = !isApproved
     ? 'The request has to be approved before payment can be recorded.'
-    : request?.isPaid
-      ? 'Payment has already been recorded.'
-      : request?.isConfirmed
-        ? 'The commitment has already started.'
-        : null;
+    : request?.isConfirmed
+      ? 'The commitment has already started.'
+      : null;
 
-  const confirmBlockedReason = request?.isConfirmed
-    ? 'This request is already confirmed.'
-    : !isApproved
-      ? 'The request has to be approved first.'
-      : !request?.endDate
-        ? 'Record the training end date first.'
-        : !request?.certificatePath && !request?.failureFilePath
-          ? 'A certificate or failure document has to be attached first.'
-          : !request?.isPaid
-            ? 'Payment has to be recorded first.'
-            : null;
+  const confirmBlockedReason = !isApproved
+    ? 'The request has to be approved first.'
+    : !request?.endDate
+      ? 'Record the training end date first.'
+      : !request?.certificatePath && !request?.failureFilePath
+        ? 'A certificate or failure document has to be attached first.'
+        : !request?.isPaid
+          ? 'Payment has to be recorded first.'
+          : null;
 
   /**
    * Uploading the certificate or the failure proof belongs to the employee who
@@ -242,7 +236,7 @@ const ExternalTnaDetailPage = () => {
               </>
             ) : null}
 
-            {hasPaymentPermission ? (
+            {hasPaymentPermission && !request.isPaid ? (
               <Tooltip title={paymentBlockedReason ?? ''}>
                 {/* Disabled buttons swallow mouse events, so the tooltip needs
                     a wrapper to hang off. */}
@@ -263,7 +257,7 @@ const ExternalTnaDetailPage = () => {
               </Tooltip>
             ) : null}
 
-            {hasConfirmPermission ? (
+            {hasConfirmPermission && !request.isConfirmed ? (
               <Popconfirm
                 title="Confirm this request?"
                 description="This starts the employee's commitment period."

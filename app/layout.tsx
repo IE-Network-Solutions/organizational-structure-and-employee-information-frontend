@@ -36,6 +36,11 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.PUBLIC_DOMAIN ||
+      'http://localhost:3000',
+  ),
   title: 'Selamnew Workspace',
   description:
     'Complete enterprise management system for organizational structure, employee information, payroll, recruitment, and more',

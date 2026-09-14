@@ -4,6 +4,10 @@ import { useGetDepartments } from '@/store/server/features/employees/employeeMan
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { CloseOutlined, SearchOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
+import {
+  DEFAULT_TIMESHEET_APPROVAL_TYPES,
+  TIMESHEET_APPROVAL_TYPE_OPTIONS,
+} from '@/utils/approval/timesheetApprovalTypes';
 interface User {
   id: string;
   firstName?: string;
@@ -37,10 +41,9 @@ const ApprovalFilterComponent = ({
   const isUserSelected = searchParams?.entityType === 'User';
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<string>('');
   const [selectedUserId, setSelectedUserId] = useState<string>('');
-  const [draftApprovalType, setDraftApprovalType] = useState<string[]>([
-    'Leave',
-    'WorkFromHome',
-  ]);
+  const [draftApprovalType, setDraftApprovalType] = useState<string[]>(
+    DEFAULT_TIMESHEET_APPROVAL_TYPES,
+  );
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
@@ -51,7 +54,7 @@ const ApprovalFilterComponent = ({
     setDraftApprovalType(
       searchParams?.approvalType?.length
         ? searchParams.approvalType
-        : ['Leave', 'WorkFromHome'],
+        : DEFAULT_TIMESHEET_APPROVAL_TYPES,
     );
   }, [
     isDepartmentSelected,
@@ -87,7 +90,9 @@ const ApprovalFilterComponent = ({
     }
 
     handleApprovalTypeChange(
-      draftApprovalType?.length ? draftApprovalType : ['Leave', 'WorkFromHome'],
+      draftApprovalType?.length
+        ? draftApprovalType
+        : DEFAULT_TIMESHEET_APPROVAL_TYPES,
     );
     setIsFilterOpen(false);
   };
@@ -95,10 +100,10 @@ const ApprovalFilterComponent = ({
   const handleResetFilter = () => {
     setSelectedDepartmentId('');
     setSelectedUserId('');
-    setDraftApprovalType(['Leave', 'WorkFromHome']);
+    setDraftApprovalType([...DEFAULT_TIMESHEET_APPROVAL_TYPES]);
     handleDepartmentChange('', 'entityType');
     handleDepartmentChange('', 'entityId');
-    handleApprovalTypeChange(['Leave', 'WorkFromHome']);
+    handleApprovalTypeChange([...DEFAULT_TIMESHEET_APPROVAL_TYPES]);
   };
 
   return (
@@ -235,12 +240,11 @@ const ApprovalFilterComponent = ({
                     data-cy="approval-filter-approval-type-select"
                     maxTagCount="responsive"
                     onClear={() =>
-                      setDraftApprovalType(['Leave', 'WorkFromHome'])
+                      setDraftApprovalType([
+                        ...DEFAULT_TIMESHEET_APPROVAL_TYPES,
+                      ])
                     }
-                    options={[
-                      { label: 'Leave', value: 'Leave' },
-                      { label: 'Work From Home', value: 'WorkFromHome' },
-                    ]}
+                    options={TIMESHEET_APPROVAL_TYPE_OPTIONS}
                   />
                 </div>
               </div>

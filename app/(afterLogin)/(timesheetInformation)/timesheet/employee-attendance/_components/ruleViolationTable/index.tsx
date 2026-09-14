@@ -282,11 +282,6 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
       key: 'actionTypes',
       render: (notUsed: unknown, row: RuleViolationTableRow) => {
         const actionTypes = row.actionTypes;
-        const minutes = row.record.salaryDeductionMinutes;
-        const amount = row.record.salaryDeductionAmount;
-        const showSalaryDeductionDetail =
-          actionTypes?.includes(AttendanceActionType.SALARY_DEDUCTION) &&
-          (minutes != null || amount != null);
 
         return (
           <div
@@ -303,16 +298,6 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
                   </div>
                 ))
               : '-'}
-            {showSalaryDeductionDetail && (
-              <div
-                className="text-xs text-[#4d4d4d] whitespace-nowrap"
-                data-cy="time-attendance-rule-violation-table-salary-deduction-detail"
-              >
-                {minutes != null ? `${minutes} min` : null}
-                {minutes != null && amount != null ? ' · ' : null}
-                {amount != null ? `${Number(amount).toFixed(2)}` : null}
-              </div>
-            )}
           </div>
         );
       },
