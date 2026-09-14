@@ -63,6 +63,42 @@ function workspaceUrl(req: NextRequest, pathname: string): URL {
   return url;
 }
 
+/** Legacy personal routes → Home hub tabs (preserve query string). */
+function resolveHomeHubRedirect(pathname: string): string | null {
+  const exact: Record<string, string> = {
+    '/dashboard': '/home/overview',
+    '/myPayroll': '/home/payroll',
+    '/planning-and-reporting': '/home/plan',
+    '/tna/my-training': '/home/training',
+    '/weekly-priority': '/home/weekly-priority',
+    '/feedback/feedback': '/home/feedback',
+    '/feedback/conversation': '/home/conversation',
+    '/okr': '/home/okr',
+    '/organization/announcement': '/home/announcement',
+  };
+  if (exact[pathname]) return exact[pathname];
+
+  const prefix: [string, string][] = [
+    ['/timesheet/my-timesheet/overview', '/home/overview'],
+    ['/timesheet/my-timesheet/schedule', '/home/schedule'],
+    ['/timesheet/my-timesheet/shift-swap', '/home/schedule'],
+    ['/timesheet/my-timesheet/leave', '/home/leave'],
+    ['/timesheet/my-timesheet/attendance', '/home/attendance'],
+    ['/timesheet/my-timesheet/my-approvals', '/home/approvals'],
+    ['/timesheet/my-timesheet/work-from-home', '/home/leave'],
+  ];
+  for (const [from, to] of prefix) {
+    if (pathname === from || pathname.startsWith(`${from}/`)) return to;
+  }
+  if (
+    pathname === '/timesheet/my-timesheet' ||
+    pathname.startsWith('/timesheet/my-timesheet/')
+  ) {
+    return '/home/overview';
+  }
+  return null;
+}
+
 export function middleware(req: NextRequest) {
   try {
     const url = req.nextUrl;
@@ -149,7 +185,7 @@ export function middleware(req: NextRequest) {
 
     if (!isExcludedPath && isRootPath) {
       if (token) {
-        return NextResponse.redirect(workspaceUrl(req, '/dashboard'));
+        return NextResponse.redirect(workspaceUrl(req, '/home/overview'));
       } else {
         return NextResponse.redirect(loginRedirectUrl(req));
       }
@@ -160,8 +196,15 @@ export function middleware(req: NextRequest) {
       pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
     ) {
       if (!canManageFiscalYear) {
-        return NextResponse.redirect(new URL('/dashboard', req.url));
+        return NextResponse.redirect(workspaceUrl(req, '/home/overview'));
       }
+    }
+
+    const homeRedirect = resolveHomeHubRedirect(pathname);
+    if (homeRedirect) {
+      const target = workspaceUrl(req, homeRedirect);
+      target.search = url.search;
+      return NextResponse.redirect(target);
     }
 
     return NextResponse.next();

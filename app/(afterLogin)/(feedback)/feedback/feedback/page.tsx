@@ -2,14 +2,17 @@
 import {
   Avatar,
   Button,
+  ConfigProvider,
   DatePicker,
   Form,
   Popconfirm,
   Popover,
+  Segmented,
   Select,
   Table,
   Tooltip,
 } from 'antd';
+import classNames from 'classnames';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -45,10 +48,16 @@ import { MdOutlineFilterAlt } from 'react-icons/md';
 import { PiExportLight } from 'react-icons/pi';
 import { AiOutlineEye } from 'react-icons/ai';
 import { IoCloseOutline } from 'react-icons/io5';
+import { usePathname } from 'next/navigation';
+import { isHomePath } from '@/utils/navigation/personalRoutes';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 const { RangePicker } = DatePicker;
 
 const Page = () => {
+  const pathname = usePathname();
+  const embeddedInHome = isHomePath(pathname);
+  const { isMobile } = useIsMobile();
   const {
     setOpen,
     setVariantType,
@@ -468,147 +477,114 @@ const Page = () => {
     },
   ];
 
+  const feedbackSegmentedClassName = classNames(
+    'feedback-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 !rounded-xl !border !border-slate-100 !bg-slate-50/70 !p-1.5',
+    '!h-[50px] sm:!h-[50px] sm:!self-center',
+    '[&_.ant-segmented-group]:!w-max [&_.ant-segmented-group]:!min-h-0 [&_.ant-segmented-group]:!items-stretch [&_.ant-segmented-group]:!justify-start',
+    '[&_.ant-segmented-thumb]:!h-full [&_.ant-segmented-thumb]:!bg-white [&_.ant-segmented-thumb]:!py-0 [&_.ant-segmented-thumb]:!shadow-sm',
+    '[&_.ant-segmented-item]:!flex [&_.ant-segmented-item]:!flex-none [&_.ant-segmented-item]:!items-center [&_.ant-segmented-item]:!justify-center [&_.ant-segmented-item]:!self-stretch [&_.ant-segmented-item]:!bg-transparent',
+    '[&_.ant-segmented-item-selected]:!z-[1] [&_.ant-segmented-item-selected]:!rounded-md [&_.ant-segmented-item-selected]:!shadow-sm',
+    '[&_.ant-segmented-item-label]:!flex [&_.ant-segmented-item-label]:!h-9 [&_.ant-segmented-item-label]:!min-h-9 [&_.ant-segmented-item-label]:!items-center [&_.ant-segmented-item-label]:!justify-center [&_.ant-segmented-item-label]:!whitespace-nowrap [&_.ant-segmented-item-label]:!font-medium [&_.ant-segmented-item-label]:!text-slate-600 [&_.ant-segmented-item-label]:!px-3.5 [&_.ant-segmented-item-label]:!py-0 [&_.ant-segmented-item-label]:!text-[14px] sm:[&_.ant-segmented-item-label]:!h-9 sm:[&_.ant-segmented-item-label]:!min-h-9 sm:[&_.ant-segmented-item-label]:!px-4.5 sm:[&_.ant-segmented-item-label]:!py-0 sm:[&_.ant-segmented-item-label]:!text-[14px]',
+    '[&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-slate-900',
+  );
+
   return (
     <div
-      className="feedback-page-mobile-root min-h-screen h-auto w-full bg-white pb-4"
+      className="feedback-page-mobile-root h-auto min-w-0 w-full max-w-full bg-white pb-4"
       data-cy="feedback-page"
     >
-      {/*
-        Single header region: title + breadcrumb + view control share one wrapper; desktop button
-        is items-center aligned with the stacked title + breadcrumb column.
-      */}
-      <div
-        // className="feedback-page-header mb-4 -mx-9 border-b border-solid border-[#E5E7EB] px-9 pb-4 pt-0 text-left md:-mx-7 md:mb-8 md:px-7 md:pb-5"
-        data-cy="feedback-page-header"
-      >
-        <div className="w-full" data-cy="feedback-page-header-layout">
-          <CustomBreadcrumb
-            title={
-              <div
-                className="flex w-full min-w-0 flex-col gap-1 md:gap-2"
-                data-cy="feedback-page-header-title-container"
-              >
-                <div
-                  className="flex flex-row flex-nowrap items-center justify-between gap-3 md:justify-start md:gap-0"
-                  data-cy="feedback-page-header-title-row"
-                >
-                  <h1
-                    className="m-0 min-w-0 shrink-0 text-2xl font-bold leading-8 tracking-tight text-black md:text-[28px] md:leading-tight md:text-gray-900"
-                    data-cy="feedback-page-title"
-                  >
-                    Feedback
-                  </h1>
-                  <AccessGuard
-                    permissions={[Permissions.ViewAllEmployeeFeedback]}
-                    data-cy="feedback-page-toggle-guard"
-                  >
-                    <div
-                      className="shrink-0 md:hidden"
-                      data-cy="feedback-page-toggle-mobile-wrap"
-                    >
-                      <Tooltip title={viewToggleLabel} placement="bottom">
-                        <Button
-                          onClick={handleToggleView}
-                          type="default"
-                          icon={
-                            <AiOutlineEye
-                              className="block text-[18px] leading-none text-gray-700"
-                              aria-hidden
-                            />
-                          }
-                          aria-label={viewToggleLabel}
-                          className="feedback-header-view-toggle !flex !h-8 !w-8 !min-h-8 !min-w-8 !items-center !justify-center !rounded-lg !border !border-gray-300 !bg-white !p-0 !leading-[0] !text-gray-900 shadow-none hover:!border-gray-400 [&_.ant-btn-icon]:!mr-0 [&_.ant-btn-icon]:!flex [&_.ant-btn-icon]:!h-full [&_.ant-btn-icon]:!w-full [&_.ant-btn-icon]:!items-center [&_.ant-btn-icon]:!justify-center [&_.ant-btn-icon]:!leading-[0]"
-                          data-cy="feedback-page-toggle-view-btn"
-                        />
-                      </Tooltip>
-                    </div>
-                  </AccessGuard>
-                </div>
-                <p
-                  className="m-0 text-sm leading-[22px] text-black/[0.45] md:text-gray-400"
-                  data-cy="feedback-page-breadcrumb"
-                >
-                  CFR / Feedback
-                </p>
-              </div>
-            }
-            subtitle={null}
-            titleExtra={
-              <AccessGuard
-                permissions={[Permissions.ViewAllEmployeeFeedback]}
-                data-cy="feedback-page-toggle-guard-desktop"
-              >
-                <div
-                  className="hidden shrink-0 md:block"
-                  data-cy="feedback-page-toggle-desktop-wrap"
-                >
-                  <Button
-                    onClick={handleToggleView}
-                    type="default"
-                    className="m-0 !inline-flex !h-11 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-5 text-sm font-medium !leading-[22px] !text-gray-900 shadow-none hover:!border-gray-400 hover:!text-gray-900"
-                    data-cy="feedback-page-toggle-view-btn"
-                  >
-                    <AiOutlineEye
-                      className="size-[18px] shrink-0 text-gray-700"
-                      aria-hidden
-                    />
-                    <span
-                      className="leading-[22px]"
-                      data-cy="feedback-page-toggle-view-label"
-                    >
-                      {viewToggleLabel}
-                    </span>
-                  </Button>
-                </div>
-              </AccessGuard>
-            }
-          />
-        </div>
-      </div>
+      {!embeddedInHome && (
+        <CustomBreadcrumb
+          title="Feedback"
+          subtitle="CFR / Feedback"
+          isRecognition
+        />
+      )}
 
-      {/* Variant Tabs + actions — single row (Frame 3992: 64px bar, #9CA3AF border) */}
       <div
-        className="feedback-top-actions-bar -mx-3 mb-0 box-border border-b border-[#9CA3AF] bg-white px-3 md:mx-0 md:mb-6 md:border-[#e5e7eb] md:px-0"
-        data-cy="feedback-page-top-actions-bar"
+        data-cy="feedback-main-card"
+        className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
       >
         <div
-          className="flex min-h-[64px] flex-row flex-nowrap items-end justify-between gap-2 md:min-h-[56px] md:gap-4"
-          data-cy="feedback-page-top-actions-row"
+          data-cy="feedback-toolbar-row"
+          className={classNames(
+            'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 bg-white py-2',
+            'sm:flex-row sm:items-center sm:gap-3 lg:gap-x-8',
+          )}
         >
           <div
-            className="-mb-px flex min-h-[34px] min-w-0 flex-1 items-end gap-4 overflow-x-auto scrollbar-none md:gap-8"
-            data-cy="feedback-page-variant-tabs"
+            className="flex w-full shrink-0 items-center sm:w-auto sm:justify-center"
+            data-cy="feedback-variant-segmented-wrap"
           >
-            <button
-              type="button"
-              onClick={() => setVariantType('appreciation')}
-              className={`shrink-0 cursor-pointer border-0 border-b-2 border-solid bg-transparent px-0 pb-3 pt-1 text-base leading-6 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 md:border-b-[3px] md:text-sm ${
-                variantType === 'appreciation'
-                  ? 'border-b-[#1E40AF] font-bold text-[#1E40AF] md:border-b-[#2563eb] md:text-[#2563eb]'
-                  : 'border-b-transparent font-normal text-black/[0.7] hover:text-gray-900 md:text-[#374151]'
-              }`}
-              data-cy="feedback-page-tab-appreciation"
+            <ConfigProvider
+              theme={{
+                components: {
+                  Segmented: {
+                    trackBg: '#f1f5f9',
+                    itemSelectedBg: '#ffffff',
+                    itemSelectedColor: '#0f172a',
+                  },
+                },
+              }}
             >
-              Appriciation
-            </button>
-            <button
-              type="button"
-              onClick={() => setVariantType('reprimand')}
-              className={`shrink-0 cursor-pointer border-0 border-b-2 border-solid bg-transparent px-0 pb-3 pt-1 text-base leading-6 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 md:border-b-[3px] md:text-sm ${
-                variantType === 'reprimand'
-                  ? 'border-b-[#1E40AF] font-bold text-[#1E40AF] md:border-b-[#2563eb] md:text-[#2563eb]'
-                  : 'border-b-transparent font-normal text-black/[0.7] hover:text-gray-900 md:text-[#374151]'
-              }`}
-              data-cy="feedback-page-tab-reprimand"
-            >
-              Reprimand
-            </button>
+              <Segmented
+                size={isMobile ? 'middle' : 'large'}
+                value={variantType}
+                onChange={(value) =>
+                  setVariantType(value as 'appreciation' | 'reprimand')
+                }
+                options={[
+                  { label: 'Appriciation', value: 'appreciation' },
+                  { label: 'Reprimand', value: 'reprimand' },
+                ]}
+                className={feedbackSegmentedClassName}
+                data-cy="feedback-page-variant-segmented"
+              />
+            </ConfigProvider>
           </div>
 
           <div
-            className="flex shrink-0 items-center gap-2 pb-3 md:gap-3"
             data-cy="feedback-page-action-buttons"
+            className="flex min-w-0 w-full flex-1 flex-wrap items-center justify-end gap-2 overflow-visible sm:min-h-10 sm:flex-nowrap sm:gap-3"
           >
+            <AccessGuard
+              permissions={[Permissions.ViewAllEmployeeFeedback]}
+              data-cy="feedback-page-toggle-guard"
+            >
+              <Tooltip title={viewToggleLabel} placement="bottom">
+                <Button
+                  onClick={handleToggleView}
+                  type="default"
+                  icon={
+                    <AiOutlineEye
+                      className="block text-[18px] leading-none text-gray-700 md:hidden"
+                      aria-hidden
+                    />
+                  }
+                  aria-label={viewToggleLabel}
+                  className="feedback-header-view-toggle !flex !h-9 !w-9 !min-h-9 !min-w-9 !items-center !justify-center !rounded-lg !border !border-gray-300 !bg-white !p-0 !leading-[0] !text-gray-900 shadow-none hover:!border-gray-400 md:!hidden [&_.ant-btn-icon]:!mr-0 [&_.ant-btn-icon]:!flex [&_.ant-btn-icon]:!h-full [&_.ant-btn-icon]:!w-full [&_.ant-btn-icon]:!items-center [&_.ant-btn-icon]:!justify-center [&_.ant-btn-icon]:!leading-[0]"
+                  data-cy="feedback-page-toggle-view-btn"
+                />
+              </Tooltip>
+              <Button
+                onClick={handleToggleView}
+                type="default"
+                className="m-0 !hidden !h-9 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-5 text-sm font-medium !leading-[22px] !text-gray-900 shadow-none hover:!border-gray-400 hover:!text-gray-900 md:!inline-flex"
+                data-cy="feedback-page-toggle-view-btn"
+              >
+                <AiOutlineEye
+                  className="size-[18px] shrink-0 text-gray-700"
+                  aria-hidden
+                />
+                <span
+                  className="leading-[22px]"
+                  data-cy="feedback-page-toggle-view-label"
+                >
+                  {viewToggleLabel}
+                </span>
+              </Button>
+            </AccessGuard>
+
             <AccessGuard
               permissions={[Permissions.CreateFeedback]}
               data-cy="feedback-page-add-btn-guard"
@@ -617,7 +593,7 @@ const Page = () => {
                 type="primary"
                 onClick={() => setOpen(true)}
                 disabled={activeTab === ''}
-                className="flex !h-9 !min-w-9 !w-9 !items-center !justify-center !rounded-lg !border-0 !bg-[#1E40AF] !p-0 !text-white shadow-none hover:!bg-[#1d4ed8] md:!h-10 md:!min-w-0 md:!w-auto md:!gap-3 md:!px-5 md:!bg-[#2563eb]"
+                className="!flex !h-9 !min-h-9 !min-w-0 !w-auto shrink-0 items-center justify-center gap-2 !rounded-lg !border-0 !bg-[#1E40AF] !px-4 !text-white shadow-none hover:!bg-[#1E3A8A]"
                 data-cy="feedback-page-add-btn"
                 aria-label={
                   variantType === 'appreciation'
@@ -625,9 +601,9 @@ const Page = () => {
                     : 'Add Reprimand'
                 }
               >
-                <PlusOutlined className="!flex text-[16px] leading-none md:!inline-flex md:!text-[16px] [&_svg]:!h-[1em] [&_svg]:!w-[1em]" />
+                <PlusOutlined className="!flex text-[16px] leading-none [&_svg]:!h-[1em] [&_svg]:!w-[1em]" />
                 <span
-                  className="hidden text-sm font-semibold md:inline"
+                  className="text-sm font-semibold"
                   data-cy="feedback-page-add-btn-label"
                 >
                   {variantType === 'appreciation'
@@ -648,11 +624,11 @@ const Page = () => {
                   onClick={handleExport}
                   loading={isExporting || isExportDataLoading}
                   aria-label="Export"
-                  className="flex items-center gap-1 !h-9 rounded-lg border border-gray-300 bg-white px-2 font-medium shadow-none max-md:!min-w-9 max-md:!px-0 md:!h-10 md:px-4 md:text-sm"
+                  className="flex !h-9 shrink-0 items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 font-medium shadow-none md:px-4 md:text-sm"
                   data-cy="feedback-page-export-btn"
                 >
                   <span
-                    className="hidden md:inline"
+                    className="hidden sm:inline"
                     data-cy="feedback-page-export-btn-label"
                   >
                     Export
@@ -660,365 +636,371 @@ const Page = () => {
                 </Button>
               </AccessGuard>
             )}
+
+            <div
+              className="shrink-0 self-center"
+              data-cy="feedback-toolbar-filter"
+            >
+              <Popover
+                open={filterModalOpen}
+                onOpenChange={(open) => {
+                  if (open) {
+                    setFilterDraftDate(
+                      Array.isArray(givenDate) &&
+                        givenDate.length === 2 &&
+                        givenDate[0] &&
+                        givenDate[1]
+                        ? [givenDate[0], givenDate[1]]
+                        : null,
+                    );
+                    setFilterDraftType(feedbackListTypeId);
+                  }
+                  setFilterModalOpen(open);
+                }}
+                placement={isFilterPopoverNarrow ? 'bottom' : 'bottomRight'}
+                trigger="click"
+                arrow={false}
+                destroyTooltipOnHide
+                autoAdjustOverflow
+                getPopupContainer={() => document.body}
+                overlayClassName="feedback-filter-popover"
+                overlayStyle={
+                  isFilterPopoverNarrow
+                    ? {
+                        boxSizing: 'border-box',
+                      }
+                    : undefined
+                }
+                overlayInnerStyle={{
+                  padding: 0,
+                  boxSizing: 'border-box',
+                  width: isFilterPopoverNarrow ? '100%' : 509,
+                  maxWidth: isFilterPopoverNarrow
+                    ? '100%'
+                    : 'min(509px, calc(100vw - 24px))',
+                  borderRadius: 8,
+                  boxShadow:
+                    '0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 9px 28px 8px rgba(0, 0, 0, 0.05)',
+                  overflow: 'hidden',
+                }}
+                data-cy="feedback-filter-popover"
+                content={
+                  <div
+                    className="feedback-filter-modal-root flex max-h-[min(346px,calc(100dvh-120px))] max-w-full flex-col items-stretch overflow-x-hidden bg-white font-[Calibri,Candara,'Segoe_UI',sans-serif] md:max-h-[min(346px,90vh)]"
+                    data-cy="feedback-filter-modal-root"
+                  >
+                    <div
+                      className="relative flex shrink-0 flex-row items-center gap-[10px] px-6 pb-2 pt-5"
+                      data-cy="feedback-filter-modal-header"
+                    >
+                      <h3
+                        className="m-0 flex-1 text-base font-bold leading-6 text-black/[0.7]"
+                        data-cy="feedback-filter-modal-title"
+                      >
+                        Filter
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => setFilterModalOpen(false)}
+                        className="absolute right-5 top-4 flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-black/[0.45] transition-colors hover:bg-black/[0.04]"
+                        aria-label="Close"
+                        data-cy="feedback-filter-modal-close"
+                      >
+                        <IoCloseOutline className="text-base" />
+                      </button>
+                    </div>
+
+                    <div
+                      className="feedback-filter-modal-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 py-3"
+                      data-cy="feedback-filter-modal-scroll"
+                    >
+                      <div
+                        className="flex w-full max-w-full flex-col md:max-w-[461px]"
+                        data-cy="feedback-filter-modal-issue-date-section"
+                      >
+                        <div
+                          className="flex flex-row items-center pb-2"
+                          data-cy="feedback-filter-modal-issue-date-label-row"
+                        >
+                          <span
+                            className="text-sm font-normal leading-[22px] text-[#030712]"
+                            data-cy="feedback-filter-modal-issue-date-label"
+                          >
+                            Issue Date
+                          </span>
+                        </div>
+                        <RangePicker
+                          allowClear
+                          placeholder={['Start date', 'End date']}
+                          suffixIcon={
+                            <CalendarOutlined className="text-[18px] text-black/[0.25]" />
+                          }
+                          separator={
+                            <SwapRightOutlined className="text-[18px] text-black/[0.25]" />
+                          }
+                          value={
+                            filterDraftDate
+                              ? [
+                                  dayjs(filterDraftDate[0]),
+                                  dayjs(filterDraftDate[1]),
+                                ]
+                              : null
+                          }
+                          onChange={(dates, dateStrings) => {
+                            if (!dates) {
+                              setFilterDraftDate(null);
+                              return;
+                            }
+                            if (dates[0] && dates[1]) {
+                              setFilterDraftDate([
+                                dateStrings[0],
+                                dateStrings[1],
+                              ]);
+                            }
+                          }}
+                          className="feedback-modal-range-picker w-full max-w-full md:max-w-[461px]"
+                          getPopupContainer={() => document.body}
+                          data-cy="feedback-filter-modal-date-range"
+                        />
+                      </div>
+
+                      <div
+                        className="flex w-full max-w-full flex-col md:max-w-[461px]"
+                        data-cy="feedback-filter-modal-type-section"
+                      >
+                        <div
+                          className="flex flex-row items-center pb-2"
+                          data-cy="feedback-filter-modal-type-label-row"
+                        >
+                          <span
+                            className="text-sm font-normal leading-[22px] text-[#030712]"
+                            data-cy="feedback-filter-modal-type-label"
+                          >
+                            Type
+                          </span>
+                        </div>
+                        <Select
+                          allowClear
+                          placeholder="Select"
+                          value={filterDraftType}
+                          onChange={(val) => setFilterDraftType(val)}
+                          options={(getAllFeedbackTypes?.items ?? []).map(
+                            (item: { id: string; category: string }) => ({
+                              value: item.id,
+                              label: item.category,
+                            }),
+                          )}
+                          className="feedback-modal-type-select w-full max-w-full md:max-w-[461px]"
+                          popupClassName="feedback-modal-type-dropdown"
+                          getPopupContainer={() => document.body}
+                          data-cy="feedback-filter-modal-type"
+                        />
+                      </div>
+                    </div>
+
+                    <div
+                      className="mt-1 flex shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5 pt-0"
+                      data-cy="feedback-filter-modal-footer"
+                    >
+                      <Button
+                        type="default"
+                        onClick={() => {
+                          setFilterDraftDate(null);
+                          setFilterDraftType(undefined);
+                          setGivenDate([]);
+                          setFeedbackListTypeId(undefined);
+                          setFilterModalOpen(false);
+                        }}
+                        className="feedback-filter-modal-btn-cancel !m-0 !h-8 !min-w-[68px] !rounded-md !border !border-solid !border-[#D9D9D9] !bg-white !px-[15px] !text-sm !font-normal !leading-[22px] !text-black/[0.7] !shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#D9D9D9] hover:!text-black/[0.7]"
+                        data-cy="feedback-filter-modal-cancel"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="primary"
+                        onClick={() => {
+                          if (filterDraftDate) {
+                            setGivenDate(filterDraftDate);
+                          } else {
+                            setGivenDate([]);
+                          }
+                          setFeedbackListTypeId(
+                            filterDraftType === null ||
+                              filterDraftType === undefined
+                              ? undefined
+                              : filterDraftType,
+                          );
+                          setPage(1);
+                          setFilterModalOpen(false);
+                        }}
+                        className="feedback-filter-modal-btn-primary !m-0 !h-8 !min-w-[62px] !rounded-lg !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-sm !font-normal !leading-[22px] !text-white !shadow-[0px_2px_0px_rgba(5,145,255,0.1)] hover:!border-[#1E40AF] hover:!bg-[#1E40AF]"
+                        data-cy="feedback-filter-modal-apply"
+                      >
+                        Filter
+                      </Button>
+                    </div>
+                  </div>
+                }
+              >
+                <Button
+                  type="default"
+                  aria-label="Filter"
+                  icon={
+                    <MdOutlineFilterAlt
+                      className="text-base text-[#374151]"
+                      aria-hidden
+                    />
+                  }
+                  className="flex !h-9 !min-h-9 shrink-0 items-center justify-center gap-2 !rounded-lg !border !border-gray-300 !bg-white !px-3 !text-sm !font-medium !text-[#374151] shadow-none hover:!border-gray-400"
+                  data-cy="feedback-page-date-filter-btn"
+                >
+                  <span
+                    className="hidden sm:inline"
+                    data-cy="feedback-page-date-filter-btn-label"
+                  >
+                    Filter
+                  </span>
+                </Button>
+              </Popover>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Content Card — 8px horizontal inset from page content area */}
-      <div
-        className="mx-1 mt-4 overflow-hidden rounded-lg border border-[#D9D9D9] bg-white shadow-none md:mt-0 md:rounded-xl md:border-[#e5e7eb] md:shadow-sm"
-        data-cy="feedback-page-content-card"
-      >
-        {/* Search & Date Filters */}
+        {/* Content Card — 8px horizontal inset from page content area */}
         <div
-          className="feedback-page-search-filters flex flex-row flex-wrap items-center justify-between gap-0 px-2 pb-4 pt-5 md:gap-3 md:px-6 md:pb-6 md:pt-6"
-          data-cy="feedback-page-search-filters"
+          className="mx-1 mt-4 overflow-hidden rounded-lg border border-[#D9D9D9] bg-white shadow-none md:mt-0 md:rounded-xl md:border-[#e5e7eb] md:shadow-sm"
+          data-cy="feedback-page-content-card"
         >
+          {/* Search & Date Filters */}
           <div
-            className="relative h-8 min-w-0 max-w-[299px] flex-1 basis-0 shrink md:h-auto md:w-[299px] md:flex-none md:basis-auto"
-            data-cy="feedback-page-employee-select-wrap"
+            className="feedback-page-search-filters flex flex-row flex-wrap items-center justify-between gap-0 px-2 pb-4 pt-5 md:gap-3 md:px-6 md:pb-6 md:pt-6"
+            data-cy="feedback-page-search-filters"
           >
             <div
-              className="feedback-search-composite flex h-full min-h-8 w-full min-w-0 items-stretch overflow-hidden rounded-[6px] border border-[#D9D9D9] bg-white transition-colors focus-within:border-[#2563eb] focus-within:ring-1 focus-within:ring-[#2563eb]/20 md:border-[#e5e7eb] md:rounded-md"
-              data-cy="feedback-page-search-wrapper"
+              className="relative h-8 min-w-0 max-w-[299px] flex-1 basis-0 shrink md:h-auto md:w-[299px] md:flex-none md:basis-auto"
+              data-cy="feedback-page-employee-select-wrap"
             >
-              <Select
-                showSearch
-                allowClear
-                placeholder="Search Employee"
-                value={empId || undefined}
-                onChange={(id) => setEmpId(id ?? '')}
-                options={employeeSelectOptions}
-                variant="borderless"
-                suffixIcon={null}
-                popupMatchSelectWidth
-                listHeight={280}
-                optionFilterProp="label"
-                filterOption={(input, option) =>
-                  String(option?.label ?? '')
-                    .toLowerCase()
-                    .includes(input.trim().toLowerCase())
-                }
-                className="feedback-employee-select !m-0 min-w-0 flex-1"
-                popupClassName="feedback-employee-search-dropdown"
-                data-cy="feedback-page-search-input"
-              />
-              <span
-                className="w-px shrink-0 self-stretch bg-[#D9D9D9]"
-                aria-hidden
-                data-cy="feedback-page-search-divider"
-              />
               <div
-                className="flex h-8 w-8 shrink-0 items-center justify-center bg-white"
-                aria-hidden
-                data-cy="feedback-page-search-icon"
+                className="feedback-search-composite flex h-full min-h-8 w-full min-w-0 items-stretch overflow-hidden rounded-[6px] border border-[#D9D9D9] bg-white transition-colors focus-within:border-[#2563eb] focus-within:ring-1 focus-within:ring-[#2563eb]/20 md:border-[#e5e7eb] md:rounded-md"
+                data-cy="feedback-page-search-wrapper"
               >
-                <FiSearch className="text-base text-[#4b5563]" />
+                <Select
+                  showSearch
+                  allowClear
+                  placeholder="Search Employee"
+                  value={empId || undefined}
+                  onChange={(id) => setEmpId(id ?? '')}
+                  options={employeeSelectOptions}
+                  variant="borderless"
+                  suffixIcon={null}
+                  popupMatchSelectWidth
+                  listHeight={280}
+                  optionFilterProp="label"
+                  filterOption={(input, option) =>
+                    String(option?.label ?? '')
+                      .toLowerCase()
+                      .includes(input.trim().toLowerCase())
+                  }
+                  className="feedback-employee-select !m-0 min-w-0 flex-1"
+                  popupClassName="feedback-employee-search-dropdown"
+                  data-cy="feedback-page-search-input"
+                />
+                <span
+                  className="w-px shrink-0 self-stretch bg-[#D9D9D9]"
+                  aria-hidden
+                  data-cy="feedback-page-search-divider"
+                />
+                <div
+                  className="flex h-8 w-8 shrink-0 items-center justify-center bg-white"
+                  aria-hidden
+                  data-cy="feedback-page-search-icon"
+                >
+                  <FiSearch className="text-base text-[#4b5563]" />
+                </div>
               </div>
+            </div>
+
+            <div
+              className="flex h-8 min-w-0 shrink-0 flex-row flex-wrap items-center justify-end gap-2 md:h-auto md:flex-none"
+              data-cy="feedback-page-filter-chips-wrap"
+            >
+              {appliedFilterChips.map((chip) => (
+                <div
+                  key={chip.key}
+                  className="feedback-applied-filter-chip inline-flex h-8 max-w-full shrink-0 items-center gap-1.5 rounded-md border border-[#D9D9D9] bg-white px-2.5 pl-3 shadow-[0px_2px_0px_rgba(0,0,0,0.02)]"
+                  data-cy={`feedback-page-filter-chip-${chip.key}`}
+                >
+                  <span
+                    className="min-w-0 truncate text-sm font-normal leading-[22px] text-[#374151]"
+                    data-cy={`feedback-page-filter-chip-label-${chip.key}`}
+                  >
+                    {chip.label}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={chip.onRemove}
+                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded border-0 bg-transparent p-0 text-[#374151] hover:bg-black/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-blue-500"
+                    aria-label={`Remove ${chip.label} filter`}
+                    data-cy={`feedback-page-filter-chip-remove-${chip.key}`}
+                  >
+                    <CloseOutlined className="text-xs leading-none" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Table — full bleed horizontally inside card */}
+          <div
+            className="feedback-table-panel border-t border-[#F0F0F0] bg-white md:border-[#e5e7eb]"
+            data-cy="feedback-page-table-container"
+          >
+            <div
+              className="scrollbar-none w-full overflow-x-auto"
+              data-cy="feedback-page-table-scroll-container"
+            >
+              {getFeedbackRecordLoading ? (
+                <TableSkeleton columns={columns} />
+              ) : (
+                <Table
+                  dataSource={getAllFeedbackRecord?.items}
+                  columns={columns}
+                  rowClassName={(row, index) =>
+                    `feedback-table-row ${index % 2 === 1 ? 'feedback-table-row--alt' : 'feedback-table-row--base'}`
+                  }
+                  scroll={{ x: 'max-content' }}
+                  className="w-full feedback-table"
+                  pagination={false}
+                  rowKey={(record: any) => record?.id}
+                  data-cy="feedback-page-table"
+                />
+              )}
             </div>
           </div>
 
           <div
-            className="flex h-8 min-w-0 shrink-0 flex-row flex-wrap items-center justify-end gap-2 md:h-auto md:flex-none"
-            data-cy="feedback-page-filter-chips-wrap"
+            className="border-t border-[#e5e7eb] px-3 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4"
+            data-cy="feedback-page-pagination-wrap"
           >
-            {appliedFilterChips.map((chip) => (
-              <div
-                key={chip.key}
-                className="feedback-applied-filter-chip inline-flex h-8 max-w-full shrink-0 items-center gap-1.5 rounded-md border border-[#D9D9D9] bg-white px-2.5 pl-3 shadow-[0px_2px_0px_rgba(0,0,0,0.02)]"
-                data-cy={`feedback-page-filter-chip-${chip.key}`}
-              >
-                <span
-                  className="min-w-0 truncate text-sm font-normal leading-[22px] text-[#374151]"
-                  data-cy={`feedback-page-filter-chip-label-${chip.key}`}
-                >
-                  {chip.label}
-                </span>
-                <button
-                  type="button"
-                  onClick={chip.onRemove}
-                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded border-0 bg-transparent p-0 text-[#374151] hover:bg-black/[0.04] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-blue-500"
-                  aria-label={`Remove ${chip.label} filter`}
-                  data-cy={`feedback-page-filter-chip-remove-${chip.key}`}
-                >
-                  <CloseOutlined className="text-xs leading-none" />
-                </button>
-              </div>
-            ))}
-            <Popover
-              open={filterModalOpen}
-              onOpenChange={(open) => {
-                if (open) {
-                  setFilterDraftDate(
-                    Array.isArray(givenDate) &&
-                      givenDate.length === 2 &&
-                      givenDate[0] &&
-                      givenDate[1]
-                      ? [givenDate[0], givenDate[1]]
-                      : null,
-                  );
-                  setFilterDraftType(feedbackListTypeId);
-                }
-                setFilterModalOpen(open);
-              }}
-              placement={isFilterPopoverNarrow ? 'bottom' : 'bottomRight'}
-              trigger="click"
-              arrow={false}
-              destroyTooltipOnHide
-              autoAdjustOverflow
-              getPopupContainer={() => document.body}
-              overlayClassName="feedback-filter-popover"
-              overlayStyle={
-                isFilterPopoverNarrow
-                  ? {
-                      boxSizing: 'border-box',
-                    }
-                  : undefined
-              }
-              overlayInnerStyle={{
-                padding: 0,
-                boxSizing: 'border-box',
-                width: isFilterPopoverNarrow ? '100%' : 509,
-                maxWidth: isFilterPopoverNarrow
-                  ? '100%'
-                  : 'min(509px, calc(100vw - 24px))',
-                borderRadius: 8,
-                boxShadow:
-                  '0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12), 0px 9px 28px 8px rgba(0, 0, 0, 0.05)',
-                overflow: 'hidden',
-              }}
-              data-cy="feedback-filter-popover"
-              content={
-                <div
-                  className="feedback-filter-modal-root flex max-h-[min(346px,calc(100dvh-120px))] max-w-full flex-col items-stretch overflow-x-hidden bg-white font-[Calibri,Candara,'Segoe_UI',sans-serif] md:max-h-[min(346px,90vh)]"
-                  data-cy="feedback-filter-modal-root"
-                >
-                  <div
-                    className="relative flex shrink-0 flex-row items-center gap-[10px] px-6 pb-2 pt-5"
-                    data-cy="feedback-filter-modal-header"
-                  >
-                    <h3
-                      className="m-0 flex-1 text-base font-bold leading-6 text-black/[0.7]"
-                      data-cy="feedback-filter-modal-title"
-                    >
-                      Filter
-                    </h3>
-                    <button
-                      type="button"
-                      onClick={() => setFilterModalOpen(false)}
-                      className="absolute right-5 top-4 flex h-[22px] w-[22px] cursor-pointer items-center justify-center rounded border-0 bg-transparent p-0 text-black/[0.45] transition-colors hover:bg-black/[0.04]"
-                      aria-label="Close"
-                      data-cy="feedback-filter-modal-close"
-                    >
-                      <IoCloseOutline className="text-base" />
-                    </button>
-                  </div>
-
-                  <div
-                    className="feedback-filter-modal-scroll flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-6 py-3"
-                    data-cy="feedback-filter-modal-scroll"
-                  >
-                    <div
-                      className="flex w-full max-w-full flex-col md:max-w-[461px]"
-                      data-cy="feedback-filter-modal-issue-date-section"
-                    >
-                      <div
-                        className="flex flex-row items-center pb-2"
-                        data-cy="feedback-filter-modal-issue-date-label-row"
-                      >
-                        <span
-                          className="text-sm font-normal leading-[22px] text-[#030712]"
-                          data-cy="feedback-filter-modal-issue-date-label"
-                        >
-                          Issue Date
-                        </span>
-                      </div>
-                      <RangePicker
-                        allowClear
-                        placeholder={['Start date', 'End date']}
-                        suffixIcon={
-                          <CalendarOutlined className="text-[18px] text-black/[0.25]" />
-                        }
-                        separator={
-                          <SwapRightOutlined className="text-[18px] text-black/[0.25]" />
-                        }
-                        value={
-                          filterDraftDate
-                            ? [
-                                dayjs(filterDraftDate[0]),
-                                dayjs(filterDraftDate[1]),
-                              ]
-                            : null
-                        }
-                        onChange={(dates, dateStrings) => {
-                          if (!dates) {
-                            setFilterDraftDate(null);
-                            return;
-                          }
-                          if (dates[0] && dates[1]) {
-                            setFilterDraftDate([
-                              dateStrings[0],
-                              dateStrings[1],
-                            ]);
-                          }
-                        }}
-                        className="feedback-modal-range-picker w-full max-w-full md:max-w-[461px]"
-                        getPopupContainer={() => document.body}
-                        data-cy="feedback-filter-modal-date-range"
-                      />
-                    </div>
-
-                    <div
-                      className="flex w-full max-w-full flex-col md:max-w-[461px]"
-                      data-cy="feedback-filter-modal-type-section"
-                    >
-                      <div
-                        className="flex flex-row items-center pb-2"
-                        data-cy="feedback-filter-modal-type-label-row"
-                      >
-                        <span
-                          className="text-sm font-normal leading-[22px] text-[#030712]"
-                          data-cy="feedback-filter-modal-type-label"
-                        >
-                          Type
-                        </span>
-                      </div>
-                      <Select
-                        allowClear
-                        placeholder="Select"
-                        value={filterDraftType}
-                        onChange={(val) => setFilterDraftType(val)}
-                        options={(getAllFeedbackTypes?.items ?? []).map(
-                          (item: any) => ({
-                            value: item.id,
-                            label: item.category,
-                          }),
-                        )}
-                        className="feedback-modal-type-select w-full max-w-full md:max-w-[461px]"
-                        popupClassName="feedback-modal-type-dropdown"
-                        getPopupContainer={() => document.body}
-                        data-cy="feedback-filter-modal-type"
-                      />
-                    </div>
-                  </div>
-
-                  <div
-                    className="mt-1 flex shrink-0 flex-row items-center justify-end gap-2 px-6 pb-5 pt-0"
-                    data-cy="feedback-filter-modal-footer"
-                  >
-                    <Button
-                      type="default"
-                      onClick={() => {
-                        setFilterDraftDate(null);
-                        setFilterDraftType(undefined);
-                        setGivenDate([]);
-                        setFeedbackListTypeId(undefined);
-                        setFilterModalOpen(false);
-                      }}
-                      className="feedback-filter-modal-btn-cancel !m-0 !h-8 !min-w-[68px] !rounded-md !border !border-solid !border-[#D9D9D9] !bg-white !px-[15px] !text-sm !font-normal !leading-[22px] !text-black/[0.7] !shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#D9D9D9] hover:!text-black/[0.7]"
-                      data-cy="feedback-filter-modal-cancel"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      type="primary"
-                      onClick={() => {
-                        if (filterDraftDate) {
-                          setGivenDate(filterDraftDate);
-                        } else {
-                          setGivenDate([]);
-                        }
-                        setFeedbackListTypeId(
-                          filterDraftType === null ||
-                            filterDraftType === undefined
-                            ? undefined
-                            : filterDraftType,
-                        );
-                        setPage(1);
-                        setFilterModalOpen(false);
-                      }}
-                      className="feedback-filter-modal-btn-primary !m-0 !h-8 !min-w-[62px] !rounded-lg !border !border-solid !border-[#1E40AF] !bg-[#1E40AF] !px-4 !text-sm !font-normal !leading-[22px] !text-white !shadow-[0px_2px_0px_rgba(5,145,255,0.1)] hover:!border-[#1E40AF] hover:!bg-[#1E40AF]"
-                      data-cy="feedback-filter-modal-apply"
-                    >
-                      Filter
-                    </Button>
-                  </div>
-                </div>
-              }
+            <div
+              className="feedback-mobile-pagination w-full md:contents"
+              data-cy="feedback-page-pagination-mobile"
             >
-              <Button
-                type="default"
-                aria-label="Filter"
-                icon={
-                  <MdOutlineFilterAlt
-                    className="text-base text-[#374151]"
-                    aria-hidden
-                  />
-                }
-                className="flex !h-8 !min-h-8 shrink-0 items-center justify-center gap-2 !rounded-[6px] !border !border-[#D9D9D9] !bg-white !px-3 !text-sm !font-normal !text-[#374151] !shadow-[0px_2px_0px_rgba(0,0,0,0.02)] hover:!border-[#d1d5db] max-md:!h-8 max-md:!w-8 max-md:!min-w-8 max-md:!max-w-8 max-md:!gap-0 max-md:!p-0 md:!w-auto md:!max-w-none md:!justify-start md:!border-[#e5e7eb] md:!px-3"
-                data-cy="feedback-page-date-filter-btn"
-              >
-                <span
-                  className="hidden md:inline"
-                  data-cy="feedback-page-date-filter-btn-label"
-                >
-                  Filter
-                </span>
-              </Button>
-            </Popover>
-          </div>
-        </div>
-
-        {/* Table — full bleed horizontally inside card */}
-        <div
-          className="feedback-table-panel border-t border-[#F0F0F0] bg-white md:border-[#e5e7eb]"
-          data-cy="feedback-page-table-container"
-        >
-          <div
-            className="scrollbar-none w-full overflow-x-auto"
-            data-cy="feedback-page-table-scroll-container"
-          >
-            {getFeedbackRecordLoading ? (
-              <TableSkeleton columns={columns} />
-            ) : (
-              <Table
-                dataSource={getAllFeedbackRecord?.items}
-                columns={columns}
-                rowClassName={(row, index) =>
-                  `feedback-table-row ${index % 2 === 1 ? 'feedback-table-row--alt' : 'feedback-table-row--base'}`
-                }
-                scroll={{ x: 'max-content' }}
-                className="w-full feedback-table"
-                pagination={false}
-                rowKey={(record: any) => record?.id}
-                data-cy="feedback-page-table"
+              <CustomPagination
+                current={page}
+                total={getAllFeedbackRecord?.meta?.totalItems || 0}
+                pageSize={pageSize}
+                onChange={(page, pageSize) => {
+                  setPage(page);
+                  setPageSize(pageSize);
+                }}
+                onShowSizeChange={(size: number) => {
+                  setPageSize(size);
+                  setPage(1);
+                }}
+                data-cy="feedback-page-pagination"
               />
-            )}
-          </div>
-        </div>
-
-        <div
-          className="border-t border-[#e5e7eb] px-3 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4"
-          data-cy="feedback-page-pagination-wrap"
-        >
-          <div
-            className="feedback-mobile-pagination w-full md:contents"
-            data-cy="feedback-page-pagination-mobile"
-          >
-            <CustomPagination
-              current={page}
-              total={getAllFeedbackRecord?.meta?.totalItems || 0}
-              pageSize={pageSize}
-              onChange={(page, pageSize) => {
-                setPage(page);
-                setPageSize(pageSize);
-              }}
-              onShowSizeChange={(size: number) => {
-                setPageSize(size);
-                setPage(1);
-              }}
-              data-cy="feedback-page-pagination"
-            />
+            </div>
           </div>
         </div>
       </div>

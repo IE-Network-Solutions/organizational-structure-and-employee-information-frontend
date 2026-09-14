@@ -157,6 +157,12 @@ import { useGetEmployee } from '@/store/server/features/employees/employeeManagm
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { findMostSpecificMatchingRoute } from '@/utils/routePermissions';
+import {
+  filterAdminSidebarChildren,
+  shouldShowModuleInSidebar,
+} from '@/utils/navigation/sidebarVisibility';
+import { isHomePath } from '@/utils/navigation/personalRoutes';
+import { IS_HOME_PROTOTYPE } from '@/config/homePrototype';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 // import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
@@ -603,6 +609,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       permissions: [], // No permissions required
     },
     {
+      key: '/home/overview',
+      permissions: [],
+    },
+    {
+      key: '/home',
+      permissions: [],
+    },
+    {
       key: '/',
       permissions: [], // No permissions required
     },
@@ -729,8 +743,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return [
       {
         icon: <DashboardIcon style={{ fontSize: 20 }} />,
-        title: 'Dashboard',
-        key: '/dashboard',
+        title: 'Home',
+        key: '/home/overview',
         className: 'font-bold',
         permissions: [],
         moduleCode: 'DASHBOARD',
@@ -1149,6 +1163,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
   const checkPathnamePermissions = React.useCallback(
     (pathname: string): boolean => {
+      if (IS_HOME_PROTOTYPE && isHomePath(pathname)) {
+        return true;
+      }
+
       // Get all routes and their permissions
       const routesWithPermissions = getRoutesAndPermissions(treeData);
 
@@ -1302,7 +1320,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setIsCheckingPermissions(true);
       try {
         if (pathname === '/') {
-          router.push('/dashboard');
+          router.push('/home/overview');
           return;
         }
 
@@ -1384,7 +1402,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   }, [expandedKeys]);
 
   useEffect(() => {
-    if (pathname === '/dashboard' || pathname === '/') {
+    if (isHomePath(pathname)) {
       setExpandedKeys([]);
       return;
     }
@@ -1531,6 +1549,29 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   };
 
   const groupedMenuItems = React.useMemo(() => {
+    if (IS_HOME_PROTOTYPE) {
+      const homeTreeItem = treeData.find(
+        (item) => item.moduleCode === 'DASHBOARD',
+      );
+      return [
+        {
+          type: 'group' as const,
+          key: 'group-home-prototype',
+          label: '',
+          linkKey: '/home/overview',
+          children: [
+            {
+              key: '/home/overview',
+              icon: homeTreeItem?.icon ?? (
+                <DashboardIcon style={{ fontSize: 20 }} />
+              ),
+              label: 'Home',
+            },
+          ],
+        },
+      ];
+    }
+
     const normalizeRoute = (value?: string | null) => {
       if (!value) return '';
       const v = String(value).toLowerCase().trim();
@@ -1545,21 +1586,30 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
     const accessibleTreeItems = treeData
       .map((item) => {
+        if (item.moduleCode === 'DASHBOARD') {
+          return { ...item, children: [] };
+        }
+
         const hasAccess = AccessGuard.checkAccess({
           permissions: item.permissions,
           requireAny: item.requireAny,
         });
         if (!hasAccess) return null;
+
+        if (!shouldShowModuleInSidebar(item, isOwner)) return null;
+
+        const permittedChildren = item.children
+          ? item.children.filter((child) =>
+              AccessGuard.checkAccess({
+                permissions: child.permissions,
+                requireAny: child.requireAny,
+              }),
+            )
+          : [];
+
         return {
           ...item,
-          children: item.children
-            ? item.children.filter((child) =>
-                AccessGuard.checkAccess({
-                  permissions: child.permissions,
-                  requireAny: child.requireAny,
-                }),
-              )
-            : [],
+          children: filterAdminSidebarChildren(permittedChildren),
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
@@ -1590,7 +1640,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     });
 
     const nameMapping: Record<string, string> = {
-      overview: 'dashboard',
+      overview: 'home',
+      dashboard: 'home',
+      home: 'home',
       people: 'employees',
       performance: 'okr',
       okr: 'okr',
@@ -1746,7 +1798,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return Array.from(groupedByParent.values()).filter(
       (group) => group.children.length > 0,
     );
-  }, [treeData, modulesData, subscriptionData, subscriptionsData]);
+  }, [treeData, modulesData, subscriptionData, subscriptionsData, userData]);
 
   // Fallback skeleton structure used while modules data is not yet available
   const skeletonMenuItems = React.useMemo(
@@ -1831,6 +1883,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // };
 
   // Render the component with the layout and navigation on the left
+  const siderOffset = IS_HOME_PROTOTYPE
+    ? 0
+    : isMobile
+      ? 0
+      : collapsed
+        ? 80
+        : 280;
+  const showTopHeader = !IS_CORE && (IS_HOME_PROTOTYPE || !isMobile);
 
   return (
     <Layout
@@ -1842,159 +1902,172 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         transition: 'opacity 0.3s ease',
       }}
     >
-      <Sider
-        theme="light"
-        width={280}
-        className="scrollbar-hide flex flex-col"
-        style={{
-          overflow: 'visible',
-          height: '100vh',
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          zIndex: 100,
-          backgroundColor: 'var(--nav-sider-background, #eff6ff)',
-          // On mobile the bottom nav handles navigation — slide the sidebar fully off-screen.
-          transform: isMobile ? 'translateX(-100%)' : 'none',
-          transition: 'transform 0.3s ease',
-        }}
-        trigger={null}
-        collapsible
-        collapsed={isMobile ? false : collapsed}
-        breakpoint="md"
-        onBreakpoint={(broken) => {
-          setIsMobile(broken);
-          if (broken) {
-            setCollapsed(false);
-            setMobileCollapsed(true);
-          }
-        }}
-        collapsedWidth={80}
-      >
-        <div
-          data-cy="nav-sider-children-wrap"
-          className="relative flex flex-col flex-1 min-h-0"
+      {!IS_HOME_PROTOTYPE && (
+        <Sider
+          theme="light"
+          width={280}
+          className="scrollbar-hide flex flex-col"
+          style={{
+            overflow: 'visible',
+            height: '100vh',
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            zIndex: 100,
+            backgroundColor: 'var(--nav-sider-background, #eff6ff)',
+            // On mobile the bottom nav handles navigation — slide the sidebar fully off-screen.
+            transform: isMobile ? 'translateX(-100%)' : 'none',
+            transition: 'transform 0.3s ease',
+          }}
+          trigger={null}
+          collapsible
+          collapsed={isMobile ? false : collapsed}
+          breakpoint="md"
+          onBreakpoint={(broken) => {
+            setIsMobile(broken);
+            if (broken) {
+              setCollapsed(false);
+              setMobileCollapsed(true);
+            }
+          }}
+          collapsedWidth={80}
         >
-          {!IS_CORE && (
-            <div
-              data-cy="nav-sider-logo-wrap"
-              className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
-            >
+          <div
+            data-cy="nav-sider-children-wrap"
+            className="relative flex flex-col flex-1 min-h-0"
+          >
+            {!IS_CORE && (
               <div
-                data-cy="nav-sider-logo"
-                className="relative h-10 w-full flex items-center"
+                data-cy="nav-sider-logo-wrap"
+                className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
               >
-                {collapsed ? (
-                  <div
-                    data-cy="nav-sider-logo-collapsed-container"
-                    className="w-full flex justify-center"
-                  >
+                <div
+                  data-cy="nav-sider-logo"
+                  className="relative h-10 w-full flex items-center"
+                >
+                  {collapsed ? (
+                    <div
+                      data-cy="nav-sider-logo-collapsed-container"
+                      className="w-full flex justify-center"
+                    >
+                      <Image
+                        unoptimized
+                        src="/image/selamnew-workspace-logo-collapsed.svg"
+                        alt="SelamNew Workspace Logo"
+                        width={32}
+                        height={32}
+                        style={{ objectFit: 'contain' }}
+                      />
+                    </div>
+                  ) : (
                     <Image
                       unoptimized
-                      src="/image/selamnew-workspace-logo-collapsed.svg"
+                      src="/image/selamnew-workspace-logo.svg"
                       alt="SelamNew Workspace Logo"
-                      width={32}
-                      height={32}
+                      width={150}
+                      height={40}
                       style={{ objectFit: 'contain' }}
                     />
-                  </div>
-                ) : (
-                  <Image
-                    unoptimized
-                    src="/image/selamnew-workspace-logo.svg"
-                    alt="SelamNew Workspace Logo"
-                    width={150}
-                    height={40}
-                    style={{ objectFit: 'contain' }}
-                  />
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div
-            data-cy="nav-sider-menu-scroll"
-            className={`flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide ${IS_CORE ? 'pt-6' : ''}`}
-            style={{ minHeight: 0 }}
-          >
             <div
-              data-cy="nav-sider-menu-inner"
-              className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-10 pr-3'}`}
+              data-cy="nav-sider-menu-scroll"
+              className={`flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide ${IS_CORE ? 'pt-6' : ''}`}
+              style={{ minHeight: 0 }}
             >
-              {!isMounted || isLoadingData ? (
-                <div
-                  data-cy="nav-sider-loading"
-                  className="space-y-4 max-w-[209px]"
-                >
-                  {skeletonMenuItems.map((group: any) => (
-                    <div
-                      data-cy="nav-sider-group-skeleton"
-                      key={group.key}
-                      className="space-y-1"
-                    >
+              <div
+                data-cy="nav-sider-menu-inner"
+                className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-10 pr-3'}`}
+              >
+                {!isMounted || isLoadingData ? (
+                  <div
+                    data-cy="nav-sider-loading"
+                    className="space-y-4 max-w-[209px]"
+                  >
+                    {skeletonMenuItems.map((group: any) => (
                       <div
-                        data-cy="nav-sider-group-header-skeleton"
-                        className="mb-2 mt-4 first:mt-2"
+                        data-cy="nav-sider-group-skeleton"
+                        key={group.key}
+                        className="space-y-1"
                       >
                         <div
-                          data-cy="nav-sider-group-label-skeleton"
-                          className={`w-full font-light text-[#64748B] tracking-wide ${
-                            collapsed ? 'text-center truncate' : ''
-                          }`}
-                          style={{ fontSize: fontSizeSM }}
+                          data-cy="nav-sider-group-header-skeleton"
+                          className="mb-2 mt-4 first:mt-2"
                         >
-                          {group.label}
-                        </div>
-                      </div>
-
-                      <div
-                        data-cy="nav-sider-group-children-skeleton"
-                        className={`space-y-1 ${collapsed ? '' : 'pl-2'}`}
-                      >
-                        {group.children?.map((item: any) => (
                           <div
-                            key={item.key}
-                            data-cy="nav-sider-menu-item-skeleton"
-                            className={`
+                            data-cy="nav-sider-group-label-skeleton"
+                            className={`w-full font-light text-[#64748B] tracking-wide ${
+                              collapsed ? 'text-center truncate' : ''
+                            }`}
+                            style={{ fontSize: fontSizeSM }}
+                          >
+                            {group.label}
+                          </div>
+                        </div>
+
+                        <div
+                          data-cy="nav-sider-group-children-skeleton"
+                          className={`space-y-1 ${collapsed ? '' : 'pl-2'}`}
+                        >
+                          {group.children?.map((item: any) => (
+                            <div
+                              key={item.key}
+                              data-cy="nav-sider-menu-item-skeleton"
+                              className={`
                               group flex items-center py-2 rounded-xl
                               ${collapsed ? 'justify-center mx-[10px]' : ''}
                             `}
-                          >
-                            <div
-                              data-cy="nav-sider-menu-item-skeleton-bar"
-                              className="h-[16px] w-full rounded-md bg-gray-200"
-                            />
-                          </div>
-                        ))}
+                            >
+                              <div
+                                data-cy="nav-sider-menu-item-skeleton-bar"
+                                className="h-[16px] w-full rounded-md bg-gray-200"
+                              />
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div
-                  data-cy="nav-sider-groups"
-                  className="space-y-4 max-w-[209px]"
-                >
-                  {groupedMenuItems.map((group: any) => (
-                    <div
-                      data-cy="nav-sider-group"
-                      key={group.key}
-                      className="space-y-1"
-                    >
+                    ))}
+                  </div>
+                ) : (
+                  <div
+                    data-cy="nav-sider-groups"
+                    className="space-y-4 max-w-[209px]"
+                  >
+                    {groupedMenuItems.map((group: any) => (
                       <div
-                        data-cy="nav-sider-group-header"
-                        className={`mb-2 mt-4 first:mt-2 ${collapsed ? 'text-center' : ''}`}
+                        data-cy="nav-sider-group"
+                        key={group.key}
+                        className="space-y-1"
                       >
-                        <Link
-                          href={
-                            group.linkKey || `/${group.label.toLowerCase()}`
-                          }
-                          data-cy="nav-sider-group-label-wrap"
-                          className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
-                            collapsed ? 'text-center truncate' : ''
+                        {group.label ? (
+                          <div
+                            data-cy="nav-sider-group-header"
+                            className={`mb-2 mt-4 first:mt-2 ${collapsed ? 'text-center' : ''}`}
+                          >
+                            <Link
+                              href={
+                                group.linkKey || `/${group.label.toLowerCase()}`
+                              }
+                              data-cy="nav-sider-group-label-wrap"
+                              className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
+                                collapsed ? 'text-center truncate' : ''
+                              }`}
+                              style={{ fontSize: fontSizeSM }}
+                            >
+                              {group.label}
+                            </Link>
+                          </div>
+                        ) : null}
+
+                        <div
+                          data-cy="nav-sider-group-children"
+                          className={`space-y-1 transition-all duration-300 opacity-100 ${
+                            collapsed ? '' : 'pl-2'
                           }`}
-                          style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
                         </Link>
@@ -2033,12 +2106,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                           />
                         ))}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
           {collaborationEnabled &&
             AccessGuard.checkAccess({
@@ -2144,57 +2216,60 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             )}
         </div>
 
-        {!isMobile && (
-          <div
-            data-cy="nav-sider-collapse-footer"
-            className={`w-full shrink-0 bg-white/40 pb-2 ${
-              collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
-            }`}
-          >
+          {!isMobile && (
             <div
-              data-cy="nav-sider-collapse-inner"
-              className={`max-w-[209px] w-full ${collapsed ? '' : 'pl-2'}`}
+              data-cy="nav-sider-collapse-footer"
+              className={`w-full shrink-0 bg-white/40 pb-2 ${
+                collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
+              }`}
             >
               <div
-                data-cy="nav-sider-collapse-wrapper"
-                className="flex flex-col w-full"
+                data-cy="nav-sider-collapse-inner"
+                className={`max-w-[209px] w-full ${collapsed ? '' : 'pl-2'}`}
               >
                 <div
-                  data-cy="nav-sider-toggle"
-                  role="button"
-                  aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                  onClick={toggleCollapsed}
-                  className={`group flex items-center gap-3 py-2 transition-all duration-200 rounded-[6px] font-medium hover:bg-[#E6F4FF] cursor-pointer text-black ${
-                    collapsed
-                      ? 'justify-center px-0 mx-[10px]'
-                      : 'pl-[5px] -ml-[5px]'
-                  }`}
+                  data-cy="nav-sider-collapse-wrapper"
+                  className="flex flex-col w-full"
                 >
                   <div
-                    data-cy="nav-sider-collapse-icon"
-                    className="text-[21px] transition-colors text-black"
+                    data-cy="nav-sider-toggle"
+                    role="button"
+                    aria-label={
+                      collapsed ? 'Expand sidebar' : 'Collapse sidebar'
+                    }
+                    onClick={toggleCollapsed}
+                    className={`group flex items-center gap-3 py-2 transition-all duration-200 rounded-[6px] font-medium hover:bg-[#E6F4FF] cursor-pointer text-black ${
+                      collapsed
+                        ? 'justify-center px-0 mx-[10px]'
+                        : 'pl-[5px] -ml-[5px]'
+                    }`}
                   >
-                    {collapsed ? (
-                      <ChevronsRight size={21} />
-                    ) : (
-                      <ChevronsLeft size={21} />
+                    <div
+                      data-cy="nav-sider-collapse-icon"
+                      className="text-[21px] transition-colors text-black"
+                    >
+                      {collapsed ? (
+                        <ChevronsRight size={21} />
+                      ) : (
+                        <ChevronsLeft size={21} />
+                      )}
+                    </div>
+                    {!collapsed && (
+                      <span
+                        data-cy="nav-sider-collapse-label"
+                        className="flex-1 transition-colors"
+                        style={{ fontSize }}
+                      >
+                        Collapse
+                      </span>
                     )}
                   </div>
-                  {!collapsed && (
-                    <span
-                      data-cy="nav-sider-collapse-label"
-                      className="flex-1 transition-colors"
-                      style={{ fontSize }}
-                    >
-                      Collapse
-                    </span>
-                  )}
                 </div>
               </div>
             </div>
-          </div>
-        )}
-      </Sider>
+          )}
+        </Sider>
+      )}
       <Layout
         style={{
           marginLeft: 0,
@@ -2207,32 +2282,48 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           flexDirection: 'column',
         }}
       >
-        {!IS_CORE && (
+        {showTopHeader && (
           <Header
             style={{
               padding: 0,
               background: '#fff',
-              display: isMobile ? 'none' : 'flex',
+              display: 'flex',
               alignItems: 'center',
               position: 'fixed',
               // Fixed, so it is sized off the viewport rather than off its flex
               // parent — the collaboration panel's width has to come out by hand
               // or the header runs underneath it.
-              width: isMobile
-                ? '100%'
-                : `calc(100% - ${collapsed ? 80 : 280}px${
-                    collaborationOpen ? ` - ${collaborationPanelWidth}px` : ''
-                  })`,
+              width: `calc(100% - ${siderOffset}px${
+                collaborationOpen ? ` - ${collaborationPanelWidth}px` : ''
+              })`,
               zIndex: 40,
               top: 0,
-              left: isMobile ? 0 : collapsed ? 80 : 280,
+              left: siderOffset,
               transition: 'left 0.3s ease, width 0.3s ease',
               height: '74px',
               borderBottom: '1px solid #F1F5F9',
               boxShadow: 'none',
             }}
           >
-            {isMobile && mobileCollapsed && (
+            {IS_HOME_PROTOTYPE && (
+              <Link
+                href="/home/overview"
+                className="flex shrink-0 items-center pl-6"
+                data-cy="nav-header-logo-link"
+              >
+                <Image
+                  unoptimized
+                  src="/image/selamnew-workspace-logo.svg"
+                  alt="SelamNew Workspace Logo"
+                  width={isMobile ? 120 : 150}
+                  height={40}
+                  style={{ objectFit: 'contain' }}
+                  data-cy="nav-header-logo"
+                />
+              </Link>
+            )}
+
+            {isMobile && mobileCollapsed && !IS_HOME_PROTOTYPE && (
               <div
                 data-cy="nav-header-mobile-toggle-wrap"
                 className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
@@ -2248,7 +2339,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               </div>
             )}
 
-            <NavBar handleLogout={handleLogout} />
+            <NavBar handleLogout={handleLogout} isMobile={isMobile} />
           </Header>
         )}
 
@@ -2257,10 +2348,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
           style={{
             paddingInline: 0,
-            paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
+            paddingLeft: siderOffset,
             paddingRight: 0,
-            paddingTop: isMobile || IS_CORE ? 0 : '74px',
-            paddingBottom: isMobile ? 68 : 0,
+            paddingTop: showTopHeader ? '74px' : 0,
+            paddingBottom: isMobile && !IS_HOME_PROTOTYPE ? 68 : 0,
             transition: 'padding-left 0.3s ease',
             background: '#ffffff',
           }}
@@ -2305,7 +2396,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         </Content>
 
         {/* Mobile bottom navigation — replaces the hamburger drawer on small screens */}
-        {isMobile && (
+        {isMobile && !IS_HOME_PROTOTYPE && (
           <MobileBottomNav
             groups={groupedMenuItems}
             colorPrimary={colorPrimary}

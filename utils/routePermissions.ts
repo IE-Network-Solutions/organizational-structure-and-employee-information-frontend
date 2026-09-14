@@ -27,6 +27,29 @@ interface MenuRouteNode {
 
 const HIDDEN_ROUTES: RouteWithPermissions[] = [
   { route: '/dashboard', permissions: [] },
+  { route: '/home', permissions: [] },
+  { route: '/home/overview', permissions: [] },
+  { route: '/home/schedule', permissions: ['view_my_timesheet'] },
+  { route: '/home/leave', permissions: ['view_my_timesheet'] },
+  { route: '/home/attendance', permissions: ['view_my_timesheet'] },
+  { route: '/home/payroll', permissions: ['view_my_payroll'] },
+  { route: '/home/plan', permissions: ['manage_planning_reporting'] },
+  { route: '/home/okr', permissions: ['view_okr_overview'] },
+  { route: '/home/training', permissions: ['view_learning_growth'] },
+  { route: '/home/feedback', permissions: ['view_feedback_list'] },
+  { route: '/home/conversation', permissions: ['view_feedback_conversation'] },
+  { route: '/home/weekly-priority', permissions: ['view_weekly_priority'] },
+  { route: '/home/approvals', permissions: ['view_my_timesheet'] },
+  { route: '/home/profile', permissions: [] },
+  { route: '/home/announcement', permissions: ['view_organization'] },
+  { route: '/myPayroll', permissions: ['view_my_payroll'] },
+  {
+    route: '/planning-and-reporting',
+    permissions: ['manage_planning_reporting'],
+  },
+  { route: '/tna/my-training', permissions: ['view_learning_growth'] },
+  { route: '/weekly-priority', permissions: ['view_weekly_priority'] },
+  { route: '/timesheet/my-timesheet', permissions: ['view_my_timesheet'] },
   { route: '/', permissions: [] },
   { route: '/employees/manage-employees/[id]', permissions: [] },
   { route: '/employee-information/[id]', permissions: [] },
@@ -156,15 +179,6 @@ const MENU_ROUTES: MenuRouteNode[] = [
     key: 'feedback-menu',
     permissions: ['view_feedback'],
     children: [
-      {
-        key: '/feedback/conversation',
-        permissions: ['view_feedback_conversation'],
-      },
-      { key: '/feedback/feedback', permissions: ['view_feedback_list'] },
-      {
-        key: '/feedback/recognition',
-        permissions: ['view_feedback_recognition'],
-      },
       { key: '/feedback/settings', permissions: ['manage_feedback_settings'] },
     ],
   },
@@ -197,7 +211,6 @@ const MENU_ROUTES: MenuRouteNode[] = [
         permissions: ['view_employee_information'],
       },
       { key: '/payroll', permissions: ['view_payroll_overview_page'] },
-      { key: '/myPayroll', permissions: ['view_my_payroll'] },
       { key: '/settings', permissions: ['manage_payroll_settings'] },
     ],
   },
@@ -209,7 +222,6 @@ const MENU_ROUTES: MenuRouteNode[] = [
         key: '/timesheet/dashboard',
         permissions: ['view_timesheet_dashboard'],
       },
-      { key: '/timesheet/my-timesheet', permissions: ['view_my_timesheet'] },
       {
         key: '/timesheet/employee-attendance',
         permissions: ['view_employee_attendance'],
@@ -365,6 +377,10 @@ export function findMostSpecificMatchingRoute(
  * Use this for redirects and for making notification links conditionally clickable.
  */
 export function checkPathnamePermissions(pathname: string): boolean {
+  if (IS_HOME_PROTOTYPE && isHomePath(pathname)) {
+    return true;
+  }
+
   const userData = useAuthenticationStore.getState().userData;
   const routesWithPermissions = getRoutesWithPermissions();
 

@@ -17,6 +17,8 @@ import EditToolbar from './_components/customize/EditToolbar';
 import { useDashboardLayout } from './_components/customize/useDashboardLayout';
 import { toDashboardPlanKey } from './_components/customize/widgetRegistry';
 import type { DashboardPlanView } from './_components/customize/types';
+import { usePathname } from 'next/navigation';
+import { isHomePath } from '@/utils/navigation/personalRoutes';
 
 function dashboardPlanFromSubscription(
   data: ApiResponse<Subscription> | undefined,
@@ -30,6 +32,8 @@ function dashboardPlanFromSubscription(
 
 export default function Home() {
   useFiscalYearRedirect(); // 👈 Activate fiscal year redirect logic
+  const pathname = usePathname();
+  const embeddedInHomeHub = isHomePath(pathname);
 
   const { data: activeCalender, isLoading: isResponseLoading } =
     useGetActiveFiscalYears({
@@ -85,12 +89,14 @@ export default function Home() {
         className="my-5 flex justify-between items-center "
         data-cy="dashboard-header"
       >
-        <h1
-          className="text-2xl font-bold text-gray-900"
-          data-cy="dashboard-header-title"
-        >
-          Dashboard
-        </h1>
+        {!embeddedInHomeHub && (
+          <h1
+            className="text-2xl font-bold text-gray-900"
+            data-cy="dashboard-header-title"
+          >
+            Dashboard
+          </h1>
+        )}
         {/* Dashboard customization controls */}
         <div
           className="flex gap-2 items-center"
