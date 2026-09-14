@@ -19,7 +19,7 @@ describe('resolvePlanCardDisplayMode', () => {
 describe('planCardAssigneeLabel', () => {
   it('normalizes possessive plan titles and My Plan', () => {
     expect(planCardAssigneeLabel("Alice's Plan")).toBe('Alice');
-    expect(planCardAssigneeLabel('My Plan')).toBe('You');
+    expect(planCardAssigneeLabel('My Plan')).toBe('My Plan');
     expect(planCardAssigneeLabel('Bob Okonkwo')).toBe('Bob Okonkwo');
   });
 });

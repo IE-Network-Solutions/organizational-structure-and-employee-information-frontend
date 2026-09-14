@@ -13,6 +13,7 @@ type TaskCommentsModalProps = {
   open: boolean;
   ownerUserId: string;
   task: MockPlanTask | null;
+  canComment?: boolean;
   onClose: () => void;
 };
 
@@ -20,6 +21,7 @@ export default function TaskCommentsModal({
   open,
   ownerUserId,
   task,
+  canComment = true,
   onClose,
 }: TaskCommentsModalProps) {
   const { userId } = useAuthenticationStore();
@@ -27,20 +29,27 @@ export default function TaskCommentsModal({
   const activeTasks = useUserPlanRepositoryMock((s) =>
     ownerUserId ? s.getActiveTasks(ownerUserId) : [],
   );
+  const pendingReportTasks = useUserPlanRepositoryMock((s) =>
+    ownerUserId ? (s.plansByUserId[ownerUserId]?.pendingReportTasks ?? []) : [],
+  );
   const [text, setText] = useState('');
   const [saving, setSaving] = useState(false);
 
   const liveTask = useMemo(() => {
     if (!task) return null;
-    return activeTasks.find((t) => t.id === task.id) ?? task;
-  }, [activeTasks, task]);
+    return (
+      activeTasks.find((t) => t.id === task.id) ??
+      pendingReportTasks.find((t) => t.id === task.id) ??
+      task
+    );
+  }, [activeTasks, pendingReportTasks, task]);
 
   useEffect(() => {
     if (open) setText('');
   }, [open, task?.id]);
 
   const handleSubmit = () => {
-    if (!liveTask) return;
+    if (!liveTask || !canComment) return;
     setSaving(true);
     const result = addTaskComment(
       ownerUserId,
@@ -122,33 +131,42 @@ export default function TaskCommentsModal({
           ))
         )}
       </div>
-      <div
-        data-cy="planning-and-reporting-components-cards-taskcommentsmodal-tsx-taskcommentsmodal-div-104"
-        className="flex flex-col gap-2"
-      >
-        <Input.TextArea
-          rows={3}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Write a comment…"
-          data-cy="task-comments-input"
-        />
+      {canComment ? (
         <div
-          data-cy="planning-and-reporting-components-cards-taskcommentsmodal-tsx-taskcommentsmodal-div-112"
-          className="flex justify-end gap-2"
+          data-cy="planning-and-reporting-components-cards-taskcommentsmodal-tsx-taskcommentsmodal-div-104"
+          className="flex flex-col gap-2"
+        >
+          <Input.TextArea
+            rows={3}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Write a comment…"
+            data-cy="task-comments-input"
+          />
+          <div
+            data-cy="planning-and-reporting-components-cards-taskcommentsmodal-tsx-taskcommentsmodal-div-112"
+            className="flex justify-end gap-2"
+          >
+            <Button onClick={onClose}>Close</Button>
+            <Button
+              type="primary"
+              loading={saving}
+              onClick={handleSubmit}
+              data-cy="task-comments-submit"
+              className="!border-[#574CFF] !bg-[#574CFF] hover:!bg-[#4639E8]"
+            >
+              Post
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div
+          data-cy="task-comments-readonly-footer"
+          className="flex justify-end"
         >
           <Button onClick={onClose}>Close</Button>
-          <Button
-            type="primary"
-            loading={saving}
-            onClick={handleSubmit}
-            data-cy="task-comments-submit"
-            className="!border-[#574CFF] !bg-[#574CFF] hover:!bg-[#4639E8]"
-          >
-            Post
-          </Button>
         </div>
-      </div>
+      )}
     </Modal>
   );
 }

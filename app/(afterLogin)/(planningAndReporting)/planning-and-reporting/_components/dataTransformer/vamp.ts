@@ -436,6 +436,18 @@ export const transformReportToPlanSummary = (
             : undefined,
       isAchieved: task.isAchieved === true,
     };
+    if (task.isPendingApproval) {
+      taskObj.isPendingApproval = true;
+    }
+    if (task.isLocked) {
+      (taskObj as any).isLocked = true;
+    }
+    if (task.lockComment) {
+      (taskObj as any).lockComment = task.lockComment;
+    }
+    if (task.commentCount != null) {
+      (taskObj as any).commentCount = task.commentCount;
+    }
     if (achieveMK) {
       taskObj.achieveMK = true;
       if (hasMilestoneOutcome) {

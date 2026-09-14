@@ -15,7 +15,7 @@ export function resolvePlanCardDisplayMode(
 export function planCardAssigneeLabel(ownerName?: string): string {
   const n = String(ownerName || '').trim();
   if (!n) return 'Unknown';
-  if (/^my plan$/i.test(n)) return 'You';
+  if (/^my plan$/i.test(n)) return 'My Plan';
   const possessive = n.match(/^(.+?)'s Plan$/i);
   if (possessive?.[1]) return possessive[1].trim();
   return n;

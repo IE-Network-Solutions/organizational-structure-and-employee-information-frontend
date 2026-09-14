@@ -180,8 +180,9 @@ export function useReportingData(enabled = true) {
           : Array.isArray(item?.reportTasks)
             ? item.reportTasks
             : [];
-        const filteredTasks = reportTasks.filter((task: any) =>
-          reportedAtMatchesDurationFilter(
+        const filteredTasks = reportTasks.filter((task: any) => {
+          if (task?.isPendingApproval) return true;
+          return reportedAtMatchesDurationFilter(
             task?.reportedAt ||
               task?.createdAt ||
               task?.updatedAt ||
@@ -189,8 +190,8 @@ export function useReportingData(enabled = true) {
             durationFilter,
             today,
             historyRange,
-          ),
-        );
+          );
+        });
         if (filteredTasks.length === 0) return null;
         const latest = filteredTasks
           .map(

@@ -128,6 +128,42 @@ function reportedAtByTaskId(plan: MockUserPlan): Map<string, string> {
   return map;
 }
 
+function mockTaskToReportTaskItem(
+  t: MockPlanTask,
+  plan: MockUserPlan,
+  reportedAt: string,
+  pending: boolean,
+) {
+  const apiTask = mockTaskToApiTask(t, plan);
+  return {
+    id: pending ? `rt-pending-${t.id}` : `rt-${t.id}`,
+    planTaskId: t.id,
+    status: t.done ? 'Done' : 'Not',
+    isAchieved: !!t.done,
+    actualValue: t.actualValue ?? 0,
+    customReason: t.reportNote ?? '',
+    weight: typeof t.weight === 'number' ? t.weight : 0,
+    createdAt: reportedAt,
+    reportedAt,
+    isPendingApproval: pending ? true : undefined,
+    isLocked: t.isLocked,
+    lockComment: t.lockComment,
+    commentCount: t.comments?.length ?? 0,
+    planTask: {
+      ...apiTask,
+      id: t.id,
+      task: t.title,
+      taskName: t.title,
+      targetValue:
+        typeof t.targetValue === 'number'
+          ? t.targetValue
+          : typeof t.weight === 'number'
+            ? t.weight
+            : 0,
+    },
+  };
+}
+
 export function mockPlansToReportingItems(
   plans: MockUserPlan[],
   durationFilter: PlanFilterValue,
@@ -135,10 +171,8 @@ export function mockPlansToReportingItems(
   historyRange?: { from: string; to: string },
 ): any[] {
   return plans.flatMap((plan) => {
-    if (plan.reportHistory.length === 0) return [];
-
     const reportedAtMap = reportedAtByTaskId(plan);
-    const filtered = plan.archivedTasks.filter((task) => {
+    const validated = plan.archivedTasks.filter((task) => {
       if (!reportedAtMap.has(task.id)) return false;
       return reportedAtMatchesDurationFilter(
         reportedAtMap.get(task.id),
@@ -147,56 +181,49 @@ export function mockPlansToReportingItems(
         historyRange,
       );
     });
-    if (filtered.length === 0) return [];
+    const pending = plan.pendingReportTasks ?? [];
+    if (validated.length === 0 && pending.length === 0) return [];
 
-    const latestSubmittedAt = filtered
+    const latestValidated = validated
       .map((t) => reportedAtMap.get(t.id) || '')
       .filter(Boolean)
       .sort((a, b) => String(b).localeCompare(String(a)))[0];
+    const latestPending = `${today}T10:00:00.000Z`;
+    const latestSubmittedAt = latestValidated || latestPending;
 
     const periodName =
-      filtered.length > 0 ? kindToPeriodName(filtered[0].kind) : 'Weekly';
+      validated.length > 0
+        ? kindToPeriodName(validated[0].kind)
+        : pending.length > 0
+          ? kindToPeriodName(pending[0].kind)
+          : 'Weekly';
 
     return [
       {
         id: `report-plan-${plan.userId}`,
         planId: plan.planId,
         userId: plan.userId,
-        isValidated: true,
+        isValidated: validated.length > 0,
         isReported: true,
         createdAt: latestSubmittedAt,
         plan: {
           id: plan.planId,
-          isReportValidated: true,
+          isReportValidated: validated.length > 0 && pending.length === 0,
         },
         _periodName: periodName,
-        reportTask: filtered.map((t) => {
-          const apiTask = mockTaskToApiTask(t, plan);
-          const reportedAt = reportedAtMap.get(t.id) || latestSubmittedAt;
-          return {
-            id: `rt-${t.id}`,
-            planTaskId: t.id,
-            status: t.done ? 'Done' : 'Not',
-            isAchieved: !!t.done,
-            actualValue: t.actualValue ?? 0,
-            customReason: t.reportNote ?? '',
-            weight: typeof t.weight === 'number' ? t.weight : 0,
-            createdAt: reportedAt,
-            reportedAt,
-            planTask: {
-              ...apiTask,
-              id: t.id,
-              task: t.title,
-              taskName: t.title,
-              targetValue:
-                typeof t.targetValue === 'number'
-                  ? t.targetValue
-                  : typeof t.weight === 'number'
-                    ? t.weight
-                    : 0,
-            },
-          };
-        }),
+        reportTask: [
+          ...validated.map((t) =>
+            mockTaskToReportTaskItem(
+              t,
+              plan,
+              reportedAtMap.get(t.id) || latestSubmittedAt,
+              false,
+            ),
+          ),
+          ...pending.map((t) =>
+            mockTaskToReportTaskItem(t, plan, latestPending, true),
+          ),
+        ],
       },
     ];
   });

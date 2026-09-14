@@ -464,7 +464,7 @@ export function usePlanningData(enabled = true) {
             ...summary.owner,
             name:
               title === 'My Plan'
-                ? 'You'
+                ? 'My Plan'
                 : mockDisplayNameForUserId(planUserId, currentUserId),
             role: mockRoleForUserId(planUserId, currentUserId),
             avatarInitials:

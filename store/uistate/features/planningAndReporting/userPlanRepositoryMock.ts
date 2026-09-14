@@ -37,6 +37,8 @@ export type MockPlanTask = DeadlineTask & {
   /** Shelved without a formal report submit. */
   isManuallyArchived?: boolean;
   isPendingApproval?: boolean;
+  /** Report submitted; awaiting manager validation on Reports tab. */
+  isPendingReportApproval?: boolean;
   /** Manager lock — independent of children. */
   isLocked?: boolean;
   lockComment?: string;
@@ -64,6 +66,8 @@ export type MockUserPlan = {
   isValidated: boolean;
   activeTasks: MockPlanTask[];
   archivedTasks: MockPlanTask[];
+  /** Submitted reports awaiting manager validation (Reports tab Pending section). */
+  pendingReportTasks: MockPlanTask[];
   reportHistory: MockReportRecord[];
   pendingReopenRequest: boolean;
   /** When set, ensurePlan rebuilds if it does not match MOCK_PLAN_SEED_VERSION. */
@@ -408,6 +412,39 @@ const buildMockUserPlan = (
     taskTitles: [pastWeekly1.title],
   };
 
+  const pendingReportTask1: MockPlanTask = {
+    id: tid('preport-1'),
+    title: 'Submit Q-demo metrics',
+    start: plus(0),
+    deadline: plus(0),
+    spanDays: 1,
+    kind: 'daily',
+    parentId: null,
+    done: true,
+    isPendingReportApproval: true,
+    keyResultId: 'kr-q-demo',
+    keyResultTitle: 'Q-demo delivery',
+    priority: 'high',
+    weight: 8,
+    actualValue: 85,
+  };
+
+  const pendingReportTask2: MockPlanTask = {
+    id: tid('preport-2'),
+    title: 'Document sprint outcomes',
+    start: plus(0),
+    deadline: plus(0),
+    spanDays: 1,
+    kind: 'daily',
+    parentId: null,
+    done: false,
+    isPendingReportApproval: true,
+    keyResultId: UNLINKED_KR_ID,
+    priority: 'medium',
+    weight: 5,
+    actualValue: 0,
+  };
+
   return {
     userId,
     displayName,
@@ -416,6 +453,7 @@ const buildMockUserPlan = (
     isValidated: mockSeedPlanIsClosed(),
     activeTasks,
     archivedTasks,
+    pendingReportTasks: [pendingReportTask1, pendingReportTask2],
     reportHistory: [
       reportRecordToday,
       reportRecordThisWeek,
@@ -472,6 +510,12 @@ interface UserPlanRepositoryState {
     text: string,
     authorUserId: string,
   ) => { ok: true } | { ok: false; error: string };
+  /** Lock + validate pending report submissions (Reports tab Pending section). */
+  validatePendingReportTasks: (
+    userId: string,
+    taskIds: string[],
+    comment?: string,
+  ) => { validatedCount: number };
   /** Move active (non-pending) tasks into history without a report submit. */
   archiveTasks: (
     userId: string,
@@ -752,22 +796,34 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
       if (!plan || taskIds.length === 0) return { lockedCount: 0 };
       const ids = new Set(taskIds);
       const note = comment?.trim() || undefined;
-      const lockedCount = plan.activeTasks.filter((t) => ids.has(t.id)).length;
+      let lockedCount = 0;
+      const activeTasks = plan.activeTasks.map((t) => {
+        if (!ids.has(t.id)) return t;
+        lockedCount += 1;
+        return {
+          ...t,
+          isLocked: true,
+          lockComment: note,
+          isPendingApproval: false,
+        };
+      });
+      const pendingReportTasks = (plan.pendingReportTasks ?? []).map((t) => {
+        if (!ids.has(t.id)) return t;
+        lockedCount += 1;
+        return {
+          ...t,
+          isLocked: true,
+          lockComment: note,
+        };
+      });
       if (lockedCount === 0) return { lockedCount: 0 };
       set({
         plansByUserId: {
           ...get().plansByUserId,
           [userId]: {
             ...plan,
-            activeTasks: plan.activeTasks.map((t) => {
-              if (!ids.has(t.id)) return t;
-              return {
-                ...t,
-                isLocked: true,
-                lockComment: note,
-                isPendingApproval: false,
-              };
-            }),
+            activeTasks,
+            pendingReportTasks,
           },
         },
       });
@@ -786,6 +842,11 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
                 ? { ...t, isLocked: false, lockComment: undefined }
                 : t,
             ),
+            pendingReportTasks: (plan.pendingReportTasks ?? []).map((t) =>
+              t.id === taskId
+                ? { ...t, isLocked: false, lockComment: undefined }
+                : t,
+            ),
           },
         },
       });
@@ -793,10 +854,21 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
     addTaskComment: (userId, taskId, text, authorUserId) => {
       const plan = get().plansByUserId[userId];
       if (!plan) return { ok: false, error: 'Plan not found.' };
+      if (String(authorUserId) === String(userId)) {
+        return {
+          ok: false,
+          error: 'You cannot comment on your own plan or report.',
+        };
+      }
       const trimmed = text.trim();
       if (!trimmed) return { ok: false, error: 'Comment is required.' };
-      const exists = plan.activeTasks.some((t) => t.id === taskId);
-      if (!exists) return { ok: false, error: 'Task not found.' };
+      const inActive = plan.activeTasks.some((t) => t.id === taskId);
+      const inPendingReport = (plan.pendingReportTasks ?? []).some(
+        (t) => t.id === taskId,
+      );
+      if (!inActive && !inPendingReport) {
+        return { ok: false, error: 'Task not found.' };
+      }
       const entry: MockTaskComment = {
         id: newId(),
         text: trimmed,
@@ -813,10 +885,54 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
                 ? { ...t, comments: [...(t.comments ?? []), entry] }
                 : t,
             ),
+            pendingReportTasks: (plan.pendingReportTasks ?? []).map((t) =>
+              t.id === taskId
+                ? { ...t, comments: [...(t.comments ?? []), entry] }
+                : t,
+            ),
           },
         },
       });
       return { ok: true };
+    },
+    validatePendingReportTasks: (userId, taskIds, comment) => {
+      const plan = get().plansByUserId[userId];
+      if (!plan || taskIds.length === 0) return { validatedCount: 0 };
+      const ids = new Set(taskIds);
+      const note = comment?.trim() || undefined;
+      const toValidate = (plan.pendingReportTasks ?? []).filter((t) =>
+        ids.has(t.id),
+      );
+      if (toValidate.length === 0) return { validatedCount: 0 };
+      const remaining = (plan.pendingReportTasks ?? []).filter(
+        (t) => !ids.has(t.id),
+      );
+      const validated = toValidate.map((t) => ({
+        ...t,
+        isPendingReportApproval: false,
+        isReported: true,
+        isLocked: true,
+        lockComment: note ?? t.lockComment,
+        done: t.done ?? false,
+      }));
+      const record: MockReportRecord = {
+        id: newId(),
+        submittedAt: new Date().toISOString(),
+        taskIds: validated.map((t) => t.id),
+        taskTitles: validated.map((t) => t.title),
+      };
+      set({
+        plansByUserId: {
+          ...get().plansByUserId,
+          [userId]: {
+            ...plan,
+            pendingReportTasks: remaining,
+            archivedTasks: [...plan.archivedTasks, ...validated],
+            reportHistory: [record, ...plan.reportHistory],
+          },
+        },
+      });
+      return { validatedCount: validated.length };
     },
     archiveTasks: (userId, taskIds) => {
       const plan = get().plansByUserId[userId];
