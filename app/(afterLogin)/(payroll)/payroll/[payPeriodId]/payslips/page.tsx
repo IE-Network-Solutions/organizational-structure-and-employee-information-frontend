@@ -54,6 +54,7 @@ import { useGetAllUsersData } from '@/store/server/features/employees/employeeMa
 import { PaySlipData } from '@/store/server/features/payroll/payroll/interface';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
+import { toPerformancePayLabel } from '@/utils/performancePayLabel';
 
 const { Text } = Typography;
 
@@ -591,7 +592,9 @@ const PayrollPeriodPayslipsPage = () => {
                         ...(breakdown?.variablePay
                           ? [
                               {
-                                label: breakdown.variablePay.type,
+                                label: toPerformancePayLabel(
+                                  breakdown.variablePay.type,
+                                ),
                                 value: formatAmount(
                                   breakdown.variablePay.amount,
                                 ),

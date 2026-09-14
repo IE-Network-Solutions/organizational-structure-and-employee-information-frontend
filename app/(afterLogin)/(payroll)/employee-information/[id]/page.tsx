@@ -50,6 +50,7 @@ import { PayPeriod } from '@/store/server/features/payroll/payroll/interface';
 import { usePayrollStore } from '@/store/uistate/features/payroll/payroll';
 import CustomPagination from '@/components/customPagination';
 import EmptyState from '@/components/empty';
+import { toPerformancePayLabel } from '@/utils/performancePayLabel';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -479,7 +480,9 @@ const EmployeeProfile = () => {
                 ...(breakdown?.variablePay
                   ? [
                       {
-                        label: breakdown.variablePay.type,
+                        label: toPerformancePayLabel(
+                          breakdown.variablePay.type,
+                        ),
                         value: parseFloat(
                           breakdown.variablePay.amount || '0',
                         ).toFixed(2),
@@ -677,7 +680,9 @@ const EmployeeProfile = () => {
                         ...(breakdown?.variablePay
                           ? [
                               {
-                                label: breakdown.variablePay.type,
+                                label: toPerformancePayLabel(
+                                  breakdown.variablePay.type,
+                                ),
                                 value: parseFloat(
                                   breakdown.variablePay.amount || '0',
                                 ).toFixed(2),
