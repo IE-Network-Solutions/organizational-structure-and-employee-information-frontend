@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
+import classNames from 'classnames';
 import {
   Breadcrumb,
   Card,
   Col,
+  ConfigProvider,
   Divider,
   Row,
-  Tabs,
+  Segmented,
   Tag,
   Typography,
   Space,
@@ -15,6 +17,9 @@ import {
   Progress,
   Button,
 } from 'antd';
+import { usePathname } from 'next/navigation';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { isHomePath } from '@/utils/navigation/personalRoutes';
 import CustomPagination from '@/components/customPagination';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import EmptyState from '@/components/empty';
@@ -39,6 +44,17 @@ import {
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
 
 const { Text } = Typography;
+
+const payrollSegmentedClassName = classNames(
+  'my-payroll-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 !rounded-xl !border !border-slate-100 !bg-slate-50/70 !p-1.5',
+  '!h-[50px] sm:!h-[50px] sm:!self-center',
+  '[&_.ant-segmented-group]:!w-max [&_.ant-segmented-group]:!min-h-0 [&_.ant-segmented-group]:!items-stretch [&_.ant-segmented-group]:!justify-start',
+  '[&_.ant-segmented-thumb]:!h-full [&_.ant-segmented-thumb]:!bg-white [&_.ant-segmented-thumb]:!py-0 [&_.ant-segmented-thumb]:!shadow-sm',
+  '[&_.ant-segmented-item]:!flex [&_.ant-segmented-item]:!flex-none [&_.ant-segmented-item]:!items-center [&_.ant-segmented-item]:!justify-center [&_.ant-segmented-item]:!self-stretch [&_.ant-segmented-item]:!bg-transparent',
+  '[&_.ant-segmented-item-selected]:!z-[1] [&_.ant-segmented-item-selected]:!rounded-md [&_.ant-segmented-item-selected]:!shadow-sm',
+  '[&_.ant-segmented-item-label]:!flex [&_.ant-segmented-item-label]:!h-9 [&_.ant-segmented-item-label]:!min-h-9 [&_.ant-segmented-item-label]:!items-center [&_.ant-segmented-item-label]:!justify-center [&_.ant-segmented-item-label]:!whitespace-nowrap [&_.ant-segmented-item-label]:!font-medium [&_.ant-segmented-item-label]:!text-slate-600 [&_.ant-segmented-item-label]:!px-3.5 [&_.ant-segmented-item-label]:!py-0 [&_.ant-segmented-item-label]:!text-[14px] sm:[&_.ant-segmented-item-label]:!h-9 sm:[&_.ant-segmented-item-label]:!min-h-9 sm:[&_.ant-segmented-item-label]:!px-4.5 sm:[&_.ant-segmented-item-label]:!py-0 sm:[&_.ant-segmented-item-label]:!text-[14px]',
+  '[&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-slate-900',
+);
 
 const InfoItem = ({
   label,
@@ -118,6 +134,10 @@ const InfoItem = ({
 );
 
 export default function MyPayroll() {
+  const pathname = usePathname();
+  const embeddedInHome = isHomePath(pathname);
+  const { isMobile } = useIsMobile();
+  const [activeTab, setActiveTab] = React.useState(1);
   const { userId } = useAuthenticationStore();
   const { data: payPeriodData } = useGetPayPeriod();
   const { data: employee, isLoading: isEmployeeLoading } = useGetEmployee(
@@ -478,12 +498,7 @@ export default function MyPayroll() {
 
   return (
     <div
-      className="responsive-container"
-      style={{
-        padding: '24px 0',
-        backgroundColor: '#fff',
-        minHeight: '100vh',
-      }}
+      className="my-payroll-page h-auto min-w-0 w-full max-w-full bg-white rounded-md"
       data-cy="my-payroll-page-container"
     >
       <style data-cy="my-payroll-page-styles">{`
@@ -494,9 +509,9 @@ export default function MyPayroll() {
           .info-item { margin-bottom: 12px !important; }
           .info-item span { font-size: 13px !important; }
           .page-title { font-size: 18px !important; }
-          .responsive-container .ant-card-body { padding: 16px !important; }
-          .responsive-container .ant-card-head { padding: 16px 16px 0 16px !important; }
-          .responsive-container .ant-card-head-title { font-size: 14px !important; }
+          .my-payroll-page .ant-card-body { padding: 16px !important; }
+          .my-payroll-page .ant-card-head { padding: 16px 16px 0 16px !important; }
+          .my-payroll-page .ant-card-head-title { font-size: 14px !important; }
           .truncated-tag { max-width: 150px !important; }
         }
         .truncated-tag {
@@ -506,9 +521,6 @@ export default function MyPayroll() {
           white-space: nowrap;
           display: inline-block;
           vertical-align: bottom;
-        }
-        .custom-tabs {
-          margin-bottom: 24px;
         }
         .full-bleed-header-divider {
           width: calc(100% + 48px) !important;
@@ -525,13 +537,6 @@ export default function MyPayroll() {
           height: 0;
           display: none;
         }
-        :global(.ant-tabs-tab .ant-tabs-tab-btn) {
-          font-size: 16px !important;
-        }
-        :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
-          font-weight: 700 !important;
-          color: #1E40AF !important;
-        }
         @media (max-width: 768px) {
           .full-bleed-header-divider {
             width: calc(100% + 48px) !important;
@@ -540,56 +545,86 @@ export default function MyPayroll() {
           }
         }
       `}</style>
-      <CustomBreadcrumb
-        title={<span data-cy="my-payroll-title">My Payroll Information</span>}
-        subtitle={
-          <Breadcrumb
-            style={{ marginBottom: '0px', fontSize: '14px' }}
-            data-cy="my-payroll-breadcrumb"
-            items={[
-              {
-                title: (
-                  <span data-cy="my-payroll-breadcrumb-employee">Payroll</span>
-                ),
-              },
-              {
-                title: (
-                  <span data-cy="my-payroll-breadcrumb-my-payroll">
-                    My Payroll
-                  </span>
-                ),
-              },
-            ]}
-          />
-        }
-      />
+      {!embeddedInHome && (
+        <CustomBreadcrumb
+          title={<span data-cy="my-payroll-title">My Payroll Information</span>}
+          subtitle={
+            <Breadcrumb
+              style={{ marginBottom: '0px', fontSize: '14px' }}
+              data-cy="my-payroll-breadcrumb"
+              items={[
+                {
+                  title: (
+                    <span data-cy="my-payroll-breadcrumb-employee">Payroll</span>
+                  ),
+                },
+                {
+                  title: (
+                    <span data-cy="my-payroll-breadcrumb-my-payroll">
+                      My Payroll
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          }
+        />
+      )}
 
-      <Tabs
-        defaultActiveKey="1"
-        className="custom-tabs"
-        data-cy="my-payroll-tabs"
+      <div
+        data-cy="my-payroll-main-card"
+        className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
       >
-        <Tabs.TabPane
-          tab="Information"
-          key="1"
-          data-cy="my-payroll-tab-information"
+        <div
+          data-cy="my-payroll-toolbar-row"
+          className={classNames(
+            'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 bg-white py-2',
+            'sm:flex-row sm:items-center sm:gap-3 lg:gap-x-8',
+          )}
         >
           <div
-            style={{ paddingTop: '8px' }}
-            data-cy="my-payroll-tab-information-content"
+            className="flex w-full shrink-0 items-center sm:w-auto sm:justify-center"
+            data-cy="my-payroll-view-segmented-wrap"
           >
-            {renderInformation()}
+            <ConfigProvider
+              theme={{
+                components: {
+                  Segmented: {
+                    trackBg: '#f1f5f9',
+                    itemSelectedBg: '#ffffff',
+                    itemSelectedColor: '#0f172a',
+                  },
+                },
+              }}
+            >
+              <Segmented
+                size={isMobile ? 'middle' : 'large'}
+                value={activeTab}
+                onChange={(value) => setActiveTab(Number(value))}
+                options={[
+                  { label: 'Information', value: 1 },
+                  { label: 'Payroll History', value: 2 },
+                  { label: 'Settlement Tracking', value: 3 },
+                ]}
+                className={payrollSegmentedClassName}
+                data-cy="my-payroll-view-segmented"
+              />
+            </ConfigProvider>
           </div>
-        </Tabs.TabPane>
-        <Tabs.TabPane
-          tab="Payroll History"
-          key="2"
-          data-cy="my-payroll-tab-history"
+        </div>
+
+        <div
+          className="min-w-0 max-w-full w-full"
+          data-cy="my-payroll-content-area"
         >
-          <div
-            style={{ paddingTop: '24px' }}
-            data-cy="my-payroll-tab-history-content"
-          >
+          {activeTab === 1 ? (
+            <div data-cy="my-payroll-tab-information-content">
+              {renderInformation()}
+            </div>
+          ) : null}
+
+          {activeTab === 2 ? (
+            <div data-cy="my-payroll-tab-history-content">
             {!payPeriodData ||
             !payrollHistory ||
             payrollHistory.length === 0 ? (
@@ -852,21 +887,16 @@ export default function MyPayroll() {
                 </div>
               </>
             )}
-          </div>
-        </Tabs.TabPane>
-        <Tabs.TabPane
-          tab="Settlement Tracking"
-          key="3"
-          data-cy="my-payroll-tab-settlement"
-        >
-          <div
-            style={{ paddingTop: '24px' }}
-            data-cy="my-payroll-tab-settlement-content"
-          >
-            <SettlementView userId={userId!} />
-          </div>
-        </Tabs.TabPane>
-      </Tabs>
+            </div>
+          ) : null}
+
+          {activeTab === 3 ? (
+            <div data-cy="my-payroll-tab-settlement-content">
+              <SettlementView userId={userId!} />
+            </div>
+          ) : null}
+        </div>
+      </div>
 
       {/* Hidden Payslip for PDF generation */}
       <div
@@ -1061,18 +1091,6 @@ export default function MyPayroll() {
           <PayrollDetails activeMergedPayroll={templatePayroll || undefined} />
         </div>
       </div>
-      <style jsx data-cy="my-payroll-local-styles">{`
-        .custom-tabs {
-          margin-bottom: 24px;
-        }
-        :global(.ant-tabs-tab .ant-tabs-tab-btn) {
-          font-size: 16px !important;
-        }
-        :global(.ant-tabs-tab-active .ant-tabs-tab-btn) {
-          font-weight: 700 !important;
-          color: #1e40af !important;
-        }
-      `}</style>
     </div>
   );
 }

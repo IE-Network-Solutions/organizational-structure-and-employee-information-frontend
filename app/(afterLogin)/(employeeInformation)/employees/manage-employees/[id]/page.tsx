@@ -15,7 +15,8 @@ import OffboardingFormControl from './_components/offboarding/_components/offboa
 import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { isHomePath } from '@/utils/navigation/personalRoutes';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useResignedEmployee } from '@/store/server/features/employees/offboarding/mutation';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -37,6 +38,8 @@ interface EmployeeDetailsProps {
   params: Params;
 }
 function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
+  const pathname = usePathname();
+  const embeddedInHome = isHomePath(pathname);
   const router = useRouter();
   const [form] = Form.useForm();
   const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
@@ -258,68 +261,70 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
       id="employee-detail-page"
       data-cy="employee-detail-page"
     >
-      <div
-        className="w-full"
-        id="employee-detail-header"
-        data-cy="employee-detail-header"
-      >
-        <div data-cy="employee-detail-header-content">
-          <CustomBreadcrumb
-            onBack={handleGoBack}
-            title={
-              <span id="employee-detail-title" data-cy="employee-detail-title">
-                Employee Details
-              </span>
-            }
-            titleClassName="text-lg sm:text-xl md:text-2xl !text-gray-900"
-            rootClassName="w-full !mb-0 !py-4"
-            subtitle={
-              <Breadcrumb
-                className="text-xs sm:text-sm"
-                items={[
-                  {
-                    title: (
-                      <span
-                        className="text-gray-500"
-                        data-cy="employee-detail-breadcrumb-employee"
-                      >
-                        Employee
-                      </span>
-                    ),
-                  },
-                  {
-                    title: (
-                      <Link
-                        className="text-gray-600"
-                        href="/employees/manage-employees"
-                      >
-                        Employee Management
-                      </Link>
-                    ),
-                  },
-                ]}
-                data-cy="manage-employees-breadcrumb"
-              />
-            }
-            titleExtra={
-              <Dropdown
-                menu={{ items: menuItems }}
-                trigger={['click']}
-                placement="bottomRight"
-                disabled={menuItems?.length === 0}
-              >
-                <Button
-                  className="border border-red-500 bg-white rounded-lg p-2 h-10 w-10 flex items-center justify-center hover:bg-red-50"
-                  id="employee-detail-remove-btn"
-                  data-cy="employee-detail-remove-btn"
+      {!embeddedInHome && (
+        <div
+          className="w-full"
+          id="employee-detail-header"
+          data-cy="employee-detail-header"
+        >
+          <div data-cy="employee-detail-header-content">
+            <CustomBreadcrumb
+              onBack={handleGoBack}
+              title={
+                <span id="employee-detail-title" data-cy="employee-detail-title">
+                  Employee Details
+                </span>
+              }
+              titleClassName="text-lg sm:text-xl md:text-2xl !text-gray-900"
+              rootClassName="w-full !mb-0 !py-4"
+              subtitle={
+                <Breadcrumb
+                  className="text-xs sm:text-sm"
+                  items={[
+                    {
+                      title: (
+                        <span
+                          className="text-gray-500"
+                          data-cy="employee-detail-breadcrumb-employee"
+                        >
+                          Employee
+                        </span>
+                      ),
+                    },
+                    {
+                      title: (
+                        <Link
+                          className="text-gray-600"
+                          href="/employees/manage-employees"
+                        >
+                          Employee Management
+                        </Link>
+                      ),
+                    },
+                  ]}
+                  data-cy="manage-employees-breadcrumb"
+                />
+              }
+              titleExtra={
+                <Dropdown
+                  menu={{ items: menuItems }}
+                  trigger={['click']}
+                  placement="bottomRight"
+                  disabled={menuItems?.length === 0}
                 >
-                  <RemoveCircleOutlineIcon className="text-red-500" />
-                </Button>
-              </Dropdown>
-            }
-          />
+                  <Button
+                    className="border border-red-500 bg-white rounded-lg p-2 h-10 w-10 flex items-center justify-center hover:bg-red-50"
+                    id="employee-detail-remove-btn"
+                    data-cy="employee-detail-remove-btn"
+                  >
+                    <RemoveCircleOutlineIcon className="text-red-500" />
+                  </Button>
+                </Dropdown>
+              }
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <div
         id="employee-detail-basic-info-wrapper"

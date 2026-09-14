@@ -1,7 +1,8 @@
 'use client';
 
 import { FC, ReactNode, useMemo } from 'react';
-import { Tabs, Button, Breadcrumb } from 'antd';
+import { Tabs, Button, Breadcrumb, Badge } from 'antd';
+import { MOCK_APPROVAL_TOTAL_PENDING } from '@/config/homeApprovalsMock';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import type { TabsProps } from 'antd';
@@ -100,7 +101,13 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
         data-cy={`home-${tab.key}-tab-label`}
         id={`home-${tab.key}-tab-label`}
       >
-        {tab.label}
+        {tab.key === 'approvals' ? (
+          <Badge count={MOCK_APPROVAL_TOTAL_PENDING} size="small" offset={[8, 0]}>
+            <span data-cy="home-approvals-tab-label-text">{tab.label}</span>
+          </Badge>
+        ) : (
+          tab.label
+        )}
       </div>
     ),
   }));
