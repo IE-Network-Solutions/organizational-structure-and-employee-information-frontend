@@ -61,14 +61,7 @@ const Department: React.FC = () => {
   }, [weeklyPriority, activeTab, setData]);
 
   return (
-    <div className="py-4 md:py-5" data-cy="department-team-container">
-      <div
-        className="flex justify-between mb-5"
-        data-cy="department-team-header"
-      >
-        {/* Filters and Add button moved to parent/FilterPopover, maintaining container if needed or removing it entirely */}
-      </div>
-
+    <div className="min-w-0 max-w-full w-full" data-cy="department-team-container">
       <>
         {weeklyLoading ? (
           <WeeklyPriorityListSkeleton />

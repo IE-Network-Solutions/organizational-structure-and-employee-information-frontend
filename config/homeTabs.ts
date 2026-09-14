@@ -95,8 +95,14 @@ export const HOME_TABS: HomeTabDef[] = [
     key: 'approvals',
     label: 'Approvals',
     href: `${HOME_BASE}/approvals`,
-    permissions: ['view_my_timesheet'],
-    moduleCode: 'TIMESHEET',
+    permissions: [
+      'view_my_timesheet',
+      'approve-employee-leave-request',
+      'approve-tna',
+      'approve-shift-swap-request',
+      'approve-shift-swap-peer',
+    ],
+    requireAny: true,
   },
   {
     key: 'announcement',

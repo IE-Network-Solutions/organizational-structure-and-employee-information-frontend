@@ -185,7 +185,7 @@ const FilterPopover: React.FC = () => {
     >
       <Button
         icon={<MdOutlineFilterAlt className="text-lg text-[#111827]" />}
-        className="flex items-center gap-2 h-9 border-gray-200 text-gray-600 rounded-[8px] px-3 md:px-4 font-medium mb-3 mr-1"
+        className="!inline-flex !h-9 !min-h-9 shrink-0 items-center gap-2 rounded-[8px] border-gray-200 px-3 font-medium text-gray-600 md:px-4"
         data-cy="filter-popover-trigger-button"
       >
         <span

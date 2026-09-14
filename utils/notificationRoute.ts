@@ -624,13 +624,18 @@ function resolveTimesheetPath(
 
   // Both first approver ("New Leave Request") and later levels
   // ("Leave Request Approval") open My Approvals — ignore generic backend routes.
+  const isShiftSwap =
+    text.includes('shift swap') || text.includes('shiftswap');
+
   if (isLeaveApproverActionNotification(text)) {
-    params.set('type', isWfh ? 'WorkFromHome' : 'Leave');
+    params.set('module', 'timesheet');
+    params.set('type', isShiftSwap ? 'ShiftSwap' : isWfh ? 'WorkFromHome' : 'Leave');
     return withParams('/home/approvals', params);
   }
 
   if (isApproverNotification(text) && (isMyTimesheetContext || !pathname)) {
-    params.set('type', isWfh ? 'WorkFromHome' : 'Leave');
+    params.set('module', 'timesheet');
+    params.set('type', isShiftSwap ? 'ShiftSwap' : isWfh ? 'WorkFromHome' : 'Leave');
     return withParams('/home/approvals', params);
   }
 
@@ -652,7 +657,8 @@ function resolveTimesheetPath(
   }
 
   if (pathname.includes('/my-approvals')) {
-    params.set('type', isWfh ? 'WorkFromHome' : 'Leave');
+    params.set('module', 'timesheet');
+    params.set('type', isShiftSwap ? 'ShiftSwap' : isWfh ? 'WorkFromHome' : 'Leave');
     return withParams('/home/approvals', params);
   }
 
@@ -664,8 +670,15 @@ function resolveTimesheetPath(
     return withParams(pathname, params);
   }
 
+  if (isShiftSwap && isApproverLike(text)) {
+    params.set('module', 'timesheet');
+    params.set('type', 'ShiftSwap');
+    return withParams('/home/approvals', params);
+  }
+
   if (isWfh) {
     if (isApproverLike(text)) {
+      params.set('module', 'timesheet');
       params.set('type', 'WorkFromHome');
       return withParams('/home/approvals', params);
     }
@@ -675,6 +688,7 @@ function resolveTimesheetPath(
 
   if (isOwnLeaveNotification(text) || text.includes('leave')) {
     if (isApproverLike(text)) {
+      params.set('module', 'timesheet');
       params.set('type', 'Leave');
       return withParams('/home/approvals', params);
     }
@@ -738,7 +752,15 @@ function resolveTnaPath(
 ): string {
   attachEmployee(params, employeeId);
   if (pathHasUuid(pathname)) return withParams(pathname, params);
-  if (isApproverLike(text) || pathname.includes('review')) {
+  if (isApproverLike(text)) {
+    params.set('module', 'learning');
+    params.set(
+      'subtype',
+      text.includes('training request') ? 'training' : 'tna',
+    );
+    return withParams('/home/approvals', params);
+  }
+  if (pathname.includes('review')) {
     return withParams('/tna/review', params);
   }
   if (pathname.includes('management')) {
@@ -809,6 +831,10 @@ function resolvePayrollPath(
     text.includes('my payroll')
   ) {
     return withParams('/home/payroll', params);
+  }
+  if (isApproverLike(text) && text.includes('payroll')) {
+    params.set('module', 'payroll');
+    return withParams('/home/approvals', params);
   }
   if (employeeId) {
     return withParams(`/employee-information/${employeeId}`, params);
@@ -903,9 +929,16 @@ function resolveOrgPath(
 function resolveEmployeePath(
   pathname: string,
   params: URLSearchParams,
+  text: string,
   employeeId?: string,
 ): string {
   attachEmployee(params, employeeId);
+  if (
+    isApproverLike(text) &&
+    (text.includes('branch transfer') || pathname.includes('departmentRequest'))
+  ) {
+    return withParams('/employees/departmentRequest', params);
+  }
   if (pathHasUuid(pathname)) return withParams(pathname, params);
   if (employeeId) {
     return withParams(`/employees/manage-employees/${employeeId}`, params);
@@ -964,7 +997,7 @@ export function resolveNotificationPath(
     return resolveOrgPath(pathname, params, text);
   }
   if (isEmployeeNotification(pathname, source, text)) {
-    return resolveEmployeePath(pathname, params, employeeId);
+    return resolveEmployeePath(pathname, params, text, employeeId);
   }
 
   if (prefixed) {
