@@ -193,7 +193,7 @@ const OkrTypePage = () => {
               >
                 Advanced OKR allows employees to define Objectives and Key
                 Results for goal tracking. Daily and weekly plans are not linked
-                to OKRs. OKR progress has no impact on variable pay.
+                to OKRs. OKR progress has no impact on performance pay.
               </p>
             </div>
 
@@ -234,7 +234,7 @@ const OkrTypePage = () => {
               >
                 Basic OKR allows employees to define Objectives and Key Results
                 for goal tracking. Daily and weekly plans are not linked to
-                OKRs. OKR progress has no impact on variable pay.
+                OKRs. OKR progress has no impact on performance pay.
               </p>
             </div>
           </>

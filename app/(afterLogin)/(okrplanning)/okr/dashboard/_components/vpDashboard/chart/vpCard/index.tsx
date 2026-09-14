@@ -54,7 +54,7 @@ const VPPayCard: React.FC<PayCardInterface> = ({ id }) => {
               id="okr-vppaycard-title-display-p"
               data-cy="okr-vppaycard-title-display-p"
             >
-              Total VP Score
+              Total PP Score
             </p>
 
             <Button

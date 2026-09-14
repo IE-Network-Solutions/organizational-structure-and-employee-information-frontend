@@ -3,6 +3,7 @@ import {
   Allowances,
 } from '@/store/uistate/features/payroll/employeeInfoStore';
 import { Space, Typography, Divider } from 'antd';
+import { toPerformancePayLabel } from '@/utils/performancePayLabel';
 
 const { Text } = Typography;
 type PayrollDetailsProps = {
@@ -118,7 +119,7 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
               ...(activeMergedPayroll?.breakdown?.variablePay
                 ? [
                     {
-                      type: 'VP',
+                      type: 'PP',
                       amount:
                         activeMergedPayroll?.breakdown?.variablePay.amount,
                     },
@@ -154,7 +155,9 @@ const PayrollDetails = ({ activeMergedPayroll }: PayrollDetailsProps) => {
                   id="payroll-details-variablepay-type-view-text"
                   data-cy="payroll-details-variablepay-type-view-text"
                 >
-                  {activeMergedPayroll?.breakdown?.variablePay?.type}
+                  {toPerformancePayLabel(
+                    activeMergedPayroll?.breakdown?.variablePay?.type,
+                  )}
                 </Text>
               )}
             </div>

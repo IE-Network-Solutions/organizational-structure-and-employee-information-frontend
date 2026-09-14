@@ -375,7 +375,11 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
       return <PiMoneyLight size={18} />;
     }
 
-    if (name.includes('incentive') || name.includes('variable pay')) {
+    if (
+      name.includes('incentive') ||
+      name.includes('performance pay') ||
+      name.includes('variable pay')
+    ) {
       return <LuCircleDollarSign size={18} />;
     }
 

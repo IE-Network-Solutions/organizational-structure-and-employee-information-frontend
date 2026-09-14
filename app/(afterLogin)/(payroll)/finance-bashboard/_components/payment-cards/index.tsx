@@ -75,7 +75,7 @@ export default function PaymentCards({
     },
     {
       key: 'total-variable-pay',
-      label: 'Total Variable Pay',
+      label: 'Total Performance Pay',
       color: '#9333EA',
       value: payrollSummary?.totalVpForAllEmployees ?? 0,
       percent: `${payrollSummary?.keyMetricsPercentage?.totalVpForAllEmployees ?? 0}%`,

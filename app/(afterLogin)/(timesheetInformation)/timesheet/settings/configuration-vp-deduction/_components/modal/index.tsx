@@ -75,14 +75,14 @@ const TAB_CONFIG: Record<
 > = {
   late_arrival: {
     label: 'Late Arrival',
-    helperText: 'VP deduction configuration for users who have arrived late',
+    helperText: 'PP deduction configuration for users who have arrived late',
     formKey: 'lateArrival',
     configType: VpTimeConfigType.CLOCKIN,
   },
   early_checkout: {
     label: 'Early Checkout',
     helperText:
-      'VP deduction configuration for users who have Checked out Early',
+      'PP deduction configuration for users who have Checked out Early',
     formKey: 'earlyCheckout',
     configType: VpTimeConfigType.CLOCKOUT,
   },
@@ -276,13 +276,13 @@ const ConfigureVpDeductionModal = () => {
             data-cy="time-attendance-settings-configuration-vp-deduction-modal-title"
             className="text-lg font-semibold text-[#262626]"
           >
-            Configure VP Deduction
+            Configure PP Deduction
           </div>
           <p
             data-cy="time-attendance-settings-configuration-vp-deduction-modal-subtitle"
             className="mb-0 mt-1 text-sm font-normal text-gray-500"
           >
-            Configure VP deduction based on your institutions rules and
+            Configure PP deduction based on your institutions rules and
             regulations
           </p>
         </div>
@@ -368,7 +368,7 @@ const ConfigureVpDeductionModal = () => {
                     className="inline-flex items-center gap-1 text-sm font-normal text-gray-900"
                   >
                     Time Range in minutes
-                    <Tooltip title="Define the time range in minutes for this VP deduction rule.">
+                    <Tooltip title="Define the time range in minutes for this PP deduction rule.">
                       <InfoOutlined
                         sx={{ fontSize: 16 }}
                         className="text-gray-400"
@@ -541,7 +541,7 @@ const ConfigureVpDeductionModal = () => {
             >
               <InputNumber
                 className={controlClass}
-                placeholder="Add the VP points to be deducted"
+                placeholder="Add the PP points to be deducted"
                 min={0}
                 controls={false}
                 id="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount"
@@ -572,7 +572,7 @@ const ConfigureVpDeductionModal = () => {
                     data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-description"
                   >
                     When enabled, configure how many minutes of salary to deduct
-                    for this time range. VP points stay unchanged.
+                    for this time range. PP points stay unchanged.
                   </p>
                 </div>
                 <Form.Item

@@ -59,7 +59,7 @@
 //   { key: 'basic', label: 'Basic' },
 //   { key: 'allowance', label: 'Allowance' },
 //   { key: 'benefit', label: 'Benefit' },
-//   { key: 'vp', label: 'VP' },
+//   { key: 'vp', label: 'PP' },
 //   { key: 'incentive', label: 'Incentive' },
 //   { key: 'gross', label: 'Gross' },
 //   { key: 'tax', label: 'Tax' },
@@ -474,7 +474,7 @@
 //     '2': 'Basic',
 //     '3': 'Allowance',
 //     '4': 'Benefit',
-//     '5': 'VP',
+//     '5': 'PP',
 //     '6': 'Incentive',
 //     '7': 'Gross',
 //     '8': 'Tax',
@@ -498,7 +498,7 @@
 //     // Special handling for VP tab: fall back to VARIABLE_PAY type
 //     if (!matched && tabKey === '5') {
 //       matched = data.components.find(
-//         (c: any) => c.type === 'VARIABLE_PAY' || c.label === 'Variable Pay',
+//         (c: any) => c.type === 'VARIABLE_PAY' || c.label === 'Performance Pay',
 //       );
 //     }
 
@@ -571,7 +571,7 @@
 //     },
 //     {
 //       key: '5',
-//       label: getTabLabel('5', 'VP'),
+//       label: getTabLabel('5', 'PP'),
 //       children: renderTabContent('5'),
 //     },
 //     {

@@ -27,7 +27,7 @@ const ACTION_TYPE_OPTIONS = [
     value: AttendanceActionType.SALARY_DEDUCTION,
   },
   {
-    label: 'VP Deduction',
+    label: 'PP Deduction',
     value: AttendanceActionType.VP_DEDUCTION,
   },
 ] as const;

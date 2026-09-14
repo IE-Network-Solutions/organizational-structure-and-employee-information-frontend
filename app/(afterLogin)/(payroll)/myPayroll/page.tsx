@@ -37,6 +37,7 @@ import {
   useEmployeeSettlementTracking,
 } from '@/store/server/features/payroll/settlementTracking/queries';
 import { useGetAllowance } from '@/store/server/features/payroll/employeeInformation/queries';
+import { toPerformancePayLabel } from '@/utils/performancePayLabel';
 
 const { Text } = Typography;
 
@@ -426,7 +427,9 @@ export default function MyPayroll() {
                 ...(breakdown?.variablePay
                   ? [
                       {
-                        label: breakdown.variablePay.type,
+                        label: toPerformancePayLabel(
+                          breakdown.variablePay.type,
+                        ),
                         value: parseFloat(
                           breakdown.variablePay.amount || '0',
                         ).toFixed(2),
@@ -768,7 +771,9 @@ export default function MyPayroll() {
                                 ...(breakdown?.variablePay
                                   ? [
                                       {
-                                        label: breakdown.variablePay.type,
+                                        label: toPerformancePayLabel(
+                                          breakdown.variablePay.type,
+                                        ),
                                         value: parseFloat(
                                           breakdown.variablePay.amount || '0',
                                         ).toFixed(2),

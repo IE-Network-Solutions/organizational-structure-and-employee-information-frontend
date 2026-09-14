@@ -57,7 +57,7 @@ function notifyVpScoringMutationResult(
   if (failed.length > 0) {
     NotificationMessage.warning({
       message: action === 'created' ? 'Partially Created' : 'Partially Updated',
-      description: `VP Scoring was saved, but ${failed.length} employee(s) could not be assigned because they already belong to another configuration.`,
+      description: `PP Scoring was saved, but ${failed.length} employee(s) could not be assigned because they already belong to another configuration.`,
     });
     return;
   }
@@ -67,8 +67,8 @@ function notifyVpScoringMutationResult(
       action === 'created' ? 'Successfully Created' : 'Successfully Updated',
     description:
       action === 'created'
-        ? 'VP Scoring successfully Created.'
-        : 'VP Scoring successfully updated.',
+        ? 'PP Scoring successfully Created.'
+        : 'PP Scoring successfully updated.',
   });
 }
 
@@ -129,7 +129,7 @@ const deleteVpScoring = async (id: string) => {
 
     NotificationMessage.success({
       message: 'Successfully Deleted',
-      description: 'VP Scoring successfully deleted.',
+      description: 'PP Scoring successfully deleted.',
     });
   } catch (error) {
     throw error;
@@ -146,7 +146,7 @@ export const useDeleteVpScoring = () => {
     onError: (error) => {
       NotificationMessage.error({
         message: error + '',
-        description: 'Failed to delete VP Scoring.',
+        description: 'Failed to delete PP Scoring.',
       });
     },
   });
@@ -191,7 +191,7 @@ export const useUpdateVpScoring = () => {
     onError: (error) => {
       NotificationMessage.error({
         message: error + '',
-        description: 'VP Scoring Update Failed.',
+        description: 'PP Scoring Update Failed.',
       });
     },
   });

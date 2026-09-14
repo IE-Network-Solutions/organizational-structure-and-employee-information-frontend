@@ -64,7 +64,7 @@ export const DASHBOARD_WIDGET_DEFINITIONS: DashboardWidgetDefinition[] = [
   },
   {
     id: 'kpi-variable-pay',
-    title: 'Total Variable Pay',
+    title: 'Total Performance Pay',
     minW: 10,
     minH: 8,
     defaultW: 12,

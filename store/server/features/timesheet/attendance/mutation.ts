@@ -382,13 +382,13 @@ export const useCreateVpDeduction = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries('attendance-rule-violations');
-        handleSuccessMessage('POST', 'VP deductions created successfully.');
+        handleSuccessMessage('POST', 'PP deductions created successfully.');
       },
       onError: (error: any) => {
         NotificationMessage.error({
           message: 'Error',
           description:
-            error?.response?.data?.message || 'Failed to create VP deductions.',
+            error?.response?.data?.message || 'Failed to create PP deductions.',
         });
       },
     },

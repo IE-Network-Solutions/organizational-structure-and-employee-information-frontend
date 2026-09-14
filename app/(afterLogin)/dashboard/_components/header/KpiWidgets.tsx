@@ -571,7 +571,7 @@ export const VpScoreKpiCard = () => {
           className=" text-black/45 font-normal text-base w-full text-start "
           data-cy="okr-card-label"
         >
-          Total Variable Pay
+          Total Performance Pay
         </div>
         <div className=" flex gap-2 items-center" data-cy="okr-card-details">
           <Progress

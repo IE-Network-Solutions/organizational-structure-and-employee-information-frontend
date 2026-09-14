@@ -46,7 +46,7 @@ const barBackgroundPlugin: Plugin<'bar'> = {
 
     const targetIndexes = chart.data.datasets
       .map((dataset, index) => ({ label: dataset.label, index }))
-      .filter(({ label }) => label === 'VP Score')
+      .filter(({ label }) => label === 'PP Score')
       .map(({ index }) => index);
 
     const { ctx } = chart;
@@ -123,7 +123,7 @@ const VPScoreBreakdownChart = () => {
     ),
     datasets: [
       {
-        label: 'VP Score',
+        label: 'PP Score',
         data: displayData.map((item: any) => Number(item.vpScore ?? 0)),
         backgroundColor: '#1d4ed8',
         borderRadius: {
@@ -228,7 +228,7 @@ const VPScoreBreakdownChart = () => {
         className="text-base font-bold text-[#2b2b2b] mb-4"
         data-cy="vp-score-breakdown-title"
       >
-        VP Score Breakdown
+        PP Score Breakdown
       </h3>
       <div className="h-[360px]" data-cy="vp-score-breakdown-chart-wrap">
         {isLoading ? (

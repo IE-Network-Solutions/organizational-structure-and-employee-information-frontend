@@ -142,7 +142,7 @@ const VPScoreCard: React.FC = () => {
             className="flex-1 min-w-0"
             data-cy="variable-pay-score-card-right"
           >
-            {/* Top row: Title + badge on left, Refresh VP on right */}
+            {/* Top row: Title + badge on left, Refresh PP on right */}
             <div
               className="mb-3 flex min-w-0 items-center justify-between gap-2"
               id="variable-pay-score-card-header"
@@ -156,13 +156,13 @@ const VPScoreCard: React.FC = () => {
                   className="font-sans text-[14px] leading-[22px] font-normal text-gray-700 hidden md:inline"
                   data-cy="variable-pay-score-card-title-desktop"
                 >
-                  My Variable Pay Score
+                  My Performance Pay Score
                 </span>
                 <span
                   className="whitespace-nowrap text-[14px] font-medium text-gray-700 md:hidden"
                   data-cy="variable-pay-score-card-title-mobile"
                 >
-                  My VP
+                  My PP
                 </span>
                 <span
                   className={`max-md:max-w-[120px] truncate whitespace-nowrap rounded px-2.5 py-0.5 text-[14px] font-medium ${

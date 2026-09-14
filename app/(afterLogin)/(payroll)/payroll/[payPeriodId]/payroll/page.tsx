@@ -546,7 +546,7 @@ const Payroll = () => {
         { type: 'Taxable Transport', key: 'taxableTransport' },
         { type: 'Position Allowance', key: 'positionAllowance' },
         { type: 'Total Benefits', key: 'totalBenefits' },
-        { type: 'Variable Pay', key: 'variablePay' },
+        { type: 'Performance Pay', key: 'variablePay' },
         { type: 'Gross Salary', key: 'grossIncome' },
         { type: 'Employee Pension', key: 'employeePension' },
         { type: 'Tax', key: 'tax' },
@@ -1108,7 +1108,7 @@ const Payroll = () => {
       render: (key: string) => Number(key)?.toLocaleString(),
     },
     {
-      title: 'Variable Pay',
+      title: 'Performance Pay',
       dataIndex: 'variablePay',
       key: 'variablePay',
       minWidth: 150,

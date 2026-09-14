@@ -195,7 +195,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
           data-cy="time-attendance-settings-configuration-vp-deduction-tab-label"
           id="time-attendance-settings-configuration-vp-deduction-tab-label"
         >
-          Configuration VP Deduction
+          Configuration PP Deduction
         </div>
       ),
     },

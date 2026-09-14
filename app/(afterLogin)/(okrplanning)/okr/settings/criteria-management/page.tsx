@@ -167,12 +167,12 @@ function Page() {
               title={
                 isFilteredOnlyEmpty
                   ? 'No scoring configurations match your filters'
-                  : 'No VP scoring configurations yet'
+                  : 'No PP scoring configurations yet'
               }
               description={
                 isFilteredOnlyEmpty
                   ? 'Try adjusting search or the criteria type filter.'
-                  : 'Add scoring to define how VP criteria contribute to targets.'
+                  : 'Add scoring to define how PP criteria contribute to targets.'
               }
               actionText={
                 canCreateVpScoring && !isFilteredOnlyEmpty

@@ -17,7 +17,7 @@ export default function VariablePayCard() {
 
   return (
     <ProgressStatCard
-      label="Total Variable Pay"
+      label="Total Performance Pay"
       labelClassName="text-black/45"
       value={`${Number(vpScore?.score || 0)}%`}
       percent={
