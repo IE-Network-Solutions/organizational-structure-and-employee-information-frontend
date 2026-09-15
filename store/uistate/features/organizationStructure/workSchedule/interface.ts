@@ -7,9 +7,32 @@ export interface ScheduleDetail {
   workDay: boolean;
 }
 
+export interface ShiftDraft {
+  key: string;
+  id?: string;
+  name: string;
+  startTime: string;
+  endTime: string;
+  isSwappable: boolean;
+  applyToAllDays: boolean;
+  days: string[];
+  breaks?: Array<{
+    id?: string;
+    breakTypeId: string;
+    sortOrder?: number;
+    startAt?: string | null;
+    endAt?: string | null;
+    startAtFrom?: string | null;
+    startAtTo?: string | null;
+    endAtFrom?: string | null;
+    endAtTo?: string | null;
+  }>;
+}
+
 export interface ScheduleState {
   id: string;
   detail: ScheduleDetail[];
+  shifts: ShiftDraft[];
   standardHours: number;
   validationError: string;
   isOpen: boolean;
@@ -22,6 +45,10 @@ export interface ScheduleState {
   setPageSize: (size: number) => void;
   setId: (id: string) => void;
   setDetail: (day: string, data: Partial<ScheduleDetail>) => void;
+  setShifts: (shifts: ShiftDraft[]) => void;
+  addShift: (shift?: Partial<ShiftDraft>) => void;
+  updateShift: (key: string, data: Partial<ShiftDraft>) => void;
+  removeShift: (key: string) => void;
   createWorkSchedule: () => any;
   getSchedule: () => any;
   clearState: () => void;

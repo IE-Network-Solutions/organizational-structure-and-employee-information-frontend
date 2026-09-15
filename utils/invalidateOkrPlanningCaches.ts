@@ -27,6 +27,7 @@ export function invalidatePlanningCaches(
 ): Promise<unknown[]> {
   return Promise.all([
     queryClient.invalidateQueries(['okrPlans'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['okrPlansKrPanel'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrUserPlans'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrPlan'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrPlannedData'], REFETCH_OPTS),
@@ -43,6 +44,7 @@ export function invalidateReportingCaches(
 ): Promise<unknown[]> {
   return Promise.all([
     queryClient.invalidateQueries(['okrReports'], REFETCH_OPTS),
+    queryClient.invalidateQueries(['okrReportsKrPanel'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrReport'], REFETCH_OPTS),
     queryClient.invalidateQueries(['okrPlannedData'], REFETCH_OPTS),
     queryClient.invalidateQueries(['fetchObjectives'], REFETCH_OPTS),
@@ -90,8 +92,10 @@ export function invalidateOkrPlanningCaches(
   return Promise.all([
     ...[
       ['okrPlans'],
+      ['okrPlansKrPanel'],
       ['okrUserPlans'],
       ['okrReports'],
+      ['okrReportsKrPanel'],
       ['okrReport'],
       ['okrPlan'],
       ['okrPlannedData'],

@@ -7,6 +7,7 @@ import { auth } from '@/utils/firebaseConfig';
 import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
+import AnnouncementMegaphoneIcon from '@/app/(afterLogin)/(organizationalStructure)/organization/announcement/_components/AnnouncementMegaphoneIcon';
 import {
   MdPeople,
   MdPersonSearch,
@@ -15,7 +16,6 @@ import {
   MdCardGiftcard,
   MdWidgets,
   MdAdminPanelSettings,
-  MdSettings,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
@@ -77,11 +77,21 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
 };
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useCollaborationMentionNotifications } from '@/store/server/features/collaboration';
+import { useCollaboration } from '@/components/collaboration/collaboration-context';
+import { COLLABORATION_SPACES_PATH } from '@/utils/collaboration';
+import {
+  CollaborationDock,
+  useCollaborationPanelStore,
+} from '@/components/collaboration/collaboration-dock';
+import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
 import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { Permissions } from '@/types/commons/permissionEnum';
+import { findMostSpecificMatchingRoute } from '@/utils/routePermissions';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 // import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
@@ -103,6 +113,7 @@ interface CustomMenuItem {
   title: React.ReactNode; // Changed from `label` to `title`
   className?: string;
   permissions?: string[];
+  requireAny?: boolean;
   children?: CustomMenuItem[];
   disabled?: boolean;
   moduleCode?: string;
@@ -180,11 +191,9 @@ const NavMenuItem: React.FC<{
   const handleChildNavigate = (child: any) => {
     if (isItemDisabled) return;
     const path = String(child.key);
-    if (pathname !== path) {
-      triggerRouteLoaderStart();
-      router.push(path);
-      setSelectedKeys([path]);
-    }
+    triggerRouteLoaderStart();
+    router.push(path);
+    setSelectedKeys([path]);
     setFlyoutOpen(false);
     onNavigate?.();
   };
@@ -233,7 +242,7 @@ const NavMenuItem: React.FC<{
           }
         }}
         className={`
-          py-2 rounded-[6px] transition-all duration-200 outline-none
+          flex items-center gap-1.5 py-2 rounded-[6px] transition-all duration-200 outline-none
           ${collapsed ? 'px-3' : 'pl-[33px] -ml-[33px]'}
           ${
             isChildSelected
@@ -373,6 +382,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
+  const enabledAnnouncementChannelIds = useAnnouncementChannelsStore(
+    (state) => state.enabledChannelIds,
+  );
+  const { data: collaborationMentionNotifications = [] } =
+    useCollaborationMentionNotifications();
+  const hasAnnouncementMention = React.useMemo(() => {
+    const integratedChannelIds = new Set(enabledAnnouncementChannelIds);
+    return collaborationMentionNotifications.some(
+      (notification) =>
+        notification.unread &&
+        notification.channelId &&
+        integratedChannelIds.has(notification.channelId),
+    );
+  }, [collaborationMentionNotifications, enabledAnnouncementChannelIds]);
+  const {
+    enabled: collaborationEnabled,
+    isOpen: collaborationOpen,
+    toggle: toggleCollaboration,
+  } = useCollaboration();
+  const collaborationPanelWidth = useCollaborationPanelStore(
+    (state) => state.panelWidth,
+  );
   useGetEmployee(userId);
   // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
@@ -520,8 +551,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const getRoutesAndPermissions = React.useCallback(
     (
       menuItems: CustomMenuItem[],
-    ): { route: string; permissions: string[] }[] => {
-      const routes: { route: string; permissions: string[] }[] = [];
+    ): { route: string; permissions: string[]; requireAny?: boolean }[] => {
+      const routes: {
+        route: string;
+        permissions: string[];
+        requireAny?: boolean;
+      }[] = [];
 
       const traverse = (items: CustomMenuItem[]) => {
         items.forEach((item) => {
@@ -529,6 +564,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             routes.push({
               route: item.key,
               permissions: item.permissions,
+              ...(item.requireAny ? { requireAny: true } : {}),
             });
           }
 
@@ -605,6 +641,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             key: '/employees/manage-employees',
             className: 'font-bold',
             permissions: ['manage_employees'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-succession-planning">
+                Succession Planning
+              </span>
+            ),
+            key: '/employees/succession-planning',
+            className: 'font-bold',
+            permissions: [
+              Permissions.ViewSuccessionPlanning,
+              Permissions.SubmitSuccessionEvaluation,
+            ],
+            requireAny: true,
           },
           {
             title: <span data-cy="nav-tree-employees-settings">Settings</span>,
@@ -745,6 +795,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             key: '/tna/management',
             className: 'font-bold',
             permissions: ['manage_training'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-tna-management">TNA Management</span>
+            ),
+            key: '/tna/tna-management',
+            className: 'font-bold',
+            permissions: ['manage_tna'],
           },
           {
             title: <span data-cy="nav-tree-tna-settings">Settings</span>,
@@ -957,17 +1015,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return true;
       }
 
-      // First check if the pathname matches any defined route (supporting dynamic segments)
-      const matchingRoute = routesWithPermissions.find((route) => {
-        if (isRouteMatch(route.route, pathname)) {
-          return true;
-        }
-        // Check for parent-child relationship - allow any level of nesting
-        if (pathname.startsWith(route.route + '/')) {
-          return true;
-        }
-        return false;
-      });
+      // Prefer the deepest, most-specific policy over an earlier parent route.
+      const matchingRoute = findMostSpecificMatchingRoute(
+        routesWithPermissions,
+        pathname,
+      );
 
       // If no matching route found, check if it's a deeply nested route
       if (!matchingRoute) {
@@ -984,16 +1036,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
           if (parentRoute) {
             // Check if user has permissions for parent route
-            const userPermissions = userData?.userPermissions || [];
-            const hasParentPermissions = parentRoute.permissions.every(
-              (requiredPermission: any) => {
-                const found = userPermissions?.find(
-                  (permission: any) =>
-                    permission.permission.slug === requiredPermission,
-                );
-                return found;
-              },
-            );
+            const hasParentPermissions = AccessGuard.checkAccess({
+              permissions: parentRoute.permissions,
+              requireAny: parentRoute.requireAny,
+            });
 
             if (hasParentPermissions) {
               return true;
@@ -1013,22 +1059,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return true;
       }
 
-      // Get user's permissions from the authentication store
-
-      const userPermissions = userData?.userPermissions || [];
-
-      // Check if user has ALL required permissions for this route
-
-      const hasAllPermissions = matchingRoute.permissions.every(
-        (requiredPermission: any) => {
-          const found = userPermissions?.find(
-            (permission: any) =>
-              permission.permission.slug === requiredPermission,
-          );
-          return found;
-        },
-      );
-      return hasAllPermissions;
+      // Check if user has the required permission(s) for this route
+      return AccessGuard.checkAccess({
+        permissions: matchingRoute.permissions,
+        requireAny: matchingRoute.requireAny,
+      });
     },
     [treeData, userData],
   );
@@ -1356,6 +1391,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       .map((item) => {
         const hasAccess = AccessGuard.checkAccess({
           permissions: item.permissions,
+          requireAny: item.requireAny,
         });
         if (!hasAccess) return null;
         return {
@@ -1364,6 +1400,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             ? item.children.filter((child) =>
                 AccessGuard.checkAccess({
                   permissions: child.permissions,
+                  requireAny: child.requireAny,
                 }),
               )
             : [],
@@ -1813,44 +1850,67 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           </div>
 
           {AccessGuard.checkAccess({
-            permissions: ['view_admin_configuration'],
+            permissions: ['view_organization'],
           }) && (
             <div
-              data-cy="nav-sider-admin-wrap"
+              data-cy="nav-sider-announcement-wrap"
               className={`mt-2 w-full shrink-0 border-t border-[#E2E8F0] bg-white/40 pt-3 pb-2 ${
                 collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
               }`}
             >
               <div
-                data-cy="nav-sider-admin-inner"
+                data-cy="nav-sider-announcement-inner"
                 className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
               >
                 {(() => {
-                  const adminButton = (
+                  // Announcement is the collaboration panel's launcher on
+                  // desktop, so it reads as active whenever the panel is open —
+                  // not only on the standalone page, which stays reachable at
+                  // its own URL.
+                  const opensCollaborationPanel =
+                    collaborationEnabled && !isMobile;
+                  const isAnnouncementActive = opensCollaborationPanel
+                    ? collaborationOpen
+                    : pathname.startsWith('/organization/announcement');
+                  const announcementButton = (
                     <Button
-                      data-cy="nav-sider-admin-btn"
+                      data-cy="nav-sider-announcement-btn"
                       type="text"
                       block={!collapsed}
-                      aria-label={collapsed ? 'Admin Console' : undefined}
+                      aria-label={collapsed ? 'Announcement' : undefined}
+                      disabled={hasEndedFiscalYear}
                       icon={
                         <span
-                          data-cy="nav-sider-admin-icon-wrap"
-                          className={`flex items-center justify-center text-[21px] leading-none transition-colors ${
-                            pathname.startsWith('/admin') ? '' : 'text-black'
+                          data-cy="nav-sider-announcement-icon-wrap"
+                          className={`relative flex items-center justify-center text-[21px] leading-none transition-colors ${
+                            isAnnouncementActive ? '' : 'text-black'
                           }`}
                           style={
-                            pathname.startsWith('/admin')
+                            isAnnouncementActive
                               ? { color: colorPrimary }
                               : undefined
                           }
                         >
-                          <MdSettings size={21} />
+                          <AnnouncementMegaphoneIcon
+                            size={21}
+                            data-cy="nav-sider-announcement-icon"
+                          />
+                          {collapsed && hasAnnouncementMention ? (
+                            <span
+                              className="absolute -right-2 -top-1 inline-flex items-center justify-center text-xs font-bold leading-none text-[#ff4d4f]"
+                              aria-label="You were mentioned in an announcement channel"
+                              title="Mention"
+                              data-cy="nav-sider-announcement-mention"
+                            >
+                              @
+                            </span>
+                          ) : null}
                         </span>
                       }
                       className={`
                       !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
                       ${
-                        pathname.startsWith('/admin')
+                        isAnnouncementActive
                           ? '!font-bold'
                           : '!font-medium !text-black hover:!bg-[#E6F4FF]'
                       }
@@ -1861,13 +1921,28 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       }
                     `}
                       style={
-                        pathname.startsWith('/admin')
+                        isAnnouncementActive
                           ? { color: colorPrimary }
                           : undefined
                       }
                       onClick={() => {
+                        if (hasEndedFiscalYear) return;
+                        // The panel has no room on a phone (it is hidden below
+                        // `md`), so mobile keeps navigating to the page.
+                        if (opensCollaborationPanel) {
+                          toggleCollaboration({
+                            title: 'Announcement',
+                            module: 'announcement',
+                            // Land on the spaces list rather than the embedded
+                            // app's own home — post channels live there, and
+                            // `channels=posts` has already narrowed it to them.
+                            path: COLLABORATION_SPACES_PATH,
+                          });
+                          return;
+                        }
                         triggerRouteLoaderStart();
-                        router.push('/admin/dashboard');
+                        router.push('/organization/announcement');
+                        setSelectedKeys(['/organization/announcement']);
                         if (isMobile) {
                           setMobileCollapsed(true);
                         }
@@ -1875,11 +1950,27 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     >
                       {!collapsed && (
                         <span
-                          data-cy="nav-sider-admin-label"
-                          className="flex-1 text-left transition-colors"
+                          data-cy="nav-sider-announcement-label"
+                          className="flex flex-1 items-center justify-start gap-1 text-left transition-colors"
                           style={{ fontSize }}
                         >
-                          Admin Console
+                          <span
+                            className="leading-none"
+                            data-cy="nav-sider-announcement-text"
+                          >
+                            Announcement
+                          </span>
+                          {hasAnnouncementMention ? (
+                            <span
+                              className="inline-flex shrink-0 items-center justify-start font-bold leading-none text-[#ff4d4f]"
+                              style={{ fontSize }}
+                              aria-label="You were mentioned in an announcement channel"
+                              title="Mention"
+                              data-cy="nav-sider-announcement-mention"
+                            >
+                              @
+                            </span>
+                          ) : null}
                         </span>
                       )}
                     </Button>
@@ -1888,12 +1979,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                     <Tooltip
                       placement="right"
                       trigger={['hover', 'focus']}
-                      title="Admin Console"
+                      title="Announcement"
                     >
-                      {adminButton}
+                      {announcementButton}
                     </Tooltip>
                   ) : (
-                    adminButton
+                    announcementButton
                   );
                 })()}
               </div>
@@ -1972,11 +2063,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               display: isMobile ? 'none' : 'flex',
               alignItems: 'center',
               position: 'fixed',
+              // Fixed, so it is sized off the viewport rather than off its flex
+              // parent — the collaboration panel's width has to come out by hand
+              // or the header runs underneath it.
               width: isMobile
                 ? '100%'
-                : collapsed
-                  ? 'calc(100% - 80px)'
-                  : 'calc(100% - 280px)',
+                : `calc(100% - ${collapsed ? 80 : 280}px${
+                    collaborationOpen ? ` - ${collaborationPanelWidth}px` : ''
+                  })`,
               zIndex: 40,
               top: 0,
               left: isMobile ? 0 : collapsed ? 80 : 280,
@@ -2066,6 +2160,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           />
         )}
       </Layout>
+
+      {/* Inline collaboration panel — a flex sibling of the content column
+          above, so opening it narrows the page instead of covering it. */}
+      <CollaborationDock />
     </Layout>
   );
 };

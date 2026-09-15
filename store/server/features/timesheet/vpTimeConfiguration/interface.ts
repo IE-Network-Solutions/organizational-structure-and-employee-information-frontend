@@ -9,6 +9,7 @@ export interface VpTimeConfiguration {
   fromMinutes: number | null;
   toMinutes: number | null;
   deductableAmount: number;
+  salaryDeductionMinutes?: number | null;
   description?: string | null;
   missedClockout?: boolean;
   isAbsent?: boolean;
@@ -26,6 +27,7 @@ export interface CreateVpTimeConfigurationPayload {
   fromMinutes?: number;
   toMinutes?: number | null;
   deductableAmount: number;
+  salaryDeductionMinutes?: number | null;
   description?: string;
   missedClockout?: boolean;
   isAbsent?: boolean;
@@ -41,6 +43,8 @@ interface VpTimeConfigurationFormValues {
   endTime?: number;
   applyAdditionalRules?: boolean;
   deductibleAmount?: number;
+  salaryDeductionEnabled?: boolean;
+  salaryDeductionMinutes?: number;
   description?: string;
   missedClockout?: boolean;
   isAbsent?: boolean;
@@ -63,6 +67,10 @@ export const buildVpTimeConfigurationPayload = (
 ): CreateVpTimeConfigurationPayload => {
   const deductableAmount = Number(values.deductibleAmount ?? 0);
   const description = values.description?.trim() || undefined;
+  const salaryDeductionMinutes =
+    values.salaryDeductionEnabled && values.salaryDeductionMinutes != null
+      ? Number(values.salaryDeductionMinutes)
+      : null;
 
   if (
     values.configType === VpTimeConfigType.CLOCKOUT &&
@@ -72,6 +80,7 @@ export const buildVpTimeConfigurationPayload = (
       configType: VpTimeConfigType.CLOCKOUT,
       missedClockout: true,
       deductableAmount,
+      salaryDeductionMinutes,
       ...(description ? { description } : {}),
     };
   }
@@ -88,6 +97,7 @@ export const buildVpTimeConfigurationPayload = (
         ? Number(values.endTime)
         : null,
     deductableAmount,
+    salaryDeductionMinutes,
     ...(description ? { description } : {}),
     ...(isAbsent
       ? {

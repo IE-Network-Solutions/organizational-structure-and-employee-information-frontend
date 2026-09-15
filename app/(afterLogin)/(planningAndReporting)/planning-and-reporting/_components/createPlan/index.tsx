@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { Button, Form, Spin, Tooltip } from 'antd';
@@ -358,6 +359,7 @@ function CreatePlan() {
     }, 100);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     open,
     planningPeriodHierarchy,

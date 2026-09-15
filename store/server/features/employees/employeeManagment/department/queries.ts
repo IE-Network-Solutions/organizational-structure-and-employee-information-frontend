@@ -54,19 +54,70 @@ const getDepartmentsWithUsers = async () => {
   });
 };
 
+const DEPARTMENT_USERS_PAGE_SIZE = 1000;
+
 const getDepartmentUsersAllLevels = async (departmentId: string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    tenantId: tenantId,
+  };
 
-  return crudRequest({
-    url: `${CORE_API_URL}/departments/child-departments/departments/all-levels/users/${departmentId}`,
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      tenantId: tenantId,
-    },
-  });
+  const fetchPage = (page: number) =>
+    crudRequest({
+      url: `${CORE_API_URL}/departments/child-departments/departments/all-levels/users/${departmentId}?page=${page}&limit=${DEPARTMENT_USERS_PAGE_SIZE}`,
+      method: 'GET',
+      headers,
+    });
+
+  const firstPage = await fetchPage(1);
+  const firstUsers = extractUsersFromDepartmentPayload(firstPage);
+  const totalItems = getTotalFromDepartmentPayload(
+    firstPage,
+    firstUsers.length,
+  );
+  const totalPages = Math.max(
+    1,
+    Math.ceil(totalItems / DEPARTMENT_USERS_PAGE_SIZE),
+  );
+
+  if (totalPages <= 1 || firstUsers.length >= totalItems) {
+    return firstUsers;
+  }
+
+  const remainingPages = [];
+  for (let pageNumber = 2; pageNumber <= totalPages; pageNumber += 1) {
+    remainingPages.push(fetchPage(pageNumber));
+  }
+  const remainingResults = await Promise.all(remainingPages);
+
+  return [
+    ...firstUsers,
+    ...remainingResults.flatMap((page) =>
+      extractUsersFromDepartmentPayload(page),
+    ),
+  ];
 };
+
+function extractUsersFromDepartmentPayload(payload: any): any[] {
+  if (!payload) return [];
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.users)) return payload.users;
+  if (Array.isArray(payload.items)) return payload.items;
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.data?.users)) return payload.data.users;
+  if (Array.isArray(payload.data?.items)) return payload.data.items;
+  return [];
+}
+
+function getTotalFromDepartmentPayload(payload: any, fallback: number) {
+  const meta = payload?.meta ?? payload?.data?.meta ?? {};
+  return (
+    Number(meta.totalItems ?? meta.total ?? payload?.totalItems ?? fallback) ||
+    fallback
+  );
+}
 
 /**
  * Function to fetch a single post by sending a GET request to the API
@@ -164,7 +215,7 @@ export const useGetDepartmentUsersAllLevels = (departmentId: string | null) =>
     () => getDepartmentUsersAllLevels(departmentId as string),
     {
       enabled: !!departmentId,
-      keepPreviousData: true,
+      keepPreviousData: false,
     },
   );
 

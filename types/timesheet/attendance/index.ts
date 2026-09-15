@@ -165,6 +165,7 @@ export interface AttendanceRule extends DateInfo {
   resetDays: number;
   ruleAppliedDays: number;
   isFixed?: boolean;
+  isMinuteBasedSalaryDeduction?: boolean;
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
   vpDeductionAmount?: number;
@@ -204,6 +205,7 @@ export interface AttendanceRule {
   resetDays: number;
   ruleAppliedDays: number;
   isFixed?: boolean;
+  isMinuteBasedSalaryDeduction?: boolean;
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
   vpDeductionAmount?: number;
@@ -225,6 +227,8 @@ export interface AttendanceRuleViolation extends DateInfo {
   actionTaken: boolean;
   actionTakenAt: string | null;
   actionStatus?: AttendanceRuleActionStatus;
+  salaryDeductionMinutes?: number | null;
+  salaryDeductionAmount?: number | null;
   attendanceRule: AttendanceRule;
   attendanceRuleTypes?: AttendanceRuleTypes;
   logs: unknown[];

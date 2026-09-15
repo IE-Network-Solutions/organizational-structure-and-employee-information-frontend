@@ -15,6 +15,13 @@ export interface NotificationType {
   url?: string;
   /** Optional theme for display (e.g. green, blue, purple). Can also be parsed from route ?theme= */
   theme?: string;
+  /** Nested payload from the notification service (employee / entity ids). */
+  data?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  payload?: Record<string, unknown>;
+  employeeId?: string;
+  relatedUserId?: string;
+  createdBy?: string;
 }
 
 export interface NotificationListResponse {
