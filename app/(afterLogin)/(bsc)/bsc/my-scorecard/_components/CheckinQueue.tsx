@@ -32,7 +32,7 @@ import {
   useSubmitBscFinal,
 } from '@/store/server/features/bsc/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { EvaluationCycle, KpiApprovalStatus } from '@/types/bsc';
+import { EvaluationCycle, KpiApprovalStatus, ScorecardKpiTarget } from '@/types/bsc';
 import { formatScore } from '@/utils/bsc/rollup';
 import { buildCheckinQueue, dedupeSelfCheckinItems, type CheckinItem } from '@/utils/bsc/checkin';
 import type { CheckinInbox } from './CheckinInboxToggle';
@@ -391,8 +391,11 @@ function ReviewCheckinGroup({
           approved: true,
         });
         onDecision(targetId, true);
-        const stillPending = latest.targets.filter(
-          (t) => t.approvalStatus === KpiApprovalStatus.Pending,
+        const targets: ScorecardKpiTarget[] = Array.isArray(latest?.targets)
+          ? latest.targets
+          : [];
+        const stillPending = targets.filter(
+          (target) => target.approvalStatus === KpiApprovalStatus.Pending,
         );
         if (stillPending.length === 0) {
           await finalizeAsync(scorecard.id);
