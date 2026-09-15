@@ -8,33 +8,50 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import dayjs from 'dayjs';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { MOCK_AUDIT_EVENTS } from '../_components/mockData';
 import AuditEventDetailContent from '../_components/AuditEventDetailContent';
 import AuditSeverityTag from '../_components/AuditSeverityTag';
 import { PrototypeAuditEvent } from '../_components/types';
-import { applySeverityRules, loadSeverityRules } from '../_components/utils';
+import { mapAuditLogToEvent } from '../_components/mapAuditLog';
+import { useGetAuditLogById } from '@/store/server/features/tenant-management/audit-logs/queries';
+import { AuditLog } from '@/types/tenant-management';
+
+const readCachedEvent = (id?: string): PrototypeAuditEvent | null => {
+  if (!id || typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(`audit-log-${id}`);
+    if (!raw) return null;
+    return JSON.parse(raw) as PrototypeAuditEvent;
+  } catch {
+    return null;
+  }
+};
+
+const asAuditLog = (payload: unknown): AuditLog | null => {
+  if (!payload || typeof payload !== 'object') return null;
+  const record = payload as AuditLog & { item?: AuditLog };
+  if (record.item?.id) return record.item;
+  if (record.id) return record;
+  return null;
+};
 
 const AuditLogDetailPage = () => {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const [event, setEvent] = useState<PrototypeAuditEvent | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [cachedEvent, setCachedEvent] = useState<PrototypeAuditEvent | null>(
+    null,
+  );
   const [isExporting, setIsExporting] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const { data, isLoading, isError } = useGetAuditLogById(id);
 
   useEffect(() => {
-    const found = MOCK_AUDIT_EVENTS.find(
-      (item) => item.id === id || item.eventId === id,
-    );
-    if (!found) {
-      router.push('/audit-log');
-      setIsLoading(false);
-      return;
-    }
-    const [withSeverity] = applySeverityRules([found], loadSeverityRules());
-    setEvent(withSeverity);
-    setIsLoading(false);
-  }, [id, router]);
+    setCachedEvent(readCachedEvent(id));
+  }, [id]);
+
+  const event = useMemo(() => {
+    const fromApi = asAuditLog(data);
+    return fromApi ? mapAuditLogToEvent(fromApi) : cachedEvent;
+  }, [data, cachedEvent]);
 
   const subtitle = useMemo(() => {
     if (!event) return 'Track event details';
@@ -101,6 +118,8 @@ const AuditLogDetailPage = () => {
     }
   };
 
+  const showNotFound = !isLoading && !event && (isError || !cachedEvent);
+
   return (
     <div
       className="bg-white min-h-screen"
@@ -137,7 +156,7 @@ const AuditLogDetailPage = () => {
         className="border border-gray-200 rounded-md p-4 md:p-6"
         data-cy="audit-log-detail-content"
       >
-        {isLoading ? (
+        {isLoading && !event ? (
           <p
             className="text-sm text-gray-500"
             data-cy="audit-log-detail-loading"
@@ -146,12 +165,19 @@ const AuditLogDetailPage = () => {
           </p>
         ) : event ? (
           <AuditEventDetailContent event={event} />
-        ) : (
+        ) : showNotFound ? (
           <p
             className="text-sm text-gray-500"
             data-cy="audit-log-detail-not-found"
           >
             Event not found.
+          </p>
+        ) : (
+          <p
+            className="text-sm text-gray-500"
+            data-cy="audit-log-detail-loading"
+          >
+            Loading event details...
           </p>
         )}
       </div>

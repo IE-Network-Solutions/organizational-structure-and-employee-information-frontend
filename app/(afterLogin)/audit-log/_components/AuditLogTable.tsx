@@ -16,6 +16,7 @@ import {
 
 interface AuditLogTableProps {
   events: PrototypeAuditEvent[];
+  loading?: boolean;
   hideTargetColumn?: boolean;
   onViewDetails: (event: PrototypeAuditEvent) => void;
 }
@@ -48,6 +49,7 @@ const PersonCell = ({
 
 const AuditLogTable = ({
   events,
+  loading = false,
   hideTargetColumn = false,
   onViewDetails,
 }: AuditLogTableProps) => {
@@ -140,6 +142,7 @@ const AuditLogTable = ({
     <Table
       columns={columns}
       dataSource={events}
+      loading={loading}
       pagination={false}
       rowKey="id"
       scroll={{ x: 'max-content' }}

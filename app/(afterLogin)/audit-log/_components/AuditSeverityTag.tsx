@@ -2,7 +2,7 @@
 
 import { Tag } from 'antd';
 import { AuditSeverity } from './types';
-import { getSeverityTagColor } from './utils';
+import { getSeverityTagColor, getSeverityLabel } from './utils';
 
 interface AuditSeverityTagProps {
   severity: AuditSeverity;
@@ -16,7 +16,7 @@ const AuditSeverityTag = ({ severity, className }: AuditSeverityTagProps) => (
     style={{ border: 'none' }}
     data-cy={`audit-severity-tag-${severity}`}
   >
-    {severity}
+    {getSeverityLabel(severity)}
   </Tag>
 );
 

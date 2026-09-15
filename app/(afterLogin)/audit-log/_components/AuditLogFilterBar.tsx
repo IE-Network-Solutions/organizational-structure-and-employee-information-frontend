@@ -8,6 +8,7 @@ import {
   AUDIT_ACTION_OPTIONS,
   AUDIT_LOG_MODULE_OPTIONS,
   AUDIT_SEVERITIES,
+  AUDIT_SEVERITY_LABELS,
   AuditLogFilters,
   AuditSeverity,
   PrototypeAuditPerson,
@@ -211,7 +212,7 @@ const AuditLogFilterBar = ({
             maxTagCount="responsive"
             options={AUDIT_SEVERITIES.map((severity) => ({
               value: severity,
-              label: severity,
+              label: AUDIT_SEVERITY_LABELS[severity],
             }))}
             onChange={(value: AuditSeverity[]) =>
               setDraft((current) => ({

@@ -3,7 +3,7 @@ import { ApiResponse } from '@/types/commons/responseTypes';
 import { AuditLog } from '@/types/tenant-management';
 import { TENANT_MGMT_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
-import { useQuery } from 'react-query';
+import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { AuditLogRequestBody, AggregateAuditLogParams } from './interface';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
@@ -81,11 +81,20 @@ const getAggregateAuditLogs = async (
   if (params.entityType) {
     queryParams.entityType = params.entityType;
   }
+  if (params.entityId) {
+    queryParams.entityId = params.entityId;
+  }
   if (params.startDate) {
     queryParams.startDate = params.startDate;
   }
   if (params.endDate) {
     queryParams.endDate = params.endDate;
+  }
+  if (params.search) {
+    queryParams.search = params.search;
+  }
+  if (params.severity) {
+    queryParams.severity = params.severity;
   }
 
   return await crudRequest({
@@ -116,7 +125,7 @@ export const useGetAggregateAuditLogs = (
     },
   );
 };
-const getAggregateAuditPostLogs = async (
+export const getAggregateAuditPostLogs = async (
   params: AggregateAuditLogParams,
 ): Promise<ApiResponse<AuditLog>> => {
   const token = await getCurrentToken();
@@ -157,11 +166,20 @@ const getAggregateAuditPostLogs = async (
   if (params.entityType) {
     queryParams.entityType = params.entityType;
   }
+  if (params.entityId) {
+    queryParams.entityId = params.entityId;
+  }
   if (params.startDate) {
     queryParams.startDate = params.startDate;
   }
   if (params.endDate) {
     queryParams.endDate = params.endDate;
+  }
+  if (params.search) {
+    queryParams.search = params.search;
+  }
+  if (params.severity) {
+    queryParams.severity = params.severity;
   }
 
   return await crudRequest({
@@ -197,4 +215,93 @@ export const useGetAggregateAuditPostLogs = (
       keepPreviousData: shouldKeepPreviousData,
     },
   );
+};
+
+export const getAuditLogById = async (id: string): Promise<AuditLog> => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/core/audit-log/${id}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetAuditLogById = (id?: string, isEnabled: boolean = true) => {
+  return useQuery<AuditLog>(
+    ['org-emp-audit-log', id],
+    () => getAuditLogById(id as string),
+    {
+      enabled: Boolean(id) && isEnabled,
+      retry: false,
+    },
+  );
+};
+
+export const getAuditSeverityRules = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/core/audit-log/severity-rules`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetAuditSeverityRules = () =>
+  useQuery(['audit-severity-rules'], getAuditSeverityRules);
+
+export const getAuditSeverityFields = async (module: string) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/core/audit-log/severity-fields`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    params: { module },
+  });
+};
+
+export const useGetAuditSeverityFields = (module?: string) =>
+  useQuery(
+    ['audit-severity-fields', module],
+    () => getAuditSeverityFields(module as string),
+    {
+      enabled: Boolean(module),
+      staleTime: 5 * 60 * 1000,
+    },
+  );
+
+export const replaceAuditSeverityRules = async (rules: unknown[]) => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return await crudRequest({
+    url: `${ORG_AND_EMP_URL}/core/audit-log/severity-rules`,
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+    data: { rules },
+  });
+};
+
+export const useReplaceAuditSeverityRules = () => {
+  const queryClient = useQueryClient();
+  return useMutation(replaceAuditSeverityRules, {
+    onSuccess: () => {
+      queryClient.invalidateQueries('audit-severity-rules');
+      queryClient.invalidateQueries('aggregate-audit-post-logs');
+    },
+  });
 };

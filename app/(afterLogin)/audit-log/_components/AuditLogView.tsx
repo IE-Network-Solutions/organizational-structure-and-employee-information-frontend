@@ -6,17 +6,27 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
-import { MOCK_AUDIT_EVENTS } from './mockData';
-import { AuditLogFilters, AuditSeverityRule } from './types';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
-  applySeverityRules,
+  getAggregateAuditPostLogs,
+  useGetAggregateAuditPostLogs,
+  useGetAuditSeverityRules,
+  useReplaceAuditSeverityRules,
+} from '@/store/server/features/tenant-management/audit-logs/queries';
+import { AggregateAuditLogParams } from '@/store/server/features/tenant-management/audit-logs/interface';
+import { AuditLog } from '@/types/tenant-management';
+import {
+  AuditLogFilters,
+  AuditSeverityRule,
+  PrototypeAuditPerson,
+} from './types';
+import {
   createEmptyAuditFilters,
   exportAuditEventsCsv,
-  filterAuditEvents,
   loadSeverityRules,
-  saveSeverityRules,
   uniquePeople,
 } from './utils';
+import { mapAuditLogToEvent, toApiAction } from './mapAuditLog';
 import AuditLogFilterBar from './AuditLogFilterBar';
 import AuditLogTable from './AuditLogTable';
 import AuditSeverityRulesModal from './AuditSeverityRulesModal';
@@ -30,9 +40,25 @@ interface AuditLogViewProps {
   onSettingsOpenChange?: (open: boolean) => void;
 }
 
+const toPeople = (users: any): PrototypeAuditPerson[] => {
+  const list = Array.isArray(users)
+    ? users
+    : Array.isArray(users?.items)
+      ? users.items
+      : [];
+  return uniquePeople(
+    list.map((user: any) => ({
+      id: user.id,
+      firstName: user.firstName || user.user?.firstName || '',
+      lastName: user.lastName || user.user?.lastName || '',
+      profileImage: user.profileImage || user.user?.profileImage,
+      role: user.role?.name || user.role?.role?.name,
+    })),
+  );
+};
+
 const AuditLogView = ({
   targetId,
-  targetName,
   hideTargetColumn = false,
   hideTargetFilter = false,
   settingsOpen = false,
@@ -43,51 +69,91 @@ const AuditLogView = ({
   const [filters, setFilters] = useState<AuditLogFilters>(
     createEmptyAuditFilters,
   );
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [severityRules, setSeverityRules] =
     useState<AuditSeverityRule[]>(loadSeverityRules);
+  const { data: allUsers } = useGetAllUsers();
+  const { data: remoteSeverityRules } = useGetAuditSeverityRules();
+  const replaceSeverityRules = useReplaceAuditSeverityRules();
 
-  const eventsWithSeverity = useMemo(
-    () => applySeverityRules(MOCK_AUDIT_EVENTS, severityRules),
-    [severityRules],
-  );
+  useEffect(() => {
+    const list = Array.isArray(remoteSeverityRules)
+      ? remoteSeverityRules
+      : Array.isArray((remoteSeverityRules as any)?.items)
+        ? (remoteSeverityRules as any).items
+        : [];
+    if (list.length) {
+      setSeverityRules(
+        list.map((rule: any) => ({
+          id: rule.id,
+          module: rule.module,
+          actionVerb: rule.actionVerb,
+          fields: rule.fields || [],
+          severity: rule.severity,
+        })),
+      );
+    }
+  }, [remoteSeverityRules]);
 
-  const scopedEvents = useMemo(
-    () =>
-      filterAuditEvents(eventsWithSeverity, createEmptyAuditFilters(), {
-        targetId,
-        targetName,
+  useEffect(() => {
+    const timer = setTimeout(
+      () => setDebouncedSearch(filters.search.trim()),
+      300,
+    );
+    return () => clearTimeout(timer);
+  }, [filters.search]);
+
+  const queryParams = useMemo<AggregateAuditLogParams>(() => {
+    const affectedId = filters.targetId || targetId;
+    return {
+      modules: filters.module ? [filters.module] : ['all'],
+      page: currentPage,
+      limit: pageSize,
+      orderBy: 'performedAt',
+      orderDirection: 'DESC',
+      ...(filters.action && { action: toApiAction(filters.action) }),
+      ...(filters.actorId && { performedBy: filters.actorId }),
+      ...(affectedId && { entityId: affectedId }),
+      ...(filters.dateFrom && { startDate: filters.dateFrom }),
+      ...(filters.dateTo && { endDate: filters.dateTo }),
+      ...(debouncedSearch && { search: debouncedSearch }),
+      ...(filters.severities.length && {
+        severity: filters.severities.join(','),
       }),
-    [eventsWithSeverity, targetId, targetName],
+    };
+  }, [
+    currentPage,
+    pageSize,
+    filters.action,
+    filters.actorId,
+    filters.targetId,
+    filters.module,
+    filters.dateFrom,
+    filters.dateTo,
+    filters.severities,
+    targetId,
+    debouncedSearch,
+  ]);
+
+  const { data: auditLogsResponse, isLoading } = useGetAggregateAuditPostLogs(
+    queryParams,
+    true,
   );
 
-  const filteredEvents = useMemo(
-    () =>
-      filterAuditEvents(eventsWithSeverity, filters, {
-        targetId,
-        targetName,
-      }),
-    [eventsWithSeverity, filters, targetId, targetName],
-  );
+  const mappedEvents = useMemo(() => {
+    const items = (auditLogsResponse?.items ?? []) as AuditLog[];
+    return items.map(mapAuditLogToEvent);
+  }, [auditLogsResponse]);
 
-  const actorOptions = useMemo(
-    () => uniquePeople(scopedEvents.map((event) => event.actor)),
-    [scopedEvents],
-  );
-  const targetOptions = useMemo(
-    () => uniquePeople(scopedEvents.map((event) => event.target)),
-    [scopedEvents],
-  );
-
-  const paginatedEvents = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredEvents.slice(start, start + pageSize);
-  }, [filteredEvents, currentPage, pageSize]);
+  const visibleEvents = mappedEvents;
+  const people = useMemo(() => toPeople(allUsers), [allUsers]);
+  const totalItems = auditLogsResponse?.meta?.totalItems || 0;
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters, targetId, targetName]);
+  }, [filters, targetId, debouncedSearch]);
 
   const onPageChange = (page: number, currentPageSize?: number) => {
     if (currentPageSize && currentPageSize !== pageSize) {
@@ -108,19 +174,37 @@ const AuditLogView = ({
     setCurrentPage(1);
   };
 
-  const handleExport = () => {
-    if (filteredEvents.length === 0) {
-      NotificationMessage.warning({
-        message: 'Nothing to export',
-        description: 'Adjust filters to include at least one audit event.',
+  const handleExport = async () => {
+    try {
+      const exportParams: AggregateAuditLogParams = {
+        ...queryParams,
+        page: 1,
+        limit: Math.min(
+          Math.max(auditLogsResponse?.meta?.totalItems || pageSize, pageSize),
+          1000,
+        ),
+      };
+      const response = await getAggregateAuditPostLogs(exportParams);
+      const items = (response?.items ?? []) as AuditLog[];
+      const events = items.map(mapAuditLogToEvent);
+      if (events.length === 0) {
+        NotificationMessage.warning({
+          message: 'Nothing to export',
+          description: 'Adjust filters to include at least one audit event.',
+        });
+        return;
+      }
+      exportAuditEventsCsv(events);
+      NotificationMessage.success({
+        message: 'Export started',
+        description: `${events.length} audit event(s) downloaded as CSV.`,
       });
-      return;
+    } catch {
+      NotificationMessage.error({
+        message: 'Export failed',
+        description: 'Unable to download audit events. Please try again.',
+      });
     }
-    exportAuditEventsCsv(filteredEvents);
-    NotificationMessage.success({
-      message: 'Export started',
-      description: `${filteredEvents.length} audit event(s) downloaded as CSV.`,
-    });
   };
 
   return (
@@ -132,8 +216,8 @@ const AuditLogView = ({
       <div className="p-3" data-cy="audit-log-filters-container">
         <AuditLogFilterBar
           filters={filters}
-          actors={actorOptions}
-          targets={targetOptions}
+          actors={people}
+          targets={people}
           hideTargetFilter={hideTargetFilter}
           onFiltersChange={setFilters}
           onClear={handleClearFilters}
@@ -143,14 +227,21 @@ const AuditLogView = ({
 
       <div className="overflow-x-auto" data-cy="audit-log-table-container">
         <AuditLogTable
-          events={paginatedEvents}
+          events={visibleEvents}
+          loading={isLoading}
           hideTargetColumn={hideTargetColumn}
-          onViewDetails={(event) => router.push(`/audit-log/${event.id}`)}
+          onViewDetails={(event) => {
+            sessionStorage.setItem(
+              `audit-log-${event.id}`,
+              JSON.stringify(event),
+            );
+            router.push(`/audit-log/${event.id}`);
+          }}
         />
         <div className="px-3" data-cy="audit-log-pagination-container">
           {isMobile || isTablet ? (
             <CustomMobilePagination
-              totalResults={filteredEvents.length}
+              totalResults={totalItems}
               pageSize={pageSize}
               currentPage={currentPage}
               onChange={onPageChange}
@@ -160,7 +251,7 @@ const AuditLogView = ({
           ) : (
             <CustomPagination
               current={currentPage}
-              total={filteredEvents.length}
+              total={totalItems}
               pageSize={pageSize}
               onChange={onPageChange}
               onShowSizeChange={onPageSizeChange}
@@ -174,15 +265,31 @@ const AuditLogView = ({
         open={settingsOpen}
         rules={severityRules}
         onCancel={() => onSettingsOpenChange?.(false)}
-        onSave={(nextRules) => {
-          setSeverityRules(nextRules);
-          saveSeverityRules(nextRules);
-          onSettingsOpenChange?.(false);
-          NotificationMessage.success({
-            message: 'Severity rules saved',
-            description:
-              'Audit events now use the updated module, action, and field severity mapping.',
-          });
+        onSave={async (nextRules) => {
+          try {
+            const saved = await replaceSeverityRules.mutateAsync(nextRules);
+            const list = Array.isArray(saved) ? saved : nextRules;
+            setSeverityRules(
+              list.map((rule: any) => ({
+                id: rule.id,
+                module: rule.module,
+                actionVerb: rule.actionVerb,
+                fields: rule.fields || [],
+                severity: rule.severity,
+              })),
+            );
+            onSettingsOpenChange?.(false);
+            NotificationMessage.success({
+              message: 'Severity rules saved',
+              description:
+                'New create, update, and delete events will use these rules. Existing rows are classified with the current mapping when loaded.',
+            });
+          } catch {
+            NotificationMessage.error({
+              message: 'Could not save severity rules',
+              description: 'The backend did not accept the severity rules.',
+            });
+          }
         }}
       />
     </div>

@@ -1,23 +1,25 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Form, Modal, Select, Table, Tag } from 'antd';
+import { Button, Form, Modal, Popconfirm, Select, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { FiTrash2 } from 'react-icons/fi';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
+import { useGetAuditSeverityFields } from '@/store/server/features/tenant-management/audit-logs/queries';
 import {
   AUDIT_ACTION_OPTIONS,
   AUDIT_LOG_MODULE_OPTIONS,
   AUDIT_SEVERITIES,
+  AUDIT_SEVERITY_LABELS,
   AuditSeverity,
   AuditSeverityRule,
 } from './types';
 import {
   AUDIT_SELECT_CLASS,
   getActionLabel,
-  getModuleFieldOptions,
   getModuleLabel,
   getRuleFields,
+  humanizeAuditLabel,
 } from './utils';
 
 interface AuditSeverityRulesModalProps {
@@ -45,11 +47,32 @@ const AuditSeverityRulesModal = ({
   const [newAction, setNewAction] = useState<string | undefined>();
   const [newFields, setNewFields] = useState<string[]>([]);
   const [newSeverity, setNewSeverity] = useState<AuditSeverity | undefined>();
+  const { data: remoteFields, isFetching: loadingFields } =
+    useGetAuditSeverityFields(newModule);
 
-  const moduleFieldOptions = useMemo(
-    () => getModuleFieldOptions(newModule),
-    [newModule],
-  );
+  const moduleFieldOptions = useMemo(() => {
+    const payload = remoteFields as
+      | { fields?: Array<{ value?: string; label?: string } | string> }
+      | Array<{ value?: string; label?: string } | string>
+      | undefined;
+    const rows = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.fields)
+        ? payload.fields
+        : [];
+    return rows
+      .map((row) => {
+        if (typeof row === 'string') {
+          return { value: row, label: humanizeAuditLabel(row) };
+        }
+        const value = row?.value || '';
+        return {
+          value,
+          label: row?.label || humanizeAuditLabel(value),
+        };
+      })
+      .filter((row) => row.value);
+  }, [remoteFields]);
 
   useEffect(() => {
     if (open) {
@@ -167,7 +190,7 @@ const AuditSeverityRulesModal = ({
                 className="m-0"
                 data-cy={`audit-severity-rule-field-${record.id}-${field}`}
               >
-                {field}
+                {humanizeAuditLabel(field)}
               </Tag>
             ))}
           </div>
@@ -185,7 +208,7 @@ const AuditSeverityRulesModal = ({
           className="w-full"
           options={AUDIT_SEVERITIES.map((option) => ({
             value: option,
-            label: option,
+            label: AUDIT_SEVERITY_LABELS[option],
           }))}
           onChange={(value) => handleSeverityChange(record.id, value)}
           data-cy={`audit-severity-rule-severity-${record.id}`}
@@ -197,14 +220,26 @@ const AuditSeverityRulesModal = ({
       key: 'delete',
       width: 56,
       render: (unused, record) => (
-        <Button
-          type="text"
-          danger
-          icon={<FiTrash2 />}
-          onClick={() => handleDelete(record.id)}
-          aria-label="Delete rule"
-          data-cy={`audit-severity-rule-delete-${record.id}`}
-        />
+        <Popconfirm
+          title="Delete rule"
+          description="Remove this severity rule from the list?"
+          okText="Delete"
+          cancelText="Cancel"
+          okButtonProps={{
+            danger: true,
+            'data-cy': `audit-severity-rule-delete-confirm-${record.id}`,
+          }}
+          onConfirm={() => handleDelete(record.id)}
+          data-cy={`audit-severity-rule-delete-popconfirm-${record.id}`}
+        >
+          <Button
+            type="text"
+            danger
+            icon={<FiTrash2 />}
+            aria-label="Delete rule"
+            data-cy={`audit-severity-rule-delete-${record.id}`}
+          />
+        </Popconfirm>
       ),
     },
   ];
@@ -247,8 +282,10 @@ const AuditSeverityRulesModal = ({
         className="text-sm text-black opacity-70 mb-4"
         data-cy="audit-severity-rules-helper"
       >
-        Unassigned fields stay INFO. Add rules only for fields that need a
-        higher severity.
+        Create, update, and delete are classified automatically as Informative,
+        Warning, and High. Sensitive fields such as salary or bank details are
+        Critical. Field options are the real columns each module writes to its
+        audit log — not a static list.
       </p>
 
       <Form layout="vertical" requiredMark={false}>
@@ -300,13 +337,20 @@ const AuditSeverityRulesModal = ({
                 showSearch
                 maxTagCount="responsive"
                 placeholder={
-                  newModule ? 'Select fields' : 'Select a module first'
+                  !newModule
+                    ? 'Select a module first'
+                    : loadingFields
+                      ? 'Loading fields…'
+                      : moduleFieldOptions.length
+                        ? 'Select fields'
+                        : 'No audit fields found for this module'
                 }
                 className={AUDIT_SELECT_CLASS}
                 optionFilterProp="label"
                 value={newFields}
                 options={moduleFieldOptions}
-                disabled={!newModule}
+                loading={loadingFields}
+                disabled={!newModule || loadingFields}
                 onChange={(value) => setNewFields(value || [])}
                 data-cy="audit-severity-rule-new-fields"
               />
@@ -319,7 +363,7 @@ const AuditSeverityRulesModal = ({
                 value={newSeverity}
                 options={AUDIT_SEVERITIES.map((severity) => ({
                   value: severity,
-                  label: severity,
+                  label: AUDIT_SEVERITY_LABELS[severity],
                 }))}
                 onChange={(value) => setNewSeverity(value)}
                 data-cy="audit-severity-rule-new-severity"

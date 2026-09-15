@@ -2,7 +2,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import {
   AUDIT_ACTION_OPTIONS,
   AUDIT_LOG_MODULE_OPTIONS,
-  AUDIT_MODULE_FIELDS,
+  AUDIT_SEVERITY_LABELS,
   AuditLogFilters,
   AuditSeverity,
   AuditSeverityRule,
@@ -62,12 +62,6 @@ export const formatEventRemark = (
   const action = (event.actionVerb || 'updated').toLowerCase();
   return `${humanizeEntityName(event.module)} ${action}`;
 };
-
-export const getModuleFieldOptions = (moduleValue?: string) =>
-  (moduleValue ? AUDIT_MODULE_FIELDS[moduleValue] || [] : []).map((field) => ({
-    label: field,
-    value: field,
-  }));
 
 export const getRuleFields = (rule: AuditSeverityRule) => {
   if (rule.fields?.length) return rule.fields;
@@ -203,6 +197,9 @@ export const parseAuditFieldValue = (raw?: string | null): ParsedAuditValue => {
 
   return { kind: 'text', text: formatAuditScalarValue(text) };
 };
+
+export const getSeverityLabel = (severity: AuditSeverity) =>
+  AUDIT_SEVERITY_LABELS[severity] || severity;
 
 export const getSeverityTagColor = (severity: AuditSeverity) => {
   switch (severity) {
