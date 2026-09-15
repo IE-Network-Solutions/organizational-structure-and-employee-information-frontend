@@ -94,16 +94,18 @@ export function filterCheckInDayOptions(
 export function checkInDayOptions(cadence?: BscCadence | null) {
   if (cadence === BscCadence.Weekly) return WEEKDAY_OPTIONS;
   if (cadence === BscCadence.BiWeekly) {
-    return Array.from({ length: 14 }, (_, i) => ({
-      value: i + 1,
-      label: `Day ${i + 1}`,
-    }));
+    const options: Array<{ value: number; label: string }> = [];
+    for (let day = 1; day <= 14; day += 1) {
+      options.push({ value: day, label: `Day ${day}` });
+    }
+    return options;
   }
   if (cadence === BscCadence.Monthly) {
-    return Array.from({ length: 31 }, (_, i) => ({
-      value: i + 1,
-      label: `${i + 1}`,
-    }));
+    const options: Array<{ value: number; label: string }> = [];
+    for (let day = 1; day <= 31; day += 1) {
+      options.push({ value: day, label: `${day}` });
+    }
+    return options;
   }
   return [];
 }

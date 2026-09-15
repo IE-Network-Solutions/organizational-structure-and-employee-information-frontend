@@ -767,7 +767,10 @@ export default function BscScorecardDetailPage() {
           >
             {listModal === 'people' ? (
               filteredPeople.length ? (
-                <div className="flex flex-col gap-1">
+                <div
+                  className="flex flex-col gap-1"
+                  data-cy="bsc-scorecard-detail-people-list"
+                >
                   {filteredPeople.map((person) => (
                     <button
                       key={person.userId}
@@ -792,11 +795,20 @@ export default function BscScorecardDetailPage() {
                       >
                         {nameInitials(person.userName)}
                       </Avatar>
-                      <div className="min-w-0 flex flex-col">
-                        <span className="truncate text-sm font-medium text-[#262626]">
+                      <div
+                        className="min-w-0 flex flex-col"
+                        data-cy={`bsc-scorecard-person-meta-${person.userId}`}
+                      >
+                        <span
+                          className="truncate text-sm font-medium text-[#262626]"
+                          data-cy={`bsc-scorecard-person-name-${person.userId}`}
+                        >
                           {person.userName}
                         </span>
-                        <span className="truncate text-xs text-[#8F94A3]">
+                        <span
+                          className="truncate text-xs text-[#8F94A3]"
+                          data-cy={`bsc-scorecard-person-detail-${person.userId}`}
+                        >
                           {[person.positionTitle, person.departmentName]
                             .filter(Boolean)
                             .join(' · ') || '—'}
@@ -816,7 +828,10 @@ export default function BscScorecardDetailPage() {
                 />
               )
             ) : filteredNames.length ? (
-              <div className="flex flex-col gap-1">
+              <div
+                className="flex flex-col gap-1"
+                data-cy="bsc-scorecard-detail-names-list"
+              >
                 {filteredNames.map((name) => (
                   <div
                     key={name}

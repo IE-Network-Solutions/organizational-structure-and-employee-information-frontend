@@ -191,9 +191,15 @@ function OverflowChipRow({
         ref={measureRef}
         className="pointer-events-none invisible absolute left-0 top-0 flex h-5 items-center gap-1.5 whitespace-nowrap"
         aria-hidden
+        data-cy={`${dataCy}-chips-measure`}
       >
         {items.map((item, index) => (
-          <span key={`${item}-${index}`} data-name-chip className={chipClassName}>
+          <span
+            key={`${item}-${index}`}
+            data-name-chip
+            className={chipClassName}
+            data-cy={`${dataCy}-chip-measure-${index}`}
+          >
             {item}
           </span>
         ))}
@@ -202,6 +208,7 @@ function OverflowChipRow({
           type="button"
           tabIndex={-1}
           className="shrink-0 border-none bg-transparent p-0 text-[12px] font-medium text-[#1677ff]"
+          data-cy={`${dataCy}-view-more-measure`}
         >
           View more
         </button>
@@ -209,6 +216,7 @@ function OverflowChipRow({
       <div
         ref={visibleRef}
         className="flex min-w-0 items-center gap-1.5 overflow-hidden"
+        data-cy={`${dataCy}-chips-visible`}
       >
         {shown.map((item, index) => (
           <span
@@ -216,6 +224,7 @@ function OverflowChipRow({
             data-name-chip
             className={chipClassName}
             title={item}
+            data-cy={`${dataCy}-chip-${index}`}
           >
             {item}
           </span>
@@ -262,7 +271,10 @@ export function BscKpiCountCard({
         className="flex items-center justify-between gap-2"
         data-cy={`${dataCy}-header`}
       >
-        <div className="flex min-w-0 items-center gap-2">
+        <div
+          className="flex min-w-0 items-center gap-2"
+          data-cy={`${dataCy}-title-row`}
+        >
           <div
             className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[4px] bg-[#E6F4FF]"
             data-cy={`${dataCy}-icon`}

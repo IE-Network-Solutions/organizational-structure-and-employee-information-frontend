@@ -73,14 +73,22 @@ function EvaluationCountPills({
         className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-sm text-slate-600"
         data-cy="bsc-checkin-eval-left"
       >
-        <span className="font-semibold tabular-nums text-slate-900">{left}</span>
+        <span
+          className="font-semibold tabular-nums text-slate-900"
+          data-cy="bsc-checkin-eval-left-value"
+        >
+          {left}
+        </span>
         left
       </span>
       <span
         className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-sm text-emerald-700"
         data-cy="bsc-checkin-eval-accepted"
       >
-        <span className="font-semibold tabular-nums text-emerald-800">
+        <span
+          className="font-semibold tabular-nums text-emerald-800"
+          data-cy="bsc-checkin-eval-accepted-value"
+        >
           {accepted}
         </span>
         accepted
@@ -89,7 +97,10 @@ function EvaluationCountPills({
         className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-sm text-red-600"
         data-cy="bsc-checkin-eval-rejected"
       >
-        <span className="font-semibold tabular-nums text-red-700">
+        <span
+          className="font-semibold tabular-nums text-red-700"
+          data-cy="bsc-checkin-eval-rejected-value"
+        >
           {rejected}
         </span>
         rejected
@@ -189,7 +200,10 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
           <span data-cy="checkinqueue-span-76" className={tableCellClassName}>
             {row.target.kpiName}
           </span>
-          <span className="text-xs text-gray-500 leading-snug">
+          <span
+            className="text-xs text-gray-500 leading-snug"
+            data-cy="checkinqueue-span-context"
+          >
             {row.contextLabel}
           </span>
           <KpiEvaluationFlowCompact
@@ -739,7 +753,10 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
           >
             <LeftOutlined />
           </button>
-          <span className="min-w-[4.5rem] text-center text-sm text-gray-600">
+          <span
+            className="min-w-[4.5rem] text-center text-sm text-gray-600"
+            data-cy="bsc-checkin-assigned-page"
+          >
             {page} of {displayGroups.length}
           </span>
           <button

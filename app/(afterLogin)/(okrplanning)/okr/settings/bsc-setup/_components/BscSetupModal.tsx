@@ -254,7 +254,7 @@ function splitWeightMap(ids: string[]): Record<string, number> {
  * measureWeights when the field unmounts between wizard steps. Store objects
  * via setFieldsValue / getFieldValue without an Input child.
  */
-function FormObjectField(_props: { value?: unknown; onChange?: (v: unknown) => void }) {
+function FormObjectField() {
   return null;
 }
 
