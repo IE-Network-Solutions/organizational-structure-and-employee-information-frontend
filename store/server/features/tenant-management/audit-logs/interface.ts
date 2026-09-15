@@ -23,4 +23,7 @@ export interface AggregateAuditLogParams {
   startDate?: string;
   endDate?: string;
   entityType?: string;
+  entityId?: string;
+  search?: string;
+  severity?: string;
 }

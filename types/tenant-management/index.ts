@@ -351,11 +351,20 @@ export interface AuditLog {
     firstName?: string;
     lastName?: string;
     profileImage?: string;
+    role?: string;
+  };
+  targetUser?: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    profileImage?: string;
+    role?: string;
   };
   previousValue?: Record<string, any> | null;
   newValue?: Record<string, any> | null;
   remarks?: string | null;
   module?: string;
+  severity?: 'INFO' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 }
 
 /*********************************************
