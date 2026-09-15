@@ -53,7 +53,6 @@ function TaskMeta({ task, today }: { task: MockPlanTask; today: string }) {
     >
       {task.keyResultTitle ? `${task.keyResultTitle} · ` : 'Unlinked · '}
       {task.spanDays} day{task.spanDays === 1 ? '' : 's'} · {task.deadline}
-      {task.isPendingApproval ? ' · Pending approval' : ''}
       {overdue ? ' · Overdue' : ''}
     </p>
   );

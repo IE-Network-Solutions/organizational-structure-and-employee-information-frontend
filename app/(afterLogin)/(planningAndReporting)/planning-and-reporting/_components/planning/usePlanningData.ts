@@ -278,7 +278,7 @@ export function usePlanningData(enabled = true) {
     if (!mockEnabled) return;
     mockUserIds.forEach((uid) => {
       const displayName = mockDisplayNameForUserId(uid, userId);
-      ensurePlan(uid, displayName);
+      ensurePlan(uid, displayName, userId);
     });
   }, [mockEnabled, mockUserIds, ensurePlan, userId]);
 

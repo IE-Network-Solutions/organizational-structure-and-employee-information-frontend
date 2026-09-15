@@ -166,6 +166,12 @@ const transformTask = (task: any, viewMode: ViewMode): PlanTask => {
     if (task.isPendingApproval) {
       baseTask.isPendingApproval = true;
     }
+    const assignedByUserId =
+      task.assignedByUserId ?? task.assignedBy?.id ?? null;
+    if (assignedByUserId) {
+      (baseTask as PlanTask & { assignedByUserId?: string }).assignedByUserId =
+        String(assignedByUserId);
+    }
   } else {
     baseTask.achieved =
       task.actualValue || task.achievedValue || task.achieved || 0;

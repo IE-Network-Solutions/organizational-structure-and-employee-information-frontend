@@ -15,6 +15,10 @@ import { useFiscalYearSessionSync } from './_components/filters/useFiscalYearSes
 import Planning from './_components/planning';
 import PlanningToolbarFilters from './_components/planning/PlanningToolbarFilters';
 import AssigneeFilterChips from './_components/planning/AssigneeFilterChips';
+import TeamTasksView from './_components/planning/TeamTasksView';
+import { concreteSelectedUserIds } from './_components/planning/assigneeChipRoster';
+import { isOwnPlanSummary } from './_components/planning/planOwnership';
+import { useAssigneePickerScope } from './_components/planning/useAssigneePickerScope';
 import PlanningDurationFilter from './_components/planning/PlanningDurationFilter';
 import InlinePlanningWorkspace, {
   type InlinePlanningWorkspaceHandle,
@@ -79,11 +83,13 @@ function Page() {
     activePlanPeriod,
     setActivePlanPeriod,
     setActivePlanPeriodId,
+    selectedUser,
     setSelectedUser,
     setPlanningFilterPlanType,
     setPlanningFilterDepartment,
     setPage,
     setPageReporting,
+    setTeamTasksAssignedByFilter,
     inlinePlanningMode,
     setInlinePlanningMode,
     mobilePlanComposerOpen,
@@ -91,7 +97,10 @@ function Page() {
     inlineEditPlanId,
     setInlineEditPlanId,
     createPlansModalOpen,
-    setCreatePlansModalOpen,
+    createPlansPrefilledAssigneeUserId,
+    createPlansPrefilledAssigneeLabel,
+    createPlansDelegateOnly,
+    closeCreatePlansModal,
     krLeftPanelCollapsed,
   } = PlanningAndReportingStore();
 
@@ -185,7 +194,19 @@ function Page() {
     const tab = (searchParams.get('tab') ?? '').toLowerCase();
     if (tab === 'report' || tab === 'reporting') {
       setActiveTab(2);
-    } else if (tab === 'plan' || tab === 'planning') {
+    } else if (
+      tab === 'team-tasks' ||
+      tab === 'teamtasks' ||
+      tab === 'delegations' ||
+      tab === 'delegation'
+    ) {
+      setActiveTab(3);
+    } else if (
+      tab === 'my-tasks' ||
+      tab === 'mytasks' ||
+      tab === 'plan' ||
+      tab === 'planning'
+    ) {
       setActiveTab(1);
     }
 
@@ -239,7 +260,36 @@ function Page() {
     transformedData,
     isLoading: planningLoading,
     userId,
-  } = usePlanningData(activeTab === 1);
+  } = usePlanningData(mockEnabled || activeTab === 1 || activeTab === 3);
+
+  const { hasSubordinates } = useAssigneePickerScope();
+  const showTeamTasksTab = mockEnabled || hasSubordinates;
+
+  const prevActiveTabRef = useRef(activeTab);
+  useEffect(() => {
+    const prevTab = prevActiveTabRef.current;
+    prevActiveTabRef.current = activeTab;
+    if (activeTab !== 1 || prevTab === 1 || !userId) return;
+
+    const concrete = concreteSelectedUserIds(selectedUser);
+    if (concrete.length === 1 && concrete[0] !== String(userId)) {
+      return;
+    }
+    setSelectedUser([String(userId)]);
+  }, [activeTab, userId, selectedUser, setSelectedUser]);
+
+  const myTasksPlanSummaries = useMemo(() => {
+    if (activeTab !== 1 || !userId) return planSummaries;
+    const concrete = concreteSelectedUserIds(selectedUser);
+    if (concrete.length === 1 && concrete[0] !== String(userId)) {
+      return planSummaries.filter(
+        (plan) => String(plan.ownerUserId ?? '') === concrete[0],
+      );
+    }
+    return planSummaries.filter((plan) =>
+      isOwnPlanSummary(plan, String(userId)),
+    );
+  }, [planSummaries, activeTab, userId, selectedUser]);
 
   const {
     data: userKeyResultsRaw,
@@ -490,15 +540,21 @@ function Page() {
     if (activeTab !== 1 && !(mockEnabled && activeTab === 2)) {
       setInlinePlanningMode(false);
       setMobilePlanComposerOpen(false);
-      setCreatePlansModalOpen(false);
+      closeCreatePlansModal();
     }
   }, [
     activeTab,
     mockEnabled,
     setInlinePlanningMode,
     setMobilePlanComposerOpen,
-    setCreatePlansModalOpen,
+    closeCreatePlansModal,
   ]);
+
+  useEffect(() => {
+    if (activeTab === 3 && !showTeamTasksTab) {
+      setActiveTab(1);
+    }
+  }, [activeTab, showTeamTasksTab, setActiveTab]);
 
   const [highlightedKRId, setHighlightedKRId] = useState<string | null>(null);
   const [activeThread, setActiveThread] = useState<{
@@ -613,6 +669,17 @@ function Page() {
     return [...planSummaries, ...reportSummaries];
   }, [planSummaries, reportSummaries]);
 
+  const toolbarSegmentOptions = useMemo(() => {
+    const options: { label: string; value: number }[] = [
+      { label: 'My Tasks', value: 1 },
+    ];
+    if (showTeamTasksTab) {
+      options.push({ label: 'Team tasks', value: 3 });
+    }
+    options.push({ label: 'Reports', value: 2 });
+    return options;
+  }, [showTeamTasksTab]);
+
   return (
     <div
       data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-130"
@@ -654,10 +721,7 @@ function Page() {
                   size={isMobile ? 'middle' : 'large'}
                   value={activeTab}
                   onChange={(value) => setActiveTab(Number(value))}
-                  options={[
-                    { label: 'Active Plans', value: 1 },
-                    { label: 'Reports', value: 2 },
-                  ]}
+                  options={toolbarSegmentOptions}
                   className={classNames(
                     'planning-reporting-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 !rounded-xl !border !border-slate-100 !bg-slate-50/70 !p-1.5',
                     '!h-[50px] sm:!h-[50px] sm:!self-center',
@@ -671,34 +735,38 @@ function Page() {
                 />
               </ConfigProvider>
             </div>
-            <div
-              data-cy="planning-period-pills"
-              className="flex min-w-0 w-full flex-1 flex-col items-end gap-1.5 overflow-visible"
-            >
+            {activeTab === 1 || activeTab === 2 || activeTab === 3 ? (
               <div
-                data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-678"
-                className="flex flex-wrap items-center justify-end gap-2 sm:flex-nowrap sm:gap-3"
+                data-cy="planning-period-pills"
+                className="flex min-w-0 w-full flex-1 flex-col items-end gap-1.5 overflow-visible"
               >
                 <div
-                  data-cy="planning-duration-filter-wrap"
-                  className="shrink-0 self-center"
+                  data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-678"
+                  className="flex flex-wrap items-center justify-end gap-2 sm:flex-nowrap sm:gap-3"
                 >
-                  <PlanningDurationFilter />
+                  <div
+                    data-cy="planning-duration-filter-wrap"
+                    className="shrink-0 self-center"
+                  >
+                    <PlanningDurationFilter />
+                  </div>
+                  <div
+                    data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
+                    className="shrink-0 self-center"
+                  >
+                    <PlanningToolbarFilters />
+                  </div>
                 </div>
-                <div
-                  data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
-                  className="shrink-0 self-center"
-                >
-                  <PlanningToolbarFilters />
-                </div>
+                {activeTab === 3 ? (
+                  <div
+                    data-cy="planning-assignee-chips-row"
+                    className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 overflow-visible sm:w-auto"
+                  >
+                    <AssigneeFilterChips />
+                  </div>
+                ) : null}
               </div>
-              <div
-                data-cy="planning-assignee-chips-row"
-                className="w-full min-w-0 overflow-visible sm:w-auto"
-              >
-                <AssigneeFilterChips />
-              </div>
-            </div>
+            ) : null}
           </div>
 
           {/* ── KR + plans/reports: stacked on mobile/tablet, grid on lg+; same inline create flow everywhere ── */}
@@ -808,10 +876,11 @@ function Page() {
                 <Planning
                   onHoverKR={setHighlightedKRId}
                   onOpenThread={handleOpenThread}
-                  planSummaries={planSummaries}
+                  planSummaries={myTasksPlanSummaries}
                   transformedData={transformedData}
                   isLoading={planningLoading}
-                  totalItems={planSummaries.length}
+                  totalItems={myTasksPlanSummaries.length}
+                  myTasksOnly
                   addPlanComposer={
                     showPlanComposer && isDesktop ? (
                       isDeadlinePlanningMockEnabled() ? (
@@ -852,13 +921,40 @@ function Page() {
                   onOpenThread={handleOpenThread}
                 />
               </div>
+              <div
+                data-cy="team-tasks-tab-panel"
+                className={classNames(
+                  'min-w-0 max-w-full',
+                  activeTab === 3 ? 'block' : 'hidden',
+                )}
+              >
+                {showTeamTasksTab ? (
+                  <TeamTasksView planSummaries={planSummaries} />
+                ) : null}
+              </div>
             </div>
           </div>
 
           <CreatePlansModal
             open={createPlansModalOpen}
-            onClose={() => setCreatePlansModalOpen(false)}
+            onClose={closeCreatePlansModal}
             planningTargets={planningTargets}
+            prefilledAssigneeUserId={
+              createPlansPrefilledAssigneeUserId ?? undefined
+            }
+            prefilledAssigneeLabel={
+              createPlansPrefilledAssigneeLabel ?? undefined
+            }
+            lockAssignee={!!createPlansPrefilledAssigneeUserId}
+            delegateOnly={createPlansDelegateOnly}
+            onSuccess={(assignedUserId) => {
+              if (assignedUserId && showTeamTasksTab) {
+                setTeamTasksAssignedByFilter('me');
+                setActiveTab(3);
+              } else if (assignedUserId) {
+                setSelectedUser([assignedUserId]);
+              }
+            }}
           />
 
           {!isDeadlinePlanningMockEnabled() ? <CreatePlan /> : null}

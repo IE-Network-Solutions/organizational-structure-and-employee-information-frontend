@@ -264,8 +264,7 @@ export const useGetPlanningPeriodsHierarchy = (
     ['planningPeriodsHierarchy', { userId, planningPeriodId }],
     () => getPlanningPeriodsHierarchy(userId, planningPeriodId),
     {
-      enabled:
-        (options?.enabled ?? true) && !!userId && !!planningPeriodId,
+      enabled: (options?.enabled ?? true) && !!userId && !!planningPeriodId,
       staleTime: 5 * 60_000,
     },
   );

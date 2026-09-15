@@ -4,7 +4,7 @@ import { spanDays } from '@/app/(afterLogin)/dashboard/_components/plan/deadline
 export const UNLINKED_KR_ID = '__unlinked__';
 
 /** Bump when mock seed shape/status defaults change so zustand rebuilds. */
-export const MOCK_PLAN_SEED_VERSION = 12;
+export const MOCK_PLAN_SEED_VERSION = 18;
 
 export const MOCK_KEY_RESULTS = [
   { id: 'kr-team-cadence', title: 'Team cadence' },
@@ -32,6 +32,18 @@ export function mockTeamMemberIds(): string[] {
   return MOCK_TEAM_MEMBERS.map((m) => m.id);
 }
 
+/** Rotate mock peers so every plan gets a stable non-owner delegator. */
+export function mockSeedPeerDelegatorForOwner(
+  ownerUserId: string,
+): string | null {
+  const team = mockTeamMemberIds();
+  const idx = team.indexOf(String(ownerUserId));
+  if (idx < 0) {
+    return team[0] ?? null;
+  }
+  return team[(idx + 1) % team.length] ?? null;
+}
+
 export function mockDisplayNameForUserId(
   userId: string,
   currentUserId: string,
@@ -40,7 +52,11 @@ export function mockDisplayNameForUserId(
     return 'My';
   }
   const member = MOCK_TEAM_MEMBERS.find((m) => m.id === userId);
-  return member?.displayName ?? 'User';
+  if (member) return member.displayName;
+  if (userId && currentUserId && String(userId) !== String(currentUserId)) {
+    return 'Manager';
+  }
+  return 'User';
 }
 
 export function mockRoleForUserId(
@@ -140,6 +156,19 @@ export function mockUserIdsForDepartment(departmentId: string): string[] {
     'mock-dept-ops': ['mock-dan'],
   };
   return map[departmentId] ?? [];
+}
+
+/** Effective parent kind for week/month subtask hierarchy (span-aware). */
+export function resolveHierarchyParentKind(task: {
+  kind: DeadlineKind;
+  start: string;
+  deadline: string;
+}): DeadlineKind {
+  if (task.kind === 'month' || task.kind === 'week') return task.kind;
+  const days = spanDays(task.start, task.deadline);
+  if (days == null || days <= 1) return 'daily';
+  if (days >= 8) return 'month';
+  return 'week';
 }
 
 export function childCapForParent(

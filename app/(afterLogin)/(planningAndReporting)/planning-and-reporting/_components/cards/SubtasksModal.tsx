@@ -14,6 +14,7 @@ import type { DeadlineKind } from '@/app/(afterLogin)/dashboard/_components/plan
 import {
   childCapForParent,
   childKindForParent,
+  resolveHierarchyParentKind,
 } from '../prototype/mockPlanningConstants';
 import {
   useUserPlanRepositoryMock,
@@ -72,10 +73,16 @@ export default function SubtasksModal({
   const [submitting, setSubmitting] = useState(false);
   const [showComposer, setShowComposer] = useState(false);
 
-  const childKind = parent ? childKindForParent(parent.kind) : null;
-  const cap = parent
-    ? childCapForParent(parent.kind, parent.start, parent.deadline)
-    : 0;
+  const parentHierarchyKind = parent
+    ? resolveHierarchyParentKind(parent)
+    : null;
+  const childKind = parentHierarchyKind
+    ? childKindForParent(parentHierarchyKind)
+    : null;
+  const cap =
+    parent && parentHierarchyKind
+      ? childCapForParent(parentHierarchyKind, parent.start, parent.deadline)
+      : 0;
 
   const existingChildren = useMemo(() => {
     if (!parent || !childKind) return [];
@@ -213,7 +220,7 @@ export default function SubtasksModal({
             className="m-0 mt-1 text-[12px] font-normal text-[#8F94A3]"
           >
             {existingChildren.length}/{cap} {label} under this{' '}
-            {parent?.kind ?? 'parent'}
+            {parentHierarchyKind ?? 'parent'}
             {parent ? ` · ${parent.start} → ${parent.deadline}` : ''}
           </p>
         </div>

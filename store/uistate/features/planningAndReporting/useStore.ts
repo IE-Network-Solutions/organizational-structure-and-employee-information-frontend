@@ -85,9 +85,19 @@ export interface PlanningAndReporting {
   inlinePlanningMode: boolean;
   setInlinePlanningMode: (value: boolean) => void;
 
-  /** Multi-plan create modal (replaces inline create) */
+  /** Multi-plan create modal (optional assignee = delegation) */
   createPlansModalOpen: boolean;
+  createPlansPrefilledAssigneeUserId: string | null;
+  createPlansPrefilledAssigneeLabel: string | null;
+  /** Hide Self/Delegate toggle — force delegate flow (e.g. Delegations tab). */
+  createPlansDelegateOnly: boolean;
   setCreatePlansModalOpen: (value: boolean) => void;
+  openCreatePlansModal: (opts?: {
+    userId?: string;
+    label?: string;
+    delegateOnly?: boolean;
+  }) => void;
+  closeCreatePlansModal: () => void;
 
   /** Desktop Key Results left panel collapsed to a narrow rail */
   krLeftPanelCollapsed: boolean;
@@ -110,6 +120,10 @@ export interface PlanningAndReporting {
   setPlanningDurationFilter: (value: PlanFilterValue) => void;
   planningHistoryRange: { from: string; to: string };
   setPlanningHistoryRange: (range: { from: string; to: string }) => void;
+
+  /** Team tasks tab: show all assignments or only those assigned by me. */
+  teamTasksAssignedByFilter: 'all' | 'me';
+  setTeamTasksAssignedByFilter: (value: 'all' | 'me') => void;
 }
 
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
@@ -233,8 +247,34 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
       set({ inlinePlanningMode }),
 
     createPlansModalOpen: false,
+    createPlansPrefilledAssigneeUserId: null,
+    createPlansPrefilledAssigneeLabel: null,
+    createPlansDelegateOnly: false,
     setCreatePlansModalOpen: (createPlansModalOpen: boolean) =>
-      set({ createPlansModalOpen }),
+      set(
+        createPlansModalOpen
+          ? { createPlansModalOpen: true }
+          : {
+              createPlansModalOpen: false,
+              createPlansPrefilledAssigneeUserId: null,
+              createPlansPrefilledAssigneeLabel: null,
+              createPlansDelegateOnly: false,
+            },
+      ),
+    openCreatePlansModal: (opts) =>
+      set({
+        createPlansModalOpen: true,
+        createPlansPrefilledAssigneeUserId: opts?.userId ?? null,
+        createPlansPrefilledAssigneeLabel: opts?.label ?? null,
+        createPlansDelegateOnly: opts?.delegateOnly ?? false,
+      }),
+    closeCreatePlansModal: () =>
+      set({
+        createPlansModalOpen: false,
+        createPlansPrefilledAssigneeUserId: null,
+        createPlansPrefilledAssigneeLabel: null,
+        createPlansDelegateOnly: false,
+      }),
 
     krLeftPanelCollapsed: false,
     setKrLeftPanelCollapsed: (krLeftPanelCollapsed: boolean) =>
@@ -260,5 +300,9 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
       from: string;
       to: string;
     }) => set({ planningHistoryRange }),
+
+    teamTasksAssignedByFilter: 'all',
+    setTeamTasksAssignedByFilter: (teamTasksAssignedByFilter: 'all' | 'me') =>
+      set({ teamTasksAssignedByFilter }),
   })),
 );

@@ -71,7 +71,7 @@ export function useReportingData(enabled = true) {
   useEffect(() => {
     if (!mockEnabled) return;
     mockUserIds.forEach((uid) => {
-      ensurePlan(uid, mockDisplayNameForUserId(uid, userId));
+      ensurePlan(uid, mockDisplayNameForUserId(uid, userId), userId);
     });
   }, [mockEnabled, mockUserIds, ensurePlan, userId]);
 

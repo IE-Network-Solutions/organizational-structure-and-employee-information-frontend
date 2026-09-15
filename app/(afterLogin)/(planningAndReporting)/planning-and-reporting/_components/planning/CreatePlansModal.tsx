@@ -8,13 +8,17 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
+import type { RadioChangeEvent } from 'antd';
 import {
+  Avatar,
   Button,
   Checkbox,
+  ConfigProvider,
   DatePicker,
   Input,
   InputNumber,
   Modal,
+  Radio,
   Select,
   message,
 } from 'antd';
@@ -42,6 +46,12 @@ import {
   useUserPlanRepositoryMock,
 } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
 import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import {
+  buildSubordinatePickerRoster,
+  type AssigneeChip,
+} from './assigneeChipRoster';
 import {
   getMetricValueInputMax,
   getMetricValueInputMin,
@@ -56,6 +66,7 @@ import {
   NO_KEY_RESULT_VALUE,
   applyTargetToDraftLine,
   canUseAchieveMK,
+  createDelegatedDraftLine,
   createEmptyDraftLine,
   draftLinesToCreatePayloads,
   selectablePlanningTargets,
@@ -67,8 +78,15 @@ import {
 type CreatePlansModalProps = {
   open: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: (assignedUserId?: string) => void;
   planningTargets?: PlanningTarget[];
+  /** Pre-filled assignee when opened from a teammate plan card. */
+  prefilledAssigneeUserId?: string;
+  prefilledAssigneeLabel?: string;
+  /** When true, assignee cannot be cleared (teammate card entry). */
+  lockAssignee?: boolean;
+  /** When true, always delegate mode and hide Self/Delegate toggle. */
+  delegateOnly?: boolean;
 };
 
 const PRIORITY_META: Record<
@@ -117,6 +135,11 @@ const fieldLabelClass =
 
 const controlClass =
   'w-full !rounded-lg [&_.ant-select-selector]:!rounded-lg [&_.ant-picker]:!rounded-lg';
+
+const createPlansAudienceRadioGroupClass =
+  'create-plans-audience-radio !flex !shrink-0 !items-center !justify-start !gap-2 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:!inline-flex [&_.ant-radio-wrapper]:!h-9 [&_.ant-radio-wrapper]:!items-center [&_.ant-radio-wrapper]:!gap-2 [&_.ant-radio-wrapper]:!rounded-lg [&_.ant-radio-wrapper]:!border [&_.ant-radio-wrapper]:!border-[#D9D9D9] [&_.ant-radio-wrapper]:!bg-white [&_.ant-radio-wrapper]:!px-3 [&_.ant-radio-wrapper]:!text-[13px] [&_.ant-radio-wrapper]:!font-medium [&_.ant-radio-wrapper]:!text-[#575B7A] [&_.ant-radio-wrapper]:!shadow-none [&_.ant-radio-wrapper]:after:!content-none [&_.ant-radio-wrapper:hover]:!border-[#1E40AF] [&_.ant-radio-wrapper-checked]:!border-[#1E40AF] [&_.ant-radio-wrapper-checked]:!text-[#2D2F45] [&_.ant-radio]:!top-0 [&_.ant-radio]:!shrink-0 [&_.ant-radio-inner]:!h-4 [&_.ant-radio-inner]:!w-4 [&_.ant-radio-inner]:!border-[#D9D9D9] [&_.ant-radio-inner]:!bg-white [&_.ant-radio-checked_.ant-radio-inner]:!border-[#1E40AF] [&_.ant-radio-checked_.ant-radio-inner]:!bg-[#1E40AF] [&_.ant-radio-checked_.ant-radio-inner::after]:!scale-[0.375] [&_.ant-radio-checked_.ant-radio-inner::after]:!bg-white [&_.ant-radio-checked_.ant-radio-inner::after]:!opacity-100';
+
+type PlanAudience = 'self' | 'delegate';
 
 function targetSelectValue(line: DraftLine): string {
   if (!line.keyResultId || line.keyResultId === UNLINKED_KR_ID) {
@@ -186,6 +209,10 @@ function PlanRowEditor({
   line,
   index,
   canRemove,
+  delegateMode = false,
+  lockAssignee = false,
+  lockedAssigneeLabel,
+  assigneeOptions,
   targetOptions,
   onChange,
   onTargetSelect,
@@ -194,12 +221,19 @@ function PlanRowEditor({
   line: DraftLine;
   index: number;
   canRemove: boolean;
+  delegateMode?: boolean;
+  lockAssignee?: boolean;
+  lockedAssigneeLabel?: string;
+  assigneeOptions: AssigneeChip[];
   targetOptions: { value: string; label: string }[];
   onChange: (next: DraftLine) => void;
   onTargetSelect: (selectValue: string) => void;
   onRemove: () => void;
 }) {
-  const linked = !!line.keyResultId && line.keyResultId !== UNLINKED_KR_ID;
+  const hideKeyResult = delegateMode;
+  const linked =
+    !hideKeyResult && !!line.keyResultId && line.keyResultId !== UNLINKED_KR_ID;
+
   const showTarget =
     linked &&
     !line.achieveMK &&
@@ -263,7 +297,7 @@ function PlanRowEditor({
           </span>
           <Input
             variant="borderless"
-            placeholder="What will you work on?"
+            placeholder="Task name"
             value={line.task}
             onChange={(e) => onChange({ ...line, task: e.target.value })}
             className="min-w-0 flex-1 !px-0 !text-[15px] !font-semibold !leading-snug !text-[#161A2C] placeholder:!font-medium placeholder:!text-[#B0B3C0]"
@@ -320,6 +354,49 @@ function PlanRowEditor({
           </div>
         </div>
 
+        {delegateMode ? (
+          <div data-cy={`create-plan-row-assignee-${index}`} className="mb-2.5">
+            {lockAssignee && lockedAssigneeLabel ? (
+              <FieldShell label="Assignee">
+                <div
+                  data-cy={`create-plan-row-assignee-locked-${index}`}
+                  className={`${controlClass} flex h-9 items-center rounded-lg border border-[#E5E7EB] bg-[#FAFBFC] px-3 text-[13px] font-medium text-[#2D2F45]`}
+                >
+                  {lockedAssigneeLabel}
+                </div>
+              </FieldShell>
+            ) : (
+              <FieldShell label="Assignee">
+                <Select
+                  showSearch
+                  placeholder="Choose assignee"
+                  value={line.delegateUserId ?? undefined}
+                  onChange={(value) =>
+                    onChange({
+                      ...line,
+                      assigneeMode: 'delegate',
+                      delegateUserId: value ?? null,
+                    })
+                  }
+                  optionFilterProp="label"
+                  className={controlClass}
+                  data-cy={`create-plan-row-assignee-select-${index}`}
+                >
+                  {assigneeOptions.map((chip) => (
+                    <Select.Option
+                      key={chip.userId}
+                      value={chip.userId}
+                      label={chip.label}
+                    >
+                      <AssigneeSelectOption chip={chip} />
+                    </Select.Option>
+                  ))}
+                </Select>
+              </FieldShell>
+            )}
+          </div>
+        ) : null}
+
         <div
           data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-291"
           className="grid grid-cols-1 gap-2.5 sm:grid-cols-12 sm:gap-3"
@@ -355,42 +432,47 @@ function PlanRowEditor({
             />
           </FieldShell>
 
-          <FieldShell
-            label="Key result"
-            className={showTarget ? 'sm:col-span-9' : 'sm:col-span-12'}
-          >
-            <Select
-              className={`${controlClass} w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!min-h-9 [&_.ant-select-selection-item]:!flex [&_.ant-select-selection-item]:!items-center [&_.ant-select-selection-item]:!text-[13px]`}
-              showSearch
-              optionFilterProp="label"
-              value={targetSelectValue(line)}
-              onChange={onTargetSelect}
-              options={targetOptions}
-              placeholder="Optional link"
-              data-cy={`create-plan-row-kr-${index}`}
-            />
-          </FieldShell>
-          {showTarget ? (
-            <FieldShell label="Target" className="sm:col-span-3">
-              <InputNumber
-                className="w-full !h-9 !rounded-lg [&_.ant-input-number-input]:!h-9 [&_.ant-input-number-input]:!text-[13px]"
-                placeholder="Target"
-                min={getMetricValueInputMin(null)}
-                max={getMetricValueInputMax(null)}
-                value={line.targetValue || undefined}
-                onChange={(v) =>
-                  onChange({
-                    ...line,
-                    targetValue: v == null ? 0 : Math.max(0, Number(v) || 0),
-                  })
-                }
-                data-cy={`create-plan-row-target-${index}`}
-              />
-            </FieldShell>
+          {!hideKeyResult ? (
+            <>
+              <FieldShell
+                label="Key result"
+                className={showTarget ? 'sm:col-span-9' : 'sm:col-span-12'}
+              >
+                <Select
+                  className={`${controlClass} w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!min-h-9 [&_.ant-select-selection-item]:!flex [&_.ant-select-selection-item]:!items-center [&_.ant-select-selection-item]:!text-[13px]`}
+                  showSearch
+                  optionFilterProp="label"
+                  value={targetSelectValue(line)}
+                  onChange={onTargetSelect}
+                  options={targetOptions}
+                  placeholder="Optional link"
+                  data-cy={`create-plan-row-kr-${index}`}
+                />
+              </FieldShell>
+              {showTarget ? (
+                <FieldShell label="Target" className="sm:col-span-3">
+                  <InputNumber
+                    className="w-full !h-9 !rounded-lg [&_.ant-input-number-input]:!h-9 [&_.ant-input-number-input]:!text-[13px]"
+                    placeholder="Target"
+                    min={getMetricValueInputMin(null)}
+                    max={getMetricValueInputMax(null)}
+                    value={line.targetValue || undefined}
+                    onChange={(v) =>
+                      onChange({
+                        ...line,
+                        targetValue:
+                          v == null ? 0 : Math.max(0, Number(v) || 0),
+                      })
+                    }
+                    data-cy={`create-plan-row-target-${index}`}
+                  />
+                </FieldShell>
+              ) : null}
+            </>
           ) : null}
         </div>
 
-        {showAchieve ? (
+        {showAchieve && !hideKeyResult ? (
           <div
             data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-359"
             className="mt-2.5"
@@ -416,13 +498,43 @@ function PlanRowEditor({
   );
 }
 
+function AssigneeSelectOption({ chip }: { chip: AssigneeChip }) {
+  return (
+    <div
+      data-cy={`assign-plan-task-assignee-option-${chip.userId}`}
+      className="flex items-center gap-2 py-0.5"
+    >
+      <Avatar
+        size={24}
+        src={chip.avatar}
+        className="shrink-0 bg-[#EEF2FF] text-[11px] font-semibold text-[#1E40AF]"
+        data-cy={`assign-plan-task-assignee-avatar-${chip.userId}`}
+      >
+        {chip.initials}
+      </Avatar>
+      <span
+        data-cy={`assign-plan-task-assignee-label-${chip.userId}`}
+        className="truncate text-[13px] text-[#2D2F45]"
+      >
+        {chip.label}
+      </span>
+    </div>
+  );
+}
+
 export default function CreatePlansModal({
   open,
   onClose,
   onSuccess,
   planningTargets = [],
+  prefilledAssigneeUserId,
+  prefilledAssigneeLabel,
+  lockAssignee = false,
+  delegateOnly = false,
 }: CreatePlansModalProps) {
   const { userId } = useAuthenticationStore();
+  const { data: employeeData } = useGetAllUsers();
+  const { planningFilterDepartment } = PlanningAndReportingStore();
   const { data: planningPeriods } = AllPlanningPeriods();
   const { data: defaultPlanningPeriods } = useDefaultPlanningPeriods();
   const { mutateAsync: createTask, isLoading: isCreating } =
@@ -433,6 +545,19 @@ export default function CreatePlansModal({
 
   const [rows, setRows] = useState<DraftLine[]>(() => [createEmptyDraftLine()]);
   const [submitting, setSubmitting] = useState(false);
+  const [planAudience, setPlanAudience] = useState<PlanAudience>('self');
+
+  const assigneeOptions = useMemo(() => {
+    if (!userId) return [] as AssigneeChip[];
+    return buildSubordinatePickerRoster(
+      employeeData,
+      String(userId),
+      planningFilterDepartment,
+      mockEnabled,
+    );
+  }, [userId, employeeData, planningFilterDepartment, mockEnabled]);
+
+  const canDelegate = assigneeOptions.length > 0;
 
   const cadenceAssignments = useMemo(
     () =>
@@ -468,11 +593,70 @@ export default function CreatePlansModal({
     return options;
   }, [selectableTargets]);
 
+  const isDelegateMode =
+    delegateOnly || lockAssignee || planAudience === 'delegate';
+
+  const buildInitialRow = useCallback(() => {
+    if (lockAssignee && prefilledAssigneeUserId) {
+      return createDelegatedDraftLine(prefilledAssigneeUserId);
+    }
+    if (planAudience === 'delegate') {
+      return applyTargetToDraftLine(
+        {
+          ...createEmptyDraftLine(),
+          assigneeMode: 'delegate',
+          delegateUserId: null,
+        },
+        null,
+      );
+    }
+    return createEmptyDraftLine();
+  }, [lockAssignee, prefilledAssigneeUserId, planAudience]);
+
   useEffect(() => {
-    if (!open) return;
-    setRows([createEmptyDraftLine()]);
+    if (!open) {
+      setPlanAudience('self');
+      return;
+    }
     setSubmitting(false);
-  }, [open]);
+    if (lockAssignee && prefilledAssigneeUserId) {
+      setPlanAudience('delegate');
+      setRows([createDelegatedDraftLine(prefilledAssigneeUserId)]);
+      return;
+    }
+    if (delegateOnly) {
+      setPlanAudience('delegate');
+      setRows([
+        applyTargetToDraftLine(
+          {
+            ...createEmptyDraftLine(),
+            assigneeMode: 'delegate',
+            delegateUserId: null,
+          },
+          null,
+        ),
+      ]);
+      return;
+    }
+    setPlanAudience('self');
+    setRows([createEmptyDraftLine()]);
+  }, [open, lockAssignee, prefilledAssigneeUserId, delegateOnly]);
+
+  const handleAudienceChange = (next: PlanAudience) => {
+    setPlanAudience(next);
+    setRows((prev) =>
+      prev.map((row) => {
+        if (next === 'self') {
+          return { ...row, assigneeMode: 'self', delegateUserId: null };
+        }
+        return {
+          ...applyTargetToDraftLine(row, null),
+          assigneeMode: 'delegate',
+          delegateUserId: row.delegateUserId ?? null,
+        };
+      }),
+    );
+  };
 
   const updateRow = useCallback((id: string, next: DraftLine) => {
     setRows((prev) => prev.map((row) => (row.id === id ? next : row)));
@@ -495,7 +679,7 @@ export default function CreatePlansModal({
   );
 
   const addRow = () => {
-    setRows((prev) => [...prev, createEmptyDraftLine()]);
+    setRows((prev) => [...prev, buildInitialRow()]);
   };
 
   const removeRow = (id: string) => {
@@ -511,69 +695,136 @@ export default function CreatePlansModal({
       return;
     }
 
-    const ordered = [...rows];
-    const grouped = groupLinesByDeadlineCadence(ordered, cadenceAssignments);
-    if (!grouped.ok) {
-      message.warning(grouped.error);
-      return;
+    if (isDelegateMode) {
+      for (const row of rows) {
+        if (!row.delegateUserId) {
+          message.warning('Choose an assignee for each delegated task.');
+          return;
+        }
+      }
     }
+
+    const preparedRows = rows.map((row) => {
+      const delegated =
+        isDelegateMode &&
+        !!row.delegateUserId &&
+        String(row.delegateUserId) !== String(userId);
+      return {
+        line: delegated ? applyTargetToDraftLine(row, null) : row,
+        targetUserId: delegated ? String(row.delegateUserId) : String(userId),
+        assignedByUserId: delegated && userId ? String(userId) : undefined,
+      };
+    });
 
     setSubmitting(true);
     try {
+      let createdCount = 0;
+      let delegatedCount = 0;
+      const delegateTargets = new Set<string>();
+
       if (mockEnabled) {
-        for (const group of grouped.groups) {
-          for (const line of group.lines) {
-            const result = appendTask(String(userId), {
-              title: line.task,
-              start: line.start,
-              deadline: line.deadline,
-              keyResultId: line.keyResultId || UNLINKED_KR_ID,
-              priority: line.priority,
-              parentId: line.parentTaskId,
-            });
-            if (!result.ok) {
-              message.warning(result.error);
-              return;
+        for (const item of preparedRows) {
+          const grouped = groupLinesByDeadlineCadence(
+            [item.line],
+            cadenceAssignments,
+          );
+          if (!grouped.ok) {
+            message.warning(grouped.error);
+            return;
+          }
+          for (const group of grouped.groups) {
+            for (const line of group.lines) {
+              const result = appendTask(item.targetUserId, {
+                title: line.task,
+                start: line.start,
+                deadline: line.deadline,
+                keyResultId: item.assignedByUserId
+                  ? UNLINKED_KR_ID
+                  : line.keyResultId || UNLINKED_KR_ID,
+                priority: line.priority,
+                parentId: line.parentTaskId,
+                assignedByUserId: item.assignedByUserId,
+              });
+              if (!result.ok) {
+                message.warning(result.error);
+                return;
+              }
+              createdCount += 1;
+              if (item.assignedByUserId) {
+                delegatedCount += 1;
+                delegateTargets.add(item.targetUserId);
+              }
             }
           }
         }
-        message.success(
-          ordered.length === 1 ? 'Plan created.' : 'Plans created.',
-        );
-        onSuccess?.();
-        onClose();
-        return;
+      } else {
+        const overlayEntries: Record<
+          string,
+          { start: string; deadline: string }
+        > = {};
+        for (const item of preparedRows) {
+          const grouped = groupLinesByDeadlineCadence(
+            [item.line],
+            cadenceAssignments,
+          );
+          if (!grouped.ok) {
+            message.warning(grouped.error);
+            return;
+          }
+          for (const group of grouped.groups) {
+            const tasks = draftLinesToCreatePayloads(
+              item.targetUserId,
+              group,
+              item.assignedByUserId,
+            );
+            const data = await createTask({ tasks });
+            const created = Array.isArray(data)
+              ? data
+              : data?.tasks || data?.items || data?.data || [];
+            group.lines.forEach((l, index) => {
+              overlayEntries[`${l.task}::${l.keyResultId}`] = {
+                start: l.start,
+                deadline: l.deadline,
+              };
+              const createdId = created[index]?.id;
+              if (createdId) {
+                overlayEntries[String(createdId)] = {
+                  start: l.start,
+                  deadline: l.deadline,
+                };
+              }
+            });
+            createdCount += group.lines.length;
+            if (item.assignedByUserId) {
+              delegatedCount += group.lines.length;
+              delegateTargets.add(item.targetUserId);
+            }
+          }
+        }
+        setTaskDatesBulk(overlayEntries);
       }
 
-      const overlayEntries: Record<
-        string,
-        { start: string; deadline: string }
-      > = {};
-      for (const group of grouped.groups) {
-        const tasks = draftLinesToCreatePayloads(String(userId), group);
-        const data = await createTask({ tasks });
-        const created = Array.isArray(data)
-          ? data
-          : data?.tasks || data?.items || data?.data || [];
-        group.lines.forEach((l, index) => {
-          overlayEntries[`${l.task}::${l.keyResultId}`] = {
-            start: l.start,
-            deadline: l.deadline,
-          };
-          const createdId = created[index]?.id;
-          if (createdId) {
-            overlayEntries[String(createdId)] = {
-              start: l.start,
-              deadline: l.deadline,
-            };
-          }
-        });
+      if (delegatedCount > 0 && delegatedCount === createdCount) {
+        message.success(
+          createdCount === 1
+            ? 'Plan delegated.'
+            : `${createdCount} plans delegated.`,
+        );
+      } else if (delegatedCount > 0) {
+        message.success(
+          `${createdCount} plans created (${delegatedCount} delegated).`,
+        );
+      } else {
+        message.success(
+          createdCount === 1
+            ? 'Plan created.'
+            : `${createdCount} plans created.`,
+        );
       }
-      setTaskDatesBulk(overlayEntries);
-      message.success(
-        ordered.length === 1 ? 'Plan created.' : 'Plans created.',
+
+      onSuccess?.(
+        delegateTargets.size === 1 ? [...delegateTargets][0] : undefined,
       );
-      onSuccess?.();
       onClose();
     } catch {
       /* mutation hook surfaces the error */
@@ -583,6 +834,24 @@ export default function CreatePlansModal({
   };
 
   const loading = submitting || isCreating;
+  const modalTitle = lockAssignee
+    ? prefilledAssigneeLabel
+      ? `Delegate to ${prefilledAssigneeLabel}`
+      : 'Delegate plans'
+    : isDelegateMode
+      ? 'Delegate plans'
+      : 'Add plans';
+  const modalSubtitle = lockAssignee
+    ? prefilledAssigneeLabel
+      ? `Tasks for ${prefilledAssigneeLabel} are added directly to their locked plan.`
+      : 'Delegated tasks are added directly to their locked plan.'
+    : isDelegateMode
+      ? 'Pick an assignee for each task below.'
+      : canDelegate
+        ? 'These tasks will be added to your plan. Switch to Delegate to assign tasks to your team.'
+        : 'These tasks will be added to your plan.';
+  const submitLabel =
+    rows.length > 1 ? `Create ${rows.length} plans` : 'Create plan';
 
   return (
     <Modal
@@ -595,13 +864,13 @@ export default function CreatePlansModal({
             data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-p-553"
             className="m-0 text-[16px] font-semibold leading-tight text-[#161A2C]"
           >
-            Add plans
+            {modalTitle}
           </p>
           <p
             data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-p-556"
             className="m-0 mt-1 text-[12px] font-normal leading-snug text-[#8F94A3]"
           >
-            Draft one or more tasks, optionally link each to a key result.
+            {modalSubtitle}
           </p>
         </div>
       }
@@ -630,7 +899,7 @@ export default function CreatePlansModal({
             data-cy="create-plans-submit"
             className="!border-[#1E40AF] !bg-[#1E40AF] hover:!bg-[#1E3A8A]"
           >
-            {rows.length > 1 ? `Create ${rows.length} plans` : 'Create plan'}
+            {submitLabel}
           </Button>
         </div>
       }
@@ -639,12 +908,54 @@ export default function CreatePlansModal({
         data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-588"
         className="max-h-[min(62vh,32rem)] space-y-3 overflow-y-auto pr-1 scrollbar-hide"
       >
+        {canDelegate && !lockAssignee && !delegateOnly ? (
+          <div
+            data-cy="create-plans-audience-row"
+            className="flex min-w-0 items-center justify-start"
+          >
+            <ConfigProvider
+              theme={{
+                token: { colorPrimary: '#1E40AF' },
+                components: {
+                  Radio: {
+                    colorPrimary: '#1E40AF',
+                    dotSize: 8,
+                    radioSize: 16,
+                  },
+                },
+              }}
+            >
+              <Radio.Group
+                value={planAudience}
+                onChange={(e: RadioChangeEvent) =>
+                  handleAudienceChange(e.target.value as PlanAudience)
+                }
+                className={createPlansAudienceRadioGroupClass}
+                data-cy="create-plans-audience-radio"
+              >
+                <Radio value="self" data-cy="create-plans-audience-self">
+                  Self
+                </Radio>
+                <Radio
+                  value="delegate"
+                  data-cy="create-plans-audience-delegate"
+                >
+                  Delegate
+                </Radio>
+              </Radio.Group>
+            </ConfigProvider>
+          </div>
+        ) : null}
         {rows.map((line, index) => (
           <PlanRowEditor
             key={line.id}
             line={line}
             index={index}
             canRemove={rows.length > 1}
+            delegateMode={isDelegateMode}
+            lockAssignee={lockAssignee}
+            lockedAssigneeLabel={prefilledAssigneeLabel}
+            assigneeOptions={assigneeOptions}
             targetOptions={targetOptions}
             onChange={(next) => updateRow(line.id, next)}
             onTargetSelect={(value) => updateRowTarget(line.id, value)}

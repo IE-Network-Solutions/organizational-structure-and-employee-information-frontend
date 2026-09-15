@@ -39,6 +39,7 @@ function Planning({
   transformedData: transformedDataFromParent,
   isLoading: planningLoadingFromParent,
   addPlanComposer,
+  myTasksOnly = false,
 }: {
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
@@ -51,6 +52,8 @@ function Planning({
   addPlanComposer?: React.ReactNode;
   /** Called when Add Plan is pressed (before opening KR pick mode). */
   onStartAddPlan?: () => void;
+  /** My Tasks tab — only the current user's plan card(s). */
+  myTasksOnly?: boolean;
 }) {
   const {
     activePlanPeriod,
@@ -58,7 +61,7 @@ function Planning({
     setInlinePlanningMode,
     setMobilePlanComposerOpen,
     setInlineEditPlanId,
-    setCreatePlansModalOpen,
+    openCreatePlansModal,
     page,
     setPage,
     pageSize,
@@ -169,14 +172,43 @@ function Planning({
     }
   };
 
-  const handleAddPlan = () => {
+  const handleAddPlan = useCallback(() => {
     setInlineEditPlanId(null);
     setInlinePlanningMode(false);
     setMobilePlanComposerOpen(false);
-    setCreatePlansModalOpen(true);
-  };
+    openCreatePlansModal();
+  }, [
+    openCreatePlansModal,
+    setInlineEditPlanId,
+    setInlinePlanningMode,
+    setMobilePlanComposerOpen,
+  ]);
+
+  const handleAddPlanForTeammate = useCallback(
+    (targetUserId: string, targetLabel: string) => {
+      openCreatePlansModal({ userId: targetUserId, label: targetLabel });
+    },
+    [openCreatePlansModal],
+  );
 
   const currentUserId = String(userId ?? '');
+
+  const canAddPlanForTeammate = useCallback(
+    (ownerUserId: string) => {
+      if (mockEnabled) {
+        return currentUserId !== String(ownerUserId);
+      }
+      return (
+        currentUserId ===
+        String(
+          getEmployeeData(ownerUserId)?.delegatedTo?.id ||
+            getEmployeeData(ownerUserId)?.reportingTo?.id ||
+            '',
+        )
+      );
+    },
+    [currentUserId, getEmployeeData, mockEnabled],
+  );
 
   const { myPlans, otherPlans } = useMemo(() => {
     const mine: typeof planSummaries = [];
@@ -204,19 +236,20 @@ function Planning({
   });
 
   const visiblePlanSummaries = useMemo(() => {
+    if (myTasksOnly) return myPlans;
     const start = (page - 1) * pageSize;
     // My Plan is always pinned above the paginated list of other users' plans.
     return [...myPlans, ...otherPlans.slice(start, start + pageSize)];
-  }, [myPlans, otherPlans, page, pageSize]);
+  }, [myPlans, otherPlans, page, pageSize, myTasksOnly]);
 
   const isDesktop = !isMobile && !isTablet;
   const isDesktopPanelView =
     isDesktop && !isPlanningListLoading && planSummaries.length > 0;
 
   // Paginate other users' plans only — My Plan stays pinned on every page.
-  const totalPlanningItems = otherPlans.length;
+  const totalPlanningItems = myTasksOnly ? myPlans.length : otherPlans.length;
   const showPlanningPagination =
-    !isPlanningListLoading && totalPlanningItems > pageSize;
+    !myTasksOnly && !isPlanningListLoading && totalPlanningItems > pageSize;
 
   const paginationElement = showPlanningPagination ? (
     <CustomPagination
@@ -318,9 +351,22 @@ function Planning({
                     onAddPlan={
                       originalDataItem?.userId === userId
                         ? handleAddPlan
-                        : undefined
+                        : canAddPlanForTeammate(
+                              String(originalDataItem?.userId ?? ''),
+                            )
+                          ? () =>
+                              handleAddPlanForTeammate(
+                                String(originalDataItem?.userId ?? ''),
+                                plan.owner?.name || 'Teammate',
+                              )
+                          : undefined
                     }
-                    showAddPlan={originalDataItem?.userId === userId}
+                    showAddPlan={
+                      originalDataItem?.userId === userId ||
+                      canAddPlanForTeammate(
+                        String(originalDataItem?.userId ?? ''),
+                      )
+                    }
                     addPlanComposer={
                       originalDataItem?.userId === userId
                         ? addPlanComposer
@@ -339,9 +385,9 @@ function Planning({
                   className="space-y-6"
                 >
                   {visiblePlanSummaries.map((plan) => (
-                    <React.Fragment key={plan.id}>
+                    <div key={plan.id} data-cy={`plan-card-wrap-${plan.id}`}>
                       {renderMobileCard(plan)}
-                    </React.Fragment>
+                    </div>
                   ))}
                 </div>
               );
@@ -369,6 +415,8 @@ function Planning({
                 setInlineReportPlanId(planId);
               }}
               onAddPlan={handleAddPlan}
+              onAddPlanForTeammate={handleAddPlanForTeammate}
+              canAddPlanForTeammate={canAddPlanForTeammate}
               addPlanComposer={addPlanComposer}
               ownerCanOpenSubmitReport={ownerCanOpenSubmitReport}
               inlineReportPlanId={inlineReportPlanId}

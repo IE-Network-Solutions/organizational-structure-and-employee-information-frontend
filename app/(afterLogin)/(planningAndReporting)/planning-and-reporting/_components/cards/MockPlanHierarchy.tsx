@@ -8,6 +8,7 @@ import {
   childCapForParent,
   childKindForParent,
   countChildren,
+  resolveHierarchyParentKind,
 } from '../prototype/mockPlanningConstants';
 import type { MockPlanTask } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
 import SubtasksModal from './SubtasksModal';
@@ -75,6 +76,7 @@ function toRowTask(task: MockPlanTask) {
     parentId: task.parentId,
     keyResultId: task.keyResultId ?? null,
     keyResultTitle: task.keyResultTitle ?? null,
+    assignedByUserId: task.assignedByUserId ?? null,
   };
 }
 
@@ -148,20 +150,20 @@ export default function MockPlanHierarchy({
   };
 
   const renderRow = (task: MockPlanTask) => {
-    const kidsAll = childrenOf(allActiveTasks, task.id).filter((c) => {
-      if (durationKind === 'week') return c.kind === 'daily';
-      if (durationKind === 'month') return c.kind === 'week';
-      return false;
-    });
-    const cap = childCapForParent(task.kind, task.start, task.deadline);
-    const childKind = childKindForParent(task.kind);
+    const hierarchyKind = resolveHierarchyParentKind(task);
+    const expectedChildKind = childKindForParent(hierarchyKind);
+    const kidsAll = childrenOf(allActiveTasks, task.id).filter((c) =>
+      expectedChildKind ? c.kind === expectedChildKind : false,
+    );
+    const cap = childCapForParent(hierarchyKind, task.start, task.deadline);
+    const childKind = expectedChildKind;
     const canAddAtThisLevel =
       !flatMode &&
-      ((durationKind === 'week' && task.kind === 'week') ||
-        (durationKind === 'month' && task.kind === 'month'));
+      ((durationKind === 'week' && hierarchyKind === 'week') ||
+        (durationKind === 'month' && hierarchyKind === 'month'));
     const canHaveChildren = canAddAtThisLevel && cap > 0 && !!childKind;
     const capacityLabel = canAddAtThisLevel
-      ? parentCapacitySummary(task, allActiveTasks)
+      ? parentCapacitySummary({ ...task, kind: hierarchyKind }, allActiveTasks)
       : null;
     const childCount = kidsAll.length;
 

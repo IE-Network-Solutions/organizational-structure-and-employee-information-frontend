@@ -1732,6 +1732,8 @@ export interface PlanningPanelViewProps {
   onOpenThread?: (entityId: string, threadKind: CommentThreadKind) => void;
   onStartInlineReport?: (planId: string) => void;
   onAddPlan?: () => void;
+  onAddPlanForTeammate?: (targetUserId: string, targetLabel: string) => void;
+  canAddPlanForTeammate?: (ownerUserId: string) => boolean;
   /** Composer for appending tasks to My Plan (mock single-plan flow). */
   addPlanComposer?: React.ReactNode;
   ownerCanOpenSubmitReport?: boolean;
@@ -1759,6 +1761,8 @@ export default function PlanningPanelView({
   onOpenThread,
   onStartInlineReport,
   onAddPlan,
+  onAddPlanForTeammate,
+  canAddPlanForTeammate,
   addPlanComposer,
   ownerCanOpenSubmitReport,
   inlineReportPlanId,
@@ -1785,6 +1789,11 @@ export default function PlanningPanelView({
     if (!originalDataItem) return null;
 
     const ownerUserId = originalDataItem?.userId ?? originalDataItem?.createdBy;
+    const cardCanApprove = isDeadlinePlanningMockEnabled()
+      ? String(userId ?? '') !== String(ownerUserId ?? '')
+      : userId ===
+        (getEmployeeData(ownerUserId)?.delegatedTo?.id ||
+          getEmployeeData(ownerUserId)?.reportingTo?.id);
 
     const card =
       viewMode === 'reporting' ? (
@@ -1796,13 +1805,7 @@ export default function PlanningPanelView({
           onApprove={() => onApprove(originalDataItem.id, true)}
           onOpen={() => onApprove(originalDataItem.id, false)}
           onEdit={() => onEdit(originalDataItem.id)}
-          canApprove={
-            isDeadlinePlanningMockEnabled()
-              ? String(userId ?? '') !== String(ownerUserId ?? '')
-              : userId ===
-                (getEmployeeData(ownerUserId)?.reportingTo?.id ||
-                  getEmployeeData(ownerUserId)?.delegatedTo?.id)
-          }
+          canApprove={cardCanApprove}
           canEdit={
             isDeadlinePlanningMockEnabled()
               ? false
@@ -1841,13 +1844,7 @@ export default function PlanningPanelView({
           onApprove={() => onApprove(originalDataItem.id, true)}
           onOpen={() => onApprove(originalDataItem.id, false)}
           onEdit={() => onEdit(originalDataItem.id)}
-          canApprove={
-            isDeadlinePlanningMockEnabled()
-              ? String(userId ?? '') !== String(originalDataItem?.userId ?? '')
-              : userId ===
-                (getEmployeeData(originalDataItem?.userId)?.delegatedTo?.id ||
-                  getEmployeeData(originalDataItem?.userId)?.reportingTo?.id)
-          }
+          canApprove={cardCanApprove}
           canEdit={
             isDeadlinePlanningMockEnabled()
               ? false
@@ -1874,9 +1871,22 @@ export default function PlanningPanelView({
             !!ownerCanOpenSubmitReport
           }
           onAddPlan={
-            ownerUserId === userId && onAddPlan ? onAddPlan : undefined
+            ownerUserId === userId && onAddPlan
+              ? onAddPlan
+              : onAddPlanForTeammate &&
+                  canAddPlanForTeammate?.(String(ownerUserId ?? ''))
+                ? () =>
+                    onAddPlanForTeammate(
+                      String(ownerUserId ?? ''),
+                      plan.owner?.name || 'Teammate',
+                    )
+                : undefined
           }
-          showAddPlan={ownerUserId === userId && !!onAddPlan}
+          showAddPlan={
+            (ownerUserId === userId && !!onAddPlan) ||
+            (!!onAddPlanForTeammate &&
+              !!canAddPlanForTeammate?.(String(ownerUserId ?? '')))
+          }
           addPlanComposer={ownerUserId === userId ? addPlanComposer : undefined}
           inlineReportActive={inlineReportPlanId === plan.id}
           onCloseInlineReport={onCloseInlineReport}

@@ -28,6 +28,9 @@ export type DraftLine = {
   serverTaskId?: string | null;
   start: string;
   deadline: string;
+  /** Per-row: create on own plan vs delegate to a direct report. */
+  assigneeMode?: 'self' | 'delegate';
+  delegateUserId?: string | null;
 };
 
 export const NO_KEY_RESULT_VALUE = '__none__';
@@ -140,7 +143,34 @@ export function createEmptyDraftLine(defaults?: {
     milestoneTitle: null,
     start: defaults?.start ?? span.start,
     deadline: defaults?.deadline ?? span.deadline,
+    assigneeMode: 'self',
+    delegateUserId: null,
   };
+}
+
+export function createDelegatedDraftLine(
+  delegateUserId: string,
+  defaults?: { start?: string; deadline?: string; priority?: string },
+): DraftLine {
+  return applyTargetToDraftLine(
+    {
+      ...createEmptyDraftLine(defaults),
+      assigneeMode: 'delegate',
+      delegateUserId,
+    },
+    null,
+  );
+}
+
+export function isDraftLineDelegated(
+  line: DraftLine,
+  ownerUserId: string | null | undefined,
+): boolean {
+  return (
+    line.assigneeMode === 'delegate' &&
+    !!line.delegateUserId &&
+    String(line.delegateUserId) !== String(ownerUserId ?? '')
+  );
 }
 
 export function applyTargetToDraftLine(
@@ -208,29 +238,53 @@ export type CreatePlanTaskPayload = {
   startDate: string;
   endDate: string;
   deadline: string;
+  assignedByUserId?: string;
 };
 
 export function draftLinesToCreatePayloads(
   userId: string,
   group: CadenceGroup<DraftLine>,
+  assignedByUserId?: string,
 ): CreatePlanTaskPayload[] {
-  return group.lines.map((l) => ({
-    task: l.task,
-    priority: l.priority,
-    weight: PLAN_TASK_WEIGHT,
-    targetValue: l.targetValue,
-    achieveMK: !!l.achieveMK,
-    userId: String(userId),
-    planningPeriodId: group.planningPeriodId,
-    planningUserId: String(group.planningUserId || ''),
-    keyResultId: apiKeyResultId(l.keyResultId),
-    milestoneId: l.milestoneId ? String(l.milestoneId) : null,
-    parentTaskId: l.parentTaskId ? String(l.parentTaskId) : null,
-    parentPlanId: l.parentPlanId ? String(l.parentPlanId) : null,
-    startDate: l.start,
-    endDate: l.deadline,
-    deadline: l.deadline,
-  }));
+  const delegationMeta =
+    assignedByUserId && String(assignedByUserId) !== String(userId)
+      ? { assignedByUserId: String(assignedByUserId) }
+      : {};
+
+  const isDelegated = !!delegationMeta.assignedByUserId;
+
+  return group.lines.map((l) => {
+    const line = isDelegated
+      ? {
+          ...l,
+          keyResultId: UNLINKED_KR_ID,
+          milestoneId: null,
+          parentTaskId: null,
+          parentPlanId: null,
+          achieveMK: false,
+          targetValue: 0,
+        }
+      : l;
+
+    return {
+      task: line.task,
+      priority: line.priority,
+      weight: PLAN_TASK_WEIGHT,
+      targetValue: line.targetValue,
+      achieveMK: !!line.achieveMK,
+      userId: String(userId),
+      planningPeriodId: group.planningPeriodId,
+      planningUserId: String(group.planningUserId || ''),
+      keyResultId: apiKeyResultId(line.keyResultId),
+      milestoneId: line.milestoneId ? String(line.milestoneId) : null,
+      parentTaskId: line.parentTaskId ? String(line.parentTaskId) : null,
+      parentPlanId: line.parentPlanId ? String(line.parentPlanId) : null,
+      startDate: line.start,
+      endDate: line.deadline,
+      deadline: line.deadline,
+      ...delegationMeta,
+    };
+  });
 }
 
 export function validateDraftLinesForCreate(lines: DraftLine[]): string | null {

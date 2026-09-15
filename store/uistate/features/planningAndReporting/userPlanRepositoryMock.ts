@@ -14,9 +14,12 @@ import {
   childCapForParent,
   childKindForParent,
   countChildren,
+  resolveHierarchyParentKind,
   MOCK_KEY_RESULTS,
   MOCK_PLAN_SEED_VERSION,
+  mockSeedPeerDelegatorForOwner,
   mockSeedPlanIsClosed,
+  mockTeamMemberIds,
   UNLINKED_KR_ID,
 } from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/prototype/mockPlanningConstants';
 
@@ -50,6 +53,8 @@ export type MockPlanTask = DeadlineTask & {
   keyResultId?: string | null;
   reportNote?: string;
   actualValue?: number | null;
+  /** Manager who delegated this task onto the assignee's plan. */
+  assignedByUserId?: string;
 };
 
 export type MockReportRecord = {
@@ -72,6 +77,8 @@ export type MockUserPlan = {
   pendingReopenRequest: boolean;
   /** When set, ensurePlan rebuilds if it does not match MOCK_PLAN_SEED_VERSION. */
   seedVersion?: number;
+  /** Viewer who seeded manager-delegated tasks onto this plan. */
+  seedViewerUserId?: string | null;
 };
 
 function krTitleForId(
@@ -81,10 +88,164 @@ function krTitleForId(
   return MOCK_KEY_RESULTS.find((k) => k.id === keyResultId)?.title;
 }
 
+function buildMockDelegatedSeedTasks(
+  ownerUserId: string,
+  today: string,
+  tid: (suffix: string) => string,
+  viewerUserId?: string | null,
+): MockPlanTask[] {
+  const plus = (days: number) => formatDate(parseDate(today).add(days, 'day'));
+  const owner = String(ownerUserId);
+  const tasks: MockPlanTask[] = [];
+  const peerDelegator = mockSeedPeerDelegatorForOwner(owner);
+  if (peerDelegator && String(peerDelegator) !== owner) {
+    tasks.push({
+      id: tid('delegated-peer-1'),
+      title: 'Cross-team follow-up',
+      start: today,
+      deadline: today,
+      spanDays: 1,
+      kind: 'daily',
+      parentId: null,
+      done: false,
+      isLocked: true,
+      assignedByUserId: String(peerDelegator),
+      keyResultId: UNLINKED_KR_ID,
+      priority: 'medium',
+      weight: 8,
+    });
+  }
+
+  const viewer = viewerUserId ? String(viewerUserId) : null;
+  const team = mockTeamMemberIds();
+  const ownerIdx = team.indexOf(owner);
+
+  if (viewer && viewer !== owner && ownerIdx >= 0) {
+    const viewerDelegations: Array<{
+      suffix: string;
+      title: string;
+      start: string;
+      deadline: string;
+      priority: string;
+      weight: number;
+      kind: 'daily' | 'week';
+    }> =
+      ownerIdx === 0
+        ? [
+            {
+              suffix: 'delegated-viewer-1',
+              title: 'Manager priority item',
+              start: today,
+              deadline: today,
+              priority: 'high',
+              weight: 10,
+              kind: 'daily',
+            },
+            {
+              suffix: 'delegated-viewer-2',
+              title: 'Review sprint blockers',
+              start: today,
+              deadline: plus(3),
+              priority: 'medium',
+              weight: 8,
+              kind: 'daily',
+            },
+          ]
+        : ownerIdx === 1
+          ? [
+              {
+                suffix: 'delegated-viewer-1',
+                title: 'Prepare client demo',
+                start: plus(-1),
+                deadline: plus(1),
+                priority: 'high',
+                weight: 12,
+                kind: 'daily',
+              },
+              {
+                suffix: 'delegated-viewer-overdue',
+                title: 'Submit weekly status',
+                start: plus(-5),
+                deadline: plus(-2),
+                priority: 'high',
+                weight: 9,
+                kind: 'daily',
+              },
+            ]
+          : ownerIdx === 2
+            ? [
+                {
+                  suffix: 'delegated-viewer-1',
+                  title: 'Update design specs',
+                  start: today,
+                  deadline: today,
+                  priority: 'medium',
+                  weight: 7,
+                  kind: 'daily',
+                },
+                {
+                  suffix: 'delegated-viewer-2',
+                  title: 'Sync with vendor',
+                  start: plus(1),
+                  deadline: plus(5),
+                  priority: 'low',
+                  weight: 5,
+                  kind: 'week',
+                },
+              ]
+            : [
+                {
+                  suffix: 'delegated-viewer-1',
+                  title: 'Ops checklist review',
+                  start: today,
+                  deadline: today,
+                  priority: 'medium',
+                  weight: 6,
+                  kind: 'daily',
+                },
+                {
+                  suffix: 'delegated-viewer-overdue',
+                  title: 'Incident follow-up',
+                  start: plus(-4),
+                  deadline: plus(-1),
+                  priority: 'high',
+                  weight: 11,
+                  kind: 'daily',
+                },
+              ];
+
+    for (const item of viewerDelegations) {
+      const hierarchyKind = resolveHierarchyParentKind({
+        kind: item.kind,
+        start: item.start,
+        deadline: item.deadline,
+      });
+      tasks.push({
+        id: tid(item.suffix),
+        title: item.title,
+        start: item.start,
+        deadline: item.deadline,
+        spanDays: spanDays(item.start, item.deadline) ?? 1,
+        kind: hierarchyKind,
+        parentId: null,
+        done: false,
+        isLocked: true,
+        assignedByUserId: viewer,
+        keyResultId: UNLINKED_KR_ID,
+        priority: item.priority,
+        weight: item.weight,
+      });
+    }
+  }
+
+  return tasks;
+}
+
 const buildMockUserPlan = (
   userId: string,
   displayName: string,
   today: string,
+  viewerUserId?: string | null,
 ): MockUserPlan => {
   const plus = (days: number) => formatDate(parseDate(today).add(days, 'day'));
   const monthStart = plus(-2);
@@ -283,7 +444,7 @@ const buildMockUserPlan = (
     },
     {
       id: tid('pending-1'),
-      title: 'New overlapping task (pending approval)',
+      title: 'New overlapping task',
       start: plus(0),
       deadline: plus(4),
       spanDays: 5,
@@ -297,7 +458,7 @@ const buildMockUserPlan = (
     },
     {
       id: tid('pending-2'),
-      title: 'Follow-up stakeholder sync (pending approval)',
+      title: 'Follow-up stakeholder sync',
       start: plus(1),
       deadline: plus(3),
       spanDays: 3,
@@ -309,6 +470,7 @@ const buildMockUserPlan = (
       priority: 'high',
       weight: 10,
     },
+    ...buildMockDelegatedSeedTasks(uid, today, tid, viewerUserId),
   ];
 
   // ── Pre-seeded report history ──────────────────────────────────────────────
@@ -461,6 +623,7 @@ const buildMockUserPlan = (
     ],
     pendingReopenRequest: false,
     seedVersion: MOCK_PLAN_SEED_VERSION,
+    seedViewerUserId: viewerUserId ?? null,
   };
 };
 
@@ -471,11 +634,17 @@ export interface AppendMockTaskInput {
   keyResultId?: string | null;
   priority?: string;
   parentId?: string | null;
+  /** When set, task was delegated by a manager onto this user's plan. */
+  assignedByUserId?: string;
 }
 
 interface UserPlanRepositoryState {
   plansByUserId: Record<string, MockUserPlan>;
-  ensurePlan: (userId: string, displayName?: string) => MockUserPlan;
+  ensurePlan: (
+    userId: string,
+    displayName?: string,
+    viewerUserId?: string | null,
+  ) => MockUserPlan;
   getPlan: (userId: string) => MockUserPlan | null;
   getActiveTasks: (userId: string) => MockPlanTask[];
   appendTask: (
@@ -526,16 +695,23 @@ interface UserPlanRepositoryState {
 export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
   devtools((set, get) => ({
     plansByUserId: {},
-    ensurePlan: (userId, displayName = 'My') => {
+    ensurePlan: (userId, displayName = 'My', viewerUserId = null) => {
       const existing = get().plansByUserId[userId];
+      const normalizedViewer = viewerUserId ? String(viewerUserId) : null;
       // Only rebuild when seed version or display name changes.
       // Do not wipe user-added tasks (UUID ids) or open/close state.
       const seedIsStale =
         !!existing &&
         (existing.seedVersion !== MOCK_PLAN_SEED_VERSION ||
-          existing.displayName !== displayName);
+          existing.displayName !== displayName ||
+          (existing.seedViewerUserId ?? null) !== normalizedViewer);
       if (existing && !seedIsStale) return existing;
-      const plan = buildMockUserPlan(userId, displayName, todayIso());
+      const plan = buildMockUserPlan(
+        userId,
+        displayName,
+        todayIso(),
+        normalizedViewer,
+      );
       set({
         plansByUserId: { ...get().plansByUserId, [userId]: plan },
       });
@@ -543,23 +719,49 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
     },
     getPlan: (userId) => get().plansByUserId[userId] ?? null,
     getActiveTasks: (userId) => {
-      const plan = get().ensurePlan(userId);
+      const existing = get().plansByUserId[userId];
+      const plan = get().ensurePlan(
+        userId,
+        existing?.displayName ?? 'My',
+        existing?.seedViewerUserId ?? null,
+      );
       return plan.activeTasks.filter((t) => !t.isReported);
     },
     appendTask: (userId, input) => {
-      const plan = get().ensurePlan(userId);
+      const existing = get().plansByUserId[userId];
+      const plan = get().ensurePlan(
+        userId,
+        existing?.displayName ?? 'My',
+        existing?.seedViewerUserId ?? null,
+      );
       const trimmed = input.title.trim();
       if (!trimmed) return { ok: false, error: 'Title is required.' };
+      const isDelegated =
+        !!input.assignedByUserId &&
+        String(input.assignedByUserId) !== String(userId);
+      const delegationMeta = isDelegated
+        ? {
+            assignedByUserId: String(input.assignedByUserId),
+            isLocked: true as const,
+          }
+        : {};
+      const pendingMeta = isDelegated
+        ? {}
+        : ({ isPendingApproval: true as const } as const);
+      const delegatedKeyResultId = isDelegated
+        ? UNLINKED_KR_ID
+        : (input.keyResultId ?? UNLINKED_KR_ID);
 
       if (input.parentId) {
         const parent = plan.activeTasks.find((t) => t.id === input.parentId);
         if (!parent) return { ok: false, error: 'Parent task not found.' };
+        const parentHierarchyKind = resolveHierarchyParentKind(parent);
         const cap = childCapForParent(
-          parent.kind,
+          parentHierarchyKind,
           parent.start,
           parent.deadline,
         );
-        const childKind = childKindForParent(parent.kind);
+        const childKind = childKindForParent(parentHierarchyKind);
         if (!childKind) {
           return { ok: false, error: 'This task cannot have subtasks.' };
         }
@@ -569,8 +771,12 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
             error: `Maximum ${cap} subtasks for this ${parent.kind} task.`,
           };
         }
+        const validationParent: DeadlineTask = {
+          ...parent,
+          kind: parentHierarchyKind,
+        };
         if (childKind === 'daily') {
-          const valid = validateDailySubtask(parent, input.start);
+          const valid = validateDailySubtask(validationParent, input.start);
           if (!valid.ok) return valid;
           const task: MockPlanTask = {
             id: newId(),
@@ -581,11 +787,11 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
             kind: 'daily',
             parentId: parent.id,
             done: false,
-            // New adds always land under the Pending tag until approved.
-            isPendingApproval: true,
+            ...pendingMeta,
             keyResultId: parent.keyResultId ?? null,
             keyResultTitle: parent.keyResultTitle,
             priority: input.priority ?? 'medium',
+            ...delegationMeta,
           };
           set({
             plansByUserId: {
@@ -599,7 +805,7 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
           return { ok: true, task };
         }
         const valid = validateWeeklySubtask(
-          parent,
+          validationParent,
           input.start,
           input.deadline,
         );
@@ -613,10 +819,11 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
           kind: 'week',
           parentId: parent.id,
           done: false,
-          isPendingApproval: true,
+          ...pendingMeta,
           keyResultId: parent.keyResultId ?? null,
           keyResultTitle: parent.keyResultTitle,
           priority: input.priority ?? 'medium',
+          ...delegationMeta,
         };
         set({
           plansByUserId: {
@@ -640,11 +847,11 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
       if (!built.ok) return built;
       const task: MockPlanTask = {
         ...built.task,
-        // New adds always land under the Pending tag until approved.
-        isPendingApproval: true,
-        keyResultId: input.keyResultId ?? UNLINKED_KR_ID,
-        keyResultTitle: krTitleForId(input.keyResultId),
+        ...pendingMeta,
+        keyResultId: delegatedKeyResultId,
+        keyResultTitle: krTitleForId(delegatedKeyResultId),
         priority: input.priority ?? 'medium',
+        ...delegationMeta,
       };
       set({
         plansByUserId: {

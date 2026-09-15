@@ -51,6 +51,7 @@ import {
   planFilterValueToKind,
   taskInHistoryRange,
 } from '../planning/durationFilter';
+import { mockDisplayNameForUserId } from '../prototype/mockPlanningConstants';
 import {
   planCardAssigneeLabel,
   planCardAssigneeRole,
@@ -67,6 +68,33 @@ import {
 import { UNLINKED_KR_ID } from '../prototype/mockPlanningConstants';
 
 const HISTORY_PAGE_SIZE = 8;
+
+function renderTaskDelegationLabel(
+  taskId: string,
+  assignedByUserId: string | null | undefined,
+  viewerUserId: string | null | undefined,
+) {
+  if (!assignedByUserId) return null;
+  const isDelegator = String(assignedByUserId) === String(viewerUserId ?? '');
+  return (
+    <span
+      data-cy={`plan-card-task-delegation-${taskId}`}
+      className="mt-0.5 inline-flex max-w-full items-center rounded-full bg-[#EFF6FF] px-2 py-0.5 text-[10px] font-semibold text-[#1E40AF]"
+    >
+      {isDelegator ? (
+        'Delegated'
+      ) : (
+        <>
+          Assigned by{' '}
+          {mockDisplayNameForUserId(
+            String(assignedByUserId),
+            String(viewerUserId ?? ''),
+          )}
+        </>
+      )}
+    </span>
+  );
+}
 
 interface PlanCardProps {
   plan: PlanSummary;
@@ -88,6 +116,7 @@ interface PlanCardProps {
   /** Starts inline add-task / add-plan composer (owner My Plan only). */
   onAddPlan?: () => void;
   showAddPlan?: boolean;
+  /** Manager assigns a new task onto this teammate's plan. */
   /** Composer rendered inside My Plan when adding to the existing plan. */
   addPlanComposer?: React.ReactNode;
   inlineReportActive?: boolean;
@@ -713,6 +742,7 @@ export default function PlanCard({
         tasks: section.tasks.filter(
           (task: any) =>
             !!task.isPendingApproval ||
+            !!task.assignedByUserId ||
             durationFilterMatchesTask(
               task,
               durationKind,
@@ -771,6 +801,7 @@ export default function PlanCard({
       parentId: t.parentId,
       keyResultId: t.keyResultId ?? null,
       keyResultTitle: t.keyResultTitle ?? null,
+      assignedByUserId: t.assignedByUserId ?? null,
     };
   }, []);
 
@@ -805,8 +836,11 @@ export default function PlanCard({
   const pendingTasks = rawPlanningTasks.filter(
     (t: any) => !!t.isPendingApproval,
   );
+  const isLockedPlanningTask = (t: any) =>
+    !t.isPendingApproval && (!!t.isLocked || !!t.assignedByUserId);
+  const lockedTasks = rawPlanningTasks.filter(isLockedPlanningTask);
   const allConfirmedTasks = rawPlanningTasks.filter(
-    (t: any) => !t.isPendingApproval,
+    (t: any) => !t.isPendingApproval && !isLockedPlanningTask(t),
   );
 
   // Always respect Today / This Week / This Month (including Closed plans).
@@ -815,8 +849,10 @@ export default function PlanCard({
     if (mockEnabled) {
       const today = todayIso();
       const confirmedSource = plan.isReported
-        ? mockReportedTasks
-        : mockActiveTasks.filter((t) => !t.isPendingApproval);
+        ? mockReportedTasks.filter((t) => !t.isLocked && !t.assignedByUserId)
+        : mockActiveTasks.filter(
+            (t) => !t.isPendingApproval && !t.isLocked && !t.assignedByUserId,
+          );
       const filtered = filterMockTasksByDuration(
         confirmedSource,
         durationKind,
@@ -845,8 +881,24 @@ export default function PlanCard({
     plan.isReported,
   ]);
 
-  const showClosedSection =
-    plan.status?.label === 'Closed' && confirmedTasks.length > 0;
+  const isClosedPlan = plan.status?.label === 'Closed';
+  /** One Locked section: closed-plan confirmed tasks + manager-delegated tasks. */
+  const lockedSectionTasks = React.useMemo(() => {
+    const merged: any[] = [];
+    const seen = new Set<string>();
+    const push = (task: any) => {
+      if (!task?.id || seen.has(task.id)) return;
+      seen.add(task.id);
+      merged.push(task);
+    };
+    if (isClosedPlan) {
+      confirmedTasks.forEach(push);
+    }
+    lockedTasks.forEach(push);
+    return merged;
+  }, [isClosedPlan, confirmedTasks, lockedTasks]);
+
+  const showLockedSection = lockedSectionTasks.length > 0;
   const showPendingSection = pendingTasks.length > 0;
   /** Per-task lock/comments column — approver view, Pending rows only. */
   const showPendingTaskActionsColumn =
@@ -856,21 +908,29 @@ export default function PlanCard({
       : viewMode === 'reporting') &&
     canApprove;
 
-  /** Confirmed tasks shown without a Closed tag (open plans). */
-  const flatTasks = !showClosedSection ? confirmedTasks : [];
+  /** Confirmed tasks on open plans (closed plans fold into Locked section). */
+  const flatTasks = isClosedPlan ? [] : confirmedTasks;
   const visibleTaskCount =
-    (showClosedSection ? confirmedTasks.length : flatTasks.length) +
-    pendingTasks.length;
+    flatTasks.length + lockedSectionTasks.length + pendingTasks.length;
 
   const mockPendingTasks = useMemo(
     () => mockActiveTasks.filter((t) => !!t.isPendingApproval),
     [mockActiveTasks],
   );
+  const mockLockedTasks = useMemo(
+    () =>
+      mockActiveTasks.filter(
+        (t) => !t.isPendingApproval && (!!t.isLocked || !!t.assignedByUserId),
+      ),
+    [mockActiveTasks],
+  );
   const mockConfirmedForTree = useMemo(() => {
     if (!mockEnabled) return [] as MockPlanTask[];
     const treeSource = plan.isReported
-      ? mockReportedTasks
-      : mockActiveTasks.filter((t) => !t.isPendingApproval);
+      ? mockReportedTasks.filter((t) => !t.isLocked && !t.assignedByUserId)
+      : mockActiveTasks.filter(
+          (t) => !t.isPendingApproval && !t.isLocked && !t.assignedByUserId,
+        );
     const matchIds = new Set(confirmedTasks.map((t: any) => t.id));
 
     // Today: flat matching tasks only (no ancestor accordion nesting).
@@ -907,6 +967,21 @@ export default function PlanCard({
     durationKind,
     plan.isReported,
   ]);
+
+  const mockLockedSectionForTree = useMemo(() => {
+    if (!mockEnabled) return [] as MockPlanTask[];
+    const sources = isClosedPlan
+      ? [...mockConfirmedForTree, ...mockLockedTasks]
+      : [...mockLockedTasks];
+    const idSet = new Set<string>();
+    const merged: MockPlanTask[] = [];
+    for (const task of sources) {
+      if (idSet.has(task.id)) continue;
+      idSet.add(task.id);
+      merged.push(task);
+    }
+    return merged;
+  }, [mockEnabled, isClosedPlan, mockConfirmedForTree, mockLockedTasks]);
 
   const historySourceTasks = useMemo(() => {
     if (mockEnabled) return mockReportedTasks;
@@ -1271,6 +1346,11 @@ export default function PlanCard({
                   </span>
                 </span>
               ) : null}
+              {renderTaskDelegationLabel(
+                String(task.id),
+                taskAny.assignedByUserId ?? mockTask?.assignedByUserId,
+                viewerUserId,
+              )}
             </div>
             <div
               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-590"
@@ -2012,6 +2092,11 @@ export default function PlanCard({
                 </span>
               </span>
             ) : null}
+            {renderTaskDelegationLabel(
+              String(task.id),
+              taskAny.assignedByUserId,
+              viewerUserId,
+            )}
           </div>
           {afterTitle}
         </div>
@@ -2437,29 +2522,27 @@ export default function PlanCard({
             </div>
           ) : null}
 
-          {!inlineReportActive && !isHistoryMode && showClosedSection ? (
+          {!inlineReportActive && !isHistoryMode && showLockedSection ? (
             <div
               className="space-y-[2px] rounded-lg bg-[#F8FAFC] px-1 py-1.5"
-              data-cy={`plan-card-closed-section-${plan.id}`}
+              data-cy={`plan-card-locked-section-${plan.id}`}
             >
               <div
                 className="flex items-center gap-2 px-2.5 pb-1 pt-1"
-                data-cy={`plan-card-closed-section-header-${plan.id}`}
+                data-cy={`plan-card-locked-section-header-${plan.id}`}
               >
                 <StatusBadge
-                  status={
-                    plan.status ?? {
-                      label: 'Closed',
-                      updatedAt: '',
-                      tone: 'success',
-                    }
-                  }
+                  status={{
+                    label: 'Closed',
+                    updatedAt: plan.status?.updatedAt ?? '',
+                    tone: 'success',
+                  }}
                 />
               </div>
               {mockEnabled && plan.ownerUserId ? (
                 <MockPlanHierarchy
                   ownerUserId={plan.ownerUserId}
-                  tasks={mockConfirmedForTree}
+                  tasks={mockLockedSectionForTree}
                   allActiveTasks={
                     plan.isReported ? mockReportedTasks : mockActiveTasks
                   }
@@ -2470,7 +2553,7 @@ export default function PlanCard({
                   renderTaskRow={renderPlanningTaskRow}
                 />
               ) : (
-                confirmedTasks.map((task) => renderPlanningTaskRow(task))
+                lockedSectionTasks.map((task) => renderPlanningTaskRow(task))
               )}
             </div>
           ) : null}
