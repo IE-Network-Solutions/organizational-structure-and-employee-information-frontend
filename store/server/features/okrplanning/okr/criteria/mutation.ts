@@ -3,7 +3,16 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
-import { useMutation, useQueryClient } from 'react-query';
+import { QueryClient, useMutation, useQueryClient } from 'react-query';
+import {
+  createMockVpScoringConfig,
+  deleteMockVpScoringConfig,
+  isMockVpScoringId,
+  payloadUsesPrototypeCriteria,
+  updateMockVpScoringConfig,
+  type VpScoringWritePayload,
+} from './mockVpScoring';
+import { mergeVpCriteriaWithPrototype } from './prototypeCriteria';
 
 export interface VpScoringFailedAssignment {
   userId: string;
@@ -49,6 +58,16 @@ export function extractVpScoringFailedAssignments(
   return [];
 }
 
+function getCriteriaCatalog(queryClient: QueryClient) {
+  return (
+    mergeVpCriteriaWithPrototype(
+      queryClient.getQueryData('criteriaTarget') as
+        | { items?: { id: string; name: string }[] }
+        | undefined,
+    )?.items ?? []
+  );
+}
+
 function notifyVpScoringMutationResult(
   response: VpScoringMutationResponse,
   action: 'created' | 'updated',
@@ -72,68 +91,90 @@ function notifyVpScoringMutationResult(
   });
 }
 
+function notifyMockVpScoringSaved(action: 'created' | 'updated') {
+  NotificationMessage.success({
+    message:
+      action === 'created' ? 'Successfully Created' : 'Successfully Updated',
+    description:
+      action === 'created'
+        ? 'VP Scoring saved locally for prototype (includes Employee Scorecard).'
+        : 'VP Scoring updated locally for prototype.',
+  });
+}
+
 const createVpScoring = async (
-  values: any,
+  values: VpScoringWritePayload,
+  queryClient: QueryClient,
 ): Promise<VpScoringMutationResponse> => {
+  if (payloadUsesPrototypeCriteria(values)) {
+    createMockVpScoringConfig(values, getCriteriaCatalog(queryClient));
+    notifyMockVpScoringSaved('created');
+    return {};
+  }
+
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
-  try {
-    const response = await crudRequest({
-      url: `${OKR_AND_PLANNING_URL}/vp-scoring`,
-      method: 'POST',
-      data: values,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        tenantId: tenantId,
-      },
-    });
+  const response = await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/vp-scoring`,
+    method: 'POST',
+    data: values,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
 
-    notifyVpScoringMutationResult(response, 'created');
+  notifyVpScoringMutationResult(response, 'created');
 
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  return response;
 };
 
 export const useCreateVpScoring = () => {
   const queryClient = useQueryClient();
 
-  return useMutation(createVpScoring, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('VpScoringInformation');
+  return useMutation(
+    (values: VpScoringWritePayload) => createVpScoring(values, queryClient),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('VpScoringInformation');
+      },
+      onError: (error) => {
+        NotificationMessage.error({
+          message: error + '',
+          description: 'Criteria Creation Failed.',
+        });
+      },
     },
-    onError: (error) => {
-      NotificationMessage.error({
-        message: error + '',
-        description: 'Criteria Creation Failed.',
-      });
-    },
-  });
+  );
 };
 
 const deleteVpScoring = async (id: string) => {
+  if (isMockVpScoringId(id)) {
+    deleteMockVpScoringConfig(id);
+    NotificationMessage.success({
+      message: 'Successfully Deleted',
+      description: 'Prototype VP Scoring removed.',
+    });
+    return;
+  }
+
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
-  try {
-    await crudRequest({
-      url: `${OKR_AND_PLANNING_URL}/vp-scoring/${id}`,
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        tenantId: tenantId,
-      },
-    });
+  await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/vp-scoring/${id}`,
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
 
-    NotificationMessage.success({
-      message: 'Successfully Deleted',
-      description: 'VP Scoring successfully deleted.',
-    });
-  } catch (error) {
-    throw error;
-  }
+  NotificationMessage.success({
+    message: 'Successfully Deleted',
+    description: 'VP Scoring successfully deleted.',
+  });
 };
 
 export const useDeleteVpScoring = () => {
@@ -152,47 +193,62 @@ export const useDeleteVpScoring = () => {
   });
 };
 
-const updateVpScoring = async ({
-  id,
-  values,
-}: {
-  id: string;
-  values: any;
-}): Promise<VpScoringMutationResponse> => {
+const updateVpScoring = async (
+  {
+    id,
+    values,
+  }: {
+    id: string;
+    values: VpScoringWritePayload;
+  },
+  queryClient: QueryClient,
+): Promise<VpScoringMutationResponse> => {
+  if (isMockVpScoringId(id)) {
+    updateMockVpScoringConfig(id, values, getCriteriaCatalog(queryClient));
+    notifyMockVpScoringSaved('updated');
+    return {};
+  }
+
+  if (payloadUsesPrototypeCriteria(values)) {
+    createMockVpScoringConfig(values, getCriteriaCatalog(queryClient));
+    notifyMockVpScoringSaved('created');
+    return {};
+  }
+
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
-  try {
-    const response = await crudRequest({
-      url: `${OKR_AND_PLANNING_URL}/vp-scoring/${id}`,
-      method: 'PUT',
-      data: values,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        tenantId: tenantId,
-      },
-    });
+  const response = await crudRequest({
+    url: `${OKR_AND_PLANNING_URL}/vp-scoring/${id}`,
+    method: 'PUT',
+    data: values,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
 
-    notifyVpScoringMutationResult(response, 'updated');
+  notifyVpScoringMutationResult(response, 'updated');
 
-    return response;
-  } catch (error) {
-    throw error;
-  }
+  return response;
 };
 
 export const useUpdateVpScoring = () => {
   const queryClient = useQueryClient();
 
-  return useMutation(updateVpScoring, {
-    onSuccess: () => {
-      queryClient.invalidateQueries('VpScoringInformation');
+  return useMutation(
+    (input: { id: string; values: VpScoringWritePayload }) =>
+      updateVpScoring(input, queryClient),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('VpScoringInformation');
+      },
+      onError: (error) => {
+        NotificationMessage.error({
+          message: error + '',
+          description: 'VP Scoring Update Failed.',
+        });
+      },
     },
-    onError: (error) => {
-      NotificationMessage.error({
-        message: error + '',
-        description: 'VP Scoring Update Failed.',
-      });
-    },
-  });
+  );
 };

@@ -2,9 +2,9 @@
 
 import { redirect } from 'next/navigation';
 
-const LegacyCriteriaManagementRedirect = () => {
+const VpSettingsPage = () => {
   redirect('/incentives/settings/vp/criteria-management');
   return null;
 };
 
-export default LegacyCriteriaManagementRedirect;
+export default VpSettingsPage;

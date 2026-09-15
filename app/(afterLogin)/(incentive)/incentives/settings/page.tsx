@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 
 const Settings = () => {
-  redirect(`/incentives/settings/defaultIncentiveCard`);
+  redirect('/incentives/settings/vp/criteria-management');
   return null;
 };
 

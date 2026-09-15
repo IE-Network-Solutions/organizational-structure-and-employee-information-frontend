@@ -109,6 +109,10 @@ const MENU_ROUTES: MenuRouteNode[] = [
       },
       { key: '/weekly-priority', permissions: ['view_weekly_priority'] },
       { key: '/okr/settings', permissions: ['manage_okr_settings'] },
+      {
+        key: '/okr/settings/target-assignment',
+        permissions: ['assign-vp-targets'],
+      },
     ],
   },
   {
@@ -204,7 +208,20 @@ const MENU_ROUTES: MenuRouteNode[] = [
       { key: '/variable-pay', permissions: ['view_variable_pay'] },
       {
         key: '/incentives/settings',
-        permissions: ['manage_incentive_settings'],
+        permissions: [
+          'manage_incentive_settings',
+          'create-vp-scoring-configurations',
+          'assign-vp-targets',
+        ],
+        requireAny: true,
+      },
+      {
+        key: '/incentives/settings/vp/criteria-management',
+        permissions: ['create-vp-scoring-configurations'],
+      },
+      {
+        key: '/incentives/settings/vp/target-assignment',
+        permissions: ['assign-vp-targets'],
       },
     ],
   },

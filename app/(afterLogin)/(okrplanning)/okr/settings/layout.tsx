@@ -24,7 +24,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<string>('okr-type');
   const [pendingTabPath, setPendingTabPath] = useState<string | null>(null);
   const { setOpen: setPlanningOpen } = usePlanningAssignationStore();
-  const { openDrawer: setCriteriaOpen } = useDrawerStore();
+  const { openDrawer: openTargetAssignmentDrawer } = useDrawerStore();
   const { setOpen: setOkrRuleOpen } = useOkrRuleStore();
   const {
     setOpen: setAverageOkrRuleAssignmentOpen,
@@ -33,15 +33,10 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
   const { showNotReportedList } = useOKRSettingStore();
 
   const isPlanningAssignation = activeTab === 'planning-assignation';
-  const isCriteriaManagement = activeTab === 'criteria-management';
   const isAverageOkrRuleAssignment = activeTab === 'okr-rule-assignment';
 
   const handleAddAssignee = () => {
     setPlanningOpen(true);
-  };
-
-  const handleAddScoring = () => {
-    setCriteriaOpen();
   };
 
   const handleAddRule = () => {
@@ -63,11 +58,6 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       key: 'planning-assignation',
       label: 'Planning Assignation',
       path: '/okr/settings/planning-assignation',
-    },
-    {
-      key: 'criteria-management',
-      label: 'Criteria Management',
-      path: '/okr/settings/criteria-management',
     },
     {
       key: 'target-assignment',
@@ -94,7 +84,6 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     const tabMap: Record<string, string> = {
       'okr-type': 'okr-type',
       'planning-assignation': 'planning-assignation',
-      'criteria-management': 'criteria-management',
       'target-assignment': 'target-assignment',
       'define-okr-rule': 'okr-rules',
       'assign-average-okr-rule': 'okr-rule-assignment',
@@ -226,28 +215,6 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                     </Button>
                   </AccessGuard>
                 )}
-                {isCriteriaManagement && (
-                  <AccessGuard
-                    permissions={[Permissions.CreateVpScoringConfigurations]}
-                    data-cy="okr-settings-add-scoring-button-access-guard"
-                  >
-                    <Button
-                      icon={<FaPlus />}
-                      onClick={handleAddScoring}
-                      className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-[40px] px-3 sm:px-6 text-white border-none mb-3 rounded-lg flex items-center justify-center font-medium"
-                      type="primary"
-                      id="okr-settings-add-scoring-button"
-                      data-cy="okr-settings-add-scoring-button"
-                    >
-                      <span
-                        className="hidden sm:inline ml-2"
-                        data-cy="okr-settings-add-scoring-button-text"
-                      >
-                        Add Scoring
-                      </span>
-                    </Button>
-                  </AccessGuard>
-                )}
                 {activeTab === 'target-assignment' && (
                   <AccessGuard
                     permissions={[Permissions.AssignVpTargets]}
@@ -255,7 +222,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                   >
                     <Button
                       icon={<FaPlus />}
-                      onClick={handleAddScoring}
+                      onClick={() => openTargetAssignmentDrawer()}
                       className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-[40px] px-3 sm:px-6 text-white border-none mb-3 rounded-lg flex items-center justify-center font-medium"
                       type="primary"
                       id="okr-settings-add-assignment-button"

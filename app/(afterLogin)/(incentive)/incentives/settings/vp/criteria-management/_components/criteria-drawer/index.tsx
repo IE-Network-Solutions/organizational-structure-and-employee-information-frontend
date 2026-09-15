@@ -18,6 +18,7 @@ import {
   useFetchVpScoringById,
   useGetCriteriaTargets,
 } from '@/store/server/features/okrplanning/okr/criteria/queries';
+import { findVpCriterionByName } from '@/store/server/features/okrplanning/okr/criteria/prototypeCriteria';
 import {
   useCreateVpScoring,
   useUpdateVpScoring,
@@ -40,6 +41,7 @@ const ScoringModal: React.FC = () => {
   const { isDrawerVisible, closeDrawer, currentId } = useDrawerStore();
   const { data: departmentData } = useGetDepartmentsWithUsers();
   const { data: criteriaData } = useGetCriteriaTargets();
+  const criteriaItems = criteriaData?.items ?? [];
   const {
     weights,
     selectedCriteria,
@@ -125,14 +127,13 @@ const ScoringModal: React.FC = () => {
         users: scoringData.userVpScoring.map((item: any) => item.userId),
         criteria: scoringData.vpScoringCriterions.map(
           (item: any) =>
-            criteriaData.items?.find((c: any) => c.id === item.vpCriteriaId)
-              ?.name,
+            criteriaItems.find((c: any) => c.id === item.vpCriteriaId)?.name,
         ),
       });
 
       setSelectedCriteria(
         scoringData.vpScoringCriterions.map((item: any) => {
-          const criteria = criteriaData.items?.find(
+          const criteria = criteriaItems.find(
             (c: any) => c.id === item.vpCriteriaId,
           );
           return {
@@ -223,9 +224,7 @@ const ScoringModal: React.FC = () => {
           !selectedCriteria.some((criteria) => criteria.name === value),
       )
       .map((criteriaName) => {
-        const criteriaItem = criteriaData?.items?.find(
-          (item: any) => item.name === criteriaName,
-        );
+        const criteriaItem = findVpCriterionByName(criteriaItems, criteriaName);
         return {
           name: criteriaItem?.name || '',
           vpCriteriaId: criteriaItem?.id || '',
@@ -737,7 +736,7 @@ const ScoringModal: React.FC = () => {
                 dropdownClassName="custom-assignee-dropdown"
                 data-cy="okr-criteria-modal-criteria-select"
               >
-                {criteriaData?.items?.map((c: any) => (
+                {criteriaItems.map((c: any) => (
                   <Option
                     key={c.id}
                     value={c.name}

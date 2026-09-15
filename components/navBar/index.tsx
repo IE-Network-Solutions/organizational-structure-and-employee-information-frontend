@@ -950,12 +950,17 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             className: 'font-bold',
             permissions: ['view_variable_pay'],
           },
-          // {
-          //   title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
-          //   key: '/incentives/settings',
-          //   className: 'font-bold',
-          //   permissions: ['manage_incentive_settings'],
-          // },
+          {
+            title: <span data-cy="nav-tree-incentive-settings">Settings</span>,
+            key: '/incentives/settings',
+            className: 'font-bold',
+            permissions: [
+              'manage_incentive_settings',
+              'create-vp-scoring-configurations',
+              'assign-vp-targets',
+            ],
+            requireAny: true,
+          },
         ],
       },
       {

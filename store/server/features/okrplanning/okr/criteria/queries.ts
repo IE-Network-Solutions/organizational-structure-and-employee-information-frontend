@@ -4,6 +4,12 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { crudRequest } from '@/utils/crudRequest';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { getCurrentToken } from '@/utils/getCurrentToken';
+import {
+  getMockVpScoringById,
+  isMockVpScoringId,
+  listMockVpScoringConfigs,
+} from './mockVpScoring';
+import { mergeVpCriteriaWithPrototype } from './prototypeCriteria';
 
 const getCriteriaTargets = async () => {
   const token = await getCurrentToken();
@@ -18,7 +24,9 @@ const getCriteriaTargets = async () => {
   });
 };
 export const useGetCriteriaTargets = () =>
-  useQuery('criteriaTarget', getCriteriaTargets);
+  useQuery('criteriaTarget', getCriteriaTargets, {
+    select: mergeVpCriteriaWithPrototype,
+  });
 
 const fetchVpScoring = async () => {
   const token = await getCurrentToken();
@@ -32,12 +40,30 @@ const fetchVpScoring = async () => {
     },
   });
 };
+function mergeMockVpScoringList(apiResponse: { items?: unknown[] } | undefined) {
+  const apiItems = apiResponse?.items ?? [];
+  const mockItems = listMockVpScoringConfigs();
+  return {
+    ...apiResponse,
+    items: [...apiItems, ...mockItems],
+  };
+}
+
 export const useFetchVpScoring = () =>
   useQuery('VpScoringInformation', fetchVpScoring, {
     keepPreviousData: true,
+    select: mergeMockVpScoringList,
   });
 
 const fetchVpScoringById = async (id: string) => {
+  if (isMockVpScoringId(id)) {
+    const mock = getMockVpScoringById(id);
+    if (!mock) {
+      throw new Error('Prototype VP scoring configuration not found.');
+    }
+    return mock;
+  }
+
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   return crudRequest({
