@@ -37,6 +37,7 @@ interface VpDeductionSectionValues {
   startTime?: number;
   endTime?: number;
   applyAdditionalRules?: boolean;
+  ppDeductionEnabled?: boolean;
   deductibleAmount?: number;
   salaryDeductionEnabled?: boolean;
   salaryDeductionMinutes?: number;
@@ -55,6 +56,7 @@ const DEFAULT_SECTION_VALUES: VpDeductionSectionValues = {
   startTime: undefined,
   endTime: undefined,
   applyAdditionalRules: false,
+  ppDeductionEnabled: false,
   deductibleAmount: undefined,
   salaryDeductionEnabled: false,
   salaryDeductionMinutes: undefined,
@@ -107,6 +109,10 @@ const ConfigureVpDeductionModal = () => {
     form,
   );
   const isAbsent = Form.useWatch(['lateArrival', 'isAbsent'], form);
+  const ppDeductionEnabled = Form.useWatch(
+    [activeFormKey, 'ppDeductionEnabled'],
+    form,
+  );
   const salaryDeductionEnabled = Form.useWatch(
     [activeFormKey, 'salaryDeductionEnabled'],
     form,
@@ -148,6 +154,12 @@ const ConfigureVpDeductionModal = () => {
       form.setFieldValue(['lateArrival', 'attendanceRuleId'], undefined);
     }
   }, [isAbsent, form]);
+
+  useEffect(() => {
+    if (!ppDeductionEnabled) {
+      form.setFieldValue([activeFormKey, 'deductibleAmount'], undefined);
+    }
+  }, [ppDeductionEnabled, activeFormKey, form]);
 
   useEffect(() => {
     if (!salaryDeductionEnabled) {
@@ -192,6 +204,8 @@ const ConfigureVpDeductionModal = () => {
         startTime: item.fromMinutes ?? undefined,
         endTime: item.toMinutes ?? undefined,
         applyAdditionalRules: !item.missedClockout && item.toMinutes == null,
+        ppDeductionEnabled:
+          item.deductableAmount != null && Number(item.deductableAmount) > 0,
         deductibleAmount: item.deductableAmount ?? undefined,
         salaryDeductionEnabled:
           item.salaryDeductionMinutes != null &&
@@ -212,6 +226,7 @@ const ConfigureVpDeductionModal = () => {
       startTime: section.startTime,
       endTime: section.endTime,
       applyAdditionalRules: section.applyAdditionalRules,
+      ppDeductionEnabled: section.ppDeductionEnabled,
       deductibleAmount: section.deductibleAmount,
       salaryDeductionEnabled: section.salaryDeductionEnabled,
       salaryDeductionMinutes: section.salaryDeductionMinutes,
@@ -524,30 +539,76 @@ const ConfigureVpDeductionModal = () => {
               </div>
             )}
 
-            <Form.Item
-              name={[activeFormKey, 'deductibleAmount']}
-              label={
-                <span
-                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount-label"
-                  className="text-sm font-normal text-gray-900"
-                >
-                  Deductible amount
-                </span>
-              }
-              rules={[
-                { required: true, message: 'Deductible amount is required' },
-              ]}
-              data-cy="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount-field"
+            <div
+              className="mb-4 rounded-lg border border-[#D9D9D9] bg-[#FAFAFA] px-4 py-3"
+              data-cy="time-attendance-settings-configuration-vp-deduction-modal-pp-deduction-section"
             >
-              <InputNumber
-                className={controlClass}
-                placeholder="Add the VP points to be deducted"
-                min={0}
-                controls={false}
-                id="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount"
-                data-cy="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount"
-              />
-            </Form.Item>
+              <div
+                className="flex items-start justify-between gap-4"
+                data-cy="time-attendance-settings-configuration-vp-deduction-modal-pp-deduction-header"
+              >
+                <div
+                  className="min-w-0 flex-1"
+                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-pp-deduction-copy"
+                >
+                  <p
+                    className="mb-0 text-sm font-medium text-[#262626]"
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-pp-deduction-title"
+                  >
+                    PP Deduction amount
+                  </p>
+                  <p
+                    className="mb-0 mt-1 text-xs text-gray-500"
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-pp-deduction-description"
+                  >
+                    When enabled, configure how many PP points to deduct for
+                    this time range. Leave off if no PP deduction applies.
+                  </p>
+                </div>
+                <Form.Item
+                  name={[activeFormKey, 'ppDeductionEnabled']}
+                  valuePropName="checked"
+                  className="mb-0"
+                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-pp-deduction-enabled-field"
+                >
+                  <Switch
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-pp-deduction-enabled-switch"
+                    aria-label="PP Deduction amount"
+                  />
+                </Form.Item>
+              </div>
+
+              {ppDeductionEnabled && (
+                <Form.Item
+                  name={[activeFormKey, 'deductibleAmount']}
+                  label={
+                    <span
+                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount-label"
+                      className="text-sm font-normal text-gray-900"
+                    >
+                      Deductible amount
+                    </span>
+                  }
+                  className="mb-0 mt-4"
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Deductible amount is required',
+                    },
+                  ]}
+                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount-field"
+                >
+                  <InputNumber
+                    className={controlClass}
+                    placeholder="Add the PP points to be deducted"
+                    min={0}
+                    controls={false}
+                    id="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount"
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-deductible-amount"
+                  />
+                </Form.Item>
+              )}
+            </div>
 
             <div
               className="mb-4 rounded-lg border border-[#D9D9D9] bg-[#FAFAFA] px-4 py-3"

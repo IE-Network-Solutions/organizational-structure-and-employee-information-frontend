@@ -42,6 +42,7 @@ interface VpTimeConfigurationFormValues {
   startTime?: number;
   endTime?: number;
   applyAdditionalRules?: boolean;
+  ppDeductionEnabled?: boolean;
   deductibleAmount?: number;
   salaryDeductionEnabled?: boolean;
   salaryDeductionMinutes?: number;
@@ -61,11 +62,15 @@ interface VpTimeConfigurationFormValues {
  *   `toMinutes` is sent as `null`.
  * - When `isAbsent` is checked (CLOCKIN only), include `isAbsent` and
  *   `attendanceRuleId` alongside the time range.
+ * - When `ppDeductionEnabled` is off, `deductableAmount` is sent as `0`.
  */
 export const buildVpTimeConfigurationPayload = (
   values: VpTimeConfigurationFormValues,
 ): CreateVpTimeConfigurationPayload => {
-  const deductableAmount = Number(values.deductibleAmount ?? 0);
+  const deductableAmount =
+    values.ppDeductionEnabled && values.deductibleAmount != null
+      ? Number(values.deductibleAmount)
+      : 0;
   const description = values.description?.trim() || undefined;
   const salaryDeductionMinutes =
     values.salaryDeductionEnabled && values.salaryDeductionMinutes != null
