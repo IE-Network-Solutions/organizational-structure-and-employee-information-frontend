@@ -214,7 +214,7 @@ export default function BscScorecardDetailPage() {
 
   const profileImageByUserId = useMemo(() => {
     const map = new Map<string, string>();
-    const list = Array.isArray(allUsers?.items)
+    const list: any[] = Array.isArray(allUsers?.items)
       ? allUsers.items
       : Array.isArray(allUsers)
         ? allUsers
@@ -323,12 +323,16 @@ export default function BscScorecardDetailPage() {
   );
 
   const uniquePeople = useMemo(() => {
-    const list = Array.isArray(allUsers?.items)
+    const list: any[] = Array.isArray(allUsers?.items)
       ? allUsers.items
       : Array.isArray(allUsers)
         ? allUsers
         : [];
-    const usersById = new Map(list.map((user: any) => [user.id, user]));
+    const usersById = new Map<string, any>(
+      list
+        .filter((user) => user?.id)
+        .map((user) => [String(user.id), user]),
+    );
     const byUser = new Map<string, EmployeeScorecard>();
     for (const person of people) {
       if (byUser.has(person.userId)) continue;
