@@ -91,16 +91,26 @@ function toDateOnly(value?: string | Date | null): string | null {
 }
 
 export function mapCadenceToApi(
-  cadence?: BscCadence | null,
+  cadence?: BscCadence | string | null,
 ): 'Weekly' | 'BiWeekly' | 'Monthly' | 'Quarterly' | 'Yearly' {
   switch (cadence) {
     case BscCadence.Weekly:
+    case 'Weekly':
+      return 'Weekly';
     case BscCadence.BiWeekly:
+    case 'BiWeekly':
+      return 'BiWeekly';
     case BscCadence.Monthly:
+    case 'Monthly':
+      return 'Monthly';
     case BscCadence.Quarterly:
+    case 'Quarterly':
+      return 'Quarterly';
     case BscCadence.Yearly:
-      return cadence;
+    case 'Yearly':
+      return 'Yearly';
     case BscCadence.Custom:
+    case 'Custom':
     default:
       return 'Monthly';
   }
@@ -350,9 +360,10 @@ function mapTemplateKpisToApi(
     input.setupKind === BscSetupKind.Temporary || input.useCustomDates
       ? 'Temporary'
       : 'Permanent';
-  const fallbackCadence = mapCadenceToApi(
-    lines.find((l) => l.cadence)?.cadence || input.cadence,
-  );
+  const fallbackCadence: BscCadence =
+    lines.find((line) => line.cadence)?.cadence ||
+    input.cadence ||
+    BscCadence.Monthly;
 
   return lines.map((line) => {
     const cadence = mapCadenceToApi(line.cadence || fallbackCadence);

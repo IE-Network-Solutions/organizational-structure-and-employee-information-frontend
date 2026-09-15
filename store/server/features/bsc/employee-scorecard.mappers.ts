@@ -1,5 +1,4 @@
 import {
-  BscCadence,
   EmployeeScorecard,
   KpiApprovalStatus,
   ScorecardKpiTarget,
@@ -129,7 +128,7 @@ export function mapEmployeeKpiToTarget(
     targetValue: toNum(row.targetValue),
     worstCase: toNullableNum(row.worstCase),
     bestCase: toNullableNum(row.bestCase),
-    cadence: mapCadenceFromApi(row.cadence) as BscCadence,
+    cadence: mapCadenceFromApi(row.cadence),
     checkInDay: row.checkInDay ?? null,
     actualValue: toNullableNum(row.actualValue ?? row.adjustedValue),
     score: toNullableNum(row.score),
