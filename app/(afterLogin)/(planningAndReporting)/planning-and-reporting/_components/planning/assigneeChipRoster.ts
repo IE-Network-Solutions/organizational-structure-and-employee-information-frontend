@@ -25,6 +25,35 @@ export function formatEmployeeDisplayName(employee: any): string {
   return full || 'Unknown';
 }
 
+/** Strip legacy self labels and "(You)" suffix before formatting. */
+export function selfPersonBaseName(displayName: string): string {
+  return String(displayName || '')
+    .trim()
+    .replace(/\s*\(You\)\s*$/i, '')
+    .replace(/^Me$/i, '')
+    .replace(/^My$/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Consistent self label in tables/filters — "{Name} (You)". */
+export function formatSelfPlanningPersonLabel(displayName: string): string {
+  const base = selfPersonBaseName(displayName);
+  return base ? `${base} (You)` : '(You)';
+}
+
+/** Consistent person label in tables/filters — current user includes "(You)". */
+export function resolvePlanningPersonLabel(
+  personId: string,
+  viewerUserId: string,
+  fallbackName: string,
+): string {
+  if (personId && viewerUserId && String(personId) === String(viewerUserId)) {
+    return formatSelfPlanningPersonLabel(fallbackName);
+  }
+  return fallbackName;
+}
+
 export function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return 'U';
@@ -74,11 +103,13 @@ export function buildMockAssigneeRoster(
   const chips: AssigneeChip[] = unique.map((id) => {
     const isSelf = String(id) === String(currentUserId);
     const displayName = mockDisplayNameForUserId(id, currentUserId);
-    const fullName = isSelf ? 'Me' : displayName;
+    const label = isSelf
+      ? formatSelfPlanningPersonLabel(displayName)
+      : displayName;
     return {
       userId: id,
-      label: fullName,
-      initials: isSelf ? 'Me' : initialsFromName(displayName),
+      label,
+      initials: initialsFromName(displayName),
       isSelf,
     };
   });
@@ -94,16 +125,44 @@ export function buildMockAssigneeRoster(
 function mapEmployeeToChip(id: string, emp: any, userId: string): AssigneeChip {
   const isSelf = String(id) === String(userId);
   const fullName = formatEmployeeDisplayName(emp);
-  const label = isSelf ? 'Me' : fullName;
+  const label = isSelf ? formatSelfPlanningPersonLabel(fullName) : fullName;
   return {
     userId: String(id),
     label,
-    initials: isSelf ? 'Me' : initialsFromName(fullName),
+    initials: initialsFromName(fullName),
     avatar: resolveEmployeeProfileImageUrl(
       emp?.profileImage || emp?.profilePicture,
     ),
     isSelf,
   };
+}
+
+/**
+ * Assignee picker for Add task — logged-in user pinned first as "(You)", then direct reports.
+ */
+export function buildPlanTaskAssigneePickerRoster(
+  employeeData: { items?: any[] } | undefined,
+  userId: string,
+  departmentId?: string,
+  mockEnabled = false,
+): AssigneeChip[] {
+  if (mockEnabled) {
+    return buildMockAssigneeRoster(userId, departmentId);
+  }
+
+  const employees = getEmployeeItems(employeeData);
+  const selfEmp = employees.find((e) => String(e.id) === String(userId));
+  const subordinates = buildSubordinatePickerRoster(
+    employeeData,
+    userId,
+    departmentId,
+    false,
+  );
+
+  if (!selfEmp) return subordinates;
+
+  const selfChip = mapEmployeeToChip(String(userId), selfEmp, userId);
+  return [selfChip, ...subordinates];
 }
 
 /** Direct reports only — for the assignee picker modal. */

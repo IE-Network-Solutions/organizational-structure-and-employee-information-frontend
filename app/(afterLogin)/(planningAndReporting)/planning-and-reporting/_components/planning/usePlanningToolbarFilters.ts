@@ -11,6 +11,8 @@ import {
   buildAssigneeRoster,
   buildMockAssigneeRoster,
   defaultSelectedUserIds,
+  formatEmployeeDisplayName,
+  formatSelfPlanningPersonLabel,
 } from './assigneeChipRoster';
 import {
   getEmployeeDepartmentId,
@@ -23,6 +25,7 @@ import {
   mockTeamMemberIds,
   mockUserIdsForDepartment,
 } from '../prototype/mockPlanningConstants';
+import type { PlanningTaskStatusFilter } from './planningTaskStatusFilter';
 
 export const planTypeOptions = [
   { label: 'All Plans', value: 'all' },
@@ -170,7 +173,11 @@ export function usePlanningToolbarFilters() {
     setPlanningFilterDepartment,
     planningFilterPlanType,
     setPlanningFilterPlanType,
+    planningTaskStatusFilter,
+    setPlanningTaskStatusFilter,
     setPlanningFilterEmployee,
+    setPage,
+    setPageReporting,
   } = PlanningAndReportingStore();
 
   const getUserIdsByDepartmentId = useCallback(
@@ -182,39 +189,60 @@ export function usePlanningToolbarFilters() {
   );
 
   const employeeOptions = useMemo(() => {
+    const meEmployee = getEmployeeItems(employeeData).find(
+      (emp) => String(emp?.id) === String(userId),
+    );
+    const meDisplayName = meEmployee
+      ? formatEmployeeDisplayName(meEmployee)
+      : 'User';
+    const meOption: EmployeeItem[] =
+      userId && String(userId).length > 0
+        ? [
+            {
+              label: formatSelfPlanningPersonLabel(meDisplayName),
+              value: String(userId),
+            },
+          ]
+        : [];
+
     if (mockEnabled) {
-      const options = buildMockEmployeeFilterOptions();
+      let options = buildMockEmployeeFilterOptions(userId);
       if (planningFilterDepartment && planningFilterDepartment !== 'all') {
         const allowed = new Set(
           mockUserIdsForDepartment(planningFilterDepartment),
         );
-        return options.filter(
-          (opt) => opt.value === 'all' || allowed.has(opt.value),
+        options = options.filter(
+          (opt) => opt.value === String(userId) || allowed.has(opt.value),
         );
       }
       return options;
     }
-    return buildEmployeeOptions(
+
+    const others = buildEmployeeOptions(
       planningFilterDepartment,
       employeeData,
       departmentData,
-    );
-  }, [mockEnabled, employeeData, planningFilterDepartment, departmentData]);
+    ).filter((opt) => opt.value !== 'all' && opt.value !== String(userId));
 
-  const getSelectedEmployeeValue = () => {
-    const currentValue = selectedUser?.[0];
-    if (
-      !currentValue ||
-      currentValue === 'all' ||
-      currentValue === 'subordinate'
-    ) {
-      return 'all';
-    }
-    const optionExists = employeeOptions.some(
-      (opt) => opt.value === currentValue,
+    return [...meOption, ...others];
+  }, [
+    mockEnabled,
+    employeeData,
+    planningFilterDepartment,
+    departmentData,
+    userId,
+  ]);
+
+  const selectedEmployeeValues = useMemo((): string[] => {
+    const concrete = selectedUser.filter(
+      (id) => id && id !== 'all' && id !== 'subordinate',
     );
-    return optionExists ? currentValue : undefined;
-  };
+    return concrete.filter((id) =>
+      employeeOptions.some((opt) => opt.value === id),
+    );
+  }, [selectedUser, employeeOptions]);
+
+  const getSelectedEmployeeValues = (): string[] => selectedEmployeeValues;
 
   const departmentOptions = useMemo(() => {
     if (mockEnabled) return mockDepartmentFilterOptions();
@@ -229,15 +257,23 @@ export function usePlanningToolbarFilters() {
     return options;
   }, [departmentData, mockEnabled]);
 
-  const handleEmployeeChange = (value: string) => {
+  const handleEmployeesChange = (values: string[]) => {
     setPlanningFilterDepartment(undefined);
     setPlanningFilterPlanType('all');
-    setPlanningFilterEmployee(value === 'all' ? 'all' : value);
-    if (value === 'all') {
+    setPlanningFilterEmployee('all');
+    if (!values.length) {
       setSelectedUser(['all']);
     } else {
-      setSelectedUser([value]);
+      setSelectedUser(values);
     }
+    setPage(1);
+    setPageReporting(1);
+  };
+
+  const handleTaskStatusChange = (value: PlanningTaskStatusFilter) => {
+    setPlanningTaskStatusFilter(value);
+    setPage(1);
+    setPageReporting(1);
   };
 
   const handlePlanTypeChange = (value: string) => {
@@ -317,10 +353,13 @@ export function usePlanningToolbarFilters() {
     employeeOptions,
     departmentOptions,
     planningFilterPlanType,
+    planningTaskStatusFilter,
     planningFilterDepartment,
-    getSelectedEmployeeValue,
-    handleEmployeeChange,
+    selectedEmployeeValues,
+    getSelectedEmployeeValues,
+    handleEmployeesChange,
     handlePlanTypeChange,
+    handleTaskStatusChange,
     handleDepartmentChange,
   };
 }

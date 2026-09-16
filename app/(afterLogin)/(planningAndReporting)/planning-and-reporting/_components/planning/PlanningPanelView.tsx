@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import classNames from 'classnames';
 import { Avatar, Dropdown, Spin, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import { BsKey } from 'react-icons/bs';
@@ -8,6 +9,7 @@ import { MdExpandMore, MdChevronRight } from 'react-icons/md';
 import { IoArrowBack } from 'react-icons/io5';
 import { MessageOutlined, PlusOutlined } from '@ant-design/icons';
 import PlanCard from '../cards/PlanCard';
+import InfiniteLoadSentinel from './InfiniteLoadSentinel';
 import { PlanCardInlineReportForm } from '../createReport/PlanCardInlineReportForm';
 import {
   isMilestoneAchievedForPlanning,
@@ -973,10 +975,12 @@ function CommentThreadPanel({
   plan,
   onClose,
   threadKind,
+  className,
 }: {
   plan: PlanSummary;
   onClose: () => void;
   threadKind: CommentThreadKind;
+  className?: string;
 }) {
   const comments = plan.comments || [];
   const commentCount = comments.length;
@@ -986,7 +990,7 @@ function CommentThreadPanel({
   return (
     <div
       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-579"
-      className="flex h-full flex-col"
+      className={classNames('flex h-full flex-col', className)}
     >
       <div
         data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-580"
@@ -1257,6 +1261,8 @@ export interface KRPanelProps {
   parentPlanContext?: ParentPlanContext | null;
   /** False while user KR API is loading/refetching — hides + until eligibility is current. */
   planningPickReady?: boolean;
+  /** Lift KR header into page grid row (aligned with toolbar). */
+  splitHeaderLayout?: boolean;
 }
 
 export function KRLeftPanel({
@@ -1280,6 +1286,7 @@ export function KRLeftPanel({
   onRefreshMilestoneStatus,
   parentPlanContext = null,
   planningPickReady = true,
+  splitHeaderLayout = false,
 }: KRPanelProps) {
   const recentlyAchievedIds = useRecentlyAchievedMilestones((s) => s.ids);
   const reopenedMilestoneIds = useRecentlyAchievedMilestones(
@@ -1398,6 +1405,246 @@ export function KRLeftPanel({
   /** Child cadence on Plans tab: parent plan tasks only (hide KR list). Reports tab keeps KRs. */
   const isChildCadence = !!parentPlanContext && activeTab === 1;
 
+  const showPanelHeader = !isChildCadence && !isSingleOwner;
+  const panelHeaderRowClass = splitHeaderLayout
+    ? 'hidden lg:flex lg:col-start-1 lg:row-start-1 h-9 min-h-9 items-center justify-between gap-2 px-1 self-center'
+    : 'bg-white border-b border-[#F1F2F6] px-4 py-3.5 flex-shrink-0';
+  const panelBodyShellClass = splitHeaderLayout
+    ? 'flex min-h-0 flex-col overflow-hidden rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] lg:col-start-1 lg:row-start-2 lg:h-full'
+    : 'flex min-h-0 flex-1 flex-col';
+
+  const panelHeader = showPanelHeader ? (
+    <div
+      data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-853"
+      className={panelHeaderRowClass}
+    >
+      <div
+        data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-854"
+        className="flex min-w-0 flex-1 items-center justify-between gap-2"
+      >
+        <div
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-855"
+          className="flex min-w-0 items-center gap-2"
+        >
+          <div
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-856"
+            className={classNames(
+              'flex flex-shrink-0 items-center justify-center rounded-lg bg-[#1E40AF]/10',
+              splitHeaderLayout ? 'h-6 w-6' : 'h-7 w-7',
+            )}
+          >
+            <BsKey
+              size={splitHeaderLayout ? 12 : 13}
+              className="text-[#1E40AF]"
+            />
+          </div>
+          <div
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-859"
+            className="min-w-0"
+          >
+            {splitHeaderLayout ? (
+              <p
+                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-860"
+                className="truncate text-[13px] font-semibold leading-none text-[#161A2C]"
+              >
+                Key Results
+                <span
+                  className="ml-1.5 font-normal text-[#8F94A3]"
+                  data-cy="planning-kr-panel-header-summary"
+                >
+                  {totalKRs} key result{totalKRs !== 1 ? 's' : ''} ·{' '}
+                  {ownerGroups.length} owner
+                  {ownerGroups.length !== 1 ? 's' : ''}
+                </span>
+              </p>
+            ) : (
+              <>
+                <p
+                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-860"
+                  className="text-[13px] font-bold text-[#161A2C] leading-tight"
+                >
+                  Key Results
+                </p>
+                <p
+                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-863"
+                  className="mt-0.5 truncate text-[10px] text-[#8F94A3]"
+                >
+                  {totalKRs} key result{totalKRs !== 1 ? 's' : ''} ·{' '}
+                  {ownerGroups.length} owner
+                  {ownerGroups.length !== 1 ? 's' : ''}
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+        <div
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-1577"
+          className="flex flex-shrink-0 items-center gap-1.5"
+        >
+          <span
+            data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-870"
+            className="rounded-lg bg-[#1E40AF]/10 px-2 py-0.5 text-[11px] font-bold text-[#1E40AF]"
+          >
+            {totalKRs}
+          </span>
+          <Tooltip title="Collapse key results">
+            <button
+              type="button"
+              data-cy="planning-kr-panel-collapse"
+              aria-label="Collapse key results"
+              aria-expanded={true}
+              onClick={() => setKrLeftPanelCollapsed(true)}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#8F94A3] transition-colors hover:bg-[#F1F2F6] hover:text-[#1E40AF]"
+            >
+              <MdChevronRight className="rotate-180 text-lg" />
+            </button>
+          </Tooltip>
+        </div>
+      </div>
+    </div>
+  ) : null;
+
+  const panelBody = (
+    <>
+      {showInlinePick ? (
+        <div
+          data-cy="planning-kr-pick-toolbar"
+          className="flex flex-shrink-0 items-center justify-between gap-2 border-b border-[#E8EAF0] bg-[#F8FAFC] px-3 py-2"
+        >
+          <p
+            data-cy="planningpanelview-1369"
+            className="m-0 min-w-0 flex-1 text-[11px] font-medium leading-snug text-[#64748B]"
+          >
+            Select a key result to plan
+          </p>
+          {onPickUnlinkedPlan ? (
+            <Tooltip title="Plan without key result">
+              <button
+                type="button"
+                data-cy="plan-without-key-result-button"
+                aria-label="Plan without key result"
+                aria-pressed={unlinkedPlanSelected}
+                onClick={onPickUnlinkedPlan}
+                className={`relative flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border transition-all ${
+                  unlinkedPlanSelected
+                    ? 'border-[#1E40AF] bg-[#1E40AF] text-white shadow-[0_0_0_2px_rgba(30,64,175,0.18)]'
+                    : 'border-[#E5E7EB] bg-white text-[#1E40AF] hover:border-[#1E40AF]/40 hover:bg-[#EFF6FF]'
+                }`}
+              >
+                <PlusOutlined className="text-[12px]" />
+                <span
+                  data-cy="planning-panel-span-1387"
+                  aria-hidden
+                  className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border border-white ${
+                    unlinkedPlanSelected ? 'bg-[#34D399]' : 'bg-[#574CFF]'
+                  }`}
+                />
+              </button>
+            </Tooltip>
+          ) : null}
+        </div>
+      ) : null}
+
+      {parentPlanContext && activeTab === 1 ? (
+        <ParentPlanTasksSection
+          title={parentPlanContext.title}
+          slots={parentPlanSlots}
+          showPick={showInlinePick}
+          selectedPlanningTargetId={selectedPlanningTargetId}
+          onPickPlanningTarget={onPickPlanningTarget}
+          loading={planningTargetsLoading}
+          blockedKrIds={blockedKrIds}
+          expandToFill={isChildCadence}
+        />
+      ) : null}
+
+      {!isChildCadence ? (
+        <div
+          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-890"
+          className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-1 py-2 scrollbar-hide sm:px-2 lg:overflow-x-hidden"
+        >
+          {showKrTargetsLoadingRow ? (
+            <div
+              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-892"
+              className="flex shrink-0 items-center justify-center gap-2 py-2 text-[11px] text-[#8F94A3]"
+            >
+              <Spin size="small" />
+              Loading planning slots…
+            </div>
+          ) : null}
+          {totalKRs === 0 ? (
+            <div
+              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-898"
+              className="flex min-h-[min(42vh,26rem)] flex-1 flex-col items-center justify-center px-4 py-8 text-center lg:min-h-0"
+            >
+              <div
+                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-899"
+                className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
+              >
+                <BsKey size={24} className="text-[#D1D5DB]" />
+              </div>
+              <p
+                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-902"
+                className="text-sm font-medium text-[#8F94A3]"
+              >
+                No key results yet
+              </p>
+              <p
+                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-905"
+                className="mt-1 text-xs text-[#C4C7CE]"
+              >
+                No key results are assigned to your profile for this view
+              </p>
+            </div>
+          ) : (
+            ownerGroups.map((group) => {
+              const isCurrentUserGroup =
+                String(group.ownerUserId ?? '') === String(userId ?? '') ||
+                group.ownerKey === `__user_key_results_${userId}` ||
+                group.owner?.name === 'My Plan' ||
+                /^your key results?$/i.test(String(group.owner?.name || '')) ||
+                (isSingleOwner &&
+                  transformedData?.some(
+                    (d: any) =>
+                      d.userId === userId &&
+                      plans.some(
+                        (p) =>
+                          p.id === d.id && p.owner?.name === group.owner?.name,
+                      ),
+                  ));
+
+              return (
+                <OwnerKRSection
+                  key={group.ownerKey}
+                  group={group}
+                  isSingleOwner={isSingleOwner}
+                  isCurrentUser={!!isCurrentUserGroup}
+                  defaultExpanded={
+                    focusedOwnerKey != null
+                      ? focusedOwnerKey === group.ownerKey
+                      : !!isCurrentUserGroup || isSingleOwner
+                  }
+                  scrollIntoViewOnMount={
+                    focusedOwnerKey != null &&
+                    focusedOwnerKey === group.ownerKey
+                  }
+                  highlightedKRId={highlightedKRId}
+                  showInlinePlanningPick={showInlinePick}
+                  planningTargetsByKrId={targetsByKrId}
+                  selectedPlanningTargetId={selectedPlanningTargetId}
+                  onPickPlanningTarget={onPickPlanningTarget}
+                  userKeyResultItems={userKeyResultItems}
+                  objectiveMilestonesByKrId={objectiveMilestonesByKrId}
+                  onRefreshMilestoneStatus={onRefreshMilestoneStatus}
+                />
+              );
+            })
+          )}
+        </div>
+      ) : null}
+    </>
+  );
+
   return (
     <>
       {threadPlan && activeThread ? (
@@ -1405,11 +1652,16 @@ export function KRLeftPanel({
           plan={threadPlan}
           onClose={onCloseThread}
           threadKind={activeThread.kind}
+          className={
+            splitHeaderLayout
+              ? 'lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:h-full min-h-0 overflow-hidden rounded-xl border border-[#F1F2F6] bg-white'
+              : undefined
+          }
         />
       ) : krLeftPanelCollapsed ? (
         <div
           data-cy="planning-kr-panel-collapsed"
-          className="flex w-full flex-col items-center gap-2.5 px-1 py-3"
+          className="flex h-full w-full flex-col items-center gap-2.5 px-1 py-3"
         >
           <Tooltip title="Expand key results" placement="right">
             <button
@@ -1501,210 +1753,10 @@ export function KRLeftPanel({
         </div>
       ) : (
         <>
-          {showInlinePick ? (
-            <div
-              data-cy="planning-kr-pick-toolbar"
-              className="flex flex-shrink-0 items-center justify-between gap-2 border-b border-[#E8EAF0] bg-[#F8FAFC] px-3 py-2"
-            >
-              <p
-                data-cy="planningpanelview-1369"
-                className="m-0 min-w-0 flex-1 text-[11px] font-medium leading-snug text-[#64748B]"
-              >
-                Select a key result to plan
-              </p>
-              {onPickUnlinkedPlan ? (
-                <Tooltip title="Plan without key result">
-                  <button
-                    type="button"
-                    data-cy="plan-without-key-result-button"
-                    aria-label="Plan without key result"
-                    aria-pressed={unlinkedPlanSelected}
-                    onClick={onPickUnlinkedPlan}
-                    className={`relative flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border transition-all ${
-                      unlinkedPlanSelected
-                        ? 'border-[#1E40AF] bg-[#1E40AF] text-white shadow-[0_0_0_2px_rgba(30,64,175,0.18)]'
-                        : 'border-[#E5E7EB] bg-white text-[#1E40AF] hover:border-[#1E40AF]/40 hover:bg-[#EFF6FF]'
-                    }`}
-                  >
-                    <PlusOutlined className="text-[12px]" />
-                    <span
-                      data-cy="planning-panel-span-1387"
-                      aria-hidden
-                      className={`absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border border-white ${
-                        unlinkedPlanSelected ? 'bg-[#34D399]' : 'bg-[#574CFF]'
-                      }`}
-                    />
-                  </button>
-                </Tooltip>
-              ) : null}
-            </div>
-          ) : null}
-          {!isChildCadence && !isSingleOwner ? (
-            <div
-              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-853"
-              className="bg-white border-b border-[#F1F2F6] px-4 py-3.5 flex-shrink-0"
-            >
-              <div
-                data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-854"
-                className="flex items-center justify-between gap-2"
-              >
-                <div
-                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-855"
-                  className="flex min-w-0 items-center gap-2"
-                >
-                  <div
-                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-856"
-                    className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-[#1E40AF]/10"
-                  >
-                    <BsKey size={13} className="text-[#1E40AF]" />
-                  </div>
-                  <div
-                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-859"
-                    className="min-w-0"
-                  >
-                    <p
-                      data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-860"
-                      className="text-[13px] font-bold text-[#161A2C] leading-tight"
-                    >
-                      Key Results
-                    </p>
-                    <p
-                      data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-863"
-                      className="mt-0.5 truncate text-[10px] text-[#8F94A3]"
-                    >
-                      {totalKRs} key result{totalKRs !== 1 ? 's' : ''} ·{' '}
-                      {ownerGroups.length} owner
-                      {ownerGroups.length !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                </div>
-                <div
-                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-1577"
-                  className="flex flex-shrink-0 items-center gap-1.5"
-                >
-                  <span
-                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-870"
-                    className="rounded-lg bg-[#1E40AF]/10 px-2.5 py-1 text-[11px] font-bold text-[#1E40AF]"
-                  >
-                    {totalKRs}
-                  </span>
-                  <Tooltip title="Collapse key results">
-                    <button
-                      type="button"
-                      data-cy="planning-kr-panel-collapse"
-                      aria-label="Collapse key results"
-                      aria-expanded={true}
-                      onClick={() => setKrLeftPanelCollapsed(true)}
-                      className="flex h-7 w-7 items-center justify-center rounded-lg text-[#8F94A3] transition-colors hover:bg-[#F1F2F6] hover:text-[#1E40AF]"
-                    >
-                      <MdChevronRight className="rotate-180 text-lg" />
-                    </button>
-                  </Tooltip>
-                </div>
-              </div>
-            </div>
-          ) : null}
-
-          {parentPlanContext && activeTab === 1 ? (
-            <ParentPlanTasksSection
-              title={parentPlanContext.title}
-              slots={parentPlanSlots}
-              showPick={showInlinePick}
-              selectedPlanningTargetId={selectedPlanningTargetId}
-              onPickPlanningTarget={onPickPlanningTarget}
-              loading={planningTargetsLoading}
-              blockedKrIds={blockedKrIds}
-              expandToFill={isChildCadence}
-            />
-          ) : null}
-
-          {!isChildCadence ? (
-            <div
-              data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-890"
-              className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto px-1 py-2 scrollbar-hide sm:px-2 lg:overflow-x-hidden"
-            >
-              {showKrTargetsLoadingRow ? (
-                <div
-                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-892"
-                  className="flex shrink-0 items-center justify-center gap-2 py-2 text-[11px] text-[#8F94A3]"
-                >
-                  <Spin size="small" />
-                  Loading planning slots…
-                </div>
-              ) : null}
-              {totalKRs === 0 ? (
-                <div
-                  data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-898"
-                  className="flex min-h-[min(42vh,26rem)] flex-1 flex-col items-center justify-center px-4 py-8 text-center lg:min-h-0"
-                >
-                  <div
-                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-899"
-                    className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
-                  >
-                    <BsKey size={24} className="text-[#D1D5DB]" />
-                  </div>
-                  <p
-                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-902"
-                    className="text-sm font-medium text-[#8F94A3]"
-                  >
-                    No key results yet
-                  </p>
-                  <p
-                    data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-905"
-                    className="mt-1 text-xs text-[#C4C7CE]"
-                  >
-                    No key results are assigned to your profile for this view
-                  </p>
-                </div>
-              ) : (
-                ownerGroups.map((group) => {
-                  const isCurrentUserGroup =
-                    String(group.ownerUserId ?? '') === String(userId ?? '') ||
-                    group.ownerKey === `__user_key_results_${userId}` ||
-                    group.owner?.name === 'My Plan' ||
-                    /^your key results?$/i.test(
-                      String(group.owner?.name || ''),
-                    ) ||
-                    (isSingleOwner &&
-                      transformedData?.some(
-                        (d: any) =>
-                          d.userId === userId &&
-                          plans.some(
-                            (p) =>
-                              p.id === d.id &&
-                              p.owner?.name === group.owner?.name,
-                          ),
-                      ));
-
-                  return (
-                    <OwnerKRSection
-                      key={group.ownerKey}
-                      group={group}
-                      isSingleOwner={isSingleOwner}
-                      isCurrentUser={!!isCurrentUserGroup}
-                      defaultExpanded={
-                        focusedOwnerKey != null
-                          ? focusedOwnerKey === group.ownerKey
-                          : !!isCurrentUserGroup || isSingleOwner
-                      }
-                      scrollIntoViewOnMount={
-                        focusedOwnerKey != null &&
-                        focusedOwnerKey === group.ownerKey
-                      }
-                      highlightedKRId={highlightedKRId}
-                      showInlinePlanningPick={showInlinePick}
-                      planningTargetsByKrId={targetsByKrId}
-                      selectedPlanningTargetId={selectedPlanningTargetId}
-                      onPickPlanningTarget={onPickPlanningTarget}
-                      userKeyResultItems={userKeyResultItems}
-                      objectiveMilestonesByKrId={objectiveMilestonesByKrId}
-                      onRefreshMilestoneStatus={onRefreshMilestoneStatus}
-                    />
-                  );
-                })
-              )}
-            </div>
-          ) : null}
+          {panelHeader}
+          <div className={panelBodyShellClass} data-cy="planning-kr-panel-body">
+            {panelBody}
+          </div>
         </>
       )}
     </>
@@ -1725,15 +1777,16 @@ export interface PlanningPanelViewProps {
   onEdit: (id: string) => void;
   isApprovalLoading: boolean;
   getDateLabel: (createdAt: string) => string;
+  hasMorePlans?: boolean;
+  onLoadMorePlans?: () => void;
+  scrollRootRef?: React.RefObject<HTMLElement | null>;
+  /** Legacy page controls (reporting tab). Planning grouped view uses infinite scroll. */
   paginationNode?: React.ReactNode;
   planningPeriodId?: string;
   viewMode?: ViewMode;
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: CommentThreadKind) => void;
   onStartInlineReport?: (planId: string) => void;
-  onAddPlan?: () => void;
-  onAddPlanForTeammate?: (targetUserId: string, targetLabel: string) => void;
-  canAddPlanForTeammate?: (ownerUserId: string) => boolean;
   /** Composer for appending tasks to My Plan (mock single-plan flow). */
   addPlanComposer?: React.ReactNode;
   ownerCanOpenSubmitReport?: boolean;
@@ -1754,15 +1807,15 @@ export default function PlanningPanelView({
   onEdit,
   isApprovalLoading,
   getDateLabel,
+  hasMorePlans = false,
+  onLoadMorePlans,
+  scrollRootRef,
   paginationNode,
   planningPeriodId,
   viewMode = 'planning',
   onHoverKR,
   onOpenThread,
   onStartInlineReport,
-  onAddPlan,
-  onAddPlanForTeammate,
-  canAddPlanForTeammate,
   addPlanComposer,
   ownerCanOpenSubmitReport,
   inlineReportPlanId,
@@ -1870,23 +1923,6 @@ export default function PlanningPanelView({
             originalDataItem?.isReported == false &&
             !!ownerCanOpenSubmitReport
           }
-          onAddPlan={
-            ownerUserId === userId && onAddPlan
-              ? onAddPlan
-              : onAddPlanForTeammate &&
-                  canAddPlanForTeammate?.(String(ownerUserId ?? ''))
-                ? () =>
-                    onAddPlanForTeammate(
-                      String(ownerUserId ?? ''),
-                      plan.owner?.name || 'Teammate',
-                    )
-                : undefined
-          }
-          showAddPlan={
-            (ownerUserId === userId && !!onAddPlan) ||
-            (!!onAddPlanForTeammate &&
-              !!canAddPlanForTeammate?.(String(ownerUserId ?? '')))
-          }
           addPlanComposer={ownerUserId === userId ? addPlanComposer : undefined}
           inlineReportActive={inlineReportPlanId === plan.id}
           onCloseInlineReport={onCloseInlineReport}
@@ -1909,7 +1945,7 @@ export default function PlanningPanelView({
   return (
     <div
       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-995"
-      className="min-w-0 max-w-full space-y-4 pr-1"
+      className="min-w-0 max-w-full space-y-4 overflow-x-hidden pr-1"
     >
       {orderedPlans.map((plan) => (
         <React.Fragment key={plan.id}>
@@ -1917,13 +1953,13 @@ export default function PlanningPanelView({
         </React.Fragment>
       ))}
 
-      {paginationNode && (
-        <div
-          data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-1093"
-          className="mt-4"
-        >
-          {paginationNode}
-        </div>
+      {paginationNode ?? (
+        <InfiniteLoadSentinel
+          hasMore={hasMorePlans}
+          onLoadMore={onLoadMorePlans ?? (() => undefined)}
+          scrollRootRef={scrollRootRef}
+          data-cy="planning-grouped-infinite-sentinel"
+        />
       )}
     </div>
   );

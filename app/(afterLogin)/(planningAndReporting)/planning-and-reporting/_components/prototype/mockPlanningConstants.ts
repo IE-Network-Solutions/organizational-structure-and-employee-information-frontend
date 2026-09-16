@@ -12,6 +12,9 @@ export const MOCK_KEY_RESULTS = [
   { id: UNLINKED_KR_ID, title: 'General (no key result)' },
 ] as const;
 
+/** Display name for the signed-in user in mock / prototype flows. */
+export const MOCK_CURRENT_USER_DISPLAY_NAME = 'Alex Morgan';
+
 /** Fixed mock team — never from live employee APIs. */
 export const MOCK_TEAM_MEMBERS = [
   { id: 'mock-alice', displayName: 'Alice Nguyen', role: 'Engineering' },
@@ -49,7 +52,7 @@ export function mockDisplayNameForUserId(
   currentUserId: string,
 ): string {
   if (userId && currentUserId && String(userId) === String(currentUserId)) {
-    return 'My';
+    return MOCK_CURRENT_USER_DISPLAY_NAME;
   }
   const member = MOCK_TEAM_MEMBERS.find((m) => m.id === userId);
   if (member) return member.displayName;
@@ -122,17 +125,24 @@ export function resolveMockScopeUserIds(opts: {
 }
 
 /** Filter dropdown options for the mock prototype (no live HR names). */
-export function buildMockEmployeeFilterOptions(): {
+export function buildMockEmployeeFilterOptions(currentUserId?: string): {
   label: string;
   value: string;
 }[] {
-  return [
-    { label: 'All employees', value: 'all' },
+  const options: { label: string; value: string }[] = [];
+  if (currentUserId) {
+    options.push({
+      label: `${MOCK_CURRENT_USER_DISPLAY_NAME} (You)`,
+      value: currentUserId,
+    });
+  }
+  options.push(
     ...MOCK_TEAM_MEMBERS.map((m) => ({
       label: m.displayName,
       value: m.id,
     })),
-  ];
+  );
+  return options;
 }
 
 export function mockDepartmentFilterOptions(): {
@@ -176,7 +186,7 @@ export function childCapForParent(
   parentStart: string,
   parentDeadline: string,
 ): number {
-  if (parentKind === 'daily') return 0;
+  if (parentKind === 'daily') return 7;
   if (parentKind === 'week') {
     const days = spanDays(parentStart, parentDeadline) ?? 7;
     return Math.min(7, days);
@@ -188,7 +198,7 @@ export function childKindForParent(
   parentKind: DeadlineKind,
 ): DeadlineKind | null {
   if (parentKind === 'month') return 'week';
-  if (parentKind === 'week') return 'daily';
+  if (parentKind === 'week' || parentKind === 'daily') return 'daily';
   return null;
 }
 

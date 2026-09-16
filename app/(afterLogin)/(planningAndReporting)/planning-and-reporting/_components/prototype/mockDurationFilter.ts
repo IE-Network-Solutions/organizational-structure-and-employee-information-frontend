@@ -11,14 +11,13 @@ export function filterMockTasksByDuration(
   kind: DeadlineKind,
   today: string = todayIso(),
 ): MockPlanTask[] {
-  const active = tasks.filter((t) => !t.isReported);
   if (kind === 'daily') {
-    return active.filter((t) => String(t.deadline).slice(0, 10) === today);
+    return tasks.filter((t) => String(t.deadline).slice(0, 10) === today);
   }
   if (kind === 'week') {
-    return active.filter((t) => appearsInThisWeek(t, today));
+    return tasks.filter((t) => appearsInThisWeek(t, today));
   }
-  return active.filter((t) => appearsInThisMonth(t, today));
+  return tasks.filter((t) => appearsInThisMonth(t, today));
 }
 
 /** Reported / manually archived tasks inside an inclusive deadline range. */

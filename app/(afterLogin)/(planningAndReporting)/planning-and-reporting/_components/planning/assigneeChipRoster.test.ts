@@ -37,7 +37,7 @@ describe('assigneeChipRoster', () => {
   it('builds roster with me first then alphabetical reports', () => {
     const roster = buildAssigneeRoster(employeeData, 'mgr');
     expect(roster.map((c) => c.userId)).toEqual(['mgr', 'rep-a', 'rep-b']);
-    expect(roster[0].label).toBe('Me');
+    expect(roster[0].label).toBe('Manager One (You)');
   });
 
   it('toggles chip selection without deselecting the last chip', () => {

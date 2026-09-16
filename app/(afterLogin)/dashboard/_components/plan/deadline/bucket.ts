@@ -99,7 +99,7 @@ export const validateRange = (start: string, deadline: string): RangeResult => {
 };
 
 export const canAddDailySubtask = (parent: DeadlineTask): boolean =>
-  parent.kind === 'week';
+  parent.kind === 'week' || parent.kind === 'daily';
 
 export const canAddWeeklySubtask = (parent: DeadlineTask): boolean =>
   parent.kind === 'month';
@@ -111,7 +111,7 @@ export const validateDailySubtask = (
   if (!canAddDailySubtask(parent)) {
     return {
       ok: false,
-      error: 'Daily subtasks can only be added under a This week task.',
+      error: 'Daily subtasks can only be added under a day or week task.',
     };
   }
   if (!dateInRange(date, parent.start, parent.deadline)) {

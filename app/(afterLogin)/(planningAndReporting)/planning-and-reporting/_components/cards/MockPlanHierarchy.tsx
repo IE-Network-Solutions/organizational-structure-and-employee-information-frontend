@@ -4,47 +4,13 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Tooltip } from 'antd';
 import { LinkOutlined } from '@ant-design/icons';
 import type { DeadlineKind } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/types';
-import {
-  childCapForParent,
-  childKindForParent,
-  countChildren,
-  resolveHierarchyParentKind,
-} from '../prototype/mockPlanningConstants';
 import type { MockPlanTask } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
+import {
+  computeMockPlanHierarchyRowMeta,
+  kindLabel,
+} from '../planning/mockPlanHierarchyMeta';
 import SubtasksModal from './SubtasksModal';
-
-function childrenOf(tasks: MockPlanTask[], parentId: string): MockPlanTask[] {
-  return tasks.filter((t) => t.parentId === parentId);
-}
-
-function kindLabel(kind: DeadlineKind): string {
-  if (kind === 'month') return 'weekly';
-  if (kind === 'week') return 'daily';
-  return 'sub';
-}
-
-function parentCapacitySummary(
-  task: MockPlanTask,
-  allTasks: MockPlanTask[],
-): string | null {
-  const cap = childCapForParent(task.kind, task.start, task.deadline);
-  if (cap <= 0) return null;
-  const direct = countChildren(allTasks, task.id);
-  const childKind = childKindForParent(task.kind);
-  if (task.kind === 'month') {
-    const weeklyChildren = childrenOf(allTasks, task.id);
-    let dailyLeft = 0;
-    for (const week of weeklyChildren) {
-      const wCap = childCapForParent(week.kind, week.start, week.deadline);
-      dailyLeft += Math.max(0, wCap - countChildren(allTasks, week.id));
-    }
-    return `${direct}/${cap} weekly · ${dailyLeft} daily left`;
-  }
-  if (childKind) {
-    return `${direct}/${cap} ${kindLabel(task.kind)}`;
-  }
-  return null;
-}
+import TaskDetailModal from '../planning/TaskDetailModal';
 
 function normalizePriority(p?: string): string {
   if (!p) return 'Low';
@@ -122,9 +88,14 @@ export default function MockPlanHierarchy({
   }, [tasks, taskIds, flatMode]);
 
   const [modalParent, setModalParent] = useState<MockPlanTask | null>(null);
+  const [detailTask, setDetailTask] = useState<MockPlanTask | null>(null);
 
   const openSubtasksModal = useCallback((parent: MockPlanTask) => {
     setModalParent(parent);
+  }, []);
+
+  const openTaskDetailModal = useCallback((task: MockPlanTask) => {
+    setDetailTask(task);
   }, []);
 
   const renderParentLink = (task: MockPlanTask) => {
@@ -150,22 +121,8 @@ export default function MockPlanHierarchy({
   };
 
   const renderRow = (task: MockPlanTask) => {
-    const hierarchyKind = resolveHierarchyParentKind(task);
-    const expectedChildKind = childKindForParent(hierarchyKind);
-    const kidsAll = childrenOf(allActiveTasks, task.id).filter((c) =>
-      expectedChildKind ? c.kind === expectedChildKind : false,
-    );
-    const cap = childCapForParent(hierarchyKind, task.start, task.deadline);
-    const childKind = expectedChildKind;
-    const canAddAtThisLevel =
-      !flatMode &&
-      ((durationKind === 'week' && hierarchyKind === 'week') ||
-        (durationKind === 'month' && hierarchyKind === 'month'));
-    const canHaveChildren = canAddAtThisLevel && cap > 0 && !!childKind;
-    const capacityLabel = canAddAtThisLevel
-      ? parentCapacitySummary({ ...task, kind: hierarchyKind }, allActiveTasks)
-      : null;
-    const childCount = kidsAll.length;
+    const { canHaveChildren, capacityLabel, childCount } =
+      computeMockPlanHierarchyRowMeta(task, allActiveTasks, durationKind);
 
     const parentLink = flatMode ? renderParentLink(task) : null;
     const prefix = parentLink ?? (
@@ -210,7 +167,7 @@ export default function MockPlanHierarchy({
             prefix,
             afterTitle,
             hideCheckbox: hideInteractiveMarkers,
-            onOpen: canHaveChildren ? () => openSubtasksModal(task) : undefined,
+            onOpen: () => openTaskDetailModal(task),
           })}
           {capacityLabel ? (
             <div
@@ -237,6 +194,20 @@ export default function MockPlanHierarchy({
       <div className="space-y-[2px]" data-cy="mock-plan-hierarchy">
         {listTasks.map((t) => renderRow(t))}
       </div>
+      <TaskDetailModal
+        open={!!detailTask}
+        task={detailTask}
+        ownerUserId={ownerUserId}
+        allActiveTasks={allActiveTasks}
+        durationKind={durationKind}
+        canAddSubtasks={
+          canAddSubtasks && !isTeammatePlan && !hideInteractiveMarkers
+        }
+        onClose={() => setDetailTask(null)}
+        onOpenSubtasks={(parent) => {
+          openSubtasksModal(parent);
+        }}
+      />
       <SubtasksModal
         open={!!modalParent}
         parent={modalParent}

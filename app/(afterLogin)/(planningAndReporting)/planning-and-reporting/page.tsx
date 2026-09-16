@@ -8,18 +8,16 @@ import React, {
 } from 'react';
 import classNames from 'classnames';
 import { CloseOutlined } from '@ant-design/icons';
-import { ConfigProvider, Drawer, Segmented } from 'antd';
+import { Drawer } from 'antd';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import CustomButton from '@/components/common/buttons/customButton';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { useFiscalYearSessionSync } from './_components/filters/useFiscalYearSessionSync';
 import Planning from './_components/planning';
 import PlanningToolbarFilters from './_components/planning/PlanningToolbarFilters';
-import AssigneeFilterChips from './_components/planning/AssigneeFilterChips';
 import TeamTasksView from './_components/planning/TeamTasksView';
-import { concreteSelectedUserIds } from './_components/planning/assigneeChipRoster';
-import { isOwnPlanSummary } from './_components/planning/planOwnership';
-import { useAssigneePickerScope } from './_components/planning/useAssigneePickerScope';
 import PlanningDurationFilter from './_components/planning/PlanningDurationFilter';
+import PlanningViewFilter from './_components/planning/PlanningViewFilter';
 import InlinePlanningWorkspace, {
   type InlinePlanningWorkspaceHandle,
 } from './_components/planning/InlinePlanningWorkspace';
@@ -39,7 +37,6 @@ import { usePlanningData } from './_components/planning/usePlanningData';
 import { usePlanningTargets } from './_components/planning/usePlanningTargets';
 import { isPlanningTargetBlocked } from './_components/planning/buildPlanningTargets';
 import { cadenceAssignmentByKind } from './_components/planning/durationFilter';
-import { useReportingData } from './_components/planning/useReportingData';
 import { KRPanelSkeleton } from './_components/cards/PlanCardSkeleton';
 import {
   AllPlanningPeriods,
@@ -50,7 +47,6 @@ import {
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
 import CreatePlan from './_components/createPlan';
-import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -78,18 +74,18 @@ function Page() {
   useFiscalYearSessionSync();
   const searchParams = useSearchParams();
   const {
-    setActiveTab,
     activeTab,
     activePlanPeriod,
     setActivePlanPeriod,
     setActivePlanPeriodId,
-    selectedUser,
     setSelectedUser,
     setPlanningFilterPlanType,
     setPlanningFilterDepartment,
+    setPlanningFilterEmployee,
     setPage,
     setPageReporting,
-    setTeamTasksAssignedByFilter,
+    planningTasksViewMode,
+    setPlanningTasksViewMode,
     inlinePlanningMode,
     setInlinePlanningMode,
     mobilePlanComposerOpen,
@@ -101,6 +97,7 @@ function Page() {
     createPlansPrefilledAssigneeLabel,
     createPlansDelegateOnly,
     closeCreatePlansModal,
+    openCreatePlansModal,
     krLeftPanelCollapsed,
   } = PlanningAndReportingStore();
 
@@ -191,23 +188,11 @@ function Page() {
 
   useEffect(() => {
     const recipientUserId = useAuthenticationStore.getState().userId;
-    const tab = (searchParams.get('tab') ?? '').toLowerCase();
-    if (tab === 'report' || tab === 'reporting') {
-      setActiveTab(2);
-    } else if (
-      tab === 'team-tasks' ||
-      tab === 'teamtasks' ||
-      tab === 'delegations' ||
-      tab === 'delegation'
-    ) {
-      setActiveTab(3);
-    } else if (
-      tab === 'my-tasks' ||
-      tab === 'mytasks' ||
-      tab === 'plan' ||
-      tab === 'planning'
-    ) {
-      setActiveTab(1);
+    const view = (searchParams.get('view') ?? '').toLowerCase();
+    if (view === 'grouped' || view === 'plans' || view === 'cards') {
+      setPlanningTasksViewMode('grouped');
+    } else if (view === 'list' || view === 'table') {
+      setPlanningTasksViewMode('list');
     }
 
     const employeeIdParam = searchParams.get('employeeId');
@@ -225,7 +210,7 @@ function Page() {
     }
   }, [
     searchParams,
-    setActiveTab,
+    setPlanningTasksViewMode,
     setSelectedUser,
     setPlanningFilterPlanType,
     setPlanningFilterDepartment,
@@ -260,36 +245,10 @@ function Page() {
     transformedData,
     isLoading: planningLoading,
     userId,
-  } = usePlanningData(mockEnabled || activeTab === 1 || activeTab === 3);
+  } = usePlanningData(true);
 
-  const { hasSubordinates } = useAssigneePickerScope();
-  const showTeamTasksTab = mockEnabled || hasSubordinates;
-
-  const prevActiveTabRef = useRef(activeTab);
-  useEffect(() => {
-    const prevTab = prevActiveTabRef.current;
-    prevActiveTabRef.current = activeTab;
-    if (activeTab !== 1 || prevTab === 1 || !userId) return;
-
-    const concrete = concreteSelectedUserIds(selectedUser);
-    if (concrete.length === 1 && concrete[0] !== String(userId)) {
-      return;
-    }
-    setSelectedUser([String(userId)]);
-  }, [activeTab, userId, selectedUser, setSelectedUser]);
-
-  const myTasksPlanSummaries = useMemo(() => {
-    if (activeTab !== 1 || !userId) return planSummaries;
-    const concrete = concreteSelectedUserIds(selectedUser);
-    if (concrete.length === 1 && concrete[0] !== String(userId)) {
-      return planSummaries.filter(
-        (plan) => String(plan.ownerUserId ?? '') === concrete[0],
-      );
-    }
-    return planSummaries.filter((plan) =>
-      isOwnPlanSummary(plan, String(userId)),
-    );
-  }, [planSummaries, activeTab, userId, selectedUser]);
+  const isGroupedView = planningTasksViewMode === 'grouped';
+  const isListView = planningTasksViewMode === 'list';
 
   const {
     data: userKeyResultsRaw,
@@ -363,36 +322,20 @@ function Page() {
     [mockEnabled, planningPeriodHierarchy],
   );
 
-  const { reportSummaries, reportingItems } = useReportingData(activeTab === 2);
-
   const enrichedPlanSummaries = useMemo(
     () =>
       enrichPlanSummariesWithUserKeyResults(planSummaries, userKeyResultItems),
     [planSummaries, userKeyResultItems],
   );
-  const enrichedReportSummaries = useMemo(
-    () =>
-      enrichPlanSummariesWithUserKeyResults(
-        reportSummaries,
-        userKeyResultItems,
-      ),
-    [reportSummaries, userKeyResultItems],
-  );
 
-  const krPanelPlans =
-    activeTab === 2 ? enrichedReportSummaries : enrichedPlanSummaries;
-  const krPanelTransformedData =
-    activeTab === 2 ? reportingItems : transformedData;
+  const krPanelPlans = enrichedPlanSummaries;
+  const krPanelTransformedData = transformedData;
 
   const krPanelBlockingLoading = mockEnabled
     ? planningLoading
-    : activeTab === 2
-      ? (userKeyResultsLoading || userObjectivesLoading) &&
-        reportSummaries.length === 0 &&
-        planSummaries.length === 0
-      : planningLoading ||
-        ((userKeyResultsLoading || userObjectivesLoading) &&
-          planSummaries.length === 0);
+    : planningLoading ||
+      ((userKeyResultsLoading || userObjectivesLoading) &&
+        planSummaries.length === 0);
 
   const planKeyResultsForTargets = useMemo(() => {
     const byId = new Map<string, any>();
@@ -537,24 +480,17 @@ function Page() {
   }, [inlineEditPlanId]);
 
   useEffect(() => {
-    if (activeTab !== 1 && !(mockEnabled && activeTab === 2)) {
+    if (!isGroupedView) {
       setInlinePlanningMode(false);
       setMobilePlanComposerOpen(false);
       closeCreatePlansModal();
     }
   }, [
-    activeTab,
-    mockEnabled,
+    isGroupedView,
     setInlinePlanningMode,
     setMobilePlanComposerOpen,
     closeCreatePlansModal,
   ]);
-
-  useEffect(() => {
-    if (activeTab === 3 && !showTeamTasksTab) {
-      setActiveTab(1);
-    }
-  }, [activeTab, showTeamTasksTab, setActiveTab]);
 
   const [highlightedKRId, setHighlightedKRId] = useState<string | null>(null);
   const [activeThread, setActiveThread] = useState<{
@@ -579,7 +515,7 @@ function Page() {
 
   useEffect(() => {
     setActiveThread(null);
-  }, [activeTab]);
+  }, [planningTasksViewMode]);
 
   const isDesktop = !isMobile && !isTablet;
 
@@ -625,6 +561,7 @@ function Page() {
   }, []);
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const mainPanelRef = useRef<HTMLDivElement>(null);
   const mobileComposerWorkspaceRef =
     useRef<InlinePlanningWorkspaceHandle>(null);
   const [panelHeight, setPanelHeight] = useState<string>('80vh');
@@ -663,22 +600,32 @@ function Page() {
       window.clearTimeout(delayed);
       if (scrollRaf) cancelAnimationFrame(scrollRaf);
     };
-  }, [measure, isDesktop, planSummaries.length, activeTab, inlinePlanningMode]);
+  }, [
+    measure,
+    isDesktop,
+    planSummaries.length,
+    krLeftPanelCollapsed,
+    inlinePlanningMode,
+  ]);
 
-  const threadEntities = useMemo(() => {
-    return [...planSummaries, ...reportSummaries];
-  }, [planSummaries, reportSummaries]);
+  const threadEntities = useMemo(() => planSummaries, [planSummaries]);
 
-  const toolbarSegmentOptions = useMemo(() => {
-    const options: { label: string; value: number }[] = [
-      { label: 'My Tasks', value: 1 },
-    ];
-    if (showTeamTasksTab) {
-      options.push({ label: 'Team tasks', value: 3 });
-    }
-    options.push({ label: 'Reports', value: 2 });
-    return options;
-  }, [showTeamTasksTab]);
+  const toolbarControls = (
+    <>
+      <div data-cy="planning-view-filter-wrap" className="shrink-0 self-center">
+        <PlanningViewFilter />
+      </div>
+      <PlanningDurationFilter />
+      <PlanningToolbarFilters />
+      <CustomButton
+        title="+ Task"
+        onClick={() => openCreatePlansModal({ delegateOnly: true })}
+        className="!h-9 !min-h-9 shrink-0 !px-3 !py-0"
+        textClassName="text-[13px] font-medium"
+        data-cy="planning-add-task-btn"
+      />
+    </>
+  );
 
   return (
     <div
@@ -696,103 +643,44 @@ function Page() {
           className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
         >
           <div
-            data-cy="planning-reporting-toolbar-row"
-            className={classNames(
-              'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 bg-white py-2',
-              'sm:flex-row sm:items-center sm:gap-3 lg:gap-x-8',
-            )}
+            data-cy="planning-reporting-toolbar-row-mobile"
+            className="sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-wrap items-center justify-end gap-2 bg-white py-2 sm:gap-3 lg:hidden"
           >
-            <div
-              data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-359"
-              className="flex w-full shrink-0 items-center sm:w-auto sm:justify-center"
-            >
-              <ConfigProvider
-                theme={{
-                  components: {
-                    Segmented: {
-                      trackBg: '#f1f5f9',
-                      itemSelectedBg: '#ffffff',
-                      itemSelectedColor: '#0f172a',
-                    },
-                  },
-                }}
-              >
-                <Segmented
-                  size={isMobile ? 'middle' : 'large'}
-                  value={activeTab}
-                  onChange={(value) => setActiveTab(Number(value))}
-                  options={toolbarSegmentOptions}
-                  className={classNames(
-                    'planning-reporting-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 !rounded-xl !border !border-slate-100 !bg-slate-50/70 !p-1.5',
-                    '!h-[50px] sm:!h-[50px] sm:!self-center',
-                    '[&_.ant-segmented-group]:!w-max [&_.ant-segmented-group]:!min-h-0 [&_.ant-segmented-group]:!items-stretch [&_.ant-segmented-group]:!justify-start',
-                    '[&_.ant-segmented-thumb]:!h-full [&_.ant-segmented-thumb]:!bg-white [&_.ant-segmented-thumb]:!py-0 [&_.ant-segmented-thumb]:!shadow-sm',
-                    '[&_.ant-segmented-item]:!flex [&_.ant-segmented-item]:!flex-none [&_.ant-segmented-item]:!items-center [&_.ant-segmented-item]:!justify-center [&_.ant-segmented-item]:!self-stretch [&_.ant-segmented-item]:!bg-transparent',
-                    '[&_.ant-segmented-item-selected]:!z-[1] [&_.ant-segmented-item-selected]:!rounded-md [&_.ant-segmented-item-selected]:!shadow-sm',
-                    '[&_.ant-segmented-item-label]:!flex [&_.ant-segmented-item-label]:!h-9 [&_.ant-segmented-item-label]:!min-h-9 [&_.ant-segmented-item-label]:!items-center [&_.ant-segmented-item-label]:!justify-center [&_.ant-segmented-item-label]:!whitespace-nowrap [&_.ant-segmented-item-label]:!font-medium [&_.ant-segmented-item-label]:!text-slate-600 [&_.ant-segmented-item-label]:!px-3.5 [&_.ant-segmented-item-label]:!py-0 [&_.ant-segmented-item-label]:!text-[14px] sm:[&_.ant-segmented-item-label]:!h-9 sm:[&_.ant-segmented-item-label]:!min-h-9 sm:[&_.ant-segmented-item-label]:!px-4.5 sm:[&_.ant-segmented-item-label]:!py-0 sm:[&_.ant-segmented-item-label]:!text-[14px]',
-                    '[&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-slate-900',
-                  )}
-                />
-              </ConfigProvider>
-            </div>
-            {activeTab === 1 || activeTab === 2 || activeTab === 3 ? (
-              <div
-                data-cy="planning-period-pills"
-                className="flex min-w-0 w-full flex-1 flex-col items-end gap-1.5 overflow-visible"
-              >
-                <div
-                  data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-678"
-                  className="flex flex-wrap items-center justify-end gap-2 sm:flex-nowrap sm:gap-3"
-                >
-                  <div
-                    data-cy="planning-duration-filter-wrap"
-                    className="shrink-0 self-center"
-                  >
-                    <PlanningDurationFilter />
-                  </div>
-                  <div
-                    data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-435"
-                    className="shrink-0 self-center"
-                  >
-                    <PlanningToolbarFilters />
-                  </div>
-                </div>
-                {activeTab === 3 ? (
-                  <div
-                    data-cy="planning-assignee-chips-row"
-                    className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 overflow-visible sm:w-auto"
-                  >
-                    <AssigneeFilterChips />
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
+            {toolbarControls}
           </div>
 
-          {/* ── KR + plans/reports: stacked on mobile/tablet, grid on lg+; same inline create flow everywhere ── */}
+          {/* ── KR + plans/reports: header row aligns KR title with toolbar on lg+ ── */}
           <div
             data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-450"
             ref={containerRef}
             className={classNames(
               'grid min-h-0 w-full min-w-0 max-w-full grid-cols-1 gap-4',
-              activeTab === 1 &&
-                (krLeftPanelCollapsed
-                  ? 'lg:grid-cols-[3.5rem_minmax(0,1fr)]'
-                  : 'lg:grid-cols-[clamp(220px,28%,22rem)_minmax(0,1fr)] xl:grid-cols-[clamp(240px,26%,24rem)_minmax(0,1fr)]'),
+              isDesktop && 'lg:grid-rows-[auto_minmax(0,1fr)]',
+              krLeftPanelCollapsed
+                ? 'lg:grid-cols-[3.5rem_minmax(0,1fr)]'
+                : 'lg:grid-cols-[clamp(220px,28%,22rem)_minmax(0,1fr)] xl:grid-cols-[clamp(240px,26%,24rem)_minmax(0,1fr)]',
             )}
             style={{ height: isDesktop ? panelHeight : undefined }}
           >
-            {activeTab === 1 ? (
-              <div
-                className={classNames(
-                  'hidden min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] lg:flex',
-                  krLeftPanelCollapsed ? 'h-fit self-start' : 'lg:h-full',
-                )}
-                data-cy="planning-kr-panel"
-              >
-                {krPanelBlockingLoading ? (
-                  <KRPanelSkeleton />
-                ) : (
+            <div
+              data-cy="planning-reporting-toolbar-row"
+              className="hidden min-h-9 w-full min-w-0 max-w-full flex-wrap items-center justify-end gap-2 sm:gap-3 lg:col-start-2 lg:row-start-1 lg:flex"
+            >
+              {toolbarControls}
+            </div>
+
+            {isDesktop ? (
+              krPanelBlockingLoading ? (
+                <KRPanelSkeleton layout="split" />
+              ) : (
+                <div
+                  className={classNames(
+                    krLeftPanelCollapsed
+                      ? 'hidden min-h-0 w-full max-w-full flex-col overflow-hidden rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:flex lg:h-full'
+                      : 'hidden lg:contents',
+                  )}
+                  data-cy="planning-kr-panel"
+                >
                   <KRLeftPanel
                     plans={krPanelPlans}
                     transformedData={krPanelTransformedData}
@@ -802,7 +690,7 @@ function Page() {
                     onCloseThread={handleCloseThread}
                     threadEntities={threadEntities}
                     inlinePlanningMode={
-                      inlinePlanningMode && !!inlineEditPlanId
+                      isGroupedView && inlinePlanningMode && !!inlineEditPlanId
                     }
                     activeTab={activeTab}
                     planningTargets={planningTargets}
@@ -816,27 +704,43 @@ function Page() {
                     onRefreshMilestoneStatus={handleRefreshMilestoneStatus}
                     parentPlanContext={parentPlanContext}
                     planningPickReady={planningPickReady}
+                    splitHeaderLayout
                   />
-                )}
-              </div>
+                </div>
+              )
             ) : null}
 
             <div
+              ref={mainPanelRef}
               className={classNames(
                 'min-h-0 min-w-0 w-full max-w-full overflow-x-hidden scrollbar-hide',
-                activeTab === 1
-                  ? 'mx-auto max-w-2xl md:max-w-3xl lg:mx-0 lg:max-w-none'
-                  : 'mx-auto max-w-2xl md:max-w-3xl lg:mx-0 lg:max-w-none',
-                isDesktop ? 'h-full overflow-y-auto' : 'overflow-y-visible',
+                'mx-auto max-w-2xl md:max-w-3xl lg:mx-0 lg:max-w-none',
+                isDesktop
+                  ? classNames(
+                      'lg:col-start-2 lg:row-start-2 h-full min-h-0',
+                      isListView ? 'overflow-hidden' : 'overflow-y-auto',
+                    )
+                  : 'overflow-y-visible',
               )}
               data-cy="planning-main-panel"
             >
               <div
+                data-cy="team-tasks-list-panel"
+                className={classNames(
+                  'min-w-0 max-w-full',
+                  isListView
+                    ? 'flex h-full min-h-0 flex-col overflow-hidden'
+                    : 'hidden',
+                )}
+              >
+                <TeamTasksView planSummaries={planSummaries} />
+              </div>
+              <div
                 data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-495"
                 className={classNames(
                   'min-w-0 max-w-full',
-                  activeTab === 1 ? 'flex flex-col' : 'hidden',
-                  isDesktop && activeTab === 1 && 'min-h-full',
+                  isGroupedView ? 'flex flex-col' : 'hidden',
+                  isDesktop && isGroupedView && 'min-h-full',
                   inlinePlanningMode && !isDeadlinePlanningMockEnabled()
                     ? 'space-y-0'
                     : 'space-y-4',
@@ -876,11 +780,11 @@ function Page() {
                 <Planning
                   onHoverKR={setHighlightedKRId}
                   onOpenThread={handleOpenThread}
-                  planSummaries={myTasksPlanSummaries}
+                  planSummaries={planSummaries}
                   transformedData={transformedData}
                   isLoading={planningLoading}
-                  totalItems={myTasksPlanSummaries.length}
-                  myTasksOnly
+                  totalItems={planSummaries.length}
+                  scrollRootRef={mainPanelRef}
                   addPlanComposer={
                     showPlanComposer && isDesktop ? (
                       isDeadlinePlanningMockEnabled() ? (
@@ -911,27 +815,6 @@ function Page() {
                   }
                 />
               </div>
-              <div
-                data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-522"
-                className="min-w-0 max-w-full"
-                style={{ display: activeTab === 2 ? 'block' : 'none' }}
-              >
-                <Reporting
-                  onHoverKR={setHighlightedKRId}
-                  onOpenThread={handleOpenThread}
-                />
-              </div>
-              <div
-                data-cy="team-tasks-tab-panel"
-                className={classNames(
-                  'min-w-0 max-w-full',
-                  activeTab === 3 ? 'block' : 'hidden',
-                )}
-              >
-                {showTeamTasksTab ? (
-                  <TeamTasksView planSummaries={planSummaries} />
-                ) : null}
-              </div>
             </div>
           </div>
 
@@ -939,6 +822,7 @@ function Page() {
             open={createPlansModalOpen}
             onClose={closeCreatePlansModal}
             planningTargets={planningTargets}
+            userKeyResultItems={userKeyResultItems}
             prefilledAssigneeUserId={
               createPlansPrefilledAssigneeUserId ?? undefined
             }
@@ -948,11 +832,9 @@ function Page() {
             lockAssignee={!!createPlansPrefilledAssigneeUserId}
             delegateOnly={createPlansDelegateOnly}
             onSuccess={(assignedUserId) => {
-              if (assignedUserId && showTeamTasksTab) {
-                setTeamTasksAssignedByFilter('me');
-                setActiveTab(3);
-              } else if (assignedUserId) {
+              if (assignedUserId) {
                 setSelectedUser([assignedUserId]);
+                setPlanningFilterEmployee(assignedUserId);
               }
             }}
           />
@@ -1002,7 +884,7 @@ function Page() {
           mobilePlanComposerOpen &&
           !!inlineEditPlanId &&
           !isDesktop &&
-          (activeTab === 1 || (mockEnabled && activeTab === 2))
+          isGroupedView
         }
         onClose={closeMobilePlanComposer}
         destroyOnClose

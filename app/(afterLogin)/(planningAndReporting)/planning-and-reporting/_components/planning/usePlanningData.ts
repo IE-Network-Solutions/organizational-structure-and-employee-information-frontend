@@ -41,6 +41,11 @@ import {
   mockPlansToActivePlanningItems,
   userPlanDisplayTitle,
 } from '../prototype/mockPlanAdapter';
+import {
+  apiTaskMatchesPlanningStatusFilter,
+  collectMockTasksForStatusFilter,
+  normalizePlanningTaskStatusFilter,
+} from './planningTaskStatusFilter';
 
 function realUserIdsFromSelection(selectedUser: string[]): string[] {
   return selectedUser.filter(
@@ -186,6 +191,7 @@ export function usePlanningData(enabled = true) {
     planningDurationFilter,
     planningDefaultFilterApplied,
     planningFilterPlanType,
+    planningTaskStatusFilter,
     selectedUser,
     setPlanningFilterPlanType,
     setPlanningFilterEmployee,
@@ -363,12 +369,28 @@ export function usePlanningData(enabled = true) {
   const activePlanningItems = useMemo(() => {
     const today = todayIso();
     const currentUserId = String(userId ?? '');
-    const activeOnly = mergedPlanningItems.filter(
-      (item: any) => item?.isReported !== true,
+    const statusFilter = normalizePlanningTaskStatusFilter(
+      planningTaskStatusFilter,
     );
+
+    const statusScoped = mergedPlanningItems.filter((item: any) => {
+      if (statusFilter === 'all') return true;
+      if (mockEnabled) {
+        const planUserId = String(item?.userId ?? '');
+        const plan = mockPlansByUserId[planUserId];
+        if (!plan) return false;
+        return collectMockTasksForStatusFilter(plan, statusFilter).length > 0;
+      }
+      const tasks = Array.isArray(item?.tasks) ? item.tasks : [];
+      if (tasks.length === 0) return statusFilter !== 'reported';
+      return tasks.some((task: any) =>
+        apiTaskMatchesPlanningStatusFilter(task, statusFilter),
+      );
+    });
+
     const filtered = mockEnabled
-      ? activeOnly
-      : activeOnly.filter((item: any) =>
+      ? statusScoped
+      : statusScoped.filter((item: any) =>
           isHistoryList
             ? true
             : planItemMatchesDurationFilter(
@@ -390,10 +412,12 @@ export function usePlanningData(enabled = true) {
   }, [
     mergedPlanningItems,
     mockEnabled,
+    mockPlansByUserId,
     userId,
     filterKind,
     isHistoryList,
     datesByTaskId,
+    planningTaskStatusFilter,
   ]);
 
   const transformedData =

@@ -36,6 +36,8 @@ export type MockTaskComment = {
 };
 
 export type MockPlanTask = DeadlineTask & {
+  /** Optional detail entered when creating the task. */
+  description?: string;
   isReported?: boolean;
   /** Shelved without a formal report submit. */
   isManuallyArchived?: boolean;
@@ -631,6 +633,7 @@ export interface AppendMockTaskInput {
   title: string;
   start: string;
   deadline: string;
+  description?: string;
   keyResultId?: string | null;
   priority?: string;
   parentId?: string | null;
@@ -736,6 +739,7 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
       );
       const trimmed = input.title.trim();
       if (!trimmed) return { ok: false, error: 'Title is required.' };
+      const description = input.description?.trim() || undefined;
       const isDelegated =
         !!input.assignedByUserId &&
         String(input.assignedByUserId) !== String(userId);
@@ -791,6 +795,7 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
             keyResultId: parent.keyResultId ?? null,
             keyResultTitle: parent.keyResultTitle,
             priority: input.priority ?? 'medium',
+            description,
             ...delegationMeta,
           };
           set({
@@ -823,6 +828,7 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
           keyResultId: parent.keyResultId ?? null,
           keyResultTitle: parent.keyResultTitle,
           priority: input.priority ?? 'medium',
+          description,
           ...delegationMeta,
         };
         set({
@@ -851,6 +857,7 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
         keyResultId: delegatedKeyResultId,
         keyResultTitle: krTitleForId(delegatedKeyResultId),
         priority: input.priority ?? 'medium',
+        description,
         ...delegationMeta,
       };
       set({

@@ -36,7 +36,7 @@ export function buildPlanningEmptyStateCopy(params: {
       description: filterContext
         ? `You have no planned tasks${filterContext}.`
         : 'You have no planned tasks with the current filters.',
-      hint: 'Use Add Plan, then pick a key result — or tap + to plan without one.',
+      hint: 'Use Add task in the toolbar, then pick a key result — or tap + to plan without one.',
     };
   }
 

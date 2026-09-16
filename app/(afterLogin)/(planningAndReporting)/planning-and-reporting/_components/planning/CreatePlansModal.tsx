@@ -24,16 +24,21 @@ import {
 } from 'antd';
 import {
   CloseOutlined,
+  DownOutlined,
   FlagOutlined,
   KeyOutlined,
   PlusOutlined,
+  RightOutlined,
 } from '@ant-design/icons';
 import dayjs, { type Dayjs } from 'dayjs';
 import {
+  buildParentTask,
   formatDate,
-  todayIso,
+  validateDailySubtask,
   validateRange,
+  validateWeeklySubtask,
 } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/bucket';
+import type { DeadlineKind } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/types';
 import { useCreatePlanTasks } from '@/store/server/features/employees/planning/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
@@ -49,7 +54,7 @@ import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import {
-  buildSubordinatePickerRoster,
+  buildPlanTaskAssigneePickerRoster,
   type AssigneeChip,
 } from './assigneeChipRoster';
 import {
@@ -62,18 +67,62 @@ import {
   groupLinesByDeadlineCadence,
 } from './durationFilter';
 import {
+  childCapForParent,
+  childKindForParent,
+  resolveHierarchyParentKind,
+} from '../prototype/mockPlanningConstants';
+import {
   DEFAULT_INLINE_PRIORITY,
   NO_KEY_RESULT_VALUE,
   applyTargetToDraftLine,
   canUseAchieveMK,
   createDelegatedDraftLine,
   createEmptyDraftLine,
+  createEmptyDraftSubtask,
   draftLinesToCreatePayloads,
+  isDraftLineDelegated,
   selectablePlanningTargets,
   shouldShowPlanningTarget,
   validateDraftLinesForCreate,
+  validateDraftSubtasksForCreate,
   type DraftLine,
+  type DraftSubtask,
 } from './planDraft';
+
+type PlanDraftBundle = {
+  line: DraftLine;
+  subtasks: DraftSubtask[];
+};
+
+function inferSubtaskContext(line: DraftLine):
+  | { canAddSubtasks: false }
+  | {
+      canAddSubtasks: true;
+      childKind: DeadlineKind;
+      cap: number;
+    } {
+  const built = buildParentTask({
+    id: 'draft',
+    title: line.task || 'Task',
+    start: line.start,
+    deadline: line.deadline,
+  });
+  if (!built.ok) return { canAddSubtasks: false };
+  const parentKind = resolveHierarchyParentKind(built.task);
+  const childKind = childKindForParent(parentKind);
+  if (!childKind) return { canAddSubtasks: false };
+  return {
+    canAddSubtasks: true,
+    childKind,
+    cap: childCapForParent(parentKind, line.start, line.deadline),
+  };
+}
+
+function childKindLabel(kind: DeadlineKind): string {
+  if (kind === 'daily') return 'daily';
+  if (kind === 'week') return 'weekly';
+  return 'subtask';
+}
 
 type CreatePlansModalProps = {
   open: boolean;
@@ -87,6 +136,8 @@ type CreatePlansModalProps = {
   lockAssignee?: boolean;
   /** When true, always delegate mode and hide Self/Delegate toggle. */
   delegateOnly?: boolean;
+  /** Live KR rows for metric target bounds (percentage, currency, etc.). */
+  userKeyResultItems?: any[];
 };
 
 const PRIORITY_META: Record<
@@ -135,6 +186,12 @@ const fieldLabelClass =
 
 const controlClass =
   'w-full !rounded-lg [&_.ant-select-selector]:!rounded-lg [&_.ant-picker]:!rounded-lg';
+
+const addActionLinkButtonClass =
+  '!h-auto w-full !justify-start !border-0 !bg-transparent !px-0 !py-0 !shadow-none !text-[13px] !font-semibold !text-[#574CFF] hover:!bg-transparent hover:!text-[#4639E8]';
+
+const footerAddActionLinkButtonClass =
+  '!h-auto !border-0 !bg-transparent !px-0 !py-0 !shadow-none !text-[13px] !font-semibold !text-[#574CFF] hover:!bg-transparent hover:!text-[#4639E8]';
 
 const createPlansAudienceRadioGroupClass =
   'create-plans-audience-radio !flex !shrink-0 !items-center !justify-start !gap-2 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:!inline-flex [&_.ant-radio-wrapper]:!h-9 [&_.ant-radio-wrapper]:!items-center [&_.ant-radio-wrapper]:!gap-2 [&_.ant-radio-wrapper]:!rounded-lg [&_.ant-radio-wrapper]:!border [&_.ant-radio-wrapper]:!border-[#D9D9D9] [&_.ant-radio-wrapper]:!bg-white [&_.ant-radio-wrapper]:!px-3 [&_.ant-radio-wrapper]:!text-[13px] [&_.ant-radio-wrapper]:!font-medium [&_.ant-radio-wrapper]:!text-[#575B7A] [&_.ant-radio-wrapper]:!shadow-none [&_.ant-radio-wrapper]:after:!content-none [&_.ant-radio-wrapper:hover]:!border-[#1E40AF] [&_.ant-radio-wrapper-checked]:!border-[#1E40AF] [&_.ant-radio-wrapper-checked]:!text-[#2D2F45] [&_.ant-radio]:!top-0 [&_.ant-radio]:!shrink-0 [&_.ant-radio-inner]:!h-4 [&_.ant-radio-inner]:!w-4 [&_.ant-radio-inner]:!border-[#D9D9D9] [&_.ant-radio-inner]:!bg-white [&_.ant-radio-checked_.ant-radio-inner]:!border-[#1E40AF] [&_.ant-radio-checked_.ant-radio-inner]:!bg-[#1E40AF] [&_.ant-radio-checked_.ant-radio-inner::after]:!scale-[0.375] [&_.ant-radio-checked_.ant-radio-inner::after]:!bg-white [&_.ant-radio-checked_.ant-radio-inner::after]:!opacity-100';
@@ -205,34 +262,316 @@ function FieldShell({
   );
 }
 
-function PlanRowEditor({
+function CollapsedPlanRow({
   line,
   index,
+  subtaskCount,
+  delegateMode,
+  assigneeLabel,
   canRemove,
-  delegateMode = false,
-  lockAssignee = false,
-  lockedAssigneeLabel,
-  assigneeOptions,
-  targetOptions,
-  onChange,
-  onTargetSelect,
+  onExpand,
   onRemove,
 }: {
   line: DraftLine;
   index: number;
+  subtaskCount: number;
+  delegateMode: boolean;
+  assigneeLabel?: string;
   canRemove: boolean;
-  delegateMode?: boolean;
+  onExpand: () => void;
+  onRemove: () => void;
+}) {
+  const priorityKey = (line.priority || DEFAULT_INLINE_PRIORITY).toLowerCase();
+  const priorityMeta = PRIORITY_META[priorityKey] || PRIORITY_META.medium;
+  const title = line.task.trim() || 'Untitled task';
+
+  return (
+    <button
+      type="button"
+      onClick={onExpand}
+      className="group flex w-full items-start gap-2.5 rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] px-3 py-3 text-left shadow-[0_1px_2px_rgba(22,26,44,0.04)] transition-colors hover:border-[#E0E7FF] hover:bg-white sm:px-3.5"
+      data-cy={`create-plan-row-collapsed-${index}`}
+    >
+      <span
+        className="mt-0.5 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-white px-1.5 text-[11px] font-bold tabular-nums text-[#575B7A]"
+        aria-hidden
+        data-cy={`create-plan-row-collapsed-index-${index}`}
+      >
+        {index + 1}
+      </span>
+      <div
+        className="min-w-0 flex-1"
+        data-cy={`create-plan-row-collapsed-body-${index}`}
+      >
+        <div
+          className="flex min-w-0 items-start justify-between gap-2"
+          data-cy={`create-plan-row-collapsed-header-${index}`}
+        >
+          <p
+            className="m-0 min-w-0 truncate text-[14px] font-semibold text-[#161A2C]"
+            data-cy={`create-plan-row-collapsed-title-${index}`}
+          >
+            {title}
+          </p>
+          <div
+            className="flex shrink-0 items-center gap-1.5"
+            data-cy={`create-plan-row-collapsed-meta-${index}`}
+          >
+            {subtaskCount > 0 ? (
+              <span
+                className="inline-flex rounded-full bg-[#EEF2FF] px-2 py-0.5 text-[10px] font-bold text-[#4338CA]"
+                data-cy={`create-plan-row-collapsed-subtask-count-${index}`}
+              >
+                {subtaskCount} subtask{subtaskCount === 1 ? '' : 's'}
+              </span>
+            ) : null}
+            <span
+              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold leading-none"
+              data-cy={`create-plan-row-collapsed-priority-${index}`}
+              style={{
+                backgroundColor: priorityMeta.chipBg,
+                color: priorityMeta.chipText,
+              }}
+            >
+              {priorityMeta.label}
+            </span>
+            <RightOutlined className="text-[10px] text-[#94A3B8]" aria-hidden />
+          </div>
+        </div>
+        {delegateMode && assigneeLabel ? (
+          <p
+            className="m-0 mt-1 truncate text-[12px] text-[#8F94A3]"
+            data-cy={`create-plan-row-collapsed-assignee-${index}`}
+          >
+            {assigneeLabel}
+          </p>
+        ) : null}
+      </div>
+      {canRemove ? (
+        <span
+          role="button"
+          tabIndex={0}
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              onRemove();
+            }
+          }}
+          className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#94A3B8] opacity-70 transition-colors hover:bg-[#FEF2F2] hover:text-[#DC2626] hover:opacity-100"
+          aria-label={`Remove task ${index + 1}`}
+          data-cy={`create-plan-row-remove-${index}`}
+        >
+          <CloseOutlined className="text-[12px]" />
+        </span>
+      ) : null}
+    </button>
+  );
+}
+
+function PlanRowSubtasksEditor({
+  line,
+  subtasks,
+  onChange,
+}: {
+  line: DraftLine;
+  subtasks: DraftSubtask[];
+  onChange: (next: DraftSubtask[]) => void;
+}) {
+  const ctx = inferSubtaskContext(line);
+
+  if (!ctx.canAddSubtasks) {
+    return null;
+  }
+
+  const { childKind, cap } = ctx;
+  const label = childKindLabel(childKind);
+  const remaining = Math.max(0, cap - subtasks.length);
+
+  const updateSubtask = (id: string, patch: Partial<DraftSubtask>) => {
+    onChange(
+      subtasks.map((sub) => (sub.id === id ? { ...sub, ...patch } : sub)),
+    );
+  };
+
+  const addSubtask = () => {
+    if (subtasks.length >= cap) {
+      message.warning(`Maximum ${cap} ${label} subtasks.`);
+      return;
+    }
+    onChange([
+      ...subtasks,
+      createEmptyDraftSubtask(line.start, line.deadline, childKind),
+    ]);
+  };
+
+  const removeSubtask = (id: string) => {
+    onChange(subtasks.filter((sub) => sub.id !== id));
+  };
+
+  return (
+    <>
+      {subtasks.length > 0 ? (
+        <div className="mt-3 space-y-2" data-cy="create-plan-subtasks-list">
+          {subtasks.map((sub, subIndex) => (
+            <div
+              key={sub.id}
+              className="rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] p-3"
+              data-cy={`create-plan-subtask-row-${subIndex}`}
+            >
+              <div
+                className="mb-2 flex items-center gap-2"
+                data-cy={`create-plan-subtask-title-row-${subIndex}`}
+              >
+                <Input
+                  placeholder={`${label} subtask title`}
+                  value={sub.task}
+                  onChange={(e) =>
+                    updateSubtask(sub.id, { task: e.target.value })
+                  }
+                  className="!rounded-lg"
+                  data-cy={`create-plan-subtask-title-${subIndex}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => removeSubtask(sub.id)}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-[#FEF2F2] hover:text-[#DC2626]"
+                  aria-label="Remove subtask"
+                  data-cy={`create-plan-subtask-remove-${subIndex}`}
+                >
+                  <CloseOutlined className="text-[12px]" />
+                </button>
+              </div>
+              <div
+                className="grid grid-cols-1 gap-2 sm:grid-cols-2"
+                data-cy={`create-plan-subtask-dates-${subIndex}`}
+              >
+                <DatePicker
+                  className="w-full !rounded-lg [&_.ant-picker-input>input]:!text-[13px]"
+                  value={sub.start ? dayjs(sub.start) : null}
+                  onChange={(value) => {
+                    const iso = value ? formatDate(value) : sub.start;
+                    if (childKind === 'daily') {
+                      updateSubtask(sub.id, { start: iso, deadline: iso });
+                    } else {
+                      updateSubtask(sub.id, { start: iso });
+                    }
+                  }}
+                  allowClear={false}
+                  placeholder="Start"
+                  data-cy={`create-plan-subtask-start-${subIndex}`}
+                />
+                {childKind !== 'daily' ? (
+                  <DatePicker
+                    className="w-full !rounded-lg [&_.ant-picker-input>input]:!text-[13px]"
+                    value={sub.deadline ? dayjs(sub.deadline) : null}
+                    onChange={(value) => {
+                      const iso = value ? formatDate(value) : sub.deadline;
+                      updateSubtask(sub.id, { deadline: iso });
+                    }}
+                    allowClear={false}
+                    placeholder="End"
+                    data-cy={`create-plan-subtask-deadline-${subIndex}`}
+                  />
+                ) : null}
+              </div>
+              <FieldShell label="Description" className="mt-2.5">
+                <Input.TextArea
+                  rows={2}
+                  placeholder="Optional subtask description"
+                  value={sub.description ?? ''}
+                  onChange={(e) =>
+                    updateSubtask(sub.id, { description: e.target.value })
+                  }
+                  className="!rounded-lg !text-[13px]"
+                  data-cy={`create-plan-subtask-description-${subIndex}`}
+                />
+              </FieldShell>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {remaining > 0 ? (
+        <Button
+          type="link"
+          icon={<PlusOutlined />}
+          onClick={addSubtask}
+          data-cy="create-plan-subtask-add"
+          className={`${addActionLinkButtonClass}${subtasks.length > 0 ? ' mt-2.5' : ''}`}
+        >
+          Add subtask
+        </Button>
+      ) : null}
+    </>
+  );
+}
+
+function resolveKeyResultForBounds(
+  line: DraftLine,
+  userKeyResultItems: any[],
+): any | null {
+  const krId = line.keyResultId;
+  if (!krId || krId === UNLINKED_KR_ID) return null;
+  const live = userKeyResultItems.find(
+    (kr) => kr?.id != null && String(kr.id) === String(krId),
+  );
+  if (live) return live;
+  if (!line.metricTypeName) return null;
+  return {
+    metricType: { name: line.metricTypeName },
+    metricTypeName: line.metricTypeName,
+  };
+}
+
+function PlanRowEditor({
+  line,
+  index,
+  canRemove,
+  showAssigneePicker = false,
+  isSelfAssignee = true,
+  viewerUserId,
+  lockAssignee = false,
+  lockedAssigneeLabel,
+  assigneeOptions,
+  targetOptions,
+  userKeyResultItems = [],
+  subtasks,
+  onSubtasksChange,
+  onChange,
+  onTargetSelect,
+  onRemove,
+  onCollapse,
+}: {
+  line: DraftLine;
+  index: number;
+  canRemove: boolean;
+  showAssigneePicker?: boolean;
+  isSelfAssignee?: boolean;
+  viewerUserId?: string;
   lockAssignee?: boolean;
   lockedAssigneeLabel?: string;
   assigneeOptions: AssigneeChip[];
   targetOptions: { value: string; label: string }[];
+  userKeyResultItems?: any[];
+  subtasks: DraftSubtask[];
+  onSubtasksChange: (next: DraftSubtask[]) => void;
   onChange: (next: DraftLine) => void;
   onTargetSelect: (selectValue: string) => void;
   onRemove: () => void;
+  onCollapse?: () => void;
 }) {
-  const hideKeyResult = delegateMode;
+  const hideKeyResult = !isSelfAssignee;
   const linked =
     !hideKeyResult && !!line.keyResultId && line.keyResultId !== UNLINKED_KR_ID;
+  const keyResultForBounds = resolveKeyResultForBounds(
+    line,
+    userKeyResultItems,
+  );
 
   const showTarget =
     linked &&
@@ -252,26 +591,18 @@ function PlanRowEditor({
 
   const start = line.start ? dayjs(line.start) : null;
   const deadline = line.deadline ? dayjs(line.deadline) : null;
+  const dateRange =
+    start && deadline ? ([start, deadline] as [Dayjs, Dayjs]) : null;
 
-  const setStart = (value: Dayjs | null) => {
-    const iso = value ? formatDate(value) : todayIso();
-    const endIso = line.deadline || iso;
-    const range = validateRange(iso, endIso);
-    onChange({
-      ...line,
-      start: iso,
-      deadline: range.ok ? endIso : iso,
-    });
-  };
-
-  const setDeadline = (value: Dayjs | null) => {
-    const iso = value ? formatDate(value) : line.start || todayIso();
-    const startIso = line.start || iso;
-    const range = validateRange(startIso, iso);
+  const setDateRange = (values: [Dayjs | null, Dayjs | null] | null) => {
+    if (!values?.[0] || !values?.[1]) return;
+    const startIso = formatDate(values[0]);
+    const endIso = formatDate(values[1]);
+    const range = validateRange(startIso, endIso);
     onChange({
       ...line,
       start: startIso,
-      deadline: range.ok ? iso : startIso,
+      deadline: range.ok ? endIso : startIso,
     });
   };
 
@@ -288,6 +619,17 @@ function PlanRowEditor({
           data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-238"
           className="mb-2.5 flex items-start gap-2"
         >
+          {onCollapse ? (
+            <button
+              type="button"
+              onClick={onCollapse}
+              className="mt-1.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#F1F2F6] text-[#575B7A] hover:bg-[#EEF2FF] hover:text-[#4338CA]"
+              aria-label={`Collapse task ${index + 1}`}
+              data-cy={`create-plan-row-collapse-${index}`}
+            >
+              <DownOutlined className="text-[10px]" />
+            </button>
+          ) : null}
           <span
             data-cy={`create-plan-row-index-${index}`}
             className="mt-1.5 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-[#F1F2F6] px-1.5 text-[11px] font-bold tabular-nums text-[#575B7A]"
@@ -354,7 +696,7 @@ function PlanRowEditor({
           </div>
         </div>
 
-        {delegateMode ? (
+        {showAssigneePicker ? (
           <div data-cy={`create-plan-row-assignee-${index}`} className="mb-2.5">
             {lockAssignee && lockedAssigneeLabel ? (
               <FieldShell label="Assignee">
@@ -370,14 +712,32 @@ function PlanRowEditor({
                 <Select
                   showSearch
                   placeholder="Choose assignee"
-                  value={line.delegateUserId ?? undefined}
-                  onChange={(value) =>
-                    onChange({
-                      ...line,
-                      assigneeMode: 'delegate',
-                      delegateUserId: value ?? null,
-                    })
-                  }
+                  value={line.delegateUserId ?? viewerUserId ?? undefined}
+                  onChange={(value) => {
+                    const nextUserId = value ?? null;
+                    const planningForSelf =
+                      !!nextUserId &&
+                      !!viewerUserId &&
+                      String(nextUserId) === String(viewerUserId);
+                    if (planningForSelf) {
+                      onChange({
+                        ...line,
+                        assigneeMode: 'self',
+                        delegateUserId: nextUserId,
+                      });
+                      return;
+                    }
+                    onChange(
+                      applyTargetToDraftLine(
+                        {
+                          ...line,
+                          assigneeMode: 'delegate',
+                          delegateUserId: nextUserId,
+                        },
+                        null,
+                      ),
+                    );
+                  }}
                   optionFilterProp="label"
                   className={controlClass}
                   data-cy={`create-plan-row-assignee-select-${index}`}
@@ -401,24 +761,13 @@ function PlanRowEditor({
           data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-291"
           className="grid grid-cols-1 gap-2.5 sm:grid-cols-12 sm:gap-3"
         >
-          <FieldShell label="Start" className="sm:col-span-4">
-            <DatePicker
+          <FieldShell label="Date range" className="sm:col-span-8">
+            <DatePicker.RangePicker
               className={`${controlClass} !h-9 w-full [&_.ant-picker-input>input]:!text-[13px]`}
-              value={start}
-              onChange={setStart}
+              value={dateRange}
+              onChange={setDateRange}
               allowClear={false}
-              placeholder="Start"
-              data-cy={`create-plan-row-start-${index}`}
-            />
-          </FieldShell>
-          <FieldShell label="Deadline" className="sm:col-span-4">
-            <DatePicker
-              className={`${controlClass} !h-9 w-full [&_.ant-picker-input>input]:!text-[13px]`}
-              value={deadline}
-              onChange={setDeadline}
-              allowClear={false}
-              placeholder="Deadline"
-              data-cy={`create-plan-row-deadline-${index}`}
+              data-cy={`create-plan-row-date-range-${index}`}
             />
           </FieldShell>
           <FieldShell label="Priority" className="sm:col-span-4">
@@ -454,16 +803,26 @@ function PlanRowEditor({
                   <InputNumber
                     className="w-full !h-9 !rounded-lg [&_.ant-input-number-input]:!h-9 [&_.ant-input-number-input]:!text-[13px]"
                     placeholder="Target"
-                    min={getMetricValueInputMin(null)}
-                    max={getMetricValueInputMax(null)}
+                    min={getMetricValueInputMin(keyResultForBounds)}
+                    max={getMetricValueInputMax(keyResultForBounds)}
                     value={line.targetValue || undefined}
-                    onChange={(v) =>
-                      onChange({
-                        ...line,
-                        targetValue:
-                          v == null ? 0 : Math.max(0, Number(v) || 0),
-                      })
-                    }
+                    onChange={(v) => {
+                      if (v == null) {
+                        onChange({ ...line, targetValue: 0 });
+                        return;
+                      }
+                      const floor = getMetricValueInputMin(keyResultForBounds);
+                      const ceiling =
+                        getMetricValueInputMax(keyResultForBounds);
+                      let next = Number(v);
+                      if (!Number.isFinite(next)) {
+                        onChange({ ...line, targetValue: 0 });
+                        return;
+                      }
+                      if (next < floor) next = floor;
+                      if (ceiling != null && next > ceiling) next = ceiling;
+                      onChange({ ...line, targetValue: next });
+                    }}
                     data-cy={`create-plan-row-target-${index}`}
                   />
                 </FieldShell>
@@ -493,6 +852,28 @@ function PlanRowEditor({
             </Checkbox>
           </div>
         ) : null}
+
+        <FieldShell label="Description" className="mt-2.5">
+          <Input.TextArea
+            rows={2}
+            placeholder="Optional task description"
+            value={line.description ?? ''}
+            onChange={(e) => onChange({ ...line, description: e.target.value })}
+            className="!rounded-lg !text-[13px]"
+            data-cy={`create-plan-row-description-${index}`}
+          />
+        </FieldShell>
+
+        <div
+          className="mt-2.5"
+          data-cy={`create-plan-row-subtasks-wrap-${index}`}
+        >
+          <PlanRowSubtasksEditor
+            line={line}
+            subtasks={subtasks}
+            onChange={onSubtasksChange}
+          />
+        </div>
       </div>
     </div>
   );
@@ -531,6 +912,7 @@ export default function CreatePlansModal({
   prefilledAssigneeLabel,
   lockAssignee = false,
   delegateOnly = false,
+  userKeyResultItems = [],
 }: CreatePlansModalProps) {
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetAllUsers();
@@ -543,13 +925,21 @@ export default function CreatePlansModal({
   const setTaskDatesBulk = usePlanTaskDatesStore((s) => s.setTaskDatesBulk);
   const mockEnabled = isDeadlinePlanningMockEnabled();
 
-  const [rows, setRows] = useState<DraftLine[]>(() => [createEmptyDraftLine()]);
+  const [rows, setRows] = useState<PlanDraftBundle[]>(() => [
+    { line: createEmptyDraftLine(), subtasks: [] },
+  ]);
+  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [planAudience, setPlanAudience] = useState<PlanAudience>('self');
 
+  const wrapLine = useCallback(
+    (line: DraftLine): PlanDraftBundle => ({ line, subtasks: [] }),
+    [],
+  );
+
   const assigneeOptions = useMemo(() => {
     if (!userId) return [] as AssigneeChip[];
-    return buildSubordinatePickerRoster(
+    return buildPlanTaskAssigneePickerRoster(
       employeeData,
       String(userId),
       planningFilterDepartment,
@@ -557,7 +947,9 @@ export default function CreatePlansModal({
     );
   }, [userId, employeeData, planningFilterDepartment, mockEnabled]);
 
-  const canDelegate = assigneeOptions.length > 0;
+  const canDelegate = assigneeOptions.some((chip) => !chip.isSelf);
+  const showAssigneePicker =
+    delegateOnly || lockAssignee || assigneeOptions.length > 0;
 
   const cadenceAssignments = useMemo(
     () =>
@@ -593,85 +985,137 @@ export default function CreatePlansModal({
     return options;
   }, [selectableTargets]);
 
-  const isDelegateMode =
-    delegateOnly || lockAssignee || planAudience === 'delegate';
-
-  const buildInitialRow = useCallback(() => {
+  const buildInitialRow = useCallback((): PlanDraftBundle => {
     if (lockAssignee && prefilledAssigneeUserId) {
-      return createDelegatedDraftLine(prefilledAssigneeUserId);
+      return wrapLine(createDelegatedDraftLine(prefilledAssigneeUserId));
     }
-    if (planAudience === 'delegate') {
-      return applyTargetToDraftLine(
-        {
-          ...createEmptyDraftLine(),
-          assigneeMode: 'delegate',
-          delegateUserId: null,
-        },
-        null,
+    if (delegateOnly || planAudience === 'delegate') {
+      return wrapLine({
+        ...createEmptyDraftLine(),
+        assigneeMode: 'self',
+        delegateUserId: userId ? String(userId) : null,
+      });
+    }
+    return wrapLine(createEmptyDraftLine());
+  }, [
+    lockAssignee,
+    prefilledAssigneeUserId,
+    planAudience,
+    delegateOnly,
+    userId,
+    wrapLine,
+  ]);
+
+  const resolveAssigneeLabel = useCallback(
+    (line: DraftLine) => {
+      if (lockAssignee && prefilledAssigneeLabel) return prefilledAssigneeLabel;
+      if (!line.delegateUserId) return undefined;
+      return (
+        assigneeOptions.find((chip) => chip.userId === line.delegateUserId)
+          ?.label ?? undefined
       );
-    }
-    return createEmptyDraftLine();
-  }, [lockAssignee, prefilledAssigneeUserId, planAudience]);
+    },
+    [assigneeOptions, lockAssignee, prefilledAssigneeLabel],
+  );
 
   useEffect(() => {
     if (!open) {
       setPlanAudience('self');
+      setExpandedRowId(null);
       return;
     }
     setSubmitting(false);
     if (lockAssignee && prefilledAssigneeUserId) {
       setPlanAudience('delegate');
-      setRows([createDelegatedDraftLine(prefilledAssigneeUserId)]);
+      const initial = wrapLine(
+        createDelegatedDraftLine(prefilledAssigneeUserId),
+      );
+      setRows([initial]);
+      setExpandedRowId(initial.line.id);
       return;
     }
     if (delegateOnly) {
       setPlanAudience('delegate');
-      setRows([
-        applyTargetToDraftLine(
-          {
-            ...createEmptyDraftLine(),
-            assigneeMode: 'delegate',
-            delegateUserId: null,
-          },
-          null,
-        ),
-      ]);
+      const initial = wrapLine({
+        ...createEmptyDraftLine(),
+        assigneeMode: 'self',
+        delegateUserId: userId ? String(userId) : null,
+      });
+      setRows([initial]);
+      setExpandedRowId(initial.line.id);
       return;
     }
     setPlanAudience('self');
-    setRows([createEmptyDraftLine()]);
-  }, [open, lockAssignee, prefilledAssigneeUserId, delegateOnly]);
+    const initial = wrapLine(createEmptyDraftLine());
+    setRows([initial]);
+    setExpandedRowId(initial.line.id);
+  }, [
+    open,
+    lockAssignee,
+    prefilledAssigneeUserId,
+    delegateOnly,
+    userId,
+    wrapLine,
+  ]);
 
   const handleAudienceChange = (next: PlanAudience) => {
     setPlanAudience(next);
     setRows((prev) =>
-      prev.map((row) => {
+      prev.map((bundle) => {
         if (next === 'self') {
-          return { ...row, assigneeMode: 'self', delegateUserId: null };
+          return {
+            ...bundle,
+            line: {
+              ...bundle.line,
+              assigneeMode: 'self',
+              delegateUserId: null,
+            },
+          };
         }
         return {
-          ...applyTargetToDraftLine(row, null),
-          assigneeMode: 'delegate',
-          delegateUserId: row.delegateUserId ?? null,
+          ...bundle,
+          line: {
+            ...applyTargetToDraftLine(bundle.line, null),
+            assigneeMode: 'delegate',
+            delegateUserId: bundle.line.delegateUserId ?? null,
+          },
         };
       }),
     );
   };
 
   const updateRow = useCallback((id: string, next: DraftLine) => {
-    setRows((prev) => prev.map((row) => (row.id === id ? next : row)));
+    setRows((prev) =>
+      prev.map((bundle) =>
+        bundle.line.id === id ? { ...bundle, line: next } : bundle,
+      ),
+    );
   }, []);
+
+  const updateRowSubtasks = useCallback(
+    (id: string, subtasks: DraftSubtask[]) => {
+      setRows((prev) =>
+        prev.map((bundle) =>
+          bundle.line.id === id ? { ...bundle, subtasks } : bundle,
+        ),
+      );
+    },
+    [],
+  );
 
   const updateRowTarget = useCallback(
     (id: string, selectValue: string) => {
       setRows((prev) =>
-        prev.map((row) => {
-          if (row.id !== id) return row;
+        prev.map((bundle) => {
+          if (bundle.line.id !== id) return bundle;
           const target = findTargetBySelectValue(
             selectValue,
             selectableTargets,
           );
-          return applyTargetToDraftLine(row, target);
+          return {
+            ...bundle,
+            line: applyTargetToDraftLine(bundle.line, target),
+          };
         }),
       );
     },
@@ -679,39 +1123,56 @@ export default function CreatePlansModal({
   );
 
   const addRow = () => {
-    setRows((prev) => [...prev, buildInitialRow()]);
+    const next = buildInitialRow();
+    setRows((prev) => [...prev, next]);
+    setExpandedRowId(next.line.id);
   };
 
   const removeRow = (id: string) => {
-    setRows((prev) =>
-      prev.length <= 1 ? prev : prev.filter((r) => r.id !== id),
-    );
+    setRows((prev) => {
+      if (prev.length <= 1) return prev;
+      const next = prev.filter((bundle) => bundle.line.id !== id);
+      setExpandedRowId((current) => {
+        if (current !== id) return current;
+        return next[next.length - 1]?.line.id ?? null;
+      });
+      return next;
+    });
   };
 
   const handleSubmit = async () => {
-    const error = validateDraftLinesForCreate(rows);
+    const lines = rows.map((bundle) => bundle.line);
+    const error = validateDraftLinesForCreate(lines);
     if (error) {
       message.warning(error);
       return;
     }
 
-    if (isDelegateMode) {
-      for (const row of rows) {
-        if (!row.delegateUserId) {
-          message.warning('Choose an assignee for each delegated task.');
-          return;
-        }
+    for (const bundle of rows) {
+      const subError = validateDraftSubtasksForCreate(bundle.subtasks);
+      if (subError) {
+        message.warning(subError);
+        return;
       }
     }
 
-    const preparedRows = rows.map((row) => {
-      const delegated =
-        isDelegateMode &&
-        !!row.delegateUserId &&
-        String(row.delegateUserId) !== String(userId);
+    for (const bundle of rows) {
+      if (!bundle.line.delegateUserId && showAssigneePicker) {
+        message.warning('Choose an assignee for each task.');
+        return;
+      }
+    }
+
+    const preparedRows = rows.map((bundle) => {
+      const row = bundle.line;
+      const delegated = isDraftLineDelegated(row, userId);
+      const targetUserId = delegated
+        ? String(row.delegateUserId)
+        : String(userId);
       return {
         line: delegated ? applyTargetToDraftLine(row, null) : row,
-        targetUserId: delegated ? String(row.delegateUserId) : String(userId),
+        subtasks: bundle.subtasks,
+        targetUserId,
         assignedByUserId: delegated && userId ? String(userId) : undefined,
       };
     });
@@ -734,10 +1195,12 @@ export default function CreatePlansModal({
           }
           for (const group of grouped.groups) {
             for (const line of group.lines) {
+              const description = line.description?.trim();
               const result = appendTask(item.targetUserId, {
                 title: line.task,
                 start: line.start,
                 deadline: line.deadline,
+                ...(description ? { description } : {}),
                 keyResultId: item.assignedByUserId
                   ? UNLINKED_KR_ID
                   : line.keyResultId || UNLINKED_KR_ID,
@@ -753,6 +1216,57 @@ export default function CreatePlansModal({
               if (item.assignedByUserId) {
                 delegatedCount += 1;
                 delegateTargets.add(item.targetUserId);
+              }
+
+              const parentTask = result.task;
+              const subCtx = inferSubtaskContext(line);
+              if (subCtx.canAddSubtasks && item.subtasks.length > 0) {
+                const validationParent = {
+                  ...parentTask,
+                  kind: resolveHierarchyParentKind(parentTask),
+                };
+                for (const sub of item.subtasks) {
+                  if (subCtx.childKind === 'daily') {
+                    const valid = validateDailySubtask(
+                      validationParent,
+                      sub.start,
+                    );
+                    if (!valid.ok) {
+                      message.warning(valid.error);
+                      return;
+                    }
+                  } else {
+                    const valid = validateWeeklySubtask(
+                      validationParent,
+                      sub.start,
+                      sub.deadline,
+                    );
+                    if (!valid.ok) {
+                      message.warning(valid.error);
+                      return;
+                    }
+                  }
+                  const subDescription = sub.description?.trim();
+                  const subResult = appendTask(item.targetUserId, {
+                    title: sub.task,
+                    start: sub.start,
+                    deadline:
+                      subCtx.childKind === 'daily' ? sub.start : sub.deadline,
+                    ...(subDescription ? { description: subDescription } : {}),
+                    priority: line.priority,
+                    parentId: parentTask.id,
+                    assignedByUserId: item.assignedByUserId,
+                  });
+                  if (!subResult.ok) {
+                    message.warning(subResult.error);
+                    return;
+                  }
+                  createdCount += 1;
+                  if (item.assignedByUserId) {
+                    delegatedCount += 1;
+                    delegateTargets.add(item.targetUserId);
+                  }
+                }
               }
             }
           }
@@ -834,25 +1348,14 @@ export default function CreatePlansModal({
   };
 
   const loading = submitting || isCreating;
-  const modalTitle = lockAssignee
-    ? prefilledAssigneeLabel
-      ? `Delegate to ${prefilledAssigneeLabel}`
-      : 'Delegate plans'
-    : isDelegateMode
-      ? 'Delegate plans'
-      : 'Add plans';
-  const modalSubtitle = lockAssignee
-    ? prefilledAssigneeLabel
+  const modalTitle =
+    lockAssignee && prefilledAssigneeLabel
+      ? `Add task for ${prefilledAssigneeLabel}`
+      : 'Add task';
+  const modalSubtitle =
+    lockAssignee && prefilledAssigneeLabel
       ? `Tasks for ${prefilledAssigneeLabel} are added directly to their locked plan.`
-      : 'Delegated tasks are added directly to their locked plan.'
-    : isDelegateMode
-      ? 'Pick an assignee for each task below.'
-      : canDelegate
-        ? 'These tasks will be added to your plan. Switch to Delegate to assign tasks to your team.'
-        : 'These tasks will be added to your plan.';
-  const submitLabel =
-    rows.length > 1 ? `Create ${rows.length} plans` : 'Create plan';
-
+      : null;
   return (
     <Modal
       title={
@@ -866,12 +1369,14 @@ export default function CreatePlansModal({
           >
             {modalTitle}
           </p>
-          <p
-            data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-p-556"
-            className="m-0 mt-1 text-[12px] font-normal leading-snug text-[#8F94A3]"
-          >
-            {modalSubtitle}
-          </p>
+          {modalSubtitle ? (
+            <p
+              data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-p-556"
+              className="m-0 mt-1 text-[12px] font-normal leading-snug text-[#8F94A3]"
+            >
+              {modalSubtitle}
+            </p>
+          ) : null}
         </div>
       }
       open={open}
@@ -889,6 +1394,16 @@ export default function CreatePlansModal({
           data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-572"
           className="flex items-center justify-end gap-2"
         >
+          <Button
+            type="link"
+            icon={<PlusOutlined />}
+            onClick={addRow}
+            disabled={loading}
+            data-cy="create-plans-add-row"
+            className={footerAddActionLinkButtonClass}
+          >
+            Add plan
+          </Button>
           <Button onClick={onClose} disabled={loading}>
             Cancel
           </Button>
@@ -899,7 +1414,7 @@ export default function CreatePlansModal({
             data-cy="create-plans-submit"
             className="!border-[#1E40AF] !bg-[#1E40AF] hover:!bg-[#1E3A8A]"
           >
-            {submitLabel}
+            Submit
           </Button>
         </div>
       }
@@ -908,7 +1423,10 @@ export default function CreatePlansModal({
         data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-588"
         className="max-h-[min(62vh,32rem)] space-y-3 overflow-y-auto pr-1 scrollbar-hide"
       >
-        {canDelegate && !lockAssignee && !delegateOnly ? (
+        {canDelegate &&
+        !lockAssignee &&
+        !delegateOnly &&
+        !showAssigneePicker ? (
           <div
             data-cy="create-plans-audience-row"
             className="flex min-w-0 items-center justify-start"
@@ -946,32 +1464,59 @@ export default function CreatePlansModal({
             </ConfigProvider>
           </div>
         ) : null}
-        {rows.map((line, index) => (
-          <PlanRowEditor
-            key={line.id}
-            line={line}
-            index={index}
-            canRemove={rows.length > 1}
-            delegateMode={isDelegateMode}
-            lockAssignee={lockAssignee}
-            lockedAssigneeLabel={prefilledAssigneeLabel}
-            assigneeOptions={assigneeOptions}
-            targetOptions={targetOptions}
-            onChange={(next) => updateRow(line.id, next)}
-            onTargetSelect={(value) => updateRowTarget(line.id, value)}
-            onRemove={() => removeRow(line.id)}
-          />
-        ))}
+        {rows.map((bundle, index) => {
+          const isExpanded =
+            rows.length === 1 || expandedRowId === bundle.line.id;
+          const isSelfAssignee = !isDraftLineDelegated(bundle.line, userId);
 
-        <button
-          type="button"
-          onClick={addRow}
-          data-cy="create-plans-add-row"
-          className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#D6D3FF] bg-[#FAFBFF] px-3 py-2.5 text-[13px] font-semibold text-[#574CFF] transition-colors hover:border-[#574CFF] hover:bg-[#F0EEFF]"
-        >
-          <PlusOutlined className="text-[12px]" />
-          Add another plan
-        </button>
+          if (!isExpanded) {
+            return (
+              <CollapsedPlanRow
+                key={bundle.line.id}
+                line={bundle.line}
+                index={index}
+                subtaskCount={bundle.subtasks.length}
+                delegateMode={showAssigneePicker && !isSelfAssignee}
+                assigneeLabel={resolveAssigneeLabel(bundle.line)}
+                canRemove={rows.length > 1}
+                onExpand={() => setExpandedRowId(bundle.line.id)}
+                onRemove={() => removeRow(bundle.line.id)}
+              />
+            );
+          }
+
+          return (
+            <PlanRowEditor
+              key={bundle.line.id}
+              line={bundle.line}
+              index={index}
+              canRemove={rows.length > 1}
+              showAssigneePicker={showAssigneePicker}
+              isSelfAssignee={isSelfAssignee}
+              viewerUserId={userId ? String(userId) : undefined}
+              lockAssignee={lockAssignee}
+              lockedAssigneeLabel={prefilledAssigneeLabel}
+              assigneeOptions={assigneeOptions}
+              targetOptions={targetOptions}
+              userKeyResultItems={userKeyResultItems}
+              subtasks={bundle.subtasks}
+              onSubtasksChange={(next) =>
+                updateRowSubtasks(bundle.line.id, next)
+              }
+              onChange={(next) => updateRow(bundle.line.id, next)}
+              onTargetSelect={(value) => updateRowTarget(bundle.line.id, value)}
+              onRemove={() => removeRow(bundle.line.id)}
+              onCollapse={
+                rows.length > 1
+                  ? () =>
+                      setExpandedRowId((current) =>
+                        current === bundle.line.id ? null : current,
+                      )
+                  : undefined
+              }
+            />
+          );
+        })}
       </div>
     </Modal>
   );

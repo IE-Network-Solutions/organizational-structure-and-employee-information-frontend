@@ -8,18 +8,23 @@ import {
 } from '../prototype/mockPlanningConstants';
 import type { PlanSummary } from '../types';
 import { usePlanningToolbarFilters } from './usePlanningToolbarFilters';
-import { formatEmployeeDisplayName } from './assigneeChipRoster';
+import {
+  formatEmployeeDisplayName,
+  resolvePlanningPersonLabel,
+} from './assigneeChipRoster';
 import {
   collectTeamAssignedTasksFromMockPlans,
   collectTeamAssignedTasksFromSummaries,
   sortTeamTasks,
   type TeamTaskRow,
 } from './delegatedTaskUtils';
+import { normalizePlanningTaskStatusFilter } from './planningTaskStatusFilter';
 
 export function useTeamAssignedTasks(planSummaries: PlanSummary[] = []) {
   const { userId } = useAuthenticationStore();
   const mockEnabled = isDeadlinePlanningMockEnabled();
-  const { employeeData } = usePlanningToolbarFilters();
+  const { employeeData, planningTaskStatusFilter } =
+    usePlanningToolbarFilters();
   const mockPlansByUserId = useUserPlanRepositoryMock((s) => s.plansByUserId);
   const ensurePlan = useUserPlanRepositoryMock((s) => s.ensurePlan);
 
@@ -27,13 +32,15 @@ export function useTeamAssignedTasks(planSummaries: PlanSummary[] = []) {
 
   const resolveUserName = useCallback(
     (personId: string) => {
-      if (mockEnabled) {
-        return mockDisplayNameForUserId(personId, viewerUserId);
-      }
-      const employee = employeeData?.items?.find(
-        (item: any) => String(item?.id) === String(personId),
-      );
-      return employee ? formatEmployeeDisplayName(employee) : 'Teammate';
+      const fallback = mockEnabled
+        ? mockDisplayNameForUserId(personId, viewerUserId)
+        : (() => {
+            const employee = employeeData?.items?.find(
+              (item: any) => String(item?.id) === String(personId),
+            );
+            return employee ? formatEmployeeDisplayName(employee) : 'Teammate';
+          })();
+      return resolvePlanningPersonLabel(personId, viewerUserId, fallback);
     },
     [mockEnabled, employeeData?.items, viewerUserId],
   );
@@ -53,6 +60,9 @@ export function useTeamAssignedTasks(planSummaries: PlanSummary[] = []) {
   const tasks = useMemo((): TeamTaskRow[] => {
     if (!viewerUserId) return [];
 
+    const statusFilter = normalizePlanningTaskStatusFilter(
+      planningTaskStatusFilter,
+    );
     let rows: TeamTaskRow[] = [];
 
     if (mockEnabled) {
@@ -60,12 +70,14 @@ export function useTeamAssignedTasks(planSummaries: PlanSummary[] = []) {
         mockPlansByUserId,
         viewerUserId,
         resolveUserName,
+        { statusFilter },
       );
     } else if (planSummaries.length > 0) {
       rows = collectTeamAssignedTasksFromSummaries(
         planSummaries,
         viewerUserId,
         resolveUserName,
+        { statusFilter },
       );
     }
 
@@ -76,6 +88,7 @@ export function useTeamAssignedTasks(planSummaries: PlanSummary[] = []) {
     mockPlansByUserId,
     planSummaries,
     resolveUserName,
+    planningTaskStatusFilter,
   ]);
 
   return {

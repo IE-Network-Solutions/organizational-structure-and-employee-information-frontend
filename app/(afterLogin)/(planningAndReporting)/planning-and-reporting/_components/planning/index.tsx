@@ -12,9 +12,7 @@ import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
 import { userIdFromMockPlanId } from '../prototype/mockPlanAdapter';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { BsClipboard2Check } from 'react-icons/bs';
-import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import CustomPagination from '@/components/customPagination';
 import PlanCard from '../cards/PlanCard';
 import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from './PlanningPanelView';
@@ -25,6 +23,8 @@ import { useAssigneeChipRoster } from './useAssigneeChipRoster';
 import { useGetDepartmentsWithUsers } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Cadence, PlanSummary } from '../types';
 import { formatPlanningReportDate } from '../utils';
+import InfiniteLoadSentinel from './InfiniteLoadSentinel';
+import { useInfiniteLoadMore } from './useInfiniteLoadMore';
 
 export interface PlanningExposedData {
   planSummaries: PlanSummary[];
@@ -40,6 +40,7 @@ function Planning({
   isLoading: planningLoadingFromParent,
   addPlanComposer,
   myTasksOnly = false,
+  scrollRootRef,
 }: {
   onHoverKR?: (krId: string | null) => void;
   onOpenThread?: (entityId: string, threadKind: 'plan' | 'report') => void;
@@ -50,10 +51,10 @@ function Planning({
   totalItems?: number;
   /** Inline composer nested in My Plan (append to existing plan). */
   addPlanComposer?: React.ReactNode;
-  /** Called when Add Plan is pressed (before opening KR pick mode). */
-  onStartAddPlan?: () => void;
   /** My Tasks tab — only the current user's plan card(s). */
   myTasksOnly?: boolean;
+  /** Scroll container for grouped-view infinite loading. */
+  scrollRootRef?: React.RefObject<HTMLElement | null>;
 }) {
   const {
     activePlanPeriod,
@@ -61,8 +62,6 @@ function Planning({
     setInlinePlanningMode,
     setMobilePlanComposerOpen,
     setInlineEditPlanId,
-    openCreatePlansModal,
-    page,
     setPage,
     pageSize,
     setPageSize,
@@ -73,6 +72,7 @@ function Planning({
     resetStatuses,
     resetWeights,
     planningFilterDepartment,
+    planningTaskStatusFilter,
   } = PlanningAndReportingStore();
   const { selectedIds, hasTeam } = useAssigneeChipRoster();
   const cardDisplayMode = resolvePlanCardDisplayMode(selectedIds.length);
@@ -172,43 +172,7 @@ function Planning({
     }
   };
 
-  const handleAddPlan = useCallback(() => {
-    setInlineEditPlanId(null);
-    setInlinePlanningMode(false);
-    setMobilePlanComposerOpen(false);
-    openCreatePlansModal();
-  }, [
-    openCreatePlansModal,
-    setInlineEditPlanId,
-    setInlinePlanningMode,
-    setMobilePlanComposerOpen,
-  ]);
-
-  const handleAddPlanForTeammate = useCallback(
-    (targetUserId: string, targetLabel: string) => {
-      openCreatePlansModal({ userId: targetUserId, label: targetLabel });
-    },
-    [openCreatePlansModal],
-  );
-
   const currentUserId = String(userId ?? '');
-
-  const canAddPlanForTeammate = useCallback(
-    (ownerUserId: string) => {
-      if (mockEnabled) {
-        return currentUserId !== String(ownerUserId);
-      }
-      return (
-        currentUserId ===
-        String(
-          getEmployeeData(ownerUserId)?.delegatedTo?.id ||
-            getEmployeeData(ownerUserId)?.reportingTo?.id ||
-            '',
-        )
-      );
-    },
-    [currentUserId, getEmployeeData, mockEnabled],
-  );
 
   const { myPlans, otherPlans } = useMemo(() => {
     const mine: typeof planSummaries = [];
@@ -235,38 +199,47 @@ function Planning({
     hasTeam,
   });
 
+  const {
+    visibleItems: visibleOtherPlans,
+    hasMore: hasMorePlans,
+    loadMore: loadMorePlans,
+  } = useInfiniteLoadMore(otherPlans, pageSize, [
+    activeTab,
+    activePlanPeriod,
+    planningFilterDepartment,
+    planningTaskStatusFilter,
+    selectedIds.join(','),
+    myTasksOnly,
+  ]);
+
   const visiblePlanSummaries = useMemo(() => {
     if (myTasksOnly) return myPlans;
-    const start = (page - 1) * pageSize;
-    // My Plan is always pinned above the paginated list of other users' plans.
-    return [...myPlans, ...otherPlans.slice(start, start + pageSize)];
-  }, [myPlans, otherPlans, page, pageSize, myTasksOnly]);
+    return [...myPlans, ...visibleOtherPlans];
+  }, [myPlans, visibleOtherPlans, myTasksOnly]);
 
   const isDesktop = !isMobile && !isTablet;
-  const isDesktopPanelView =
-    isDesktop && !isPlanningListLoading && planSummaries.length > 0;
 
-  // Paginate other users' plans only — My Plan stays pinned on every page.
-  const totalPlanningItems = myTasksOnly ? myPlans.length : otherPlans.length;
-  const showPlanningPagination =
-    !myTasksOnly && !isPlanningListLoading && totalPlanningItems > pageSize;
-
-  const paginationElement = showPlanningPagination ? (
-    <CustomPagination
-      current={page}
-      total={totalPlanningItems}
-      pageSize={pageSize}
-      onChange={(pg, ps) => {
-        setPage(pg);
-        setPageSize(ps);
-      }}
-      onShowSizeChange={(size) => {
-        setPageSize(size);
-        setPage(1);
-      }}
-      data-cy="planning-list-pagination"
-    />
-  ) : null;
+  useEffect(() => {
+    if (myTasksOnly || !hasMorePlans) return;
+    if (isDesktop) {
+      const root = scrollRootRef?.current;
+      if (!root) return;
+      if (root.scrollHeight <= root.clientHeight + 1) {
+        loadMorePlans();
+      }
+      return;
+    }
+    if (document.documentElement.scrollHeight <= window.innerHeight + 1) {
+      loadMorePlans();
+    }
+  }, [
+    hasMorePlans,
+    isDesktop,
+    loadMorePlans,
+    myTasksOnly,
+    scrollRootRef,
+    visiblePlanSummaries.length,
+  ]);
 
   return (
     <div
@@ -348,25 +321,6 @@ function Planning({
                       originalDataItem?.isReported == false &&
                       ownerCanOpenSubmitReport
                     }
-                    onAddPlan={
-                      originalDataItem?.userId === userId
-                        ? handleAddPlan
-                        : canAddPlanForTeammate(
-                              String(originalDataItem?.userId ?? ''),
-                            )
-                          ? () =>
-                              handleAddPlanForTeammate(
-                                String(originalDataItem?.userId ?? ''),
-                                plan.owner?.name || 'Teammate',
-                              )
-                          : undefined
-                    }
-                    showAddPlan={
-                      originalDataItem?.userId === userId ||
-                      canAddPlanForTeammate(
-                        String(originalDataItem?.userId ?? ''),
-                      )
-                    }
                     addPlanComposer={
                       originalDataItem?.userId === userId
                         ? addPlanComposer
@@ -389,12 +343,22 @@ function Planning({
                       {renderMobileCard(plan)}
                     </div>
                   ))}
+                  {!myTasksOnly ? (
+                    <InfiniteLoadSentinel
+                      hasMore={hasMorePlans}
+                      onLoadMore={loadMorePlans}
+                      data-cy="planning-grouped-infinite-sentinel-mobile"
+                    />
+                  ) : null}
                 </div>
               );
             })()
           ) : (
             <PlanningPanelView
               plans={visiblePlanSummaries}
+              hasMorePlans={!myTasksOnly && hasMorePlans}
+              onLoadMorePlans={loadMorePlans}
+              scrollRootRef={scrollRootRef}
               cardDisplayMode={cardDisplayMode}
               transformedData={transformedData}
               cadence={currentCadence}
@@ -405,7 +369,6 @@ function Planning({
               onEdit={handleEdit}
               isApprovalLoading={isApprovalLoading}
               getDateLabel={getDateLabel}
-              paginationNode={paginationElement}
               planningPeriodId={planningPeriodId}
               onHoverKR={onHoverKR}
               onOpenThread={onOpenThread}
@@ -414,9 +377,6 @@ function Planning({
                 resetWeights();
                 setInlineReportPlanId(planId);
               }}
-              onAddPlan={handleAddPlan}
-              onAddPlanForTeammate={handleAddPlanForTeammate}
-              canAddPlanForTeammate={canAddPlanForTeammate}
               addPlanComposer={addPlanComposer}
               ownerCanOpenSubmitReport={ownerCanOpenSubmitReport}
               inlineReportPlanId={inlineReportPlanId}
@@ -469,24 +429,6 @@ function Planning({
           </div>
         )}
       </section>
-
-      {!isDesktopPanelView &&
-        (isMobile || isTablet
-          ? showPlanningPagination && (
-              <CustomMobilePagination
-                totalResults={totalPlanningItems}
-                pageSize={pageSize}
-                onChange={(pg, ps) => {
-                  setPage(pg);
-                  setPageSize(ps);
-                }}
-                onShowSizeChange={(size) => {
-                  setPageSize(size);
-                  setPage(1);
-                }}
-              />
-            )
-          : paginationElement)}
     </div>
   );
 }

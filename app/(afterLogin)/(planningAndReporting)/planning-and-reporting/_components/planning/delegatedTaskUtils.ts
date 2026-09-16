@@ -10,6 +10,10 @@ import {
   taskInHistoryRange,
   type PlanFilterValue,
 } from './durationFilter';
+import {
+  apiTaskMatchesPlanningStatusFilter,
+  type PlanningTaskStatusFilter,
+} from './planningTaskStatusFilter';
 
 export type TeamTaskRow = {
   id: string;
@@ -104,19 +108,39 @@ function collectTeamAssignedFromTaskList(
     planId: string;
     resolveUserName: (userId: string) => string;
     assignedByUserId?: string;
+    /** When true, only tasks delegated by someone other than the assignee. */
+    delegatedOnly?: boolean;
+    statusFilter?: PlanningTaskStatusFilter;
   },
 ): TeamTaskRow[] {
   const rows: TeamTaskRow[] = [];
   const seen = new Set<string>();
+  const assigneeId = String(opts.assigneeUserId);
 
   for (const task of tasks) {
     if (!task?.id) continue;
-    const assignerId = String(task.assignedByUserId ?? '');
-    if (!assignerId) continue;
-    if (assignerId === String(opts.assigneeUserId)) continue;
-    if (opts.assignedByUserId && assignerId !== String(opts.assignedByUserId)) {
+    if (
+      opts.statusFilter &&
+      !apiTaskMatchesPlanningStatusFilter(task, opts.statusFilter)
+    ) {
       continue;
     }
+    const externalAssigner = task.assignedByUserId
+      ? String(task.assignedByUserId)
+      : null;
+    const assignerId = externalAssigner ?? assigneeId;
+
+    if (opts.delegatedOnly || opts.assignedByUserId) {
+      if (!externalAssigner) continue;
+      if (assignerId === assigneeId) continue;
+      if (
+        opts.assignedByUserId &&
+        assignerId !== String(opts.assignedByUserId)
+      ) {
+        continue;
+      }
+    }
+
     if (seen.has(task.id)) continue;
     seen.add(task.id);
 
@@ -171,7 +195,11 @@ export function collectTeamAssignedTasksFromSummaries(
   planSummaries: PlanSummary[],
   viewerUserId: string,
   resolveUserName: (userId: string) => string,
-  opts?: { assignedByUserId?: string },
+  opts?: {
+    assignedByUserId?: string;
+    delegatedOnly?: boolean;
+    statusFilter?: PlanningTaskStatusFilter;
+  },
 ): TeamTaskRow[] {
   const rows: TeamTaskRow[] = [];
   for (const plan of planSummaries) {
@@ -185,6 +213,7 @@ export function collectTeamAssignedTasksFromSummaries(
         planId: plan.id,
         resolveUserName,
         assignedByUserId: opts?.assignedByUserId,
+        delegatedOnly: opts?.delegatedOnly,
       }),
     );
   }
@@ -203,7 +232,11 @@ export function collectTeamAssignedTasksFromMockPlans(
   >,
   viewerUserId: string,
   resolveUserName: (userId: string) => string,
-  opts?: { assignedByUserId?: string },
+  opts?: {
+    assignedByUserId?: string;
+    delegatedOnly?: boolean;
+    statusFilter?: PlanningTaskStatusFilter;
+  },
 ): TeamTaskRow[] {
   const rows: TeamTaskRow[] = [];
   for (const plan of Object.values(plansByUserId)) {
@@ -218,6 +251,7 @@ export function collectTeamAssignedTasksFromMockPlans(
         planId: plan.planId,
         resolveUserName,
         assignedByUserId: opts?.assignedByUserId,
+        delegatedOnly: opts?.delegatedOnly,
       }),
     );
   }
@@ -234,7 +268,7 @@ export function collectDelegatedTasksFromSummaries(
     planSummaries,
     viewerUserId,
     resolveAssigneeName,
-    { assignedByUserId: viewerUserId },
+    { assignedByUserId: viewerUserId, delegatedOnly: true },
   ).filter((row) => row.assigneeUserId !== viewerUserId);
 }
 
@@ -255,7 +289,7 @@ export function collectDelegatedTasksFromMockPlans(
     plansByUserId,
     viewerUserId,
     resolveAssigneeName,
-    { assignedByUserId: viewerUserId },
+    { assignedByUserId: viewerUserId, delegatedOnly: true },
   ).filter((row) => row.assigneeUserId !== viewerUserId);
 }
 

@@ -1,20 +1,38 @@
 'use client';
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { Avatar, Segmented, Table, Tag } from 'antd';
+import { Avatar, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import CustomButton from '@/components/common/buttons/customButton';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useUserPlanRepositoryMock } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
+import type { MockPlanTask } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { isDeadlinePlanningMockEnabled } from '@/utils/deadlinePlanningMocks';
+import SubtasksModal from '../cards/SubtasksModal';
+import TaskDetailModal from './TaskDetailModal';
 import type { PlanSummary } from '../types';
-import { mergeMeWithPickerSelection } from './assigneeChipRoster';
 import {
   teamTaskMatchesDurationFilter,
   type TeamTaskRow,
 } from './delegatedTaskUtils';
+import { planFilterValueToKind } from './durationFilter';
+import TeamTaskTitleCell from './TeamTaskTitleCell';
 import { useAssigneeChipRoster } from './useAssigneeChipRoster';
+import { useEffectivePlanUserIds } from './usePlanningData';
 import { useTeamAssignedTasks } from './useTeamAssignedTasks';
+import {
+  PLANNING_TASK_TABLE_CLASS,
+  usePlanningTaskTableScrollY,
+} from './planningTaskTableLayout';
+import {
+  PLANNING_INFINITE_PAGE_SIZE,
+  useInfiniteLoadMore,
+} from './useInfiniteLoadMore';
+import {
+  useAutoFillScrollContainer,
+  useScrollNearBottom,
+} from './useScrollNearBottom';
 
 const STATUS_TAG_CLASS: Record<TeamTaskRow['statusTone'], string> = {
   default: 'bg-slate-100 text-slate-700 border-slate-200',
@@ -36,22 +54,57 @@ type TeamTasksViewProps = {
   planSummaries: PlanSummary[];
 };
 
+type SubtasksModalState = {
+  parent: MockPlanTask;
+  ownerUserId: string;
+  allActiveTasks: MockPlanTask[];
+  canAdd: boolean;
+};
+
+type TaskDetailModalState = {
+  task: MockPlanTask | null;
+  fallbackTitle: string;
+  fallbackDescription: string;
+  ownerUserId: string;
+  allActiveTasks: MockPlanTask[];
+  canAddSubtasks: boolean;
+};
+
 export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
-  const { userId } = useAuthenticationStore();
   const { tasks } = useTeamAssignedTasks(planSummaries);
-  const { roster, selectedIds } = useAssigneeChipRoster();
+  const { roster } = useAssigneeChipRoster();
+  const effectiveUserIds = useEffectivePlanUserIds();
+  const mockEnabled = isDeadlinePlanningMockEnabled();
+  const viewerUserId = String(useAuthenticationStore((s) => s.userId) ?? '');
+  const mockPlansByUserId = useUserPlanRepositoryMock((s) => s.plansByUserId);
+  const [subtasksModal, setSubtasksModal] = useState<SubtasksModalState | null>(
+    null,
+  );
+  const [taskDetailModal, setTaskDetailModal] =
+    useState<TaskDetailModalState | null>(null);
+  const tableShellRef = useRef<HTMLDivElement>(null);
+  const tableScrollY = usePlanningTaskTableScrollY(tableShellRef);
   const {
-    setActiveTab,
-    setSelectedUser,
-    setPage,
-    setPlanningFilterPlanType,
-    setPlanningFilterEmployee,
-    openCreatePlansModal,
     planningDurationFilter,
     planningHistoryRange,
-    teamTasksAssignedByFilter,
-    setTeamTasksAssignedByFilter,
+    planningTaskStatusFilter,
   } = PlanningAndReportingStore();
+
+  const durationKind = planFilterValueToKind(planningDurationFilter || 'daily');
+
+  const resolveMockTaskContext = useCallback(
+    (row: TeamTaskRow) => {
+      if (!mockEnabled) return null;
+      const plan = mockPlansByUserId[row.assigneeUserId];
+      if (!plan) return null;
+      const task = [...plan.activeTasks, ...(plan.archivedTasks ?? [])].find(
+        (item) => item.id === row.id,
+      );
+      if (!task) return null;
+      return { task, allActiveTasks: plan.activeTasks };
+    },
+    [mockEnabled, mockPlansByUserId],
+  );
 
   const chipByUserId = useMemo(() => {
     const map = new Map<string, (typeof roster)[number]>();
@@ -62,14 +115,7 @@ export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
   }, [roster]);
 
   const filteredTasks = useMemo(() => {
-    const currentUserId = String(userId ?? '');
-    let scoped = tasks;
-
-    if (teamTasksAssignedByFilter === 'me') {
-      scoped = scoped.filter((task) => task.assignedByMe);
-    }
-
-    scoped = scoped.filter((task) =>
+    let scoped = tasks.filter((task) =>
       teamTaskMatchesDurationFilter(
         task,
         planningDurationFilter || 'daily',
@@ -77,47 +123,87 @@ export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
       ),
     );
 
-    const otherSelected = selectedIds.filter(
-      (id) => String(id) !== currentUserId,
-    );
-    if (otherSelected.length === 0) return scoped;
-    const allowed = new Set(otherSelected.map(String));
-    return scoped.filter((task) => allowed.has(String(task.assigneeUserId)));
-  }, [
-    tasks,
-    selectedIds,
-    userId,
+    if (effectiveUserIds.length > 0) {
+      const allowed = new Set(effectiveUserIds.map(String));
+      scoped = scoped.filter((task) =>
+        allowed.has(String(task.assigneeUserId)),
+      );
+    }
+
+    return scoped;
+  }, [tasks, effectiveUserIds, planningDurationFilter, planningHistoryRange]);
+
+  const {
+    visibleItems: visibleTasks,
+    hasMore: hasMoreTasks,
+    loadMore: loadMoreTasks,
+    visibleCount: visibleTaskCount,
+  } = useInfiniteLoadMore(filteredTasks, PLANNING_INFINITE_PAGE_SIZE, [
     planningDurationFilter,
     planningHistoryRange,
-    teamTasksAssignedByFilter,
+    planningTaskStatusFilter,
+    effectiveUserIds.join(','),
   ]);
 
-  const handleViewOnPlan = useCallback(
-    (task: TeamTaskRow) => {
-      setPlanningFilterPlanType('all');
-      setPlanningFilterEmployee('all');
-      setSelectedUser(
-        mergeMeWithPickerSelection(
-          true,
-          [task.assigneeUserId],
-          task.assigneeUserId,
-        ),
+  const listScrollReady = hasMoreTasks && Boolean(tableScrollY);
+
+  useScrollNearBottom(
+    tableShellRef,
+    '.ant-table-body',
+    loadMoreTasks,
+    listScrollReady,
+  );
+
+  useAutoFillScrollContainer(
+    tableShellRef,
+    '.ant-table-body',
+    loadMoreTasks,
+    listScrollReady,
+    visibleTaskCount,
+  );
+
+  const resolveCanAddSubtasks = useCallback(
+    (ownerUserId: string) => {
+      const plan = mockPlansByUserId[ownerUserId];
+      if (!plan || !mockEnabled) return false;
+      const isTeammatePlan = Boolean(
+        ownerUserId && viewerUserId && ownerUserId !== viewerUserId,
       );
-      setPage(1);
-      setActiveTab(1);
-      requestAnimationFrame(() => {
-        document
-          .querySelector(`[data-cy="plan-card-wrap-${task.planId}"]`)
-          ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      const planReported = plan.activeTasks.every((t) => t.isReported);
+      return !isTeammatePlan && !planReported;
+    },
+    [mockEnabled, mockPlansByUserId, viewerUserId],
+  );
+
+  const handleOpenSubtasks = useCallback(
+    (parent: MockPlanTask, ownerUserId: string) => {
+      const plan = mockPlansByUserId[ownerUserId];
+      if (!plan) return;
+
+      setSubtasksModal({
+        parent,
+        ownerUserId,
+        allActiveTasks: plan.activeTasks,
+        canAdd: resolveCanAddSubtasks(ownerUserId),
       });
     },
-    [
-      setActiveTab,
-      setSelectedUser,
-      setPage,
-      setPlanningFilterPlanType,
-      setPlanningFilterEmployee,
-    ],
+    [mockPlansByUserId, resolveCanAddSubtasks],
+  );
+
+  const handleOpenTaskDetail = useCallback(
+    (row: TeamTaskRow) => {
+      const mockContext = resolveMockTaskContext(row);
+      const plan = mockPlansByUserId[row.assigneeUserId];
+      setTaskDetailModal({
+        task: mockContext?.task ?? null,
+        fallbackTitle: row.title,
+        fallbackDescription: mockContext?.task?.description?.trim() ?? '',
+        ownerUserId: row.assigneeUserId,
+        allActiveTasks: mockContext?.allActiveTasks ?? plan?.activeTasks ?? [],
+        canAddSubtasks: resolveCanAddSubtasks(row.assigneeUserId),
+      });
+    },
+    [mockPlansByUserId, resolveCanAddSubtasks, resolveMockTaskContext],
   );
 
   const renderPersonCell = (
@@ -127,6 +213,7 @@ export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
     prefix: string,
   ) => {
     const chip = chipByUserId.get(userIdKey);
+    const displayName = chip?.label ?? name;
     return (
       <span
         className="inline-flex min-w-0 items-center gap-2"
@@ -148,13 +235,13 @@ export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
                 }
           }
         >
-          {!chip?.avatar ? (chip?.initials ?? name.slice(0, 2)) : null}
+          {!chip?.avatar ? (chip?.initials ?? displayName.slice(0, 2)) : null}
         </Avatar>
         <span
           className="truncate text-gray-700"
           data-cy={`team-tasks-${prefix}-name-${rowId}`}
         >
-          {name}
+          {displayName}
         </span>
       </span>
     );
@@ -167,14 +254,22 @@ export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
         dataIndex: 'title',
         key: 'title',
         ellipsis: true,
-        render: (title: string, row) => (
-          <span
-            className="font-medium text-gray-900"
-            data-cy={`team-tasks-title-${row.id}`}
-          >
-            {title}
-          </span>
-        ),
+        render: (unusedTitle: string, row) => {
+          void unusedTitle;
+          const mockContext = resolveMockTaskContext(row);
+          return (
+            <TeamTaskTitleCell
+              row={row}
+              mockTask={mockContext?.task ?? null}
+              allActiveTasks={mockContext?.allActiveTasks ?? []}
+              durationKind={durationKind}
+              onOpenSubtasks={(parent) =>
+                handleOpenSubtasks(parent, row.assigneeUserId)
+              }
+              onOpenTaskDetail={() => handleOpenTaskDetail(row)}
+            />
+          );
+        },
       },
       {
         title: 'Assignee',
@@ -250,82 +345,35 @@ export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
           </Tag>
         ),
       },
-      {
-        title: '',
-        key: 'actions',
-        width: 100,
-        align: 'right',
-        render: (unusedColumnValue, row) => (
-          <button
-            type="button"
-            onClick={() => handleViewOnPlan(row)}
-            className="text-sm font-medium text-[#1E40AF] hover:text-[#1E3A8A]"
-            data-cy={`team-tasks-view-plan-${row.id}`}
-          >
-            View plan
-          </button>
-        ),
-      },
     ],
-    [handleViewOnPlan, chipByUserId],
+    [
+      handleOpenTaskDetail,
+      handleOpenSubtasks,
+      resolveMockTaskContext,
+      mockEnabled,
+      chipByUserId,
+      durationKind,
+    ],
   );
 
   return (
     <div
-      className="flex min-h-0 w-full min-w-0 flex-col gap-4"
+      className="flex h-full min-h-0 w-full min-w-0 flex-col"
       data-cy="team-tasks-view"
     >
       <div
-        className="flex flex-wrap items-start justify-between gap-3"
-        data-cy="team-tasks-view-header"
-      >
-        <div data-cy="team-tasks-view-header-copy">
-          <h2
-            className="text-2xl font-bold text-gray-900"
-            data-cy="team-tasks-view-title"
-          >
-            Team tasks
-          </h2>
-          <p
-            className="mt-1 text-sm text-gray-500"
-            data-cy="team-tasks-view-subtitle"
-          >
-            Assigned tasks across your team, including who assigned them.
-          </p>
-        </div>
-        <CustomButton
-          title="Assign task"
-          onClick={() => openCreatePlansModal({ delegateOnly: true })}
-          data-cy="team-tasks-add-task"
-        />
-      </div>
-
-      <div
-        className="flex flex-wrap items-center gap-2"
-        data-cy="team-tasks-assigned-by-filter"
-      >
-        <Segmented
-          value={teamTasksAssignedByFilter}
-          onChange={(value) =>
-            setTeamTasksAssignedByFilter(value as 'all' | 'me')
-          }
-          options={[
-            { label: 'All assignments', value: 'all' },
-            { label: 'Assigned by me', value: 'me' },
-          ]}
-          data-cy="team-tasks-assigned-by-segmented"
-        />
-      </div>
-
-      <div
-        className="bg-white rounded-lg border border-[#E5E7EB] shadow-none p-3"
+        ref={tableShellRef}
+        className={classNames(
+          'flex min-h-0 flex-1 flex-col bg-white rounded-lg border border-[#E5E7EB] shadow-none p-3',
+          PLANNING_TASK_TABLE_CLASS,
+        )}
         data-cy="team-tasks-table-panel"
       >
         <Table<TeamTaskRow>
           rowKey="id"
           columns={columns}
-          dataSource={filteredTasks}
-          pagination={filteredTasks.length > 10 ? { pageSize: 10 } : false}
+          dataSource={visibleTasks}
+          pagination={false}
           locale={{
             emptyText: (
               <div
@@ -333,15 +381,40 @@ export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
                 data-cy="team-tasks-empty"
               >
                 {tasks.length === 0
-                  ? 'No team assignments yet. Use Assign task to delegate work.'
-                  : 'No team tasks match the current filters.'}
+                  ? 'No tasks yet. Use Add task to create or delegate work.'
+                  : 'No tasks match the current filters.'}
               </div>
             ),
           }}
-          scroll={{ x: 920 }}
+          scroll={tableScrollY ? { y: tableScrollY } : undefined}
+          tableLayout="fixed"
           data-cy="team-tasks-table"
         />
       </div>
+      <TaskDetailModal
+        open={!!taskDetailModal}
+        task={taskDetailModal?.task ?? null}
+        fallbackTitle={taskDetailModal?.fallbackTitle ?? ''}
+        fallbackDescription={taskDetailModal?.fallbackDescription ?? ''}
+        ownerUserId={taskDetailModal?.ownerUserId ?? ''}
+        allActiveTasks={taskDetailModal?.allActiveTasks ?? []}
+        durationKind={durationKind}
+        canAddSubtasks={taskDetailModal?.canAddSubtasks ?? false}
+        onClose={() => setTaskDetailModal(null)}
+        onOpenSubtasks={(parent) => {
+          const ownerUserId = taskDetailModal?.ownerUserId ?? '';
+          if (!ownerUserId) return;
+          handleOpenSubtasks(parent, ownerUserId);
+        }}
+      />
+      <SubtasksModal
+        open={!!subtasksModal}
+        parent={subtasksModal?.parent ?? null}
+        ownerUserId={subtasksModal?.ownerUserId ?? ''}
+        allActiveTasks={subtasksModal?.allActiveTasks ?? []}
+        canAdd={subtasksModal?.canAdd ?? false}
+        onClose={() => setSubtasksModal(null)}
+      />
     </div>
   );
 }

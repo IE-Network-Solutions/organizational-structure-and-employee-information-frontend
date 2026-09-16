@@ -1,3 +1,4 @@
+import type { DeadlineKind } from '@/app/(afterLogin)/dashboard/_components/plan/deadline/types';
 import { UNLINKED_KR_ID } from '../prototype/mockPlanningConstants';
 import type { PlanningTarget } from './buildPlanningTargets';
 import { defaultSpanForKind, type CadenceGroup } from './durationFilter';
@@ -6,9 +7,18 @@ import { defaultSpanForKind, type CadenceGroup } from './durationFilter';
 const METRIC_ACHIEVE = 'Achieve';
 const METRIC_MILESTONE = 'Milestone';
 
+export type DraftSubtask = {
+  id: string;
+  task: string;
+  description?: string;
+  start: string;
+  deadline: string;
+};
+
 export type DraftLine = {
   id: string;
   task: string;
+  description?: string;
   priority: string;
   weight: number;
   targetValue: number;
@@ -115,19 +125,44 @@ export function labelFromPlanningTarget(target: PlanningTarget | null): string {
   return target.keyResultTitle;
 }
 
+function newDraftId(): string {
+  return typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `draft-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+export function createEmptyDraftSubtask(
+  parentStart: string,
+  parentDeadline: string,
+  childKind: DeadlineKind,
+): DraftSubtask {
+  if (childKind === 'daily') {
+    return {
+      id: newDraftId(),
+      task: '',
+      start: parentStart,
+      deadline: parentStart,
+    };
+  }
+  return {
+    id: newDraftId(),
+    task: '',
+    start: parentStart,
+    deadline: parentDeadline,
+  };
+}
+
 export function createEmptyDraftLine(defaults?: {
   start?: string;
   deadline?: string;
   priority?: string;
 }): DraftLine {
   const span = defaultSpanForKind('daily');
-  const id =
-    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-      ? crypto.randomUUID()
-      : `draft-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
   return {
-    id,
+    id: newDraftId(),
     task: '',
+    description: '',
     priority: defaults?.priority ?? DEFAULT_INLINE_PRIORITY,
     weight: PLAN_TASK_WEIGHT,
     targetValue: 0,
@@ -224,6 +259,7 @@ export function applyTargetToDraftLine(
 
 export type CreatePlanTaskPayload = {
   task: string;
+  description?: string;
   priority: string;
   weight: number;
   targetValue: number;
@@ -266,8 +302,11 @@ export function draftLinesToCreatePayloads(
         }
       : l;
 
+    const description = line.description?.trim();
+
     return {
       task: line.task,
+      ...(description ? { description } : {}),
       priority: line.priority,
       weight: PLAN_TASK_WEIGHT,
       targetValue: line.targetValue,
@@ -288,11 +327,23 @@ export function draftLinesToCreatePayloads(
 }
 
 export function validateDraftLinesForCreate(lines: DraftLine[]): string | null {
-  if (lines.length === 0) return 'Add at least one plan.';
+  if (lines.length === 0) return 'Add at least one task.';
   for (const line of lines) {
-    if (!line.task.trim()) return 'Each plan needs a title.';
+    if (!line.task.trim()) return 'Each task needs a title.';
     if (!line.start || !line.deadline) {
-      return 'Each plan needs a start date and an end date.';
+      return 'Each task needs a start date and an end date.';
+    }
+  }
+  return null;
+}
+
+export function validateDraftSubtasksForCreate(
+  subtasks: DraftSubtask[],
+): string | null {
+  for (const sub of subtasks) {
+    if (!sub.task.trim()) return 'Each subtask needs a title.';
+    if (!sub.start || !sub.deadline) {
+      return 'Each subtask needs a start date and an end date.';
     }
   }
   return null;

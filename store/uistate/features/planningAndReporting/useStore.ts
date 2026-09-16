@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import type { PlanFilterValue } from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/planning/durationFilter';
 import { defaultHistoryRange } from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/planning/durationFilter';
+import type { PlanningTaskStatusFilter } from '@/app/(afterLogin)/(planningAndReporting)/planning-and-reporting/_components/planning/planningTaskStatusFilter';
 type MkAsATask = {
   title: string | null;
   mid: string | null;
@@ -78,6 +79,9 @@ export interface PlanningAndReporting {
   setPlanningFilterDepartment: (id: string | undefined) => void;
   planningFilterPlanType: string;
   setPlanningFilterPlanType: (value: string) => void;
+  /** Task visibility: all, active (default), or manager-closed reported. */
+  planningTaskStatusFilter: PlanningTaskStatusFilter;
+  setPlanningTaskStatusFilter: (value: PlanningTaskStatusFilter) => void;
   planningFilterEmployee: string;
   setPlanningFilterEmployee: (value: string) => void;
 
@@ -124,6 +128,10 @@ export interface PlanningAndReporting {
   /** Team tasks tab: show all assignments or only those assigned by me. */
   teamTasksAssignedByFilter: 'all' | 'me';
   setTeamTasksAssignedByFilter: (value: 'all' | 'me') => void;
+
+  /** Main panel layout: list table vs grouped plan cards + KR panel. */
+  planningTasksViewMode: 'list' | 'grouped';
+  setPlanningTasksViewMode: (mode: 'list' | 'grouped') => void;
 }
 
 export const PlanningAndReportingStore = create<PlanningAndReporting>()(
@@ -238,6 +246,11 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     setPlanningFilterPlanType: (planningFilterPlanType: string) =>
       set({ planningFilterPlanType }),
 
+    planningTaskStatusFilter: 'active',
+    setPlanningTaskStatusFilter: (
+      planningTaskStatusFilter: PlanningTaskStatusFilter,
+    ) => set({ planningTaskStatusFilter }),
+
     planningFilterEmployee: 'all',
     setPlanningFilterEmployee: (planningFilterEmployee: string) =>
       set({ planningFilterEmployee }),
@@ -304,5 +317,9 @@ export const PlanningAndReportingStore = create<PlanningAndReporting>()(
     teamTasksAssignedByFilter: 'all',
     setTeamTasksAssignedByFilter: (teamTasksAssignedByFilter: 'all' | 'me') =>
       set({ teamTasksAssignedByFilter }),
+
+    planningTasksViewMode: 'list',
+    setPlanningTasksViewMode: (planningTasksViewMode: 'list' | 'grouped') =>
+      set({ planningTasksViewMode }),
   })),
 );
