@@ -79,7 +79,15 @@ export function resolveDelegatedTaskStatus(task: TaskLike): {
   label: string;
   tone: TeamTaskRow['statusTone'];
 } {
-  if (task.isReported) {
+  const reported =
+    !!task.isReported ||
+    task.status === 'pre_achieved' ||
+    task.status === 'completed' ||
+    !!task.done;
+  if (reported && task.isLocked) {
+    return { label: 'Locked', tone: 'default' };
+  }
+  if (reported) {
     return { label: 'Reported', tone: 'success' };
   }
   return { label: 'In progress', tone: 'default' };
@@ -214,6 +222,7 @@ export function collectTeamAssignedTasksFromSummaries(
         resolveUserName,
         assignedByUserId: opts?.assignedByUserId,
         delegatedOnly: opts?.delegatedOnly,
+        statusFilter: opts?.statusFilter,
       }),
     );
   }
@@ -252,6 +261,7 @@ export function collectTeamAssignedTasksFromMockPlans(
         resolveUserName,
         assignedByUserId: opts?.assignedByUserId,
         delegatedOnly: opts?.delegatedOnly,
+        statusFilter: opts?.statusFilter,
       }),
     );
   }

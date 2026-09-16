@@ -57,7 +57,7 @@ import {
   planCardAssigneeRole,
   type PlanCardDisplayMode,
 } from '../planning/planCardDisplay';
-import MockPlanHierarchy from './MockPlanHierarchy';
+import PlanCardTasksTable from './PlanCardTasksTable';
 import LockTasksModal from './LockTasksModal';
 import TaskCommentsModal from './TaskCommentsModal';
 import type { MockPlanTask } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
@@ -66,6 +66,10 @@ import {
   filterMockTasksByDuration,
 } from '../prototype/mockDurationFilter';
 import { UNLINKED_KR_ID } from '../prototype/mockPlanningConstants';
+import {
+  collectMockTasksForStatusFilter,
+  normalizePlanningTaskStatusFilter,
+} from '../planning/planningTaskStatusFilter';
 
 const HISTORY_PAGE_SIZE = 8;
 
@@ -248,55 +252,6 @@ const metaHead =
 /** Flat light tint — same pattern as locked/completed rows (no ring/border). */
 const pendingTaskRowClass = 'bg-[#FFF7ED]/50';
 
-function resolveTaskDeadlineIso(
-  task: any,
-  datesByTaskId?: Record<string, { start?: string; deadline?: string }>,
-): string | null {
-  const overlay = datesByTaskId?.[String(task?.id ?? '')];
-  const raw =
-    overlay?.deadline || task?.deadline || task?.endDate || task?.end || null;
-  if (!raw) return null;
-  const iso = String(raw).slice(0, 10);
-  return parseDate(iso).isValid() ? iso : null;
-}
-
-function formatTaskDeadline(
-  deadlineIso: string | null,
-  opts?: { durationKind?: DeadlineKind; today?: string },
-): string {
-  if (!deadlineIso) return '—';
-  const today = opts?.today ?? todayIso();
-  if (
-    opts?.durationKind === 'daily' ||
-    String(deadlineIso).slice(0, 10) === today
-  ) {
-    if (String(deadlineIso).slice(0, 10) === today) return 'Today';
-  }
-  const d = parseDate(deadlineIso);
-  return d.isValid() ? d.format('MMM D') : '—';
-}
-
-function formatDaysLeft(
-  deadlineIso: string | null,
-  today: string,
-): { label: string; overdue: boolean } {
-  if (!deadlineIso) return { label: '—', overdue: false };
-  const end = parseDate(deadlineIso).startOf('day');
-  const start = parseDate(today).startOf('day');
-  if (!end.isValid() || !start.isValid()) return { label: '—', overdue: false };
-  const diff = end.diff(start, 'day');
-  if (diff < 0) {
-    const n = Math.abs(diff);
-    return {
-      label: n === 1 ? '1d overdue' : `${n}d overdue`,
-      overdue: true,
-    };
-  }
-  if (diff === 0) return { label: 'Due today', overdue: false };
-  if (diff === 1) return { label: '1 day left', overdue: false };
-  return { label: `${diff} days left`, overdue: false };
-}
-
 /** Priority pill: on small screens use a 3-letter label for Medium ("Med"). */
 function priorityChipText(priorityKey: string): React.ReactNode {
   if (priorityKey === 'Priority') return 'Urgent';
@@ -436,8 +391,15 @@ export default function PlanCard({
     top: number;
     text: string;
   } | null>(null);
-  const { planningDurationFilter, planningHistoryRange } =
-    PlanningAndReportingStore();
+  const {
+    planningDurationFilter,
+    planningHistoryRange,
+    planningTaskStatusFilter,
+  } = PlanningAndReportingStore();
+  const planningStatusFilter = normalizePlanningTaskStatusFilter(
+    planningTaskStatusFilter,
+  );
+  const isReportedStatusFilter = planningStatusFilter === 'reported';
   const isHistoryMode = isPlanHistoryFilter(planningDurationFilter);
   const durationKind: DeadlineKind = planFilterValueToKind(
     planningDurationFilter,
@@ -551,88 +513,10 @@ export default function PlanCard({
       togglePreAchieved,
     ],
   );
-  const approvalMenuItems: MenuProps['items'] =
-    plan.status?.label === 'Open'
-      ? [
-          {
-            key: 'lock',
-            icon: <LockOutlined />,
-            label: (
-              <Tooltip
-                title={
-                  isApprovalLoading
-                    ? 'Processing…'
-                    : "Lock plan. Once locked, the owner can't edit"
-                }
-              >
-                Lock
-              </Tooltip>
-            ),
-            onClick: () => {
-              if (mockEnabled) {
-                onApprove?.();
-                return;
-              }
-              setLiveLockComment('');
-              setLiveLockConfirm({ mode: 'lock' });
-            },
-            className: 'text-green-500',
-          },
-        ]
-      : [
-          {
-            key: 'unlock',
-            icon: <UnlockOutlined />,
-            label: <Tooltip title="Unlock plan">Unlock</Tooltip>,
-            onClick: () => {
-              if (mockEnabled) {
-                onOpen?.();
-                return;
-              }
-              setLiveLockComment('');
-              setLiveLockConfirm({ mode: 'unlock' });
-            },
-            className: 'text-red-400',
-          },
-        ];
-
   const mockPendingReportTasks = useMemo(() => {
     if (!mockEnabled || !plan.ownerUserId) return [] as MockPlanTask[];
     return mockPlansByUserId[plan.ownerUserId]?.pendingReportTasks ?? [];
   }, [mockEnabled, plan.ownerUserId, mockPlansByUserId]);
-
-  /** Lock pending (new & unclosed) tasks from the Pending tag. */
-  const pendingApprovalMenuItems: MenuProps['items'] = [
-    {
-      key: 'lock-pending',
-      icon: <LockOutlined />,
-      label: (
-        <Tooltip
-          title={
-            isApprovalLoading
-              ? 'Processing…'
-              : 'Lock pending tasks and merge them into the closed plan'
-          }
-        >
-          Lock pending
-        </Tooltip>
-      ),
-      onClick: () => {
-        if (!mockEnabled || !plan.ownerUserId) {
-          onApprove?.();
-          return;
-        }
-        const pending =
-          viewMode === 'reporting' ? mockPendingReportTasks : mockPendingTasks;
-        setLockTarget({
-          taskIds: pending.map((t) => t.id),
-          titles: pending.map((t) => t.title),
-          mergePending: true,
-        });
-      },
-      className: 'text-green-500',
-    },
-  ];
 
   const editMenuItems: MenuProps['items'] = [
     {
@@ -773,6 +657,14 @@ export default function PlanCard({
     return mockPlanRecord?.archivedTasks ?? [];
   }, [mockPlanRecord]);
 
+  const mockStatusFilteredTasks = React.useMemo(() => {
+    if (!mockPlanRecord) return [] as MockPlanTask[];
+    return collectMockTasksForStatusFilter(
+      mockPlanRecord,
+      planningStatusFilter,
+    );
+  }, [mockPlanRecord, planningStatusFilter]);
+
   const mapMockTaskToPlanningTask = useCallback((t: MockPlanTask) => {
     return {
       id: t.id,
@@ -795,6 +687,8 @@ export default function PlanCard({
       endDate: t.deadline,
       isPendingApproval: t.isPendingApproval,
       isLocked: t.isLocked,
+      isReported: !!t.isReported,
+      done: !!t.done,
       lockComment: t.lockComment,
       commentCount: t.comments?.length ?? 0,
       kind: t.kind,
@@ -807,11 +701,11 @@ export default function PlanCard({
 
   const rawPlanningTasks = React.useMemo(() => {
     if (mockEnabled && plan.ownerUserId) {
-      const confirmedSource = plan.isReported
-        ? mockReportedTasks
-        : mockActiveTasks.filter((t) => !t.isPendingApproval);
-      const pendingSource = mockActiveTasks.filter(
+      const pendingSource = mockStatusFilteredTasks.filter(
         (t) => !!t.isPendingApproval,
+      );
+      const confirmedSource = mockStatusFilteredTasks.filter(
+        (t) => !t.isPendingApproval,
       );
       return [...confirmedSource, ...pendingSource].map(
         mapMockTaskToPlanningTask,
@@ -827,8 +721,7 @@ export default function PlanCard({
   }, [
     plan,
     mockEnabled,
-    mockActiveTasks,
-    mockReportedTasks,
+    mockStatusFilteredTasks,
     plan.ownerUserId,
     mapMockTaskToPlanningTask,
   ]);
@@ -848,9 +741,9 @@ export default function PlanCard({
   const confirmedTasks = React.useMemo(() => {
     if (mockEnabled) {
       const today = todayIso();
-      const confirmedSource = plan.isReported
-        ? mockReportedTasks.filter((t) => !t.isLocked && !t.assignedByUserId)
-        : mockActiveTasks.filter(
+      const confirmedSource = isReportedStatusFilter
+        ? mockStatusFilteredTasks.filter((t) => !t.isPendingApproval)
+        : mockStatusFilteredTasks.filter(
             (t) => !t.isPendingApproval && !t.isLocked && !t.assignedByUserId,
           );
       const filtered = filterMockTasksByDuration(
@@ -876,9 +769,8 @@ export default function PlanCard({
     durationKind,
     datesByTaskId,
     mockEnabled,
-    mockActiveTasks,
-    mockReportedTasks,
-    plan.isReported,
+    mockStatusFilteredTasks,
+    isReportedStatusFilter,
   ]);
 
   const isClosedPlan = plan.status?.label === 'Closed';
@@ -898,8 +790,19 @@ export default function PlanCard({
     return merged;
   }, [isClosedPlan, confirmedTasks, lockedTasks]);
 
-  const showLockedSection = lockedSectionTasks.length > 0;
   const showPendingSection = pendingTasks.length > 0;
+
+  const reportPendingTaskCount = useMemo(() => {
+    if (viewMode !== 'reporting') return 0;
+    return sections
+      .flatMap((s) => s.tasks)
+      .filter((t: { isPendingApproval?: boolean }) => !!t.isPendingApproval)
+      .length;
+  }, [viewMode, sections]);
+
+  const hasPendingForManagerMenu =
+    viewMode === 'reporting' ? reportPendingTaskCount > 0 : showPendingSection;
+
   /** Per-task lock/comments column — approver view, Pending rows only. */
   const showPendingTaskActionsColumn =
     mockEnabled &&
@@ -914,21 +817,118 @@ export default function PlanCard({
     flatTasks.length + lockedSectionTasks.length + pendingTasks.length;
 
   const mockPendingTasks = useMemo(
-    () => mockActiveTasks.filter((t) => !!t.isPendingApproval),
-    [mockActiveTasks],
+    () => mockStatusFilteredTasks.filter((t) => !!t.isPendingApproval),
+    [mockStatusFilteredTasks],
   );
+
+  const managerApprovalMenuItems: MenuProps['items'] = useMemo(() => {
+    const planOpen = plan.status?.label === 'Open';
+    const items: NonNullable<MenuProps['items']> = [];
+
+    const lockPending = () => {
+      if (!mockEnabled || !plan.ownerUserId) {
+        onApprove?.();
+        return;
+      }
+      const pending =
+        viewMode === 'reporting' ? mockPendingReportTasks : mockPendingTasks;
+      setLockTarget({
+        taskIds: pending.map((t) => t.id),
+        titles: pending.map((t) => t.title),
+        mergePending: true,
+      });
+    };
+
+    if (planOpen) {
+      items.push({
+        key: 'lock-plan',
+        icon: <LockOutlined />,
+        label: (
+          <Tooltip
+            title={
+              isApprovalLoading
+                ? 'Processing…'
+                : "Lock plan. Once locked, the owner can't edit"
+            }
+          >
+            Lock plan
+          </Tooltip>
+        ),
+        onClick: () => {
+          if (mockEnabled) {
+            onApprove?.();
+            return;
+          }
+          setLiveLockComment('');
+          setLiveLockConfirm({ mode: 'lock' });
+        },
+        className: 'text-green-500',
+      });
+      if (hasPendingForManagerMenu) {
+        items.push({
+          key: 'lock-pending',
+          icon: <LockOutlined />,
+          label: (
+            <Tooltip
+              title={
+                isApprovalLoading
+                  ? 'Processing…'
+                  : 'Lock pending tasks and merge them into the closed plan'
+              }
+            >
+              Lock pending
+            </Tooltip>
+          ),
+          onClick: lockPending,
+          className: 'text-green-500',
+        });
+      }
+    } else {
+      items.push({
+        key: 'unlock-plan',
+        icon: <UnlockOutlined />,
+        label: <Tooltip title="Unlock plan">Unlock plan</Tooltip>,
+        onClick: () => {
+          if (mockEnabled) {
+            onOpen?.();
+            return;
+          }
+          setLiveLockComment('');
+          setLiveLockConfirm({ mode: 'unlock' });
+        },
+        className: 'text-red-400',
+      });
+    }
+
+    return items;
+  }, [
+    plan.status?.label,
+    hasPendingForManagerMenu,
+    isApprovalLoading,
+    mockEnabled,
+    plan.ownerUserId,
+    viewMode,
+    mockPendingReportTasks,
+    mockPendingTasks,
+    onApprove,
+    onOpen,
+  ]);
+
   const mockLockedTasks = useMemo(
     () =>
-      mockActiveTasks.filter(
-        (t) => !t.isPendingApproval && (!!t.isLocked || !!t.assignedByUserId),
-      ),
-    [mockActiveTasks],
+      isReportedStatusFilter
+        ? []
+        : mockStatusFilteredTasks.filter(
+            (t) =>
+              !t.isPendingApproval && (!!t.isLocked || !!t.assignedByUserId),
+          ),
+    [mockStatusFilteredTasks, isReportedStatusFilter],
   );
   const mockConfirmedForTree = useMemo(() => {
     if (!mockEnabled) return [] as MockPlanTask[];
-    const treeSource = plan.isReported
-      ? mockReportedTasks.filter((t) => !t.isLocked && !t.assignedByUserId)
-      : mockActiveTasks.filter(
+    const treeSource = isReportedStatusFilter
+      ? mockStatusFilteredTasks.filter((t) => !t.isPendingApproval)
+      : mockStatusFilteredTasks.filter(
           (t) => !t.isPendingApproval && !t.isLocked && !t.assignedByUserId,
         );
     const matchIds = new Set(confirmedTasks.map((t: any) => t.id));
@@ -961,11 +961,10 @@ export default function PlanCard({
     return treeSource.filter((t) => !t.isPendingApproval && include.has(t.id));
   }, [
     mockEnabled,
-    mockActiveTasks,
-    mockReportedTasks,
+    mockStatusFilteredTasks,
+    isReportedStatusFilter,
     confirmedTasks,
     durationKind,
-    plan.isReported,
   ]);
 
   const mockLockedSectionForTree = useMemo(() => {
@@ -1029,6 +1028,246 @@ export default function PlanCard({
     const start = (historyPageSafe - 1) * HISTORY_PAGE_SIZE;
     return historyFilteredTasks.slice(start, start + HISTORY_PAGE_SIZE);
   }, [historyFilteredTasks, historyPageSafe]);
+
+  const mockTasksById = useMemo(() => {
+    const map = new Map<string, MockPlanTask>();
+    for (const task of [...mockActiveTasks, ...mockReportedTasks]) {
+      map.set(task.id, task);
+    }
+    return map;
+  }, [mockActiveTasks, mockReportedTasks]);
+
+  const resolvePlanPersonName = useCallback(
+    (personId: string) =>
+      mockDisplayNameForUserId(String(personId), String(viewerUserId ?? '')),
+    [viewerUserId],
+  );
+
+  const lockedTableTasks = useMemo(
+    () =>
+      mockEnabled
+        ? mockLockedSectionForTree.map((task) =>
+            mapMockTaskToPlanningTask(task),
+          )
+        : lockedSectionTasks,
+    [
+      mockEnabled,
+      mockLockedSectionForTree,
+      lockedSectionTasks,
+      mapMockTaskToPlanningTask,
+    ],
+  );
+
+  const confirmedTableTasks = useMemo(
+    () =>
+      mockEnabled
+        ? mockConfirmedForTree.map((task) => mapMockTaskToPlanningTask(task))
+        : flatTasks,
+    [mockEnabled, mockConfirmedForTree, flatTasks, mapMockTaskToPlanningTask],
+  );
+
+  const pendingTableTasks = useMemo(
+    () =>
+      mockEnabled
+        ? mockPendingTasks.map((task) => mapMockTaskToPlanningTask(task))
+        : pendingTasks,
+    [mockEnabled, mockPendingTasks, pendingTasks, mapMockTaskToPlanningTask],
+  );
+
+  const mergedTableTasks = useMemo(() => {
+    const merged: Record<string, unknown>[] = [];
+    const seen = new Set<string>();
+    const push = (task: Record<string, unknown>) => {
+      const id = String(task.id ?? '');
+      if (!id || seen.has(id)) return;
+      seen.add(id);
+      merged.push(task);
+    };
+    lockedTableTasks.forEach((task) => push(task as Record<string, unknown>));
+    confirmedTableTasks.forEach((task) =>
+      push(task as Record<string, unknown>),
+    );
+    pendingTableTasks.forEach((task) => push(task as Record<string, unknown>));
+    return merged;
+  }, [lockedTableTasks, confirmedTableTasks, pendingTableTasks]);
+
+  const renderTaskCheckboxCell = useCallback(
+    (task: Record<string, unknown>) => {
+      const taskId = String(task.id ?? '');
+      const effectiveStatus = optimisticStatuses[taskId] ?? task.status;
+      const isChecked = effectiveStatus === 'pre_achieved';
+      const isCompleted = effectiveStatus === 'completed';
+      const isLoading = loadingTasks.has(taskId);
+      const isLocked = !!task.isLocked;
+      const taskLockedReadOnly = mockEnabled && isLocked;
+      const rowReadOnly = isPlanReadOnly || taskLockedReadOnly;
+
+      if (isTeammatePlan) {
+        return (
+          <span
+            data-cy={`plan-card-task-checkbox-readonly-${taskId}`}
+            className={`relative flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] ${
+              isCompleted
+                ? 'border-[#D1D5DB] bg-[#F3F4F6]'
+                : isChecked
+                  ? 'border-[#52c41a] bg-[#52c41a] shadow-[0_0_0_2px_rgba(82,196,26,0.15)]'
+                  : 'border-current bg-white text-[#D1D5DB]'
+            }`}
+            aria-hidden
+          >
+            {isChecked || isCompleted ? (
+              <CheckOutlined
+                className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
+              />
+            ) : (
+              <span
+                data-cy={`plan-card-task-checkbox-dot-${taskId}`}
+                className="inline-block h-1.5 w-1.5 rounded-full bg-current"
+              />
+            )}
+          </span>
+        );
+      }
+
+      return (
+        <button
+          type="button"
+          data-cy={`plan-card-task-checkbox-${taskId}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!rowReadOnly && !isCompleted && !isLoading) {
+              handleTaskToggle(taskId, String(effectiveStatus ?? ''));
+            }
+          }}
+          disabled={rowReadOnly || isCompleted || isLoading}
+          aria-label={
+            isChecked ? 'Mark task not achieved' : 'Mark task achieved'
+          }
+          className={`relative flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
+            rowReadOnly || isCompleted
+              ? 'border-[#D1D5DB] bg-[#F3F4F6] cursor-not-allowed'
+              : isChecked
+                ? 'border-[#52c41a] bg-[#52c41a] shadow-[0_0_0_2px_rgba(82,196,26,0.15)]'
+                : 'border-[#D1D5DB] bg-white hover:border-[#52c41a]/45 cursor-pointer'
+          }`}
+        >
+          {isLoading ? (
+            <LuLoader className="h-3 w-3 animate-spin text-[#52c41a]" />
+          ) : isChecked || isCompleted ? (
+            <CheckOutlined
+              className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
+            />
+          ) : null}
+        </button>
+      );
+    },
+    [
+      optimisticStatuses,
+      loadingTasks,
+      mockEnabled,
+      isPlanReadOnly,
+      isTeammatePlan,
+      handleTaskToggle,
+    ],
+  );
+
+  const renderTaskActionsCell = useCallback(
+    (task: Record<string, unknown>) => {
+      const taskId = String(task.id ?? '');
+      const isLocked = !!task.isLocked;
+      const commentCount = Number(task.commentCount || 0);
+      const taskName = String(
+        task.taskName ??
+          task.task ??
+          task.title ??
+          task.name ??
+          'Untitled Task',
+      );
+
+      // Actions column is for pending-approval rows only; locked state is in Status.
+      if (!showPendingTaskActionsColumn || !task.isPendingApproval) {
+        return null;
+      }
+
+      return (
+        <div
+          data-cy={`plan-card-task-actions-${taskId}`}
+          className="flex items-center justify-end gap-0.5"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Tooltip
+            title={commentCount > 0 ? `${commentCount} comments` : 'Comments'}
+          >
+            <button
+              type="button"
+              data-cy={`plan-card-task-comments-btn-${taskId}`}
+              className="inline-flex h-[18px] items-center gap-0.5 rounded px-1 text-[#8F94A3] hover:bg-[#F1F2F6] hover:text-[#574CFF]"
+              onClick={() => {
+                const full =
+                  mockActiveTasks.find((t) => t.id === taskId) ?? null;
+                if (full) setCommentsTask(full);
+              }}
+              aria-label="Task comments"
+            >
+              <MessageOutlined className="text-[11px]" />
+              {commentCount > 0 ? (
+                <span
+                  data-cy={`plan-card-task-comments-count-${taskId}`}
+                  className="text-[10px] font-bold tabular-nums"
+                >
+                  {commentCount}
+                </span>
+              ) : null}
+            </button>
+          </Tooltip>
+          {canApprove ? (
+            isLocked ? (
+              <Tooltip title="Unlock task">
+                <button
+                  type="button"
+                  data-cy={`plan-card-task-unlock-btn-${taskId}`}
+                  className="inline-flex h-[18px] w-[18px] items-center justify-center rounded text-[#059669] hover:bg-[#ECFDF5]"
+                  onClick={() => {
+                    if (!plan.ownerUserId) return;
+                    unlockMockTask(plan.ownerUserId, taskId);
+                    message.success('Task unlocked.');
+                  }}
+                  aria-label="Unlock task"
+                >
+                  <UnlockOutlined className="text-[11px]" />
+                </button>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Lock task">
+                <button
+                  type="button"
+                  data-cy={`plan-card-task-lock-btn-${taskId}`}
+                  className="inline-flex h-[18px] w-[18px] items-center justify-center rounded text-[#574CFF] hover:bg-[#EEF2FF]"
+                  onClick={() => {
+                    setLockTarget({
+                      taskIds: [taskId],
+                      titles: [taskName],
+                      mergePending: false,
+                    });
+                  }}
+                  aria-label="Lock task"
+                >
+                  <LockOutlined className="text-[11px]" />
+                </button>
+              </Tooltip>
+            )
+          ) : null}
+        </div>
+      );
+    },
+    [
+      showPendingTaskActionsColumn,
+      canApprove,
+      mockActiveTasks,
+      plan.ownerUserId,
+      unlockMockTask,
+    ],
+  );
 
   useEffect(() => {
     setHistoryPage(1);
@@ -1586,9 +1825,9 @@ export default function PlanCard({
                   <CloseOutlined className="text-[14px]" />
                 </button>
               ) : null}
-              {canApprove && (
+              {canApprove ? (
                 <Dropdown
-                  menu={{ items: approvalMenuItems }}
+                  menu={{ items: managerApprovalMenuItems }}
                   trigger={['click']}
                 >
                   <Button
@@ -1599,9 +1838,10 @@ export default function PlanCard({
                     icon={<MoreOutlined />}
                     className="text-green-600 hover:bg-transparent !p-0 !h-auto !w-auto text-base"
                     style={{ minWidth: 'auto' }}
+                    aria-label="Plan manager actions"
                   />
                 </Dropdown>
-              )}
+              ) : null}
               {canEdit && plan.status?.label === 'Open' && (
                 <Dropdown menu={{ items: editMenuItems }} trigger={['click']}>
                   <Button
@@ -1789,23 +2029,6 @@ export default function PlanCard({
                         tone: 'warning',
                       }}
                     />
-                    {canApprove ? (
-                      <Dropdown
-                        menu={{ items: pendingApprovalMenuItems }}
-                        trigger={['click']}
-                      >
-                        <Button
-                          id={`plan-card-report-pending-approve-dropdown-button-${plan.id}`}
-                          data-cy={`plan-card-report-pending-approve-dropdown-button-${plan.id}`}
-                          loading={isApprovalLoading}
-                          type="text"
-                          icon={<MoreOutlined />}
-                          className="text-green-600 hover:bg-transparent !p-0 !h-auto !w-auto text-base"
-                          style={{ minWidth: 'auto' }}
-                          aria-label="Lock pending reports"
-                        />
-                      </Dropdown>
-                    ) : null}
                   </div>
                   {reportPendingTasks.map((task) =>
                     renderReportTaskRow(task, true),
@@ -1900,357 +2123,6 @@ export default function PlanCard({
       </article>
     );
   }
-
-  const renderPlanningTaskRow = (
-    task: any,
-    opts?: {
-      depth?: number;
-      prefix?: React.ReactNode;
-      afterTitle?: React.ReactNode;
-      hideCheckbox?: boolean;
-      onOpen?: () => void;
-    },
-  ) => {
-    const taskAny = task as any;
-    const taskName =
-      taskAny.taskName ||
-      taskAny.task ||
-      taskAny.name ||
-      task.title ||
-      taskAny.planTask?.task ||
-      'Untitled Task';
-
-    const priorityKey = task.priority || 'Low';
-    const priorityColors: Record<
-      string,
-      { dot: string; bg: string; text: string }
-    > = {
-      High: { dot: '#EF4444', bg: '#FEE2E2', text: '#991B1B' },
-      Priority: { dot: '#7C3AED', bg: '#EDE9FE', text: '#5B21B6' },
-      Medium: { dot: '#F59E0B', bg: '#FEF9C3', text: '#854D0E' },
-      Low: { dot: '#22C55E', bg: '#DCFCE7', text: '#166534' },
-    };
-    const pc = priorityColors[priorityKey] || priorityColors.Low;
-
-    const effectiveStatus = optimisticStatuses[task.id] ?? task.status;
-    const isChecked = effectiveStatus === 'pre_achieved';
-    const isCompleted = effectiveStatus === 'completed';
-    const isLoading = loadingTasks.has(task.id);
-    const deadlineIso = resolveTaskDeadlineIso(task, datesByTaskId);
-    const daysLeft = formatDaysLeft(deadlineIso, todayIso());
-
-    const depth = opts?.depth ?? 0;
-    const prefix = opts?.prefix;
-    const afterTitle = opts?.afterTitle;
-    const hideCheckbox = !!opts?.hideCheckbox;
-    const onOpen = opts?.onOpen;
-    const isLocked = !!taskAny.isLocked;
-    const lockComment = String(taskAny.lockComment || '').trim();
-    const commentCount = Number(taskAny.commentCount || 0);
-    const taskLockedReadOnly = mockEnabled && isLocked;
-    const rowReadOnly = isPlanReadOnly || taskLockedReadOnly;
-    const isPending = !!taskAny.isPendingApproval && !isLocked;
-    const showTaskLockCommentsActions =
-      showPendingTaskActionsColumn && !!taskAny.isPendingApproval && !isLocked;
-    const krMeta = resolveTaskKeyResultMeta(task, plan);
-
-    return (
-      <div
-        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1094"
-        key={task.id}
-        role={onOpen ? 'button' : undefined}
-        tabIndex={onOpen ? 0 : undefined}
-        onClick={onOpen}
-        onKeyDown={
-          onOpen
-            ? (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  onOpen();
-                }
-              }
-            : undefined
-        }
-        className={`group/row flex items-start gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150 ${
-          isPending
-            ? pendingTaskRowClass
-            : isChecked
-              ? 'bg-[#52c41a]/[0.04]'
-              : 'hover:bg-[#FAFBFC]'
-        } ${onOpen ? 'cursor-pointer' : ''}`}
-        style={
-          prefix
-            ? undefined
-            : depth > 0
-              ? { paddingLeft: 10 + depth * 12 }
-              : undefined
-        }
-        onMouseEnter={() => {
-          if (krMeta) onHoverKR?.(krMeta.id);
-        }}
-        onMouseLeave={() => {
-          if (krMeta) onHoverKR?.(null);
-        }}
-      >
-        {prefix}
-        {!hideCheckbox &&
-          (isTeammatePlan ? (
-            <span
-              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1104"
-              className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
-                isCompleted
-                  ? 'border-[#D1D5DB] bg-[#F3F4F6]'
-                  : isChecked
-                    ? 'border-[#52c41a] bg-[#52c41a] shadow-[0_0_0_2px_rgba(82,196,26,0.15)]'
-                    : 'border-current bg-white text-[#D1D5DB]'
-              }`}
-              aria-hidden
-            >
-              {isChecked || isCompleted ? (
-                <CheckOutlined
-                  className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
-                />
-              ) : (
-                <span
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1119"
-                  className="inline-block h-1.5 w-1.5 rounded-full bg-current"
-                  aria-hidden
-                />
-              )}
-            </span>
-          ) : (
-            <button
-              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-button-1126"
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!rowReadOnly && !isCompleted && !isLoading) {
-                  handleTaskToggle(task.id, effectiveStatus ?? '');
-                }
-              }}
-              disabled={rowReadOnly || isCompleted || isLoading}
-              aria-label={
-                isChecked ? 'Mark task not achieved' : 'Mark task achieved'
-              }
-              className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
-                rowReadOnly || isCompleted
-                  ? 'border-[#D1D5DB] bg-[#F3F4F6] cursor-not-allowed'
-                  : isChecked
-                    ? 'border-[#52c41a] bg-[#52c41a] shadow-[0_0_0_2px_rgba(82,196,26,0.15)]'
-                    : 'border-[#D1D5DB] bg-white hover:border-[#52c41a]/45 hover:shadow-[0_0_0_2px_rgba(82,196,26,0.08)] cursor-pointer'
-              }`}
-            >
-              {isLoading ? (
-                <LuLoader className="h-3 w-3 animate-spin text-[#52c41a]" />
-              ) : isChecked || isCompleted ? (
-                <CheckOutlined
-                  className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
-                />
-              ) : null}
-            </button>
-          ))}
-
-        <div
-          data-cy="plancard-1345"
-          className="flex min-w-0 flex-1 items-start gap-1"
-        >
-          <div
-            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1699"
-            className="min-w-0 flex-1"
-          >
-            <p
-              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-1153"
-              className={`min-w-0 break-words text-[14px] leading-snug line-clamp-2 transition-all duration-200 ${
-                isPending
-                  ? 'text-[#2D2F45]'
-                  : isChecked
-                    ? 'line-through text-[#6b7280]'
-                    : isCompleted
-                      ? 'line-through text-[#D1D5DB]'
-                      : 'text-[#2D2F45]'
-              }`}
-              title={taskName}
-            >
-              {taskName}
-            </p>
-            {krMeta ? (
-              <span
-                data-cy={`plan-card-task-kr-${task.id}`}
-                className="mt-0.5 flex max-w-full items-center gap-1 text-[11px] font-medium leading-snug text-[#94A3B8] transition-colors group-hover/row:text-[#64748B]"
-                title={krMeta.title}
-              >
-                <BsKey
-                  size={10}
-                  className="shrink-0 text-[#94A3B8] group-hover/row:text-[#1E40AF]/70"
-                  aria-hidden
-                />
-                <span
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1724"
-                  className="min-w-0 truncate"
-                >
-                  {krMeta.title}
-                </span>
-              </span>
-            ) : null}
-            {renderTaskDelegationLabel(
-              String(task.id),
-              taskAny.assignedByUserId,
-              viewerUserId,
-            )}
-          </div>
-          {afterTitle}
-        </div>
-
-        <div
-          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-971"
-          className="flex flex-shrink-0 items-center justify-end self-center"
-        >
-          <div
-            data-cy={`plan-card-task-priority-${task.id}`}
-            className={classNames(meta.pri, 'flex justify-end')}
-          >
-            <span
-              data-cy="plancard-span-1370"
-              className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[11px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[12px]"
-              style={{ backgroundColor: pc.bg, color: pc.text }}
-            >
-              <span
-                data-cy="plancard-span-1374"
-                className="inline-block h-2 w-2 shrink-0 rounded-full"
-                style={{ backgroundColor: pc.dot }}
-              />
-              {priorityChipText(priorityKey)}
-            </span>
-          </div>
-          <div
-            data-cy={`plan-card-task-target-${task.id}`}
-            className={classNames(
-              meta.tgtPlan,
-              'text-right text-[12px] font-semibold tabular-nums text-[#8F94A3] sm:text-[13px]',
-            )}
-          >
-            {taskTargetDisplay(task)}
-          </div>
-          <div
-            data-cy={`plan-card-task-deadline-${task.id}`}
-            className={classNames(
-              meta.deadline,
-              'text-right text-[12px] font-medium tabular-nums text-[#64748B] sm:text-[13px]',
-            )}
-          >
-            {formatTaskDeadline(deadlineIso, {
-              durationKind,
-              today: todayIso(),
-            })}
-          </div>
-          <div
-            data-cy={`plan-card-task-days-left-${task.id}`}
-            className={classNames(
-              meta.daysLeft,
-              'text-right text-[12px] font-semibold tabular-nums sm:text-[13px]',
-              daysLeft.overdue ? 'text-[#DC2626]' : 'text-[#8F94A3]',
-            )}
-          >
-            {daysLeft.label}
-          </div>
-          {showTaskLockCommentsActions ? (
-            <div
-              className={classNames(
-                meta.actions,
-                'flex items-center justify-end gap-0.5',
-              )}
-              data-cy={`plan-card-task-actions-${task.id}`}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {isLocked ? (
-                <Tooltip
-                  title={
-                    lockComment ? `Locked: ${lockComment}` : 'Locked by manager'
-                  }
-                >
-                  <span
-                    data-cy={`plan-card-task-locked-${task.id}`}
-                    className="inline-flex h-[18px] w-[18px] items-center justify-center rounded text-[#64748B]"
-                  >
-                    <LockOutlined className="text-[11px]" />
-                  </span>
-                </Tooltip>
-              ) : null}
-              {canApprove ? (
-                <Tooltip
-                  title={
-                    commentCount > 0 ? `${commentCount} comments` : 'Comments'
-                  }
-                >
-                  <button
-                    type="button"
-                    data-cy={`plan-card-task-comments-${task.id}`}
-                    className="inline-flex h-[18px] items-center gap-0.5 rounded px-1 text-[#8F94A3] hover:bg-[#F1F2F6] hover:text-[#574CFF]"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const full =
-                        mockActiveTasks.find((t) => t.id === task.id) ?? null;
-                      if (full) setCommentsTask(full);
-                    }}
-                    aria-label="Task comments"
-                  >
-                    <MessageOutlined className="text-[11px]" />
-                    {commentCount > 0 ? (
-                      <span
-                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1828"
-                        className="text-[10px] font-bold tabular-nums"
-                      >
-                        {commentCount}
-                      </span>
-                    ) : null}
-                  </button>
-                </Tooltip>
-              ) : null}
-              {canApprove ? (
-                isLocked ? (
-                  <Tooltip title="Unlock task">
-                    <button
-                      type="button"
-                      data-cy={`plan-card-task-unlock-${task.id}`}
-                      className="inline-flex h-[18px] w-[18px] items-center justify-center rounded text-[#059669] hover:bg-[#ECFDF5]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!plan.ownerUserId) return;
-                        unlockMockTask(plan.ownerUserId, String(task.id));
-                        message.success('Task unlocked.');
-                      }}
-                      aria-label="Unlock task"
-                    >
-                      <UnlockOutlined className="text-[11px]" />
-                    </button>
-                  </Tooltip>
-                ) : (
-                  <Tooltip title="Lock task">
-                    <button
-                      type="button"
-                      data-cy={`plan-card-task-lock-${task.id}`}
-                      className="inline-flex h-[18px] w-[18px] items-center justify-center rounded text-[#574CFF] hover:bg-[#EEF2FF]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setLockTarget({
-                          taskIds: [String(task.id)],
-                          titles: [taskName],
-                          mergePending: false,
-                        });
-                      }}
-                      aria-label="Lock task"
-                    >
-                      <LockOutlined className="text-[11px]" />
-                    </button>
-                  </Tooltip>
-                )
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      </div>
-    );
-  };
 
   return (
     <article
@@ -2357,9 +2229,11 @@ export default function PlanCard({
                 <CloseOutlined className="text-[14px]" />
               </button>
             ) : null}
-            {canApprove &&
-            (!showPendingSection || plan.status?.label === 'Closed') ? (
-              <Dropdown menu={{ items: approvalMenuItems }} trigger={['click']}>
+            {canApprove ? (
+              <Dropdown
+                menu={{ items: managerApprovalMenuItems }}
+                trigger={['click']}
+              >
                 <Button
                   id={`plan-card-approve-dropdown-button-${plan.id}`}
                   data-cy={`plan-card-approve-dropdown-button-${plan.id}`}
@@ -2368,6 +2242,7 @@ export default function PlanCard({
                   icon={<MoreOutlined />}
                   className="text-green-600 hover:bg-transparent !p-0 !h-auto !w-auto text-base"
                   style={{ minWidth: 'auto' }}
+                  aria-label="Plan manager actions"
                 />
               </Dropdown>
             ) : null}
@@ -2415,224 +2290,65 @@ export default function PlanCard({
             No tasks for this period
           </p>
         ) : null}
-        {!inlineReportActive && !isHistoryMode ? (
+        {!inlineReportActive && isHistoryMode ? (
           <div
-            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-822"
-            className="mb-0.5 mt-1 flex items-center justify-end gap-2 px-2.5 pb-1"
+            className="space-y-2"
+            data-cy={`plan-card-history-section-${plan.id}`}
           >
-            <div
-              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-845"
-              className="flex flex-shrink-0 items-center"
-            >
+            <PlanCardTasksTable
+              tasks={historyPageTasks as Record<string, unknown>[]}
+              plan={plan}
+              durationKind={durationKind}
+              resolveUserName={resolvePlanPersonName}
+              mockTasksById={mockEnabled ? mockTasksById : undefined}
+              allActiveTasks={
+                plan.isReported ? mockReportedTasks : mockActiveTasks
+              }
+              viewerUserId={String(viewerUserId ?? '')}
+              emptyText="No history in this range"
+              data-cy={`plan-card-history-table-${plan.id}`}
+            />
+            {historyTotal > HISTORY_PAGE_SIZE ? (
               <div
-                data-cy="plan-card-col-priority"
-                className={classNames(meta.pri, metaHead)}
+                className="flex justify-end"
+                data-cy={`plan-card-history-pagination-${plan.id}`}
               >
-                <span data-cy="plancard-1605" className="sm:hidden">
-                  Pri
-                </span>
-                <span data-cy="plancard-1606" className="hidden sm:inline">
-                  Priority
-                </span>
-              </div>
-              <div
-                data-cy="plan-card-col-target"
-                className={classNames(meta.tgtPlan, metaHead)}
-              >
-                <span
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-2067"
-                  className="sm:hidden"
-                >
-                  Tgt
-                </span>
-                <span
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-2068"
-                  className="hidden sm:inline"
-                >
-                  Target
-                </span>
-              </div>
-              <div
-                data-cy="plan-card-col-deadline"
-                className={classNames(meta.deadline, metaHead)}
-              >
-                Deadline
-              </div>
-              <div
-                data-cy="plan-card-col-days-left"
-                className={classNames(meta.daysLeft, metaHead)}
-              >
-                <span data-cy="plancard-1624" className="sm:hidden">
-                  Left
-                </span>
-                <span data-cy="plancard-1625" className="hidden sm:inline">
-                  Days left
-                </span>
-              </div>
-              {showPendingTaskActionsColumn ? (
-                <div
-                  data-cy="plan-card-col-actions"
-                  className={classNames(meta.actions, metaHead)}
-                  aria-hidden
+                <Pagination
+                  size="small"
+                  current={historyPageSafe}
+                  pageSize={HISTORY_PAGE_SIZE}
+                  total={historyTotal}
+                  onChange={setHistoryPage}
+                  showSizeChanger={false}
                 />
-              ) : null}
-            </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
-        <div
-          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-862"
-          className="space-y-3"
-        >
-          {!inlineReportActive && isHistoryMode ? (
-            <div
-              className="space-y-[2px] rounded-lg bg-[#F8FAFC] px-1 py-1.5"
-              data-cy={`plan-card-history-section-${plan.id}`}
-            >
-              {historyTotal === 0 ? (
-                <p
-                  data-cy={`plan-card-history-empty-${plan.id}`}
-                  className="px-2 py-4 text-center text-[13px] text-[#8F94A3]"
-                >
-                  No history in this range
-                </p>
-              ) : (
-                <>
-                  {historyPageTasks.map((task: any) =>
-                    renderPlanningTaskRow(task, {
-                      hideCheckbox: true,
-                    }),
-                  )}
-                  {historyTotal > HISTORY_PAGE_SIZE ? (
-                    <div
-                      className="flex justify-end px-2 pb-1 pt-2"
-                      data-cy={`plan-card-history-pagination-${plan.id}`}
-                    >
-                      <Pagination
-                        size="small"
-                        current={historyPageSafe}
-                        pageSize={HISTORY_PAGE_SIZE}
-                        total={historyTotal}
-                        onChange={setHistoryPage}
-                        showSizeChanger={false}
-                      />
-                    </div>
-                  ) : null}
-                </>
-              )}
-            </div>
-          ) : null}
 
-          {!inlineReportActive && !isHistoryMode && showLockedSection ? (
-            <div
-              className="space-y-[2px] rounded-lg bg-[#F8FAFC] px-1 py-1.5"
-              data-cy={`plan-card-locked-section-${plan.id}`}
-            >
-              <div
-                className="flex items-center gap-2 px-2.5 pb-1 pt-1"
-                data-cy={`plan-card-locked-section-header-${plan.id}`}
-              >
-                <StatusBadge
-                  status={{
-                    label: 'Closed',
-                    updatedAt: plan.status?.updatedAt ?? '',
-                    tone: 'success',
-                  }}
-                />
-              </div>
-              {mockEnabled && plan.ownerUserId ? (
-                <MockPlanHierarchy
-                  ownerUserId={plan.ownerUserId}
-                  tasks={mockLockedSectionForTree}
-                  allActiveTasks={
-                    plan.isReported ? mockReportedTasks : mockActiveTasks
-                  }
-                  isTeammatePlan={isTeammatePlan}
-                  canAddSubtasks={canAddMockSubtasks}
-                  durationKind={durationKind}
-                  hideInteractiveMarkers={!!plan.isReported}
-                  renderTaskRow={renderPlanningTaskRow}
-                />
-              ) : (
-                lockedSectionTasks.map((task) => renderPlanningTaskRow(task))
-              )}
-            </div>
-          ) : null}
-
-          {!inlineReportActive && !isHistoryMode && flatTasks.length > 0 ? (
-            mockEnabled && plan.ownerUserId ? (
-              <div
-                className="space-y-[2px] rounded-lg bg-[#F8FAFC] px-1 py-1.5"
-                data-cy={`plan-card-confirmed-section-${plan.id}`}
-              >
-                <MockPlanHierarchy
-                  ownerUserId={plan.ownerUserId}
-                  tasks={mockConfirmedForTree}
-                  allActiveTasks={
-                    plan.isReported ? mockReportedTasks : mockActiveTasks
-                  }
-                  isTeammatePlan={isTeammatePlan}
-                  canAddSubtasks={canAddMockSubtasks}
-                  durationKind={durationKind}
-                  hideInteractiveMarkers={!!plan.isReported}
-                  renderTaskRow={renderPlanningTaskRow}
-                />
-              </div>
-            ) : (
-              flatTasks.map((task) => renderPlanningTaskRow(task))
-            )
-          ) : null}
-
-          {!inlineReportActive && !isHistoryMode && showPendingSection ? (
-            <div
-              className="space-y-[2px]"
-              data-cy={`plan-card-pending-section-${plan.id}`}
-            >
-              <div
-                className="flex items-center justify-between gap-2 px-2.5 pb-1 pt-1"
-                data-cy={`plan-card-pending-section-header-${plan.id}`}
-              >
-                <StatusBadge
-                  status={{
-                    label: 'Open',
-                    updatedAt: '',
-                    tone: 'warning',
-                  }}
-                />
-                {canApprove ? (
-                  <Dropdown
-                    menu={{ items: pendingApprovalMenuItems }}
-                    trigger={['click']}
-                  >
-                    <Button
-                      id={`plan-card-pending-approve-dropdown-button-${plan.id}`}
-                      data-cy={`plan-card-pending-approve-dropdown-button-${plan.id}`}
-                      loading={isApprovalLoading}
-                      type="text"
-                      icon={<MoreOutlined />}
-                      className="text-green-600 hover:bg-transparent !p-0 !h-auto !w-auto text-base"
-                      style={{ minWidth: 'auto' }}
-                      aria-label="Lock pending plans"
-                    />
-                  </Dropdown>
-                ) : null}
-              </div>
-              {mockEnabled && plan.ownerUserId ? (
-                <MockPlanHierarchy
-                  ownerUserId={plan.ownerUserId}
-                  tasks={mockPendingTasks}
-                  allActiveTasks={mockActiveTasks}
-                  isTeammatePlan={isTeammatePlan}
-                  canAddSubtasks={false}
-                  durationKind={durationKind}
-                  hideInteractiveMarkers={!!plan.isReported}
-                  renderTaskRow={renderPlanningTaskRow}
-                />
-              ) : (
-                pendingTasks.map((task) => renderPlanningTaskRow(task))
-              )}
-            </div>
-          ) : null}
-        </div>
+        {!inlineReportActive && !isHistoryMode && visibleTaskCount > 0 ? (
+          <div data-cy={`plan-card-tasks-section-${plan.id}`}>
+            <PlanCardTasksTable
+              tasks={mergedTableTasks}
+              plan={plan}
+              durationKind={durationKind}
+              resolveUserName={resolvePlanPersonName}
+              mockTasksById={mockEnabled ? mockTasksById : undefined}
+              allActiveTasks={
+                plan.isReported ? mockReportedTasks : mockActiveTasks
+              }
+              isTeammatePlan={isTeammatePlan}
+              canAddSubtasks={canAddMockSubtasks}
+              hideInteractiveMarkers={!!plan.isReported}
+              viewerUserId={String(viewerUserId ?? '')}
+              showCheckboxColumn={!plan.isReported}
+              showActionsColumn={showPendingTaskActionsColumn}
+              renderCheckboxCell={renderTaskCheckboxCell}
+              renderActionsCell={renderTaskActionsCell}
+              data-cy={`plan-card-tasks-table-${plan.id}`}
+            />
+          </div>
+        ) : null}
 
         {!isHistoryMode && addPlanComposer ? (
           <div

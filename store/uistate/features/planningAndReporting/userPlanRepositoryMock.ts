@@ -548,11 +548,51 @@ const buildMockUserPlan = (
     reportNote: 'Partially done – pending second pass',
   };
 
+  /** Manager-closed reported tasks — visible under Status → Reported filter. */
+  const managerClosedToday: MockPlanTask = {
+    id: tid('mgr-closed-today'),
+    title: 'Closed: daily checkpoint',
+    start: plus(0),
+    deadline: plus(0),
+    spanDays: 1,
+    kind: 'daily',
+    parentId: null,
+    done: true,
+    isReported: true,
+    isLocked: true,
+    lockComment: 'Approved and closed by manager',
+    keyResultId: UNLINKED_KR_ID,
+    priority: 'medium',
+    weight: 5,
+    actualValue: 1,
+  };
+
+  const managerClosedWeek: MockPlanTask = {
+    id: tid('mgr-closed-week'),
+    title: 'Closed: sprint wrap-up notes',
+    start: plus(-3),
+    deadline: plus(-1),
+    spanDays: 3,
+    kind: 'daily',
+    parentId: null,
+    done: true,
+    isReported: true,
+    isLocked: true,
+    lockComment: 'Locked after report review',
+    keyResultId: 'kr-team-cadence',
+    keyResultTitle: 'Team cadence',
+    priority: 'high',
+    weight: 8,
+    actualValue: 1,
+  };
+
   const archivedTasks: MockPlanTask[] = [
     pastDaily1,
     pastDaily2,
     pastWeekly1,
     pastDaily3,
+    managerClosedToday,
+    managerClosedWeek,
   ];
 
   const reportRecordToday: MockReportRecord = {

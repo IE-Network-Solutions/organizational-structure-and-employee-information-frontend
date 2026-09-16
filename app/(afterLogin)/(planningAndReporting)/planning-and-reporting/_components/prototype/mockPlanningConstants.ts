@@ -4,7 +4,7 @@ import { spanDays } from '@/app/(afterLogin)/dashboard/_components/plan/deadline
 export const UNLINKED_KR_ID = '__unlinked__';
 
 /** Bump when mock seed shape/status defaults change so zustand rebuilds. */
-export const MOCK_PLAN_SEED_VERSION = 18;
+export const MOCK_PLAN_SEED_VERSION = 19;
 
 export const MOCK_KEY_RESULTS = [
   { id: 'kr-team-cadence', title: 'Team cadence' },
