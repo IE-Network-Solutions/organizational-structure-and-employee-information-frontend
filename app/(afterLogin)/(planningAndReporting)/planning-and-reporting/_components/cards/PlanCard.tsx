@@ -751,6 +751,9 @@ export default function PlanCard({
         durationKind,
         today,
       );
+      if (isReportedStatusFilter) {
+        return filtered.map(mapMockTaskToPlanningTask);
+      }
       const ids = new Set(filtered.map((t) => t.id));
       return allConfirmedTasks.filter((t: any) => ids.has(t.id));
     }
@@ -771,6 +774,7 @@ export default function PlanCard({
     mockEnabled,
     mockStatusFilteredTasks,
     isReportedStatusFilter,
+    mapMockTaskToPlanningTask,
   ]);
 
   const isClosedPlan = plan.status?.label === 'Closed';

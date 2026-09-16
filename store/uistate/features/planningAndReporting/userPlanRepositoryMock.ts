@@ -586,6 +586,47 @@ const buildMockUserPlan = (
     actualValue: 1,
   };
 
+  const managerClosedMonth: MockPlanTask = {
+    id: tid('mgr-closed-month'),
+    title: 'Closed: monthly retrospective',
+    start: plus(-10),
+    deadline: plus(-5),
+    spanDays: 6,
+    kind: 'week',
+    parentId: null,
+    done: true,
+    isReported: true,
+    isLocked: true,
+    lockComment: 'Closed after manager sign-off',
+    keyResultId: 'kr-q-demo',
+    keyResultTitle: 'Q-demo delivery',
+    priority: 'medium',
+    weight: 12,
+    actualValue: 100,
+  };
+
+  const managerClosedDelegated: MockPlanTask | null =
+    viewerUserId && String(viewerUserId) !== uid
+      ? {
+          id: tid('mgr-closed-delegated'),
+          title: 'Closed: delegated deliverable',
+          start: plus(0),
+          deadline: plus(0),
+          spanDays: 1,
+          kind: 'daily',
+          parentId: null,
+          done: true,
+          isReported: true,
+          isLocked: true,
+          assignedByUserId: String(viewerUserId),
+          lockComment: 'Manager closed delegated task',
+          keyResultId: UNLINKED_KR_ID,
+          priority: 'high',
+          weight: 6,
+          actualValue: 1,
+        }
+      : null;
+
   const archivedTasks: MockPlanTask[] = [
     pastDaily1,
     pastDaily2,
@@ -593,20 +634,32 @@ const buildMockUserPlan = (
     pastDaily3,
     managerClosedToday,
     managerClosedWeek,
+    managerClosedMonth,
+    ...(managerClosedDelegated ? [managerClosedDelegated] : []),
   ];
 
   const reportRecordToday: MockReportRecord = {
     id: `rep-${uid}-today`,
     submittedAt: plus(0) + 'T09:00:00.000Z',
-    taskIds: [pastDaily1.id, pastDaily2.id],
-    taskTitles: [pastDaily1.title, pastDaily2.title],
+    taskIds: [
+      pastDaily1.id,
+      pastDaily2.id,
+      managerClosedToday.id,
+      ...(managerClosedDelegated ? [managerClosedDelegated.id] : []),
+    ],
+    taskTitles: [
+      pastDaily1.title,
+      pastDaily2.title,
+      managerClosedToday.title,
+      ...(managerClosedDelegated ? [managerClosedDelegated.title] : []),
+    ],
   };
 
   const reportRecordThisWeek: MockReportRecord = {
     id: `rep-${uid}-week`,
     submittedAt: plus(-2) + 'T17:30:00.000Z',
-    taskIds: [pastDaily3.id],
-    taskTitles: [pastDaily3.title],
+    taskIds: [pastDaily3.id, managerClosedWeek.id],
+    taskTitles: [pastDaily3.title, managerClosedWeek.title],
   };
 
   const reportRecordPriorWeek: MockReportRecord = {
