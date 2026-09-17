@@ -5,7 +5,10 @@ import {
   ScorecardStatus,
 } from '@/types/bsc';
 
-export function isScorecardEvaluated(scorecard: EmployeeScorecard): boolean {
+export function isScorecardEvaluated(
+  scorecard: EmployeeScorecard | null | undefined,
+): boolean {
+  if (!scorecard) return false;
   return (
     scorecard.status === ScorecardStatus.Scored ||
     scorecard.status === ScorecardStatus.Completed ||
@@ -13,8 +16,10 @@ export function isScorecardEvaluated(scorecard: EmployeeScorecard): boolean {
   );
 }
 
-export function scorecardTotal(scorecard: EmployeeScorecard): number {
-  if (!isScorecardEvaluated(scorecard)) return 0;
+export function scorecardTotal(
+  scorecard: EmployeeScorecard | null | undefined,
+): number {
+  if (!scorecard || !isScorecardEvaluated(scorecard)) return 0;
   if (scorecard.finalEvaluation?.compositeScore != null) {
     return Number(scorecard.finalEvaluation.compositeScore);
   }
@@ -39,7 +44,10 @@ export function formatScore(value: number): string {
     : value.toFixed(1);
 }
 
-export function isScorecardApproved(scorecard: EmployeeScorecard): boolean {
+export function isScorecardApproved(
+  scorecard: EmployeeScorecard | null | undefined,
+): boolean {
+  if (!scorecard) return false;
   if (
     scorecard.status === ScorecardStatus.Scored ||
     scorecard.status === ScorecardStatus.Completed

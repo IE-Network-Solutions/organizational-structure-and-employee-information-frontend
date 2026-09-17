@@ -521,7 +521,9 @@ export default function MyBscScorecardPage() {
     : null;
 
   const scorecardProgress = useMemo(() => {
-    if (!isScorecardEvaluated(activeScorecard)) return undefined;
+    if (!activeScorecard || !isScorecardEvaluated(activeScorecard)) {
+      return undefined;
+    }
     return computeKpiProgressPercent(activeScorecard);
   }, [activeScorecard]);
 
