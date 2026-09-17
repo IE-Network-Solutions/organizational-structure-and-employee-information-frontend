@@ -85,13 +85,13 @@ import {
   useCollaborationPanelStore,
 } from '@/components/collaboration/collaboration-dock';
 import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
-import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { findMostSpecificMatchingRoute } from '@/utils/routePermissions';
+import RoutePermissionGuard from '@/components/auth/RoutePermissionGuard';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 // import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
@@ -381,7 +381,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
+  const { userId, tenantId, userData } = useAuthenticationStore();
   const enabledAnnouncementChannelIds = useAnnouncementChannelsStore(
     (state) => state.enabledChannelIds,
   );
@@ -418,8 +418,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     setIs2FA,
     setTwoFactorAuthEmail,
     setUser2FA,
-    isCheckingPermissions,
-    setIsCheckingPermissions,
   } = useAuthenticationStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -525,6 +523,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       key: '/',
       permissions: [], // No permissions required
+    },
+    {
+      key: '/unauthorized',
+      permissions: [], // Shown after a denied deep-link; must not re-trigger the guard
     },
     {
       key: '/employees/manage-employees/[id]',
@@ -1143,71 +1145,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-
-  // ✅ Check permission on pathname change
-  // Wait for persisted auth (token, userPermissions) before checking access.
-  // Without this, reload can run the check with empty store state and redirect to /unauthorized.
-  useEffect(() => {
-    if (!hasHydrated) {
-      setIsCheckingPermissions(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    const checkPermissions = async () => {
-      setIsCheckingPermissions(true);
-      try {
-        if (pathname === '/') {
-          router.push('/dashboard');
-          return;
-        }
-
-        const state = useAuthenticationStore.getState();
-        const isOwner = state.userData?.role?.slug?.toLowerCase() === 'owner';
-
-        const hasNoPermissions =
-          !state.userData?.userPermissions ||
-          (Array.isArray(state.userData.userPermissions) &&
-            state.userData.userPermissions.length === 0);
-
-        if (state.token && state.localId && !isOwner && hasNoPermissions) {
-          const success = await fetchCurrentUserAndUpdateStore();
-          if (cancelled) return;
-          if (!success) {
-            const refreshed = useAuthenticationStore.getState();
-            const stillNoPerms =
-              !refreshed.userData?.userPermissions ||
-              (Array.isArray(refreshed.userData.userPermissions) &&
-                refreshed.userData.userPermissions.length === 0);
-            if (stillNoPerms) {
-              return;
-            }
-          }
-        }
-
-        if (!checkPathnamePermissions(pathname)) {
-          router.push('/unauthorized');
-        }
-      } finally {
-        if (!cancelled) {
-          setIsCheckingPermissions(false);
-        }
-      }
-    };
-
-    checkPermissions();
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    pathname,
-    router,
-    checkPathnamePermissions,
-    setIsCheckingPermissions,
-    hasHydrated,
-    userData,
-  ]);
 
   const findParentMenuKey = React.useCallback(
     (pathname: string, menuItems: CustomMenuItem[]): string | null => {
@@ -2113,30 +2050,32 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             background: '#ffffff',
           }}
         >
-          {isMounted && isCheckingPermissions ? (
+          {isMounted ? (
+            <RoutePermissionGuard canAccess={checkPathnamePermissions}>
+              <div
+                data-cy="nav-content-inner"
+                className="scrollbar-hide min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
+                style={{
+                  borderRadius: borderRadiusLG,
+                  marginTop: 0,
+                  width: '100%',
+                  maxWidth: '100%',
+                  paddingInline: isMobile ? 8 : 24,
+                  background: '#ffffff',
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                }}
+              >
+                <OfflineIndicator variant="content" showNotifications={false} />
+                {children}
+              </div>
+            </RoutePermissionGuard>
+          ) : (
             <div
               data-cy="nav-content-loading"
               className="flex min-h-0 flex-1 items-center justify-center"
             >
               <Skeleton active />
-            </div>
-          ) : (
-            <div
-              data-cy="nav-content-inner"
-              className="scrollbar-hide min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
-              style={{
-                borderRadius: borderRadiusLG,
-                marginTop: 0,
-                width: '100%',
-                maxWidth: '100%',
-                paddingInline: isMobile ? 8 : 24,
-                background: '#ffffff',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
-            >
-              <OfflineIndicator variant="content" showNotifications={false} />
-              {children}
             </div>
           )}
           {/* <CreateEmployeeJobInformation
