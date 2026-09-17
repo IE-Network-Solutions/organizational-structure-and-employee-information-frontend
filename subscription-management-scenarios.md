@@ -231,20 +231,11 @@ Process (initiated through admin panel):
 
    **}**
 
-<<<<<<< HEAD
-**current*plan_cost_for_period = current_slot_price * subscription.slotTotal \_ current_planPeriod.periodMultiplier**
-
-**current_cost_for_remaining_days = current_plan_cost_for_period \* period_share**
-
-# **new*plan_cost_for_full_period = new_slot_price * subscription.slotTotal \_ new_planPeriod.periodMultiplier**
-
 **current*plan_cost_for_period = current_slot_price * subscription.slotTotal \_ current_planPeriod.periodMultiplier**
 
 **current_cost_for_remaining_days = current_plan_cost_for_period \* period_share**
 
 **new*plan_cost_for_full_period = new_slot_price * subscription.slotTotal \_ new_planPeriod.periodMultiplier**
-
-> > > > > > > 4b059e9f813fb421e5d82c40abf0a735e4dcfa62
 
 **new_cost_for_remaining_days = new_plan_cost_for_full_period \* period_share**
 
@@ -756,12 +747,7 @@ Process is essentially the same as for updating
 
      **}**
 
-<<<<<<< HEAD
 **extension*cost = slot_price * number*of_slots * new_planPeriod.periodMultiplier**
-=======
-**extension*cost = slot_price * number*of_slots * new_planPeriod.periodMultiplier**
-
-> > > > > > > 4b059e9f813fb421e5d82c40abf0a735e4dcfa62
 
 - If no planned plan change:
   **plan = get_plan(current_subscription.planId)**
@@ -802,12 +788,7 @@ Process is essentially the same as for updating
 
   **}**
 
-<<<<<<< HEAD
 **extension*cost = slot_price * current*subscription.slotTotal * planPeriod.periodMultiplier**
-=======
-**extension*cost = slot_price * current*subscription.slotTotal * planPeriod.periodMultiplier**
-
-> > > > > > > 4b059e9f813fb421e5d82c40abf0a735e4dcfa62
 
 4. System creates invoice for extension:
    - `tenantId` = client ID

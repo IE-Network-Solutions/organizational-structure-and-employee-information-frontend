@@ -401,4 +401,13 @@ export enum Permissions {
   SubmitSuccessionEvaluation = 'submit-succession-evaluation',
   ManageSuccessorDevelopment = 'manage-successor-development',
   ViewSuccessionReports = 'view-succession-reports',
+
+  // Non-Financial Balanced Scorecard (BSC)
+  ViewBsc = 'view_bsc',
+  ManageBscCycles = 'manage_bsc_cycles',
+  ManageBscKpiLibrary = 'manage_bsc_kpi_library',
+  ManageBscScorecards = 'manage_bsc_scorecards',
+  EvaluateBscScorecards = 'evaluate_bsc_scorecards',
+  AcknowledgeBscScorecard = 'acknowledge_bsc_scorecard',
+  SubmitBscEvidence = 'submit_bsc_evidence',
 }
