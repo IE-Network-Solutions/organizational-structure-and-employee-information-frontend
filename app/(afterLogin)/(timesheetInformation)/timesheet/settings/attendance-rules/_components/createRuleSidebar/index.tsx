@@ -335,7 +335,21 @@ const RULE_TYPE_TOPIC_BY_TYPE: Record<AttendanceRuleType, string> = {
   [AttendanceRuleType.EARLY_CLOCK_OUT]: 'Early Clock-out',
   [AttendanceRuleType.MISSED_CHECK_IN_OUT]: 'Missed Check-in/out',
   [AttendanceRuleType.BREAK]: 'Break',
+  [AttendanceRuleType.EARLY_BREAKOUT]: 'Early Breakout',
+  [AttendanceRuleType.LATE_BREAKIN]: 'Late Breakin',
 };
+
+const MINUTE_BASED_SALARY_RULE_TYPES: AttendanceRuleType[] = [
+  AttendanceRuleType.LATE,
+  AttendanceRuleType.EARLY_CLOCK_OUT,
+  AttendanceRuleType.EARLY_BREAKOUT,
+  AttendanceRuleType.LATE_BREAKIN,
+];
+
+const supportsMinuteBasedSalaryDeduction = (
+  ruleType?: AttendanceRuleType | string,
+): boolean =>
+  MINUTE_BASED_SALARY_RULE_TYPES.includes(ruleType as AttendanceRuleType);
 
 const VP_DEDUCTION_ACTION_RULE_TYPES: AttendanceRuleType[] = [
   AttendanceRuleType.ABSENT,
@@ -400,6 +414,10 @@ const getLetterBodyParagraph = (
       return `This letter serves as a formal warning for your missed check-in/check-out on {{violationDates}}. In accordance with company policy, regular attendance is required.${vpClause}`;
     case AttendanceRuleType.BREAK:
       return `This letter serves as a formal warning regarding your break violation on {{violationDates}}. In accordance with company policy, break guidelines must be followed.${vpClause}`;
+    case AttendanceRuleType.EARLY_BREAKOUT:
+      return `This letter serves as a formal warning for your early breakout on {{violationDates}}. In accordance with company policy, break guidelines must be followed.${vpClause}`;
+    case AttendanceRuleType.LATE_BREAKIN:
+      return `This letter serves as a formal warning for your late break-in on {{violationDates}}. In accordance with company policy, break guidelines must be followed.${vpClause}`;
     default:
       return `This letter serves as a formal ${getActionLabel(actionTypes).toLowerCase()} regarding your attendance on {{violationDates}}. In accordance with company policy, regular attendance is required.${vpClause}`;
   }
@@ -417,6 +435,10 @@ const getLetterClosingParagraph = (ruleType?: AttendanceRuleType | string) => {
       return 'Repeated missed check-ins/check-outs may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
     case AttendanceRuleType.BREAK:
       return 'Repeated break violations may lead to further disciplinary measures. Please follow break guidelines moving forward.';
+    case AttendanceRuleType.EARLY_BREAKOUT:
+      return 'Repeated early breakouts may lead to further disciplinary measures. Please follow break guidelines moving forward.';
+    case AttendanceRuleType.LATE_BREAKIN:
+      return 'Repeated late break-ins may lead to further disciplinary measures. Please follow break guidelines moving forward.';
     default:
       return 'Repeated violations may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
   }
@@ -460,6 +482,10 @@ const getIcon = (ruleType: AttendanceRuleType) => {
       return <TimerOffOutlinedIcon className="text-slate-600" />;
     case AttendanceRuleType.BREAK:
       return <EventBusyIcon className="text-slate-600" />;
+    case AttendanceRuleType.EARLY_BREAKOUT:
+      return <UpdateIcon className="text-amber-700" />;
+    case AttendanceRuleType.LATE_BREAKIN:
+      return <TimerOffOutlinedIcon className="text-orange-600" />;
     default:
       return null;
   }
@@ -550,7 +576,7 @@ const buildAttendanceRulePayload = (
   const actionTypesArray = normalizeActionTypes(values.actionTypes);
   if (actionTypesArray.includes(AttendanceActionType.SALARY_DEDUCTION)) {
     const isMinuteBased =
-      ruleType === AttendanceRuleType.LATE &&
+      supportsMinuteBasedSalaryDeduction(ruleType) &&
       Boolean(values.isMinuteBasedSalaryDeduction);
 
     payload.isMinuteBasedSalaryDeduction = isMinuteBased;
@@ -632,6 +658,9 @@ const CreateRuleSidebar = () => {
     'ABSENT',
     'EARLY_CLOCK_OUT',
     'MISSED_CHECK_IN_OUT',
+    'BREAK',
+    'EARLY_BREAKOUT',
+    'LATE_BREAKIN',
   ];
 
   const sortedAttendanceRuleTypes = useMemo(
@@ -786,11 +815,11 @@ const CreateRuleSidebar = () => {
       : [actionTypes];
     if (actionTypesArray.includes(AttendanceActionType.SALARY_DEDUCTION)) {
       const isMinuteBased =
-        selectedRule?.ruleType === AttendanceRuleType.LATE &&
+        supportsMinuteBasedSalaryDeduction(selectedRule?.ruleType) &&
         form.getFieldValue('isMinuteBasedSalaryDeduction') === true;
 
       if (isMinuteBased) {
-        // Minute-based LATE salary deduction does not use days/fixed amount.
+        // Minute-based salary deduction does not use days/fixed amount.
       } else {
         fields.push('isFixed');
         if (form.getFieldValue('isFixed') === true) {
@@ -1217,7 +1246,7 @@ const CreateRuleSidebar = () => {
               );
               const showMinuteBasedToggle =
                 showSalaryDeductionFields &&
-                selectedRule?.ruleType === AttendanceRuleType.LATE;
+                supportsMinuteBasedSalaryDeduction(selectedRule?.ruleType);
               const useMinuteBasedSalary =
                 showMinuteBasedToggle && isMinuteBasedSalaryDeduction;
               const showVpDeductionField = shouldShowVpDeductionAmountField(

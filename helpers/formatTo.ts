@@ -77,6 +77,164 @@ export interface BreakTypeStatus {
   disabled: boolean;
 }
 
+const formatBreakMinutes = (value: number): string => {
+  const hours = minuteToHour(value);
+  const mins = minuteToLastMinute(value);
+  if (hours > 0) {
+    return `${hours} hr ${mins} min`;
+  }
+  return `${mins} min`;
+};
+
+/** Build human-readable compliance labels for a taken attendance break.
+ * Prefers explicit capture-window fields; falls back to earlyBy/lateBy
+ * compat mirrors for pre-migration rows only.
+ */
+export const buildTakenBreakComplianceLabels = (
+  takenBreak: NonNullable<AttendanceRecord['attendanceBreaks']>[number],
+): string[] => {
+  const labels: string[] = [];
+  const earlyBreakout =
+    (takenBreak.earlyBreakoutByMinutes ?? 0) > 0
+      ? takenBreak.earlyBreakoutByMinutes!
+      : takenBreak.earlyByMinutes > 0
+        ? takenBreak.earlyByMinutes
+        : 0;
+  const lateBreakin =
+    (takenBreak.lateBreakinByMinutes ?? 0) > 0
+      ? takenBreak.lateBreakinByMinutes!
+      : takenBreak.lateByMinutes > 0
+        ? takenBreak.lateByMinutes
+        : 0;
+  const missedOutBand = takenBreak.missedBreakoutBandByMinutes ?? 0;
+  const missedInBand = takenBreak.missedBreakinBandByMinutes ?? 0;
+
+  if (!takenBreak.startAt && !takenBreak.endAt) {
+    labels.push('Missed breakout & breakin');
+  } else {
+    // Punch-miss labels follow timestamps only (ignore stale miss flags).
+    if (!takenBreak.startAt) {
+      labels.push('Missed breakout');
+    }
+    if (!takenBreak.endAt) {
+      labels.push('Missed breakin');
+    }
+  }
+
+  if (earlyBreakout > 0) {
+    labels.push(`Early breakout by ${formatBreakMinutes(earlyBreakout)}`);
+  }
+  if (lateBreakin > 0) {
+    labels.push(`Late breakin by ${formatBreakMinutes(lateBreakin)}`);
+  }
+  if (missedOutBand > 0) {
+    labels.push(
+      `Missed breakout band by ${formatBreakMinutes(missedOutBand)}`,
+    );
+  }
+  if (missedInBand > 0) {
+    labels.push(`Missed breakin band by ${formatBreakMinutes(missedInBand)}`);
+  }
+
+  // Deduplicate (e.g. null startAt + missedBreakout flag).
+  return [...new Set(labels)];
+};
+
+const parseWallClockMinutes = (
+  value?: string | Date | null,
+): number | null => {
+  if (value == null || value === '') return null;
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) return null;
+    return value.getUTCHours() * 60 + value.getUTCMinutes();
+  }
+  const asString = String(value).trim();
+  // HH:mm / HH:mm:ss schedule strings on BreakType
+  if (/^\d{1,2}:\d{2}/.test(asString) && !asString.includes('T')) {
+    const parts = asString.split(':').map(Number);
+    if (parts.length >= 2 && !parts.some((part) => Number.isNaN(part))) {
+      return parts[0] * 60 + parts[1];
+    }
+  }
+  // ISO wall-clock stored as UTC components
+  const parsed = new Date(asString);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return parsed.getUTCHours() * 60 + parsed.getUTCMinutes();
+};
+
+const minutesBetween = (later: number, earlier: number): number =>
+  Math.max(0, Math.round(later - earlier));
+
+/**
+ * Derive compliance labels from break-type windows + punch timestamps so the
+ * UI stays correct even when stored compliance flags/minutes are stale.
+ */
+export const buildBreakComplianceLabelsFromWindows = (
+  breakType: Pick<
+    BreakType,
+    | 'startAt'
+    | 'endAt'
+    | 'startAtFrom'
+    | 'startAtTo'
+    | 'endAtFrom'
+    | 'endAtTo'
+    | 'captureStartAt'
+    | 'captureEndAt'
+  >,
+  takenBreak: NonNullable<AttendanceRecord['attendanceBreaks']>[number],
+): string[] => {
+  const scheduledStart = parseWallClockMinutes(breakType.startAt);
+  const scheduledEnd = parseWallClockMinutes(breakType.endAt);
+  const leaveTo = parseWallClockMinutes(breakType.startAtTo);
+  const returnFrom = parseWallClockMinutes(breakType.endAtFrom);
+  const hasLeaveBand = !!(breakType.startAtFrom && breakType.startAtTo);
+  const hasReturnBand = !!(breakType.endAtFrom && breakType.endAtTo);
+
+  const breakout = parseWallClockMinutes(takenBreak.startAt);
+  const breakin = parseWallClockMinutes(takenBreak.endAt);
+
+  let earlyBreakout = 0;
+  let lateBreakin = 0;
+  let missedOutBand = 0;
+  let missedInBand = 0;
+
+  if (breakout !== null) {
+    if (scheduledStart !== null && breakout < scheduledStart) {
+      earlyBreakout = minutesBetween(scheduledStart, breakout);
+    } else if (hasLeaveBand && leaveTo !== null && breakout > leaveTo) {
+      missedOutBand = minutesBetween(breakout, leaveTo);
+    }
+  }
+
+  if (breakin !== null) {
+    if (scheduledEnd !== null && breakin > scheduledEnd) {
+      lateBreakin = minutesBetween(breakin, scheduledEnd);
+    } else if (hasReturnBand && returnFrom !== null && breakin < returnFrom) {
+      missedInBand = minutesBetween(returnFrom, breakin);
+    }
+  }
+
+  return buildTakenBreakComplianceLabels({
+    ...takenBreak,
+    earlyBreakoutByMinutes: earlyBreakout,
+    lateBreakinByMinutes: lateBreakin,
+    missedBreakoutBandByMinutes: missedOutBand,
+    missedBreakinBandByMinutes: missedInBand,
+    earlyByMinutes: earlyBreakout,
+    lateByMinutes: lateBreakin,
+    missedBreakout: !takenBreak.startAt,
+    missedBreakin: !takenBreak.endAt,
+  });
+};
+
+const themeForBreakLabels = (labels: string[]): StatusBadgeTheme => {
+  const joined = labels.join(' ').toLowerCase();
+  if (joined.includes('missed')) return StatusBadgeTheme.danger;
+  if (joined.includes('late')) return StatusBadgeTheme.danger;
+  if (joined.includes('early')) return StatusBadgeTheme.warning;
+  return StatusBadgeTheme.success;
+};
+
 export const formatBreakTypeToStatus = (
   item: BreakType,
   currentAttendance: AttendanceRecord | null,
@@ -89,84 +247,38 @@ export const formatBreakTypeToStatus = (
       (itemBreak) => itemBreak.breakTypeId === item.id,
     );
     if (takenBreak) {
-      // Handle cases where break times are null (like formatToAttendanceStatuses pattern)
-      if (!takenBreak?.startAt && !takenBreak?.endAt) {
+      const labels =
+        item?.startAt && item?.endAt
+          ? buildBreakComplianceLabelsFromWindows(item, takenBreak)
+          : buildTakenBreakComplianceLabels(takenBreak);
+      if (labels.length) {
         return {
           status: {
-            text: 'Missed Clock-in & Clock-out',
-            theme: StatusBadgeTheme.danger,
+            text: labels.join(', '),
+            theme: themeForBreakLabels(labels),
           },
           disabled: true,
         };
       }
 
-      if (!takenBreak?.startAt) {
+      // If no compliance issues and both punches exist, show completed
+      if (takenBreak.startAt && takenBreak.endAt) {
         return {
           status: {
-            text: 'Missed Clock-out',
-            theme: StatusBadgeTheme.danger,
+            text: 'Checked',
+            theme: StatusBadgeTheme.success,
           },
           disabled: true,
         };
       }
-
-      if (!takenBreak?.endAt) {
-        return {
-          status: {
-            text: 'Missed Clock-in',
-            theme: StatusBadgeTheme.danger,
-          },
-          disabled: true,
-        };
-      }
-
-      // Show late/early information if available (like formatToAttendanceStatuses)
-      if (takenBreak.earlyByMinutes > 0 && takenBreak?.lateByMinutes > 0) {
-        return {
-          status: {
-            text: `Early ${minuteToHour(takenBreak?.earlyByMinutes)} hr ${minuteToLastMinute(takenBreak?.earlyByMinutes)} min, Late ${minuteToHour(takenBreak?.lateByMinutes)} hr ${minuteToLastMinute(takenBreak?.lateByMinutes)} min`,
-            theme: StatusBadgeTheme.warning,
-          },
-          disabled: true,
-        };
-      }
-
-      if (takenBreak.earlyByMinutes > 0) {
-        return {
-          status: {
-            text: `Early ${minuteToHour(takenBreak.earlyByMinutes)} hr ${minuteToLastMinute(takenBreak.earlyByMinutes)} min`,
-            theme: StatusBadgeTheme.warning,
-          },
-          disabled: true,
-        };
-      }
-
-      if (takenBreak.lateByMinutes > 0) {
-        return {
-          status: {
-            text: `Late ${minuteToHour(takenBreak.lateByMinutes)} hr ${minuteToLastMinute(takenBreak.lateByMinutes)} min`,
-            theme: StatusBadgeTheme.danger,
-          },
-          disabled: true,
-        };
-      }
-
-      // If no late/early, show completed
-      return {
-        status: {
-          text: 'Checked',
-          theme: StatusBadgeTheme.success,
-        },
-        disabled: true,
-      };
     }
   }
 
-  // Handle cases where break times are null
+  // Handle cases where break schedule times are null
   if (!item?.startAt && !item?.endAt) {
     return {
       status: {
-        text: 'Missed Clock-in & Clock-out',
+        text: 'Missed breakout & breakin',
         theme: StatusBadgeTheme.danger,
       },
       disabled: true,
@@ -176,7 +288,7 @@ export const formatBreakTypeToStatus = (
   if (!item?.startAt) {
     return {
       status: {
-        text: 'Missed Clock-out',
+        text: 'Missed breakout',
         theme: StatusBadgeTheme.danger,
       },
       disabled: true,
@@ -186,7 +298,7 @@ export const formatBreakTypeToStatus = (
   if (!item?.endAt) {
     return {
       status: {
-        text: 'Missed Clock-in',
+        text: 'Missed breakin',
         theme: StatusBadgeTheme.danger,
       },
       disabled: true,
@@ -246,6 +358,56 @@ const isBreakTypeActiveAt = (item: BreakType, nowMinutes: number): boolean => {
   const end = timeStringToMinutes(item.endAt);
   if (start === null || end === null) return false;
   return nowMinutes >= start && nowMinutes < end;
+};
+
+const isWithinInclusiveBand = (
+  nowMinutes: number,
+  from?: string | null,
+  to?: string | null,
+): boolean => {
+  if (!from || !to) return false;
+  const start = timeStringToMinutes(from);
+  const end = timeStringToMinutes(to);
+  if (start === null || end === null) return false;
+  return nowMinutes >= start && nowMinutes <= end;
+};
+
+/**
+ * Remote Break Check Out: Allowed leave band when both bounds exist,
+ * otherwise scheduled startAt–endAt (inclusive).
+ */
+export const isWithinBreakLeaveBand = (
+  breakTypes: BreakType[] | null | undefined,
+  now: Date = new Date(),
+): boolean => {
+  if (!breakTypes?.length) return false;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+  return breakTypes.some((bt) => {
+    if (bt.startAtFrom && bt.startAtTo) {
+      return isWithinInclusiveBand(nowMinutes, bt.startAtFrom, bt.startAtTo);
+    }
+    return isWithinInclusiveBand(nowMinutes, bt.startAt, bt.endAt);
+  });
+};
+
+/**
+ * Remote Break Check In: Allowed return band when both bounds exist,
+ * otherwise scheduled startAt–endAt (inclusive).
+ */
+export const isWithinBreakReturnBand = (
+  breakTypes: BreakType[] | null | undefined,
+  now: Date = new Date(),
+): boolean => {
+  if (!breakTypes?.length) return false;
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+  return breakTypes.some((bt) => {
+    if (bt.endAtFrom && bt.endAtTo) {
+      return isWithinInclusiveBand(nowMinutes, bt.endAtFrom, bt.endAtTo);
+    }
+    return isWithinInclusiveBand(nowMinutes, bt.startAt, bt.endAt);
+  });
 };
 
 /**

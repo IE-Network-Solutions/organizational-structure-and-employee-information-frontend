@@ -11,6 +11,7 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import {
   AttendanceSetShiftRequestBody,
   EditAttendance,
+  EditAttendanceBreak,
   EditRuleViolation,
   ExportWarningLetterBody,
 } from '@/store/server/features/timesheet/attendance/interface';
@@ -48,6 +49,19 @@ const setEditAttendance = async (data: EditAttendance, id: string) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/${id}`,
+    method: 'PATCH',
+    headers: requestHeaders,
+    data,
+  });
+};
+
+const setEditAttendanceBreak = async (
+  data: EditAttendanceBreak,
+  attendanceRecordId: string,
+) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/${attendanceRecordId}/break`,
     method: 'PATCH',
     headers: requestHeaders,
     data,
@@ -317,6 +331,28 @@ export const useSetEditAttendance = () => {
         NotificationMessage.success({
           message: 'Successfully Edit',
           description: 'Attendance successfully Edit.',
+        });
+      },
+    },
+  );
+};
+
+export const useSetEditAttendanceBreak = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({
+      attendanceRecordId,
+      data,
+    }: {
+      attendanceRecordId: string;
+      data: EditAttendanceBreak;
+    }) => setEditAttendanceBreak(data, attendanceRecordId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance');
+        NotificationMessage.success({
+          message: 'Successfully Edit',
+          description: 'Break times successfully updated.',
         });
       },
     },

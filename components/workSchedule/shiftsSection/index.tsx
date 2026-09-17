@@ -51,6 +51,8 @@ function enrichAndFilterBreaks(
       startAtTo: br.startAtTo ?? bt?.startAtTo ?? null,
       endAtFrom: br.endAtFrom ?? bt?.endAtFrom ?? null,
       endAtTo: br.endAtTo ?? bt?.endAtTo ?? null,
+      captureStartAt: br.captureStartAt ?? bt?.captureStartAt ?? null,
+      captureEndAt: br.captureEndAt ?? bt?.captureEndAt ?? null,
     };
   });
 
@@ -94,6 +96,10 @@ export function mapShiftsToApiPayload(shifts: ShiftDraft[]) {
         ...(br.startAtTo != null ? { startAtTo: br.startAtTo } : {}),
         ...(br.endAtFrom != null ? { endAtFrom: br.endAtFrom } : {}),
         ...(br.endAtTo != null ? { endAtTo: br.endAtTo } : {}),
+        ...(br.captureStartAt != null
+          ? { captureStartAt: br.captureStartAt }
+          : {}),
+        ...(br.captureEndAt != null ? { captureEndAt: br.captureEndAt } : {}),
       })),
   }));
 }
@@ -443,6 +449,12 @@ const ShiftsSection: React.FC<ShiftsSectionProps> = ({
                           endAtFrom:
                             existing?.endAtFrom ?? bt.endAtFrom ?? null,
                           endAtTo: existing?.endAtTo ?? bt.endAtTo ?? null,
+                          captureStartAt:
+                            existing?.captureStartAt ??
+                            bt.captureStartAt ??
+                            null,
+                          captureEndAt:
+                            existing?.captureEndAt ?? bt.captureEndAt ?? null,
                         };
                       })
                       .filter(Boolean) as ShiftBreak[];

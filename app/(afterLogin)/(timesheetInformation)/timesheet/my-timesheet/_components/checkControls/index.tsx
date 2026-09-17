@@ -18,7 +18,11 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { CiLogin, CiLogout } from 'react-icons/ci';
 import RemoteAttendanceActionButton from '@/components/common/remoteAttendanceActionButton';
 import { useRemoteAttendanceCameraStore } from '@/store/uistate/features/timesheet/remoteAttendanceCamera';
-import { useIsWithinBreakPeriod } from '@/hooks/useIsWithinBreakPeriod';
+import {
+  useIsWithinBreakLeaveBand,
+  useIsWithinBreakPeriod,
+  useIsWithinBreakReturnBand,
+} from '@/hooks/useIsWithinBreakPeriod';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
@@ -31,6 +35,8 @@ const CheckControl = () => {
 
   const { isMobile } = useIsMobile();
   const withinBreakPeriod = useIsWithinBreakPeriod();
+  const withinBreakLeaveBand = useIsWithinBreakLeaveBand();
+  const withinBreakReturnBand = useIsWithinBreakReturnBand();
   const { data: currentAttendanceData, isFetching } =
     useGetCurrentAttendance(userId);
 
@@ -51,32 +57,36 @@ const CheckControl = () => {
   }, [checkStatus, currentAttendance]);
 
   const mobileMenuItems = [
-    {
-      key: 'break',
-      label: (
-        <RemoteAttendanceActionButton
-          action={{
-            isSignIn: false,
-            openBreakCheckOutSidebarAfterCapture: true,
-          }}
-        >
-          <Button
-            type="text"
-            icon={
-              <GoClock
-                data-cy="time-attendance-check-controls-mobile-break-check-out-button-icon"
-                size={20}
-              />
-            }
-            loading={loading}
-            id="time-attendance-check-controls-mobile-break-check-out-button"
-            data-cy="time-attendance-check-controls-mobile-break-check-out-button"
-          >
-            Break Check Out
-          </Button>
-        </RemoteAttendanceActionButton>
-      ),
-    },
+    ...(withinBreakLeaveBand
+      ? [
+          {
+            key: 'break',
+            label: (
+              <RemoteAttendanceActionButton
+                action={{
+                  isSignIn: false,
+                  openBreakCheckOutSidebarAfterCapture: true,
+                }}
+              >
+                <Button
+                  type="text"
+                  icon={
+                    <GoClock
+                      data-cy="time-attendance-check-controls-mobile-break-check-out-button-icon"
+                      size={20}
+                    />
+                  }
+                  loading={loading}
+                  id="time-attendance-check-controls-mobile-break-check-out-button"
+                  data-cy="time-attendance-check-controls-mobile-break-check-out-button"
+                >
+                  Break Check Out
+                </Button>
+              </RemoteAttendanceActionButton>
+            ),
+          },
+        ]
+      : []),
     // Hide the Check Out option during any configured break period.
     ...(!withinBreakPeriod
       ? [
@@ -152,28 +162,30 @@ const CheckControl = () => {
                   id="time-attendance-check-controls-started-buttons"
                   data-cy="time-attendance-check-controls-started-buttons"
                 >
-                  <RemoteAttendanceActionButton
-                    action={{
-                      isSignIn: false,
-                      openBreakCheckOutSidebarAfterCapture: true,
-                    }}
-                  >
-                    <Button
-                      className="h-10 text-base px-2"
-                      size="large"
-                      id="time-attendance-check-controls-break-check-out-button"
-                      data-cy="time-attendance-check-controls-break-check-out-button"
-                      icon={
-                        <GoClock
-                          data-cy="time-attendance-check-controls-break-check-out-button-icon"
-                          size={20}
-                        />
-                      }
-                      loading={loading}
+                  {withinBreakLeaveBand && (
+                    <RemoteAttendanceActionButton
+                      action={{
+                        isSignIn: false,
+                        openBreakCheckOutSidebarAfterCapture: true,
+                      }}
                     >
-                      Break Check Out
-                    </Button>
-                  </RemoteAttendanceActionButton>
+                      <Button
+                        className="h-10 text-base px-2"
+                        size="large"
+                        id="time-attendance-check-controls-break-check-out-button"
+                        data-cy="time-attendance-check-controls-break-check-out-button"
+                        icon={
+                          <GoClock
+                            data-cy="time-attendance-check-controls-break-check-out-button-icon"
+                            size={20}
+                          />
+                        }
+                        loading={loading}
+                      >
+                        Break Check Out
+                      </Button>
+                    </RemoteAttendanceActionButton>
+                  )}
                   {!withinBreakPeriod && (
                     <RemoteAttendanceActionButton action={{ isSignIn: false }}>
                       <Button
@@ -245,7 +257,25 @@ const CheckControl = () => {
             data-cy="time-attendance-check-controls-break-check-in-button-access-guard"
             permissions={[Permissions.CheckInRemotely]}
           >
-            <RemoteAttendanceActionButton action={{ isSignIn: true }}>
+            {withinBreakReturnBand ? (
+              <RemoteAttendanceActionButton action={{ isSignIn: true }}>
+                <Button
+                  className="h-14 text-base"
+                  size="large"
+                  id="time-attendance-check-controls-break-check-in-button"
+                  data-cy="time-attendance-check-controls-break-check-in-button"
+                  icon={
+                    <CiLogin
+                      data-cy="time-attendance-check-controls-break-check-in-button-icon"
+                      size={30}
+                    />
+                  }
+                  loading={loading}
+                >
+                  {isMobile ? '' : 'Check in'}
+                </Button>
+              </RemoteAttendanceActionButton>
+            ) : (
               <Button
                 className="h-14 text-base"
                 size="large"
@@ -257,11 +287,12 @@ const CheckControl = () => {
                     size={30}
                   />
                 }
+                disabled
                 loading={loading}
               >
                 {isMobile ? '' : 'Check in'}
               </Button>
-            </RemoteAttendanceActionButton>
+            )}
           </AccessGuard>
         </Space>
       );

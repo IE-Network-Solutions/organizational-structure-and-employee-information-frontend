@@ -25,7 +25,11 @@ import {
   timeToHour,
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
-import { formatToAttendanceStatuses } from '@/helpers/formatTo';
+import {
+  buildBreakComplianceLabelsFromWindows,
+  buildTakenBreakComplianceLabels,
+  formatToAttendanceStatuses,
+} from '@/helpers/formatTo';
 import { formatAttendanceWallClockTimeOrDash } from '@/helpers/attendanceTimeHelper';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
@@ -93,7 +97,7 @@ const ViewAttendanceSidebar = () => {
     setIsShowViewSidebarAttendance(false);
   };
 
-  const lateInfo = (record: AttendanceRecord | AttendanceBreak) => {
+  const lateInfo = (record: AttendanceRecord) => {
     return (
       <InfoItem
         value={formatAttendanceWallClockTimeOrDash(
@@ -125,7 +129,7 @@ const ViewAttendanceSidebar = () => {
     );
   };
 
-  const earlyInfo = (record: AttendanceRecord | AttendanceBreak) => {
+  const earlyInfo = (record: AttendanceRecord) => {
     return (
       <InfoItem
         value={formatAttendanceWallClockTimeOrDash(record?.endAt, TIME_FORMAT)}
@@ -153,6 +157,58 @@ const ViewAttendanceSidebar = () => {
             {minuteToLastMinute(record?.earlyByMinutes)} min
           </div>
         )}
+      </InfoItem>
+    );
+  };
+
+  const breakComplianceNote = (labels: string[]) => {
+    if (!labels.length) return null;
+    return (
+      <div
+        className="text-error text-[10px]"
+        data-cy="time-attendance-view-attendance-sidebar-break-compliance"
+      >
+        {labels.join('; ')}
+      </div>
+    );
+  };
+
+  const breakStartInfo = (record: AttendanceBreak) => {
+    const labels = (
+      record.breakType
+        ? buildBreakComplianceLabelsFromWindows(record.breakType, record)
+        : buildTakenBreakComplianceLabels(record)
+    ).filter((label) => /breakout/i.test(label));
+    return (
+      <InfoItem
+        value={formatAttendanceWallClockTimeOrDash(
+          record?.startAt,
+          TIME_FORMAT,
+        )}
+        info={record?.geolocations[0]?.allowedArea?.title ?? ''}
+        data-cy="time-attendance-view-attendance-sidebar-break-start-info"
+      >
+        {breakComplianceNote(labels)}
+      </InfoItem>
+    );
+  };
+
+  const breakEndInfo = (record: AttendanceBreak) => {
+    const labels = (
+      record.breakType
+        ? buildBreakComplianceLabelsFromWindows(record.breakType, record)
+        : buildTakenBreakComplianceLabels(record)
+    ).filter((label) => /breakin/i.test(label));
+    return (
+      <InfoItem
+        value={formatAttendanceWallClockTimeOrDash(record?.endAt, TIME_FORMAT)}
+        info={
+          record?.geolocations[record?.geolocations?.length - 1]?.allowedArea
+            ?.title ?? ''
+        }
+        data-cy="time-attendance-view-attendance-sidebar-break-end-info"
+      >
+        {breakComplianceNote(labels)}
       </InfoItem>
     );
   };
@@ -301,9 +357,9 @@ const ViewAttendanceSidebar = () => {
                       id={`time-attendance-view-attendance-sidebar-break-${breakIndex}-check-in-label`}
                       data-cy={`time-attendance-view-attendance-sidebar-break-${breakIndex}-check-in-label`}
                     >
-                      {item?.breakType?.title} CheckIn
+                      {item?.breakType?.title} Breakout
                     </div>
-                    {lateInfo(item)}
+                    {breakStartInfo(item)}
                   </Col>
                   <Col
                     data-cy="time-attendance-view-attendance-sidebar-break-check-out-column"
@@ -314,9 +370,9 @@ const ViewAttendanceSidebar = () => {
                       id={`time-attendance-view-attendance-sidebar-break-${breakIndex}-check-out-label`}
                       data-cy={`time-attendance-view-attendance-sidebar-break-${breakIndex}-check-out-label`}
                     >
-                      {item?.breakType?.title} Checkout
+                      {item?.breakType?.title} Breakin
                     </div>
-                    {earlyInfo(item)}
+                    {breakEndInfo(item)}
                   </Col>
                 </React.Fragment>
               ))}
