@@ -24,6 +24,7 @@ interface MenuRouteNode {
 const HIDDEN_ROUTES: RouteWithPermissions[] = [
   { route: '/dashboard', permissions: [] },
   { route: '/', permissions: [] },
+  { route: '/unauthorized', permissions: [] },
   { route: '/employees/manage-employees/[id]', permissions: [] },
   { route: '/employee-information/[id]', permissions: [] },
   {
