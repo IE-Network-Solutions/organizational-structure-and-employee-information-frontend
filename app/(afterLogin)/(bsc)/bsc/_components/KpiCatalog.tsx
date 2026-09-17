@@ -305,7 +305,7 @@ export default function KpiCatalog() {
             data-cy="kpicatalog-div-233"
             className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center"
           >
-            <div className="min-w-0 flex-1">
+            <div data-cy="kpicatalog-div-search" className="min-w-0 flex-1">
               <BscSearchInput
                 placeholder="Search KPIs"
                 value={search}

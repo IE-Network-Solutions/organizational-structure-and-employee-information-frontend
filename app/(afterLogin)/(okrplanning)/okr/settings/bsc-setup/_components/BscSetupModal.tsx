@@ -263,7 +263,11 @@ function RequiredLabel({ children }: { children: React.ReactNode }) {
   return (
     <>
       {children}
-      <span className="ml-0.5 text-[#ff4d4f]" aria-hidden>
+      <span
+        data-cy="bsc-setup-required-asterisk"
+        className="ml-0.5 text-[#ff4d4f]"
+        aria-hidden
+      >
         *
       </span>
     </>
@@ -1637,7 +1641,8 @@ export default function BscSetupModal() {
                   message: 'Scorecard name is required',
                 },
                 {
-                  validator: async (_, value) => {
+                  validator: async (rule, value) => {
+                    void rule;
                     const trimmed = String(value || '').trim();
                     if (!trimmed) return;
                     const taken = (existingCycles || []).some(
