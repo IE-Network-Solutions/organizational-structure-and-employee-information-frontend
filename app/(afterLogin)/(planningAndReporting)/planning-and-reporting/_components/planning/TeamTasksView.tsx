@@ -26,6 +26,10 @@ import {
   usePlanningTaskTableScrollY,
 } from './planningTaskTableLayout';
 import {
+  buildHierarchicalTaskRows,
+  type HierarchicalTaskRow,
+} from './collapsibleTaskRows';
+import {
   PLANNING_INFINITE_PAGE_SIZE,
   useInfiniteLoadMore,
 } from './useInfiniteLoadMore';
@@ -144,6 +148,11 @@ export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
     planningTaskStatusFilter,
     effectiveUserIds.join(','),
   ]);
+
+  const hierarchicalTasks = useMemo(
+    () => buildHierarchicalTaskRows(visibleTasks, durationKind),
+    [visibleTasks, durationKind],
+  );
 
   const listScrollReady = hasMoreTasks && Boolean(tableScrollY);
 
@@ -267,6 +276,7 @@ export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
                 handleOpenSubtasks(parent, row.assigneeUserId)
               }
               onOpenTaskDetail={() => handleOpenTaskDetail(row)}
+              treeDepth={row.treeDepth ?? 0}
             />
           );
         },
@@ -369,10 +379,11 @@ export default function TeamTasksView({ planSummaries }: TeamTasksViewProps) {
         )}
         data-cy="team-tasks-table-panel"
       >
-        <Table<TeamTaskRow>
+        <Table<HierarchicalTaskRow<TeamTaskRow>>
           rowKey="id"
           columns={columns}
-          dataSource={visibleTasks}
+          dataSource={hierarchicalTasks}
+          defaultExpandAllRows={durationKind !== 'daily'}
           pagination={false}
           locale={{
             emptyText: (

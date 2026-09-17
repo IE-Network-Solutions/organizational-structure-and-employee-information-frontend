@@ -33,6 +33,7 @@ export type MockTaskComment = {
   text: string;
   authorUserId: string;
   createdAt: string;
+  parentCommentId?: string | null;
 };
 
 export type MockPlanTask = DeadlineTask & {
@@ -774,6 +775,7 @@ interface UserPlanRepositoryState {
     taskId: string,
     text: string,
     authorUserId: string,
+    parentCommentId?: string | null,
   ) => { ok: true } | { ok: false; error: string };
   /** Lock + validate pending report submissions (Reports tab Pending section). */
   validatePendingReportTasks: (
@@ -1123,6 +1125,16 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
           lockComment: note,
         };
       });
+      const archivedTasks = plan.archivedTasks.map((t) => {
+        if (!ids.has(t.id)) return t;
+        lockedCount += 1;
+        return {
+          ...t,
+          isLocked: true,
+          lockComment: note,
+          isPendingApproval: false,
+        };
+      });
       if (lockedCount === 0) return { lockedCount: 0 };
       set({
         plansByUserId: {
@@ -1130,6 +1142,7 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
           [userId]: {
             ...plan,
             activeTasks,
+            archivedTasks,
             pendingReportTasks,
           },
         },
@@ -1158,7 +1171,7 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
         },
       });
     },
-    addTaskComment: (userId, taskId, text, authorUserId) => {
+    addTaskComment: (userId, taskId, text, authorUserId, parentCommentId) => {
       const plan = get().plansByUserId[userId];
       if (!plan) return { ok: false, error: 'Plan not found.' };
       if (String(authorUserId) === String(userId)) {
@@ -1173,7 +1186,8 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
       const inPendingReport = (plan.pendingReportTasks ?? []).some(
         (t) => t.id === taskId,
       );
-      if (!inActive && !inPendingReport) {
+      const inArchived = plan.archivedTasks.some((t) => t.id === taskId);
+      if (!inActive && !inPendingReport && !inArchived) {
         return { ok: false, error: 'Task not found.' };
       }
       const entry: MockTaskComment = {
@@ -1181,21 +1195,21 @@ export const useUserPlanRepositoryMock = create<UserPlanRepositoryState>()(
         text: trimmed,
         authorUserId,
         createdAt: new Date().toISOString(),
+        parentCommentId: parentCommentId ?? null,
       };
+      const appendComment = (t: MockPlanTask) =>
+        t.id === taskId
+          ? { ...t, comments: [...(t.comments ?? []), entry] }
+          : t;
       set({
         plansByUserId: {
           ...get().plansByUserId,
           [userId]: {
             ...plan,
-            activeTasks: plan.activeTasks.map((t) =>
-              t.id === taskId
-                ? { ...t, comments: [...(t.comments ?? []), entry] }
-                : t,
-            ),
-            pendingReportTasks: (plan.pendingReportTasks ?? []).map((t) =>
-              t.id === taskId
-                ? { ...t, comments: [...(t.comments ?? []), entry] }
-                : t,
+            activeTasks: plan.activeTasks.map(appendComment),
+            archivedTasks: plan.archivedTasks.map(appendComment),
+            pendingReportTasks: (plan.pendingReportTasks ?? []).map(
+              appendComment,
             ),
           },
         },

@@ -326,24 +326,189 @@ export function draftLinesToCreatePayloads(
   });
 }
 
-export function validateDraftLinesForCreate(lines: DraftLine[]): string | null {
-  if (lines.length === 0) return 'Add at least one task.';
-  for (const line of lines) {
-    if (!line.task.trim()) return 'Each task needs a title.';
-    if (!line.start || !line.deadline) {
-      return 'Each task needs a start date and an end date.';
-    }
+export type DraftFieldKey =
+  | 'task'
+  | 'start'
+  | 'deadline'
+  | 'assignee'
+  | 'targetValue'
+  | 'subtask.task'
+  | 'subtask.start'
+  | 'subtask.deadline';
+
+export type DraftValidationError = {
+  rowId: string;
+  subtaskId?: string;
+  field: DraftFieldKey;
+  message: string;
+};
+
+export type ValidateDraftBundlesOptions = {
+  showAssigneePicker?: boolean;
+  lockAssignee?: boolean;
+};
+
+export type DraftBundle = {
+  line: DraftLine;
+  subtasks: DraftSubtask[];
+};
+
+function assigneeValidationError(
+  line: DraftLine,
+  options?: ValidateDraftBundlesOptions,
+): DraftValidationError | null {
+  if (!options?.showAssigneePicker || options.lockAssignee) return null;
+  if (!line.delegateUserId) {
+    return {
+      rowId: line.id,
+      field: 'assignee',
+      message: 'Choose an assignee for this task.',
+    };
   }
   return null;
 }
 
+export function validateDraftLineField(
+  line: DraftLine,
+  field: DraftFieldKey,
+  options?: ValidateDraftBundlesOptions,
+): DraftValidationError | null {
+  switch (field) {
+    case 'task':
+      if (!line.task.trim()) {
+        return {
+          rowId: line.id,
+          field: 'task',
+          message: 'Each task needs a title.',
+        };
+      }
+      return null;
+    case 'start':
+      if (!line.start) {
+        return {
+          rowId: line.id,
+          field: 'start',
+          message: 'Each task needs a start date.',
+        };
+      }
+      return null;
+    case 'deadline':
+      if (!line.deadline) {
+        return {
+          rowId: line.id,
+          field: 'deadline',
+          message: 'Each task needs an end date.',
+        };
+      }
+      return null;
+    case 'assignee':
+      return assigneeValidationError(line, options);
+    default:
+      return null;
+  }
+}
+
+export function validateDraftSubtaskField(
+  sub: DraftSubtask,
+  rowId: string,
+  field: DraftFieldKey,
+): DraftValidationError | null {
+  switch (field) {
+    case 'subtask.task':
+      if (!sub.task.trim()) {
+        return {
+          rowId,
+          subtaskId: sub.id,
+          field: 'subtask.task',
+          message: 'Each subtask needs a title.',
+        };
+      }
+      return null;
+    case 'subtask.start':
+      if (!sub.start) {
+        return {
+          rowId,
+          subtaskId: sub.id,
+          field: 'subtask.start',
+          message: 'Each subtask needs a start date.',
+        };
+      }
+      return null;
+    case 'subtask.deadline':
+      if (!sub.deadline) {
+        return {
+          rowId,
+          subtaskId: sub.id,
+          field: 'subtask.deadline',
+          message: 'Each subtask needs an end date.',
+        };
+      }
+      return null;
+    default:
+      return null;
+  }
+}
+
+export function validateDraftBundlesForCreate(
+  bundles: DraftBundle[],
+  options?: ValidateDraftBundlesOptions,
+): DraftValidationError[] {
+  const errors: DraftValidationError[] = [];
+
+  if (bundles.length === 0) {
+    errors.push({
+      rowId: '__form__',
+      field: 'task',
+      message: 'Add at least one task.',
+    });
+    return errors;
+  }
+
+  for (const bundle of bundles) {
+    const { line, subtasks } = bundle;
+
+    for (const field of ['task', 'start', 'deadline'] as const) {
+      const err = validateDraftLineField(line, field, options);
+      if (err) errors.push(err);
+    }
+
+    const assigneeErr = assigneeValidationError(line, options);
+    if (assigneeErr) errors.push(assigneeErr);
+
+    for (const sub of subtasks) {
+      for (const field of [
+        'subtask.task',
+        'subtask.start',
+        'subtask.deadline',
+      ] as const) {
+        const err = validateDraftSubtaskField(sub, line.id, field);
+        if (err) errors.push(err);
+      }
+    }
+  }
+
+  return errors;
+}
+
+export function validateDraftLinesForCreate(lines: DraftLine[]): string | null {
+  const errors = validateDraftBundlesForCreate(
+    lines.map((line) => ({ line, subtasks: [] })),
+  );
+  return errors[0]?.message ?? null;
+}
+
 export function validateDraftSubtasksForCreate(
   subtasks: DraftSubtask[],
+  rowId = '__subtasks__',
 ): string | null {
   for (const sub of subtasks) {
-    if (!sub.task.trim()) return 'Each subtask needs a title.';
-    if (!sub.start || !sub.deadline) {
-      return 'Each subtask needs a start date and an end date.';
+    for (const field of [
+      'subtask.task',
+      'subtask.start',
+      'subtask.deadline',
+    ] as const) {
+      const err = validateDraftSubtaskField(sub, rowId, field);
+      if (err) return err.message;
     }
   }
   return null;

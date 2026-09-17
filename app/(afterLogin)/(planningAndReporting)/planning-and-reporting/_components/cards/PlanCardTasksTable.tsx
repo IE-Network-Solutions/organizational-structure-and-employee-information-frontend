@@ -23,6 +23,10 @@ import {
   PLANNING_TASK_TABLE_CLASS,
   planCardTaskTableScrollY,
 } from '../planning/planningTaskTableLayout';
+import {
+  buildHierarchicalTaskRows,
+  type HierarchicalTaskRow,
+} from '../planning/collapsibleTaskRows';
 
 const INDICATOR_TAG_CLASS: Record<
   PlanCardTaskTableRow['approvalTone'],
@@ -117,6 +121,11 @@ export default function PlanCardTasksTable({
         ),
       ),
     [tasks, plan, resolveUserName, mockTasksById, viewerUserId],
+  );
+
+  const hierarchicalRows = useMemo(
+    () => buildHierarchicalTaskRows(rows, durationKind),
+    [rows, durationKind],
   );
 
   const handleOpenSubtasks = useCallback(
@@ -237,6 +246,7 @@ export default function PlanCardTasksTable({
                 isPlanCardTaskMarkedReported(row.rawTask) ||
                 Boolean(row.mockTask?.done)
               }
+              treeDepth={row.treeDepth ?? 0}
             />
           );
         },
@@ -374,9 +384,9 @@ export default function PlanCardTasksTable({
     chipByUserId,
   ]);
 
-  const tableScrollY = planCardTaskTableScrollY(rows.length);
+  const tableScrollY = planCardTaskTableScrollY(hierarchicalRows.length);
 
-  if (rows.length === 0) {
+  if (hierarchicalRows.length === 0) {
     return (
       <p
         className="py-6 text-center text-sm text-gray-500"
@@ -398,14 +408,15 @@ export default function PlanCardTasksTable({
             {tableHeaderExtra}
           </div>
         ) : null}
-        <Table<PlanCardTaskTableRow>
+        <Table<HierarchicalTaskRow<PlanCardTaskTableRow>>
           rowKey="id"
           columns={columns}
-          dataSource={rows}
+          dataSource={hierarchicalRows}
           pagination={false}
           scroll={tableScrollY ? { y: tableScrollY } : undefined}
           tableLayout="fixed"
           size="middle"
+          defaultExpandAllRows={durationKind !== 'daily'}
           data-cy={`${dataCy}-table`}
         />
       </div>

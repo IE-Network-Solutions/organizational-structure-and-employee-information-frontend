@@ -22,6 +22,8 @@ type TeamTaskTitleCellProps = {
   onOpenTaskDetail?: () => void;
   /** Checked / pre-achieved on own plan — strikethrough title. */
   markedReported?: boolean;
+  /** Nesting depth when rendered in a collapsible task tree. */
+  treeDepth?: number;
 };
 
 export default function TeamTaskTitleCell({
@@ -32,6 +34,7 @@ export default function TeamTaskTitleCell({
   onOpenSubtasks,
   onOpenTaskDetail,
   markedReported = false,
+  treeDepth = 0,
 }: TeamTaskTitleCellProps) {
   const titleClass = classNames(
     'min-w-0 font-medium',
@@ -130,6 +133,7 @@ export default function TeamTaskTitleCell({
   return (
     <div
       className="flex min-w-0 flex-col gap-0.5"
+      style={treeDepth > 0 ? { paddingLeft: treeDepth * 12 } : undefined}
       data-cy={`team-tasks-title-wrap-${row.id}`}
     >
       <div

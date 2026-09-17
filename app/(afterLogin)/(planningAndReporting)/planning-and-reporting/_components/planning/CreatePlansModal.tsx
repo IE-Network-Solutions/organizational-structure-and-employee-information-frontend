@@ -13,6 +13,7 @@ import {
   Avatar,
   Button,
   Checkbox,
+  Collapse,
   ConfigProvider,
   DatePicker,
   Input,
@@ -25,8 +26,6 @@ import {
 import {
   CloseOutlined,
   DownOutlined,
-  FlagOutlined,
-  KeyOutlined,
   PlusOutlined,
   RightOutlined,
 } from '@ant-design/icons';
@@ -72,7 +71,6 @@ import {
   resolveHierarchyParentKind,
 } from '../prototype/mockPlanningConstants';
 import {
-  DEFAULT_INLINE_PRIORITY,
   NO_KEY_RESULT_VALUE,
   applyTargetToDraftLine,
   canUseAchieveMK,
@@ -83,16 +81,96 @@ import {
   isDraftLineDelegated,
   selectablePlanningTargets,
   shouldShowPlanningTarget,
-  validateDraftLinesForCreate,
-  validateDraftSubtasksForCreate,
+  validateDraftBundlesForCreate,
+  validateDraftLineField,
+  validateDraftSubtaskField,
+  type DraftFieldKey,
   type DraftLine,
   type DraftSubtask,
+  type DraftValidationError,
 } from './planDraft';
 
 type PlanDraftBundle = {
   line: DraftLine;
   subtasks: DraftSubtask[];
 };
+
+const inlineErrorClass = 'mt-1 block text-[12px] text-red-500';
+
+function validationFocusAttr(
+  rowId: string,
+  field: DraftFieldKey,
+  subtaskId?: string,
+): { 'data-validation-focus': string } {
+  return {
+    'data-validation-focus': `${rowId}:${field}:${subtaskId ?? ''}`,
+  };
+}
+
+function matchesValidationError(
+  error: DraftValidationError,
+  rowId: string,
+  field: DraftFieldKey,
+  subtaskId?: string,
+): boolean {
+  return (
+    error.rowId === rowId &&
+    error.field === field &&
+    (subtaskId ? error.subtaskId === subtaskId : !error.subtaskId)
+  );
+}
+
+function collectSubtaskDateValidationErrors(
+  bundles: PlanDraftBundle[],
+): DraftValidationError[] {
+  const errors: DraftValidationError[] = [];
+
+  for (const bundle of bundles) {
+    const subCtx = inferSubtaskContext(bundle.line);
+    if (!subCtx.canAddSubtasks || bundle.subtasks.length === 0) continue;
+
+    const built = buildParentTask({
+      id: 'draft',
+      title: bundle.line.task || 'Task',
+      start: bundle.line.start,
+      deadline: bundle.line.deadline,
+    });
+    if (!built.ok) continue;
+
+    const validationParent = {
+      ...built.task,
+      kind: resolveHierarchyParentKind(built.task),
+    };
+
+    for (const sub of bundle.subtasks) {
+      const valid =
+        subCtx.childKind === 'daily'
+          ? validateDailySubtask(validationParent, sub.start)
+          : validateWeeklySubtask(validationParent, sub.start, sub.deadline);
+      if (!valid.ok) {
+        errors.push({
+          rowId: bundle.line.id,
+          subtaskId: sub.id,
+          field:
+            subCtx.childKind === 'daily' ? 'subtask.start' : 'subtask.deadline',
+          message: valid.error,
+        });
+      }
+    }
+  }
+
+  return errors;
+}
+
+function subtaskHasValidationError(
+  rowId: string,
+  subtaskId: string,
+  validationErrors: DraftValidationError[],
+): boolean {
+  return validationErrors.some(
+    (error) => error.rowId === rowId && error.subtaskId === subtaskId,
+  );
+}
 
 function inferSubtaskContext(line: DraftLine):
   | { canAddSubtasks: false }
@@ -140,47 +218,6 @@ type CreatePlansModalProps = {
   userKeyResultItems?: any[];
 };
 
-const PRIORITY_META: Record<
-  string,
-  { label: string; dot: string; chipBg: string; chipText: string }
-> = {
-  high: {
-    label: 'High',
-    dot: '#EF4444',
-    chipBg: '#FEE2E2',
-    chipText: '#991B1B',
-  },
-  medium: {
-    label: 'Medium',
-    dot: '#F59E0B',
-    chipBg: '#FEF9C3',
-    chipText: '#854D0E',
-  },
-  low: {
-    label: 'Low',
-    dot: '#22C55E',
-    chipBg: '#DCFCE7',
-    chipText: '#166534',
-  },
-};
-
-const priorityOptions = (['high', 'medium', 'low'] as const).map((value) => ({
-  value,
-  label: (
-    <span
-      data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-span-101"
-      className="inline-flex items-center gap-1.5"
-    >
-      <span
-        data-cy={`create-plan-priority-dot-${value}`}
-        className="inline-block h-2 w-2 shrink-0 rounded-full"
-        style={{ backgroundColor: PRIORITY_META[value].dot }}
-      />
-      {PRIORITY_META[value].label}
-    </span>
-  ),
-}));
-
 const fieldLabelClass =
   'mb-1 block text-[11px] font-semibold uppercase tracking-[0.04em] text-[#8F94A3]';
 
@@ -190,61 +227,123 @@ const controlClass =
 const addActionLinkButtonClass =
   '!h-auto w-full !justify-start !border-0 !bg-transparent !px-0 !py-0 !shadow-none !text-[13px] !font-semibold !text-[#574CFF] hover:!bg-transparent hover:!text-[#4639E8]';
 
-const footerAddActionLinkButtonClass =
-  '!h-auto !border-0 !bg-transparent !px-0 !py-0 !shadow-none !text-[13px] !font-semibold !text-[#574CFF] hover:!bg-transparent hover:!text-[#4639E8]';
+const taskRowCollapseClass =
+  '!bg-transparent [&_.ant-collapse-item]:!mb-3 [&_.ant-collapse-item]:!overflow-hidden [&_.ant-collapse-item]:!rounded-xl [&_.ant-collapse-item]:!border [&_.ant-collapse-item]:!border-[#F1F2F6] [&_.ant-collapse-item]:!bg-white [&_.ant-collapse-item]:!shadow-[0_1px_2px_rgba(22,26,44,0.04)] hover:[&_.ant-collapse-item]:!border-[#E0E7FF] [&_.ant-collapse-header]:!items-start [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-header]:!py-3 sm:[&_.ant-collapse-header]:!px-3.5 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-3 sm:[&_.ant-collapse-content-box]:!px-3.5 sm:[&_.ant-collapse-content-box]:!pb-3.5';
+
+function planningTargetFieldLabel(
+  metricTypeName: string | null | undefined,
+): string {
+  if (!metricTypeName) return 'Target';
+  if (metricTypeName === 'KPI') return 'KPI target';
+  if (metricTypeName === 'Percentage' || metricTypeName === 'Percent') {
+    return 'Target (%)';
+  }
+  if (metricTypeName === 'Currency') return 'Target amount';
+  if (metricTypeName === 'Numeric') return 'Target value';
+  return `Target (${metricTypeName})`;
+}
+
+function buildKeyResultSelectOptions(
+  targets: PlanningTarget[],
+): { value: string; label: string }[] {
+  const options: { value: string; label: string }[] = [
+    { value: NO_KEY_RESULT_VALUE, label: 'No key result' },
+  ];
+  const seen = new Set<string>();
+  for (const t of targets) {
+    if (t.isDailySlot) continue;
+    const id = String(t.keyResultId);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    options.push({ value: `kr:${id}`, label: t.keyResultTitle });
+  }
+  return options;
+}
+
+function milestoneOptionsForKeyResult(
+  targets: PlanningTarget[],
+  keyResultId: string,
+): { value: string; label: string }[] {
+  return targets
+    .filter(
+      (t) =>
+        String(t.keyResultId) === String(keyResultId) &&
+        !!t.milestoneId &&
+        !t.isDailySlot,
+    )
+    .map((t) => ({
+      value: String(t.milestoneId),
+      label: t.milestoneTitle || 'Milestone',
+    }));
+}
+
+function keyResultSelectValue(line: DraftLine): string {
+  if (!line.keyResultId || line.keyResultId === UNLINKED_KR_ID) {
+    return NO_KEY_RESULT_VALUE;
+  }
+  return `kr:${line.keyResultId}`;
+}
+
+function findPlanningTargetForApply(
+  targets: PlanningTarget[],
+  keyResultId: string,
+  milestoneId?: string | null,
+): PlanningTarget | null {
+  if (milestoneId) {
+    return (
+      targets.find(
+        (t) =>
+          String(t.keyResultId) === String(keyResultId) &&
+          String(t.milestoneId) === String(milestoneId),
+      ) ?? null
+    );
+  }
+  const krLevel =
+    targets.find(
+      (t) =>
+        String(t.keyResultId) === String(keyResultId) &&
+        !t.milestoneId &&
+        !t.isDailySlot,
+    ) ??
+    targets.find(
+      (t) => String(t.keyResultId) === String(keyResultId) && !t.isDailySlot,
+    );
+  if (!krLevel) return null;
+  return { ...krLevel, milestoneId: null, milestoneTitle: null };
+}
 
 const createPlansAudienceRadioGroupClass =
   'create-plans-audience-radio !flex !shrink-0 !items-center !justify-start !gap-2 [&_.ant-radio-wrapper]:!m-0 [&_.ant-radio-wrapper]:!inline-flex [&_.ant-radio-wrapper]:!h-9 [&_.ant-radio-wrapper]:!items-center [&_.ant-radio-wrapper]:!gap-2 [&_.ant-radio-wrapper]:!rounded-lg [&_.ant-radio-wrapper]:!border [&_.ant-radio-wrapper]:!border-[#D9D9D9] [&_.ant-radio-wrapper]:!bg-white [&_.ant-radio-wrapper]:!px-3 [&_.ant-radio-wrapper]:!text-[13px] [&_.ant-radio-wrapper]:!font-medium [&_.ant-radio-wrapper]:!text-[#575B7A] [&_.ant-radio-wrapper]:!shadow-none [&_.ant-radio-wrapper]:after:!content-none [&_.ant-radio-wrapper:hover]:!border-[#1E40AF] [&_.ant-radio-wrapper-checked]:!border-[#1E40AF] [&_.ant-radio-wrapper-checked]:!text-[#2D2F45] [&_.ant-radio]:!top-0 [&_.ant-radio]:!shrink-0 [&_.ant-radio-inner]:!h-4 [&_.ant-radio-inner]:!w-4 [&_.ant-radio-inner]:!border-[#D9D9D9] [&_.ant-radio-inner]:!bg-white [&_.ant-radio-checked_.ant-radio-inner]:!border-[#1E40AF] [&_.ant-radio-checked_.ant-radio-inner]:!bg-[#1E40AF] [&_.ant-radio-checked_.ant-radio-inner::after]:!scale-[0.375] [&_.ant-radio-checked_.ant-radio-inner::after]:!bg-white [&_.ant-radio-checked_.ant-radio-inner::after]:!opacity-100';
 
 type PlanAudience = 'self' | 'delegate';
 
-function targetSelectValue(line: DraftLine): string {
-  if (!line.keyResultId || line.keyResultId === UNLINKED_KR_ID) {
-    return NO_KEY_RESULT_VALUE;
-  }
-  if (line.milestoneId) {
-    return `ms:${line.keyResultId}:${line.milestoneId}`;
-  }
-  return `kr:${line.keyResultId}`;
-}
-
-function findTargetBySelectValue(
-  value: string,
-  targets: PlanningTarget[],
-): PlanningTarget | null {
-  if (!value || value === NO_KEY_RESULT_VALUE) return null;
-  if (value.startsWith('ms:')) {
-    const [, krId, msId] = value.split(':');
-    return (
-      targets.find(
-        (t) =>
-          String(t.keyResultId) === String(krId) &&
-          String(t.milestoneId) === String(msId),
-      ) ?? null
-    );
-  }
-  if (value.startsWith('kr:')) {
-    const krId = value.slice(3);
-    return (
-      targets.find(
-        (t) =>
-          String(t.keyResultId) === String(krId) &&
-          !t.milestoneId &&
-          !t.isDailySlot,
-      ) ?? null
-    );
-  }
-  return null;
+function FieldError({
+  message,
+  dataCy,
+}: {
+  message?: string;
+  dataCy: string;
+}): ReactElement | null {
+  if (!message) return null;
+  return (
+    <span data-cy={dataCy} className={inlineErrorClass} role="alert">
+      {message}
+    </span>
+  );
 }
 
 function FieldShell({
   label,
   children,
   className = '',
+  error,
+  errorDataCy,
 }: {
   label: string;
   children: ReactNode;
   className?: string;
+  error?: string;
+  errorDataCy?: string;
 }): ReactElement {
   return (
     <label
@@ -258,18 +357,18 @@ function FieldShell({
         {label}
       </span>
       {children}
+      {errorDataCy ? <FieldError message={error} dataCy={errorDataCy} /> : null}
     </label>
   );
 }
 
-function CollapsedPlanRow({
+function PlanRowCollapseHeader({
   line,
   index,
   subtaskCount,
   delegateMode,
   assigneeLabel,
   canRemove,
-  onExpand,
   onRemove,
 }: {
   line: DraftLine;
@@ -278,22 +377,17 @@ function CollapsedPlanRow({
   delegateMode: boolean;
   assigneeLabel?: string;
   canRemove: boolean;
-  onExpand: () => void;
   onRemove: () => void;
 }) {
-  const priorityKey = (line.priority || DEFAULT_INLINE_PRIORITY).toLowerCase();
-  const priorityMeta = PRIORITY_META[priorityKey] || PRIORITY_META.medium;
   const title = line.task.trim() || 'Untitled task';
 
   return (
-    <button
-      type="button"
-      onClick={onExpand}
-      className="group flex w-full items-start gap-2.5 rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] px-3 py-3 text-left shadow-[0_1px_2px_rgba(22,26,44,0.04)] transition-colors hover:border-[#E0E7FF] hover:bg-white sm:px-3.5"
+    <div
+      className="flex w-full items-start gap-2.5 pr-1"
       data-cy={`create-plan-row-collapsed-${index}`}
     >
       <span
-        className="mt-0.5 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-white px-1.5 text-[11px] font-bold tabular-nums text-[#575B7A]"
+        className="mt-0.5 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-[#F1F2F6] px-1.5 text-[11px] font-bold tabular-nums text-[#575B7A]"
         aria-hidden
         data-cy={`create-plan-row-collapsed-index-${index}`}
       >
@@ -313,30 +407,14 @@ function CollapsedPlanRow({
           >
             {title}
           </p>
-          <div
-            className="flex shrink-0 items-center gap-1.5"
-            data-cy={`create-plan-row-collapsed-meta-${index}`}
-          >
-            {subtaskCount > 0 ? (
-              <span
-                className="inline-flex rounded-full bg-[#EEF2FF] px-2 py-0.5 text-[10px] font-bold text-[#4338CA]"
-                data-cy={`create-plan-row-collapsed-subtask-count-${index}`}
-              >
-                {subtaskCount} subtask{subtaskCount === 1 ? '' : 's'}
-              </span>
-            ) : null}
+          {subtaskCount > 0 ? (
             <span
-              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold leading-none"
-              data-cy={`create-plan-row-collapsed-priority-${index}`}
-              style={{
-                backgroundColor: priorityMeta.chipBg,
-                color: priorityMeta.chipText,
-              }}
+              className="inline-flex shrink-0 rounded-full bg-[#EEF2FF] px-2 py-0.5 text-[10px] font-bold text-[#4338CA]"
+              data-cy={`create-plan-row-collapsed-subtask-count-${index}`}
             >
-              {priorityMeta.label}
+              {subtaskCount} subtask{subtaskCount === 1 ? '' : 's'}
             </span>
-            <RightOutlined className="text-[10px] text-[#94A3B8]" aria-hidden />
-          </div>
+          ) : null}
         </div>
         {delegateMode && assigneeLabel ? (
           <p
@@ -348,39 +426,115 @@ function CollapsedPlanRow({
         ) : null}
       </div>
       {canRemove ? (
-        <span
-          role="button"
-          tabIndex={0}
+        <button
+          type="button"
           onClick={(e) => {
             e.stopPropagation();
             onRemove();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              e.stopPropagation();
-              onRemove();
-            }
           }}
           className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#94A3B8] opacity-70 transition-colors hover:bg-[#FEF2F2] hover:text-[#DC2626] hover:opacity-100"
           aria-label={`Remove task ${index + 1}`}
           data-cy={`create-plan-row-remove-${index}`}
         >
           <CloseOutlined className="text-[12px]" />
-        </span>
+        </button>
       ) : null}
-    </button>
+    </div>
   );
 }
 
+function PlanTaskRowCollapse({
+  bundle,
+  index,
+  isExpanded,
+  delegateMode,
+  assigneeLabel,
+  canRemove,
+  onExpandedChange,
+  onRemove,
+  children,
+}: {
+  bundle: PlanDraftBundle;
+  index: number;
+  isExpanded: boolean;
+  delegateMode: boolean;
+  assigneeLabel?: string;
+  canRemove: boolean;
+  onExpandedChange: (rowId: string | null) => void;
+  onRemove: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <Collapse
+      bordered={false}
+      activeKey={isExpanded ? [bundle.line.id] : []}
+      onChange={(keys) => {
+        const keyList = Array.isArray(keys) ? keys : keys ? [keys] : [];
+        const open = keyList.includes(bundle.line.id);
+        onExpandedChange(open ? bundle.line.id : null);
+      }}
+      expandIcon={({ isActive }) =>
+        isActive ? (
+          <DownOutlined className="text-[10px] text-[#575B7A]" />
+        ) : (
+          <RightOutlined className="text-[10px] text-[#94A3B8]" />
+        )
+      }
+      className={taskRowCollapseClass}
+      data-cy={`create-plan-row-collapse-wrap-${index}`}
+    >
+      <Collapse.Panel
+        key={bundle.line.id}
+        header={
+          <PlanRowCollapseHeader
+            line={bundle.line}
+            index={index}
+            subtaskCount={bundle.subtasks.length}
+            delegateMode={delegateMode}
+            assigneeLabel={assigneeLabel}
+            canRemove={canRemove}
+            onRemove={onRemove}
+          />
+        }
+      >
+        {children}
+      </Collapse.Panel>
+    </Collapse>
+  );
+}
+
+const subtaskAccordionClass =
+  '!bg-transparent [&_.ant-collapse-item]:!mb-2 [&_.ant-collapse-item]:!overflow-hidden [&_.ant-collapse-item]:!rounded-xl [&_.ant-collapse-item]:!border [&_.ant-collapse-item]:!border-[#F1F2F6] [&_.ant-collapse-item]:!bg-[#FAFBFC] [&_.ant-collapse-header]:!items-center [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-header]:!py-2.5 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-3';
+
 function PlanRowSubtasksEditor({
+  rowId,
   line,
   subtasks,
   onChange,
+  validationErrors,
+  getFieldError,
+  onSubtaskFieldBlur,
+  onClearFieldError,
+  expandedSubtaskId,
+  onExpandedSubtaskChange,
+  subtasksSectionExpanded,
+  onSubtasksSectionExpandedChange,
 }: {
+  rowId: string;
   line: DraftLine;
   subtasks: DraftSubtask[];
   onChange: (next: DraftSubtask[]) => void;
+  validationErrors: DraftValidationError[];
+  getFieldError: (
+    field: DraftFieldKey,
+    subtaskId: string,
+  ) => string | undefined;
+  onSubtaskFieldBlur: (subtaskId: string, field: DraftFieldKey) => void;
+  onClearFieldError: (field: DraftFieldKey, subtaskId: string) => void;
+  expandedSubtaskId: string | null;
+  onExpandedSubtaskChange: (subtaskId: string | null) => void;
+  subtasksSectionExpanded: boolean;
+  onSubtasksSectionExpandedChange: (expanded: boolean) => void;
 }) {
   const ctx = inferSubtaskContext(line);
 
@@ -388,9 +542,8 @@ function PlanRowSubtasksEditor({
     return null;
   }
 
-  const { childKind, cap } = ctx;
+  const { childKind } = ctx;
   const label = childKindLabel(childKind);
-  const remaining = Math.max(0, cap - subtasks.length);
 
   const updateSubtask = (id: string, patch: Partial<DraftSubtask>) => {
     onChange(
@@ -399,61 +552,120 @@ function PlanRowSubtasksEditor({
   };
 
   const addSubtask = () => {
-    if (subtasks.length >= cap) {
-      message.warning(`Maximum ${cap} ${label} subtasks.`);
-      return;
-    }
-    onChange([
-      ...subtasks,
-      createEmptyDraftSubtask(line.start, line.deadline, childKind),
-    ]);
+    const newSub = createEmptyDraftSubtask(
+      line.start,
+      line.deadline,
+      childKind,
+    );
+    onChange([...subtasks, newSub]);
+    onSubtasksSectionExpandedChange(true);
+    onExpandedSubtaskChange(newSub.id);
   };
 
   const removeSubtask = (id: string) => {
-    onChange(subtasks.filter((sub) => sub.id !== id));
+    const next = subtasks.filter((sub) => sub.id !== id);
+    onChange(next);
+    if (expandedSubtaskId === id) {
+      onExpandedSubtaskChange(next[next.length - 1]?.id ?? null);
+    }
   };
 
-  return (
-    <>
-      {subtasks.length > 0 ? (
-        <div className="mt-3 space-y-2" data-cy="create-plan-subtasks-list">
-          {subtasks.map((sub, subIndex) => (
-            <div
-              key={sub.id}
-              className="rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] p-3"
-              data-cy={`create-plan-subtask-row-${subIndex}`}
-            >
+  const subtaskAccordion = (
+    <Collapse
+      accordion
+      bordered={false}
+      activeKey={expandedSubtaskId ?? undefined}
+      onChange={(key) => {
+        const nextKey = Array.isArray(key) ? key[0] : key;
+        onExpandedSubtaskChange(typeof nextKey === 'string' ? nextKey : null);
+      }}
+      expandIcon={({ isActive }) =>
+        isActive ? (
+          <DownOutlined className="text-[10px] text-[#575B7A]" />
+        ) : (
+          <RightOutlined className="text-[10px] text-[#94A3B8]" />
+        )
+      }
+      className={subtaskAccordionClass}
+      data-cy="create-plan-subtasks-list"
+    >
+      {subtasks.map((sub, subIndex) => {
+        const summary = sub.task.trim() || `Subtask ${subIndex + 1}`;
+        const titleError = getFieldError('subtask.task', sub.id);
+        const startError = getFieldError('subtask.start', sub.id);
+        const deadlineError = getFieldError('subtask.deadline', sub.id);
+        const hasError = subtaskHasValidationError(
+          rowId,
+          sub.id,
+          validationErrors,
+        );
+
+        return (
+          <Collapse.Panel
+            key={sub.id}
+            header={
               <div
-                className="mb-2 flex items-center gap-2"
-                data-cy={`create-plan-subtask-title-row-${subIndex}`}
+                className="flex min-w-0 flex-1 items-center justify-between gap-2 pr-1"
+                data-cy={`create-plan-subtask-header-${subIndex}`}
+                aria-invalid={hasError}
               >
-                <Input
-                  placeholder={`${label} subtask title`}
-                  value={sub.task}
-                  onChange={(e) =>
-                    updateSubtask(sub.id, { task: e.target.value })
-                  }
-                  className="!rounded-lg"
-                  data-cy={`create-plan-subtask-title-${subIndex}`}
-                />
+                <span
+                  className="flex min-w-0 items-center gap-1.5 truncate text-[13px] font-semibold text-[#161A2C]"
+                  data-cy={`create-plan-subtask-summary-${subIndex}`}
+                >
+                  {hasError ? (
+                    <span
+                      className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-red-500"
+                      aria-hidden
+                      data-cy={`create-plan-subtask-error-indicator-${subIndex}`}
+                    />
+                  ) : null}
+                  {summary}
+                </span>
                 <button
                   type="button"
-                  onClick={() => removeSubtask(sub.id)}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-[#FEF2F2] hover:text-[#DC2626]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeSubtask(sub.id);
+                  }}
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#94A3B8] hover:bg-[#FEF2F2] hover:text-[#DC2626]"
                   aria-label="Remove subtask"
                   data-cy={`create-plan-subtask-remove-${subIndex}`}
                 >
                   <CloseOutlined className="text-[12px]" />
                 </button>
               </div>
-              <div
-                className="grid grid-cols-1 gap-2 sm:grid-cols-2"
-                data-cy={`create-plan-subtask-dates-${subIndex}`}
-              >
+            }
+            data-cy={`create-plan-subtask-row-${subIndex}`}
+          >
+            <Input
+              placeholder={`${label} subtask title`}
+              value={sub.task}
+              status={titleError ? 'error' : undefined}
+              onChange={(e) => {
+                onClearFieldError('subtask.task', sub.id);
+                updateSubtask(sub.id, { task: e.target.value });
+              }}
+              onBlur={() => onSubtaskFieldBlur(sub.id, 'subtask.task')}
+              className="!rounded-lg"
+              data-cy={`create-plan-subtask-title-${subIndex}`}
+              {...validationFocusAttr(rowId, 'subtask.task', sub.id)}
+            />
+            <FieldError
+              message={titleError}
+              dataCy={`create-plan-subtask-error-${subIndex}-task`}
+            />
+            <div
+              className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2"
+              data-cy={`create-plan-subtask-dates-${subIndex}`}
+            >
+              <div data-cy={`create-plan-subtask-start-wrap-${subIndex}`}>
                 <DatePicker
                   className="w-full !rounded-lg [&_.ant-picker-input>input]:!text-[13px]"
+                  status={startError ? 'error' : undefined}
                   value={sub.start ? dayjs(sub.start) : null}
                   onChange={(value) => {
+                    onClearFieldError('subtask.start', sub.id);
                     const iso = value ? formatDate(value) : sub.start;
                     if (childKind === 'daily') {
                       updateSubtask(sub.id, { start: iso, deadline: iso });
@@ -461,53 +673,99 @@ function PlanRowSubtasksEditor({
                       updateSubtask(sub.id, { start: iso });
                     }
                   }}
+                  onBlur={() => onSubtaskFieldBlur(sub.id, 'subtask.start')}
                   allowClear={false}
                   placeholder="Start"
                   data-cy={`create-plan-subtask-start-${subIndex}`}
+                  {...validationFocusAttr(rowId, 'subtask.start', sub.id)}
                 />
-                {childKind !== 'daily' ? (
+                <FieldError
+                  message={startError}
+                  dataCy={`create-plan-subtask-error-${subIndex}-start`}
+                />
+              </div>
+              {childKind !== 'daily' ? (
+                <div data-cy={`create-plan-subtask-deadline-wrap-${subIndex}`}>
                   <DatePicker
                     className="w-full !rounded-lg [&_.ant-picker-input>input]:!text-[13px]"
+                    status={deadlineError ? 'error' : undefined}
                     value={sub.deadline ? dayjs(sub.deadline) : null}
                     onChange={(value) => {
+                      onClearFieldError('subtask.deadline', sub.id);
                       const iso = value ? formatDate(value) : sub.deadline;
                       updateSubtask(sub.id, { deadline: iso });
                     }}
+                    onBlur={() =>
+                      onSubtaskFieldBlur(sub.id, 'subtask.deadline')
+                    }
                     allowClear={false}
                     placeholder="End"
                     data-cy={`create-plan-subtask-deadline-${subIndex}`}
+                    {...validationFocusAttr(rowId, 'subtask.deadline', sub.id)}
                   />
-                ) : null}
-              </div>
-              <FieldShell label="Description" className="mt-2.5">
-                <Input.TextArea
-                  rows={2}
-                  placeholder="Optional subtask description"
-                  value={sub.description ?? ''}
-                  onChange={(e) =>
-                    updateSubtask(sub.id, { description: e.target.value })
-                  }
-                  className="!rounded-lg !text-[13px]"
-                  data-cy={`create-plan-subtask-description-${subIndex}`}
-                />
-              </FieldShell>
+                  <FieldError
+                    message={deadlineError}
+                    dataCy={`create-plan-subtask-error-${subIndex}-deadline`}
+                  />
+                </div>
+              ) : null}
             </div>
-          ))}
-        </div>
-      ) : null}
+            <FieldShell label="Description" className="mt-2.5">
+              <Input.TextArea
+                rows={2}
+                placeholder="Optional subtask description"
+                value={sub.description ?? ''}
+                onChange={(e) =>
+                  updateSubtask(sub.id, { description: e.target.value })
+                }
+                className="!rounded-lg !text-[13px]"
+                data-cy={`create-plan-subtask-description-${subIndex}`}
+              />
+            </FieldShell>
+          </Collapse.Panel>
+        );
+      })}
+    </Collapse>
+  );
 
-      {remaining > 0 ? (
+  if (subtasks.length === 0) {
+    return (
+      <Button
+        type="link"
+        icon={<PlusOutlined />}
+        onClick={addSubtask}
+        data-cy="create-plan-subtask-add"
+        className={addActionLinkButtonClass}
+      >
+        Add subtask
+      </Button>
+    );
+  }
+
+  return (
+    <Collapse
+      bordered={false}
+      activeKey={subtasksSectionExpanded ? ['subtasks'] : []}
+      onChange={(keys) => {
+        const keyList = Array.isArray(keys) ? keys : keys ? [keys] : [];
+        onSubtasksSectionExpandedChange(keyList.includes('subtasks'));
+      }}
+      className="!bg-transparent [&_.ant-collapse-item]:!border-[#F1F2F6] [&_.ant-collapse-header]:!px-0 [&_.ant-collapse-content-box]:!px-0"
+      data-cy="create-plan-subtasks-collapse"
+    >
+      <Collapse.Panel header={`Subtasks (${subtasks.length})`} key="subtasks">
+        {subtaskAccordion}
         <Button
           type="link"
           icon={<PlusOutlined />}
           onClick={addSubtask}
-          data-cy="create-plan-subtask-add"
-          className={`${addActionLinkButtonClass}${subtasks.length > 0 ? ' mt-2.5' : ''}`}
+          data-cy="create-plan-subtask-add-more"
+          className={`${addActionLinkButtonClass} mt-2.5`}
         >
           Add subtask
         </Button>
-      ) : null}
-    </>
+      </Collapse.Panel>
+    </Collapse>
   );
 }
 
@@ -531,39 +789,56 @@ function resolveKeyResultForBounds(
 function PlanRowEditor({
   line,
   index,
-  canRemove,
   showAssigneePicker = false,
   isSelfAssignee = true,
   viewerUserId,
   lockAssignee = false,
   lockedAssigneeLabel,
   assigneeOptions,
-  targetOptions,
+  selectableTargets,
   userKeyResultItems = [],
   subtasks,
+  validationErrors,
+  getFieldError,
+  onLineFieldBlur,
+  onClearFieldError,
+  onSubtaskFieldBlur,
+  expandedSubtaskId,
+  onExpandedSubtaskChange,
+  subtasksSectionExpanded,
+  onSubtasksSectionExpandedChange,
   onSubtasksChange,
   onChange,
-  onTargetSelect,
-  onRemove,
-  onCollapse,
+  onKeyResultSelect,
+  onMilestoneSelect,
 }: {
   line: DraftLine;
   index: number;
-  canRemove: boolean;
   showAssigneePicker?: boolean;
   isSelfAssignee?: boolean;
   viewerUserId?: string;
   lockAssignee?: boolean;
   lockedAssigneeLabel?: string;
   assigneeOptions: AssigneeChip[];
-  targetOptions: { value: string; label: string }[];
+  selectableTargets: PlanningTarget[];
   userKeyResultItems?: any[];
   subtasks: DraftSubtask[];
+  validationErrors: DraftValidationError[];
+  getFieldError: (
+    field: DraftFieldKey,
+    subtaskId?: string,
+  ) => string | undefined;
+  onLineFieldBlur: (field: DraftFieldKey) => void;
+  onClearFieldError: (field: DraftFieldKey, subtaskId?: string) => void;
+  onSubtaskFieldBlur: (subtaskId: string, field: DraftFieldKey) => void;
+  expandedSubtaskId: string | null;
+  onExpandedSubtaskChange: (subtaskId: string | null) => void;
+  subtasksSectionExpanded: boolean;
+  onSubtasksSectionExpandedChange: (expanded: boolean) => void;
   onSubtasksChange: (next: DraftSubtask[]) => void;
   onChange: (next: DraftLine) => void;
-  onTargetSelect: (selectValue: string) => void;
-  onRemove: () => void;
-  onCollapse?: () => void;
+  onKeyResultSelect: (selectValue: string) => void;
+  onMilestoneSelect: (milestoneId: string | null) => void;
 }) {
   const hideKeyResult = !isSelfAssignee;
   const linked =
@@ -583,11 +858,18 @@ function PlanRowEditor({
     line.milestoneId,
   );
 
-  const priorityKey = (line.priority || DEFAULT_INLINE_PRIORITY).toLowerCase();
-  const priorityMeta = PRIORITY_META[priorityKey] || PRIORITY_META.medium;
-  const selectedTargetLabel =
-    targetOptions.find((o) => o.value === targetSelectValue(line))?.label ??
-    null;
+  const keyResultOptions = useMemo(
+    () => buildKeyResultSelectOptions(selectableTargets),
+    [selectableTargets],
+  );
+  const milestoneOptions = useMemo(
+    () =>
+      linked && line.keyResultId
+        ? milestoneOptionsForKeyResult(selectableTargets, line.keyResultId)
+        : [],
+    [selectableTargets, line.keyResultId, linked],
+  );
+  const showMilestoneField = linked && milestoneOptions.length > 0;
 
   const start = line.start ? dayjs(line.start) : null;
   const deadline = line.deadline ? dayjs(line.deadline) : null;
@@ -599,6 +881,8 @@ function PlanRowEditor({
     const startIso = formatDate(values[0]);
     const endIso = formatDate(values[1]);
     const range = validateRange(startIso, endIso);
+    onClearFieldError('start');
+    onClearFieldError('deadline');
     onChange({
       ...line,
       start: startIso,
@@ -606,94 +890,45 @@ function PlanRowEditor({
     });
   };
 
+  const taskError = getFieldError('task');
+  const startError = getFieldError('start');
+  const deadlineError = getFieldError('deadline');
+  const dateRangeError = startError ?? deadlineError;
+  const assigneeError = getFieldError('assignee');
+
+  const handleDateRangeBlur = () => {
+    onLineFieldBlur('start');
+    onLineFieldBlur('deadline');
+  };
+
   return (
-    <div
-      className="group relative overflow-hidden rounded-xl border border-[#F1F2F6] bg-white shadow-[0_1px_2px_rgba(22,26,44,0.04)] transition-shadow hover:border-[#E0E7FF] hover:shadow-[0_4px_16px_rgba(87,76,255,0.06)]"
-      data-cy={`create-plan-row-${index}`}
-    >
+    <div data-cy={`create-plan-row-${index}`}>
       <div
         data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-237"
-        className="px-3 py-3 sm:px-3.5 sm:py-3.5"
+        className="pt-1"
       >
         <div
           data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-238"
-          className="mb-2.5 flex items-start gap-2"
+          className="mb-2.5"
         >
-          {onCollapse ? (
-            <button
-              type="button"
-              onClick={onCollapse}
-              className="mt-1.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#F1F2F6] text-[#575B7A] hover:bg-[#EEF2FF] hover:text-[#4338CA]"
-              aria-label={`Collapse task ${index + 1}`}
-              data-cy={`create-plan-row-collapse-${index}`}
-            >
-              <DownOutlined className="text-[10px]" />
-            </button>
-          ) : null}
-          <span
-            data-cy={`create-plan-row-index-${index}`}
-            className="mt-1.5 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-[#F1F2F6] px-1.5 text-[11px] font-bold tabular-nums text-[#575B7A]"
-            aria-hidden
-          >
-            {index + 1}
-          </span>
           <Input
             variant="borderless"
             placeholder="Task name"
             value={line.task}
-            onChange={(e) => onChange({ ...line, task: e.target.value })}
-            className="min-w-0 flex-1 !px-0 !text-[15px] !font-semibold !leading-snug !text-[#161A2C] placeholder:!font-medium placeholder:!text-[#B0B3C0]"
+            status={taskError ? 'error' : undefined}
+            onChange={(e) => {
+              onClearFieldError('task');
+              onChange({ ...line, task: e.target.value });
+            }}
+            onBlur={() => onLineFieldBlur('task')}
+            className="min-w-0 !px-0 !text-[15px] !font-semibold !leading-snug !text-[#161A2C] placeholder:!font-medium placeholder:!text-[#B0B3C0]"
             data-cy={`create-plan-row-title-${index}`}
+            {...validationFocusAttr(line.id, 'task')}
           />
-          <div
-            data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-253"
-            className="mt-0.5 flex max-w-[55%] shrink-0 flex-wrap items-center justify-end gap-1.5"
-          >
-            {linked && selectedTargetLabel ? (
-              <span
-                data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-span-255"
-                className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-[#EEF2FF] px-2.5 py-1 text-[11px] font-semibold text-[#4338CA]"
-              >
-                {line.milestoneId ? (
-                  <FlagOutlined className="text-[11px]" aria-hidden />
-                ) : (
-                  <KeyOutlined className="text-[11px]" aria-hidden />
-                )}
-                <span
-                  data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-span-261"
-                  className="truncate"
-                >
-                  {selectedTargetLabel}
-                </span>
-              </span>
-            ) : null}
-            <span
-              data-cy={`create-plan-row-priority-${index}`}
-              className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold leading-none"
-              style={{
-                backgroundColor: priorityMeta.chipBg,
-                color: priorityMeta.chipText,
-              }}
-            >
-              <span
-                data-cy={`create-plan-row-priority-dot-${index}`}
-                className="inline-block h-1.5 w-1.5 rounded-full"
-                style={{ backgroundColor: priorityMeta.dot }}
-              />
-              {priorityMeta.label}
-            </span>
-            {canRemove ? (
-              <button
-                type="button"
-                onClick={onRemove}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#94A3B8] opacity-70 transition-colors hover:bg-[#FEF2F2] hover:text-[#DC2626] hover:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-                aria-label={`Remove plan ${index + 1}`}
-                data-cy={`create-plan-row-remove-${index}`}
-              >
-                <CloseOutlined className="text-[12px]" />
-              </button>
-            ) : null}
-          </div>
+          <FieldError
+            message={taskError}
+            dataCy={`create-plan-row-error-${index}-task`}
+          />
         </div>
 
         {showAssigneePicker ? (
@@ -708,12 +943,18 @@ function PlanRowEditor({
                 </div>
               </FieldShell>
             ) : (
-              <FieldShell label="Assignee">
+              <FieldShell
+                label="Assignee"
+                error={assigneeError}
+                errorDataCy={`create-plan-row-error-${index}-assignee`}
+              >
                 <Select
                   showSearch
                   placeholder="Choose assignee"
+                  status={assigneeError ? 'error' : undefined}
                   value={line.delegateUserId ?? viewerUserId ?? undefined}
                   onChange={(value) => {
+                    onClearFieldError('assignee');
                     const nextUserId = value ?? null;
                     const planningForSelf =
                       !!nextUserId &&
@@ -738,9 +979,11 @@ function PlanRowEditor({
                       ),
                     );
                   }}
+                  onBlur={() => onLineFieldBlur('assignee')}
                   optionFilterProp="label"
                   className={controlClass}
                   data-cy={`create-plan-row-assignee-select-${index}`}
+                  {...validationFocusAttr(line.id, 'assignee')}
                 >
                   {assigneeOptions.map((chip) => (
                     <Select.Option
@@ -761,45 +1004,80 @@ function PlanRowEditor({
           data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-291"
           className="grid grid-cols-1 gap-2.5 sm:grid-cols-12 sm:gap-3"
         >
-          <FieldShell label="Date range" className="sm:col-span-8">
-            <DatePicker.RangePicker
-              className={`${controlClass} !h-9 w-full [&_.ant-picker-input>input]:!text-[13px]`}
-              value={dateRange}
-              onChange={setDateRange}
-              allowClear={false}
-              data-cy={`create-plan-row-date-range-${index}`}
-            />
-          </FieldShell>
-          <FieldShell label="Priority" className="sm:col-span-4">
-            <Select
-              className={`${controlClass} w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!min-h-9 [&_.ant-select-selection-item]:!flex [&_.ant-select-selection-item]:!items-center [&_.ant-select-selection-item]:!text-[13px]`}
-              value={line.priority || DEFAULT_INLINE_PRIORITY}
-              onChange={(priority) => onChange({ ...line, priority })}
-              options={priorityOptions}
-              optionLabelProp="label"
-              data-cy={`create-plan-row-priority-${index}`}
-            />
+          <FieldShell
+            label="Date range"
+            className="sm:col-span-12"
+            error={dateRangeError}
+            errorDataCy={`create-plan-row-error-${index}-date-range`}
+          >
+            <div
+              tabIndex={-1}
+              data-cy={`create-plan-row-date-range-wrap-${index}`}
+              {...validationFocusAttr(
+                line.id,
+                startError ? 'start' : 'deadline',
+              )}
+            >
+              <DatePicker.RangePicker
+                className={`${controlClass} !h-9 w-full [&_.ant-picker-input>input]:!text-[13px]`}
+                status={dateRangeError ? 'error' : undefined}
+                value={dateRange}
+                onChange={setDateRange}
+                onBlur={handleDateRangeBlur}
+                allowClear={false}
+                data-cy={`create-plan-row-date-range-${index}`}
+              />
+            </div>
           </FieldShell>
 
           {!hideKeyResult ? (
             <>
               <FieldShell
                 label="Key result"
-                className={showTarget ? 'sm:col-span-9' : 'sm:col-span-12'}
+                className={
+                  showMilestoneField
+                    ? showTarget
+                      ? 'sm:col-span-6'
+                      : 'sm:col-span-6'
+                    : showTarget
+                      ? 'sm:col-span-9'
+                      : 'sm:col-span-12'
+                }
               >
                 <Select
                   className={`${controlClass} w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!min-h-9 [&_.ant-select-selection-item]:!flex [&_.ant-select-selection-item]:!items-center [&_.ant-select-selection-item]:!text-[13px]`}
                   showSearch
                   optionFilterProp="label"
-                  value={targetSelectValue(line)}
-                  onChange={onTargetSelect}
-                  options={targetOptions}
+                  value={keyResultSelectValue(line)}
+                  onChange={onKeyResultSelect}
+                  options={keyResultOptions}
                   placeholder="Optional link"
                   data-cy={`create-plan-row-kr-${index}`}
                 />
               </FieldShell>
+              {showMilestoneField ? (
+                <FieldShell
+                  label="Milestone"
+                  className={showTarget ? 'sm:col-span-3' : 'sm:col-span-6'}
+                >
+                  <Select
+                    className={`${controlClass} w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!min-h-9 [&_.ant-select-selection-item]:!flex [&_.ant-select-selection-item]:!items-center [&_.ant-select-selection-item]:!text-[13px]`}
+                    showSearch
+                    optionFilterProp="label"
+                    value={line.milestoneId ?? undefined}
+                    onChange={(value) => onMilestoneSelect(value ?? null)}
+                    options={milestoneOptions}
+                    placeholder="Select milestone"
+                    allowClear
+                    data-cy={`create-plan-row-milestone-${index}`}
+                  />
+                </FieldShell>
+              ) : null}
               {showTarget ? (
-                <FieldShell label="Target" className="sm:col-span-3">
+                <FieldShell
+                  label={planningTargetFieldLabel(line.metricTypeName)}
+                  className="sm:col-span-3"
+                >
                   <InputNumber
                     className="w-full !h-9 !rounded-lg [&_.ant-input-number-input]:!h-9 [&_.ant-input-number-input]:!text-[13px]"
                     placeholder="Target"
@@ -869,8 +1147,21 @@ function PlanRowEditor({
           data-cy={`create-plan-row-subtasks-wrap-${index}`}
         >
           <PlanRowSubtasksEditor
+            rowId={line.id}
             line={line}
             subtasks={subtasks}
+            validationErrors={validationErrors}
+            getFieldError={(field, subtaskId) =>
+              getFieldError(field, subtaskId)
+            }
+            onSubtaskFieldBlur={onSubtaskFieldBlur}
+            onClearFieldError={(field, subtaskId) =>
+              onClearFieldError(field, subtaskId)
+            }
+            expandedSubtaskId={expandedSubtaskId}
+            onExpandedSubtaskChange={onExpandedSubtaskChange}
+            subtasksSectionExpanded={subtasksSectionExpanded}
+            onSubtasksSectionExpandedChange={onSubtasksSectionExpandedChange}
             onChange={onSubtasksChange}
           />
         </div>
@@ -929,6 +1220,17 @@ export default function CreatePlansModal({
     { line: createEmptyDraftLine(), subtasks: [] },
   ]);
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<
+    DraftValidationError[]
+  >([]);
+  const [expandedSubtaskByRow, setExpandedSubtaskByRow] = useState<
+    Record<string, string | null>
+  >({});
+  const [subtasksSectionExpandedByRow, setSubtasksSectionExpandedByRow] =
+    useState<Record<string, boolean>>({});
+  const [focusTarget, setFocusTarget] = useState<DraftValidationError | null>(
+    null,
+  );
   const [submitting, setSubmitting] = useState(false);
   const [planAudience, setPlanAudience] = useState<PlanAudience>('self');
 
@@ -951,6 +1253,101 @@ export default function CreatePlansModal({
   const showAssigneePicker =
     delegateOnly || lockAssignee || assigneeOptions.length > 0;
 
+  const getFieldError = useCallback(
+    (rowId: string, field: DraftFieldKey, subtaskId?: string) => {
+      return validationErrors.find((error) =>
+        matchesValidationError(error, rowId, field, subtaskId),
+      )?.message;
+    },
+    [validationErrors],
+  );
+
+  const clearFieldError = useCallback(
+    (rowId: string, field: DraftFieldKey, subtaskId?: string) => {
+      setValidationErrors((prev) =>
+        prev.filter(
+          (error) => !matchesValidationError(error, rowId, field, subtaskId),
+        ),
+      );
+    },
+    [],
+  );
+
+  const handleLineFieldBlur = useCallback(
+    (line: DraftLine, field: DraftFieldKey) => {
+      const err = validateDraftLineField(line, field, {
+        showAssigneePicker,
+        lockAssignee,
+      });
+      setValidationErrors((prev) => {
+        const filtered = prev.filter(
+          (error) => !matchesValidationError(error, line.id, field),
+        );
+        return err ? [...filtered, err] : filtered;
+      });
+    },
+    [showAssigneePicker, lockAssignee],
+  );
+
+  const handleSubtaskFieldBlur = useCallback(
+    (rowId: string, sub: DraftSubtask, field: DraftFieldKey) => {
+      const err = validateDraftSubtaskField(sub, rowId, field);
+      setValidationErrors((prev) => {
+        const filtered = prev.filter(
+          (error) => !matchesValidationError(error, rowId, field, sub.id),
+        );
+        return err ? [...filtered, err] : filtered;
+      });
+    },
+    [],
+  );
+
+  const applySubmitValidationErrors = useCallback(
+    (errors: DraftValidationError[]) => {
+      if (errors.length === 0) return;
+
+      setValidationErrors(errors);
+      const first = errors[0];
+      if (first.rowId !== '__form__') {
+        setExpandedRowId(first.rowId);
+        if (first.subtaskId) {
+          setSubtasksSectionExpandedByRow((prev) => ({
+            ...prev,
+            [first.rowId]: true,
+          }));
+          setExpandedSubtaskByRow((prev) => ({
+            ...prev,
+            [first.rowId]: first.subtaskId ?? null,
+          }));
+        }
+      }
+      setFocusTarget(first);
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (!focusTarget || !open) return;
+
+    const timer = window.setTimeout(() => {
+      const selector = `[data-validation-focus="${focusTarget.rowId}:${focusTarget.field}:${focusTarget.subtaskId ?? ''}"]`;
+      const el = document.querySelector(selector);
+      if (el instanceof HTMLElement) {
+        el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        el.focus();
+      }
+      setFocusTarget(null);
+    }, 150);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    focusTarget,
+    open,
+    expandedRowId,
+    expandedSubtaskByRow,
+    subtasksSectionExpandedByRow,
+  ]);
+
   const cadenceAssignments = useMemo(
     () =>
       cadenceAssignmentByKind(
@@ -964,26 +1361,6 @@ export default function CreatePlansModal({
     () => selectablePlanningTargets(planningTargets),
     [planningTargets],
   );
-
-  const targetOptions = useMemo(() => {
-    const options: { value: string; label: string }[] = [
-      { value: NO_KEY_RESULT_VALUE, label: 'No key result' },
-    ];
-    for (const t of selectableTargets) {
-      if (t.milestoneId) {
-        options.push({
-          value: `ms:${t.keyResultId}:${t.milestoneId}`,
-          label: `${t.keyResultTitle} · ${t.milestoneTitle || 'Milestone'}`,
-        });
-      } else {
-        options.push({
-          value: `kr:${t.keyResultId}`,
-          label: t.keyResultTitle,
-        });
-      }
-    }
-    return options;
-  }, [selectableTargets]);
 
   const buildInitialRow = useCallback((): PlanDraftBundle => {
     if (lockAssignee && prefilledAssigneeUserId) {
@@ -1022,6 +1399,10 @@ export default function CreatePlansModal({
     if (!open) {
       setPlanAudience('self');
       setExpandedRowId(null);
+      setValidationErrors([]);
+      setExpandedSubtaskByRow({});
+      setSubtasksSectionExpandedByRow({});
+      setFocusTarget(null);
       return;
     }
     setSubmitting(false);
@@ -1103,14 +1484,42 @@ export default function CreatePlansModal({
     [],
   );
 
-  const updateRowTarget = useCallback(
+  const updateRowKeyResult = useCallback(
     (id: string, selectValue: string) => {
       setRows((prev) =>
         prev.map((bundle) => {
           if (bundle.line.id !== id) return bundle;
-          const target = findTargetBySelectValue(
-            selectValue,
+          if (selectValue === NO_KEY_RESULT_VALUE) {
+            return {
+              ...bundle,
+              line: applyTargetToDraftLine(bundle.line, null),
+            };
+          }
+          const krId = selectValue.startsWith('kr:')
+            ? selectValue.slice(3)
+            : selectValue;
+          const target = findPlanningTargetForApply(selectableTargets, krId);
+          return {
+            ...bundle,
+            line: applyTargetToDraftLine(bundle.line, target),
+          };
+        }),
+      );
+    },
+    [selectableTargets],
+  );
+
+  const updateRowMilestone = useCallback(
+    (id: string, milestoneId: string | null) => {
+      setRows((prev) =>
+        prev.map((bundle) => {
+          if (bundle.line.id !== id) return bundle;
+          const krId = bundle.line.keyResultId;
+          if (!krId || krId === UNLINKED_KR_ID) return bundle;
+          const target = findPlanningTargetForApply(
             selectableTargets,
+            krId,
+            milestoneId,
           );
           return {
             ...bundle,
@@ -1141,27 +1550,19 @@ export default function CreatePlansModal({
   };
 
   const handleSubmit = async () => {
-    const lines = rows.map((bundle) => bundle.line);
-    const error = validateDraftLinesForCreate(lines);
-    if (error) {
-      message.warning(error);
+    const fieldErrors = validateDraftBundlesForCreate(rows, {
+      showAssigneePicker,
+      lockAssignee,
+    });
+    const dateErrors = collectSubtaskDateValidationErrors(rows);
+    const allValidationErrors = [...fieldErrors, ...dateErrors];
+
+    if (allValidationErrors.length > 0) {
+      applySubmitValidationErrors(allValidationErrors);
       return;
     }
 
-    for (const bundle of rows) {
-      const subError = validateDraftSubtasksForCreate(bundle.subtasks);
-      if (subError) {
-        message.warning(subError);
-        return;
-      }
-    }
-
-    for (const bundle of rows) {
-      if (!bundle.line.delegateUserId && showAssigneePicker) {
-        message.warning('Choose an assignee for each task.');
-        return;
-      }
-    }
+    setValidationErrors([]);
 
     const preparedRows = rows.map((bundle) => {
       const row = bundle.line;
@@ -1221,31 +1622,7 @@ export default function CreatePlansModal({
               const parentTask = result.task;
               const subCtx = inferSubtaskContext(line);
               if (subCtx.canAddSubtasks && item.subtasks.length > 0) {
-                const validationParent = {
-                  ...parentTask,
-                  kind: resolveHierarchyParentKind(parentTask),
-                };
                 for (const sub of item.subtasks) {
-                  if (subCtx.childKind === 'daily') {
-                    const valid = validateDailySubtask(
-                      validationParent,
-                      sub.start,
-                    );
-                    if (!valid.ok) {
-                      message.warning(valid.error);
-                      return;
-                    }
-                  } else {
-                    const valid = validateWeeklySubtask(
-                      validationParent,
-                      sub.start,
-                      sub.deadline,
-                    );
-                    if (!valid.ok) {
-                      message.warning(valid.error);
-                      return;
-                    }
-                  }
                   const subDescription = sub.description?.trim();
                   const subResult = appendTask(item.targetUserId, {
                     title: sub.task,
@@ -1392,19 +1769,21 @@ export default function CreatePlansModal({
       footer={
         <div
           data-cy="planning-and-reporting-components-planning-createplansmodal-tsx-createplansmodal-div-572"
-          className="flex items-center justify-end gap-2"
+          className="flex w-full items-center justify-end gap-2"
         >
           <Button
-            type="link"
             icon={<PlusOutlined />}
             onClick={addRow}
             disabled={loading}
             data-cy="create-plans-add-row"
-            className={footerAddActionLinkButtonClass}
           >
             Add plan
           </Button>
-          <Button onClick={onClose} disabled={loading}>
+          <Button
+            onClick={onClose}
+            disabled={loading}
+            data-cy="create-plans-cancel"
+          >
             Cancel
           </Button>
           <Button
@@ -1465,56 +1844,78 @@ export default function CreatePlansModal({
           </div>
         ) : null}
         {rows.map((bundle, index) => {
-          const isExpanded =
-            rows.length === 1 || expandedRowId === bundle.line.id;
+          const isExpanded = expandedRowId === bundle.line.id;
           const isSelfAssignee = !isDraftLineDelegated(bundle.line, userId);
 
-          if (!isExpanded) {
-            return (
-              <CollapsedPlanRow
-                key={bundle.line.id}
+          return (
+            <PlanTaskRowCollapse
+              key={bundle.line.id}
+              bundle={bundle}
+              index={index}
+              isExpanded={isExpanded}
+              delegateMode={showAssigneePicker && !isSelfAssignee}
+              assigneeLabel={resolveAssigneeLabel(bundle.line)}
+              canRemove={rows.length > 1}
+              onExpandedChange={(rowId) => setExpandedRowId(rowId)}
+              onRemove={() => removeRow(bundle.line.id)}
+            >
+              <PlanRowEditor
                 line={bundle.line}
                 index={index}
-                subtaskCount={bundle.subtasks.length}
-                delegateMode={showAssigneePicker && !isSelfAssignee}
-                assigneeLabel={resolveAssigneeLabel(bundle.line)}
-                canRemove={rows.length > 1}
-                onExpand={() => setExpandedRowId(bundle.line.id)}
-                onRemove={() => removeRow(bundle.line.id)}
+                showAssigneePicker={showAssigneePicker}
+                isSelfAssignee={isSelfAssignee}
+                viewerUserId={userId ? String(userId) : undefined}
+                lockAssignee={lockAssignee}
+                lockedAssigneeLabel={prefilledAssigneeLabel}
+                assigneeOptions={assigneeOptions}
+                selectableTargets={selectableTargets}
+                userKeyResultItems={userKeyResultItems}
+                subtasks={bundle.subtasks}
+                validationErrors={validationErrors}
+                getFieldError={(field, subtaskId) =>
+                  getFieldError(bundle.line.id, field, subtaskId)
+                }
+                onLineFieldBlur={(field) =>
+                  handleLineFieldBlur(bundle.line, field)
+                }
+                onClearFieldError={(field, subtaskId) =>
+                  clearFieldError(bundle.line.id, field, subtaskId)
+                }
+                onSubtaskFieldBlur={(subtaskId, field) => {
+                  const sub = bundle.subtasks.find((s) => s.id === subtaskId);
+                  if (sub) {
+                    handleSubtaskFieldBlur(bundle.line.id, sub, field);
+                  }
+                }}
+                expandedSubtaskId={expandedSubtaskByRow[bundle.line.id] ?? null}
+                onExpandedSubtaskChange={(subtaskId) =>
+                  setExpandedSubtaskByRow((prev) => ({
+                    ...prev,
+                    [bundle.line.id]: subtaskId,
+                  }))
+                }
+                subtasksSectionExpanded={
+                  subtasksSectionExpandedByRow[bundle.line.id] ??
+                  bundle.subtasks.length > 0
+                }
+                onSubtasksSectionExpandedChange={(expanded) =>
+                  setSubtasksSectionExpandedByRow((prev) => ({
+                    ...prev,
+                    [bundle.line.id]: expanded,
+                  }))
+                }
+                onSubtasksChange={(next) =>
+                  updateRowSubtasks(bundle.line.id, next)
+                }
+                onChange={(next) => updateRow(bundle.line.id, next)}
+                onKeyResultSelect={(value) =>
+                  updateRowKeyResult(bundle.line.id, value)
+                }
+                onMilestoneSelect={(milestoneId) =>
+                  updateRowMilestone(bundle.line.id, milestoneId)
+                }
               />
-            );
-          }
-
-          return (
-            <PlanRowEditor
-              key={bundle.line.id}
-              line={bundle.line}
-              index={index}
-              canRemove={rows.length > 1}
-              showAssigneePicker={showAssigneePicker}
-              isSelfAssignee={isSelfAssignee}
-              viewerUserId={userId ? String(userId) : undefined}
-              lockAssignee={lockAssignee}
-              lockedAssigneeLabel={prefilledAssigneeLabel}
-              assigneeOptions={assigneeOptions}
-              targetOptions={targetOptions}
-              userKeyResultItems={userKeyResultItems}
-              subtasks={bundle.subtasks}
-              onSubtasksChange={(next) =>
-                updateRowSubtasks(bundle.line.id, next)
-              }
-              onChange={(next) => updateRow(bundle.line.id, next)}
-              onTargetSelect={(value) => updateRowTarget(bundle.line.id, value)}
-              onRemove={() => removeRow(bundle.line.id)}
-              onCollapse={
-                rows.length > 1
-                  ? () =>
-                      setExpandedRowId((current) =>
-                        current === bundle.line.id ? null : current,
-                      )
-                  : undefined
-              }
-            />
+            </PlanTaskRowCollapse>
           );
         })}
       </div>

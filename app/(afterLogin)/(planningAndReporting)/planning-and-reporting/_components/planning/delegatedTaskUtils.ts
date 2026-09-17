@@ -31,6 +31,9 @@ export type TeamTaskRow = {
   statusTone: 'default' | 'warning' | 'success' | 'danger';
   overdue: boolean;
   planId: string;
+  parentId?: string | null;
+  /** Set by buildHierarchicalTaskRows for nested week/month views. */
+  treeDepth?: number;
 };
 
 /** @deprecated Use TeamTaskRow */
@@ -52,6 +55,7 @@ type TaskLike = {
   priority?: string;
   start?: string | null;
   startDate?: string | null;
+  parentId?: string | null;
 };
 
 export function formatDelegatedDeadlineLabel(
@@ -174,6 +178,7 @@ function collectTeamAssignedFromTaskList(
       statusTone: status.tone,
       overdue,
       planId: opts.planId,
+      parentId: task.parentId ? String(task.parentId) : null,
     });
   }
 

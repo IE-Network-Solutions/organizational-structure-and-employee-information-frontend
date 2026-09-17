@@ -122,6 +122,11 @@ export function planTaskToTableRow(
     taskStatusTone: taskStatus.tone,
     overdue,
     planId: plan.id,
+    parentId: task.parentId
+      ? String(task.parentId)
+      : mockTask?.parentId
+        ? String(mockTask.parentId)
+        : null,
     rawTask: task,
     mockTask,
   };

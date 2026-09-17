@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { createPortal } from 'react-dom';
 import {
   Button,
+  Collapse,
   Dropdown,
   Input,
   Modal,
@@ -29,7 +30,6 @@ import { PlanSummary, PlanTask, ViewMode, Cadence } from '../types';
 import { formatLastReportedLabel, formatPlanningReportDate } from '../utils';
 import UserInfo from '../UserInfo';
 import StatusBadge from '../StatusBadge';
-import CommentsSection from '../comments/CommentsSection';
 import { useUpdateStatus } from '@/store/server/features/okrPlanningAndReporting/mutations';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useUserPlanRepositoryMock } from '@/store/uistate/features/planningAndReporting/userPlanRepositoryMock';
@@ -312,7 +312,6 @@ export default function PlanCard({
   dateLabel,
   onHoverKR,
   planningPeriodId,
-  onOpenThread,
   onSubmitReport,
   showSubmitReport,
   onAddPlan,
@@ -413,6 +412,7 @@ export default function PlanCard({
     mergePending: boolean;
   } | null>(null);
   const [commentsTask, setCommentsTask] = useState<MockPlanTask | null>(null);
+  const [addComposerExpanded, setAddComposerExpanded] = useState(false);
   const [liveLockConfirm, setLiveLockConfirm] = useState<{
     mode: 'lock' | 'unlock';
   } | null>(null);
@@ -580,39 +580,6 @@ export default function PlanCard({
     }
     return formatPlanningReportDate(plan.createdAt ?? '');
   };
-
-  const totalAchieved = React.useMemo(() => {
-    if (viewMode !== 'reporting') return 0;
-    let total = 0;
-    const sumTasks = (tasks: any[]) => {
-      tasks.forEach((task) => {
-        const isCompleted =
-          task.status === 'completed' ||
-          task.status === 'Done' ||
-          task.isAchieved === true;
-        if (isCompleted) total += Number(task.weight) || 0;
-      });
-    };
-    if (plan.keyResults && plan.keyResults.length > 0) {
-      plan.keyResults.forEach((kr) => {
-        const tasks: any[] = [];
-        if (kr.tasks) tasks.push(...kr.tasks);
-        kr.milestones?.forEach((m: any) => {
-          if (m.tasks) tasks.push(...m.tasks);
-          m.parentTask?.forEach((p: any) => {
-            if (p.tasks) tasks.push(...p.tasks);
-          });
-        });
-        kr.parentTask?.forEach((p: any) => {
-          if (p.tasks) tasks.push(...p.tasks);
-        });
-        sumTasks(tasks);
-      });
-    } else if (plan.tasks && plan.tasks.length > 0) {
-      sumTasks(plan.tasks);
-    }
-    return total;
-  }, [plan, viewMode]);
 
   const sections = React.useMemo(() => {
     const raw = flattenAllTasks(plan);
@@ -807,18 +774,15 @@ export default function PlanCard({
   const hasPendingForManagerMenu =
     viewMode === 'reporting' ? reportPendingTaskCount > 0 : showPendingSection;
 
-  /** Per-task lock/comments column — approver view, Pending rows only. */
-  const showPendingTaskActionsColumn =
-    mockEnabled &&
-    (viewMode === 'planning'
-      ? !plan.isReported && showPendingSection
-      : viewMode === 'reporting') &&
-    canApprove;
-
   /** Confirmed tasks on open plans (closed plans fold into Locked section). */
   const flatTasks = isClosedPlan ? [] : confirmedTasks;
   const visibleTaskCount =
     flatTasks.length + lockedSectionTasks.length + pendingTasks.length;
+
+  /** Per-task comments + lock column (mock planning / reporting). */
+  const showTaskActionsColumn =
+    mockEnabled &&
+    (viewMode === 'planning' ? !plan.isReported : viewMode === 'reporting');
 
   const mockPendingTasks = useMemo(
     () => mockStatusFilteredTasks.filter((t) => !!t.isPendingApproval),
@@ -840,6 +804,27 @@ export default function PlanCard({
         taskIds: pending.map((t) => t.id),
         titles: pending.map((t) => t.title),
         mergePending: true,
+      });
+    };
+
+    const lockAllTasks = () => {
+      if (!mockEnabled || !plan.ownerUserId) {
+        onApprove?.();
+        return;
+      }
+      const pool =
+        viewMode === 'reporting'
+          ? [...mockPendingReportTasks, ...mockReportedTasks]
+          : [...mockActiveTasks, ...mockReportedTasks];
+      const toLock = pool.filter((t) => !t.isLocked);
+      if (toLock.length === 0) {
+        message.info('All tasks are already locked.');
+        return;
+      }
+      setLockTarget({
+        taskIds: toLock.map((t) => t.id),
+        titles: toLock.map((t) => t.title),
+        mergePending: toLock.some((t) => !!t.isPendingApproval),
       });
     };
 
@@ -866,6 +851,17 @@ export default function PlanCard({
           setLiveLockComment('');
           setLiveLockConfirm({ mode: 'lock' });
         },
+        className: 'text-green-500',
+      });
+      items.push({
+        key: 'lock-all',
+        icon: <LockOutlined />,
+        label: (
+          <Tooltip title="Lock every unlocked task on this plan">
+            Lock all tasks
+          </Tooltip>
+        ),
+        onClick: lockAllTasks,
         className: 'text-green-500',
       });
       if (hasPendingForManagerMenu) {
@@ -914,6 +910,8 @@ export default function PlanCard({
     viewMode,
     mockPendingReportTasks,
     mockPendingTasks,
+    mockActiveTasks,
+    mockReportedTasks,
     onApprove,
     onOpen,
   ]);
@@ -1188,10 +1186,17 @@ export default function PlanCard({
           'Untitled Task',
       );
 
-      // Actions column is for pending-approval rows only; locked state is in Status.
-      if (!showPendingTaskActionsColumn || !task.isPendingApproval) {
+      if (!showTaskActionsColumn) {
         return null;
       }
+
+      const resolveMockTask = () =>
+        mockActiveTasks.find((t) => t.id === taskId) ??
+        mockReportedTasks.find((t) => t.id === taskId) ??
+        mockPendingTasks.find((t) => t.id === taskId) ??
+        null;
+
+      const isPending = !!task.isPendingApproval;
 
       return (
         <div
@@ -1207,8 +1212,7 @@ export default function PlanCard({
               data-cy={`plan-card-task-comments-btn-${taskId}`}
               className="inline-flex h-[18px] items-center gap-0.5 rounded px-1 text-[#8F94A3] hover:bg-[#F1F2F6] hover:text-[#574CFF]"
               onClick={() => {
-                const full =
-                  mockActiveTasks.find((t) => t.id === taskId) ?? null;
+                const full = resolveMockTask();
                 if (full) setCommentsTask(full);
               }}
               aria-label="Task comments"
@@ -1224,7 +1228,7 @@ export default function PlanCard({
               ) : null}
             </button>
           </Tooltip>
-          {canApprove ? (
+          {canApprove && isPending ? (
             isLocked ? (
               <Tooltip title="Unlock task">
                 <button
@@ -1265,9 +1269,11 @@ export default function PlanCard({
       );
     },
     [
-      showPendingTaskActionsColumn,
+      showTaskActionsColumn,
       canApprove,
       mockActiveTasks,
+      mockReportedTasks,
+      mockPendingTasks,
       plan.ownerUserId,
       unlockMockTask,
     ],
@@ -2043,23 +2049,6 @@ export default function PlanCard({
           </div>
         ) : null}
 
-        {/* Footer: comments + points */}
-        <div
-          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-662"
-          className="border-t border-[#F1F2F6] px-4 py-2 md:px-5"
-        >
-          <CommentsSection
-            commentCount={plan.commentCount}
-            commentAvatars={plan.commentAvatars}
-            planId={plan.id}
-            isPlanCard={false}
-            comments={plan.comments}
-            achieved={totalAchieved}
-            onOpenThread={
-              onOpenThread ? () => onOpenThread(plan.id, 'report') : undefined
-            }
-          />
-        </div>
         {failReasonCursorPanel &&
           typeof document !== 'undefined' &&
           createPortal(
@@ -2193,7 +2182,10 @@ export default function PlanCard({
                 size="small"
                 textClassName="text-[11px] font-semibold leading-tight sm:text-xs"
                 style={{ paddingInline: 10 }}
-                onClick={onAddPlan}
+                onClick={() => {
+                  setAddComposerExpanded(true);
+                  onAddPlan?.();
+                }}
                 className="!h-7 !min-h-7 !w-auto !min-w-0 !shrink-0 !rounded-md !px-2.5 !py-0 !bg-[#1E40AF] !text-white hover:!bg-[#1E3A8A]"
               />
             ) : null}
@@ -2346,7 +2338,7 @@ export default function PlanCard({
               hideInteractiveMarkers={!!plan.isReported}
               viewerUserId={String(viewerUserId ?? '')}
               showCheckboxColumn={!plan.isReported}
-              showActionsColumn={showPendingTaskActionsColumn}
+              showActionsColumn={showTaskActionsColumn}
               renderCheckboxCell={renderTaskCheckboxCell}
               renderActionsCell={renderTaskActionsCell}
               data-cy={`plan-card-tasks-table-${plan.id}`}
@@ -2355,34 +2347,23 @@ export default function PlanCard({
         ) : null}
 
         {!isHistoryMode && addPlanComposer ? (
-          <div
+          <Collapse
+            bordered={false}
+            activeKey={addComposerExpanded ? ['add-plan-composer'] : []}
+            onChange={(keys) =>
+              setAddComposerExpanded(
+                Array.isArray(keys) && keys.includes('add-plan-composer'),
+              )
+            }
+            className="mt-3 !bg-transparent [&_.ant-collapse-item]:!border-[#F1F2F6] [&_.ant-collapse-header]:!px-0 [&_.ant-collapse-content-box]:!px-0"
             data-cy={`plan-card-add-composer-${plan.id}`}
-            className="min-w-0 mt-3 border-t border-transparent bg-white pt-3"
           >
-            {addPlanComposer}
-          </div>
+            <Collapse.Panel header="Add plan" key="add-plan-composer">
+              {addPlanComposer}
+            </Collapse.Panel>
+          </Collapse>
         ) : null}
       </div>
-
-      {/* ── Footer: comments (hidden during inline report submit) ─ */}
-      {!inlineReportActive ? (
-        <div
-          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1029"
-          className="border-t border-[#F1F2F6] px-4 py-2 md:px-5"
-        >
-          <CommentsSection
-            commentCount={plan.commentCount}
-            commentAvatars={plan.commentAvatars}
-            planId={plan.id}
-            isPlanCard={viewMode === 'planning'}
-            comments={plan.comments}
-            achieved={totalAchieved}
-            onOpenThread={
-              onOpenThread ? () => onOpenThread(plan.id, 'plan') : undefined
-            }
-          />
-        </div>
-      ) : null}
 
       <LockTasksModal
         open={!!lockTarget}
