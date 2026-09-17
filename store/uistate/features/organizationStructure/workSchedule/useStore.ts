@@ -24,8 +24,8 @@ const initializeDetail = () =>
 const defaultShift = (): ShiftDraft => ({
   key: uuidv4(),
   name: 'Standard',
-  startTime: '9:00 AM',
-  endTime: '5:00 PM',
+  startTime: '7:30 AM',
+  endTime: '5:30 PM',
   isSwappable: false,
   applyToAllDays: true,
   days: [],

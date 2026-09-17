@@ -19,8 +19,8 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
   }));
 
   useEffect(() => {
-    const defaultStart = '8:00 AM';
-    const defaultEnd = '5:00 PM';
+    const defaultStart = '7:30 AM';
+    const defaultEnd = '5:30 PM';
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
     const updatedDetail = detail.map((item) => {
