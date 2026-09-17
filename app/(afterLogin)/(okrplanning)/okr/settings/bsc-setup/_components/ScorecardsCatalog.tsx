@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   Avatar,
   Button,
@@ -28,7 +28,13 @@ import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchIn
 import PeopleAssigneesGridSkeleton from '@/app/(afterLogin)/(bsc)/bsc/_components/PeopleAssigneesGridSkeleton';
 import ScorecardsGridSkeleton from '@/app/(afterLogin)/(bsc)/bsc/_components/ScorecardsGridSkeleton';
 import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
-import { useDeleteBscCycle, useAssignBscScorecard } from '@/store/server/features/bsc/mutation';
+import {
+  useActivateBscCycle,
+  useAssignBscScorecard,
+  useDeactivateBscCycle,
+  useDeleteBscCycle,
+  useLockBscCycle,
+} from '@/store/server/features/bsc/mutation';
 import { USE_BSC_API } from '@/store/server/features/bsc/config';
 import {
   useGetBscCycles,
@@ -38,6 +44,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   BscScopeTarget,
+  CycleStatus,
   EmployeeScorecard,
   EvaluationCycle,
 } from '@/types/bsc';
@@ -109,7 +116,24 @@ export default function ScorecardsCatalog() {
   const [pageSize, setPageSize] = useState(10);
   const { isMobile, isTablet } = useIsMobile();
   const deleteCycle = useDeleteBscCycle();
+  const deactivateCycle = useDeactivateBscCycle();
+  const activateCycle = useActivateBscCycle();
+  const lockCycle = useLockBscCycle();
   const assignScorecard = useAssignBscScorecard();
+  /** Blocks card navigation when a menu click falls through after the overlay closes. */
+  const suppressCardNavUntilRef = useRef(0);
+
+  const suppressCardNavigation = useCallback(() => {
+    suppressCardNavUntilRef.current = Date.now() + 400;
+  }, []);
+
+  const openScorecardDetail = useCallback(
+    (configId: string) => {
+      if (Date.now() < suppressCardNavUntilRef.current) return;
+      router.push(`/bsc/setup/${configId}`);
+    },
+    [router],
+  );
 
   const { data: configs, isLoading: configsLoading } = useGetBscCycles();
   const { data: peopleScorecards, isLoading: peopleLoading } =
@@ -175,7 +199,7 @@ export default function ScorecardsCatalog() {
     (config: EvaluationCycle) => {
       Modal.confirm({
         title: 'Delete this scorecard?',
-        content: `"${config.label}" and its assignments will be removed.`,
+        content: `"${config.label}" will be permanently removed. This only works for inactive scorecards.`,
         okText: 'Delete',
         okType: 'danger',
         cancelText: 'Cancel',
@@ -185,40 +209,170 @@ export default function ScorecardsCatalog() {
     [deleteCycle],
   );
 
+  const confirmDeactivateScorecard = useCallback(
+    (config: EvaluationCycle) => {
+      Modal.confirm({
+        title: 'Mark scorecard inactive?',
+        content: `"${config.label}" will stop appearing as active and can no longer be assigned until reactivated.`,
+        okText: 'Mark inactive',
+        okType: 'danger',
+        cancelText: 'Cancel',
+        onOk: () => deactivateCycle.mutateAsync(config.id),
+      });
+    },
+    [deactivateCycle],
+  );
+
+  const confirmLockScorecard = useCallback(
+    (config: EvaluationCycle) => {
+      Modal.confirm({
+        title: 'Lock this scorecard?',
+        content: `"${config.label}" will be locked and marked inactive. Locked scorecards cannot be edited or deleted.`,
+        okText: 'Lock',
+        okType: 'danger',
+        cancelText: 'Cancel',
+        onOk: () => lockCycle.mutateAsync(config.id),
+      });
+    },
+    [lockCycle],
+  );
+
   const scorecardMenuItems = useCallback(
-    (config: EvaluationCycle): MenuProps['items'] => [
-      {
-        key: 'edit',
-        label: 'Edit',
-        onClick: () => openEditSetup(config),
-      },
-      {
-        key: 'open',
-        label: 'Open details',
-        onClick: () => router.push(`/bsc/setup/${config.id}`),
-      },
-      ...(USE_BSC_API && config.isActive !== false
-        ? [
-            {
-              key: 'assign',
-              label: assignScorecard.isLoading ? 'Assigning…' : 'Assign to people',
-              onClick: () =>
-                assignScorecard.mutateAsync({
-                  scorecardId: config.id,
-                  asOf: config.effectiveFrom || config.startDate,
-                }),
-            },
-          ]
-        : []),
-      { type: 'divider' as const },
-      {
-        key: 'delete',
-        label: 'Delete',
-        danger: true,
-        onClick: () => confirmDeleteScorecard(config),
-      },
+    (config: EvaluationCycle): MenuProps['items'] => {
+      const isLocked = config.status === CycleStatus.Locked;
+      const isClosed = config.status === CycleStatus.Closed;
+      const isActive = config.isActive !== false && !isLocked && !isClosed;
+      const canDelete = !isActive && !isLocked && !isClosed;
+
+      return [
+        {
+          key: 'edit',
+          label: 'Edit',
+          disabled: isLocked || isClosed,
+          onClick: ({ domEvent }) => {
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
+            suppressCardNavigation();
+            openEditSetup(config);
+          },
+        },
+        {
+          key: 'open',
+          label: 'Open details',
+          onClick: ({ domEvent }) => {
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
+            suppressCardNavigation();
+            router.push(`/bsc/setup/${config.id}`);
+          },
+        },
+        ...(USE_BSC_API && isActive
+          ? [
+              {
+                key: 'assign',
+                label: assignScorecard.isLoading
+                  ? 'Assigning…'
+                  : 'Assign to people',
+                onClick: ({
+                  domEvent,
+                }: {
+                  domEvent:
+                    | React.MouseEvent<HTMLElement>
+                    | React.KeyboardEvent<HTMLElement>;
+                }) => {
+                  domEvent.preventDefault();
+                  domEvent.stopPropagation();
+                  suppressCardNavigation();
+                  void assignScorecard.mutateAsync({
+                    scorecardId: config.id,
+                    asOf: config.effectiveFrom || config.startDate,
+                  });
+                },
+              },
+            ]
+          : []),
+        ...(isActive
+          ? [
+              {
+                key: 'deactivate',
+                label: 'Mark inactive',
+                onClick: ({
+                  domEvent,
+                }: {
+                  domEvent:
+                    | React.MouseEvent<HTMLElement>
+                    | React.KeyboardEvent<HTMLElement>;
+                }) => {
+                  domEvent.preventDefault();
+                  domEvent.stopPropagation();
+                  suppressCardNavigation();
+                  confirmDeactivateScorecard(config);
+                },
+              },
+              {
+                key: 'lock',
+                label: 'Lock',
+                onClick: ({
+                  domEvent,
+                }: {
+                  domEvent:
+                    | React.MouseEvent<HTMLElement>
+                    | React.KeyboardEvent<HTMLElement>;
+                }) => {
+                  domEvent.preventDefault();
+                  domEvent.stopPropagation();
+                  suppressCardNavigation();
+                  confirmLockScorecard(config);
+                },
+              },
+            ]
+          : []),
+        ...(!isActive && !isLocked && !isClosed
+          ? [
+              {
+                key: 'activate',
+                label: 'Activate',
+                onClick: ({
+                  domEvent,
+                }: {
+                  domEvent:
+                    | React.MouseEvent<HTMLElement>
+                    | React.KeyboardEvent<HTMLElement>;
+                }) => {
+                  domEvent.preventDefault();
+                  domEvent.stopPropagation();
+                  suppressCardNavigation();
+                  void activateCycle.mutateAsync(config.id);
+                },
+              },
+            ]
+          : []),
+        { type: 'divider' as const },
+        {
+          key: 'delete',
+          label: 'Delete',
+          danger: true,
+          disabled: !canDelete,
+          onClick: ({ domEvent }) => {
+            if (!canDelete) return;
+            domEvent.preventDefault();
+            domEvent.stopPropagation();
+            suppressCardNavigation();
+            confirmDeleteScorecard(config);
+          },
+        },
+      ];
+    },
+    [
+      activateCycle,
+      assignScorecard,
+      confirmDeactivateScorecard,
+      confirmDeleteScorecard,
+      confirmLockScorecard,
+      openEditSetup,
+      router,
+      suppressCardNavigation,
     ],
-    [confirmDeleteScorecard, openEditSetup, router, assignScorecard],
   );
 
   const departments = useMemo(() => {
@@ -450,11 +604,11 @@ export default function ScorecardsCatalog() {
                           role="button"
                           tabIndex={0}
                           className="relative cursor-pointer rounded-[12px] bg-[#F9FAFB] p-5 transition-shadow hover:shadow-sm"
-                          onClick={() => router.push(`/bsc/setup/${config.id}`)}
+                          onClick={() => openScorecardDetail(config.id)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
                               e.preventDefault();
-                              router.push(`/bsc/setup/${config.id}`);
+                              openScorecardDetail(config.id);
                             }
                           }}
                           data-cy={`bsc-scorecard-card-${config.id}`}
@@ -469,20 +623,38 @@ export default function ScorecardsCatalog() {
                             >
                               {config.label}
                             </p>
-                            <Dropdown
-                              menu={{ items: scorecardMenuItems(config) }}
-                              trigger={['click']}
-                              placement="bottomRight"
+                            <div
+                              className="shrink-0"
+                              onClick={(e) => e.stopPropagation()}
+                              onKeyDown={(e) => e.stopPropagation()}
+                              data-cy={`bsc-scorecard-card-menu-wrap-${config.id}`}
                             >
-                              <button
-                                type="button"
-                                className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center border-none bg-transparent text-[#8c8c8c] transition-colors hover:text-[#262626]"
-                                onClick={(e) => e.stopPropagation()}
-                                data-cy={`bsc-scorecard-card-menu-${config.id}`}
+                              <Dropdown
+                                menu={{
+                                  items: scorecardMenuItems(config),
+                                  onClick: ({ domEvent }) => {
+                                    domEvent.preventDefault();
+                                    domEvent.stopPropagation();
+                                    suppressCardNavigation();
+                                  },
+                                }}
+                                trigger={['click']}
+                                placement="bottomRight"
                               >
-                                <EllipsisOutlined style={{ fontSize: 22 }} />
-                              </button>
-                            </Dropdown>
+                                <button
+                                  type="button"
+                                  className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center border-none bg-transparent text-[#8c8c8c] transition-colors hover:text-[#262626]"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    suppressCardNavigation();
+                                  }}
+                                  data-cy={`bsc-scorecard-card-menu-${config.id}`}
+                                >
+                                  <EllipsisOutlined style={{ fontSize: 22 }} />
+                                </button>
+                              </Dropdown>
+                            </div>
                           </div>
                           {config.description ? (
                             <p
@@ -498,9 +670,13 @@ export default function ScorecardsCatalog() {
                           >
                             <Tag className={blueTagClassName}>{scope}</Tag>
                             <Tag className={blueTagClassName}>
-                              {config.isActive === false
-                                ? 'Inactive'
-                                : 'Active'}
+                              {config.status === CycleStatus.Locked
+                                ? 'Locked'
+                                : config.status === CycleStatus.Closed
+                                  ? 'Closed'
+                                  : config.isActive === false
+                                    ? 'Inactive'
+                                    : 'Active'}
                             </Tag>
                             {config.effectiveFrom || config.startDate ? (
                               <Tag className={blueTagClassName}>

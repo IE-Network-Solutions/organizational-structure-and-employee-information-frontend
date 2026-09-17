@@ -7,7 +7,8 @@ export type ScorecardTab =
   | 'bsc'
   | 'checkin';
 
-export type ResultsScope = 'team' | 'all';
+/** `mine` = own scorecards only (always allowed, like My OKR). */
+export type ResultsScope = 'mine' | 'team' | 'all';
 
 export const SCORECARD_BASE_PATH = '/bsc/my-scorecard';
 export const BSC_KPI_ADMIN_BASE = '/bsc/kpi';
@@ -43,7 +44,7 @@ export function isScorecardTab(
 export function isResultsScope(
   value: string | null | undefined,
 ): value is ResultsScope {
-  return value === 'team' || value === 'all';
+  return value === 'mine' || value === 'team' || value === 'all';
 }
 
 /** Map legacy team/all tabs onto the merged Results tab. */
@@ -64,7 +65,7 @@ export function scorecardTabHref(tab: ScorecardTab = 'mine'): string {
   return `${SCORECARD_BASE_PATH}?tab=${normalized}`;
 }
 
-export function scorecardResultsHref(scope: ResultsScope = 'team'): string {
+export function scorecardResultsHref(scope: ResultsScope = 'mine'): string {
   return `${SCORECARD_BASE_PATH}?tab=results&scope=${scope}`;
 }
 
@@ -86,7 +87,7 @@ export function parseScorecardTab(
 export function parseResultsScope(
   search: string | URLSearchParams | null | undefined,
 ): ResultsScope {
-  if (!search) return 'team';
+  if (!search) return 'mine';
   const params =
     typeof search === 'string'
       ? new URLSearchParams(
@@ -98,7 +99,7 @@ export function parseResultsScope(
   if (legacyTab === 'team' || legacyTab === 'all') return legacyTab;
 
   const scope = params.get('scope');
-  return isResultsScope(scope) ? scope : 'all';
+  return isResultsScope(scope) ? scope : 'mine';
 }
 
 /** Split a menu key that may include `?tab=`. */

@@ -4,7 +4,6 @@ import {
   ScorecardKpiTarget,
   ScorecardStatus,
 } from '@/types/bsc';
-import { computeCompositeScore, normalizeRatio } from '@/utils/bsc/scoring';
 
 export function isScorecardEvaluated(scorecard: EmployeeScorecard): boolean {
   return (
@@ -29,14 +28,8 @@ export function scorecardTotal(scorecard: EmployeeScorecard): number {
     );
     return weighted;
   }
-  const result = computeCompositeScore(scorecard.targets);
-  let total = 0;
-  for (const t of scorecard.targets) {
-    const item = result.items.find((b) => b.targetId === t.id);
-    const ratio = item ? Math.min(item.ratio, 1) : 0;
-    total += ratio * t.weightPercentage;
-  }
-  return Math.min(total, 100);
+  // Evaluated but missing per-KPI scores: do not fall back to live actuals.
+  return 0;
 }
 
 export function formatScore(value: number): string {
@@ -126,19 +119,14 @@ export function departmentRollups(cards: EmployeeScorecard[]): RollupSummary[] {
   );
 }
 
-/** Achievement % for a single target; null when not yet reported. */
+/** Achievement % for a single target — only after finalize wrote `score`. */
 export function targetScorePercent(target: ScorecardKpiTarget): number | null {
   if (target.score != null && Number.isFinite(Number(target.score))) {
     return Number(target.score);
   }
-  if (target.actualValue == null) return null;
-  const { ratio } = normalizeRatio(
-    target.actualValue,
-    target.targetValue,
-    target.targetLogic,
-    { worstCase: target.worstCase, bestCase: target.bestCase },
-  );
-  return Math.min(Math.max(ratio, 0), 1) * 100;
+  // Do not invent a score from self-reported actualValue while evaluation
+  // is still in progress (PendingEval / waiting on later evaluators).
+  return null;
 }
 
 export type KpiContributor = {

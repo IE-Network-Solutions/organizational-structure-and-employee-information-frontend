@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState } from 'react';
 import {
-  AutoComplete,
   Button,
   Col,
   Dropdown,
@@ -14,6 +13,7 @@ import {
   Progress,
   Radio,
   Row,
+  Select,
   Tag,
 } from 'antd';
 import type { MenuProps } from 'antd';
@@ -46,20 +46,12 @@ import {
   type PerspectiveKpiProgress,
 } from '@/utils/bsc/rollup';
 import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
+import {
+  measurementUnitLabel,
+  metricUnitSelectOptions,
+} from '@/utils/bsc/measurementUnit';
 
 const { TextArea } = Input;
-
-const METRIC_OPTIONS = [
-  { value: '%', label: '%' },
-  { value: 'Currency', label: 'Currency' },
-  { value: 'Count', label: 'Count' },
-  { value: 'Days', label: 'Days' },
-  { value: 'Hours', label: 'Hours' },
-  { value: 'Ratio', label: 'Ratio' },
-  { value: 'Score', label: 'Score' },
-  { value: 'Index', label: 'Index' },
-  { value: 'Rating (1.0 - 5.0)', label: 'Rating (1.0 - 5.0)' },
-];
 
 export default function BscPerspectiveDetailPage() {
   const router = useRouter();
@@ -69,6 +61,11 @@ export default function BscPerspectiveDetailPage() {
 
   const [search, setSearch] = useState('');
   const [form] = Form.useForm();
+  const metricUnit = Form.useWatch('measurementUnit', form);
+  const metricOptions = useMemo(
+    () => metricUnitSelectOptions(metricUnit),
+    [metricUnit],
+  );
   const [kpiFormOpen, setKpiFormOpen] = useState(false);
   const [editingKpi, setEditingKpi] = useState<KpiLibraryItem | null>(null);
 
@@ -81,11 +78,6 @@ export default function BscPerspectiveDetailPage() {
   const createKpi = useCreateBscKpi();
   const updateKpi = useUpdateBscKpi();
   const deleteKpi = useDeleteBscKpi();
-
-  const targetLogic = Form.useWatch('targetLogic', form) as
-    | TargetLogic
-    | undefined;
-  const isBounded = targetLogic === TargetLogic.Bounded;
 
   const perspective = useMemo(
     () => (catalog || []).find((item) => item.id === perspectiveId) || null,
@@ -380,7 +372,7 @@ export default function BscPerspectiveDetailPage() {
                   data-cy={`bsc-perspective-kpi-card-meta-${row.kpiLibraryId}`}
                 >
                   <Tag className="m-0 h-5 rounded border border-[#d9d9d9] bg-white px-1.5 text-[11px] font-normal leading-5 text-[#595959]">
-                    {row.measurementUnit || '—'}
+                    {measurementUnitLabel(row.measurementUnit) || '—'}
                   </Tag>
                 </div>
                 <div
@@ -404,12 +396,35 @@ export default function BscPerspectiveDetailPage() {
       <Modal
         open={kpiFormOpen}
         onCancel={closeKpiForm}
-        footer={null}
         centered
         width={560}
         destroyOnClose
         title={editingKpi ? 'Edit KPI' : 'Add KPI'}
         data-cy="bsc-perspective-detail-kpi-form-modal"
+        styles={{
+          body: { maxHeight: 'min(70vh, 560px)', overflowY: 'auto' },
+        }}
+        footer={
+          <div
+            className="flex justify-end gap-2"
+            data-cy="bsc-perspective-detail-kpi-form-actions"
+          >
+            <CustomButton
+              type="default"
+              title="Cancel"
+              onClick={closeKpiForm}
+              className="h-10"
+            />
+            <CustomButton
+              title={editingKpi ? 'Save' : 'Add KPI'}
+              onClick={() => {
+                void handleSaveKpi();
+              }}
+              loading={saving}
+              className="h-10 bg-[#2b54ad]"
+            />
+          </div>
+        }
       >
         <Form form={form} layout="vertical" className="mt-2">
           {perspective ? (
@@ -458,6 +473,47 @@ export default function BscPerspectiveDetailPage() {
               <Radio value={TargetLogic.Bounded}>Bounded</Radio>
             </Radio.Group>
           </Form.Item>
+          <Form.Item noStyle dependencies={['targetLogic']}>
+            {({ getFieldValue }) =>
+              getFieldValue('targetLogic') === TargetLogic.Bounded ? (
+                <Row
+                  gutter={12}
+                  data-cy="bsc-perspective-detail-kpi-range-thresholds"
+                >
+                  <Col span={12}>
+                    <Form.Item
+                      name="worstCase"
+                      label="Minimum"
+                      rules={[
+                        { required: true, message: 'Minimum is required' },
+                      ]}
+                    >
+                      <InputNumber
+                        className="w-full"
+                        placeholder="Min threshold"
+                        data-cy="bsc-perspective-detail-kpi-worst"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="bestCase"
+                      label="Maximum"
+                      rules={[
+                        { required: true, message: 'Maximum is required' },
+                      ]}
+                    >
+                      <InputNumber
+                        className="w-full"
+                        placeholder="Max threshold"
+                        data-cy="bsc-perspective-detail-kpi-best"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              ) : null
+            }
+          </Form.Item>
           <Form.Item
             name="measurementUnit"
             label="Metric"
@@ -469,9 +525,12 @@ export default function BscPerspectiveDetailPage() {
               },
             ]}
           >
-            <AutoComplete
-              options={METRIC_OPTIONS}
-              placeholder="Select or type a metric"
+            <Select
+              options={metricOptions}
+              placeholder="Select a metric"
+              showSearch
+              optionFilterProp="label"
+              optionLabelProp="label"
               className="w-full"
               data-cy="bsc-perspective-detail-kpi-metric"
             />
@@ -482,45 +541,6 @@ export default function BscPerspectiveDetailPage() {
               data-cy="bsc-perspective-detail-kpi-target"
             />
           </Form.Item>
-          {isBounded ? (
-            <Row gutter={12}>
-              <Col span={12}>
-                <Form.Item name="worstCase" label="Worst case">
-                  <InputNumber
-                    className="w-full"
-                    data-cy="bsc-perspective-detail-kpi-worst"
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item name="bestCase" label="Best case">
-                  <InputNumber
-                    className="w-full"
-                    data-cy="bsc-perspective-detail-kpi-best"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          ) : null}
-          <div
-            className="flex justify-end gap-2 pt-2"
-            data-cy="bsc-perspective-detail-kpi-form-actions"
-          >
-            <CustomButton
-              type="default"
-              title="Cancel"
-              onClick={closeKpiForm}
-              className="h-10"
-            />
-            <CustomButton
-              title={editingKpi ? 'Save' : 'Add KPI'}
-              onClick={() => {
-                void handleSaveKpi();
-              }}
-              loading={saving}
-              className="h-10 bg-[#2b54ad]"
-            />
-          </div>
         </Form>
       </Modal>
     </div>

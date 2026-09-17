@@ -23,7 +23,8 @@ export type ScorecardKpiRow = {
   actual?: number | null;
   unit: string;
   targetLogic: TargetLogic;
-  progress: number;
+  /** Finalized achievement % (null while evaluation is still in progress). */
+  progress: number | null;
   /** Average achievement across periods for this KPI (0–100). */
   averageScore?: number | null;
   averageCaption?: string | null;
@@ -40,7 +41,9 @@ function targetLogicLabel(logic: TargetLogic): string {
 }
 
 function kpiResultLabel(kpi: ScorecardKpiRow): string {
-  if (kpi.actual == null) return 'Pending';
+  if (kpi.progress == null) {
+    return kpi.actual == null ? 'Pending' : 'In review';
+  }
   if (kpi.progress >= 100) return 'Achieved';
   return `${Math.round(kpi.progress)}%`;
 }
@@ -117,7 +120,7 @@ function KpiRow({
         data-cy="perspectivekpicard-td-93"
         className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
       >
-        {kpi.actual == null ? '—' : `${Math.round(kpi.progress)}%`}
+        {kpi.progress == null ? '—' : `${Math.round(kpi.progress)}%`}
       </td>
       <td
         data-cy="perspectivekpicard-td-96"

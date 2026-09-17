@@ -107,7 +107,10 @@ export default function EmployeeKpiTable({
     AccessGuard.checkAccess({ permissions: [Permissions.ViewCompanyOkr] });
 
   const scopeOptions = useMemo(() => {
-    const options: { value: ResultsScope; label: string }[] = [];
+    // Always allow own results (like My OKR). Team / All match OKR tab gates.
+    const options: { value: ResultsScope; label: string }[] = [
+      { value: 'mine', label: 'My KPI' },
+    ];
     if (canViewTeamKpi)
       options.push({ value: 'team', label: 'Subordinate KPI' });
     if (canViewAllEmployeeKpi) {
@@ -124,7 +127,7 @@ export default function EmployeeKpiTable({
   const scopeFromUrl = parseResultsScope(searchParams);
   const scope: ResultsScope = allowedScopes.includes(scopeFromUrl)
     ? scopeFromUrl
-    : allowedScopes[0] || 'all';
+    : allowedScopes[0] || 'mine';
 
   useEffect(() => {
     if (!allowedScopes.length) return;
@@ -155,7 +158,9 @@ export default function EmployeeKpiTable({
     if (filterOpen) {
       setDraftScope(scope);
       setDraftUserId(userId);
-      setDraftDepartment(scope === 'team' ? undefined : department);
+      setDraftDepartment(
+        scope === 'team' || scope === 'mine' ? undefined : department,
+      );
     }
   }, [filterOpen, scope, userId, department]);
 
@@ -170,6 +175,10 @@ export default function EmployeeKpiTable({
 
   const scopedScorecards = useMemo(() => {
     const list = scorecards || [];
+    if (scope === 'mine') {
+      if (!actorId) return [];
+      return list.filter((card) => card.userId === actorId);
+    }
     if (scope !== 'team') return list;
     const manager = resolveTeamManagerId(actorId, list);
     const skip = new Set([manager, 'demo-user'].filter(Boolean));
@@ -343,7 +352,11 @@ export default function EmployeeKpiTable({
 
   const applyFilters = () => {
     setUserId(draftUserId);
-    setDepartment(draftScope === 'team' ? undefined : draftDepartment);
+    setDepartment(
+      draftScope === 'team' || draftScope === 'mine'
+        ? undefined
+        : draftDepartment,
+    );
     setCurrentPage(1);
     if (draftScope !== scope) {
       router.push(scorecardResultsHref(draftScope));
@@ -352,7 +365,7 @@ export default function EmployeeKpiTable({
   };
 
   const handleReset = () => {
-    const defaultScope = allowedScopes[0] || 'all';
+    const defaultScope = allowedScopes[0] || 'mine';
     setDraftUserId(undefined);
     setDraftDepartment(undefined);
     setDraftScope(defaultScope);
@@ -386,7 +399,7 @@ export default function EmployeeKpiTable({
               value={draftScope}
               onChange={(value: ResultsScope) => {
                 setDraftScope(value);
-                if (value === 'team') {
+                if (value === 'team' || value === 'mine') {
                   setDraftDepartment(undefined);
                 }
               }}
@@ -419,21 +432,27 @@ export default function EmployeeKpiTable({
           />
         </div>
         <div className="flex flex-col gap-2" data-cy="bsc-results-filter-dept">
-          <label
-            className={`text-sm font-medium ${
-              draftScope === 'team' ? 'text-gray-400' : 'text-gray-700'
-            }`}
-            data-cy="bsc-results-filter-dept-label"
-          >
+            <label
+              className={`text-sm font-medium ${
+                draftScope === 'team' || draftScope === 'mine'
+                  ? 'text-gray-400'
+                  : 'text-gray-700'
+              }`}
+              data-cy="bsc-results-filter-dept-label"
+            >
             Department
           </label>
           <Select
             allowClear
             showSearch
-            disabled={draftScope === 'team'}
+            disabled={draftScope === 'team' || draftScope === 'mine'}
             placeholder="Department"
             className="w-full h-10 rounded-lg"
-            value={draftScope === 'team' ? undefined : draftDepartment}
+            value={
+              draftScope === 'team' || draftScope === 'mine'
+                ? undefined
+                : draftDepartment
+            }
             onChange={(value) => setDraftDepartment(value)}
             options={departmentOptions.map((name) => ({
               value: name,
@@ -475,17 +494,6 @@ export default function EmployeeKpiTable({
     </div>
   );
 
-  if (!allowedScopes.length) {
-    return (
-      <div
-        className="py-16 text-center text-gray-400"
-        data-cy="bsc-results-empty-permission"
-      >
-        You do not have access to KPI results.
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-4" data-cy="bsc-all-employee-kpi-table">
       <div
@@ -494,12 +502,14 @@ export default function EmployeeKpiTable({
       >
         <RollupProgressCard
           rollup={companyRollup}
-          onClick={openCompanyRollup}
+          onClick={scope === 'mine' ? undefined : openCompanyRollup}
           dataCy="bsc-company-rollup-card"
           label={
-            scope === 'team'
-              ? 'Subordinate Scorecard'
-              : 'Company-wide Scorecard'
+            scope === 'mine'
+              ? 'My Scorecard'
+              : scope === 'team'
+                ? 'Subordinate Scorecard'
+                : 'Company-wide Scorecard'
           }
         />
         {deptRollups.map((row) => (
@@ -628,9 +638,11 @@ export default function EmployeeKpiTable({
               data-cy="bsc-all-employee-table"
               locale={{
                 emptyText:
-                  scope === 'team'
-                    ? 'No subordinate KPI results'
-                    : 'No employee KPI results',
+                  scope === 'mine'
+                    ? 'No KPI results for your scorecard'
+                    : scope === 'team'
+                      ? 'No subordinate KPI results'
+                      : 'No employee KPI results',
               }}
             />
           )}

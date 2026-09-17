@@ -39,6 +39,7 @@ import {
 } from '@/store/server/features/bsc/mutation';
 import { USE_BSC_API } from '@/store/server/features/bsc/config';
 import {
+  useGetBscCycles,
   useGetBscKpiLibrary,
   useGetBscPerspectiveCatalog,
   useGetBscRolePerspectives,
@@ -258,6 +259,17 @@ function FormObjectField() {
   return null;
 }
 
+function RequiredLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      {children}
+      <span className="ml-0.5 text-[#ff4d4f]" aria-hidden>
+        *
+      </span>
+    </>
+  );
+}
+
 /**
  * Standard BSC cascade (Kaplan & Norton):
  * 1) Define the scorecard (identity, active, effective date)
@@ -285,6 +297,7 @@ export default function BscSetupModal() {
   const { data: allUsersData } = useGetAllUsers();
   const { data: catalog } = useGetBscPerspectiveCatalog();
   const { data: allKpis, isFetched: kpisFetched } = useGetBscKpiLibrary();
+  const { data: existingCycles } = useGetBscCycles();
   const { data: editAllocations } = useGetBscRolePerspectives(
     editingConfig?.id ? { evaluationConfigId: editingConfig.id } : undefined,
   );
@@ -951,9 +964,14 @@ export default function BscSetupModal() {
   };
 
   const updateKpiFlow = (kpiId: string, flow: BscEvaluatorStep[]) => {
+    const current =
+      (form.getFieldValue('kpiEvaluationFlows') as Record<
+        string,
+        BscEvaluatorStep[]
+      >) || {};
     form.setFieldsValue({
       kpiEvaluationFlows: {
-        ...kpiEvaluationFlows,
+        ...current,
         [kpiId]: flow,
       },
     });
@@ -1580,7 +1598,33 @@ export default function BscSetupModal() {
         />
       </div>
 
-      <Form form={form} layout="vertical" className="mt-2" requiredMark={false}>
+      <Form form={form} layout="vertical" className="mt-2">
+        {/* Keep object fields mounted across wizard steps so maps are not dropped. */}
+        <Form.Item name="perspectiveRows" hidden>
+          <FormObjectField />
+        </Form.Item>
+        <Form.Item name="measureWeights" hidden>
+          <FormObjectField />
+        </Form.Item>
+        <Form.Item name="measureTargets" hidden>
+          <FormObjectField />
+        </Form.Item>
+        <Form.Item name="measureWorstCases" hidden>
+          <FormObjectField />
+        </Form.Item>
+        <Form.Item name="measureBestCases" hidden>
+          <FormObjectField />
+        </Form.Item>
+        <Form.Item name="measureCadences" hidden>
+          <FormObjectField />
+        </Form.Item>
+        <Form.Item name="measureCheckInDays" hidden>
+          <FormObjectField />
+        </Form.Item>
+        <Form.Item name="kpiEvaluationFlows" hidden>
+          <FormObjectField />
+        </Form.Item>
+
         {current === 0 && (
           <>
             <Form.Item
@@ -1591,6 +1635,23 @@ export default function BscSetupModal() {
                   required: true,
                   whitespace: true,
                   message: 'Scorecard name is required',
+                },
+                {
+                  validator: async (_, value) => {
+                    const trimmed = String(value || '').trim();
+                    if (!trimmed) return;
+                    const taken = (existingCycles || []).some(
+                      (cycle) =>
+                        cycle.id !== editingConfig?.id &&
+                        cycle.label.trim().toLowerCase() ===
+                          trimmed.toLowerCase(),
+                    );
+                    if (taken) {
+                      throw new Error(
+                        'A scorecard with this name already exists',
+                      );
+                    }
+                  },
                 },
               ]}
             >
@@ -1981,31 +2042,6 @@ export default function BscSetupModal() {
               ) : null}
             </p>
 
-            <Form.Item name="perspectiveRows" hidden>
-              <FormObjectField />
-            </Form.Item>
-            <Form.Item name="measureWeights" hidden>
-              <FormObjectField />
-            </Form.Item>
-            <Form.Item name="measureTargets" hidden>
-              <FormObjectField />
-            </Form.Item>
-            <Form.Item name="measureWorstCases" hidden>
-              <FormObjectField />
-            </Form.Item>
-            <Form.Item name="measureBestCases" hidden>
-              <FormObjectField />
-            </Form.Item>
-            <Form.Item name="measureCadences" hidden>
-              <FormObjectField />
-            </Form.Item>
-            <Form.Item name="measureCheckInDays" hidden>
-              <FormObjectField />
-            </Form.Item>
-            <Form.Item name="kpiEvaluationFlows" hidden>
-              <FormObjectField />
-            </Form.Item>
-
             {!selectedKpis.length ? (
               <p
                 className="text-[13px] text-[#94A3B8]"
@@ -2107,8 +2143,10 @@ export default function BscSetupModal() {
                             data-cy="bscsetupmodal-p-1862"
                             className="m-0 text-[11px] text-[#8F94A3]"
                           >
-                            {kpi.measurementUnit} ·{' '}
-                            {targetLogicLabel(kpi.targetLogic)}
+                            {measurementUnitLabel(kpi.measurementUnit) ||
+                              kpi.measurementUnit ||
+                              '—'}{' '}
+                            · {targetLogicLabel(kpi.targetLogic)}
                             {kpi.defaultTarget != null
                               ? ` · catalog default ${kpi.defaultTarget}`
                               : ''}
@@ -2122,7 +2160,7 @@ export default function BscSetupModal() {
                             data-cy="bscsetupmodal-span-1871"
                             className="text-[11px] text-[#595959]"
                           >
-                            Weight %
+                            <RequiredLabel>Weight %</RequiredLabel>
                           </span>
                           <InputNumber
                             className="w-20"
@@ -2154,7 +2192,7 @@ export default function BscSetupModal() {
                             data-cy="bscsetupmodal-span-1894"
                             className="text-[11px] text-[#595959]"
                           >
-                            Target
+                            <RequiredLabel>Target</RequiredLabel>
                           </span>
                           <InputNumber
                             className="w-28"
@@ -2185,7 +2223,7 @@ export default function BscSetupModal() {
                                 data-cy="bscsetupmodal-span-1919"
                                 className="text-[11px] text-[#595959]"
                               >
-                                Worst
+                                <RequiredLabel>Minimum</RequiredLabel>
                               </span>
                               <InputNumber
                                 className="w-24"
@@ -2209,7 +2247,7 @@ export default function BscSetupModal() {
                                 data-cy="bscsetupmodal-span-1937"
                                 className="text-[11px] text-[#595959]"
                               >
-                                Best
+                                <RequiredLabel>Maximum</RequiredLabel>
                               </span>
                               <InputNumber
                                 className="w-24"
@@ -2235,7 +2273,7 @@ export default function BscSetupModal() {
                             data-cy="bscsetupmodal-span-1960"
                             className="text-[11px] text-[#595959] whitespace-nowrap"
                           >
-                            Evaluation cadence
+                            <RequiredLabel>Evaluation cadence</RequiredLabel>
                           </span>
                           <Select
                             className="min-w-[120px]"
@@ -2270,7 +2308,7 @@ export default function BscSetupModal() {
                             data-cy="bscsetupmodal-span-1989"
                             className="text-[11px] text-[#595959] whitespace-nowrap"
                           >
-                            {checkInDayLabelText}
+                            <RequiredLabel>{checkInDayLabelText}</RequiredLabel>
                           </span>
                           <Select
                             className="min-w-[120px]"
@@ -2365,7 +2403,7 @@ export default function BscSetupModal() {
                       </div>
 
                       <div
-                        className="w-full overflow-x-auto"
+                        className="w-full overflow-x-auto overflow-y-visible px-1 pt-2 pb-1"
                         data-cy={`bsc-eval-flow-${kpi.id}`}
                       >
                         <div
@@ -2559,9 +2597,10 @@ export default function BscSetupModal() {
                                     </Popover>
                                     <button
                                       type="button"
-                                      className="absolute -right-1 -top-1 z-[1] inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border border-white bg-[#f5f5f5] text-[8px] leading-none text-[#8c8c8c] hover:bg-[#fff1f0] hover:text-[#ff4d4f] disabled:cursor-not-allowed disabled:opacity-35"
+                                      className="absolute -right-1.5 -top-1.5 z-[2] inline-flex h-5 w-5 items-center justify-center rounded-full border border-white bg-[#f5f5f5] text-[10px] leading-none text-[#8c8c8c] shadow-sm hover:bg-[#fff1f0] hover:text-[#ff4d4f] disabled:cursor-not-allowed disabled:opacity-35"
                                       disabled={flow.length <= 1}
                                       title="Remove step"
+                                      aria-label="Remove evaluator step"
                                       onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
@@ -2623,7 +2662,7 @@ export default function BscSetupModal() {
                               if (open) {
                                 setEmployeePickerSearch('');
                                 setAddStepKpiId(kpi.id);
-                              } else {
+                              } else if (addStepKpiId === kpi.id) {
                                 closeEmployeePicker();
                               }
                             }}
@@ -2776,8 +2815,15 @@ export default function BscSetupModal() {
                           >
                             <button
                               type="button"
-                              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-0 bg-transparent text-[#8F94A3] transition-opacity hover:opacity-70"
+                              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#E5E7EB] bg-white text-[#8F94A3] transition-colors hover:border-[#91caff] hover:bg-[#E6F4FF] hover:text-[#1677ff]"
                               title="Add evaluator"
+                              aria-label="Add evaluator"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setEmployeePickerSearch('');
+                                setAddStepKpiId(kpi.id);
+                              }}
                               data-cy={`bsc-eval-add-step-${kpi.id}`}
                             >
                               <PlusOutlined />

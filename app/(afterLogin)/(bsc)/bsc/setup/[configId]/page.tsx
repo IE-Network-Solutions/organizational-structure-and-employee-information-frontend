@@ -114,6 +114,66 @@ function resolveProfileImageSrc(profileImage: unknown): string | undefined {
   return undefined;
 }
 
+/**
+ * Org `/users` responses vary: `{ items }`, bare array, or id-keyed map.
+ */
+function normalizeUsers(data: unknown): any[] {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (typeof data !== 'object') return [];
+
+  const body = data as Record<string, unknown>;
+  const candidates = [
+    body.items,
+    body.data,
+    body.users,
+    body.employees,
+    (body.data as Record<string, unknown> | undefined)?.items,
+    (body.data as Record<string, unknown> | undefined)?.users,
+    (body.data as Record<string, unknown> | undefined)?.data,
+  ];
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate) && candidate.length > 0) {
+      return candidate as any[];
+    }
+  }
+
+  const values = Object.values(body).filter(
+    (value) =>
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      ('id' in (value as object) ||
+        'userId' in (value as object) ||
+        'email' in (value as object) ||
+        'firstName' in (value as object) ||
+        'fullName' in (value as object)),
+  ) as any[];
+
+  return values.length > 0 ? values : [];
+}
+
+function userDisplayName(user: any): string {
+  const info = user?.employeeInformation;
+  return (
+    user?.fullName ||
+    info?.fullName ||
+    [
+      user?.firstName || user?.first_name || info?.firstName,
+      user?.middleName || user?.middle_name || info?.middleName,
+      user?.lastName || user?.last_name || info?.lastName,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim() ||
+    user?.email ||
+    user?.username ||
+    ''
+  );
+}
+
 function nameInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return '?';
@@ -214,14 +274,19 @@ export default function BscScorecardDetailPage() {
 
   const profileImageByUserId = useMemo(() => {
     const map = new Map<string, string>();
-    const list: any[] = Array.isArray(allUsers?.items)
-      ? allUsers.items
-      : Array.isArray(allUsers)
-        ? allUsers
-        : [];
-    for (const user of list) {
+    for (const user of normalizeUsers(allUsers)) {
+      const id = String(user?.id || user?.userId || '').trim();
       const src = resolveProfileImageSrc(user?.profileImage);
-      if (user?.id && src) map.set(user.id, src);
+      if (id && src) map.set(id, src);
+    }
+    return map;
+  }, [allUsers]);
+
+  const usersById = useMemo(() => {
+    const map = new Map<string, any>();
+    for (const user of normalizeUsers(allUsers)) {
+      const id = String(user?.id || user?.userId || '').trim();
+      if (id) map.set(id, user);
     }
     return map;
   }, [allUsers]);
@@ -323,26 +388,12 @@ export default function BscScorecardDetailPage() {
   );
 
   const uniquePeople = useMemo(() => {
-    const list: any[] = Array.isArray(allUsers?.items)
-      ? allUsers.items
-      : Array.isArray(allUsers)
-        ? allUsers
-        : [];
-    const usersById = new Map<string, any>(
-      list
-        .filter((user) => user?.id)
-        .map((user) => [String(user.id), user]),
-    );
     const byUser = new Map<string, EmployeeScorecard>();
     for (const person of people) {
       if (byUser.has(person.userId)) continue;
-      const user = usersById.get(person.userId);
-      const first = user?.firstName || user?.first_name || '';
-      const last = user?.lastName || user?.last_name || '';
-      const fullName = `${first} ${last}`.replace(/\s+/g, ' ').trim();
+      const user = usersById.get(String(person.userId));
       const resolvedName =
-        fullName ||
-        user?.email ||
+        userDisplayName(user) ||
         (person.userName && !looksLikeUuid(person.userName)
           ? person.userName
           : '') ||
@@ -357,6 +408,7 @@ export default function BscScorecardDetailPage() {
             : null) ||
           user?.department?.name ||
           user?.departmentName ||
+          user?.employeeInformation?.department?.name ||
           null,
         positionTitle:
           person.positionTitle ||
@@ -365,13 +417,14 @@ export default function BscScorecardDetailPage() {
             : null) ||
           user?.position?.name ||
           user?.positionTitle ||
+          user?.employeeJobInformation?.[0]?.position?.name ||
           null,
       });
     }
     return Array.from(byUser.values()).sort((a, b) =>
       (a.userName || '').localeCompare(b.userName || ''),
     );
-  }, [people, allUsers, departmentNameById, positionNameById]);
+  }, [people, usersById, departmentNameById, positionNameById]);
 
   const kpiRollupById = useMemo(() => {
     const map = new Map<

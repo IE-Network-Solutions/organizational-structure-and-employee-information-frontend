@@ -6,6 +6,7 @@ import {
   CreateKpiLibraryInput,
   CreatePerspectiveInput,
   AdjustReportedKpiInput,
+  CycleStatus,
   EmployeeScorecard,
   ReportKpiInput,
   SaveRolePerspectiveInput,
@@ -23,6 +24,7 @@ import {
   createBscKpi,
   createBscPerspective,
   createBscScorecardTemplate,
+  deactivateBscScorecardTemplate,
   deleteBscKpi,
   deleteBscPerspective,
   deleteBscScorecardTemplate,
@@ -277,11 +279,31 @@ export const useLockBscCycle = () => {
     {
       onSuccess: () => {
         invalidateAll(qc);
-        NotificationMessage.success({ message: 'Cycle locked' });
+        NotificationMessage.success({ message: 'Scorecard locked' });
       },
       onError: (e: Error) =>
         NotificationMessage.error({
-          message: e.message || 'Failed to lock cycle',
+          message: e.message || 'Failed to lock scorecard',
+        }),
+    },
+  );
+};
+
+export const useDeactivateBscCycle = () => {
+  const qc = useQueryClient();
+  return useMutation(
+    (id: string) =>
+      USE_BSC_API
+        ? deactivateBscScorecardTemplate(id)
+        : bscMockRepo.deactivateCycle(id),
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({ message: 'Scorecard marked inactive' });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Failed to deactivate scorecard',
         }),
     },
   );
@@ -293,7 +315,7 @@ export const useActivateBscCycle = () => {
     (id: string) =>
       USE_BSC_API
         ? activateBscScorecardTemplate(id)
-        : bscMockRepo.updateCycle(id, { isActive: true }),
+        : bscMockRepo.updateCycle(id, { isActive: true, status: CycleStatus.Open }),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -317,11 +339,11 @@ export const useDeleteBscCycle = () => {
     {
       onSuccess: () => {
         invalidateAll(qc);
-        NotificationMessage.success({ message: 'BSC deleted' });
+        NotificationMessage.success({ message: 'Scorecard deleted' });
       },
       onError: (e: Error) =>
         NotificationMessage.error({
-          message: e.message || 'Failed to delete BSC',
+          message: e.message || 'Failed to delete scorecard',
         }),
     },
   );

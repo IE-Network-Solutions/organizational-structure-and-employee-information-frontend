@@ -526,11 +526,44 @@ export class BscMockRepository {
   async lockCycle(id: string): Promise<EvaluationCycle> {
     const cycle = this.cycles.find((c) => c.id === id);
     if (!cycle) throw new Error('Cycle not found');
+    if (cycle.status !== CycleStatus.Open || cycle.isActive === false) {
+      throw new Error('Only Active scorecards can be locked');
+    }
     cycle.status = CycleStatus.Locked;
+    cycle.isActive = false;
+    return delay({ ...cycle });
+  }
+
+  async deactivateCycle(id: string): Promise<EvaluationCycle> {
+    const cycle = this.cycles.find((c) => c.id === id);
+    if (!cycle) throw new Error('Cycle not found');
+    if (cycle.status === CycleStatus.Closed) {
+      throw new Error('Cannot deactivate a Closed scorecard');
+    }
+    if (cycle.status === CycleStatus.Locked) {
+      throw new Error('Cannot deactivate a Locked scorecard');
+    }
+    if (cycle.isActive === false) {
+      throw new Error('Scorecard is already inactive');
+    }
+    cycle.isActive = false;
     return delay({ ...cycle });
   }
 
   deleteCycle(id: string): Promise<void> {
+    const cycle = this.cycles.find((c) => c.id === id);
+    if (!cycle) throw new Error('Cycle not found');
+    if (cycle.isActive !== false) {
+      throw new Error(
+        'Only inactive scorecards can be deleted. Mark the scorecard inactive first.',
+      );
+    }
+    if (
+      cycle.status === CycleStatus.Locked ||
+      cycle.status === CycleStatus.Closed
+    ) {
+      throw new Error(`Cannot delete a ${cycle.status} scorecard`);
+    }
     this.cycles = this.cycles.filter((c) => c.id !== id);
     this.kpiLibrary = this.kpiLibrary.filter(
       (k) => k.evaluationConfigId !== id,

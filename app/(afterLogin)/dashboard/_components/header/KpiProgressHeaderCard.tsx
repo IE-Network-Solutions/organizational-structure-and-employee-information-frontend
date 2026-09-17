@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useGetBscScorecards } from '@/store/server/features/bsc/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EmployeeScorecard, ScorecardStatus } from '@/types/bsc';
-import { normalizeRatio } from '@/utils/bsc/scoring';
+import { isScorecardEvaluated } from '@/utils/bsc/rollup';
 
 const cardShellClass =
   'flex flex-col gap-4 h-[115px] min-w-[260px] flex-none shadow-none rounded-lg border border-[#D9D9D9] bg-white p-3 md:min-w-0';
@@ -25,38 +25,29 @@ export function computeKpiProgressPercent(
   if (!scorecard) return 0;
 
   if (scorecard.finalEvaluation?.compositeScore != null) {
-    return Math.min(scorecard.finalEvaluation.compositeScore, 100);
+    return Math.min(Number(scorecard.finalEvaluation.compositeScore), 100);
   }
 
-  const evaluated =
-    scorecard.status === ScorecardStatus.Scored ||
-    scorecard.status === ScorecardStatus.Completed;
-  if (!evaluated) {
-    const withActual = scorecard.targets.filter((t) => t.actualValue != null);
-    if (!withActual.length) return 0;
-    const total = withActual.reduce((sum, t) => {
-      const { ratio } = normalizeRatio(
-        t.actualValue as number,
-        t.targetValue,
-        t.targetLogic,
-      );
-      return sum + Math.min(ratio, 1) * 100 * (t.weightPercentage / 100);
-    }, 0);
-    return Math.min(total, 100);
-  }
+  // Only show a score after the evaluation flow is finished (finalize).
+  if (!isScorecardEvaluated(scorecard)) return 0;
 
-  return Math.min(
-    scorecard.targets.reduce((sum, t) => {
-      if (t.actualValue == null) return sum;
-      const { ratio } = normalizeRatio(
-        t.actualValue,
-        t.targetValue,
-        t.targetLogic,
-      );
-      return sum + Math.min(ratio, 1) * t.weightPercentage;
-    }, 0),
-    100,
+  const fromServerScores = scorecard.targets.filter(
+    (t) => t.score != null && Number.isFinite(Number(t.score)),
   );
+  if (fromServerScores.length) {
+    const weightSum = fromServerScores.reduce(
+      (sum, t) => sum + (t.weightPercentage || 0),
+      0,
+    );
+    if (weightSum <= 0) return 0;
+    const weighted = fromServerScores.reduce(
+      (sum, t) => sum + (Number(t.score) * (t.weightPercentage || 0)) / weightSum,
+      0,
+    );
+    return Math.min(weighted, 100);
+  }
+
+  return 0;
 }
 
 function pickCurrentScorecard(

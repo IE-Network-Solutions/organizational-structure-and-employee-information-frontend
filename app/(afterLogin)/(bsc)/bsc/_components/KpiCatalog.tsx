@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Dropdown, Modal, Spin, Table, Tag } from 'antd';
+import { Dropdown, Modal, Select, Spin, Table, Tag } from 'antd';
 import type { MenuProps } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
 import EmptyState from '@/components/empty';
@@ -43,6 +43,9 @@ function targetLogicLabel(logic?: TargetLogic): string {
 export default function KpiCatalog() {
   const { openCatalogKpiForm } = useBscUiStore();
   const [search, setSearch] = useState('');
+  const [perspectiveFilter, setPerspectiveFilter] = useState<
+    string | undefined
+  >();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { isMobile, isTablet } = useIsMobile();
@@ -55,22 +58,43 @@ export default function KpiCatalog() {
     [catalog],
   );
 
+  const perspectiveOptions = useMemo(() => {
+    const names = new Set<string>();
+    for (const p of catalog || []) {
+      if (p.name?.trim()) names.add(p.name.trim());
+    }
+    for (const kpi of kpis || []) {
+      if (kpi.perspective?.trim()) names.add(kpi.perspective.trim());
+    }
+    return Array.from(names)
+      .sort((a, b) => a.localeCompare(b))
+      .map((name) => ({ value: name, label: name }));
+  }, [catalog, kpis]);
+
   const filteredKpis = useMemo(() => {
     const q = search.trim().toLowerCase();
     const list = [...(kpis || [])].sort((a, b) => a.name.localeCompare(b.name));
-    if (!q) return list;
-    return list.filter(
-      (kpi) =>
+    return list.filter((kpi) => {
+      if (
+        perspectiveFilter &&
+        (kpi.perspective || '').trim().toLowerCase() !==
+          perspectiveFilter.trim().toLowerCase()
+      ) {
+        return false;
+      }
+      if (!q) return true;
+      return (
         kpi.name.toLowerCase().includes(q) ||
         kpi.perspective.toLowerCase().includes(q) ||
         (kpi.description || '').toLowerCase().includes(q) ||
-        (kpi.measurementUnit || '').toLowerCase().includes(q),
-    );
-  }, [kpis, search]);
+        (kpi.measurementUnit || '').toLowerCase().includes(q)
+      );
+    });
+  }, [kpis, search, perspectiveFilter]);
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, kpis?.length]);
+  }, [search, perspectiveFilter, kpis?.length]);
 
   const paginatedKpis = useMemo(
     () =>
@@ -277,12 +301,30 @@ export default function KpiCatalog() {
         </div>
       ) : (
         <>
-          <div data-cy="kpicatalog-div-233" className="mb-4">
-            <BscSearchInput
-              placeholder="Search KPIs"
-              value={search}
-              onChange={setSearch}
-              data-cy="bsc-kpi-catalog-search"
+          <div
+            data-cy="kpicatalog-div-233"
+            className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center"
+          >
+            <div className="min-w-0 flex-1">
+              <BscSearchInput
+                placeholder="Search KPIs"
+                value={search}
+                onChange={setSearch}
+                data-cy="bsc-kpi-catalog-search"
+              />
+            </div>
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              placeholder="Filter by perspective"
+              className="w-full sm:w-[240px]"
+              value={perspectiveFilter}
+              onChange={(value: string | undefined) =>
+                setPerspectiveFilter(value)
+              }
+              options={perspectiveOptions}
+              data-cy="bsc-kpi-catalog-perspective-filter"
             />
           </div>
 
@@ -306,7 +348,7 @@ export default function KpiCatalog() {
                 data-cy="kpicatalog-div-255"
                 className="py-12 text-center text-gray-400"
               >
-                No KPIs match your search
+                No KPIs match your search or perspective filter
               </div>
             ) : (
               <>

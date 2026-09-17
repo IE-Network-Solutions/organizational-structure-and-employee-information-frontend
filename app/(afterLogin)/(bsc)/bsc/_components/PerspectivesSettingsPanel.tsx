@@ -57,7 +57,7 @@ export default function PerspectivesSettingsPanel() {
     (row: BscPerspectiveDefinition) => {
       Modal.confirm({
         title: 'Delete this perspective?',
-        content: `"${row.name}" will be removed. KPIs using it will keep the tag.`,
+        content: `"${row.name}" can only be deleted when no KPIs still use it. Reassign or delete those KPIs first.`,
         okText: 'Delete',
         okType: 'danger',
         cancelText: 'Cancel',

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo } from 'react';
 import {
-  AutoComplete,
   Col,
   Form,
   Input,
@@ -24,7 +23,7 @@ import {
   useGetBscPerspectiveCatalog,
 } from '@/store/server/features/bsc/queries';
 import { CycleStatus, TargetLogic } from '@/types/bsc';
-import { METRIC_UNIT_OPTIONS } from '@/utils/bsc/measurementUnit';
+import { metricUnitSelectOptions } from '@/utils/bsc/measurementUnit';
 
 const { TextArea } = Input;
 
@@ -36,11 +35,6 @@ export default function KpiCatalogFormModal() {
   const { data: catalog } = useGetBscPerspectiveCatalog();
   const createKpi = useCreateBscKpi();
   const updateKpi = useUpdateBscKpi();
-
-  const targetLogic = Form.useWatch('targetLogic', form) as
-    | TargetLogic
-    | undefined;
-  const isBounded = targetLogic === TargetLogic.Bounded;
 
   const perspectiveOptions = useMemo(
     () =>
@@ -72,6 +66,12 @@ export default function KpiCatalogFormModal() {
       });
     }
   }, [catalogKpiFormOpen, catalogEditingKpi, form]);
+
+  const metricUnit = Form.useWatch('measurementUnit', form);
+  const metricOptions = useMemo(
+    () => metricUnitSelectOptions(metricUnit),
+    [metricUnit],
+  );
 
   const handleClose = () => {
     form.resetFields();
@@ -132,7 +132,6 @@ export default function KpiCatalogFormModal() {
     <Modal
       open={catalogKpiFormOpen}
       onCancel={handleClose}
-      footer={null}
       centered
       width={560}
       destroyOnClose
@@ -140,6 +139,30 @@ export default function KpiCatalogFormModal() {
       closeIcon={<CloseOutlined />}
       title={catalogEditingKpi ? 'Edit KPI' : 'Add KPI'}
       data-cy="bsc-kpi-catalog-form-modal"
+      styles={{
+        body: { maxHeight: 'min(70vh, 560px)', overflowY: 'auto' },
+      }}
+      footer={
+        <div
+          data-cy="kpicatalogformmodal-div-267"
+          className="flex justify-end gap-3"
+        >
+          <CustomButton
+            type="default"
+            title="Cancel"
+            onClick={handleClose}
+            className="h-10 px-6 rounded-lg"
+          />
+          <CustomButton
+            type="primary"
+            title="Save"
+            loading={saving}
+            onClick={handleSubmit}
+            className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2]"
+            data-cy="bsc-kpi-catalog-save"
+          />
+        </div>
+      }
     >
       <Form form={form} layout="vertical" className="mt-2">
         <Form.Item
@@ -201,27 +224,63 @@ export default function KpiCatalogFormModal() {
             <Radio value={TargetLogic.Bounded}>Bounded (within a range)</Radio>
           </Radio.Group>
         </Form.Item>
+        <Form.Item noStyle dependencies={['targetLogic']}>
+          {({ getFieldValue }) =>
+            getFieldValue('targetLogic') === TargetLogic.Bounded ? (
+              <Row gutter={16} data-cy="bsc-kpi-catalog-range-thresholds">
+                <Col span={12}>
+                  <Form.Item
+                    name="worstCase"
+                    label="Minimum"
+                    rules={[
+                      { required: true, message: 'Minimum is required' },
+                    ]}
+                  >
+                    <InputNumber
+                      className="w-full"
+                      placeholder="Min threshold"
+                      data-cy="bsc-kpi-catalog-worst"
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item
+                    name="bestCase"
+                    label="Maximum"
+                    rules={[
+                      { required: true, message: 'Maximum is required' },
+                    ]}
+                  >
+                    <InputNumber
+                      className="w-full"
+                      placeholder="Max threshold"
+                      data-cy="bsc-kpi-catalog-best"
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+            ) : null
+          }
+        </Form.Item>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
               name="measurementUnit"
-              label="Metric / unit"
+              label="Metric"
               rules={[
                 {
                   required: true,
                   whitespace: true,
-                  message: 'Select or enter a metric',
+                  message: 'Select a metric',
                 },
               ]}
             >
-              <AutoComplete
-                options={METRIC_UNIT_OPTIONS}
-                placeholder="e.g. Percentage, Days, Score"
-                filterOption={(input, option) =>
-                  String(option?.label || option?.value || '')
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
+              <Select
+                options={metricOptions}
+                placeholder="Select a metric"
+                showSearch
+                optionFilterProp="label"
+                optionLabelProp="label"
                 data-cy="bsc-kpi-catalog-metric"
               />
             </Form.Item>
@@ -236,53 +295,6 @@ export default function KpiCatalogFormModal() {
             </Form.Item>
           </Col>
         </Row>
-        {isBounded ? (
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="worstCase"
-                label="Worst case"
-                rules={[{ required: true, message: 'Worst case is required' }]}
-              >
-                <InputNumber
-                  className="w-full"
-                  data-cy="bsc-kpi-catalog-worst"
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="bestCase"
-                label="Best case"
-                rules={[{ required: true, message: 'Best case is required' }]}
-              >
-                <InputNumber
-                  className="w-full"
-                  data-cy="bsc-kpi-catalog-best"
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-        ) : null}
-        <div
-          data-cy="kpicatalogformmodal-div-267"
-          className="flex justify-end gap-3 pt-2"
-        >
-          <CustomButton
-            type="default"
-            title="Cancel"
-            onClick={handleClose}
-            className="h-10 px-6 rounded-lg"
-          />
-          <CustomButton
-            type="primary"
-            title="Save"
-            loading={saving}
-            onClick={handleSubmit}
-            className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2]"
-            data-cy="bsc-kpi-catalog-save"
-          />
-        </div>
       </Form>
     </Modal>
   );

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  AutoComplete,
   Button,
   Col,
   Form,
@@ -12,6 +11,7 @@ import {
   Popconfirm,
   Radio,
   Row,
+  Select,
   Tag,
 } from 'antd';
 import {
@@ -35,20 +35,12 @@ import {
   useGetBscPerspectiveCatalog,
 } from '@/store/server/features/bsc/queries';
 import { CycleStatus, KpiLibraryItem, TargetLogic } from '@/types/bsc';
+import {
+  measurementUnitLabel,
+  metricUnitSelectOptions,
+} from '@/utils/bsc/measurementUnit';
 
 const { TextArea } = Input;
-
-const METRIC_OPTIONS = [
-  { value: '%', label: '%' },
-  { value: 'Currency', label: 'Currency' },
-  { value: 'Count', label: 'Count' },
-  { value: 'Days', label: 'Days' },
-  { value: 'Hours', label: 'Hours' },
-  { value: 'Ratio', label: 'Ratio' },
-  { value: 'Score', label: 'Score' },
-  { value: 'Index', label: 'Index' },
-  { value: 'Rating (1.0 - 5.0)', label: 'Rating (1.0 - 5.0)' },
-];
 
 function targetLogicLabel(logic?: TargetLogic): string {
   if (logic === TargetLogic.LowerBetter) return 'Lower is better';
@@ -58,6 +50,11 @@ function targetLogicLabel(logic?: TargetLogic): string {
 
 export default function PerspectiveKpiModal() {
   const [form] = Form.useForm();
+  const metricUnit = Form.useWatch('measurementUnit', form);
+  const metricOptions = useMemo(
+    () => metricUnitSelectOptions(metricUnit),
+    [metricUnit],
+  );
   const [kpiFormOpen, setKpiFormOpen] = useState(false);
   const [editingKpi, setEditingKpi] = useState<KpiLibraryItem | null>(null);
   const {
@@ -76,11 +73,6 @@ export default function PerspectiveKpiModal() {
   const updateKpi = useUpdateBscKpi();
   const deleteKpi = useDeleteBscKpi();
   const deletePerspective = useDeleteBscPerspective();
-
-  const targetLogic = Form.useWatch('targetLogic', form) as
-    | TargetLogic
-    | undefined;
-  const isBounded = targetLogic === TargetLogic.Bounded;
 
   const viewing = useMemo(() => {
     if (!viewingPerspectiveKpis) return null;
@@ -382,7 +374,7 @@ export default function PerspectiveKpiModal() {
                     data-cy="-okrplanning-okr-settings-bsc-perspectives-perspectivekpimodal-div-10"
                   >
                     <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                      {kpi.measurementUnit || '—'}
+                      {measurementUnitLabel(kpi.measurementUnit) || '—'}
                     </Tag>
                     <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
                       {targetLogicLabel(kpi.targetLogic)}
@@ -403,7 +395,6 @@ export default function PerspectiveKpiModal() {
       <Modal
         open={kpiFormOpen}
         onCancel={closeKpiForm}
-        footer={null}
         centered
         width={560}
         destroyOnClose
@@ -411,6 +402,29 @@ export default function PerspectiveKpiModal() {
         closeIcon={<CloseOutlined />}
         title={editingKpi ? 'Edit KPI' : 'Add KPI'}
         data-cy="bsc-perspective-kpi-form-modal"
+        styles={{
+          body: { maxHeight: 'min(70vh, 560px)', overflowY: 'auto' },
+        }}
+        footer={
+          <div
+            className="flex justify-end gap-3"
+            data-cy="bsc-perspective-kpi-modal-actions"
+          >
+            <CustomButton
+              type="default"
+              title="Cancel"
+              onClick={closeKpiForm}
+              className="h-10 px-6 rounded-lg"
+            />
+            <CustomButton
+              title={editingKpi ? 'Save' : 'Add KPI'}
+              onClick={handleSaveKpi}
+              loading={saving}
+              className="h-10 px-6 rounded-lg"
+              data-cy="bsc-perspective-kpi-modal-submit"
+            />
+          </div>
+        }
       >
         <Form form={form} layout="vertical" className="mt-2">
           {perspectiveName ? (
@@ -468,27 +482,65 @@ export default function PerspectiveKpiModal() {
             </Radio.Group>
           </Form.Item>
 
+          <Form.Item noStyle dependencies={['targetLogic']}>
+            {({ getFieldValue }) =>
+              getFieldValue('targetLogic') === TargetLogic.Bounded ? (
+                <Row gutter={16} data-cy="bsc-perspective-kpi-range-thresholds">
+                  <Col span={12}>
+                    <Form.Item
+                      name="worstCase"
+                      label="Minimum"
+                      rules={[
+                        { required: true, message: 'Minimum is required' },
+                      ]}
+                    >
+                      <InputNumber
+                        className="w-full"
+                        placeholder="Min threshold"
+                        data-cy="bsc-perspective-kpi-worst"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="bestCase"
+                      label="Maximum"
+                      rules={[
+                        { required: true, message: 'Maximum is required' },
+                      ]}
+                    >
+                      <InputNumber
+                        className="w-full"
+                        placeholder="Max threshold"
+                        data-cy="bsc-perspective-kpi-best"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              ) : null
+            }
+          </Form.Item>
+
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="measurementUnit"
-                label="Metric / unit"
+                label="Metric"
                 rules={[
                   {
                     required: true,
                     whitespace: true,
-                    message: 'Select or enter a metric',
+                    message: 'Select a metric',
                   },
                 ]}
               >
-                <AutoComplete
-                  options={METRIC_OPTIONS}
-                  placeholder="e.g. %, Days, Score"
-                  filterOption={(input, option) =>
-                    String(option?.label || option?.value || '')
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
+                <Select
+                  options={metricOptions}
+                  placeholder="Select a metric"
+                  showSearch
+                  optionFilterProp="label"
+                  optionLabelProp="label"
+                  className="w-full"
                   data-cy="bsc-perspective-kpi-metric"
                 />
               </Form.Item>
@@ -503,58 +555,6 @@ export default function PerspectiveKpiModal() {
               </Form.Item>
             </Col>
           </Row>
-
-          {isBounded ? (
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item
-                  name="worstCase"
-                  label="Worst case"
-                  rules={[
-                    { required: true, message: 'Worst case is required' },
-                  ]}
-                >
-                  <InputNumber
-                    className="w-full"
-                    placeholder="Lower bound"
-                    data-cy="bsc-perspective-kpi-worst"
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="bestCase"
-                  label="Best case"
-                  rules={[{ required: true, message: 'Best case is required' }]}
-                >
-                  <InputNumber
-                    className="w-full"
-                    placeholder="Upper bound"
-                    data-cy="bsc-perspective-kpi-best"
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-          ) : null}
-
-          <div
-            className="flex justify-end gap-3 pt-2"
-            data-cy="bsc-perspective-kpi-modal-actions"
-          >
-            <CustomButton
-              type="default"
-              title="Cancel"
-              onClick={closeKpiForm}
-              className="h-10 px-6 rounded-lg"
-            />
-            <CustomButton
-              title={editingKpi ? 'Save' : 'Add KPI'}
-              onClick={handleSaveKpi}
-              loading={saving}
-              className="h-10 px-6 rounded-lg"
-              data-cy="bsc-perspective-kpi-modal-submit"
-            />
-          </div>
         </Form>
       </Modal>
     </>

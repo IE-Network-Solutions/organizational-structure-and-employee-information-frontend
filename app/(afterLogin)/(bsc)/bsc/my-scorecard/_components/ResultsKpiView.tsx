@@ -11,7 +11,9 @@ type Props = {
 };
 
 /**
- * Single Results page: employee KPI table with Team / All scope in Filter.
+ * Results page: employee KPI table.
+ * Always includes own ("My KPI") scope; Team / All match OKR ViewTeamOkr /
+ * ViewCompanyOkr gates.
  */
 export default function ResultsKpiView({
   canViewTeamKpi: canViewTeamProp,

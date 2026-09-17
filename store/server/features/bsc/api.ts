@@ -408,6 +408,23 @@ export async function lockBscScorecardTemplate(
   }
 }
 
+export async function deactivateBscScorecardTemplate(
+  id: string,
+): Promise<EvaluationCycle> {
+  try {
+    const headers = await bscAuthHeaders();
+    const data = (await crudRequest({
+      url: `${BSC_BASE}/scorecards/${id}/deactivate`,
+      method: 'POST',
+      headers,
+    })) as BscScorecardApi;
+
+    return mapScorecardToCycle(data);
+  } catch (error) {
+    throw toBscError(error, 'Failed to deactivate scorecard');
+  }
+}
+
 export type BscAssignResult = {
   scorecardId: string;
   period: {

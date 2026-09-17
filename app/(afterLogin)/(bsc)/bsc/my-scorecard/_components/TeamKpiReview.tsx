@@ -22,6 +22,7 @@ import {
   ScorecardStatus,
   TargetLogic,
 } from '@/types/bsc';
+import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
@@ -274,7 +275,7 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
           className={tableCellClassName}
           data-cy="-bsc-bsc-my-scorecard-teamkpireview-span-13"
         >
-          {unit?.trim() || '—'}
+          {measurementUnitLabel(unit) || unit?.trim() || '—'}
         </span>
       ),
     },

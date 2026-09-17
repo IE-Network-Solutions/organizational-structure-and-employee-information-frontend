@@ -2,7 +2,8 @@
 const UNIT_LABELS: Record<string, string> = {
   '%': 'Percentage',
   'Boolean (1 or 0)': 'Achieved/Not',
-  'Rating (1.0 - 5.0)': 'Rating',
+  'Boolean (0 or 1)': 'Achieved/Not',
+  'Rating (1.0 - 5.0)': 'Rating (1.0 - 5.0)',
 };
 
 export function measurementUnitLabel(unit?: string | null): string | null {
@@ -11,6 +12,7 @@ export function measurementUnitLabel(unit?: string | null): string | null {
   return UNIT_LABELS[trimmed] ?? trimmed;
 }
 
+/** Shared Metric dropdown options (value = persisted unit, label = UI name). */
 export const METRIC_UNIT_OPTIONS: { value: string; label: string }[] = [
   { value: '%', label: 'Percentage' },
   { value: 'Boolean (1 or 0)', label: 'Achieved/Not' },
@@ -23,6 +25,21 @@ export const METRIC_UNIT_OPTIONS: { value: string; label: string }[] = [
   { value: 'Index', label: 'Index' },
   { value: 'Rating (1.0 - 5.0)', label: 'Rating (1.0 - 5.0)' },
 ];
+
+/** Options for Select, including a custom/legacy unit if not in the catalog. */
+export function metricUnitSelectOptions(
+  current?: string | null,
+): { value: string; label: string }[] {
+  const trimmed = current?.trim();
+  if (!trimmed) return METRIC_UNIT_OPTIONS;
+  if (METRIC_UNIT_OPTIONS.some((o) => o.value === trimmed)) {
+    return METRIC_UNIT_OPTIONS;
+  }
+  return [
+    ...METRIC_UNIT_OPTIONS,
+    { value: trimmed, label: measurementUnitLabel(trimmed) || trimmed },
+  ];
+}
 
 export type TargetDisplay = {
   primary: string;

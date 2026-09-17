@@ -11,6 +11,7 @@ import {
   useGetBscCycles,
   useGetBscKpiLibrary,
   useGetBscRolePerspectives,
+  useGetBscScorecard,
   useGetBscScorecardResults,
   useGetBscScorecards,
 } from '@/store/server/features/bsc/queries';
@@ -24,8 +25,7 @@ import {
   ScorecardStatus,
   TargetLogic,
 } from '@/types/bsc';
-import { normalizeRatio } from '@/utils/bsc/scoring';
-import { formatScore, targetScorePercent } from '@/utils/bsc/rollup';
+import { formatScore, isScorecardEvaluated, targetScorePercent } from '@/utils/bsc/rollup';
 import {
   filterScorecardsInSeries,
   scorecardContextLabel,
@@ -57,16 +57,6 @@ function currentMonthName(): string {
 
 function currentYear(): number {
   return new Date().getFullYear();
-}
-
-function kpiProgressPercent(
-  actual: number | null | undefined,
-  target: number | null | undefined,
-  logic: TargetLogic,
-): number {
-  if (actual == null || target == null) return 0;
-  const { ratio } = normalizeRatio(actual, target, logic);
-  return Math.min(Math.max(ratio, 0), 1) * 100;
 }
 
 export default function MyBscScorecardPage() {
@@ -117,21 +107,29 @@ export default function MyBscScorecardPage() {
     }
 
     const ensureAllowedTab = (tab: ScorecardTab): ScorecardTab => {
-      if (tab === 'results' || tab === 'team' || tab === 'all') {
-        return canViewTeamKpi || canViewAllEmployeeKpi ? 'results' : 'mine';
-      }
+      // Results is always available (like My OKR). Team/All scopes are
+      // permission-gated inside the Results view — same as Team/Company OKR.
+      if (tab === 'team' || tab === 'all') return 'results';
       return tab;
     };
 
     const allowed = ensureAllowedTab(tabFromUrl);
     if (allowed !== tabFromUrl) {
-      if (allowed === 'results') {
-        router.replace(
-          scorecardResultsHref(canViewAllEmployeeKpi ? 'all' : 'team'),
-        );
-      } else {
-        router.replace(scorecardTabHref(allowed));
-      }
+      const scope =
+        tabFromUrl === 'all'
+          ? canViewAllEmployeeKpi
+            ? 'all'
+            : canViewTeamKpi
+              ? 'team'
+              : 'mine'
+          : tabFromUrl === 'team'
+            ? canViewTeamKpi
+              ? 'team'
+              : canViewAllEmployeeKpi
+                ? 'all'
+                : 'mine'
+            : 'mine';
+      router.replace(scorecardResultsHref(scope));
     }
   }, [
     canManageBscAdmin,
@@ -160,12 +158,10 @@ export default function MyBscScorecardPage() {
   const mine = useMemo(() => {
     const list = scorecards || [];
     if (USE_BSC_API) {
-      // /bsc/my-scorecard is already scoped to the logged-in token user.
-      // Do not fall back to demo-user — that empties the UI for real assignees
-      // when auth store userId does not exactly match row.userId.
-      if (!userId) return list;
-      const matched = list.filter((s) => s.userId === userId);
-      return matched.length ? matched : list;
+      // GET /bsc/my-scorecard is already scoped to the token user.
+      // Do not re-filter against auth store userId or fall back to the full list —
+      // a mismatch previously leaked every returned scorecard to "My Scorecard".
+      return list;
     }
     if (userId) {
       const matched = list.filter((s) => s.userId === userId);
@@ -177,40 +173,39 @@ export default function MyBscScorecardPage() {
   const myRoleTitle = useMemo(() => {
     const fromSc =
       mine.find((s) => s.status === ScorecardStatus.Active)?.positionTitle ||
-      mine[0]?.positionTitle;
-    return fromSc || 'HR Director';
+      mine[0]?.positionTitle ||
+      null;
+    if (fromSc) return fromSc;
+    // Mock-only default for local demo data.
+    return USE_BSC_API ? null : 'HR Director';
   }, [mine]);
 
-  const assignedKpis = useMemo(() => {
-    const kpis = (allKpis || []).filter(
-      (k) =>
-        (k.positionTitle || '').toLowerCase() === myRoleTitle.toLowerCase(),
-    );
-    if (kpis.length) return kpis;
-    const active =
-      mine.find((s) => s.status === ScorecardStatus.Active) || mine[0];
-    if (!active) return [];
+  /** KPIs assigned on the employee's scorecard only — never the full catalog. */
+  const kpisFromScorecardTargets = (
+    card: EmployeeScorecard | null | undefined,
+  ): KpiLibraryItem[] => {
+    if (!card?.targets?.length) return [];
     const seen = new Set<string>();
     const fromTargets: KpiLibraryItem[] = [];
-    for (const t of active.targets) {
+    for (const t of card.targets) {
       if (seen.has(t.kpiLibraryId)) continue;
       seen.add(t.kpiLibraryId);
       fromTargets.push({
         id: t.kpiLibraryId,
-        evaluationConfigId: active.cycleId,
+        evaluationConfigId: card.cycleId,
         name: t.kpiName,
         description: null,
         perspective: t.perspective,
         targetLogic: t.targetLogic,
         measurementUnit: t.measurementUnit,
-        positionTitle: active.positionTitle,
+        positionTitle: card.positionTitle,
         defaultTarget: t.targetValue,
         weight: t.weightPercentage,
-        createdAt: active.createdAt,
+        createdAt: card.createdAt,
       });
     }
     return fromTargets;
-  }, [allKpis, myRoleTitle, mine]);
+  };
 
   const selectedMonth = useMemo(
     () =>
@@ -293,7 +288,7 @@ export default function MyBscScorecardPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scorecardOptionKey]);
 
-  const activeScorecard: EmployeeScorecard | null = useMemo(() => {
+  const listActiveScorecard: EmployeeScorecard | null = useMemo(() => {
     if (selectedScorecardId) {
       return (
         visibleScorecards.find((s) => s.id === selectedScorecardId) ||
@@ -303,6 +298,44 @@ export default function MyBscScorecardPage() {
     }
     return visibleScorecards[0] || null;
   }, [selectedScorecardId, mine, visibleScorecards]);
+
+  const { data: scorecardDetail } = useGetBscScorecard(
+    listActiveScorecard?.id || '',
+  );
+
+  // Prefer detail (full targets) when the list payload is sparse.
+  const activeScorecard: EmployeeScorecard | null = useMemo(() => {
+    if (
+      scorecardDetail &&
+      listActiveScorecard &&
+      scorecardDetail.id === listActiveScorecard.id
+    ) {
+      const detailTargets = scorecardDetail.targets || [];
+      const listTargets = listActiveScorecard.targets || [];
+      if (detailTargets.length >= listTargets.length) {
+        return scorecardDetail;
+      }
+    }
+    return listActiveScorecard;
+  }, [listActiveScorecard, scorecardDetail]);
+
+  /** Assigned KPIs = scorecard targets only (never role/catalog bleed). */
+  const assignedKpis = useMemo(() => {
+    const fromActive = kpisFromScorecardTargets(activeScorecard);
+    if (fromActive.length) return fromActive;
+
+    if (USE_BSC_API) {
+      // API mode: empty assignment means empty UI — do not invent catalog KPIs.
+      return [];
+    }
+
+    // Mock-only: preview library KPIs for the demo role title.
+    if (!myRoleTitle) return [];
+    return (allKpis || []).filter(
+      (k) =>
+        (k.positionTitle || '').toLowerCase() === myRoleTitle.toLowerCase(),
+    );
+  }, [activeScorecard, allKpis, myRoleTitle]);
 
   const { data: periodResults } = useGetBscScorecardResults(
     activeScorecard?.id || '',
@@ -355,6 +388,7 @@ export default function MyBscScorecardPage() {
     () =>
       (allocations || []).find((row) => {
         if (cycle && row.evaluationConfigId !== cycle.id) return false;
+        if (!myRoleTitle) return false;
         return row.positionTitle.toLowerCase() === myRoleTitle.toLowerCase();
       }),
     [allocations, cycle, myRoleTitle],
@@ -392,6 +426,7 @@ export default function MyBscScorecardPage() {
           catalog?.targetLogic ||
           TargetLogic.HigherBetter;
         const avgMeta = averageScoreByKpiId.get(target.kpiLibraryId);
+        const finalizedScore = targetScorePercent(target);
         return {
           id: target.kpiLibraryId,
           name: target.kpiName,
@@ -402,7 +437,7 @@ export default function MyBscScorecardPage() {
           actual,
           unit: target.measurementUnit || catalog?.measurementUnit || '',
           targetLogic: logic,
-          progress: kpiProgressPercent(actual, goal, logic),
+          progress: finalizedScore,
           averageScore: avgMeta?.average ?? null,
           averageCaption: avgMeta
             ? `Avg of ${avgMeta.count}${
@@ -422,7 +457,10 @@ export default function MyBscScorecardPage() {
       );
     }
 
-    // Fallback when no scorecard targets exist yet (catalog / role preview).
+    // API mode: no targets ⇒ empty (do not show catalog / role library KPIs).
+    if (USE_BSC_API || !assignedKpis.length) return [];
+
+    // Mock-only fallback when no scorecard targets exist yet.
     const rows: ScorecardKpiRow[] = assignedKpis.map((kpi) => {
       const actual = null;
       const goal = kpi.defaultTarget ?? null;
@@ -437,7 +475,7 @@ export default function MyBscScorecardPage() {
         actual,
         unit: kpi.measurementUnit || '',
         targetLogic: kpi.targetLogic,
-        progress: 0,
+        progress: null,
         averageScore: avgMeta?.average ?? null,
         averageCaption: avgMeta
           ? `Avg of ${avgMeta.count}${
@@ -462,10 +500,9 @@ export default function MyBscScorecardPage() {
 
   const loading = scorecardsLoading || kpisLoading;
   const activeTab =
-    (scorecardTab === 'results' ||
-      scorecardTab === 'team' ||
-      scorecardTab === 'all') &&
-    (canViewTeamKpi || canViewAllEmployeeKpi)
+    scorecardTab === 'results' ||
+    scorecardTab === 'team' ||
+    scorecardTab === 'all'
       ? 'results'
       : scorecardTab === 'checkin'
         ? 'checkin'
@@ -483,10 +520,10 @@ export default function MyBscScorecardPage() {
     ? scorecardContextLabel(activeScorecard, cycle)
     : null;
 
-  const scorecardProgress = useMemo(
-    () => computeKpiProgressPercent(activeScorecard),
-    [activeScorecard],
-  );
+  const scorecardProgress = useMemo(() => {
+    if (!isScorecardEvaluated(activeScorecard)) return undefined;
+    return computeKpiProgressPercent(activeScorecard);
+  }, [activeScorecard]);
 
   const resultsSummary = useMemo(() => {
     if (!USE_BSC_API || !periodResults) return null;
@@ -603,20 +640,16 @@ export default function MyBscScorecardPage() {
         </div>
       ),
     },
-    ...(canViewTeamKpi || canViewAllEmployeeKpi
-      ? [
-          {
-            key: 'results',
-            label: tabLabel('results', 'Results'),
-            children: (
-              <ResultsKpiView
-                canViewTeamKpi={canViewTeamKpi}
-                canViewAllEmployeeKpi={canViewAllEmployeeKpi}
-              />
-            ),
-          },
-        ]
-      : []),
+    {
+      key: 'results',
+      label: tabLabel('results', 'Results'),
+      children: (
+        <ResultsKpiView
+          canViewTeamKpi={canViewTeamKpi}
+          canViewAllEmployeeKpi={canViewAllEmployeeKpi}
+        />
+      ),
+    },
   ];
 
   const checkinInboxToggle = (
@@ -665,7 +698,12 @@ export default function MyBscScorecardPage() {
     const next = key as ScorecardTab;
     setScorecardTab(next);
     if (next === 'results') {
-      router.push(scorecardResultsHref(canViewAllEmployeeKpi ? 'all' : 'team'));
+      const scope = canViewAllEmployeeKpi
+        ? 'all'
+        : canViewTeamKpi
+          ? 'team'
+          : 'mine';
+      router.push(scorecardResultsHref(scope));
       return;
     }
     router.push(scorecardTabHref(next));
