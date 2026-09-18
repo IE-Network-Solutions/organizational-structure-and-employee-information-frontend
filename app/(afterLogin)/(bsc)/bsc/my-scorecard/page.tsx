@@ -551,10 +551,17 @@ export default function MyBscScorecardPage() {
                 </Link>
               </li>
               <li data-cy="bsc-my-scorecard-breadcrumb-sep">
-                <span className="text-gray-400">/</span>
+                <span data-cy="bsc-my-scorecard-breadcrumb-sep-text" className="text-gray-400">
+                  /
+                </span>
               </li>
               <li data-cy="bsc-my-scorecard-breadcrumb-current">
-                <span className="text-gray-900">{activeTabLabel}</span>
+                <span
+                  data-cy="bsc-my-scorecard-breadcrumb-current-label"
+                  className="text-gray-900"
+                >
+                  {activeTabLabel}
+                </span>
               </li>
             </ol>
           </nav>
