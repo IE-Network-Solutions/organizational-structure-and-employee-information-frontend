@@ -76,6 +76,19 @@ function personName(user: any) {
     .join(' ');
 }
 
+function getActiveJob(user: any) {
+  const jobs = user?.employeeJobInformation ?? [];
+  return jobs.find((job: any) => job?.isPositionActive === true) ?? jobs[0] ?? null;
+}
+
+function getJobScheduleId(job: any): string | null {
+  return job?.workScheduleId ?? job?.workSchedule?.id ?? null;
+}
+
+function getJobShiftId(job: any): string | null {
+  return job?.workScheduleShiftId ?? job?.workScheduleShift?.id ?? null;
+}
+
 function isScheduleWorkingDay(detail: any[] | undefined, dayName: string) {
   if (!detail?.length) {
     // Without detail, do not invent weekend coverage from applyToAllDays.
@@ -230,13 +243,51 @@ export default function MySchedulePage() {
   const { mutate: cancelRequest } = useCancelShiftSwapRequest();
 
   const peerOptions = useMemo((): Array<{ value: string; label: string }> => {
+    if (!myScheduleId || !myAssignedShiftId) return [];
+
+    const shiftNameById = new Map(
+      scheduleShifts
+        .filter((s: any) => s?.id)
+        .map((s: any) => [s.id as string, String(s.name || 'Shift')]),
+    );
+
     return (allUsers?.items ?? [])
-      .filter((u: any) => u.id !== userId)
-      .map((u: any) => ({
-        value: u.id,
-        label: personName(u),
-      }));
-  }, [allUsers?.items, userId]);
+      .filter((u: any) => {
+        if (!u?.id || u.id === userId) return false;
+        const job = getActiveJob(u);
+        const peerScheduleId = getJobScheduleId(job);
+        const peerShiftId = getJobShiftId(job);
+        if (!peerScheduleId || peerScheduleId !== myScheduleId) return false;
+        if (!peerShiftId || peerShiftId === myAssignedShiftId) return false;
+        return true;
+      })
+      .map((u: any) => {
+        const peerShiftId = getJobShiftId(getActiveJob(u));
+        const shiftLabel =
+          (peerShiftId && shiftNameById.get(peerShiftId)) ||
+          getActiveJob(u)?.workScheduleShift?.name ||
+          null;
+        const name = personName(u);
+        return {
+          value: u.id as string,
+          label: shiftLabel ? `${name} — ${shiftLabel}` : name,
+        };
+      });
+  }, [
+    allUsers?.items,
+    userId,
+    myScheduleId,
+    myAssignedShiftId,
+    scheduleShifts,
+  ]);
+
+  const peerSelectPlaceholder = !myScheduleId
+    ? 'Assign a work schedule first'
+    : !myAssignedShiftId
+      ? 'Assign a shift on your schedule first'
+      : peerOptions.length
+        ? 'Select peer on another shift'
+        : 'No peers on another shift of your schedule';
 
   const requestItems = (
     Array.isArray(myRequests?.items)
@@ -871,8 +922,9 @@ export default function MySchedulePage() {
               showSearch
               optionFilterProp="label"
               options={peerOptions}
-              placeholder="Select peer employee"
-              disabled={hasNoApprover}
+              placeholder={peerSelectPlaceholder}
+              disabled={hasNoApprover || !peerOptions.length}
+              notFoundContent={peerSelectPlaceholder}
             />
           </Form.Item>
           <Form.Item
