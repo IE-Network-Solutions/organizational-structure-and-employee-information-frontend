@@ -17,11 +17,7 @@ import {
   timeToLastMinute,
 } from '@/helpers/calculateHelper';
 import RemoteAttendanceActionButton from '@/components/common/remoteAttendanceActionButton';
-import {
-  useIsWithinBreakLeaveBand,
-  useIsWithinBreakPeriod,
-  useIsWithinBreakReturnBand,
-} from '@/hooks/useIsWithinBreakPeriod';
+import { useIsWithinBreakPeriod } from '@/hooks/useIsWithinBreakPeriod';
 
 const CheckControl = () => {
   const [workTime, setWorkTime] = useState<string>('');
@@ -29,8 +25,6 @@ const CheckControl = () => {
   const { checkStatus, currentAttendance, setCurrentAttendance } =
     useMyTimesheetStore();
   const withinBreakPeriod = useIsWithinBreakPeriod();
-  const withinBreakLeaveBand = useIsWithinBreakLeaveBand();
-  const withinBreakReturnBand = useIsWithinBreakReturnBand();
   const isSubmitInProgress = useRemoteAttendanceCameraStore(
     (s) => s.isSubmitInProgress,
   );
@@ -102,38 +96,36 @@ const CheckControl = () => {
             data-cy="time-attendance-check-control-break-check-out-button-access-guard"
             permissions={[Permissions.CheckOutRemotely]}
           >
-            {withinBreakLeaveBand && (
-              <RemoteAttendanceActionButton
-                action={{
-                  isSignIn: false,
-                  openBreakCheckOutSidebarAfterCapture: true,
-                }}
+            <RemoteAttendanceActionButton
+              action={{
+                isSignIn: false,
+                openBreakCheckOutSidebarAfterCapture: true,
+              }}
+            >
+              <Button
+                className="h-12 sm:h-14 text-base w-full sm:w-auto"
+                size="large"
+                id="time-attendance-check-control-break-check-out-button"
+                data-cy="time-attendance-check-control-break-check-out-button"
+                icon={
+                  <>
+                    <IoLocationOutline
+                      data-cy="time-attendance-check-control-break-check-out-button-icon"
+                      className="block sm:hidden"
+                      size={20}
+                    />
+                    <GoClock
+                      data-cy="time-attendance-check-control-break-check-out-button-clock-icon"
+                      className="hidden sm:block"
+                      size={20}
+                    />
+                  </>
+                }
+                loading={loading}
               >
-                <Button
-                  className="h-12 sm:h-14 text-base w-full sm:w-auto"
-                  size="large"
-                  id="time-attendance-check-control-break-check-out-button"
-                  data-cy="time-attendance-check-control-break-check-out-button"
-                  icon={
-                    <>
-                      <IoLocationOutline
-                        data-cy="time-attendance-check-control-break-check-out-button-icon"
-                        className="block sm:hidden"
-                        size={20}
-                      />
-                      <GoClock
-                        data-cy="time-attendance-check-control-break-check-out-button-clock-icon"
-                        className="hidden sm:block"
-                        size={20}
-                      />
-                    </>
-                  }
-                  loading={loading}
-                >
-                  Break Check Out
-                </Button>
-              </RemoteAttendanceActionButton>
-            )}
+                Break Check Out
+              </Button>
+            </RemoteAttendanceActionButton>
             {!withinBreakPeriod && (
               <RemoteAttendanceActionButton action={{ isSignIn: false }}>
                 <Button
@@ -186,39 +178,12 @@ const CheckControl = () => {
             data-cy="time-attendance-check-control-break-check-in-button-access-guard"
             permissions={[Permissions.CheckInRemotely]}
           >
-            {withinBreakReturnBand ? (
-              <RemoteAttendanceActionButton action={{ isSignIn: true }}>
-                <Button
-                  className="h-12 sm:h-14 text-base w-full sm:w-auto"
-                  size="large"
-                  id="time-attendance-check-control-break-check-in-button"
-                  data-cy="time-attendance-check-control-break-check-in-button"
-                  icon={
-                    <>
-                      <IoLocationOutline
-                        data-cy="time-attendance-check-control-break-check-in-button-icon"
-                        className="block sm:hidden"
-                        size={20}
-                      />
-                      <GoClock
-                        data-cy="time-attendance-check-control-break-check-in-button-clock-icon"
-                        className="hidden sm:block"
-                        size={20}
-                      />
-                    </>
-                  }
-                  loading={loading}
-                >
-                  Check in
-                </Button>
-              </RemoteAttendanceActionButton>
-            ) : (
+            <RemoteAttendanceActionButton action={{ isSignIn: true }}>
               <Button
                 className="h-12 sm:h-14 text-base w-full sm:w-auto"
                 size="large"
                 id="time-attendance-check-control-break-check-in-button"
                 data-cy="time-attendance-check-control-break-check-in-button"
-                disabled
                 icon={
                   <>
                     <IoLocationOutline
@@ -237,7 +202,7 @@ const CheckControl = () => {
               >
                 Check in
               </Button>
-            )}
+            </RemoteAttendanceActionButton>
           </AccessGuard>
         </Space>
       );

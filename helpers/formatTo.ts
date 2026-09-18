@@ -360,56 +360,6 @@ const isBreakTypeActiveAt = (item: BreakType, nowMinutes: number): boolean => {
   return nowMinutes >= start && nowMinutes < end;
 };
 
-const isWithinInclusiveBand = (
-  nowMinutes: number,
-  from?: string | null,
-  to?: string | null,
-): boolean => {
-  if (!from || !to) return false;
-  const start = timeStringToMinutes(from);
-  const end = timeStringToMinutes(to);
-  if (start === null || end === null) return false;
-  return nowMinutes >= start && nowMinutes <= end;
-};
-
-/**
- * Remote Break Check Out: Allowed leave band when both bounds exist,
- * otherwise scheduled startAt–endAt (inclusive).
- */
-export const isWithinBreakLeaveBand = (
-  breakTypes: BreakType[] | null | undefined,
-  now: Date = new Date(),
-): boolean => {
-  if (!breakTypes?.length) return false;
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-
-  return breakTypes.some((bt) => {
-    if (bt.startAtFrom && bt.startAtTo) {
-      return isWithinInclusiveBand(nowMinutes, bt.startAtFrom, bt.startAtTo);
-    }
-    return isWithinInclusiveBand(nowMinutes, bt.startAt, bt.endAt);
-  });
-};
-
-/**
- * Remote Break Check In: Allowed return band when both bounds exist,
- * otherwise scheduled startAt–endAt (inclusive).
- */
-export const isWithinBreakReturnBand = (
-  breakTypes: BreakType[] | null | undefined,
-  now: Date = new Date(),
-): boolean => {
-  if (!breakTypes?.length) return false;
-  const nowMinutes = now.getHours() * 60 + now.getMinutes();
-
-  return breakTypes.some((bt) => {
-    if (bt.endAtFrom && bt.endAtTo) {
-      return isWithinInclusiveBand(nowMinutes, bt.endAtFrom, bt.endAtTo);
-    }
-    return isWithinInclusiveBand(nowMinutes, bt.startAt, bt.endAt);
-  });
-};
-
 /**
  * Returns true when the current wall-clock time is inside any configured break
  * window. Each break type (lunch, tea break, etc.) is configured with a
