@@ -177,16 +177,24 @@ export default function MySchedulePage() {
   })();
 
   // Target = shift to swap INTO (not the one you already have).
-  // Show all other schedule shifts; backend still enforces isSwappable.
-  const swappableShifts = scheduleShifts.filter(
-    (s: any) => s?.id && s.id !== myAssignedShiftId,
-  );
+  // Option A: derived from the selected peer's current shift (not free-picked).
+  const shiftById = useMemo(() => {
+    const map = new Map<string, any>();
+    for (const s of scheduleShifts) {
+      if (s?.id) map.set(s.id, s);
+    }
+    return map;
+  }, [scheduleShifts]);
 
-  const targetShiftPlaceholder = !scheduleShifts.length
-    ? 'No shifts found on your schedule'
-    : !swappableShifts.length
-      ? 'No other shift to swap into on this schedule'
-      : 'Select shift you want';
+  const peerShiftIdByUserId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const u of allUsers?.items ?? []) {
+      if (!u?.id) continue;
+      const peerShiftId = getJobShiftId(getActiveJob(u));
+      if (peerShiftId) map.set(u.id, peerShiftId);
+    }
+    return map;
+  }, [allUsers?.items]);
 
   const employeeDisplayName =
     personName(employeeData) ||
@@ -245,12 +253,6 @@ export default function MySchedulePage() {
   const peerOptions = useMemo((): Array<{ value: string; label: string }> => {
     if (!myScheduleId || !myAssignedShiftId) return [];
 
-    const shiftNameById = new Map(
-      scheduleShifts
-        .filter((s: any) => s?.id)
-        .map((s: any) => [s.id as string, String(s.name || 'Shift')]),
-    );
-
     return (allUsers?.items ?? [])
       .filter((u: any) => {
         if (!u?.id || u.id === userId) return false;
@@ -259,12 +261,16 @@ export default function MySchedulePage() {
         const peerShiftId = getJobShiftId(job);
         if (!peerScheduleId || peerScheduleId !== myScheduleId) return false;
         if (!peerShiftId || peerShiftId === myAssignedShiftId) return false;
+        const peerShift = shiftById.get(peerShiftId);
+        // Prefer peers whose shift is marked swappable when shift catalog is known
+        if (peerShift && !isShiftMarkedSwappable(peerShift)) return false;
         return true;
       })
       .map((u: any) => {
         const peerShiftId = getJobShiftId(getActiveJob(u));
+        const peerShift = peerShiftId ? shiftById.get(peerShiftId) : null;
         const shiftLabel =
-          (peerShiftId && shiftNameById.get(peerShiftId)) ||
+          peerShift?.name ||
           getActiveJob(u)?.workScheduleShift?.name ||
           null;
         const name = personName(u);
@@ -278,7 +284,7 @@ export default function MySchedulePage() {
     userId,
     myScheduleId,
     myAssignedShiftId,
-    scheduleShifts,
+    shiftById,
   ]);
 
   const peerSelectPlaceholder = !myScheduleId
@@ -288,6 +294,27 @@ export default function MySchedulePage() {
       : peerOptions.length
         ? 'Select peer on another shift'
         : 'No peers on another shift of your schedule';
+
+  const selectedPeerUserId = Form.useWatch('peerUserId', form);
+  const selectedPeerShiftId = selectedPeerUserId
+    ? peerShiftIdByUserId.get(selectedPeerUserId) || null
+    : null;
+  const selectedPeerUser = selectedPeerUserId
+    ? (allUsers?.items ?? []).find((u: any) => u.id === selectedPeerUserId)
+    : null;
+  const selectedPeerShift =
+    (selectedPeerShiftId ? shiftById.get(selectedPeerShiftId) : null) ||
+    getActiveJob(selectedPeerUser)?.workScheduleShift ||
+    null;
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+    if (selectedPeerShiftId) {
+      form.setFieldsValue({ targetShiftId: selectedPeerShiftId });
+    } else {
+      form.setFieldsValue({ targetShiftId: undefined });
+    }
+  }, [selectedPeerShiftId, form, isModalOpen]);
 
   const requestItems = (
     Array.isArray(myRequests?.items)
@@ -502,11 +529,23 @@ export default function MySchedulePage() {
         ? approvalUserData[0]?.id
         : approvalDepartmentData?.[0]?.id;
 
+    const peerShiftId =
+      peerShiftIdByUserId.get(values.peerUserId) || values.targetShiftId;
+    if (!peerShiftId) {
+      form.setFields([
+        {
+          name: 'peerUserId',
+          errors: ['Selected peer has no assigned shift to swap into'],
+        },
+      ]);
+      return;
+    }
+
     createRequest(
       {
         item: {
           peerUserId: values.peerUserId,
-          targetShiftId: values.targetShiftId,
+          targetShiftId: peerShiftId,
           startDate: dayjs(values.dateRange[0]).format('YYYY-MM-DD'),
           endDate: dayjs(values.dateRange[1]).format('YYYY-MM-DD'),
           reason: values.reason,
@@ -909,7 +948,7 @@ export default function MySchedulePage() {
             className="text-red-600 text-sm mb-3"
             data-cy="shift-swap-no-approver-message"
           >
-            You lack approver please contact your team lead for more information
+            You lack approver please contact your HR for more information
           </p>
         )}
         <Form layout="vertical" form={form} onFinish={onFinish}>
@@ -929,21 +968,31 @@ export default function MySchedulePage() {
           </Form.Item>
           <Form.Item
             name="targetShiftId"
-            label="Target shift (shift you want)"
-            rules={[{ required: true, message: 'Select a shift' }]}
+            label="Target shift (peer’s shift)"
+            rules={[
+              {
+                required: true,
+                message: 'Select a peer to set the target shift',
+              },
+            ]}
+            hidden
           >
-            <Select
-              placeholder={targetShiftPlaceholder}
-              disabled={hasNoApprover || !swappableShifts.length}
-              options={swappableShifts.map((s: any) => ({
-                value: s.id,
-                label: `${s.name} (${s.startTime} – ${s.endTime})${
-                  isShiftMarkedSwappable(s) ? '' : ' — not swappable'
-                }`,
-                disabled: !isShiftMarkedSwappable(s),
-              }))}
-            />
+            <Input type="hidden" />
           </Form.Item>
+          <div className="mb-4" data-cy="shift-swap-target-shift-display">
+            <div className="text-sm text-gray-600 mb-1">
+              Target shift (peer’s shift)
+            </div>
+            <div className="h-10 px-3 rounded-lg border border-gray-200 bg-[#f8f8f8] flex items-center text-sm text-[#1f1f1f]">
+              {selectedPeerShift
+                ? `${selectedPeerShift.name} (${selectedPeerShift.startTime} – ${selectedPeerShift.endTime})`
+                : selectedPeerShiftId
+                  ? 'Peer shift selected'
+                  : selectedPeerUserId
+                    ? 'Peer has no assigned shift'
+                    : 'Select a peer first'}
+            </div>
+          </div>
           <Form.Item
             name="dateRange"
             label="Date range"
@@ -977,7 +1026,7 @@ export default function MySchedulePage() {
               type="primary"
               htmlType="submit"
               loading={isCreating}
-              disabled={hasNoApprover}
+              disabled={hasNoApprover || !selectedPeerShiftId}
             >
               Submit
             </Button>
