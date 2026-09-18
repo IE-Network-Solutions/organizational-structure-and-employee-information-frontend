@@ -6,6 +6,7 @@ import {
   CreateKpiLibraryInput,
   CreatePerspectiveInput,
   AdjustReportedKpiInput,
+  KpiImportRowInput,
   ReportKpiInput,
   SaveRolePerspectiveInput,
   UpdateEvaluationConfigInput,
@@ -22,9 +23,176 @@ function invalidateAll(qc: ReturnType<typeof useQueryClient>) {
   qc.invalidateQueries(BSC_QUERY_KEYS.scorecard);
   qc.invalidateQueries(BSC_QUERY_KEYS.hris);
   qc.invalidateQueries(BSC_QUERY_KEYS.audit);
+  qc.invalidateQueries(BSC_QUERY_KEYS.pepAudit);
   qc.invalidateQueries(BSC_QUERY_KEYS.perspectives);
   qc.invalidateQueries(BSC_QUERY_KEYS.catalog);
 }
+
+export const useImportBscKpis = () => {
+  const qc = useQueryClient();
+  return useMutation(
+    ({
+      rows,
+      evaluationConfigId,
+    }: {
+      rows: KpiImportRowInput[];
+      evaluationConfigId?: string;
+    }) => bscMockRepo.importKpiBatch(rows, evaluationConfigId),
+    {
+      onSuccess: (result) => {
+        invalidateAll(qc);
+        if (result.created.length) {
+          NotificationMessage.success({
+            message: `${result.created.length} KPI(s) imported`,
+          });
+        }
+        if (result.errors.length) {
+          NotificationMessage.warning({
+            message: `${result.errors.length} row(s) failed validation`,
+          });
+        }
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Import failed',
+        }),
+    },
+  );
+};
+
+export const useRejectKpiForPepAudit = () => {
+  const qc = useQueryClient();
+  return useMutation(
+    ({
+      scorecardId,
+      targetId,
+      rejectionReason,
+    }: {
+      scorecardId: string;
+      targetId: string;
+      rejectionReason: string;
+    }) => {
+      const actorId = useAuthenticationStore.getState().userId;
+      return bscMockRepo.rejectKpiForPepAudit(
+        scorecardId,
+        targetId,
+        rejectionReason,
+        actorId,
+      );
+    },
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({
+          message: 'KPI rejected — progress reset for re-report',
+        });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Reject failed',
+        }),
+    },
+  );
+};
+
+export const useReturnUnrealisticKpiForPepAudit = () => {
+  const qc = useQueryClient();
+  return useMutation(
+    ({
+      scorecardId,
+      targetId,
+      returnReason,
+    }: {
+      scorecardId: string;
+      targetId: string;
+      returnReason: string;
+    }) => {
+      const actorId = useAuthenticationStore.getState().userId;
+      return bscMockRepo.returnUnrealisticKpiForPepAudit(
+        scorecardId,
+        targetId,
+        returnReason,
+        actorId,
+      );
+    },
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({
+          message: 'KPI returned to manager for revision',
+        });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Return failed',
+        }),
+    },
+  );
+};
+
+export const useApproveKpiForPepAudit = () => {
+  const qc = useQueryClient();
+  return useMutation(
+    ({
+      scorecardId,
+      targetId,
+    }: {
+      scorecardId: string;
+      targetId: string;
+    }) => {
+      const actorId = useAuthenticationStore.getState().userId;
+      return bscMockRepo.approveKpiForPepAudit(
+        scorecardId,
+        targetId,
+        actorId,
+      );
+    },
+    {
+      onSuccess: () => {
+        invalidateAll(qc);
+        NotificationMessage.success({
+          message: 'KPI approved',
+        });
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Approve failed',
+        }),
+    },
+  );
+};
+
+export const useBulkApproveKpiForPepAudit = () => {
+  const qc = useQueryClient();
+  return useMutation(
+    (items: Array<{ scorecardId: string; targetId: string }>) => {
+      const actorId = useAuthenticationStore.getState().userId;
+      return bscMockRepo.bulkApproveKpiForPepAudit(items, actorId);
+    },
+    {
+      onSuccess: (result) => {
+        invalidateAll(qc);
+        if (result.approved > 0) {
+          NotificationMessage.success({
+            message:
+              result.approved === 1
+                ? '1 KPI approved'
+                : `${result.approved} KPIs approved`,
+          });
+        }
+        if (result.failed.length) {
+          NotificationMessage.warning({
+            message: `${result.failed.length} KPI(s) could not be approved`,
+          });
+        }
+      },
+      onError: (e: Error) =>
+        NotificationMessage.error({
+          message: e.message || 'Bulk approve failed',
+        }),
+    },
+  );
+};
 
 export const useCreateBscKpi = () => {
   const qc = useQueryClient();

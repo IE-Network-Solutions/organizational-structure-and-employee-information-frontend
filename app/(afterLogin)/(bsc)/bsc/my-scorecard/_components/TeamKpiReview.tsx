@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Dropdown, Input, Modal, Table, Tag, Tooltip } from 'antd';
+import { Button, Dropdown, Table, Tag, Tooltip } from 'antd';
+import KpiRejectModal from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiRejectModal';
 import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { CloseOutlined, MoreOutlined } from '@ant-design/icons';
@@ -76,7 +77,6 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
     ),
   );
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [rejectReason, setRejectReason] = useState('');
 
   useEffect(() => {
     setDrafts(
@@ -144,10 +144,7 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
       key: 'reject',
       icon: <CloseOutlined />,
       label: <Tooltip title="Reject reported KPIs">Reject</Tooltip>,
-      onClick: () => {
-        setRejectOpen(true);
-        setRejectReason('');
-      },
+      onClick: () => setRejectOpen(true),
       className: 'text-red-400',
     },
   ];
@@ -395,30 +392,14 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
           scroll={{ x: 960 }}
         />
       </div>
-      <Modal
-        title="Reject reported KPIs"
+      <KpiRejectModal
         open={rejectOpen}
-        onCancel={() => setRejectOpen(false)}
-        onOk={() => {
-          decideAll(false, rejectReason.trim() || 'Rejected');
+        onClose={() => setRejectOpen(false)}
+        onConfirm={(comment) => {
+          decideAll(false, comment);
           setRejectOpen(false);
         }}
-        okText="Reject"
-        okButtonProps={{ danger: true }}
-      >
-        <p
-          data-cy="bsc-my-scorecard-components-teamkpireview-tsx-teamkpireview-p-286"
-          className="text-sm text-gray-600 mb-2"
-        >
-          Tell the employee what to correct before they resubmit.
-        </p>
-        <Input.TextArea
-          rows={3}
-          value={rejectReason}
-          onChange={(e) => setRejectReason(e.target.value)}
-          placeholder="Rejection reason"
-        />
-      </Modal>
+      />
     </div>
   );
 }

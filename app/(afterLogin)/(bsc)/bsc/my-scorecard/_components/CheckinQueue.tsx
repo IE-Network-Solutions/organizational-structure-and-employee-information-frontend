@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Empty, Input, Table, Tag } from 'antd';
+import { Collapse, Empty, Input, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
+import CheckinDataSourceCell from '@/app/(afterLogin)/(bsc)/bsc/_components/CheckinDataSourceCell';
 import KpiEvaluationFlowCompact from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiEvaluationFlowCompact';
 import {
   TargetMetricUnitTag,
@@ -34,67 +35,6 @@ import { formatScore } from '@/utils/bsc/rollup';
 import { buildCheckinQueue, dedupeSelfCheckinItems, type CheckinItem } from '@/utils/bsc/checkin';
 import type { CheckinInbox } from './CheckinInboxToggle';
 
-function evaluationDecisionCounts(
-  groups: CheckinItem[][],
-  decisions: Record<string, boolean>,
-) {
-  let left = 0;
-  let accepted = 0;
-  let rejected = 0;
-  for (const group of groups) {
-    for (const item of group) {
-      const decided = decisions[item.target.id];
-      if (decided === true) accepted += 1;
-      else if (decided === false) rejected += 1;
-      else left += 1;
-    }
-  }
-  return { left, accepted, rejected };
-}
-
-function EvaluationCountPills({
-  left,
-  accepted,
-  rejected,
-}: {
-  left: number;
-  accepted: number;
-  rejected: number;
-}) {
-  return (
-    <div
-      className="flex flex-wrap items-center justify-end gap-2"
-      data-cy="bsc-checkin-eval-counts"
-    >
-      <span
-        className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-sm text-slate-600"
-        data-cy="bsc-checkin-eval-left"
-      >
-        <span className="font-semibold tabular-nums text-slate-900">{left}</span>
-        left
-      </span>
-      <span
-        className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-sm text-emerald-700"
-        data-cy="bsc-checkin-eval-accepted"
-      >
-        <span className="font-semibold tabular-nums text-emerald-800">
-          {accepted}
-        </span>
-        accepted
-      </span>
-      <span
-        className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-sm text-red-600"
-        data-cy="bsc-checkin-eval-rejected"
-      >
-        <span className="font-semibold tabular-nums text-red-700">
-          {rejected}
-        </span>
-        rejected
-      </span>
-    </div>
-  );
-}
-
 function groupByScorecard(list: CheckinItem[]) {
   const map = new Map<string, CheckinItem[]>();
   for (const item of list) {
@@ -106,10 +46,31 @@ function groupByScorecard(list: CheckinItem[]) {
   return Array.from(map.values());
 }
 
+function isPepReturnGroup(group: CheckinItem[]): boolean {
+  return group.some((item) => !!item.target.pepReturnReason?.trim());
+}
+
+function splitCheckinGroups(groups: CheckinItem[][]) {
+  const pepReturnGroups: CheckinItem[][] = [];
+  const standardGroups: CheckinItem[][] = [];
+  for (const group of groups) {
+    if (isPepReturnGroup(group)) pepReturnGroups.push(group);
+    else standardGroups.push(group);
+  }
+  return { pepReturnGroups, standardGroups };
+}
+
 function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
   const [drafts, setDrafts] = useState<Record<string, number | null>>(() =>
     Object.fromEntries(
       items.map((i) => [i.target.id, i.target.actualValue ?? null]),
+    ),
+  );
+  const [dataSourceDrafts, setDataSourceDrafts] = useState<
+    Record<string, string>
+  >(() =>
+    Object.fromEntries(
+      items.map((i) => [i.target.id, i.target.dataSource?.trim() || '']),
     ),
   );
   const { mutateAsync: reportAsync, isLoading: reporting } = useReportBscKpis();
@@ -123,6 +84,15 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
       for (const item of items) {
         if (!(item.target.id in next)) {
           next[item.target.id] = item.target.actualValue ?? null;
+        }
+      }
+      return next;
+    });
+    setDataSourceDrafts((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        if (!(item.target.id in next)) {
+          next[item.target.id] = item.target.dataSource?.trim() || '';
         }
       }
       return next;
@@ -148,6 +118,7 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
           actualValue: drafts[item.target.id] as number,
           evidenceFileName: `${item.target.kpiName.replace(/\s+/g, '-')}.pdf`,
           evidenceUrl: `https://mock.evidence/${scorecard.id}/${item.target.id}`,
+          dataSource: dataSourceDrafts[item.target.id]?.trim() || null,
         })),
       });
       await submitAsync(scorecard.id);
@@ -174,10 +145,6 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
           <span className="text-xs text-gray-500 leading-snug">
             {row.contextLabel}
           </span>
-          <KpiEvaluationFlowCompact
-            flow={row.flow}
-            dataCy={`bsc-checkin-self-flow-${row.target.id}`}
-          />
         </div>
       ),
     },
@@ -249,6 +216,25 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
     },
     {
       title: (
+        <span className={tableHeaderClassName}>Data source</span>
+      ),
+      key: 'dataSource',
+      width: 300,
+      render: (unused, row) => (
+        <CheckinDataSourceCell
+          value={dataSourceDrafts[row.target.id] ?? ''}
+          onChange={(next) =>
+            setDataSourceDrafts((prev) => ({
+              ...prev,
+              [row.target.id]: next,
+            }))
+          }
+          dataCy={`bsc-checkin-self-data-source-${row.target.id}`}
+        />
+      ),
+    },
+    {
+      title: (
         <span data-cy="checkinqueue-span-139" className={tableHeaderClassName}>
           Period
         </span>
@@ -286,7 +272,7 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
         columns={columns}
         dataSource={items}
         pagination={false}
-        scroll={{ x: 720 }}
+        scroll={{ x: 1020 }}
         rowClassName={(unused, index) => bscTableRowClassName(index)}
         data-cy="bsc-checkin-self-table"
       />
@@ -299,18 +285,25 @@ function ReviewCheckinGroup({
   items,
   decisions,
   onDecision,
-  counts,
+  hideHeader = false,
 }: {
   ownerName: string;
   items: CheckinItem[];
   decisions: Record<string, boolean>;
   onDecision: (targetId: string, approved: boolean) => void;
-  counts: { left: number; accepted: number; rejected: number };
+  hideHeader?: boolean;
 }) {
   const scorecard = items[0].scorecard;
   const [drafts, setDrafts] = useState<Record<string, number | null>>(() =>
     Object.fromEntries(
       items.map((i) => [i.target.id, i.target.actualValue ?? null]),
+    ),
+  );
+  const [dataSourceDrafts, setDataSourceDrafts] = useState<
+    Record<string, string>
+  >(() =>
+    Object.fromEntries(
+      items.map((i) => [i.target.id, i.target.dataSource?.trim() || '']),
     ),
   );
   const [actingId, setActingId] = useState<string | null>(null);
@@ -329,19 +322,33 @@ function ReviewCheckinGroup({
       }
       return next;
     });
+    setDataSourceDrafts((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        if (!(item.target.id in next)) {
+          next[item.target.id] = item.target.dataSource?.trim() || '';
+        }
+      }
+      return next;
+    });
   }, [items]);
 
   const saveEdits = (onDone?: () => void) => {
     const adjustments = items
-      .filter((i) => {
-        if (decisions[i.target.id] != null) return false;
-        const next = drafts[i.target.id];
-        return next != null && next !== i.target.actualValue;
-      })
+      .filter((i) => decisions[i.target.id] == null)
       .map((i) => ({
         targetId: i.target.id,
-        actualValue: drafts[i.target.id] as number,
-      }));
+        actualValue: (drafts[i.target.id] ?? i.target.actualValue ?? 0) as number,
+        dataSource: dataSourceDrafts[i.target.id]?.trim() || null,
+      }))
+      .filter((row) => {
+        const item = items.find((i) => i.target.id === row.targetId);
+        if (!item) return false;
+        const actualChanged = row.actualValue !== item.target.actualValue;
+        const sourceChanged =
+          (row.dataSource ?? '') !== (item.target.dataSource?.trim() || '');
+        return actualChanged || sourceChanged;
+      });
     if (!adjustments.length) {
       onDone?.();
       return;
@@ -388,6 +395,11 @@ function ReviewCheckinGroup({
           <span data-cy="checkinqueue-span-252" className={tableCellClassName}>
             {row.target.kpiName}
           </span>
+          {row.target.pepReturnReason ? (
+            <span className="text-xs text-amber-700 leading-snug">
+              PEP return: {row.target.pepReturnReason}
+            </span>
+          ) : null}
           <KpiEvaluationFlowCompact
             flow={row.flow}
             dataCy={`bsc-checkin-review-flow-${row.target.id}`}
@@ -489,6 +501,29 @@ function ReviewCheckinGroup({
     },
     {
       title: (
+        <span className={tableHeaderClassName}>Data source</span>
+      ),
+      key: 'dataSource',
+      width: 300,
+      render: (unused, row) => {
+        const decided = decisions[row.target.id];
+        return (
+          <CheckinDataSourceCell
+            value={dataSourceDrafts[row.target.id] ?? ''}
+            onChange={(next) =>
+              setDataSourceDrafts((prev) => ({
+                ...prev,
+                [row.target.id]: next,
+              }))
+            }
+            disabled={busy || decided != null}
+            dataCy={`bsc-checkin-review-data-source-${row.target.id}`}
+          />
+        );
+      },
+    },
+    {
+      title: (
         <span data-cy="checkinqueue-span-324" className={tableHeaderClassName}>
           Action
         </span>
@@ -520,37 +555,31 @@ function ReviewCheckinGroup({
 
   return (
     <div data-cy={`bsc-checkin-review-group-${scorecard.id}`}>
-      <div
-        data-cy="checkinqueue-div-346"
-        className="mb-2 flex flex-wrap items-center justify-between gap-3"
-      >
-        <div data-cy="checkinqueue-div-347">
-          <h3
-            data-cy="checkinqueue-h3-348"
-            className="mb-0 text-base font-semibold text-gray-900"
-          >
-            {ownerName}
-          </h3>
-          <p
-            data-cy="checkinqueue-p-351"
-            className="mb-0 mt-1 text-sm text-gray-500"
-          >
-            {items[0].contextLabel}
-          </p>
+      {hideHeader ? null : (
+        <div data-cy="checkinqueue-div-346" className="mb-2">
+          <div data-cy="checkinqueue-div-347">
+            <h3
+              data-cy="checkinqueue-h3-348"
+              className="mb-0 text-base font-semibold text-gray-900"
+            >
+              {ownerName}
+            </h3>
+            <p
+              data-cy="checkinqueue-p-351"
+              className="mb-0 mt-1 text-sm text-gray-500"
+            >
+              {items[0].contextLabel}
+            </p>
+          </div>
         </div>
-        <EvaluationCountPills
-          left={counts.left}
-          accepted={counts.accepted}
-          rejected={counts.rejected}
-        />
-      </div>
+      )}
       <Table
         className={tableClassName}
         rowKey="key"
         columns={columns}
         dataSource={items}
         pagination={false}
-        scroll={{ x: 1020 }}
+        scroll={{ x: 1320 }}
         rowClassName={(unused, index) => bscTableRowClassName(index)}
         data-cy={`bsc-checkin-review-table-${scorecard.id}`}
       />
@@ -558,13 +587,22 @@ function ReviewCheckinGroup({
   );
 }
 
-function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
+function AssignedCheckinCarousel({
+  groups,
+  decisions,
+  onDecision,
+  dataCy,
+}: {
+  groups: CheckinItem[][];
+  decisions: Record<string, boolean>;
+  onDecision: (targetId: string, approved: boolean) => void;
+  dataCy: string;
+}) {
   const ANIM_MS = 340;
   const [orderIds, setOrderIds] = useState<string[]>([]);
   const [snapshots, setSnapshots] = useState<Record<string, CheckinItem[]>>(
     {},
   );
-  const [decisions, setDecisions] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(1);
   const [anim, setAnim] = useState<'in' | 'out' | 'from'>('in');
   const [animDir, setAnimDir] = useState<'next' | 'prev'>('next');
@@ -634,10 +672,6 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
   }, [displayGroups.length, page]);
 
   const current = displayGroups[page - 1];
-  const counts = useMemo(
-    () => evaluationDecisionCounts(displayGroups, decisions),
-    [displayGroups, decisions],
-  );
 
   useEffect(() => {
     if (!current?.length || animatingRef.current) return;
@@ -662,14 +696,7 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
   }, [current, decisions, goToPage, orderIds, page, pendingIds]);
 
   if (!displayGroups.length || !current?.length) {
-    return (
-      <div
-        className="rounded-lg border border-dashed border-gray-200 bg-white px-4 py-8 text-center text-sm text-gray-400"
-        data-cy="bsc-checkin-review-empty"
-      >
-        No assigned evaluations waiting
-      </div>
-    );
+    return null;
   }
 
   const slideOut =
@@ -684,7 +711,7 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
         : `opacity-0 ${slideFrom} scale-[0.98]`;
 
   return (
-    <div data-cy="bsc-checkin-review-section">
+    <div data-cy={dataCy}>
       <div
         className={[
           'origin-top motion-reduce:transform-none motion-reduce:transition-none',
@@ -693,23 +720,19 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
             : 'transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
           slideClass,
         ].join(' ')}
-        data-cy="bsc-checkin-assigned-stage"
       >
         <ReviewCheckinGroup
           key={current[0].scorecard.id}
           ownerName={current[0].scorecard.userName}
           items={current}
           decisions={decisions}
-          counts={counts}
-          onDecision={(targetId, approved) =>
-            setDecisions((prev) => ({ ...prev, [targetId]: approved }))
-          }
+          onDecision={onDecision}
         />
       </div>
       {displayGroups.length > 1 ? (
         <div
           className="mt-3 flex items-center justify-end gap-2"
-          data-cy="bsc-checkin-assigned-pagination"
+          data-cy={`${dataCy}-pagination`}
         >
           <button
             type="button"
@@ -717,7 +740,7 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
             disabled={page <= 1 || anim !== 'in'}
             onClick={() => goToPage(page - 1, 'prev')}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
-            data-cy="bsc-checkin-assigned-prev"
+            data-cy={`${dataCy}-prev`}
           >
             <LeftOutlined />
           </button>
@@ -730,10 +753,101 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
             disabled={page >= displayGroups.length || anim !== 'in'}
             onClick={() => goToPage(page + 1, 'next')}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
-            data-cy="bsc-checkin-assigned-next"
+            data-cy={`${dataCy}-next`}
           >
             <RightOutlined />
           </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
+  const [decisions, setDecisions] = useState<Record<string, boolean>>({});
+  const { pepReturnGroups, standardGroups } = useMemo(
+    () => splitCheckinGroups(groups),
+    [groups],
+  );
+
+  const handleDecision = useCallback((targetId: string, approved: boolean) => {
+    setDecisions((prev) => ({ ...prev, [targetId]: approved }));
+  }, []);
+
+  if (!pepReturnGroups.length && !standardGroups.length) {
+    return (
+      <div
+        className="rounded-lg border border-dashed border-gray-200 bg-white px-4 py-8 text-center text-sm text-gray-400"
+        data-cy="bsc-checkin-review-empty"
+      >
+        No assigned evaluations waiting
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-6" data-cy="bsc-checkin-review-section">
+      {standardGroups.length ? (
+        <div data-cy="bsc-checkin-standard-section">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="m-0 text-sm font-semibold text-gray-900">
+              Pending manager review
+            </h3>
+            <span className="text-xs text-gray-500">
+              {standardGroups.length} employee
+              {standardGroups.length === 1 ? '' : 's'}
+            </span>
+          </div>
+          <AssignedCheckinCarousel
+            groups={standardGroups}
+            decisions={decisions}
+            onDecision={handleDecision}
+            dataCy="bsc-checkin-assigned-stage"
+          />
+        </div>
+      ) : null}
+
+      {pepReturnGroups.length ? (
+        <div data-cy="bsc-checkin-pep-return-section">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h3 className="m-0 text-sm font-semibold text-gray-900">
+              PEP returned for revision
+            </h3>
+            <span className="text-xs text-gray-500">
+              {pepReturnGroups.length} employee
+              {pepReturnGroups.length === 1 ? '' : 's'}
+            </span>
+          </div>
+          <Collapse
+            bordered={false}
+            expandIconPosition="end"
+            className="flex flex-col gap-3 bg-transparent [&_.ant-collapse-item]:overflow-hidden [&_.ant-collapse-item]:rounded-lg [&_.ant-collapse-item]:border [&_.ant-collapse-item]:border-[#E5E7EB] [&_.ant-collapse-item]:bg-white [&_.ant-collapse-item]:shadow-none [&_.ant-collapse-header]:!bg-white [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-header]:!py-3 [&_.ant-collapse-content-box]:!p-3"
+            items={pepReturnGroups.map((group) => {
+              const scorecard = group[0].scorecard;
+              return {
+                key: scorecard.id,
+                label: (
+                  <div className="min-w-0 pr-2">
+                    <p className="m-0 text-base font-semibold text-gray-900">
+                      {scorecard.userName}
+                    </p>
+                    <p className="m-0 mt-1 text-sm text-gray-500">
+                      {group[0].contextLabel}
+                    </p>
+                  </div>
+                ),
+                children: (
+                  <ReviewCheckinGroup
+                    ownerName={scorecard.userName}
+                    items={group}
+                    decisions={decisions}
+                    hideHeader
+                    onDecision={handleDecision}
+                  />
+                ),
+              };
+            })}
+          />
         </div>
       ) : null}
     </div>

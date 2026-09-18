@@ -6,12 +6,12 @@ import { useRouter } from 'next/navigation';
 import {
   EmployeeScorecard,
   KpiApprovalStatus,
-  ScorecardStatus,
   TargetLogic,
 } from '@/types/bsc';
 import ScoreProgressBar from '@/app/(afterLogin)/(bsc)/bsc/_components/ScoreProgressBar';
 import { bscTableRowClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import { formatScore } from '@/utils/bsc/rollup';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 export type ScorecardKpiRow = {
   id: string;
@@ -29,9 +29,15 @@ export type ScorecardKpiRow = {
   averageCaption?: string | null;
   targetId?: string;
   approvalStatus?: KpiApprovalStatus;
+  dataSource?: string | null;
+  acceptableThreshold?: number | null;
   /** Person-level source: shared scorecard KPI vs individually appended */
   assignmentSource?: 'shared' | 'individual';
 };
+
+function perspectiveSlug(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
 
 function targetLogicLabel(logic: TargetLogic): string {
   if (logic === TargetLogic.LowerBetter) return 'Lower is better';
@@ -101,8 +107,16 @@ function KpiRow({
               data-cy="perspectivekpicard-span-83"
               className="text-xs text-gray-500 leading-snug"
             >
-              {[kpi.perspective, kpi.description].filter(Boolean).join(' · ') ||
-                targetLogicLabel(kpi.targetLogic)}
+              {[
+                kpi.perspective,
+                kpi.description,
+                kpi.dataSource ? `Source: ${kpi.dataSource}` : null,
+                kpi.acceptableThreshold != null
+                  ? `Threshold: ${kpi.acceptableThreshold}`
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(' · ') || targetLogicLabel(kpi.targetLogic)}
             </span>
           </div>
         </div>
@@ -162,9 +176,13 @@ export default function PerspectiveKpiCard({
   kpis: ScorecardKpiRow[];
   scorecard?: EmployeeScorecard | null;
   contextLabel?: string | null;
-  progressPercent?: number;
+  progressPercent?: number | null;
 }) {
   const router = useRouter();
+  const { isMobile, isTablet } = useIsMobile();
+  const slug = perspectiveSlug(title);
+  const displayProgress =
+    progressPercent != null ? Number(formatScore(progressPercent)) : 0;
 
   const openKpi = (kpi: ScorecardKpiRow) => {
     const params = new URLSearchParams();
@@ -176,119 +194,120 @@ export default function PerspectiveKpiCard({
   };
 
   return (
-    <div className="mb-6 overflow-hidden" data-cy="bsc-kpi-progress-card">
+    <div
+      className={isMobile || isTablet ? 'mb-4' : 'mb-6'}
+      data-cy="bsc-kpi-progress-card"
+    >
       <div
-        data-cy="perspectivekpicard-div-155"
-        className="px-4 pt-4 pb-2 sm:px-6 sm:pt-6 flex items-start justify-between gap-3"
+        className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
+        data-cy={`bsc-perspective-kpi-card-wrapper-${slug}`}
       >
-        <div data-cy="perspectivekpicard-div-156">
-          <h2
-            data-cy="perspectivekpicard-h2-157"
-            className="mb-1 text-base sm:text-lg font-bold text-gray-900 leading-7 sm:leading-8"
-          >
-            {title}
-          </h2>
-          {contextLabel ? (
-            <p
-              className="mb-0 text-sm text-gray-500"
-              data-cy="bsc-my-scorecard-context-label"
-            >
-              {contextLabel}
-            </p>
-          ) : null}
-        </div>
         <div
-          data-cy="perspectivekpicard-div-169"
-          className="flex flex-wrap items-center justify-end gap-2"
+          className="p-4 pb-2 sm:p-6"
+          data-cy={`bsc-perspective-kpi-card-body-${slug}`}
         >
-          {progressPercent != null ? (
-            <span
-              className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900"
-              data-cy="bsc-my-scorecard-kpi-progress-value"
-            >
-              {formatScore(progressPercent)}%
-            </span>
-          ) : null}
-          {scorecard?.status === ScorecardStatus.PendingEval ? (
-            <Tag data-cy="bsc-my-scorecard-status-pending">Pending</Tag>
-          ) : null}
-          {scorecard?.status === ScorecardStatus.Scored ||
-          scorecard?.status === ScorecardStatus.Completed ? (
-            <Tag color="green" data-cy="bsc-my-scorecard-status-approved">
-              Approved
-            </Tag>
-          ) : null}
-        </div>
-      </div>
-
-      <div
-        data-cy="perspectivekpicard-div-190"
-        className="border-t border-gray-200 overflow-x-auto"
-      >
-        <table
-          data-cy="perspectivekpicard-table-191"
-          className="w-full min-w-[720px] table-auto divide-y divide-gray-200"
-        >
-          <thead data-cy="perspectivekpicard-thead-192" className="bg-gray-50">
-            <tr data-cy="perspectivekpicard-tr-193">
-              <th
-                data-cy="perspectivekpicard-th-194"
-                className="px-3 py-2.5 text-left text-xs font-semibold text-gray-900 tracking-wider min-w-[220px] sm:px-6 sm:py-3"
+          <div className="flex min-w-0 flex-col items-start gap-y-1">
+            <div className="flex w-full min-w-0 items-center justify-between gap-3">
+              <h2
+                className="text-base sm:text-lg font-bold text-gray-900 m-0 min-w-0 leading-7 sm:leading-8"
+                data-cy={`bsc-perspective-title-${slug}`}
               >
-                KPI
-              </th>
-              <th
-                data-cy="perspectivekpicard-th-197"
-                className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[90px] whitespace-nowrap sm:px-6 sm:py-3"
-              >
-                Weight
-              </th>
-              <th
-                data-cy="perspectivekpicard-th-200"
-                className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[120px] whitespace-nowrap sm:px-6 sm:py-3"
-              >
-                Current Score
-              </th>
-              <th
-                data-cy="perspectivekpicard-th-203"
-                className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[180px] whitespace-nowrap sm:px-6 sm:py-3"
-              >
-                Average Score
-              </th>
-              <th
-                data-cy="perspectivekpicard-th-206"
-                className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[110px] whitespace-nowrap sm:px-6 sm:py-3"
-              >
-                Result
-              </th>
-            </tr>
-          </thead>
-          <tbody
-            data-cy="perspectivekpicard-tbody-211"
-            className="divide-y divide-gray-200 text-sm [&_.bsc-table-row-odd>td]:bg-white [&_.bsc-table-row-even>td]:bg-[#FAFAFA] [&_.bsc-table-row-odd:hover>td]:!bg-[#f5f5f5] [&_.bsc-table-row-even:hover>td]:!bg-[#f5f5f5]"
-          >
-            {kpis.length === 0 ? (
-              <tr data-cy="perspectivekpicard-tr-213">
-                <td
-                  data-cy="perspectivekpicard-td-214"
-                  colSpan={5}
-                  className="px-3 py-6 text-center text-gray-400 sm:px-6"
+                {title}
+              </h2>
+              {progressPercent != null ? (
+                <span
+                  className="inline-flex shrink-0 items-center px-2.5 py-1 rounded text-xs font-medium bg-[#DBEAFE] text-blue-700 border border-[#BFDBFE] whitespace-nowrap"
+                  data-cy="bsc-my-scorecard-kpi-progress-value"
                 >
-                  No KPIs assigned yet
-                </td>
-              </tr>
-            ) : (
-              kpis.map((kpi, index) => (
-                <KpiRow
-                  key={kpi.targetId || kpi.id}
-                  kpi={kpi}
-                  index={index}
-                  openKpi={openKpi}
-                />
-              ))
-            )}
-          </tbody>
-        </table>
+                  {displayProgress.toLocaleString()}% Scorecard Progress
+                </span>
+              ) : null}
+            </div>
+            {contextLabel ? (
+              <p
+                className="mb-0 text-sm text-gray-500"
+                data-cy="bsc-my-scorecard-context-label"
+              >
+                {contextLabel}
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        {kpis.length > 0 ? (
+          <div
+            className="mt-3 border-t border-gray-200 overflow-x-auto [-webkit-overflow-scrolling:touch] sm:mt-4"
+            data-cy={`bsc-perspective-kpi-table-wrap-${slug}`}
+          >
+            <table
+              data-cy={`bsc-perspective-kpi-table-${slug}`}
+              className="w-full min-w-[720px] table-auto divide-y divide-gray-200 md:min-w-[900px]"
+            >
+              <thead
+                data-cy="perspectivekpicard-thead-192"
+                className="bg-gray-50"
+              >
+                <tr data-cy="perspectivekpicard-tr-193">
+                  <th
+                    scope="col"
+                    data-cy="perspectivekpicard-th-194"
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-900 tracking-wider min-w-[200px] sm:px-6 sm:py-3 sm:min-w-[240px] md:min-w-[280px]"
+                  >
+                    KPI
+                  </th>
+                  <th
+                    scope="col"
+                    data-cy="perspectivekpicard-th-197"
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[80px] whitespace-nowrap sm:px-6 sm:py-3 sm:w-[90px]"
+                  >
+                    Weight
+                  </th>
+                  <th
+                    scope="col"
+                    data-cy="perspectivekpicard-th-200"
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[100px] whitespace-nowrap sm:px-6 sm:py-3 sm:w-[120px]"
+                  >
+                    Current Score
+                  </th>
+                  <th
+                    scope="col"
+                    data-cy="perspectivekpicard-th-203"
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[160px] whitespace-nowrap sm:px-6 sm:py-3 sm:w-[220px]"
+                  >
+                    Average Score
+                  </th>
+                  <th
+                    scope="col"
+                    data-cy="perspectivekpicard-th-206"
+                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[100px] whitespace-nowrap sm:px-6 sm:py-3 sm:w-[110px]"
+                  >
+                    Result
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                data-cy="perspectivekpicard-tbody-211"
+                className="bg-white divide-y divide-gray-200 text-sm [&_.bsc-table-row-odd>td]:bg-white [&_.bsc-table-row-even>td]:bg-[#FAFAFA] [&_.bsc-table-row-odd:hover>td]:!bg-[#f5f5f5] [&_.bsc-table-row-even:hover>td]:!bg-[#f5f5f5]"
+              >
+                {kpis.map((kpi, index) => (
+                  <KpiRow
+                    key={kpi.targetId || kpi.id}
+                    kpi={kpi}
+                    index={index}
+                    openKpi={openKpi}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div
+            className="border-t border-gray-200 px-3 py-6 text-center text-sm text-gray-400 sm:px-6"
+            data-cy={`bsc-perspective-kpi-empty-${slug}`}
+          >
+            No KPIs assigned yet
+          </div>
+        )}
       </div>
     </div>
   );

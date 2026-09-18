@@ -23,8 +23,15 @@ const TRANSITIONS: Record<ScorecardStatus, ScorecardStatus[]> = {
     ScorecardStatus.Scored,
   ],
   [ScorecardStatus.NeedsResubmit]: [ScorecardStatus.PendingEval],
-  [ScorecardStatus.Scored]: [ScorecardStatus.Completed],
-  [ScorecardStatus.Completed]: [],
+  [ScorecardStatus.Scored]: [
+    ScorecardStatus.Completed,
+    ScorecardStatus.PendingEval,
+    ScorecardStatus.NeedsResubmit,
+  ],
+  [ScorecardStatus.Completed]: [
+    ScorecardStatus.PendingEval,
+    ScorecardStatus.NeedsResubmit,
+  ],
 };
 
 export function canTransition(

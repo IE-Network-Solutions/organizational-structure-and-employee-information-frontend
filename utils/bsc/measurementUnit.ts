@@ -11,6 +11,41 @@ export function measurementUnitLabel(unit?: string | null): string | null {
   return UNIT_LABELS[trimmed] ?? trimmed;
 }
 
+/** Allowed KPI data sources for assignment */
+export const KPI_DATA_SOURCE_OPTIONS: { value: string; label: string }[] = [
+  { value: 'HRIS', label: 'HRIS' },
+  { value: 'Finance System', label: 'Finance System' },
+  { value: 'CRM', label: 'CRM' },
+  { value: 'Support Platform', label: 'Support Platform' },
+  { value: 'Manual Entry', label: 'Manual Entry' },
+];
+
+export const METRIC_UNIT_VALUES = new Set(
+  [
+    '%',
+    'Boolean (1 or 0)',
+    'Currency',
+    'Count',
+    'Days',
+    'Hours',
+    'Ratio',
+    'Score',
+    'Index',
+    'Rating (1.0 - 5.0)',
+  ] as const,
+);
+
+export function normalizeMeasurementUnit(unit?: string | null): string | null {
+  const trimmed = unit?.trim();
+  if (!trimmed) return null;
+  const match = METRIC_UNIT_OPTIONS.find(
+    (option) =>
+      option.value.toLowerCase() === trimmed.toLowerCase() ||
+      option.label.toLowerCase() === trimmed.toLowerCase(),
+  );
+  return match?.value ?? trimmed;
+}
+
 export const METRIC_UNIT_OPTIONS: { value: string; label: string }[] = [
   { value: '%', label: 'Percentage' },
   { value: 'Boolean (1 or 0)', label: 'Achieved/Not' },

@@ -2,7 +2,9 @@
 
 import React from 'react';
 import { Tag } from 'antd';
+import { TargetLogic } from '@/types/bsc';
 import { formatTargetDisplay } from '@/utils/bsc/measurementUnit';
+import { isUnrealisticKpiResult } from '@/utils/bsc/pepAudit';
 
 export const unitTagClassName =
   'm-0 h-5 rounded border border-[#b7eb8f] bg-[#f6ffed] px-2 text-[11px] font-medium leading-5 text-[#389e0d]';
@@ -12,6 +14,9 @@ type ValueProps = {
   unit?: string | null;
   worstCase?: number | null;
   bestCase?: number | null;
+  targetValue?: number | null;
+  acceptableThreshold?: number | null;
+  targetLogic?: TargetLogic;
   dataCy?: string;
   className?: string;
 };
@@ -74,6 +79,17 @@ export function TargetMetricUnitTag({
 }
 
 export default function TargetValueCell(props: ValueProps) {
+  const showThresholdWarning =
+    props.targetValue != null &&
+    props.acceptableThreshold != null &&
+    props.targetLogic &&
+    isUnrealisticKpiResult(
+      props.value,
+      props.targetValue,
+      props.acceptableThreshold,
+      props.targetLogic,
+    );
+
   return (
     <div
       data-cy="targetvaluecell-div-78"
@@ -81,6 +97,11 @@ export default function TargetValueCell(props: ValueProps) {
     >
       <TargetMetricValue {...props} />
       <TargetMetricUnitTag {...props} dataCy={undefined} />
+      {showThresholdWarning ? (
+        <Tag color="red" className="m-0">
+          Below threshold
+        </Tag>
+      ) : null}
     </div>
   );
 }

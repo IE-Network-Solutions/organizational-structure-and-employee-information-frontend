@@ -64,8 +64,125 @@ export function scorecardTabHref(tab: ScorecardTab = 'mine'): string {
   return `${SCORECARD_BASE_PATH}?tab=${normalized}`;
 }
 
-export function scorecardResultsHref(scope: ResultsScope = 'team'): string {
-  return `${SCORECARD_BASE_PATH}?tab=results&scope=${scope}`;
+/** @deprecated Use ResultsListPreset */
+export type ResultsSubView = 'overview' | 'pep-audit';
+
+export type ResultsListPreset = 'all' | 'needs-audit';
+
+export type ResultsPeriodFilter = 'current' | 'all';
+
+export function scorecardResultsHref(
+  scope: ResultsScope = 'team',
+  /** @deprecated Results uses a unified current-period employee list */
+  _listPreset?: ResultsListPreset,
+  /** @deprecated Period history is on the employee detail page */
+  _periodFilter?: ResultsPeriodFilter,
+): string {
+  void _listPreset;
+  void _periodFilter;
+  const params = new URLSearchParams({
+    tab: 'results',
+    scope,
+  });
+  return `${SCORECARD_BASE_PATH}?${params.toString()}`;
+}
+
+export function parseResultsListPreset(
+  search: string | URLSearchParams | null | undefined,
+): ResultsListPreset {
+  if (!search) return 'needs-audit';
+  const params =
+    typeof search === 'string'
+      ? new URLSearchParams(
+          search.startsWith('?') ? search.slice(1) : search,
+        )
+      : search;
+  const filter = params.get('resultsFilter');
+  if (filter === 'all') return 'all';
+  if (filter === 'needs-audit') return 'needs-audit';
+  // Legacy sub-tab URL
+  if (params.get('resultsView') === 'pep-audit') return 'needs-audit';
+  return 'needs-audit';
+}
+
+export function parseResultsPeriodFilter(
+  search: string | URLSearchParams | null | undefined,
+): ResultsPeriodFilter {
+  if (!search) return 'current';
+  const params =
+    typeof search === 'string'
+      ? new URLSearchParams(
+          search.startsWith('?') ? search.slice(1) : search,
+        )
+      : search;
+  const period = params.get('resultsPeriod');
+  if (period === 'all') return 'all';
+  return 'current';
+}
+
+/** @deprecated Use parseResultsListPreset */
+export function parseResultsSubView(
+  search: string | URLSearchParams | null | undefined,
+): ResultsSubView {
+  return parseResultsListPreset(search) === 'needs-audit'
+    ? 'pep-audit'
+    : 'overview';
+}
+
+export function bscRollupHubHref(resultsScope: ResultsScope = 'all'): string {
+  const params = new URLSearchParams({ resultsScope });
+  return `/bsc/roll-up?${params.toString()}`;
+}
+
+export function bscRollupCompanyDetailHref(
+  resultsScope: ResultsScope = 'all',
+): string {
+  const params = new URLSearchParams({
+    resultsScope,
+    view: 'company',
+  });
+  return `/bsc/roll-up?${params.toString()}`;
+}
+
+export function bscRollupDepartmentDetailHref(
+  departmentName: string,
+  resultsScope: ResultsScope = 'all',
+): string {
+  const params = new URLSearchParams({
+    resultsScope,
+    view: 'department',
+    department: departmentName,
+  });
+  return `/bsc/roll-up?${params.toString()}`;
+}
+
+export function parseRollupView(
+  search: string | URLSearchParams | null | undefined,
+): 'hub' | 'company' | 'department' {
+  if (!search) return 'hub';
+  const params =
+    typeof search === 'string'
+      ? new URLSearchParams(
+          search.startsWith('?') ? search.slice(1) : search,
+        )
+      : search;
+  const view = params.get('view');
+  if (view === 'company') return 'company';
+  if (view === 'department' || params.has('department')) return 'department';
+  return 'hub';
+}
+
+export function scorecardPepAuditHref(
+  userId: string,
+  scorecardId: string,
+  scope?: ResultsScope,
+): string {
+  const params = new URLSearchParams({
+    scorecard: scorecardId,
+    from: 'results-audit',
+  });
+  if (scope) params.set('scope', scope);
+  return `/bsc/employees/${encodeURIComponent(userId)}/pep-audit?${params.toString()}`;
 }
 
 export function parseScorecardTab(
@@ -96,6 +213,9 @@ export function parseResultsScope(
 
   const legacyTab = params.get('tab');
   if (legacyTab === 'team' || legacyTab === 'all') return legacyTab;
+
+  const resultsScope = params.get('resultsScope');
+  if (isResultsScope(resultsScope)) return resultsScope;
 
   const scope = params.get('scope');
   return isResultsScope(scope) ? scope : 'all';
@@ -155,4 +275,27 @@ export function menuKeyMatchScore(
   }
 
   return 1;
+}
+
+/** Open/active evaluation cycles represent the current reporting cadence. */
+export function isCurrentReportingScorecard(
+  scorecard: { cycleId: string },
+  cycleById?: Map<string, { isActive?: boolean; status?: string }>,
+): boolean {
+  const cycle = cycleById?.get(scorecard.cycleId);
+  if (!cycle) return scorecard.cycleId === 'config-seed-current';
+  return cycle.status === 'Open' && cycle.isActive !== false;
+}
+
+/** BSC template / program name (e.g. Enterprise Non-Financial Scorecard). */
+export function resolveScorecardTemplateName(
+  scorecard: { cycleId: string; cycleLabel: string },
+  cycleById?: Map<string, { label: string }>,
+): string {
+  const fromCycle = cycleById?.get(scorecard.cycleId)?.label?.trim();
+  if (fromCycle) return fromCycle;
+  const fallback = (scorecard.cycleLabel || '')
+    .replace(/\s*\([^)]*\)\s*$/, '')
+    .trim();
+  return fallback || '—';
 }

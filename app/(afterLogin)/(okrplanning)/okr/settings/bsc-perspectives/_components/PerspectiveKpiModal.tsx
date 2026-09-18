@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  AutoComplete,
   Button,
   Col,
   Form,
@@ -12,6 +11,7 @@ import {
   Popconfirm,
   Radio,
   Row,
+  Select,
   Tag,
 } from 'antd';
 import {
@@ -35,20 +35,9 @@ import {
   useGetBscPerspectiveCatalog,
 } from '@/store/server/features/bsc/queries';
 import { CycleStatus, KpiLibraryItem, TargetLogic } from '@/types/bsc';
+import { METRIC_UNIT_OPTIONS } from '@/utils/bsc/measurementUnit';
 
 const { TextArea } = Input;
-
-const METRIC_OPTIONS = [
-  { value: '%', label: '%' },
-  { value: 'Currency', label: 'Currency' },
-  { value: 'Count', label: 'Count' },
-  { value: 'Days', label: 'Days' },
-  { value: 'Hours', label: 'Hours' },
-  { value: 'Ratio', label: 'Ratio' },
-  { value: 'Score', label: 'Score' },
-  { value: 'Index', label: 'Index' },
-  { value: 'Rating (1.0 - 5.0)', label: 'Rating (1.0 - 5.0)' },
-];
 
 function targetLogicLabel(logic?: TargetLogic): string {
   if (logic === TargetLogic.LowerBetter) return 'Lower is better';
@@ -481,14 +470,11 @@ export default function PerspectiveKpiModal() {
                   },
                 ]}
               >
-                <AutoComplete
-                  options={METRIC_OPTIONS}
-                  placeholder="e.g. %, Days, Score"
-                  filterOption={(input, option) =>
-                    String(option?.label || option?.value || '')
-                      .toLowerCase()
-                      .includes(input.toLowerCase())
-                  }
+                <Select
+                  options={METRIC_UNIT_OPTIONS}
+                  placeholder="Select unit of measure"
+                  showSearch
+                  optionFilterProp="label"
                   data-cy="bsc-perspective-kpi-metric"
                 />
               </Form.Item>

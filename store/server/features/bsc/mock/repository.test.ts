@@ -3,8 +3,10 @@ import {
   BscPerspective,
   BscScopeTarget,
   KpiApprovalStatus,
+  PepAuditFlag,
   ScorecardStatus,
 } from '@/types/bsc';
+import { buildCheckinQueue } from '@/utils/bsc/checkin';
 import { PROMPT_TO_MOCK_STATUS } from '@/utils/bsc/stateMachine';
 import { BscMockRepository } from './repository';
 
@@ -36,6 +38,23 @@ async function createActiveScorecard(repo: BscMockRepository) {
   });
   await repo.submitForAck(created.id, 'mgr-1');
   return repo.acknowledge(created.id, 'emp-1');
+}
+
+async function createScoredScorecard(repo: BscMockRepository) {
+  const active = await createActiveScorecard(repo);
+  await repo.reportKpis(
+    active.id,
+    active.targets.map((t, i) => ({
+      targetId: t.id,
+      actualValue: [40, 30, 80][i],
+      evidenceUrl: `https://mock/${t.id}`,
+    })),
+  );
+  await repo.submitFinal(active.id);
+  for (const t of active.targets) {
+    await repo.setKpiApproval(active.id, t.id, true);
+  }
+  return repo.finalizeApprovals(active.id, 'mgr-1');
 }
 
 describe('bsc mock repository contract', () => {
@@ -421,5 +440,68 @@ describe('bsc mock repository contract', () => {
       const target = updated.targets.find((t) => t.id === row.targetId);
       expect(target?.weightPercentage).toBe(row.weightPercentage);
     }
+  });
+
+  it('PEP reject resets KPI progress and routes to employee check-in', async () => {
+    const repo = new BscMockRepository();
+    const scored = await createScoredScorecard(repo);
+    const target = scored.targets[0];
+
+    const rejected = await repo.rejectKpiForPepAudit(
+      scored.id,
+      target.id,
+      'Evidence does not match',
+      'pep-1',
+    );
+
+    expect(rejected.status).toBe(ScorecardStatus.NeedsResubmit);
+    expect(rejected.targets[0].actualValue).toBe(0);
+    expect(rejected.targets[0].approvalStatus).toBe(KpiApprovalStatus.Rejected);
+    expect(rejected.targets[0].rejectionReason).toBe('Evidence does not match');
+
+    const scorecards = await repo.listScorecards();
+    const employeeQueue = buildCheckinQueue(scorecards, 'emp-1');
+    expect(
+      employeeQueue.some(
+        (item) =>
+          item.scorecard.id === scored.id &&
+          item.target.id === target.id &&
+          item.role === 'self',
+      ),
+    ).toBe(true);
+  });
+
+  it('PEP unrealistic return routes to manager check-in with reason', async () => {
+    const repo = new BscMockRepository();
+    const scored = await createScoredScorecard(repo);
+    const target = scored.targets[0];
+    const reported = target.actualValue;
+
+    const returned = await repo.returnUnrealisticKpiForPepAudit(
+      scored.id,
+      target.id,
+      'Result below acceptable threshold band',
+      'pep-1',
+    );
+
+    expect(returned.status).toBe(ScorecardStatus.PendingEval);
+    expect(returned.targets[0].actualValue).toBe(reported);
+    expect(returned.targets[0].approvalStatus).toBe(KpiApprovalStatus.Pending);
+    expect(returned.targets[0].pepAuditFlag).toBe(PepAuditFlag.Unrealistic);
+    expect(returned.targets[0].pepReturnReason).toBe(
+      'Result below acceptable threshold band',
+    );
+    expect(returned.targets[0].evaluationStepIndex).toBe(0);
+
+    const scorecards = await repo.listScorecards();
+    const managerQueue = buildCheckinQueue(scorecards, 'mgr-1');
+    expect(
+      managerQueue.some(
+        (item) =>
+          item.scorecard.id === scored.id &&
+          item.target.id === target.id &&
+          item.role === 'evaluator',
+      ),
+    ).toBe(true);
   });
 });

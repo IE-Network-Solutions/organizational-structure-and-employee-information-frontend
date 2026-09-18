@@ -2,7 +2,6 @@
 
 import React, { useEffect, useMemo } from 'react';
 import {
-  AutoComplete,
   Col,
   Form,
   Input,
@@ -214,14 +213,11 @@ export default function KpiCatalogFormModal() {
                 },
               ]}
             >
-              <AutoComplete
+              <Select
                 options={METRIC_UNIT_OPTIONS}
-                placeholder="e.g. Percentage, Days, Score"
-                filterOption={(input, option) =>
-                  String(option?.label || option?.value || '')
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
+                placeholder="Select unit of measure"
+                showSearch
+                optionFilterProp="label"
                 data-cy="bsc-kpi-catalog-metric"
               />
             </Form.Item>

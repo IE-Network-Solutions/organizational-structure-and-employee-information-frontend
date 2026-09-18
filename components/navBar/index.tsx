@@ -152,7 +152,6 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { Permissions } from '@/types/commons/permissionEnum';
 import { findMostSpecificMatchingRoute } from '@/utils/routePermissions';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';

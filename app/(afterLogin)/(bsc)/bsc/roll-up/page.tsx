@@ -6,17 +6,35 @@ import type { ColumnsType } from 'antd/es/table';
 import { LeftOutlined } from '@ant-design/icons';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { useGetBscScorecards } from '@/store/server/features/bsc/queries';
+import {
+  useGetBscCycles,
+  useGetBscScorecards,
+} from '@/store/server/features/bsc/queries';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import { EmployeeScorecard } from '@/types/bsc';
 import {
+  computeRollup,
+  departmentRollups,
   formatScore,
   isScorecardApproved,
   isScorecardEvaluated,
-  latestScorecardsByEmployee,
   scorecardTotal,
 } from '@/utils/bsc/rollup';
-import { scorecardResultsHref } from '@/utils/bsc/scorecardTab';
+import {
+  currentPeriodScorecardsByEmployee,
+  filterScorecardsForResultsScope,
+} from '@/utils/bsc/resultsScopeScorecards';
+import {
+  bscRollupCompanyDetailHref,
+  bscRollupDepartmentDetailHref,
+  bscRollupHubHref,
+  parseResultsScope,
+  parseRollupView,
+  scorecardResultsHref,
+  type ResultsScope,
+} from '@/utils/bsc/scorecardTab';
+import RollupHubCards from './_components/RollupHubCards';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
@@ -26,22 +44,62 @@ type ContributorRow = EmployeeScorecard & {
   evaluated: boolean;
 };
 
-export default function BscRollupDetailPage() {
+export default function BscRollupPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setScorecardTab = useBscUiStore((s) => s.setScorecardTab);
-  const scope =
-    searchParams.get('scope') === 'department' ? 'department' : 'company';
+  const { userId: actorId } = useAuthenticationStore();
+
+  const resultsScope: ResultsScope = parseResultsScope(searchParams);
+  const rollupView = parseRollupView(searchParams);
   const departmentName = searchParams.get('department') || undefined;
 
-  const { data: scorecards, isLoading } = useGetBscScorecards();
+  const { data: scorecards, isLoading: scorecardsLoading } =
+    useGetBscScorecards();
+  const { data: cycles, isLoading: cyclesLoading } = useGetBscCycles();
+
+  const cycleById = useMemo(() => {
+    const map = new Map<
+      string,
+      { isActive?: boolean; status?: string }
+    >();
+    for (const cycle of cycles || []) {
+      map.set(cycle.id, {
+        isActive: cycle.isActive,
+        status: cycle.status,
+      });
+    }
+    return map;
+  }, [cycles]);
+
+  const currentByEmployee = useMemo(() => {
+    const scoped = filterScorecardsForResultsScope(
+      scorecards || [],
+      resultsScope,
+      actorId,
+    );
+    return currentPeriodScorecardsByEmployee(scoped, cycleById);
+  }, [actorId, cycleById, resultsScope, scorecards]);
+
+  const companyRollup = useMemo(
+    () => computeRollup(currentByEmployee, { scope: 'company' }),
+    [currentByEmployee],
+  );
+
+  const deptRollups = useMemo(
+    () =>
+      resultsScope === 'all' ? departmentRollups(currentByEmployee) : [],
+    [currentByEmployee, resultsScope],
+  );
+
+  const companyLabel =
+    resultsScope === 'team' ? 'Subordinate scorecard' : 'Company-wide';
 
   const contributors = useMemo(() => {
-    const latest = latestScorecardsByEmployee(scorecards);
     const pool =
-      scope === 'department' && departmentName
-        ? latest.filter((c) => c.departmentName === departmentName)
-        : latest;
+      rollupView === 'department' && departmentName
+        ? currentByEmployee.filter((c) => c.departmentName === departmentName)
+        : currentByEmployee;
     return pool
       .map((card) => ({
         ...card,
@@ -52,7 +110,7 @@ export default function BscRollupDetailPage() {
         if (a.evaluated !== b.evaluated) return a.evaluated ? -1 : 1;
         return b.kpiScore - a.kpiScore;
       });
-  }, [scorecards, scope, departmentName]);
+  }, [currentByEmployee, departmentName, rollupView]);
 
   const averageScore = useMemo(() => {
     const evaluated = contributors.filter((c) => c.evaluated);
@@ -60,14 +118,29 @@ export default function BscRollupDetailPage() {
     return evaluated.reduce((sum, c) => sum + c.kpiScore, 0) / evaluated.length;
   }, [contributors]);
 
-  const title =
-    scope === 'department' && departmentName
-      ? `${departmentName} roll-up`
-      : 'Company-wide roll-up';
+  const isLoading = scorecardsLoading || cyclesLoading;
+  const isHub = rollupView === 'hub';
 
-  const backToAll = () => {
+  const detailTitle =
+    rollupView === 'department' && departmentName
+      ? `${departmentName} roll-up`
+      : companyLabel;
+
+  const backToResults = () => {
     setScorecardTab('results');
-    router.push(scorecardResultsHref('all'));
+    router.push(scorecardResultsHref(resultsScope));
+  };
+
+  const backToHub = () => {
+    router.push(bscRollupHubHref(resultsScope));
+  };
+
+  const openCompanyDetail = () => {
+    router.push(bscRollupCompanyDetailHref(resultsScope));
+  };
+
+  const openDepartmentDetail = (department: string) => {
+    router.push(bscRollupDepartmentDetailHref(department, resultsScope));
   };
 
   const openEmployee = (row: ContributorRow) => {
@@ -179,21 +252,25 @@ export default function BscRollupDetailPage() {
   const evaluatedCount = contributors.filter((c) => c.evaluated).length;
 
   return (
-    <div className="w-full" data-cy="bsc-rollup-detail-page">
+    <div className="w-full" data-cy="bsc-rollup-page">
       <CustomBreadcrumb
-        title={title}
-        subtitle="Average of evaluated employee scorecards in this scope"
+        title={isHub ? 'Scorecard roll-up' : detailTitle}
+        subtitle={
+          isHub
+            ? 'Average performance by company and department for the current period'
+            : 'Average of evaluated employee scorecards in this scope'
+        }
       />
 
       <div className="mb-4" data-cy="bsc-rollup-back-wrap">
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={backToAll}
+          onClick={isHub ? backToResults : backToHub}
           className="!px-0 text-[#595959]"
-          data-cy="bsc-rollup-detail-back"
+          data-cy="bsc-rollup-back"
         >
-          All Employee KPI
+          {isHub ? 'Back to Results' : 'Back to roll-up cards'}
         </Button>
       </div>
 
@@ -204,13 +281,22 @@ export default function BscRollupDetailPage() {
         >
           Loading…
         </div>
+      ) : isHub ? (
+        <RollupHubCards
+          companyRollup={companyRollup}
+          deptRollups={deptRollups}
+          resultsScope={resultsScope}
+          companyLabel={companyLabel}
+          onCompanyClick={openCompanyDetail}
+          onDepartmentClick={openDepartmentDetail}
+        />
       ) : (
         <div
-          className="rounded-xl border border-[#E5E7EB] bg-white overflow-hidden"
-          data-cy="bsc-rollup-card"
+          className="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white"
+          data-cy="bsc-rollup-detail-card"
         >
           <div
-            className="flex flex-wrap items-start justify-between gap-3 px-5 py-4 border-b border-[#F0F0F0]"
+            className="flex flex-wrap items-start justify-between gap-3 border-b border-[#F0F0F0] px-5 py-4"
             data-cy="bsc-rollup-card-header"
           >
             <div data-cy="bsc-rollup-card-title-block">
@@ -218,7 +304,7 @@ export default function BscRollupDetailPage() {
                 className="m-0 text-lg font-semibold text-[#262626]"
                 data-cy="bsc-rollup-card-title"
               >
-                {title}
+                {detailTitle}
               </h2>
               <p
                 className="m-0 mt-1 text-sm text-[#8F94A3]"

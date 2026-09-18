@@ -2,7 +2,6 @@
 
 import React, { useMemo, useState } from 'react';
 import {
-  AutoComplete,
   Button,
   Col,
   Dropdown,
@@ -14,6 +13,7 @@ import {
   Progress,
   Radio,
   Row,
+  Select,
   Tag,
 } from 'antd';
 import type { MenuProps } from 'antd';
@@ -46,20 +46,9 @@ import {
   type PerspectiveKpiProgress,
 } from '@/utils/bsc/rollup';
 import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
+import { METRIC_UNIT_OPTIONS } from '@/utils/bsc/measurementUnit';
 
 const { TextArea } = Input;
-
-const METRIC_OPTIONS = [
-  { value: '%', label: '%' },
-  { value: 'Currency', label: 'Currency' },
-  { value: 'Count', label: 'Count' },
-  { value: 'Days', label: 'Days' },
-  { value: 'Hours', label: 'Hours' },
-  { value: 'Ratio', label: 'Ratio' },
-  { value: 'Score', label: 'Score' },
-  { value: 'Index', label: 'Index' },
-  { value: 'Rating (1.0 - 5.0)', label: 'Rating (1.0 - 5.0)' },
-];
 
 export default function BscPerspectiveDetailPage() {
   const router = useRouter();
@@ -469,10 +458,12 @@ export default function BscPerspectiveDetailPage() {
               },
             ]}
           >
-            <AutoComplete
-              options={METRIC_OPTIONS}
-              placeholder="Select or type a metric"
+            <Select
+              options={METRIC_UNIT_OPTIONS}
+              placeholder="Select unit of measure"
               className="w-full"
+              showSearch
+              optionFilterProp="label"
               data-cy="bsc-perspective-detail-kpi-metric"
             />
           </Form.Item>

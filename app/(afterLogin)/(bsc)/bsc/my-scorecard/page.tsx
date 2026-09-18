@@ -394,6 +394,8 @@ export default function MyBscScorecardPage() {
             : null,
           targetId: target.id,
           approvalStatus: target.approvalStatus,
+          dataSource: target.dataSource ?? null,
+          acceptableThreshold: target.acceptableThreshold ?? null,
           assignmentSource: target.assignmentSource || 'shared',
         };
       });

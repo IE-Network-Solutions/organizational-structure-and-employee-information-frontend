@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import IosShareIcon from '@mui/icons-material/IosShare';
+import KpiImportModal from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiImportModal';
+import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import AccessGuard from '@/utils/permissionGuard';
@@ -27,7 +30,8 @@ export default function BscKpiAdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { openCreateSetup, openCatalogKpiForm } = useBscUiStore();
+  const { openCreateSetup, openCatalogKpiForm, openKpiImportModal } =
+    useBscUiStore();
   const activeTab = parseBscKpiAdminTab(pathname || '');
 
   const canManageBscAdmin =
@@ -147,6 +151,21 @@ export default function BscKpiAdminLayout({
           {activeTab === 'kpis' ? (
             <>
               <Button
+                type="default"
+                icon={
+                  <IosShareIcon
+                    fontSize="small"
+                    className="text-[#374151]"
+                    data-cy="bsc-kpi-import-icon"
+                  />
+                }
+                onClick={openKpiImportModal}
+                className={`${bscFilterButtonClassName} mb-[6px] hidden h-8 shrink-0 rounded-md sm:inline-flex`}
+                data-cy="bsc-kpi-import"
+              >
+                Import
+              </Button>
+              <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => openCatalogKpiForm()}
@@ -193,6 +212,7 @@ export default function BscKpiAdminLayout({
       <div className="pb-8 pt-5" data-cy="bsc-kpi-admin-content">
         {children}
       </div>
+      <KpiImportModal />
     </div>
   );
 }

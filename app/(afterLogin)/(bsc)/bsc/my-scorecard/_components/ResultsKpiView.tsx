@@ -3,7 +3,7 @@
 import React from 'react';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import EmployeeKpiTable from './EmployeeKpiTable';
+import ResultsEmployeeTable from './ResultsEmployeeTable';
 
 type Props = {
   canViewTeamKpi?: boolean;
@@ -11,7 +11,7 @@ type Props = {
 };
 
 /**
- * Single Results page: employee KPI table with Team / All scope in Filter.
+ * Unified Results page: rollups, PEP audit summary, and employee directory.
  */
 export default function ResultsKpiView({
   canViewTeamKpi: canViewTeamProp,
@@ -25,9 +25,11 @@ export default function ResultsKpiView({
     AccessGuard.checkAccess({ permissions: [Permissions.ViewCompanyOkr] });
 
   return (
-    <EmployeeKpiTable
-      canViewTeamKpi={canViewTeamKpi}
-      canViewAllEmployeeKpi={canViewAllEmployeeKpi}
-    />
+    <div data-cy="bsc-results-view" className="-mt-3">
+      <ResultsEmployeeTable
+        canViewTeamKpi={canViewTeamKpi}
+        canViewAllEmployeeKpi={canViewAllEmployeeKpi}
+      />
+    </div>
   );
 }
