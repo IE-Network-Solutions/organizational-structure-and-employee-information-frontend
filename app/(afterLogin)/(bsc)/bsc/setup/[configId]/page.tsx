@@ -27,6 +27,7 @@ import {
 } from '@/types/bsc';
 import BscSetupModal from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-setup/_components/BscSetupModal';
 import { computeKpiRollup, formatScore } from '@/utils/bsc/rollup';
+import { enrichAssignmentsWithTemplateKpis } from '@/utils/bsc/enrichAssignments';
 import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
 import { cadenceLabel, checkInDayLabel } from '@/utils/bsc/checkInSchedule';
 import {
@@ -426,20 +427,30 @@ export default function BscScorecardDetailPage() {
     );
   }, [people, usersById, departmentNameById, positionNameById]);
 
+  const peopleWithTargets = useMemo(
+    () =>
+      enrichAssignmentsWithTemplateKpis(
+        uniquePeople,
+        config?.templateKpis,
+        new Map((catalogKpis || []).map((kpi) => [kpi.id, kpi])),
+      ),
+    [uniquePeople, config?.templateKpis, catalogKpis],
+  );
+
   const kpiRollupById = useMemo(() => {
     const map = new Map<
       string,
       { averageScore: number; evaluatedCount: number }
     >();
     for (const kpi of uniqueKpis) {
-      const rollup = computeKpiRollup(people, kpi.id);
+      const rollup = computeKpiRollup(peopleWithTargets, kpi.id);
       map.set(kpi.id, {
         averageScore: rollup.averageScore,
         evaluatedCount: rollup.evaluatedCount,
       });
     }
     return map;
-  }, [uniqueKpis, people]);
+  }, [uniqueKpis, peopleWithTargets]);
 
   const filteredKpis = useMemo(() => {
     const q = kpiSearch.trim().toLowerCase();

@@ -569,6 +569,36 @@ export async function listMyBscScorecards(filters?: {
   }
 }
 
+/** Results tab: mine / team / all employee scorecards. */
+export async function listBscResultsScorecards(
+  scope: 'mine' | 'team' | 'all',
+  filters?: { periodKey?: string; status?: string },
+): Promise<EmployeeScorecard[]> {
+  try {
+    const headers = await bscAuthHeaders();
+    const params: Record<string, string> = { scope };
+    if (filters?.periodKey) params.periodKey = filters.periodKey;
+    if (filters?.status) params.status = filters.status;
+
+    const data = await crudRequest({
+      url: `${BSC_BASE}/employee-scorecards`,
+      method: 'GET',
+      headers,
+      params,
+    });
+
+    const userName =
+      scope === 'mine' ? currentUserDisplayName() : undefined;
+    return unwrapListPayload(data).map((row) =>
+      mapEmployeeScorecardFromApi(row as BscEmployeeScorecardApi, {
+        userName: scope === 'mine' ? userName : undefined,
+      }),
+    );
+  } catch (error) {
+    throw toBscError(error, 'Failed to load results scorecards');
+  }
+}
+
 export async function getMyBscScorecardDetail(
   id: string,
 ): Promise<EmployeeScorecard> {

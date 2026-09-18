@@ -10,8 +10,10 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { useGetBscScorecards } from '@/store/server/features/bsc/queries';
+import { useGetBscResultsScorecards } from '@/store/server/features/bsc/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -34,6 +36,9 @@ const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
 const filterButtonClassName =
   'inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50';
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 type EmployeeKpiRow = EmployeeScorecard & {
   kpiCount: number;
   individualCount: number;
@@ -43,6 +48,10 @@ type Props = {
   canViewTeamKpi?: boolean;
   canViewAllEmployeeKpi?: boolean;
 };
+
+function looksLikeUuid(value?: string | null): boolean {
+  return Boolean(value && UUID_RE.test(value));
+}
 
 function resolveProfileImageSrc(profileImage: unknown): string | undefined {
   if (!profileImage || typeof profileImage !== 'string') return undefined;
@@ -66,6 +75,85 @@ function nameInitials(name: string): string {
   if (!parts.length) return '?';
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+}
+
+/** Org `/users` responses vary: `{ items }`, bare array, or id-keyed map. */
+function normalizeUsers(data: unknown): any[] {
+  if (!data) return [];
+  if (Array.isArray(data)) return data;
+  if (typeof data !== 'object') return [];
+
+  const body = data as Record<string, unknown>;
+  const candidates = [
+    body.items,
+    body.data,
+    body.users,
+    body.employees,
+    (body.data as Record<string, unknown> | undefined)?.items,
+    (body.data as Record<string, unknown> | undefined)?.users,
+    (body.data as Record<string, unknown> | undefined)?.data,
+  ];
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate) && candidate.length > 0) {
+      return candidate as any[];
+    }
+  }
+
+  const values = Object.values(body).filter(
+    (value) =>
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      ('id' in (value as object) ||
+        'userId' in (value as object) ||
+        'email' in (value as object) ||
+        'firstName' in (value as object) ||
+        'fullName' in (value as object)),
+  ) as any[];
+
+  return values.length > 0 ? values : [];
+}
+
+function asNamedList(data: unknown): Array<{ id: string; name: string }> {
+  const raw = Array.isArray(data)
+    ? data
+    : Array.isArray((data as { items?: unknown })?.items)
+      ? (data as { items: unknown[] }).items
+      : [];
+  return raw
+    .map((row: any) => ({
+      id: String(row?.id || ''),
+      name: String(
+        row?.name ||
+          row?.departmentName ||
+          row?.positionName ||
+          row?.title ||
+          '',
+      ).trim(),
+    }))
+    .filter((row) => row.id);
+}
+
+function userDisplayName(user: any): string {
+  if (!user) return '';
+  const info = user?.employeeInformation;
+  return (
+    user?.fullName ||
+    info?.fullName ||
+    [
+      user?.firstName || user?.first_name || info?.firstName,
+      user?.middleName || user?.middle_name || info?.middleName,
+      user?.lastName || user?.last_name || info?.lastName,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim() ||
+    user?.email ||
+    user?.username ||
+    ''
+  );
 }
 
 function resolveTeamManagerId(
@@ -151,8 +239,10 @@ export default function EmployeeKpiTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { isMobile, isTablet } = useIsMobile();
-  const { data: scorecards, isLoading } = useGetBscScorecards();
+  const { data: scorecards, isLoading } = useGetBscResultsScorecards(scope);
   const { data: allUsers } = useGetAllUsers();
+  const { data: departmentsData } = useGetDepartments();
+  const { data: positionsData } = useGetAllPositions();
 
   useEffect(() => {
     if (filterOpen) {
@@ -164,28 +254,95 @@ export default function EmployeeKpiTable({
     }
   }, [filterOpen, scope, userId, department]);
 
-  const profileImageByUserId = useMemo(() => {
+  const departmentNameById = useMemo(() => {
     const map = new Map<string, string>();
-    for (const user of allUsers?.items || []) {
-      const src = resolveProfileImageSrc(user?.profileImage);
-      if (user?.id && src) map.set(user.id, src);
+    for (const dept of asNamedList(departmentsData)) {
+      if (dept.name) map.set(dept.id, dept.name);
+    }
+    return map;
+  }, [departmentsData]);
+
+  const positionNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const pos of asNamedList(positionsData)) {
+      if (pos.name) map.set(pos.id, pos.name);
+    }
+    return map;
+  }, [positionsData]);
+
+  const usersById = useMemo(() => {
+    const map = new Map<string, any>();
+    for (const user of normalizeUsers(allUsers)) {
+      const id = String(user?.id || user?.userId || '').trim();
+      if (id) map.set(id, user);
     }
     return map;
   }, [allUsers]);
 
-  const scopedScorecards = useMemo(() => {
-    const list = scorecards || [];
-    if (scope === 'mine') {
-      if (!actorId) return [];
-      return list.filter((card) => card.userId === actorId);
+  const profileImageByUserId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const user of normalizeUsers(allUsers)) {
+      const id = String(user?.id || user?.userId || '').trim();
+      const src = resolveProfileImageSrc(user?.profileImage);
+      if (id && src) map.set(id, src);
     }
+    return map;
+  }, [allUsers]);
+
+  const enrichedScorecards = useMemo(() => {
+    return (scorecards || []).map((card) => {
+      const user = usersById.get(String(card.userId));
+      const job = user?.employeeJobInformation?.[0];
+      const resolvedName =
+        userDisplayName(user) ||
+        (card.userName && !looksLikeUuid(card.userName) ? card.userName : '') ||
+        card.userId;
+      const departmentName =
+        (card.departmentName && !looksLikeUuid(card.departmentName)
+          ? card.departmentName
+          : null) ||
+        (card.departmentId
+          ? departmentNameById.get(card.departmentId) || null
+          : null) ||
+        job?.department?.name ||
+        user?.department?.name ||
+        user?.departmentName ||
+        user?.employeeInformation?.department?.name ||
+        null;
+      const positionTitle =
+        (card.positionTitle && !looksLikeUuid(card.positionTitle)
+          ? card.positionTitle
+          : null) ||
+        (card.positionId
+          ? positionNameById.get(card.positionId) || null
+          : null) ||
+        job?.position?.name ||
+        job?.position?.title ||
+        user?.position?.name ||
+        user?.positionTitle ||
+        null;
+
+      return {
+        ...card,
+        userName: resolvedName,
+        departmentName,
+        positionTitle,
+      };
+    });
+  }, [scorecards, usersById, departmentNameById, positionNameById]);
+
+  // API already scopes by mine/team/all. Keep a light client filter for mock
+  // team fallback when actor has no reports under their own id.
+  const scopedScorecards = useMemo(() => {
+    const list = enrichedScorecards;
     if (scope !== 'team') return list;
     const manager = resolveTeamManagerId(actorId, list);
+    if (manager === actorId) return list;
     const skip = new Set([manager, 'demo-user'].filter(Boolean));
     return list.filter(
       (card) => card.managerId === manager && !skip.has(card.userId),
     );
-  }, [scorecards, scope, actorId]);
+  }, [enrichedScorecards, scope, actorId]);
 
   const latestByEmployee = useMemo(
     () => latestScorecardsByEmployee(scopedScorecards),
@@ -225,10 +382,11 @@ export default function EmployeeKpiTable({
       .filter((row) => !department || row.departmentName === department)
       .map((row) => ({
         ...row,
-        kpiCount: row.targets.length,
-        individualCount: row.targets.filter(
-          (t) => t.assignmentSource === 'individual',
-        ).length,
+        kpiCount: Array.isArray(row.targets) ? row.targets.length : 0,
+        individualCount: Array.isArray(row.targets)
+          ? row.targets.filter((t) => t.assignmentSource === 'individual')
+              .length
+          : 0,
       }))
       .sort((a, b) => a.userName.localeCompare(b.userName));
   }, [latestByEmployee, userId, department]);
@@ -267,6 +425,7 @@ export default function EmployeeKpiTable({
       key: 'employee',
       render: (unused, row) => {
         const src = profileImageByUserId.get(row.userId);
+        const displayName = row.userName || 'Employee';
         return (
           <div
             data-cy="employeekpitable-div-255"
@@ -277,8 +436,9 @@ export default function EmployeeKpiTable({
               src={src}
               icon={!src ? <UserOutlined /> : undefined}
               className="shrink-0 bg-[#E6F4FF] text-[#1677FF]"
+              data-cy={`bsc-results-avatar-${row.userId}`}
             >
-              {!src ? nameInitials(row.userName) : null}
+              {!src ? nameInitials(displayName) : null}
             </Avatar>
             <div
               data-cy="employeekpitable-div-264"
@@ -286,13 +446,15 @@ export default function EmployeeKpiTable({
             >
               <span
                 data-cy="employeekpitable-span-265"
-                className={`${tableCellClassName} truncate`}
+                className={`${tableCellClassName} truncate font-medium`}
+                title={displayName}
               >
-                {row.userName}
+                {displayName}
               </span>
               <span
                 data-cy="employeekpitable-span-268"
                 className="text-xs text-gray-500 truncate"
+                title={row.positionTitle || undefined}
               >
                 {row.positionTitle || '—'}
               </span>
@@ -316,6 +478,7 @@ export default function EmployeeKpiTable({
         <span
           data-cy="employeekpitable-span-281"
           className={tableCellClassName}
+          title={value || undefined}
         >
           {value || '—'}
         </span>

@@ -9,17 +9,20 @@ import {
   listBscReviewCheckInQueue,
   listBscScorecards,
   listBscScorecardAssignments,
+  listBscResultsScorecards,
   getBscScorecardTemplate,
   listMyBscCheckInQueue,
   listMyBscScorecards,
 } from './api';
 import { USE_BSC_API } from './config';
 import { bscMockRepo } from './mock/repository';
+import type { ResultsScope } from '@/utils/bsc/scorecardTab';
 
 export const BSC_QUERY_KEYS = {
   kpis: 'bsc-kpis',
   cycles: 'bsc-cycles',
   scorecards: 'bsc-scorecards',
+  resultsScorecards: 'bsc-results-scorecards',
   scorecardAssignments: 'bsc-scorecard-assignments',
   scorecard: 'bsc-scorecard',
   scorecardResults: 'bsc-scorecard-results',
@@ -127,7 +130,7 @@ export const useGetBscScorecards = (filters?: {
         return items;
       }
 
-      // Otherwise only "my" scorecards (BE has no admin all-users list).
+      // Otherwise only "my" scorecards (use useGetBscResultsScorecards for team/all).
       const currentUserId = useAuthenticationStore.getState().userId;
       if (filters?.userId && filters.userId !== currentUserId) {
         return [];
@@ -160,6 +163,30 @@ export const useGetBscScorecards = (filters?: {
       keepPreviousData: true,
       enabled: !filters?.cycleId || Boolean(filters.cycleId),
     },
+  );
+
+/** Results tab scopes: mine / team (direct reports) / all employees. */
+export const useGetBscResultsScorecards = (scope: ResultsScope = 'mine') =>
+  useQuery(
+    [BSC_QUERY_KEYS.resultsScorecards, scope],
+    async () => {
+      if (!USE_BSC_API) {
+        const list = await bscMockRepo.listScorecards();
+        const actorId = useAuthenticationStore.getState().userId || 'demo-user';
+        if (scope === 'mine') {
+          return list.filter((card) => card.userId === actorId);
+        }
+        if (scope === 'team') {
+          return list.filter(
+            (card) =>
+              card.managerId === actorId && card.userId !== actorId,
+          );
+        }
+        return list;
+      }
+      return listBscResultsScorecards(scope);
+    },
+    { keepPreviousData: true },
   );
 
 /** People assigned to a scorecard template (admin detail People card). */

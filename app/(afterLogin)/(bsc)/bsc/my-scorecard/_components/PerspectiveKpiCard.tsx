@@ -179,7 +179,10 @@ export default function PerspectiveKpiCard({
   };
 
   return (
-    <div className="mb-6 overflow-hidden" data-cy="bsc-kpi-progress-card">
+    <div
+      className="mb-6 overflow-hidden rounded-lg border border-gray-200 bg-white"
+      data-cy="bsc-kpi-progress-card"
+    >
       <div
         data-cy="perspectivekpicard-div-155"
         className="px-4 pt-4 pb-2 sm:px-6 sm:pt-6 flex items-start justify-between gap-3"

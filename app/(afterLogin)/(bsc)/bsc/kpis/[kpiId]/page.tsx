@@ -22,7 +22,6 @@ import {
   useGetBscScorecards,
 } from '@/store/server/features/bsc/queries';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
-import { TargetLogic } from '@/types/bsc';
 import {
   departmentRollupsForKpi,
   formatScore,
@@ -32,7 +31,9 @@ import {
   type KpiContributor,
   type RollupSummary,
 } from '@/utils/bsc/rollup';
+import { enrichAssignmentsWithTemplateKpis } from '@/utils/bsc/enrichAssignments';
 import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
+import { TargetLogic } from '@/types/bsc';
 
 type ContributionView = 'department' | 'employee';
 
@@ -122,15 +123,30 @@ export default function BscKpiDetailPage() {
     [kpis, kpiId],
   );
 
+  const catalogById = useMemo(
+    () => new Map((kpis || []).map((item) => [item.id, item])),
+    [kpis],
+  );
+
+  const enrichedScorecards = useMemo(
+    () =>
+      enrichAssignmentsWithTemplateKpis(
+        scorecards,
+        scorecardConfig?.templateKpis,
+        catalogById,
+      ),
+    [scorecards, scorecardConfig?.templateKpis, catalogById],
+  );
+
   const latest = useMemo(
-    () => latestScorecardsByEmployee(scorecards),
-    [scorecards],
+    () => latestScorecardsByEmployee(enrichedScorecards),
+    [enrichedScorecards],
   );
 
   const averageScoreByUserId = useMemo(() => {
     const scoresByUser = new Map<string, number[]>();
-    for (const card of scorecards || []) {
-      for (const target of card.targets) {
+    for (const card of enrichedScorecards) {
+      for (const target of card.targets || []) {
         if (target.kpiLibraryId !== kpiId) continue;
         const score = targetScorePercent(target);
         if (score == null) continue;
@@ -148,7 +164,7 @@ export default function BscKpiDetailPage() {
       );
     });
     return averages;
-  }, [scorecards, kpiId]);
+  }, [enrichedScorecards, kpiId]);
 
   const contributors = useMemo((): ContributorRow[] => {
     return kpiContributors(latest, kpiId).map((row) => ({

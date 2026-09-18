@@ -113,8 +113,8 @@ export function mapEmployeeKpiToTarget(
   row: BscEmployeeScorecardKpiApi,
   employeeScorecardId: string,
 ): ScorecardKpiTarget {
-  const source =
-    row.assignmentSource === 'Individual' ? 'individual' : 'shared';
+  const sourceRaw = String(row.assignmentSource || '').toLowerCase();
+  const source = sourceRaw === 'individual' ? 'individual' : 'shared';
 
   return {
     id: row.id,
