@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Dropdown, Table, Tag, Tooltip } from 'antd';
+import { Button, Dropdown, Input, Table, Tag, Tooltip } from 'antd';
 import KpiRejectModal from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiRejectModal';
 import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -299,7 +299,6 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
           );
         }
         return (
-          // eslint-disable-next-line react/jsx-no-undef
           <Input
             className="!w-[96px] h-8 text-sm"
             placeholder={

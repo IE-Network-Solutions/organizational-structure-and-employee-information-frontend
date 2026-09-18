@@ -27,7 +27,7 @@ type Props = {
   isCurrentPeriod?: boolean;
   pepRows: PepAuditRow[];
   participants: PepAuditBarParticipants;
-  scrollRef?: React.RefObject<HTMLDivElement | null>;
+  scrollRef?: React.Ref<HTMLDivElement>;
   isKpiSelected?: (targetId: string) => boolean;
   onKpiSelectedChange?: (targetId: string, checked: boolean) => void;
 };

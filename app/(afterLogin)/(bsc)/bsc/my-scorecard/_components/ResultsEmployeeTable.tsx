@@ -437,7 +437,7 @@ export default function ResultsEmployeeTable({
         }
         if (statusFilter === 'all') return true;
         if (!row.pepRows.length) {
-          return statusFilter === 'all';
+          return false;
         }
         const filteredPep = filterPepAuditRows(row.pepRows, pepListFilters);
         return filteredPep.length > 0;

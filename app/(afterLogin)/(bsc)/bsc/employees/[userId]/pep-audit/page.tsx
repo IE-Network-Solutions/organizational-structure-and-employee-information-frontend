@@ -317,7 +317,7 @@ export default function EmployeePepAuditPage() {
       <CustomBreadcrumb
         title="PEP Audit Review"
         subtitle="Review reported KPIs, verify data sources, and approve or reject results."
-        breadcrumbItems={[
+        items={[
           { title: 'My Scorecard', href: scorecardTabHref('mine') },
           { title: 'Results', href: scorecardResultsHref(scope) },
           { title: displayName },
