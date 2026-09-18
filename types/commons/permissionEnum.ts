@@ -391,6 +391,15 @@ export enum Permissions {
   UpdateProbationTask = 'update-probation-task',
   DeleteProbationTask = 'delete-probation-task',
 
+  // Non-Financial Balanced Scorecard (BSC)
+  ViewBsc = 'view_bsc',
+  ManageBscCycles = 'manage_bsc_cycles',
+  ManageBscKpiLibrary = 'manage_bsc_kpi_library',
+  ManageBscScorecards = 'manage_bsc_scorecards',
+  EvaluateBscScorecards = 'evaluate_bsc_scorecards',
+  AcknowledgeBscScorecard = 'acknowledge_bsc_scorecard',
+  SubmitBscEvidence = 'submit_bsc_evidence',
+
   // Succession planning
   ViewSuccessionPlanning = 'view-succession-planning',
   CreateCriticalRole = 'create-critical-role',
