@@ -78,7 +78,9 @@ function personName(user: any) {
 
 function getActiveJob(user: any) {
   const jobs = user?.employeeJobInformation ?? [];
-  return jobs.find((job: any) => job?.isPositionActive === true) ?? jobs[0] ?? null;
+  return (
+    jobs.find((job: any) => job?.isPositionActive === true) ?? jobs[0] ?? null
+  );
 }
 
 function getJobScheduleId(job: any): string | null {
@@ -270,22 +272,14 @@ export default function MySchedulePage() {
         const peerShiftId = getJobShiftId(getActiveJob(u));
         const peerShift = peerShiftId ? shiftById.get(peerShiftId) : null;
         const shiftLabel =
-          peerShift?.name ||
-          getActiveJob(u)?.workScheduleShift?.name ||
-          null;
+          peerShift?.name || getActiveJob(u)?.workScheduleShift?.name || null;
         const name = personName(u);
         return {
           value: u.id as string,
           label: shiftLabel ? `${name} — ${shiftLabel}` : name,
         };
       });
-  }, [
-    allUsers?.items,
-    userId,
-    myScheduleId,
-    myAssignedShiftId,
-    shiftById,
-  ]);
+  }, [allUsers?.items, userId, myScheduleId, myAssignedShiftId, shiftById]);
 
   const peerSelectPlaceholder = !myScheduleId
     ? 'Assign a work schedule first'
@@ -980,10 +974,10 @@ export default function MySchedulePage() {
             <Input type="hidden" />
           </Form.Item>
           <div className="mb-4" data-cy="shift-swap-target-shift-display">
-            <div className="text-sm text-gray-600 mb-1">
+            <div data-cy="shift-swap-target-shift-display-label" className="text-sm text-gray-600 mb-1">
               Target shift (peer’s shift)
             </div>
-            <div className="h-10 px-3 rounded-lg border border-gray-200 bg-[#f8f8f8] flex items-center text-sm text-[#1f1f1f]">
+            <div data-cy="shift-swap-target-shift-display-value" className="h-10 px-3 rounded-lg border border-gray-200 bg-[#f8f8f8] flex items-center text-sm text-[#1f1f1f]">
               {selectedPeerShift
                 ? `${selectedPeerShift.name} (${selectedPeerShift.startTime} – ${selectedPeerShift.endTime})`
                 : selectedPeerShiftId
