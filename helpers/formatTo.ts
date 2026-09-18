@@ -128,9 +128,7 @@ export const buildTakenBreakComplianceLabels = (
     labels.push(`Late breakin by ${formatBreakMinutes(lateBreakin)}`);
   }
   if (missedOutBand > 0) {
-    labels.push(
-      `Missed breakout band by ${formatBreakMinutes(missedOutBand)}`,
-    );
+    labels.push(`Missed breakout band by ${formatBreakMinutes(missedOutBand)}`);
   }
   if (missedInBand > 0) {
     labels.push(`Missed breakin band by ${formatBreakMinutes(missedInBand)}`);
@@ -140,9 +138,7 @@ export const buildTakenBreakComplianceLabels = (
   return [...new Set(labels)];
 };
 
-const parseWallClockMinutes = (
-  value?: string | Date | null,
-): number | null => {
+const parseWallClockMinutes = (value?: string | Date | null): number | null => {
   if (value == null || value === '') return null;
   if (value instanceof Date) {
     if (Number.isNaN(value.getTime())) return null;

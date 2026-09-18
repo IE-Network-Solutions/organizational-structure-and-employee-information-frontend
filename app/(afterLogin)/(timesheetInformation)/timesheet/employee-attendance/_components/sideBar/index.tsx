@@ -256,10 +256,10 @@ const EmployeeAttendanceSideBar = () => {
     form.setFieldsValue({
       ...currentAttendanceData,
       startAt: currentAttendanceData.startAt
-        ? toFormTime(currentAttendanceData.startAt) ?? dateBase
+        ? (toFormTime(currentAttendanceData.startAt) ?? dateBase)
         : dateBase,
       endAt: currentAttendanceData.endAt
-        ? toFormTime(currentAttendanceData.endAt) ?? dateBase
+        ? (toFormTime(currentAttendanceData.endAt) ?? dateBase)
         : dateBase,
       status: formatToAttendanceStatuses(currentAttendanceData)?.[0]?.status,
     });
@@ -475,7 +475,7 @@ const EmployeeAttendanceSideBar = () => {
             </Form.Item>
           </div>
           {isEditingBreak && (
-            <div className="mb-3 text-xs text-gray-500">
+            <div data-cy="time-attendance-employee-attendance-sidebar-break-note" className="mb-3 text-xs text-gray-500">
               Leave a time empty to mark that punch as missed. Status is
               recalculated from the {breakTitle} windows.
             </div>
