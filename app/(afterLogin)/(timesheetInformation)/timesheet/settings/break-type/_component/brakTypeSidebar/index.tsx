@@ -733,7 +733,10 @@ const BreakTypeSidebar = () => {
                           className="mb-2"
                           rules={[
                             ({ getFieldValue }) => ({
-                              validator(notUsed: unknown, value: Dayjs | undefined) {
+                              validator(
+                                notUsed: unknown,
+                                value: Dayjs | undefined,
+                              ) {
                                 const startAt = getFieldValue('startAt') as
                                   | Dayjs
                                   | undefined;
@@ -782,7 +785,10 @@ const BreakTypeSidebar = () => {
                               'Capture end must be after capture start.',
                             ),
                             ({ getFieldValue }) => ({
-                              validator(notUsed: unknown, value: Dayjs | undefined) {
+                              validator(
+                                notUsed: unknown,
+                                value: Dayjs | undefined,
+                              ) {
                                 const endAt = getFieldValue('endAt') as
                                   | Dayjs
                                   | undefined;

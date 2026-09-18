@@ -475,7 +475,10 @@ const EmployeeAttendanceSideBar = () => {
             </Form.Item>
           </div>
           {isEditingBreak && (
-            <div data-cy="time-attendance-employee-attendance-sidebar-break-note" className="mb-3 text-xs text-gray-500">
+            <div
+              data-cy="time-attendance-employee-attendance-sidebar-break-note"
+              className="mb-3 text-xs text-gray-500"
+            >
               Leave a time empty to mark that punch as missed. Status is
               recalculated from the {breakTitle} windows.
             </div>

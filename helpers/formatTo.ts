@@ -80,7 +80,7 @@ export interface BreakTypeStatus {
 const formatBreakMinutes = (value: number): string => {
   const hours = minuteToHour(value);
   const mins = minuteToLastMinute(value);
-  if (hours > 0) {
+  if (value >= 60) {
     return `${hours} hr ${mins} min`;
   }
   return `${mins} min`;
