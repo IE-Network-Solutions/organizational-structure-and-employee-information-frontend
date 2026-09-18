@@ -28,6 +28,7 @@ const CourseCategorySidebar = () => {
     if (courseCategoryId) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseCategoryId]);
 
   useEffect(() => {
@@ -36,12 +37,14 @@ const CourseCategorySidebar = () => {
       form.setFieldValue('title', item.title);
       form.setFieldValue('description', item.description);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {
     if (isSuccess) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [

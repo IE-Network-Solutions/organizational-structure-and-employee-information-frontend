@@ -52,6 +52,7 @@ const AssignServeyModal: React.FC<AssignServeyModalProps> = ({
   const { mutate: updateSurveyAssignment, isLoading: updateLoading } =
     useUpdateSurveyAssignment();
   const { isMobile } = useIsMobile();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const selectedDepartmentIds = Form.useWatch('departmentIds', form) || [];
   const selectedUserIds = Form.useWatch('userIds', form) || [];
   const isEditMode = Boolean(initialValues?.assignmentId);

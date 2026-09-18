@@ -639,6 +639,7 @@ const CreateRuleSidebar = () => {
       [...(attendanceRuleTypesData?.items ?? [])].sort(
         (a, b) => ruleOrder.indexOf(a.ruleType) - ruleOrder.indexOf(b.ruleType),
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [attendanceRuleTypesData?.items],
   );
 
@@ -760,6 +761,7 @@ const CreateRuleSidebar = () => {
     if (isCreateSuccess || isUpdateSuccess) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCreateSuccess, isUpdateSuccess]);
 
   const itemClass = 'w-full font-semibold text-xs';

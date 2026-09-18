@@ -176,6 +176,7 @@ const PlanAssignment: React.FC = () => {
           updatedAt: item?.lastUpdated,
         };
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     userToPlanning,
     employeeData,

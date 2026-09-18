@@ -15,9 +15,7 @@ import {
   scorecardNeedsPepReview,
 } from './pepAuditGroups';
 
-function sampleRow(
-  overrides: Partial<PepAuditRow> = {},
-): PepAuditRow {
+function sampleRow(overrides: Partial<PepAuditRow> = {}): PepAuditRow {
   return {
     scorecardId: 'sc-1',
     targetId: 't-1',

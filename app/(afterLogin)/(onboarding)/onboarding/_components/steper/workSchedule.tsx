@@ -66,6 +66,7 @@ const WorkSchedule: FC<WorkScheduleProps> = ({ form }) => {
     };
 
     form.setFieldsValue(fieldValues);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form]);
 
   const handleValuesChange = (changed: any, allValues: any) => {

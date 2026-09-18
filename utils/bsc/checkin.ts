@@ -225,7 +225,10 @@ export function dedupeSelfCheckinItems(items: CheckinItem[]): CheckinItem[] {
   for (const item of items) {
     const key = selfCheckinDedupeKey(item);
     const existing = best.get(key);
-    if (!existing || selfCheckinPriority(item) > selfCheckinPriority(existing)) {
+    if (
+      !existing ||
+      selfCheckinPriority(item) > selfCheckinPriority(existing)
+    ) {
       best.set(key, item);
     }
   }

@@ -595,6 +595,7 @@ const InlinePlanningWorkspace = forwardRef<
 
   const activeTargetBlocked = useMemo(
     () => isPlanningTargetBlocked(activeTarget, userKeyResultItems),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       activeTarget,
       userKeyResultItems,
@@ -692,6 +693,7 @@ const InlinePlanningWorkspace = forwardRef<
     setTargetValue(
       hint != null && !Number.isNaN(Number(hint)) ? Number(hint) : null,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeTarget?.targetValueHint,
     activeTarget?.metricTypeName,
@@ -722,6 +724,7 @@ const InlinePlanningWorkspace = forwardRef<
     } else {
       setWeight(DEFAULT_INLINE_WEIGHT);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeTarget?.id,
     activeTarget?.targetValueHint,
@@ -738,6 +741,7 @@ const InlinePlanningWorkspace = forwardRef<
       (draftLines.length === 0 || draftLines.every((l) => l.isDailySlot));
     if (!dailyEqualComposer) return;
     setWeight(equalIntegerWeightsForCount(draftLines.length + 1)[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeTarget?.id,
     activeTarget?.isDailySlot,
@@ -751,6 +755,7 @@ const InlinePlanningWorkspace = forwardRef<
     if (Math.round(totalWeight) === 100) {
       setComposerCollapsed(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftLines, resetForm, totalWeight]);
 
   const beginEditDraft = useCallback((line: DraftLine) => {

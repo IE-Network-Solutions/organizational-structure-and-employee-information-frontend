@@ -29,7 +29,11 @@ export function isUnrealisticKpiResult(
 export function resolvePepAuditFlag(
   target: Pick<
     ScorecardKpiTarget,
-    'actualValue' | 'targetValue' | 'acceptableThreshold' | 'targetLogic' | 'pepAuditFlag'
+    | 'actualValue'
+    | 'targetValue'
+    | 'acceptableThreshold'
+    | 'targetLogic'
+    | 'pepAuditFlag'
   >,
 ): PepAuditFlag {
   if (target.pepAuditFlag) return target.pepAuditFlag;

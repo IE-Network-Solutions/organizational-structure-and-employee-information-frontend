@@ -90,6 +90,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
         userId: initialValues?.userId,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, initialValues]);
 
   useEffect(() => {
@@ -107,6 +108,7 @@ const ConversationInstanceForm: React.FC<StepOneFormProps> = ({
       );
       setSetOfUser(usersInSelectedDepartments);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDepartments, selectedDepartments, allUserData?.items]); // Trigger effect when selectedDepartmentIds or allUserData changes
 
   return (

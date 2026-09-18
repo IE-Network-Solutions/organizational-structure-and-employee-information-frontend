@@ -1,6 +1,7 @@
 import ExcelJS from 'exceljs';
 import {
   BscCadence,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   KpiImportRowInput,
   KpiImportRowResult,
   TargetLogic,
@@ -59,7 +60,7 @@ export function parseKpiImportWorksheet(
 
   worksheet.eachRow((row, rowNumber) => {
     if (rowNumber === 1) return;
-    const values = headers.map((_, index) =>
+    const values = headers.map((ignored, index) =>
       cellText(row.getCell(index + 1).value),
     );
     if (values.every((value) => !value)) return;
@@ -93,20 +94,27 @@ export function parseKpiImportWorksheet(
     if (!targetLogic) {
       results.push({
         row: rowNumber,
-        error: 'Target logic must be Higher is better, Lower is better, or Bounded',
+        error:
+          'Target logic must be Higher is better, Lower is better, or Bounded',
       });
       return;
     }
 
     const weight = weightRaw ? Number(weightRaw) : 0;
     if (weightRaw && (!Number.isFinite(weight) || weight < 0 || weight > 100)) {
-      results.push({ row: rowNumber, error: 'Weight must be between 0 and 100' });
+      results.push({
+        row: rowNumber,
+        error: 'Weight must be between 0 and 100',
+      });
       return;
     }
 
     const defaultTarget = defaultTargetRaw ? Number(defaultTargetRaw) : null;
     if (defaultTargetRaw && !Number.isFinite(Number(defaultTarget))) {
-      results.push({ row: rowNumber, error: 'Default target must be a number' });
+      results.push({
+        row: rowNumber,
+        error: 'Default target must be a number',
+      });
       return;
     }
 

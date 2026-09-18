@@ -28,6 +28,7 @@ const TnaCategorySidebar = () => {
     if (tnaCategoryId) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tnaCategoryId]);
 
   useEffect(() => {
@@ -36,12 +37,14 @@ const TnaCategorySidebar = () => {
       form.setFieldValue('name', item.name);
       form.setFieldValue('description', item.description);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {
     if (isSuccess) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [

@@ -280,6 +280,7 @@ export default function WorkFromHomeApprovalsTable() {
           ),
         };
       }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       rawItems,
       uid,

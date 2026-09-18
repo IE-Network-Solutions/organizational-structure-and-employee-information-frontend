@@ -148,12 +148,14 @@ const TnaReviewPage = () => {
     if (isSuccess) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   useEffect(() => {
     if (!isShowTnaReviewSidebar) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShowTnaReviewSidebar]);
 
   useEffect(() => {

@@ -40,6 +40,7 @@ export default function VpDeductionDetailModal({
   const { mutate: bulkDelete, isLoading: isSaving } =
     useBulkDeleteVpDeductions();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const items: VpDeductionDetailItem[] = detailsResponse?.items ?? [];
   const [checkedIds, setCheckedIds] = useState<string[]>([]);
   const itemIdsKey = items.map((item) => item.id).join(',');

@@ -162,12 +162,14 @@ export default function OkrTab({
     if (isMounted && String(activeKey) === '1') {
       userRefetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pageSize, currentPage, isMounted, activeKey]);
 
   useEffect(() => {
     if (isMounted && String(activeKey) === '2') {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamPageSize, teamCurrentPage, isMounted, activeKey]);
 
   // Refetch Team OKR when year/session filters change
@@ -175,12 +177,14 @@ export default function OkrTab({
     if (isMounted && String(activeKey) === '2') {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fiscalYearId, sessionIds, isMounted, activeKey]);
 
   useEffect(() => {
     if (isMounted && String(activeKey) === '3') {
       CompanyRefetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyPageSize, companyCurrentPage, isMounted, activeKey]);
 
   useEffect(() => {

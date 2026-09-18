@@ -419,6 +419,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   };
   useEffect(() => {
     setAlignment(Boolean(objectiveValue?.allignedKeyResultId));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [objectiveValue?.allignedKeyResultId]);
 
   // Initialize form with existing data when modal opens
@@ -451,6 +452,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasUnsavedChanges]);
 
   // Track changes to set unsaved changes state

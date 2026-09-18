@@ -49,6 +49,7 @@ const EmployeeSurveyModal: React.FC<EmployeeSurveyModalProps> = ({
     (typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
 
   const { data: userData, isLoading } = useGetActiveEmployee();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const users = userData?.items || [];
   const usersById = useMemo(() => {
     const map = new Map<string, any>();

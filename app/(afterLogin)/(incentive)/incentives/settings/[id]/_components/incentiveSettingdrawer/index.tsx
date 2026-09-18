@@ -137,6 +137,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     } else {
       setFormula([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formulaById, recognitionId, fallbackRecognitionId, recognitionData]);
 
   const handleOptionClick = (id: string, name: string, type: string) => {
@@ -294,6 +295,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
       }
       setFormula(parsedExpression);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     openIncentiveDrawer,
     isFetching,
@@ -304,6 +306,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
 
   useEffect(() => {
     setValue(value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   const allowedOperands = ['+', '-', '*', '/', '(', ')'];
@@ -424,6 +427,7 @@ const IncentiveSettingsDrawer: React.FC<IncentiveSettingsDrawerProps> = ({
     } else {
       setFormulaError('');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formula, value, setFormulaError]);
 
   const operators = ['+', '-', '*', '/', '(', ')'];

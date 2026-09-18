@@ -1,8 +1,4 @@
-import {
-  BscCadence,
-  EmployeeScorecard,
-  EvaluationCycle,
-} from '@/types/bsc';
+import { BscCadence, EmployeeScorecard, EvaluationCycle } from '@/types/bsc';
 
 /** Strip period suffixes so "Enterprise Non-Financial Scorecard · March 2026" → program name. */
 export function scorecardProgramName(
@@ -69,10 +65,7 @@ export function filterScorecardsInSeries(
   anchor: EmployeeScorecard,
   cycleById: Map<string, EvaluationCycle>,
 ): EmployeeScorecard[] {
-  const anchorKey = scorecardSeriesKey(
-    anchor,
-    cycleById.get(anchor.cycleId),
-  );
+  const anchorKey = scorecardSeriesKey(anchor, cycleById.get(anchor.cycleId));
   return cards
     .filter(
       (card) =>
@@ -87,9 +80,7 @@ export function latestScorecardPerSeries(
   cycleById: Map<string, EvaluationCycle>,
 ): EmployeeScorecard[] {
   const bySeries = new Map<string, EmployeeScorecard>();
-  const sorted = [...cards].sort(
-    (a, b) => periodSortKey(b) - periodSortKey(a),
-  );
+  const sorted = [...cards].sort((a, b) => periodSortKey(b) - periodSortKey(a));
   for (const card of sorted) {
     const key = scorecardSeriesKey(card, cycleById.get(card.cycleId));
     if (!bySeries.has(key)) bySeries.set(key, card);

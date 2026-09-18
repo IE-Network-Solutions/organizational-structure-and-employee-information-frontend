@@ -330,6 +330,7 @@ function EditPlan() {
       planningPeriodId,
       planGroupData?.id,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planningPeriodHierarchy, selectedPlanId, planGroupData, selectParentId]); // Ensure proper re-execution
 
   const footer = (

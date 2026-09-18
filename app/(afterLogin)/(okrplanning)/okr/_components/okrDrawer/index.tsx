@@ -120,6 +120,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       });
       form.setFieldsValue({ title: newTitle });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [objectiveTitle, objectiveValue?.title, form, setObjectiveValue, isBasic]);
 
   const resetDrawerState = () => {
@@ -140,6 +141,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     if (!props.open) {
       resetDrawerState();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.open]);
 
   const handleDrawerClose = () => {
@@ -403,6 +405,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       krWeight: item.weight ?? 0,
       krDeadline: item.deadline ? dayjs(item.deadline) : null,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isBasic, showInlineKeyResultForm, editingKeyResultIndex]);
 
   /** Save key result from inline form to local state only (basic mode). Add new or update existing when editing. */

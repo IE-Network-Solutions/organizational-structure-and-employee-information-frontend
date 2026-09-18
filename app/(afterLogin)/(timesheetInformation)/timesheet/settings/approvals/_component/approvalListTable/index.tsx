@@ -133,6 +133,7 @@ const ApprovalListTable = () => {
         setLevel(foundItem?.approvers ? foundItem?.approvers?.length : '-');
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allFilterData?.items, selectedItem]);
 
   useEffect(() => {

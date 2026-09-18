@@ -3,11 +3,7 @@
 import React from 'react';
 import { Tag } from 'antd';
 import { useRouter } from 'next/navigation';
-import {
-  EmployeeScorecard,
-  KpiApprovalStatus,
-  TargetLogic,
-} from '@/types/bsc';
+import { EmployeeScorecard, KpiApprovalStatus, TargetLogic } from '@/types/bsc';
 import ScoreProgressBar from '@/app/(afterLogin)/(bsc)/bsc/_components/ScoreProgressBar';
 import { bscTableRowClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import { formatScore } from '@/utils/bsc/rollup';
@@ -206,8 +202,14 @@ export default function PerspectiveKpiCard({
           className="p-4 pb-2 sm:p-6"
           data-cy={`bsc-perspective-kpi-card-body-${slug}`}
         >
-          <div className="flex min-w-0 flex-col items-start gap-y-1">
-            <div className="flex w-full min-w-0 items-center justify-between gap-3">
+          <div
+            data-cy="auto-added"
+            className="flex min-w-0 flex-col items-start gap-y-1"
+          >
+            <div
+              data-cy="auto-added"
+              className="flex w-full min-w-0 items-center justify-between gap-3"
+            >
               <h2
                 className="text-base sm:text-lg font-bold text-gray-900 m-0 min-w-0 leading-7 sm:leading-8"
                 data-cy={`bsc-perspective-title-${slug}`}

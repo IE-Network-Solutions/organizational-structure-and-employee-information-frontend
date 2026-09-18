@@ -60,8 +60,7 @@ function PepApprovalStepItem({
   const isRejected = status === 'Rejected';
   const isWaiting = status === 'Waiting';
 
-  let circleClass =
-    'border-[#D9D9D9] bg-[#FAFAFA] text-gray-400';
+  let circleClass = 'border-[#D9D9D9] bg-[#FAFAFA] text-gray-400';
   if (isApproved) {
     circleClass = 'border-[#16A34A] bg-[#F6FFED] text-[#16A34A]';
   } else if (isPending) {
@@ -71,14 +70,13 @@ function PepApprovalStepItem({
   }
 
   const displayName = participant.name.trim() || '—';
-  const statusColor =
-    isApproved
-      ? 'text-[#16A34A]'
-      : isPending
-        ? 'text-[#1677ff]'
-        : isRejected
-          ? 'text-[#DC2626]'
-          : 'text-gray-400';
+  const statusColor = isApproved
+    ? 'text-[#16A34A]'
+    : isPending
+      ? 'text-[#1677ff]'
+      : isRejected
+        ? 'text-[#DC2626]'
+        : 'text-gray-400';
 
   return (
     <Tooltip title={`${roleLabel}: ${displayName} · ${STATUS_LABEL[status]}`}>
@@ -102,7 +100,10 @@ function PepApprovalStepItem({
               className="border-0 bg-transparent"
             />
           ) : isPending ? (
-            <span className="text-[9px] font-semibold leading-none">
+            <span
+              data-cy="auto-added"
+              className="text-[9px] font-semibold leading-none"
+            >
               {participantInitials(displayName)}
             </span>
           ) : (
@@ -260,7 +261,11 @@ export function PepAuditApprovalStatusBarAggregate({
   className,
 }: AggregateProps) {
   if (!rows.length) {
-    return <span className="text-sm text-gray-400">—</span>;
+    return (
+      <span data-cy="auto-added" className="text-sm text-gray-400">
+        —
+      </span>
+    );
   }
   const steps = resolveAggregatePepWorkflowSteps(rows);
   return (

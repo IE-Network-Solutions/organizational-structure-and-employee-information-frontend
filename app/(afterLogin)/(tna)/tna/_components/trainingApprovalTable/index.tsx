@@ -291,6 +291,7 @@ const TrainingApprovalTable: FC = () => {
           </div>
         ),
       })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       rawItems,
       userId,

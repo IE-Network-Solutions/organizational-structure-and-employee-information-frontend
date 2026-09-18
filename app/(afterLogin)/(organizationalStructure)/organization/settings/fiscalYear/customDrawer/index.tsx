@@ -143,6 +143,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = () => {
         ),
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, selectedFiscalYear, monthRangeValues]);
 
   const getTransformedFiscalYear = (

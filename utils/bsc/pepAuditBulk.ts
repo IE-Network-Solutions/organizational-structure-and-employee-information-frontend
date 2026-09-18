@@ -8,7 +8,9 @@ export type PepAuditBulkItem = {
   kpiName?: string;
 };
 
-export function pepAuditSelectionKey(item: Pick<PepAuditBulkItem, 'scorecardId' | 'targetId'>) {
+export function pepAuditSelectionKey(
+  item: Pick<PepAuditBulkItem, 'scorecardId' | 'targetId'>,
+) {
   return `${item.scorecardId}:${item.targetId}`;
 }
 

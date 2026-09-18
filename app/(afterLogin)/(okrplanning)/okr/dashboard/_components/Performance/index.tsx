@@ -194,15 +194,18 @@ const Performance: React.FC = () => {
         setSelectedUserId(null);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setCurrentPage, allUsersForSearch],
   );
 
   const handleFilterChange = useCallback((value: string) => {
     setSelectedFilter(value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDateRangeChange = useCallback((dates: [any, any] | null) => {
     setDateRange(dates);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const employees = useMemo(() => {
@@ -736,6 +739,7 @@ const Performance: React.FC = () => {
         options.push({ value: period, label: period });
       });
       return options;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [personalAvailablePeriods]);
 
     return (

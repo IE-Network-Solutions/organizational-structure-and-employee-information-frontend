@@ -82,6 +82,7 @@ const TnaManagementPage = () => {
     : refetchMyCourses;
 
   // Normalize the data format - handle both {items: [...]} and direct array [...]
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const normalizedCourses = hasViewAllCoursePermission
     ? (allCoursesData?.items ?? [])
     : Array.isArray(myCoursesData)

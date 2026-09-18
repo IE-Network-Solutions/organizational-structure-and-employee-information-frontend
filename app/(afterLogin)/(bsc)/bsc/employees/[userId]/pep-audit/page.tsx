@@ -57,7 +57,10 @@ function periodLabel(
   return cycleLabel.replace(/\s*\([^)]*\)\s*$/, '').trim() || cycleLabel;
 }
 
-function scorecardPeriodSort(a: EmployeeScorecard, b: EmployeeScorecard): number {
+function scorecardPeriodSort(
+  a: EmployeeScorecard,
+  b: EmployeeScorecard,
+): number {
   const yearA = a.periodYear ?? 0;
   const yearB = b.periodYear ?? 0;
   if (yearA !== yearB) return yearB - yearA;
@@ -130,10 +133,7 @@ export default function EmployeePepAuditPage() {
   const { data: allUsers } = useGetAllUsers();
 
   const cycleById = useMemo(() => {
-    const map = new Map<
-      string,
-      { isActive?: boolean; status?: string }
-    >();
+    const map = new Map<string, { isActive?: boolean; status?: string }>();
     for (const cycle of cycles || []) {
       map.set(cycle.id, {
         isActive: cycle.isActive,
@@ -188,8 +188,7 @@ export default function EmployeePepAuditPage() {
       const rowsA = pepRowsByScorecardId.get(a.id) || [];
       const rowsB = pepRowsByScorecardId.get(b.id) || [];
       const byApproval =
-        periodApprovalSortOrder(a, rowsA) -
-        periodApprovalSortOrder(b, rowsB);
+        periodApprovalSortOrder(a, rowsA) - periodApprovalSortOrder(b, rowsB);
       if (byApproval !== 0) return byApproval;
       const aCurrent = isCurrentReportingScorecard(a, cycleById);
       const bCurrent = isCurrentReportingScorecard(b, cycleById);
@@ -246,7 +245,9 @@ export default function EmployeePepAuditPage() {
   const actionableItems = useMemo(
     () =>
       visibleScorecards.flatMap((scorecard) =>
-        actionableItemsFromPepRows(pepRowsByScorecardId.get(scorecard.id) || []),
+        actionableItemsFromPepRows(
+          pepRowsByScorecardId.get(scorecard.id) || [],
+        ),
       ),
     [pepRowsByScorecardId, visibleScorecards],
   );
@@ -291,7 +292,10 @@ export default function EmployeePepAuditPage() {
 
   if (isLoading) {
     return (
-      <div className="py-16 text-center text-gray-400" data-cy="bsc-pep-audit-detail-loading">
+      <div
+        className="py-16 text-center text-gray-400"
+        data-cy="bsc-pep-audit-detail-loading"
+      >
         Loading…
       </div>
     );
@@ -301,7 +305,7 @@ export default function EmployeePepAuditPage() {
     return (
       <div className="py-16" data-cy="bsc-pep-audit-detail-empty">
         <Empty description="No reported KPI check-ins found for this employee." />
-        <div className="mt-4 flex justify-center">
+        <div data-cy="auto-added" className="mt-4 flex justify-center">
           <Button onClick={back}>Back to PEP Audit</Button>
         </div>
       </div>
@@ -320,7 +324,10 @@ export default function EmployeePepAuditPage() {
         ]}
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div
+        data-cy="auto-added"
+        className="flex flex-wrap items-center justify-between gap-3"
+      >
         <Button
           type="text"
           icon={<LeftOutlined />}
@@ -330,7 +337,10 @@ export default function EmployeePepAuditPage() {
         >
           {fromAudit ? 'Back to PEP Audit' : 'Back to Results'}
         </Button>
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <div
+          data-cy="auto-added"
+          className="flex shrink-0 flex-wrap items-center gap-2"
+        >
           <PepAuditBulkActionBar
             variant="inline"
             approveAppearance="toolbar"

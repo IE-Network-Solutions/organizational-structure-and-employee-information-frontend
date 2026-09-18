@@ -249,6 +249,7 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   // Memoize menu items to avoid recalculating on every render
   const menuItems = useMemo(
     () => buildMenuItems(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [employeeData, offboardingTermination, resignationSubmittedDate],
   );
 

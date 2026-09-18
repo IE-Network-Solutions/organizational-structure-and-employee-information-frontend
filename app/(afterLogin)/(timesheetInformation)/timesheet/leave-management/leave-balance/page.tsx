@@ -30,6 +30,7 @@ const LeaveBalance = () => {
         userId: userId || '',
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, form, usersLoading, users]);
   const handleLeaveChange = (values: any) => {
     const nextLeaveTypeId = leaveTypeId === values ? '' : values || '';

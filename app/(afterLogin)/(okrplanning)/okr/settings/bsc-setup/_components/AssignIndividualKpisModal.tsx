@@ -33,7 +33,10 @@ import {
   KpiLibraryItem,
   TargetLogic,
 } from '@/types/bsc';
-import { validateAcceptableThreshold, validateWeights } from '@/utils/bsc/scoring';
+import {
+  validateAcceptableThreshold,
+  validateWeights,
+} from '@/utils/bsc/scoring';
 import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
 
 const KPI_LIST_ROW_GRID =
@@ -444,7 +447,8 @@ export default function AssignIndividualKpisModal({
         );
         if (!thresholdCheck.valid) {
           NotificationMessage.error({
-            message: thresholdCheck.message || `Invalid threshold for ${kpi.name}`,
+            message:
+              thresholdCheck.message || `Invalid threshold for ${kpi.name}`,
           });
           return;
         }

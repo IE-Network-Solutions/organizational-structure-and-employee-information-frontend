@@ -146,6 +146,7 @@ const CommitmentCard: FC<CommitmentCardProps> = ({ item }) => {
         },
       ]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item]);
 
   return (

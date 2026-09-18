@@ -58,6 +58,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
 
   useEffect(() => {
     resetPagination();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const handleTableChange = (pagination: any, sorter: any) => {

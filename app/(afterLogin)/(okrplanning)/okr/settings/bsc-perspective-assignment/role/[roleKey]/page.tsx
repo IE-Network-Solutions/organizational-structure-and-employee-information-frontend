@@ -77,6 +77,8 @@ export default function BscPerspectiveAssignmentRolePage() {
   const { data: allocation, isLoading: allocationLoading } =
     useGetBscRolePerspective(configId, role?.positionId || null, roleTitle);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const watchedRows: WeightRow[] = Form.useWatch('rows', form) || [];
   const selectedNames = useMemo(
     () => new Set(watchedRows.map((row) => row?.name).filter(Boolean)),

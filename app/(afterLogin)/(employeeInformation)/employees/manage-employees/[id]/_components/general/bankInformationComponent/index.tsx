@@ -73,6 +73,7 @@ const BankInformationComponent = ({
     ) {
       setSavedBankSnapshot(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employeeData?.employeeInformation, savedBankSnapshot]);
 
   // Only seed the form when entering edit mode — not on every allFields/query change.

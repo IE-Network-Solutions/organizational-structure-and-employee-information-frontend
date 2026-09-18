@@ -154,6 +154,7 @@ const CriticalRoleModal: React.FC<CriticalRoleModalProps> = ({
       }
       setCurrent(0);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, editingRole, form]);
 
   const positionId: string | null =

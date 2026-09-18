@@ -14,6 +14,7 @@ const Lists = () => {
 
   useEffect(() => {
     refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDate]);
 
   const transformData = (input: any) => {

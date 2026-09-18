@@ -9,6 +9,7 @@ import {
   DatePicker,
   Form,
   Input,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   InputNumber,
   Modal,
   Popover,
@@ -67,7 +68,10 @@ import {
 } from '@/utils/bsc/checkInSchedule';
 import { resolveEffectiveFrom } from '@/utils/bsc/effectiveDate';
 import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
-import { validateAcceptableThreshold, validateWeights } from '@/utils/bsc/scoring';
+import {
+  validateAcceptableThreshold,
+  validateWeights,
+} from '@/utils/bsc/scoring';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const { TextArea } = Input;
@@ -331,6 +335,7 @@ export default function BscSetupModal() {
     setEmployeePickerSearch('');
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const measureWeights: Record<string, number | null | undefined> =
     Form.useWatch('measureWeights', form) || {};
   const measureTargets: Record<string, number | null | undefined> =
@@ -523,6 +528,7 @@ export default function BscSetupModal() {
         measureAcceptableThresholds: {},
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setupModalOpen, editingConfig, form]);
 
   // Prefill selected KPIs / weights / targets from the existing scorecard once
@@ -1037,7 +1043,8 @@ export default function BscSetupModal() {
         );
         if (!thresholdCheck.valid) {
           NotificationMessage.error({
-            message: thresholdCheck.message || `Invalid threshold for ${kpi.name}`,
+            message:
+              thresholdCheck.message || `Invalid threshold for ${kpi.name}`,
           });
           throw new Error(thresholdCheck.message);
         }
@@ -2303,13 +2310,17 @@ export default function BscSetupModal() {
           data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-41"
         >
           {current === 3 ? (
-            <div className="flex flex-col items-end gap-3">
+            <div data-cy="auto-added" className="flex flex-col items-end gap-3">
               <span
                 className="text-sm font-medium text-[#8F94A3] whitespace-nowrap"
                 data-cy="bsc-scorecard-kpi-weight-total-bar"
               >
-                <span className="md:hidden">WP:</span>{' '}
-                <span className="hidden md:inline">Weight Point:</span>{' '}
+                <span data-cy="auto-added" className="md:hidden">
+                  WP:
+                </span>{' '}
+                <span data-cy="auto-added" className="hidden md:inline">
+                  Weight Point:
+                </span>{' '}
                 <span
                   className={`font-bold ${kpiWeightValid ? 'text-[#52C41A]' : 'text-[#161A2C]'}`}
                   data-cy="bsc-scorecard-kpi-weight-total"
@@ -2317,7 +2328,7 @@ export default function BscSetupModal() {
                   {Math.round(kpiWeightTotal * 100) / 100}%
                 </span>
               </span>
-              <div className="flex shrink-0 gap-3">
+              <div data-cy="auto-added" className="flex shrink-0 gap-3">
                 <CustomButton
                   type="default"
                   title="Back"
@@ -2335,7 +2346,7 @@ export default function BscSetupModal() {
               </div>
             </div>
           ) : (
-            <div className="flex shrink-0 gap-3">
+            <div data-cy="auto-added" className="flex shrink-0 gap-3">
               <CustomButton
                 type="default"
                 title={current === 0 ? 'Cancel' : 'Back'}

@@ -33,18 +33,21 @@ const TnaCommitmentSidebar = () => {
     if (tnaCommitmentId) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tnaCommitmentId]);
 
   useEffect(() => {
     if (data?.items?.length) {
       form.setFieldValue('rules', [...data.items]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   useEffect(() => {
     if (isSuccess) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [

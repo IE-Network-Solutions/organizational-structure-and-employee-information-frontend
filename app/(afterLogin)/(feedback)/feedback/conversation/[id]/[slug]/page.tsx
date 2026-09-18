@@ -36,6 +36,7 @@ const Index = ({ params: { slug } }: ConversationInstanceDetailProps) => {
     if (selectedUserId !== null && selectedUserId !== '') {
       setActiveTab('2');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedUserId]);
   const getEmployeeData = (employeeId: string) => {
     const employeeDataDetail = allUserData?.items?.find(

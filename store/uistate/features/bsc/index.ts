@@ -37,7 +37,14 @@ interface BscUiState {
   myScorecardSessionId: string | undefined;
   myScorecardMonthId: string | undefined;
   myScorecardSessionMonths: Month[];
-  scorecardTab: 'mine' | 'team' | 'all' | 'results' | 'kpis' | 'bsc' | 'checkin';
+  scorecardTab:
+    | 'mine'
+    | 'team'
+    | 'all'
+    | 'results'
+    | 'kpis'
+    | 'bsc'
+    | 'checkin';
   bscCatalogView: 'scorecards' | 'people';
   setSetupModalOpen: (v: boolean) => void;
   setEditingConfig: (v: EvaluationCycle | null) => void;

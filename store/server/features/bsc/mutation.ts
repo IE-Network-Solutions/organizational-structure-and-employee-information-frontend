@@ -133,19 +133,9 @@ export const useReturnUnrealisticKpiForPepAudit = () => {
 export const useApproveKpiForPepAudit = () => {
   const qc = useQueryClient();
   return useMutation(
-    ({
-      scorecardId,
-      targetId,
-    }: {
-      scorecardId: string;
-      targetId: string;
-    }) => {
+    ({ scorecardId, targetId }: { scorecardId: string; targetId: string }) => {
       const actorId = useAuthenticationStore.getState().userId;
-      return bscMockRepo.approveKpiForPepAudit(
-        scorecardId,
-        targetId,
-        actorId,
-      );
+      return bscMockRepo.approveKpiForPepAudit(scorecardId, targetId, actorId);
     },
     {
       onSuccess: () => {

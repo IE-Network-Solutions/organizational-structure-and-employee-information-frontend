@@ -51,6 +51,7 @@ const CourseAddLessonSidebar = () => {
       refetchCourse();
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessDelete]);
 
   useEffect(() => {
@@ -58,12 +59,14 @@ const CourseAddLessonSidebar = () => {
       refetchCourse();
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShowLessonMaterial]);
 
   useEffect(() => {
     if (lesson) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lesson]);
 
   useEffect(() => {
@@ -73,12 +76,14 @@ const CourseAddLessonSidebar = () => {
       setLesson(item);
       form.setFieldValue('lessons', [item]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonData, form]);
 
   useEffect(() => {
     if (isSuccess) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   useEffect(() => {

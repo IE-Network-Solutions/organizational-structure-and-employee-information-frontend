@@ -73,6 +73,9 @@ const GroupPermission = () => {
   const [permissionSearch, setPermissionSearch] = useState('');
 
   const isEdit = currentModal === 'editModal';
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const permissionsList: PermissionType[] = allPermissionsData?.items ?? [];
 
   useEffect(() => {

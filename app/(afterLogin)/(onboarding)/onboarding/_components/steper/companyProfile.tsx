@@ -107,6 +107,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = ({ form }) => {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     companyInfo,
     form,

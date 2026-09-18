@@ -42,6 +42,7 @@ export default function MeetingListFilters() {
   const { data: Departments } = useGetUserDepartment();
   const { data: meetTypes } = useGetAllMeetingType();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const departmentOptions: LabelValueOption[] =
     Departments?.map((i) => ({
       value: String(i.id),

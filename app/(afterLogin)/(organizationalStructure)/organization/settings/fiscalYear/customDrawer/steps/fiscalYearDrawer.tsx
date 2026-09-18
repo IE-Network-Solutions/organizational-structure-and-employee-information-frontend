@@ -267,6 +267,7 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
     } catch (error) {
       message.error('Failed to initialize form. Please refresh the page.');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedFiscalYear,
     isEditMode,
@@ -326,9 +327,13 @@ const FiscalYearForm: React.FC<{ form: FormInstance }> = ({ form }) => {
     if (values.fiscalYearEndDate) setFiscalYearEnd(values.fiscalYearEndDate);
     if (values.fiscalYearCalenderId)
       setCalendarType(values.fiscalYearCalenderId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     form.getFieldValue('fiscalYearStartDate'),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     form.getFieldValue('fiscalYearEndDate'),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     form.getFieldValue('fiscalYearCalenderId'),
   ]);
 

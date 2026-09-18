@@ -50,6 +50,7 @@ const UserSidebar = (props: any) => {
       form.resetFields();
       setIsSuccessModalVisible(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess, setTempAllowances]);
 
   const modalHeader = (

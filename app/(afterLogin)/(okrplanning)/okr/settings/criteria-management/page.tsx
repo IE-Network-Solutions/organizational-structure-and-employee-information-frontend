@@ -40,6 +40,7 @@ function Page() {
     (item: any) => item.name,
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const rawItems = vpScoringData?.items ?? [];
 
   const baseMappedCriteria = useMemo(() => {

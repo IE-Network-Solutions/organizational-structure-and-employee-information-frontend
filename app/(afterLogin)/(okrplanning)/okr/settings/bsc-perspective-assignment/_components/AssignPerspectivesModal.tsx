@@ -59,6 +59,8 @@ export default function AssignPerspectivesModal() {
   const catalogNames = (catalog || []).map((item) => item.name);
 
   const watchedPositionId = Form.useWatch('positionId', form);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const watchedRows: WeightRow[] = Form.useWatch('rows', form) || [];
   const selectedNames = useMemo(
     () => new Set(watchedRows.map((row) => row?.name).filter(Boolean)),

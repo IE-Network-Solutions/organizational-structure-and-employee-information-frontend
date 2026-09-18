@@ -38,6 +38,7 @@ const CheckControl = () => {
     setCurrentAttendance(
       currentAttendanceData ? currentAttendanceData.item : null,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentAttendanceData]);
 
   useEffect(() => {

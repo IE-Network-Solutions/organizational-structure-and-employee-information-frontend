@@ -211,6 +211,7 @@ const CourseCategorySidebar = () => {
 
   const departmentTreeData = useMemo(
     () => buildDepartmentTree(departmentsList),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [departmentsList],
   );
   const departmentTitleMap = useMemo(() => {
@@ -405,6 +406,7 @@ const CourseCategorySidebar = () => {
       form.setFieldsValue({ department: [] });
       setDepartmentUsersMap({});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId, form]);
 
   const areArraysEqual = (arrA: string[], arrB: string[]) => {
@@ -475,6 +477,7 @@ const CourseCategorySidebar = () => {
     } else {
       setDepartmentUsersMap({});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     assignmentCourse,
     courseForForm,

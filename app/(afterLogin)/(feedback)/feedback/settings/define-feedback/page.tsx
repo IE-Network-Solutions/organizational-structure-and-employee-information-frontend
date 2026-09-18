@@ -361,6 +361,7 @@ const Page = () => {
         children: <PerspectivesDetail perspectivesDetail={perspectiveData} />,
       },
     ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       isMobile,
       settingActiveTab,

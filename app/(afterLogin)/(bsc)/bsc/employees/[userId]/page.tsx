@@ -397,7 +397,10 @@ export default function EmployeeKpiDetailPage() {
     },
     {
       title: (
-        <span className={tableHeaderClassName} data-cy="bsc-employee-kpi-data-source-header">
+        <span
+          className={tableHeaderClassName}
+          data-cy="bsc-employee-kpi-data-source-header"
+        >
           Data source
         </span>
       ),
@@ -405,12 +408,17 @@ export default function EmployeeKpiDetailPage() {
       key: 'dataSource',
       width: 130,
       render: (value: string | null) => (
-        <span className={tableCellClassName}>{value || '—'}</span>
+        <span data-cy="auto-added" className={tableCellClassName}>
+          {value || '—'}
+        </span>
       ),
     },
     {
       title: (
-        <span className={tableHeaderClassName} data-cy="bsc-employee-kpi-threshold-header">
+        <span
+          className={tableHeaderClassName}
+          data-cy="bsc-employee-kpi-threshold-header"
+        >
           Threshold
         </span>
       ),
@@ -418,7 +426,7 @@ export default function EmployeeKpiDetailPage() {
       key: 'acceptableThreshold',
       width: 110,
       render: (value: number | null) => (
-        <span className={tableCellClassName}>
+        <span data-cy="auto-added" className={tableCellClassName}>
           {value == null ? '—' : value}
         </span>
       ),

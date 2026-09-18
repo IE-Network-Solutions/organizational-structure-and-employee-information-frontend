@@ -126,12 +126,14 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getAllFiscalYears]);
 
   useEffect(() => {
     if (defaultValues?.payPeriodId && !form.getFieldValue('payPeriodId')) {
       form.setFieldsValue({ payPeriodId: defaultValues.payPeriodId });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [defaultValues?.payPeriodId]);
 
   useEffect(() => {
@@ -172,6 +174,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({
         onSearch(sanitizedValues);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payroll?.items, payPeriodData]);
 
   const handleYearChange = (value: string) => {

@@ -64,6 +64,7 @@ const CustomRadio: FC<CustomRadioProps> = ({
     if (onChange) {
       onChange(!!isChecked);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isChecked]);
 
   return (

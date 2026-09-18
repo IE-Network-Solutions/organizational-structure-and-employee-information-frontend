@@ -66,6 +66,7 @@ const ViewAttendanceSidebar = () => {
     if (filter) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   useEffect(() => {

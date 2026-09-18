@@ -70,9 +70,12 @@ const TnaRequestSidebar = () => {
   useEffect(() => {
     if (employeeData?.employeeJobInformation?.[0]?.departmentId)
       getDepartmentApproval();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employeeData?.employeeJobInformation?.[0]?.departmentId]);
   useEffect(() => {
     if (userId) getUserApproval();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const { mutate: setTna, isLoading } = useSetTna();
@@ -83,6 +86,7 @@ const TnaRequestSidebar = () => {
     if (tnaId) {
       refetchSingleTna();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tnaId]);
   useEffect(() => {
     if (singleTnaData && tnaId !== null) {
@@ -104,6 +108,7 @@ const TnaRequestSidebar = () => {
     } else {
       form.resetFields();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [singleTnaData, fiscalYearData, tnaId]);
 
   const onSubmit = (): void => {

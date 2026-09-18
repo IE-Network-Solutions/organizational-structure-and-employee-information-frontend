@@ -33,15 +33,26 @@ function SummaryCard({
       className={okrHeaderCardShellClass}
       data-cy={dataCy}
     >
-      <div className="flex items-center justify-between">
+      <div data-cy="auto-added" className="flex items-center justify-between">
         <div
+          data-cy="auto-added"
           className={`flex h-[34px] w-[34px] items-center justify-center rounded-[4px] ${iconBgClassName}`}
         >
           {icon}
         </div>
-        <div className="text-[27px] font-semibold leading-7 text-gray-900">{value}</div>
+        <div
+          data-cy="auto-added"
+          className="text-[27px] font-semibold leading-7 text-gray-900"
+        >
+          {value}
+        </div>
       </div>
-      <p className="m-0 mt-3 text-base font-normal text-gray-500">{label}</p>
+      <p
+        data-cy="auto-added"
+        className="m-0 mt-3 text-base font-normal text-gray-500"
+      >
+        {label}
+      </p>
     </Card>
   );
 }

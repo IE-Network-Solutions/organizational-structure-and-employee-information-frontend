@@ -49,8 +49,10 @@ export default function KpiAssignmentMetricFields({
       className="mt-2 flex flex-wrap items-start gap-3"
       data-cy={`bsc-kpi-assignment-fields-${kpiKey}`}
     >
-      <div className="flex min-w-[180px] flex-col gap-1">
-        <span className="text-[11px] text-[#595959]">Data source</span>
+      <div data-cy="auto-added" className="flex min-w-[180px] flex-col gap-1">
+        <span data-cy="auto-added" className="text-[11px] text-[#595959]">
+          Data source
+        </span>
         <Select
           className="w-[180px]"
           placeholder="Select source"
@@ -62,8 +64,8 @@ export default function KpiAssignmentMetricFields({
       </div>
       {(targetLogic === TargetLogic.HigherBetter ||
         targetLogic === TargetLogic.LowerBetter) && (
-        <div className="flex min-w-[180px] flex-col gap-1">
-          <span className="text-[11px] text-[#595959]">
+        <div data-cy="auto-added" className="flex min-w-[180px] flex-col gap-1">
+          <span data-cy="auto-added" className="text-[11px] text-[#595959]">
             Acceptable threshold
           </span>
           <InputNumber
@@ -76,11 +78,10 @@ export default function KpiAssignmentMetricFields({
             data-cy={`bsc-kpi-assignment-threshold-${kpiKey}`}
           />
           <span
+            data-cy="auto-added"
             className={`text-[11px] ${thresholdCheck.valid ? 'text-[#8F94A3]' : 'text-[#CF1322]'}`}
           >
-            {!thresholdCheck.valid
-              ? thresholdCheck.message
-              : thresholdHelper}
+            {!thresholdCheck.valid ? thresholdCheck.message : thresholdHelper}
           </span>
         </div>
       )}

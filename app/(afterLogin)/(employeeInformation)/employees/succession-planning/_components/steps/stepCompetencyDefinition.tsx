@@ -137,6 +137,7 @@ const StepCompetencyDefinition: React.FC<StepCompetencyDefinitionProps> = ({
   positionId,
 }) => {
   const form = Form.useFormInstance();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const competencies: RoleCompetency[] =
     Form.useWatch('competencies', form) ?? [];
 

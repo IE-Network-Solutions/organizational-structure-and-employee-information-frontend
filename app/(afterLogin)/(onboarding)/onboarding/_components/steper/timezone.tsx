@@ -24,6 +24,7 @@ function TimeZone() {
 
   useEffect(() => {
     setDetectedTimeZone(getBrowserGMTOffset());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getBrowserGMTOffset()]);
 
   return (

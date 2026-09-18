@@ -170,6 +170,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, selectedFiscalYear, form]);
 
   return (

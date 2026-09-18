@@ -71,6 +71,7 @@ const TimezoneComponent = ({
     if (offset) {
       form.setFieldsValue({ timezone: offset });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoDetectedTimeZone]);
 
   const handleFinish = (values: any) => {

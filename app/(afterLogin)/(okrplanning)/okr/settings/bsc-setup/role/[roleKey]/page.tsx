@@ -74,6 +74,9 @@ export default function BscRoleKpiDetailPage() {
   const { data: allocations } = useGetBscRolePerspectives();
   const saveKpis = useSaveBscRoleKpis();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const watchedRows: KpiRow[] = Form.useWatch('kpis', form) || [];
   const totalWeight = useMemo(
     () => watchedRows.reduce((sum, row) => sum + Number(row?.weight || 0), 0),

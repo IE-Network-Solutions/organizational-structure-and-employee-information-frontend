@@ -289,6 +289,7 @@ const BenefitEntitlementSideBar = ({
 
     setData(newData);
     form.setFieldsValue({ payments: newData });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     totalAmount,
     settlementPeriod,

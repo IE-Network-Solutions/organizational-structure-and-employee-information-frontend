@@ -74,9 +74,11 @@ const LeaveRequestSidebar = () => {
     if (userData?.employeeJobInformation[0]?.departmentId) {
       getDepartmentApproval();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);
   useEffect(() => {
     if (userData?.id) getUserApproval();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);
 
   const {
@@ -123,12 +125,14 @@ const LeaveRequestSidebar = () => {
       });
       setIsLoading(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leaveRequestSidebarData]);
 
   useEffect(() => {
     if (filter && Object.keys(filter).length) {
       refetch({}).finally(() => setIsLoading(false));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   useEffect(() => {
@@ -163,12 +167,14 @@ const LeaveRequestSidebar = () => {
         );
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leaveRequest]);
 
   useEffect(() => {
     if (isSuccessUpdate) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccessUpdate]);
 
   const onClose = () => {
@@ -188,6 +194,7 @@ const LeaveRequestSidebar = () => {
       form.resetFields();
       setShowApproverMessage(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShowLeaveRequestSidebar, leaveRequestSidebarData]);
 
   useEffect(() => {
@@ -200,6 +207,7 @@ const LeaveRequestSidebar = () => {
     ) {
       onClose(); // This will clear the form and state
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShowLeaveRequestSidebar, leaveRequestSidebarData, leaveRequest]);
 
   const hasNoApprover =

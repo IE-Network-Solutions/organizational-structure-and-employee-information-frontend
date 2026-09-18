@@ -20,20 +20,18 @@ export const KPI_DATA_SOURCE_OPTIONS: { value: string; label: string }[] = [
   { value: 'Manual Entry', label: 'Manual Entry' },
 ];
 
-export const METRIC_UNIT_VALUES = new Set(
-  [
-    '%',
-    'Boolean (1 or 0)',
-    'Currency',
-    'Count',
-    'Days',
-    'Hours',
-    'Ratio',
-    'Score',
-    'Index',
-    'Rating (1.0 - 5.0)',
-  ] as const,
-);
+export const METRIC_UNIT_VALUES = new Set([
+  '%',
+  'Boolean (1 or 0)',
+  'Currency',
+  'Count',
+  'Days',
+  'Hours',
+  'Ratio',
+  'Score',
+  'Index',
+  'Rating (1.0 - 5.0)',
+] as const);
 
 export function normalizeMeasurementUnit(unit?: string | null): string | null {
   const trimmed = unit?.trim();
@@ -71,9 +69,7 @@ function formatMetricNumber(value: number): string {
     : String(Number(value.toFixed(2)));
 }
 
-function parseRatingRange(
-  unit: string,
-): { min: number; max: number } | null {
+function parseRatingRange(unit: string): { min: number; max: number } | null {
   const match = unit.match(/rating\s*\(([\d.]+)\s*-\s*([\d.]+)\)/i);
   if (!match) return null;
   const min = Number(match[1]);

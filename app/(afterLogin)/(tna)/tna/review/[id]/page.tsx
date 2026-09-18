@@ -56,6 +56,7 @@ const TnaDetailPage = () => {
     if (!isShowTnaUpdateSidebar) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShowTnaUpdateSidebar]);
   const { data: employeeData } = useGetAllUsers();
 

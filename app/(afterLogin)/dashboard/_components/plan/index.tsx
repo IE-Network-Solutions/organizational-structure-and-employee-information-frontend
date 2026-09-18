@@ -156,7 +156,9 @@ const Plan = () => {
     if (!hasSelected) {
       setPlanType(suggestedPlanType);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     availablePlanTypes.join('|'),
     suggestedPlanType,
     planType,

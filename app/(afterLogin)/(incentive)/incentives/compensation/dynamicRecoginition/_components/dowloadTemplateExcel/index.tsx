@@ -66,6 +66,7 @@ const DownloadExcelButton: React.FC = () => {
         clearTimeout(warningTimeout.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [excelHeaders, selectedRecognitionTypeId, templateResponseLoading]);
 
   // Download logic in useEffect, triggered when headers for pendingDownloadId are available

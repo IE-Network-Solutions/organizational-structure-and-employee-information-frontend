@@ -214,6 +214,7 @@ export function usePayrollApprovalStatus(payPeriodId?: string) {
   const configuredWorkflow = configuredWorkflowItems.find(
     (item: { id: string }) => item.id === workflowId,
   );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const workflowApprovers = Array.isArray(configuredWorkflow?.approvers)
     ? configuredWorkflow.approvers
     : [];

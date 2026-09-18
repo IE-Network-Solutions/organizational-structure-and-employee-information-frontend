@@ -923,6 +923,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       frequency: recognitionTypeById.frequency || '',
       departmentId: recognitionTypeById.departmentId || null,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recognitionTypeById]);
 
   useEffect(() => {
@@ -1102,6 +1103,7 @@ const RecognitionForm: React.FC<PropsData> = ({
     } else {
       setFormulaError('');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formulaTokens, incentiveAmountTypeWatch, allowedCriteriaNames]);
 
   const getFormulaDisplayValue = () =>
@@ -1253,6 +1255,7 @@ const RecognitionForm: React.FC<PropsData> = ({
       items.push({ title: 'Formula' });
     }
     return items;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [createCategory, isMonetizedWatch, isFormulaOnlyEdit, isCriteriaOnlyEdit]);
 
   const isLastWizardStep =
@@ -1363,6 +1366,7 @@ const RecognitionForm: React.FC<PropsData> = ({
         setPendingNewCriteriaId(null); // Reset
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [criteria, pendingNewCriteriaId]);
 
   return (

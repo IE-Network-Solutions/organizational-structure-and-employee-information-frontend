@@ -59,10 +59,7 @@ export default function BscRollupPage() {
   const { data: cycles, isLoading: cyclesLoading } = useGetBscCycles();
 
   const cycleById = useMemo(() => {
-    const map = new Map<
-      string,
-      { isActive?: boolean; status?: string }
-    >();
+    const map = new Map<string, { isActive?: boolean; status?: string }>();
     for (const cycle of cycles || []) {
       map.set(cycle.id, {
         isActive: cycle.isActive,
@@ -87,8 +84,7 @@ export default function BscRollupPage() {
   );
 
   const deptRollups = useMemo(
-    () =>
-      resultsScope === 'all' ? departmentRollups(currentByEmployee) : [],
+    () => (resultsScope === 'all' ? departmentRollups(currentByEmployee) : []),
     [currentByEmployee, resultsScope],
   );
 

@@ -66,6 +66,7 @@ const AgendaModal: React.FC<AgendaModalProps> = ({
         agendaItems: [{ agenda: '' }],
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingAgenda]);
 
   const loading = createLoading || updateLoading;

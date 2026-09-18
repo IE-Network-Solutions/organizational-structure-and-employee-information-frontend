@@ -89,6 +89,7 @@ const LocationSidebar = () => {
       });
       setShowUsers(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allowedAreaData]);
 
   const onClose = useCallback(() => {

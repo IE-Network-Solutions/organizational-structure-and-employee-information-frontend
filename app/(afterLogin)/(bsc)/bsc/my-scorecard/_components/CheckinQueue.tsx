@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Collapse, Empty, Input, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
@@ -32,7 +38,11 @@ import {
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { EvaluationCycle, KpiApprovalStatus } from '@/types/bsc';
 import { formatScore } from '@/utils/bsc/rollup';
-import { buildCheckinQueue, dedupeSelfCheckinItems, type CheckinItem } from '@/utils/bsc/checkin';
+import {
+  buildCheckinQueue,
+  dedupeSelfCheckinItems,
+  type CheckinItem,
+} from '@/utils/bsc/checkin';
 import type { CheckinInbox } from './CheckinInboxToggle';
 
 function groupByScorecard(list: CheckinItem[]) {
@@ -142,7 +152,10 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
           <span data-cy="checkinqueue-span-76" className={tableCellClassName}>
             {row.target.kpiName}
           </span>
-          <span className="text-xs text-gray-500 leading-snug">
+          <span
+            data-cy="auto-added"
+            className="text-xs text-gray-500 leading-snug"
+          >
             {row.contextLabel}
           </span>
         </div>
@@ -216,7 +229,9 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
     },
     {
       title: (
-        <span className={tableHeaderClassName}>Data source</span>
+        <span data-cy="auto-added" className={tableHeaderClassName}>
+          Data source
+        </span>
       ),
       key: 'dataSource',
       width: 300,
@@ -338,7 +353,9 @@ function ReviewCheckinGroup({
       .filter((i) => decisions[i.target.id] == null)
       .map((i) => ({
         targetId: i.target.id,
-        actualValue: (drafts[i.target.id] ?? i.target.actualValue ?? 0) as number,
+        actualValue: (drafts[i.target.id] ??
+          i.target.actualValue ??
+          0) as number,
         dataSource: dataSourceDrafts[i.target.id]?.trim() || null,
       }))
       .filter((row) => {
@@ -396,7 +413,10 @@ function ReviewCheckinGroup({
             {row.target.kpiName}
           </span>
           {row.target.pepReturnReason ? (
-            <span className="text-xs text-amber-700 leading-snug">
+            <span
+              data-cy="auto-added"
+              className="text-xs text-amber-700 leading-snug"
+            >
               PEP return: {row.target.pepReturnReason}
             </span>
           ) : null}
@@ -501,7 +521,9 @@ function ReviewCheckinGroup({
     },
     {
       title: (
-        <span className={tableHeaderClassName}>Data source</span>
+        <span data-cy="auto-added" className={tableHeaderClassName}>
+          Data source
+        </span>
       ),
       key: 'dataSource',
       width: 300,
@@ -600,9 +622,7 @@ function AssignedCheckinCarousel({
 }) {
   const ANIM_MS = 340;
   const [orderIds, setOrderIds] = useState<string[]>([]);
-  const [snapshots, setSnapshots] = useState<Record<string, CheckinItem[]>>(
-    {},
-  );
+  const [snapshots, setSnapshots] = useState<Record<string, CheckinItem[]>>({});
   const [page, setPage] = useState(1);
   const [anim, setAnim] = useState<'in' | 'out' | 'from'>('in');
   const [animDir, setAnimDir] = useState<'next' | 'prev'>('next');
@@ -699,10 +719,8 @@ function AssignedCheckinCarousel({
     return null;
   }
 
-  const slideOut =
-    animDir === 'next' ? '-translate-x-8' : 'translate-x-8';
-  const slideFrom =
-    animDir === 'next' ? 'translate-x-8' : '-translate-x-8';
+  const slideOut = animDir === 'next' ? '-translate-x-8' : 'translate-x-8';
+  const slideFrom = animDir === 'next' ? 'translate-x-8' : '-translate-x-8';
   const slideClass =
     anim === 'in'
       ? 'opacity-100 translate-x-0 scale-100'
@@ -713,6 +731,7 @@ function AssignedCheckinCarousel({
   return (
     <div data-cy={dataCy}>
       <div
+        data-cy="auto-added"
         className={[
           'origin-top motion-reduce:transform-none motion-reduce:transition-none',
           anim === 'from'
@@ -744,7 +763,10 @@ function AssignedCheckinCarousel({
           >
             <LeftOutlined />
           </button>
-          <span className="min-w-[4.5rem] text-center text-sm text-gray-600">
+          <span
+            data-cy="auto-added"
+            className="min-w-[4.5rem] text-center text-sm text-gray-600"
+          >
             {page} of {displayGroups.length}
           </span>
           <button
@@ -789,11 +811,17 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
     <div className="flex flex-col gap-6" data-cy="bsc-checkin-review-section">
       {standardGroups.length ? (
         <div data-cy="bsc-checkin-standard-section">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="m-0 text-sm font-semibold text-gray-900">
+          <div
+            data-cy="auto-added"
+            className="mb-3 flex flex-wrap items-center justify-between gap-2"
+          >
+            <h3
+              data-cy="auto-added"
+              className="m-0 text-sm font-semibold text-gray-900"
+            >
               Pending manager review
             </h3>
-            <span className="text-xs text-gray-500">
+            <span data-cy="auto-added" className="text-xs text-gray-500">
               {standardGroups.length} employee
               {standardGroups.length === 1 ? '' : 's'}
             </span>
@@ -809,11 +837,17 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
 
       {pepReturnGroups.length ? (
         <div data-cy="bsc-checkin-pep-return-section">
-          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-            <h3 className="m-0 text-sm font-semibold text-gray-900">
+          <div
+            data-cy="auto-added"
+            className="mb-3 flex flex-wrap items-center justify-between gap-2"
+          >
+            <h3
+              data-cy="auto-added"
+              className="m-0 text-sm font-semibold text-gray-900"
+            >
               PEP returned for revision
             </h3>
-            <span className="text-xs text-gray-500">
+            <span data-cy="auto-added" className="text-xs text-gray-500">
               {pepReturnGroups.length} employee
               {pepReturnGroups.length === 1 ? '' : 's'}
             </span>
@@ -827,11 +861,17 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
               return {
                 key: scorecard.id,
                 label: (
-                  <div className="min-w-0 pr-2">
-                    <p className="m-0 text-base font-semibold text-gray-900">
+                  <div data-cy="auto-added" className="min-w-0 pr-2">
+                    <p
+                      data-cy="auto-added"
+                      className="m-0 text-base font-semibold text-gray-900"
+                    >
                       {scorecard.userName}
                     </p>
-                    <p className="m-0 mt-1 text-sm text-gray-500">
+                    <p
+                      data-cy="auto-added"
+                      className="m-0 mt-1 text-sm text-gray-500"
+                    >
                       {group[0].contextLabel}
                     </p>
                   </div>

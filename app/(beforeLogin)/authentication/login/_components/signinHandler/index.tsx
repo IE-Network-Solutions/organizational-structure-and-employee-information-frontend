@@ -48,6 +48,7 @@ export const useHandleSignIn = () => {
     if (token.length > 0 && tenantId.length > 0) {
       refetchFiscalYear();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, tenantId]);
 
   // 🧩 Helper function: handles linking accounts when existing credentials found

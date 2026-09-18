@@ -59,6 +59,7 @@ const ViolationCard = ({ userId }: ViolationCardProps) => {
   const itemIdsKey = items.map((item) => item.id).join(',');
   const violationNameLabels = useMemo(
     () => getViolationNameLabels(items),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [itemIdsKey],
   );
 

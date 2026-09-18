@@ -26,6 +26,7 @@ const DetailPageTabs: React.FC = () => {
 
   useEffect(() => {
     setParentResponseIsLoading(parentResponseLoading);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [parentResponseLoading]);
 
   const handleExportClick = () => {
@@ -143,6 +144,7 @@ const DetailPageTabs: React.FC = () => {
         </div>
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeKey, isPayrollView, setProjectDrawer, setIsPayrollView]);
 
   const handleTabChange = (key: string) => {

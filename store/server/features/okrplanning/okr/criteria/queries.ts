@@ -88,6 +88,8 @@ export function buildVpScoringAssignedUsersMap(
  */
 export function useVpScoringAssignedUsers(enabled: boolean) {
   const { data: listData, isLoading: listLoading } = useFetchVpScoring();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const items = listData?.items ?? [];
   const listIncludesUsers =
     items.length === 0 ||

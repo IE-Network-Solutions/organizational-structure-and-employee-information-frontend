@@ -53,7 +53,10 @@ export default function CheckinDataSourceCell({
 
   if (editing) {
     return (
-      <div className="flex min-w-[240px] items-center gap-1">
+      <div
+        data-cy="auto-added"
+        className="flex min-w-[240px] items-center gap-1"
+      >
         <Input
           className="h-8 flex-1 text-sm"
           value={draft}
@@ -89,7 +92,7 @@ export default function CheckinDataSourceCell({
   const href = dataSourceHref(trimmed);
 
   return (
-    <div className="flex min-w-0 items-center gap-1.5">
+    <div data-cy="auto-added" className="flex min-w-0 items-center gap-1.5">
       {trimmed ? (
         href ? (
           <Tooltip title={trimmed}>
@@ -101,7 +104,9 @@ export default function CheckinDataSourceCell({
               data-cy={`${dataCy}-link`}
             >
               <LinkOutlined className="shrink-0 text-xs" />
-              <span className="truncate">{truncate(trimmed)}</span>
+              <span data-cy="auto-added" className="truncate">
+                {truncate(trimmed)}
+              </span>
             </a>
           </Tooltip>
         ) : (

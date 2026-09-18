@@ -150,11 +150,7 @@ function buildEmployeeLookupMap(
   for (const user of allUsers?.items || []) {
     const id = typeof user.id === 'string' ? user.id : '';
     if (!id) continue;
-    const rawName = [
-      user.firstName,
-      user.middleName,
-      user.lastName,
-    ]
+    const rawName = [user.firstName, user.middleName, user.lastName]
       .filter((part) => typeof part === 'string' && part.trim())
       .join(' ')
       .trim();
@@ -196,11 +192,17 @@ function buildScorecardRow(
   scorecard: EmployeeScorecard,
   group: PepAuditEmployeeGroup | null,
   employeeById: Map<string, EmployeeLookup>,
-  cycleById: Map<string, { label: string; isActive?: boolean; status?: string }>,
+  cycleById: Map<
+    string,
+    { label: string; isActive?: boolean; status?: string }
+  >,
 ): ResultsScorecardRow {
   const pepRows = group?.kpis ?? [];
   const pepSummary = group?.summary ?? null;
-  const approvalStatus = resolveScorecardResultsStatus(pepRows, scorecard.status);
+  const approvalStatus = resolveScorecardResultsStatus(
+    pepRows,
+    scorecard.status,
+  );
   const hasReports = pepRows.length > 0;
   return {
     userId: scorecard.userId,
@@ -235,7 +237,9 @@ function matchesSearch(row: ResultsScorecardRow, query: string): boolean {
     .toLowerCase();
   if (haystack.includes(q)) return true;
   return row.pepRows.some((pepRow) => {
-    const pepHaystack = [pepRow.kpiName, pepRow.perspective].join(' ').toLowerCase();
+    const pepHaystack = [pepRow.kpiName, pepRow.perspective]
+      .join(' ')
+      .toLowerCase();
     return pepHaystack.includes(q);
   });
 }
@@ -258,7 +262,8 @@ export default function ResultsEmployeeTable({
 
   const scopeOptions = useMemo(() => {
     const options: { value: ResultsScope; label: string }[] = [];
-    if (canViewTeamKpi) options.push({ value: 'team', label: 'Subordinate KPI' });
+    if (canViewTeamKpi)
+      options.push({ value: 'team', label: 'Subordinate KPI' });
     if (canViewAllEmployeeKpi) {
       options.push({ value: 'all', label: 'All Employees KPI' });
     }
@@ -384,7 +389,8 @@ export default function ResultsEmployeeTable({
   );
 
   const currentPepRows = useMemo(
-    () => scopedPepRows.filter((row) => currentScorecardIds.has(row.scorecardId)),
+    () =>
+      scopedPepRows.filter((row) => currentScorecardIds.has(row.scorecardId)),
     [currentScorecardIds, scopedPepRows],
   );
 
@@ -444,13 +450,7 @@ export default function ResultsEmployeeTable({
         const byName = a.userName.localeCompare(b.userName);
         return byName;
       });
-  }, [
-    department,
-    pepListFilters,
-    search,
-    statusFilter,
-    tableRows,
-  ]);
+  }, [department, pepListFilters, search, statusFilter, tableRows]);
 
   const paged = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -534,9 +534,13 @@ export default function ResultsEmployeeTable({
 
   const filterBody = (
     <div className="flex flex-col gap-4" data-cy="bsc-results-filter-body">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-2">
+      <div
+        data-cy="auto-added"
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+      >
+        <div data-cy="auto-added" className="flex flex-col gap-2">
           <label
+            data-cy="auto-added"
             className={`text-sm font-medium ${
               scope === 'team' ? 'text-gray-400' : 'text-gray-700'
             }`}
@@ -558,8 +562,13 @@ export default function ResultsEmployeeTable({
             data-cy="bsc-results-filter-dept"
           />
         </div>
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Approval status</label>
+        <div data-cy="auto-added" className="flex flex-col gap-2">
+          <label
+            data-cy="auto-added"
+            className="text-sm font-medium text-gray-700"
+          >
+            Approval status
+          </label>
           <Select
             className="h-10"
             value={draftStatus}
@@ -580,17 +589,20 @@ export default function ResultsEmployeeTable({
   const columns: ColumnsType<ResultsScorecardRow> = [
     {
       title: (
-        <span className={bscTableHeaderClassName} data-cy="bsc-results-col-employee">
+        <span
+          className={bscTableHeaderClassName}
+          data-cy="bsc-results-col-employee"
+        >
           Employee
         </span>
       ),
       key: 'employee',
       width: DATA_COLUMN_WIDTH,
       align: 'left',
-      render: (_, row) => {
+      render: (ignored, row) => {
         const src = profileImageByUserId.get(row.userId);
         return (
-          <div className="flex min-w-0 items-center gap-3">
+          <div data-cy="auto-added" className="flex min-w-0 items-center gap-3">
             <Avatar
               size={36}
               src={src}
@@ -599,11 +611,17 @@ export default function ResultsEmployeeTable({
             >
               {!src ? nameInitials(row.userName) : null}
             </Avatar>
-            <div className="min-w-0">
-              <p className="m-0 truncate text-sm font-medium text-[#262626]">
+            <div data-cy="auto-added" className="min-w-0">
+              <p
+                data-cy="auto-added"
+                className="m-0 truncate text-sm font-medium text-[#262626]"
+              >
                 {row.userName}
               </p>
-              <p className="m-0 truncate text-xs text-gray-500">
+              <p
+                data-cy="auto-added"
+                className="m-0 truncate text-xs text-gray-500"
+              >
                 {row.departmentName || row.positionTitle || '—'}
               </p>
             </div>
@@ -613,15 +631,20 @@ export default function ResultsEmployeeTable({
     },
     {
       title: (
-        <span className={bscTableHeaderClassName} data-cy="bsc-results-col-scorecard">
+        <span
+          className={bscTableHeaderClassName}
+          data-cy="bsc-results-col-scorecard"
+        >
           Scorecard
         </span>
       ),
       key: 'scorecard',
       width: DATA_COLUMN_WIDTH,
       align: 'left',
-      render: (_, row) => (
-        <span className={bscTableCellClassName}>{row.scorecardLabel}</span>
+      render: (ignored, row) => (
+        <span data-cy="auto-added" className={bscTableCellClassName}>
+          {row.scorecardLabel}
+        </span>
       ),
     },
     {
@@ -636,20 +659,25 @@ export default function ResultsEmployeeTable({
       key: 'lastReportPeriod',
       width: DATA_COLUMN_WIDTH,
       align: 'left',
-      render: (_, row) => (
-        <span className={bscTableCellClassName}>{row.lastReportPeriod}</span>
+      render: (ignored, row) => (
+        <span data-cy="auto-added" className={bscTableCellClassName}>
+          {row.lastReportPeriod}
+        </span>
       ),
     },
     {
       title: (
-        <span className={bscTableHeaderClassName} data-cy="bsc-results-col-status">
+        <span
+          className={bscTableHeaderClassName}
+          data-cy="bsc-results-col-status"
+        >
           Approval status
         </span>
       ),
       key: 'approvalStatus',
       width: DATA_COLUMN_WIDTH,
       align: 'left',
-      render: (_, row) => (
+      render: (ignored, row) => (
         <PepAuditWorkflowStepsAggregate
           rows={row.pepRows}
           participants={row.workflowParticipants}
@@ -659,16 +687,23 @@ export default function ResultsEmployeeTable({
     },
     {
       title: (
-        <span className={bscTableHeaderClassName} data-cy="bsc-results-col-actions">
+        <span
+          className={bscTableHeaderClassName}
+          data-cy="bsc-results-col-actions"
+        >
           Actions
         </span>
       ),
       key: 'actions',
       width: ACTIONS_COLUMN_WIDTH,
       align: 'left',
-      render: (_, row) => {
+      render: (ignored, row) => {
         if (!row.pepRows.length) {
-          return <span className={bscTableCellClassName}>—</span>;
+          return (
+            <span data-cy="auto-added" className={bscTableCellClassName}>
+              —
+            </span>
+          );
         }
         const label = row.needsPepReview ? 'Review' : 'View';
         return (
@@ -701,7 +736,7 @@ export default function ResultsEmployeeTable({
 
   return (
     <div className="flex flex-col gap-4" data-cy="bsc-results-unified-panel">
-      <div className="flex flex-col gap-3">
+      <div data-cy="auto-added" className="flex flex-col gap-3">
         <div
           className="flex items-center justify-end"
           data-cy="bsc-results-rollup-header"
@@ -723,7 +758,10 @@ export default function ResultsEmployeeTable({
         className="rounded-lg border border-[#D9D9D9] bg-white"
         data-cy="bsc-results-table-card"
       >
-        <div className="flex flex-wrap items-center justify-between gap-3 px-3 pt-3">
+        <div
+          data-cy="auto-added"
+          className="flex flex-wrap items-center justify-between gap-3 px-3 pt-3"
+        >
           <BscSearchInput
             placeholder="Search employee or KPI"
             value={search}
@@ -733,7 +771,10 @@ export default function ResultsEmployeeTable({
             }}
             data-cy="bsc-results-search"
           />
-          <div className="flex shrink-0 items-center gap-2">
+          <div
+            data-cy="auto-added"
+            className="flex shrink-0 items-center gap-2"
+          >
             <Popover
               open={filterOpen}
               onOpenChange={setFilterOpen}
@@ -741,10 +782,19 @@ export default function ResultsEmployeeTable({
               placement="bottomRight"
               arrow={false}
               content={
-                <div className="w-[460px] max-w-[460px]" data-cy="bsc-results-filter-popover">
+                <div
+                  className="w-[460px] max-w-[460px]"
+                  data-cy="bsc-results-filter-popover"
+                >
                   {filterBody}
-                  <div className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-4">
-                    <Button onClick={resetFilters} data-cy="bsc-results-filter-reset">
+                  <div
+                    data-cy="auto-added"
+                    className="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-4"
+                  >
+                    <Button
+                      onClick={resetFilters}
+                      data-cy="bsc-results-filter-reset"
+                    >
                       Reset
                     </Button>
                     <Button
@@ -759,14 +809,26 @@ export default function ResultsEmployeeTable({
                 </div>
               }
               title={
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="m-0 text-base font-bold text-gray-900">Filter</h3>
-                    <p className="mb-0 mt-1 text-xs text-gray-500">
+                <div
+                  data-cy="auto-added"
+                  className="flex items-start justify-between"
+                >
+                  <div data-cy="auto-added">
+                    <h3
+                      data-cy="auto-added"
+                      className="m-0 text-base font-bold text-gray-900"
+                    >
+                      Filter
+                    </h3>
+                    <p
+                      data-cy="auto-added"
+                      className="mb-0 mt-1 text-xs text-gray-500"
+                    >
                       Department and approval status
                     </p>
                   </div>
                   <button
+                    data-cy="auto-added"
                     type="button"
                     onClick={() => setFilterOpen(false)}
                     className="cursor-pointer border-none bg-transparent p-1 text-gray-400 hover:text-gray-600"
@@ -806,7 +868,7 @@ export default function ResultsEmployeeTable({
           </div>
         </div>
 
-        <div className="overflow-x-auto px-3 pb-3 pt-2">
+        <div data-cy="auto-added" className="overflow-x-auto px-3 pb-3 pt-2">
           {isLoading ? (
             <TableSkeleton columns={columns} />
           ) : (
@@ -818,7 +880,7 @@ export default function ResultsEmployeeTable({
               tableLayout="fixed"
               rowKey="userId"
               rowSelection={rowSelection}
-              rowClassName={(_, index) =>
+              rowClassName={(ignored, index) =>
                 `${bscTableRowClassName(index)} cursor-pointer`
               }
               onRow={(row) => ({

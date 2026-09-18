@@ -1250,6 +1250,7 @@ export function KRLeftPanel({
       if (aMine === bMine) return 0;
       return aMine ? -1 : 1;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     plans,
     userId,

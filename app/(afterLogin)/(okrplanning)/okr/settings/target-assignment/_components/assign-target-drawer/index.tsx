@@ -75,6 +75,7 @@ const AssignTargetModal: React.FC = () => {
     if (isCreateSuccess || isUpdateSuccess) {
       handleModalClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCreateSuccess, isUpdateSuccess]);
 
   const handleModalClose = () => {

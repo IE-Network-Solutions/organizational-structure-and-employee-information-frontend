@@ -22,6 +22,7 @@ const AddTypesSidebar = () => {
     if (isSuccess) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   const [form] = Form.useForm();

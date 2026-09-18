@@ -170,6 +170,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       // Update ref after handling the change
       prevOkrTabRef.current = okrTab;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     getAllFiscalYears?.items,
     getActiveFisicalYear,

@@ -207,6 +207,7 @@ const QuestionSetForm = () => {
       conversationTypeId: editableData.conversationTypeId || '',
       conversationsQuestions: editableData.conversationsQuestions || [],
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editableData, form]);
 
   const checkQuestions = () => {

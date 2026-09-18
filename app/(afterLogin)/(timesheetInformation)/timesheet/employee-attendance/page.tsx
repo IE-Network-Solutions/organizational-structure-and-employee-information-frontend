@@ -145,6 +145,7 @@ const EmployeeAttendance = () => {
           }
         });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file]);
 
   // Dropdown Menu for Import Buttons

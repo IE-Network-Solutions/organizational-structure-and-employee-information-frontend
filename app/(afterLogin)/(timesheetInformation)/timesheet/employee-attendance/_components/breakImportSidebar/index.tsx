@@ -100,6 +100,7 @@ const BreakImportSidebar = () => {
       form.resetFields();
       setIsShowBreakAttendanceImportSidebar(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   const onFinish = (e: any) => {

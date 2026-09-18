@@ -123,6 +123,7 @@ const TimesheetSettingsLayout: FC<TimesheetSettingsLayoutProps> = ({
 
   useEffect(() => {
     setAttendanceNotificationType(attendanceTypeData?.items ?? []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attendanceTypeData]);
 
   const items: TabsProps['items'] = [

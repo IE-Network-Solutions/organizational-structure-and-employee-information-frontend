@@ -176,7 +176,8 @@ export class BscMockRepository {
           ...row,
           evaluationConfigId,
           measurementUnit:
-            normalizeMeasurementUnit(row.measurementUnit) || row.measurementUnit,
+            normalizeMeasurementUnit(row.measurementUnit) ||
+            row.measurementUnit,
         });
         created.push(item);
       } catch (error) {
@@ -212,7 +213,9 @@ export class BscMockRepository {
   ): Promise<EmployeeScorecard> {
     const sc = this.requireScorecard(scorecardId);
     if (!isPepAuditActionableScorecard(sc.status)) {
-      throw new Error('This scorecard is not available for PEP audit rejection');
+      throw new Error(
+        'This scorecard is not available for PEP audit rejection',
+      );
     }
     const target = sc.targets.find((t) => t.id === targetId);
     if (!target) throw new Error('KPI target not found');
@@ -312,13 +315,24 @@ export class BscMockRepository {
   async bulkApproveKpiForPepAudit(
     items: Array<{ scorecardId: string; targetId: string }>,
     actorId?: string,
-  ): Promise<{ approved: number; failed: Array<{ scorecardId: string; targetId: string; reason: string }> }> {
+  ): Promise<{
+    approved: number;
+    failed: Array<{ scorecardId: string; targetId: string; reason: string }>;
+  }> {
     void actorId;
-    const failed: Array<{ scorecardId: string; targetId: string; reason: string }> = [];
+    const failed: Array<{
+      scorecardId: string;
+      targetId: string;
+      reason: string;
+    }> = [];
     let approved = 0;
     for (const item of items) {
       try {
-        await this.approveKpiForPepAudit(item.scorecardId, item.targetId, actorId);
+        await this.approveKpiForPepAudit(
+          item.scorecardId,
+          item.targetId,
+          actorId,
+        );
         approved += 1;
       } catch (error) {
         failed.push({
@@ -382,7 +396,7 @@ export class BscMockRepository {
       evaluationFlow: assignment.evaluationFlow?.length
         ? assignment.evaluationFlow.map((step) => ({
             kind: step.kind,
-            userId: step.kind === 'user' ? step.userId ?? null : null,
+            userId: step.kind === 'user' ? (step.userId ?? null) : null,
           }))
         : [
             {
@@ -392,7 +406,7 @@ export class BscMockRepository {
                   : ('directManager' as const),
               userId:
                 assignment.evaluatorMode === 'user'
-                  ? assignment.evaluatorUserId ?? null
+                  ? (assignment.evaluatorUserId ?? null)
                   : null,
             },
           ],
@@ -764,7 +778,9 @@ export class BscMockRepository {
           : BscSetupKind.Permanent),
       isActive: input.isActive !== false,
       effectiveFrom:
-        input.effectiveFrom || input.startDate || new Date().toISOString().slice(0, 10),
+        input.effectiveFrom ||
+        input.startDate ||
+        new Date().toISOString().slice(0, 10),
       isRecurring: Boolean(input.isRecurring),
       useCustomDates: Boolean(input.useCustomDates),
       periodIds: input.periodIds || [],

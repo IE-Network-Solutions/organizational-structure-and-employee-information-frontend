@@ -114,6 +114,7 @@ const MergeDragDrop: React.FC = () => {
       }
       return null;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 

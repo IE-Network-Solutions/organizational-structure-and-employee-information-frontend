@@ -216,6 +216,7 @@ export default function ParticipantsList({
           time: isLate ? lateBy?.toString() : undefined,
         });
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [visible, attendanceStatus, absentismReason, lateBy]);
     const handleSubmit = async () => {
       try {

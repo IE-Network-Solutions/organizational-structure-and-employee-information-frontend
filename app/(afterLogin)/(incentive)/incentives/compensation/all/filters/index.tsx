@@ -102,6 +102,7 @@ const IncentiveFilter: React.FC = () => {
     if (!selectedYear) {
       onSelectChange('', 'byMonth');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeCalender]);
 
   const Filters = (

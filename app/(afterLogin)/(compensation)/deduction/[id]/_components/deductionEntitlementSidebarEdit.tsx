@@ -67,6 +67,7 @@ const DeductionEntitlementSideBarEdit = () => {
       setEditSettlementPeriod(0);
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editDeductionData?.id, editDeductionData?.userId]);
 
   const onClose = () => {

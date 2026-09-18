@@ -56,6 +56,7 @@ const CourseLessonMaterial = () => {
     if (lessonMaterial && isShow) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonMaterial, isShow]);
 
   useEffect(() => {
@@ -85,12 +86,14 @@ const CourseLessonMaterial = () => {
           : undefined,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lessonMaterialData]);
 
   useEffect(() => {
     if (isSuccess && isShow) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess, isShow]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [

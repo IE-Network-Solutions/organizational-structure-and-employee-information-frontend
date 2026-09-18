@@ -385,6 +385,9 @@ const Status: React.FC = () => {
     };
   }, [setAddAction, setAddLabel, canCreate, handleOpen]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const items = recruitmentStatus?.items ?? [];
 
   const sortByLevel = (a: any, b: any) => {

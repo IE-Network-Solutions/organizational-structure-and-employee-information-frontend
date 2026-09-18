@@ -65,6 +65,7 @@ export default function Editor({
           profileImage: user?.profileImage,
         };
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attendeesData, employeeData]);
 
   const editor = useEditor(
@@ -115,6 +116,7 @@ export default function Editor({
     return () => {
       editor.off('update', handleUpdate);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor]);
 
   if (

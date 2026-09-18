@@ -68,6 +68,7 @@ const AllCandidates: React.FC = () => {
   useEffect(() => {
     setSelectedCandidate([]);
     setSelectedRowKeys([] as any);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
   const onClose = () => {
     setCreateJobDrawer(false);

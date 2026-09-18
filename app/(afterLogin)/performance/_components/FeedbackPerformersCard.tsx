@@ -101,6 +101,7 @@ export default function FeedbackPerformersCard({
 
     const last = monthOptions[monthOptions.length - 1];
     if (last?.id) setSelectedMonthIdLocal(String(last.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionIdProp, monthOptions?.length]);
 
   const resolvedSessionId =

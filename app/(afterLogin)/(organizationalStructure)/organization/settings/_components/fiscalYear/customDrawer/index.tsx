@@ -75,6 +75,7 @@ const CustomWorFiscalYearDrawer: React.FC<FiscalYearDrawerProps> = ({
       form2.resetFields();
       form3.resetFields();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEditMode, selectedFiscalYear]);
 
   const getTransformedFiscalYear = (

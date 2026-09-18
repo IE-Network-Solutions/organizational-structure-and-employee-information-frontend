@@ -607,6 +607,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
     setTargetForTaskEdit(null);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const drawerTasksWatch = Form.useWatch('tasks', drawerForm) || [];
   const drawerTotalWeight = React.useMemo(
     () =>

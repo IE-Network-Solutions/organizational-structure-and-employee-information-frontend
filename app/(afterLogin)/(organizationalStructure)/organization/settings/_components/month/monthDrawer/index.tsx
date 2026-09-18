@@ -147,6 +147,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
         form?.resetFields(Object.keys(fieldsToUpdate));
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFiscalYear, isEditMode, form]);
 
   useEffect(() => {
@@ -166,6 +167,7 @@ const MonthDrawer: React.FC<DrawerProps> = ({
     ) {
       setMonthRangeFormValues(transformedData);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -251,6 +251,7 @@ const MettingDataTable = ({
       );
       setSetOfUser(usersInSelectedDepartments);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDepartments, allUserData?.items]); // Trigger effect when selectedDepartmentIds or allUserData changes
 
   const onUserChange = (selectedUserIds: string[]) => {

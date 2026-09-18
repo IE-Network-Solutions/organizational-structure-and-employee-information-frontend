@@ -80,6 +80,7 @@ const ReprimandEditDrawer: React.FC<RepDrawerProps> = ({
     } else {
       form.resetFields(); // Reset form if repLog is null
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reprimandLog, form]);
 
   const modalHeader = (

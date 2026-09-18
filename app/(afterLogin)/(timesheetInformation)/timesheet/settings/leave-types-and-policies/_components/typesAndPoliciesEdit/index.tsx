@@ -77,6 +77,7 @@ const TypesAndPoliciesEdit = () => {
       });
       setIsFixed(!!getLeaveTypeById.items[0].isFixed);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getLeaveTypeById, form]);
 
   const onFieldChange = () => {

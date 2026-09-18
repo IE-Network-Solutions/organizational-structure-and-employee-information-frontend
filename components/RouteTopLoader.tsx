@@ -128,6 +128,7 @@ export default function RouteTopLoader() {
         capture: true,
       } as any);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // When the route has committed (pathname/search changes), complete and hide the bar.

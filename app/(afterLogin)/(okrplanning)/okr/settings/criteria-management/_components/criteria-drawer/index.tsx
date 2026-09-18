@@ -152,6 +152,7 @@ const ScoringModal: React.FC = () => {
         ),
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scoringData, criteriaData, form, departmentData]);
 
   useEffect(() => {
@@ -203,6 +204,7 @@ const ScoringModal: React.FC = () => {
     } else {
       setFilteredUsers([]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     watchedDepartments,
     departmentData,

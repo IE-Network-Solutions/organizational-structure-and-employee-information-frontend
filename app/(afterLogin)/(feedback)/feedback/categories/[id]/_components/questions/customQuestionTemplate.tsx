@@ -36,6 +36,7 @@ const CustomQuestionTemplate = () => {
       );
       setFilteredQuestions(filtered);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedQuestions, QuestionTemplate]);
 
   if (isQuestionTemplateLoading)

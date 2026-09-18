@@ -234,6 +234,7 @@ export default function FeedbackCard({
     const last = monthOptions[monthOptions.length - 1];
     if (last?.id) setSelectedMonthIdLocal(String(last.id));
     setIsMonthListOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionIdProp, monthOptions?.length]);
 
   const orderedMonthsForUi = useMemo(() => {

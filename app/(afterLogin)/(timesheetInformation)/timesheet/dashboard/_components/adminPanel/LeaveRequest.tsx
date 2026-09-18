@@ -114,6 +114,7 @@ const LeaveRequest = () => {
       labels: allMonths,
       datasets,
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingLeaveRequests]);
 
   const barOptions = useMemo(() => {

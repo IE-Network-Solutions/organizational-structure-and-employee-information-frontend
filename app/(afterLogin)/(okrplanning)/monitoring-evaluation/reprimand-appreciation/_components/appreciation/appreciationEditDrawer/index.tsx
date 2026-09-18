@@ -84,6 +84,7 @@ const AppreciationEditDrawer: React.FC<AppDrawerProps> = ({
     } else {
       form.resetFields(); // Reset form if appType is null
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appLog, form]);
   const modalHeader = (
     <div

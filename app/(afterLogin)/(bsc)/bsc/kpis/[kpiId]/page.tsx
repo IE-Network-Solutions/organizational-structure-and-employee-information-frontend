@@ -618,9 +618,7 @@ export default function BscKpiDetailPage() {
                   onRow={(row) => ({
                     onClick: () => openEmployee(row),
                   })}
-                  rowClassName={(unused, index) =>
-                    bscTableRowClassName(index)
-                  }
+                  rowClassName={(unused, index) => bscTableRowClassName(index)}
                   data-cy="bsc-kpi-contributors-table"
                 />
               </div>

@@ -71,6 +71,7 @@ const HistoryTable = () => {
       isShow(true);
       setIsLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [approverLog, isLoading, leaveRequestSidebarData]);
   const DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
 

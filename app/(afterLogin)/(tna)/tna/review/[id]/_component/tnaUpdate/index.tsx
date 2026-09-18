@@ -50,12 +50,14 @@ const TnaUpdateSidebar = () => {
     if (isSuccess) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   useEffect(() => {
     if (tnaId) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tnaId]);
 
   useEffect(() => {
@@ -77,6 +79,7 @@ const TnaUpdateSidebar = () => {
         form.setFieldValue('trainingProofs', attachmentValue);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   const footerModalItems: CustomDrawerFooterButtonProps[] = [

@@ -178,11 +178,13 @@ const StepEvaluatorAssignment: React.FC<StepEvaluatorAssignmentProps> = ({
 }) => {
   const form = Form.useFormInstance();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const successorIds: string[] =
     Form.useWatch('successorIds', form) ??
     form.getFieldValue('successorIds') ??
     [];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const rawCompetencies: RoleCompetency[] =
     Form.useWatch('competencies', form) ??
     form.getFieldValue('competencies') ??

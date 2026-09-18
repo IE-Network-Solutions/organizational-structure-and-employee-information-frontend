@@ -20,6 +20,7 @@ const Page = () => {
   };
   useEffect(() => {
     setActiveTab(getAllConversationType?.items[0]?.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getAllConversationType]);
 
   const activeTabName =

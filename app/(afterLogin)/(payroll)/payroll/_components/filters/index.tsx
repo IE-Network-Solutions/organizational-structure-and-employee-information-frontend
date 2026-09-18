@@ -60,6 +60,7 @@ const Filters: React.FC<FiltersProps> = ({
     setMonthId(searchValue.monthId);
     setYearId(searchValue.yearId);
     setSessionId(searchValue.sessionId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue]);
   useEffect(() => {
     if (getAllFiscalYears) {
@@ -117,6 +118,7 @@ const Filters: React.FC<FiltersProps> = ({
         setMonths(selectedSession?.months || []);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getAllFiscalYears]);
 
   useEffect(() => {
@@ -138,6 +140,7 @@ const Filters: React.FC<FiltersProps> = ({
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [payroll?.items, payPeriodData]);
 
   const handleEmployeeSelect = (value: string) => {

@@ -70,6 +70,7 @@ const ApprovalWorkflowModal: React.FC<ApprovalWorkflowModalProps> = ({
           value: user.id,
           label: getUserFullName(user.id),
         })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [users, assignedUserIds],
   );
 

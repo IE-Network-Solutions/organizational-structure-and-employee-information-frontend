@@ -114,6 +114,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
       setSelectedRoleOnOption(userRoleId);
       setSelectedPermissions(allPermissions);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employeeData, form]);
 
   const onRoleChangeHandler = (value: string) => {

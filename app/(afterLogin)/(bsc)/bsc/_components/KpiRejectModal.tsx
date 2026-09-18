@@ -19,7 +19,12 @@ type Props = {
 
 const COPY: Record<
   KpiRejectModalMode,
-  { title: string; body: (name?: string) => string; placeholder: string; confirm: string }
+  {
+    title: string;
+    body: (name?: string) => string;
+    placeholder: string;
+    confirm: string;
+  }
 > = {
   default: {
     title: 'Reject & return KPI result',
@@ -75,7 +80,9 @@ export default function KpiRejectModal({
       title={copy.title}
       data-cy="bsc-kpi-reject-modal"
     >
-      <p className="mb-3 text-sm text-gray-600">{copy.body(kpiName)}</p>
+      <p data-cy="auto-added" className="mb-3 text-sm text-gray-600">
+        {copy.body(kpiName)}
+      </p>
       <TextArea
         rows={4}
         value={comment}
@@ -83,7 +90,7 @@ export default function KpiRejectModal({
         placeholder={copy.placeholder}
         data-cy="bsc-kpi-reject-comment"
       />
-      <div className="mt-4 flex justify-end gap-2">
+      <div data-cy="auto-added" className="mt-4 flex justify-end gap-2">
         <CustomButton
           type="default"
           onClick={onClose}

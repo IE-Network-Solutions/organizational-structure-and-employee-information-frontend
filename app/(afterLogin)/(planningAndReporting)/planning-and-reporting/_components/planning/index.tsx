@@ -77,6 +77,7 @@ function Planning({
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
 
   const planSummaries = planSummariesFromParent ?? [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const transformedData = transformedDataFromParent ?? [];
   const getPlanningLoading = planningLoadingFromParent ?? false;
 

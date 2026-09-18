@@ -157,6 +157,7 @@ export default function MyScorecardKpiDetailPage() {
       cycleById.get(entryScorecard.cycleId),
     );
     setSeriesAnchorId(key);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entryScorecard?.id, cycleById]);
 
   const seriesAnchor = useMemo(() => {

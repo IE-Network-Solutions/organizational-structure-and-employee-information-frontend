@@ -690,7 +690,10 @@ function buildRoleTargets(
       checkInDay: kpi.checkInDay ?? new Date().getDate(),
       actualValue: actuals[i] ?? null,
       assignmentSource: 'shared' as const,
-      evaluationFlow: [{ kind: 'self' as const }, { kind: 'directManager' as const }],
+      evaluationFlow: [
+        { kind: 'self' as const },
+        { kind: 'directManager' as const },
+      ],
       evaluationStepIndex: scored ? 1 : 0,
       approvalStatus:
         actuals[i] == null
@@ -738,8 +741,7 @@ function seedScorecardForMonth(opts: {
   const status = opts.status;
   const ownerId = opts.userId || 'demo-user';
   const managerId =
-    opts.managerId ||
-    (ownerId === 'demo-user' ? 'demo-manager' : 'demo-user');
+    opts.managerId || (ownerId === 'demo-user' ? 'demo-manager' : 'demo-user');
   const targets = buildRoleTargets(
     opts.id,
     positionTitle,
@@ -758,7 +760,8 @@ function seedScorecardForMonth(opts: {
     for (const t of targets) {
       t.evaluationStepIndex = 0;
       t.approvalStatus = KpiApprovalStatus.Rejected;
-      t.rejectionReason = t.rejectionReason || 'Please revise actuals for this period';
+      t.rejectionReason =
+        t.rejectionReason || 'Please revise actuals for this period';
     }
   }
   if (opts.awaitingPepReview) {

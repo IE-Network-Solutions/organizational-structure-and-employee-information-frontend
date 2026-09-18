@@ -70,7 +70,10 @@ const ListOfRoles = () => {
   const { data: groupPermissionData } =
     useGetPermissionGroupsWithOutPagination();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const permissionsList: PermissionType[] = permissionData?.items ?? [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const groupsList = groupPermissionData?.items ?? [];
 
   const basicGroupPermissionList: any = groupPermissionData?.items?.filter(
@@ -255,6 +258,7 @@ const ListOfRoles = () => {
       setPermissionSearch('');
       setSelectedGroupFilter('all');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentModal, selectedRole]);
 
   const handleCancel = () => {

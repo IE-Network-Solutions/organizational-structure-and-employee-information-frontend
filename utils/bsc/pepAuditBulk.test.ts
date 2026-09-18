@@ -1,4 +1,9 @@
-import { PepAuditFlag, PepAuditRow, KpiApprovalStatus, TargetLogic } from '@/types/bsc';
+import {
+  PepAuditFlag,
+  PepAuditRow,
+  KpiApprovalStatus,
+  TargetLogic,
+} from '@/types/bsc';
 import {
   actionableItemsFromPepRows,
   pepAuditSelectionKey,

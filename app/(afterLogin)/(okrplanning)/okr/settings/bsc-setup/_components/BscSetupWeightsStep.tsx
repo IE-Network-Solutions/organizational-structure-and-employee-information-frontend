@@ -1,7 +1,15 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Form, FormInstance, Input, InputNumber, Select, Tag, Tooltip } from 'antd';
+import {
+  Form,
+  FormInstance,
+  Input,
+  InputNumber,
+  Select,
+  Tag,
+  Tooltip,
+} from 'antd';
 import type { Dayjs } from 'dayjs';
 import {
   BscCadence,
@@ -32,8 +40,7 @@ const INPUT_FIELDS_GRID =
 const INPUT_HEADER_GRID =
   'grid grid-cols-[minmax(72px,1fr)_minmax(88px,1.15fr)_minmax(88px,1.15fr)_minmax(112px,1.35fr)] gap-x-2';
 
-const headerCellClassName =
-  'py-2.5 text-xs font-semibold text-gray-500';
+const headerCellClassName = 'py-2.5 text-xs font-semibold text-gray-500';
 
 const fieldLabelClassName = 'mb-1 block text-[11px] font-medium text-gray-500';
 
@@ -161,19 +168,35 @@ export default function BscSetupWeightsStep({
         className="overflow-hidden rounded-lg border border-[#D9D9D9] bg-white shadow-none"
         data-cy="bsc-setup-weights-table"
       >
-        <div className="sticky top-0 z-[1] border-b border-[#E5E7EB] bg-white">
-          <div className={TABLE_HEADER_LAYOUT}>
-            <span className={headerCellClassName}>KPI</span>
-            <div className={INPUT_HEADER_GRID}>
-              <span className={headerCellClassName}>Weight</span>
-              <span className={headerCellClassName}>Target</span>
-              <span className={headerCellClassName}>Threshold</span>
-              <span className={headerCellClassName}>Cadence</span>
+        <div
+          data-cy="auto-added"
+          className="sticky top-0 z-[1] border-b border-[#E5E7EB] bg-white"
+        >
+          <div data-cy="auto-added" className={TABLE_HEADER_LAYOUT}>
+            <span data-cy="auto-added" className={headerCellClassName}>
+              KPI
+            </span>
+            <div data-cy="auto-added" className={INPUT_HEADER_GRID}>
+              <span data-cy="auto-added" className={headerCellClassName}>
+                Weight
+              </span>
+              <span data-cy="auto-added" className={headerCellClassName}>
+                Target
+              </span>
+              <span data-cy="auto-added" className={headerCellClassName}>
+                Threshold
+              </span>
+              <span data-cy="auto-added" className={headerCellClassName}>
+                Cadence
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="max-h-[min(52vh,520px)] overflow-y-auto">
+        <div
+          data-cy="auto-added"
+          className="max-h-[min(52vh,520px)] overflow-y-auto"
+        >
           {selectedKpis.map((kpi) => {
             const isBounded = kpi.targetLogic === TargetLogic.Bounded;
             const kpiCadence = measureCadences[kpi.id];
@@ -213,23 +236,42 @@ export default function BscSetupWeightsStep({
                   className={`${KPI_ROW_LAYOUT} [&_.ant-input-number]:self-center [&_.ant-select]:self-center`}
                   data-cy={`bsc-setup-weights-kpi-block-${kpi.id}`}
                 >
-                  <div className="flex min-w-0 items-center self-center">
-                    <div className="flex min-w-0 flex-col gap-1">
-                      <p className="m-0 min-w-0 truncate text-base font-semibold leading-6 text-gray-900">
+                  <div
+                    data-cy="auto-added"
+                    className="flex min-w-0 items-center self-center"
+                  >
+                    <div
+                      data-cy="auto-added"
+                      className="flex min-w-0 flex-col gap-1"
+                    >
+                      <p
+                        data-cy="auto-added"
+                        className="m-0 min-w-0 truncate text-base font-semibold leading-6 text-gray-900"
+                      >
                         {kpi.name}
                       </p>
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                      <div
+                        data-cy="auto-added"
+                        className="flex flex-wrap items-center gap-x-3 gap-y-1.5"
+                      >
                         {kpi.perspective ? (
                           <Tag className="m-0 h-5 shrink-0 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[10px] font-normal leading-5 text-[#1677ff]">
                             {kpi.perspective}
                           </Tag>
                         ) : null}
-                        <span className="shrink-0 text-[10px] text-gray-500">
+                        <span
+                          data-cy="auto-added"
+                          className="shrink-0 text-[10px] text-gray-500"
+                        >
                           {targetLogicLabel(kpi.targetLogic)}
                         </span>
                         {firstCheckInDate ? (
-                          <span className="shrink-0 text-[10px] text-gray-500">
-                            First check-in: {formatCheckInDate(firstCheckInDate)}
+                          <span
+                            data-cy="auto-added"
+                            className="shrink-0 text-[10px] text-gray-500"
+                          >
+                            First check-in:{' '}
+                            {formatCheckInDate(firstCheckInDate)}
                           </span>
                         ) : null}
                       </div>
@@ -305,7 +347,12 @@ export default function BscSetupWeightsStep({
                         />
                       </Tooltip>
                     ) : (
-                      <span className="self-center text-sm text-gray-400">—</span>
+                      <span
+                        data-cy="auto-added"
+                        className="self-center text-sm text-gray-400"
+                      >
+                        —
+                      </span>
                     )}
 
                     <Select
@@ -329,8 +376,13 @@ export default function BscSetupWeightsStep({
                       data-cy={`bsc-scorecard-kpi-cadence-${kpi.id}`}
                     />
 
-                    <div className="col-span-3 min-w-0">
-                      <label className={fieldLabelClassName}>Data source</label>
+                    <div data-cy="auto-added" className="col-span-3 min-w-0">
+                      <label
+                        data-cy="auto-added"
+                        className={fieldLabelClassName}
+                      >
+                        Data source
+                      </label>
                       <Input
                         className={textInputClassName}
                         type="url"
@@ -348,8 +400,13 @@ export default function BscSetupWeightsStep({
                       />
                     </div>
 
-                    <div className="min-w-0">
-                      <label className={fieldLabelClassName}>Check-in day</label>
+                    <div data-cy="auto-added" className="min-w-0">
+                      <label
+                        data-cy="auto-added"
+                        className={fieldLabelClassName}
+                      >
+                        Check-in day
+                      </label>
                       <Select
                         className={selectClassName}
                         placeholder="Day"
@@ -369,9 +426,18 @@ export default function BscSetupWeightsStep({
                     </div>
 
                     {isBounded ? (
-                      <div className="col-span-4 flex flex-wrap items-center gap-3 pt-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-medium text-gray-500">
+                      <div
+                        data-cy="auto-added"
+                        className="col-span-4 flex flex-wrap items-center gap-3 pt-1"
+                      >
+                        <div
+                          data-cy="auto-added"
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            data-cy="auto-added"
+                            className="text-[11px] font-medium text-gray-500"
+                          >
                             Worst
                           </span>
                           <InputNumber
@@ -388,8 +454,14 @@ export default function BscSetupWeightsStep({
                             data-cy={`bsc-scorecard-kpi-worst-${kpi.id}`}
                           />
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] font-medium text-gray-500">
+                        <div
+                          data-cy="auto-added"
+                          className="flex items-center gap-2"
+                        >
+                          <span
+                            data-cy="auto-added"
+                            className="text-[11px] font-medium text-gray-500"
+                          >
                             Best
                           </span>
                           <InputNumber

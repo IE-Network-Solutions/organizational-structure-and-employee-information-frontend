@@ -299,6 +299,7 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
           );
         }
         return (
+          // eslint-disable-next-line react/jsx-no-undef
           <Input
             className="!w-[96px] h-8 text-sm"
             placeholder={

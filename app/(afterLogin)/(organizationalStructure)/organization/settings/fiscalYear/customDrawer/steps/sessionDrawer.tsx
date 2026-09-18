@@ -531,6 +531,7 @@ const SessionDrawer: React.FC<SessionDrawerProps> = ({
         </Row>
       </div>
     ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [validateSessionStartDate, validateSessionEndDate],
   );
 

@@ -38,6 +38,7 @@ const CandidateApprovalWorkflow = () => {
   } = useApprovalStore();
 
   const { data: usersData } = useGetAllUsers();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const users = usersData?.items || [];
   const { mutate: deleteWorkflow, isLoading: deleteLoading } =
     useDeleteApprovalWorkFLow();

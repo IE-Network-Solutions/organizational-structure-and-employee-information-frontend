@@ -74,12 +74,12 @@ export type ResultsPeriodFilter = 'current' | 'all';
 export function scorecardResultsHref(
   scope: ResultsScope = 'team',
   /** @deprecated Results uses a unified current-period employee list */
-  _listPreset?: ResultsListPreset,
+  listPreset?: ResultsListPreset,
   /** @deprecated Period history is on the employee detail page */
-  _periodFilter?: ResultsPeriodFilter,
+  periodFilter?: ResultsPeriodFilter,
 ): string {
-  void _listPreset;
-  void _periodFilter;
+  void listPreset;
+  void periodFilter;
   const params = new URLSearchParams({
     tab: 'results',
     scope,
@@ -93,9 +93,7 @@ export function parseResultsListPreset(
   if (!search) return 'needs-audit';
   const params =
     typeof search === 'string'
-      ? new URLSearchParams(
-          search.startsWith('?') ? search.slice(1) : search,
-        )
+      ? new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
       : search;
   const filter = params.get('resultsFilter');
   if (filter === 'all') return 'all';
@@ -111,9 +109,7 @@ export function parseResultsPeriodFilter(
   if (!search) return 'current';
   const params =
     typeof search === 'string'
-      ? new URLSearchParams(
-          search.startsWith('?') ? search.slice(1) : search,
-        )
+      ? new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
       : search;
   const period = params.get('resultsPeriod');
   if (period === 'all') return 'all';
@@ -162,9 +158,7 @@ export function parseRollupView(
   if (!search) return 'hub';
   const params =
     typeof search === 'string'
-      ? new URLSearchParams(
-          search.startsWith('?') ? search.slice(1) : search,
-        )
+      ? new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
       : search;
   const view = params.get('view');
   if (view === 'company') return 'company';
@@ -191,9 +185,7 @@ export function parseScorecardTab(
   if (!search) return 'mine';
   const params =
     typeof search === 'string'
-      ? new URLSearchParams(
-          search.startsWith('?') ? search.slice(1) : search,
-        )
+      ? new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
       : search;
   const tab = params.get('tab');
   if (!isScorecardTab(tab)) return 'mine';
@@ -206,9 +198,7 @@ export function parseResultsScope(
   if (!search) return 'team';
   const params =
     typeof search === 'string'
-      ? new URLSearchParams(
-          search.startsWith('?') ? search.slice(1) : search,
-        )
+      ? new URLSearchParams(search.startsWith('?') ? search.slice(1) : search)
       : search;
 
   const legacyTab = params.get('tab');

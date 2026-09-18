@@ -77,6 +77,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
 
   useEffect(() => {
     resetPagination();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const onPageChange = (page: number) => {

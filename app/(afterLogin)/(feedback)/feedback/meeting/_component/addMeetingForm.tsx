@@ -218,6 +218,7 @@ export default function AddNewMeetingForm({
   useEffect(() => {
     if (!embedded || addMeetingFormResetNonce === 0) return;
     resetFormState();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addMeetingFormResetNonce, embedded]);
 
   const getStep1FieldNames = (): string[] => {
@@ -335,6 +336,7 @@ export default function AddNewMeetingForm({
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateId, meetingAgendaTemplateById]);
   const onSubmitStep3 = async () => {
     try {

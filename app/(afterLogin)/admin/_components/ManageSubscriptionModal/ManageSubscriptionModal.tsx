@@ -307,6 +307,7 @@ export const ManageSubscriptionModal: React.FC<
     }
 
     setSelectedPeriodTypeId(getDefaultPeriodTypeId(plan));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedPlanId, visiblePlans, activeSubscription]);
 
   const selectedPlan = visiblePlans.find((p) => p.id === selectedPlanId);
@@ -531,6 +532,7 @@ export const ManageSubscriptionModal: React.FC<
     isSeatIncreased,
   ]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const billingPeriodOptions = selectedPlan?.periods?.length
     ? sortPlanPeriods(selectedPlan.periods)
     : [];

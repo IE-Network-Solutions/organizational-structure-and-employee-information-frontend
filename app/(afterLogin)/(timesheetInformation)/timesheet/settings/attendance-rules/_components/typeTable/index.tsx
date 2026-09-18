@@ -58,6 +58,8 @@ const TypeTable: FC = () => {
   const tableData = attendanceRulesData?.items ?? [];
   const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const ruleTypeFilters = [
     { id: ALL_RULE_TYPE_FILTER_ID, title: 'All' },
     ...(attendanceRuleTypesData?.items?.map((rule) => ({

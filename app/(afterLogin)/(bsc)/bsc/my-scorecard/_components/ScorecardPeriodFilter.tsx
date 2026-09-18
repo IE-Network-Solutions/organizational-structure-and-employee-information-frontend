@@ -85,55 +85,55 @@ export default function ScorecardPeriodFilter({
           data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-41-grid"
           className="grid grid-cols-1 gap-4 sm:grid-cols-2"
         >
-        <div
-          data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-42"
-          className="flex flex-col gap-2"
-        >
-          <label
-            data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-label-43"
-            className="text-sm font-medium text-gray-700"
+          <div
+            data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-42"
+            className="flex flex-col gap-2"
           >
-            Session
-          </label>
-          <Select
-            allowClear
-            placeholder="Select session"
-            className="w-full h-10 rounded-lg"
-            value={myScorecardSessionId}
-            onChange={handleSessionChange}
-            options={(activeFy?.sessions || []).map((session) => ({
-              value: session.id,
-              label: session.name,
-            }))}
-            data-cy="bsc-my-sc-session"
-          />
-        </div>
-        <div
-          data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-57"
-          className="flex flex-col gap-2"
-        >
-          <label
-            data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-label-58"
-            className="text-sm font-medium text-gray-700"
+            <label
+              data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-label-43"
+              className="text-sm font-medium text-gray-700"
+            >
+              Session
+            </label>
+            <Select
+              allowClear
+              placeholder="Select session"
+              className="w-full h-10 rounded-lg"
+              value={myScorecardSessionId}
+              onChange={handleSessionChange}
+              options={(activeFy?.sessions || []).map((session) => ({
+                value: session.id,
+                label: session.name,
+              }))}
+              data-cy="bsc-my-sc-session"
+            />
+          </div>
+          <div
+            data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-div-57"
+            className="flex flex-col gap-2"
           >
-            Month
-          </label>
-          <Select
-            allowClear
-            placeholder="Select month"
-            className="w-full h-10 rounded-lg"
-            value={myScorecardMonthId}
-            onChange={setMyScorecardMonthId}
-            disabled={
-              !myScorecardSessionId || myScorecardSessionMonths.length === 0
-            }
-            options={myScorecardSessionMonths.map((month) => ({
-              value: month.id,
-              label: month.name,
-            }))}
-            data-cy="bsc-my-sc-month"
-          />
-        </div>
+            <label
+              data-cy="bsc-my-scorecard-components-scorecardperiodfilter-tsx-scorecardperiodfilter-label-58"
+              className="text-sm font-medium text-gray-700"
+            >
+              Month
+            </label>
+            <Select
+              allowClear
+              placeholder="Select month"
+              className="w-full h-10 rounded-lg"
+              value={myScorecardMonthId}
+              onChange={setMyScorecardMonthId}
+              disabled={
+                !myScorecardSessionId || myScorecardSessionMonths.length === 0
+              }
+              options={myScorecardSessionMonths.map((month) => ({
+                value: month.id,
+                label: month.name,
+              }))}
+              data-cy="bsc-my-sc-month"
+            />
+          </div>
         </div>
       </div>
     </div>

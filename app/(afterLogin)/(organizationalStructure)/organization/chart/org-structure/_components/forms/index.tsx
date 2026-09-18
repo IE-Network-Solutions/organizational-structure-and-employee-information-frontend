@@ -64,6 +64,7 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
 
       return null;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
@@ -143,6 +144,7 @@ export const TransferForm: React.FC<DeleteFormProps> = ({ form }) => {
     if (childDepartment.length > 0 && rootDepartment?.id && orgStructureData) {
       Merge();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [Merge]);
 
   return (

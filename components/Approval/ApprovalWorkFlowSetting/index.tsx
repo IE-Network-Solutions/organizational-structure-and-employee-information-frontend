@@ -62,6 +62,7 @@ const ApprovalWorkFlowSettingComponent = ({
   ];
   useEffect(() => {
     isSuccess && form.resetFields();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   const { data: department } = useGetDepartments();

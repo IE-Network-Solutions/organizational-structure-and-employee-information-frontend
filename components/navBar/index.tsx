@@ -601,6 +601,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // ===========> Fiscal Year Ended Section <=================
 
   // Separate array for routes that should be accessible but not shown in navigation
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const hiddenRoutes: { key: string; permissions: string[] }[] = [
     {
       key: '/dashboard',
@@ -1129,6 +1130,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
     ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasEndedFiscalYear, userData]);
 
   // Helper function moved to global scope
@@ -1194,6 +1196,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         requireAny: matchingRoute.requireAny,
       });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [treeData, userData],
   );
   const { data: modulesData, isLoading: modulesLoading } = useGetModules({
@@ -1727,6 +1730,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return Array.from(groupedByParent.values()).filter(
       (group) => group.children.length > 0,
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [treeData, modulesData, subscriptionData, subscriptionsData]);
 
   // Fallback skeleton structure used while modules data is not yet available

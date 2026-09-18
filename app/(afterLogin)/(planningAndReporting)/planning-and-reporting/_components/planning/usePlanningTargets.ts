@@ -77,6 +77,7 @@ export function usePlanningTargets(
           planKeyResults,
         );
     return filterPlanningTargetsByBlockedKeyResults(raw, userKeyResultItems);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     planningPeriodId,
     isDailyPeriod,

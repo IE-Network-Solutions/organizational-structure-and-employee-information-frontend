@@ -37,6 +37,7 @@ const AddTypesSidebar = () => {
     if (typeId) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typeId]);
 
   useEffect(() => {
@@ -45,12 +46,14 @@ const AddTypesSidebar = () => {
       form.setFieldValue('title', item.title);
       form.setFieldValue('unit', item.unit);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attendanceTypeData]);
 
   useEffect(() => {
     if (isSuccess) {
       onClose();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess]);
 
   const itemClass = 'font-semibold text-xs';

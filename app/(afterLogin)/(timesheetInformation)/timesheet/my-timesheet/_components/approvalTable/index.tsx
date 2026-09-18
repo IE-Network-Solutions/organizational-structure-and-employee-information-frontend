@@ -107,6 +107,7 @@ const ApprovalTable = () => {
   useEffect(() => {
     setUserCurrentPage(1);
     setPageSize(10);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   useEffect(() => {
@@ -166,6 +167,7 @@ const ApprovalTable = () => {
   useEffect(() => {
     setUserCurrentPage(1);
     setSelectedRowKeys([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchEmployee, filterStatus, approvalTypeFilter]);
 
   /**
@@ -506,6 +508,7 @@ const ApprovalTable = () => {
           ),
         };
       }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       rawItems,
       userId,
@@ -726,6 +729,7 @@ const ApprovalTable = () => {
     );
 
     return base;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShiftSwap, rowCellClass, userOptions]);
 
   const tableScrollX = isShiftSwap

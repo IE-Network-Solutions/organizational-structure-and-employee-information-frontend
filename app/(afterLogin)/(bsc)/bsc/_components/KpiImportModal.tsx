@@ -3,7 +3,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Button, Modal, Table, Tag, Upload } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { CloseOutlined, DownloadOutlined, InboxOutlined } from '@ant-design/icons';
+import {
+  CloseOutlined,
+  DownloadOutlined,
+  InboxOutlined,
+} from '@ant-design/icons';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
@@ -15,6 +19,7 @@ import {
   parseKpiImportFile,
 } from '@/utils/bsc/kpiImport';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function pickUploadFile(fileField: unknown): File | undefined {
   const raw = fileField as
     | { file?: { originFileObj?: File }; originFileObj?: File }
@@ -35,7 +40,9 @@ export default function KpiImportModal() {
   const [parseLoading, setParseLoading] = useState(false);
 
   const evaluationConfigId = useMemo(() => {
-    const openConfig = (configs || []).find((c) => c.status === CycleStatus.Open);
+    const openConfig = (configs || []).find(
+      (c) => c.status === CycleStatus.Open,
+    );
     return openConfig?.id || configs?.[0]?.id || 'library';
   }, [configs]);
 
@@ -48,7 +55,7 @@ export default function KpiImportModal() {
       title: 'Status',
       key: 'status',
       width: 110,
-      render: (_, row) =>
+      render: (ignored, row) =>
         row.error ? (
           <Tag color="red">Invalid</Tag>
         ) : (
@@ -58,17 +65,17 @@ export default function KpiImportModal() {
     {
       title: 'Name',
       key: 'name',
-      render: (_, row) => row.input?.name || '—',
+      render: (ignored, row) => row.input?.name || '—',
     },
     {
       title: 'Perspective',
       key: 'perspective',
-      render: (_, row) => row.input?.perspective || '—',
+      render: (ignored, row) => row.input?.perspective || '—',
     },
     {
       title: 'Details',
       key: 'details',
-      render: (_, row) => row.error || row.input?.measurementUnit || '—',
+      render: (ignored, row) => row.error || row.input?.measurementUnit || '—',
     },
   ];
 
@@ -149,8 +156,8 @@ export default function KpiImportModal() {
       title="Import KPIs"
       data-cy="bsc-kpi-import-modal"
     >
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-2">
+      <div data-cy="auto-added" className="flex flex-col gap-4">
+        <div data-cy="auto-added" className="flex flex-wrap items-center gap-2">
           <Button
             icon={<DownloadOutlined />}
             loading={downloadLoading}
@@ -173,19 +180,17 @@ export default function KpiImportModal() {
             reset();
           }}
           fileList={
-            file
-              ? [{ uid: '1', name: file.name, status: 'done' as const }]
-              : []
+            file ? [{ uid: '1', name: file.name, status: 'done' as const }] : []
           }
           data-cy="bsc-kpi-import-upload"
         >
-          <p className="ant-upload-drag-icon">
+          <p data-cy="auto-added" className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
-          <p className="ant-upload-text">
+          <p data-cy="auto-added" className="ant-upload-text">
             Click or drag Excel file to upload
           </p>
-          <p className="ant-upload-hint">
+          <p data-cy="auto-added" className="ant-upload-hint">
             Use the template format. Valid and invalid rows will be previewed
             before import.
           </p>
@@ -193,7 +198,10 @@ export default function KpiImportModal() {
 
         {parsedRows.length ? (
           <>
-            <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+            <div
+              data-cy="auto-added"
+              className="flex flex-wrap gap-3 text-sm text-gray-600"
+            >
               <span data-cy="bsc-kpi-import-valid-count">
                 Valid: {validRows.length}
               </span>
@@ -213,7 +221,7 @@ export default function KpiImportModal() {
           </>
         ) : null}
 
-        <div className="flex justify-end gap-2">
+        <div data-cy="auto-added" className="flex justify-end gap-2">
           <CustomButton
             type="default"
             title="Cancel"

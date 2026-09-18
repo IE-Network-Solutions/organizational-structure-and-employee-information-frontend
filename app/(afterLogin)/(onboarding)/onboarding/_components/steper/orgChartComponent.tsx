@@ -221,6 +221,7 @@ const OrgChartComponent: React.FC = () => {
         });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branches, orgData.department, hasManuallyDeletedDepartments]);
 
   const rootDepartment: Department = {

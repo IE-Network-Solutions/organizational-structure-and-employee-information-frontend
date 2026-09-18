@@ -28,6 +28,7 @@ const TakePicture: FC<TakePictureProps> = ({ className = '', onChange }) => {
       setImgBase64(imageSrc);
       onChange(imageSrc);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [webcamRef]);
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const TakePicture: FC<TakePictureProps> = ({ className = '', onChange }) => {
         setIsLoading(false);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imgBase64]);
 
   const onClose = () => {

@@ -80,6 +80,7 @@ const TnaManagementLayout: FC<TnaManagementLayoutProps> = ({ children }) => {
       setCourse(item);
       setRefetchCourse(refetch);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseData]);
 
   const pageHeaderTitle = lessonMaterial

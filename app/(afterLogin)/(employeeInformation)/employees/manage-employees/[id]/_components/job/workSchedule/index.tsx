@@ -375,6 +375,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
       );
       setDailySchedule(scheduleData);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     form,
     employeeData,

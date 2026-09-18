@@ -167,10 +167,7 @@ function OverflowChipRow({ items, onViewMore, dataCy }: OverflowChipRowProps) {
 
   if (!items.length) {
     return (
-      <span
-        className="text-[12px] text-[#8F94A3]"
-        data-cy={`${dataCy}-empty`}
-      >
+      <span className="text-[12px] text-[#8F94A3]" data-cy={`${dataCy}-empty`}>
         None assigned
       </span>
     );
@@ -182,16 +179,23 @@ function OverflowChipRow({ items, onViewMore, dataCy }: OverflowChipRowProps) {
   return (
     <div className="relative min-w-0" data-cy={`${dataCy}-chips`}>
       <div
+        data-cy="auto-added"
         ref={measureRef}
         className="pointer-events-none invisible absolute left-0 top-0 flex h-5 items-center gap-1.5 whitespace-nowrap"
         aria-hidden
       >
         {items.map((item, index) => (
-          <span key={`${item}-${index}`} data-name-chip className={chipClassName}>
+          <span
+            data-cy="auto-added"
+            key={`${item}-${index}`}
+            data-name-chip
+            className={chipClassName}
+          >
             {item}
           </span>
         ))}
         <button
+          data-cy="auto-added"
           ref={moreMeasureRef}
           type="button"
           tabIndex={-1}
@@ -201,11 +205,13 @@ function OverflowChipRow({ items, onViewMore, dataCy }: OverflowChipRowProps) {
         </button>
       </div>
       <div
+        data-cy="auto-added"
         ref={visibleRef}
         className="flex min-w-0 items-center gap-1.5 overflow-hidden"
       >
         {shown.map((item, index) => (
           <span
+            data-cy="auto-added"
             key={`${item}-${index}`}
             data-name-chip
             className={chipClassName}
@@ -254,7 +260,7 @@ export function BscKpiCountCard({
         className="flex items-center justify-between gap-2"
         data-cy={`${dataCy}-header`}
       >
-        <div className="flex min-w-0 items-center gap-2">
+        <div data-cy="auto-added" className="flex min-w-0 items-center gap-2">
           <div
             className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[4px] bg-[#E6F4FF]"
             data-cy={`${dataCy}-icon`}
@@ -275,13 +281,7 @@ export function BscKpiCountCard({
           {items.length}
         </div>
       </div>
-      <OverflowChipRow
-        items={items}
-        onViewMore={onViewMore}
-        dataCy={dataCy}
-      />
+      <OverflowChipRow items={items} onViewMore={onViewMore} dataCy={dataCy} />
     </div>
   );
 }
-
-

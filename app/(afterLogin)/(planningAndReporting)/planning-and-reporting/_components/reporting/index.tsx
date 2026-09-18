@@ -162,6 +162,7 @@ function Reporting({
     return allReporting?.items?.map((dataItem: any) =>
       transformReportToPlanSummary(dataItem, cadence, employeeData),
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allReporting?.items, cadence, employeeData, reportTaskOverrides]);
 
   const totalReportingItems = allReporting?.meta?.totalItems ?? 0;

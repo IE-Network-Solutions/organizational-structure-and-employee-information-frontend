@@ -236,6 +236,7 @@ const Questions = ({ params: { id } }: PublicQuestionProps) => {
     setWantsNewResponse(true);
     setSelectedSubmissionId(null);
     form.resetFields();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, replaceAllSelectedAnswers]);
 
   useLayoutEffect(() => {

@@ -90,6 +90,7 @@ const SuccessorAssessmentModal: React.FC<SuccessorAssessmentModalProps> = ({
           ) ?? initialValues.readiness,
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialValues, form, requiredExperienceYears]);
 
   useEffect(() => {

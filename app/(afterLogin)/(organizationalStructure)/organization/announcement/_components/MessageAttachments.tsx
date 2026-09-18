@@ -154,6 +154,7 @@ const ImagePreview = ({
         fallbackObjectUrlRef.current = '';
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [file.fileType, file.fileUrl, file.fileView, file.id]);
 
   const loadApiFallback = () => {

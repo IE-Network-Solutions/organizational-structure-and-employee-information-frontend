@@ -188,6 +188,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
 
   useEffect(() => {
     resetPagination();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const {
@@ -215,6 +216,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     true,
     true,
   );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const importWarnings: Array<{
     line?: number;
     warning?: string;
@@ -730,6 +732,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     if (isImport) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isImport]);
 
   useEffect(() => {

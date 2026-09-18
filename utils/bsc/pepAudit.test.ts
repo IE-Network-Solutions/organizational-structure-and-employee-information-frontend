@@ -12,21 +12,21 @@ import {
 
 describe('pepAudit', () => {
   it('flags higher-is-better results below threshold', () => {
-    expect(
-      isUnrealisticKpiResult(70, 90, 81, TargetLogic.HigherBetter),
-    ).toBe(true);
-    expect(
-      isUnrealisticKpiResult(85, 90, 81, TargetLogic.HigherBetter),
-    ).toBe(false);
+    expect(isUnrealisticKpiResult(70, 90, 81, TargetLogic.HigherBetter)).toBe(
+      true,
+    );
+    expect(isUnrealisticKpiResult(85, 90, 81, TargetLogic.HigherBetter)).toBe(
+      false,
+    );
   });
 
   it('flags lower-is-better results above threshold', () => {
-    expect(
-      isUnrealisticKpiResult(35, 30, 33, TargetLogic.LowerBetter),
-    ).toBe(true);
-    expect(
-      isUnrealisticKpiResult(31, 30, 33, TargetLogic.LowerBetter),
-    ).toBe(false);
+    expect(isUnrealisticKpiResult(35, 30, 33, TargetLogic.LowerBetter)).toBe(
+      true,
+    );
+    expect(isUnrealisticKpiResult(31, 30, 33, TargetLogic.LowerBetter)).toBe(
+      false,
+    );
   });
 
   it('resolves audit flags from target data', () => {

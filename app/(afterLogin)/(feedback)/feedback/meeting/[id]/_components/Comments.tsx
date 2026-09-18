@@ -153,6 +153,7 @@ const CommentComponent: React.FC<CommentComponentProps> = ({
           profileImage: user?.profileImage,
         };
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attendeesData, employeeData]);
 
   const editor = useEditor(

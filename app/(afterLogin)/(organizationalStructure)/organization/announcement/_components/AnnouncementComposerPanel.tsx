@@ -788,6 +788,7 @@ const CollaborationComposer = ({
       root.removeEventListener('keyup', updateMentionState);
       root.removeEventListener('click', updateMentionState);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editorReady, filteredMentionUsers, mentionQuery, selectedMentionIndex]);
 
   const handleAttachFiles = (

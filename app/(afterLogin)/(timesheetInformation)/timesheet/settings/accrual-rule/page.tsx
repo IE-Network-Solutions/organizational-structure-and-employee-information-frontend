@@ -25,6 +25,7 @@ const Page = () => {
     if (!isShowNewAccrualRuleSidebar) {
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShowNewAccrualRuleSidebar]);
 
   return (

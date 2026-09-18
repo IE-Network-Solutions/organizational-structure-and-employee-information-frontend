@@ -89,6 +89,7 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
 
       setSelectedMonth(months ?? []);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, activeFiscalYear, monthData]);
   useEffect(() => {
     if (type === 'Quarterly') {
@@ -141,6 +142,7 @@ const LineGraph: React.FC<PayCardInterface> = ({ id }) => {
         setDisplayData(lineGraphByMonth);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type, activeFiscalYear, lineGraphByMonth]);
 
   const data = {

@@ -26,7 +26,11 @@ import { targetScorePercent } from '@/utils/bsc/rollup';
 
 function DataSourceReview({ url }: { url: string | null | undefined }) {
   if (!url?.trim()) {
-    return <span className="text-sm text-gray-500">No data source provided</span>;
+    return (
+      <span data-cy="auto-added" className="text-sm text-gray-500">
+        No data source provided
+      </span>
+    );
   }
   const source = url.trim();
   const href = /^https?:\/\//i.test(source) ? source : `https://${source}`;
@@ -114,8 +118,14 @@ export default function PepAuditKpiReviewCard({
       className={`px-4 py-4 ${isLast ? '' : 'border-b border-[#F0F0F0]'}`}
       data-cy={`bsc-pep-audit-kpi-row-${target.id}`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
+      <div
+        data-cy="auto-added"
+        className="flex flex-wrap items-center justify-between gap-3"
+      >
+        <div
+          data-cy="auto-added"
+          className="flex min-w-0 flex-1 items-start gap-3"
+        >
           {selectable ? (
             <Checkbox
               checked={selected}
@@ -125,17 +135,28 @@ export default function PepAuditKpiReviewCard({
               data-cy={`bsc-pep-audit-select-${target.id}`}
             />
           ) : null}
-          <div className="min-w-0 flex-1">
-            <p className="m-0 text-sm font-semibold text-gray-900">{target.kpiName}</p>
+          <div data-cy="auto-added" className="min-w-0 flex-1">
+            <p
+              data-cy="auto-added"
+              className="m-0 text-sm font-semibold text-gray-900"
+            >
+              {target.kpiName}
+            </p>
 
-            <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
+            <div
+              data-cy="auto-added"
+              className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2"
+            >
               <ScoreProgressBar
                 value={progress}
                 dataCy={`bsc-pep-audit-progress-${target.id}`}
                 className="!min-w-[180px] !max-w-[280px]"
               />
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                <span>
+              <div
+                data-cy="auto-added"
+                className="flex flex-wrap items-center gap-4 text-sm text-gray-600"
+              >
+                <span data-cy="auto-added">
                   Reported:{' '}
                   <TargetMetricValue
                     value={target.actualValue}
@@ -145,7 +166,7 @@ export default function PepAuditKpiReviewCard({
                     dataCy={`bsc-pep-audit-actual-${target.id}`}
                   />
                 </span>
-                <span>
+                <span data-cy="auto-added">
                   Target:{' '}
                   <TargetMetricValue
                     value={target.targetValue}
@@ -158,22 +179,30 @@ export default function PepAuditKpiReviewCard({
               </div>
             </div>
 
-            <div className="mt-2">
+            <div data-cy="auto-added" className="mt-2">
               <DataSourceReview url={target.dataSource} />
             </div>
 
             {isReturnedToManager && target.pepReturnReason ? (
-              <p className="m-0 mt-2 text-sm text-amber-700">
+              <p
+                data-cy="auto-added"
+                className="m-0 mt-2 text-sm text-amber-700"
+              >
                 Returned to manager: {target.pepReturnReason}
               </p>
             ) : null}
             {isRejected && target.rejectionReason ? (
-              <p className="m-0 mt-2 text-sm text-red-600">{target.rejectionReason}</p>
+              <p data-cy="auto-added" className="m-0 mt-2 text-sm text-red-600">
+                {target.rejectionReason}
+              </p>
             ) : null}
           </div>
         </div>
 
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
+        <div
+          data-cy="auto-added"
+          className="flex shrink-0 flex-wrap items-center gap-2"
+        >
           {canAct ? (
             <>
               <Button

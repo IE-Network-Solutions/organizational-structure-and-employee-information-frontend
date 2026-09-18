@@ -169,6 +169,7 @@ export function AddDepartmentModal() {
       branchId: branchId || undefined,
       colour: getValidColourOrDefault(fetchedDepartment.departmentColor),
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     needsFetch,
     fetchedDepartment,

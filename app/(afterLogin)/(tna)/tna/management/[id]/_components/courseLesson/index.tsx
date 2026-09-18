@@ -80,6 +80,7 @@ const CourseLesson = () => {
     if ((!isShowAddLesson || !isShowLessonMaterial) && refetchCourse) {
       refetchCourse();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShowAddLesson, isShowLessonMaterial]);
 
   // Only expand the first lesson by default on initial load (by sort order)

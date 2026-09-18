@@ -556,7 +556,7 @@ export default function BscScorecardDetailPage() {
           >
             {listModal === 'people' ? (
               filteredPeople.length ? (
-                <div className="flex flex-col gap-1">
+                <div data-cy="auto-added" className="flex flex-col gap-1">
                   {filteredPeople.map((person) => (
                     <button
                       key={person.userId}
@@ -581,11 +581,20 @@ export default function BscScorecardDetailPage() {
                       >
                         {nameInitials(person.userName)}
                       </Avatar>
-                      <div className="min-w-0 flex flex-col">
-                        <span className="truncate text-sm font-medium text-[#262626]">
+                      <div
+                        data-cy="auto-added"
+                        className="min-w-0 flex flex-col"
+                      >
+                        <span
+                          data-cy="auto-added"
+                          className="truncate text-sm font-medium text-[#262626]"
+                        >
                           {person.userName}
                         </span>
-                        <span className="truncate text-xs text-[#8F94A3]">
+                        <span
+                          data-cy="auto-added"
+                          className="truncate text-xs text-[#8F94A3]"
+                        >
                           {[person.positionTitle, person.departmentName]
                             .filter(Boolean)
                             .join(' · ') || '—'}
@@ -605,7 +614,7 @@ export default function BscScorecardDetailPage() {
                 />
               )
             ) : filteredNames.length ? (
-              <div className="flex flex-col gap-1">
+              <div data-cy="auto-added" className="flex flex-col gap-1">
                 {filteredNames.map((name) => (
                   <div
                     key={name}

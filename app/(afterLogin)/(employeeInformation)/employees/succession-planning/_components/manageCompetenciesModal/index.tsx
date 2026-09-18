@@ -137,6 +137,7 @@ const ManageCompetenciesModal: React.FC<ManageCompetenciesModalProps> = ({
           : undefined,
     });
     setCurrent(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, role, form]);
 
   const handleContinue = async () => {

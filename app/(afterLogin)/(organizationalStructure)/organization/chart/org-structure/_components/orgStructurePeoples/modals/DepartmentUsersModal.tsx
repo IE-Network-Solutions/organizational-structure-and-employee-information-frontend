@@ -139,6 +139,7 @@ export function DepartmentUsersModal() {
       left: Math.max(margin, Math.min(left, maxLeft)),
       top: Math.max(margin, Math.min(top, maxTop)),
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     position?.left,
     position?.top,
@@ -162,6 +163,7 @@ export function DepartmentUsersModal() {
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     useAnchor,
     position?.left,

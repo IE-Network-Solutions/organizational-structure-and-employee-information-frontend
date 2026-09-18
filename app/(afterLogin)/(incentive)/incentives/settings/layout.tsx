@@ -99,6 +99,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
 
       setMenuItems([defaultIncentiveSettings, ...dynamicMenuItems]);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recognitionData, currentItem]);
 
   useEffect(() => {
@@ -106,6 +107,7 @@ const IncentiveSettingsLayout: FC<IncentiveSettingsLayoutProps> = ({
     const lastKey = pathSegments[pathSegments.length - 1];
 
     setCurrentItem(lastKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const incentiveSidebarMenuItems = new SidebarMenuItem(menuItems);

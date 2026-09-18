@@ -41,6 +41,7 @@ const LeaveManagement = () => {
 
   useEffect(() => {
     setLeaveTypes(leaveTypesData?.items ?? []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leaveTypesData]);
 
   useEffect(() => {
@@ -76,6 +77,7 @@ const LeaveManagement = () => {
         }));
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bodyRequest]);
 
   const onExport = (type: 'PDF' | 'EXCEL') => {
