@@ -9,6 +9,12 @@ type EmployeeAttendanceState = {
   employeeAttendanceId: string | '';
   employeeId: string;
   attendanceRecordDate: string;
+  /** Break times from the table row, used to prefill edit when filtering by break type. */
+  editingBreakTimes: {
+    startAt: string | null;
+    endAt: string | null;
+    breakTypeId?: string;
+  } | null;
   isShowBreakAttendanceImportSidebar: boolean;
   isShowMobileFilters: boolean;
   showViolationFilter: boolean;
@@ -39,6 +45,13 @@ type EmployeeAttendanceStateAction = {
   setEmployeeAttendanceId: (employeeAttendanceId: string | '') => void;
   setEmployeeId: (employeeId: string) => void;
   setAttendanceRecordDate: (attendanceRecordDate: string) => void;
+  setEditingBreakTimes: (
+    editingBreakTimes: {
+      startAt: string | null;
+      endAt: string | null;
+      breakTypeId?: string;
+    } | null,
+  ) => void;
   setIsShowBreakAttendanceImportSidebar: (
     isShowBreakAttendanceImportSidebar: boolean,
   ) => void;
@@ -91,6 +104,9 @@ const employeeAttendanceSlice: StateCreator<
   attendanceRecordDate: '',
   setAttendanceRecordDate: (attendanceRecordDate: string) =>
     set({ attendanceRecordDate }),
+
+  editingBreakTimes: null,
+  setEditingBreakTimes: (editingBreakTimes) => set({ editingBreakTimes }),
 
   isShowBreakAttendanceImportSidebar: false,
   setIsShowBreakAttendanceImportSidebar: (
