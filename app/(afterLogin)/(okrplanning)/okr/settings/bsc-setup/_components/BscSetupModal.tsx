@@ -204,6 +204,7 @@ type MeasureRow = {
   measurementUnit?: string;
   defaultTarget?: number | null;
   targetValue?: number | null;
+  stretchTarget?: number | null;
   dataSource?: string | null;
   acceptableThreshold?: number | null;
   worstCase?: number | null;
@@ -340,6 +341,8 @@ export default function BscSetupModal() {
     Form.useWatch('measureWeights', form) || {};
   const measureTargets: Record<string, number | null | undefined> =
     Form.useWatch('measureTargets', form) || {};
+  const measureStretchTargets: Record<string, number | null | undefined> =
+    Form.useWatch('measureStretchTargets', form) || {};
   const measureWorstCases: Record<string, number | null | undefined> =
     Form.useWatch('measureWorstCases', form) || {};
   const measureBestCases: Record<string, number | null | undefined> =
@@ -497,6 +500,7 @@ export default function BscSetupModal() {
         perspectiveRows: seedPerspectiveRows(catalogPerspectiveNames),
         measureWeights: {},
         measureTargets: {},
+        measureStretchTargets: {},
         measureWorstCases: {},
         measureBestCases: {},
         measureCadences: {},
@@ -520,6 +524,7 @@ export default function BscSetupModal() {
         perspectiveRows: seedPerspectiveRows(catalogPerspectiveNames),
         measureWeights: {},
         measureTargets: {},
+        measureStretchTargets: {},
         measureWorstCases: {},
         measureBestCases: {},
         measureCadences: {},
@@ -548,6 +553,7 @@ export default function BscSetupModal() {
     const selectedIds: string[] = [];
     const measureWeights: Record<string, number> = {};
     const measureTargets: Record<string, number> = {};
+    const measureStretchTargets: Record<string, number> = {};
     const measureWorstCases: Record<string, number> = {};
     const measureBestCases: Record<string, number> = {};
     const measureCadences: Record<string, BscCadence> = {};
@@ -562,6 +568,9 @@ export default function BscSetupModal() {
       if (existing.weight > 0) measureWeights[catalogKpi.id] = existing.weight;
       if (existing.defaultTarget != null) {
         measureTargets[catalogKpi.id] = existing.defaultTarget;
+      }
+      if (existing.stretchTarget != null) {
+        measureStretchTargets[catalogKpi.id] = existing.stretchTarget;
       }
       if (existing.worstCase != null) {
         measureWorstCases[catalogKpi.id] = existing.worstCase;
@@ -621,6 +630,7 @@ export default function BscSetupModal() {
       perspectiveRows,
       measureWeights,
       measureTargets,
+      measureStretchTargets,
       measureWorstCases,
       measureBestCases,
       measureCadences,
@@ -922,6 +932,11 @@ export default function BscSetupModal() {
         string,
         number | null | undefined
       >) || {};
+    const currentStretch =
+      (form.getFieldValue('measureStretchTargets') as Record<
+        string,
+        number | null | undefined
+      >) || {};
     const currentWorst =
       (form.getFieldValue('measureWorstCases') as Record<
         string,
@@ -934,12 +949,16 @@ export default function BscSetupModal() {
       >) || {};
 
     const nextTargets = { ...currentTargets };
+    const nextStretch = { ...currentStretch };
     const nextWorst = { ...currentWorst };
     const nextBest = { ...currentBest };
 
     for (const kpi of selectedKpis) {
       if (nextTargets[kpi.id] == null && kpi.defaultTarget != null) {
         nextTargets[kpi.id] = kpi.defaultTarget;
+      }
+      if (nextStretch[kpi.id] == null && kpi.stretchTarget != null) {
+        nextStretch[kpi.id] = kpi.stretchTarget;
       }
       if (kpi.targetLogic === TargetLogic.Bounded) {
         if (nextWorst[kpi.id] == null && kpi.worstCase != null) {
@@ -953,6 +972,7 @@ export default function BscSetupModal() {
 
     form.setFieldsValue({
       measureTargets: nextTargets,
+      measureStretchTargets: nextStretch,
       measureWorstCases: nextWorst,
       measureBestCases: nextBest,
     });
@@ -1101,6 +1121,10 @@ export default function BscSetupModal() {
             measureTargets[kpi.id] != null
               ? Number(measureTargets[kpi.id])
               : (kpi.defaultTarget ?? null),
+          stretchTarget:
+            measureStretchTargets[kpi.id] != null
+              ? Number(measureStretchTargets[kpi.id])
+              : (kpi.stretchTarget ?? null),
           worstCase:
             measureWorstCases[kpi.id] != null
               ? Number(measureWorstCases[kpi.id])
@@ -1184,6 +1208,7 @@ export default function BscSetupModal() {
       targetLogic: row.targetLogic,
       measurementUnit: row.measurementUnit,
       defaultTarget: row.targetValue ?? null,
+      stretchTarget: row.stretchTarget ?? null,
       worstCase: row.worstCase ?? null,
       bestCase: row.bestCase ?? null,
       cadence: row.cadence ?? null,
@@ -1304,6 +1329,7 @@ export default function BscSetupModal() {
               kpiLibraryId: row.kpiId!,
               weightPercentage: Number(row.weight),
               targetValue: Number(row.targetValue),
+              stretchTarget: row.stretchTarget ?? null,
               dataSource: row.dataSource ?? null,
               acceptableThreshold: row.acceptableThreshold ?? null,
               worstCase: row.worstCase ?? undefined,
@@ -1803,6 +1829,7 @@ export default function BscSetupModal() {
             selectedKpis={selectedKpis}
             measureWeights={measureWeights}
             measureTargets={measureTargets}
+            measureStretchTargets={measureStretchTargets}
             measureDataSources={measureDataSources}
             measureAcceptableThresholds={measureAcceptableThresholds}
             measureWorstCases={measureWorstCases}

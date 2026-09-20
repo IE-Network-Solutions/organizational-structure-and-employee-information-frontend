@@ -35,10 +35,10 @@ const TABLE_HEADER_LAYOUT =
   'grid grid-cols-1 gap-y-1 px-3 sm:grid-cols-2 sm:gap-x-4 sm:px-4';
 
 const INPUT_FIELDS_GRID =
-  'grid w-full max-w-full grid-cols-[minmax(72px,1fr)_minmax(88px,1.15fr)_minmax(88px,1.15fr)_minmax(112px,1.35fr)] grid-rows-[auto_auto] gap-x-2 gap-y-2';
+  'grid w-full max-w-full grid-cols-[minmax(60px,0.85fr)_minmax(72px,1fr)_minmax(72px,1fr)_minmax(72px,1fr)_minmax(100px,1.2fr)] grid-rows-[auto_auto] gap-x-2 gap-y-2';
 
 const INPUT_HEADER_GRID =
-  'grid grid-cols-[minmax(72px,1fr)_minmax(88px,1.15fr)_minmax(88px,1.15fr)_minmax(112px,1.35fr)] gap-x-2';
+  'grid grid-cols-[minmax(60px,0.85fr)_minmax(72px,1fr)_minmax(72px,1fr)_minmax(72px,1fr)_minmax(100px,1.2fr)] gap-x-2';
 
 const headerCellClassName = 'py-2.5 text-xs font-semibold text-gray-500';
 
@@ -56,6 +56,7 @@ type Props = {
   selectedKpis: KpiLibraryItem[];
   measureWeights: Record<string, number | null | undefined>;
   measureTargets: Record<string, number | null | undefined>;
+  measureStretchTargets: Record<string, number | null | undefined>;
   measureDataSources: Record<string, string | null | undefined>;
   measureAcceptableThresholds: Record<string, number | null | undefined>;
   measureWorstCases: Record<string, number | null | undefined>;
@@ -79,6 +80,7 @@ export default function BscSetupWeightsStep({
   selectedKpis,
   measureWeights,
   measureTargets,
+  measureStretchTargets,
   measureDataSources,
   measureAcceptableThresholds,
   measureWorstCases,
@@ -145,6 +147,9 @@ export default function BscSetupWeightsStep({
       <Form.Item name="measureTargets" hidden>
         <Input />
       </Form.Item>
+      <Form.Item name="measureStretchTargets" hidden>
+        <Input />
+      </Form.Item>
       <Form.Item name="measureWorstCases" hidden>
         <Input />
       </Form.Item>
@@ -185,6 +190,9 @@ export default function BscSetupWeightsStep({
               </span>
               <span data-cy="auto-added" className={headerCellClassName}>
                 Threshold
+              </span>
+              <span data-cy="auto-added" className={headerCellClassName}>
+                Stretch
               </span>
               <span data-cy="auto-added" className={headerCellClassName}>
                 Cadence
@@ -355,6 +363,23 @@ export default function BscSetupWeightsStep({
                       </span>
                     )}
 
+                    <Tooltip title="Optional aspirational target beyond the standard target">
+                      <InputNumber
+                        className={inputNumberClassName}
+                        placeholder="Stretch"
+                        value={measureStretchTargets[kpi.id] ?? undefined}
+                        onChange={(value) => {
+                          form.setFieldsValue({
+                            measureStretchTargets: {
+                              ...measureStretchTargets,
+                              [kpi.id]: value,
+                            },
+                          });
+                        }}
+                        data-cy={`bsc-scorecard-kpi-stretch-${kpi.id}`}
+                      />
+                    </Tooltip>
+
                     <Select
                       className={selectClassName}
                       placeholder="Cadence"
@@ -376,7 +401,7 @@ export default function BscSetupWeightsStep({
                       data-cy={`bsc-scorecard-kpi-cadence-${kpi.id}`}
                     />
 
-                    <div data-cy="auto-added" className="col-span-3 min-w-0">
+                    <div data-cy="auto-added" className="col-span-4 min-w-0">
                       <label
                         data-cy="auto-added"
                         className={fieldLabelClassName}
@@ -428,7 +453,7 @@ export default function BscSetupWeightsStep({
                     {isBounded ? (
                       <div
                         data-cy="auto-added"
-                        className="col-span-4 flex flex-wrap items-center gap-3 pt-1"
+                        className="col-span-5 flex flex-wrap items-center gap-3 pt-1"
                       >
                         <div
                           data-cy="auto-added"

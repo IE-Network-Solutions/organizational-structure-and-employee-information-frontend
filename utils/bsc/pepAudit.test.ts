@@ -6,6 +6,7 @@ import {
 } from '@/types/bsc';
 import {
   buildPepAuditRows,
+  achievedStretchTarget,
   isUnrealisticKpiResult,
   resolvePepAuditFlag,
 } from './pepAudit';
@@ -27,6 +28,13 @@ describe('pepAudit', () => {
     expect(isUnrealisticKpiResult(31, 30, 33, TargetLogic.LowerBetter)).toBe(
       false,
     );
+  });
+
+  it('detects stretch target achievement', () => {
+    expect(achievedStretchTarget(96, 95, TargetLogic.HigherBetter)).toBe(true);
+    expect(achievedStretchTarget(90, 95, TargetLogic.HigherBetter)).toBe(false);
+    expect(achievedStretchTarget(18, 20, TargetLogic.LowerBetter)).toBe(true);
+    expect(achievedStretchTarget(22, 20, TargetLogic.LowerBetter)).toBe(false);
   });
 
   it('resolves audit flags from target data', () => {
@@ -71,6 +79,7 @@ describe('pepAudit', () => {
             measurementUnit: '%',
             weightPercentage: 100,
             targetValue: 90,
+            stretchTarget: 95,
             actualValue: 70,
             acceptableThreshold: 81,
             dataSource: 'CRM',
@@ -82,6 +91,7 @@ describe('pepAudit', () => {
 
     expect(rows).toHaveLength(1);
     expect(rows[0].pepAuditFlag).toBe(PepAuditFlag.Unrealistic);
+    expect(rows[0].stretchTarget).toBe(95);
     expect(rows[0].employeeName).toBe('Alex Morgan');
     expect(rows[0].userId).toBe('u1');
     expect(rows[0].cycleLabel).toBe('March 2026');

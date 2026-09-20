@@ -7,6 +7,23 @@ import {
   TargetLogic,
 } from '@/types/bsc';
 
+/** Whether a reported actual meets or exceeds the stretch target. */
+export function achievedStretchTarget(
+  actual: number | null | undefined,
+  stretchTarget: number | null | undefined,
+  logic: TargetLogic,
+): boolean {
+  if (actual == null || !Number.isFinite(actual)) return false;
+  if (stretchTarget == null || !Number.isFinite(stretchTarget)) return false;
+  if (logic === TargetLogic.LowerBetter) {
+    return actual <= stretchTarget;
+  }
+  if (logic === TargetLogic.HigherBetter) {
+    return actual >= stretchTarget;
+  }
+  return false;
+}
+
 /** Whether a reported actual fails the acceptable threshold band. */
 export function isUnrealisticKpiResult(
   actual: number | null | undefined,
@@ -76,6 +93,7 @@ export function buildPepAuditRows(
         kpiName: target.kpiName,
         perspective: target.perspective,
         targetValue: target.targetValue,
+        stretchTarget: target.stretchTarget ?? null,
         actualValue: target.actualValue,
         acceptableThreshold: target.acceptableThreshold ?? null,
         dataSource: target.dataSource ?? null,

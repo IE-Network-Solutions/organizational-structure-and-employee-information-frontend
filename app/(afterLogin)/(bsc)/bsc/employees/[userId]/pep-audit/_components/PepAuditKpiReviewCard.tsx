@@ -21,7 +21,10 @@ import {
   PepAuditFlag,
   ScorecardKpiTarget,
 } from '@/types/bsc';
-import { resolvePepAuditFlag } from '@/utils/bsc/pepAudit';
+import {
+  resolvePepAuditFlag,
+  achievedStretchTarget,
+} from '@/utils/bsc/pepAudit';
 import { targetScorePercent } from '@/utils/bsc/rollup';
 
 function DataSourceReview({ url }: { url: string | null | undefined }) {
@@ -80,6 +83,11 @@ export default function PepAuditKpiReviewCard({
   const pepFlag = resolvePepAuditFlag(target);
   const isRejected = target.approvalStatus === KpiApprovalStatus.Rejected;
   const progress = isRejected ? 0 : targetScorePercent(target);
+  const hitStretch = achievedStretchTarget(
+    target.actualValue,
+    target.stretchTarget,
+    target.targetLogic,
+  );
   const isReturnedToManager =
     target.approvalStatus === KpiApprovalStatus.Pending &&
     !!target.pepReturnReason?.trim();
@@ -142,6 +150,15 @@ export default function PepAuditKpiReviewCard({
             >
               {target.kpiName}
             </p>
+            {hitStretch ? (
+              <Tag
+                color="purple"
+                className="m-0 mt-1"
+                data-cy={`bsc-pep-audit-stretch-achieved-${target.id}`}
+              >
+                Stretch achieved
+              </Tag>
+            ) : null}
 
             <div
               data-cy="auto-added"
@@ -176,6 +193,18 @@ export default function PepAuditKpiReviewCard({
                     dataCy={`bsc-pep-audit-target-${target.id}`}
                   />
                 </span>
+                {target.stretchTarget != null ? (
+                  <span data-cy="auto-added">
+                    Stretch:{' '}
+                    <TargetMetricValue
+                      value={target.stretchTarget}
+                      unit={target.measurementUnit}
+                      worstCase={target.worstCase}
+                      bestCase={target.bestCase}
+                      dataCy={`bsc-pep-audit-stretch-${target.id}`}
+                    />
+                  </span>
+                ) : null}
               </div>
             </div>
 

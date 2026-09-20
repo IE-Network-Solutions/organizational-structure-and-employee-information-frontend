@@ -142,6 +142,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Support Team Lead',
     defaultTarget: 90,
+    stretchTarget: 95,
     weight: 40,
     createdAt: now,
   },
@@ -157,6 +158,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Support Team Lead',
     defaultTarget: 75,
+    stretchTarget: 85,
     weight: 35,
     createdAt: now,
   },
@@ -172,6 +174,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Support Team Lead',
     defaultTarget: 10,
+    stretchTarget: 12,
     weight: 25,
     createdAt: now,
   },
@@ -187,6 +190,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Tier 1 Support Agent',
     defaultTarget: 90,
+    stretchTarget: 95,
     weight: 40,
     createdAt: now,
   },
@@ -201,6 +205,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Tier 1 Support Agent',
     defaultTarget: 30,
+    stretchTarget: 20,
     weight: 40,
     createdAt: now,
   },
@@ -216,6 +221,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Tier 1 Support Agent',
     defaultTarget: 10,
+    stretchTarget: 12,
     weight: 20,
     createdAt: now,
   },
@@ -317,6 +323,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Sales Operations',
     positionTitle: 'Account Executive',
     defaultTarget: 5,
+    stretchTarget: 3,
     weight: 40,
     createdAt: now,
   },
@@ -332,6 +339,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Sales Operations',
     positionTitle: 'Account Executive',
     defaultTarget: 95,
+    stretchTarget: 98,
     weight: 40,
     createdAt: now,
   },
@@ -347,6 +355,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Sales Operations',
     positionTitle: 'Account Executive',
     defaultTarget: 1,
+    stretchTarget: 1,
     weight: 20,
     createdAt: now,
   },
@@ -672,6 +681,17 @@ function buildRoleTargets(
     return null;
   };
 
+  const resolveStretch = (kpi: KpiLibraryItem, targetValue: number) => {
+    if (kpi.stretchTarget != null) return kpi.stretchTarget;
+    if (kpi.targetLogic === TargetLogic.LowerBetter) {
+      return Math.round(targetValue * 0.8 * 100) / 100;
+    }
+    if (kpi.targetLogic === TargetLogic.HigherBetter) {
+      return Math.round(targetValue * 1.1 * 100) / 100;
+    }
+    return null;
+  };
+
   return kpis.map((kpi, i) => {
     const targetValue = kpi.defaultTarget ?? 0;
     return {
@@ -684,6 +704,7 @@ function buildRoleTargets(
       measurementUnit: kpi.measurementUnit,
       weightPercentage: kpi.weight,
       targetValue,
+      stretchTarget: resolveStretch(kpi, targetValue),
       dataSource: kpi.dataSource ?? resolveDataSource(kpi),
       acceptableThreshold: resolveThreshold(kpi, targetValue),
       cadence: kpi.cadence ?? BscCadence.Monthly,
@@ -1144,8 +1165,9 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     id: 'sc-pep-lina',
     offsetMonths: 0,
     status: ScorecardStatus.Scored,
-    actuals: [70, 76, 8],
-    compositeScore: 78.4,
+    // CSAT 96 (>= stretch 95), FCR 88 (>= stretch 85); KB 8 below stretch 12
+    actuals: [96, 88, 8],
+    compositeScore: 91.2,
     userId: 'emp-pep-lina',
     userName: 'Lina Okoro',
     positionTitle: 'Support Team Lead',
@@ -1170,8 +1192,9 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     id: 'sc-pep-marcus',
     offsetMonths: 0,
     status: ScorecardStatus.Scored,
-    actuals: [84, 32, 9],
-    compositeScore: 74.2,
+    // CSAT 96 (>= stretch 95), ASA 18 (<= stretch 20); training 9 below stretch 12
+    actuals: [96, 18, 9],
+    compositeScore: 92.4,
     userId: 'emp-pep-marcus',
     userName: 'Marcus Lee',
     positionTitle: 'Tier 1 Support Agent',
@@ -1196,8 +1219,9 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     id: 'sc-pep-nora',
     offsetMonths: 0,
     status: ScorecardStatus.Scored,
-    actuals: [3, 94, 2],
-    compositeScore: 81.6,
+    // Churn 3 (<= stretch 3), CRM 98 (>= stretch 98), nego 1 (= stretch 1)
+    actuals: [3, 98, 1],
+    compositeScore: 94.8,
     userId: 'emp-pep-nora',
     userName: 'Nora Voss',
     positionTitle: 'Account Executive',

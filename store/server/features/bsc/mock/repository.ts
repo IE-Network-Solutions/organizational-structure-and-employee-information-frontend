@@ -350,6 +350,7 @@ export class BscMockRepository {
     assignment: {
       weightPercentage: number;
       targetValue: number;
+      stretchTarget?: number | null;
       worstCase?: number | null;
       bestCase?: number | null;
       cadence?: BscCadence | null;
@@ -385,6 +386,7 @@ export class BscMockRepository {
       measurementUnit: kpi.measurementUnit,
       weightPercentage: assignment.weightPercentage,
       targetValue: assignment.targetValue,
+      stretchTarget: assignment.stretchTarget ?? kpi.stretchTarget ?? null,
       worstCase: assignment.worstCase ?? kpi.worstCase,
       bestCase: assignment.bestCase ?? kpi.bestCase,
       cadence: assignment.cadence ?? kpi.cadence ?? null,
@@ -454,6 +456,7 @@ export class BscMockRepository {
       targetLogic?: CreateKpiLibraryInput['targetLogic'];
       measurementUnit?: string;
       defaultTarget?: number | null;
+      stretchTarget?: number | null;
       worstCase?: number | null;
       bestCase?: number | null;
       cadence?: CreateKpiLibraryInput['cadence'];
@@ -530,6 +533,10 @@ export class BscMockRepository {
             row.defaultTarget !== undefined
               ? row.defaultTarget
               : this.kpiLibrary[idx].defaultTarget,
+          stretchTarget:
+            row.stretchTarget !== undefined
+              ? row.stretchTarget
+              : this.kpiLibrary[idx].stretchTarget,
           worstCase:
             row.worstCase !== undefined
               ? row.worstCase
@@ -566,6 +573,7 @@ export class BscMockRepository {
           positionId: input.positionId,
           positionTitle: input.positionTitle,
           defaultTarget: row.defaultTarget ?? null,
+          stretchTarget: row.stretchTarget ?? null,
           worstCase: row.worstCase ?? null,
           bestCase: row.bestCase ?? null,
           cadence: row.cadence ?? null,
@@ -984,6 +992,7 @@ export class BscMockRepository {
           dataSource: row.dataSource ?? kpi.dataSource ?? null,
           acceptableThreshold:
             row.acceptableThreshold ?? kpi.acceptableThreshold ?? null,
+          stretchTarget: row.stretchTarget ?? kpi.stretchTarget ?? null,
           evaluationFlow,
           assignmentSource: 'individual',
         }),

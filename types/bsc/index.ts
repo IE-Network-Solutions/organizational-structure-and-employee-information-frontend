@@ -178,6 +178,8 @@ export interface KpiLibraryItem {
   positionId?: string | null;
   positionTitle?: string | null;
   defaultTarget?: number | null;
+  /** Aspirational stretch target beyond the standard target */
+  stretchTarget?: number | null;
   /** Weight % of the scorecard (0–100); set when assigning KPIs to a role. May be 0 for catalog KPIs. */
   weight: number;
   /** @deprecated use weight */
@@ -208,6 +210,8 @@ export interface ScorecardKpiTarget {
   measurementUnit: string;
   weightPercentage: number;
   targetValue: number;
+  /** Aspirational stretch target beyond the standard target */
+  stretchTarget?: number | null;
   worstCase?: number | null;
   bestCase?: number | null;
   /** How often this KPI expects a check-in */
@@ -303,6 +307,7 @@ export interface CreateKpiLibraryInput {
   positionId?: string | null;
   positionTitle?: string | null;
   defaultTarget?: number | null;
+  stretchTarget?: number | null;
   weight?: number;
   suggestedWeight?: number | null;
   worstCase?: number | null;
@@ -345,6 +350,7 @@ export interface PepAuditRow {
   kpiName: string;
   perspective: string;
   targetValue: number;
+  stretchTarget: number | null;
   actualValue: number | null;
   acceptableThreshold: number | null;
   dataSource: string | null;
@@ -408,6 +414,7 @@ export interface AssignScorecardInput {
     kpiLibraryId: string;
     weightPercentage: number;
     targetValue: number;
+    stretchTarget?: number | null;
     worstCase?: number | null;
     bestCase?: number | null;
     cadence?: BscCadence | null;
@@ -428,6 +435,7 @@ export interface AppendIndividualKpisInput {
     kpiLibraryId: string;
     weightPercentage: number;
     targetValue: number;
+    stretchTarget?: number | null;
     worstCase?: number | null;
     bestCase?: number | null;
     cadence?: BscCadence | null;
