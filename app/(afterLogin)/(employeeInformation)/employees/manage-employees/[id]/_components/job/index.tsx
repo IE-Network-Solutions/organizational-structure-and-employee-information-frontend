@@ -44,8 +44,15 @@ import CheckIcon from '@mui/icons-material/Check';
 import { useUpdateBasicSalary } from '@/store/server/features/payroll/payroll/mutation';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import { BriefcaseBusiness, CalendarDays } from 'lucide-react';
 
-function Job({ id }: { id: string }) {
+function Job({
+  id,
+  isPersonalProfile = false,
+}: {
+  id: string;
+  isPersonalProfile?: boolean;
+}) {
   const userId = id;
   const { userId: loggedInUserId } = useAuthenticationStore();
   const { isLoading, data: employeeData, refetch } = useGetEmployee(userId);
@@ -337,18 +344,44 @@ function Job({ id }: { id: string }) {
     },
   ];
 
+  const sectionCardClass = isPersonalProfile
+    ? 'rounded-none !my-0 border-b border-[#E4E6FF]'
+    : 'rounded-lg my-6 mt-0';
+  const sectionCardStyle = {
+    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+    boxShadow: 'none',
+  };
+  const sectionHeadStyle = {
+    borderBottom: isPersonalProfile ? '1px solid #E4E6FF' : 'none',
+    paddingLeft: isPersonalProfile ? '28px' : '16px',
+    paddingRight: isPersonalProfile ? '28px' : '16px',
+    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+  };
+  const sectionBodyStyle = {
+    padding: isPersonalProfile ? '22px 28px 24px 28px' : '12px 16px 12px 16px',
+    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+  };
+
   return (
     <>
-      <Row gutter={16}>
-        <Col lg={12} sm={24} xs={24}>
+      <Row
+        gutter={isPersonalProfile ? [0, 0] : 16}
+        className={isPersonalProfile ? 'overflow-hidden rounded-b-lg' : ''}
+      >
+        <Col lg={isPersonalProfile ? 24 : 12} sm={24} xs={24}>
           <Card
             loading={isLoading}
             title={
               !isEditing ? (
                 <span
-                  className="text-base font-normal text-[#4d4d4d]"
+                  className={
+                    isPersonalProfile
+                      ? 'inline-flex items-center gap-2 text-xl font-semibold text-primary'
+                      : 'text-base font-normal text-[#4d4d4d]'
+                  }
                   data-cy="job-employment-card-title"
                 >
+                  {isPersonalProfile && <CalendarDays size={23} />}
                   Employment Information
                 </span>
               ) : null
@@ -365,21 +398,13 @@ function Job({ id }: { id: string }) {
                 </button>
               ) : null
             }
-            className="employment-information-card rounded-lg my-6 mt-0"
+            className={`employment-information-card ${sectionCardClass}`}
             bordered={false}
-            style={{ background: '#F9FAFB', boxShadow: 'none' }}
+            style={sectionCardStyle}
             id="job-employment-card"
             data-cy="job-employment-card"
-            headStyle={{
-              borderBottom: 'none',
-              paddingLeft: '16px',
-              paddingRight: '16px',
-              background: '#F9FAFB',
-            }}
-            bodyStyle={{
-              padding: '12px 16px 12px 16px',
-              background: '#F9FAFB',
-            }}
+            headStyle={sectionHeadStyle}
+            bodyStyle={sectionBodyStyle}
           >
             {isEditing ? (
               <Form
@@ -463,18 +488,30 @@ function Job({ id }: { id: string }) {
                   className="flex flex-col"
                 >
                   <div
-                    className="mb-5"
+                    className={
+                      isPersonalProfile
+                        ? 'grid grid-cols-[minmax(112px,160px)_minmax(0,1fr)] items-start border-b border-[#EEF0FF] py-3'
+                        : 'mb-5'
+                    }
                     id="job-employment-service-year"
                     data-cy="job-employment-service-year"
                   >
                     <p
-                      className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                      className={
+                        isPersonalProfile
+                          ? 'm-0 text-sm font-semibold text-[#4C4FB5]'
+                          : 'text-sm text-[#4d4d4d] font-normal m-0 mb-0.5'
+                      }
                       data-cy="job-employment-service-year-label"
                     >
                       Service Year
                     </p>
                     <p
-                      className="text-base font-normal text-[#4d4d4d] m-0"
+                      className={
+                        isPersonalProfile
+                          ? 'm-0 text-base font-medium text-[#2F324A]'
+                          : 'text-base font-normal text-[#4d4d4d] m-0'
+                      }
                       data-cy="job-employment-service-year-value"
                     >
                       {employeeData?.employeeInformation?.joinedDate
@@ -511,18 +548,30 @@ function Job({ id }: { id: string }) {
                   className="flex flex-col"
                 >
                   <div
-                    className="mb-5"
+                    className={
+                      isPersonalProfile
+                        ? 'grid grid-cols-[minmax(112px,160px)_minmax(0,1fr)] items-start border-b border-[#EEF0FF] py-3 lg:border-b'
+                        : 'mb-5'
+                    }
                     id="job-employment-joined-date"
                     data-cy="job-employment-joined-date"
                   >
                     <p
-                      className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                      className={
+                        isPersonalProfile
+                          ? 'm-0 text-sm font-semibold text-[#4C4FB5]'
+                          : 'text-sm text-[#4d4d4d] font-normal m-0 mb-0.5'
+                      }
                       data-cy="job-employment-joined-date-label"
                     >
                       Joined Date
                     </p>
                     <p
-                      className="text-base font-normal text-[#4d4d4d] m-0"
+                      className={
+                        isPersonalProfile
+                          ? 'm-0 text-base font-medium text-[#2F324A]'
+                          : 'text-base font-normal text-[#4d4d4d] m-0'
+                      }
                       data-cy="job-employment-joined-date-value"
                     >
                       {dayjs(
@@ -536,15 +585,16 @@ function Job({ id }: { id: string }) {
           </Card>
           <WorkScheduleComponent
             employeeId={userId}
+            isPersonalProfile={isPersonalProfile}
             data-cy="job-work-schedule"
           />
         </Col>
-        <Col lg={12} sm={24} xs={24}>
+        <Col lg={isPersonalProfile ? 24 : 12} sm={24} xs={24}>
           <Card
             loading={isLoading}
-            className="job-information-card rounded-lg my-6 mt-0"
+            className={`job-information-card ${sectionCardClass}`}
             bordered={false}
-            style={{ background: '#F9FAFB', boxShadow: 'none' }}
+            style={sectionCardStyle}
             title={
               isEditModalVisible ? (
                 <div
@@ -586,9 +636,14 @@ function Job({ id }: { id: string }) {
                 </div>
               ) : (
                 <span
-                  className="text-base font-normal text-[#4d4d4d]"
+                  className={
+                    isPersonalProfile
+                      ? 'inline-flex items-center gap-2 text-xl font-semibold text-primary'
+                      : 'text-base font-normal text-[#4d4d4d]'
+                  }
                   data-cy="job-information-card-title"
                 >
+                  {isPersonalProfile && <BriefcaseBusiness size={23} />}
                   Job Information
                 </span>
               )
@@ -631,16 +686,8 @@ function Job({ id }: { id: string }) {
             }
             id="job-information-card"
             data-cy="job-information-card"
-            headStyle={{
-              borderBottom: 'none',
-              paddingLeft: '16px',
-              paddingRight: '16px',
-              background: '#F9FAFB',
-            }}
-            bodyStyle={{
-              padding: '12px 16px 12px 16px',
-              background: '#F9FAFB',
-            }}
+            headStyle={sectionHeadStyle}
+            bodyStyle={sectionBodyStyle}
           >
             {isEditModalVisible && selectedJobRecord ? (
               <Form
@@ -1032,15 +1079,31 @@ function Job({ id }: { id: string }) {
                   value: string;
                   dataCy: string;
                 }) => (
-                  <div className="mb-5" id={dataCy} data-cy={dataCy}>
+                  <div
+                    className={
+                      isPersonalProfile
+                        ? 'grid grid-cols-[minmax(112px,160px)_minmax(0,1fr)] items-start border-b border-[#EEF0FF] py-3 last:border-b-0'
+                        : 'mb-5'
+                    }
+                    id={dataCy}
+                    data-cy={dataCy}
+                  >
                     <p
-                      className="text-sm font-normal text-[#4d4d4d] m-0 mb-0.5"
+                      className={
+                        isPersonalProfile
+                          ? 'm-0 text-sm font-semibold text-[#4C4FB5]'
+                          : 'text-sm font-normal text-[#4d4d4d] m-0 mb-0.5'
+                      }
                       data-cy={`${dataCy}-label`}
                     >
                       {label}
                     </p>
                     <p
-                      className="text-base font-normal text-[#4d4d4d] m-0"
+                      className={
+                        isPersonalProfile
+                          ? 'm-0 min-w-0 text-base font-medium text-[#2F324A]'
+                          : 'text-base font-normal text-[#4d4d4d] m-0'
+                      }
                       data-cy={`${dataCy}-value`}
                     >
                       {value}

@@ -11,6 +11,82 @@
   display: none; /* Chrome, Safari, Opera */
 }
 
+.home-primary-tabs .ant-tabs-nav {
+  margin: 0 !important;
+  background: #3636f0;
+  padding: 0 22px;
+}
+
+.home-primary-tabs .ant-tabs-nav::before {
+  border-bottom: 0 !important;
+}
+
+.home-primary-tabs .ant-tabs-nav-wrap {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.home-primary-tabs .ant-tabs-nav-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.home-primary-tabs .ant-tabs-tab {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.home-primary-tabs .ant-tabs-tab-btn {
+  color: rgba(255, 255, 255, 0.82) !important;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 18px 18px 16px;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
+}
+
+.home-primary-tabs .ant-tabs-tab-btn .ant-badge {
+  color: inherit !important;
+}
+
+.home-primary-tabs .ant-tabs-tab:hover .ant-tabs-tab-btn {
+  color: #ffffff !important;
+}
+
+.home-primary-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  background: #ffffff;
+  border-radius: 7px 7px 0 0;
+  color: #3636f0 !important;
+}
+
+.home-primary-tabs .ant-tabs-ink-bar {
+  display: none;
+}
+
+.home-primary-tabs .ant-tabs-content-holder {
+  background: #ffffff;
+}
+
+.home-primary-tabs .ant-tabs-tabpane {
+  padding: 26px 28px 34px;
+}
+
+@media (max-width: 767px) {
+  .home-primary-tabs .ant-tabs-nav {
+    padding: 0 12px;
+  }
+
+  .home-primary-tabs .ant-tabs-tab-btn {
+    font-size: 14px;
+    padding: 16px 12px 14px;
+  }
+
+  .home-primary-tabs .ant-tabs-tabpane {
+    padding: 18px 16px 26px;
+  }
+}
+
 /* Candidate table: hide AntD inner horizontal scrollbar */
 #talent-acquisition-candidate-table-scroll-wrapper .ant-table-content,
 #talent-acquisition-candidate-table-scroll-wrapper .ant-table-body {
