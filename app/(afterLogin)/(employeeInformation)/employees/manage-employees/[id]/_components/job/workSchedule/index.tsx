@@ -29,6 +29,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { shiftDurationHours } from '@/helpers/breakShiftWindow';
+import { Clock3 } from 'lucide-react';
 
 const { Option } = Select;
 
@@ -48,10 +49,13 @@ const unwrapShiftList = (payload: unknown): any[] => {
 
 type WorkScheduleComponentProps = {
   employeeId: string;
+  isPersonalProfile?: boolean;
+  'data-cy'?: string;
 };
 
 const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
   employeeId,
+  isPersonalProfile = false,
 }) => {
   const userId = employeeId;
   const { userId: loggedInUserId } = useAuthenticationStore();
@@ -320,6 +324,21 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
           return total + (day.workDay ? day.duration || 0 : 0);
         }, 0);
 
+  const sectionCardStyle = {
+    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+    boxShadow: 'none',
+  };
+  const sectionHeadStyle = {
+    borderBottom: isPersonalProfile ? '1px solid #E4E6FF' : 'none',
+    paddingLeft: isPersonalProfile ? '28px' : '16px',
+    paddingRight: isPersonalProfile ? '28px' : '16px',
+    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+  };
+  const sectionBodyStyle = {
+    padding: isPersonalProfile ? '22px 28px 24px 28px' : '12px 16px 12px 16px',
+    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+  };
+
   useEffect(() => {
     const activeJobInfo = employeeData?.employeeJobInformation?.find(
       (e: any) => e.isPositionActive === true,
@@ -390,9 +409,14 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
       title={
         !edit.workSchedule ? (
           <span
-            className="text-base font-normal text-[#4d4d4d]"
+            className={
+              isPersonalProfile
+                ? 'inline-flex items-center gap-2 text-xl font-semibold text-primary'
+                : 'text-base font-normal text-[#4d4d4d]'
+            }
             data-cy="job-work-schedule-card-title"
           >
+            {isPersonalProfile && <Clock3 size={23} />}
             Work Schedule
           </span>
         ) : null
@@ -415,18 +439,17 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
           </AccessGuard>
         ) : null
       }
-      className="work-schedule-card rounded-lg my-6 mt-0"
+      className={
+        isPersonalProfile
+          ? 'work-schedule-card rounded-none !my-0 border-b border-[#E4E6FF]'
+          : 'work-schedule-card rounded-lg my-6 mt-0'
+      }
       bordered={false}
-      style={{ background: '#F9FAFB', boxShadow: 'none' }}
+      style={sectionCardStyle}
       id="job-work-schedule-card"
       data-cy="job-work-schedule-card"
-      headStyle={{
-        borderBottom: 'none',
-        paddingLeft: '16px',
-        paddingRight: '16px',
-        background: '#F9FAFB',
-      }}
-      bodyStyle={{ padding: '12px 16px 12px 16px', background: '#F9FAFB' }}
+      headStyle={sectionHeadStyle}
+      bodyStyle={sectionBodyStyle}
     >
       {!edit.workSchedule ? (
         <div className="px-3" data-cy="job-work-schedule-display-wrapper">

@@ -271,7 +271,10 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
             <CustomBreadcrumb
               onBack={handleGoBack}
               title={
-                <span id="employee-detail-title" data-cy="employee-detail-title">
+                <span
+                  id="employee-detail-title"
+                  data-cy="employee-detail-title"
+                >
                   Employee Details
                 </span>
               }

@@ -1,20 +1,17 @@
 'use client';
 
 import { FC, ReactNode, useMemo } from 'react';
-import { Tabs, Button, Breadcrumb, Badge } from 'antd';
+import { Tabs, Button, Badge } from 'antd';
 import { MOCK_APPROVAL_TOTAL_PENDING } from '@/config/homeApprovalsMock';
-import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
-import CustomBreadcrumb from '@/components/common/breadCramp';
 import {
   buildSubscribedModuleCodes,
   getHomePageTitle,
   getHomeTabFromPathname,
   getHomeTabHref,
   getVisibleHomeTabs,
-  HOME_BASE,
 } from '@/config/homeTabs';
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { useGetSubscriptionByTenant } from '@/store/server/features/tenant-management/manage-subscriptions/queries';
@@ -26,6 +23,7 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import HomeTimesheetProviders from './_components/HomeTimesheetProviders';
+import BasicInfo from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/basicInfo';
 
 interface HomeLayoutProps {
   children: ReactNode;
@@ -35,7 +33,7 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
   const { isMobile } = useIsMobile();
-  const { tenantId } = useAuthenticationStore();
+  const { tenantId, userId } = useAuthenticationStore();
   const { setIsShowLeaveRequestSidebar } = useMyTimesheetStore();
 
   const { data: modulesData } = useGetModules({ filter: { isActive: true } });
@@ -87,22 +85,45 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
 
   const activeKey = getHomeTabFromPathname(pathname);
   const pageTitle = getHomePageTitle(activeKey);
-  const showHomeBreadcrumb = activeKey !== 'overview';
 
   const handleTabChange = (key: string) => {
     router.push(getHomeTabHref(key));
   };
 
+  const leaveRequestAction =
+    activeKey === 'leave' && isMobile ? (
+      <AccessGuard
+        permissions={[Permissions.SubmitLeaveRequest]}
+        id="home-new-leave-request-guard"
+        data-cy="home-new-leave-request-guard"
+      >
+        <Button
+          type="primary"
+          size="large"
+          icon={<FaPlus />}
+          onClick={() => setIsShowLeaveRequestSidebar(true)}
+          className="mr-3 h-10 shrink-0"
+          data-cy="home-new-leave-request-button"
+        >
+          New Request
+        </Button>
+      </AccessGuard>
+    ) : undefined;
+
   const tabItems: TabsProps['items'] = visibleTabs.map((tab) => ({
     key: tab.key,
     label: (
       <div
-        className={`text-base m-0 whitespace-nowrap ${activeKey === tab.key ? 'text-primary font-semibold' : 'text-gray-800'}`}
+        className="m-0 whitespace-nowrap text-base font-semibold text-inherit"
         data-cy={`home-${tab.key}-tab-label`}
         id={`home-${tab.key}-tab-label`}
       >
         {tab.key === 'approvals' ? (
-          <Badge count={MOCK_APPROVAL_TOTAL_PENDING} size="small" offset={[8, 0]}>
+          <Badge
+            count={MOCK_APPROVAL_TOTAL_PENDING}
+            size="small"
+            offset={[8, 0]}
+          >
             <span data-cy="home-approvals-tab-label-text">{tab.label}</span>
           </Badge>
         ) : (
@@ -122,101 +143,105 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
     <div
       id="home-layout"
       data-cy="home-layout"
-      className="min-h-screen bg-[#F0F2F5]"
+      className="-mx-2 min-h-screen bg-[#F6F7FF] min-[769px]:-mx-6"
     >
       <div
-        className="min-h-screen bg-white"
+        className="min-h-screen"
         data-cy="home-layout-inner"
         id="home-layout-inner"
       >
-        <div data-cy="home-header-container" id="home-header-container">
-          <div data-cy="home-header-actions">
-            <div data-cy="home-header-title-area">
-              <CustomBreadcrumb
-                title={
-                  <span
-                    className="text-2xl font-bold text-gray-900"
-                    data-cy="home-page-title"
-                    id="home-page-title"
-                  >
-                    {pageTitle}
-                  </span>
-                }
-                subtitle={
-                  showHomeBreadcrumb ? (
-                    <Breadcrumb
-                      className="mt-2 mb-0"
-                      items={[
-                        {
-                          title: (
-                            <Link
-                              href={`${HOME_BASE}/overview`}
-                              data-cy="home-breadcrumb-home-link"
-                            >
-                              Home
-                            </Link>
-                          ),
-                        },
-                        {
-                          title: (
-                            <span data-cy="home-breadcrumb-current">
-                              {pageTitle}
-                            </span>
-                          ),
-                        },
-                      ]}
-                      data-cy="home-breadcrumb"
-                    />
-                  ) : null
-                }
-              />
-            </div>
-            {activeKey === 'leave' && isMobile && (
-              <AccessGuard permissions={[Permissions.SubmitLeaveRequest]}>
-                <Button
-                  type="primary"
-                  size="large"
-                  icon={<FaPlus />}
-                  onClick={() => setIsShowLeaveRequestSidebar(true)}
-                  className="shrink-0 h-10"
-                  data-cy="home-new-leave-request-button"
-                >
-                  New Request
-                </Button>
-              </AccessGuard>
-            )}
-          </div>
-        </div>
-
         <div
-          className="bg-white mb-4"
-          data-cy="home-tabs-container"
-          id="home-tabs-container"
+          className="overflow-hidden rounded-lg border border-[#DFE3FF] bg-white shadow-[0_18px_42px_rgba(54,54,240,0.1)]"
+          data-cy="home-personal-shell"
+          id="home-personal-shell"
         >
-          <div className="px-0" data-cy="home-tabs-wrapper">
-            <Tabs
-              activeKey={activeKey}
-              onChange={handleTabChange}
-              items={tabItems}
-              tabBarStyle={{
-                marginBottom: 0,
-                marginLeft: 0,
-                paddingLeft: 0,
-                paddingRight: 0,
-              }}
-              className="[&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0 [&_.ant-tabs-nav-wrap]:overflow-x-auto [&_.ant-tabs-nav-wrap]:scrollbar-none"
-              data-cy="home-tabs"
-              id="home-tabs"
+          {userId ? (
+            <BasicInfo
+              id={userId}
+              variant="personalHero"
+              data-cy="home-personal-hero"
             />
-          </div>
-        </div>
+          ) : (
+            <section
+              className="relative overflow-hidden bg-primary px-5 py-8 sm:px-8 lg:px-10"
+              data-cy="home-personal-hero-fallback"
+              id="home-personal-hero-fallback"
+            >
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-[#5C5CFF] via-[#3636F0] to-[#2727B8]"
+                data-cy="home-personal-hero-fallback-gradient"
+              />
+              <h1
+                className="relative m-0 text-[34px] font-semibold leading-tight text-white sm:text-[42px]"
+                data-cy="home-page-title-fallback"
+                id="home-page-title-fallback"
+              >
+                {pageTitle}
+              </h1>
+            </section>
+          )}
 
-        <div
-          className="px-0 pb-6"
-          data-cy="home-content-wrapper"
-          id="home-content-wrapper"
-        >
-          {children}
+          <div
+            className={
+              userId
+                ? 'grid min-h-[540px] lg:grid-cols-[300px_minmax(0,1fr)]'
+                : 'min-h-[540px]'
+            }
+            data-cy="home-personal-grid"
+          >
+            {userId ? (
+              <BasicInfo
+                id={userId}
+                variant="personalSidebar"
+                data-cy="home-personal-sidebar"
+              />
+            ) : null}
+            <div
+              className="min-w-0 bg-white"
+              data-cy="home-personal-content"
+              id="home-personal-content"
+            >
+              <div
+                className="bg-white"
+                data-cy="home-tabs-container"
+                id="home-tabs-container"
+              >
+                <div className="px-0" data-cy="home-tabs-wrapper">
+                  <Tabs
+                    activeKey={activeKey}
+                    onChange={handleTabChange}
+                    items={tabItems}
+                    tabBarGutter={0}
+                    tabBarExtraContent={leaveRequestAction}
+                    tabBarStyle={{
+                      marginBottom: 0,
+                      marginLeft: 0,
+                      paddingLeft: 0,
+                      paddingRight: 0,
+                    }}
+                    className="home-primary-tabs"
+                    data-cy="home-tabs"
+                    id="home-tabs"
+                  />
+                </div>
+              </div>
+
+              <div
+                className="px-4 pb-8 pt-6 sm:px-6 lg:px-8"
+                data-cy="home-content-wrapper"
+                id="home-content-wrapper"
+              >
+                <h1
+                  className="sr-only"
+                  data-cy="home-page-title"
+                  id="home-page-title"
+                >
+                  {pageTitle}
+                </h1>
+                {children}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
