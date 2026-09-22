@@ -172,6 +172,10 @@ export enum Permissions {
   CreateWorkingSchedule = 'create-working-schedule',
   UpdateWorkingSchedule = 'update-working-schedule',
   DeleteWorkingSchedule = 'delete-working-schedule',
+  CreateWorkScheduleShift = 'create-work-schedule-shift',
+  UpdateWorkScheduleShift = 'update-work-schedule-shift',
+  DeleteWorkScheduleShift = 'delete-work-schedule-shift',
+  AssignWorkScheduleShift = 'assign-work-schedule-shift',
 
   // Calendar Permissions
   CreateCalendar = 'create-calendar',
@@ -262,6 +266,10 @@ export enum Permissions {
   ViewLeaveHistory = 'view-leave-history',
   SubmitLeaveRequest = 'submit-leave-request',
   GenerateAttendanceReports = 'generate-attendance-reports',
+  CreateShiftSwapRequest = 'create-shift-swap-request',
+  ApproveShiftSwapPeer = 'approve-shift-swap-peer',
+  ApproveShiftSwapRequest = 'approve-shift-swap-request',
+  ViewMySchedule = 'view-my-schedule',
 
   // OKR Permissions
   ViewTeamOkr = 'view-team-okr',
@@ -382,4 +390,15 @@ export enum Permissions {
   CreateProbationTask = 'create-probation-task',
   UpdateProbationTask = 'update-probation-task',
   DeleteProbationTask = 'delete-probation-task',
+
+  // Succession planning
+  ViewSuccessionPlanning = 'view-succession-planning',
+  CreateCriticalRole = 'create-critical-role',
+  UpdateCriticalRole = 'update-critical-role',
+  DeleteCriticalRole = 'delete-critical-role',
+  /** Tenant-wide evaluator view; without it a user only sees their own. */
+  ViewSuccessionEvaluations = 'view-succession-evaluations',
+  SubmitSuccessionEvaluation = 'submit-succession-evaluation',
+  ManageSuccessorDevelopment = 'manage-successor-development',
+  ViewSuccessionReports = 'view-succession-reports',
 }

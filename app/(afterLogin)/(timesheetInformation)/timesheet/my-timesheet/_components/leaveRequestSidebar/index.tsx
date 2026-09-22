@@ -231,7 +231,7 @@ const LeaveRequestSidebar = () => {
       'data-cy': 'time-attendance-leave-request-sidebar-submit-button',
       tooltip:
         hasNoApprover && !leaveRequest
-          ? 'You lack approver please contact your team lead for more information'
+          ? 'You lack approver please contact your HR for more information'
           : undefined,
       tooltipProps:
         hasNoApprover && !leaveRequest

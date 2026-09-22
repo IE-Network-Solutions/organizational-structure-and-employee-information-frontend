@@ -6,7 +6,10 @@ import { formatToAttendanceStatuses } from '@/helpers/formatTo';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import CustomRadio from '@/components/form/customRadio';
 import { useGetSingleAttendances } from '@/store/server/features/timesheet/attendance/queries';
-import { useSetEditAttendance } from '@/store/server/features/timesheet/attendance/mutation';
+import {
+  useSetEditAttendance,
+  useSetEditAttendanceBreak,
+} from '@/store/server/features/timesheet/attendance/mutation';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   applyTimeToAttendanceDate,
@@ -16,6 +19,8 @@ import {
   getAttendanceDateBase,
 } from '../attendanceDateHelpers';
 import { parseAttendanceWallClockTime } from '@/helpers/attendanceTimeHelper';
+import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
+import { AttendanceBreak } from '@/types/timesheet/attendance';
 
 const EmployeeAttendanceSideBar = () => {
   const [form] = Form.useForm();
@@ -32,6 +37,9 @@ const EmployeeAttendanceSideBar = () => {
     setEmployeeId,
     attendanceRecordDate,
     setAttendanceRecordDate,
+    editingBreakTimes,
+    setEditingBreakTimes,
+    filter,
   } = useEmployeeAttendanceStore();
   const onClose = () => {
     setIsShowEmployeeAttendanceSidebar(false);
@@ -39,18 +47,45 @@ const EmployeeAttendanceSideBar = () => {
     setEmployeeAttendanceId('');
     setEmployeeId('');
     setAttendanceRecordDate('');
+    setEditingBreakTimes(null);
   };
 
   const { data: currentAttendanceData } =
     useGetSingleAttendances(employeeAttendanceId);
 
   const { data: employeeData } = useGetEmployee(employeeId);
+  const { data: breakTypeData } = useGetBreakTypes();
 
-  const { mutate: updateLeaveRequest, isLoading: isLoadingRequest } =
+  const { mutate: updateAttendance, isLoading: isLoadingAttendance } =
     useSetEditAttendance();
+  const { mutate: updateBreak, isLoading: isLoadingBreak } =
+    useSetEditAttendanceBreak();
+  const isLoadingRequest = isLoadingAttendance || isLoadingBreak;
+
+  const breakTypeId = (filter?.breakTypeId ||
+    editingBreakTimes?.breakTypeId) as string | undefined;
+  const isEditingBreak = Boolean(breakTypeId);
+  const selectedBreakType = breakTypeData?.items?.find(
+    (bt) => bt.id === breakTypeId,
+  );
+  const currentBreak: AttendanceBreak | undefined =
+    currentAttendanceData?.attendanceBreaks?.find(
+      (item: AttendanceBreak) =>
+        item.breakTypeId === breakTypeId || item.breakType?.id === breakTypeId,
+    );
 
   const recordDate =
     attendanceRecordDate || currentAttendanceData?.createdAt || '';
+
+  const toFormTime = (isoOrNull?: string | null) => {
+    if (!isoOrNull || !recordDate) return null;
+    const wall = parseAttendanceWallClockTime(isoOrNull);
+    if (!wall) return null;
+    return getAttendanceDateBase(recordDate)
+      .hour(wall.utc().hour())
+      .minute(wall.utc().minute())
+      .second(0);
+  };
 
   const onChangeIsAbsent = (isAbsent: any) => {
     setIsAbsent(isAbsent);
@@ -62,11 +97,57 @@ const EmployeeAttendanceSideBar = () => {
       });
     }
   };
+
   const onFinish = () => {
     const value = form.getFieldsValue();
 
+    if (isEditingBreak && breakTypeId) {
+      if (!recordDate) {
+        NotificationMessage.warning({
+          message:
+            'Attendance record date is missing. Please close and try again.',
+        });
+        return;
+      }
+
+      const breakoutAt = value.startAt
+        ? formatAttendanceApiDateTime(recordDate, value.startAt)
+        : null;
+      const breakinAt = value.endAt
+        ? formatAttendanceApiDateTime(recordDate, value.endAt)
+        : null;
+
+      if (breakoutAt && breakinAt) {
+        const out = dayjs(breakoutAt, ATTENDANCE_API_DATETIME_FORMAT);
+        const inn = dayjs(breakinAt, ATTENDANCE_API_DATETIME_FORMAT);
+        if (out.isSame(inn) || out.isAfter(inn)) {
+          NotificationMessage.warning({
+            message: 'Breakout time must be earlier than breakin time.',
+          });
+          return;
+        }
+      }
+
+      updateBreak(
+        {
+          attendanceRecordId: employeeAttendanceId,
+          data: {
+            breakTypeId,
+            startAt: breakoutAt,
+            endAt: breakinAt,
+          },
+        },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+        },
+      );
+      return;
+    }
+
     if (value.isAbsent) {
-      updateLeaveRequest(
+      updateAttendance(
         {
           id: employeeAttendanceId,
           data: {
@@ -131,7 +212,7 @@ const EmployeeAttendanceSideBar = () => {
       'minute',
     );
 
-    updateLeaveRequest(
+    updateAttendance(
       {
         id: employeeAttendanceId,
         data: {
@@ -152,33 +233,61 @@ const EmployeeAttendanceSideBar = () => {
   };
 
   React.useEffect(() => {
-    if (currentAttendanceData && recordDate) {
-      const dateBase = getAttendanceDateBase(recordDate);
-      const formattedBreakType = {
-        ...currentAttendanceData,
-        startAt: currentAttendanceData.startAt
-          ? applyTimeToAttendanceDate(
-              recordDate,
-              parseAttendanceWallClockTime(currentAttendanceData.startAt)!,
-            )
-          : dateBase,
-        endAt: currentAttendanceData.endAt
-          ? applyTimeToAttendanceDate(
-              recordDate,
-              parseAttendanceWallClockTime(currentAttendanceData.endAt)!,
-            )
-          : dateBase,
-        status: formatToAttendanceStatuses(currentAttendanceData)?.[0]?.status,
-      };
-      form.setFieldsValue(formattedBreakType);
+    if (!recordDate) return;
+
+    if (isEditingBreak) {
+      const breakoutIso =
+        currentBreak?.startAt ?? editingBreakTimes?.startAt ?? null;
+      const breakinIso =
+        currentBreak?.endAt ?? editingBreakTimes?.endAt ?? null;
+
+      form.setFieldsValue({
+        startAt: toFormTime(breakoutIso),
+        endAt: toFormTime(breakinIso),
+        isAbsent: false,
+      });
+      setIsAbsent(false);
+      return;
     }
-  }, [currentAttendanceData, form, recordDate]);
+
+    if (!currentAttendanceData) return;
+
+    const dateBase = getAttendanceDateBase(recordDate);
+    form.setFieldsValue({
+      ...currentAttendanceData,
+      startAt: currentAttendanceData.startAt
+        ? (toFormTime(currentAttendanceData.startAt) ?? dateBase)
+        : dateBase,
+      endAt: currentAttendanceData.endAt
+        ? (toFormTime(currentAttendanceData.endAt) ?? dateBase)
+        : dateBase,
+      status: formatToAttendanceStatuses(currentAttendanceData)?.[0]?.status,
+    });
+  }, [
+    currentAttendanceData,
+    currentBreak?.startAt,
+    currentBreak?.endAt,
+    editingBreakTimes?.startAt,
+    editingBreakTimes?.endAt,
+    form,
+    isEditingBreak,
+    recordDate,
+    setIsAbsent,
+  ]);
 
   const employeeFullName = `${employeeData?.firstName || ''} ${
     employeeData?.middleName || ''
   } ${employeeData?.lastName || ''}`.trim();
 
   const editDateLabel = formatAttendanceRecordDateLabel(recordDate);
+  const breakTitle = selectedBreakType?.title || 'Break';
+  const headerTitle = isEditingBreak
+    ? `Edit ${breakTitle} on ${editDateLabel}`
+    : `Edit Attendance on ${editDateLabel}`;
+
+  const startLabel = isEditingBreak ? 'Breakout' : 'Check In';
+  const endLabel = isEditingBreak ? 'Breakin' : 'Check Out';
+  const requireBothTimes = !isEditingBreak && !isAbsent;
 
   return (
     isShowEmployeeAttendanceSidebar && (
@@ -196,7 +305,7 @@ const EmployeeAttendanceSideBar = () => {
               className="text-base font-semibold text-[#000000B2]"
               data-cy="time-attendance-sidebar-header-title"
             >
-              Edit Attendance on {editDateLabel}
+              {headerTitle}
             </div>
             <div
               className="mt-1 text-sm text-gray-500"
@@ -226,19 +335,21 @@ const EmployeeAttendanceSideBar = () => {
           data-cy="time-attendance-employee-attendance-sidebar-form"
           requiredMark={false}
         >
-          <Form.Item name="isAbsent" label="Is Absent">
-            <div
-              id="time-attendance-employee-attendance-sidebar-absent-radio"
-              data-cy="time-attendance-employee-attendance-sidebar-absent-radio"
-            >
-              <CustomRadio
-                data-cy="time-attendance-employee-attendance-sidebar-absent-radio-label"
-                label="Is Absent"
-                initialValue={currentAttendanceData?.isAbsent}
-                onChange={onChangeIsAbsent}
-              />
-            </div>
-          </Form.Item>
+          {!isEditingBreak && (
+            <Form.Item name="isAbsent" label="Is Absent">
+              <div
+                id="time-attendance-employee-attendance-sidebar-absent-radio"
+                data-cy="time-attendance-employee-attendance-sidebar-absent-radio"
+              >
+                <CustomRadio
+                  data-cy="time-attendance-employee-attendance-sidebar-absent-radio-label"
+                  label="Is Absent"
+                  initialValue={currentAttendanceData?.isAbsent}
+                  onChange={onChangeIsAbsent}
+                />
+              </div>
+            </Form.Item>
+          )}
           <div
             id="time-attendance-employee-attendance-sidebar-clock-in-out-div"
             data-cy="time-attendance-employee-attendance-sidebar-clock-in-out-div"
@@ -253,19 +364,25 @@ const EmployeeAttendanceSideBar = () => {
                   className="text-sm font-normal"
                   data-cy="time-attendance-employee-attendance-sidebar-check-in-label"
                 >
-                  Check In{' '}
-                  <span
-                    style={{ color: 'red' }}
-                    data-cy="time-attendance-employee-attendance-sidebar-check-in-required"
-                  >
-                    *
-                  </span>
+                  {startLabel}{' '}
+                  {requireBothTimes && (
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="time-attendance-employee-attendance-sidebar-check-in-required"
+                    >
+                      *
+                    </span>
+                  )}
                 </span>
               }
-              rules={[{ required: !isAbsent, message: 'Required' }]}
+              rules={
+                requireBothTimes
+                  ? [{ required: true, message: 'Required' }]
+                  : undefined
+              }
               className={itemClass}
             >
-              {currentAttendanceData?.isAbsent ? (
+              {!isEditingBreak && currentAttendanceData?.isAbsent ? (
                 <DatePicker
                   showTime
                   disabled={isAbsent}
@@ -279,11 +396,15 @@ const EmployeeAttendanceSideBar = () => {
                 />
               ) : (
                 <TimePicker
-                  disabled={isAbsent}
+                  disabled={!isEditingBreak && isAbsent}
+                  allowClear={isEditingBreak}
                   format="HH:mm"
                   className={controlClass}
                   onChange={(time) => {
-                    if (!time) return;
+                    if (!time) {
+                      form.setFieldsValue({ startAt: null });
+                      return;
+                    }
                     form.setFieldsValue({
                       startAt: applyTimeToAttendanceDate(recordDate, time),
                     });
@@ -302,19 +423,25 @@ const EmployeeAttendanceSideBar = () => {
                   className="text-sm font-normal"
                   data-cy="time-attendance-employee-attendance-sidebar-check-out-label"
                 >
-                  Check Out{' '}
-                  <span
-                    style={{ color: 'red' }}
-                    data-cy="time-attendance-employee-attendance-sidebar-check-out-required"
-                  >
-                    *
-                  </span>
+                  {endLabel}{' '}
+                  {requireBothTimes && (
+                    <span
+                      style={{ color: 'red' }}
+                      data-cy="time-attendance-employee-attendance-sidebar-check-out-required"
+                    >
+                      *
+                    </span>
+                  )}
                 </span>
               }
-              rules={[{ required: !isAbsent, message: 'Required' }]}
+              rules={
+                requireBothTimes
+                  ? [{ required: true, message: 'Required' }]
+                  : undefined
+              }
               className={itemClass}
             >
-              {currentAttendanceData?.isAbsent ? (
+              {!isEditingBreak && currentAttendanceData?.isAbsent ? (
                 <DatePicker
                   showTime
                   disabled={isAbsent}
@@ -329,10 +456,14 @@ const EmployeeAttendanceSideBar = () => {
               ) : (
                 <TimePicker
                   format="HH:mm"
-                  disabled={isAbsent}
+                  disabled={!isEditingBreak && isAbsent}
+                  allowClear={isEditingBreak}
                   className={controlClass}
                   onChange={(time) => {
-                    if (!time) return;
+                    if (!time) {
+                      form.setFieldsValue({ endAt: null });
+                      return;
+                    }
                     form.setFieldsValue({
                       endAt: applyTimeToAttendanceDate(recordDate, time),
                     });
@@ -343,6 +474,15 @@ const EmployeeAttendanceSideBar = () => {
               )}
             </Form.Item>
           </div>
+          {isEditingBreak && (
+            <div
+              data-cy="time-attendance-employee-attendance-sidebar-break-note"
+              className="mb-3 text-xs text-gray-500"
+            >
+              Leave a time empty to mark that punch as missed. Status is
+              recalculated from the {breakTitle} windows.
+            </div>
+          )}
           <div
             id="time-attendance-employee-attendance-sidebar-buttons-div"
             data-cy="time-attendance-employee-attendance-sidebar-buttons-div"

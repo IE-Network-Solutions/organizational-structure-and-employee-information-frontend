@@ -1,6 +1,8 @@
 export enum VpTimeConfigType {
   CLOCKIN = 'CLOCKIN',
   CLOCKOUT = 'CLOCKOUT',
+  EARLY_BREAKOUT = 'EARLY_BREAKOUT',
+  LATE_BREAKIN = 'LATE_BREAKIN',
 }
 
 export interface VpTimeConfiguration {
@@ -121,9 +123,19 @@ export const getVpTimeConfigTitle = (item: VpTimeConfiguration): string => {
     }
     return `${from}-${item.toMinutes} Minute Absent Configuration`;
   }
+
+  const typeLabel =
+    item.configType === VpTimeConfigType.EARLY_BREAKOUT
+      ? 'Early Breakout'
+      : item.configType === VpTimeConfigType.LATE_BREAKIN
+        ? 'Late Breakin'
+        : item.configType === VpTimeConfigType.CLOCKOUT
+          ? 'Early Checkout'
+          : 'Late Arrival';
+
   const from = item.fromMinutes ?? 0;
   if (item.toMinutes == null) {
-    return `${from}+ Minute Configuration`;
+    return `${from}+ Minute ${typeLabel} Configuration`;
   }
-  return `${from}-${item.toMinutes} Minute Configuration`;
+  return `${from}-${item.toMinutes} Minute ${typeLabel} Configuration`;
 };

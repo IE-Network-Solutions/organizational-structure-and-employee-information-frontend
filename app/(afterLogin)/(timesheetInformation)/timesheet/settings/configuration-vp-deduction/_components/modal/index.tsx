@@ -31,7 +31,11 @@ import {
 import { useGetVpTimeConfiguration } from '@/store/server/features/timesheet/vpTimeConfiguration/queries';
 import { useGetAttendanceRules } from '@/store/server/features/timesheet/attendanceNotificationRule/queries';
 
-type DeductionType = 'late_arrival' | 'early_checkout';
+type DeductionType =
+  | 'late_arrival'
+  | 'early_checkout'
+  | 'early_breakout'
+  | 'late_breakin';
 
 interface VpDeductionSectionValues {
   startTime?: number;
@@ -49,6 +53,8 @@ interface VpDeductionSectionValues {
 interface VpDeductionFormValues {
   lateArrival: VpDeductionSectionValues;
   earlyCheckout: VpDeductionSectionValues;
+  earlyBreakout: VpDeductionSectionValues;
+  lateBreakin: VpDeductionSectionValues;
 }
 
 const DEFAULT_SECTION_VALUES: VpDeductionSectionValues = {
@@ -69,7 +75,7 @@ const TAB_CONFIG: Record<
   {
     label: string;
     helperText: string;
-    formKey: 'lateArrival' | 'earlyCheckout';
+    formKey: keyof VpDeductionFormValues;
     configType: VpTimeConfigType;
   }
 > = {
@@ -85,6 +91,20 @@ const TAB_CONFIG: Record<
       'VP deduction configuration for users who have Checked out Early',
     formKey: 'earlyCheckout',
     configType: VpTimeConfigType.CLOCKOUT,
+  },
+  early_breakout: {
+    label: 'Early Breakout',
+    helperText:
+      'VP deduction configuration for users who leave for break early',
+    formKey: 'earlyBreakout',
+    configType: VpTimeConfigType.EARLY_BREAKOUT,
+  },
+  late_breakin: {
+    label: 'Late Breakin',
+    helperText:
+      'VP deduction configuration for users who return from break late',
+    formKey: 'lateBreakin',
+    configType: VpTimeConfigType.LATE_BREAKIN,
   },
 };
 
@@ -168,6 +188,8 @@ const ConfigureVpDeductionModal = () => {
     form.setFieldsValue({
       lateArrival: { ...DEFAULT_SECTION_VALUES },
       earlyCheckout: { ...DEFAULT_SECTION_VALUES },
+      earlyBreakout: { ...DEFAULT_SECTION_VALUES },
+      lateBreakin: { ...DEFAULT_SECTION_VALUES },
     });
 
     if (vpDeductionConfigId) {
@@ -182,8 +204,14 @@ const ConfigureVpDeductionModal = () => {
     const item = configData?.item ?? (configData as any) ?? null;
     if (!item || !item.configType) return;
 
-    const isClockout = item.configType === VpTimeConfigType.CLOCKOUT;
-    const tab: DeductionType = isClockout ? 'early_checkout' : 'late_arrival';
+    const tabByConfigType: Record<VpTimeConfigType, DeductionType> = {
+      [VpTimeConfigType.CLOCKIN]: 'late_arrival',
+      [VpTimeConfigType.CLOCKOUT]: 'early_checkout',
+      [VpTimeConfigType.EARLY_BREAKOUT]: 'early_breakout',
+      [VpTimeConfigType.LATE_BREAKIN]: 'late_breakin',
+    };
+    const tab: DeductionType =
+      tabByConfigType[item.configType as VpTimeConfigType] ?? 'late_arrival';
     const formKey = TAB_CONFIG[tab].formKey;
 
     setActiveTab(tab);
@@ -299,7 +327,7 @@ const ConfigureVpDeductionModal = () => {
           />
         </div>
       }
-      width={640}
+      width={720}
       zIndex={10002}
       centered
       destroyOnClose
@@ -357,6 +385,8 @@ const ConfigureVpDeductionModal = () => {
             initialValues={{
               lateArrival: { ...DEFAULT_SECTION_VALUES },
               earlyCheckout: { ...DEFAULT_SECTION_VALUES },
+              earlyBreakout: { ...DEFAULT_SECTION_VALUES },
+              lateBreakin: { ...DEFAULT_SECTION_VALUES },
             }}
             data-cy="time-attendance-settings-configuration-vp-deduction-modal-form"
           >

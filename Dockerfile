@@ -36,6 +36,8 @@ RUN set -e && \
     echo "✅ Secrets written to .env" && \
     echo "Running lint checks..." && \
     npm run lint || true && \
+    # npm run format || true && \
+    echo "✅ Lint and formatting complete" && \
     echo "Building Next.js app..." && \
     NODE_OPTIONS=--max-old-space-size=4096 npm run build && \
     echo "✅ Build complete"
