@@ -16,7 +16,6 @@ import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import dayjs from 'dayjs';
-import { LuPencil } from 'react-icons/lu';
 import { UserOutlined } from '@ant-design/icons';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { validateEmail } from '@/utils/validation';
@@ -120,25 +119,6 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
 
   const { mutate: deleteProfileImage, isLoading: isDeleting } =
     useDeleteProfileImage();
-
-  const buildExistingProfileFileList = (): UploadFile[] => {
-    if (isProfileDeleted || !employeeData?.profileImage) return [];
-
-    return [
-      {
-        uid: 'existing-profile-image',
-        name: 'profile-image',
-        status: 'done',
-        url: employeeData.profileImage,
-      },
-    ];
-  };
-
-  const showModal = () => {
-    setNewEmail(employeeData?.email ?? '');
-    setProfileFileList(buildExistingProfileFileList());
-    setIsModalOpen(true);
-  };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -498,30 +478,26 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
     return (
       <>
         <section
-          className="relative overflow-hidden bg-primary px-5 py-8 sm:px-8 lg:px-10"
+          className="relative z-10 overflow-visible bg-primary px-5 py-7 sm:px-8 lg:min-h-[180px] lg:px-0 lg:py-7"
           id="basic-info-personal-hero"
           data-cy="basic-info-personal-hero"
         >
           <div
-            className="absolute inset-0 bg-gradient-to-r from-[#5C5CFF] via-[#3636F0] to-[#2727B8]"
-            data-cy="basic-info-personal-hero-gradient"
-          />
-          <div
-            className="relative grid gap-7 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-end"
+            className="relative grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-0"
             data-cy="basic-info-personal-hero-grid"
           >
             <div
-              className="flex justify-center lg:justify-start"
+              className="relative flex justify-center"
               data-cy="basic-info-personal-avatar-column"
             >
               <div
-                className="relative"
+                className="relative lg:absolute lg:bottom-[-96px] lg:left-[calc(50%+10px)] lg:-translate-x-1/2"
                 data-cy="basic-info-personal-avatar-frame"
               >
                 <Avatar
-                  size={160}
+                  size={100}
                   src={getDisplayImageUrl() || undefined}
-                  className="!h-32 !w-32 border-[5px] border-white/80 bg-white text-primary shadow-[0_20px_45px_rgba(30,30,130,0.26)] lg:!h-40 lg:!w-40"
+                  className="!h-32 !w-32 border-4 border-white bg-[#e8ebff] !text-[48px] text-primary lg:!h-52 lg:!w-52 lg:!text-[72px]"
                   data-cy="basic-info-personal-avatar"
                   icon={<UserOutlined />}
                 />
@@ -543,67 +519,37 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
                         />
                       </button>
                     )}
-                    <button
-                      type="button"
-                      onClick={showModal}
-                      className="absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full border border-white/80 bg-white text-primary shadow-[0_8px_18px_rgba(0,0,0,0.18)] transition hover:bg-[#F0F2FF] focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                      id="basic-info-personal-edit-profile-btn"
-                      data-cy="basic-info-personal-edit-profile-btn"
-                      aria-label="Update profile"
-                    >
-                      <LuPencil
-                        size={17}
-                        data-cy="basic-info-personal-edit-profile-icon"
-                      />
-                    </button>
                   </>
                 ) : null}
               </div>
             </div>
 
             <div
-              className="min-w-0 pb-2 text-center text-white lg:text-left"
+              className="min-w-0 text-center text-white lg:pl-8 lg:pr-6 lg:text-left"
               data-cy="basic-info-personal-identity"
             >
-              <div
-                className="mb-4 flex flex-wrap items-center justify-center gap-2 lg:justify-start"
-                data-cy="basic-info-personal-status-row"
-              >
-                <span
-                  className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary"
-                  data-cy="basic-info-personal-status"
-                >
-                  {isActive ? 'Active Employee' : 'Deactivated'}
-                </span>
-                <span
-                  className="rounded-full border border-white/35 bg-white/12 px-3 py-1 text-xs font-semibold text-white"
-                  data-cy="basic-info-personal-department"
-                >
-                  {departmentName}
-                </span>
-              </div>
               <h2
-                className="m-0 text-[34px] font-semibold leading-tight text-white sm:text-[42px]"
+                className="m-0 text-[30px] font-semibold leading-tight text-white sm:text-[34px]"
                 data-cy="basic-info-personal-name"
               >
                 {fullName}
               </h2>
               <p
-                className="m-0 mt-2 text-lg font-medium text-white/82"
+                className="m-0 mt-1 text-base font-medium text-white/85"
                 data-cy="basic-info-personal-title"
               >
                 {jobTitle}
               </p>
               <div
-                className="mt-7 grid gap-3 text-left sm:grid-cols-3"
+                className="mt-6 grid gap-y-3 text-left sm:grid-cols-3"
                 data-cy="basic-info-personal-summary-grid"
               >
                 <div
-                  className="rounded-md border border-white/20 bg-white/10 px-4 py-3"
+                  className="min-w-0 pr-6"
                   data-cy="basic-info-personal-employment-summary"
                 >
                   <div
-                    className="flex items-center gap-2 text-[12px] font-semibold uppercase text-white/70"
+                    className="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/75"
                     data-cy="basic-info-personal-employment-summary-label"
                   >
                     <BriefcaseBusiness
@@ -613,18 +559,18 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
                     Employment
                   </div>
                   <div
-                    className="mt-1 text-base font-semibold text-white"
+                    className="mt-1 text-sm font-semibold text-white"
                     data-cy="basic-info-personal-employment-summary-value"
                   >
                     {employmentType}
                   </div>
                 </div>
                 <div
-                  className="rounded-md border border-white/20 bg-white/10 px-4 py-3"
+                  className="min-w-0 sm:border-l sm:border-white/25 sm:px-6"
                   data-cy="basic-info-personal-office-summary"
                 >
                   <div
-                    className="flex items-center gap-2 text-[12px] font-semibold uppercase text-white/70"
+                    className="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/75"
                     data-cy="basic-info-personal-office-summary-label"
                   >
                     <Building2
@@ -634,18 +580,18 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
                     Office
                   </div>
                   <div
-                    className="mt-1 truncate text-base font-semibold text-white"
+                    className="mt-1 truncate text-sm font-semibold text-white"
                     data-cy="basic-info-personal-office-summary-value"
                   >
                     {officeName}
                   </div>
                 </div>
                 <div
-                  className="rounded-md border border-white/20 bg-white/10 px-4 py-3"
+                  className="min-w-0 sm:border-l sm:border-white/25 sm:px-6"
                   data-cy="basic-info-personal-service-summary"
                 >
                   <div
-                    className="flex items-center gap-2 text-[12px] font-semibold uppercase text-white/70"
+                    className="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/75"
                     data-cy="basic-info-personal-service-summary-label"
                   >
                     <Clock3
@@ -655,7 +601,7 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
                     Service
                   </div>
                   <div
-                    className="mt-1 text-base font-semibold text-white"
+                    className="mt-1 text-sm font-semibold text-white"
                     data-cy="basic-info-personal-service-summary-value"
                   >
                     {formatServiceYear(joinedDate)}
@@ -673,7 +619,7 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
   if (variant === 'personalSidebar') {
     return (
       <aside
-        className="h-full border-r border-[#DFE3FF] bg-[#F5F6FF] px-5 py-7 sm:px-7"
+        className="h-full bg-[#f0f2ff] px-5 py-7 sm:px-7 lg:ml-5 lg:w-[calc(100%-1.25rem)] lg:pt-12"
         id="basic-info-personal-sidebar"
         data-cy="basic-info-personal-sidebar"
       >
@@ -832,14 +778,6 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
                   <FiTrash2 size={14} />
                 </button>
               )}
-              <button
-                onClick={showModal}
-                className="absolute -bottom-1 -right-1 z-10 bg-white rounded-full p-1.5 shadow border border-gray-200 w-5 h-5 flex items-center justify-center text-gray-600 hover:bg-gray-50"
-                id="basic-info-edit-profile-btn"
-                data-cy="basic-info-edit-profile-btn"
-              >
-                <LuPencil size={16} />
-              </button>
             </>
           ) : null}
         </div>

@@ -2,9 +2,8 @@
 import { FC, ReactNode, useEffect } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
-import { Skeleton, Tabs, Button } from 'antd';
+import { Skeleton, Button } from 'antd';
 import { usePathname, useRouter } from 'next/navigation';
-import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useBranchStore } from '@/store/uistate/features/organizationStructure/branchStore';
 import { useFiscalYearDrawerStore } from '@/store/uistate/features/organizations/settings/fiscalYear/useStore';
@@ -15,6 +14,12 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 
 interface SettingsLayoutProps {
   children: ReactNode;
+}
+
+interface SettingsTabItem {
+  key: string;
+  label: ReactNode;
+  disabled?: boolean;
 }
 
 const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
@@ -80,57 +85,105 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   };
 
   const activeKey = getActiveKey();
-  const items: TabsProps['items'] = [
+  const items: SettingsTabItem[] = [
     {
       key: 'branches',
       label: (
-        <div
+        <span
           className={`text-base m-0 ${activeKey === 'branches' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="org-settings-branches-tab-label"
           id="org-settings-branches-tab-label"
         >
           Branches
-        </div>
+        </span>
       ),
       disabled: hasEndedFiscalYear,
     },
     {
       key: 'fiscalYear',
       label: (
-        <div
+        <span
           className={`text-base m-0 ${activeKey === 'fiscalYear' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="org-settings-fiscal-year-tab-label"
           id="org-settings-fiscal-year-tab-label"
         >
           Fiscal Year
-        </div>
+        </span>
       ),
     },
     {
       key: 'transfer',
       label: (
-        <div
+        <span
           className={`text-base m-0 ${activeKey === 'transfer' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="org-settings-transfer-tab-label"
           id="org-settings-transfer-tab-label"
         >
           Transfer
-        </div>
+        </span>
       ),
     },
     {
       key: 'merge',
       label: (
-        <div
+        <span
           className={`text-base m-0 ${activeKey === 'merge' ? 'text-primary font-semibold' : 'text-gray-800'}`}
           data-cy="org-settings-merge-tab-label"
           id="org-settings-merge-tab-label"
         >
           Merge
-        </div>
+        </span>
       ),
     },
   ];
+  const activeTabId = `org-settings-tab-${activeKey}`;
+  const tabExtraContent =
+    activeKey === 'branches' ? (
+      <AccessGuard
+        permissions={[Permissions.CreateBranch]}
+        data-cy="org-settings-branches-add-btn-guard"
+        id="org-settings-branches-add-btn-guard"
+      >
+        <Button
+          className={`h-8 font-normal ${isMobile ? 'ml-4' : ''}`}
+          icon={
+            <FaPlus
+              data-cy="org-settings-branches-add-btn-icon"
+              id="org-settings-branches-add-btn-icon"
+            />
+          }
+          type="primary"
+          onClick={handleBranchAdd}
+          data-cy="org-settings-branches-add-btn"
+          id="org-settings-branches-add-btn"
+        >
+          {!isMobile && 'Branch'}
+        </Button>
+      </AccessGuard>
+    ) : activeKey === 'fiscalYear' ? (
+      <AccessGuard
+        permissions={[Permissions.CreateCalendar]}
+        data-cy="org-settings-fiscal-year-create-btn-guard"
+        id="org-settings-fiscal-year-create-btn-guard"
+      >
+        <Button
+          className={`h-10 font-normal ${isMobile ? 'ml-4' : ''}`}
+          icon={
+            <FaPlus
+              data-cy="org-settings-fiscal-year-create-btn-icon"
+              id="org-settings-fiscal-year-create-btn-icon"
+              className="font-normal"
+            />
+          }
+          type="primary"
+          onClick={handleFiscalYearAdd}
+          data-cy="org-settings-fiscal-year-create-btn"
+          id="org-settings-fiscal-year-create-btn"
+        >
+          {!isMobile && 'Fiscal Year'}
+        </Button>
+      </AccessGuard>
+    ) : null;
 
   return (
     <div
@@ -203,73 +256,52 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           />
         </div>
         <div
-          className="bg-white mb-4"
+          className="bg-white mb-2"
           data-cy="org-settings-tabs-container"
           id="org-settings-tabs-container"
         >
           <div className="" data-cy="org-settings-tabs-wrapper">
-            <Tabs
-              activeKey={activeKey}
-              onChange={handleTabChange}
-              items={items}
-              tabBarStyle={{
-                marginBottom: 0,
-                marginLeft: 0,
-                paddingLeft: 0,
-                paddingRight: 0,
-              }}
-              tabBarExtraContent={
-                activeKey === 'branches' ? (
-                  <AccessGuard
-                    permissions={[Permissions.CreateBranch]}
-                    data-cy="org-settings-branches-add-btn-guard"
-                    id="org-settings-branches-add-btn-guard"
-                  >
-                    <Button
-                      className={`h-8 font-normal ${isMobile ? 'ml-4' : ''}`}
-                      icon={
-                        <FaPlus
-                          data-cy="org-settings-branches-add-btn-icon"
-                          id="org-settings-branches-add-btn-icon"
-                        />
-                      }
-                      type="primary"
-                      onClick={handleBranchAdd}
-                      data-cy="org-settings-branches-add-btn"
-                      id="org-settings-branches-add-btn"
-                    >
-                      {!isMobile && 'Branch'}
-                    </Button>
-                  </AccessGuard>
-                ) : activeKey === 'fiscalYear' ? (
-                  <AccessGuard
-                    permissions={[Permissions.CreateCalendar]}
-                    data-cy="org-settings-fiscal-year-create-btn-guard"
-                    id="org-settings-fiscal-year-create-btn-guard"
-                  >
-                    <Button
-                      className={`h-10 font-normal ${isMobile ? 'ml-4' : ''}`}
-                      icon={
-                        <FaPlus
-                          data-cy="org-settings-fiscal-year-create-btn-icon"
-                          id="org-settings-fiscal-year-create-btn-icon"
-                          className="font-normal"
-                        />
-                      }
-                      type="primary"
-                      onClick={handleFiscalYearAdd}
-                      data-cy="org-settings-fiscal-year-create-btn"
-                      id="org-settings-fiscal-year-create-btn"
-                    >
-                      {!isMobile && 'Fiscal Year'}
-                    </Button>
-                  </AccessGuard>
-                ) : null
-              }
-              className="org-settings-tabs-foldfix [&_.ant-tabs-tab]:py-2 [&_.ant-tabs-tab-btn]:py-1 [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+            <div
+              className="org-settings-tabs-foldfix flex items-center justify-between gap-3 border-b border-gray-200"
               data-cy="org-settings-tabs"
               id="org-settings-tabs"
-            />
+            >
+              <div
+                className="flex min-w-0 flex-1 gap-8 overflow-x-auto whitespace-nowrap pr-4"
+                role="tablist"
+                aria-activedescendant={activeTabId}
+                data-cy="org-settings-tabs-list"
+              >
+                {items.map((item) => {
+                  const selected = activeKey === item.key;
+
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      role="tab"
+                      id={`org-settings-tab-${item.key}`}
+                      data-cy={`org-settings-tab-${item.key}`}
+                      aria-selected={selected}
+                      disabled={item.disabled}
+                      onClick={() => handleTabChange(item.key)}
+                      className={`border-b-2 px-0 py-3 transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                        selected
+                          ? 'border-primary text-primary'
+                          : 'border-transparent text-gray-800 hover:text-primary'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {tabExtraContent && (
+                <div className="shrink-0" data-cy="org-settings-tabs-extra">
+                  {tabExtraContent}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div

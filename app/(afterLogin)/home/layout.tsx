@@ -1,11 +1,11 @@
 'use client';
 
 import { FC, ReactNode, useMemo } from 'react';
-import { Tabs, Button, Badge } from 'antd';
+import { Button, Badge } from 'antd';
 import { MOCK_APPROVAL_TOTAL_PENDING } from '@/config/homeApprovalsMock';
 import { usePathname, useRouter } from 'next/navigation';
-import type { TabsProps } from 'antd';
 import { FaPlus } from 'react-icons/fa';
+import { LuPencil } from 'react-icons/lu';
 import {
   buildSubscribedModuleCodes,
   getHomePageTitle,
@@ -24,6 +24,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import HomeTimesheetProviders from './_components/HomeTimesheetProviders';
 import BasicInfo from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/basicInfo';
+import { OPEN_HOME_DASHBOARD_EDIT_EVENT } from '@/config/homeDashboardEvents';
 
 interface HomeLayoutProps {
   children: ReactNode;
@@ -109,29 +110,22 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
         </Button>
       </AccessGuard>
     ) : undefined;
-
-  const tabItems: TabsProps['items'] = visibleTabs.map((tab) => ({
-    key: tab.key,
-    label: (
-      <div
-        className="m-0 whitespace-nowrap text-base font-semibold text-inherit"
-        data-cy={`home-${tab.key}-tab-label`}
-        id={`home-${tab.key}-tab-label`}
+  const overviewEditAction =
+    activeKey === 'overview' && userId ? (
+      <Button
+        type="text"
+        icon={<LuPencil size={17} />}
+        onClick={() =>
+          window.dispatchEvent(new Event(OPEN_HOME_DASHBOARD_EDIT_EVENT))
+        }
+        className="mr-3 h-9 shrink-0 !text-white hover:!bg-white/15 hover:!text-white"
+        data-cy="home-overview-edit-profile-button"
+        id="home-overview-edit-profile-button"
       >
-        {tab.key === 'approvals' ? (
-          <Badge
-            count={MOCK_APPROVAL_TOTAL_PENDING}
-            size="small"
-            offset={[8, 0]}
-          >
-            <span data-cy="home-approvals-tab-label-text">{tab.label}</span>
-          </Badge>
-        ) : (
-          tab.label
-        )}
-      </div>
-    ),
-  }));
+        Edit
+      </Button>
+    ) : undefined;
+  const tabExtraAction = overviewEditAction || leaveRequestAction;
 
   const showTimesheetProviders = visibleTabs.some((tab) =>
     ['schedule', 'leave', 'attendance', 'approvals', 'overview'].includes(
@@ -143,7 +137,7 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
     <div
       id="home-layout"
       data-cy="home-layout"
-      className="-mx-2 min-h-screen bg-[#F6F7FF] min-[769px]:-mx-6"
+      className="-mx-2 min-h-screen bg-white min-[769px]:-mx-6"
     >
       <div
         className="min-h-screen"
@@ -151,7 +145,7 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
         id="home-layout-inner"
       >
         <div
-          className="overflow-hidden rounded-lg border border-[#DFE3FF] bg-white shadow-[0_18px_42px_rgba(54,54,240,0.1)]"
+          className="bg-white"
           data-cy="home-personal-shell"
           id="home-personal-shell"
         >
@@ -163,16 +157,12 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
             />
           ) : (
             <section
-              className="relative overflow-hidden bg-primary px-5 py-8 sm:px-8 lg:px-10"
+              className="relative bg-primary px-5 py-8 sm:px-8 lg:min-h-[180px] lg:px-10"
               data-cy="home-personal-hero-fallback"
               id="home-personal-hero-fallback"
             >
-              <div
-                className="absolute inset-0 bg-gradient-to-r from-[#5C5CFF] via-[#3636F0] to-[#2727B8]"
-                data-cy="home-personal-hero-fallback-gradient"
-              />
               <h1
-                className="relative m-0 text-[34px] font-semibold leading-tight text-white sm:text-[42px]"
+                className="m-0 text-[30px] font-semibold leading-tight text-white sm:text-[34px]"
                 data-cy="home-page-title-fallback"
                 id="home-page-title-fallback"
               >
@@ -180,6 +170,92 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
               </h1>
             </section>
           )}
+
+          <div
+            className={userId ? 'grid lg:grid-cols-[300px_minmax(0,1fr)]' : ''}
+            data-cy="home-tabs-container"
+            id="home-tabs-container"
+          >
+            {userId ? (
+              <div
+                className="hidden bg-primary lg:block"
+                data-cy="home-tabs-avatar-rail"
+              />
+            ) : null}
+            <div
+              className="home-primary-tabs min-w-0"
+              data-cy="home-tabs"
+              id="home-tabs"
+            >
+              <div
+                className="ant-tabs-nav flex items-center"
+                data-cy="home-tabs-nav"
+                id="home-tabs-nav"
+              >
+                <div
+                  className="ant-tabs-nav-wrap min-w-0 flex-1"
+                  data-cy="home-tabs-list"
+                  id="home-tabs-list"
+                >
+                  <div
+                    className="ant-tabs-nav-list"
+                    role="tablist"
+                    aria-activedescendant={`home-tabs-tab-${activeKey}`}
+                    data-cy="home-tabs-nav-list"
+                    id="home-tabs-nav-list"
+                  >
+                    {visibleTabs.map((tab) => {
+                      const selected = activeKey === tab.key;
+
+                      return (
+                        <button
+                          key={tab.key}
+                          type="button"
+                          role="tab"
+                          aria-selected={selected}
+                          onClick={() => handleTabChange(tab.key)}
+                          className={`ant-tabs-tab border-0 bg-transparent ${
+                            selected ? 'ant-tabs-tab-active' : ''
+                          }`}
+                          data-cy={`home-tabs-tab-${tab.key}`}
+                          id={`home-tabs-tab-${tab.key}`}
+                        >
+                          <span
+                            className="ant-tabs-tab-btn m-0 block whitespace-nowrap text-base font-semibold text-inherit"
+                            data-cy={`home-${tab.key}-tab-label`}
+                            id={`home-${tab.key}-tab-label`}
+                          >
+                            {tab.key === 'approvals' ? (
+                              <Badge
+                                count={MOCK_APPROVAL_TOTAL_PENDING}
+                                size="small"
+                                offset={[8, 0]}
+                              >
+                                <span data-cy="home-approvals-tab-label-text">
+                                  {tab.label}
+                                </span>
+                              </Badge>
+                            ) : (
+                              tab.label
+                            )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                {tabExtraAction ? (
+                  <div
+                    className="ant-tabs-extra-content shrink-0"
+                    data-cy="home-tabs-extra-content"
+                    id="home-tabs-extra-content"
+                  >
+                    {tabExtraAction}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
 
           <div
             className={
@@ -202,32 +278,7 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
               id="home-personal-content"
             >
               <div
-                className="bg-white"
-                data-cy="home-tabs-container"
-                id="home-tabs-container"
-              >
-                <div className="px-0" data-cy="home-tabs-wrapper">
-                  <Tabs
-                    activeKey={activeKey}
-                    onChange={handleTabChange}
-                    items={tabItems}
-                    tabBarGutter={0}
-                    tabBarExtraContent={leaveRequestAction}
-                    tabBarStyle={{
-                      marginBottom: 0,
-                      marginLeft: 0,
-                      paddingLeft: 0,
-                      paddingRight: 0,
-                    }}
-                    className="home-primary-tabs"
-                    data-cy="home-tabs"
-                    id="home-tabs"
-                  />
-                </div>
-              </div>
-
-              <div
-                className="px-4 pb-8 pt-6 sm:px-6 lg:px-8"
+                className="px-4 pb-8 sm:px-6 lg:px-8"
                 data-cy="home-content-wrapper"
                 id="home-content-wrapper"
               >
