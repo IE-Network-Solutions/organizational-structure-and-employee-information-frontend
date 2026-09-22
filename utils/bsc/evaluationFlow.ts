@@ -1,5 +1,3 @@
-import type { BscEvaluatorStep } from '@/types/bsc';
-
 /** Stable identity for an evaluation-chain step (Self / DirectManager / User:id). */
 export function evaluationStepKey(
   step: { kind?: string | null; userId?: string | null } | null | undefined,
