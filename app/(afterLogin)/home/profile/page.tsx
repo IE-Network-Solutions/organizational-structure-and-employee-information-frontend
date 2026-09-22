@@ -7,9 +7,13 @@ import EmployeeDetails from '@/app/(afterLogin)/(employeeInformation)/employees/
 export default function HomeProfilePage() {
   const { userId } = useAuthenticationStore();
 
-  if (!userId) {
-    return <Skeleton active paragraph={{ rows: 4 }} />;
-  }
-
-  return <EmployeeDetails params={{ id: userId }} />;
+  return (
+    <div className="pt-6" id="home-profile-page" data-cy="home-profile-page">
+      {userId ? (
+        <EmployeeDetails params={{ id: userId }} />
+      ) : (
+        <Skeleton active paragraph={{ rows: 4 }} />
+      )}
+    </div>
+  );
 }
