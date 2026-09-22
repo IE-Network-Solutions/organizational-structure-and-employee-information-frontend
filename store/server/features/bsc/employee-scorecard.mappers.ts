@@ -151,14 +151,18 @@ export function mapEmployeeScorecardFromApi(
   return {
     id: row.id,
     userId: row.userId,
-    userName: options?.userName || row.userId,
+    // Never fall back to the raw UUID — callers resolve a display name from HRIS.
+    userName: options?.userName || '',
     managerId: row.managerId || '',
     departmentId: row.departmentId ?? null,
     positionId: row.positionId ?? null,
     cycleId: row.scorecardId,
     cycleLabel: row.scorecard?.name || row.periodLabel || '',
+    periodKey: row.periodKey || null,
     periodMonthName: row.periodLabel || null,
     periodYear: yearMatch ? Number(yearMatch[1]) : null,
+    periodStart: row.periodStart ? toIso(row.periodStart) : null,
+    periodEnd: row.periodEnd ? toIso(row.periodEnd) : null,
     status: mapEmployeeStatusFromApi(row.status),
     targets: kpis.map((kpi) => mapEmployeeKpiToTarget(kpi, row.id)),
     finalEvaluation:

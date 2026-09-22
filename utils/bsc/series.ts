@@ -12,7 +12,16 @@ export function scorecardProgramName(
   const raw = (cycle?.label || card.cycleLabel || 'Scorecard').trim();
   const withoutBullet = raw.replace(/\s*[·•]\s*.+$/, '').trim();
   const withoutParen = withoutBullet.replace(/\s+\([^)]*\)\s*$/, '').trim();
-  return withoutParen || 'Scorecard';
+  const name = withoutParen || 'Scorecard';
+  // Guard against accidentally surfacing a template/user UUID as the title.
+  if (
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+      name,
+    )
+  ) {
+    return 'Scorecard';
+  }
+  return name;
 }
 
 /**
@@ -45,6 +54,10 @@ export function periodLabel(card: EmployeeScorecard): string {
 }
 
 export function periodSortKey(card: EmployeeScorecard): number {
+  if (card.periodStart) {
+    const t = new Date(card.periodStart).getTime();
+    if (Number.isFinite(t)) return t;
+  }
   const year = card.periodYear ?? 0;
   const monthIndex = card.periodMonthName
     ? new Date(`${card.periodMonthName} 1, ${year || 2000}`).getMonth()

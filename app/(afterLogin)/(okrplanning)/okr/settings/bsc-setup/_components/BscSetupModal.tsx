@@ -73,6 +73,10 @@ import {
 import { resolveEffectiveFrom } from '@/utils/bsc/effectiveDate';
 import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
 import { validateWeights } from '@/utils/bsc/scoring';
+import {
+  findDuplicateEvaluationStepLabel,
+  isEvaluationStepAlreadyInFlow,
+} from '@/utils/bsc/evaluationFlow';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 
 const { TextArea } = Input;
@@ -940,6 +944,13 @@ export default function BscSetupModal() {
         });
         throw new Error('evaluation flow required');
       }
+      const duplicate = findDuplicateEvaluationStepLabel(flow);
+      if (duplicate) {
+        NotificationMessage.error({
+          message: `“${kpi.name}” has a duplicate evaluator (${duplicate})`,
+        });
+        throw new Error('duplicate evaluator');
+      }
       for (let i = 0; i < flow.length; i++) {
         const step = flow[i];
         if (step.kind === 'user' && !step.userId) {
@@ -968,6 +979,13 @@ export default function BscSetupModal() {
   };
 
   const updateKpiFlow = (kpiId: string, flow: BscEvaluatorStep[]) => {
+    const duplicate = findDuplicateEvaluationStepLabel(flow);
+    if (duplicate) {
+      NotificationMessage.error({
+        message: `Duplicate evaluator in the chain: ${duplicate}`,
+      });
+      return false;
+    }
     const current =
       (form.getFieldValue('kpiEvaluationFlows') as Record<
         string,
@@ -979,6 +997,7 @@ export default function BscSetupModal() {
         [kpiId]: flow,
       },
     });
+    return true;
   };
 
   const addEvaluatorFromPicker = (step: BscEvaluatorStep) => {
@@ -991,8 +1010,16 @@ export default function BscSetupModal() {
     const existing = current[addStepKpiId]?.length
       ? current[addStepKpiId]
       : defaultEvaluationFlow();
-    updateKpiFlow(addStepKpiId, [...existing, step]);
-    closeEmployeePicker();
+    if (isEvaluationStepAlreadyInFlow(existing, step)) {
+      NotificationMessage.error({
+        message:
+          'That evaluator is already in this evaluation chain. Choose a different one.',
+      });
+      return;
+    }
+    if (updateKpiFlow(addStepKpiId, [...existing, step])) {
+      closeEmployeePicker();
+    }
   };
 
   const seedMeasureTargetsFromCatalog = () => {
@@ -2726,7 +2753,11 @@ export default function BscSetupModal() {
                                 >
                                   <button
                                     type="button"
-                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-40"
+                                    disabled={isEvaluationStepAlreadyInFlow(
+                                      flow,
+                                      { kind: 'self' },
+                                    )}
                                     onClick={() =>
                                       addEvaluatorFromPicker({ kind: 'self' })
                                     }
@@ -2746,7 +2777,11 @@ export default function BscSetupModal() {
                                   </button>
                                   <button
                                     type="button"
-                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-40"
+                                    disabled={isEvaluationStepAlreadyInFlow(
+                                      flow,
+                                      { kind: 'directManager' },
+                                    )}
                                     onClick={() =>
                                       addEvaluatorFromPicker({
                                         kind: 'directManager',
@@ -2782,7 +2817,14 @@ export default function BscSetupModal() {
                                       <button
                                         key={option.value}
                                         type="button"
-                                        className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                        className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-40"
+                                        disabled={isEvaluationStepAlreadyInFlow(
+                                          flow,
+                                          {
+                                            kind: 'user',
+                                            userId: option.value,
+                                          },
+                                        )}
                                         onClick={() =>
                                           addEvaluatorFromPicker({
                                             kind: 'user',

@@ -21,6 +21,8 @@ import {
   ScorecardStatus,
 } from '@/types/bsc';
 import { targetScorePercent } from '@/utils/bsc/rollup';
+import { scorecardInCalendarMonth } from '@/utils/bsc/periodFilter';
+import { scorecardProgramName } from '@/utils/bsc/series';
 import {
   scorecardResultsHref,
   scorecardTabHref,
@@ -91,34 +93,12 @@ function periodLabel(card: EmployeeScorecard): string {
   return card.cycleLabel || 'Period';
 }
 
+/** Filter dropdown: scorecard/template name only (no period or cadence). */
 function scorecardOptionLabel(
   card: EmployeeScorecard,
   cycleById: Map<string, EvaluationCycle>,
 ): string {
-  const cadence = cycleById.get(card.cycleId)?.cadence;
-  const period = periodLabel(card);
-  const program = (card.cycleLabel || '').trim();
-  const periodLower = period.toLowerCase();
-  const programLower = program.toLowerCase();
-  const cadenceLower = (cadence || '').toLowerCase();
-
-  // Prefer a short period label; only add program when it adds new info.
-  const programIsRedundant =
-    !program ||
-    programLower === periodLower ||
-    programLower.includes(periodLower) ||
-    periodLower.includes(programLower.replace(/\s*\([^)]*\)\s*/g, '').trim());
-
-  const parts: string[] = [];
-  if (!programIsRedundant) parts.push(program);
-  parts.push(period);
-  if (
-    cadence &&
-    !parts.some((part) => part.toLowerCase().includes(cadenceLower))
-  ) {
-    parts.push(cadence);
-  }
-  return parts.join(' · ');
+  return scorecardProgramName(card, cycleById.get(card.cycleId));
 }
 
 function pickDefaultScorecard(
@@ -133,11 +113,7 @@ function pickDefaultScorecard(
   const thisMonth = currentMonthName();
   const year = currentYear();
   const currentPeriod =
-    list.find(
-      (s) =>
-        s.periodMonthName?.toLowerCase() === thisMonth.toLowerCase() &&
-        (s.periodYear == null || s.periodYear === year),
-    ) || null;
+    list.find((s) => scorecardInCalendarMonth(s, thisMonth, year)) || null;
   if (currentPeriod) return currentPeriod;
   const active = list.find((s) => s.status === ScorecardStatus.Active);
   if (active) return active;

@@ -35,7 +35,66 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { EvaluationCycle, KpiApprovalStatus, ScorecardKpiTarget } from '@/types/bsc';
 import { formatScore } from '@/utils/bsc/rollup';
 import { buildCheckinQueue, dedupeSelfCheckinItems, type CheckinItem } from '@/utils/bsc/checkin';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import type { CheckinInbox } from './CheckinInboxToggle';
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function looksLikeUuid(value?: string | null): boolean {
+  return Boolean(value && UUID_RE.test(String(value).trim()));
+}
+
+function userDisplayName(user: any): string {
+  if (!user) return '';
+  const info = user?.employeeInformation;
+  return (
+    user?.fullName ||
+    info?.fullName ||
+    [
+      user?.firstName || user?.first_name || info?.firstName,
+      user?.middleName || user?.middle_name || info?.middleName,
+      user?.lastName || user?.last_name || info?.lastName,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim() ||
+    user?.email ||
+    user?.username ||
+    ''
+  );
+}
+
+function normalizeUsers(data: unknown): any[] {
+  if (Array.isArray(data)) return data;
+  if (Array.isArray((data as { items?: unknown })?.items)) {
+    return (data as { items: unknown[] }).items as any[];
+  }
+  if (data && typeof data === 'object') {
+    const values = Object.values(data as object).filter(
+      (value) =>
+        value &&
+        typeof value === 'object' &&
+        !Array.isArray(value) &&
+        ('id' in (value as object) || 'userId' in (value as object)),
+    );
+    if (values.length) return values as any[];
+  }
+  return [];
+}
+
+function resolveOwnerDisplayName(
+  scorecard: CheckinItem['scorecard'],
+  nameByUserId: Map<string, string>,
+): string {
+  const fromMap = nameByUserId.get(String(scorecard.userId || ''));
+  if (fromMap) return fromMap;
+  if (scorecard.userName && !looksLikeUuid(scorecard.userName)) {
+    return scorecard.userName;
+  }
+  return 'Employee';
+}
 
 function evaluationDecisionCounts(
   groups: CheckinItem[][],
@@ -593,7 +652,13 @@ function ReviewCheckinGroup({
   );
 }
 
-function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
+function AssignedCheckinQueue({
+  groups,
+  ownerNameByUserId,
+}: {
+  groups: CheckinItem[][];
+  ownerNameByUserId: Map<string, string>;
+}) {
   const ANIM_MS = 340;
   const [orderIds, setOrderIds] = useState<string[]>([]);
   const [snapshots, setSnapshots] = useState<Record<string, CheckinItem[]>>(
@@ -732,7 +797,10 @@ function AssignedCheckinQueue({ groups }: { groups: CheckinItem[][] }) {
       >
         <ReviewCheckinGroup
           key={current[0].scorecard.id}
-          ownerName={current[0].scorecard.userName}
+          ownerName={resolveOwnerDisplayName(
+            current[0].scorecard,
+            ownerNameByUserId,
+          )}
           items={current}
           decisions={decisions}
           counts={counts}
@@ -791,12 +859,23 @@ export default function CheckinQueue({ inbox }: { inbox: CheckinInbox }) {
   const { data: reviewQueue, isLoading: reviewQueueLoading } =
     useGetBscReviewCheckInQueue();
   const { data: cycles } = useGetBscCycles();
+  const { data: allUsers } = useGetAllUsers();
 
   const cycleById = useMemo(() => {
     const map = new Map<string, EvaluationCycle>();
     for (const cycle of cycles || []) map.set(cycle.id, cycle);
     return map;
   }, [cycles]);
+
+  const ownerNameByUserId = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const user of normalizeUsers(allUsers)) {
+      const id = String(user?.id || user?.userId || '').trim();
+      const name = userDisplayName(user);
+      if (id && name) map.set(id, name);
+    }
+    return map;
+  }, [allUsers]);
 
   const sourceScorecards = useMemo(() => {
     if (!USE_BSC_API) return scorecards;
@@ -842,7 +921,10 @@ export default function CheckinQueue({ inbox }: { inbox: CheckinInbox }) {
   if (inbox === 'assigned') {
     return (
       <div data-cy="bsc-checkin-queue">
-        <AssignedCheckinQueue groups={reviewGroups} />
+        <AssignedCheckinQueue
+          groups={reviewGroups}
+          ownerNameByUserId={ownerNameByUserId}
+        />
       </div>
     );
   }

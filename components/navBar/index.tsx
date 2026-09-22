@@ -35,6 +35,8 @@ import {
 
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
+import { useQueryClient } from 'react-query';
+import { BSC_QUERY_KEYS } from '@/store/server/features/bsc/queries';
 
 import {
   menuKeyMatchScore,
@@ -506,6 +508,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     isCheckingPermissions,
     setIsCheckingPermissions,
   } = useAuthenticationStore();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -1487,6 +1490,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setTenantId('');
       setToken('');
       setUser2FA({ email: '', pass: '' });
+
+      // Drop user-scoped BSC cache so the next login cannot reuse My Scorecard data.
+      Object.values(BSC_QUERY_KEYS).forEach((key) => {
+        queryClient.removeQueries(key);
+      });
 
       // Then remove cookies
       removeCookie('token');

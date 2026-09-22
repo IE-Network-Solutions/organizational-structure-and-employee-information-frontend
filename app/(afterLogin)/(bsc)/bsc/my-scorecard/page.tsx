@@ -29,6 +29,10 @@ import {
   scorecardContextLabel,
   scorecardProgramName,
 } from '@/utils/bsc/series';
+import {
+  filterScorecardsByFiscalMonths,
+  scorecardInCalendarMonth,
+} from '@/utils/bsc/periodFilter';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -182,6 +186,9 @@ export default function MyBscScorecardPage() {
     myScorecardSessionMonths,
     scorecardTab,
     setScorecardTab,
+    setMyScorecardSessionId,
+    setMyScorecardMonthId,
+    setMyScorecardSessionMonths,
   } = useBscUiStore();
   const { isMobile, isTablet } = useIsMobile();
   const canViewAllEmployeeKpi = AccessGuard.checkAccess({
@@ -264,15 +271,29 @@ export default function MyBscScorecardPage() {
 
   const mine = useMemo(() => {
     const list = scorecards || [];
+    if (!userId) return [];
     if (USE_BSC_API) {
-      return list;
+      // Defense in depth: never show another user's rows even if cache/API leaks.
+      return list.filter((s) => s.userId === userId);
     }
-    if (userId) {
-      const matched = list.filter((s) => s.userId === userId);
-      if (matched.length) return matched;
-    }
+    const matched = list.filter((s) => s.userId === userId);
+    if (matched.length) return matched;
     return list.filter((s) => s.userId === 'demo-user');
   }, [scorecards, userId]);
+
+  const prevUserIdRef = React.useRef(userId);
+  useEffect(() => {
+    if (prevUserIdRef.current === userId) return;
+    prevUserIdRef.current = userId;
+    setMyScorecardSessionId(undefined);
+    setMyScorecardMonthId(undefined);
+    setMyScorecardSessionMonths([]);
+  }, [
+    userId,
+    setMyScorecardSessionId,
+    setMyScorecardMonthId,
+    setMyScorecardSessionMonths,
+  ]);
 
   const myRoleTitle = useMemo(() => {
     const fromSc =
@@ -309,34 +330,15 @@ export default function MyBscScorecardPage() {
 
       const thisMonth = currentMonthName();
       const year = currentYear();
-      const byCalendarMonth = mine.filter(
-        (s) =>
-          s.periodMonthName?.toLowerCase() === thisMonth.toLowerCase() &&
-          (s.periodYear == null || s.periodYear === year),
+      return mine.filter((s) =>
+        scorecardInCalendarMonth(s, thisMonth, year),
       );
-      if (byCalendarMonth.length) return byCalendarMonth;
-      return mine;
     }
-    if (selectedMonth?.name) {
-      const monthName = selectedMonth.name.toLowerCase();
-      return mine.filter(
-        (s) =>
-          s.periodMonthName?.toLowerCase() === monthName ||
-          (s.cycleLabel || '').toLowerCase().includes(monthName),
-      );
+    if (selectedMonth) {
+      return filterScorecardsByFiscalMonths(mine, [selectedMonth]);
     }
     if (myScorecardSessionId && myScorecardSessionMonths.length) {
-      const monthNames = new Set(
-        myScorecardSessionMonths.map((m) => m.name.toLowerCase()),
-      );
-      return mine.filter(
-        (s) =>
-          (s.periodMonthName &&
-            monthNames.has(s.periodMonthName.toLowerCase())) ||
-          myScorecardSessionMonths.some((m) =>
-            (s.cycleLabel || '').toLowerCase().includes(m.name.toLowerCase()),
-          ),
-      );
+      return filterScorecardsByFiscalMonths(mine, myScorecardSessionMonths);
     }
     return mine;
   }, [

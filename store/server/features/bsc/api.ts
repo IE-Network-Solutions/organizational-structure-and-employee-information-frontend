@@ -53,6 +53,19 @@ async function bscAuthHeaders(): Promise<Record<string, string>> {
   };
 }
 
+/** Org user UUID from auth store — same identity OKR passes on /objective/:userId. */
+function authStoreUserId(): string {
+  return String(useAuthenticationStore.getState().userId || '').trim();
+}
+
+function withAuthUserId(
+  params: Record<string, string> = {},
+): Record<string, string> {
+  const userId = authStoreUserId();
+  if (userId) params.userId = userId;
+  return params;
+}
+
 /** Resolve FE perspective name or id to BE perspective UUID. */
 async function resolvePerspectiveId(perspective: string): Promise<string> {
   const key = perspective?.trim();
@@ -526,8 +539,11 @@ export function mapAssignAssigneesToScorecards(
     positionId: assignee.positionId ?? null,
     cycleId: result.scorecardId,
     cycleLabel: period?.periodLabel || '',
+    periodKey: period?.periodKey || null,
     periodMonthName: period?.periodLabel || null,
     periodYear: yearMatch ? Number(yearMatch[1]) : null,
+    periodStart: period?.periodStart || null,
+    periodEnd: period?.periodEnd || null,
     status: ScorecardStatus.Active,
     targets: [],
     createdAt: new Date().toISOString(),
@@ -549,7 +565,7 @@ export async function listMyBscScorecards(filters?: {
 }): Promise<EmployeeScorecard[]> {
   try {
     const headers = await bscAuthHeaders();
-    const params: Record<string, string> = {};
+    const params = withAuthUserId();
     if (filters?.periodKey) params.periodKey = filters.periodKey;
     if (filters?.status) params.status = filters.status;
 
@@ -557,13 +573,18 @@ export async function listMyBscScorecards(filters?: {
       url: `${BSC_BASE}/my-scorecard`,
       method: 'GET',
       headers,
-      params: Object.keys(params).length ? params : undefined,
+      params,
     });
 
     const userName = currentUserDisplayName();
-    return unwrapListPayload(data).map((row) =>
-      mapEmployeeScorecardFromApi(row as BscEmployeeScorecardApi, { userName }),
-    );
+    const actorUserId = authStoreUserId();
+    return unwrapListPayload(data)
+      .map((row) =>
+        mapEmployeeScorecardFromApi(row as BscEmployeeScorecardApi, {
+          userName,
+        }),
+      )
+      .filter((card) => !actorUserId || card.userId === actorUserId);
   } catch (error) {
     throw toBscError(error, 'Failed to load my scorecards');
   }
@@ -576,7 +597,7 @@ export async function listBscResultsScorecards(
 ): Promise<EmployeeScorecard[]> {
   try {
     const headers = await bscAuthHeaders();
-    const params: Record<string, string> = { scope };
+    const params = withAuthUserId({ scope });
     if (filters?.periodKey) params.periodKey = filters.periodKey;
     if (filters?.status) params.status = filters.status;
 
@@ -589,11 +610,17 @@ export async function listBscResultsScorecards(
 
     const userName =
       scope === 'mine' ? currentUserDisplayName() : undefined;
-    return unwrapListPayload(data).map((row) =>
-      mapEmployeeScorecardFromApi(row as BscEmployeeScorecardApi, {
-        userName: scope === 'mine' ? userName : undefined,
-      }),
-    );
+    const actorUserId = authStoreUserId();
+    return unwrapListPayload(data)
+      .map((row) =>
+        mapEmployeeScorecardFromApi(row as BscEmployeeScorecardApi, {
+          userName: scope === 'mine' ? userName : undefined,
+        }),
+      )
+      .filter(
+        (card) =>
+          scope !== 'mine' || !actorUserId || card.userId === actorUserId,
+      );
   } catch (error) {
     throw toBscError(error, 'Failed to load results scorecards');
   }
@@ -608,6 +635,7 @@ export async function getMyBscScorecardDetail(
       url: `${BSC_BASE}/my-scorecard/${id}`,
       method: 'GET',
       headers,
+      params: withAuthUserId(),
     })) as {
       scorecard: BscEmployeeScorecardApi;
       sharedKpis: BscEmployeeScorecardKpiApi[];
@@ -629,6 +657,7 @@ export async function getMyBscScorecardResults(id: string) {
       url: `${BSC_BASE}/my-scorecard/${id}/results`,
       method: 'GET',
       headers,
+      params: withAuthUserId(),
     });
   } catch (error) {
     throw toBscError(error, 'Failed to load scorecard results');
@@ -728,6 +757,7 @@ export async function listMyBscCheckInQueue(): Promise<EmployeeScorecard[]> {
       url: `${BSC_BASE}/check-ins/my-queue`,
       method: 'GET',
       headers,
+      params: withAuthUserId(),
     });
 
     return mapCheckInQueueToScorecards(
@@ -750,6 +780,7 @@ export async function listBscReviewCheckInQueue(): Promise<EmployeeScorecard[]> 
       url: `${BSC_BASE}/check-ins/review-queue`,
       method: 'GET',
       headers,
+      params: withAuthUserId(),
     });
 
     return mapCheckInQueueToScorecards(
@@ -774,6 +805,7 @@ export async function submitBscCheckIn(
       url: `${BSC_BASE}/check-ins/${employeeScorecardId}/submit`,
       method: 'POST',
       headers,
+      params: withAuthUserId(),
       data: {
         reports: reports.map((r) => ({
           employeeScorecardKpiId: r.targetId,
@@ -805,6 +837,7 @@ export async function adjustBscCheckInKpis(
         url: `${BSC_BASE}/check-ins/${employeeScorecardId}/kpis/${row.targetId}/adjust`,
         method: 'POST',
         headers,
+        params: withAuthUserId(),
         data: { actualValue: Number(row.actualValue) },
       });
     }
@@ -843,6 +876,7 @@ export async function approveBscCheckInKpi(
       url: `${BSC_BASE}/check-ins/${employeeScorecardId}/kpis/${kpiRowId}/approve`,
       method: 'POST',
       headers,
+      params: withAuthUserId(),
     });
   } catch (error) {
     throw toBscError(error, 'Failed to approve KPI');
@@ -860,6 +894,7 @@ export async function rejectBscCheckInKpi(
       url: `${BSC_BASE}/check-ins/${employeeScorecardId}/kpis/${kpiRowId}/reject`,
       method: 'POST',
       headers,
+      params: withAuthUserId(),
       data: { reason: reason || 'Rejected' },
     });
   } catch (error) {
@@ -876,6 +911,7 @@ export async function finalizeBscCheckIn(
       url: `${BSC_BASE}/check-ins/${employeeScorecardId}/finalize`,
       method: 'POST',
       headers,
+      params: withAuthUserId(),
     })) as BscEmployeeScorecardApi;
 
     try {

@@ -26,6 +26,10 @@ import { useAppendIndividualBscKpis } from '@/store/server/features/bsc/mutation
 import { useGetBscKpiLibrary } from '@/store/server/features/bsc/queries';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import {
+  findDuplicateEvaluationStepLabel,
+  isEvaluationStepAlreadyInFlow,
+} from '@/utils/bsc/evaluationFlow';
+import {
   BscEvaluatorStep,
   BscEvaluatorStepKind,
   EmployeeScorecard,
@@ -343,10 +347,19 @@ export default function AssignIndividualKpisModal({
   };
 
   const updateKpiFlow = (kpiId: string, flow: BscEvaluatorStep[]) => {
+    const normalized = normalizeEvaluationFlow(flow);
+    const duplicate = findDuplicateEvaluationStepLabel(normalized);
+    if (duplicate) {
+      NotificationMessage.error({
+        message: `Duplicate evaluator in the chain: ${duplicate}`,
+      });
+      return false;
+    }
     setKpiEvaluationFlows((prev) => ({
       ...prev,
-      [kpiId]: normalizeEvaluationFlow(flow),
+      [kpiId]: normalized,
     }));
+    return true;
   };
 
   const closeEmployeePicker = () => {
@@ -359,8 +372,16 @@ export default function AssignIndividualKpisModal({
     const currentFlow = kpiEvaluationFlows[addStepKpiId]?.length
       ? kpiEvaluationFlows[addStepKpiId]
       : defaultEvaluationFlow();
-    updateKpiFlow(addStepKpiId, [...currentFlow, step]);
-    closeEmployeePicker();
+    if (isEvaluationStepAlreadyInFlow(currentFlow, step)) {
+      NotificationMessage.error({
+        message:
+          'That evaluator is already in this evaluation chain. Choose a different one.',
+      });
+      return;
+    }
+    if (updateKpiFlow(addStepKpiId, [...currentFlow, step])) {
+      closeEmployeePicker();
+    }
   };
 
   const weightSum = weightRows.reduce(
@@ -378,6 +399,13 @@ export default function AssignIndividualKpisModal({
       if (!flow.length) {
         NotificationMessage.error({
           message: `Add at least one evaluator for ${kpi.name}`,
+        });
+        return false;
+      }
+      const duplicate = findDuplicateEvaluationStepLabel(flow);
+      if (duplicate) {
+        NotificationMessage.error({
+          message: `${kpi.name} has a duplicate evaluator (${duplicate})`,
         });
         return false;
       }
@@ -1278,7 +1306,11 @@ export default function AssignIndividualKpisModal({
                                   <button
                                     data-cy="assignindividualkpismodal-button-1118"
                                     type="button"
-                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-40"
+                                    disabled={isEvaluationStepAlreadyInFlow(
+                                      flow,
+                                      { kind: 'self' },
+                                    )}
                                     onClick={() =>
                                       addEvaluatorFromPicker({ kind: 'self' })
                                     }
@@ -1298,7 +1330,11 @@ export default function AssignIndividualKpisModal({
                                   <button
                                     data-cy="assignindividualkpismodal-button-1134"
                                     type="button"
-                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                    className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-40"
+                                    disabled={isEvaluationStepAlreadyInFlow(
+                                      flow,
+                                      { kind: 'directManager' },
+                                    )}
                                     onClick={() =>
                                       addEvaluatorFromPicker({
                                         kind: 'directManager',
@@ -1322,7 +1358,14 @@ export default function AssignIndividualKpisModal({
                                       data-cy="assignindividualkpismodal-button-1153"
                                       key={option.value}
                                       type="button"
-                                      className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5]"
+                                      className="flex w-full items-center gap-3 rounded-lg border-0 bg-transparent px-2 py-2 text-left hover:bg-[#F5F5F5] disabled:cursor-not-allowed disabled:opacity-40"
+                                      disabled={isEvaluationStepAlreadyInFlow(
+                                        flow,
+                                        {
+                                          kind: 'user',
+                                          userId: option.value,
+                                        },
+                                      )}
                                       onClick={() =>
                                         addEvaluatorFromPicker({
                                           kind: 'user',

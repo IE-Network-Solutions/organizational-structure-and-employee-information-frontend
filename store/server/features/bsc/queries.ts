@@ -104,9 +104,11 @@ export const useGetBscScorecards = (filters?: {
   managerId?: string;
   cycleId?: string;
   status?: ScorecardStatus | ScorecardStatus[];
-}) =>
-  useQuery(
-    [BSC_QUERY_KEYS.scorecards, filters],
+}) => {
+  const actorUserId = useAuthenticationStore((s) => s.userId);
+
+  return useQuery(
+    [BSC_QUERY_KEYS.scorecards, actorUserId || 'anonymous', filters],
     async () => {
       if (!USE_BSC_API) {
         return bscMockRepo.listScorecards(filters);
@@ -132,6 +134,9 @@ export const useGetBscScorecards = (filters?: {
 
       // Otherwise only "my" scorecards (use useGetBscResultsScorecards for team/all).
       const currentUserId = useAuthenticationStore.getState().userId;
+      if (!currentUserId) {
+        return [];
+      }
       if (filters?.userId && filters.userId !== currentUserId) {
         return [];
       }
@@ -147,6 +152,10 @@ export const useGetBscScorecards = (filters?: {
         statusFilter ? { status: statusFilter } : undefined,
       );
 
+      // Hard-scope to the authenticated user so a stale cache/response cannot
+      // leak another person's scorecards into My Scorecard.
+      items = items.filter((s) => s.userId === currentUserId);
+
       if (filters?.userId) {
         items = items.filter((s) => s.userId === filters.userId);
       }
@@ -160,15 +169,21 @@ export const useGetBscScorecards = (filters?: {
       return items;
     },
     {
-      keepPreviousData: true,
-      enabled: !filters?.cycleId || Boolean(filters.cycleId),
+      // Never reuse another user's "mine" payload across account switches.
+      keepPreviousData: Boolean(filters?.cycleId),
+      enabled:
+        Boolean(actorUserId) &&
+        (!filters?.cycleId || Boolean(filters.cycleId)),
     },
   );
+};
 
 /** Results tab scopes: mine / team (direct reports) / all employees. */
-export const useGetBscResultsScorecards = (scope: ResultsScope = 'mine') =>
-  useQuery(
-    [BSC_QUERY_KEYS.resultsScorecards, scope],
+export const useGetBscResultsScorecards = (scope: ResultsScope = 'mine') => {
+  const actorUserId = useAuthenticationStore((s) => s.userId);
+
+  return useQuery(
+    [BSC_QUERY_KEYS.resultsScorecards, actorUserId || 'anonymous', scope],
     async () => {
       if (!USE_BSC_API) {
         const list = await bscMockRepo.listScorecards();
@@ -186,8 +201,12 @@ export const useGetBscResultsScorecards = (scope: ResultsScope = 'mine') =>
       }
       return listBscResultsScorecards(scope);
     },
-    { keepPreviousData: true },
+    {
+      keepPreviousData: false,
+      enabled: Boolean(actorUserId),
+    },
   );
+};
 
 /** People assigned to a scorecard template (admin detail People card). */
 export const useGetBscScorecardAssignments = (scorecardId: string) =>
@@ -223,15 +242,23 @@ export const useGetBscScorecardResults = (id: string) =>
     { enabled: !!id && USE_BSC_API },
   );
 
-export const useGetBscMyCheckInQueue = () =>
-  useQuery(BSC_QUERY_KEYS.checkInMyQueue, () =>
-    USE_BSC_API ? listMyBscCheckInQueue() : Promise.resolve([]),
+export const useGetBscMyCheckInQueue = () => {
+  const actorUserId = useAuthenticationStore((s) => s.userId);
+  return useQuery(
+    [BSC_QUERY_KEYS.checkInMyQueue, actorUserId || 'anonymous'],
+    () => (USE_BSC_API ? listMyBscCheckInQueue() : Promise.resolve([])),
+    { enabled: Boolean(actorUserId), keepPreviousData: false },
   );
+};
 
-export const useGetBscReviewCheckInQueue = () =>
-  useQuery(BSC_QUERY_KEYS.checkInReviewQueue, () =>
-    USE_BSC_API ? listBscReviewCheckInQueue() : Promise.resolve([]),
+export const useGetBscReviewCheckInQueue = () => {
+  const actorUserId = useAuthenticationStore((s) => s.userId);
+  return useQuery(
+    [BSC_QUERY_KEYS.checkInReviewQueue, actorUserId || 'anonymous'],
+    () => (USE_BSC_API ? listBscReviewCheckInQueue() : Promise.resolve([])),
+    { enabled: Boolean(actorUserId), keepPreviousData: false },
   );
+};
 
 export const useGetBscHrisOutbox = () =>
   useQuery(BSC_QUERY_KEYS.hris, () => bscMockRepo.getHrisOutbox());

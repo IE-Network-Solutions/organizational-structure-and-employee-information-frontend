@@ -277,9 +277,14 @@ export interface EmployeeScorecard {
   positionTitle?: string | null;
   cycleId: string;
   cycleLabel: string;
-  /** Used for Variable-Pay-style session/month filtering in mocks */
+  /** BSC period key from API (e.g. 2026-09, 2026-W38). */
+  periodKey?: string | null;
+  /** Human period label from API (e.g. "September 2026", "Week 38, 2026"). */
   periodMonthName?: string | null;
   periodYear?: number | null;
+  /** Inclusive period bounds from API (ISO date or datetime). */
+  periodStart?: string | null;
+  periodEnd?: string | null;
   status: ScorecardStatus;
   targets: ScorecardKpiTarget[];
   acknowledgedAt?: string | null;
