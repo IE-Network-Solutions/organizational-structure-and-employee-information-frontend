@@ -19,6 +19,7 @@ import { toDashboardPlanKey } from './_components/customize/widgetRegistry';
 import type { DashboardPlanView } from './_components/customize/types';
 import { usePathname } from 'next/navigation';
 import { isHomePath } from '@/utils/navigation/personalRoutes';
+import { OPEN_HOME_DASHBOARD_EDIT_EVENT } from '@/config/homeDashboardEvents';
 
 function dashboardPlanFromSubscription(
   data: ApiResponse<Subscription> | undefined,
@@ -75,6 +76,19 @@ export default function Home() {
 
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
 
+  useEffect(() => {
+    if (!embeddedInHomeHub) return;
+
+    const openDashboardEdit = () => setIsEditing(true);
+    window.addEventListener(OPEN_HOME_DASHBOARD_EDIT_EVENT, openDashboardEdit);
+    return () => {
+      window.removeEventListener(
+        OPEN_HOME_DASHBOARD_EDIT_EVENT,
+        openDashboardEdit,
+      );
+    };
+  }, [embeddedInHomeHub, setIsEditing]);
+
   const handleAddWidget = useCallback(
     (id: string) => {
       addWidget(id);
@@ -102,14 +116,16 @@ export default function Home() {
           className="flex gap-2 items-center"
           data-cy="dashboard-tenant-type-control"
         >
-          <EditToolbar
-            isEditing={isEditing}
-            isSaving={isSaving}
-            onStartEditing={() => setIsEditing(true)}
-            onOpenCatalog={() => setIsCatalogOpen(true)}
-            onReset={resetLayout}
-            onDone={() => setIsEditing(false)}
-          />
+          {(!embeddedInHomeHub || isEditing) && (
+            <EditToolbar
+              isEditing={isEditing}
+              isSaving={isSaving}
+              onStartEditing={() => setIsEditing(true)}
+              onOpenCatalog={() => setIsCatalogOpen(true)}
+              onReset={resetLayout}
+              onDone={() => setIsEditing(false)}
+            />
+          )}
         </div>
       </div>
 

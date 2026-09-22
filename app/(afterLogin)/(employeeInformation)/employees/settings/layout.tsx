@@ -2,8 +2,7 @@
 
 import React, { FC, ReactNode } from 'react';
 import Link from 'next/link';
-import { Typography, Breadcrumb, Divider, Tabs, Button } from 'antd';
-import type { TabsProps } from 'antd';
+import { Typography, Breadcrumb, Divider, Button } from 'antd';
 import { FaPlus } from 'react-icons/fa';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { usePathname, useRouter } from 'next/navigation';
@@ -58,6 +57,11 @@ interface SettingsLayoutProps {
   children: ReactNode;
 }
 
+interface SettingsTabItem {
+  key: string;
+  label: ReactNode;
+}
+
 const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -101,56 +105,83 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
 
   const activeKey = getActiveKey();
 
-  const items: TabsProps['items'] = [
+  const items: SettingsTabItem[] = [
     {
       key: 'employementType',
       label: (
-        <div
+        <span
           className={`text-base m-0 ${activeKey === 'employementType' ? 'text-primary' : 'text-gray-800'}`}
           data-cy="settings-employement-type-tab-label"
           id="settings-employement-type-tab-label"
         >
           Employement Type
-        </div>
+        </span>
       ),
     },
     {
       key: 'rolePermission',
       label: (
-        <div
+        <span
           className={`text-base m-0 ${activeKey === 'rolePermission' ? 'text-primary' : 'text-gray-800'}`}
           data-cy="settings-role-permission-tab-label"
           id="settings-role-permission-tab-label"
         >
           Role Permission
-        </div>
+        </span>
       ),
     },
     {
       key: 'positions',
       label: (
-        <div
+        <span
           className={`text-base m-0 ${activeKey === 'positions' ? 'text-primary' : 'text-gray-800'}`}
           data-cy="settings-positions-tab-label"
           id="settings-positions-tab-label"
         >
           Positions
-        </div>
+        </span>
       ),
     },
     {
       key: 'customFields',
       label: (
-        <div
+        <span
           className={`text-base m-0 ${activeKey === 'customFields' ? 'text-primary' : 'text-gray-800'}`}
           data-cy="settings-custom-fields-tab-label"
           id="settings-custom-fields-tab-label"
         >
           Custom Fields
-        </div>
+        </span>
       ),
     },
   ];
+  const activeTabId = `settings-tab-${activeKey}`;
+  const tabExtraContent =
+    activeKey === 'employementType' ? (
+      <AccessGuard
+        permissions={[Permissions.CreateEmploymentType]}
+        id="settings-employment-type-add-btn-guard"
+        data-cy="settings-employment-type-add-btn-guard"
+      >
+        <Button
+          className={`h-10 ${isMobile ? 'ml-4' : ''}`}
+          icon={
+            <FaPlus
+              data-cy="org-settings-branches-add-btn-icon"
+              id="org-settings-branches-add-btn-icon"
+            />
+          }
+          type="primary"
+          onClick={showDrawer}
+          data-cy="org-settings-branches-add-btn"
+          id="org-settings-branches-add-btn"
+        >
+          {!isMobile && 'Add Type'}
+        </Button>
+      </AccessGuard>
+    ) : activeKey === 'rolePermission' ? (
+      <RolePermissionNewButton />
+    ) : null;
 
   return (
     <div
@@ -189,49 +220,47 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
           data-cy={`settings-layout-body-${layoutSlug}`}
         >
           {/* <SidebarMenu menuItems={menuItems} data-cy="settings-sidebar-menu" /> */}
-          <div data-cy="settings-layout-tabs-container" className="mb-4">
-            <Tabs
-              activeKey={getActiveKey()}
-              onChange={handleTabChange}
-              items={items}
-              tabBarGutter={24}
-              tabBarStyle={{
-                marginBottom: 0,
-                marginLeft: 0,
-                paddingLeft: 0,
-                paddingRight: 0,
-              }}
-              tabBarExtraContent={
-                getActiveKey() === 'employementType' ? (
-                  <AccessGuard
-                    permissions={[Permissions.CreateEmploymentType]}
-                    id="settings-employment-type-add-btn-guard"
-                    data-cy="settings-employment-type-add-btn-guard"
-                  >
-                    <Button
-                      className={`h-10 ${isMobile ? 'ml-4' : ''}`}
-                      icon={
-                        <FaPlus
-                          data-cy="org-settings-branches-add-btn-icon"
-                          id="org-settings-branches-add-btn-icon"
-                        />
-                      }
-                      type="primary"
-                      onClick={showDrawer}
-                      data-cy="org-settings-branches-add-btn"
-                      id="org-settings-branches-add-btn"
-                    >
-                      {!isMobile && 'Add Type'}
-                    </Button>
-                  </AccessGuard>
-                ) : getActiveKey() === 'rolePermission' ? (
-                  <RolePermissionNewButton />
-                ) : null
-              }
-              className="text-base [&_.ant-tabs-tab]:py-4 [&_.ant-tabs-tab-btn]:py-2 [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:font-bold [&_.ant-tabs-nav]:mb-0 [&_.ant-tabs-nav-wrap]:!px-0 [&_.ant-tabs-nav-list]:!px-0 [&_.ant-tabs-nav-wrap]:before:!left-0 [&_.ant-tabs-nav-wrap]:after:!right-0"
+          <div data-cy="settings-layout-tabs-container" className="mb-2">
+            <div
+              className="flex items-center justify-between gap-3 border-b border-gray-200 text-base"
               data-cy="org-settings-tabs"
               id="org-settings-tabs"
-            />
+            >
+              <div
+                className="flex min-w-0 flex-1 gap-6 overflow-x-auto whitespace-nowrap pr-4"
+                role="tablist"
+                aria-activedescendant={activeTabId}
+                data-cy="settings-tabs-list"
+              >
+                {items.map((item) => {
+                  const selected = activeKey === item.key;
+
+                  return (
+                    <button
+                      key={item.key}
+                      type="button"
+                      role="tab"
+                      id={`settings-tab-${item.key}`}
+                      data-cy={`settings-tab-${item.key}`}
+                      aria-selected={selected}
+                      onClick={() => handleTabChange(item.key)}
+                      className={`border-b-2 px-0 py-4 transition-colors ${
+                        selected
+                          ? 'border-primary text-primary font-bold'
+                          : 'border-transparent text-gray-800 hover:text-primary'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {tabExtraContent && (
+                <div className="shrink-0" data-cy="settings-tabs-extra">
+                  {tabExtraContent}
+                </div>
+              )}
+            </div>
           </div>
           <div data-cy="settings-content-wrapper">{children}</div>
         </div>
