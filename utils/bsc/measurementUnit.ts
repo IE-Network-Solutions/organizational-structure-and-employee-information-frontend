@@ -57,6 +57,21 @@ export const METRIC_UNIT_OPTIONS: { value: string; label: string }[] = [
   { value: 'Rating (1.0 - 5.0)', label: 'Rating (1.0 - 5.0)' },
 ];
 
+/** Options for Select, including a custom/legacy unit if not in the catalog. */
+export function metricUnitSelectOptions(
+  current?: string | null,
+): { value: string; label: string }[] {
+  const trimmed = current?.trim();
+  if (!trimmed) return METRIC_UNIT_OPTIONS;
+  if (METRIC_UNIT_OPTIONS.some((o) => o.value === trimmed)) {
+    return METRIC_UNIT_OPTIONS;
+  }
+  return [
+    ...METRIC_UNIT_OPTIONS,
+    { value: trimmed, label: measurementUnitLabel(trimmed) || trimmed },
+  ];
+}
+
 export type TargetDisplay = {
   primary: string;
   unitTag: string | null;
