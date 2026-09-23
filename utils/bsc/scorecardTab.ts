@@ -7,7 +7,7 @@ export type ScorecardTab =
   | 'bsc'
   | 'checkin';
 
-export type ResultsScope = 'team' | 'all';
+export type ResultsScope = 'mine' | 'team' | 'all';
 
 export const SCORECARD_BASE_PATH = '/bsc/my-scorecard';
 export const BSC_KPI_ADMIN_BASE = '/bsc/kpi';
@@ -43,7 +43,7 @@ export function isScorecardTab(
 export function isResultsScope(
   value: string | null | undefined,
 ): value is ResultsScope {
-  return value === 'team' || value === 'all';
+  return value === 'mine' || value === 'team' || value === 'all';
 }
 
 /** Map legacy team/all tabs onto the merged Results tab. */

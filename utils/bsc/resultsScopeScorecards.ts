@@ -28,6 +28,10 @@ export function filterScorecardsForResultsScope(
   resultsScope: ResultsScope,
   actorId?: string,
 ): EmployeeScorecard[] {
+  if (resultsScope === 'mine') {
+    const actor = actorId || 'demo-user';
+    return scorecards.filter((card) => card.userId === actor);
+  }
   if (resultsScope !== 'team') return scorecards;
   const manager = resolveTeamManagerId(actorId, scorecards);
   const skip = new Set([manager, 'demo-user'].filter(Boolean));

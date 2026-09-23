@@ -47,6 +47,7 @@ import {
   mapCycleUpdateToApi,
   mapScorecardToCycle,
 } from './scorecard.mappers';
+import type { ResultsScope } from '@/utils/bsc/scorecardTab';
 
 const BSC_BASE = `${OKR_AND_PLANNING_URL}/bsc`;
 
@@ -598,7 +599,7 @@ export async function listMyBscScorecards(filters?: {
 
 /** Results tab: mine / team / all employee scorecards. */
 export async function listBscResultsScorecards(
-  scope: 'mine' | 'team' | 'all',
+  scope: ResultsScope,
   filters?: { periodKey?: string; status?: string },
 ): Promise<EmployeeScorecard[]> {
   try {
