@@ -348,18 +348,18 @@ function Job({
     ? 'rounded-none !my-0 border-b border-[#E4E6FF]'
     : 'rounded-lg my-6 mt-0';
   const sectionCardStyle = {
-    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+    background: isPersonalProfile ? '#FFFFFF' : '#F7F8FF',
     boxShadow: 'none',
   };
   const sectionHeadStyle = {
     borderBottom: isPersonalProfile ? '1px solid #E4E6FF' : 'none',
     paddingLeft: isPersonalProfile ? '28px' : '16px',
     paddingRight: isPersonalProfile ? '28px' : '16px',
-    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+    background: isPersonalProfile ? '#FFFFFF' : '#F7F8FF',
   };
   const sectionBodyStyle = {
     padding: isPersonalProfile ? '22px 28px 24px 28px' : '12px 16px 12px 16px',
-    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+    background: isPersonalProfile ? '#FFFFFF' : '#F7F8FF',
   };
 
   return (
@@ -377,7 +377,7 @@ function Job({
                   className={
                     isPersonalProfile
                       ? 'inline-flex items-center gap-2 text-xl font-semibold text-primary'
-                      : 'text-base font-normal text-[#4d4d4d]'
+                      : 'text-base font-normal text-[#42465F]'
                   }
                   data-cy="job-employment-card-title"
                 >
@@ -426,7 +426,7 @@ function Job({
                   <Col>
                     <span
                       data-cy="job-employment-title"
-                      className="text-sm font-normal text-[#4d4d4d]"
+                      className="text-sm font-normal text-[#42465F]"
                     >
                       Employment Information
                     </span>
@@ -500,7 +500,7 @@ function Job({
                       className={
                         isPersonalProfile
                           ? 'm-0 text-sm font-semibold text-[#4C4FB5]'
-                          : 'text-sm text-[#4d4d4d] font-normal m-0 mb-0.5'
+                          : 'text-sm text-[#42465F] font-normal m-0 mb-0.5'
                       }
                       data-cy="job-employment-service-year-label"
                     >
@@ -510,7 +510,7 @@ function Job({
                       className={
                         isPersonalProfile
                           ? 'm-0 text-base font-medium text-[#2F324A]'
-                          : 'text-base font-normal text-[#4d4d4d] m-0'
+                          : 'text-base font-normal text-[#42465F] m-0'
                       }
                       data-cy="job-employment-service-year-value"
                     >
@@ -560,7 +560,7 @@ function Job({
                       className={
                         isPersonalProfile
                           ? 'm-0 text-sm font-semibold text-[#4C4FB5]'
-                          : 'text-sm text-[#4d4d4d] font-normal m-0 mb-0.5'
+                          : 'text-sm text-[#42465F] font-normal m-0 mb-0.5'
                       }
                       data-cy="job-employment-joined-date-label"
                     >
@@ -570,7 +570,7 @@ function Job({
                       className={
                         isPersonalProfile
                           ? 'm-0 text-base font-medium text-[#2F324A]'
-                          : 'text-base font-normal text-[#4d4d4d] m-0'
+                          : 'text-base font-normal text-[#42465F] m-0'
                       }
                       data-cy="job-employment-joined-date-value"
                     >
@@ -602,7 +602,7 @@ function Job({
                   data-cy="job-information-edit-title-row"
                 >
                   <span
-                    className="text-base font-normal text-[#4d4d4d]"
+                    className="text-base font-normal text-[#42465F]"
                     data-cy="job-information-edit-title"
                   >
                     Job Information
@@ -639,7 +639,7 @@ function Job({
                   className={
                     isPersonalProfile
                       ? 'inline-flex items-center gap-2 text-xl font-semibold text-primary'
-                      : 'text-base font-normal text-[#4d4d4d]'
+                      : 'text-base font-normal text-[#42465F]'
                   }
                   data-cy="job-information-card-title"
                 >
@@ -700,13 +700,13 @@ function Job({
                 <Row gutter={24}>
                   <Col xs={24} sm={12}>
                     <Form.Item
-                      className="text-sm font-normal text-[#4d4d4d]"
+                      className="text-sm font-normal text-[#42465F]"
                       name="title"
                       id="job-edit-title-form-item"
                       data-cy="job-edit-title-form-item"
                       label={
                         <span
-                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
+                          className="mb-1 text-sm font-normal text-[#42465F]"
                           data-cy="job-edit-title-label"
                         >
                           Title
@@ -724,13 +724,13 @@ function Job({
                       />
                     </Form.Item>
                     <Form.Item
-                      className="text-sm font-normal text-[#4d4d4d]"
+                      className="text-sm font-normal text-[#42465F]"
                       name="basicSalary"
                       id="job-edit-salary-form-item"
                       data-cy="job-edit-salary-form-item"
                       label={
                         <span
-                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
+                          className="mb-1 text-sm font-normal text-[#42465F]"
                           data-cy="job-edit-salary-label"
                         >
                           Salary
@@ -758,13 +758,13 @@ function Job({
                       />
                     </Form.Item>
                     <Form.Item
-                      className="text-sm font-normal text-[#4d4d4d]"
+                      className="text-sm font-normal text-[#42465F]"
                       name="employementTypeId"
                       id="job-edit-type-form-item"
                       data-cy="job-edit-type-form-item"
                       label={
                         <span
-                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
+                          className="mb-1 text-sm font-normal text-[#42465F]"
                           data-cy="job-edit-type-label"
                         >
                           Type
@@ -788,13 +788,13 @@ function Job({
                       />
                     </Form.Item>
                     <Form.Item
-                      className="text-sm font-normal text-[#4d4d4d]"
+                      className="text-sm font-normal text-[#42465F]"
                       name="jobAction"
                       id="job-edit-status-form-item"
                       data-cy="job-edit-status-form-item"
                       label={
                         <span
-                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
+                          className="mb-1 text-sm font-normal text-[#42465F]"
                           data-cy="job-edit-status-label"
                         >
                           Status
@@ -820,13 +820,13 @@ function Job({
                   </Col>
                   <Col xs={24} sm={12}>
                     <Form.Item
-                      className="text-sm font-normal text-[#4d4d4d]"
+                      className="text-sm font-normal text-[#42465F]"
                       name="effectiveStartDate"
                       id="job-edit-joined-date-form-item"
                       data-cy="job-edit-joined-date-form-item"
                       label={
                         <span
-                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
+                          className="mb-1 text-sm font-normal text-[#42465F]"
                           data-cy="job-edit-joined-date-label"
                         >
                           Joined Date
@@ -848,7 +848,7 @@ function Job({
                       />
                     </Form.Item>
                     <Form.Item
-                      className="text-sm font-normal text-[#4d4d4d]"
+                      className="text-sm font-normal text-[#42465F]"
                       name="positionId"
                       id="job-edit-position-form-item"
                       data-cy="job-edit-position-form-item"
@@ -888,14 +888,14 @@ function Job({
                       />
                     </Form.Item>
                     <Form.Item
-                      className="text-sm font-normal text-[#4d4d4d]"
+                      className="text-sm font-normal text-[#42465F]"
                       name="departmentLeadOrNot"
                       id="job-edit-member-form-item"
                       data-cy="job-edit-member-form-item"
                       initialValue={false}
                       label={
                         <span
-                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
+                          className="mb-1 text-sm font-normal text-[#42465F]"
                           data-cy="job-edit-member-label"
                         >
                           Member
@@ -962,13 +962,13 @@ function Job({
                       />
                     </Form.Item>
                     <Form.Item
-                      className="text-sm font-normal text-[#4d4d4d]"
+                      className="text-sm font-normal text-[#42465F]"
                       name="departmentId"
                       id="job-edit-department-form-item"
                       data-cy="job-edit-department-form-item"
                       label={
                         <span
-                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
+                          className="mb-1 text-sm font-normal text-[#42465F]"
                           data-cy="job-edit-department-label"
                         >
                           Department
@@ -1005,13 +1005,13 @@ function Job({
                     data-cy="job-edit-branch-col"
                   >
                     <Form.Item
-                      className="text-sm font-normal text-[#4d4d4d]"
+                      className="text-sm font-normal text-[#42465F]"
                       name="branchId"
                       id="job-edit-branch-form-item"
                       data-cy="job-edit-branch-form-item"
                       label={
                         <span
-                          className="mb-1 text-sm font-normal text-[#4d4d4d]"
+                          className="mb-1 text-sm font-normal text-[#42465F]"
                           data-cy="job-edit-branch-label"
                         >
                           Branch Office
@@ -1092,7 +1092,7 @@ function Job({
                       className={
                         isPersonalProfile
                           ? 'm-0 text-sm font-semibold text-[#4C4FB5]'
-                          : 'text-sm font-normal text-[#4d4d4d] m-0 mb-0.5'
+                          : 'text-sm font-normal text-[#42465F] m-0 mb-0.5'
                       }
                       data-cy={`${dataCy}-label`}
                     >
@@ -1102,7 +1102,7 @@ function Job({
                       className={
                         isPersonalProfile
                           ? 'm-0 min-w-0 text-base font-medium text-[#2F324A]'
-                          : 'text-base font-normal text-[#4d4d4d] m-0'
+                          : 'text-base font-normal text-[#42465F] m-0'
                       }
                       data-cy={`${dataCy}-value`}
                     >

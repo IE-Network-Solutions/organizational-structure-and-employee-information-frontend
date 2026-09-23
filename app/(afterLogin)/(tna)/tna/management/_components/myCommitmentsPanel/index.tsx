@@ -7,6 +7,7 @@ import { DATE_FORMAT } from '@/utils/constants';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetActiveCommitmentsByUser } from '@/store/server/features/tna/trainingCommitment/queries';
 import CommitmentProgressBar from '@/app/(afterLogin)/(tna)/tna/_components/commitmentProgressBar';
+import { BookOpen } from 'lucide-react';
 
 /**
  * Employee-facing tracker for their own running commitments. Renders nothing
@@ -22,7 +23,7 @@ const MyCommitmentsPanel: FC = () => {
   if (isLoading) {
     return (
       <div
-        className="w-full rounded-[8px] border border-[#D9D9D9] bg-white p-4"
+        className="w-full rounded-lg border border-shell-line bg-white p-4"
         data-cy="tna-my-commitments-loading"
       >
         <Skeleton active paragraph={{ rows: 2 }} />
@@ -36,7 +37,7 @@ const MyCommitmentsPanel: FC = () => {
 
   return (
     <section
-      className="box-border flex w-full flex-col gap-3 rounded-[8px] bg-[#F9FAFB] p-4"
+      className="box-border flex w-full flex-col gap-3"
       id="tnaMyCommitmentsPanelId"
       data-cy="tna-my-commitments-panel"
     >
@@ -44,14 +45,26 @@ const MyCommitmentsPanel: FC = () => {
         className="flex items-center justify-between gap-2"
         data-cy="tna-my-commitments-header"
       >
-        <h2
-          className="m-0 text-sm font-bold leading-[22px] text-black"
-          data-cy="tna-my-commitments-title"
+        <div
+          className="flex min-w-0 items-center gap-2.5"
+          data-cy="tna-my-commitments-heading"
         >
-          My Training Commitments
-        </h2>
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+            aria-hidden
+            data-cy="tna-my-commitments-icon"
+          >
+            <BookOpen size={17} strokeWidth={2.1} />
+          </span>
+          <h2
+            className="m-0 text-base font-semibold leading-6 text-shell-ink"
+            data-cy="tna-my-commitments-title"
+          >
+            My Training Commitments
+          </h2>
+        </div>
         <span
-          className="text-xs leading-5 text-black/45"
+          className="rounded-md bg-shell-tint px-2.5 py-1 text-xs font-semibold text-primary"
           data-cy="tna-my-commitments-count"
         >
           {commitments.length} active
@@ -71,7 +84,7 @@ const MyCommitmentsPanel: FC = () => {
                 `/tna/management/external/${commitment.trainingRequestId}`,
               )
             }
-            className="box-border flex w-full flex-col gap-2 rounded-[8px] border border-[#D9D9D9] bg-white p-3 text-left transition-shadow hover:shadow-md"
+            className="box-border flex w-full flex-col gap-2 rounded-lg border border-shell-line bg-white p-3.5 text-left transition-colors hover:border-[#CDD2F6] hover:bg-shell-wash"
             data-cy={`tna-my-commitment-card-${commitment.id}`}
           >
             <div
@@ -79,13 +92,13 @@ const MyCommitmentsPanel: FC = () => {
               data-cy={`tna-my-commitment-head-${commitment.id}`}
             >
               <span
-                className="line-clamp-1 text-sm font-bold leading-[22px] text-black"
+                className="line-clamp-1 text-sm font-semibold leading-[22px] text-shell-ink"
                 data-cy={`tna-my-commitment-name-${commitment.id}`}
               >
                 {commitment.trainingRequest?.courseName || 'External training'}
               </span>
               <span
-                className="shrink-0 rounded-[4px] border border-[#1E40AF] bg-[rgba(30,64,175,0.06)] px-2 py-px text-xs leading-5 text-[#1E40AF]"
+                className="shrink-0 rounded bg-shell-tint px-2 py-px text-xs font-medium leading-5 text-primary"
                 data-cy={`tna-my-commitment-pill-${commitment.id}`}
               >
                 External
@@ -93,7 +106,7 @@ const MyCommitmentsPanel: FC = () => {
             </div>
 
             <div
-              className="text-xs leading-5 text-black/45"
+              className="text-xs leading-5 text-shell-muted"
               data-cy={`tna-my-commitment-dates-${commitment.id}`}
             >
               {commitment.startDate

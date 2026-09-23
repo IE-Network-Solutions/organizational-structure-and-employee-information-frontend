@@ -189,7 +189,7 @@ const ProbationPage: React.FC<Ids> = ({ id }) => {
 
   return (
     <div
-      className="rounded-xl bg-[#F9FAFB]"
+      className="rounded-lg bg-[#F7F8FF]"
       id="probation-page-container"
       data-cy="probation-page-container"
     >

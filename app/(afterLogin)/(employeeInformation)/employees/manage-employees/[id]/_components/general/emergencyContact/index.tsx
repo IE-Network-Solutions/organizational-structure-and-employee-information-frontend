@@ -137,13 +137,13 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
   }) => (
     <div className="mb-5" id={dataCy} data-cy={dataCy}>
       <p
-        className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+        className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
         data-cy={`${dataCy}-label`}
       >
         {label}
       </p>
       <p
-        className="text-base font-normal text-[#4d4d4d] m-0"
+        className="text-base font-normal text-[#42465F] m-0"
         data-cy={`${dataCy}-value`}
       >
         {value}
@@ -157,7 +157,7 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
       title={
         !edit.emergencyContact ? (
           <span
-            className="text-base font-bold text-[#4d4d4d]"
+            className="text-base font-bold text-[#42465F]"
             data-cy="emergency-contact-card-title"
           >
             Emergency Contact Information
@@ -185,16 +185,16 @@ function EmergencyContact({ mergedFields, handleSaveChanges, id }: any) {
       }
       className="emergency-contact-card rounded-lg my-6 mt-0"
       bordered={false}
-      style={{ background: '#F9FAFB', boxShadow: 'none' }}
+      style={{ background: '#F7F8FF', boxShadow: 'none' }}
       id="emergency-contact-card"
       data-cy="emergency-contact-card"
       headStyle={{
         borderBottom: 'none',
         paddingLeft: '16px',
         paddingRight: '16px',
-        background: '#F9FAFB',
+        background: '#F7F8FF',
       }}
-      bodyStyle={{ padding: '12px 16px 12px 16px', background: '#F9FAFB' }}
+      bodyStyle={{ padding: '12px 16px 12px 16px', background: '#F7F8FF' }}
     >
       {edit.emergencyContact ? (
         <Form

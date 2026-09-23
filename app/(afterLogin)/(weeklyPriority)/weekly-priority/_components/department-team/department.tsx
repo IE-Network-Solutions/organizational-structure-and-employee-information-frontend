@@ -13,13 +13,13 @@ function WeeklyPriorityListSkeleton() {
       {Array.from({ length: SKELETON_CARD_COUNT }).map((unusedValue, i) => (
         <Card
           key={i}
-          className="mb-5 border border-[#e5e7eb] rounded-[12px] overflow-hidden"
+          className="mb-5 overflow-hidden rounded-lg border border-shell-line"
           styles={{ body: { padding: 0 } }}
           style={{ boxShadow: 'none' }}
           data-cy={`weekly-priority-list-skeleton-card-${i}`}
         >
           <div
-            className="px-4 md:px-6 py-4 md:py-5 bg-[#f9fafb] border-b border-gray-100"
+            className="border-b border-shell-line bg-white px-4 py-3.5 md:px-5"
             data-cy={`weekly-priority-list-skeleton-card-header-${i}`}
           >
             <Skeleton
@@ -29,7 +29,7 @@ function WeeklyPriorityListSkeleton() {
             />
           </div>
           <div
-            className="px-4 md:px-6 py-4 md:py-5 space-y-3"
+            className="space-y-3 px-4 py-3.5 md:px-5"
             data-cy={`weekly-priority-list-skeleton-card-body-${i}`}
           >
             <Skeleton active paragraph={{ rows: 2, width: ['100%', '85%'] }} />
@@ -61,7 +61,10 @@ const Department: React.FC = () => {
   }, [weeklyPriority, activeTab, setData]);
 
   return (
-    <div className="min-w-0 max-w-full w-full" data-cy="department-team-container">
+    <div
+      className="min-w-0 max-w-full w-full"
+      data-cy="department-team-container"
+    >
       <>
         {weeklyLoading ? (
           <WeeklyPriorityListSkeleton />

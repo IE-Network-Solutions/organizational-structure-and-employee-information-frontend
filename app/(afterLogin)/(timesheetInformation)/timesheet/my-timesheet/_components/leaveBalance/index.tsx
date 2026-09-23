@@ -3,14 +3,14 @@ import LeaveBalanceCardSkeleton from './balanceCardSkeleton';
 
 import { useGetLeaveBalance } from '@/store/server/features/timesheet/leaveBalance/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useIsMobile } from '@/hooks/useIsMobile';
+import { Plane } from 'lucide-react';
+import ShellSection from '@/components/homeUi/ShellSection';
 
 const SKELETON_CARD_COUNT = 3;
 
 const LeaveBalance = () => {
   const { userId } = useAuthenticationStore();
   const { data } = useGetLeaveBalance(userId, '');
-  const { isMobile } = useIsMobile();
 
   const filteredItems =
     data?.items?.items?.filter((item: any) => item.leaveType) || [];
@@ -18,14 +18,12 @@ const LeaveBalance = () => {
   const showSkeleton = !hasData;
 
   return (
-    <>
-      <div
-        className={`${isMobile ? 'text-sm' : 'text-xl'} font-bold text-gray-900 mb-4`}
-        id="time-attendance-leave-balance-title"
-        data-cy="time-attendance-leave-balance-title"
-      >
-        Leave Balance
-      </div>
+    <ShellSection
+      icon={Plane}
+      title="Leave Balance"
+      id="time-attendance-leave-balance-title"
+      data-cy="time-attendance-leave-balance-title"
+    >
       <div
         className="relative"
         id="time-attendance-leave-balance-swiper-container"
@@ -43,7 +41,7 @@ const LeaveBalance = () => {
           >
             {showSkeleton ? (
               <div
-                className="flex w-max min-w-full gap-7 pr-1"
+                className="flex w-max min-w-full gap-4 pr-1"
                 data-cy="time-attendance-leave-balance-cards-row"
               >
                 {Array.from({ length: SKELETON_CARD_COUNT }).map(
@@ -63,7 +61,7 @@ const LeaveBalance = () => {
               </div>
             ) : (
               <div
-                className="flex w-max min-w-full gap-7 pr-1"
+                className="flex w-max min-w-full gap-4 pr-1"
                 id="time-attendance-leave-balance-scroll-row"
                 data-cy="time-attendance-leave-balance-scroll-row"
               >
@@ -90,7 +88,7 @@ const LeaveBalance = () => {
           </div>
         </div>
       </div>
-    </>
+    </ShellSection>
   );
 };
 

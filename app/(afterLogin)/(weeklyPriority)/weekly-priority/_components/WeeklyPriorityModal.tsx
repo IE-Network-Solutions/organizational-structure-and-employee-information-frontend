@@ -186,8 +186,8 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
             border-color: #d1d5db;
         }
         .pixel-perfect-modal .ant-checkbox-checked .ant-checkbox-inner {
-            background-color: #254ec2;
-            border-color: #254ec2;
+            background-color: #3636f0;
+            border-color: #3636f0;
         }
         .priority-item-row {
           transition: all 0.2s ease;
@@ -230,7 +230,7 @@ const WeeklyPriorityModal: React.FC<WeeklyPriorityModalProps> = ({
               disabled={checkedList.length === 0}
               onClick={handleAdd}
               loading={isLoadings}
-              className="bg-[#254ec2] hover:bg-[#1e40af] h-[40px] px-8 text-white font-medium rounded-[12px] border-none shadow-sm text-[15px]"
+              className="h-[40px] rounded-md border-none bg-primary px-8 text-[15px] font-medium text-white hover:!bg-[#2828C9]"
               data-cy="weekly-priority-modal-submit-button"
             >
               {selectedTask == null ? 'Create' : 'Update'}

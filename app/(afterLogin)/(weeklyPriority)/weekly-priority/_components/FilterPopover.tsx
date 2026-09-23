@@ -156,7 +156,7 @@ const FilterPopover: React.FC = () => {
       >
         <Button
           onClick={handleReset}
-          className="h-[40px] px-6 text-[#111827] font-semibold border-gray-200 rounded-[8px]"
+          className="h-[40px] rounded-md border-shell-line px-6 font-semibold text-shell-ink"
           data-cy="filter-popover-reset-button"
         >
           <span data-cy="filter-popover-reset-button-text">Reset</span>
@@ -164,7 +164,7 @@ const FilterPopover: React.FC = () => {
         <Button
           type="primary"
           onClick={handleSave}
-          className="bg-[#254ec2] hover:bg-[#1e3e9a] h-[40px] px-6 text-white font-semibold rounded-[8px] border-none"
+          className="h-[40px] rounded-md border-none bg-primary px-6 font-semibold text-white hover:!bg-[#2828C9]"
           data-cy="filter-popover-save-button"
         >
           Save Filter
@@ -185,7 +185,7 @@ const FilterPopover: React.FC = () => {
     >
       <Button
         icon={<MdOutlineFilterAlt className="text-lg text-[#111827]" />}
-        className="!inline-flex !h-9 !min-h-9 shrink-0 items-center gap-2 rounded-[8px] border-gray-200 px-3 font-medium text-gray-600 md:px-4"
+        className="!inline-flex !h-9 !min-h-9 shrink-0 items-center gap-2 rounded-md border-shell-line px-3 font-medium text-shell-text md:px-4"
         data-cy="filter-popover-trigger-button"
       >
         <span

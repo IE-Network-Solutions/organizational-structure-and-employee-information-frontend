@@ -8,7 +8,7 @@ export default function HomeProfilePage() {
   const { userId } = useAuthenticationStore();
 
   return (
-    <div className="pt-6" id="home-profile-page" data-cy="home-profile-page">
+    <div id="home-profile-page" data-cy="home-profile-page">
       {userId ? (
         <EmployeeDetails params={{ id: userId }} />
       ) : (

@@ -11,12 +11,13 @@ export const approvalToolbarSegmentedClassName = classNames(
   '[&_.ant-segmented-item-selected_.ant-segmented-item-label]:!text-slate-900',
 );
 
+/** Secondary filter pill (e.g. TNA / Training) — matches Plan & Report's period pills. */
 export const approvalPillClass = (isActive: boolean) =>
   classNames(
-    'inline-flex h-9 shrink-0 items-center rounded-md border font-medium transition-colors',
-    'text-xs sm:text-sm',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45 focus-visible:ring-offset-2',
+    'inline-flex h-8 shrink-0 items-center rounded-md px-3 transition-colors',
+    'text-[13px]',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1',
     isActive
-      ? 'border-slate-200 bg-white px-2.5 text-slate-800 shadow-sm hover:bg-slate-100 sm:px-3'
-      : 'border-transparent bg-transparent px-2 text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-800 sm:px-2.5',
+      ? 'bg-shell-tint font-semibold text-primary'
+      : 'font-medium text-shell-muted hover:bg-shell-wash hover:text-shell-ink',
   );

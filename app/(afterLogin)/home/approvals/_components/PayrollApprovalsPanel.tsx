@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Modal, Skeleton, Tag, notification } from 'antd';
 import { CheckOutlined, ExclamationCircleFilled } from '@ant-design/icons';
+import { Wallet } from 'lucide-react';
 import Link from 'next/link';
 import dayjs from 'dayjs';
 import { MOCK_PAYROLL_ROWS } from '@/config/homeApprovalsMock';
@@ -119,7 +120,7 @@ function PayrollApprovalPeriodCard({
 
   return (
     <article
-      className="flex flex-col gap-3 rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-none"
+      className="flex flex-col gap-3 rounded-lg border border-shell-line bg-white p-4"
       data-cy={`home-approvals-payroll-period-${payPeriodId}`}
     >
       <div
@@ -128,13 +129,13 @@ function PayrollApprovalPeriodCard({
       >
         <div data-cy={`home-approvals-payroll-period-copy-${payPeriodId}`}>
           <h3
-            className="text-base font-semibold text-gray-900"
+            className="m-0 text-base font-semibold text-shell-ink"
             data-cy={`home-approvals-payroll-period-title-${payPeriodId}`}
           >
             {periodLabel}
           </h3>
           <p
-            className="text-xs text-gray-500"
+            className="m-0 text-xs text-shell-muted"
             data-cy={`home-approvals-payroll-period-date-${payPeriodId}`}
           >
             Pay date: {payDateLabel}
@@ -153,7 +154,7 @@ function PayrollApprovalPeriodCard({
 
       {employeeCount > 0 ? (
         <p
-          className="text-sm text-gray-600"
+          className="m-0 text-sm text-shell-text"
           data-cy={`home-approvals-payroll-period-employees-${payPeriodId}`}
         >
           {employeeCount} employees in this run
@@ -265,12 +266,24 @@ export default function PayrollApprovalsPanel() {
       className="flex min-w-0 max-w-full w-full flex-col gap-3"
       data-cy="home-approvals-payroll-panel"
     >
-      <h2
-        className="text-sm font-semibold text-gray-900"
-        data-cy="home-approvals-payroll-title"
+      <div
+        className="flex items-center gap-2.5"
+        data-cy="home-approvals-payroll-heading"
       >
-        Pay periods
-      </h2>
+        <span
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+          aria-hidden
+          data-cy="home-approvals-payroll-icon"
+        >
+          <Wallet size={17} strokeWidth={2.1} />
+        </span>
+        <h2
+          className="m-0 text-base font-semibold leading-6 text-shell-ink"
+          data-cy="home-approvals-payroll-title"
+        >
+          Pay periods
+        </h2>
+      </div>
 
       {isLoading ? (
         <div
@@ -280,7 +293,7 @@ export default function PayrollApprovalsPanel() {
           {Array.from({ length: 2 }).map((unusedItem, index) => (
             <div
               key={index}
-              className="rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-none"
+              className="rounded-lg border border-shell-line bg-white p-4"
               data-cy={`home-approvals-payroll-skeleton-${index}`}
             >
               <Skeleton active paragraph={{ rows: 3 }} />

@@ -29,17 +29,17 @@ export function PlanCardInlineReportFormSkeleton() {
               >
                 <div
                   data-cy="planning-and-reporting-components-createreport-plancardinlinereportformskeleton-tsx-plancardinlinereportformskeleton-div-17"
-                  className="h-[18px] w-[18px] rounded-[5px] bg-[#F1F2F6]"
+                  className="h-[18px] w-[18px] rounded-[5px] bg-[#E3E6F5]"
                 />
                 <div
                   data-cy="planning-and-reporting-components-createreport-plancardinlinereportformskeleton-tsx-plancardinlinereportformskeleton-div-18"
-                  className="h-[18px] w-[18px] rounded-[5px] bg-[#F1F2F6]"
+                  className="h-[18px] w-[18px] rounded-[5px] bg-[#E3E6F5]"
                 />
               </div>
               <div
                 data-cy="planning-and-reporting-components-createreport-plancardinlinereportformskeleton-tsx-plancardinlinereportformskeleton-div-39"
                 className={[
-                  'h-4 min-w-0 flex-1 rounded bg-[#F1F2F6]',
+                  'h-4 min-w-0 flex-1 rounded bg-[#E3E6F5]',
                   i === 0
                     ? 'max-w-[85%]'
                     : i === 1
@@ -55,7 +55,7 @@ export function PlanCardInlineReportFormSkeleton() {
       </div>
       <div
         data-cy="planning-and-reporting-components-createreport-plancardinlinereportformskeleton-tsx-plancardinlinereportformskeleton-div-36"
-        className="mt-4 flex flex-col gap-2.5 border-t border-[#F1F2F6] pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+        className="mt-4 flex flex-col gap-2.5 border-t border-[#E3E6F5] pt-4 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
       >
         <div
           data-cy="planning-and-reporting-components-createreport-plancardinlinereportformskeleton-tsx-plancardinlinereportformskeleton-div-37"
@@ -63,11 +63,11 @@ export function PlanCardInlineReportFormSkeleton() {
         >
           <div
             data-cy="planning-and-reporting-components-createreport-plancardinlinereportformskeleton-tsx-plancardinlinereportformskeleton-div-38"
-            className="h-2.5 w-10 rounded bg-[#F1F2F6] sm:w-12"
+            className="h-2.5 w-10 rounded bg-[#E3E6F5] sm:w-12"
           />
           <div
             data-cy="planning-and-reporting-components-createreport-plancardinlinereportformskeleton-tsx-plancardinlinereportformskeleton-div-39"
-            className="h-3.5 w-8 rounded bg-[#F1F2F6]"
+            className="h-3.5 w-8 rounded bg-[#E3E6F5]"
           />
         </div>
         <div
@@ -76,11 +76,11 @@ export function PlanCardInlineReportFormSkeleton() {
         >
           <div
             data-cy="planning-and-reporting-components-createreport-plancardinlinereportformskeleton-tsx-plancardinlinereportformskeleton-div-42"
-            className="h-9 w-[4.75rem] rounded-lg bg-[#F1F2F6]"
+            className="h-9 w-[4.75rem] rounded-lg bg-[#E3E6F5]"
           />
           <div
             data-cy="planning-and-reporting-components-createreport-plancardinlinereportformskeleton-tsx-plancardinlinereportformskeleton-div-43"
-            className="h-9 w-[8rem] rounded-lg bg-[#F1F2F6]"
+            className="h-9 w-[8rem] rounded-lg bg-[#E3E6F5]"
           />
         </div>
       </div>

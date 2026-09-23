@@ -113,7 +113,7 @@ function TemplateTaskDraggable({
       className={`bg-white rounded-lg p-3 mb-2 cursor-grab active:cursor-grabbing select-none transition-colors border ${
         isDragging
           ? 'drag-item-active'
-          : 'border-[#E5E7EB] hover:border-[#1E40AF]/50'
+          : 'border-[#E3E6F5] hover:border-[#1E40AF]/50'
       }`}
       id={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
       data-cy={`offboarding-template-draggable-${toSlug(item.id ?? index)}`}
@@ -178,7 +178,7 @@ function EmployeeTaskDraggable({
       className={`bg-white rounded-lg p-4 mb-3 cursor-grab active:cursor-grabbing select-none transition-colors border ${
         isDragging
           ? 'drag-item-active'
-          : 'border-[#E5E7EB] hover:border-[#1E40AF]/50'
+          : 'border-[#E3E6F5] hover:border-[#1E40AF]/50'
       }`}
       id={`offboarding-task-${taskSlug}`}
       data-cy={`offboarding-task-${taskSlug}`}
@@ -417,13 +417,13 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
           {/* Left panel: Core Offboarding Tasks */}
           <Card
             bordered={false}
-            className="flex-1 min-w-0 relative z-10 overflow-visible [&_.ant-card-body]:overflow-visible rounded-xl"
-            style={{ background: '#F9FAFB', boxShadow: 'none' }}
+            className="flex-1 min-w-0 relative z-10 overflow-visible [&_.ant-card-body]:overflow-visible rounded-lg"
+            style={{ background: '#F7F8FF', boxShadow: 'none' }}
             id="core-offboarding-tasks-card"
             data-cy="core-offboarding-tasks-card"
             headStyle={{
               borderBottom: '1px solid #F3F4F6',
-              background: '#F9FAFB',
+              background: '#F7F8FF',
             }}
             title={
               <div data-cy="core-offboarding-tasks-card-title">
@@ -475,13 +475,13 @@ const OffboardingTasksTemplate: React.FC<Ids> = ({ id }) => {
           {/* Right panel: Off-boarding Tasks */}
           <Card
             bordered={false}
-            className="flex-1 min-w-0 relative z-0 rounded-xl"
-            style={{ background: '#F9FAFB', boxShadow: 'none' }}
+            className="flex-1 min-w-0 relative z-0 rounded-lg"
+            style={{ background: '#F7F8FF', boxShadow: 'none' }}
             id="offboarding-tasks-card"
             data-cy="offboarding-tasks-card"
             headStyle={{
               borderBottom: '1px solid #F3F4F6',
-              background: '#F9FAFB',
+              background: '#F7F8FF',
             }}
             title={
               <div data-cy="offboarding-tasks-card-title">

@@ -325,18 +325,18 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
         }, 0);
 
   const sectionCardStyle = {
-    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+    background: isPersonalProfile ? '#FFFFFF' : '#F7F8FF',
     boxShadow: 'none',
   };
   const sectionHeadStyle = {
     borderBottom: isPersonalProfile ? '1px solid #E4E6FF' : 'none',
     paddingLeft: isPersonalProfile ? '28px' : '16px',
     paddingRight: isPersonalProfile ? '28px' : '16px',
-    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+    background: isPersonalProfile ? '#FFFFFF' : '#F7F8FF',
   };
   const sectionBodyStyle = {
     padding: isPersonalProfile ? '22px 28px 24px 28px' : '12px 16px 12px 16px',
-    background: isPersonalProfile ? '#FFFFFF' : '#F9FAFB',
+    background: isPersonalProfile ? '#FFFFFF' : '#F7F8FF',
   };
 
   useEffect(() => {
@@ -412,7 +412,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
             className={
               isPersonalProfile
                 ? 'inline-flex items-center gap-2 text-xl font-semibold text-primary'
-                : 'text-base font-normal text-[#4d4d4d]'
+                : 'text-base font-normal text-[#42465F]'
             }
             data-cy="job-work-schedule-card-title"
           >
@@ -470,13 +470,13 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                 data-cy="job-work-schedule-current-schedule"
               >
                 <p
-                  className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                  className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
                   data-cy="job-work-schedule-current-schedule-label"
                 >
                   Current Schedule
                 </p>
                 <p
-                  className="text-base font-normal text-[#4d4d4d] m-0"
+                  className="text-base font-normal text-[#42465F] m-0"
                   data-cy="job-work-schedule-current-schedule-value"
                 >
                   {activeJob?.workSchedule?.name || '-'}
@@ -488,13 +488,13 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                 data-cy="job-work-schedule-current-shift"
               >
                 <p
-                  className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                  className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
                   data-cy="job-work-schedule-current-shift-label"
                 >
                   Assigned Shift
                 </p>
                 <p
-                  className="text-base font-normal text-[#4d4d4d] m-0"
+                  className="text-base font-normal text-[#42465F] m-0"
                   data-cy="job-work-schedule-current-shift-value"
                 >
                   {activeShift?.name
@@ -515,13 +515,13 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                 data-cy="job-work-schedule-daily-hours"
               >
                 <p
-                  className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                  className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
                   data-cy="job-work-schedule-daily-hours-label"
                 >
                   Daily Working hours
                 </p>
                 <p
-                  className="text-base font-normal text-[#4d4d4d] m-0"
+                  className="text-base font-normal text-[#42465F] m-0"
                   data-cy="job-work-schedule-daily-hours-value"
                 >
                   {dailyWorkingHours > 0
@@ -550,13 +550,13 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                 data-cy="job-work-schedule-total-working-hours"
               >
                 <p
-                  className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                  className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
                   data-cy="job-work-schedule-total-hours-label"
                 >
                   Total Working Hours
                 </p>
                 <p
-                  className="text-base font-normal text-[#4d4d4d] m-0"
+                  className="text-base font-normal text-[#42465F] m-0"
                   data-cy="job-work-schedule-total-hours-value"
                 >
                   {totalWorkingHours > 0
@@ -585,7 +585,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
               data-cy="job-work-schedule-edit-summary-row"
             >
               <span
-                className="text-base font-normal text-[#4d4d4d]"
+                className="text-base font-normal text-[#42465F]"
                 data-cy="job-work-schedule-edit-title"
               >
                 Work Schedule
@@ -594,10 +594,10 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                 className="flex gap-2"
                 data-cy="job-work-schedule-edit-badges"
               >
-                <Tag className="bg-[#f9fafb]border border-[#e5e7eb] text-black">
+                <Tag className="bg-[#F7F8FF]border border-[#E3E6F5] text-black">
                   {editTotalWorkingDays} Days
                 </Tag>
-                <Tag className="bg-[#f9fafb]border border-[#e5e7eb] text-black">
+                <Tag className="bg-[#F7F8FF]border border-[#E3E6F5] text-black">
                   {Math.round(editTotalWorkingHours)} Hours
                 </Tag>
               </div>
@@ -645,7 +645,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
               data-cy="job-work-schedule-edit-form-item"
               label={
                 <span
-                  className="text-sm font-normal text-[#4d4d4d]"
+                  className="text-sm font-normal text-[#42465F]"
                   data-cy="job-work-schedule-edit-form-label"
                 >
                   Work Schedule Category
@@ -688,7 +688,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
               data-cy="job-work-schedule-shift-form-item"
               label={
                 <span
-                  className="text-sm font-normal text-[#4d4d4d]"
+                  className="text-sm font-normal text-[#42465F]"
                   data-cy="job-work-schedule-shift-form-label"
                 >
                   Shift
@@ -752,7 +752,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                     return (
                       <Tag
                         key={index}
-                        className={`rounded-md h-8 py-1 px-[14.7px] ${day.workDay ? 'border border-[#1d4ed8] text-[#4d4d4d]' : 'bg-[#f9fafb]border border-[#d9d9d9] text-[#4d4d4d]'}`}
+                        className={`rounded-md h-8 py-1 px-[14.7px] ${day.workDay ? 'border border-[#3636F0] text-[#42465F]' : 'bg-[#F7F8FF]border border-[#d9d9d9] text-[#42465F]'}`}
                       >
                         {abbreviated}
                       </Tag>
@@ -773,7 +773,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
             {/* Daily Schedule Section */}
             <div data-cy="job-work-schedule-daily-section">
               <label
-                className="text-sm font-normal text-[#4d4d4d] mb-3 block"
+                className="text-sm font-normal text-[#42465F] mb-3 block"
                 data-cy="job-work-schedule-daily-label"
               >
                 Daily Schedule

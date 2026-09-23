@@ -1,21 +1,8 @@
 /* eslint-disable local-rules/data-cy-required, @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars */
 import React from 'react';
-import {
-  Card,
-  Skeleton,
-  Tabs,
-  Typography,
-  Tag,
-  Space,
-  Avatar,
-  Divider,
-} from 'antd';
-import {
-  CalendarOutlined,
-  AuditOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-} from '@ant-design/icons';
+import { Card, Skeleton, Tabs, Typography, Tag, Space } from 'antd';
+import { CalendarDays, ClipboardList, Clock3, ListChecks } from 'lucide-react';
+import ShellStat from '@/components/homeUi/ShellStat';
 import {
   useGetMeetings,
   useGetUserMeetings,
@@ -28,7 +15,7 @@ import { ActionPlanSourceType } from '@/types/enumTypes';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const LIST_SCROLL_THRESHOLD = 5;
 type DashboardListItem = {
@@ -469,12 +456,12 @@ function RecentList({
       className={
         borderless
           ? 'mt-1'
-          : 'mt-4 rounded-xl border border-[#e8eeff] bg-white p-3'
+          : 'mt-4 rounded-lg border border-shell-line bg-white p-3'
       }
     >
       {!hideHeader ? (
         <div className="mb-2.5 flex items-center justify-between">
-          <Text className="!text-[12px] !font-semibold !text-[#1f3f8f]">
+          <Text className="!text-[12px] !font-semibold !text-primary">
             {title}
           </Text>
           {!loading && (
@@ -499,7 +486,7 @@ function RecentList({
           {Array.from({ length: 3 }).map((_, idx) => (
             <div
               key={`recent-list-skeleton-${title}-${idx}`}
-              className="rounded-lg bg-[#f8faff] px-3 py-2.5"
+              className="rounded-md bg-shell-wash px-3 py-2.5"
             >
               <Skeleton active paragraph={{ rows: 1 }} title={false} />
             </div>
@@ -507,7 +494,7 @@ function RecentList({
         </div>
       ) : items.length === 0 ? (
         <div className="flex items-center justify-center py-6">
-          <Text className="!text-[12px] !text-[#9ca3af]">{emptyText}</Text>
+          <Text className="!text-[13px] !text-shell-muted">{emptyText}</Text>
         </div>
       ) : (
         <div
@@ -519,16 +506,16 @@ function RecentList({
         >
           {items.map((item) =>
             (() => {
-              const cardClass = `flex items-start justify-between gap-2 rounded-lg border px-3 py-2.5 transition-all ${
+              const cardClass = `flex items-start justify-between gap-2 rounded-md border px-3 py-2.5 transition-colors ${
                 item.href
-                  ? 'cursor-pointer border-[#e6edff] bg-white hover:border-[#adc6ff] hover:bg-[#f0f5ff] hover:shadow-sm'
-                  : 'border-[#f0f0f0] bg-[#fafafa]'
+                  ? 'cursor-pointer border-shell-line bg-white hover:border-[#CDD2F6] hover:bg-shell-wash'
+                  : 'border-shell-line bg-shell-wash'
               }`;
 
               const inner = (
                 <>
                   <div className="min-w-0 flex-1">
-                    <Text className="!block !truncate !text-[12.5px] !font-medium !text-[#1f2937]">
+                    <Text className="!block !truncate !text-[13px] !font-medium !text-shell-ink">
                       {item.title}
                     </Text>
                     <Space size={4} className="mt-1 flex-wrap">
@@ -553,7 +540,7 @@ function RecentList({
                               : 'Pending'}
                           </Tag>
                         ) : (
-                          <Text className="!truncate !text-[11px] !text-[#6b7280]">
+                          <Text className="!truncate !text-[12px] !text-shell-muted">
                             {item.subtitle}
                           </Text>
                         )
@@ -578,8 +565,8 @@ function RecentList({
                     <Tag
                       bordered={false}
                       style={{
-                        backgroundColor: '#f0f4ff',
-                        color: '#4a6fd5',
+                        backgroundColor: '#f0f2ff',
+                        color: '#3636f0',
                         fontSize: 10,
                         lineHeight: '16px',
                         padding: '0 6px',
@@ -731,7 +718,7 @@ const DashboardComponent = () => {
 
   return (
     <div
-      className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6"
+      className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6"
       data-cy="feedback-conversation-component-conversationdashboard-div"
       id="feedback-conversation-component-conversationdashboard-div"
     >
@@ -756,113 +743,91 @@ const DashboardComponent = () => {
         <Card
           bordered={false}
           bodyStyle={{ padding: 0 }}
-          className="h-full overflow-hidden rounded-xl shadow-sm transition-shadow hover:shadow-md"
-          style={{ border: '1px solid #e8e8f0' }}
+          className="h-full overflow-hidden rounded-lg border border-shell-line shadow-none"
           data-cy="feedback-conversation-component-conversationdashboard-card-meetings"
           id="feedback-conversation-component-conversationdashboard-card-meetings"
         >
           <div className="px-5 py-4">
             {/* Header */}
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <Avatar
-                  shape="square"
-                  size={38}
-                  icon={<CalendarOutlined />}
-                  style={{
-                    backgroundColor: '#e8f0fe',
-                    color: '#4a6fd5',
-                    borderRadius: 10,
-                    flexShrink: 0,
-                  }}
-                />
-                <Title
-                  level={4}
-                  style={{
-                    margin: 0,
-                    color: '#1a1a2e',
-                    fontSize: 20,
-                    fontWeight: 700,
-                  }}
+            <div
+              className="mb-4 flex items-center justify-between gap-3"
+              data-cy="conversation-meetings-header"
+            >
+              <div
+                className="flex items-center gap-2.5"
+                data-cy="conversation-meetings-heading"
+              >
+                <span
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+                  aria-hidden
+                  data-cy="conversation-meetings-icon"
+                >
+                  <CalendarDays size={17} strokeWidth={2.1} />
+                </span>
+                <h2
+                  className="m-0 text-base font-semibold leading-6 text-shell-ink"
+                  data-cy="conversation-meetings-title"
                 >
                   Meetings
-                </Title>
+                </h2>
               </div>
-              <Link href="/feedback/meeting">
-                <Text
-                  className="!text-[13px] !font-medium !text-[#4a6fd5] hover:!text-[#365fbd] hover:!underline"
-                  style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
-                >
-                  Go to meeting →
-                </Text>
+              <Link
+                href="/feedback/meeting"
+                className="whitespace-nowrap text-[13px] font-medium text-primary hover:underline"
+                data-cy="conversation-meetings-link"
+              >
+                Go to meeting →
               </Link>
             </div>
 
-            <Divider style={{ margin: '0 0 16px' }} />
-
             {/* Stats row */}
-            <div className="flex gap-3">
-              <div
-                className="flex-1 rounded-xl px-4 py-3"
-                style={{ background: '#f8faff' }}
-              >
-                <Text className="!block !text-[11px] !font-medium !text-[#6b7280]">
-                  Total Action Plans
-                </Text>
-                {isMeetingsSectionLoading ? (
-                  <Skeleton.Button
-                    active
-                    size="small"
-                    style={{ width: 56, height: 28, marginTop: 6 }}
-                  />
-                ) : (
-                  <div className="mt-1 flex items-end gap-2">
-                    <span className="text-[26px] font-bold leading-none text-[#1a1a2e]">
-                      {userMeetings?.totalActionPlans ?? 0}
-                    </span>
-                  </div>
-                )}
-                {isMeetingsSectionLoading ? null : (
-                  <Tag
-                    icon={<CheckCircleOutlined />}
-                    bordered={false}
-                    color="success"
-                    style={{ marginTop: 6, fontSize: 11 }}
-                  >
-                    {userMeetings?.resolvedActionPlans ?? 0} resolved
-                  </Tag>
-                )}
-              </div>
-
-              <div
-                className="flex-1 rounded-xl px-4 py-3"
-                style={{ background: '#eef3ff' }}
-              >
-                <div className="flex items-center gap-1.5">
-                  <ClockCircleOutlined
-                    style={{ color: '#4a6fd5', fontSize: 12 }}
-                  />
-                  <Text className="!text-[11px] !font-medium !text-[#4a6fd5]">
-                    Upcoming
-                  </Text>
-                </div>
-                {isMeetingsSectionLoading ? (
-                  <Skeleton.Button
-                    active
-                    size="small"
-                    style={{ width: 56, height: 28, marginTop: 6 }}
-                  />
-                ) : (
-                  <span className="mt-1 block text-[26px] font-bold leading-none text-[#0958d9]">
-                    {userMeetings?.totalUpcomingMeetings ?? 0}
-                  </span>
-                )}
-              </div>
+            <div
+              className="grid grid-cols-2 gap-3"
+              data-cy="conversation-meetings-stats"
+            >
+              <ShellStat
+                icon={ListChecks}
+                label="Action plans"
+                value={
+                  isMeetingsSectionLoading ? (
+                    <Skeleton.Button
+                      active
+                      size="small"
+                      style={{ width: 56, height: 28 }}
+                    />
+                  ) : (
+                    (userMeetings?.totalActionPlans ?? 0)
+                  )
+                }
+                caption={
+                  isMeetingsSectionLoading
+                    ? null
+                    : `${userMeetings?.resolvedActionPlans ?? 0} resolved`
+                }
+                data-cy="conversation-meetings-stat-action-plans"
+              />
+              <ShellStat
+                icon={Clock3}
+                label="Upcoming"
+                value={
+                  isMeetingsSectionLoading ? (
+                    <Skeleton.Button
+                      active
+                      size="small"
+                      style={{ width: 56, height: 28 }}
+                    />
+                  ) : (
+                    (userMeetings?.totalUpcomingMeetings ?? 0)
+                  )
+                }
+                caption="meetings"
+                data-cy="conversation-meetings-stat-upcoming"
+              />
             </div>
           </div>
 
           {/* Tabs section */}
-          <div className="px-5 pb-4 pt-2">
+          <div className="px-5 pb-4 pt-1">
             <Tabs
               defaultActiveKey="upcoming-meetings"
               size="small"
@@ -899,7 +864,7 @@ const DashboardComponent = () => {
                   key: 'meeting-action-plans',
                   label: 'Action plans',
                   children: (
-                    <div className="mt-2 rounded-lg border border-dashed border-[#d7ddea] bg-white px-4 py-5 text-center text-[12px] text-[#9ca3af]">
+                    <div className="mt-2 rounded-md border border-dashed border-shell-line bg-shell-wash px-4 py-5 text-center text-[13px] text-shell-muted">
                       To be completed.
                     </div>
                   ),
@@ -919,111 +884,90 @@ const DashboardComponent = () => {
         <Card
           bordered={false}
           bodyStyle={{ padding: 0 }}
-          className="h-full overflow-hidden rounded-xl shadow-sm transition-shadow hover:shadow-md"
-          style={{ border: '1px solid #e8e8f0' }}
+          className="h-full overflow-hidden rounded-lg border border-shell-line shadow-none"
           data-cy="feedback-conversation-component-conversationdashboard-card-surveys"
           id="feedback-conversation-component-conversationdashboard-card-surveys"
         >
           <div className="px-5 py-4">
             {/* Header */}
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <Avatar
-                  shape="square"
-                  size={38}
-                  icon={<AuditOutlined />}
-                  style={{
-                    backgroundColor: '#e6f7e9',
-                    color: '#13a554',
-                    borderRadius: 10,
-                    flexShrink: 0,
-                  }}
-                />
-                <Title
-                  level={4}
-                  style={{
-                    margin: 0,
-                    color: '#1a1a2e',
-                    fontSize: 20,
-                    fontWeight: 700,
-                  }}
+            <div
+              className="mb-4 flex items-center justify-between gap-3"
+              data-cy="conversation-surveys-header"
+            >
+              <div
+                className="flex items-center gap-2.5"
+                data-cy="conversation-surveys-heading"
+              >
+                <span
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+                  aria-hidden
+                  data-cy="conversation-surveys-icon"
+                >
+                  <ClipboardList size={17} strokeWidth={2.1} />
+                </span>
+                <h2
+                  className="m-0 text-base font-semibold leading-6 text-shell-ink"
+                  data-cy="conversation-surveys-title"
                 >
                   Surveys
-                </Title>
+                </h2>
               </div>
-              <Link href="/feedback/categories">
-                <Text
-                  className="!text-[13px] !font-medium !text-[#13a554] hover:!text-[#0e8040] hover:!underline"
-                  style={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
-                >
-                  Go to survey →
-                </Text>
+              <Link
+                href="/feedback/categories"
+                className="whitespace-nowrap text-[13px] font-medium text-primary hover:underline"
+                data-cy="conversation-surveys-link"
+              >
+                Go to survey →
               </Link>
             </div>
 
-            <Divider style={{ margin: '0 0 16px' }} />
-
             {/* Stats row */}
-            <div className="flex gap-3">
-              <div
-                className="flex-1 rounded-xl px-4 py-3"
-                style={{ background: '#f6fff8' }}
-              >
-                <Text className="!block !text-[11px] !font-medium !text-[#6b7280]">
-                  Total Surveys
-                </Text>
-                {isSurveysSectionLoading ? (
-                  <Skeleton.Button
-                    active
-                    size="small"
-                    style={{ width: 56, height: 28, marginTop: 6 }}
-                  />
-                ) : (
-                  <span className="mt-1 block text-[26px] font-bold leading-none text-[#1a1a2e]">
-                    {userMeetings?.totalSurvey ?? 0}
-                  </span>
-                )}
-                {isSurveysSectionLoading ? null : (
-                  <Tag
-                    icon={<CheckCircleOutlined />}
-                    bordered={false}
-                    color="success"
-                    style={{ marginTop: 6, fontSize: 11 }}
-                  >
-                    {userMeetings?.totalCompletedSurvey ?? 0} completed
-                  </Tag>
-                )}
-              </div>
-
-              <div
-                className="flex-1 rounded-xl px-4 py-3"
-                style={{ background: '#e6f7e9' }}
-              >
-                <div className="flex items-center gap-1.5">
-                  <ClockCircleOutlined
-                    style={{ color: '#13a554', fontSize: 12 }}
-                  />
-                  <Text className="!text-[11px] !font-medium !text-[#13a554]">
-                    Upcoming
-                  </Text>
-                </div>
-                {isSurveysSectionLoading ? (
-                  <Skeleton.Button
-                    active
-                    size="small"
-                    style={{ width: 56, height: 28, marginTop: 6 }}
-                  />
-                ) : (
-                  <span className="mt-1 block text-[26px] font-bold leading-none text-[#0e8040]">
-                    {userMeetings?.totalUpcomingMeetings ?? 0}
-                  </span>
-                )}
-              </div>
+            <div
+              className="grid grid-cols-2 gap-3"
+              data-cy="conversation-surveys-stats"
+            >
+              <ShellStat
+                icon={ClipboardList}
+                label="Surveys"
+                value={
+                  isSurveysSectionLoading ? (
+                    <Skeleton.Button
+                      active
+                      size="small"
+                      style={{ width: 56, height: 28 }}
+                    />
+                  ) : (
+                    (userMeetings?.totalSurvey ?? 0)
+                  )
+                }
+                caption={
+                  isSurveysSectionLoading
+                    ? null
+                    : `${userMeetings?.totalCompletedSurvey ?? 0} completed`
+                }
+                data-cy="conversation-surveys-stat-total"
+              />
+              <ShellStat
+                icon={Clock3}
+                label="Upcoming"
+                value={
+                  isSurveysSectionLoading ? (
+                    <Skeleton.Button
+                      active
+                      size="small"
+                      style={{ width: 56, height: 28 }}
+                    />
+                  ) : (
+                    (userMeetings?.totalUpcomingMeetings ?? 0)
+                  )
+                }
+                data-cy="conversation-surveys-stat-upcoming"
+              />
             </div>
           </div>
 
           {/* Tabs section */}
-          <div className="px-5 pb-4 pt-2">
+          <div className="px-5 pb-4 pt-1">
             <Tabs
               defaultActiveKey="assigned-action-plans"
               size="small"

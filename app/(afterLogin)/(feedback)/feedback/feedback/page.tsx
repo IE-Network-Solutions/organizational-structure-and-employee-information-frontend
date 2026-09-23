@@ -285,7 +285,7 @@ const Page = () => {
               size={36}
               src={user.avatar}
               icon={<UserOutlined />}
-              className="flex-shrink-0 border border-[#d1d5db] bg-[#e5e7eb] [&_.anticon]:text-[#4b5563]"
+              className="flex-shrink-0 border border-[#d1d5db] bg-[#E3E6F5] [&_.anticon]:text-[#4b5563]"
             />
             <span
               data-cy={`feedback-table-issued-to-name-${record?.id}`}
@@ -332,7 +332,7 @@ const Page = () => {
               size={36}
               src={user.avatar}
               icon={<UserOutlined />}
-              className="flex-shrink-0 border border-[#d1d5db] bg-[#e5e7eb] [&_.anticon]:text-[#4b5563]"
+              className="flex-shrink-0 border border-[#d1d5db] bg-[#E3E6F5] [&_.anticon]:text-[#4b5563]"
             />
             <span
               data-cy={`feedback-table-given-by-name-${record?.id}`}
@@ -468,7 +468,7 @@ const Page = () => {
                 disabled={record.issuerId !== userIdData}
                 type="default"
                 icon={<MdDeleteOutline className="text-lg text-[#4b5563]" />}
-                className="feedback-table-action-delete !inline-flex !h-9 !w-9 !min-w-9 !items-center !justify-center !rounded-md !border !border-[#e5e7eb] !bg-white !p-0 !text-[#4b5563] shadow-none hover:!border-[#d1d5db] hover:!text-red-500 disabled:!opacity-40"
+                className="feedback-table-action-delete !inline-flex !h-9 !w-9 !min-w-9 !items-center !justify-center !rounded-md !border !border-[#E3E6F5] !bg-white !p-0 !text-[#4b5563] shadow-none hover:!border-[#d1d5db] hover:!text-red-500 disabled:!opacity-40"
               />
             </Popconfirm>
           </div>
@@ -478,7 +478,7 @@ const Page = () => {
   ];
 
   const feedbackSegmentedClassName = classNames(
-    'feedback-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 !rounded-xl !border !border-slate-100 !bg-slate-50/70 !p-1.5',
+    'feedback-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 !rounded-lg !border !border-slate-100 !bg-slate-50/70 !p-1.5',
     '!h-[50px] sm:!h-[50px] sm:!self-center',
     '[&_.ant-segmented-group]:!w-max [&_.ant-segmented-group]:!min-h-0 [&_.ant-segmented-group]:!items-stretch [&_.ant-segmented-group]:!justify-start',
     '[&_.ant-segmented-thumb]:!h-full [&_.ant-segmented-thumb]:!bg-white [&_.ant-segmented-thumb]:!py-0 [&_.ant-segmented-thumb]:!shadow-sm',
@@ -503,13 +503,13 @@ const Page = () => {
 
       <div
         data-cy="feedback-main-card"
-        className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
+        className="home-embed-main flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-lg sm:p-4"
       >
         <div
           data-cy="feedback-toolbar-row"
           className={classNames(
-            'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 bg-white py-2',
-            'sm:flex-row sm:items-center sm:gap-3 lg:gap-x-8',
+            'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 border-b border-shell-line bg-white pb-2 pt-1',
+            'sm:flex-row sm:items-end sm:gap-3 sm:pb-0 lg:gap-x-8 sm:[&>*:not(:first-child)]:pb-2',
           )}
         >
           <div
@@ -520,7 +520,7 @@ const Page = () => {
               theme={{
                 components: {
                   Segmented: {
-                    trackBg: '#f1f5f9',
+                    trackBg: '#F0F2FF',
                     itemSelectedBg: '#ffffff',
                     itemSelectedColor: '#0f172a',
                   },
@@ -868,12 +868,12 @@ const Page = () => {
 
         {/* Content Card — 8px horizontal inset from page content area */}
         <div
-          className="mx-1 mt-4 overflow-hidden rounded-lg border border-[#D9D9D9] bg-white shadow-none md:mt-0 md:rounded-xl md:border-[#e5e7eb] md:shadow-sm"
+          className="mt-4 overflow-hidden rounded-lg border border-shell-line bg-white md:mt-0"
           data-cy="feedback-page-content-card"
         >
           {/* Search & Date Filters */}
           <div
-            className="feedback-page-search-filters flex flex-row flex-wrap items-center justify-between gap-0 px-2 pb-4 pt-5 md:gap-3 md:px-6 md:pb-6 md:pt-6"
+            className="feedback-page-search-filters flex flex-row flex-wrap items-center justify-between gap-0 px-3 py-3 md:gap-3 md:px-4"
             data-cy="feedback-page-search-filters"
           >
             <div
@@ -881,7 +881,7 @@ const Page = () => {
               data-cy="feedback-page-employee-select-wrap"
             >
               <div
-                className="feedback-search-composite flex h-full min-h-8 w-full min-w-0 items-stretch overflow-hidden rounded-[6px] border border-[#D9D9D9] bg-white transition-colors focus-within:border-[#2563eb] focus-within:ring-1 focus-within:ring-[#2563eb]/20 md:border-[#e5e7eb] md:rounded-md"
+                className="feedback-search-composite flex h-full min-h-8 w-full min-w-0 items-stretch overflow-hidden rounded-[6px] border border-[#D9D9D9] bg-white transition-colors focus-within:border-[#3636F0] focus-within:ring-1 focus-within:ring-[#3636F0]/20 md:border-[#E3E6F5] md:rounded-md"
                 data-cy="feedback-page-search-wrapper"
               >
                 <Select
@@ -952,7 +952,7 @@ const Page = () => {
 
           {/* Table — full bleed horizontally inside card */}
           <div
-            className="feedback-table-panel border-t border-[#F0F0F0] bg-white md:border-[#e5e7eb]"
+            className="feedback-table-panel border-t border-shell-line bg-white"
             data-cy="feedback-page-table-container"
           >
             <div
@@ -979,7 +979,7 @@ const Page = () => {
           </div>
 
           <div
-            className="border-t border-[#e5e7eb] px-3 pb-4 pt-3 md:px-6 md:pb-6 md:pt-4"
+            className="border-t border-shell-line px-3 py-3 md:px-4"
             data-cy="feedback-page-pagination-wrap"
           >
             <div
@@ -1278,14 +1278,14 @@ const Page = () => {
         .feedback-table-panel .feedback-table .ant-table-thead > tr > th,
         .feedback-table-panel .feedback-table .ant-table-thead > tr > td,
         .feedback-table-panel .feedback-table .ant-table-thead .ant-table-cell {
-          background: #f9fafb !important;
-          background-color: #f9fafb !important;
-          border-bottom: 1px solid #e5e7eb !important;
+          background: #e9ecfd !important;
+          background-color: #e9ecfd !important;
+          border-bottom: 1px solid #e3e6f5 !important;
           border-top: none !important;
           font-weight: 600 !important;
-          font-size: 14px !important;
-          color: #374151 !important;
-          height: 56px !important;
+          font-size: 13px !important;
+          color: #42465f !important;
+          height: 44px !important;
           padding: 10px 16px !important;
           white-space: nowrap !important;
           line-height: 22px !important;
@@ -1333,11 +1333,11 @@ const Page = () => {
           .ant-table-tbody
           > tr.feedback-table-row--base
           .ant-table-cell {
-          border-bottom: 1px solid #e5e7eb !important;
+          border-bottom: 1px solid #e3e6f5 !important;
           border-top: none !important;
           height: 56px !important;
           padding: 0 16px !important;
-          color: #4b5563 !important;
+          color: #42465f !important;
           font-size: 14px !important;
           background: #ffffff !important;
           vertical-align: middle !important;
@@ -1353,13 +1353,13 @@ const Page = () => {
           .ant-table-tbody
           > tr.feedback-table-row--alt
           .ant-table-cell {
-          border-bottom: 1px solid #e5e7eb !important;
+          border-bottom: 1px solid #e3e6f5 !important;
           border-top: none !important;
           height: 56px !important;
           padding: 0 16px !important;
-          color: #4b5563 !important;
+          color: #42465f !important;
           font-size: 14px !important;
-          background: #f9fafb !important;
+          background: #f7f8ff !important;
           vertical-align: middle !important;
           line-height: 22px !important;
         }
@@ -1373,7 +1373,7 @@ const Page = () => {
           .ant-table-tbody
           > tr.feedback-table-row--base:hover
           .ant-table-cell {
-          background: #f3f4f6 !important;
+          background: #f0f2ff !important;
         }
         .feedback-table-panel
           .feedback-table
@@ -1385,7 +1385,7 @@ const Page = () => {
           .ant-table-tbody
           > tr.feedback-table-row--alt:hover
           .ant-table-cell {
-          background: #f3f4f6 !important;
+          background: #f0f2ff !important;
         }
         .feedback-table-panel .feedback-table .ant-table-container {
           border: none !important;

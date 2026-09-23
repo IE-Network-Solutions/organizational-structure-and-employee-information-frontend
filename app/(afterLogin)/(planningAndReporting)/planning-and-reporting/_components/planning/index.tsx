@@ -289,7 +289,7 @@ function Planning({
             >
               <div
                 data-cy="planning-and-reporting-components-planning-index-tsx-index-div-414"
-                className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
+                className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[#E3E6F5]"
               >
                 <BsClipboard2Check
                   size={26}
@@ -299,13 +299,13 @@ function Planning({
               </div>
               <p
                 data-cy="planning-and-reporting-components-planning-index-tsx-index-p-594"
-                className="text-sm font-medium text-[#161A2C]"
+                className="text-sm font-medium text-[#1F2240]"
               >
                 No plans yet
               </p>
               <p
                 data-cy="planning-and-reporting-components-planning-index-tsx-index-p-427"
-                className="mt-2 text-xs leading-relaxed text-[#8F94A3]"
+                className="mt-2 text-xs leading-relaxed text-[#7C82A7]"
               >
                 {activeTabName
                   ? `There are no planned tasks for ${activeTabName} with the current filters and session.`

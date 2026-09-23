@@ -118,7 +118,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
             key={panelIndex}
             className="mb-4 rounded-lg overflow-hidden [&_.ant-collapse-header]:border-b-0 [&_.ant-collapse-content]:border-t-0 [&_.ant-collapse-content]:bg-transparent"
             style={{
-              border: '1px solid #e5e7eb',
+              border: '1px solid #E3E6F5',
             }}
           >
             {e?.keyResults?.map((kr, resultIndex) => {
@@ -156,7 +156,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                       >
                         <BsKey
                           size={24}
-                          className="text-[#574CFF] flex-shrink-0"
+                          className="text-[#3636F0] flex-shrink-0"
                         />
                         <div
                           data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-117"
@@ -164,7 +164,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                         >
                           <span
                             data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-142"
-                            className="text-sm font-bold text-[#161A2C] truncate flex-1 min-w-0"
+                            className="text-sm font-bold text-[#1F2240] truncate flex-1 min-w-0"
                             title={kr?.title}
                           >
                             {kr?.title}
@@ -202,13 +202,13 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                             >
                               <span
                                 data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-143"
-                                className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                                className="w-1.5 h-1.5 rounded-full bg-[#3636F0] inline-block"
                               ></span>
                               Weight
                             </span>
                             <div
                               data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-146"
-                              className="rounded-lg bg-[#E8E7FF] text-[#574CFF] font-bold px-3 py-1 text-xs flex items-center justify-center min-w-[45px]"
+                              className="rounded-lg bg-[#E7E9FD] text-[#3636F0] font-bold px-3 py-1 text-xs flex items-center justify-center min-w-[45px]"
                             >
                               {kr.weight}%
                             </div>
@@ -232,7 +232,7 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                           >
                             <span
                               data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-metric-type"
-                              className="rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs font-semibold text-[#574CFF]"
+                              className="rounded-lg bg-[#E7E9FD] px-3 py-1 text-xs font-semibold text-[#3636F0]"
                             >
                               {metricTypeLabel}
                             </span>
@@ -250,13 +250,13 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                             >
                               <span
                                 data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-task-count-bullet"
-                                className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                                className="w-1.5 h-1.5 rounded-full bg-[#3636F0] inline-block"
                               />
                               Tasks
                             </span>
                             <div
                               data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-task-count-value"
-                              className="rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs font-bold text-[#574CFF]"
+                              className="rounded-lg bg-[#E7E9FD] px-3 py-1 text-xs font-bold text-[#3636F0]"
                             >
                               {linkedTaskCount}
                             </div>
@@ -275,17 +275,17 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                             >
                               <span
                                 data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-163"
-                                className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                                className="w-1.5 h-1.5 rounded-full bg-[#3636F0] inline-block"
                               ></span>
                               Achieved
                             </span>
                             <div
                               data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-166"
-                              className="rounded-lg bg-[#E8E7FF] px-3 py-1 text-xs flex items-center justify-center min-w-[45px]"
+                              className="rounded-lg bg-[#E7E9FD] px-3 py-1 text-xs flex items-center justify-center min-w-[45px]"
                             >
                               <span
                                 data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-168"
-                                className="text-[#574CFF] font-bold tabular-nums"
+                                className="text-[#3636F0] font-bold tabular-nums"
                               >
                                 {getKeyResultProgressRatioText(kr)}
                               </span>
@@ -316,13 +316,13 @@ const PlanningObjectiveComponent: React.FC<CollapseComponentProps> = ({
                               >
                                 <span
                                   data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-span-198"
-                                  className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                                  className="w-1.5 h-1.5 rounded-full bg-[#3636F0] inline-block"
                                 ></span>
                                 Weight
                               </span>
                               <div
                                 data-cy="planning-and-reporting-components-planning-createplanobjective-tsx-createplanobjective-div-201"
-                                className="rounded-lg bg-[#E8E7FF] text-[#574CFF] font-bold px-3 py-1 text-xs flex items-center justify-center min-w-[45px]"
+                                className="rounded-lg bg-[#E7E9FD] text-[#3636F0] font-bold px-3 py-1 text-xs flex items-center justify-center min-w-[45px]"
                               >
                                 {kr.weight}%
                               </div>

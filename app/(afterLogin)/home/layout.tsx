@@ -23,8 +23,10 @@ import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import HomeTimesheetProviders from './_components/HomeTimesheetProviders';
+import { HomeThemeProvider } from './_components/homeTheme';
 import BasicInfo from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/basicInfo';
 import { OPEN_HOME_DASHBOARD_EDIT_EVENT } from '@/config/homeDashboardEvents';
+import './home-theme.css';
 
 interface HomeLayoutProps {
   children: ReactNode;
@@ -86,6 +88,9 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
 
   const activeKey = getHomeTabFromPathname(pathname);
   const pageTitle = getHomePageTitle(activeKey);
+  // Overview keeps its current dashboard look; every other tab gets the Home
+  // design language (brand theme + `.home-surface` styles).
+  const homeDesignEnabled = activeKey !== 'overview';
 
   const handleTabChange = (key: string) => {
     router.push(getHomeTabHref(key));
@@ -103,7 +108,7 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
           size="large"
           icon={<FaPlus />}
           onClick={() => setIsShowLeaveRequestSidebar(true)}
-          className="mr-3 h-10 shrink-0"
+          className="mr-3 h-10 shrink-0 !border-white !bg-white !text-primary !shadow-none hover:!bg-white/90"
           data-cy="home-new-leave-request-button"
         >
           New Request
@@ -137,15 +142,17 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
     <div
       id="home-layout"
       data-cy="home-layout"
-      className="-mx-2 min-h-screen bg-white min-[769px]:-mx-6"
+      className="-mx-2 min-h-screen bg-white min-[769px]:-mx-6 lg:flex lg:h-[calc(100dvh-74px)] lg:min-h-0 lg:flex-col lg:overflow-hidden"
     >
+      {/* Desktop: the shell fills the viewport under the 74px top header so the
+          hero, tabs and sidebar stay put and only the tab content scrolls. */}
       <div
-        className="min-h-screen"
+        className="min-h-screen lg:flex lg:min-h-0 lg:flex-1 lg:flex-col"
         data-cy="home-layout-inner"
         id="home-layout-inner"
       >
         <div
-          className="bg-white"
+          className="bg-white lg:flex lg:min-h-0 lg:flex-1 lg:flex-col"
           data-cy="home-personal-shell"
           id="home-personal-shell"
         >
@@ -258,11 +265,9 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
           </div>
 
           <div
-            className={
-              userId
-                ? 'grid min-h-[540px] lg:grid-cols-[300px_minmax(0,1fr)]'
-                : 'min-h-[540px]'
-            }
+            className={`grid min-h-[540px] lg:min-h-0 lg:flex-1 lg:grid-rows-[minmax(0,1fr)] ${
+              userId ? 'lg:grid-cols-[300px_minmax(0,1fr)]' : ''
+            }`}
             data-cy="home-personal-grid"
           >
             {userId ? (
@@ -273,12 +278,14 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
               />
             ) : null}
             <div
-              className="min-w-0 bg-white"
+              className="min-w-0 bg-white lg:overflow-y-auto"
               data-cy="home-personal-content"
               id="home-personal-content"
             >
               <div
-                className="px-4 pb-8 sm:px-6 lg:px-8"
+                className={`px-4 pb-8 sm:px-6 lg:px-8 ${
+                  homeDesignEnabled ? 'home-surface pt-5 lg:pt-7' : ''
+                }`}
                 data-cy="home-content-wrapper"
                 id="home-content-wrapper"
               >
@@ -289,14 +296,20 @@ const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
                 >
                   {pageTitle}
                 </h1>
-                {children}
+                <HomeThemeProvider enabled={homeDesignEnabled}>
+                  {children}
+                </HomeThemeProvider>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {showTimesheetProviders && <HomeTimesheetProviders />}
+      {showTimesheetProviders && (
+        <HomeThemeProvider enabled={homeDesignEnabled}>
+          <HomeTimesheetProviders />
+        </HomeThemeProvider>
+      )}
     </div>
   );
 };

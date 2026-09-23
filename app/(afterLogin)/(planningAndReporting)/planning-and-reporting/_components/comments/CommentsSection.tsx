@@ -76,7 +76,7 @@ export default function CommentsSection({
           <button
             type="button"
             onClick={onOpenThread}
-            className="flex items-center gap-2 rounded-lg px-2 py-1 -ml-2 transition-colors hover:bg-[#F8F7FF] group"
+            className="flex items-center gap-2 rounded-lg px-2 py-1 -ml-2 transition-colors hover:bg-[#F7F8FF] group"
             data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-101"
           >
             {commentCount > 0 && uniqueCommenters.length > 0 && (
@@ -116,7 +116,7 @@ export default function CommentsSection({
               )}
               <span
                 data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-span-108"
-                className="text-[12px] font-medium text-[#574CFF] group-hover:text-[#4F46EF] transition-colors"
+                className="text-[12px] font-medium text-[#3636F0] group-hover:text-[#4F46EF] transition-colors"
               >
                 {commentCount > 0
                   ? `${commentCount} comment${commentCount !== 1 ? 's' : ''}`
@@ -144,7 +144,7 @@ export default function CommentsSection({
           {!isPlanCard && (
             <span
               data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-span-125"
-              className="text-[11px] text-[#8F94A3]"
+              className="text-[11px] text-[#7C82A7]"
             >
               Points:{' '}
               <span
@@ -188,7 +188,7 @@ export default function CommentsSection({
         <button
           type="button"
           onClick={handleCommentsClick}
-          className="flex items-center gap-2 rounded-lg px-2 py-1 -ml-2 transition-colors hover:bg-[#F8F7FF] group"
+          className="flex items-center gap-2 rounded-lg px-2 py-1 -ml-2 transition-colors hover:bg-[#F7F8FF] group"
           data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-div-101"
         >
           {commentCount > 0 && uniqueCommenters.length > 0 && (
@@ -228,7 +228,7 @@ export default function CommentsSection({
             )}
             <span
               data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-span-196"
-              className="text-[12px] font-medium text-[#8F94A3] group-hover:text-[#574CFF] transition-colors"
+              className="text-[12px] font-medium text-[#7C82A7] group-hover:text-[#3636F0] transition-colors"
             >
               {commentCount > 0
                 ? `${commentCount} comment${commentCount !== 1 ? 's' : ''}`
@@ -244,7 +244,7 @@ export default function CommentsSection({
           {!isPlanCard && (
             <span
               data-cy="planning-and-reporting-components-comments-commentssection-tsx-commentssection-span-206"
-              className="text-[11px] text-[#8F94A3]"
+              className="text-[11px] text-[#7C82A7]"
             >
               Points:{' '}
               <span
@@ -264,7 +264,7 @@ export default function CommentsSection({
           <button
             type="button"
             onClick={handleAddCommentClick}
-            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium text-[#574CFF] transition-all hover:bg-[#574CFF]/5"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-[12px] font-medium text-[#3636F0] transition-all hover:bg-[#3636F0]/5"
             data-cy="planningandreporting-planning-and-reporting-components-comments-commentssection-tsx-span-160"
           >
             <GoPlus className="text-sm" />

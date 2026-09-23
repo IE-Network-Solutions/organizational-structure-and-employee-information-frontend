@@ -64,7 +64,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
                 )}
                 <div
                   data-cy="-components-reporting-milestone-index-tsx-index-div-56"
-                  className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B2B2FF] shrink-0"
+                  className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B8BEF3] shrink-0"
                 >
                   <span
                     data-cy="-components-reporting-milestone-index-tsx-index-span-57"
@@ -173,7 +173,7 @@ const TasksDisplayer: React.FC<Props> = ({ tasks }) => {
             </Text>
             <Tag
               className="font-bold border-none w-10 text-center cap text-blue text-[10px]"
-              color="#B2B2FF"
+              color="#B8BEF3"
             >
               {task?.weightPlan || 0}
             </Tag>

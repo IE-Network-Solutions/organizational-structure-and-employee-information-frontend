@@ -4,8 +4,7 @@ import { Skeleton } from 'antd';
 const LeaveBalanceCardSkeleton = () => {
   return (
     <div
-      className="w-full min-h-[120px] rounded-xl my-2 py-3 px-3 sm:px-4 border border-gray-200"
-      style={{ backgroundColor: '#FCFDFD' }}
+      className="my-2 min-h-[120px] w-full rounded-lg bg-shell-tint px-4 py-3.5"
       data-cy="time-attendance-leave-balance-card-skeleton"
     >
       <div

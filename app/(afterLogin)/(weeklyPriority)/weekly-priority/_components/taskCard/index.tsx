@@ -3,6 +3,7 @@ import { Button, Card, Input, Form, Dropdown, Checkbox, Avatar } from 'antd';
 import { HiCheckCircle, HiXCircle } from 'react-icons/hi';
 import { RiMoreFill, RiCloseFill } from 'react-icons/ri';
 import { UserOutlined, EditOutlined } from '@ant-design/icons';
+import { ListChecks } from 'lucide-react';
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
 import { Popconfirm } from 'antd/lib';
 import { useUpdateWeeklyPriority } from '@/store/server/features/okrplanning/weeklyPriority/mutations';
@@ -156,8 +157,8 @@ const TaskCard: React.FC = () => {
     <>
       <style data-cy="task-card-styles">{`
         .custom-pixel-checkbox .ant-checkbox-checked .ant-checkbox-inner {
-            background-color: #254ec2;
-            border-color: #254ec2;
+            background-color: #3636f0;
+            border-color: #3636f0;
         }
         .completed-task-checkbox .ant-checkbox-checked .ant-checkbox-inner {
             background-color: #52c41a !important;
@@ -236,25 +237,32 @@ const TaskCard: React.FC = () => {
         return (
           <Card
             key={itemIndex}
-            className="mb-5 border border-[#e5e7eb] rounded-[12px] overflow-hidden"
+            className="mb-5 overflow-hidden rounded-lg border border-shell-line"
             bodyStyle={{ padding: '0px' }}
             style={{ boxShadow: 'none' }}
             data-cy={`task-card-${itemIndex}`}
           >
             <div
-              className="px-4 md:px-6 py-4 md:py-5 bg-[#f9fafb] border-b border-gray-100"
+              className="border-b border-shell-line bg-white px-4 py-3.5 md:px-5"
               data-cy={`task-card-header-${itemIndex}`}
             >
               <div
-                className="flex justify-between items-center"
+                className="flex items-start justify-between gap-3"
                 data-cy={`task-card-header-content-${itemIndex}`}
               >
+                <span
+                  className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary sm:flex"
+                  aria-hidden
+                  data-cy={`task-card-header-icon-${itemIndex}`}
+                >
+                  <ListChecks size={18} strokeWidth={2.1} />
+                </span>
                 <div
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                   data-cy={`task-card-header-info-${itemIndex}`}
                 >
                   <h3
-                    className="text-[15.5px] md:text-[16.5px] font-bold text-[#111827] mb-1 leading-tight"
+                    className="mb-1 text-base font-semibold leading-6 text-shell-ink"
                     data-cy={`task-card-title-${itemIndex}`}
                   >
                     {item.departmentId
@@ -274,27 +282,27 @@ const TaskCard: React.FC = () => {
                         />
                       }
                       src={employee?.photo}
-                      className="bg-gray-100 flex-shrink-0"
+                      className="flex-shrink-0 bg-shell-tint text-primary"
                       data-cy={`task-card-avatar-${itemIndex}`}
                     />
                     <div
-                      className="flex items-center text-[13px] md:text-[14px] text-gray-500 font-medium"
+                      className="flex items-center text-[13px] text-shell-muted"
                       data-cy={`task-card-user-info-${itemIndex}`}
                     >
                       <span
-                        className="text-[#374151]"
+                        className="font-medium text-shell-text"
                         data-cy={`task-card-user-name-${itemIndex}`}
                       >
                         {fullName}
                       </span>
                       <span
-                        className="mx-1.5 text-gray-400"
+                        className="mx-1.5 text-shell-muted"
                         data-cy={`task-card-separator-${itemIndex}`}
                       >
                         •
                       </span>
                       <span
-                        className="text-[#4b5563] font-medium"
+                        className="text-shell-muted"
                         data-cy={`task-card-date-${itemIndex}`}
                       >
                         {dayjs(item?.tasks[0]?.createdAt).format('DD MMM YYYY')}
@@ -304,7 +312,7 @@ const TaskCard: React.FC = () => {
                 </div>
 
                 <div
-                  className="flex-shrink-0 -mr-2"
+                  className="flex-shrink-0"
                   data-cy={`task-card-actions-${itemIndex}`}
                 >
                   <Dropdown
@@ -315,10 +323,10 @@ const TaskCard: React.FC = () => {
                   >
                     <Button
                       type="text"
-                      className="flex items-center justify-center h-9 w-9 bg-white border border-gray-200 rounded-[8px] transition-all"
+                      className="flex h-8 w-8 items-center justify-center rounded-md border-0 text-shell-muted transition-colors hover:!bg-shell-tint hover:!text-primary"
                       icon={
                         <RiMoreFill
-                          className="text-[#111827] text-[22px] translate-y-[1px]"
+                          className="text-[20px]"
                           data-cy={`task-card-dropdown-icon-${itemIndex}`}
                         />
                       }
@@ -353,7 +361,7 @@ const TaskCard: React.FC = () => {
                       {/* Left Column: Icon - Only show for reported tasks */}
                       {isReported && (
                         <div
-                          className={`flex ${isNotCompleted ? 'items-center' : 'items-center md:items-start md:pt-[18px]'} pl-4 md:pl-6 pr-1 md:pr-0 py-4 md:py-[18px]`}
+                          className={`flex ${isNotCompleted ? 'items-center' : 'items-center md:items-start md:pt-3.5'} py-3.5 pl-4 pr-1 md:pl-5 md:pr-0`}
                           data-cy={`task-item-icon-column-${itemIndex}-${taskIndex}`}
                         >
                           <div
@@ -407,7 +415,7 @@ const TaskCard: React.FC = () => {
                         data-cy={`task-item-content-column-${itemIndex}-${taskIndex}`}
                       >
                         <div
-                          className={`flex items-center md:items-start gap-4 group pr-4 md:pr-6 py-4 md:py-[18px] relative ${isReported ? 'pl-4 md:pl-5' : 'pl-4 md:pl-6'}`}
+                          className={`group relative flex items-center gap-4 py-3.5 pr-4 md:items-start md:pr-5 ${isReported ? 'pl-4' : 'pl-4 md:pl-5'}`}
                           data-cy={`task-item-header-container-${itemIndex}-${taskIndex}`}
                         >
                           {(isCompleted || isNotCompleted) && (
@@ -431,7 +439,7 @@ const TaskCard: React.FC = () => {
                               data-cy={`task-item-header-${itemIndex}-${taskIndex}`}
                             >
                               <span
-                                className={`text-[14.5px] md:text-[15px] font-medium leading-normal transition-all truncate md:whitespace-normal ${isCompleted ? 'text-strike-green' : isNotCompleted ? 'text-strike-red' : 'text-[#374151]'}`}
+                                className={`truncate text-sm font-medium leading-normal transition-all md:whitespace-normal ${isCompleted ? 'text-strike-green' : isNotCompleted ? 'text-strike-red' : 'text-shell-ink'}`}
                                 data-cy={`task-item-title-${itemIndex}-${taskIndex}`}
                               >
                                 {task.title}
@@ -527,17 +535,17 @@ const TaskCard: React.FC = () => {
                         {!failedReasonVisible[taskId] &&
                           task.status === 'NOT_COMPLETED' && (
                             <div
-                              className="ml-4 md:ml-5 mr-4 md:mr-6 mb-4 md:mb-[18px] bg-white border border-gray-100 shadow-sm px-5 py-3 rounded-[12px]"
+                              className="mb-3.5 ml-4 mr-4 rounded-md border border-shell-line bg-shell-wash px-4 py-2.5 md:mr-5"
                               data-cy={`task-item-failed-reason-display-${itemIndex}-${taskIndex}`}
                             >
                               <span
-                                className="text-[13.5px] text-[#111827] font-bold"
+                                className="text-[13px] font-semibold text-shell-ink"
                                 data-cy={`task-item-failed-reason-label-${itemIndex}-${taskIndex}`}
                               >
                                 Reason :{' '}
                               </span>
                               <span
-                                className="text-[13.5px] text-gray-500 font-medium ml-1"
+                                className="ml-1 text-[13px] text-shell-text"
                                 data-cy={`task-item-failed-reason-text-${itemIndex}-${taskIndex}`}
                               >
                                 {task.failureReason}
@@ -548,7 +556,7 @@ const TaskCard: React.FC = () => {
                     </div>
                     {taskIndex < item.tasks.length - 1 && (
                       <div
-                        className="h-[1px] bg-gray-100 mx-4 md:mx-6 opacity-60"
+                        className="h-px bg-shell-line"
                         data-cy={`task-item-divider-${itemIndex}-${taskIndex}`}
                       />
                     )}

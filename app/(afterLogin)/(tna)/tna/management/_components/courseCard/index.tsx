@@ -57,7 +57,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
     <Spin spinning={isLoading} data-cy={`tna-course-card-spinner-${item?.id}`}>
       <div
         className={classNames(
-          'group relative flex h-[295px] min-w-0 w-full cursor-pointer flex-col gap-0 overflow-hidden rounded-[8px] bg-[#F9FAFB] pb-3 transition-shadow hover:shadow-md',
+          'group relative flex h-[295px] min-w-0 w-full cursor-pointer flex-col gap-0 overflow-hidden rounded-lg border border-shell-line bg-white pb-3 transition-colors hover:border-[#CDD2F6]',
           { 'opacity-70': item?.isDraft },
           [className],
         )}
@@ -91,7 +91,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             data-cy={`tna-course-card-category-row-${item?.id}`}
           >
             <span
-              className="text-xs font-bold leading-none text-black max-md:text-xs max-md:leading-5 max-md:text-black md:leading-none"
+              className="text-[11px] font-semibold uppercase leading-none tracking-[0.04em] text-primary max-md:leading-5 md:leading-none"
               id={`tnaCourseCardCategory${item?.id}Id`}
               data-cy={`tna-course-card-category-${item?.id}`}
             >
@@ -99,7 +99,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             </span>
             {averageRating != null ? (
               <div
-                className="inline-flex items-center gap-1 text-sm font-semibold text-gray-900"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-shell-ink"
                 data-cy="tna-course-feedback-and-ratings-average"
               >
                 <StarIcon
@@ -114,7 +114,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             ) : null}
             {item?.isDraft && (
               <span
-                className="text-[12px] font-medium leading-none text-[#000000]"
+                className="rounded bg-shell-tint px-1.5 py-0.5 text-[11px] font-medium leading-none text-shell-text"
                 id={`tnaCourseCardDraft${item?.id}Id`}
                 data-cy={`tna-course-card-draft-${item?.id}`}
               >
@@ -124,7 +124,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           </div>
 
           <h3
-            className="m-0 line-clamp-1 text-sm font-bold leading-tight text-black max-md:text-sm max-md:leading-[22px] max-md:text-black"
+            className="m-0 line-clamp-1 text-[15px] font-semibold leading-tight text-shell-ink max-md:text-sm max-md:leading-[22px]"
             id={`tnaCourseCardTitle${item?.id}Id`}
             data-cy={`tna-course-card-title-${item?.id}`}
           >
@@ -132,7 +132,7 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
           </h3>
 
           <p
-            className="m-0 line-clamp-3 text-[13px] leading-[18px] text-[#A6A6A6] max-md:line-clamp-2 max-md:text-xs max-md:leading-5 max-md:text-black/45 md:line-clamp-2"
+            className="m-0 line-clamp-3 text-[13px] leading-[18px] text-shell-muted max-md:line-clamp-2 max-md:text-xs max-md:leading-5 md:line-clamp-2"
             id={`tnaCourseCardDescription${item?.id}Id`}
             data-cy={`tna-course-card-description-${item?.id}`}
           >
@@ -147,12 +147,12 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
             data-cy={`tna-course-card-footer-${item?.id}`}
           >
             <div
-              className="flex items-center gap-1.5 text-xs font-medium text-[#A6A6A6] max-md:gap-2 max-md:font-normal max-md:leading-5 max-md:text-black/45"
+              className="flex items-center gap-1.5 text-xs font-medium text-shell-muted max-md:gap-2 max-md:font-normal max-md:leading-5"
               data-cy={`tna-course-card-courses-stat-${item?.id}`}
             >
               <LuLayers
                 size={14}
-                className="text-[#A6A6A6] max-md:text-black/45"
+                className="text-shell-muted"
                 data-cy={`tna-course-card-courses-icon-${item?.id}`}
               />
               <span data-cy={`tna-course-card-courses-count-${item?.id}`}>
@@ -160,11 +160,11 @@ const CourseCard: FC<CourseCardProps> = ({ item, refetch, className = '' }) => {
               </span>
             </div>
             <div
-              className="flex items-center gap-1.5 text-xs font-medium text-[#A6A6A6] max-md:gap-2 max-md:font-normal max-md:leading-5 max-md:text-black/45"
+              className="flex items-center gap-1.5 text-xs font-medium text-shell-muted max-md:gap-2 max-md:font-normal max-md:leading-5"
               data-cy={`tna-course-card-lessons-stat-${item?.id}`}
             >
               <FaRegFileAlt
-                className="h-[13px] w-[13px] shrink-0 text-[#A6A6A6] max-md:h-3.5 max-md:w-3.5 max-md:text-black/45"
+                className="h-[13px] w-[13px] shrink-0 text-shell-muted max-md:h-3.5 max-md:w-3.5"
                 data-cy={`tna-course-card-lessons-icon-${item?.id}`}
               />
               <span data-cy={`tna-course-card-lessons-count-${item?.id}`}>

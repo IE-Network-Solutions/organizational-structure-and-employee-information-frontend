@@ -62,14 +62,14 @@ export default function TaskRow({
     >
       {/* Horizontal connector */}
       <div
-        className="absolute left-[6.5px] top-1/2 w-[12px] md:w-[20px] h-[1px] bg-[#E5E7EB]"
+        className="absolute left-[6.5px] top-1/2 w-[12px] md:w-[20px] h-[1px] bg-[#E3E6F5]"
         data-cy="planning-reporting-task-row-connector-h"
       />
 
       {/* Last-item vertical cover */}
       {isLast && (
         <div
-          className="absolute left-[6.5px] top-1/2 bottom-0 w-[1px] bg-[#FAFBFC] z-20"
+          className="absolute left-[6.5px] top-1/2 bottom-0 w-[1px] bg-[#F7F8FF] z-20"
           data-cy="planning-reporting-task-row-connector-v-cover"
         />
       )}
@@ -107,7 +107,7 @@ export default function TaskRow({
 
         <Tag
           className="m-0 rounded-[4px] border-none px-1.5 py-0 text-[11px] md:text-[12px] font-bold leading-5"
-          style={{ backgroundColor: '#E0E7FF', color: '#574CFF' }}
+          style={{ backgroundColor: '#E0E7FF', color: '#3636F0' }}
         >
           {formatNumber(task.weight)}
         </Tag>
@@ -118,7 +118,7 @@ export default function TaskRow({
           metricType !== 'Milestone' && (
             <Tag
               className="m-0 rounded-[4px] border-none px-1.5 py-0 text-[11px] md:text-[12px] font-bold leading-5"
-              style={{ backgroundColor: '#E0E7FF', color: '#574CFF' }}
+              style={{ backgroundColor: '#E0E7FF', color: '#3636F0' }}
             >
               t:{formatNumber(task.target)}
             </Tag>

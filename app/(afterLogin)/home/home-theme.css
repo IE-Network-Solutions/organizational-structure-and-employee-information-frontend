@@ -1,0 +1,193 @@
+/*
+ * Home tab content overrides — the parts of the Home design language that
+ * can't live in the shared components themselves (see the `shell` colours in
+ * tailwind.config.ts and components/homeUi for the rest).
+ *
+ * Scoped to `.home-surface` (the Home content column, every tab except
+ * Overview) so the embedded module pages keep their own look on their own
+ * routes. Tailwind runs with `important: true`, so overrides here need
+ * `!important` plus a more specific selector than the utility they replace.
+ */
+
+/* Keep in sync with the `shell` colours in tailwind.config.ts. */
+.home-surface {
+  --home-brand: #3636f0;
+  --home-brand-strong: #2828c9;
+  --home-tint: #f0f2ff; /* same as the Home sidebar */
+  --home-tint-line: #dfe3ff;
+  --home-table-head: #e9ecfd;
+  --home-line: #e3e6f5;
+  --home-ink: #1f2240;
+  --home-ink-2: #42465f;
+  --home-ink-3: #5b6078;
+}
+
+/* ── One accent colour ────────────────────────────────────────────────────
+ * Embedded pages hard-code the app-wide navy (#1E40AF / okr-primary) and the
+ * planning violet (#574CFF). Inside Home they follow the shell's brand colour.
+ * Exact class tokens only: a substring match would turn `hover:` colours on
+ * permanently. Tinted (`/10`-style) variants are left alone. */
+
+.home-surface .bg-\[\#1E40AF\],
+.home-surface .\!bg-\[\#1E40AF\],
+.home-surface .bg-\[\#1e40af\],
+.home-surface .\!bg-\[\#1e40af\],
+.home-surface .bg-\[\#574CFF\],
+.home-surface .bg-okr-primary {
+  background-color: var(--home-brand) !important;
+}
+
+.home-surface .hover\:bg-\[\#1E3A8A\]:hover,
+.home-surface .hover\:\!bg-\[\#1E3A8A\]:hover,
+.home-surface .hover\:bg-\[\#1e3a8a\]:hover,
+.home-surface .hover\:\!bg-\[\#1e3a8a\]:hover,
+.home-surface .focus\:bg-\[\#1e3a8a\]:focus,
+.home-surface .hover\:bg-\[\#1e40af\]:hover,
+.home-surface .hover\:\!bg-\[\#1E40AF\]:hover {
+  background-color: var(--home-brand-strong) !important;
+}
+
+.home-surface .text-\[\#1E40AF\],
+.home-surface .\!text-\[\#1E40AF\],
+.home-surface .text-\[\#1e40af\],
+.home-surface .text-\[\#574CFF\],
+.home-surface .text-okr-primary,
+.home-surface .hover\:text-\[\#1E40AF\]:hover,
+.home-surface .hover\:\!text-\[\#1E40AF\]:hover,
+.home-surface .hover\:text-\[\#574CFF\]:hover,
+.home-surface .group:hover .group-hover\:text-\[\#574CFF\],
+.home-surface .hover\:text-okr-primary:hover,
+.home-surface .hover\:\!text-okr-primary:hover {
+  color: var(--home-brand) !important;
+}
+
+.home-surface .text-\[\#1E3A8A\],
+.home-surface .hover\:text-\[\#1E3A8A\]:hover,
+.home-surface .hover\:\!text-\[\#1E3A8A\]:hover {
+  color: var(--home-brand-strong) !important;
+}
+
+.home-surface .border-\[\#1E40AF\],
+.home-surface .\!border-\[\#1E40AF\],
+.home-surface .border-\[\#1e40af\],
+.home-surface .border-\[\#574CFF\],
+.home-surface .border-okr-primary,
+.home-surface .hover\:border-\[\#1E40AF\]:hover,
+.home-surface .hover\:\!border-\[\#1E40AF\]:hover,
+.home-surface .hover\:border-okr-primary:hover,
+.home-surface .hover\:\!border-okr-primary:hover {
+  border-color: var(--home-brand) !important;
+}
+
+.home-surface .hover\:\!border-\[\#1E3A8A\]:hover {
+  border-color: var(--home-brand-strong) !important;
+}
+
+/* ── Flat surfaces ────────────────────────────────────────────────────────
+ * Resting cards and panels sit flat on white; hover lifts (`hover:shadow-md`)
+ * are kept as interaction feedback. */
+
+.home-surface [class*='shadow-sm'] {
+  box-shadow: none !important;
+}
+
+/* Embedded module pages drop their own card inset so they line up with the
+ * rest of the tab content instead of sitting 16px inside it. */
+.home-surface .home-embed-main {
+  padding: 0 !important;
+}
+
+/* ── Tables ───────────────────────────────────────────────────────────────
+ * Tinted header band, no column separators or rounded corners, hairline row
+ * dividers. The extra `.ant-table` step outranks the per-table overrides in
+ * globals.css and the pages' own `[&_.ant-table-thead>tr>th]` utilities. */
+
+.home-surface .ant-table-wrapper .ant-table .ant-table-thead > tr > th,
+.home-surface .ant-table-wrapper .ant-table .ant-table-thead > tr > td {
+  background: var(--home-table-head) !important;
+  border-bottom-color: var(--home-line) !important;
+  border-radius: 0 !important;
+  color: var(--home-ink-2) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.home-surface
+  .ant-table-wrapper
+  .ant-table
+  .ant-table-thead
+  > tr
+  > th:not(:last-child)::before {
+  background-color: transparent !important;
+}
+
+.home-surface .ant-table-wrapper .ant-table .ant-table-tbody > tr > td {
+  border-bottom-color: var(--home-line) !important;
+}
+
+/* ── View switchers → sub-tabs ────────────────────────────────────────────
+ * The segmented control in each toolbar (Plan & Report, Priorities, Feedback,
+ * Payroll, Approvals, Schedule…) renders as underlined sub-tabs, one level
+ * below the white tabs in the header bar. The pages' own pill styling
+ * (tracks, thumbs, shadows) is neutralised here. */
+
+.home-surface .ant-segmented.ant-segmented {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: auto !important;
+  /* Let the active underline sit on the toolbar hairline beneath it. */
+  margin-bottom: -1px;
+  padding: 0 !important;
+}
+
+.home-surface .ant-segmented.ant-segmented .ant-segmented-group {
+  gap: 20px;
+}
+
+.home-surface .ant-segmented.ant-segmented .ant-segmented-thumb {
+  display: none !important;
+}
+
+.home-surface .ant-segmented.ant-segmented .ant-segmented-item {
+  background: transparent !important;
+  border-bottom: 2px solid transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: border-color 160ms ease;
+}
+
+.home-surface .ant-segmented.ant-segmented .ant-segmented-item::after {
+  display: none !important;
+}
+
+.home-surface .ant-segmented.ant-segmented .ant-segmented-item-label {
+  color: var(--home-ink-3) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  min-height: 0 !important;
+  padding: 6px 2px 8px !important;
+  height: auto !important;
+}
+
+.home-surface
+  .ant-segmented.ant-segmented
+  .ant-segmented-item:not(.ant-segmented-item-selected):hover
+  .ant-segmented-item-label {
+  color: var(--home-ink) !important;
+}
+
+.home-surface .ant-segmented.ant-segmented .ant-segmented-item-selected {
+  background: transparent !important;
+  border-bottom-color: var(--home-brand) !important;
+  box-shadow: none !important;
+}
+
+.home-surface
+  .ant-segmented.ant-segmented
+  .ant-segmented-item-selected
+  .ant-segmented-item-label {
+  color: var(--home-brand) !important;
+  font-weight: 600 !important;
+}

@@ -436,7 +436,7 @@ export default function AddDailyPlanDrawer({
       return (
         <div
           data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-383"
-          className="flex items-center justify-center min-h-[400px] text-[#8F94A3]"
+          className="flex items-center justify-center min-h-[400px] text-[#7C82A7]"
         >
           <div
             data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-384"
@@ -471,7 +471,7 @@ export default function AddDailyPlanDrawer({
           return (
             <div
               key={group.id}
-              className="rounded-2xl border border-[#F1F2F6] bg-white p-6"
+              className="rounded-xl border border-[#E3E6F5] bg-white p-6"
               data-cy="planningandreporting-planning-and-reporting-components-drawers-adddailyplandrawer-tsx-div-451"
             >
               <div
@@ -483,7 +483,7 @@ export default function AddDailyPlanDrawer({
                 <div data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-413">
                   <span
                     data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-414"
-                    className="font-bold text-[#161A2C]"
+                    className="font-bold text-[#1F2240]"
                   >
                     Weekly-task :{' '}
                   </span>
@@ -505,11 +505,11 @@ export default function AddDailyPlanDrawer({
                   {/* Show the weekly task info */}
                   <div
                     data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-425"
-                    className="p-3 bg-white rounded-lg mb-2 border border-[#E5E7EB]"
+                    className="p-3 bg-white rounded-lg mb-2 border border-[#E3E6F5]"
                   >
                     <p
                       data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-p-426"
-                      className="text-sm font-medium text-[#161A2C] mb-1"
+                      className="text-sm font-medium text-[#1F2240] mb-1"
                     >
                       Weekly Task:
                     </p>
@@ -521,7 +521,7 @@ export default function AddDailyPlanDrawer({
                     </p>
                     <div
                       data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-432"
-                      className="flex items-center gap-4 mt-2 text-xs text-[#8F94A3]"
+                      className="flex items-center gap-4 mt-2 text-xs text-[#7C82A7]"
                     >
                       <span data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-433">
                         Priority: {weeklyTask.priority}
@@ -614,7 +614,7 @@ export default function AddDailyPlanDrawer({
                                   id={`daily-plan-task-input-${group.id}-${field.name}`}
                                   data-cy={`daily-plan-task-input-${group.id}-${field.name}`}
                                   placeholder="Enter task description"
-                                  className="rounded-lg border-[#E5E7EB] py-2"
+                                  className="rounded-lg border-[#E3E6F5] py-2"
                                 />
                               </Form.Item>
 
@@ -631,7 +631,7 @@ export default function AddDailyPlanDrawer({
                                   id={`daily-plan-priority-select-${group.id}-${field.name}`}
                                   data-cy={`daily-plan-priority-select-${group.id}-${field.name}`}
                                   options={priorityOptions}
-                                  className="w-[100px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!border-[#E5E7EB] [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!items-center"
+                                  className="w-[100px] [&_.ant-select-selector]:!rounded-lg [&_.ant-select-selector]:!border-[#E3E6F5] [&_.ant-select-selector]:!h-[42px] [&_.ant-select-selector]:!items-center"
                                   popupClassName="rounded-lg"
                                 />
                               </Form.Item>
@@ -662,7 +662,7 @@ export default function AddDailyPlanDrawer({
                                   data-cy={`daily-plan-weight-input-${group.id}-${field.name}`}
                                   min={0}
                                   max={100}
-                                  className="w-[80px] rounded-lg border-[#E5E7EB]"
+                                  className="w-[80px] rounded-lg border-[#E3E6F5]"
                                   controls={false}
                                   formatter={(value) => `${value}%`}
                                   parser={(value) =>
@@ -727,7 +727,7 @@ export default function AddDailyPlanDrawer({
                                           group.keyResultInitialValue,
                                         targetValue: group.keyResultTargetValue,
                                       })}
-                                      className="w-[140px] rounded-lg border-[#E5E7EB] text-right"
+                                      className="w-[140px] rounded-lg border-[#E3E6F5] text-right"
                                       controls={false}
                                       formatter={(value) =>
                                         value?.toLocaleString() || '0'
@@ -745,7 +745,7 @@ export default function AddDailyPlanDrawer({
                                 data-cy={`daily-plan-remove-button-${group.id}-${field.name}`}
                                 type="text"
                                 icon={
-                                  <CloseCircleFilled className="text-[#574CFF] text-xl" />
+                                  <CloseCircleFilled className="text-[#3636F0] text-xl" />
                                 }
                                 className="flex items-center justify-center mt-1 hover:bg-transparent"
                                 onClick={() => remove(field.name)}
@@ -820,7 +820,7 @@ export default function AddDailyPlanDrawer({
       {reportingTasks.map((group) => (
         <div
           key={group.id}
-          className="rounded-2xl border border-[#F1F2F6] bg-white p-6"
+          className="rounded-xl border border-[#E3E6F5] bg-white p-6"
           data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-756"
         >
           <div
@@ -832,7 +832,7 @@ export default function AddDailyPlanDrawer({
             <div data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-683">
               <span
                 data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-684"
-                className="font-bold text-[#161A2C]"
+                className="font-bold text-[#1F2240]"
               >
                 Weekly-task :{' '}
               </span>
@@ -881,11 +881,11 @@ export default function AddDailyPlanDrawer({
                             id={`daily-report-value-input-${group.id}-${task.id}`}
                             data-cy={`daily-report-value-input-${group.id}-${task.id}`}
                             defaultValue={task.value?.toLocaleString()}
-                            className="rounded-lg border-[#E5E7EB] py-1.5 pr-8 text-right"
+                            className="rounded-lg border-[#E3E6F5] py-1.5 pr-8 text-right"
                           />
                           <span
                             data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-710"
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8F94A3]"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7C82A7]"
                           >
                             $
                           </span>
@@ -906,7 +906,7 @@ export default function AddDailyPlanDrawer({
                         >
                           <div
                             data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-841"
-                            className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${task.status === 'done' ? 'bg-[#00C48C] border-[#00C48C]' : 'bg-white border-[#E5E7EB]'}`}
+                            className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${task.status === 'done' ? 'bg-[#00C48C] border-[#00C48C]' : 'bg-white border-[#E3E6F5]'}`}
                           >
                             {task.status === 'done' && (
                               <CheckOutlined className="text-white text-[10px]" />
@@ -914,7 +914,7 @@ export default function AddDailyPlanDrawer({
                           </div>
                           <span
                             data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-732"
-                            className="text-sm text-[#161A2C]"
+                            className="text-sm text-[#1F2240]"
                           >
                             Done
                           </span>
@@ -929,7 +929,7 @@ export default function AddDailyPlanDrawer({
                           }
                         >
                           <div
-                            className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${task.status === 'not' ? 'bg-[#FF4D4F] border-[#FF4D4F]' : 'bg-white border-[#E5E7EB]'}`}
+                            className={`w-5 h-5 rounded-[4px] flex items-center justify-center border transition-all ${task.status === 'not' ? 'bg-[#FF4D4F] border-[#FF4D4F]' : 'bg-white border-[#E3E6F5]'}`}
                             data-cy="planningandreporting-planning-and-reporting-components-drawers-adddailyplandrawer-tsx-div-861"
                           >
                             {task.status === 'not' && (
@@ -938,7 +938,7 @@ export default function AddDailyPlanDrawer({
                           </div>
                           <span
                             data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-750"
-                            className="text-sm text-[#161A2C]"
+                            className="text-sm text-[#1F2240]"
                           >
                             Not
                           </span>
@@ -958,7 +958,7 @@ export default function AddDailyPlanDrawer({
                         placeholder="Why was this not completed?"
                         defaultValue={task.comment}
                         rows={3}
-                        className="rounded-lg border-[#574CFF] text-sm text-[#161A2C]"
+                        className="rounded-lg border-[#3636F0] text-sm text-[#1F2240]"
                       />
                     </div>
                   )}
@@ -976,7 +976,7 @@ export default function AddDailyPlanDrawer({
       title={
         <div
           data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-div-780"
-          className="text-center text-xl font-bold text-[#161A2C]"
+          className="text-center text-xl font-bold text-[#1F2240]"
         >
           {viewMode === 'planning' ? 'Daily Plan' : 'Daily Reporting'}
         </div>
@@ -1000,7 +1000,7 @@ export default function AddDailyPlanDrawer({
               id="daily-plan-drawer-cancel-button"
               data-cy="daily-plan-drawer-cancel-button"
               size="large"
-              className="rounded-xl border-[#E5E7EB] font-semibold text-[#161A2C] w-32 !py-2 sm:!py-6"
+              className="rounded-lg border-[#E3E6F5] font-semibold text-[#1F2240] w-32 !py-2 sm:!py-6"
               onClick={onClose}
             >
               Cancel
@@ -1010,7 +1010,7 @@ export default function AddDailyPlanDrawer({
               data-cy={`daily-plan-drawer-${viewMode === 'planning' ? 'plan' : 'report'}-button`}
               type="primary"
               size="large"
-              className="w-32 rounded-xl bg-[#1E40AF] font-semibold text-white hover:bg-[#1E3A8A] !py-2 sm:!py-6"
+              className="w-32 rounded-lg bg-[#1E40AF] font-semibold text-white hover:bg-[#1E3A8A] !py-2 sm:!py-6"
               onClick={viewMode === 'planning' ? handleSubmit : onClose}
               loading={isCreating}
               disabled={
@@ -1037,7 +1037,7 @@ export default function AddDailyPlanDrawer({
               >
                 <span
                   data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-825"
-                  className="text-sm font-medium text-[#8F94A3]"
+                  className="text-sm font-medium text-[#7C82A7]"
                 >
                   <span
                     data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-826"
@@ -1055,7 +1055,7 @@ export default function AddDailyPlanDrawer({
                     className={
                       !isChildDailyPlanning && totalWeight === 100
                         ? 'text-[#52C41A]'
-                        : 'text-[#161A2C]'
+                        : 'text-[#1F2240]'
                     }
                     data-cy="planningandreporting-planning-and-reporting-components-drawers-adddailyplandrawer-tsx-span-979"
                   >
@@ -1066,7 +1066,7 @@ export default function AddDailyPlanDrawer({
             ) : (
               <span
                 data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-838"
-                className="text-sm font-medium text-[#161A2C]"
+                className="text-sm font-medium text-[#1F2240]"
               >
                 <span
                   data-cy="planning-and-reporting-components-drawers-adddailyplandrawer-tsx-adddailyplandrawer-span-839"

@@ -126,8 +126,8 @@ export function PlanCardInlineReportFields({
         className={classNames(
           // Align with planning rows: controls lead, then title (icons-only Done / Not)
           'group/row flex w-full min-w-0 flex-col rounded-lg px-2.5 py-2 transition-[background-color] duration-150',
-          !hasChoice && 'hover:bg-[#FAFBFC]',
-          isDone && 'bg-[#2563EB]/[0.03]',
+          !hasChoice && 'hover:bg-[#F7F8FF]',
+          isDone && 'bg-[#3636F0]/[0.03]',
           isNot && 'bg-[#FEF2F2]/40',
         )}
       >
@@ -161,8 +161,8 @@ export function PlanCardInlineReportFields({
                 className={classNames(
                   'flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200',
                   isDone
-                    ? 'border-[#2563EB] bg-[#2563EB] text-white shadow-[0_0_0_2px_rgba(37,99,235,0.10)]'
-                    : 'border-[#D1D5DB] bg-white text-[#94A3B8] hover:border-[#2563EB]/45 hover:shadow-[0_0_0_2px_rgba(37,99,235,0.07)]',
+                    ? 'border-[#3636F0] bg-[#3636F0] text-white shadow-[0_0_0_2px_rgba(54,54,240,0.10)]'
+                    : 'border-[#D1D5DB] bg-white text-[#94A3B8] hover:border-[#3636F0]/45 hover:shadow-[0_0_0_2px_rgba(54,54,240,0.07)]',
                 )}
                 onClick={() => {
                   setStatus(task.taskId, 'Done');
@@ -210,7 +210,7 @@ export function PlanCardInlineReportFields({
                 ? 'truncate text-[11px] leading-tight text-[#2D2F45]'
                 : classNames(
                     'break-words text-[12.5px] leading-snug line-clamp-2',
-                    hasChoice ? 'text-[#2D2F45]' : 'text-[#64748B]',
+                    hasChoice ? 'text-[#2D2F45]' : 'text-[#5B6078]',
                   ),
             )}
             title={task.taskName}
@@ -246,12 +246,12 @@ export function PlanCardInlineReportFields({
                   addonAfter={
                     <span
                       data-cy="planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-plancardinlinereportfields-span-228"
-                      className="text-[10px] font-semibold tabular-nums leading-none text-[#64748B]"
+                      className="text-[10px] font-semibold tabular-nums leading-none text-[#5B6078]"
                     >
                       {metricAddonSymbol(keyresult)}
                     </span>
                   }
-                  className="w-[5.25rem] min-w-[5.25rem] max-w-[5.25rem] !shadow-sm [&_.ant-input-number-group]:!min-h-7 [&_.ant-input-number-group]:!items-stretch [&_.ant-input-number]:!h-7 [&_.ant-input-number]:!min-h-7 [&_.ant-input-number]:border-[#E5E7EB] [&_.ant-input-number]:bg-white [&_.ant-input-number-input-wrap]:!flex [&_.ant-input-number-input-wrap]:!h-7 [&_.ant-input-number-input-wrap]:!min-h-7 [&_.ant-input-number-input-wrap]:!items-center [&_.ant-input-number-input]:!h-full [&_.ant-input-number-input]:!min-h-0 [&_.ant-input-number-input]:!border-0 [&_.ant-input-number-input]:!px-2 [&_.ant-input-number-input]:!py-0 [&_.ant-input-number-input]:!text-[12px] [&_.ant-input-number-input]:!font-semibold [&_.ant-input-number-input]:tabular-nums [&_.ant-input-number-input]:!text-[#1E293B] [&_.ant-input-number-input]:!shadow-none [&_.ant-input-number-group-addon]:!min-h-7 [&_.ant-input-number-group-addon]:!h-auto [&_.ant-input-number-group-addon]:border-[#F1F2F6] [&_.ant-input-number-group-addon]:bg-[#FAFBFC] [&_.ant-input-number-group-addon]:!px-1.5 [&_.ant-input-number-group-addon]:!flex [&_.ant-input-number-group-addon]:!items-center"
+                  className="w-[5.25rem] min-w-[5.25rem] max-w-[5.25rem] !shadow-sm [&_.ant-input-number-group]:!min-h-7 [&_.ant-input-number-group]:!items-stretch [&_.ant-input-number]:!h-7 [&_.ant-input-number]:!min-h-7 [&_.ant-input-number]:border-[#E3E6F5] [&_.ant-input-number]:bg-white [&_.ant-input-number-input-wrap]:!flex [&_.ant-input-number-input-wrap]:!h-7 [&_.ant-input-number-input-wrap]:!min-h-7 [&_.ant-input-number-input-wrap]:!items-center [&_.ant-input-number-input]:!h-full [&_.ant-input-number-input]:!min-h-0 [&_.ant-input-number-input]:!border-0 [&_.ant-input-number-input]:!px-2 [&_.ant-input-number-input]:!py-0 [&_.ant-input-number-input]:!text-[12px] [&_.ant-input-number-input]:!font-semibold [&_.ant-input-number-input]:tabular-nums [&_.ant-input-number-input]:!text-[#1E293B] [&_.ant-input-number-input]:!shadow-none [&_.ant-input-number-group-addon]:!min-h-7 [&_.ant-input-number-group-addon]:!h-auto [&_.ant-input-number-group-addon]:border-[#E3E6F5] [&_.ant-input-number-group-addon]:bg-[#F7F8FF] [&_.ant-input-number-group-addon]:!px-1.5 [&_.ant-input-number-group-addon]:!flex [&_.ant-input-number-group-addon]:!items-center"
                   formatter={(value) =>
                     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                   }
@@ -260,7 +260,7 @@ export function PlanCardInlineReportFields({
               </Form.Item>
               <div
                 data-cy="planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-plancardinlinereportfields-div-239"
-                className="inline-flex h-7 shrink-0 items-center gap-0.5 rounded-md bg-[#F1F5F9] px-1.5 sm:gap-1 sm:px-2"
+                className="inline-flex h-7 shrink-0 items-center gap-0.5 rounded-md bg-[#F0F2FF] px-1.5 sm:gap-1 sm:px-2"
               >
                 <span
                   data-cy="planning-and-reporting-components-createreport-plancardinlinereportfields-tsx-plancardinlinereportfields-span-246"
@@ -312,7 +312,7 @@ export function PlanCardInlineReportFields({
                     rows={2}
                     placeholder="What blocked completion?"
                     aria-label="Reason task was not completed"
-                    className="!min-h-[3rem] rounded-md !border-[#E5E7EB] bg-white !px-2.5 !py-1.5 !text-[12px] !leading-snug !text-[#2D2F45] placeholder:!text-[#94A3B8] hover:!border-[#FECACA] focus:!border-[#F87171] focus:!shadow-[0_0_0_2px_rgba(248,113,113,0.12)]"
+                    className="!min-h-[3rem] rounded-md !border-[#E3E6F5] bg-white !px-2.5 !py-1.5 !text-[12px] !leading-snug !text-[#2D2F45] placeholder:!text-[#94A3B8] hover:!border-[#FECACA] focus:!border-[#F87171] focus:!shadow-[0_0_0_2px_rgba(248,113,113,0.12)]"
                     style={{ resize: 'none' }}
                   />
                 </Form.Item>

@@ -432,7 +432,7 @@ export default function PlanCard({
     return (
       <article
         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
-        className="group/card min-w-0 max-w-full overflow-hidden rounded-xl border border-[#F1F2F6] bg-white transition-all duration-200 hover:border-[#D6D3FF] hover:shadow-[0_4px_20px_rgba(87,76,255,0.06)]"
+        className="group/card min-w-0 max-w-full overflow-hidden rounded-lg border border-[#E3E6F5] bg-white transition-all duration-200 hover:border-[#CDD2F6]"
         data-active-cadence={activeCadence}
       >
         {/* Header */}
@@ -493,7 +493,7 @@ export default function PlanCard({
                   type="button"
                   id={`plan-card-${plan.id}-cancel-inline-report`}
                   onClick={onCloseInlineReport}
-                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#574CFF]"
+                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[#5B6078] transition-colors hover:bg-[#F0F2FF] hover:text-[#3636F0]"
                   aria-label="Close inline report"
                 >
                   <CloseOutlined className="text-[14px]" />
@@ -522,7 +522,7 @@ export default function PlanCard({
                     data-cy={`plan-card-edit-dropdown-button-${plan.id}`}
                     type="text"
                     icon={<MoreOutlined />}
-                    className="text-[#8F94A3] hover:bg-transparent !p-0 !h-auto !w-auto text-base"
+                    className="text-[#7C82A7] hover:bg-transparent !p-0 !h-auto !w-auto text-base"
                     style={{ minWidth: 'auto' }}
                   />
                 </Dropdown>
@@ -550,19 +550,19 @@ export default function PlanCard({
                 >
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-453"
-                    className="text-[13px] font-medium text-[#8F94A3]"
+                    className="text-[13px] font-medium text-[#7C82A7]"
                   >
                     {getDateLabel()}
                   </span>
                   <span
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-456"
-                    className="text-[13px] font-medium text-[#8F94A3]"
+                    className="text-[13px] font-medium text-[#7C82A7]"
                   >
                     {completedCount}/{reportTotal}
                   </span>
                   <div
                     data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-459"
-                    className="h-[4px] w-[52px] overflow-hidden rounded-full bg-[#F1F2F6]"
+                    className="h-[4px] w-[52px] overflow-hidden rounded-full bg-[#E3E6F5]"
                   >
                     <div
                       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-512"
@@ -573,7 +573,7 @@ export default function PlanCard({
                           reportPct === 100
                             ? '#10B981'
                             : reportPct >= 50
-                              ? '#574CFF'
+                              ? '#3636F0'
                               : '#F59E0B',
                       }}
                     />
@@ -670,7 +670,7 @@ export default function PlanCard({
                     ? 'bg-[#F0FDF4]/50'
                     : isFailed
                       ? 'bg-[#FEF2F2]/40'
-                      : 'hover:bg-[#FAFBFC]'
+                      : 'hover:bg-[#F7F8FF]'
                 } ${isFailed && failReason ? 'cursor-help' : ''}`;
 
                 const row = (
@@ -769,7 +769,7 @@ export default function PlanCard({
                       >
                         <span
                           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-605"
-                          className="text-[12px] font-semibold text-[#8F94A3] tabular-nums sm:text-[13px]"
+                          className="text-[12px] font-semibold text-[#7C82A7] tabular-nums sm:text-[13px]"
                         >
                           {formatNum(task.weight)}
                         </span>
@@ -838,7 +838,7 @@ export default function PlanCard({
         {/* Footer: comments + points */}
         <div
           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-662"
-          className="border-t border-[#F1F2F6] px-4 py-2 md:px-5"
+          className="border-t border-[#E3E6F5] px-4 py-2 md:px-5"
         >
           <CommentsSection
             commentCount={plan.commentCount}
@@ -902,7 +902,7 @@ export default function PlanCard({
   return (
     <article
       data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-article-160"
-      className="group/card min-w-0 max-w-full overflow-hidden rounded-xl border border-[#F1F2F6] bg-white transition-all duration-200 hover:border-[#D6D3FF] hover:shadow-[0_4px_20px_rgba(87,76,255,0.06)]"
+      className="group/card min-w-0 max-w-full overflow-hidden rounded-lg border border-[#E3E6F5] bg-white transition-all duration-200 hover:border-[#CDD2F6]"
       data-active-cadence={activeCadence}
     >
       {/* ── Header ────────────────────────────────────────────── */}
@@ -974,7 +974,7 @@ export default function PlanCard({
                 type="button"
                 id={`plan-card-${plan.id}-cancel-inline-report`}
                 onClick={onCloseInlineReport}
-                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#574CFF]"
+                className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[#5B6078] transition-colors hover:bg-[#F0F2FF] hover:text-[#3636F0]"
                 aria-label="Close inline report"
               >
                 <CloseOutlined className="text-[14px]" />
@@ -1000,7 +1000,7 @@ export default function PlanCard({
                   data-cy={`plan-card-edit-dropdown-button-${plan.id}`}
                   type="text"
                   icon={<MoreOutlined />}
-                  className="text-[#8F94A3] hover:bg-transparent !p-0 !h-auto !w-auto text-base"
+                  className="text-[#7C82A7] hover:bg-transparent !p-0 !h-auto !w-auto text-base"
                   style={{ minWidth: 'auto' }}
                 />
               </Dropdown>
@@ -1038,19 +1038,19 @@ export default function PlanCard({
             >
               <span
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-824"
-                className="text-[13px] font-medium text-[#8F94A3]"
+                className="text-[13px] font-medium text-[#7C82A7]"
               >
                 {getDateLabel()}
               </span>
               <span
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-827"
-                className="text-[13px] font-medium text-[#8F94A3]"
+                className="text-[13px] font-medium text-[#7C82A7]"
               >
                 {checkedCount}/{totalTasks}
               </span>
               <div
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-830"
-                className="h-[4px] w-[52px] overflow-hidden rounded-full bg-[#F1F2F6]"
+                className="h-[4px] w-[52px] overflow-hidden rounded-full bg-[#E3E6F5]"
               >
                 <div
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-990"
@@ -1162,7 +1162,7 @@ export default function PlanCard({
                   data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1094"
                   key={task.id}
                   className={`group/row flex items-start gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150 ${
-                    isChecked ? 'bg-[#2563EB]/[0.03]' : 'hover:bg-[#FAFBFC]'
+                    isChecked ? 'bg-[#3636F0]/[0.03]' : 'hover:bg-[#F7F8FF]'
                   }`}
                   onMouseEnter={() => task._krId && onHoverKR?.(task._krId)}
                   onMouseLeave={() => onHoverKR?.(null)}
@@ -1175,7 +1175,7 @@ export default function PlanCard({
                         isCompleted
                           ? 'border-[#D1D5DB] bg-[#F3F4F6]'
                           : isChecked
-                            ? 'border-[#2563EB] bg-[#2563EB] shadow-[0_0_0_2px_rgba(37,99,235,0.10)]'
+                            ? 'border-[#3636F0] bg-[#3636F0] shadow-[0_0_0_2px_rgba(54,54,240,0.10)]'
                             : 'border-current bg-white text-[#D1D5DB]'
                       }`}
                       aria-hidden
@@ -1207,12 +1207,12 @@ export default function PlanCard({
                         isPlanReadOnly || isCompleted
                           ? 'border-[#D1D5DB] bg-[#F3F4F6] cursor-not-allowed'
                           : isChecked
-                            ? 'border-[#2563EB] bg-[#2563EB] shadow-[0_0_0_2px_rgba(37,99,235,0.10)]'
-                            : 'border-[#D1D5DB] bg-white hover:border-[#2563EB]/45 hover:shadow-[0_0_0_2px_rgba(37,99,235,0.07)] cursor-pointer'
+                            ? 'border-[#3636F0] bg-[#3636F0] shadow-[0_0_0_2px_rgba(54,54,240,0.10)]'
+                            : 'border-[#D1D5DB] bg-white hover:border-[#3636F0]/45 hover:shadow-[0_0_0_2px_rgba(54,54,240,0.07)] cursor-pointer'
                       }`}
                     >
                       {isLoading ? (
-                        <LuLoader className="h-3 w-3 animate-spin text-[#2563EB]" />
+                        <LuLoader className="h-3 w-3 animate-spin text-[#3636F0]" />
                       ) : isChecked || isCompleted ? (
                         <CheckOutlined
                           className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
@@ -1264,7 +1264,7 @@ export default function PlanCard({
                     >
                       <span
                         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-986"
-                        className="text-[12px] font-semibold text-[#8F94A3] tabular-nums sm:text-[13px]"
+                        className="text-[12px] font-semibold text-[#7C82A7] tabular-nums sm:text-[13px]"
                       >
                         {formatNum(task.weight)}
                       </span>
@@ -1317,7 +1317,7 @@ export default function PlanCard({
       {!inlineReportActive ? (
         <div
           data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1029"
-          className="border-t border-[#F1F2F6] px-4 py-2 md:px-5"
+          className="border-t border-[#E3E6F5] px-4 py-2 md:px-5"
         >
           <CommentsSection
             commentCount={plan.commentCount}

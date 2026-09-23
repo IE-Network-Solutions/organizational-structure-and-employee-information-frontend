@@ -85,7 +85,7 @@ function EditReport() {
   const modalHeader = (
     <div
       data-cy="planning-and-reporting-components-editreport-index-tsx-index-div-68"
-      className="text-center text-xl font-bold text-[#161A2C]"
+      className="text-center text-xl font-bold text-[#1F2240]"
     >
       Update {planningPeriodName} Report
     </div>
@@ -258,14 +258,14 @@ function EditReport() {
         <Button
           id="update-report-button-for-planning-and-reporting"
           type="primary"
-          className="rounded-xl bg-[#1E40AF] px-10 py-6 text-white hover:bg-[#1E3A8A]"
+          className="rounded-lg bg-[#1E40AF] px-10 py-6 text-white hover:bg-[#1E3A8A]"
           loading={editReportLoading}
           onClick={() => form.submit()}
         >
           Update Report
         </Button>
         <Button
-          className="py-6 px-10 rounded-xl"
+          className="py-6 px-10 rounded-lg"
           onClick={onClose}
           disabled={editReportLoading}
         >
@@ -283,7 +283,7 @@ function EditReport() {
         >
           <span
             data-cy="planning-and-reporting-components-editreport-index-tsx-index-span-181"
-            className="text-sm font-medium text-[#161A2C]"
+            className="text-sm font-medium text-[#1F2240]"
           >
             Total Point:{' '}
             <span

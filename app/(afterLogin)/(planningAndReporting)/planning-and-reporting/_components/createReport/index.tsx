@@ -133,7 +133,7 @@ function CreateReport() {
   const modalHeader = (
     <div
       data-cy="planning-and-reporting-components-createreport-index-tsx-index-div-78"
-      className="text-center text-xl font-bold text-[#161A2C]"
+      className="text-center text-xl font-bold text-[#1F2240]"
     >
       {planningPeriodName ? `Submit ${planningPeriodName}` : 'Submit'}
     </div>
@@ -156,7 +156,7 @@ function CreateReport() {
           id="submit-report-button-for-planning-and-reporting"
           data-cy="submit-report-button-for-planning-and-reporting"
           type="primary"
-          className="rounded-xl bg-[#1E40AF] px-6 py-3 text-white hover:bg-[#1E3A8A] sm:px-10 sm:py-6"
+          className="rounded-lg bg-[#1E40AF] px-6 py-3 text-white hover:bg-[#1E3A8A] sm:px-10 sm:py-6"
           loading={createReportLoading}
           onClick={() => form.submit()}
         >
@@ -165,7 +165,7 @@ function CreateReport() {
         <Button
           id="cancel-report-button-for-planning-and-reporting"
           data-cy="cancel-report-button-for-planning-and-reporting"
-          className="rounded-xl px-6 py-3 sm:px-10 sm:py-6"
+          className="rounded-lg px-6 py-3 sm:px-10 sm:py-6"
           onClick={onClose}
           disabled={createReportLoading}
         >
@@ -183,7 +183,7 @@ function CreateReport() {
         >
           <span
             data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-281"
-            className="whitespace-nowrap text-sm font-medium text-[#161A2C]"
+            className="whitespace-nowrap text-sm font-medium text-[#1F2240]"
           >
             <span
               data-cy="planning-and-reporting-components-createreport-index-tsx-index-span-282"

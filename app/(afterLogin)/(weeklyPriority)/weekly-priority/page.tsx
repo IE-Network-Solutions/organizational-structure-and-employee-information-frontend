@@ -95,13 +95,13 @@ function Page(): JSX.Element {
 
         <div
           data-cy="weekly-priority-main-card"
-          className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
+          className="home-embed-main flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
         >
           <div
             data-cy="weekly-priority-toolbar-row"
             className={classNames(
-              'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 bg-white py-2',
-              'sm:flex-row sm:items-center sm:gap-3 lg:gap-x-8',
+              'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 border-b border-shell-line bg-white pb-2 pt-1',
+              'sm:flex-row sm:items-end sm:gap-3 sm:pb-0 lg:gap-x-8 sm:[&>*:not(:first-child)]:pb-2',
             )}
           >
             <div
