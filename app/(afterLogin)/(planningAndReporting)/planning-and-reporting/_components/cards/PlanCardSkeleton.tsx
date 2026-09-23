@@ -17,11 +17,11 @@ function TaskRowSkeleton({
       data-cy="plan-card-skeleton-task-row-root"
     >
       <div
-        className="h-[18px] w-[18px] rounded-[5px] bg-[#F1F2F6] flex-shrink-0"
+        className="h-[18px] w-[18px] rounded-[5px] bg-[#E3E6F5] flex-shrink-0"
         data-cy="plan-card-skeleton-task-row-icon"
       />
       <div
-        className={`h-3 ${width} bg-[#F1F2F6] rounded`}
+        className={`h-3 ${width} bg-[#E3E6F5] rounded`}
         data-cy="plan-card-skeleton-task-row-line"
       />
       <div
@@ -29,15 +29,15 @@ function TaskRowSkeleton({
         data-cy="plan-card-skeleton-task-row-tags"
       >
         <div
-          className="h-3 w-10 bg-[#F1F2F6] rounded-full"
+          className="h-3 w-10 bg-[#E3E6F5] rounded-full"
           data-cy="plan-card-skeleton-task-row-tag-a"
         />
         <div
-          className="h-3 w-5 bg-[#F1F2F6] rounded"
+          className="h-3 w-5 bg-[#E3E6F5] rounded"
           data-cy="plan-card-skeleton-task-row-tag-b"
         />
         <div
-          className="h-3 w-5 bg-[#F1F2F6] rounded"
+          className="h-3 w-5 bg-[#E3E6F5] rounded"
           data-cy="plan-card-skeleton-task-row-tag-c"
         />
       </div>
@@ -59,7 +59,7 @@ export default function PlanCardSkeleton({
 
   return (
     <div
-      className="rounded-xl border border-[#F1F2F6] bg-white animate-pulse overflow-hidden"
+      className="rounded-lg border border-[#E3E6F5] bg-white animate-pulse overflow-hidden"
       data-cy="plan-card-skeleton-root"
     >
       {/* Header */}
@@ -78,7 +78,7 @@ export default function PlanCardSkeleton({
             data-cy="plan-card-skeleton-header-user"
           >
             <div
-              className="h-9 w-9 rounded-full bg-[#F1F2F6] flex-shrink-0"
+              className="h-9 w-9 rounded-full bg-[#E3E6F5] flex-shrink-0"
               data-cy="plan-card-skeleton-header-avatar"
             />
             <div
@@ -86,17 +86,17 @@ export default function PlanCardSkeleton({
               data-cy="plan-card-skeleton-header-text"
             >
               <div
-                className="h-3.5 w-28 bg-[#F1F2F6] rounded"
+                className="h-3.5 w-28 bg-[#E3E6F5] rounded"
                 data-cy="plan-card-skeleton-header-title-bar"
               />
               <div
-                className="h-2.5 w-20 bg-[#F1F2F6] rounded"
+                className="h-2.5 w-20 bg-[#E3E6F5] rounded"
                 data-cy="plan-card-skeleton-header-subtitle-bar"
               />
             </div>
           </div>
           <div
-            className="h-5 w-16 bg-[#F1F2F6] rounded-full"
+            className="h-5 w-16 bg-[#E3E6F5] rounded-full"
             data-cy="plan-card-skeleton-header-pill"
           />
         </div>
@@ -112,7 +112,7 @@ export default function PlanCardSkeleton({
           data-cy="plan-card-skeleton-column-titles-inner"
         >
           <div
-            className="h-2.5 w-32 bg-[#F1F2F6] rounded"
+            className="h-2.5 w-32 bg-[#E3E6F5] rounded"
             data-cy="plan-card-skeleton-column-title-bar"
           />
         </div>
@@ -133,7 +133,7 @@ export default function PlanCardSkeleton({
 
       {/* Footer */}
       <div
-        className={['border-t border-[#F1F2F6] px-4 md:px-5', footerPy].join(
+        className={['border-t border-[#E3E6F5] px-4 md:px-5', footerPy].join(
           ' ',
         )}
         data-cy="plan-card-skeleton-footer"
@@ -143,7 +143,7 @@ export default function PlanCardSkeleton({
           data-cy="plan-card-skeleton-footer-row"
         >
           <div
-            className="h-3 w-20 bg-[#F1F2F6] rounded"
+            className="h-3 w-20 bg-[#E3E6F5] rounded"
             data-cy="plan-card-skeleton-footer-bar"
           />
         </div>
@@ -162,7 +162,7 @@ export function InlinePlanningEditSkeleton() {
       {[1, 2, 3].map((i) => (
         <li
           key={i}
-          className="rounded-xl border border-[#F1F2F6] bg-white px-3.5 py-3 md:px-4 md:py-3.5"
+          className="rounded-lg border border-[#E3E6F5] bg-white px-3.5 py-3 md:px-4 md:py-3.5"
           data-cy={`inline-plan-edit-skeleton-item-${i}`}
         >
           <div
@@ -170,7 +170,7 @@ export function InlinePlanningEditSkeleton() {
             data-cy={`inline-plan-edit-skeleton-item-row-${i}`}
           >
             <div
-              className="h-[18px] w-[18px] flex-shrink-0 rounded-[5px] bg-[#F1F2F6]"
+              className="h-[18px] w-[18px] flex-shrink-0 rounded-[5px] bg-[#E3E6F5]"
               data-cy={`inline-plan-edit-skeleton-item-icon-${i}`}
             />
             <div
@@ -178,13 +178,13 @@ export function InlinePlanningEditSkeleton() {
               data-cy={`inline-plan-edit-skeleton-item-body-${i}`}
             >
               <div
-                className={`h-3.5 rounded bg-[#F1F2F6] ${
+                className={`h-3.5 rounded bg-[#E3E6F5] ${
                   i === 1 ? 'w-4/5' : i === 2 ? 'w-3/5' : 'w-2/3'
                 }`}
                 data-cy={`inline-plan-edit-skeleton-item-line-1-${i}`}
               />
               <div
-                className="h-4 max-w-sm w-3/5 rounded bg-[#F1F2F6]"
+                className="h-4 max-w-sm w-3/5 rounded bg-[#E3E6F5]"
                 data-cy={`inline-plan-edit-skeleton-item-line-2-${i}`}
               />
               <div
@@ -192,15 +192,15 @@ export function InlinePlanningEditSkeleton() {
                 data-cy={`inline-plan-edit-skeleton-item-tags-${i}`}
               >
                 <div
-                  className="h-5 w-16 rounded-full bg-[#F1F2F6]"
+                  className="h-5 w-16 rounded-full bg-[#E3E6F5]"
                   data-cy={`inline-plan-edit-skeleton-item-pill-1-${i}`}
                 />
                 <div
-                  className="h-5 w-12 rounded-full bg-[#F1F2F6]"
+                  className="h-5 w-12 rounded-full bg-[#E3E6F5]"
                   data-cy={`inline-plan-edit-skeleton-item-pill-2-${i}`}
                 />
                 <div
-                  className="h-5 w-20 rounded-full bg-[#F1F2F6]"
+                  className="h-5 w-20 rounded-full bg-[#E3E6F5]"
                   data-cy={`inline-plan-edit-skeleton-item-pill-3-${i}`}
                 />
               </div>
@@ -220,7 +220,7 @@ export function KRPanelSkeleton() {
     >
       {/* KR header */}
       <div
-        className="bg-white border-b border-[#F1F2F6] px-4 py-3.5 flex-shrink-0"
+        className="bg-white border-b border-[#E3E6F5] px-4 py-3.5 flex-shrink-0"
         data-cy="kr-panel-skeleton-header"
       >
         <div
@@ -232,7 +232,7 @@ export function KRPanelSkeleton() {
             data-cy="kr-panel-skeleton-header-left"
           >
             <div
-              className="h-7 w-7 rounded-lg bg-[#F1F2F6]"
+              className="h-7 w-7 rounded-lg bg-[#E3E6F5]"
               data-cy="kr-panel-skeleton-header-icon"
             />
             <div
@@ -240,17 +240,17 @@ export function KRPanelSkeleton() {
               data-cy="kr-panel-skeleton-header-text"
             >
               <div
-                className="h-3 w-20 bg-[#F1F2F6] rounded"
+                className="h-3 w-20 bg-[#E3E6F5] rounded"
                 data-cy="kr-panel-skeleton-header-bar-1"
               />
               <div
-                className="h-2 w-28 bg-[#F1F2F6] rounded"
+                className="h-2 w-28 bg-[#E3E6F5] rounded"
                 data-cy="kr-panel-skeleton-header-bar-2"
               />
             </div>
           </div>
           <div
-            className="h-5 w-8 bg-[#F1F2F6] rounded-lg"
+            className="h-5 w-8 bg-[#E3E6F5] rounded-lg"
             data-cy="kr-panel-skeleton-header-action"
           />
         </div>
@@ -264,7 +264,7 @@ export function KRPanelSkeleton() {
         {[1, 2, 3, 4].map((i) => (
           <div
             key={i}
-            className="rounded-xl border border-[#F1F2F6] bg-white p-3"
+            className="rounded-lg border border-[#E3E6F5] bg-white p-3"
             data-cy={`kr-panel-skeleton-card-${i}`}
           >
             <div
@@ -272,20 +272,20 @@ export function KRPanelSkeleton() {
               data-cy={`kr-panel-skeleton-card-row-${i}`}
             >
               <div
-                className={`h-3 ${i % 2 === 0 ? 'w-4/5' : 'w-3/5'} bg-[#F1F2F6] rounded`}
+                className={`h-3 ${i % 2 === 0 ? 'w-4/5' : 'w-3/5'} bg-[#E3E6F5] rounded`}
                 data-cy={`kr-panel-skeleton-card-line-${i}`}
               />
               <div
-                className="h-4 w-10 bg-[#F1F2F6] rounded-md flex-shrink-0"
+                className="h-4 w-10 bg-[#E3E6F5] rounded-md flex-shrink-0"
                 data-cy={`kr-panel-skeleton-card-badge-${i}`}
               />
             </div>
             <div
-              className="h-[5px] w-full rounded-full bg-[#F1F2F6] mb-2"
+              className="h-[5px] w-full rounded-full bg-[#E3E6F5] mb-2"
               data-cy={`kr-panel-skeleton-card-progress-${i}`}
             />
             <div
-              className="h-2 w-16 bg-[#F1F2F6] rounded"
+              className="h-2 w-16 bg-[#E3E6F5] rounded"
               data-cy={`kr-panel-skeleton-card-foot-${i}`}
             />
           </div>

@@ -252,7 +252,7 @@ const CommentList = ({
                 >
                   <span
                     data-cy="-components-comments-commentlist-index-tsx-index-span-244"
-                    className="text-[12px] font-semibold text-[#161A2C]"
+                    className="text-[12px] font-semibold text-[#1F2240]"
                   >
                     {fullName}
                   </span>
@@ -324,9 +324,9 @@ const CommentList = ({
                 }
                 className={`flex-1 rounded-lg text-[12px] !py-1.5 !px-3 ${
                   editingCommentId
-                    ? '!border-[#574CFF]/30 !bg-[#574CFF]/[0.03]'
-                    : '!border-[#E5E7EB] !bg-[#FAFBFC]'
-                } focus:!border-[#574CFF] focus:!shadow-[0_0_0_2px_rgba(87,76,255,0.08)]`}
+                    ? '!border-[#3636F0]/30 !bg-[#3636F0]/[0.03]'
+                    : '!border-[#E3E6F5] !bg-[#F7F8FF]'
+                } focus:!border-[#3636F0] focus:!shadow-[0_0_0_2px_rgba(54,54,240,0.08)]`}
                 value={commentValue}
                 onChange={(e) => {
                   const newValue = e.target.value;
@@ -360,7 +360,7 @@ const CommentList = ({
                     setCommentValue('');
                     form.resetFields();
                   }}
-                  className="!text-[11px] !text-[#8F94A3] hover:!text-[#EF4444] !px-2 !h-[30px]"
+                  className="!text-[11px] !text-[#7C82A7] hover:!text-[#EF4444] !px-2 !h-[30px]"
                 >
                   Cancel
                 </Button>

@@ -111,7 +111,7 @@ export const CreateEmployeeJobInformation: React.FC<Ids> = ({
             >
               <Button
                 type="default"
-                className="border border-[#D9D9D9] font-normal text-[#4d4d4d]"
+                className="border border-[#D9D9D9] font-normal text-[#42465F]"
                 htmlType="button"
                 value={'cancel'}
                 name="cancel"

@@ -262,10 +262,10 @@ const ThreadConversation = ({
 
   return (
     <article
-      className={`w-full max-w-[85%] rounded-2xl border px-4 py-3 sm:max-w-[75%] ${
+      className={`w-full max-w-[85%] rounded-xl border px-4 py-3 sm:max-w-[75%] ${
         isOwnMessage
           ? 'ml-auto rounded-br-md border-[#BFDBFE] bg-[#E7F1FF]'
-          : 'mr-auto rounded-bl-md border-[#E5E7EB] bg-white'
+          : 'mr-auto rounded-bl-md border-[#E3E6F5] bg-white'
       }`}
       data-cy={`announcement-thread-conversation-${message.id}`}
       data-message-owner={isOwnMessage ? 'current-user' : 'other-user'}
@@ -294,7 +294,7 @@ const ThreadConversation = ({
 
       {replies.length > 0 ? (
         <div
-          className="ml-4 border-l-2 border-[#E8EDF2] pl-4"
+          className="ml-4 border-l-2 border-[#E3E6F5] pl-4"
           data-cy={`announcement-thread-replies-${message.id}`}
         >
           {replies.map((reply) => (
@@ -481,7 +481,7 @@ const ChannelThreadsView = ({
       data-cy="announcement-thread-channel"
     >
       <header
-        className="flex shrink-0 items-center justify-between border-b border-[#E5E7EB] px-4 py-2.5"
+        className="flex shrink-0 items-center justify-between border-b border-[#E3E6F5] px-4 py-2.5"
         data-cy="announcement-thread-header"
       >
         <div
@@ -547,7 +547,7 @@ const ChannelThreadsView = ({
             </div>
           ) : conversations.length === 0 ? (
             <div
-              className="flex min-h-[240px] items-center justify-center rounded-xl border border-dashed border-gray-300 bg-white"
+              className="flex min-h-[240px] items-center justify-center rounded-lg border border-dashed border-gray-300 bg-white"
               data-cy="announcement-thread-empty"
             >
               <p
@@ -574,7 +574,7 @@ const ChannelThreadsView = ({
       </div>
 
       <div
-        className="shrink-0 border-t border-[#E5E7EB] bg-white px-4 py-3"
+        className="shrink-0 border-t border-[#E3E6F5] bg-white px-4 py-3"
         data-cy="announcement-thread-composer-section"
       >
         <div
@@ -614,7 +614,7 @@ const ChannelThreadsView = ({
             </div>
           ) : null}
           <div
-            className="flex items-end gap-2 rounded-xl border border-[#DDE2E8] bg-white p-2"
+            className="flex items-end gap-2 rounded-lg border border-[#DDE2E8] bg-white p-2"
             data-cy="announcement-thread-composer-row"
           >
             <input

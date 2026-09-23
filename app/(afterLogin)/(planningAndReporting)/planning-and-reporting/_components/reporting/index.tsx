@@ -301,7 +301,7 @@ function Reporting({
             >
               <div
                 data-cy="planning-and-reporting-components-reporting-index-tsx-index-div-271"
-                className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
+                className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-[#E3E6F5]"
               >
                 <BsFileEarmarkText
                   size={26}
@@ -311,13 +311,13 @@ function Reporting({
               </div>
               <p
                 data-cy="planning-and-reporting-components-reporting-index-tsx-index-p-536"
-                className="text-sm font-medium text-[#161A2C]"
+                className="text-sm font-medium text-[#1F2240]"
               >
                 No reports yet
               </p>
               <p
                 data-cy="planning-and-reporting-components-reporting-index-tsx-index-p-284"
-                className="mt-2 text-xs leading-relaxed text-[#8F94A3]"
+                className="mt-2 text-xs leading-relaxed text-[#7C82A7]"
               >
                 {activeTabName
                   ? `There are no submitted reports for ${activeTabName} with the current filters and session.`

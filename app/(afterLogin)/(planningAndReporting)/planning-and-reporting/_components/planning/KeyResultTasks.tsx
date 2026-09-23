@@ -72,7 +72,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
             </div>
             <Tag
               className="font-bold border-none min-w-8 text-center text-blue text-[10px]"
-              color="#B2B2FF"
+              color="#B8BEF3"
             >
               {metricName === 'Milestone'
                 ? msTotal
@@ -105,7 +105,7 @@ const KeyResultTasks: FC<KeyResultTasksProps> = ({
             </div>
             <Tag
               className="font-bold border-none min-w-8  text-center text-blue text-[10px]"
-              color="#B2B2FF"
+              color="#B8BEF3"
             >
               {krProgressRatioText}
             </Tag>

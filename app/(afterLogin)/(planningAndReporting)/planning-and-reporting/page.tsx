@@ -558,13 +558,13 @@ function Page() {
         )}
         <div
           data-cy="planning-reporting-main-card"
-          className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
+          className="home-embed-main flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-lg sm:p-4"
         >
           <div
             data-cy="planning-reporting-toolbar-row"
             className={classNames(
-              'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 bg-white py-2',
-              'sm:flex-row sm:items-center sm:gap-3 lg:gap-x-8',
+              'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 border-b border-shell-line bg-white pb-2 pt-1',
+              'sm:flex-row sm:items-end sm:gap-3 sm:pb-0 lg:gap-x-8 sm:[&>*:not(:first-child)]:pb-2',
             )}
           >
             <div
@@ -575,7 +575,7 @@ function Page() {
                 theme={{
                   components: {
                     Segmented: {
-                      trackBg: '#f1f5f9',
+                      trackBg: '#F0F2FF',
                       itemSelectedBg: '#ffffff',
                       itemSelectedColor: '#0f172a',
                     },
@@ -591,7 +591,7 @@ function Page() {
                     { label: 'Reports', value: 2 },
                   ]}
                   className={classNames(
-                    'planning-reporting-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 !rounded-xl !border !border-slate-100 !bg-slate-50/70 !p-1.5',
+                    'planning-reporting-toolbar-segmented !inline-flex !w-max max-w-full !shrink-0 !rounded-lg !border !border-slate-100 !bg-slate-50/70 !p-1.5',
                     '!h-[50px] sm:!h-[50px] sm:!self-center',
                     '[&_.ant-segmented-group]:!w-max [&_.ant-segmented-group]:!min-h-0 [&_.ant-segmented-group]:!items-stretch [&_.ant-segmented-group]:!justify-start',
                     '[&_.ant-segmented-thumb]:!h-full [&_.ant-segmented-thumb]:!bg-white [&_.ant-segmented-thumb]:!py-0 [&_.ant-segmented-thumb]:!shadow-sm',
@@ -612,7 +612,7 @@ function Page() {
                   data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-406"
                   role="tablist"
                   aria-label="Planning period"
-                  className="flex min-w-0 flex-wrap items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/70 p-1.5 sm:shrink-0 sm:flex-nowrap"
+                  className="flex min-w-0 flex-wrap items-center gap-1 sm:shrink-0 sm:flex-nowrap"
                 >
                   {processedPlanningPeriods.map(
                     (item: PlanningPeriod, index: number) => {
@@ -627,12 +627,12 @@ function Page() {
                           data-cy={`planning-period-pill-${n}`}
                           onClick={() => setActivePlanPeriod(n)}
                           className={classNames(
-                            'inline-flex h-9 shrink-0 items-center rounded-md border font-medium transition-colors',
+                            'inline-flex h-8 shrink-0 items-center rounded-md px-3 transition-colors',
                             'text-xs sm:text-sm',
-                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400/45 focus-visible:ring-offset-2',
+                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1',
                             isActive
-                              ? 'border-slate-200 bg-white px-2.5 text-slate-800 shadow-sm hover:bg-slate-100 sm:px-3'
-                              : 'border-transparent bg-transparent px-2 text-slate-500 hover:border-slate-200 hover:bg-white hover:text-slate-800 sm:px-2.5',
+                              ? 'bg-shell-tint font-semibold text-primary'
+                              : 'font-medium text-shell-muted hover:bg-shell-wash hover:text-shell-ink',
                           )}
                         >
                           {item.planningPeriod.name || 'No name available'}
@@ -668,7 +668,7 @@ function Page() {
             style={{ height: isDesktop ? panelHeight : undefined }}
           >
             <div
-              className="hidden min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden rounded-xl border border-[#F1F2F6] bg-[#FAFBFC] lg:flex lg:h-full"
+              className="hidden min-h-0 min-w-0 w-full max-w-full flex-col overflow-hidden rounded-lg border border-shell-line bg-shell-wash lg:flex lg:h-full"
               data-cy="planning-kr-panel"
             >
               {krPanelBlockingLoading ? (
@@ -719,7 +719,7 @@ function Page() {
                 {inlinePlanningMode && isDesktop ? (
                   <section
                     data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-section-504"
-                    className="mb-8 shrink-0 border-b border-[#F1F2F6] pb-8 sm:mb-10 sm:pb-10"
+                    className="mb-8 shrink-0 border-b border-[#E3E6F5] pb-8 sm:mb-10 sm:pb-10"
                     aria-label="New plan draft"
                   >
                     <InlinePlanningWorkspace
@@ -773,7 +773,7 @@ function Page() {
         title={
           <span
             data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-span-545"
-            className="truncate text-sm font-semibold leading-tight text-[#161A2C] sm:text-base"
+            className="truncate text-sm font-semibold leading-tight text-[#1F2240] sm:text-base"
           >
             New {inlinePlanningPeriodLabel}
           </span>
@@ -782,7 +782,7 @@ function Page() {
           <button
             type="button"
             onClick={() => mobileComposerWorkspaceRef.current?.requestExit()}
-            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-white hover:text-[#574CFF] hover:shadow-sm sm:h-10 sm:w-10"
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#5B6078] transition-colors hover:bg-white hover:text-[#3636F0] hover:shadow-sm sm:h-10 sm:w-10"
             aria-label="Exit plan creation"
             data-cy="planning-mobile-composer-close"
           >
@@ -820,11 +820,11 @@ function Page() {
       >
         <div
           data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-589"
-          className="flex h-full min-h-0 flex-col bg-[#FAFBFC]"
+          className="flex h-full min-h-0 flex-col bg-[#F7F8FF]"
         >
           <div
             data-cy="-afterlogin-planningandreporting-planning-and-reporting-page-tsx-page-div-590"
-            className="min-h-0 max-h-[42vh] shrink-0 overflow-hidden border-b border-[#F1F2F6]"
+            className="min-h-0 max-h-[42vh] shrink-0 overflow-hidden border-b border-[#E3E6F5]"
           >
             {krPanelBlockingLoading ? (
               <KRPanelSkeleton />

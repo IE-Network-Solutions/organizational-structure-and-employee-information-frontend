@@ -112,7 +112,7 @@ const NewPostCard = ({
 
   return (
     <div
-      className="mx-auto w-full max-w-2xl rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm"
+      className="mx-auto w-full max-w-2xl rounded-lg border border-[#E3E6F5] bg-white p-4 shadow-sm"
       data-cy="announcement-new-post-card"
     >
       <div
@@ -168,7 +168,7 @@ const NewPostCard = ({
       />
 
       <div
-        className="rounded-xl border border-[#E8EDF2] bg-white px-3 py-2.5"
+        className="rounded-lg border border-[#E3E6F5] bg-white px-3 py-2.5"
         data-cy="announcement-new-post-body-wrap"
       >
         <ChannelMentionTextArea
@@ -191,7 +191,7 @@ const NewPostCard = ({
             {files.map((file, index) => (
               <span
                 key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
-                className="inline-flex items-center gap-1 rounded-md border border-[#E8EDF2] bg-[#F8FAFB] px-2 py-0.5 text-xs text-gray-600"
+                className="inline-flex items-center gap-1 rounded-md border border-[#E3E6F5] bg-[#F7F8FF] px-2 py-0.5 text-xs text-gray-600"
                 data-cy={`announcement-new-post-attachment-${index}`}
               >
                 {file.name}
@@ -397,7 +397,7 @@ const PostCard = ({
 
   return (
     <article
-      className="rounded-xl border border-[#E8EDF2] bg-white p-4 shadow-none"
+      className="rounded-lg border border-[#E3E6F5] bg-white p-4 shadow-none"
       data-cy={`announcement-post-${post.id}`}
     >
       <div
@@ -553,7 +553,7 @@ const PostCard = ({
               placeholder="Write a reply... use @ to mention"
               disabled={replyMutation.isLoading}
               onPressEnter={() => void handleSubmitReply()}
-              className="!rounded-full !border-[#E8EDF2] !bg-white !px-4 !py-1.5 !text-sm placeholder:!text-gray-400"
+              className="!rounded-full !border-[#E3E6F5] !bg-white !px-4 !py-1.5 !text-sm placeholder:!text-gray-400"
               dataCy={`announcement-post-reply-input-${post.id}`}
             />
             <EmojiPickerButton
@@ -760,7 +760,7 @@ const ChannelPostsView = ({
       data-cy="announcement-channel-posts"
     >
       <header
-        className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#E5E7EB] px-4 py-2.5"
+        className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#E3E6F5] px-4 py-2.5"
         style={{ background: collaborationColors.surface }}
         data-cy="announcement-channel-topbar"
       >
@@ -863,7 +863,7 @@ const ChannelPostsView = ({
 
           {!isLoading && channelPosts.length === 0 && !composerOpen ? (
             <div
-              className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-[#D1D5DB] bg-transparent px-4"
+              className="flex min-h-[220px] items-center justify-center rounded-lg border border-dashed border-[#D1D5DB] bg-transparent px-4"
               data-cy="announcement-posts-empty"
             >
               <p
@@ -877,7 +877,7 @@ const ChannelPostsView = ({
 
           {!isLoading && channelPosts.length === 0 && composerOpen ? (
             <div
-              className="flex min-h-[140px] items-center justify-center rounded-xl border border-dashed border-[#D1D5DB] px-4"
+              className="flex min-h-[140px] items-center justify-center rounded-lg border border-dashed border-[#D1D5DB] px-4"
               data-cy="announcement-posts-empty-behind-composer"
             >
               <p

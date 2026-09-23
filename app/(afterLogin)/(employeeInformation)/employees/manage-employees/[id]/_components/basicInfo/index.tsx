@@ -413,7 +413,7 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
             alt="Uploaded Preview"
             width={400}
             height={256}
-            className="w-full h-auto max-h-64 object-cover rounded-xl"
+            className="w-full h-auto max-h-64 object-cover rounded-lg"
             id="basic-info-change-profile-image-modal-dragger-image"
             data-cy="basic-info-change-profile-image-modal-dragger-image"
           />
@@ -619,7 +619,7 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
   if (variant === 'personalSidebar') {
     return (
       <aside
-        className="h-full bg-[#f0f2ff] px-5 py-7 sm:px-7 lg:ml-5 lg:w-[calc(100%-1.25rem)] lg:pt-12"
+        className="scrollbar-hide h-full bg-[#f0f2ff] px-5 py-7 sm:px-7 lg:ml-5 lg:w-[calc(100%-1.25rem)] lg:overflow-y-auto lg:pt-12"
         id="basic-info-personal-sidebar"
         data-cy="basic-info-personal-sidebar"
       >
@@ -742,13 +742,13 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
   return (
     <Card
       loading={isLoading}
-      className="mb-3 rounded-lg bg-[#F9FAFB]"
+      className="mb-5 rounded-lg !border-shell-line bg-white"
       id="basic-info-card"
       data-cy="basic-info-card"
     >
       {/* Top section: Avatar | Name + Email | Status + Edit */}
       <div
-        className="flex flex-wrap gap-4 items-start mb-6"
+        className="mb-4 flex flex-wrap items-center gap-4"
         id="basic-info-content"
         data-cy="basic-info-content"
       >
@@ -788,14 +788,14 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
           <h5
             id="basic-info-name"
             data-cy="basic-info-name"
-            className="text-sm font-normal text-[#4d4d4d] m-0"
+            className="m-0 text-[15px] font-semibold text-shell-ink"
           >
             {employeeData?.firstName} {employeeData?.middleName}{' '}
           </h5>
           <p
             id="basic-info-email-text"
             data-cy="basic-info-email-text"
-            className="text-sm text-[#bababa] font-normal m-0"
+            className="m-0 text-sm text-shell-muted"
           >
             {employeeData?.email}
           </p>
@@ -807,7 +807,7 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
           <Tag
             className={`m-0 ${
               isActive
-                ? 'bg-[#e6f4ff] text-[#1677ff] border border-[#91caff]'
+                ? 'border-0 bg-shell-tint font-medium text-primary'
                 : 'bg-red-50 text-red-500 border border-red-500'
             }`}
             id="basic-info-status"
@@ -820,19 +820,19 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
 
       {/* Bottom section: Joined at, Address, Service Year, Office */}
       <div
-        className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4 border-gray-100"
+        className="grid grid-cols-2 gap-6 border-t border-shell-line pt-4 sm:grid-cols-4"
         id="basic-info-details-row"
         data-cy="basic-info-details-row"
       >
         <div id="basic-info-joined" data-cy="basic-info-joined">
           <p
-            className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
+            className="m-0 mb-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-primary"
             data-cy="basic-info-joined-label"
           >
             Joined at
           </p>
           <p
-            className="text-sm font-normal text-[#4d4d4d] m-0"
+            className="m-0 text-sm font-medium text-shell-ink"
             data-cy="basic-info-joined-value"
           >
             {joinedDate ? dayjs(joinedDate).format('DD MMMM, YYYY') : '-'}
@@ -840,13 +840,13 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
         </div>
         <div id="basic-info-address" data-cy="basic-info-address">
           <p
-            className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
+            className="m-0 mb-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-primary"
             data-cy="basic-info-address-label"
           >
             Address
           </p>
           <p
-            className="text-sm font-normal text-[#4d4d4d] m-0"
+            className="m-0 text-sm font-medium text-shell-ink"
             data-cy="basic-info-address-value"
           >
             {formatAddress(addresses)}
@@ -854,13 +854,13 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
         </div>
         <div id="basic-info-service-year" data-cy="basic-info-service-year">
           <p
-            className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
+            className="m-0 mb-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-primary"
             data-cy="basic-info-service-year-label"
           >
             Service Year
           </p>
           <p
-            className="text-sm font-normal text-[#4d4d4d] m-0"
+            className="m-0 text-sm font-medium text-shell-ink"
             data-cy="basic-info-service-year-value"
           >
             {formatServiceYear(joinedDate)}
@@ -868,13 +868,13 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
         </div>
         <div id="basic-info-office" data-cy="basic-info-office">
           <p
-            className="text-sm text-[#bababa] font-normal m-0 mb-0.5"
+            className="m-0 mb-1 text-[11px] font-semibold uppercase tracking-[0.04em] text-primary"
             data-cy="basic-info-office-label"
           >
             Office
           </p>
           <p
-            className="text-sm font-normal text-[#4d4d4d] m-0"
+            className="m-0 text-sm font-medium text-shell-ink"
             data-cy="basic-info-office-value"
           >
             {officeName}

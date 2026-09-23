@@ -24,6 +24,7 @@ import { TableSkeleton } from '@/components/tableSkeleton';
 import { useDeleteLeaveRequest } from '@/store/server/features/timesheet/leaveRequest/mutation';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
+import { History as HistoryIcon } from 'lucide-react';
 
 const dotsButtonStyle: React.CSSProperties = {
   height: 24,
@@ -359,21 +360,28 @@ const HistoryTable = () => {
       data-cy="time-attendance-history-table-container"
     >
       <div
-        className="mb-4"
+        className="mb-3 flex items-center gap-2.5"
         id="time-attendance-history-table-header-container"
         data-cy="time-attendance-history-table-header-container"
       >
-        <div
-          className="text-sm sm:text-xl font-bold text-gray-900 mb-4"
+        <span
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+          aria-hidden
+          data-cy="time-attendance-history-table-title-icon"
+        >
+          <HistoryIcon size={17} strokeWidth={2.1} />
+        </span>
+        <h2
+          className="m-0 text-base font-semibold leading-6 text-shell-ink"
           id="time-attendance-history-table-title"
           data-cy="time-attendance-history-table-title"
         >
           Leave Requests
-        </div>
+        </h2>
       </div>
 
       <div
-        className="rounded-lg border border-gray-200 sm:overflow-hidden"
+        className="rounded-lg border border-shell-line sm:overflow-hidden"
         id="time-attendance-history-table-bordered-wrapper"
         data-cy="time-attendance-history-table-bordered-wrapper"
       >
@@ -384,7 +392,7 @@ const HistoryTable = () => {
           data-cy="time-attendance-history-table-toolbar"
         >
           <div
-            className="flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-8 sm:px-4 sm:pb-2 sm:pt-4 lg:gap-12 lg:px-5"
+            className="flex flex-col gap-3 sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between sm:gap-8 sm:px-4 sm:py-3 lg:gap-12 lg:px-5"
             data-cy="time-attendance-history-table-toolbar-inner"
           >
             <div
@@ -426,14 +434,14 @@ const HistoryTable = () => {
         </div>
 
         <div
-          className="border-t border-gray-200 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          className="border-t border-shell-line overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           data-cy="time-attendance-history-table-container"
         >
           {isFetching ? (
             <TableSkeleton columns={columns} />
           ) : (
             <Table
-              className="leave-table [&_.ant-table]:min-w-[920px] [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.leave-history-table-row-even>td]:!bg-[#FAFAFA] [&_tr.leave-history-table-row-odd>td]:!bg-white"
+              className="leave-table [&_.ant-table]:min-w-[920px] [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:!rounded-none [&_.ant-table-thead>tr>th]:!bg-shell-band [&_.ant-table-thead>tr>th]:!text-[13px] [&_.ant-table-thead>tr>th]:!text-shell-text [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.leave-history-table-row-even>td]:!bg-shell-wash [&_tr.leave-history-table-row-odd>td]:!bg-white"
               columns={columns}
               dataSource={tableData}
               pagination={false}

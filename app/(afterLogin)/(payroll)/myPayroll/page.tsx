@@ -24,6 +24,8 @@ import CustomPagination from '@/components/customPagination';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import EmptyState from '@/components/empty';
 import { DownloadOutlined } from '@ant-design/icons';
+import { Download, Landmark, Receipt } from 'lucide-react';
+import ShellSection from '@/components/homeUi/ShellSection';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import PayrollDetails from '../employee-information/[id]/_components/PayrollDetails';
@@ -67,69 +69,124 @@ const InfoItem = ({
   tags?: { label: string; value: string | number }[];
   large?: boolean;
 }) => (
-  <div className="info-item" data-cy="my-payroll-info-item">
-    <Text
-      style={{
-        fontSize: '14px',
-        color: 'rgba(0, 0, 0, 0.65)',
-        display: 'block',
-        marginBottom: '4px',
-      }}
+  <div className="info-item min-w-0" data-cy="my-payroll-info-item">
+    <div
+      className="text-[11px] font-semibold uppercase tracking-[0.04em] text-primary"
       data-cy="my-payroll-info-item-label"
     >
       {label}
-    </Text>
-    <Text
-      style={{
-        fontSize: large ? '16px' : '16px',
-        color: 'rgba(0, 0, 0, 0.65)',
-        display: 'block',
-        marginBottom: '4px',
-      }}
+    </div>
+    <div
+      className={`mt-1 truncate font-semibold tabular-nums text-shell-ink ${
+        large ? 'text-base' : 'text-[15px]'
+      }`}
       data-cy="my-payroll-info-item-value"
     >
       {value}
-    </Text>
-    {tags && tags.length > 0 && (
-      <Space wrap size={[8, 8]} data-cy="my-payroll-info-item-tags">
-        {tags.map((tag, index) => (
-          <Tag
-            key={index}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              backgroundColor: 'rgba(0, 0, 0, 0.02)',
-              border: '1px solid #D9D9D9',
-              borderRadius: '4px',
-              padding: '2px 8px',
-              fontSize: '12px',
-              margin: 0,
-            }}
-            data-cy="my-payroll-info-item-tag"
-          >
-            <span
-              style={{
-                color: 'rgba(0, 0, 0, 0.65)',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                maxWidth: '120px',
-              }}
-              data-cy="my-payroll-info-item-tag-label"
-            >
-              {tag.label}
-            </span>
-            <span
-              style={{ color: 'rgba(0, 0, 0, 0.65)', whiteSpace: 'nowrap' }}
-              data-cy="my-payroll-info-item-tag-value"
-            >
-              {' '}
-              : {tag.value}
-            </span>
-          </Tag>
-        ))}
-      </Space>
-    )}
+    </div>
+    {tags && tags.length > 0 && <PayTags tags={tags} />}
+  </div>
+);
+
+/** Breakdown chips (allowance / benefit / deduction types) on the shell tint. */
+const PayTags = ({
+  tags,
+}: {
+  tags: { label: string; value: string | number }[];
+}) => (
+  <div
+    className="mt-2 flex flex-wrap gap-2"
+    data-cy="my-payroll-info-item-tags"
+  >
+    {tags.map((tag, index) => (
+      <span
+        key={index}
+        className="inline-flex items-center gap-1 rounded bg-shell-tint px-2 py-0.5 text-xs text-shell-text"
+        data-cy="my-payroll-info-item-tag"
+      >
+        <span
+          className="max-w-[140px] truncate"
+          data-cy="my-payroll-info-item-tag-label"
+        >
+          {tag.label}
+        </span>
+        <span
+          className="whitespace-nowrap font-semibold tabular-nums"
+          data-cy="my-payroll-info-item-tag-value"
+        >
+          {tag.value}
+        </span>
+      </span>
+    ))}
+  </div>
+);
+
+/** One row of the pay slip breakdown: label + chips on the left, total on the right. */
+const PayslipLine = ({
+  label,
+  value,
+  tags,
+  'data-cy': dataCy,
+}: {
+  label: string;
+  value: string | number;
+  tags?: { label: string; value: string | number }[];
+  'data-cy': string;
+}) => (
+  <div
+    className="flex flex-col gap-2 px-4 py-3.5 sm:flex-row sm:items-start sm:justify-between sm:gap-6 sm:px-5"
+    data-cy={dataCy}
+  >
+    <div className="min-w-0" data-cy={`${dataCy}-label-wrap`}>
+      <div
+        className="text-sm font-medium text-shell-ink"
+        data-cy={`${dataCy}-label`}
+      >
+        {label}
+      </div>
+      {tags && tags.length > 0 && <PayTags tags={tags} />}
+    </div>
+    <div
+      className="shrink-0 text-base font-semibold tabular-nums text-shell-ink"
+      data-cy={`${dataCy}-value`}
+    >
+      {value}
+    </div>
+  </div>
+);
+
+/** Headline figure in the pay slip summary strip. */
+const PayslipFigure = ({
+  label,
+  value,
+  highlight,
+  'data-cy': dataCy,
+}: {
+  label: string;
+  value: string | number;
+  highlight?: boolean;
+  'data-cy': string;
+}) => (
+  <div
+    className={`px-4 py-3.5 sm:px-5 ${highlight ? 'bg-shell-tint' : 'bg-white'}`}
+    data-cy={dataCy}
+  >
+    <div
+      className="text-[11px] font-semibold uppercase tracking-[0.04em] text-primary"
+      data-cy={`${dataCy}-label`}
+    >
+      {label}
+    </div>
+    <div
+      className={`mt-1 font-semibold tabular-nums ${
+        highlight
+          ? 'text-[22px] leading-7 text-primary'
+          : 'text-[17px] leading-7 text-shell-ink'
+      }`}
+      data-cy={`${dataCy}-value`}
+    >
+      {value}
+    </div>
   </div>
 );
 
@@ -299,200 +356,147 @@ export default function MyPayroll() {
       ) || 0;
 
     return (
-      <Row
-        gutter={[
-          { xs: 16, sm: 24, md: 32, lg: 24 },
-          { xs: 16, sm: 24, md: 32, lg: 24 },
-        ]}
-      >
-        <Col xs={24} lg={12}>
-          <Card
-            title={
-              <Text
-                strong
-                style={{
-                  fontSize: '15px',
-                  color: 'rgba(0, 0, 0, 0.65)',
-                  fontWeight: 600,
-                }}
-              >
-                Payroll Information
-              </Text>
-            }
-            bordered
-            style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
-            headStyle={{ borderBottom: 'none', padding: '16px 20px 0 20px' }}
-            bodyStyle={{ padding: '0 20px 20px 20px' }}
+      <div className="flex flex-col gap-8" data-cy="my-payroll-information">
+        <ShellSection
+          icon={Receipt}
+          title={`${dayjs(activePayPeriod?.startDate).format('MMMM')} Pay Slip`}
+          actions={
+            <Button
+              onClick={downloadPayslip}
+              icon={<Download size={16} aria-hidden />}
+              className="!inline-flex !h-9 items-center !border-primary !text-primary hover:!bg-shell-tint"
+              data-cy="my-payroll-download-payslip-button"
+            >
+              Download
+            </Button>
+          }
+          data-cy="my-payroll-payslip-section"
+        >
+          <div
+            className="overflow-hidden rounded-lg border border-shell-line"
+            data-cy="my-payroll-payslip-card"
           >
-            <Row gutter={[16, 16]}>
-              <Col span={12}>
-                <InfoItem
-                  label="Basic Salary"
-                  value={
-                    activeMergedPayroll?.employeeInfo?.basicSalaries?.[0]
-                      ?.basicSalary || '--'
-                  }
-                />
-              </Col>
-              <Col span={12}>
-                <InfoItem
-                  label="Account Number"
-                  value={
-                    activeMergedPayroll?.employeeInfo?.employeeInformation
-                      ?.bankInformation?.accountNumber || '--'
-                  }
-                />
-              </Col>
-              <Col span={12}>
-                <InfoItem
-                  label="Bank Information"
-                  value={
-                    activeMergedPayroll?.employeeInfo?.employeeInformation
-                      ?.bankInformation?.bankName || '--'
-                  }
-                />
-              </Col>
-              <Col span={12}>
-                <InfoItem
-                  label="Branch"
-                  value={
-                    activeMergedPayroll?.employeeInfo
-                      ?.employeeJobInformation?.[0]?.branch?.name || '--'
-                  }
-                />
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-        <Col xs={24} lg={12}>
-          <Card
-            title={
-              <Row justify="space-between" align="middle">
-                <Text
-                  strong
-                  style={{
-                    fontSize: '15px',
-                    color: 'rgba(0, 0, 0, 0.65)',
-                    fontWeight: 600,
-                  }}
-                >
-                  {dayjs(activePayPeriod?.startDate).format('MMMM')} Pay Slip
-                </Text>
-                <Button
-                  onClick={downloadPayslip}
-                  icon={<DownloadOutlined style={{ fontSize: '18px' }} />}
-                  style={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #d9d9d9',
-                    color: '#595959',
-                    fontSize: '16px',
-                    fontWeight: 400,
-                    height: '42px',
-                    borderRadius: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    padding: '0 16px',
-                    boxShadow: 'none',
-                  }}
-                >
-                  Download
-                </Button>
-              </Row>
-            }
-            bordered
-            style={{ borderRadius: '8px', border: '1px solid #e0e0e0' }}
-            headStyle={{ borderBottom: 'none', padding: '16px 20px 0 20px' }}
-            bodyStyle={{ padding: '0 20px 20px 20px' }}
+            <div
+              className="grid grid-cols-2 gap-px border-b border-shell-line bg-shell-line lg:grid-cols-4"
+              data-cy="my-payroll-payslip-summary"
+            >
+              <PayslipFigure
+                label="Net Pay"
+                value={parseFloat(activeMergedPayroll?.netPay || '0').toFixed(
+                  2,
+                )}
+                highlight
+                data-cy="my-payroll-payslip-net-pay"
+              />
+              <PayslipFigure
+                label="Gross Earning"
+                value={parseFloat(
+                  activeMergedPayroll?.grossSalary || '0',
+                ).toFixed(2)}
+                data-cy="my-payroll-payslip-gross"
+              />
+              <PayslipFigure
+                label="Salary Period"
+                value={dayjs(activePayPeriod?.startDate).format('MMM-YYYY')}
+                data-cy="my-payroll-payslip-period"
+              />
+              <PayslipFigure
+                label="Pay Date"
+                value={dayjs(activePayPeriod?.updatedAt).format('MMM-DD-YYYY')}
+                data-cy="my-payroll-payslip-pay-date"
+              />
+            </div>
+            <div
+              className="divide-y divide-shell-line"
+              data-cy="my-payroll-payslip-breakdown"
+            >
+              <PayslipLine
+                label="Entitled Allowance"
+                value={parseFloat(
+                  activeMergedPayroll?.totalAllowance || '0',
+                ).toFixed(2)}
+                tags={breakdown?.allowances?.map((a: any) => ({
+                  label: a.type,
+                  value: parseFloat(a.amount || '0').toFixed(2),
+                }))}
+                data-cy="my-payroll-payslip-allowance"
+              />
+              <PayslipLine
+                label="Entitled Benefit"
+                value={entitledBenefitTotal.toFixed(2)}
+                tags={[
+                  ...(breakdown?.merits?.map((m: any) => ({
+                    label: m.type,
+                    value: parseFloat(m.amount || '0').toFixed(2),
+                  })) || []),
+                  ...(breakdown?.variablePay
+                    ? [
+                        {
+                          label: breakdown.variablePay.type,
+                          value: parseFloat(
+                            breakdown.variablePay.amount || '0',
+                          ).toFixed(2),
+                        },
+                      ]
+                    : []),
+                ]}
+                data-cy="my-payroll-payslip-benefit"
+              />
+              <PayslipLine
+                label="Entitled Deduction"
+                value={entitledDeductionTotal.toFixed(2)}
+                tags={[
+                  ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({
+                    label: d.type,
+                    value: parseFloat(d.amount || '0').toFixed(2),
+                  })) || []),
+                ]}
+                data-cy="my-payroll-payslip-deduction"
+              />
+            </div>
+          </div>
+        </ShellSection>
+
+        <ShellSection
+          icon={Landmark}
+          title="Payroll Information"
+          data-cy="my-payroll-info-section"
+        >
+          <div
+            className="grid grid-cols-1 gap-x-6 gap-y-5 rounded-lg border border-shell-line px-4 py-4 sm:grid-cols-2 sm:px-5 lg:grid-cols-4"
+            data-cy="my-payroll-info-grid"
           >
-            <Row gutter={[16, 16]}>
-              <Col span={12}>
-                <InfoItem
-                  label="Salary Period"
-                  value={dayjs(activePayPeriod?.startDate).format('MMM-YYYY')}
-                />
-              </Col>
-              <Col span={12}>
-                <InfoItem
-                  label="Pay Date"
-                  value={dayjs(activePayPeriod?.updatedAt).format(
-                    'MMM-DD-YYYY',
-                  )}
-                />
-              </Col>
-            </Row>
-            <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
             <InfoItem
-              label="Entitled Allowance"
-              value={parseFloat(
-                activeMergedPayroll?.totalAllowance || '0',
-              ).toFixed(2)}
-              large
-              tags={breakdown?.allowances?.map((a: any) => ({
-                label: a.type,
-                value: parseFloat(a.amount || '0').toFixed(2),
-              }))}
+              label="Basic Salary"
+              value={
+                activeMergedPayroll?.employeeInfo?.basicSalaries?.[0]
+                  ?.basicSalary || '--'
+              }
             />
-            <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
             <InfoItem
-              label="Entitled Benefit"
-              value={entitledBenefitTotal.toFixed(2)}
-              large
-              tags={[
-                ...(breakdown?.merits?.map((m: any) => ({
-                  label: m.type,
-                  value: parseFloat(m.amount || '0').toFixed(2),
-                })) || []),
-                ...(breakdown?.variablePay
-                  ? [
-                      {
-                        label: breakdown.variablePay.type,
-                        value: parseFloat(
-                          breakdown.variablePay.amount || '0',
-                        ).toFixed(2),
-                      },
-                    ]
-                  : []),
-              ]}
+              label="Account Number"
+              value={
+                activeMergedPayroll?.employeeInfo?.employeeInformation
+                  ?.bankInformation?.accountNumber || '--'
+              }
             />
-            <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
             <InfoItem
-              label="Entitled Deduction"
-              value={entitledDeductionTotal.toFixed(2)}
-              large
-              tags={[
-                // ...(breakdown?.pension?.map((p: any) => ({
-                //   label: p.type,
-                //   value: parseFloat(p.amount || '0').toFixed(2),
-                // })) || []),
-                ...(breakdown?.totalDeductionWithPension?.map((d: any) => ({
-                  label: d.type,
-                  value: parseFloat(d.amount || '0').toFixed(2),
-                })) || []),
-              ]}
+              label="Bank Information"
+              value={
+                activeMergedPayroll?.employeeInfo?.employeeInformation
+                  ?.bankInformation?.bankName || '--'
+              }
             />
-            <Divider style={{ margin: '8px 0', borderColor: '#e0e0e0' }} />
-            <Row gutter={16}>
-              <Col span={12}>
-                <InfoItem
-                  label="Gross Earning"
-                  value={parseFloat(
-                    activeMergedPayroll?.grossSalary || '0',
-                  ).toFixed(2)}
-                />
-              </Col>
-              <Col span={12}>
-                <InfoItem
-                  label="Net Pay"
-                  value={parseFloat(activeMergedPayroll?.netPay || '0').toFixed(
-                    2,
-                  )}
-                />
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-      </Row>
+            <InfoItem
+              label="Branch"
+              value={
+                activeMergedPayroll?.employeeInfo?.employeeJobInformation?.[0]
+                  ?.branch?.name || '--'
+              }
+            />
+          </div>
+        </ShellSection>
+      </div>
     );
   };
 
@@ -555,7 +559,9 @@ export default function MyPayroll() {
               items={[
                 {
                   title: (
-                    <span data-cy="my-payroll-breadcrumb-employee">Payroll</span>
+                    <span data-cy="my-payroll-breadcrumb-employee">
+                      Payroll
+                    </span>
                   ),
                 },
                 {
@@ -573,13 +579,13 @@ export default function MyPayroll() {
 
       <div
         data-cy="my-payroll-main-card"
-        className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
+        className="home-embed-main flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
       >
         <div
           data-cy="my-payroll-toolbar-row"
           className={classNames(
-            'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 bg-white py-2',
-            'sm:flex-row sm:items-center sm:gap-3 lg:gap-x-8',
+            'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 border-b border-shell-line bg-white pb-2 pt-1',
+            'sm:flex-row sm:items-end sm:gap-3 sm:pb-0 lg:gap-x-8 sm:[&>*:not(:first-child)]:pb-2',
           )}
         >
           <div
@@ -625,268 +631,270 @@ export default function MyPayroll() {
 
           {activeTab === 2 ? (
             <div data-cy="my-payroll-tab-history-content">
-            {!payPeriodData ||
-            !payrollHistory ||
-            payrollHistory.length === 0 ? (
-              <EmptyState
-                compact
-                description="No payroll history found."
-                data-cy="my-payroll-history-empty"
-              />
-            ) : (
-              <>
-                <Row
-                  gutter={[
-                    { xs: 16, sm: 24, md: 32, lg: 48 },
-                    { xs: 16, sm: 24, md: 32, lg: 48 },
-                  ]}
-                  data-cy="my-payroll-history-cards-row"
-                >
-                  {payrollHistory
-                    .slice(
-                      (historyCurrentPage - 1) * historyPageSize,
-                      historyCurrentPage * historyPageSize,
-                    )
-                    .map((historyItem: any, index: number) => {
-                      const period = payPeriodData?.find(
-                        (p: any) => p.id === historyItem.payPeriodId,
-                      );
-                      const breakdown = historyItem.breakdown;
+              {!payPeriodData ||
+              !payrollHistory ||
+              payrollHistory.length === 0 ? (
+                <EmptyState
+                  compact
+                  description="No payroll history found."
+                  data-cy="my-payroll-history-empty"
+                />
+              ) : (
+                <>
+                  <Row
+                    gutter={[
+                      { xs: 16, sm: 24, md: 32, lg: 48 },
+                      { xs: 16, sm: 24, md: 32, lg: 48 },
+                    ]}
+                    data-cy="my-payroll-history-cards-row"
+                  >
+                    {payrollHistory
+                      .slice(
+                        (historyCurrentPage - 1) * historyPageSize,
+                        historyCurrentPage * historyPageSize,
+                      )
+                      .map((historyItem: any, index: number) => {
+                        const period = payPeriodData?.find(
+                          (p: any) => p.id === historyItem.payPeriodId,
+                        );
+                        const breakdown = historyItem.breakdown;
 
-                      const entitledBenefitTotal =
-                        (breakdown?.merits?.reduce(
-                          (acc: number, item: any) =>
-                            acc + parseFloat(item.amount || '0'),
-                          0,
-                        ) || 0) +
-                        (breakdown?.variablePay
-                          ? parseFloat(breakdown.variablePay.amount || '0')
-                          : 0);
+                        const entitledBenefitTotal =
+                          (breakdown?.merits?.reduce(
+                            (acc: number, item: any) =>
+                              acc + parseFloat(item.amount || '0'),
+                            0,
+                          ) || 0) +
+                          (breakdown?.variablePay
+                            ? parseFloat(breakdown.variablePay.amount || '0')
+                            : 0);
 
-                      const entitledDeductionTotal =
-                        // (breakdown?.pension?.reduce(
-                        //   (acc: number, item: any) =>
-                        //     acc + parseFloat(item.amount || '0'),
-                        //   0,
-                        // ) || 0) +
-                        breakdown?.totalDeductionWithPension?.reduce(
-                          (acc: number, item: any) =>
-                            acc + parseFloat(item.amount || '0'),
-                          0,
-                        ) || 0;
+                        const entitledDeductionTotal =
+                          // (breakdown?.pension?.reduce(
+                          //   (acc: number, item: any) =>
+                          //     acc + parseFloat(item.amount || '0'),
+                          //   0,
+                          // ) || 0) +
+                          breakdown?.totalDeductionWithPension?.reduce(
+                            (acc: number, item: any) =>
+                              acc + parseFloat(item.amount || '0'),
+                            0,
+                          ) || 0;
 
-                      return (
-                        <Col
-                          xs={24}
-                          md={12}
-                          lg={8}
-                          key={index}
-                          data-cy="my-payroll-history-card-column"
-                        >
-                          <Card
-                            title={
-                              <Row justify="space-between" align="middle">
-                                <Text
-                                  strong
-                                  style={{
-                                    fontSize: '15px',
-                                    color: 'rgba(0, 0, 0, 0.65)',
-                                    fontWeight: 600,
-                                  }}
-                                  data-cy="my-payroll-history-card-title"
-                                >
-                                  {period
-                                    ? dayjs(period.startDate).format(
-                                        'MMMM-YYYY',
-                                      )
-                                    : 'Unknown'}
-                                </Text>
-                                <Button
-                                  onClick={() =>
-                                    downloadPayslip(historyItem, period)
-                                  }
-                                  icon={
-                                    <DownloadOutlined
-                                      style={{ fontSize: '16px' }}
-                                    />
-                                  }
-                                  data-cy="my-payroll-history-download-button"
-                                  style={{
-                                    backgroundColor: '#fff',
-                                    border: '1px solid #d9d9d9',
-                                    color: '#595959',
-                                    fontSize: '14px',
-                                    fontWeight: 400,
-                                    height: '36px',
-                                    borderRadius: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    padding: '0 12px',
-                                    boxShadow: 'none',
-                                  }}
-                                >
-                                  Download
-                                </Button>
-                              </Row>
-                            }
-                            bordered
-                            style={{
-                              borderRadius: '8px',
-                              border: '1px solid #e0e0e0',
-                            }}
-                            headStyle={{
-                              borderBottom: 'none',
-                              padding: '16px 20px 0 20px',
-                            }}
-                            bodyStyle={{ padding: '16px 20px' }}
-                            data-cy="my-payroll-history-card"
+                        return (
+                          <Col
+                            xs={24}
+                            md={12}
+                            lg={8}
+                            key={index}
+                            data-cy="my-payroll-history-card-column"
                           >
-                            <Row gutter={[16, 16]}>
-                              <Col span={12}>
-                                <InfoItem
-                                  label="Salary Period"
-                                  value={
-                                    period
+                            <Card
+                              title={
+                                <Row justify="space-between" align="middle">
+                                  <Text
+                                    strong
+                                    style={{
+                                      fontSize: '15px',
+                                      color: '#1F2240',
+                                      fontWeight: 600,
+                                    }}
+                                    data-cy="my-payroll-history-card-title"
+                                  >
+                                    {period
                                       ? dayjs(period.startDate).format(
-                                          'MMM-YYYY',
+                                          'MMMM-YYYY',
                                         )
-                                      : '--'
-                                  }
-                                />
-                              </Col>
-                              <Col span={12}>
-                                <InfoItem
-                                  label="Pay Date"
-                                  value={
-                                    period
-                                      ? dayjs(period.updatedAt).format(
-                                          'MMM-DD-YYYY',
-                                        )
-                                      : '--'
-                                  }
-                                />
-                              </Col>
-                            </Row>
-                            <Divider
+                                      : 'Unknown'}
+                                  </Text>
+                                  <Button
+                                    onClick={() =>
+                                      downloadPayslip(historyItem, period)
+                                    }
+                                    icon={
+                                      <DownloadOutlined
+                                        style={{ fontSize: '16px' }}
+                                      />
+                                    }
+                                    data-cy="my-payroll-history-download-button"
+                                    style={{
+                                      backgroundColor: '#fff',
+                                      border: '1px solid #3636F0',
+                                      color: '#3636F0',
+                                      fontSize: '14px',
+                                      fontWeight: 500,
+                                      height: '34px',
+                                      borderRadius: '6px',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '8px',
+                                      padding: '0 12px',
+                                      boxShadow: 'none',
+                                    }}
+                                  >
+                                    Download
+                                  </Button>
+                                </Row>
+                              }
+                              bordered
                               style={{
-                                margin: '12px 0',
-                                borderColor: '#e0e0e0',
+                                borderRadius: '8px',
+                                border: '1px solid #E3E6F5',
                               }}
-                            />
-                            <InfoItem
-                              label="Entitled Allowance"
-                              value={parseFloat(
-                                historyItem.totalAllowance || '0',
-                              ).toFixed(2)}
-                              large
-                              tags={breakdown?.allowances?.map((a: any) => ({
-                                label: a.type,
-                                value: parseFloat(a.amount || '0').toFixed(2),
-                              }))}
-                            />
-                            <Divider
-                              style={{
-                                margin: '12px 0',
-                                borderColor: '#e0e0e0',
+                              headStyle={{
+                                borderBottom: 'none',
+                                padding: '16px 20px 0 20px',
                               }}
-                            />
-                            <InfoItem
-                              label="Entitled Benefit"
-                              value={entitledBenefitTotal.toFixed(2)}
-                              large
-                              tags={[
-                                ...(breakdown?.merits?.map((m: any) => ({
-                                  label: m.type,
-                                  value: parseFloat(m.amount || '0').toFixed(2),
-                                })) || []),
-                                ...(breakdown?.variablePay
-                                  ? [
-                                      {
-                                        label: breakdown.variablePay.type,
-                                        value: parseFloat(
-                                          breakdown.variablePay.amount || '0',
-                                        ).toFixed(2),
-                                      },
-                                    ]
-                                  : []),
-                              ]}
-                            />
-                            <Divider
-                              style={{
-                                margin: '12px 0',
-                                borderColor: '#e0e0e0',
-                              }}
-                            />
-                            <InfoItem
-                              label="Entitled Deduction"
-                              value={entitledDeductionTotal.toFixed(2)}
-                              large
-                              tags={[
-                                // ...(breakdown?.pension?.map((p: any) => ({
-                                //   label: p.type,
-                                //   value: parseFloat(p.amount || '0').toFixed(2),
-                                // })) || []),
-                                ...(breakdown?.totalDeductionWithPension?.map(
-                                  (d: any) => ({
-                                    label: d.type,
-                                    value: parseFloat(d.amount || '0').toFixed(
+                              bodyStyle={{ padding: '16px 20px' }}
+                              data-cy="my-payroll-history-card"
+                            >
+                              <Row gutter={[16, 16]}>
+                                <Col span={12}>
+                                  <InfoItem
+                                    label="Salary Period"
+                                    value={
+                                      period
+                                        ? dayjs(period.startDate).format(
+                                            'MMM-YYYY',
+                                          )
+                                        : '--'
+                                    }
+                                  />
+                                </Col>
+                                <Col span={12}>
+                                  <InfoItem
+                                    label="Pay Date"
+                                    value={
+                                      period
+                                        ? dayjs(period.updatedAt).format(
+                                            'MMM-DD-YYYY',
+                                          )
+                                        : '--'
+                                    }
+                                  />
+                                </Col>
+                              </Row>
+                              <Divider
+                                style={{
+                                  margin: '12px 0',
+                                  borderColor: '#E3E6F5',
+                                }}
+                              />
+                              <InfoItem
+                                label="Entitled Allowance"
+                                value={parseFloat(
+                                  historyItem.totalAllowance || '0',
+                                ).toFixed(2)}
+                                large
+                                tags={breakdown?.allowances?.map((a: any) => ({
+                                  label: a.type,
+                                  value: parseFloat(a.amount || '0').toFixed(2),
+                                }))}
+                              />
+                              <Divider
+                                style={{
+                                  margin: '12px 0',
+                                  borderColor: '#E3E6F5',
+                                }}
+                              />
+                              <InfoItem
+                                label="Entitled Benefit"
+                                value={entitledBenefitTotal.toFixed(2)}
+                                large
+                                tags={[
+                                  ...(breakdown?.merits?.map((m: any) => ({
+                                    label: m.type,
+                                    value: parseFloat(m.amount || '0').toFixed(
                                       2,
                                     ),
-                                  }),
-                                ) || []),
-                              ]}
-                            />
-                            <Divider
-                              style={{
-                                margin: '8px 0',
-                                borderColor: '#e0e0e0',
-                              }}
-                            />
-                            <Row gutter={16}>
-                              <Col span={12}>
-                                <InfoItem
-                                  label="Gross Earning"
-                                  value={parseFloat(
-                                    historyItem.grossSalary || '0',
-                                  ).toFixed(2)}
-                                />
-                              </Col>
-                              <Col span={12}>
-                                <InfoItem
-                                  label="Net Pay"
-                                  value={parseFloat(
-                                    historyItem.netPay || '0',
-                                  ).toFixed(2)}
-                                />
-                              </Col>
-                            </Row>
-                          </Card>
-                        </Col>
-                      );
-                    })}
-                </Row>
-                <div
-                  style={{ marginTop: '32px' }}
-                  data-cy="my-payroll-history-pagination-wrapper"
-                >
-                  <CustomPagination
-                    current={historyCurrentPage}
-                    total={payrollHistory.length}
-                    pageSize={historyPageSize}
-                    onChange={(page, size) => {
-                      setHistoryCurrentPage(page);
-                      setHistoryPageSize(size);
-                    }}
-                    onShowSizeChange={(size) => {
-                      setHistoryPageSize(size);
-                      setHistoryCurrentPage(1);
-                    }}
-                    data-cy="my-payroll-history-pagination"
-                  />
-                </div>
-              </>
-            )}
+                                  })) || []),
+                                  ...(breakdown?.variablePay
+                                    ? [
+                                        {
+                                          label: breakdown.variablePay.type,
+                                          value: parseFloat(
+                                            breakdown.variablePay.amount || '0',
+                                          ).toFixed(2),
+                                        },
+                                      ]
+                                    : []),
+                                ]}
+                              />
+                              <Divider
+                                style={{
+                                  margin: '12px 0',
+                                  borderColor: '#E3E6F5',
+                                }}
+                              />
+                              <InfoItem
+                                label="Entitled Deduction"
+                                value={entitledDeductionTotal.toFixed(2)}
+                                large
+                                tags={[
+                                  // ...(breakdown?.pension?.map((p: any) => ({
+                                  //   label: p.type,
+                                  //   value: parseFloat(p.amount || '0').toFixed(2),
+                                  // })) || []),
+                                  ...(breakdown?.totalDeductionWithPension?.map(
+                                    (d: any) => ({
+                                      label: d.type,
+                                      value: parseFloat(
+                                        d.amount || '0',
+                                      ).toFixed(2),
+                                    }),
+                                  ) || []),
+                                ]}
+                              />
+                              <Divider
+                                style={{
+                                  margin: '8px 0',
+                                  borderColor: '#E3E6F5',
+                                }}
+                              />
+                              <Row gutter={16}>
+                                <Col span={12}>
+                                  <InfoItem
+                                    label="Gross Earning"
+                                    value={parseFloat(
+                                      historyItem.grossSalary || '0',
+                                    ).toFixed(2)}
+                                  />
+                                </Col>
+                                <Col span={12}>
+                                  <InfoItem
+                                    label="Net Pay"
+                                    value={parseFloat(
+                                      historyItem.netPay || '0',
+                                    ).toFixed(2)}
+                                  />
+                                </Col>
+                              </Row>
+                            </Card>
+                          </Col>
+                        );
+                      })}
+                  </Row>
+                  <div
+                    style={{ marginTop: '32px' }}
+                    data-cy="my-payroll-history-pagination-wrapper"
+                  >
+                    <CustomPagination
+                      current={historyCurrentPage}
+                      total={payrollHistory.length}
+                      pageSize={historyPageSize}
+                      onChange={(page, size) => {
+                        setHistoryCurrentPage(page);
+                        setHistoryPageSize(size);
+                      }}
+                      onShowSizeChange={(size) => {
+                        setHistoryPageSize(size);
+                        setHistoryCurrentPage(1);
+                      }}
+                      data-cy="my-payroll-history-pagination"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           ) : null}
 
@@ -1190,15 +1198,17 @@ const SettlementView = ({ userId }: { userId: string }) => {
               key={compId}
               onClick={() => setSelectedCompensationId(compId)}
               style={{
-                borderRadius: '12px',
+                borderRadius: '8px',
                 border:
                   selectedCompensationId === compId
-                    ? '1px solid #1E40AF'
-                    : '1px solid #e0e0e0',
+                    ? '1px solid #3636F0'
+                    : '1px solid #E3E6F5',
+                backgroundColor:
+                  selectedCompensationId === compId ? '#F7F8FF' : '#fff',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
+                transition: 'all 0.2s ease',
               }}
-              bodyStyle={{ padding: '16px' }}
+              bodyStyle={{ padding: '14px 16px' }}
               data-cy="my-payroll-settlement-item-card"
             >
               <div
@@ -1212,7 +1222,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
                 <Text
                   style={{
                     fontSize: '14px',
-                    color: 'rgba(0, 0, 0, 0.65)',
+                    color: '#1F2240',
                     fontWeight: 500,
                   }}
                   data-cy="my-payroll-settlement-item-title"
@@ -1257,9 +1267,9 @@ const SettlementView = ({ userId }: { userId: string }) => {
       <Col xs={24} lg={14}>
         <div
           style={{
-            border: '1px solid #1E40AF',
-            borderRadius: '12px',
-            padding: '24px',
+            border: '1px solid #E3E6F5',
+            borderRadius: '8px',
+            padding: '20px',
             backgroundColor: '#fff',
           }}
           data-cy="my-payroll-settlement-details"
@@ -1280,18 +1290,21 @@ const SettlementView = ({ userId }: { userId: string }) => {
                   <Col xs={24} sm={8} key={i}>
                     <div
                       style={{
-                        border: '1px solid #e0e0e0',
+                        backgroundColor: '#F0F2FF',
                         borderRadius: '8px',
-                        padding: '16px',
+                        padding: '14px 16px',
                       }}
                       data-cy="my-payroll-settlement-summary-card"
                     >
                       <Text
                         style={{
-                          fontSize: '14px',
-                          color: 'rgba(0, 0, 0, 0.65)',
+                          fontSize: '11px',
+                          color: '#3636F0',
                           display: 'block',
-                          marginBottom: '4px',
+                          marginBottom: '6px',
+                          fontWeight: 600,
+                          letterSpacing: '0.04em',
+                          textTransform: 'uppercase',
                         }}
                         data-cy="my-payroll-settlement-summary-label"
                       >
@@ -1299,9 +1312,10 @@ const SettlementView = ({ userId }: { userId: string }) => {
                       </Text>
                       <Text
                         style={{
-                          fontSize: '30px',
-                          color: 'rgba(0, 0, 0, 0.65)',
+                          fontSize: '24px',
+                          color: '#1F2240',
                           fontWeight: 600,
+                          fontVariantNumeric: 'tabular-nums',
                         }}
                         data-cy="my-payroll-settlement-summary-value"
                       >
@@ -1320,7 +1334,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
                   marginTop: '16px',
                   padding: '16px',
                   backgroundColor: '#fff',
-                  border: '1px solid #e0e0e0',
+                  border: '1px solid #E3E6F5',
                   borderRadius: '8px',
                 }}
                 data-cy="my-payroll-settlement-progress-wrapper"
@@ -1334,7 +1348,11 @@ const SettlementView = ({ userId }: { userId: string }) => {
                   data-cy="my-payroll-settlement-progress-header"
                 >
                   <Text
-                    style={{ fontSize: '14px', color: 'rgba(0, 0, 0, 0.65)' }}
+                    style={{
+                      fontSize: '14px',
+                      color: '#1F2240',
+                      fontWeight: 500,
+                    }}
                     data-cy="my-payroll-settlement-progress-label"
                   >
                     Repayment Progress
@@ -1355,7 +1373,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
                   strokeColor="#4db818"
                   showInfo={false}
                   strokeWidth={8}
-                  trailColor="#f0f0f0"
+                  trailColor="#E9ECFD"
                   data-cy="my-payroll-settlement-progress-bar"
                 />
               </div>
@@ -1371,12 +1389,12 @@ const SettlementView = ({ userId }: { userId: string }) => {
               >
                 <div
                   style={{
-                    padding: '16px',
+                    padding: '10px 16px',
                     display: 'flex',
                     alignItems: 'center',
-                    backgroundColor: '#fafafa',
-                    borderRadius: '4px',
-                    marginBottom: '8px',
+                    backgroundColor: '#E9ECFD',
+                    borderRadius: '0',
+                    marginBottom: '0',
                     minWidth: '720px',
                   }}
                   data-cy="my-payroll-settlement-payments-header"
@@ -1384,38 +1402,38 @@ const SettlementView = ({ userId }: { userId: string }) => {
                   <div
                     style={{
                       flex: 1,
-                      borderRight: '1px solid #e0e0e0',
+                      borderRight: 'none',
                       paddingRight: '16px',
                     }}
                     data-cy="my-payroll-settlement-header-date-cell"
                   >
-                    <Text strong style={{ fontSize: '14px', color: '#434343' }}>
+                    <Text strong style={{ fontSize: '13px', color: '#42465F' }}>
                       Date
                     </Text>
                   </div>
                   <div
                     style={{
                       flex: 1,
-                      borderRight: '1px solid #e0e0e0',
+                      borderRight: 'none',
                       paddingLeft: '16px',
                       paddingRight: '16px',
                     }}
                     data-cy="my-payroll-settlement-header-amount-cell"
                   >
-                    <Text strong style={{ fontSize: '14px', color: '#434343' }}>
+                    <Text strong style={{ fontSize: '13px', color: '#42465F' }}>
                       Pay Amount
                     </Text>
                   </div>
                   <div
                     style={{
                       flex: 2,
-                      borderRight: '1px solid #e0e0e0',
+                      borderRight: 'none',
                       paddingLeft: '16px',
                       paddingRight: '16px',
                     }}
                     data-cy="my-payroll-settlement-header-period-cell"
                   >
-                    <Text strong style={{ fontSize: '14px', color: '#434343' }}>
+                    <Text strong style={{ fontSize: '13px', color: '#42465F' }}>
                       Pay Period
                     </Text>
                   </div>
@@ -1423,14 +1441,14 @@ const SettlementView = ({ userId }: { userId: string }) => {
                     style={{ flex: 1, paddingLeft: '16px' }}
                     data-cy="my-payroll-settlement-header-reason-cell"
                   >
-                    <Text strong style={{ fontSize: '14px', color: '#434343' }}>
+                    <Text strong style={{ fontSize: '13px', color: '#42465F' }}>
                       Reason
                     </Text>
                   </div>
                 </div>
 
                 <div
-                  style={{ padding: '0 8px' }}
+                  style={{ padding: 0 }}
                   data-cy="my-payroll-settlement-payments-list"
                 >
                   {payments.length > 0 ? (
@@ -1441,19 +1459,20 @@ const SettlementView = ({ userId }: { userId: string }) => {
                           `${settlementPaymentsPage}-${idx}-${payment?.createdAt ?? ''}`
                         }
                         style={{
-                          padding: '16px 8px',
+                          padding: '14px 16px',
                           backgroundColor:
                             ((settlementPaymentsPage - 1) *
                               settlementPaymentsPageSize +
                               idx) %
                               2 ===
                             1
-                              ? '#fafafa'
+                              ? '#F7F8FF'
                               : '#fff',
-                          borderRadius: '8px',
+                          borderRadius: '0',
+                          borderBottom: '1px solid #E3E6F5',
                           display: 'flex',
                           alignItems: 'center',
-                          marginBottom: '4px',
+                          marginBottom: '0',
                           minWidth: '720px',
                         }}
                         data-cy="my-payroll-settlement-payment-row"
@@ -1462,7 +1481,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
                           style={{ flex: 1, paddingRight: '16px' }}
                           data-cy="my-payroll-settlement-payment-date-cell"
                         >
-                          <Text style={{ fontSize: '14px', color: '#595959' }}>
+                          <Text style={{ fontSize: '14px', color: '#42465F' }}>
                             {payment.date ||
                               dayjs(payment.createdAt).format('MMM DD, YYYY')}
                           </Text>
@@ -1475,7 +1494,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
                           }}
                           data-cy="my-payroll-settlement-payment-amount-cell"
                         >
-                          <Text style={{ fontSize: '14px', color: '#595959' }}>
+                          <Text style={{ fontSize: '14px', color: '#42465F' }}>
                             {parseFloat(payment.amount || '0').toLocaleString(
                               undefined,
                               { minimumFractionDigits: 2 },
@@ -1492,12 +1511,12 @@ const SettlementView = ({ userId }: { userId: string }) => {
                         >
                           <Tag
                             style={{
-                              backgroundColor: '#fff',
-                              border: '1px solid #d9d9d9',
+                              backgroundColor: '#F0F2FF',
+                              border: 'none',
                               borderRadius: '4px',
                               padding: '2px 8px',
                               fontSize: '13px',
-                              color: '#595959',
+                              color: '#42465F',
                             }}
                             data-cy="my-payroll-settlement-payment-period-tag"
                           >
@@ -1516,7 +1535,7 @@ const SettlementView = ({ userId }: { userId: string }) => {
                           style={{ flex: 1, paddingLeft: '16px' }}
                           data-cy="my-payroll-settlement-payment-reason-cell"
                         >
-                          <Text style={{ fontSize: '14px', color: '#595959' }}>
+                          <Text style={{ fontSize: '14px', color: '#42465F' }}>
                             {payment.reason || '--'}
                           </Text>
                         </div>

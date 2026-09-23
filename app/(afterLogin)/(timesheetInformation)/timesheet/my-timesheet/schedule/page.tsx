@@ -14,7 +14,7 @@ import {
   Tabs,
   Tag,
 } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
+import { ArrowLeftRight, CalendarDays, Inbox } from 'lucide-react';
 import { FaPlus } from 'react-icons/fa';
 import dayjs, { Dayjs } from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
@@ -600,60 +600,76 @@ export default function MySchedulePage() {
 
   return (
     <div
-      className="space-y-8 w-full max-w-full pt-2"
+      className="w-full max-w-full space-y-8"
       id="time-attendance-my-timesheet-schedule-page"
       data-cy="time-attendance-my-timesheet-schedule-page"
     >
       {/* My Schedule */}
       <section data-cy="my-schedule-section">
-        <div className="mb-4" data-cy="my-schedule-heading">
-          <h2
-            className="text-xl font-semibold m-0 text-[#1f1f1f]"
-            data-cy="my-schedule-title"
-          >
-            My Schedule
-          </h2>
-          <p
-            className="text-sm text-gray-500 m-0 mt-1"
-            data-cy="my-schedule-subtitle"
-          >
-            Week of {weekStart.format('MMM D')} - {weekEnd.format('MMM D')}
-            {employeeDisplayName ? ` - ${employeeDisplayName}` : ''}
-          </p>
-        </div>
-
         <div
-          className="flex flex-wrap items-center gap-3 mb-4"
-          data-cy="my-schedule-controls"
+          className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-3"
+          data-cy="my-schedule-header-row"
         >
-          <DatePicker
-            picker="month"
-            value={weekStart}
-            allowClear={false}
-            format="MMMM YYYY"
-            className="min-w-[160px]"
-            onChange={(value) => {
-              if (!value) return;
-              const next = value.startOf('month').startOf('isoWeek');
-              // Prefer the week that contains the 1st if it overlaps; else first week of month
-              setWeekStart(
-                value.startOf('month').isoWeekday() === 1
-                  ? value.startOf('month')
-                  : next.isBefore(value.startOf('month'))
-                    ? next.add(1, 'week')
-                    : next,
-              );
-            }}
-            data-cy="my-schedule-month-picker"
-          />
-          <Select
-            className="min-w-[240px]"
-            value={weekStart.format('YYYY-MM-DD')}
-            options={weekOptions}
-            onChange={(value) => setWeekStart(dayjs(value))}
-            data-cy="my-schedule-week-select"
-          />
-          {/* <Select
+          <div
+            className="flex min-w-0 items-center gap-2.5"
+            data-cy="my-schedule-heading"
+          >
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+              aria-hidden
+              data-cy="my-schedule-title-icon"
+            >
+              <CalendarDays size={17} strokeWidth={2.1} />
+            </span>
+            <div className="min-w-0" data-cy="my-schedule-heading-text">
+              <h2
+                className="m-0 text-base font-semibold leading-6 text-shell-ink"
+                data-cy="my-schedule-title"
+              >
+                My Schedule
+              </h2>
+              <p
+                className="m-0 text-[13px] leading-5 text-shell-muted"
+                data-cy="my-schedule-subtitle"
+              >
+                Week of {weekStart.format('MMM D')} - {weekEnd.format('MMM D')}
+                {employeeDisplayName ? ` - ${employeeDisplayName}` : ''}
+              </p>
+            </div>
+          </div>
+
+          <div
+            className="flex flex-wrap items-center gap-3"
+            data-cy="my-schedule-controls"
+          >
+            <DatePicker
+              picker="month"
+              value={weekStart}
+              allowClear={false}
+              format="MMMM YYYY"
+              className="min-w-[160px]"
+              onChange={(value) => {
+                if (!value) return;
+                const next = value.startOf('month').startOf('isoWeek');
+                // Prefer the week that contains the 1st if it overlaps; else first week of month
+                setWeekStart(
+                  value.startOf('month').isoWeekday() === 1
+                    ? value.startOf('month')
+                    : next.isBefore(value.startOf('month'))
+                      ? next.add(1, 'week')
+                      : next,
+                );
+              }}
+              data-cy="my-schedule-month-picker"
+            />
+            <Select
+              className="min-w-[240px]"
+              value={weekStart.format('YYYY-MM-DD')}
+              options={weekOptions}
+              onChange={(value) => setWeekStart(dayjs(value))}
+              data-cy="my-schedule-week-select"
+            />
+            {/* <Select
               className="min-w-[260px] flex-1 max-w-[360px]"
               value={userId}
               disabled
@@ -667,26 +683,26 @@ export default function MySchedulePage() {
               ]}
               data-cy="my-schedule-employee-select"
             /> */}
-          <Button
-            type="primary"
-            icon={<FaPlus />}
-            className="ml-auto"
-            onClick={() => {
-              if (departmentId) getDepartmentApproval();
-              if (userId) getUserApproval();
-              setIsModalOpen(true);
-            }}
-            data-cy="shift-swap-new-request-btn"
-          >
-            New Request
-          </Button>
+            <Button
+              type="primary"
+              icon={<FaPlus />}
+              onClick={() => {
+                if (departmentId) getDepartmentApproval();
+                if (userId) getUserApproval();
+                setIsModalOpen(true);
+              }}
+              data-cy="shift-swap-new-request-btn"
+            >
+              New Request
+            </Button>
+          </div>
         </div>
 
         {isScheduleLoading ? (
           <Skeleton active paragraph={{ rows: 8 }} />
         ) : !myScheduleId && !isScheduleLoading ? (
           <div
-            className="py-10 text-center text-gray-500 text-sm border border-dashed border-gray-200 rounded-lg"
+            className="rounded-lg border border-dashed border-shell-line bg-shell-wash py-10 text-center text-sm text-shell-muted"
             data-cy="my-schedule-no-work-schedule"
           >
             No work schedule is assigned to your active job. Please contact HR
@@ -700,7 +716,11 @@ export default function MySchedulePage() {
             {days.map(({ date, cards }) => (
               <div
                 key={date.format('YYYY-MM-DD')}
-                className="rounded-xl border border-gray-200 bg-white min-h-[180px] p-3 flex flex-col"
+                className={`flex min-h-[180px] flex-col rounded-lg border bg-white p-3 ${
+                  date.isSame(dayjs(), 'day')
+                    ? 'border-primary'
+                    : 'border-shell-line'
+                }`}
                 data-cy={`my-schedule-day-${date.format('YYYY-MM-DD')}`}
               >
                 <div
@@ -711,19 +731,18 @@ export default function MySchedulePage() {
                     data-cy={`my-schedule-day-title-wrap-${date.format('YYYY-MM-DD')}`}
                   >
                     <div
-                      className="text-sm font-semibold text-[#1f1f1f]"
+                      className="text-sm font-semibold text-shell-ink"
                       data-cy={`my-schedule-day-title-${date.format('YYYY-MM-DD')}`}
                     >
                       {date.format('ddd')}{' '}
                       <span
-                        className="font-normal text-gray-600"
+                        className="font-normal text-shell-muted"
                         data-cy={`my-schedule-day-date-${date.format('YYYY-MM-DD')}`}
                       >
                         {date.format('MMM D')}
                       </span>
                     </div>
                   </div>
-                  <DownOutlined className="text-gray-400 text-xs mt-1" />
                 </div>
 
                 <div
@@ -734,17 +753,17 @@ export default function MySchedulePage() {
                     cards.map((card: any, idx: number) => (
                       <div
                         key={`${date.format('YYYY-MM-DD')}-${idx}`}
-                        className="rounded-lg bg-[#f5f5f5] px-3 py-2"
+                        className="rounded-md border-l-2 border-primary bg-shell-tint px-3 py-2"
                         data-cy={`my-schedule-shift-card-${date.format('YYYY-MM-DD')}-${idx}`}
                       >
                         <div
-                          className="text-sm font-semibold text-[#1f1f1f]"
+                          className="text-sm font-semibold text-shell-ink"
                           data-cy={`my-schedule-shift-time-${date.format('YYYY-MM-DD')}-${idx}`}
                         >
                           {formatTimeRange(card.startTime, card.endTime)}
                         </div>
                         <div
-                          className="text-xs text-gray-500 mt-0.5"
+                          className="mt-0.5 text-xs text-shell-muted"
                           data-cy={`my-schedule-shift-name-${date.format('YYYY-MM-DD')}-${idx}`}
                         >
                           {card.name}
@@ -758,7 +777,7 @@ export default function MySchedulePage() {
                     ))
                   ) : (
                     <div
-                      className="flex-1 flex items-center justify-center text-xs text-gray-400"
+                      className="flex flex-1 items-center justify-center text-xs text-shell-muted"
                       data-cy={`my-schedule-day-off-${date.format('YYYY-MM-DD')}`}
                     >
                       Off
@@ -774,12 +793,24 @@ export default function MySchedulePage() {
       {/* Peer approvals inbox */}
       {peerItems.length > 0 && (
         <section data-cy="shift-swap-peer-pending-section">
-          <h3
-            className="text-base font-semibold mb-3 text-[#1f1f1f]"
-            data-cy="shift-swap-peer-pending-title"
+          <div
+            className="mb-3 flex items-center gap-2.5"
+            data-cy="shift-swap-peer-pending-heading"
           >
-            Requests awaiting your approval
-          </h3>
+            <span
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+              aria-hidden
+              data-cy="shift-swap-peer-pending-icon"
+            >
+              <Inbox size={17} strokeWidth={2.1} />
+            </span>
+            <h3
+              className="m-0 text-base font-semibold leading-6 text-shell-ink"
+              data-cy="shift-swap-peer-pending-title"
+            >
+              Requests awaiting your approval
+            </h3>
+          </div>
           <Table
             rowKey="id"
             columns={peerColumns}
@@ -794,12 +825,24 @@ export default function MySchedulePage() {
 
       {/* Swap Requests */}
       <section data-cy="swap-requests-section">
-        <h2
-          className="text-xl font-semibold m-0 mb-3 text-[#1f1f1f]"
-          data-cy="swap-requests-title"
+        <div
+          className="mb-1 flex items-center gap-2.5"
+          data-cy="swap-requests-heading"
         >
-          Swap Requests
-        </h2>
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+            aria-hidden
+            data-cy="swap-requests-icon"
+          >
+            <ArrowLeftRight size={17} strokeWidth={2.1} />
+          </span>
+          <h2
+            className="m-0 text-base font-semibold leading-6 text-shell-ink"
+            data-cy="swap-requests-title"
+          >
+            Swap Requests
+          </h2>
+        </div>
         <Tabs
           activeKey={swapTab}
           onChange={(key) => setSwapTab(key as SwapTabKey)}
@@ -824,7 +867,7 @@ export default function MySchedulePage() {
           <TableSkeleton columns={requestColumns} />
         ) : filteredRequests.length === 0 ? (
           <div
-            className="py-10 text-center text-gray-500 text-sm border border-dashed border-gray-200 rounded-lg"
+            className="rounded-lg border border-dashed border-shell-line bg-shell-wash py-10 text-center text-sm text-shell-muted"
             data-cy="swap-requests-empty"
           >
             {emptySwapMessage}

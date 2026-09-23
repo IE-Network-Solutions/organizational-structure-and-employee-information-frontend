@@ -11,6 +11,7 @@ import {
   notification,
 } from 'antd';
 import { CheckOutlined } from '@ant-design/icons';
+import { Inbox } from 'lucide-react';
 import type { TableColumnsType } from '@/types/table/table';
 import CustomPagination from '@/components/customPagination';
 import {
@@ -206,7 +207,7 @@ export default function MockApprovalInboxTable({
       key: 'employeeName',
       render: (name: string) => (
         <span
-          className="text-sm font-medium text-gray-900"
+          className="text-sm font-medium text-shell-ink"
           data-cy={`${dataCyPrefix}-cell-employee`}
         >
           {name}
@@ -220,7 +221,7 @@ export default function MockApprovalInboxTable({
       width: 140,
       render: (type: string) => (
         <span
-          className="text-sm text-gray-600"
+          className="text-sm text-shell-text"
           data-cy={`${dataCyPrefix}-cell-type`}
         >
           {type}
@@ -233,7 +234,7 @@ export default function MockApprovalInboxTable({
       key: 'summary',
       render: (summary: string) => (
         <span
-          className="text-sm text-gray-700"
+          className="text-sm text-shell-text"
           data-cy={`${dataCyPrefix}-cell-summary`}
         >
           {summary}
@@ -247,7 +248,7 @@ export default function MockApprovalInboxTable({
       width: 130,
       render: (date: string) => (
         <span
-          className="text-sm text-gray-600 whitespace-nowrap"
+          className="whitespace-nowrap text-sm text-shell-muted"
           data-cy={`${dataCyPrefix}-cell-requested`}
         >
           {dayjs(date).format('MMM D, YYYY')}
@@ -296,28 +297,37 @@ export default function MockApprovalInboxTable({
   return (
     <>
       <div
-        className="min-w-0 max-w-full w-full rounded-lg border border-[#E5E7EB] bg-white shadow-none"
+        className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-shell-line bg-white"
         data-cy={`${dataCyPrefix}-wrap`}
       >
         <div
-          className="border-b border-[#E5E7EB] px-4 py-3"
+          className="flex items-center gap-2.5 border-b border-shell-line px-4 py-3"
           data-cy={`${dataCyPrefix}-header`}
         >
-          <p
-            className="text-sm font-semibold text-gray-900"
-            data-cy={`${dataCyPrefix}-title`}
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+            aria-hidden
+            data-cy={`${dataCyPrefix}-icon`}
           >
-            {inboxLabel}
-          </p>
-          {!hidePrototypeNote ? (
+            <Inbox size={17} strokeWidth={2.1} />
+          </span>
+          <div className="min-w-0" data-cy={`${dataCyPrefix}-heading`}>
             <p
-              className="text-xs text-gray-500"
-              data-cy={`${dataCyPrefix}-subtitle`}
+              className="m-0 text-[15px] font-semibold leading-6 text-shell-ink"
+              data-cy={`${dataCyPrefix}-title`}
             >
-              Prototype inbox — actions update locally until backend is
-              connected
+              {inboxLabel}
             </p>
-          ) : null}
+            {!hidePrototypeNote ? (
+              <p
+                className="m-0 text-xs text-shell-muted"
+                data-cy={`${dataCyPrefix}-subtitle`}
+              >
+                Prototype inbox — actions update locally until backend is
+                connected
+              </p>
+            ) : null}
+          </div>
         </div>
         <Table<MockApprovalRow>
           rowKey="id"
@@ -325,10 +335,9 @@ export default function MockApprovalInboxTable({
           dataSource={paginatedRows}
           pagination={false}
           scroll={{ x: 960 }}
-          className="px-1 pb-2"
           data-cy={`${dataCyPrefix}-table`}
         />
-        <div className="px-3 pb-3" data-cy={`${dataCyPrefix}-pagination-wrap`}>
+        <div className="px-3 pb-2" data-cy={`${dataCyPrefix}-pagination-wrap`}>
           <CustomPagination
             current={currentPage}
             total={localRows.length}

@@ -42,7 +42,7 @@ export default function HomeAnnouncementPage() {
 
   return (
     <div
-      className="min-h-screen bg-white"
+      className="bg-white"
       data-cy="home-announcement-page"
       id="home-announcement-page"
     >

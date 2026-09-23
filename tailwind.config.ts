@@ -40,6 +40,17 @@ const config: Config = {
         greenlight: '#F6FFED',
         errorbg: '#FF4D4F',
         errorlight: '#FFE5E5',
+        // Home shell palette (hero, tab bar, profile sidebar). Page content
+        // uses these so it reads as part of the same surface.
+        shell: {
+          tint: '#F0F2FF', // sidebar background, soft panels
+          wash: '#F7F8FF', // row hover, recessed panel backgrounds
+          band: '#E9ECFD', // table header band
+          line: '#E3E6F5', // dividers and borders on white
+          ink: '#1F2240', // headings and primary text
+          text: '#42465F', // body text (sidebar values)
+          muted: '#7C82A7', // icons, captions, secondary text
+        },
       },
       fontFamily: {
         sans: ['Calibre', 'sans-serif'],

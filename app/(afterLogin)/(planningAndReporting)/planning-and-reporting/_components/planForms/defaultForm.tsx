@@ -214,7 +214,7 @@ function DefaultCardForm({
                           >
                             <span
                               data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-span-201"
-                              className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                              className="w-1.5 h-1.5 rounded-full bg-[#3636F0] inline-block"
                             ></span>
                             Priority
                           </div>
@@ -327,7 +327,7 @@ function DefaultCardForm({
                           >
                             <span
                               data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-span-294"
-                              className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                              className="w-1.5 h-1.5 rounded-full bg-[#3636F0] inline-block"
                             ></span>
                             Weight
                           </div>
@@ -392,7 +392,7 @@ function DefaultCardForm({
                               >
                                 <span
                                   data-cy="planning-and-reporting-components-planforms-defaultform-tsx-defaultform-span-353"
-                                  className="w-1.5 h-1.5 rounded-full bg-[#574CFF] inline-block"
+                                  className="w-1.5 h-1.5 rounded-full bg-[#3636F0] inline-block"
                                 ></span>
                                 Target
                               </div>

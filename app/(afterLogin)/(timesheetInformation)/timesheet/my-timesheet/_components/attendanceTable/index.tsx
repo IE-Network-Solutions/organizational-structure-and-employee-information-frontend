@@ -439,12 +439,12 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
 
   return (
     <div
-      className="bg-white border border-gray-300 rounded-md"
+      className="overflow-hidden rounded-lg border border-shell-line bg-white"
       id="time-attendance-attendance-table-container"
       data-cy="time-attendance-attendance-table-container"
     >
       <div
-        className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+        className="flex flex-col gap-4 px-3 pt-3 sm:flex-row sm:items-center sm:justify-between sm:px-4 lg:px-5"
         id="time-attendance-attendance-table-header-container"
         data-cy="time-attendance-attendance-table-header-container"
       >
@@ -456,7 +456,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           {variant === 'default' && (
             <>
               <div
-                className="text-sm sm:text-2xl font-bold text-gray-900"
+                className="text-sm font-semibold text-shell-ink sm:text-base"
                 id="time-attendance-attendance-table-title"
                 data-cy="time-attendance-attendance-table-title"
               >
@@ -488,7 +488,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
 
       {/* Desktop Filter — px matches card inset so Export is not flush to the border */}
       <div
-        className="hidden sm:block px-3 pb-2 sm:px-4 lg:px-5"
+        className="hidden border-b border-shell-line px-3 py-3 sm:block sm:px-4 lg:px-5"
         id="time-attendance-attendance-table-desktop-filter-container"
         data-cy="time-attendance-attendance-table-desktop-filter-container"
       >
@@ -521,7 +521,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
                   icon={<PiExportLight size={16} />}
                   data-cy="my-timesheet-attendance-export-button"
                   id="my-timesheet-attendance-export-button"
-                  className="h-8 border-gray-300 px-3 text-gray-500 font-medium hover:text-primary hover:border-primary"
+                  className="h-8 !border-primary px-3 font-medium !text-primary hover:!bg-shell-tint"
                 >
                   Export
                 </Button>
@@ -539,7 +539,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           <TableSkeleton columns={columns} />
         ) : (
           <Table<AttendanceRecord>
-            className="mt-3 [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:bg-[#FAFAFA] [&_.ant-table-thead>tr>th]:text-gray-800 [&_.ant-table-thead>tr>th]:text-base [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.time-attendance-table-row-even>td]:!bg-[#FAFAFA] [&_tr.time-attendance-table-row-odd>td]:!bg-white"
+            className="mt-3 sm:mt-0 [&_.ant-table-thead>tr>th]:whitespace-nowrap [&_.ant-table-tbody>tr>td]:whitespace-nowrap [&_.ant-table-thead>tr>th]:!rounded-none [&_.ant-table-thead>tr>th]:!bg-shell-band [&_.ant-table-thead>tr>th]:!text-[13px] [&_.ant-table-thead>tr>th]:!text-shell-text [&_.ant-table-thead>tr>th]:font-semibold [&_.ant-table-thead>tr>th]:before:!bg-transparent [&_tr.time-attendance-table-row-even>td]:!bg-shell-wash [&_tr.time-attendance-table-row-odd>td]:!bg-white"
             columns={columns}
             dataSource={data?.items}
             pagination={false}
@@ -556,7 +556,7 @@ const AttendanceTable = ({ variant = 'default' }: AttendanceTableProps) => {
           />
         )}
         <div
-          className={`mx-1 ${isMobile || isTablet ? 'mt-6' : ''}`}
+          className={`px-2 pb-1 sm:px-3 ${isMobile || isTablet ? 'mt-6' : ''}`}
           data-cy="time-attendance-attendance-table-pagination-wrapper"
         >
           {isMobile || isTablet ? (

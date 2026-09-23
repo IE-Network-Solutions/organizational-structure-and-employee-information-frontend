@@ -2,11 +2,13 @@
 
 import { useMemo } from 'react';
 import { Skeleton } from 'antd';
+import { GraduationCap } from 'lucide-react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetMyCourses } from '@/store/server/features/tna/management/queries';
 import CourseCard from '@/app/(afterLogin)/(tna)/tna/management/_components/courseCard';
 import MyCommitmentsPanel from '@/app/(afterLogin)/(tna)/tna/management/_components/myCommitmentsPanel';
 import EmptyState from '@/components/empty';
+import ShellSection from '@/components/homeUi/ShellSection';
 
 export default function HomeTrainingPage() {
   const { userId } = useAuthenticationStore();
@@ -28,28 +30,27 @@ export default function HomeTrainingPage() {
     <div
       id="home-training-page"
       data-cy="home-training-page"
-      className="space-y-4"
+      className="space-y-8"
     >
       <MyCommitmentsPanel />
 
-      <section
-        className="bg-white rounded-lg border border-[#E5E7EB] shadow-none p-3"
+      <ShellSection
+        icon={GraduationCap}
+        title="My Courses"
+        description={
+          isLoading
+            ? undefined
+            : `${courses.length} course${courses.length === 1 ? '' : 's'}`
+        }
         data-cy="home-training-courses-panel"
       >
-        <h2
-          className="text-sm font-semibold text-gray-900 m-0 mb-3"
-          data-cy="home-training-courses-title"
-        >
-          My Courses
-        </h2>
-
         {isLoading ? (
           <Skeleton active paragraph={{ rows: 4 }} />
         ) : courses.length === 0 ? (
           <EmptyState data-cy="home-training-empty" />
         ) : (
           <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
             data-cy="home-training-courses-grid"
           >
             {courses.map((item: { id: string }) => (
@@ -62,7 +63,7 @@ export default function HomeTrainingPage() {
             ))}
           </div>
         )}
-      </section>
+      </ShellSection>
     </div>
   );
 }

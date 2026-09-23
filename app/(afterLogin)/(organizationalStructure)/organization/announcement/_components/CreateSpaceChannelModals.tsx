@@ -65,9 +65,9 @@ export const SpaceVisibilityCards = ({
             onClick={() => onChange?.(option.value)}
             className="rounded-lg border px-3 py-3 text-left transition"
             style={{
-              borderColor: selected ? collaborationColors.primary : '#E5E7EB',
+              borderColor: selected ? collaborationColors.primary : '#E3E6F5',
               borderWidth: selected ? 2 : 1,
-              background: selected ? '#F8FAFB' : '#FFFFFF',
+              background: selected ? '#F7F8FF' : '#FFFFFF',
             }}
             data-cy={`announcement-space-visibility-${option.value}`}
             data-selected={selected ? 'true' : 'false'}
@@ -207,7 +207,7 @@ export const EditSpaceModal = ({
             >
               <Input
                 placeholder="e.g. Product Launch"
-                className="!bg-[#F3F5F8] !border-[#E8EDF2]"
+                className="!bg-[#F0F2FF] !border-[#E3E6F5]"
                 data-cy="announcement-edit-space-name"
               />
             </Form.Item>
@@ -229,7 +229,7 @@ export const EditSpaceModal = ({
                 <button
                   type="button"
                   aria-label="Choose space color"
-                  className="h-8 w-8 shrink-0 cursor-pointer rounded-md border border-[#E8EDF2] p-0"
+                  className="h-8 w-8 shrink-0 cursor-pointer rounded-md border border-[#E3E6F5] p-0"
                   style={{ backgroundColor: colorValue }}
                   data-cy="announcement-edit-space-color-swatch"
                 />
@@ -248,7 +248,7 @@ export const EditSpaceModal = ({
             rows={3}
             maxLength={255}
             placeholder="What is this space about?"
-            className="!bg-[#F3F5F8] !border-[#E8EDF2]"
+            className="!bg-[#F0F2FF] !border-[#E3E6F5]"
             data-cy="announcement-edit-space-description"
           />
         </Form.Item>
@@ -372,7 +372,7 @@ export const EditChannelModal = ({
         >
           <Input
             placeholder="e.g. project-alpha"
-            className="!bg-[#F3F5F8] !border-[#E8EDF2]"
+            className="!bg-[#F0F2FF] !border-[#E3E6F5]"
             data-cy="announcement-edit-channel-name"
           />
         </Form.Item>
@@ -386,7 +386,7 @@ export const EditChannelModal = ({
             rows={3}
             maxLength={255}
             placeholder="What is this channel for?"
-            className="!bg-[#F3F5F8] !border-[#E8EDF2]"
+            className="!bg-[#F0F2FF] !border-[#E3E6F5]"
             data-cy="announcement-edit-channel-description"
           />
         </Form.Item>

@@ -241,7 +241,7 @@ const AnnouncementWorkspace = () => {
 
   return (
     <div
-      className="flex min-h-[calc(100vh-10rem)] overflow-hidden"
+      className="flex min-h-[calc(100vh-10rem)] overflow-hidden rounded-lg border border-shell-line"
       style={{ background: collaborationColors.canvas }}
       data-cy="announcement-workspace"
     >

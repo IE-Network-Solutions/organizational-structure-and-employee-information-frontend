@@ -170,7 +170,7 @@ const ChannelMentionTextArea = ({
     <div className="relative w-full" data-cy="channel-mention-textarea-wrap">
       {showMenu ? (
         <div
-          className="absolute bottom-full left-0 right-0 z-30 mb-2 max-h-52 overflow-y-auto rounded-xl border bg-white py-1 shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+          className="absolute bottom-full left-0 right-0 z-30 mb-2 max-h-52 overflow-y-auto rounded-lg border bg-white py-1 shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
           style={{ borderColor: collaborationColors.accent }}
           data-cy="channel-mention-dropdown"
         >

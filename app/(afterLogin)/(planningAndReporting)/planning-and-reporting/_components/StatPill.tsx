@@ -13,15 +13,15 @@ interface StatPillProps {
 }
 
 const variantStyles: Record<string, { bg: string; text: string }> = {
-  metric: { bg: '#DEDEFA', text: '#574CFF' },
-  milestone: { bg: '#DEDEFA', text: '#574CFF' },
-  target: { bg: '#DEDEFA', text: '#574CFF' },
-  achieved: { bg: '#DEDEFA', text: '#574CFF' },
+  metric: { bg: '#DEDEFA', text: '#3636F0' },
+  milestone: { bg: '#DEDEFA', text: '#3636F0' },
+  target: { bg: '#DEDEFA', text: '#3636F0' },
+  achieved: { bg: '#DEDEFA', text: '#3636F0' },
   progress: { bg: '#D1FAE5', text: '#059669' },
   default: { bg: '#F4F5FB', text: '#5A5C80' },
 };
 
-const labelTextColor = '#8F94A3';
+const labelTextColor = '#7C82A7';
 
 export default function StatPill({
   label,

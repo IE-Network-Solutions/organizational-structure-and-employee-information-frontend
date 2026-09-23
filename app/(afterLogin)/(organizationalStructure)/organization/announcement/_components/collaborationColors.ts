@@ -1,13 +1,13 @@
-/** Announcement / Collaboration tokens aligned to workspace Ant Design primary. */
+/** Announcement / Collaboration tokens — Home shell palette (tailwind `shell.*`). */
 export const collaborationColors = {
-  /** Matches `providers/antdProvider` `colorPrimary` */
-  primary: '#1E40AF',
-  /** Matches `colorPrimaryHover` — use for explicit hover styles */
-  primaryHover: '#4096FF',
+  /** Brand indigo, same as the Home hero and tab bar */
+  primary: '#3636F0',
+  /** Lighter brand for explicit hover styles */
+  primaryHover: '#5A5AF4',
   /** Soft chip / selection rim */
-  accent: '#E5E7EB',
-  /** Sidebar + empty panels (neutral gray) */
-  surface: '#F3F4F6',
-  /** Main canvas — same gray wash as surface */
-  canvas: '#F3F4F6',
+  accent: '#E3E6F5',
+  /** Sidebar + empty panels (shell wash) */
+  surface: '#F7F8FF',
+  /** Main canvas — same wash as surface */
+  canvas: '#F7F8FF',
 } as const;

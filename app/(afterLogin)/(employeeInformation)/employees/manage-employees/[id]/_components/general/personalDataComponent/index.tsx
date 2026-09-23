@@ -99,7 +99,7 @@ function PersonalDataComponent({
         title={
           !edit.general ? (
             <span
-              className="text-base font-bold text-[#4d4d4d]"
+              className="text-base font-bold text-[#42465F]"
               data-cy="personal-data-card-title"
             >
               Personal Information
@@ -127,14 +127,14 @@ function PersonalDataComponent({
         }
         className="my-6 mt-0"
         bordered={false}
-        style={{ background: '#F9FAFB', boxShadow: 'none' }}
+        style={{ background: '#F7F8FF', boxShadow: 'none' }}
         id="personal-data-card"
         data-cy="personal-data-card"
         headStyle={{
           borderBottom: 'none',
           paddingLeft: '16px',
           paddingRight: '16px',
-          background: '#F9FAFB',
+          background: '#F7F8FF',
         }}
       >
         <Row
@@ -474,13 +474,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-full-name"
                 >
                   <p
-                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                    className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
                     data-cy="personal-data-full-name-label"
                   >
                     Full Name
                   </p>
                   <p
-                    className="text-base font-normal text-[#4d4d4d] m-0"
+                    className="text-base font-normal text-[#42465F] m-0"
                     data-cy="personal-data-full-name-value"
                   >
                     {`${employeeData?.firstName || ''} ${employeeData?.middleName || ''} ${employeeData?.lastName || ''}`.trim() ||
@@ -492,13 +492,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-gender"
                 >
                   <p
-                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                    className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
                     data-cy="personal-data-gender-label"
                   >
                     Gender
                   </p>
                   <p
-                    className="text-base font-normal text-[#4d4d4d] m-0"
+                    className="text-base font-normal text-[#42465F] m-0"
                     data-cy="personal-data-gender-value"
                   >
                     {employeeData?.employeeInformation?.gender
@@ -516,13 +516,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-marital-status"
                 >
                   <p
-                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                    className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
                     data-cy="personal-data-marital-status-label"
                   >
                     Marital Status
                   </p>
                   <p
-                    className="text-base font-normal text-[#4d4d4d] m-0"
+                    className="text-base font-normal text-[#42465F] m-0"
                     data-cy="personal-data-marital-status-value"
                   >
                     {employeeData?.employeeInformation?.maritalStatus
@@ -560,13 +560,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-date-of-birth"
                 >
                   <p
-                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                    className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
                     data-cy="personal-data-dob-label"
                   >
                     Date of Birth
                   </p>
                   <p
-                    className="text-base font-normal text-[#4d4d4d] m-0"
+                    className="text-base font-normal text-[#42465F] m-0"
                     data-cy="personal-data-dob-value"
                   >
                     {employeeData?.employeeInformation?.dateOfBirth
@@ -581,13 +581,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-nationality"
                 >
                   <p
-                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                    className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
                     data-cy="personal-data-nationality-label"
                   >
                     Nationality
                   </p>
                   <p
-                    className="text-base font-normal text-[#4d4d4d] m-0"
+                    className="text-base font-normal text-[#42465F] m-0"
                     data-cy="personal-data-nationality-value"
                   >
                     {employeeData?.employeeInformation?.nationality?.name ||
@@ -599,13 +599,13 @@ function PersonalDataComponent({
                   data-cy="personal-data-display-joined-date"
                 >
                   <p
-                    className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                    className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
                     data-cy="personal-data-joined-date-label"
                   >
                     Joined Date
                   </p>
                   <p
-                    className="text-base font-normal text-[#4d4d4d] m-0"
+                    className="text-base font-normal text-[#42465F] m-0"
                     data-cy="personal-data-joined-date-value"
                   >
                     {employeeData?.employeeInformation?.joinedDate

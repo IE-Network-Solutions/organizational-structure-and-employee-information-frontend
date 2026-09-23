@@ -99,7 +99,7 @@ const ChannelDraftList = ({ dataCyPrefix }: { dataCyPrefix: string }) => (
           {fields.map((field, index) => (
             <div
               key={field.key}
-              className="rounded-lg border border-[#E8EDF2] bg-[#FAFBFC] p-4"
+              className="rounded-lg border border-[#E3E6F5] bg-[#F7F8FF] p-4"
               data-cy={`${dataCyPrefix}-${index}`}
             >
               <div
@@ -136,7 +136,7 @@ const ChannelDraftList = ({ dataCyPrefix }: { dataCyPrefix: string }) => (
               >
                 <Input
                   placeholder="e.g. announcements"
-                  className="!bg-white !border-[#E8EDF2]"
+                  className="!bg-white !border-[#E3E6F5]"
                   data-cy={`${dataCyPrefix}-name-${index}`}
                 />
               </Form.Item>
@@ -151,7 +151,7 @@ const ChannelDraftList = ({ dataCyPrefix }: { dataCyPrefix: string }) => (
                   rows={2}
                   maxLength={255}
                   placeholder="What is this channel for?"
-                  className="!bg-white !border-[#E8EDF2]"
+                  className="!bg-white !border-[#E3E6F5]"
                   data-cy={`${dataCyPrefix}-description-${index}`}
                 />
               </Form.Item>
@@ -232,7 +232,7 @@ const SpaceOption = ({
     className={`flex w-full items-center gap-3 rounded-lg border px-3 py-3 text-left transition ${
       selected
         ? 'border-primary bg-[#F0F5FF]'
-        : 'border-[#E8EDF2] bg-white hover:border-gray-300'
+        : 'border-[#E3E6F5] bg-white hover:border-gray-300'
     }`}
     data-cy={`announcement-integration-space-${space.id}`}
     data-selected={selected ? 'true' : 'false'}
@@ -823,7 +823,7 @@ const AnnouncementIntegrationWizard = ({
                       >
                         <Input
                           placeholder="e.g. Product Launch"
-                          className="!bg-[#F3F5F8] !border-[#E8EDF2]"
+                          className="!bg-[#F0F2FF] !border-[#E3E6F5]"
                           data-cy="announcement-integration-create-space-name"
                         />
                       </Form.Item>
@@ -851,7 +851,7 @@ const AnnouncementIntegrationWizard = ({
                           <button
                             type="button"
                             aria-label="Choose space color"
-                            className="h-8 w-8 shrink-0 cursor-pointer rounded-md border border-[#E8EDF2] p-0"
+                            className="h-8 w-8 shrink-0 cursor-pointer rounded-md border border-[#E3E6F5] p-0"
                             style={{ backgroundColor: spaceColorValue }}
                             data-cy="announcement-integration-create-space-color-swatch"
                           />
@@ -870,7 +870,7 @@ const AnnouncementIntegrationWizard = ({
                       rows={3}
                       maxLength={255}
                       placeholder="What is this space about?"
-                      className="!bg-[#F3F5F8] !border-[#E8EDF2]"
+                      className="!bg-[#F0F2FF] !border-[#E3E6F5]"
                       data-cy="announcement-integration-create-space-description"
                     />
                   </Form.Item>

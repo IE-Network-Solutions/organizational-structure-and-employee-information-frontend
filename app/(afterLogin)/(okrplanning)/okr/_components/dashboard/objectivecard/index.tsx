@@ -31,13 +31,12 @@ import {
   DeleteOutlined,
 } from '@ant-design/icons';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetUserKeyResult } from '@/store/server/features/okrplanning/okr/keyresult/queries';
-import { PiCalendarBold } from 'react-icons/pi';
+import { CalendarDays, Ellipsis, ListChecks, Target } from 'lucide-react';
 import dayjs from 'dayjs';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -292,6 +291,10 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const completedKeyResults =
     objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
+  const objectiveProgressPercent = Math.min(
+    100,
+    Math.max(0, Number(objective?.objectiveProgress ?? 0) || 0),
+  );
 
   const canManageOkr =
     AccessGuard.checkAccess({ permissions: [Permissions.UpdateObjectives] }) ||
@@ -350,356 +353,294 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
     <div
       id={`objective-card-${objective?.id}`}
       data-cy={`okr-objective-card-${objective?.id}`}
-      className={`${isMobile || isTablet ? 'mb-4' : 'mb-6'}`}
+      className={`border-b border-shell-line ${
+        isMobile || isTablet ? 'mb-5 pb-5' : 'mb-7 pb-7'
+      }`}
     >
       <div
         data-cy={`okr-objective-card-wrapper-${objective?.id}`}
-        className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden"
+        className="bg-white"
       >
         <div
-          className="p-4 pb-2 sm:p-6"
+          className="mb-4 flex items-start gap-3"
           data-cy={`okr-objective-card-body-${objective?.id}`}
         >
+          <span
+            className="mt-0.5 hidden h-9 w-9 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary sm:flex"
+            aria-hidden
+            data-cy={`okr-objective-card-icon-${objective?.id}`}
+          >
+            <Target size={18} strokeWidth={2.1} />
+          </span>
           <div
-            className="flex items-start justify-between"
-            data-cy={`okr-objective-card-inner-${objective?.id}`}
+            className="flex min-w-0 flex-1 items-start justify-between gap-3"
+            data-cy={`okr-objective-card-row-${objective?.id}`}
           >
             <div
-              className="w-full"
-              data-cy={`okr-objective-card-main-${objective?.id}`}
+              className="flex min-w-0 flex-1 flex-col gap-1.5"
+              data-cy={`okr-objective-card-title-section-${objective?.id}`}
             >
               <div
-                className="flex-1 min-w-0"
-                data-cy={`okr-objective-card-content-${objective?.id}`}
+                className={
+                  isInlineEditing
+                    ? 'flex w-full flex-col items-stretch gap-3 lg:flex-row lg:items-end lg:gap-3'
+                    : 'min-w-0'
+                }
+                data-cy={`okr-objective-card-title-row-${objective?.id}`}
               >
-                <div
-                  className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
-                  data-cy={`okr-objective-card-row-${objective?.id}`}
+                <h2
+                  id={`objective-title-${objective?.id}`}
+                  data-cy={`okr-objective-title-${objective?.id}`}
+                  className={`m-0 min-w-0 text-base font-semibold leading-6 text-shell-ink sm:text-[17px] ${
+                    isInlineEditing ? 'w-full lg:flex-1' : ''
+                  }`}
                 >
+                  {isInlineEditing ? (
+                    <Input
+                      value={editableTitle}
+                      onChange={(e) => setEditableTitle(e.target.value)}
+                      maxLength={500}
+                      autoFocus
+                      size="middle"
+                      placeholder="Update objective title"
+                      className="h-9 w-full"
+                      data-cy={`okr-objective-title-inline-input-${objective?.id}`}
+                    />
+                  ) : (
+                    objective?.title
+                  )}
+                </h2>
+                {isInlineEditing ? (
                   <div
-                    className="flex min-w-0 flex-1 items-center gap-3 sm:gap-5"
-                    data-cy={`okr-objective-card-title-block-${objective?.id}`}
+                    className="flex w-full min-w-0 shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end lg:w-auto lg:shrink lg:flex-nowrap"
+                    data-cy={`okr-objective-inline-edit-row-${objective?.id}`}
                   >
                     <div
-                      className="flex min-w-0 flex-1 flex-col gap-y-1"
-                      data-cy={`okr-objective-card-title-section-${objective?.id}`}
+                      className="flex min-w-0 w-full flex-col gap-1 sm:w-[260px] sm:max-w-full"
+                      data-cy={`okr-objective-inline-alignment-wrap-${objective?.id}`}
                     >
-                      <div
-                        className="flex flex-wrap items-center gap-x-0 gap-y-2"
-                        data-cy={`okr-objective-card-header-${objective?.id}`}
+                      <span
+                        className="text-[11px] font-semibold uppercase tracking-[0.04em] text-primary"
+                        data-cy={`okr-objective-inline-alignment-label-${objective?.id}`}
                       >
-                        <div
-                          className="flex min-w-0 flex-1 flex-wrap items-center justify-start gap-2"
-                          data-cy={`okr-objective-card-progress-cell-container-${objective?.id}`}
-                        >
-                          <div
-                            className="min-w-0 shrink-0"
-                            data-cy={`okr-objective-card-progress-cell-${objective?.id}`}
-                          >
-                            <span
-                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-[#DBEAFE] text-blue-700 border border-[#BFDBFE] whitespace-nowrap"
-                              data-cy={`okr-objective-progress-badge-${objective?.id}`}
-                            >
-                              {Number(
-                                objective?.objectiveProgress,
-                              )?.toLocaleString()}
-                              % Objective Progress
-                            </span>
-                          </div>
-                          <div
-                            className="min-w-0 flex flex-wrap items-center justify-start gap-2"
-                            data-cy={`okr-objective-card-kr-count-cell-${objective?.id}`}
-                          >
-                            <span
-                              className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
-                              data-cy={`okr-objective-card-kr-count-badge-${objective?.id}`}
-                            >
-                              {completedKeyResults} - {totalKeyResults} Key
-                              Results Done
-                            </span>
-                            <span
-                              className="hidden sm:inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap"
-                              data-cy={`okr-objective-card-days-left-badge-${objective?.id}`}
-                            >
-                              {objective?.daysLeft ?? '—'} Days Left
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <div
-                        className={`min-h-8 gap-2 ${
-                          isInlineEditing
-                            ? 'flex w-full flex-col items-stretch gap-3 lg:flex-row lg:items-end lg:gap-3'
-                            : 'flex items-end justify-between'
-                        }`}
-                        data-cy={`okr-objective-card-title-row-${objective?.id}`}
+                        Alignment
+                      </span>
+                      <Select
+                        allowClear
+                        value={editableAlignmentId ?? undefined}
+                        placeholder="Select alignment"
+                        size="middle"
+                        className="w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!items-center md:[&_.ant-select-selector]:!h-8"
+                        status={!editableAlignmentId ? 'error' : ''}
+                        onChange={(value) =>
+                          setEditableAlignmentId(value ?? null)
+                        }
+                        options={(keyResultByUser?.items || []).map(
+                          (keyResult: any) => ({
+                            value: keyResult.id,
+                            label: keyResult.title,
+                          }),
+                        )}
+                        data-cy={`okr-objective-inline-alignment-${objective?.id}`}
+                      />
+                    </div>
+                    <div
+                      className="flex min-w-0 w-full shrink-0 flex-col gap-1 sm:w-[180px]"
+                      data-cy={`okr-objective-inline-deadline-wrap-${objective?.id}`}
+                    >
+                      <span
+                        className="text-[11px] font-semibold uppercase tracking-[0.04em] text-primary"
+                        data-cy={`okr-objective-inline-deadline-label-${objective?.id}`}
                       >
-                        <h2
-                          id={`objective-title-${objective?.id}`}
-                          data-cy={`okr-objective-title-${objective?.id}`}
-                          className={`text-base sm:text-lg font-bold text-gray-900 m-0 min-w-0 leading-7 sm:leading-8 ${
-                            isInlineEditing ? 'w-full min-w-0 lg:flex-1' : ''
-                          }`}
-                        >
-                          {isInlineEditing ? (
-                            <Input
-                              value={editableTitle}
-                              onChange={(e) => setEditableTitle(e.target.value)}
-                              maxLength={500}
-                              autoFocus
-                              size="middle"
-                              placeholder="Update objective title"
-                              className="h-9 w-full"
-                              data-cy={`okr-objective-title-inline-input-${objective?.id}`}
-                            />
-                          ) : (
-                            objective?.title
-                          )}
-                        </h2>
-                        {isInlineEditing ? (
-                          <div
-                            className="flex w-full min-w-0 shrink-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end lg:w-auto lg:shrink lg:flex-nowrap"
-                            data-cy={`okr-objective-inline-edit-row-${objective?.id}`}
-                          >
-                            <div
-                              className="flex min-w-0 w-full flex-col gap-1 sm:w-[260px] sm:max-w-full"
-                              data-cy={`okr-objective-inline-alignment-wrap-${objective?.id}`}
-                            >
-                              <span
-                                className="text-xs font-medium uppercase tracking-wide text-slate-500"
-                                data-cy={`okr-objective-inline-alignment-label-${objective?.id}`}
-                              >
-                                Alignment
-                              </span>
-                              <Select
-                                allowClear
-                                value={editableAlignmentId ?? undefined}
-                                placeholder="Select alignment"
-                                size="middle"
-                                className="w-full [&_.ant-select-selector]:!h-9 [&_.ant-select-selector]:!items-center md:[&_.ant-select-selector]:!h-8"
-                                status={!editableAlignmentId ? 'error' : ''}
-                                onChange={(value) =>
-                                  setEditableAlignmentId(value ?? null)
-                                }
-                                options={(keyResultByUser?.items || []).map(
-                                  (keyResult: any) => ({
-                                    value: keyResult.id,
-                                    label: keyResult.title,
-                                  }),
-                                )}
-                                data-cy={`okr-objective-inline-alignment-${objective?.id}`}
-                              />
-                            </div>
-                            <div
-                              className="flex min-w-0 w-full shrink-0 flex-col gap-1 sm:w-[180px]"
-                              data-cy={`okr-objective-inline-deadline-wrap-${objective?.id}`}
-                            >
-                              <span
-                                className="text-xs font-medium uppercase tracking-wide text-slate-500"
-                                data-cy={`okr-objective-inline-deadline-label-${objective?.id}`}
-                              >
-                                Deadline
-                              </span>
-                              <DatePicker
-                                value={
-                                  editableDeadline
-                                    ? dayjs(editableDeadline)
-                                    : null
-                                }
-                                format="YYYY-MM-DD"
-                                size="middle"
-                                className="h-9 w-full sm:h-8 sm:w-[180px]"
-                                status={!editableDeadline ? 'error' : ''}
-                                disabledDate={(current) =>
-                                  current && current < dayjs().startOf('day')
-                                }
-                                onChange={(date) =>
-                                  setEditableDeadline(
-                                    date ? date.format('YYYY-MM-DD') : null,
-                                  )
-                                }
-                                data-cy={`okr-objective-inline-deadline-${objective?.id}`}
-                              />
-                            </div>
-                            <div
-                              className="flex items-center justify-end gap-2 pb-[1px] sm:justify-start"
-                              data-cy={`okr-objective-inline-actions-${objective?.id}`}
-                            >
-                              <Button
-                                size="small"
-                                onClick={onCancelInlineEdit}
-                                disabled={isUpdatingObjective}
-                                icon={<CloseOutlined />}
-                                className="h-9 w-9 p-0 sm:h-8 sm:w-8"
-                                aria-label="Cancel objective edit"
-                                data-cy={`okr-objective-inline-cancel-${objective?.id}`}
-                              />
-                              <Button
-                                type="primary"
-                                size="small"
-                                onClick={onSaveInlineEdit}
-                                loading={isUpdatingObjective}
-                                icon={<CheckOutlined />}
-                                className="h-9 w-9 p-0 sm:h-8 sm:w-8"
-                                aria-label="Save objective edit"
-                                disabled={
-                                  !editableTitle.trim() ||
-                                  !editableAlignmentId ||
-                                  !editableDeadline ||
-                                  hasMissingInlineKeyResultDeadline
-                                }
-                                data-cy={`okr-objective-inline-save-${objective?.id}`}
-                              />
-                            </div>
-                          </div>
-                        ) : null}
-                        {!isInlineEditing &&
-                          objective?.isClosed === false &&
-                          Number(objective?.objectiveProgress ?? 0) !== 100 &&
-                          menu && (
-                            <Dropdown
-                              overlay={menu}
-                              trigger={['click']}
-                              placement="bottomRight"
-                              overlayClassName="okr-actions-dropdown"
-                              data-cy={`okr-objective-menu-dropdown-mobile-${objective?.id}`}
-                            >
-                              <span
-                                className="inline-flex h-6 max-h-6 items-center leading-none sm:hidden"
-                                data-cy={`okr-objective-menu-trigger-mobile-${objective?.id}`}
-                              >
-                                <button
-                                  type="button"
-                                  className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151]"
-                                  data-cy={`okr-objective-menu-button-${objective?.id}`}
-                                >
-                                  <MoreHorizIcon
-                                    sx={{
-                                      width: 14,
-                                      height: 14,
-                                      color: '#374151',
-                                    }}
-                                    data-cy={`okr-objective-menu-icon-mobile-${objective?.id}`}
-                                  />
-                                </button>
-                              </span>
-                            </Dropdown>
-                          )}
-                      </div>
-                      <div
-                        className="flex items-center text-sm text-gray-500 sm:hidden"
-                        data-cy={`okr-objective-card-days-left-mobile-${objective?.id}`}
-                      >
-                        <PiCalendarBold className="mr-2 flex-shrink-0 text-lg text-gray-400" />
-                        <span
-                          data-cy={`okr-objective-card-days-left-mobile-text-${objective?.id}`}
-                        >
-                          {objective?.daysLeft ?? '—'} Days Left
-                        </span>
-                      </div>
+                        Deadline
+                      </span>
+                      <DatePicker
+                        value={
+                          editableDeadline ? dayjs(editableDeadline) : null
+                        }
+                        format="YYYY-MM-DD"
+                        size="middle"
+                        className="h-9 w-full sm:h-8 sm:w-[180px]"
+                        status={!editableDeadline ? 'error' : ''}
+                        disabledDate={(current) =>
+                          current && current < dayjs().startOf('day')
+                        }
+                        onChange={(date) =>
+                          setEditableDeadline(
+                            date ? date.format('YYYY-MM-DD') : null,
+                          )
+                        }
+                        data-cy={`okr-objective-inline-deadline-${objective?.id}`}
+                      />
+                    </div>
+                    <div
+                      className="flex items-center justify-end gap-2 pb-[1px] sm:justify-start"
+                      data-cy={`okr-objective-inline-actions-${objective?.id}`}
+                    >
+                      <Button
+                        size="small"
+                        onClick={onCancelInlineEdit}
+                        disabled={isUpdatingObjective}
+                        icon={<CloseOutlined />}
+                        className="h-9 w-9 p-0 sm:h-8 sm:w-8"
+                        aria-label="Cancel objective edit"
+                        data-cy={`okr-objective-inline-cancel-${objective?.id}`}
+                      />
+                      <Button
+                        type="primary"
+                        size="small"
+                        onClick={onSaveInlineEdit}
+                        loading={isUpdatingObjective}
+                        icon={<CheckOutlined />}
+                        className="h-9 w-9 p-0 sm:h-8 sm:w-8"
+                        aria-label="Save objective edit"
+                        disabled={
+                          !editableTitle.trim() ||
+                          !editableAlignmentId ||
+                          !editableDeadline ||
+                          hasMissingInlineKeyResultDeadline
+                        }
+                        data-cy={`okr-objective-inline-save-${objective?.id}`}
+                      />
                     </div>
                   </div>
-                  <div
-                    className="flex flex-shrink-0 items-center justify-end gap-3 sm:ml-auto"
-                    data-cy={`okr-objective-card-actions-${objective?.id}`}
+                ) : null}
+              </div>
+              <div
+                className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] leading-5 text-shell-text"
+                data-cy={`okr-objective-card-header-${objective?.id}`}
+              >
+                <span
+                  className="inline-flex items-center gap-2"
+                  data-cy={`okr-objective-progress-badge-${objective?.id}`}
+                >
+                  <span
+                    className="block h-1.5 w-20 overflow-hidden rounded-full bg-shell-band"
+                    data-cy={`okr-objective-progress-track-${objective?.id}`}
                   >
-                    {!myOkr && objective?.user && (
-                      <div
-                        className="flex items-center gap-3"
-                        data-cy={`okr-objective-assignee-${objective?.id}`}
-                      >
-                        <Avatar
-                          size={40}
-                          src={objective.user.profileImage}
-                          className="border border-gray-200"
-                        >
-                          {!objective.user.profileImage &&
-                            `${objective.user.firstName?.[0] || ''}${objective.user.lastName?.[0] || ''}`.toUpperCase()}
-                        </Avatar>
-                        <div
-                          className="text-left sm:text-right"
-                          data-cy={`okr-objective-card-assignee-info-${objective?.id}`}
-                        >
-                          <p
-                            className="text-xs sm:text-sm font-semibold text-gray-900"
-                            data-cy={`okr-objective-card-assignee-name-${objective?.id}`}
-                          >
-                            {[
-                              objective.user.firstName,
-                              objective.user.middleName,
-                              objective.user.lastName,
-                            ]
-                              .filter(Boolean)
-                              .join(' ')}
-                          </p>
-                          <p
-                            className="text-[11px] sm:text-xs text-gray-500"
-                            data-cy={`okr-objective-card-assignee-dept-${objective?.id}`}
-                          >
-                            {objective.user?.employeeJobInformation?.[0]
-                              ?.department?.name ||
-                              objective.user?.employeeJobInformation?.[0]
-                                ?.position?.name ||
-                              '-'}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    {!isInlineEditing &&
-                      objective?.isClosed === false &&
-                      Number(objective?.objectiveProgress ?? 0) !== 100 &&
-                      menu && (
-                        <div
-                          className="hidden shrink-0 sm:flex sm:min-w-[56px] sm:flex-col sm:items-end sm:justify-center"
-                          data-cy={`okr-objective-menu-desktop-column-${objective?.id}`}
-                        >
-                          <Dropdown
-                            overlay={menu}
-                            trigger={['click']}
-                            placement="bottomRight"
-                            overlayClassName="okr-actions-dropdown"
-                            data-cy={`okr-objective-menu-dropdown-desktop-${objective?.id}`}
-                          >
-                            <span
-                              className="inline-flex h-6 max-h-6 items-center leading-none"
-                              data-cy={`okr-objective-menu-trigger-desktop-${objective?.id}`}
-                            >
-                              <button
-                                type="button"
-                                className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151]"
-                                data-cy={`okr-objective-menu-button-desktop-${objective?.id}`}
-                              >
-                                <MoreHorizIcon
-                                  sx={{
-                                    width: 14,
-                                    height: 14,
-                                    color: '#374151',
-                                  }}
-                                  data-cy={`okr-objective-menu-icon-desktop-${objective?.id}`}
-                                />
-                              </button>
-                            </span>
-                          </Dropdown>
-                        </div>
-                      )}
+                    <span
+                      className={`block h-full rounded-full ${
+                        objectiveProgressPercent >= 100
+                          ? 'bg-success'
+                          : 'bg-primary'
+                      }`}
+                      style={{ width: `${objectiveProgressPercent}%` }}
+                      data-cy={`okr-objective-progress-fill-${objective?.id}`}
+                    />
+                  </span>
+                  <span
+                    className="font-semibold tabular-nums text-shell-ink"
+                    data-cy={`okr-objective-progress-value-${objective?.id}`}
+                  >
+                    {Number(objective?.objectiveProgress)?.toLocaleString()}%
+                  </span>
+                </span>
+                <span
+                  className="inline-flex items-center gap-1.5"
+                  data-cy={`okr-objective-card-kr-count-badge-${objective?.id}`}
+                >
+                  <ListChecks
+                    size={14}
+                    className="text-shell-muted"
+                    aria-hidden
+                  />
+                  {completedKeyResults} of {totalKeyResults} key results done
+                </span>
+                <span
+                  className="inline-flex items-center gap-1.5"
+                  data-cy={`okr-objective-card-days-left-badge-${objective?.id}`}
+                >
+                  <CalendarDays
+                    size={14}
+                    className="text-shell-muted"
+                    aria-hidden
+                  />
+                  {objective?.daysLeft ?? '—'} days left
+                </span>
+              </div>
+            </div>
+            <div
+              className="flex shrink-0 items-center gap-3"
+              data-cy={`okr-objective-card-actions-${objective?.id}`}
+            >
+              {!myOkr && objective?.user && (
+                <div
+                  className="flex items-center gap-2.5"
+                  data-cy={`okr-objective-assignee-${objective?.id}`}
+                >
+                  <Avatar
+                    size={36}
+                    src={objective.user.profileImage}
+                    className="border border-shell-line bg-shell-tint text-primary"
+                  >
+                    {!objective.user.profileImage &&
+                      `${objective.user.firstName?.[0] || ''}${objective.user.lastName?.[0] || ''}`.toUpperCase()}
+                  </Avatar>
+                  <div
+                    className="text-left sm:text-right"
+                    data-cy={`okr-objective-card-assignee-info-${objective?.id}`}
+                  >
+                    <p
+                      className="m-0 text-[13px] font-semibold leading-5 text-shell-ink"
+                      data-cy={`okr-objective-card-assignee-name-${objective?.id}`}
+                    >
+                      {[
+                        objective.user.firstName,
+                        objective.user.middleName,
+                        objective.user.lastName,
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                    </p>
+                    <p
+                      className="m-0 text-xs leading-4 text-shell-muted"
+                      data-cy={`okr-objective-card-assignee-dept-${objective?.id}`}
+                    >
+                      {objective.user?.employeeJobInformation?.[0]?.department
+                        ?.name ||
+                        objective.user?.employeeJobInformation?.[0]?.position
+                          ?.name ||
+                        '-'}
+                    </p>
                   </div>
                 </div>
-              </div>
+              )}
+              {!isInlineEditing &&
+                objective?.isClosed === false &&
+                Number(objective?.objectiveProgress ?? 0) !== 100 &&
+                menu && (
+                  <Dropdown
+                    overlay={menu}
+                    trigger={['click']}
+                    placement="bottomRight"
+                    overlayClassName="okr-actions-dropdown"
+                    data-cy={`okr-objective-menu-dropdown-desktop-${objective?.id}`}
+                  >
+                    <button
+                      type="button"
+                      aria-label="Objective actions"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-shell-muted transition-colors hover:bg-shell-tint hover:text-primary"
+                      data-cy={`okr-objective-menu-button-desktop-${objective?.id}`}
+                    >
+                      <Ellipsis size={18} aria-hidden />
+                    </button>
+                  </Dropdown>
+                )}
             </div>
           </div>
         </div>
 
         {objective?.keyResults?.length > 0 && (
           <div
-            className="mt-3 border-t border-gray-200 overflow-x-auto [-webkit-overflow-scrolling:touch] sm:mt-4"
+            className="overflow-x-auto [-webkit-overflow-scrolling:touch]"
             data-cy={`okr-objective-card-key-results-${objective?.id}`}
           >
             <table
-              className="w-full min-w-[720px] table-auto divide-y divide-gray-200 md:min-w-[900px]"
+              className="w-full min-w-[720px] table-auto md:min-w-[900px]"
               data-cy={`okr-objective-card-key-results-table-${objective?.id}`}
             >
               <thead
-                className="bg-gray-50"
+                className="bg-shell-band"
                 data-cy={`okr-objective-card-key-results-thead-${objective?.id}`}
               >
                 <tr
@@ -707,14 +648,14 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                 >
                   <th
                     scope="col"
-                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-900 tracking-wider min-w-[200px] sm:px-6 sm:py-3 sm:min-w-[240px] md:min-w-[280px]"
+                    className="min-w-[200px] px-3 py-2.5 text-left text-[13px] font-semibold text-shell-text sm:min-w-[240px] sm:px-4 md:min-w-[280px]"
                     data-cy={`okr-objective-card-th-key-result-${objective?.id}`}
                   >
                     Key Result
                   </th>
                   <th
                     scope="col"
-                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[100px] whitespace-nowrap sm:px-6 sm:py-3 sm:w-[120px]"
+                    className="w-[100px] whitespace-nowrap px-3 py-2.5 text-left text-[13px] font-semibold text-shell-text sm:w-[130px] sm:px-4"
                     data-cy={`okr-objective-card-th-metrics-${objective?.id}`}
                   >
                     {isInlineEditing || isAnyKeyResultInlineEditActive
@@ -724,7 +665,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   {(isInlineEditing || isAnyKeyResultInlineEditActive) && (
                     <th
                       scope="col"
-                      className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[120px] whitespace-nowrap sm:px-6 sm:py-3 sm:w-[160px]"
+                      className="w-[120px] whitespace-nowrap px-3 py-2.5 text-left text-[13px] font-semibold text-shell-text sm:w-[160px] sm:px-4"
                       data-cy={`okr-objective-card-th-deadline-${objective?.id}`}
                     >
                       Deadline
@@ -732,14 +673,14 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   )}
                   <th
                     scope="col"
-                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider w-[80px] whitespace-nowrap sm:px-6 sm:py-3 sm:w-[90px]"
+                    className="w-[80px] whitespace-nowrap px-3 py-2.5 text-left text-[13px] font-semibold text-shell-text sm:w-[90px] sm:px-4"
                     data-cy={`okr-objective-card-th-weight-${objective?.id}`}
                   >
                     Weight
                   </th>
                   <th
                     scope="col"
-                    className="px-3 py-2.5 text-left text-xs font-semibold text-gray-500 tracking-wider min-w-[160px] whitespace-nowrap sm:px-6 sm:py-3 sm:w-[220px]"
+                    className="min-w-[160px] whitespace-nowrap px-3 py-2.5 text-left text-[13px] font-semibold text-shell-text sm:w-[220px] sm:px-4"
                     data-cy={`okr-objective-card-th-progress-${objective?.id}`}
                   >
                     {isInlineEditing || isAnyKeyResultInlineEditActive
@@ -748,13 +689,13 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                   </th>
                   <th
                     scope="col"
-                    className="px-3 py-2.5 w-[52px] whitespace-nowrap text-right sm:px-6 sm:py-3 sm:w-[56px]"
+                    className="w-[52px] whitespace-nowrap px-3 py-2.5 text-right sm:w-[56px] sm:px-4"
                     data-cy={`okr-objective-card-th-actions-${objective?.id}`}
                   />
                 </tr>
               </thead>
               <tbody
-                className="bg-white divide-y divide-gray-200 text-sm"
+                className="divide-y divide-shell-line bg-white text-sm"
                 data-cy={`okr-objective-card-key-results-tbody-${objective?.id}`}
               >
                 {(isInlineEditing

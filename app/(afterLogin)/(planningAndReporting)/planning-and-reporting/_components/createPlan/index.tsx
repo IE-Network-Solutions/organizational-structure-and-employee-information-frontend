@@ -424,7 +424,7 @@ function CreatePlan() {
 
   const modalHeader = (
     <div
-      className="flex items-center justify-center text-2xl font-bold text-[#161A2C] p-4 relative"
+      className="flex items-center justify-center text-2xl font-bold text-[#1F2240] p-4 relative"
       data-cy="create-plan-modal-header"
     >
       <div data-cy="create-plan-modal-header-title">
@@ -569,7 +569,7 @@ function CreatePlan() {
       >
         <span
           data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-528"
-          className="text-sm font-medium text-[#161A2C] whitespace-nowrap"
+          className="text-sm font-medium text-[#1F2240] whitespace-nowrap"
         >
           <span
             data-cy="planning-and-reporting-components-createplan-index-tsx-index-span-529"

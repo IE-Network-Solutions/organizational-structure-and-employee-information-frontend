@@ -822,7 +822,7 @@ const CollaborationComposer = ({
       </p>
       <button
         type="button"
-        className="flex w-full items-center gap-2.5 border-0 bg-transparent px-3 py-2 text-left text-sm text-gray-700 transition hover:bg-[#F8FAFB]"
+        className="flex w-full items-center gap-2.5 border-0 bg-transparent px-3 py-2 text-left text-sm text-gray-700 transition hover:bg-[#F7F8FF]"
         onClick={() => fileInputRef.current?.click()}
         data-cy="create-announcement-attach-files"
       >
@@ -831,7 +831,7 @@ const CollaborationComposer = ({
       </button>
       <button
         type="button"
-        className="flex w-full items-center gap-2.5 border-0 bg-transparent px-3 py-2 text-left text-sm text-gray-700 transition hover:bg-[#F8FAFB]"
+        className="flex w-full items-center gap-2.5 border-0 bg-transparent px-3 py-2 text-left text-sm text-gray-700 transition hover:bg-[#F7F8FF]"
         onClick={() => imageInputRef.current?.click()}
         data-cy="create-announcement-attach-images"
       >
@@ -844,13 +844,13 @@ const CollaborationComposer = ({
   const showMentionMenu = mentionQuery !== null;
 
   const formatIconClass =
-    'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#334155] transition hover:bg-[#F1F5F9]';
+    'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border-0 bg-transparent p-0 text-[#334155] transition hover:bg-[#F0F2FF]';
 
   return (
     <div className="relative" data-cy="create-announcement-composer-wrap">
       {showMentionMenu ? (
         <div
-          className="absolute bottom-full left-0 right-0 z-30 mb-2 max-h-60 overflow-y-auto rounded-xl border bg-white py-1 shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
+          className="absolute bottom-full left-0 right-0 z-30 mb-2 max-h-60 overflow-y-auto rounded-lg border bg-white py-1 shadow-[0_4px_16px_rgba(0,0,0,0.08)]"
           style={{ borderColor: collaborationColors.accent }}
           data-cy="create-announcement-mention-dropdown"
         >
@@ -928,7 +928,7 @@ const CollaborationComposer = ({
 
       {showFormatToolbar ? (
         <div
-          className="mb-2 flex max-w-full items-center gap-0.5 overflow-x-auto rounded-xl border border-[#E8EDF2] bg-[#F8FAFB] px-1.5 py-1 scrollbar-none"
+          className="mb-2 flex max-w-full items-center gap-0.5 overflow-x-auto rounded-lg border border-[#E3E6F5] bg-[#F7F8FF] px-1.5 py-1 scrollbar-none"
           data-cy="create-announcement-format-toolbar"
         >
           <button
@@ -974,7 +974,7 @@ const CollaborationComposer = ({
 
           <span
             data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-853"
-            className="mx-1 h-4 w-px shrink-0 bg-[#D8DEE6]"
+            className="mx-1 h-4 w-px shrink-0 bg-[#D5DAF0]"
           />
 
           <button
@@ -1000,7 +1000,7 @@ const CollaborationComposer = ({
 
           <span
             data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-876"
-            className="mx-1 h-4 w-px shrink-0 bg-[#D8DEE6]"
+            className="mx-1 h-4 w-px shrink-0 bg-[#D5DAF0]"
           />
 
           <button
@@ -1035,7 +1035,7 @@ const CollaborationComposer = ({
           </button>
           <button
             type="button"
-            className="ml-0.5 flex h-7 shrink-0 items-center gap-1 rounded-md border-0 bg-transparent px-1.5 text-[12px] font-medium text-[#64748B] transition hover:bg-[#F1F5F9]"
+            className="ml-0.5 flex h-7 shrink-0 items-center gap-1 rounded-md border-0 bg-transparent px-1.5 text-[12px] font-medium text-[#5B6078] transition hover:bg-[#F0F2FF]"
             aria-label="Text style"
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => applyFormat('header', 2)}
@@ -1053,7 +1053,7 @@ const CollaborationComposer = ({
 
           <span
             data-cy="organization-announcement-components-announcementcomposerpanel-tsx-announcementcomposerpanel-span-921"
-            className="mx-1 h-4 w-px shrink-0 bg-[#D8DEE6]"
+            className="mx-1 h-4 w-px shrink-0 bg-[#D5DAF0]"
           />
 
           <button
@@ -1112,7 +1112,7 @@ const CollaborationComposer = ({
         ) : null}
 
         <div
-          className="flex items-end gap-2 rounded-xl border bg-white px-3 py-2.5 shadow-sm"
+          className="flex items-end gap-2 rounded-lg border bg-white px-3 py-2.5 shadow-sm"
           style={{ borderColor: collaborationColors.accent }}
           data-cy="create-announcement-composer"
         >

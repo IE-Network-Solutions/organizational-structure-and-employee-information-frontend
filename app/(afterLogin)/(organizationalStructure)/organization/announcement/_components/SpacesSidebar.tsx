@@ -331,7 +331,7 @@ const SpacesSidebar = ({
 
   return (
     <aside
-      className="flex h-full w-full flex-col border-r border-[#E5E7EB]"
+      className="flex h-full w-full flex-col border-r border-[#E3E6F5]"
       style={{ background: collaborationColors.surface }}
       data-cy="announcement-spaces-sidebar"
     >

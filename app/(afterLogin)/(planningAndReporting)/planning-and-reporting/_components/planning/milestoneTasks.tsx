@@ -70,7 +70,7 @@ const TaskRow = ({ task, keyResult }: any) => (
         >
           <div
             data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-div-68"
-            className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B2B2FF]"
+            className="border-2 rounded-full w-3 h-3 flex items-center justify-center border-[#B8BEF3]"
           >
             <span
               data-cy="planning-and-reporting-components-planning-milestonetasks-tsx-milestonetasks-span-69"
@@ -122,7 +122,7 @@ const TaskRow = ({ task, keyResult }: any) => (
       </Text>
       <Tag
         className="font-bold border-none w-16 text-center text-blue text-[10px] ml-2"
-        color="#B2B2FF"
+        color="#B8BEF3"
       >
         {task?.weight || 0}
       </Tag>
@@ -142,7 +142,7 @@ const TaskRow = ({ task, keyResult }: any) => (
             </Text>
             <Tag
               className="font-bold border-none w-16 text-center text-blue text-[10px]"
-              color="#B2B2FF"
+              color="#B8BEF3"
             >
               {Number(task?.targetValue)?.toLocaleString() || 'N/A'}
             </Tag>
@@ -197,7 +197,7 @@ const TaskRow = ({ task, keyResult }: any) => (
             </Text>
             <Tag
               className="font-bold border-none w-16 text-center text-blue text-[10px]"
-              color="#B2B2FF"
+              color="#B8BEF3"
             >
               {Number(task?.targetValue)?.toLocaleString() || 'N/A'}
             </Tag>

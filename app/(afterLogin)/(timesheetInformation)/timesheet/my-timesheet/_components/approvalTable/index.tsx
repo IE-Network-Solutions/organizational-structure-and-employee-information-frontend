@@ -810,8 +810,8 @@ const ApprovalTable = () => {
     <Card
       id="time-attendance-approval-table-card"
       data-cy="time-attendance-approval-table-card"
-      className="border-gray-300"
-      bodyStyle={{ padding: '0', paddingTop: 16 }}
+      className="!rounded-lg !border-shell-line"
+      bodyStyle={{ padding: '0', paddingTop: 12 }}
     >
       <div
         className="mb-3 mx-3 flex flex-col gap-2 min-[400px]:flex-row min-[400px]:flex-wrap min-[400px]:items-center min-[400px]:justify-between min-[400px]:gap-2 sm:gap-3"
@@ -854,8 +854,8 @@ const ApprovalTable = () => {
                   onClick={() => setApprovalTypeFilter(pill.id)}
                   className={
                     isSelected
-                      ? '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-[#1d4ed8] text-[#1d4ed8] !bg-white hover:!bg-[#FAFAFA] hover:!border-[#1d4ed8] hover:!text-[#1d4ed8]'
-                      : '!rounded-lg !h-7 !min-h-0 !px-2 !py-0 !leading-none border-gray-200 text-gray-700 !bg-white hover:!bg-gray-50 hover:!border-gray-300 hover:!text-gray-800'
+                      ? '!h-7 !min-h-0 !rounded-md !border-transparent !bg-shell-tint !px-2.5 !py-0 !font-semibold !leading-none !text-primary hover:!border-transparent hover:!text-primary'
+                      : '!h-7 !min-h-0 !rounded-md !border-transparent !bg-transparent !px-2.5 !py-0 !font-medium !leading-none !text-shell-muted shadow-none hover:!border-transparent hover:!bg-shell-wash hover:!text-shell-ink'
                   }
                 >
                   {pill.label}

@@ -446,7 +446,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                       className={`rounded-lg border cursor-pointer transition-all duration-200 ${
                         isSelected
                           ? 'border-[#1e40af] bg-[#EFF6FF] shadow-[0_0_0_3px_rgba(30,64,175,0.12)]'
-                          : 'border-transparent bg-[#F9FAFB] hover:border-[#1e40af]/30 hover:bg-white hover:shadow-sm'
+                          : 'border-transparent bg-[#F7F8FF] hover:border-[#1e40af]/30 hover:bg-white hover:shadow-sm'
                       }`}
                       style={{ boxShadow: isSelected ? undefined : 'none' }}
                       onClick={() => {
@@ -537,7 +537,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
             <div
               id="permission-management-col"
               data-cy="permission-management-col"
-              className="flex-[2] min-w-0 mb-4 rounded-md px-6 py-4 bg-[#F9FAFB]"
+              className="flex-[2] min-w-0 mb-4 rounded-md px-6 py-4 bg-[#F7F8FF]"
             >
               <div data-cy="active-permission-group-filters-container">
                 <Space direction="vertical" size="middle" className="w-full">
@@ -579,7 +579,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                         htmlType="submit"
                         id="permission-update-btn"
                         data-cy="permission-update-btn"
-                        className="border border-[#d9d9d9] text-[#4d4d4d] text-sm font-normal"
+                        className="border border-[#d9d9d9] text-[#42465F] text-sm font-normal"
                       >
                         Update
                       </Button>
@@ -595,7 +595,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                       data-cy="active-permission-group-all-tag"
                       className={`cursor-pointer inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 border ${
                         selectedGroupFilter === 'all'
-                          ? 'border-[#1d4ed8] text-[#1d4ed8] bg-white'
+                          ? 'border-[#3636F0] text-[#3636F0] bg-white'
                           : 'border-gray-300 text-gray-700 bg-white'
                       }`}
                       onClick={() => setSelectedGroupFilter('all')}
@@ -604,7 +604,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                         data-cy="active-permission-group-all-count-span"
                         className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium ${
                           selectedGroupFilter === 'all'
-                            ? 'bg-blue-50 border border-[#1d4ed8] text-[#1d4ed8]'
+                            ? 'bg-blue-50 border border-[#3636F0] text-[#3636F0]'
                             : 'bg-gray-100 border border-gray-300 text-gray-600'
                         }`}
                       >
@@ -621,7 +621,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                           key={group.id}
                           className={`cursor-pointer inline-flex items-center gap-2 rounded-md px-2.5 py-1.5 border ${
                             isSelected
-                              ? 'border-[#1d4ed8] text-[#1d4ed8] bg-white'
+                              ? 'border-[#3636F0] text-[#3636F0] bg-white'
                               : 'border-gray-300 text-gray-700 bg-white'
                           }`}
                           onClick={() =>
@@ -632,7 +632,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                             data-cy="active-permission-group-selected-count-span"
                             className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded text-xs font-medium ${
                               isSelected
-                                ? 'bg-blue-50 border border-[#1d4ed8] text-[#1d4ed8]'
+                                ? 'bg-blue-50 border border-[#3636F0] text-[#3636F0]'
                                 : 'bg-gray-100 border border-gray-300 text-gray-600'
                             }`}
                           >
@@ -720,7 +720,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                               }
                               id={`permission-group-switch-${group.id}`}
                               data-cy={`permission-group-switch-${group.id}`}
-                              className={`${isFullySelected ? 'bg-[#1d4ed8]' : ''}`}
+                              className={`${isFullySelected ? 'bg-[#3636F0]' : ''}`}
                               disabled={
                                 !AccessGuard.checkAccess({
                                   permissions: [Permissions.UpdateRoleForUser],
@@ -804,7 +804,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
             <div
               id="active-permissions-col"
               data-cy="active-permissions-col"
-              className="w-80 shrink-0 mb-4 rounded-md px-6 py-4 bg-[#F9FAFB]"
+              className="w-80 shrink-0 mb-4 rounded-md px-6 py-4 bg-[#F7F8FF]"
             >
               <div data-cy="active-permission-list-container" className="mb-4">
                 <div
@@ -813,7 +813,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                 >
                   <h3
                     data-cy="active-permission-list-title"
-                    className="text-base font-normal text-[#4d4d4d] m-0"
+                    className="text-base font-normal text-[#42465F] m-0"
                   >
                     Active Permissions
                   </h3>
@@ -849,13 +849,13 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                         >
                           <div
                             data-cy="active-permission-group-section-header-icon-div"
-                            className="w-6 h-6 flex items-center justify-center text-[#4d4d4d]"
+                            className="w-6 h-6 flex items-center justify-center text-[#42465F]"
                           >
                             {getGroupIcon(group.name)}
                           </div>
                           <span
                             data-cy="active-permission-group-section-header-name-span"
-                            className="text-base font-normal text-[#4d4d4d]"
+                            className="text-base font-normal text-[#42465F]"
                           >
                             {group.name}
                           </span>
@@ -882,7 +882,7 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
                                 type="text"
                                 size="small"
                                 icon={
-                                  <CloseIcon className="text-[#4d4d4d] text-[10px]" />
+                                  <CloseIcon className="text-[#42465F] text-[10px]" />
                                 }
                                 onClick={() =>
                                   handleRemovePermission(permission.id)

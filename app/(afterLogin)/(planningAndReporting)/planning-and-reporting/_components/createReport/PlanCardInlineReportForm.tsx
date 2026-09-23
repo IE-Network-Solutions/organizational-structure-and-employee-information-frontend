@@ -245,7 +245,7 @@ export function PlanCardInlineReportForm({
   return (
     <div
       data-cy="plan-card-inline-report-form"
-      className="border-t border-[#F1F2F6] bg-white px-3 pb-2 pt-2 md:px-4"
+      className="border-t border-[#E3E6F5] bg-white px-3 pb-2 pt-2 md:px-4"
     >
       {hasReportTaskRows ? (
         <Form
@@ -258,7 +258,7 @@ export function PlanCardInlineReportForm({
           <PlanCardInlineReportFields formattedData={formattedData} />
           <div
             data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-div-176"
-            className="mt-3 flex flex-col gap-2 border-t border-[#F1F2F6] pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
+            className="mt-3 flex flex-col gap-2 border-t border-[#E3E6F5] pt-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3"
           >
             <div
               data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-div-177"
@@ -266,7 +266,7 @@ export function PlanCardInlineReportForm({
             >
               <span
                 data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-span-178"
-                className="text-[10px] font-medium text-[#8F94A3]"
+                className="text-[10px] font-medium text-[#7C82A7]"
               >
                 <span
                   data-cy="planning-and-reporting-components-createreport-plancardinlinereportform-tsx-plancardinlinereportform-span-179"
@@ -303,7 +303,7 @@ export function PlanCardInlineReportForm({
                 type="default"
                 onClick={handleClose}
                 disabled={isSubmitting}
-                className="h-8 rounded-lg border-[#E5E7EB] px-3 text-xs font-semibold text-[#64748B] hover:border-[#CBD5E1] hover:text-[#334155]"
+                className="h-8 rounded-lg border-[#E3E6F5] px-3 text-xs font-semibold text-[#5B6078] hover:border-[#CBD5E1] hover:text-[#334155]"
               >
                 Cancel
               </Button>
@@ -332,7 +332,7 @@ export function PlanCardInlineReportForm({
           <Button
             type="default"
             onClick={handleClose}
-            className="h-8 rounded-lg border-[#E5E7EB] px-4 text-xs font-semibold text-[#64748B]"
+            className="h-8 rounded-lg border-[#E3E6F5] px-4 text-xs font-semibold text-[#5B6078]"
           >
             Close
           </Button>

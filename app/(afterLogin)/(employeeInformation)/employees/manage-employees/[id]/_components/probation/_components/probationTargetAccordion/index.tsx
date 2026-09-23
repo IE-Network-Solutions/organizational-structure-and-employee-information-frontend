@@ -168,7 +168,7 @@ const TaskItem: React.FC<{
 
   return (
     <div
-      className="flex items-center gap-3 px-2 py-2.5 rounded-md hover:bg-[#F9FAFB] transition-colors group"
+      className="flex items-center gap-3 px-2 py-2.5 rounded-md hover:bg-[#F7F8FF] transition-colors group"
       id={`probation-task-${taskSlug}`}
       data-cy={`probation-task-${taskSlug}`}
     >
@@ -644,7 +644,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
       <Card
         className="w-full"
         bordered={false}
-        style={{ boxShadow: 'none', background: '#F9FAFB' }}
+        style={{ boxShadow: 'none', background: '#F7F8FF' }}
         id="probation-targets-empty-card"
         data-cy="probation-targets-empty-card"
       >
@@ -688,7 +688,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
               key={target.id}
               id={`probation-target-card-${targetSlug}`}
               data-cy={`probation-target-card-${targetSlug}`}
-              className="w-full rounded-xl"
+              className="w-full rounded-lg"
               bordered={false}
               style={{ boxShadow: 'none', background: 'white' }}
               bodyStyle={{ padding: '16px 20px' }}
@@ -905,7 +905,7 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
               </div>
               {/* Stats bar */}
               <div
-                className="flex flex-wrap items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-[#F9FAFB]"
+                className="flex flex-wrap items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-[#F7F8FF]"
                 id={`probation-target-stats-bar-${targetSlug}`}
                 data-cy={`probation-target-stats-bar-${targetSlug}`}
               >
@@ -1005,8 +1005,8 @@ const ProbationTargetAccordion: React.FC<ProbationTargetAccordionProps> = ({
                 <span
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border"
                   style={{
-                    background: totalScore > 0 ? '#f6ffed' : '#F9FAFB',
-                    borderColor: totalScore > 0 ? '#b7eb8f' : '#E5E7EB',
+                    background: totalScore > 0 ? '#f6ffed' : '#F7F8FF',
+                    borderColor: totalScore > 0 ? '#b7eb8f' : '#E3E6F5',
                     color: totalScore > 0 ? '#389e0d' : '#6B7280',
                   }}
                   id={`probation-target-total-score-${targetSlug}`}

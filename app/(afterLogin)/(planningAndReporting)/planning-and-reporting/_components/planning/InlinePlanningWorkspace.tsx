@@ -179,7 +179,7 @@ const inputNumH40 =
 
 /** White + light border + primary blue text — matches header “Add Weekly” / #1E40AF */
 const inlineComposerOutlineBtnClass =
-  '!rounded-lg !border !border-solid !border-[#E5E7EB] !bg-white !font-semibold !text-[#1E40AF] !shadow-sm hover:!border-[#D1D5DB] hover:!bg-[#F8FAFC] hover:!text-[#1E3A8A] [&_.anticon]:!text-[#1E40AF]';
+  '!rounded-lg !border !border-solid !border-[#E3E6F5] !bg-white !font-semibold !text-[#1E40AF] !shadow-sm hover:!border-[#D1D5DB] hover:!bg-[#F8FAFC] hover:!text-[#1E3A8A] [&_.anticon]:!text-[#1E40AF]';
 
 /** Drawer parity: Achieve KRs (KR-as-task) + Milestone-metric KRs at a milestone row (milestone-as-task). */
 function canUseAchieveMK(
@@ -297,7 +297,7 @@ function draftPriorityPillClass(priority: string): string {
     case 'low':
       return 'border-[#A7F3D0]/90 bg-[#ECFDF5] text-[#047857]';
     default:
-      return 'border-[#E5E7EB] bg-[#F9FAFB] text-[#575B7A]';
+      return 'border-[#E3E6F5] bg-[#F9FAFB] text-[#575B7A]';
   }
 }
 
@@ -308,7 +308,7 @@ function OutcomeTaskListIcon({ line }: { line: DraftLine }) {
   return (
     <div
       data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-254"
-      className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#E5E7EB] bg-[#FAFBFC]"
+      className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#E3E6F5] bg-[#F7F8FF]"
       title={isMilestone ? 'Milestone outcome task' : 'Key result outcome task'}
     >
       {isMilestone ? (
@@ -333,7 +333,7 @@ function OutcomeTaskSwitchRow({
   return (
     <div
       data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-256"
-      className="flex items-center justify-between gap-3 rounded-lg border border-[#F1F2F6] bg-[#FAFBFC]/80 px-3 py-2.5"
+      className="flex items-center justify-between gap-3 rounded-lg border border-[#E3E6F5] bg-[#F7F8FF]/80 px-3 py-2.5"
     >
       <div
         data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-257"
@@ -349,7 +349,7 @@ function OutcomeTaskSwitchRow({
         <Tooltip title={outcomeAsTaskTooltip(milestoneId)} placement="topLeft">
           <span
             data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-290"
-            className="inline-flex cursor-help text-[#94A3B8] hover:text-[#64748B]"
+            className="inline-flex cursor-help text-[#94A3B8] hover:text-[#5B6078]"
             role="img"
             aria-label="About outcome tasks"
           >
@@ -1167,12 +1167,12 @@ const InlinePlanningWorkspace = forwardRef<
       data-cy="inline-planning-workspace"
     >
       <div
-        className="overflow-hidden rounded-xl border border-[#F1F2F6] bg-white"
+        className="overflow-hidden rounded-lg border border-[#E3E6F5] bg-white"
         data-cy="inline-plan-draft-card"
       >
         <div
           data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-872"
-          className="flex min-h-[48px] items-center justify-between gap-2 border-b border-[#F1F2F6] bg-[#FAFBFC] px-3 py-2 md:min-h-[60px] md:gap-4 md:px-5 md:py-4"
+          className="flex min-h-[48px] items-center justify-between gap-2 border-b border-[#E3E6F5] bg-[#F7F8FF] px-3 py-2 md:min-h-[60px] md:gap-4 md:px-5 md:py-4"
         >
           <div
             data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-873"
@@ -1182,7 +1182,7 @@ const InlinePlanningWorkspace = forwardRef<
               <button
                 type="button"
                 onClick={requestExitInlinePlanning}
-                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-white hover:text-[#574CFF] hover:shadow-sm md:h-10 md:w-10"
+                className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#5B6078] transition-colors hover:bg-white hover:text-[#3636F0] hover:shadow-sm md:h-10 md:w-10"
                 aria-label="Exit plan creation"
                 data-cy="inline-plan-close"
               >
@@ -1191,7 +1191,7 @@ const InlinePlanningWorkspace = forwardRef<
             ) : null}
             <span
               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-885"
-              className="min-w-0 truncate text-[12px] font-semibold leading-snug text-[#161A2C] md:text-sm"
+              className="min-w-0 truncate text-[12px] font-semibold leading-snug text-[#1F2240] md:text-sm"
             >
               {headerHeadline}
             </span>
@@ -1296,7 +1296,7 @@ const InlinePlanningWorkspace = forwardRef<
             <div
               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1039"
               className={`space-y-4 px-3 py-3 md:px-5 md:py-5 ${
-                draftLines.length > 0 ? 'border-b border-[#F1F2F6]' : ''
+                draftLines.length > 0 ? 'border-b border-[#E3E6F5]' : ''
               }`}
             >
               <div
@@ -1309,13 +1309,13 @@ const InlinePlanningWorkspace = forwardRef<
                 >
                   <p
                     data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-964"
-                    className="text-[10px] font-semibold uppercase tracking-wider text-[#8F94A3]"
+                    className="text-[10px] font-semibold uppercase tracking-wider text-[#7C82A7]"
                   >
                     Adding to
                   </p>
                   <p
                     data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-967"
-                    className="mt-0.5 min-w-0 text-[13px] font-semibold leading-snug text-[#161A2C] line-clamp-3 md:line-clamp-4"
+                    className="mt-0.5 min-w-0 text-[13px] font-semibold leading-snug text-[#1F2240] line-clamp-3 md:line-clamp-4"
                   >
                     {(activeTarget.keyResultTitle || 'Key result').trim() ||
                       'Key result'}
@@ -1325,7 +1325,7 @@ const InlinePlanningWorkspace = forwardRef<
                   data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-button-1066"
                   type="button"
                   onClick={onClearTarget}
-                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#574CFF]"
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg text-[#5B6078] transition-colors hover:bg-[#F0F2FF] hover:text-[#3636F0]"
                   aria-label="Clear planning target"
                 >
                   <CloseOutlined className="text-[15px]" />
@@ -1334,7 +1334,7 @@ const InlinePlanningWorkspace = forwardRef<
 
               <div
                 data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-982"
-                className="rounded-lg border border-[#F1F2F6] bg-[#FAFBFC]/60 p-4"
+                className="rounded-lg border border-[#E3E6F5] bg-[#F7F8FF]/60 p-4"
               >
                 <div
                   data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-983"
@@ -1345,7 +1345,7 @@ const InlinePlanningWorkspace = forwardRef<
                     onChange={(e) => setTask(e.target.value)}
                     placeholder="What will you accomplish?"
                     disabled={planAsAchieve && showAchieveOptionForAdd}
-                    className="!h-10 rounded-lg border-[#E5E7EB] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]"
+                    className="!h-10 rounded-lg border-[#E3E6F5] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]"
                   />
                   {showAchieveOptionForAdd && activeTarget ? (
                     <OutcomeTaskSwitchRow
@@ -1398,14 +1398,14 @@ const InlinePlanningWorkspace = forwardRef<
           !editingDraftId ? (
             <div
               data-cy="inline-plan-additional-plans-row"
-              className={`flex items-center justify-between px-4 py-3 md:px-5 ${draftLines.length > 0 ? 'border-b border-[#F1F2F6]' : ''}`}
+              className={`flex items-center justify-between px-4 py-3 md:px-5 ${draftLines.length > 0 ? 'border-b border-[#E3E6F5]' : ''}`}
             >
               <span
                 className="text-[13px] text-[#575B7A]"
                 data-cy="inline-plan-weight-summary"
               >
                 <span
-                  className="font-semibold text-[#161A2C]"
+                  className="font-semibold text-[#1F2240]"
                   data-cy="inline-plan-weight-total"
                 >
                   {roundedTotal}%
@@ -1416,7 +1416,7 @@ const InlinePlanningWorkspace = forwardRef<
                 type="button"
                 data-cy="inline-plan-add-plans-button"
                 onClick={() => setComposerCollapsed(false)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#F1F2F6] px-3 py-1.5 text-[12px] font-semibold text-[#574CFF] transition-colors hover:bg-[#E0E7FF]"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[#E3E6F5] px-3 py-1.5 text-[12px] font-semibold text-[#3636F0] transition-colors hover:bg-[#E0E7FF]"
               >
                 <PlusOutlined className="text-[11px]" />
                 Additional Plans
@@ -1432,7 +1432,7 @@ const InlinePlanningWorkspace = forwardRef<
               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1153"
               className={`px-4 md:px-5 ${
                 draftLines.length > 0
-                  ? 'border-b border-[#F1F2F6] pb-3 pt-1'
+                  ? 'border-b border-[#E3E6F5] pb-3 pt-1'
                   : 'py-1'
               }`}
             >
@@ -1443,14 +1443,14 @@ const InlinePlanningWorkspace = forwardRef<
                 You’ve reached{' '}
                 <span
                   data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1056"
-                  className="font-semibold text-[#161A2C]"
+                  className="font-semibold text-[#1F2240]"
                 >
                   100%
                 </span>{' '}
                 weight. Review your tasks below, then click{' '}
                 <span
                   data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1058"
-                  className="font-semibold text-[#161A2C]"
+                  className="font-semibold text-[#1F2240]"
                 >
                   Save plan
                 </span>
@@ -1462,7 +1462,7 @@ const InlinePlanningWorkspace = forwardRef<
           {!activeTarget && draftLines.length > 0 ? (
             <div
               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1064"
-              className="border-b border-[#F1F2F6] px-4 py-3 text-[13px] text-[#575B7A] md:px-5"
+              className="border-b border-[#E3E6F5] px-4 py-3 text-[13px] text-[#575B7A] md:px-5"
             >
               <span
                 data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1065"
@@ -1489,7 +1489,7 @@ const InlinePlanningWorkspace = forwardRef<
                   <li
                     key={l.id}
                     ref={editingListItemRef}
-                    className="list-none rounded-xl border border-[#574CFF]/35 bg-white p-3.5 shadow-[0_4px_14px_rgba(87,76,255,0.08)] md:p-4"
+                    className="list-none rounded-lg border border-[#3636F0]/35 bg-white p-3.5 shadow-[0_4px_14px_rgba(54,54,240,0.08)] md:p-4"
                     data-cy="inline-plan-edit-row"
                   >
                     <div
@@ -1503,7 +1503,7 @@ const InlinePlanningWorkspace = forwardRef<
                       >
                         <p
                           data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1087"
-                          className="text-[10px] font-semibold uppercase tracking-wider text-[#8F94A3]"
+                          className="text-[10px] font-semibold uppercase tracking-wider text-[#7C82A7]"
                         >
                           Edit task
                         </p>
@@ -1515,7 +1515,7 @@ const InlinePlanningWorkspace = forwardRef<
                         </p>
                         <div
                           data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1093"
-                          className="rounded-lg border border-[#F1F2F6] bg-[#FAFBFC]/60 p-4"
+                          className="rounded-lg border border-[#E3E6F5] bg-[#F7F8FF]/60 p-4"
                         >
                           <div
                             data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-div-1094"
@@ -1533,7 +1533,7 @@ const InlinePlanningWorkspace = forwardRef<
                                   l.milestoneId,
                                 )
                               }
-                              className="!h-10 rounded-lg border-[#E5E7EB] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]"
+                              className="!h-10 rounded-lg border-[#E3E6F5] text-[13px] shadow-none hover:border-[#D1D5DB] disabled:cursor-not-allowed disabled:bg-[#F9FAFB] disabled:text-[#575B7A]"
                             />
                             {canUseAchieveMK(
                               l.metricTypeName,
@@ -1576,7 +1576,7 @@ const InlinePlanningWorkspace = forwardRef<
                                 <Button
                                   type="default"
                                   onClick={cancelEditDraft}
-                                  className="!m-0 !h-10 w-full rounded-lg border-[#E5E7EB] px-5 font-semibold text-[#475569] hover:!border-[#D1D5DB] hover:!text-[#161A2C] lg:w-auto"
+                                  className="!m-0 !h-10 w-full rounded-lg border-[#E3E6F5] px-5 font-semibold text-[#475569] hover:!border-[#D1D5DB] hover:!text-[#1F2240] lg:w-auto"
                                 >
                                   Cancel
                                 </Button>
@@ -1598,7 +1598,7 @@ const InlinePlanningWorkspace = forwardRef<
                   <li
                     data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-li-1333"
                     key={l.id}
-                    className="group flex items-start gap-3 rounded-xl border border-[#F1F2F6] bg-white px-3.5 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] hover:border-[#574CFF]/18 hover:shadow-[0_4px_14px_rgba(87,76,255,0.07)] md:px-4 md:py-3.5"
+                    className="group flex items-start gap-3 rounded-lg border border-[#E3E6F5] bg-white px-3.5 py-3 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-[border-color,box-shadow] hover:border-[#3636F0]/18 hover:shadow-[0_4px_14px_rgba(54,54,240,0.07)] md:px-4 md:py-3.5"
                   >
                     <OutcomeTaskListIcon line={l} />
                     <div
@@ -1615,13 +1615,13 @@ const InlinePlanningWorkspace = forwardRef<
                         >
                           <p
                             data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1182"
-                            className="text-[14px] font-semibold leading-snug text-[#161A2C] line-clamp-2"
+                            className="text-[14px] font-semibold leading-snug text-[#1F2240] line-clamp-2"
                           >
                             {l.task}
                           </p>
                           <p
                             data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-p-1185"
-                            className="mt-1 text-[12px] leading-relaxed text-[#8F94A3] line-clamp-2"
+                            className="mt-1 text-[12px] leading-relaxed text-[#7C82A7] line-clamp-2"
                           >
                             {l.label}
                           </p>
@@ -1634,7 +1634,7 @@ const InlinePlanningWorkspace = forwardRef<
                             data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-button-1367"
                             type="button"
                             onClick={() => beginEditDraft(l)}
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#574CFF]"
+                            className="flex h-9 w-9 items-center justify-center rounded-lg text-[#5B6078] transition-colors hover:bg-[#F0F2FF] hover:text-[#3636F0]"
                             aria-label="Edit task"
                           >
                             <EditOutlined className="text-[15px]" />
@@ -1643,7 +1643,7 @@ const InlinePlanningWorkspace = forwardRef<
                             data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-button-1375"
                             type="button"
                             onClick={() => removeLine(l.id)}
-                            className="flex h-9 w-9 items-center justify-center rounded-lg text-[#9CA3AF] transition-colors hover:bg-[#F1F5F9] hover:text-[#64748B]"
+                            className="flex h-9 w-9 items-center justify-center rounded-lg text-[#9CA3AF] transition-colors hover:bg-[#F0F2FF] hover:text-[#5B6078]"
                             aria-label="Remove task"
                           >
                             <CloseOutlined className="text-[15px]" />
@@ -1662,14 +1662,14 @@ const InlinePlanningWorkspace = forwardRef<
                         </span>
                         <span
                           data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1214"
-                          className="inline-flex items-center rounded-full border border-[#E0E7FF] bg-[#F8F7FF] px-2.5 py-0.5 text-[11px] font-semibold tabular-nums text-[#574CFF]"
+                          className="inline-flex items-center rounded-full border border-[#E0E7FF] bg-[#F7F8FF] px-2.5 py-0.5 text-[11px] font-semibold tabular-nums text-[#3636F0]"
                         >
                           {l.weight}%
                         </span>
                         {shouldShowTargetOnDraftLine(l) ? (
                           <span
                             data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1217"
-                            className="inline-flex items-center gap-1 rounded-full border border-[#E5E7EB] bg-[#F9FAFB] px-2.5 py-0.5 text-[11px] font-medium tabular-nums text-[#475569]"
+                            className="inline-flex items-center gap-1 rounded-full border border-[#E3E6F5] bg-[#F9FAFB] px-2.5 py-0.5 text-[11px] font-medium tabular-nums text-[#475569]"
                           >
                             <span
                               data-cy="planning-and-reporting-components-planning-inlineplanningworkspace-tsx-inlineplanningworkspace-span-1218"

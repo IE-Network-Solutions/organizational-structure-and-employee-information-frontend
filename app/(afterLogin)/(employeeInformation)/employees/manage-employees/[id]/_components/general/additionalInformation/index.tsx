@@ -75,7 +75,7 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
           <Col>
             <span
               data-cy="additional-information-form-title"
-              className="text-sm font-normal text-[#4d4d4d]"
+              className="text-sm font-normal text-[#42465F]"
             >
               Additional Information
             </span>
@@ -306,13 +306,13 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
   }) => (
     <div className="mb-5" id={dataCy} data-cy={dataCy}>
       <p
-        className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+        className="text-sm text-[#42465F] font-normal m-0 mb-0.5"
         data-cy={`${dataCy}-label`}
       >
         {label}
       </p>
       <p
-        className="text-base font-normal text-[#4d4d4d] m-0"
+        className="text-base font-normal text-[#42465F] m-0"
         data-cy={`${dataCy}-value`}
       >
         {value}
@@ -326,7 +326,7 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
       title={
         !edit.additionalInformation ? (
           <span
-            className="text-base font-bold text-[#4d4d4d]"
+            className="text-base font-bold text-[#42465F]"
             data-cy="additional-information-card-title"
           >
             Additional Information
@@ -354,16 +354,16 @@ function AdditionalInformation({ mergedFields, handleSaveChanges, id }: any) {
       }
       className="additional-information-card rounded-lg my-6"
       bordered={false}
-      style={{ background: '#F9FAFB', boxShadow: 'none' }}
+      style={{ background: '#F7F8FF', boxShadow: 'none' }}
       id="additional-information-card"
       data-cy="additional-information-card"
       headStyle={{
         borderBottom: 'none',
         paddingLeft: '16px',
         paddingRight: '16px',
-        background: '#F9FAFB',
+        background: '#F7F8FF',
       }}
-      bodyStyle={{ padding: '12px 16px 12px 16px', background: '#F9FAFB' }}
+      bodyStyle={{ padding: '12px 16px 12px 16px', background: '#F7F8FF' }}
     >
       {edit.additionalInformation ? (
         <AdditionalInformationForm data-cy="additional-information-form" />

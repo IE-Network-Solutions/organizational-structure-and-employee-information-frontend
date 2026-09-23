@@ -179,7 +179,7 @@ export function CreateReportFormCollapse({
                   >
                     <div
                       data-cy="planning-and-reporting-components-createreport-createreportformcollapse-tsx-createreportformcollapse-div-164"
-                      className={`flex h-5 w-5 items-center justify-center rounded-[4px] border transition-all ${isDone ? 'border-[#00C48C] bg-[#00C48C]' : 'border-[#E5E7EB] bg-white'}`}
+                      className={`flex h-5 w-5 items-center justify-center rounded-[4px] border transition-all ${isDone ? 'border-[#00C48C] bg-[#00C48C]' : 'border-[#E3E6F5] bg-white'}`}
                     >
                       {isDone && (
                         <CheckOutlined className="text-[10px] text-white" />
@@ -187,7 +187,7 @@ export function CreateReportFormCollapse({
                     </div>
                     <span
                       data-cy="planning-and-reporting-components-createreport-createreportformcollapse-tsx-createreportformcollapse-span-160"
-                      className="text-[12px] text-[#161A2C] sm:text-[13px]"
+                      className="text-[12px] text-[#1F2240] sm:text-[13px]"
                     >
                       Done
                     </span>
@@ -209,7 +209,7 @@ export function CreateReportFormCollapse({
                   >
                     <div
                       data-cy="planning-and-reporting-components-createreport-createreportformcollapse-tsx-createreportformcollapse-div-193"
-                      className={`flex h-5 w-5 items-center justify-center rounded-[4px] border transition-all ${isNot ? 'border-[#FF4D4F] bg-[#FF4D4F]' : 'border-[#E5E7EB] bg-white'}`}
+                      className={`flex h-5 w-5 items-center justify-center rounded-[4px] border transition-all ${isNot ? 'border-[#FF4D4F] bg-[#FF4D4F]' : 'border-[#E3E6F5] bg-white'}`}
                     >
                       {isNot && (
                         <CloseOutlined className="text-[10px] text-white" />
@@ -217,7 +217,7 @@ export function CreateReportFormCollapse({
                     </div>
                     <span
                       data-cy="planning-and-reporting-components-createreport-createreportformcollapse-tsx-createreportformcollapse-span-186"
-                      className="text-[12px] text-[#161A2C] sm:text-[13px]"
+                      className="text-[12px] text-[#1F2240] sm:text-[13px]"
                     >
                       Not
                     </span>
@@ -297,8 +297,8 @@ export function CreateReportFormCollapse({
                 </div>
               }
               key={`kr-${objective.id || ''}-${index}`}
-              className={`mb-3 overflow-hidden rounded-xl last:mb-0 [&_.ant-collapse-content]:bg-white [&_.ant-collapse-header]:!bg-[#F9FAFB] ${headerPad}`}
-              style={{ border: '1px solid #e5e7eb' }}
+              className={`mb-3 overflow-hidden rounded-lg last:mb-0 [&_.ant-collapse-content]:bg-white [&_.ant-collapse-header]:!bg-[#F9FAFB] ${headerPad}`}
+              style={{ border: '1px solid #E3E6F5' }}
             >
               <div
                 data-cy="planning-and-reporting-components-createreport-createreportformcollapse-tsx-createreportformcollapse-div-258"

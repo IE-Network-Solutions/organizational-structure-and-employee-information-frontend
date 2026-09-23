@@ -90,14 +90,14 @@ export default function UserInfo({ owner, notificationCount }: UserInfoProps) {
         className="min-w-0 flex-1"
       >
         <p
-          className="text-[14px] font-semibold leading-tight text-[#161A2C] truncate"
+          className="text-[14px] font-semibold leading-tight text-[#1F2240] truncate"
           title={owner.name}
           data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-109"
         >
           {owner.name}
         </p>
         <p
-          className="text-[13px] leading-tight text-[#8F94A3] truncate"
+          className="text-[13px] leading-tight text-[#7C82A7] truncate"
           title={owner.role}
           data-cy="planningandreporting-planning-and-reporting-components-userinfo-tsx-p-115"
         >

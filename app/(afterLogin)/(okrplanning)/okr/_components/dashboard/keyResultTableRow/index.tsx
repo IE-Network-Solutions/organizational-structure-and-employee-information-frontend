@@ -517,8 +517,8 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
       <tr
         className={`transition-colors ${
           canOpenMilestoneModal
-            ? 'cursor-pointer hover:bg-blue-50'
-            : 'hover:bg-gray-50'
+            ? 'cursor-pointer hover:bg-shell-tint'
+            : 'hover:bg-[#F7F8FF]'
         }`}
         data-cy={`okr-key-result-table-row-${keyResult?.id}`}
         onClick={() => {
@@ -526,7 +526,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
         }}
       >
         <td
-          className="px-3 py-3 text-sm font-normal text-gray-900 break-normal whitespace-normal align-top min-w-[180px] sm:px-6 sm:py-4 sm:min-w-[220px] md:min-w-[260px]"
+          className="min-w-[180px] whitespace-normal break-normal px-3 py-3 align-top text-sm font-normal text-shell-ink sm:min-w-[220px] sm:px-4 sm:py-3.5 md:min-w-[260px]"
           data-cy={`okr-key-result-table-row-title-${keyResult?.id}`}
         >
           {canInlineEditNow ? (
@@ -547,7 +547,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
               </span>
               {metricDetailLine ? (
                 <span
-                  className="text-xs text-gray-500 leading-snug"
+                  className="text-xs leading-snug text-shell-muted"
                   data-cy={`okr-key-result-table-row-metric-detail-${keyResult?.id}`}
                 >
                   {metricDetailLine}
@@ -558,7 +558,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
         </td>
         {objectiveEditMode || rowInlineEdit ? (
           <td
-            className="px-3 py-3 whitespace-nowrap sm:px-6 sm:py-4"
+            className="whitespace-nowrap px-3 py-3 sm:px-4 sm:py-3.5"
             data-cy={`okr-key-result-table-row-metric-type-inline-${keyResult?.id}`}
           >
             <Select
@@ -587,11 +587,11 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
           </td>
         ) : (
           <td
-            className="px-3 py-3 whitespace-nowrap sm:px-6 sm:py-4"
+            className="whitespace-nowrap px-3 py-3 sm:px-4 sm:py-3.5"
             data-cy={`okr-key-result-table-row-metric-${keyResult?.id}`}
           >
             <span
-              className="px-2 py-1 text-xs border border-gray-300 rounded text-gray-600"
+              className="inline-flex rounded bg-shell-tint px-2 py-0.5 text-xs font-medium text-shell-text"
               data-cy={`okr-key-result-table-row-metric-badge-${keyResult?.id}`}
               title={metricName}
             >
@@ -600,7 +600,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
                 {!isMobile &&
                 canOpenMilestoneModal &&
                 metricName === 'Milestone' ? (
-                  <EyeOutlined className="text-[11px] text-blue-600" />
+                  <EyeOutlined className="text-[11px] text-primary" />
                 ) : null}
               </span>
             </span>
@@ -608,7 +608,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
         )}
         {(objectiveEditMode || rowInlineEdit) && (
           <td
-            className="px-3 py-3 whitespace-nowrap sm:px-6 sm:py-4"
+            className="whitespace-nowrap px-3 py-3 sm:px-4 sm:py-3.5"
             data-cy={`okr-key-result-table-row-deadline-inline-${keyResult?.id}`}
           >
             <DatePicker
@@ -627,7 +627,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
           </td>
         )}
         <td
-          className="px-3 py-3 whitespace-nowrap text-sm text-gray-900 sm:px-6 sm:py-4"
+          className="whitespace-nowrap px-3 py-3 text-sm tabular-nums text-shell-ink sm:px-4 sm:py-3.5"
           data-cy={`okr-key-result-table-row-weight-${keyResult?.id}`}
         >
           {objectiveEditMode || rowInlineEdit ? (
@@ -646,7 +646,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
           )}
         </td>
         <td
-          className="min-w-[140px] px-3 py-3 whitespace-nowrap sm:min-w-[180px] sm:px-6 sm:py-4"
+          className="min-w-[140px] whitespace-nowrap px-3 py-3 sm:min-w-[180px] sm:px-4 sm:py-3.5"
           data-cy={
             objectiveEditMode || rowInlineEdit
               ? `okr-key-result-table-row-values-inline-${keyResult?.id}`
@@ -721,11 +721,11 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
                   data-cy={`okr-key-result-table-row-progress-100-${keyResult?.id}`}
                 >
                   <div
-                    className="min-w-0 flex-1 max-w-[140px] rounded-full bg-gray-200 h-2 overflow-hidden sm:max-w-[140px] sm:flex-none sm:w-[140px]"
+                    className="h-1.5 min-w-0 max-w-[140px] flex-1 overflow-hidden rounded-full bg-shell-band sm:w-[140px] sm:max-w-[140px] sm:flex-none"
                     data-cy={`okr-key-result-table-row-progress-bar-bg-${keyResult?.id}`}
                   >
                     <div
-                      className="bg-success h-2 rounded-full w-full"
+                      className="h-1.5 w-full rounded-full bg-success"
                       data-cy={`okr-key-result-table-row-progress-bar-fill-${keyResult?.id}`}
                     />
                   </div>
@@ -737,17 +737,17 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
                   data-cy={`okr-key-result-table-row-progress-partial-${keyResult?.id}`}
                 >
                   <div
-                    className="mr-2 min-w-0 flex-1 max-w-[140px] overflow-hidden rounded-full bg-gray-200 h-2 sm:mr-3 sm:max-w-[140px] sm:flex-none sm:w-[140px]"
+                    className="mr-2 h-1.5 min-w-0 max-w-[140px] flex-1 overflow-hidden rounded-full bg-shell-band sm:mr-3 sm:w-[140px] sm:max-w-[140px] sm:flex-none"
                     data-cy={`okr-key-result-table-row-progress-bar-bg-${keyResult?.id}`}
                   >
                     <div
-                      className="bg-okr-primary h-2 rounded-full transition-all"
+                      className="h-1.5 rounded-full bg-primary transition-all"
                       style={{ width: `${progress}%` }}
                       data-cy={`okr-key-result-table-row-progress-bar-fill-${keyResult?.id}`}
                     />
                   </div>
                   <span
-                    className="text-gray-500 text-xs"
+                    className="text-xs font-semibold tabular-nums text-shell-text"
                     data-cy={`okr-key-result-table-row-progress-text-${keyResult?.id}`}
                   >
                     {progress}%
@@ -758,7 +758,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
           )}
         </td>
         <td
-          className="min-w-[52px] px-3 py-3 text-right whitespace-nowrap sm:min-w-[56px] sm:px-6 sm:py-4"
+          className="min-w-[52px] whitespace-nowrap px-3 py-3 text-right sm:min-w-[56px] sm:px-4 sm:py-3.5"
           data-cy={`okr-key-result-table-row-actions-${keyResult?.id}`}
           onClick={(e) => e.stopPropagation()}
         >
@@ -781,11 +781,11 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
               >
                 <button
                   type="button"
-                  className="flex h-6 w-6 min-h-6 min-w-6 shrink-0 items-center justify-center rounded-[4px] border border-gray-200 p-0 text-[#374151] transition-colors hover:bg-gray-50"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md p-0 text-shell-muted transition-colors hover:bg-shell-tint hover:text-primary"
                   data-cy={`okr-key-result-table-row-actions-button-${keyResult?.id}`}
                 >
                   <MoreHorizIcon
-                    sx={{ width: 14, height: 14, color: '#374151' }}
+                    sx={{ width: 18, height: 18, color: 'currentColor' }}
                     data-cy={`okr-key-result-table-row-actions-icon-${keyResult?.id}`}
                   />
                 </button>
@@ -796,7 +796,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
             <div className="flex min-w-[56px] justify-end gap-2">
               <button
                 type="button"
-                className="flex h-9 w-9 items-center justify-center rounded border border-gray-200 text-gray-600 hover:bg-gray-50 sm:h-8 sm:w-8"
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-shell-line text-shell-text hover:bg-shell-tint sm:h-8 sm:w-8"
                 onClick={() => onCancelRowInlineEdit?.()}
                 aria-label="Cancel key result edit"
               >
@@ -804,7 +804,7 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
               </button>
               <button
                 type="button"
-                className="flex h-9 w-9 items-center justify-center rounded bg-okr-primary text-white hover:bg-blue-800 sm:h-8 sm:w-8"
+                className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-white hover:bg-[#2828C9] sm:h-8 sm:w-8"
                 onClick={onSaveRowInlineEdit}
                 aria-label="Save key result edit"
               >

@@ -249,7 +249,7 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
                 </Text>
                 <Tag
                   className="font-semibold border-none text-blue px-3 py-1 h-6 text-sm"
-                  color="#B2B2FF"
+                  color="#B8BEF3"
                   data-cy={`parent-task-tree-item-desktop-weight-tag-${index}`}
                 >
                   <span
@@ -281,7 +281,7 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
                   </Text>
                   <Tag
                     className="font-semibold border-none text-blue px-3 py-1 h-6 text-sm"
-                    color="#B2B2FF"
+                    color="#B8BEF3"
                     data-cy={`parent-task-tree-item-desktop-target-tag-${index}`}
                   >
                     <span
@@ -330,7 +330,7 @@ const ParentTaskTree = ({ tasks = [], parentTaskName, keyResult }: any) => {
           data-cy="parent-task-tree-title-container"
         >
           <div
-            className="border-2 rounded-full w-2.5 h-2.5 flex items-center justify-center border-[#B2B2FF] shrink-0"
+            className="border-2 rounded-full w-2.5 h-2.5 flex items-center justify-center border-[#B8BEF3] shrink-0"
             data-cy="parent-task-tree-title-icon"
           >
             <span

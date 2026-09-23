@@ -110,7 +110,7 @@ function planningTargetMenuItemLabel(
       <p
         data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-101"
         className={`text-[13px] font-semibold leading-snug line-clamp-3 ${
-          disabled ? 'text-[#9CA3AF]' : 'text-[#161A2C]'
+          disabled ? 'text-[#9CA3AF]' : 'text-[#1F2240]'
         }`}
       >
         {title}
@@ -301,7 +301,7 @@ export function buildOwnerKRGroups(
 // ─── KR card ────────────────────────────────────────────────────────────
 
 const inlinePickBtnClass =
-  'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-[#E5E7EB] bg-white text-[#1E40AF] shadow-sm transition-colors hover:border-[#D1D5DB] hover:bg-[#F8FAFC] hover:text-[#1E3A8A] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E40AF]/30 focus-visible:ring-offset-1';
+  'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg border border-[#E3E6F5] bg-white text-[#1E40AF] shadow-sm transition-colors hover:border-[#D1D5DB] hover:bg-[#F8FAFC] hover:text-[#1E3A8A] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1E40AF]/30 focus-visible:ring-offset-1';
 
 const inlinePickBtnSelectedRing =
   'ring-2 ring-[#1E40AF]/40 ring-offset-1 ring-offset-white';
@@ -450,7 +450,7 @@ function KRProgressCard({
       label: (
         <span
           data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-pick-heading"
-          className="text-[11px] font-bold uppercase tracking-[0.02em] text-[#64748b]"
+          className="text-[11px] font-bold uppercase tracking-[0.02em] text-[#5B6078]"
         >
           Select milestone to plan
         </span>
@@ -507,10 +507,10 @@ function KRProgressCard({
     <div
       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-317"
       ref={ref}
-      className={`flex h-auto min-h-0 flex-col rounded-xl border bg-white p-2.5 transition-all duration-200 sm:p-3 lg:h-full lg:min-h-0 ${
+      className={`flex h-auto min-h-0 flex-col rounded-lg border bg-white p-2.5 transition-all duration-200 sm:p-3 lg:h-full lg:min-h-0 ${
         showPickChrome
           ? 'border-[#1E40AF]/40 shadow-[0_0_0_2px_rgba(30,64,175,0.08),0_4px_16px_rgba(30,64,175,0.10)] lg:scale-[1.01]'
-          : 'border-[#F1F2F6] hover:border-[#1E40AF]/15 hover:shadow-[0_2px_12px_rgba(30,64,175,0.05)]'
+          : 'border-[#E3E6F5] hover:border-[#1E40AF]/15 hover:shadow-[0_2px_12px_rgba(30,64,175,0.05)]'
       }`}
     >
       <div
@@ -519,7 +519,7 @@ function KRProgressCard({
       >
         <p
           data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-320"
-          className="line-clamp-2 min-w-0 flex-1 text-[12px] font-normal leading-snug text-[#161A2C] sm:text-[13px]"
+          className="line-clamp-2 min-w-0 flex-1 text-[12px] font-normal leading-snug text-[#1F2240] sm:text-[13px]"
         >
           {kr.title}
         </p>
@@ -546,7 +546,7 @@ function KRProgressCard({
       >
         <div
           data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-337"
-          className="h-[5px] w-full overflow-hidden rounded-full bg-[#F1F2F6]"
+          className="h-[5px] w-full overflow-hidden rounded-full bg-[#E3E6F5]"
         >
           <div
             data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-359"
@@ -558,7 +558,7 @@ function KRProgressCard({
 
       <div
         data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-345"
-        className="mt-1.5 flex flex-row items-center justify-between gap-2 text-[10px] text-[#8F94A3] sm:text-[11px] lg:mt-auto"
+        className="mt-1.5 flex flex-row items-center justify-between gap-2 text-[10px] text-[#7C82A7] sm:text-[11px] lg:mt-auto"
       >
         <div
           data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-346"
@@ -568,13 +568,13 @@ function KRProgressCard({
             <>
               <span
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-349"
-                className="shrink-0 font-semibold text-[#64748B]"
+                className="shrink-0 font-semibold text-[#5B6078]"
               >
                 {metricLabel}
               </span>
               <span
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-352"
-                className="shrink-0 text-[#E5E7EB]"
+                className="shrink-0 text-[#E3E6F5]"
                 aria-hidden
               >
                 ·
@@ -603,13 +603,13 @@ function KRProgressCard({
             <>
               <span
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-368"
-                className="shrink-0 text-[#E5E7EB]"
+                className="shrink-0 text-[#E3E6F5]"
               >
                 ·
               </span>
               <span
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-369"
-                className="shrink-0 tabular-nums font-medium text-[#64748B]"
+                className="shrink-0 tabular-nums font-medium text-[#5B6078]"
               >
                 {kr.progressLabel}
               </span>
@@ -695,7 +695,7 @@ function OwnerKRSection({
               </div>
               <p
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-426"
-                className="truncate text-[12px] font-bold leading-tight text-[#161A2C] sm:text-[13px]"
+                className="truncate text-[12px] font-bold leading-tight text-[#1F2240] sm:text-[13px]"
               >
                 Key Results
               </p>
@@ -709,7 +709,7 @@ function OwnerKRSection({
           </div>
           <div
             data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-436"
-            className="mt-2 h-[5px] w-full overflow-hidden rounded-full bg-[#F1F2F6]"
+            className="mt-2 h-[5px] w-full overflow-hidden rounded-full bg-[#E3E6F5]"
           >
             <div
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-511"
@@ -719,7 +719,7 @@ function OwnerKRSection({
           </div>
           <div
             data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-442"
-            className="mt-1.5 flex items-center justify-between text-[10px] text-[#8F94A3]"
+            className="mt-1.5 flex items-center justify-between text-[10px] text-[#7C82A7]"
           >
             <span data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-443">
               {completedCount} of {group.krs.length} completed
@@ -776,10 +776,10 @@ function OwnerKRSection({
         data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-562"
         type="button"
         onClick={() => setExpanded(!expanded)}
-        className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-all ${
+        className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition-all ${
           expanded
             ? 'bg-white border border-[#BFDBFE] shadow-[0_1px_4px_rgba(30,64,175,0.06)]'
-            : 'bg-white border border-transparent hover:border-[#F1F2F6] hover:shadow-sm'
+            : 'bg-white border border-transparent hover:border-[#E3E6F5] hover:shadow-sm'
         }`}
       >
         <div
@@ -812,7 +812,7 @@ function OwnerKRSection({
         >
           <p
             data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-503"
-            className="text-[13px] font-semibold text-[#161A2C] truncate leading-tight"
+            className="text-[13px] font-semibold text-[#1F2240] truncate leading-tight"
           >
             {headerLabel}
           </p>
@@ -824,13 +824,13 @@ function OwnerKRSection({
               <>
                 <span
                   data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-509"
-                  className="text-[10px] text-[#8F94A3] truncate"
+                  className="text-[10px] text-[#7C82A7] truncate"
                 >
                   {group.owner.role}
                 </span>
                 <span
                   data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-512"
-                  className="text-[#E5E7EB] text-[10px]"
+                  className="text-[#E3E6F5] text-[10px]"
                 >
                   ·
                 </span>
@@ -838,7 +838,7 @@ function OwnerKRSection({
             )}
             <span
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-515"
-              className="text-[10px] text-[#8F94A3]"
+              className="text-[10px] text-[#7C82A7]"
             >
               {group.krs.length} KR{group.krs.length !== 1 ? 's' : ''}
             </span>
@@ -857,7 +857,7 @@ function OwnerKRSection({
           </span>
           <div
             data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-527"
-            className="flex h-6 w-6 items-center justify-center rounded-md text-[#8F94A3] transition-colors hover:bg-[#F1F2F6]"
+            className="flex h-6 w-6 items-center justify-center rounded-md text-[#7C82A7] transition-colors hover:bg-[#E3E6F5]"
           >
             {expanded ? (
               <MdExpandMore className="text-lg" />
@@ -932,13 +932,13 @@ function CommentThreadPanel({
     >
       <div
         data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-580"
-        className="flex items-center gap-3 bg-white border-b border-[#F1F2F6] px-4 py-3 flex-shrink-0"
+        className="flex items-center gap-3 bg-white border-b border-[#E3E6F5] px-4 py-3 flex-shrink-0"
       >
         <button
           data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-button-712"
           type="button"
           onClick={onClose}
-          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#8F94A3] transition-colors hover:bg-[#F1F2F6] hover:text-[#1E40AF]"
+          className="flex h-7 w-7 items-center justify-center rounded-lg text-[#7C82A7] transition-colors hover:bg-[#E3E6F5] hover:text-[#1E40AF]"
         >
           <IoArrowBack size={15} />
         </button>
@@ -958,13 +958,13 @@ function CommentThreadPanel({
           >
             <p
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-593"
-              className="text-[13px] font-semibold text-[#161A2C] leading-tight truncate"
+              className="text-[13px] font-semibold text-[#1F2240] leading-tight truncate"
             >
               Comments
             </p>
             <p
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-596"
-              className="text-[10px] text-[#8F94A3] mt-0.5 truncate"
+              className="text-[10px] text-[#7C82A7] mt-0.5 truncate"
             >
               {contextLabel} · {plan.owner?.name || contextLabel} ·{' '}
               {commentCount} comment{commentCount !== 1 ? 's' : ''}
@@ -1047,7 +1047,7 @@ function ParentPlanTasksSection({
           >
             <p
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-660"
-              className="min-w-0 flex-1 truncate text-[12px] font-bold leading-tight text-[#161A2C] sm:text-[13px]"
+              className="min-w-0 flex-1 truncate text-[12px] font-bold leading-tight text-[#1F2240] sm:text-[13px]"
             >
               {title}
             </p>
@@ -1062,7 +1062,7 @@ function ParentPlanTasksSection({
           </div>
           <div
             data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-669"
-            className="mt-2 h-[5px] w-full overflow-hidden rounded-full bg-[#F1F2F6]"
+            className="mt-2 h-[5px] w-full overflow-hidden rounded-full bg-[#E3E6F5]"
           >
             <div
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-837"
@@ -1074,7 +1074,7 @@ function ParentPlanTasksSection({
           </div>
           <div
             data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-677"
-            className="mt-1.5 flex items-center justify-between text-[10px] text-[#8F94A3]"
+            className="mt-1.5 flex items-center justify-between text-[10px] text-[#7C82A7]"
           >
             <span data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-678">
               {showPick && slots.length > 0
@@ -1097,7 +1097,7 @@ function ParentPlanTasksSection({
             <Spin size="small" />
             <p
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-694"
-              className="text-[12px] font-medium text-[#8F94A3]"
+              className="text-[12px] font-medium text-[#7C82A7]"
             >
               Loading plan tasks…
             </p>
@@ -1109,7 +1109,7 @@ function ParentPlanTasksSection({
           >
             <p
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-700"
-              className="text-[12px] font-medium text-[#8F94A3]"
+              className="text-[12px] font-medium text-[#7C82A7]"
             >
               No tasks on this plan yet
             </p>
@@ -1133,15 +1133,15 @@ function ParentPlanTasksSection({
                 >
                   <div
                     data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-900"
-                    className={`flex w-full items-center justify-between gap-2 rounded-xl border bg-white px-3 py-2.5 transition-all duration-200 ${
+                    className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-white px-3 py-2.5 transition-all duration-200 ${
                       selected
                         ? 'border-[#1E40AF]/40 shadow-[0_0_0_2px_rgba(30,64,175,0.08),0_2px_12px_rgba(30,64,175,0.06)]'
-                        : 'border-[#F1F2F6] hover:border-[#1E40AF]/15 hover:shadow-[0_2px_12px_rgba(30,64,175,0.05)]'
+                        : 'border-[#E3E6F5] hover:border-[#1E40AF]/15 hover:shadow-[0_2px_12px_rgba(30,64,175,0.05)]'
                     }`}
                   >
                     <p
                       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-718"
-                      className="line-clamp-3 min-w-0 flex-1 text-left text-[12px] font-normal leading-snug text-[#161A2C] sm:text-[13px]"
+                      className="line-clamp-3 min-w-0 flex-1 text-left text-[12px] font-normal leading-snug text-[#1F2240] sm:text-[13px]"
                     >
                       {rowLabel(slot)}
                     </p>
@@ -1321,7 +1321,7 @@ export function KRLeftPanel({
           {!isChildCadence && !isSingleOwner && (
             <div
               data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-853"
-              className="bg-white border-b border-[#F1F2F6] px-4 py-3.5 flex-shrink-0"
+              className="bg-white border-b border-[#E3E6F5] px-4 py-3.5 flex-shrink-0"
             >
               <div
                 data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-854"
@@ -1333,20 +1333,20 @@ export function KRLeftPanel({
                 >
                   <div
                     data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-856"
-                    className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1E40AF]/10"
+                    className="flex h-8 w-8 items-center justify-center rounded-md bg-shell-tint"
                   >
-                    <BsKey size={13} className="text-[#1E40AF]" />
+                    <BsKey size={14} className="text-primary" />
                   </div>
                   <div data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-859">
                     <p
                       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-860"
-                      className="text-[13px] font-bold text-[#161A2C] leading-tight"
+                      className="text-sm font-semibold leading-tight text-shell-ink"
                     >
                       Key Results
                     </p>
                     <p
                       data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-863"
-                      className="text-[10px] text-[#8F94A3] mt-0.5"
+                      className="mt-0.5 text-xs text-shell-muted"
                     >
                       {totalKRs} key result{totalKRs !== 1 ? 's' : ''} ·{' '}
                       {ownerGroups.length} owner
@@ -1356,7 +1356,7 @@ export function KRLeftPanel({
                 </div>
                 <span
                   data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-span-870"
-                  className="rounded-lg bg-[#1E40AF]/10 px-2.5 py-1 text-[11px] font-bold text-[#1E40AF]"
+                  className="rounded-md bg-shell-tint px-2.5 py-1 text-xs font-semibold tabular-nums text-primary"
                 >
                   {totalKRs}
                 </span>
@@ -1385,7 +1385,7 @@ export function KRLeftPanel({
               {showKrTargetsLoadingRow ? (
                 <div
                   data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-892"
-                  className="flex shrink-0 items-center justify-center gap-2 py-2 text-[11px] text-[#8F94A3]"
+                  className="flex shrink-0 items-center justify-center gap-2 py-2 text-[11px] text-[#7C82A7]"
                 >
                   <Spin size="small" />
                   Loading planning slots…
@@ -1398,13 +1398,13 @@ export function KRLeftPanel({
                 >
                   <div
                     data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-div-899"
-                    className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#F1F2F6]"
+                    className="mb-3 flex h-14 w-14 items-center justify-center rounded-lg bg-shell-tint"
                   >
-                    <BsKey size={24} className="text-[#D1D5DB]" />
+                    <BsKey size={24} className="text-shell-muted" />
                   </div>
                   <p
                     data-cy="planning-and-reporting-components-planning-planningpanelview-tsx-planningpanelview-p-902"
-                    className="text-sm font-medium text-[#8F94A3]"
+                    className="text-sm font-medium text-[#7C82A7]"
                   >
                     No key results yet
                   </p>

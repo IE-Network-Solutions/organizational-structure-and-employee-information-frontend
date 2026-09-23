@@ -132,7 +132,7 @@ export default function HomeApprovalsPage() {
             <div
               role="tablist"
               aria-label="Learning approval type"
-              className="flex w-max max-w-full flex-wrap items-center gap-2 rounded-xl border border-slate-100 bg-slate-50/70 p-1.5"
+              className="flex w-max max-w-full flex-wrap items-center gap-1"
               data-cy="home-approvals-learning-subtype-pills"
             >
               {(
@@ -180,13 +180,13 @@ export default function HomeApprovalsPage() {
       data-cy="home-approvals-page"
     >
       <div
-        className="flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
+        className="home-embed-main flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
         data-cy="home-approvals-main-card"
       >
         <div
           className={classNames(
-            'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 bg-white py-2',
-            'sm:flex-row sm:items-center sm:gap-3 lg:gap-x-8',
+            'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 border-b border-shell-line bg-white pb-2 pt-1',
+            'sm:flex-row sm:items-end sm:gap-3 sm:pb-0 lg:gap-x-8 sm:[&>*:not(:first-child)]:pb-2',
           )}
           data-cy="home-approvals-toolbar-row"
         >
