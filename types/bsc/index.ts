@@ -242,6 +242,8 @@ export interface ScorecardKpiTarget {
    */
   checkInDay?: number | null;
   actualValue?: number | null;
+  /** Final evaluated score for this KPI (0–100), set after evaluation */
+  score?: number | null;
   evidenceUrl?: string | null;
   evidenceFileName?: string | null;
   evidenceHash?: string | null;
