@@ -12,7 +12,6 @@ import {
   PepAuditRow,
   ReportKpiInput,
   ScorecardStatus,
-  TargetLogic,
 } from '@/types/bsc';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';

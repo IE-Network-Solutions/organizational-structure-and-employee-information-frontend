@@ -221,12 +221,6 @@ type MeasureRow = {
 const KPI_LIST_ROW_GRID =
   'grid grid-cols-[32px_minmax(0,1fr)_120px_120px] gap-x-6 items-center px-2';
 
-function targetLogicLabel(logic?: TargetLogic): string {
-  if (logic === TargetLogic.LowerBetter) return 'Lower is better';
-  if (logic === TargetLogic.Bounded) return 'Bounded';
-  return 'Higher is better';
-}
-
 /** Split 100% across perspectives evenly. */
 function seedPerspectiveRows(names: string[]): PerspectiveRow[] {
   if (!names.length) return [];
@@ -259,21 +253,6 @@ function splitWeightMap(ids: string[]): Record<string, number> {
  */
 function FormObjectField() {
   return null;
-}
-
-function RequiredLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      {children}
-      <span
-        data-cy="bsc-setup-required-asterisk"
-        className="ml-0.5 text-[#ff4d4f]"
-        aria-hidden
-      >
-        *
-      </span>
-    </>
-  );
 }
 
 /**
