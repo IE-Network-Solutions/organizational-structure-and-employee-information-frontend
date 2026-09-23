@@ -11,6 +11,7 @@
   display: none; /* Chrome, Safari, Opera */
 }
 
+
 /* Candidate table: hide AntD inner horizontal scrollbar */
 #talent-acquisition-candidate-table-scroll-wrapper .ant-table-content,
 #talent-acquisition-candidate-table-scroll-wrapper .ant-table-body {

@@ -108,25 +108,20 @@ AccessGuard.checkAccess = ({
   const { userData, userId } = useAuthenticationStore.getState();
 
   const role = userData?.role?.slug || '';
-  const userPermissions = userData?.userPermissions || [];
 
   const isOwner = role.toLowerCase() === 'owner';
 
   const hasRole = roles ? roles.includes(role) : true;
 
+  const permissionSlugs = collectPermissionSlugs(userData);
+
   const hasPermission = permissions
     ? requireAny
       ? permissions.some((permission) =>
-          userPermissions.some(
-            (userPermission: { permission: { slug: string } }) =>
-              userPermission.permission?.slug === permission,
-          ),
+          permissionSlugs.has(permission.trim().toUpperCase()),
         )
       : permissions.every((permission) =>
-          userPermissions.some(
-            (userPermission: { permission: { slug: string } }) =>
-              userPermission.permission?.slug === permission,
-          ),
+          permissionSlugs.has(permission.trim().toUpperCase()),
         )
     : true;
 
