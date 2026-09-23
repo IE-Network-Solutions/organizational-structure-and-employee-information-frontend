@@ -29,6 +29,11 @@ const TABS = [
     label: 'Commitment Configuration',
     href: '/tna/settings/commitment-configuration',
   },
+  {
+    key: 'skill-settings',
+    label: 'Skill Settings',
+    href: '/tna/settings/skill-settings',
+  },
 ];
 
 const TnaSettingsLayout: FC<TnaSettingsLayoutProps> = ({ children }) => {

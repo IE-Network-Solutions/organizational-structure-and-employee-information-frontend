@@ -132,6 +132,7 @@ const MENU_ROUTES: MenuRouteNode[] = [
     permissions: ['view_learning_growth'],
     children: [
       { key: '/tna/management', permissions: ['manage_training'] },
+      { key: '/tna/planning', permissions: ['manage_growth_plan'] },
       { key: '/tna/tna-management', permissions: ['manage_tna'] },
       {
         key: '/tna/settings/course-category',
@@ -143,6 +144,10 @@ const MENU_ROUTES: MenuRouteNode[] = [
       },
       {
         key: '/tna/settings/commitment-configuration',
+        permissions: ['manage_tna_settings'],
+      },
+      {
+        key: '/tna/settings/skill-settings',
         permissions: ['manage_tna_settings'],
       },
     ],

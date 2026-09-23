@@ -974,10 +974,16 @@ export default function MySchedulePage() {
             <Input type="hidden" />
           </Form.Item>
           <div className="mb-4" data-cy="shift-swap-target-shift-display">
-            <div data-cy="shift-swap-target-shift-display-label" className="text-sm text-gray-600 mb-1">
+            <div
+              data-cy="shift-swap-target-shift-display-label"
+              className="text-sm text-gray-600 mb-1"
+            >
               Target shift (peer’s shift)
             </div>
-            <div data-cy="shift-swap-target-shift-display-value" className="h-10 px-3 rounded-lg border border-gray-200 bg-[#f8f8f8] flex items-center text-sm text-[#1f1f1f]">
+            <div
+              data-cy="shift-swap-target-shift-display-value"
+              className="h-10 px-3 rounded-lg border border-gray-200 bg-[#f8f8f8] flex items-center text-sm text-[#1f1f1f]"
+            >
               {selectedPeerShift
                 ? `${selectedPeerShift.name} (${selectedPeerShift.startTime} – ${selectedPeerShift.endTime})`
                 : selectedPeerShiftId

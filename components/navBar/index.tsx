@@ -798,6 +798,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           },
           {
             title: (
+              <span data-cy="nav-tree-personal-growth-plan">
+                Personal Growth Plan
+              </span>
+            ),
+            key: '/tna/planning',
+            className: 'font-bold',
+            permissions: ['manage_growth_plan'],
+          },
+          {
+            title: (
               <span data-cy="nav-tree-tna-management">TNA Management</span>
             ),
             key: '/tna/tna-management',

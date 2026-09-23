@@ -135,6 +135,9 @@ export enum Permissions {
   ConfirmTnaCommitment = 'confirm_tna_commitment',
   MarkTrainingAsPaid = 'mark_training_as_paid',
   ManageCommitmentConfiguration = 'manage-commitment-configuration',
+  /** Personal Growth Plan — create/view own plans and manager approve directs */
+  ManageGrowthPlan = 'manage_growth_plan',
+  ApproveGrowthPlan = 'approve_growth_plan',
 
   // TNA Category Permissions
   CreateTnaCategory = 'create-tna-category',
