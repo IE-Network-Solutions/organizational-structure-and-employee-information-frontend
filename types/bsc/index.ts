@@ -302,9 +302,13 @@ export interface EmployeeScorecard {
   positionTitle?: string | null;
   cycleId: string;
   cycleLabel: string;
+  /** BE period key (e.g. 2026-Q1 / 2026-03) used for filtering and series */
+  periodKey?: string | null;
   /** Used for Variable-Pay-style session/month filtering in mocks */
   periodMonthName?: string | null;
   periodYear?: number | null;
+  periodStart?: string | null;
+  periodEnd?: string | null;
   status: ScorecardStatus;
   targets: ScorecardKpiTarget[];
   acknowledgedAt?: string | null;
