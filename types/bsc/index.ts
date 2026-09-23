@@ -172,7 +172,12 @@ export interface EvaluationCycle {
     acceptableThreshold?: number | null;
     cadence?: BscCadence | null;
     checkInDay?: number | null;
+    /** Display fields hydrated from joined KPI library on GET */
+    name?: string | null;
+    description?: string | null;
     perspective?: string | null;
+    measurementUnit?: string | null;
+    targetLogic?: TargetLogic | null;
     evaluationFlow?: BscEvaluatorStep[];
   }>;
   /** @deprecated kept for assign UI display fallback */
