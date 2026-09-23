@@ -22,8 +22,11 @@ export type BscTemplateKpiLineInput = {
   kpiLibraryId: string;
   weightPercentage: number;
   targetValue: number;
+  stretchTarget?: number | null;
   worstCase?: number | null;
   bestCase?: number | null;
+  dataSource?: string | null;
+  acceptableThreshold?: number | null;
   cadence?: BscCadence | null;
   checkInDay?: number | null;
   evaluationFlow?: BscEvaluatorStep[];
@@ -49,8 +52,11 @@ export type BscScorecardKpiApi = {
   kpiId: string;
   weight: number | string;
   targetValue: number | string;
+  stretchTarget?: number | string | null;
   worstCase?: number | string | null;
   bestCase?: number | string | null;
+  dataSource?: string | null;
+  acceptableThreshold?: number | string | null;
   cadence: string;
   checkInDay?: number | null;
   horizon?: string;
@@ -260,6 +266,10 @@ export function mapScorecardToCycle(row: BscScorecardApi): EvaluationCycle {
     kpiLibraryId: line.kpiId,
     weightPercentage: toNum(line.weight),
     targetValue: toNum(line.targetValue),
+    stretchTarget:
+      line.stretchTarget === undefined || line.stretchTarget === null
+        ? null
+        : toNum(line.stretchTarget),
     worstCase:
       line.worstCase === undefined || line.worstCase === null
         ? null
@@ -268,6 +278,12 @@ export function mapScorecardToCycle(row: BscScorecardApi): EvaluationCycle {
       line.bestCase === undefined || line.bestCase === null
         ? null
         : toNum(line.bestCase),
+    dataSource: line.dataSource?.trim() ? line.dataSource.trim() : null,
+    acceptableThreshold:
+      line.acceptableThreshold === undefined ||
+      line.acceptableThreshold === null
+        ? null
+        : toNum(line.acceptableThreshold),
     cadence: mapCadenceFromApi(line.cadence),
     checkInDay: line.checkInDay ?? null,
     name: line.kpi?.name ?? null,
@@ -381,6 +397,15 @@ function mapTemplateKpisToApi(
 
     if (line.worstCase != null) body.worstCase = Number(line.worstCase);
     if (line.bestCase != null) body.bestCase = Number(line.bestCase);
+    if (line.stretchTarget != null) {
+      body.stretchTarget = Number(line.stretchTarget);
+    }
+    if (line.dataSource != null && line.dataSource !== '') {
+      body.dataSource = String(line.dataSource).trim();
+    }
+    if (line.acceptableThreshold != null) {
+      body.acceptableThreshold = Number(line.acceptableThreshold);
+    }
     if (line.checkInDay != null) body.checkInDay = Number(line.checkInDay);
     if (flow?.length) body.evaluationFlow = flow;
     if (horizon === 'Temporary') {

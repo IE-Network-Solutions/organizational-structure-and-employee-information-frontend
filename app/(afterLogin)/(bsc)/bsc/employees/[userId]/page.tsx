@@ -375,6 +375,42 @@ export default function EmployeeKpiDetailPage() {
       title: (
         <span
           className={tableHeaderClassName}
+          data-cy="bsc-employee-kpi-data-source-header"
+        >
+          Data source
+        </span>
+      ),
+      dataIndex: 'dataSource',
+      key: 'dataSource',
+      width: 130,
+      render: (value: string | null) => (
+        <span data-cy="auto-added" className={tableCellClassName}>
+          {value || '—'}
+        </span>
+      ),
+    },
+    {
+      title: (
+        <span
+          className={tableHeaderClassName}
+          data-cy="bsc-employee-kpi-threshold-header"
+        >
+          Threshold
+        </span>
+      ),
+      dataIndex: 'acceptableThreshold',
+      key: 'acceptableThreshold',
+      width: 110,
+      render: (value: number | null) => (
+        <span data-cy="auto-added" className={tableCellClassName}>
+          {value == null ? '—' : value}
+        </span>
+      ),
+    },
+    {
+      title: (
+        <span
+          className={tableHeaderClassName}
           data-cy="-bsc-bsc-employees-userid-page-span-14"
         >
           Recent Score

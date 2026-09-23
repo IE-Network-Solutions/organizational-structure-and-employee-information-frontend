@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
+import KpiAssignmentMetricFields from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiAssignmentMetricFields';
 import { unitTagClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/TargetValueCell';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAppendIndividualBscKpis } from '@/store/server/features/bsc/mutation';
@@ -36,7 +37,10 @@ import {
   KpiLibraryItem,
   TargetLogic,
 } from '@/types/bsc';
-import { validateWeights } from '@/utils/bsc/scoring';
+import {
+  validateAcceptableThreshold,
+  validateWeights,
+} from '@/utils/bsc/scoring';
 import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
 
 const KPI_LIST_ROW_GRID =
@@ -153,6 +157,11 @@ export default function AssignIndividualKpisModal({
   const [measureTargets, setMeasureTargets] = useState<
     Record<string, number | null>
   >({});
+  const [measureDataSources, setMeasureDataSources] = useState<
+    Record<string, string | null>
+  >({});
+  const [measureAcceptableThresholds, setMeasureAcceptableThresholds] =
+    useState<Record<string, number | null>>({});
   const [kpiEvaluationFlows, setKpiEvaluationFlows] = useState<
     Record<string, BscEvaluatorStep[]>
   >({});
@@ -311,6 +320,8 @@ export default function AssignIndividualKpisModal({
     setKpiSearch('');
     setPersonWeights({});
     setMeasureTargets({});
+    setMeasureDataSources({});
+    setMeasureAcceptableThresholds({});
     setKpiEvaluationFlows({});
     setAddStepKpiId(null);
     setEmployeePickerSearch('');
@@ -432,12 +443,43 @@ export default function AssignIndividualKpisModal({
     if (!validateEvaluationStep()) return;
 
     for (const kpi of selectedKpis) {
-      const target = measureTargets[`new:${kpi.id}`];
+      const key = `new:${kpi.id}`;
+      const target = measureTargets[key];
       if (target == null || Number.isNaN(Number(target))) {
         NotificationMessage.error({
           message: `Enter a target for ${kpi.name}`,
         });
         return;
+      }
+      if (!measureDataSources[key]) {
+        NotificationMessage.error({
+          message: `Select a data source for ${kpi.name}`,
+        });
+        return;
+      }
+      if (
+        (kpi.targetLogic === TargetLogic.HigherBetter ||
+          kpi.targetLogic === TargetLogic.LowerBetter) &&
+        measureAcceptableThresholds[key] == null
+      ) {
+        NotificationMessage.error({
+          message: `Set an acceptable threshold for ${kpi.name}`,
+        });
+        return;
+      }
+      if (measureAcceptableThresholds[key] != null) {
+        const thresholdCheck = validateAcceptableThreshold(
+          Number(target),
+          Number(measureAcceptableThresholds[key]),
+          kpi.targetLogic,
+        );
+        if (!thresholdCheck.valid) {
+          NotificationMessage.error({
+            message:
+              thresholdCheck.message || `Invalid threshold for ${kpi.name}`,
+          });
+          return;
+        }
       }
     }
 
@@ -451,6 +493,9 @@ export default function AssignIndividualKpisModal({
         kpiLibraryId: kpi.id,
         weightPercentage: Number(personWeights[`new:${kpi.id}`]),
         targetValue: Number(measureTargets[`new:${kpi.id}`]),
+        dataSource: measureDataSources[`new:${kpi.id}`] ?? null,
+        acceptableThreshold:
+          measureAcceptableThresholds[`new:${kpi.id}`] ?? null,
         worstCase:
           kpi.targetLogic === TargetLogic.Bounded ? kpi.worstCase : null,
         bestCase: kpi.targetLogic === TargetLogic.Bounded ? kpi.bestCase : null,
@@ -488,12 +533,43 @@ export default function AssignIndividualKpisModal({
         return;
       }
       for (const kpi of selectedKpis) {
-        const target = measureTargets[`new:${kpi.id}`];
+        const key = `new:${kpi.id}`;
+        const target = measureTargets[key];
         if (target == null || Number.isNaN(Number(target))) {
           NotificationMessage.error({
             message: `Enter a target for ${kpi.name}`,
           });
           return;
+        }
+        if (!measureDataSources[key]) {
+          NotificationMessage.error({
+            message: `Select a data source for ${kpi.name}`,
+          });
+          return;
+        }
+        if (
+          (kpi.targetLogic === TargetLogic.HigherBetter ||
+            kpi.targetLogic === TargetLogic.LowerBetter) &&
+          measureAcceptableThresholds[key] == null
+        ) {
+          NotificationMessage.error({
+            message: `Set an acceptable threshold for ${kpi.name}`,
+          });
+          return;
+        }
+        if (measureAcceptableThresholds[key] != null) {
+          const thresholdCheck = validateAcceptableThreshold(
+            Number(target),
+            Number(measureAcceptableThresholds[key]),
+            kpi.targetLogic,
+          );
+          if (!thresholdCheck.valid) {
+            NotificationMessage.error({
+              message:
+                thresholdCheck.message || `Invalid threshold for ${kpi.name}`,
+            });
+            return;
+          }
         }
       }
       seedKpiEvaluationFlows();
@@ -934,6 +1010,29 @@ export default function AssignIndividualKpisModal({
                         </span>
                       ) : null}
                     </div>
+                    {row.kind === 'new' && row.targetLogic ? (
+                      <KpiAssignmentMetricFields
+                        kpiKey={row.key}
+                        targetLogic={row.targetLogic}
+                        targetValue={measureTargets[row.key]}
+                        dataSource={measureDataSources[row.key] ?? null}
+                        acceptableThreshold={
+                          measureAcceptableThresholds[row.key] ?? null
+                        }
+                        onDataSourceChange={(value) =>
+                          setMeasureDataSources((prev) => ({
+                            ...prev,
+                            [row.key]: value,
+                          }))
+                        }
+                        onThresholdChange={(value) =>
+                          setMeasureAcceptableThresholds((prev) => ({
+                            ...prev,
+                            [row.key]: value,
+                          }))
+                        }
+                      />
+                    ) : null}
                   </div>
                 ))}
               </div>

@@ -29,6 +29,9 @@ export type BscKpiApi = {
   bestCase?: number | string | null;
   measurementUnit: string;
   defaultTarget?: number | string | null;
+  stretchTarget?: number | string | null;
+  dataSource?: string | null;
+  acceptableThreshold?: number | string | null;
   createdAt?: string | Date;
   perspective?: { id: string; name: string } | null;
 };
@@ -68,12 +71,15 @@ export function mapKpiFromApi(row: BscKpiApi): KpiLibraryItem {
     targetLogic: mapTargetLogicFromApi(row.targetDirection),
     measurementUnit: row.measurementUnit || '%',
     defaultTarget: toNullableNumber(row.defaultTarget),
+    stretchTarget: toNullableNumber(row.stretchTarget),
     weight: 0,
     suggestedWeight: null,
     worstCase: toNullableNumber(row.worstCase),
     bestCase: toNullableNumber(row.bestCase),
     cadence: null,
     checkInDay: null,
+    dataSource: row.dataSource?.trim() ? row.dataSource.trim() : null,
+    acceptableThreshold: toNullableNumber(row.acceptableThreshold),
     createdAt: toIso(row.createdAt),
   };
 }
@@ -98,6 +104,15 @@ export function mapKpiCreateToApi(
   }
   if (input.defaultTarget != null) {
     body.defaultTarget = Number(input.defaultTarget);
+  }
+  if (input.stretchTarget != null) {
+    body.stretchTarget = Number(input.stretchTarget);
+  }
+  if (input.dataSource != null && input.dataSource !== '') {
+    body.dataSource = String(input.dataSource).trim();
+  }
+  if (input.acceptableThreshold != null) {
+    body.acceptableThreshold = Number(input.acceptableThreshold);
   }
   if (targetDirection === 'Bounded') {
     body.worstCase = Number(input.worstCase);
@@ -125,6 +140,22 @@ export function mapKpiUpdateToApi(
   if (input.defaultTarget !== undefined) {
     body.defaultTarget =
       input.defaultTarget == null ? null : Number(input.defaultTarget);
+  }
+  if (input.stretchTarget !== undefined) {
+    body.stretchTarget =
+      input.stretchTarget == null ? null : Number(input.stretchTarget);
+  }
+  if (input.dataSource !== undefined) {
+    body.dataSource =
+      input.dataSource == null || input.dataSource === ''
+        ? null
+        : String(input.dataSource).trim();
+  }
+  if (input.acceptableThreshold !== undefined) {
+    body.acceptableThreshold =
+      input.acceptableThreshold == null
+        ? null
+        : Number(input.acceptableThreshold);
   }
   if (input.targetLogic !== undefined) {
     const targetDirection = mapTargetLogicToApi(input.targetLogic);

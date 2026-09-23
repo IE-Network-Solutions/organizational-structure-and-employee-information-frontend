@@ -1,6 +1,8 @@
 import {
   EmployeeScorecard,
   KpiApprovalStatus,
+  PepAuditFlag,
+  PepAuditRow,
   ScorecardKpiTarget,
   ScorecardStatus,
 } from '@/types/bsc';
@@ -23,8 +25,11 @@ export type BscEmployeeScorecardKpiApi = {
   measurementUnit: string;
   weight: number | string;
   targetValue: number | string;
+  stretchTarget?: number | string | null;
   worstCase?: number | string | null;
   bestCase?: number | string | null;
+  dataSource?: string | null;
+  acceptableThreshold?: number | string | null;
   cadence: string;
   checkInDay?: number | null;
   evaluationFlow?: Array<{ kind: string; userId?: string | null }> | null;
@@ -33,7 +38,40 @@ export type BscEmployeeScorecardKpiApi = {
   score?: number | string | null;
   approvalStatus?: string;
   rejectionReason?: string | null;
+  pepAuditFlag?: string | null;
+  pepReturnReason?: string | null;
   adjustedValue?: number | string | null;
+};
+
+/** Raw row from GET /bsc/pep-audit */
+export type BscPepAuditRowApi = {
+  employeeScorecardId: string;
+  kpiRowId: string;
+  userId: string;
+  managerId?: string | null;
+  departmentId?: string | null;
+  positionId?: string | null;
+  cycleLabel?: string | null;
+  periodKey?: string | null;
+  scorecardName?: string | null;
+  status?: string;
+  kpiName: string;
+  perspectiveName: string;
+  targetValue: number | string;
+  stretchTarget?: number | string | null;
+  actualValue?: number | string | null;
+  acceptableThreshold?: number | string | null;
+  dataSource?: string | null;
+  targetDirection: string;
+  measurementUnit: string;
+  approvalStatus?: string;
+  rejectionReason?: string | null;
+  pepReturnReason?: string | null;
+  pepAuditFlag?: string | null;
+  needsPepAction?: boolean;
+  stretchAchieved?: boolean;
+  employeeName?: string | null;
+  departmentName?: string | null;
 };
 
 export type BscEmployeeScorecardApi = {
@@ -109,6 +147,21 @@ export function mapApprovalStatusFromApi(
   }
 }
 
+export function mapPepAuditFlagFromApi(
+  flag?: string | null,
+): PepAuditFlag | null {
+  switch (flag) {
+    case PepAuditFlag.PendingReview:
+      return PepAuditFlag.PendingReview;
+    case PepAuditFlag.Realistic:
+      return PepAuditFlag.Realistic;
+    case PepAuditFlag.Unrealistic:
+      return PepAuditFlag.Unrealistic;
+    default:
+      return null;
+  }
+}
+
 export function mapEmployeeKpiToTarget(
   row: BscEmployeeScorecardKpiApi,
   employeeScorecardId: string,
@@ -126,6 +179,7 @@ export function mapEmployeeKpiToTarget(
     measurementUnit: row.measurementUnit || '%',
     weightPercentage: toNum(row.weight),
     targetValue: toNum(row.targetValue),
+    stretchTarget: toNullableNum(row.stretchTarget),
     worstCase: toNullableNum(row.worstCase),
     bestCase: toNullableNum(row.bestCase),
     cadence: mapCadenceFromApi(row.cadence),
@@ -134,9 +188,38 @@ export function mapEmployeeKpiToTarget(
     score: toNullableNum(row.score),
     approvalStatus: mapApprovalStatusFromApi(row.approvalStatus),
     rejectionReason: row.rejectionReason ?? null,
+    dataSource: row.dataSource?.trim() ? row.dataSource.trim() : null,
+    acceptableThreshold: toNullableNum(row.acceptableThreshold),
+    pepAuditFlag: mapPepAuditFlagFromApi(row.pepAuditFlag),
+    pepReturnReason: row.pepReturnReason ?? null,
     assignmentSource: source,
     evaluationFlow: (row.evaluationFlow || []).map(mapEvaluatorStepFromApi),
     evaluationStepIndex: row.evaluationStepIndex ?? 0,
+  };
+}
+
+export function mapPepAuditRowFromApi(row: BscPepAuditRowApi): PepAuditRow {
+  return {
+    scorecardId: row.employeeScorecardId,
+    targetId: row.kpiRowId,
+    userId: row.userId,
+    employeeName: row.employeeName || row.userId,
+    cycleLabel: row.scorecardName || row.cycleLabel || '',
+    departmentName: row.departmentName ?? null,
+    kpiName: row.kpiName,
+    perspective: row.perspectiveName,
+    targetValue: toNum(row.targetValue),
+    stretchTarget: toNullableNum(row.stretchTarget),
+    actualValue: toNullableNum(row.actualValue),
+    acceptableThreshold: toNullableNum(row.acceptableThreshold),
+    dataSource: row.dataSource?.trim() ? row.dataSource.trim() : null,
+    targetLogic: mapTargetLogicFromApi(row.targetDirection),
+    measurementUnit: row.measurementUnit || '%',
+    pepAuditFlag:
+      mapPepAuditFlagFromApi(row.pepAuditFlag) || PepAuditFlag.PendingReview,
+    approvalStatus: mapApprovalStatusFromApi(row.approvalStatus),
+    rejectionReason: row.rejectionReason ?? null,
+    pepReturnReason: row.pepReturnReason ?? null,
   };
 }
 

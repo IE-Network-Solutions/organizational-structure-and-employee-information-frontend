@@ -9,7 +9,6 @@ import {
   DatePicker,
   Form,
   Input,
-  InputNumber,
   Modal,
   Popover,
   Radio,
@@ -29,6 +28,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import CustomButton from '@/components/common/buttons/customButton';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
 import { unitTagClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/TargetValueCell';
+import BscSetupWeightsStep from './BscSetupWeightsStep';
 import {
   useAssignBscScorecard,
   useCreateBscCycle,
@@ -64,15 +64,15 @@ import {
   checkInDayOptions,
   eligibleCheckInCadences,
   filterCheckInDayOptions,
-  formatCheckInDate,
   isKpiCheckInCadence,
   KPI_CHECKIN_CADENCES,
-  cadenceLabel,
-  resolveFirstCheckInDate,
 } from '@/utils/bsc/checkInSchedule';
 import { resolveEffectiveFrom } from '@/utils/bsc/effectiveDate';
 import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
-import { validateWeights } from '@/utils/bsc/scoring';
+import {
+  validateAcceptableThreshold,
+  validateWeights,
+} from '@/utils/bsc/scoring';
 import {
   findDuplicateEvaluationStepLabel,
   isEvaluationStepAlreadyInFlow,
@@ -89,11 +89,6 @@ function asList(data: any): any[] {
 }
 
 const PERMANENT_END = '2099-12-31';
-
-const KPI_CADENCE_OPTIONS = KPI_CHECKIN_CADENCES.map((value) => ({
-  value,
-  label: cadenceLabel(value) || value,
-}));
 
 function resolveScopeTarget(config: {
   scopeTarget?: BscScopeTarget;
@@ -214,10 +209,13 @@ type MeasureRow = {
   measurementUnit?: string;
   defaultTarget?: number | null;
   targetValue?: number | null;
+  stretchTarget?: number | null;
   worstCase?: number | null;
   bestCase?: number | null;
   cadence?: BscCadence | null;
   checkInDay?: number | null;
+  dataSource?: string | null;
+  acceptableThreshold?: number | null;
 };
 
 const KPI_LIST_ROW_GRID =
@@ -392,6 +390,8 @@ export default function BscSetupModal() {
     Form.useWatch('measureWeights', form) || {};
   const measureTargets: Record<string, number | null | undefined> =
     Form.useWatch('measureTargets', form) || {};
+  const measureStretchTargets: Record<string, number | null | undefined> =
+    Form.useWatch('measureStretchTargets', form) || {};
   const measureWorstCases: Record<string, number | null | undefined> =
     Form.useWatch('measureWorstCases', form) || {};
   const measureBestCases: Record<string, number | null | undefined> =
@@ -400,6 +400,10 @@ export default function BscSetupModal() {
     Form.useWatch('measureCadences', form) || {};
   const measureCheckInDays: Record<string, number | null | undefined> =
     Form.useWatch('measureCheckInDays', form) || {};
+  const measureDataSources: Record<string, string | null | undefined> =
+    Form.useWatch('measureDataSources', form) || {};
+  const measureAcceptableThresholds: Record<string, number | null | undefined> =
+    Form.useWatch('measureAcceptableThresholds', form) || {};
   const setupKindWatch = Form.useWatch('setupKind', form) as
     | BscSetupKind
     | undefined;
@@ -452,15 +456,6 @@ export default function BscSetupModal() {
   );
 
   const isTemporarySetup = setupKindWatch === BscSetupKind.Temporary;
-
-  const eligibleCadenceOptions = useMemo(() => {
-    if (!isTemporarySetup) return KPI_CADENCE_OPTIONS;
-    return KPI_CADENCE_OPTIONS.filter((option) =>
-      eligibleCheckInCadences(effectiveFromWatch, endDateWatch).includes(
-        option.value,
-      ),
-    );
-  }, [isTemporarySetup, effectiveFromWatch, endDateWatch]);
 
   useEffect(() => {
     if (!isTemporarySetup || !effectiveFromWatch || !endDateWatch) return;
@@ -544,10 +539,13 @@ export default function BscSetupModal() {
         perspectiveRows: seedPerspectiveRows(catalogPerspectiveNames),
         measureWeights: {},
         measureTargets: {},
+        measureStretchTargets: {},
         measureWorstCases: {},
         measureBestCases: {},
         measureCadences: {},
         measureCheckInDays: {},
+        measureDataSources: {},
+        measureAcceptableThresholds: {},
       });
     } else {
       form.resetFields();
@@ -565,10 +563,13 @@ export default function BscSetupModal() {
         perspectiveRows: seedPerspectiveRows(catalogPerspectiveNames),
         measureWeights: {},
         measureTargets: {},
+        measureStretchTargets: {},
         measureWorstCases: {},
         measureBestCases: {},
         measureCadences: {},
         measureCheckInDays: {},
+        measureDataSources: {},
+        measureAcceptableThresholds: {},
       });
     }
   }, [setupModalOpen, editingConfig, form]);
@@ -582,10 +583,13 @@ export default function BscSetupModal() {
     const selectedIds: string[] = [];
     const measureWeights: Record<string, number> = {};
     const measureTargets: Record<string, number> = {};
+    const measureStretchTargets: Record<string, number> = {};
     const measureWorstCases: Record<string, number> = {};
     const measureBestCases: Record<string, number> = {};
     const measureCadences: Record<string, BscCadence> = {};
     const measureCheckInDays: Record<string, number> = {};
+    const measureDataSources: Record<string, string> = {};
+    const measureAcceptableThresholds: Record<string, number> = {};
 
     if (templateLines.length) {
       for (const line of templateLines) {
@@ -601,6 +605,9 @@ export default function BscSetupModal() {
         if (line.targetValue != null) {
           measureTargets[id] = line.targetValue;
         }
+        if (line.stretchTarget != null) {
+          measureStretchTargets[id] = Number(line.stretchTarget);
+        }
         if (line.worstCase != null) {
           measureWorstCases[id] = line.worstCase;
         }
@@ -612,6 +619,12 @@ export default function BscSetupModal() {
         }
         if (line.checkInDay != null) {
           measureCheckInDays[id] = line.checkInDay;
+        }
+        if (line.dataSource) {
+          measureDataSources[id] = String(line.dataSource);
+        }
+        if (line.acceptableThreshold != null) {
+          measureAcceptableThresholds[id] = Number(line.acceptableThreshold);
         }
       }
     } else {
@@ -635,6 +648,9 @@ export default function BscSetupModal() {
         if (existing.defaultTarget != null) {
           measureTargets[catalogKpi.id] = existing.defaultTarget;
         }
+        if (existing.stretchTarget != null) {
+          measureStretchTargets[catalogKpi.id] = existing.stretchTarget;
+        }
         if (existing.worstCase != null) {
           measureWorstCases[catalogKpi.id] = existing.worstCase;
         }
@@ -646,6 +662,13 @@ export default function BscSetupModal() {
         }
         if (existing.checkInDay != null) {
           measureCheckInDays[catalogKpi.id] = existing.checkInDay;
+        }
+        if (existing.dataSource) {
+          measureDataSources[catalogKpi.id] = existing.dataSource;
+        }
+        if (existing.acceptableThreshold != null) {
+          measureAcceptableThresholds[catalogKpi.id] =
+            existing.acceptableThreshold;
         }
       }
     }
@@ -699,10 +722,13 @@ export default function BscSetupModal() {
       perspectiveRows,
       measureWeights,
       measureTargets,
+      measureStretchTargets,
       measureWorstCases,
       measureBestCases,
       measureCadences,
       measureCheckInDays,
+      measureDataSources,
+      measureAcceptableThresholds,
       kpiEvaluationFlows: nextFlows,
     });
   }, [
@@ -1028,6 +1054,11 @@ export default function BscSetupModal() {
         string,
         number | null | undefined
       >) || {};
+    const currentStretch =
+      (form.getFieldValue('measureStretchTargets') as Record<
+        string,
+        number | null | undefined
+      >) || {};
     const currentWorst =
       (form.getFieldValue('measureWorstCases') as Record<
         string,
@@ -1040,12 +1071,16 @@ export default function BscSetupModal() {
       >) || {};
 
     const nextTargets = { ...currentTargets };
+    const nextStretch = { ...currentStretch };
     const nextWorst = { ...currentWorst };
     const nextBest = { ...currentBest };
 
     for (const kpi of selectedKpis) {
       if (nextTargets[kpi.id] == null && kpi.defaultTarget != null) {
         nextTargets[kpi.id] = kpi.defaultTarget;
+      }
+      if (nextStretch[kpi.id] == null && kpi.stretchTarget != null) {
+        nextStretch[kpi.id] = kpi.stretchTarget;
       }
       if (kpi.targetLogic === TargetLogic.Bounded) {
         if (nextWorst[kpi.id] == null && kpi.worstCase != null) {
@@ -1059,6 +1094,7 @@ export default function BscSetupModal() {
 
     form.setFieldsValue({
       measureTargets: nextTargets,
+      measureStretchTargets: nextStretch,
       measureWorstCases: nextWorst,
       measureBestCases: nextBest,
     });
@@ -1124,6 +1160,36 @@ export default function BscSetupModal() {
           message: `Select a check-in day for ${kpi.name}`,
         });
         throw new Error('check-in day required');
+      }
+      if (!measureDataSources[kpi.id]) {
+        NotificationMessage.error({
+          message: `Enter a data source URL for ${kpi.name}`,
+        });
+        throw new Error('data source required');
+      }
+      if (
+        (kpi.targetLogic === TargetLogic.HigherBetter ||
+          kpi.targetLogic === TargetLogic.LowerBetter) &&
+        measureAcceptableThresholds[kpi.id] == null
+      ) {
+        NotificationMessage.error({
+          message: `Set an acceptable threshold for ${kpi.name}`,
+        });
+        throw new Error('acceptable threshold required');
+      }
+      if (measureAcceptableThresholds[kpi.id] != null) {
+        const thresholdCheck = validateAcceptableThreshold(
+          Number(measureTargets[kpi.id]),
+          Number(measureAcceptableThresholds[kpi.id]),
+          kpi.targetLogic,
+        );
+        if (!thresholdCheck.valid) {
+          NotificationMessage.error({
+            message:
+              thresholdCheck.message || `Invalid threshold for ${kpi.name}`,
+          });
+          throw new Error(thresholdCheck.message);
+        }
       }
     }
 
@@ -1195,6 +1261,21 @@ export default function BscSetupModal() {
         string,
         number | null | undefined
       >) || measureCheckInDays;
+    const stretchFromForm =
+      (form.getFieldValue('measureStretchTargets') as Record<
+        string,
+        number | null | undefined
+      >) || measureStretchTargets;
+    const dataSourcesFromForm =
+      (form.getFieldValue('measureDataSources') as Record<
+        string,
+        string | null | undefined
+      >) || measureDataSources;
+    const thresholdsFromForm =
+      (form.getFieldValue('measureAcceptableThresholds') as Record<
+        string,
+        number | null | undefined
+      >) || measureAcceptableThresholds;
 
     const rows: MeasureRow[] = [];
     for (const [perspective, kpis] of byPerspective) {
@@ -1213,6 +1294,10 @@ export default function BscSetupModal() {
             targetsFromForm[kpi.id] != null
               ? Number(targetsFromForm[kpi.id])
               : (kpi.defaultTarget ?? null),
+          stretchTarget:
+            stretchFromForm[kpi.id] != null
+              ? Number(stretchFromForm[kpi.id])
+              : (kpi.stretchTarget ?? null),
           worstCase:
             worstFromForm[kpi.id] != null
               ? Number(worstFromForm[kpi.id])
@@ -1228,6 +1313,11 @@ export default function BscSetupModal() {
             checkInDaysFromForm[kpi.id] != null
               ? Number(checkInDaysFromForm[kpi.id])
               : null,
+          dataSource: dataSourcesFromForm[kpi.id] ?? kpi.dataSource ?? null,
+          acceptableThreshold:
+            thresholdsFromForm[kpi.id] != null
+              ? Number(thresholdsFromForm[kpi.id])
+              : (kpi.acceptableThreshold ?? null),
         });
       }
     }
@@ -1334,10 +1424,13 @@ export default function BscSetupModal() {
       targetLogic: row.targetLogic,
       measurementUnit: row.measurementUnit,
       defaultTarget: row.targetValue ?? null,
+      stretchTarget: row.stretchTarget ?? null,
       worstCase: row.worstCase ?? null,
       bestCase: row.bestCase ?? null,
       cadence: row.cadence ?? null,
       checkInDay: row.checkInDay ?? null,
+      dataSource: row.dataSource ?? null,
+      acceptableThreshold: row.acceptableThreshold ?? null,
     }));
 
     const cascadeTargets = async (target: {
@@ -1454,6 +1547,9 @@ export default function BscSetupModal() {
               kpiLibraryId: row.kpiId!,
               weightPercentage: Number(row.weight),
               targetValue: Number(row.targetValue),
+              stretchTarget: row.stretchTarget ?? null,
+              dataSource: row.dataSource ?? null,
+              acceptableThreshold: row.acceptableThreshold ?? null,
               worstCase: row.worstCase ?? undefined,
               bestCase: row.bestCase ?? undefined,
               cadence: row.cadence ?? null,
@@ -1495,6 +1591,9 @@ export default function BscSetupModal() {
               kpiLibraryId: row.kpiId!,
               weightPercentage: Number(row.weight),
               targetValue: Number(row.targetValue),
+              stretchTarget: row.stretchTarget ?? null,
+              dataSource: row.dataSource ?? null,
+              acceptableThreshold: row.acceptableThreshold ?? null,
               worstCase: row.worstCase ?? undefined,
               bestCase: row.bestCase ?? undefined,
               cadence: row.cadence ?? null,
@@ -1543,6 +1642,9 @@ export default function BscSetupModal() {
             kpiLibraryId: row.kpiId!,
             weightPercentage: Number(row.weight),
             targetValue: Number(row.targetValue),
+            stretchTarget: row.stretchTarget ?? null,
+            dataSource: row.dataSource ?? null,
+            acceptableThreshold: row.acceptableThreshold ?? null,
             worstCase: row.worstCase ?? undefined,
             bestCase: row.bestCase ?? undefined,
             cadence: row.cadence ?? null,
@@ -1640,6 +1742,9 @@ export default function BscSetupModal() {
         <Form.Item name="measureTargets" hidden>
           <FormObjectField />
         </Form.Item>
+        <Form.Item name="measureStretchTargets" hidden>
+          <FormObjectField />
+        </Form.Item>
         <Form.Item name="measureWorstCases" hidden>
           <FormObjectField />
         </Form.Item>
@@ -1650,6 +1755,12 @@ export default function BscSetupModal() {
           <FormObjectField />
         </Form.Item>
         <Form.Item name="measureCheckInDays" hidden>
+          <FormObjectField />
+        </Form.Item>
+        <Form.Item name="measureDataSources" hidden>
+          <FormObjectField />
+        </Form.Item>
+        <Form.Item name="measureAcceptableThresholds" hidden>
           <FormObjectField />
         </Form.Item>
         <Form.Item name="kpiEvaluationFlows" hidden>
@@ -2052,330 +2163,23 @@ export default function BscSetupModal() {
         )}
 
         {current === 3 && (
-          <>
-            <p
-              className="mb-1 text-[13px] font-semibold text-[#262626]"
-              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-17"
-            >
-              Weights & targets
-            </p>
-            <p
-              className="mb-4 text-[12px] text-[#8F94A3]"
-              data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-18"
-            >
-              Assign each KPI a weight (all KPIs must sum to 100%). Each KPI is
-              tagged by its perspective.
-              {isTemporarySetup ? (
-                <>
-                  {' '}
-                  Evaluation cadences are limited to periods that fit the
-                  effective–end date window.
-                </>
-              ) : null}
-            </p>
-
-            {!selectedKpis.length ? (
-              <p
-                className="text-[13px] text-[#94A3B8]"
-                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-p-19"
-              >
-                No KPIs selected. Go back and select KPIs first.
-              </p>
-            ) : (
-              <div
-                className="flex max-h-[440px] flex-col gap-3 overflow-y-auto pr-1"
-                data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-20"
-              >
-                <div
-                  data-cy="bscsetupmodal-div-1795"
-                  className="flex items-center justify-between rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-2"
-                >
-                  <span
-                    data-cy="bscsetupmodal-span-1796"
-                    className="text-[12px] text-[#595959]"
-                  >
-                    Total KPI weight
-                  </span>
-                  <span
-                    className={`text-[13px] font-semibold ${
-                      Math.abs(
-                        selectedKpis.reduce(
-                          (sum, kpi) =>
-                            sum + Number(measureWeights[kpi.id] || 0),
-                          0,
-                        ) - 100,
-                      ) < 0.01
-                        ? 'text-[#1677ff]'
-                        : 'text-[#CF1322]'
-                    }`}
-                    data-cy="bsc-scorecard-kpi-weight-total"
-                  >
-                    {`${
-                      Math.round(
-                        selectedKpis.reduce(
-                          (sum, kpi) =>
-                            sum + Number(measureWeights[kpi.id] || 0),
-                          0,
-                        ) * 100,
-                      ) / 100
-                    }%`}
-                  </span>
-                </div>
-                {selectedKpis.map((kpi) => {
-                  const isBounded = kpi.targetLogic === TargetLogic.Bounded;
-                  const kpiCadence = measureCadences[kpi.id];
-                  const dayOptions =
-                    isTemporarySetup && effectiveFromWatch && endDateWatch
-                      ? filterCheckInDayOptions(
-                          kpiCadence,
-                          effectiveFromWatch,
-                          endDateWatch,
-                        )
-                      : checkInDayOptions(kpiCadence);
-                  const checkInDayLabelText = 'Check-in date';
-                  const firstCheckInDate = resolveFirstCheckInDate(
-                    kpiCadence,
-                    measureCheckInDays[kpi.id],
-                    effectiveFromWatch,
-                  );
-                  const firstCheckInLabel = firstCheckInDate
-                    ? formatCheckInDate(firstCheckInDate)
-                    : null;
-                  return (
-                    <div
-                      key={kpi.id}
-                      className="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-3"
-                      data-cy={`bsc-scorecard-weight-kpi-${kpi.id}`}
-                    >
-                      <div
-                        data-cy="bscsetupmodal-div-1850"
-                        className="mb-2 flex flex-wrap items-start justify-between gap-2"
-                      >
-                        <div
-                          data-cy="bscsetupmodal-div-1851"
-                          className="min-w-0"
-                        >
-                          <div
-                            data-cy="bscsetupmodal-div-1852"
-                            className="mb-1 flex flex-wrap items-center gap-2"
-                          >
-                            <p
-                              data-cy="bscsetupmodal-p-1853"
-                              className="m-0 text-[13px] font-medium text-[#262626]"
-                            >
-                              {kpi.name}
-                            </p>
-                            {kpi.perspective ? (
-                              <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                                {kpi.perspective}
-                              </Tag>
-                            ) : null}
-                          </div>
-                          <p
-                            data-cy="bscsetupmodal-p-1862"
-                            className="m-0 text-[11px] text-[#8F94A3]"
-                          >
-                            {measurementUnitLabel(kpi.measurementUnit) ||
-                              kpi.measurementUnit ||
-                              '—'}{' '}
-                            · {targetLogicLabel(kpi.targetLogic)}
-                            {kpi.defaultTarget != null
-                              ? ` · catalog default ${kpi.defaultTarget}`
-                              : ''}
-                          </p>
-                        </div>
-                        <div
-                          data-cy="bscsetupmodal-div-1870"
-                          className="flex items-center gap-2"
-                        >
-                          <span
-                            data-cy="bscsetupmodal-span-1871"
-                            className="text-[11px] text-[#595959]"
-                          >
-                            <RequiredLabel>Weight %</RequiredLabel>
-                          </span>
-                          <InputNumber
-                            className="w-20"
-                            min={1}
-                            max={100}
-                            placeholder="Weight"
-                            value={measureWeights[kpi.id] ?? undefined}
-                            onChange={(value) => {
-                              form.setFieldsValue({
-                                measureWeights: {
-                                  ...measureWeights,
-                                  [kpi.id]: value,
-                                },
-                              });
-                            }}
-                            data-cy={`bsc-scorecard-kpi-weight-${kpi.id}`}
-                          />
-                        </div>
-                      </div>
-                      <div
-                        data-cy="bscsetupmodal-div-1892"
-                        className="flex flex-wrap items-center gap-3"
-                      >
-                        <div
-                          data-cy="bscsetupmodal-div-1893"
-                          className="flex items-center gap-2"
-                        >
-                          <span
-                            data-cy="bscsetupmodal-span-1894"
-                            className="text-[11px] text-[#595959]"
-                          >
-                            <RequiredLabel>Target</RequiredLabel>
-                          </span>
-                          <InputNumber
-                            className="w-28"
-                            placeholder={
-                              kpi.defaultTarget != null
-                                ? String(kpi.defaultTarget)
-                                : 'Enter target'
-                            }
-                            value={measureTargets[kpi.id] ?? undefined}
-                            onChange={(value) => {
-                              form.setFieldsValue({
-                                measureTargets: {
-                                  ...measureTargets,
-                                  [kpi.id]: value,
-                                },
-                              });
-                            }}
-                            data-cy={`bsc-scorecard-kpi-target-${kpi.id}`}
-                          />
-                        </div>
-                        {isBounded ? (
-                          <>
-                            <div
-                              data-cy="bscsetupmodal-div-1918"
-                              className="flex items-center gap-2"
-                            >
-                              <span
-                                data-cy="bscsetupmodal-span-1919"
-                                className="text-[11px] text-[#595959]"
-                              >
-                                <RequiredLabel>Minimum</RequiredLabel>
-                              </span>
-                              <InputNumber
-                                className="w-24"
-                                value={measureWorstCases[kpi.id] ?? undefined}
-                                onChange={(value) => {
-                                  form.setFieldsValue({
-                                    measureWorstCases: {
-                                      ...measureWorstCases,
-                                      [kpi.id]: value,
-                                    },
-                                  });
-                                }}
-                                data-cy={`bsc-scorecard-kpi-worst-${kpi.id}`}
-                              />
-                            </div>
-                            <div
-                              data-cy="bscsetupmodal-div-1936"
-                              className="flex items-center gap-2"
-                            >
-                              <span
-                                data-cy="bscsetupmodal-span-1937"
-                                className="text-[11px] text-[#595959]"
-                              >
-                                <RequiredLabel>Maximum</RequiredLabel>
-                              </span>
-                              <InputNumber
-                                className="w-24"
-                                value={measureBestCases[kpi.id] ?? undefined}
-                                onChange={(value) => {
-                                  form.setFieldsValue({
-                                    measureBestCases: {
-                                      ...measureBestCases,
-                                      [kpi.id]: value,
-                                    },
-                                  });
-                                }}
-                                data-cy={`bsc-scorecard-kpi-best-${kpi.id}`}
-                              />
-                            </div>
-                          </>
-                        ) : null}
-                        <div
-                          className="flex items-center gap-2"
-                          data-cy={`bsc-scorecard-kpi-checkin-${kpi.id}`}
-                        >
-                          <span
-                            data-cy="bscsetupmodal-span-1960"
-                            className="text-[11px] text-[#595959] whitespace-nowrap"
-                          >
-                            <RequiredLabel>Evaluation cadence</RequiredLabel>
-                          </span>
-                          <Select
-                            className="min-w-[120px]"
-                            placeholder={
-                              eligibleCadenceOptions.length
-                                ? 'Select cadence'
-                                : 'No cadence fits deadline'
-                            }
-                            options={eligibleCadenceOptions}
-                            disabled={!eligibleCadenceOptions.length}
-                            value={kpiCadence ?? undefined}
-                            onChange={(value: BscCadence) => {
-                              form.setFieldsValue({
-                                measureCadences: {
-                                  ...measureCadences,
-                                  [kpi.id]: value,
-                                },
-                                measureCheckInDays: {
-                                  ...measureCheckInDays,
-                                  [kpi.id]: undefined,
-                                },
-                              });
-                            }}
-                            data-cy={`bsc-scorecard-kpi-cadence-${kpi.id}`}
-                          />
-                        </div>
-                        <div
-                          data-cy="bscsetupmodal-div-1988"
-                          className="flex items-center gap-2"
-                        >
-                          <span
-                            data-cy="bscsetupmodal-span-1989"
-                            className="text-[11px] text-[#595959] whitespace-nowrap"
-                          >
-                            <RequiredLabel>{checkInDayLabelText}</RequiredLabel>
-                          </span>
-                          <Select
-                            className="min-w-[120px]"
-                            placeholder={
-                              kpiCadence ? 'Select day' : 'Select cadence first'
-                            }
-                            options={dayOptions}
-                            disabled={!kpiCadence}
-                            value={measureCheckInDays[kpi.id] ?? undefined}
-                            onChange={(value: number) => {
-                              form.setFieldsValue({
-                                measureCheckInDays: {
-                                  ...measureCheckInDays,
-                                  [kpi.id]: value,
-                                },
-                              });
-                            }}
-                            data-cy={`bsc-scorecard-kpi-checkin-day-${kpi.id}`}
-                          />
-                          {firstCheckInLabel ? (
-                            <Tag
-                              className="m-0 h-5 shrink-0 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]"
-                              data-cy={`bsc-scorecard-kpi-checkin-preview-${kpi.id}`}
-                            >
-                              First check-in: {firstCheckInLabel}
-                            </Tag>
-                          ) : null}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </>
+          <BscSetupWeightsStep
+            form={form}
+            selectedKpis={selectedKpis}
+            measureWeights={measureWeights}
+            measureTargets={measureTargets}
+            measureStretchTargets={measureStretchTargets}
+            measureDataSources={measureDataSources}
+            measureAcceptableThresholds={measureAcceptableThresholds}
+            measureWorstCases={measureWorstCases}
+            measureBestCases={measureBestCases}
+            measureCadences={measureCadences}
+            measureCheckInDays={measureCheckInDays}
+            setupKind={setupKindWatch}
+            effectiveFromWatch={effectiveFromWatch}
+            endDateWatch={endDateWatch}
+            isTemporarySetup={isTemporarySetup}
+          />
         )}
 
         {current === 4 && (

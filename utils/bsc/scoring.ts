@@ -331,3 +331,38 @@ export function rebalanceSharedWeightsForAppend(
 
   return { sharedScaled: scaled, valid: true };
 }
+
+/** Validates acceptable threshold against target using higher/lower is better rules. */
+export function validateAcceptableThreshold(
+  target: number,
+  threshold: number,
+  logic: TargetLogic,
+): { valid: boolean; message?: string } {
+  if (!Number.isFinite(target) || !Number.isFinite(threshold)) {
+    return { valid: false, message: 'Target and threshold must be numbers' };
+  }
+  if (logic === TargetLogic.HigherBetter) {
+    if (threshold > target) {
+      return {
+        valid: false,
+        message:
+          'For higher-is-better KPIs, acceptable threshold must be less than or equal to the target',
+      };
+    }
+    return { valid: true };
+  }
+  if (logic === TargetLogic.LowerBetter) {
+    if (threshold < target) {
+      return {
+        valid: false,
+        message:
+          'For lower-is-better KPIs, acceptable threshold must be greater than or equal to the target',
+      };
+    }
+    return { valid: true };
+  }
+  return {
+    valid: false,
+    message: 'Acceptable threshold is only supported for higher/lower KPIs',
+  };
+}

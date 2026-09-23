@@ -5,6 +5,7 @@ import { Empty, Input, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
+import CheckinDataSourceCell from '@/app/(afterLogin)/(bsc)/bsc/_components/CheckinDataSourceCell';
 import KpiEvaluationFlowCompact from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiEvaluationFlowCompact';
 import {
   TargetMetricUnitTag,
@@ -185,6 +186,13 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
       items.map((i) => [i.target.id, i.target.actualValue ?? null]),
     ),
   );
+  const [dataSourceDrafts, setDataSourceDrafts] = useState<
+    Record<string, string>
+  >(() =>
+    Object.fromEntries(
+      items.map((i) => [i.target.id, i.target.dataSource?.trim() || '']),
+    ),
+  );
   const { mutateAsync: reportAsync, isLoading: reporting } = useReportBscKpis();
   const { mutateAsync: submitAsync, isLoading: submitting } =
     useSubmitBscFinal();
@@ -196,6 +204,15 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
       for (const item of items) {
         if (!(item.target.id in next)) {
           next[item.target.id] = item.target.actualValue ?? null;
+        }
+      }
+      return next;
+    });
+    setDataSourceDrafts((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        if (!(item.target.id in next)) {
+          next[item.target.id] = item.target.dataSource?.trim() || '';
         }
       }
       return next;
@@ -233,6 +250,7 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
           actualValue: drafts[item.target.id] as number,
           evidenceFileName: `${item.target.kpiName.replace(/\s+/g, '-')}.pdf`,
           evidenceUrl: `https://mock.evidence/${scorecard.id}/${item.target.id}`,
+          dataSource: dataSourceDrafts[item.target.id]?.trim() || null,
         })),
       });
       // Live API submit already advances to PendingEval inside reportAsync.
@@ -340,6 +358,27 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
     },
     {
       title: (
+        <span data-cy="auto-added" className={tableHeaderClassName}>
+          Data source
+        </span>
+      ),
+      key: 'dataSource',
+      width: 300,
+      render: (unused, row) => (
+        <CheckinDataSourceCell
+          value={dataSourceDrafts[row.target.id] ?? ''}
+          onChange={(next) =>
+            setDataSourceDrafts((prev) => ({
+              ...prev,
+              [row.target.id]: next,
+            }))
+          }
+          dataCy={`bsc-checkin-self-data-source-${row.target.id}`}
+        />
+      ),
+    },
+    {
+      title: (
         <span data-cy="checkinqueue-span-139" className={tableHeaderClassName}>
           Period
         </span>
@@ -377,7 +416,7 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
         columns={columns}
         dataSource={items}
         pagination={false}
-        scroll={{ x: 720 }}
+        scroll={{ x: 1020 }}
         rowClassName={(unused, index) => bscTableRowClassName(index)}
         data-cy="bsc-checkin-self-table"
       />
@@ -404,6 +443,13 @@ function ReviewCheckinGroup({
       items.map((i) => [i.target.id, i.target.actualValue ?? null]),
     ),
   );
+  const [dataSourceDrafts, setDataSourceDrafts] = useState<
+    Record<string, string>
+  >(() =>
+    Object.fromEntries(
+      items.map((i) => [i.target.id, i.target.dataSource?.trim() || '']),
+    ),
+  );
   const [actingId, setActingId] = useState<string | null>(null);
   const { mutate: adjust } = useAdjustBscReportedKpis();
   const { mutateAsync: setApprovalAsync } = useSetBscKpiApproval();
@@ -420,6 +466,15 @@ function ReviewCheckinGroup({
       }
       return next;
     });
+    setDataSourceDrafts((prev) => {
+      const next = { ...prev };
+      for (const item of items) {
+        if (!(item.target.id in next)) {
+          next[item.target.id] = item.target.dataSource?.trim() || '';
+        }
+      }
+      return next;
+    });
   }, [items]);
 
   const saveEdits = (onDone?: () => void) => {
@@ -427,12 +482,19 @@ function ReviewCheckinGroup({
       .filter((i) => {
         if (decisions[i.target.id] != null) return false;
         const next = drafts[i.target.id];
-        return next != null && next !== i.target.actualValue;
+        const nextSource = dataSourceDrafts[i.target.id]?.trim() || null;
+        const prevSource = i.target.dataSource?.trim() || null;
+        return (
+          (next != null && next !== i.target.actualValue) ||
+          nextSource !== prevSource
+        );
       })
       .map((i) => ({
         targetId: i.target.id,
-        actualValue: drafts[i.target.id] as number,
-      }));
+        actualValue: (drafts[i.target.id] ?? i.target.actualValue) as number,
+        dataSource: dataSourceDrafts[i.target.id]?.trim() || null,
+      }))
+      .filter((row) => row.actualValue != null && Number.isFinite(row.actualValue));
     if (!adjustments.length) {
       onDone?.();
       return;
@@ -577,6 +639,31 @@ function ReviewCheckinGroup({
               setDrafts((prev) => ({ ...prev, [row.target.id]: next }));
             }}
             data-cy={`bsc-checkin-review-actual-${row.target.id}`}
+          />
+        );
+      },
+    },
+    {
+      title: (
+        <span data-cy="auto-added" className={tableHeaderClassName}>
+          Data source
+        </span>
+      ),
+      key: 'dataSource',
+      width: 300,
+      render: (unused, row) => {
+        const decided = decisions[row.target.id];
+        return (
+          <CheckinDataSourceCell
+            value={dataSourceDrafts[row.target.id] ?? ''}
+            onChange={(next) =>
+              setDataSourceDrafts((prev) => ({
+                ...prev,
+                [row.target.id]: next,
+              }))
+            }
+            disabled={busy || decided != null}
+            dataCy={`bsc-checkin-review-data-source-${row.target.id}`}
           />
         );
       },

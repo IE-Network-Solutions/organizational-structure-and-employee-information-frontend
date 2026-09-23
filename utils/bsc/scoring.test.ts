@@ -3,6 +3,7 @@ import {
   normalizeRatio,
   rebalanceSharedWeightsForAppend,
   validateKpisMatchPerspectiveAllocation,
+  validateAcceptableThreshold,
   validatePerspectiveWeights,
   validateWeights,
 } from './scoring';
@@ -206,5 +207,20 @@ describe('bsc state machine', () => {
       .reduce((a, b) => a + b, 0);
     expect(sharedSum).toBeCloseTo(70, 2);
     expect(result.sharedScaled[3]).toBe(20);
+  });
+
+  it('validates acceptable threshold against target logic', () => {
+    expect(
+      validateAcceptableThreshold(90, 81, TargetLogic.HigherBetter).valid,
+    ).toBe(true);
+    expect(
+      validateAcceptableThreshold(90, 95, TargetLogic.HigherBetter).valid,
+    ).toBe(false);
+    expect(
+      validateAcceptableThreshold(30, 33, TargetLogic.LowerBetter).valid,
+    ).toBe(true);
+    expect(
+      validateAcceptableThreshold(30, 28, TargetLogic.LowerBetter).valid,
+    ).toBe(false);
   });
 });

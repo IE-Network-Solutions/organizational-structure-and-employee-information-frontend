@@ -8,6 +8,7 @@ import {
   EvaluationCycle,
   KpiApprovalStatus,
   KpiLibraryItem,
+  PepAuditFlag,
   RolePerspectiveAllocation,
   ScorecardStatus,
   TargetLogic,
@@ -141,6 +142,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Support Team Lead',
     defaultTarget: 90,
+    stretchTarget: 95,
     weight: 40,
     createdAt: now,
   },
@@ -156,6 +158,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Support Team Lead',
     defaultTarget: 75,
+    stretchTarget: 85,
     weight: 35,
     createdAt: now,
   },
@@ -171,6 +174,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Support Team Lead',
     defaultTarget: 10,
+    stretchTarget: 12,
     weight: 25,
     createdAt: now,
   },
@@ -186,6 +190,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Tier 1 Support Agent',
     defaultTarget: 90,
+    stretchTarget: 95,
     weight: 40,
     createdAt: now,
   },
@@ -200,6 +205,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Tier 1 Support Agent',
     defaultTarget: 30,
+    stretchTarget: 20,
     weight: 40,
     createdAt: now,
   },
@@ -215,6 +221,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Customer Support',
     positionTitle: 'Tier 1 Support Agent',
     defaultTarget: 10,
+    stretchTarget: 12,
     weight: 20,
     createdAt: now,
   },
@@ -316,6 +323,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Sales Operations',
     positionTitle: 'Account Executive',
     defaultTarget: 5,
+    stretchTarget: 3,
     weight: 40,
     createdAt: now,
   },
@@ -331,6 +339,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Sales Operations',
     positionTitle: 'Account Executive',
     defaultTarget: 95,
+    stretchTarget: 98,
     weight: 40,
     createdAt: now,
   },
@@ -346,6 +355,7 @@ export const SEED_KPI_LIBRARY: KpiLibraryItem[] = [
     departmentName: 'Sales Operations',
     positionTitle: 'Account Executive',
     defaultTarget: 1,
+    stretchTarget: 1,
     weight: 20,
     createdAt: now,
   },
@@ -645,36 +655,82 @@ function buildRoleTargets(
   );
   const scored =
     status === ScorecardStatus.Scored || status === ScorecardStatus.Completed;
-  return kpis.map((kpi, i) => ({
-    id: `${scorecardId}-t${i + 1}`,
-    scorecardId,
-    kpiLibraryId: kpi.id,
-    kpiName: kpi.name,
-    perspective: kpi.perspective,
-    targetLogic: kpi.targetLogic,
-    measurementUnit: kpi.measurementUnit,
-    weightPercentage: kpi.weight,
-    targetValue: kpi.defaultTarget ?? 0,
-    cadence: kpi.cadence ?? BscCadence.Monthly,
-    checkInDay: kpi.checkInDay ?? new Date().getDate(),
-    actualValue: actuals[i] ?? null,
-    assignmentSource: 'shared' as const,
-    evaluationFlow: [{ kind: 'self' as const }, { kind: 'directManager' as const }],
-    evaluationStepIndex: scored ? 1 : 0,
-    approvalStatus:
-      actuals[i] == null
-        ? KpiApprovalStatus.Pending
-        : scored
-          ? KpiApprovalStatus.Approved
-          : KpiApprovalStatus.Pending,
-    submittedAt: actuals[i] == null ? null : now,
-    evidenceUrl:
-      actuals[i] == null
-        ? null
-        : `https://mock.evidence/${scorecardId}/${kpi.id}`,
-    evidenceFileName: actuals[i] == null ? null : `${kpi.id}.pdf`,
-    evidenceHash: actuals[i] == null ? null : `hash-${scorecardId}-${i}`,
-  }));
+
+  const resolveDataSource = (kpi: KpiLibraryItem): string => {
+    const slug = kpi.id.replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+    if ((kpi.departmentName || '').includes('Support')) {
+      return `https://support.example.com/kpi/${slug}`;
+    }
+    if ((kpi.departmentName || '').includes('Human Resources')) {
+      return `https://hris.example.com/reports/${slug}`;
+    }
+    if ((kpi.departmentName || '').includes('Finance')) {
+      return `https://finance.example.com/metrics/${slug}`;
+    }
+    return `https://data.example.com/kpi/${slug}`;
+  };
+
+  const resolveThreshold = (kpi: KpiLibraryItem, targetValue: number) => {
+    if (kpi.acceptableThreshold != null) return kpi.acceptableThreshold;
+    if (kpi.targetLogic === TargetLogic.LowerBetter) {
+      return Math.round(targetValue * 1.1 * 100) / 100;
+    }
+    if (kpi.targetLogic === TargetLogic.HigherBetter) {
+      return Math.round(targetValue * 0.9 * 100) / 100;
+    }
+    return null;
+  };
+
+  const resolveStretch = (kpi: KpiLibraryItem, targetValue: number) => {
+    if (kpi.stretchTarget != null) return kpi.stretchTarget;
+    if (kpi.targetLogic === TargetLogic.LowerBetter) {
+      return Math.round(targetValue * 0.8 * 100) / 100;
+    }
+    if (kpi.targetLogic === TargetLogic.HigherBetter) {
+      return Math.round(targetValue * 1.1 * 100) / 100;
+    }
+    return null;
+  };
+
+  return kpis.map((kpi, i) => {
+    const targetValue = kpi.defaultTarget ?? 0;
+    return {
+      id: `${scorecardId}-t${i + 1}`,
+      scorecardId,
+      kpiLibraryId: kpi.id,
+      kpiName: kpi.name,
+      perspective: kpi.perspective,
+      targetLogic: kpi.targetLogic,
+      measurementUnit: kpi.measurementUnit,
+      weightPercentage: kpi.weight,
+      targetValue,
+      stretchTarget: resolveStretch(kpi, targetValue),
+      dataSource: kpi.dataSource ?? resolveDataSource(kpi),
+      acceptableThreshold: resolveThreshold(kpi, targetValue),
+      cadence: kpi.cadence ?? BscCadence.Monthly,
+      checkInDay: kpi.checkInDay ?? new Date().getDate(),
+      actualValue: actuals[i] ?? null,
+      assignmentSource: 'shared' as const,
+      evaluationFlow: [
+        { kind: 'self' as const },
+        { kind: 'directManager' as const },
+      ],
+      evaluationStepIndex: scored ? 1 : 0,
+      approvalStatus:
+        actuals[i] == null
+          ? KpiApprovalStatus.Pending
+          : scored
+            ? KpiApprovalStatus.Approved
+            : KpiApprovalStatus.Pending,
+      submittedAt: actuals[i] == null ? null : now,
+      evidenceUrl:
+        actuals[i] == null
+          ? null
+          : `https://mock.evidence/${scorecardId}/${kpi.id}`,
+      evidenceFileName: actuals[i] == null ? null : `${kpi.id}.pdf`,
+      evidenceHash: actuals[i] == null ? null : `hash-${scorecardId}-${i}`,
+    };
+  });
 }
 
 function seedScorecardForMonth(opts: {
@@ -689,6 +745,13 @@ function seedScorecardForMonth(opts: {
   positionTitle?: string;
   departmentName?: string;
   managerId?: string;
+  /** Manager approved; KPIs await PEP review (Results Review action). */
+  awaitingPepReview?: boolean;
+  pepReviewMode?: 'pending' | 'unrealistic' | 'mixed';
+  /** PEP auditor returned unrealistic KPIs to manager Check-in (Assigned tab). */
+  pepReturnedToManager?: boolean;
+  /** Per-target PEP return comments; null = already approved on this scorecard. */
+  pepReturnComments?: Array<string | null>;
 }): EmployeeScorecard {
   const meta = monthMeta(opts.offsetMonths);
   const cycleId =
@@ -699,8 +762,7 @@ function seedScorecardForMonth(opts: {
   const status = opts.status;
   const ownerId = opts.userId || 'demo-user';
   const managerId =
-    opts.managerId ||
-    (ownerId === 'demo-user' ? 'demo-manager' : 'demo-user');
+    opts.managerId || (ownerId === 'demo-user' ? 'demo-manager' : 'demo-user');
   const targets = buildRoleTargets(
     opts.id,
     positionTitle,
@@ -719,7 +781,52 @@ function seedScorecardForMonth(opts: {
     for (const t of targets) {
       t.evaluationStepIndex = 0;
       t.approvalStatus = KpiApprovalStatus.Rejected;
-      t.rejectionReason = t.rejectionReason || 'Please revise actuals for this period';
+      t.rejectionReason =
+        t.rejectionReason || 'Please revise actuals for this period';
+    }
+  }
+  if (opts.awaitingPepReview) {
+    const mode = opts.pepReviewMode || 'pending';
+    for (const [index, t] of targets.entries()) {
+      if (t.actualValue == null) continue;
+      t.evaluationStepIndex = 1;
+      t.approvalStatus = KpiApprovalStatus.Approved;
+      if (mode === 'unrealistic') {
+        t.pepAuditFlag = PepAuditFlag.Unrealistic;
+      } else if (mode === 'mixed' && index === 0) {
+        t.pepAuditFlag = undefined;
+      } else {
+        t.pepAuditFlag = PepAuditFlag.PendingReview;
+      }
+    }
+  }
+  if (opts.pepReturnedToManager) {
+    const comments = opts.pepReturnComments || [];
+    for (const [index, t] of targets.entries()) {
+      if (t.actualValue == null) continue;
+      const comment = comments[index];
+      if (comment) {
+        t.pepReturnReason = comment;
+        t.pepAuditFlag = PepAuditFlag.Unrealistic;
+        t.approvalStatus = KpiApprovalStatus.Pending;
+        t.evaluationStepIndex = 1;
+      } else {
+        t.approvalStatus = KpiApprovalStatus.Approved;
+        t.evaluationStepIndex = 1;
+        t.pepAuditFlag = PepAuditFlag.Realistic;
+        t.pepReturnReason = null;
+      }
+    }
+  }
+  // Closed scorecards without an open PEP queue are fully PEP-approved in mock data.
+  if (
+    (status === ScorecardStatus.Scored ||
+      status === ScorecardStatus.Completed) &&
+    !opts.awaitingPepReview
+  ) {
+    for (const t of targets) {
+      if (t.actualValue == null) continue;
+      t.pepAuditFlag = PepAuditFlag.Realistic;
     }
   }
   return {
@@ -804,7 +911,7 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     id: 'sc-demo-prev-2',
     offsetMonths: -2,
     status: ScorecardStatus.Completed,
-    actuals: [35, 34, 70],
+    actuals: [35, 31, 75],
     compositeScore: 79.2,
     managerNote: 'Time-to-fill improved; keep focus on leadership pipeline.',
   }),
@@ -853,8 +960,9 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
   seedScorecardForMonth({
     id: 'sc-sup-avery',
     offsetMonths: 0,
-    status: ScorecardStatus.PendingEval,
+    status: ScorecardStatus.Completed,
     actuals: [87, 74, 9],
+    compositeScore: 85.6,
     userId: 'emp-sup-avery',
     userName: 'Avery Quinn',
     positionTitle: 'Support Team Lead',
@@ -864,7 +972,7 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     id: 'sc-sup-avery-prev',
     offsetMonths: -1,
     status: ScorecardStatus.Completed,
-    actuals: [84, 70, 6],
+    actuals: [84, 70, 10],
     compositeScore: 81.0,
     userId: 'emp-sup-avery',
     userName: 'Avery Quinn',
@@ -995,10 +1103,170 @@ export const SEED_SCORECARDS: EmployeeScorecard[] = [
     status: ScorecardStatus.PendingEval,
     actuals: [89, 72, 9],
     userId: 'emp-checkin-avery',
-    userName: 'Avery Quinn',
+    userName: 'Avery Quinn (Check-in)',
     positionTitle: 'Support Team Lead',
     departmentName: 'Enterprise Support',
     managerId: 'demo-user',
+  }),
+  /** PEP returned to manager — Assigned Check-in (demo-user inbox) */
+  seedScorecardForMonth({
+    id: 'sc-pep-return-lina',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [70, 76, 8],
+    userId: 'emp-pep-lina',
+    userName: 'Lina Okoro',
+    positionTitle: 'Support Team Lead',
+    departmentName: 'Customer Support',
+    managerId: 'demo-user',
+    pepReturnedToManager: true,
+    pepReturnComments: [
+      'Reported CSAT below acceptable threshold — verify CRM export',
+      null,
+      null,
+    ],
+  }),
+  seedScorecardForMonth({
+    id: 'sc-pep-return-marcus',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [84, 32, 9],
+    userId: 'emp-pep-marcus',
+    userName: 'Marcus Lee',
+    positionTitle: 'Tier 1 Support Agent',
+    departmentName: 'Customer Support',
+    managerId: 'demo-user',
+    pepReturnedToManager: true,
+    pepReturnComments: [
+      'Response time actual inconsistent with ticket system — please revise',
+      null,
+      null,
+    ],
+  }),
+  seedScorecardForMonth({
+    id: 'sc-pep-return-nora',
+    offsetMonths: 0,
+    status: ScorecardStatus.PendingEval,
+    actuals: [3, 94, 2],
+    userId: 'emp-pep-nora',
+    userName: 'Nora Voss',
+    positionTitle: 'Account Executive',
+    departmentName: 'Commercial Sales',
+    managerId: 'demo-user',
+    pepReturnedToManager: true,
+    pepReturnComments: [
+      'Pipeline count needs validation against CRM before re-approval',
+      null,
+      null,
+    ],
+  }),
+  /** PEP audit queue — manager approved, awaiting PEP review (Review action) */
+  seedScorecardForMonth({
+    id: 'sc-pep-lina',
+    offsetMonths: 0,
+    status: ScorecardStatus.Scored,
+    // CSAT 96 (>= stretch 95), FCR 88 (>= stretch 85); KB 8 below stretch 12
+    actuals: [96, 88, 8],
+    compositeScore: 91.2,
+    userId: 'emp-pep-lina',
+    userName: 'Lina Okoro',
+    positionTitle: 'Support Team Lead',
+    departmentName: 'Customer Support',
+    managerId: 'demo-user',
+    awaitingPepReview: true,
+    pepReviewMode: 'mixed',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-pep-lina-prev',
+    offsetMonths: -1,
+    status: ScorecardStatus.Completed,
+    actuals: [86, 72, 7],
+    compositeScore: 83.4,
+    userId: 'emp-pep-lina',
+    userName: 'Lina Okoro',
+    positionTitle: 'Support Team Lead',
+    departmentName: 'Customer Support',
+    managerId: 'demo-user',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-pep-marcus',
+    offsetMonths: 0,
+    status: ScorecardStatus.Scored,
+    // CSAT 96 (>= stretch 95), ASA 18 (<= stretch 20); training 9 below stretch 12
+    actuals: [96, 18, 9],
+    compositeScore: 92.4,
+    userId: 'emp-pep-marcus',
+    userName: 'Marcus Lee',
+    positionTitle: 'Tier 1 Support Agent',
+    departmentName: 'Customer Support',
+    managerId: 'demo-user',
+    awaitingPepReview: true,
+    pepReviewMode: 'pending',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-pep-marcus-prev',
+    offsetMonths: -1,
+    status: ScorecardStatus.Completed,
+    actuals: [82, 68, 8],
+    compositeScore: 80.1,
+    userId: 'emp-pep-marcus',
+    userName: 'Marcus Lee',
+    positionTitle: 'Tier 1 Support Agent',
+    departmentName: 'Customer Support',
+    managerId: 'demo-user',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-pep-nora',
+    offsetMonths: 0,
+    status: ScorecardStatus.Scored,
+    // Churn 3 (<= stretch 3), CRM 98 (>= stretch 98), nego 1 (= stretch 1)
+    actuals: [3, 98, 1],
+    compositeScore: 94.8,
+    userId: 'emp-pep-nora',
+    userName: 'Nora Voss',
+    positionTitle: 'Account Executive',
+    departmentName: 'Commercial Sales',
+    managerId: 'demo-user',
+    awaitingPepReview: true,
+    pepReviewMode: 'pending',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-pep-nora-prev',
+    offsetMonths: -1,
+    status: ScorecardStatus.Completed,
+    actuals: [5, 91, 1],
+    compositeScore: 84.8,
+    userId: 'emp-pep-nora',
+    userName: 'Nora Voss',
+    positionTitle: 'Account Executive',
+    departmentName: 'Commercial Sales',
+    managerId: 'demo-user',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-pep-vik',
+    offsetMonths: 0,
+    status: ScorecardStatus.Scored,
+    actuals: [99.1, 24, 6],
+    compositeScore: 86.8,
+    userId: 'emp-pep-vik',
+    userName: 'Vik Singh',
+    positionTitle: 'Lead Software Engineer',
+    departmentName: 'Platform Engineering',
+    managerId: 'demo-manager',
+    awaitingPepReview: true,
+    pepReviewMode: 'unrealistic',
+  }),
+  seedScorecardForMonth({
+    id: 'sc-pep-vik-prev',
+    offsetMonths: -1,
+    status: ScorecardStatus.Completed,
+    actuals: [98.5, 26, 5],
+    compositeScore: 87.2,
+    userId: 'emp-pep-vik',
+    userName: 'Vik Singh',
+    positionTitle: 'Lead Software Engineer',
+    departmentName: 'Platform Engineering',
+    managerId: 'demo-manager',
   }),
   seedScorecardForMonth({
     id: 'sc-ta-priya',

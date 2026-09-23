@@ -44,7 +44,7 @@ import CheckinInboxToggle, {
   type CheckinInbox,
 } from './_components/CheckinInboxToggle';
 import CheckinQueue from './_components/CheckinQueue';
-import ResultsKpiView from './_components/ResultsKpiView';
+import ResultsEmployeeTable from './_components/ResultsEmployeeTable';
 import { computeKpiProgressPercent } from '@/app/(afterLogin)/dashboard/_components/header/KpiProgressHeaderCard';
 import {
   bscKpiAdminHref,
@@ -135,6 +135,8 @@ function buildKpiRowsForScorecard(
           : null,
         targetId: target.id,
         approvalStatus: target.approvalStatus,
+        dataSource: target.dataSource ?? null,
+        acceptableThreshold: target.acceptableThreshold ?? null,
         assignmentSource: target.assignmentSource || 'shared',
       };
     });
@@ -407,7 +409,7 @@ export default function MyBscScorecardPage() {
           <EmptyImage />
         </div>
       ) : (
-        <div data-cy="bsc-my-scorecard-list" className="flex flex-col gap-2">
+        <div data-cy="bsc-my-scorecard-list" className="flex flex-col gap-4">
           {scorecardCards.map(
             ({ card, title, contextLabel, kpis, progressPercent }) => (
               <PerspectiveKpiCard
@@ -457,7 +459,7 @@ export default function MyBscScorecardPage() {
       key: 'results',
       label: tabLabel('results', 'Results'),
       children: (
-        <ResultsKpiView
+        <ResultsEmployeeTable
           canViewTeamKpi={canViewTeamKpi}
           canViewAllEmployeeKpi={canViewAllEmployeeKpi}
         />

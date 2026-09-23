@@ -64,6 +64,13 @@ export enum KpiApprovalStatus {
   Rejected = 'Rejected',
 }
 
+/** PEP audit flag for reported KPI results on the Results tab */
+export enum PepAuditFlag {
+  PendingReview = 'PendingReview',
+  Realistic = 'Realistic',
+  Unrealistic = 'Unrealistic',
+}
+
 export enum BscCadence {
   Weekly = 'Weekly',
   BiWeekly = 'BiWeekly',
@@ -153,23 +160,20 @@ export interface EvaluationCycle {
   kpiEvaluators?: Record<string, BscKpiEvaluatorAssignment>;
   /** Per-KPI ordered evaluation chains keyed by catalog KPI id */
   kpiEvaluationFlows?: Record<string, BscEvaluatorStep[]>;
-  /**
-   * KPIs linked on this scorecard template (weights / targets / schedule).
-   * Prefer this over the full KPI library on detail views.
-   */
+  /** Snapshot of scorecard KPI template lines (API create/update / edit hydrate) */
   templateKpis?: Array<{
     kpiLibraryId: string;
     weightPercentage: number;
-    targetValue: number;
+    targetValue?: number | null;
+    stretchTarget?: number | null;
     worstCase?: number | null;
     bestCase?: number | null;
+    dataSource?: string | null;
+    acceptableThreshold?: number | null;
     cadence?: BscCadence | null;
     checkInDay?: number | null;
-    name?: string | null;
-    description?: string | null;
     perspective?: string | null;
-    measurementUnit?: string | null;
-    targetLogic?: TargetLogic | null;
+    evaluationFlow?: BscEvaluatorStep[];
   }>;
   /** @deprecated kept for assign UI display fallback */
   year?: number;
@@ -189,6 +193,8 @@ export interface KpiLibraryItem {
   positionId?: string | null;
   positionTitle?: string | null;
   defaultTarget?: number | null;
+  /** Aspirational stretch target beyond the standard target */
+  stretchTarget?: number | null;
   /** Weight % of the scorecard (0–100); set when assigning KPIs to a role. May be 0 for catalog KPIs. */
   weight: number;
   /** @deprecated use weight */
@@ -202,6 +208,10 @@ export interface KpiLibraryItem {
    * Weekly: 1–7 (Mon–Sun), BiWeekly: 1–14, Monthly: 1–31
    */
   checkInDay?: number | null;
+  /** Default data source when assigned to a scorecard */
+  dataSource?: string | null;
+  /** Default acceptable threshold when assigned to a scorecard */
+  acceptableThreshold?: number | null;
   createdAt: string;
 }
 
@@ -215,6 +225,8 @@ export interface ScorecardKpiTarget {
   measurementUnit: string;
   weightPercentage: number;
   targetValue: number;
+  /** Aspirational stretch target beyond the standard target */
+  stretchTarget?: number | null;
   worstCase?: number | null;
   bestCase?: number | null;
   /** How often this KPI expects a check-in */
@@ -225,14 +237,20 @@ export interface ScorecardKpiTarget {
    */
   checkInDay?: number | null;
   actualValue?: number | null;
-  /** Server-computed KPI score (0–100+); prefer over client recalculation when set */
-  score?: number | null;
   evidenceUrl?: string | null;
   evidenceFileName?: string | null;
   evidenceHash?: string | null;
   submittedAt?: string | null;
   approvalStatus: KpiApprovalStatus;
   rejectionReason?: string | null;
+  /** Source system for validating reported results */
+  dataSource?: string | null;
+  /** Minimum (higher-is-better) or maximum (lower-is-better) acceptable result */
+  acceptableThreshold?: number | null;
+  /** Computed or persisted PEP audit status for Results review */
+  pepAuditFlag?: PepAuditFlag | null;
+  /** PEP auditor comment when returning a result to the manager for revision */
+  pepReturnReason?: string | null;
   /**
    * shared = from scorecard/role template (rebalanced when individuals are added)
    * individual = appended to this person only
@@ -277,14 +295,9 @@ export interface EmployeeScorecard {
   positionTitle?: string | null;
   cycleId: string;
   cycleLabel: string;
-  /** BSC period key from API (e.g. 2026-09, 2026-W38). */
-  periodKey?: string | null;
-  /** Human period label from API (e.g. "September 2026", "Week 38, 2026"). */
+  /** Used for Variable-Pay-style session/month filtering in mocks */
   periodMonthName?: string | null;
   periodYear?: number | null;
-  /** Inclusive period bounds from API (ISO date or datetime). */
-  periodStart?: string | null;
-  periodEnd?: string | null;
   status: ScorecardStatus;
   targets: ScorecardKpiTarget[];
   acknowledgedAt?: string | null;
@@ -309,12 +322,59 @@ export interface CreateKpiLibraryInput {
   positionId?: string | null;
   positionTitle?: string | null;
   defaultTarget?: number | null;
+  stretchTarget?: number | null;
   weight?: number;
   suggestedWeight?: number | null;
   worstCase?: number | null;
   bestCase?: number | null;
   cadence?: BscCadence | null;
   checkInDay?: number | null;
+  dataSource?: string | null;
+  acceptableThreshold?: number | null;
+}
+
+export interface KpiImportRowInput {
+  name: string;
+  description?: string | null;
+  perspective: string;
+  measurementUnit: string;
+  weight?: number;
+  targetLogic?: TargetLogic;
+  defaultTarget?: number | null;
+  cadence?: BscCadence | null;
+}
+
+export interface KpiImportRowResult {
+  row: number;
+  input?: KpiImportRowInput;
+  error?: string;
+}
+
+export interface KpiImportBatchResult {
+  created: KpiLibraryItem[];
+  errors: KpiImportRowResult[];
+}
+
+export interface PepAuditRow {
+  scorecardId: string;
+  targetId: string;
+  userId: string;
+  employeeName: string;
+  cycleLabel: string;
+  departmentName?: string | null;
+  kpiName: string;
+  perspective: string;
+  targetValue: number;
+  stretchTarget: number | null;
+  actualValue: number | null;
+  acceptableThreshold: number | null;
+  dataSource: string | null;
+  targetLogic: TargetLogic;
+  measurementUnit: string;
+  pepAuditFlag: PepAuditFlag;
+  approvalStatus: KpiApprovalStatus;
+  rejectionReason?: string | null;
+  pepReturnReason?: string | null;
 }
 
 export interface CreateEvaluationConfigInput {
@@ -369,10 +429,13 @@ export interface AssignScorecardInput {
     kpiLibraryId: string;
     weightPercentage: number;
     targetValue: number;
+    stretchTarget?: number | null;
     worstCase?: number | null;
     bestCase?: number | null;
     cadence?: BscCadence | null;
     checkInDay?: number | null;
+    dataSource?: string | null;
+    acceptableThreshold?: number | null;
     evaluationFlow?: BscEvaluatorStep[];
     /** @deprecated prefer evaluationFlow */
     evaluatorMode?: BscEvaluatorMode;
@@ -387,10 +450,13 @@ export interface AppendIndividualKpisInput {
     kpiLibraryId: string;
     weightPercentage: number;
     targetValue: number;
+    stretchTarget?: number | null;
     worstCase?: number | null;
     bestCase?: number | null;
     cadence?: BscCadence | null;
     checkInDay?: number | null;
+    dataSource?: string | null;
+    acceptableThreshold?: number | null;
     evaluationFlow?: BscEvaluatorStep[];
   }>;
   /**
@@ -410,12 +476,15 @@ export interface ReportKpiInput {
   evidenceUrl?: string;
   evidenceFileName?: string;
   evidenceHash?: string;
+  /** Optional data source URL or system label supplied at check-in */
+  dataSource?: string | null;
 }
 
 /** Manager correction of a reported actual while the scorecard is pending evaluation */
 export interface AdjustReportedKpiInput {
   targetId: string;
   actualValue: number;
+  dataSource?: string | null;
 }
 
 export interface ScoreBreakdownItem {

@@ -2,8 +2,7 @@
 const UNIT_LABELS: Record<string, string> = {
   '%': 'Percentage',
   'Boolean (1 or 0)': 'Achieved/Not',
-  'Boolean (0 or 1)': 'Achieved/Not',
-  'Rating (1.0 - 5.0)': 'Rating (1.0 - 5.0)',
+  'Rating (1.0 - 5.0)': 'Rating',
 };
 
 export function measurementUnitLabel(unit?: string | null): string | null {
@@ -12,7 +11,39 @@ export function measurementUnitLabel(unit?: string | null): string | null {
   return UNIT_LABELS[trimmed] ?? trimmed;
 }
 
-/** Shared Metric dropdown options (value = persisted unit, label = UI name). */
+/** Allowed KPI data sources for assignment */
+export const KPI_DATA_SOURCE_OPTIONS: { value: string; label: string }[] = [
+  { value: 'HRIS', label: 'HRIS' },
+  { value: 'Finance System', label: 'Finance System' },
+  { value: 'CRM', label: 'CRM' },
+  { value: 'Support Platform', label: 'Support Platform' },
+  { value: 'Manual Entry', label: 'Manual Entry' },
+];
+
+export const METRIC_UNIT_VALUES = new Set([
+  '%',
+  'Boolean (1 or 0)',
+  'Currency',
+  'Count',
+  'Days',
+  'Hours',
+  'Ratio',
+  'Score',
+  'Index',
+  'Rating (1.0 - 5.0)',
+] as const);
+
+export function normalizeMeasurementUnit(unit?: string | null): string | null {
+  const trimmed = unit?.trim();
+  if (!trimmed) return null;
+  const match = METRIC_UNIT_OPTIONS.find(
+    (option) =>
+      option.value.toLowerCase() === trimmed.toLowerCase() ||
+      option.label.toLowerCase() === trimmed.toLowerCase(),
+  );
+  return match?.value ?? trimmed;
+}
+
 export const METRIC_UNIT_OPTIONS: { value: string; label: string }[] = [
   { value: '%', label: 'Percentage' },
   { value: 'Boolean (1 or 0)', label: 'Achieved/Not' },
@@ -26,21 +57,6 @@ export const METRIC_UNIT_OPTIONS: { value: string; label: string }[] = [
   { value: 'Rating (1.0 - 5.0)', label: 'Rating (1.0 - 5.0)' },
 ];
 
-/** Options for Select, including a custom/legacy unit if not in the catalog. */
-export function metricUnitSelectOptions(
-  current?: string | null,
-): { value: string; label: string }[] {
-  const trimmed = current?.trim();
-  if (!trimmed) return METRIC_UNIT_OPTIONS;
-  if (METRIC_UNIT_OPTIONS.some((o) => o.value === trimmed)) {
-    return METRIC_UNIT_OPTIONS;
-  }
-  return [
-    ...METRIC_UNIT_OPTIONS,
-    { value: trimmed, label: measurementUnitLabel(trimmed) || trimmed },
-  ];
-}
-
 export type TargetDisplay = {
   primary: string;
   unitTag: string | null;
@@ -53,9 +69,7 @@ function formatMetricNumber(value: number): string {
     : String(Number(value.toFixed(2)));
 }
 
-function parseRatingRange(
-  unit: string,
-): { min: number; max: number } | null {
+function parseRatingRange(unit: string): { min: number; max: number } | null {
   const match = unit.match(/rating\s*\(([\d.]+)\s*-\s*([\d.]+)\)/i);
   if (!match) return null;
   const min = Number(match[1]);

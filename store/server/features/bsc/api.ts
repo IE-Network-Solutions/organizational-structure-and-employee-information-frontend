@@ -1,4 +1,3 @@
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   AppendIndividualKpisInput,
   AdjustReportedKpiInput,
@@ -7,10 +6,15 @@ import {
   CreatePerspectiveInput,
   EmployeeScorecard,
   EvaluationCycle,
+  KpiImportBatchResult,
+  KpiImportRowInput,
   KpiLibraryItem,
+  PepAuditRow,
   ReportKpiInput,
   ScorecardStatus,
+  TargetLogic,
 } from '@/types/bsc';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
@@ -19,9 +23,11 @@ import {
   BscCheckInQueueRowApi,
   BscEmployeeScorecardApi,
   BscEmployeeScorecardKpiApi,
+  BscPepAuditRowApi,
   mapCheckInQueueToScorecards,
   mapEmployeeScorecardFromApi,
   mapMyScorecardDetailToEmployee,
+  mapPepAuditRowFromApi,
 } from './employee-scorecard.mappers';
 import {
   BscKpiApi,
@@ -31,6 +37,7 @@ import {
   mapKpiFromApi,
   mapKpiUpdateToApi,
   mapPerspectiveFromApi,
+  mapTargetLogicToApi,
 } from './mappers';
 import {
   BscScorecardApi,
@@ -678,6 +685,15 @@ export async function appendIndividualBscKpis(
         };
         if (kpi.worstCase != null) line.worstCase = Number(kpi.worstCase);
         if (kpi.bestCase != null) line.bestCase = Number(kpi.bestCase);
+        if (kpi.stretchTarget != null) {
+          line.stretchTarget = Number(kpi.stretchTarget);
+        }
+        if (kpi.dataSource != null && kpi.dataSource !== '') {
+          line.dataSource = String(kpi.dataSource).trim();
+        }
+        if (kpi.acceptableThreshold != null) {
+          line.acceptableThreshold = Number(kpi.acceptableThreshold);
+        }
         if (kpi.cadence) line.cadence = mapCadenceToApi(kpi.cadence);
         if (kpi.checkInDay != null) line.checkInDay = Number(kpi.checkInDay);
         if (kpi.evaluationFlow?.length) {
@@ -807,10 +823,19 @@ export async function submitBscCheckIn(
       headers,
       params: withAuthUserId(),
       data: {
-        reports: reports.map((r) => ({
-          employeeScorecardKpiId: r.targetId,
-          actualValue: Number(r.actualValue),
-        })),
+        reports: reports.map((r) => {
+          const row: Record<string, unknown> = {
+            employeeScorecardKpiId: r.targetId,
+            actualValue: Number(r.actualValue),
+          };
+          if (r.dataSource !== undefined) {
+            row.dataSource =
+              r.dataSource == null || r.dataSource === ''
+                ? null
+                : String(r.dataSource).trim();
+          }
+          return row;
+        }),
       },
     })) as BscEmployeeScorecardApi;
 
@@ -833,12 +858,21 @@ export async function adjustBscCheckInKpis(
   try {
     const headers = await bscAuthHeaders();
     for (const row of adjustments) {
+      const body: Record<string, unknown> = {
+        actualValue: Number(row.actualValue),
+      };
+      if (row.dataSource !== undefined) {
+        body.dataSource =
+          row.dataSource == null || row.dataSource === ''
+            ? null
+            : String(row.dataSource).trim();
+      }
       await crudRequest({
         url: `${BSC_BASE}/check-ins/${employeeScorecardId}/kpis/${row.targetId}/adjust`,
         method: 'POST',
         headers,
         params: withAuthUserId(),
-        data: { actualValue: Number(row.actualValue) },
+        data: body,
       });
     }
 
@@ -921,5 +955,176 @@ export async function finalizeBscCheckIn(
     }
   } catch (error) {
     throw toBscError(error, 'Failed to finalize scorecard');
+  }
+}
+
+function mapKpiImportRowToApi(row: KpiImportRowInput): Record<string, unknown> {
+  const body: Record<string, unknown> = {
+    name: row.name.trim(),
+    perspective: row.perspective.trim(),
+    measurementUnit: (row.measurementUnit || '%').trim(),
+  };
+  if (row.description != null && row.description !== '') {
+    body.description = row.description;
+  }
+  if (row.weight != null) body.weight = Number(row.weight);
+  if (row.defaultTarget != null) body.defaultTarget = Number(row.defaultTarget);
+  if (row.targetLogic) {
+    body.targetLogic = row.targetLogic;
+    body.targetDirection = mapTargetLogicToApi(row.targetLogic);
+  }
+  if (row.cadence) body.cadence = mapCadenceToApi(row.cadence);
+  return body;
+}
+
+export async function importBscKpis(
+  rows: KpiImportRowInput[],
+): Promise<KpiImportBatchResult> {
+  try {
+    const headers = await bscAuthHeaders();
+    const data = (await crudRequest({
+      url: `${BSC_BASE}/kpis/import`,
+      method: 'POST',
+      headers,
+      data: { rows: rows.map(mapKpiImportRowToApi) },
+    })) as { created?: BscKpiApi[]; errors?: Array<{ row: number; error?: string; input?: KpiImportRowInput }> };
+
+    return {
+      created: (data.created || []).map(mapKpiFromApi),
+      errors: (data.errors || []).map((err) => ({
+        row: err.row,
+        error: err.error,
+        input: err.input,
+      })),
+    };
+  } catch (error) {
+    throw toBscError(error, 'Failed to import KPIs');
+  }
+}
+
+export async function listBscPepAuditRows(filters?: {
+  managerId?: string;
+  userId?: string;
+}): Promise<PepAuditRow[]> {
+  try {
+    const headers = await bscAuthHeaders();
+    const params: Record<string, string> = {};
+    if (filters?.managerId) params.managerId = filters.managerId;
+    if (filters?.userId) params.userId = filters.userId;
+
+    const data = await crudRequest({
+      url: `${BSC_BASE}/pep-audit`,
+      method: 'GET',
+      headers,
+      params: Object.keys(params).length ? params : undefined,
+    });
+
+    const rows = Array.isArray(data)
+      ? data
+      : Array.isArray((data as { items?: unknown })?.items)
+        ? ((data as { items: BscPepAuditRowApi[] }).items)
+        : [];
+
+    return rows.map((row) => mapPepAuditRowFromApi(row as BscPepAuditRowApi));
+  } catch (error) {
+    throw toBscError(error, 'Failed to load PEP audit rows');
+  }
+}
+
+export async function approveBscPepAuditKpi(
+  employeeScorecardId: string,
+  kpiRowId: string,
+): Promise<void> {
+  try {
+    const headers = await bscAuthHeaders();
+    await crudRequest({
+      url: `${BSC_BASE}/pep-audit/${employeeScorecardId}/kpis/${kpiRowId}/approve`,
+      method: 'POST',
+      headers,
+      params: withAuthUserId(),
+    });
+  } catch (error) {
+    throw toBscError(error, 'Failed to approve KPI for PEP audit');
+  }
+}
+
+export async function markUnrealisticBscPepAuditKpi(
+  employeeScorecardId: string,
+  kpiRowId: string,
+  reason: string,
+): Promise<void> {
+  try {
+    const headers = await bscAuthHeaders();
+    await crudRequest({
+      url: `${BSC_BASE}/pep-audit/${employeeScorecardId}/kpis/${kpiRowId}/mark-unrealistic`,
+      method: 'POST',
+      headers,
+      params: withAuthUserId(),
+      data: { reason: reason || 'Unrealistic' },
+    });
+  } catch (error) {
+    throw toBscError(error, 'Failed to return KPI for PEP audit');
+  }
+}
+
+export async function rejectBscPepAuditKpi(
+  employeeScorecardId: string,
+  kpiRowId: string,
+  reason: string,
+): Promise<void> {
+  try {
+    const headers = await bscAuthHeaders();
+    await crudRequest({
+      url: `${BSC_BASE}/pep-audit/${employeeScorecardId}/kpis/${kpiRowId}/reject`,
+      method: 'POST',
+      headers,
+      params: withAuthUserId(),
+      data: { reason: reason || 'Rejected' },
+    });
+  } catch (error) {
+    throw toBscError(error, 'Failed to reject KPI for PEP audit');
+  }
+}
+
+export async function bulkApproveBscPepAuditKpis(
+  items: Array<{ scorecardId: string; targetId: string }>,
+): Promise<{
+  approved: number;
+  failed: Array<{ scorecardId: string; targetId: string; reason: string }>;
+}> {
+  try {
+    const headers = await bscAuthHeaders();
+    const data = (await crudRequest({
+      url: `${BSC_BASE}/pep-audit/bulk-approve`,
+      method: 'POST',
+      headers,
+      params: withAuthUserId(),
+      data: {
+        items: items.map((item) => ({
+          employeeScorecardId: item.scorecardId,
+          kpiRowId: item.targetId,
+        })),
+      },
+    })) as {
+      approved?: number;
+      failed?: Array<{
+        employeeScorecardId?: string;
+        kpiRowId?: string;
+        scorecardId?: string;
+        targetId?: string;
+        reason?: string;
+      }>;
+    };
+
+    return {
+      approved: Number(data.approved || 0),
+      failed: (data.failed || []).map((row) => ({
+        scorecardId: row.employeeScorecardId || row.scorecardId || '',
+        targetId: row.kpiRowId || row.targetId || '',
+        reason: row.reason || 'Failed',
+      })),
+    };
+  } catch (error) {
+    throw toBscError(error, 'Failed to bulk approve PEP audit KPIs');
   }
 }

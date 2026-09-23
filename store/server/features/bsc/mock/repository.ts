@@ -1,6 +1,9 @@
 import {
   AssignScorecardInput,
   AppendIndividualKpisInput,
+  BscCadence,
+  BscEvaluatorMode,
+  BscEvaluatorStep,
   BscPerspectiveDefinition,
   BscScopeTarget,
   BscSetupKind,
@@ -11,7 +14,11 @@ import {
   EmployeeScorecard,
   EvaluationCycle,
   KpiApprovalStatus,
+  KpiImportBatchResult,
+  KpiImportRowInput,
   KpiLibraryItem,
+  PepAuditFlag,
+  PepAuditRow,
   ReportKpiInput,
   AdjustReportedKpiInput,
   RolePerspectiveAllocation,
@@ -22,6 +29,14 @@ import {
   TargetLogic,
   UpdateEvaluationConfigInput,
 } from '@/types/bsc';
+import {
+  ensureSelfEvaluationStep,
+  resolveManagerEvaluationStepIndex,
+} from '@/utils/bsc/checkin';
+import { buildPepAuditRows } from '@/utils/bsc/pepAudit';
+import { isPepAuditActionableScorecard } from '@/utils/bsc/pepAuditWorkflow';
+import { normalizeMeasurementUnit } from '@/utils/bsc/measurementUnit';
+import { validateAcceptableThreshold } from '@/utils/bsc/scoring';
 import { hasEvidenceArtifact } from '@/utils/bsc/evidence';
 import {
   computeCompositeScore,
@@ -147,6 +162,270 @@ export class BscMockRepository {
     return delay(item);
   }
 
+  async importKpiBatch(
+    rows: KpiImportRowInput[],
+    evaluationConfigId = 'library',
+  ): Promise<KpiImportBatchResult> {
+    const created: KpiLibraryItem[] = [];
+    const errors: KpiImportBatchResult['errors'] = [];
+
+    for (let index = 0; index < rows.length; index += 1) {
+      const row = rows[index];
+      try {
+        const item = await this.createKpi({
+          ...row,
+          evaluationConfigId,
+          measurementUnit:
+            normalizeMeasurementUnit(row.measurementUnit) ||
+            row.measurementUnit,
+        });
+        created.push(item);
+      } catch (error) {
+        errors.push({
+          row: index + 2,
+          error: error instanceof Error ? error.message : 'Import failed',
+        });
+      }
+    }
+
+    return delay({ created, errors });
+  }
+
+  listPepAuditRows(filters?: {
+    managerId?: string;
+    userId?: string;
+  }): Promise<PepAuditRow[]> {
+    let items = this.scorecards.map((s) => this.cloneScorecard(s));
+    if (filters?.managerId) {
+      items = items.filter((s) => s.managerId === filters.managerId);
+    }
+    if (filters?.userId) {
+      items = items.filter((s) => s.userId === filters.userId);
+    }
+    return delay(buildPepAuditRows(items));
+  }
+
+  async rejectKpiForPepAudit(
+    scorecardId: string,
+    targetId: string,
+    rejectionReason: string,
+    actorId?: string,
+  ): Promise<EmployeeScorecard> {
+    const sc = this.requireScorecard(scorecardId);
+    if (!isPepAuditActionableScorecard(sc.status)) {
+      throw new Error(
+        'This scorecard is not available for PEP audit rejection',
+      );
+    }
+    const target = sc.targets.find((t) => t.id === targetId);
+    if (!target) throw new Error('KPI target not found');
+    if (!rejectionReason?.trim()) {
+      throw new Error('Rejection comment is required');
+    }
+
+    target.approvalStatus = KpiApprovalStatus.Rejected;
+    target.rejectionReason = rejectionReason.trim();
+    target.pepReturnReason = null;
+    target.pepAuditFlag = null;
+    target.evaluationStepIndex = ensureSelfEvaluationStep(target);
+    target.actualValue = 0;
+    target.submittedAt = null;
+    target.evidenceUrl = null;
+    target.evidenceFileName = null;
+    target.evidenceHash = null;
+
+    assertTransition(sc.status, ScorecardStatus.NeedsResubmit);
+    const from = sc.status;
+    sc.status = ScorecardStatus.NeedsResubmit;
+    sc.finalEvaluation = undefined;
+    sc.updatedAt = new Date().toISOString();
+    this.recordTransition(
+      sc,
+      from,
+      ScorecardStatus.NeedsResubmit,
+      actorId || sc.managerId,
+    );
+    return delay(this.cloneScorecard(sc));
+  }
+
+  async returnUnrealisticKpiForPepAudit(
+    scorecardId: string,
+    targetId: string,
+    returnReason: string,
+    actorId?: string,
+  ): Promise<EmployeeScorecard> {
+    const sc = this.requireScorecard(scorecardId);
+    if (!isPepAuditActionableScorecard(sc.status)) {
+      throw new Error(
+        'This scorecard is not available for PEP unrealistic return',
+      );
+    }
+    const target = sc.targets.find((t) => t.id === targetId);
+    if (!target) throw new Error('KPI target not found');
+    if (target.actualValue == null) {
+      throw new Error('Cannot return a KPI without a reported actual');
+    }
+    if (!returnReason?.trim()) {
+      throw new Error('Return comment is required');
+    }
+
+    target.pepAuditFlag = PepAuditFlag.Unrealistic;
+    target.pepReturnReason = returnReason.trim();
+    target.rejectionReason = null;
+    target.approvalStatus = KpiApprovalStatus.Pending;
+    target.evaluationStepIndex = resolveManagerEvaluationStepIndex(target);
+
+    if (sc.status !== ScorecardStatus.PendingEval) {
+      assertTransition(sc.status, ScorecardStatus.PendingEval);
+      const from = sc.status;
+      sc.status = ScorecardStatus.PendingEval;
+      sc.finalEvaluation = undefined;
+      sc.updatedAt = new Date().toISOString();
+      this.recordTransition(
+        sc,
+        from,
+        ScorecardStatus.PendingEval,
+        actorId || sc.managerId,
+      );
+    } else {
+      sc.updatedAt = new Date().toISOString();
+    }
+
+    return delay(this.cloneScorecard(sc));
+  }
+
+  async approveKpiForPepAudit(
+    scorecardId: string,
+    targetId: string,
+    actorId?: string,
+  ): Promise<EmployeeScorecard> {
+    void actorId;
+    const sc = this.requireScorecard(scorecardId);
+    if (!isPepAuditActionableScorecard(sc.status)) {
+      throw new Error('This scorecard is not available for PEP audit approval');
+    }
+    const target = sc.targets.find((t) => t.id === targetId);
+    if (!target) throw new Error('KPI target not found');
+
+    target.pepAuditFlag = PepAuditFlag.Realistic;
+    sc.updatedAt = new Date().toISOString();
+    return delay(this.cloneScorecard(sc));
+  }
+
+  async bulkApproveKpiForPepAudit(
+    items: Array<{ scorecardId: string; targetId: string }>,
+    actorId?: string,
+  ): Promise<{
+    approved: number;
+    failed: Array<{ scorecardId: string; targetId: string; reason: string }>;
+  }> {
+    void actorId;
+    const failed: Array<{
+      scorecardId: string;
+      targetId: string;
+      reason: string;
+    }> = [];
+    let approved = 0;
+    for (const item of items) {
+      try {
+        await this.approveKpiForPepAudit(
+          item.scorecardId,
+          item.targetId,
+          actorId,
+        );
+        approved += 1;
+      } catch (error) {
+        failed.push({
+          ...item,
+          reason: error instanceof Error ? error.message : 'Approve failed',
+        });
+      }
+    }
+    return delay({ approved, failed });
+  }
+
+  private mapScorecardTarget(
+    scorecardId: string,
+    kpi: KpiLibraryItem,
+    assignment: {
+      weightPercentage: number;
+      targetValue: number;
+      stretchTarget?: number | null;
+      worstCase?: number | null;
+      bestCase?: number | null;
+      cadence?: BscCadence | null;
+      checkInDay?: number | null;
+      dataSource?: string | null;
+      acceptableThreshold?: number | null;
+      evaluationFlow?: BscEvaluatorStep[];
+      evaluatorMode?: BscEvaluatorMode;
+      evaluatorUserId?: string | null;
+      assignmentSource?: 'shared' | 'individual';
+    },
+  ): ScorecardKpiTarget {
+    const threshold =
+      assignment.acceptableThreshold ?? kpi.acceptableThreshold ?? null;
+    if (threshold != null) {
+      const check = validateAcceptableThreshold(
+        assignment.targetValue,
+        threshold,
+        kpi.targetLogic,
+      );
+      if (!check.valid) {
+        throw new Error(check.message || 'Invalid acceptable threshold');
+      }
+    }
+
+    return {
+      id: uid('target'),
+      scorecardId,
+      kpiLibraryId: kpi.id,
+      kpiName: kpi.name,
+      perspective: kpi.perspective,
+      targetLogic: kpi.targetLogic,
+      measurementUnit: kpi.measurementUnit,
+      weightPercentage: assignment.weightPercentage,
+      targetValue: assignment.targetValue,
+      stretchTarget: assignment.stretchTarget ?? kpi.stretchTarget ?? null,
+      worstCase: assignment.worstCase ?? kpi.worstCase,
+      bestCase: assignment.bestCase ?? kpi.bestCase,
+      cadence: assignment.cadence ?? kpi.cadence ?? null,
+      checkInDay: assignment.checkInDay ?? kpi.checkInDay ?? null,
+      dataSource: assignment.dataSource ?? kpi.dataSource ?? null,
+      acceptableThreshold: threshold,
+      approvalStatus: KpiApprovalStatus.Pending,
+      assignmentSource: assignment.assignmentSource ?? 'shared',
+      evaluationFlow: assignment.evaluationFlow?.length
+        ? assignment.evaluationFlow.map((step) => ({
+            kind: step.kind,
+            userId: step.kind === 'user' ? (step.userId ?? null) : null,
+          }))
+        : [
+            {
+              kind:
+                assignment.evaluatorMode === 'user'
+                  ? ('user' as const)
+                  : ('directManager' as const),
+              userId:
+                assignment.evaluatorMode === 'user'
+                  ? (assignment.evaluatorUserId ?? null)
+                  : null,
+            },
+          ],
+      evaluatorMode:
+        assignment.evaluatorMode ||
+        (assignment.evaluationFlow?.find(
+          (s) => s.kind === 'user' || s.kind === 'directManager',
+        )?.kind === 'user'
+          ? 'user'
+          : 'directManager'),
+      evaluatorUserId:
+        assignment.evaluatorUserId ??
+        assignment.evaluationFlow?.find((s) => s.kind === 'user')?.userId ??
+        null,
+    };
+  }
+
   async updateKpi(
     id: string,
     input: Partial<CreateKpiLibraryInput>,
@@ -177,6 +456,7 @@ export class BscMockRepository {
       targetLogic?: CreateKpiLibraryInput['targetLogic'];
       measurementUnit?: string;
       defaultTarget?: number | null;
+      stretchTarget?: number | null;
       worstCase?: number | null;
       bestCase?: number | null;
       cadence?: CreateKpiLibraryInput['cadence'];
@@ -253,6 +533,10 @@ export class BscMockRepository {
             row.defaultTarget !== undefined
               ? row.defaultTarget
               : this.kpiLibrary[idx].defaultTarget,
+          stretchTarget:
+            row.stretchTarget !== undefined
+              ? row.stretchTarget
+              : this.kpiLibrary[idx].stretchTarget,
           worstCase:
             row.worstCase !== undefined
               ? row.worstCase
@@ -289,6 +573,7 @@ export class BscMockRepository {
           positionId: input.positionId,
           positionTitle: input.positionTitle,
           defaultTarget: row.defaultTarget ?? null,
+          stretchTarget: row.stretchTarget ?? null,
           worstCase: row.worstCase ?? null,
           bestCase: row.bestCase ?? null,
           cadence: row.cadence ?? null,
@@ -501,7 +786,9 @@ export class BscMockRepository {
           : BscSetupKind.Permanent),
       isActive: input.isActive !== false,
       effectiveFrom:
-        input.effectiveFrom || input.startDate || new Date().toISOString().slice(0, 10),
+        input.effectiveFrom ||
+        input.startDate ||
+        new Date().toISOString().slice(0, 10),
       isRecurring: Boolean(input.isRecurring),
       useCustomDates: Boolean(input.useCustomDates),
       periodIds: input.periodIds || [],
@@ -526,44 +813,11 @@ export class BscMockRepository {
   async lockCycle(id: string): Promise<EvaluationCycle> {
     const cycle = this.cycles.find((c) => c.id === id);
     if (!cycle) throw new Error('Cycle not found');
-    if (cycle.status !== CycleStatus.Open || cycle.isActive === false) {
-      throw new Error('Only Active scorecards can be locked');
-    }
     cycle.status = CycleStatus.Locked;
-    cycle.isActive = false;
-    return delay({ ...cycle });
-  }
-
-  async deactivateCycle(id: string): Promise<EvaluationCycle> {
-    const cycle = this.cycles.find((c) => c.id === id);
-    if (!cycle) throw new Error('Cycle not found');
-    if (cycle.status === CycleStatus.Closed) {
-      throw new Error('Cannot deactivate a Closed scorecard');
-    }
-    if (cycle.status === CycleStatus.Locked) {
-      throw new Error('Cannot deactivate a Locked scorecard');
-    }
-    if (cycle.isActive === false) {
-      throw new Error('Scorecard is already inactive');
-    }
-    cycle.isActive = false;
     return delay({ ...cycle });
   }
 
   deleteCycle(id: string): Promise<void> {
-    const cycle = this.cycles.find((c) => c.id === id);
-    if (!cycle) throw new Error('Cycle not found');
-    if (cycle.isActive !== false) {
-      throw new Error(
-        'Only inactive scorecards can be deleted. Mark the scorecard inactive first.',
-      );
-    }
-    if (
-      cycle.status === CycleStatus.Locked ||
-      cycle.status === CycleStatus.Closed
-    ) {
-      throw new Error(`Cannot delete a ${cycle.status} scorecard`);
-    }
     this.cycles = this.cycles.filter((c) => c.id !== id);
     this.kpiLibrary = this.kpiLibrary.filter(
       (k) => k.evaluationConfigId !== id,
@@ -614,49 +868,10 @@ export class BscMockRepository {
     const targets: ScorecardKpiTarget[] = input.targets.map((t) => {
       const kpi = libraryMap.get(t.kpiLibraryId);
       if (!kpi) throw new Error(`KPI ${t.kpiLibraryId} not found in library`);
-      return {
-        id: uid('target'),
-        scorecardId: '',
-        kpiLibraryId: kpi.id,
-        kpiName: kpi.name,
-        perspective: kpi.perspective,
-        targetLogic: kpi.targetLogic,
-        measurementUnit: kpi.measurementUnit,
-        weightPercentage: t.weightPercentage,
-        targetValue: t.targetValue,
-        worstCase: t.worstCase ?? kpi.worstCase,
-        bestCase: t.bestCase ?? kpi.bestCase,
-        cadence: t.cadence ?? kpi.cadence ?? null,
-        checkInDay: t.checkInDay ?? kpi.checkInDay ?? null,
-        approvalStatus: KpiApprovalStatus.Pending,
+      return this.mapScorecardTarget('', kpi, {
+        ...t,
         assignmentSource: 'shared',
-        evaluationFlow: t.evaluationFlow?.length
-          ? t.evaluationFlow.map((step) => ({
-              kind: step.kind,
-              userId: step.kind === 'user' ? step.userId ?? null : null,
-            }))
-          : [
-              {
-                kind:
-                  t.evaluatorMode === 'user'
-                    ? ('user' as const)
-                    : ('directManager' as const),
-                userId:
-                  t.evaluatorMode === 'user' ? t.evaluatorUserId ?? null : null,
-              },
-            ],
-        evaluatorMode:
-          t.evaluatorMode ||
-          (t.evaluationFlow?.find(
-            (s) => s.kind === 'user' || s.kind === 'directManager',
-          )?.kind === 'user'
-            ? 'user'
-            : 'directManager'),
-        evaluatorUserId:
-          t.evaluatorUserId ??
-          t.evaluationFlow?.find((s) => s.kind === 'user')?.userId ??
-          null,
-      };
+      });
     });
 
     const validation = validateWeights(
@@ -760,34 +975,28 @@ export class BscMockRepository {
 
     for (const row of input.kpis) {
       const kpi = libraryMap.get(row.kpiLibraryId)!;
-      const evaluationFlow =
-        row.evaluationFlow?.length
-          ? row.evaluationFlow.map((step) => ({
-              kind: step.kind,
-              userId: step.kind === 'user' ? step.userId ?? null : null,
-            }))
-          : [
-              { kind: 'self' as const, userId: null },
-              { kind: 'directManager' as const, userId: null },
-            ];
-      sc.targets.push({
-        id: uid('target'),
-        scorecardId: sc.id,
-        kpiLibraryId: kpi.id,
-        kpiName: kpi.name,
-        perspective: kpi.perspective,
-        targetLogic: kpi.targetLogic,
-        measurementUnit: kpi.measurementUnit,
-        weightPercentage: Number(row.weightPercentage),
-        targetValue: Number(row.targetValue),
-        worstCase: row.worstCase ?? kpi.worstCase,
-        bestCase: row.bestCase ?? kpi.bestCase,
-        cadence: row.cadence ?? kpi.cadence ?? null,
-        checkInDay: row.checkInDay ?? kpi.checkInDay ?? null,
-        approvalStatus: KpiApprovalStatus.Pending,
-        assignmentSource: 'individual',
-        evaluationFlow,
-      });
+      const evaluationFlow = row.evaluationFlow?.length
+        ? row.evaluationFlow
+        : [
+            { kind: 'self' as const, userId: null },
+            { kind: 'directManager' as const, userId: null },
+          ];
+      sc.targets.push(
+        this.mapScorecardTarget(sc.id, kpi, {
+          weightPercentage: Number(row.weightPercentage),
+          targetValue: Number(row.targetValue),
+          worstCase: row.worstCase ?? kpi.worstCase,
+          bestCase: row.bestCase ?? kpi.bestCase,
+          cadence: row.cadence ?? kpi.cadence ?? null,
+          checkInDay: row.checkInDay ?? kpi.checkInDay ?? null,
+          dataSource: row.dataSource ?? kpi.dataSource ?? null,
+          acceptableThreshold:
+            row.acceptableThreshold ?? kpi.acceptableThreshold ?? null,
+          stretchTarget: row.stretchTarget ?? kpi.stretchTarget ?? null,
+          evaluationFlow,
+          assignmentSource: 'individual',
+        }),
+      );
     }
 
     const validation = validateWeights(
@@ -939,6 +1148,9 @@ export class BscMockRepository {
       target.evidenceUrl = report.evidenceUrl?.trim() || null;
       target.evidenceFileName = report.evidenceFileName?.trim() || null;
       target.evidenceHash = report.evidenceHash?.trim() || `hash-${uid('ev')}`;
+      if (report.dataSource !== undefined) {
+        target.dataSource = report.dataSource?.trim() || null;
+      }
       target.submittedAt = new Date().toISOString();
       target.approvalStatus = KpiApprovalStatus.Pending;
       target.rejectionReason = null;
@@ -1017,7 +1229,12 @@ export class BscMockRepository {
         target.actualValue = row.actualValue;
         target.approvalStatus = KpiApprovalStatus.Pending;
         target.rejectionReason = null;
+        target.pepReturnReason = null;
+        target.pepAuditFlag = null;
         target.submittedAt = new Date().toISOString();
+      }
+      if (row.dataSource !== undefined) {
+        target.dataSource = row.dataSource?.trim() || null;
       }
     }
     sc.updatedAt = new Date().toISOString();
@@ -1054,11 +1271,15 @@ export class BscMockRepository {
     if (isLast) {
       target.approvalStatus = KpiApprovalStatus.Approved;
       target.rejectionReason = null;
+      target.pepReturnReason = null;
+      target.pepAuditFlag = null;
     } else {
       // Intermediate evaluator accepted — advance to next step, keep pending.
       target.evaluationStepIndex = stepIndex + 1;
       target.approvalStatus = KpiApprovalStatus.Pending;
       target.rejectionReason = null;
+      target.pepReturnReason = null;
+      target.pepAuditFlag = null;
     }
     sc.updatedAt = new Date().toISOString();
     return delay(this.cloneScorecard(sc));

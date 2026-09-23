@@ -32,11 +32,19 @@ interface BscUiState {
   viewingPerspectiveKpis: BscPerspectiveDefinition | null;
   catalogKpiFormOpen: boolean;
   catalogEditingKpi: KpiLibraryItem | null;
+  kpiImportModalOpen: boolean;
   assignModalOpen: boolean;
   myScorecardSessionId: string | undefined;
   myScorecardMonthId: string | undefined;
   myScorecardSessionMonths: Month[];
-  scorecardTab: 'mine' | 'team' | 'all' | 'results' | 'kpis' | 'bsc' | 'checkin';
+  scorecardTab:
+    | 'mine'
+    | 'team'
+    | 'all'
+    | 'results'
+    | 'kpis'
+    | 'bsc'
+    | 'checkin';
   bscCatalogView: 'scorecards' | 'people';
   setSetupModalOpen: (v: boolean) => void;
   setEditingConfig: (v: EvaluationCycle | null) => void;
@@ -61,6 +69,8 @@ interface BscUiState {
   closeViewPerspectiveKpis: () => void;
   openCatalogKpiForm: (kpi?: KpiLibraryItem | null) => void;
   closeCatalogKpiForm: () => void;
+  openKpiImportModal: () => void;
+  closeKpiImportModal: () => void;
   openAssignPerspectives: () => void;
   closeAssignModal: () => void;
   setAssignModalOpen: (v: boolean) => void;
@@ -92,6 +102,7 @@ export const useBscUiStore = create<BscUiState>((set) => ({
   viewingPerspectiveKpis: null,
   catalogKpiFormOpen: false,
   catalogEditingKpi: null,
+  kpiImportModalOpen: false,
   assignModalOpen: false,
   myScorecardSessionId: undefined,
   myScorecardMonthId: undefined,
@@ -135,6 +146,8 @@ export const useBscUiStore = create<BscUiState>((set) => ({
     set({ catalogKpiFormOpen: true, catalogEditingKpi }),
   closeCatalogKpiForm: () =>
     set({ catalogKpiFormOpen: false, catalogEditingKpi: null }),
+  openKpiImportModal: () => set({ kpiImportModalOpen: true }),
+  closeKpiImportModal: () => set({ kpiImportModalOpen: false }),
   openAssignPerspectives: () => set({ assignModalOpen: true }),
   closeAssignModal: () => set({ assignModalOpen: false }),
   setAssignModalOpen: (assignModalOpen) => set({ assignModalOpen }),

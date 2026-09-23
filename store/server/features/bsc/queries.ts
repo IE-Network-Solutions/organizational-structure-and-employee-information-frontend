@@ -5,6 +5,7 @@ import {
   getMyBscScorecardDetail,
   getMyBscScorecardResults,
   listBscKpis,
+  listBscPepAuditRows,
   listBscPerspectives,
   listBscReviewCheckInQueue,
   listBscScorecards,
@@ -30,6 +31,7 @@ export const BSC_QUERY_KEYS = {
   checkInReviewQueue: 'bsc-checkin-review-queue',
   hris: 'bsc-hris-outbox',
   audit: 'bsc-audit',
+  pepAudit: 'bsc-pep-audit',
   catalog: 'bsc-perspective-catalog',
   perspectives: 'bsc-role-perspectives',
 };
@@ -266,6 +268,16 @@ export const useGetBscHrisOutbox = () =>
 export const useGetBscAudit = (scorecardId?: string) =>
   useQuery([BSC_QUERY_KEYS.audit, scorecardId], () =>
     bscMockRepo.listAudit(scorecardId),
+  );
+
+export const useGetBscPepAuditRows = (filters?: {
+  managerId?: string;
+  userId?: string;
+}) =>
+  useQuery([BSC_QUERY_KEYS.pepAudit, filters], () =>
+    USE_BSC_API
+      ? listBscPepAuditRows(filters)
+      : bscMockRepo.listPepAuditRows(filters),
   );
 
 export const useGetBscPerspectiveCatalog = () =>
