@@ -25,6 +25,7 @@ function sampleRow(overrides: Partial<PepAuditRow> = {}): PepAuditRow {
     kpiName: 'CSAT',
     perspective: 'Customer',
     targetValue: 90,
+    stretchTarget: null,
     actualValue: 70,
     acceptableThreshold: 81,
     dataSource: 'CRM',

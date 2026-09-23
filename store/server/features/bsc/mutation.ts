@@ -117,12 +117,14 @@ export const useRejectKpiForPepAudit = () => {
         return rejectBscPepAuditKpi(scorecardId, targetId, rejectionReason);
       }
       const actorId = useAuthenticationStore.getState().userId;
-      return bscMockRepo.rejectKpiForPepAudit(
-        scorecardId,
-        targetId,
-        rejectionReason,
-        actorId,
-      );
+      return bscMockRepo
+        .rejectKpiForPepAudit(
+          scorecardId,
+          targetId,
+          rejectionReason,
+          actorId,
+        )
+        .then(() => undefined);
     },
     {
       onSuccess: () => {
@@ -159,12 +161,14 @@ export const useReturnUnrealisticKpiForPepAudit = () => {
         );
       }
       const actorId = useAuthenticationStore.getState().userId;
-      return bscMockRepo.returnUnrealisticKpiForPepAudit(
-        scorecardId,
-        targetId,
-        returnReason,
-        actorId,
-      );
+      return bscMockRepo
+        .returnUnrealisticKpiForPepAudit(
+          scorecardId,
+          targetId,
+          returnReason,
+          actorId,
+        )
+        .then(() => undefined);
     },
     {
       onSuccess: () => {
@@ -189,7 +193,9 @@ export const useApproveKpiForPepAudit = () => {
         return approveBscPepAuditKpi(scorecardId, targetId);
       }
       const actorId = useAuthenticationStore.getState().userId;
-      return bscMockRepo.approveKpiForPepAudit(scorecardId, targetId, actorId);
+      return bscMockRepo
+        .approveKpiForPepAudit(scorecardId, targetId, actorId)
+        .then(() => undefined);
     },
     {
       onSuccess: () => {
@@ -474,7 +480,10 @@ export const useDeactivateBscCycle = () => {
     (id: string) =>
       USE_BSC_API
         ? deactivateBscScorecardTemplate(id)
-        : bscMockRepo.deactivateCycle(id),
+        : bscMockRepo.updateCycle(id, {
+            isActive: false,
+            status: CycleStatus.Closed,
+          }),
     {
       onSuccess: () => {
         invalidateAll(qc);

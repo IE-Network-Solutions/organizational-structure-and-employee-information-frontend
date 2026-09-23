@@ -79,6 +79,30 @@ export function isLastEvaluationStep(target: ScorecardKpiTarget): boolean {
   return currentStepIndex(target) >= flow.length - 1;
 }
 
+/** Step index for the direct manager (or first non-self evaluator) in the flow. */
+export function resolveManagerEvaluationStepIndex(
+  target: ScorecardKpiTarget,
+): number {
+  const flow = resolveEvaluationFlow(target);
+  const managerIndex = flow.findIndex((step) => step.kind === 'directManager');
+  if (managerIndex >= 0) return managerIndex;
+  const nonSelfIndex = flow.findIndex((step) => step.kind !== 'self');
+  if (nonSelfIndex >= 0) return nonSelfIndex;
+  return Math.max(flow.length - 1, 0);
+}
+
+/**
+ * Ensure the evaluation flow includes a self step and return its index.
+ * Mutates `target.evaluationFlow` when self is missing (common on template KPIs).
+ */
+export function ensureSelfEvaluationStep(target: ScorecardKpiTarget): number {
+  const flow = resolveEvaluationFlow(target);
+  const selfIndex = flow.findIndex((step) => step.kind === 'self');
+  if (selfIndex >= 0) return selfIndex;
+  target.evaluationFlow = [{ kind: 'self', userId: null }, ...flow];
+  return 0;
+}
+
 function isCheckinOpenStatus(status: ScorecardStatus): boolean {
   return (
     status === ScorecardStatus.Active ||
