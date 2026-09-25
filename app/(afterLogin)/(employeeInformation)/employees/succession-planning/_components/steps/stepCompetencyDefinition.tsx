@@ -48,7 +48,7 @@ export const distributeWeightsEvenly = (count: number): number[] => {
   const remainder = 100 - base * count;
   return Array.from(
     { length: count },
-    (unusedItem, index) => base + (index < remainder ? 1 : 0),
+    (unusedSlot, index) => base + (index < remainder ? 1 : 0),
   );
 };
 

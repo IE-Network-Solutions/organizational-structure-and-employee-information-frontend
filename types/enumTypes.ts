@@ -87,6 +87,8 @@ export const SelectData = [
 
 export enum APPROVALTYPES {
   LEAVE = 'Leave',
+  WORK_FROM_HOME = 'WorkFromHome',
+  SHIFT_SWAP = 'ShiftSwap',
   BRANCHREQUEST = 'BranchRequest',
   TNA = 'TNA',
   PAYROLL = 'Payroll',
