@@ -82,6 +82,28 @@ export const useGetPositions = (
 export const useGetAllPositions = () => {
   return useQuery('allPositions', getAllPositions);
 };
+
+/**
+ * Every position for pickers. The bare `/positions` call can come back as the
+ * default first page only, so ask for a large page explicitly.
+ */
+const getAllPositionsForPicker = async () => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/positions?limit=1000&page=1`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useGetAllPositionsForPicker = () =>
+  useQuery('allPositionsForPicker', getAllPositionsForPicker, {
+    staleTime: 5 * 60_000,
+  });
 export const useGetPositionsById = (id: string) => {
   return useQuery(['positions', id], () => getPositionsByID(id));
 };
