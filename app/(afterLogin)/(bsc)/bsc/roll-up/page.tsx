@@ -1,47 +1,170 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Button, Empty, Table, Tag } from 'antd';
+import { Button, Empty, Progress, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { LeftOutlined } from '@ant-design/icons';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { useGetBscScorecards } from '@/store/server/features/bsc/queries';
+import { useGetBscResultsScorecards } from '@/store/server/features/bsc/queries';
+import {
+  useGetAllUsers,
+  useGetAllUsersData,
+} from '@/store/server/features/employees/employeeManagment/queries';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import { EmployeeScorecard } from '@/types/bsc';
 import {
+  RollupSummary,
+  computeRollup,
+  departmentRollups,
   formatScore,
   isScorecardApproved,
   isScorecardEvaluated,
   latestScorecardsByEmployee,
   scorecardTotal,
 } from '@/utils/bsc/rollup';
-import { scorecardResultsHref } from '@/utils/bsc/scorecardTab';
+import {
+  buildOrgEmployees,
+  enrichScorecardPeople,
+  namesById,
+} from '@/utils/bsc/orgUsers';
+import { periodLabel } from '@/utils/bsc/series';
+import {
+  bscRollupCompanyDetailHref,
+  bscRollupDepartmentDetailHref,
+  bscRollupHubHref,
+  parseResultsScope,
+  parseRollupView,
+  scorecardResultsHref,
+} from '@/utils/bsc/scorecardTab';
+import type { ResultsScope } from '@/utils/bsc/scorecardTab';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
+const UNASSIGNED_DEPARTMENT = 'No department';
 
 type ContributorRow = EmployeeScorecard & {
   kpiScore: number;
   evaluated: boolean;
 };
 
+function RollupCard({
+  summary,
+  onOpen,
+  highlight = false,
+  dataCy,
+}: {
+  summary: RollupSummary;
+  onOpen: () => void;
+  highlight?: boolean;
+  dataCy: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className={`flex w-full cursor-pointer flex-col gap-3 rounded-xl border p-5 text-left transition-shadow hover:shadow-sm ${
+        highlight
+          ? 'border-[#91caff] bg-[#F0F7FF]'
+          : 'border-[#E5E7EB] bg-white'
+      }`}
+      data-cy={dataCy}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <span className="text-[15px] font-semibold text-[#262626]">
+          {summary.label}
+        </span>
+        <RightOutlined className="mt-1 text-xs text-[#8c8c8c]" />
+      </div>
+      <div className="flex items-end gap-2">
+        <span
+          className="text-3xl font-bold leading-none text-[#1E40AF]"
+          data-cy={`${dataCy}-avg`}
+        >
+          {summary.evaluatedCount ? `${formatScore(summary.averageScore)}%` : '—'}
+        </span>
+        <span className="pb-0.5 text-xs text-[#8F94A3]">avg performance</span>
+      </div>
+      <Progress
+        percent={Math.max(0, Math.min(100, summary.averageScore))}
+        showInfo={false}
+        size="small"
+        strokeColor="#1E40AF"
+      />
+      <div className="flex flex-wrap gap-2 text-xs text-[#595959]">
+        <Tag className="m-0" data-cy={`${dataCy}-evaluated`}>
+          {summary.evaluatedCount}/{summary.totalCount} evaluated
+        </Tag>
+        {summary.pendingCount > 0 ? (
+          <Tag className="m-0" color="orange">
+            {summary.pendingCount} pending
+          </Tag>
+        ) : null}
+      </div>
+    </button>
+  );
+}
+
 export default function BscRollupDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const setScorecardTab = useBscUiStore((s) => s.setScorecardTab);
-  const scope =
-    searchParams.get('scope') === 'department' ? 'department' : 'company';
+
+  // Hub links carry ?resultsScope=; default the roll-up to company-wide data.
+  const resultsScope: ResultsScope = searchParams.get('resultsScope')
+    ? parseResultsScope(searchParams)
+    : 'all';
+  // Legacy links used ?scope=company|department.
+  const legacyScope = searchParams.get('scope');
+  const parsedView = parseRollupView(searchParams);
+  const view =
+    parsedView === 'hub' && legacyScope === 'company' ? 'company' : parsedView;
   const departmentName = searchParams.get('department') || undefined;
 
-  const { data: scorecards, isLoading } = useGetBscScorecards();
+  const { data: scorecards, isLoading } =
+    useGetBscResultsScorecards(resultsScope);
+  const { data: allUsersData } = useGetAllUsersData();
+  const { data: allUsers } = useGetAllUsers();
+  const { data: departmentsData } = useGetDepartments();
+  const { data: positionsData } = useGetAllPositions();
 
-  const contributors = useMemo(() => {
-    const latest = latestScorecardsByEmployee(scorecards);
+  // BE scorecards only carry ids — resolve people/department names so the
+  // company and department roll-ups can group and label contributors.
+  const latestCards = useMemo(() => {
+    const employeeById = new Map(
+      buildOrgEmployees(allUsersData, allUsers).map((e) => [e.id, e]),
+    );
+    const lookups = {
+      employeeById,
+      departmentNameById: namesById(departmentsData),
+      positionNameById: namesById(positionsData),
+    };
+    const enriched = (scorecards || []).map((card) => {
+      const withNames = enrichScorecardPeople(card, lookups);
+      return {
+        ...withNames,
+        departmentName: withNames.departmentName || UNASSIGNED_DEPARTMENT,
+      };
+    });
+    return latestScorecardsByEmployee(enriched);
+  }, [scorecards, allUsersData, allUsers, departmentsData, positionsData]);
+
+  const companySummary = useMemo(
+    () => computeRollup(latestCards, { scope: 'company' }),
+    [latestCards],
+  );
+  const departmentSummaries = useMemo(
+    () => departmentRollups(latestCards),
+    [latestCards],
+  );
+
+  const contributors = useMemo<ContributorRow[]>(() => {
     const pool =
-      scope === 'department' && departmentName
-        ? latest.filter((c) => c.departmentName === departmentName)
-        : latest;
+      view === 'department' && departmentName
+        ? latestCards.filter((c) => c.departmentName === departmentName)
+        : latestCards;
     return pool
       .map((card) => ({
         ...card,
@@ -52,22 +175,33 @@ export default function BscRollupDetailPage() {
         if (a.evaluated !== b.evaluated) return a.evaluated ? -1 : 1;
         return b.kpiScore - a.kpiScore;
       });
-  }, [scorecards, scope, departmentName]);
+  }, [latestCards, view, departmentName]);
 
-  const averageScore = useMemo(() => {
-    const evaluated = contributors.filter((c) => c.evaluated);
-    if (!evaluated.length) return 0;
-    return evaluated.reduce((sum, c) => sum + c.kpiScore, 0) / evaluated.length;
-  }, [contributors]);
+  const detailSummary = useMemo(
+    () =>
+      view === 'department' && departmentName
+        ? computeRollup(latestCards, {
+            scope: 'department',
+            departmentName,
+          })
+        : companySummary,
+    [view, departmentName, latestCards, companySummary],
+  );
 
   const title =
-    scope === 'department' && departmentName
+    view === 'department' && departmentName
       ? `${departmentName} roll-up`
-      : 'Company-wide roll-up';
+      : view === 'company'
+        ? 'Company-wide roll-up'
+        : 'Scorecard roll-up';
 
-  const backToAll = () => {
+  const back = () => {
+    if (view !== 'hub') {
+      router.push(bscRollupHubHref(resultsScope));
+      return;
+    }
     setScorecardTab('results');
-    router.push(scorecardResultsHref('all'));
+    router.push(scorecardResultsHref(resultsScope));
   };
 
   const openEmployee = (row: ContributorRow) => {
@@ -116,11 +250,10 @@ export default function BscRollupDetailPage() {
           Period
         </span>
       ),
-      dataIndex: 'cycleLabel',
-      key: 'cycleLabel',
-      render: (label: string) => (
+      key: 'period',
+      render: (unused: unknown, row) => (
         <span className={tableCellClassName} data-cy="bsc-rollup-period-cell">
-          {label || '—'}
+          {periodLabel(row) || '—'}
         </span>
       ),
     },
@@ -176,8 +309,6 @@ export default function BscRollupDetailPage() {
     },
   ];
 
-  const evaluatedCount = contributors.filter((c) => c.evaluated).length;
-
   return (
     <div className="w-full" data-cy="bsc-rollup-detail-page">
       <CustomBreadcrumb
@@ -189,11 +320,11 @@ export default function BscRollupDetailPage() {
         <Button
           type="text"
           icon={<LeftOutlined />}
-          onClick={backToAll}
+          onClick={back}
           className="!px-0 text-[#595959]"
           data-cy="bsc-rollup-detail-back"
         >
-          All Employee KPI
+          {view === 'hub' ? 'All Employee KPI' : 'Scorecard roll-up'}
         </Button>
       </div>
 
@@ -204,6 +335,56 @@ export default function BscRollupDetailPage() {
         >
           Loading…
         </div>
+      ) : view === 'hub' ? (
+        !latestCards.length ? (
+          <div
+            className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-12"
+            data-cy="bsc-rollup-empty"
+          >
+            <Empty description="No employee scorecards in this scope yet" />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-6" data-cy="bsc-rollup-hub">
+            <div
+              className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+              data-cy="bsc-rollup-company-grid"
+            >
+              <RollupCard
+                summary={companySummary}
+                highlight
+                onOpen={() =>
+                  router.push(bscRollupCompanyDetailHref(resultsScope))
+                }
+                dataCy="bsc-rollup-company-card"
+              />
+            </div>
+            <div data-cy="bsc-rollup-departments">
+              <h3 className="mb-3 text-base font-semibold text-[#262626]">
+                Departments
+              </h3>
+              <div
+                className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+                data-cy="bsc-rollup-department-grid"
+              >
+                {departmentSummaries.map((summary) => (
+                  <RollupCard
+                    key={summary.label}
+                    summary={summary}
+                    onOpen={() =>
+                      router.push(
+                        bscRollupDepartmentDetailHref(
+                          summary.departmentName || summary.label,
+                          resultsScope,
+                        ),
+                      )
+                    }
+                    dataCy={`bsc-rollup-department-card-${summary.label}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )
       ) : (
         <div
           className="rounded-xl border border-[#E5E7EB] bg-white overflow-hidden"
@@ -235,13 +416,14 @@ export default function BscRollupDetailPage() {
                 className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]"
                 data-cy="bsc-rollup-avg-tag"
               >
-                Avg {formatScore(averageScore)}%
+                Avg {formatScore(detailSummary.averageScore)}%
               </Tag>
               <Tag
                 className="m-0 h-5 rounded border border-[#d9d9d9] bg-[#fafafa] px-1.5 text-[11px] font-normal leading-5 text-[#595959]"
                 data-cy="bsc-rollup-count-tag"
               >
-                {evaluatedCount}/{contributors.length} evaluated
+                {detailSummary.evaluatedCount}/{detailSummary.totalCount}{' '}
+                evaluated
               </Tag>
             </div>
           </div>

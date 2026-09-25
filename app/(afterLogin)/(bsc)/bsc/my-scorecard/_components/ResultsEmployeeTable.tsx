@@ -23,13 +23,18 @@ import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { periodLabel } from '@/utils/bsc/series';
 import {
   useGetBscCycles,
   useGetBscPepAuditRows,
   useGetBscResultsScorecards,
 } from '@/store/server/features/bsc/queries';
 import { useBulkApproveKpiForPepAudit } from '@/store/server/features/bsc/mutation';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useGetAllUsers,
+  useGetAllUsersData,
+} from '@/store/server/features/employees/employeeManagment/queries';
+import { buildOrgEmployees } from '@/utils/bsc/orgUsers';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -81,6 +86,8 @@ const ACTIONS_COLUMN_WIDTH = 96;
 type EmployeeLookup = {
   label: string;
   profileImage?: string | null;
+  positionTitle?: string | null;
+  departmentName?: string | null;
 };
 
 type ResultsScorecardRow = {
@@ -106,23 +113,6 @@ type Props = {
   canViewAllEmployeeKpi?: boolean;
 };
 
-function resolveProfileImageSrc(profileImage: unknown): string | undefined {
-  if (!profileImage || typeof profileImage !== 'string') return undefined;
-  try {
-    const parsed = JSON.parse(profileImage);
-    if (
-      parsed?.url &&
-      typeof parsed.url === 'string' &&
-      parsed.url.startsWith('http')
-    ) {
-      return parsed.url;
-    }
-  } catch {
-    if (profileImage.startsWith('http')) return profileImage;
-  }
-  return undefined;
-}
-
 function nameInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (!parts.length) return '?';
@@ -135,32 +125,25 @@ function formatReportPeriod(
   hasReports: boolean,
 ): string {
   if (!hasReports) return '—';
-  if (card.periodMonthName) {
-    return card.periodYear
-      ? `${card.periodMonthName} ${card.periodYear}`
-      : card.periodMonthName;
-  }
+  if (card.periodMonthName) return periodLabel(card);
   return card.cycleLabel || '—';
 }
 
+/**
+ * id → employee from org-emp users. `/users` is sometimes an id-keyed map (no
+ * `items`), so read through the shared normalizer and prefer the full list.
+ */
 function buildEmployeeLookupMap(
-  allUsers: { items?: Array<Record<string, unknown>> } | undefined,
+  allUsersData: unknown,
+  allUsers: unknown,
 ): Map<string, EmployeeLookup> {
   const map = new Map<string, EmployeeLookup>();
-  for (const user of allUsers?.items || []) {
-    const id = typeof user.id === 'string' ? user.id : '';
-    if (!id) continue;
-    const rawName = [user.firstName, user.middleName, user.lastName]
-      .filter((part) => typeof part === 'string' && part.trim())
-      .join(' ')
-      .trim();
-    const label =
-      rawName ||
-      (typeof user.email === 'string' ? user.email : '') ||
-      'Employee';
-    map.set(id, {
-      label,
-      profileImage: resolveProfileImageSrc(user.profileImage) ?? null,
+  for (const employee of buildOrgEmployees(allUsersData, allUsers)) {
+    map.set(employee.id, {
+      label: employee.name,
+      profileImage: employee.profileImage,
+      positionTitle: employee.positionTitle,
+      departmentName: employee.departmentName,
     });
   }
   return map;
@@ -204,12 +187,14 @@ function buildScorecardRow(
     scorecard.status,
   );
   const hasReports = pepRows.length > 0;
+  // BE scorecards leave userName/department/position empty — resolve from HRIS.
+  const employee = employeeById.get(scorecard.userId);
   return {
     userId: scorecard.userId,
-    userName: scorecard.userName,
+    userName: scorecard.userName || employee?.label || 'Employee',
     managerId: scorecard.managerId,
-    departmentName: scorecard.departmentName,
-    positionTitle: scorecard.positionTitle,
+    departmentName: scorecard.departmentName || employee?.departmentName,
+    positionTitle: scorecard.positionTitle || employee?.positionTitle,
     scorecardId: scorecard.id,
     cycleId: scorecard.cycleId,
     scorecardStatus: scorecard.status,
@@ -302,6 +287,7 @@ export default function ResultsEmployeeTable({
   const { data: cycles } = useGetBscCycles();
   const { data: allPepRows, isLoading: pepRowsLoading } =
     useGetBscPepAuditRows();
+  const { data: allUsersData } = useGetAllUsersData();
   const { data: allUsers } = useGetAllUsers();
   const { mutateAsync: bulkApproveAsync, isLoading: bulkApproving } =
     useBulkApproveKpiForPepAudit();
@@ -320,8 +306,8 @@ export default function ResultsEmployeeTable({
   }, [department, filterOpen, scope, statusFilter]);
 
   const employeeById = useMemo(
-    () => buildEmployeeLookupMap(allUsers),
-    [allUsers],
+    () => buildEmployeeLookupMap(allUsersData, allUsers),
+    [allUsersData, allUsers],
   );
 
   const profileImageByUserId = useMemo(() => {

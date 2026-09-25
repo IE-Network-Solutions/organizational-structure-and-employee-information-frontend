@@ -1,9 +1,8 @@
 'use client';
 
 import React from 'react';
-import { InputNumber, Select } from 'antd';
+import { Input, InputNumber } from 'antd';
 import { TargetLogic } from '@/types/bsc';
-import { KPI_DATA_SOURCE_OPTIONS } from '@/utils/bsc/measurementUnit';
 import { validateAcceptableThreshold } from '@/utils/bsc/scoring';
 
 type Props = {
@@ -53,12 +52,14 @@ export default function KpiAssignmentMetricFields({
         <span data-cy="auto-added" className="text-[11px] text-[#595959]">
           Data source
         </span>
-        <Select
+        {/* Free text (system name, report, or URL) — BE stores up to 512 chars. */}
+        <Input
           className="w-[180px]"
-          placeholder="Select source"
-          value={dataSource ?? undefined}
-          options={KPI_DATA_SOURCE_OPTIONS}
-          onChange={(value) => onDataSourceChange(value || null)}
+          placeholder="e.g. HRIS, Finance report"
+          value={dataSource ?? ''}
+          maxLength={512}
+          allowClear
+          onChange={(e) => onDataSourceChange(e.target.value || null)}
           data-cy={`bsc-kpi-assignment-data-source-${kpiKey}`}
         />
       </div>

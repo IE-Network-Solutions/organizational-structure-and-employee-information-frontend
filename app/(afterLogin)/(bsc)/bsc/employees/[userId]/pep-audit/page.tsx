@@ -10,7 +10,11 @@ import {
   useGetBscPepAuditRows,
   useGetBscResultsScorecards,
 } from '@/store/server/features/bsc/queries';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useGetAllUsers,
+  useGetAllUsersData,
+} from '@/store/server/features/employees/employeeManagment/queries';
+import { buildOrgEmployees, type BscOrgEmployee } from '@/utils/bsc/orgUsers';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   EmployeeScorecard,
@@ -52,7 +56,12 @@ function periodLabel(
   periodYear?: number | null,
 ): string {
   if (periodMonthName) {
-    return periodYear ? `${periodMonthName} ${periodYear}` : periodMonthName;
+    // BE periodLabel is often already "September 2026" — don't repeat the year.
+    const alreadyHasYear =
+      periodYear != null && periodMonthName.includes(String(periodYear));
+    return periodYear && !alreadyHasYear
+      ? `${periodMonthName} ${periodYear}`
+      : periodMonthName;
   }
   return cycleLabel.replace(/\s*\([^)]*\)\s*$/, '').trim() || cycleLabel;
 }
@@ -89,29 +98,19 @@ function periodApprovalSortOrder(
 
 function buildWorkflowParticipants(
   scorecard: EmployeeScorecard,
-  allUsers: { items?: Array<Record<string, unknown>> } | undefined,
+  employeeById: Map<string, BscOrgEmployee>,
 ): PepAuditBarParticipants {
-  const reporterUser = allUsers?.items?.find(
-    (user) => user.id === scorecard.userId,
-  );
-  const managerUser = allUsers?.items?.find(
-    (user) => user.id === scorecard.managerId,
-  );
-  const reporterName =
-    scorecard.userName ||
-    [reporterUser?.firstName, reporterUser?.lastName]
-      .filter(Boolean)
-      .join(' ')
-      .trim() ||
-    'Employee';
-  const managerName =
-    [managerUser?.firstName, managerUser?.lastName]
-      .filter(Boolean)
-      .join(' ')
-      .trim() || 'Manager';
+  const reporter = employeeById.get(scorecard.userId);
+  const manager = employeeById.get(scorecard.managerId);
   return {
-    reporter: { name: reporterName, profileImage: null },
-    manager: { name: managerName, profileImage: null },
+    reporter: {
+      name: scorecard.userName || reporter?.name || 'Employee',
+      profileImage: reporter?.profileImage ?? null,
+    },
+    manager: {
+      name: manager?.name || 'Manager',
+      profileImage: manager?.profileImage ?? null,
+    },
     pep: { name: 'PEP', profileImage: null },
   };
 }
@@ -134,7 +133,15 @@ export default function EmployeePepAuditPage() {
   const { data: allPepRows } = useGetBscPepAuditRows(
     userId ? { userId } : undefined,
   );
+  const { data: allUsersData } = useGetAllUsersData();
   const { data: allUsers } = useGetAllUsers();
+  const employeeById = useMemo(() => {
+    const map = new Map<string, BscOrgEmployee>();
+    for (const employee of buildOrgEmployees(allUsersData, allUsers)) {
+      map.set(employee.id, employee);
+    }
+    return map;
+  }, [allUsersData, allUsers]);
 
   const cycleById = useMemo(() => {
     const map = new Map<string, { isActive?: boolean; status?: string }>();
@@ -210,6 +217,7 @@ export default function EmployeePepAuditPage() {
   const displayName =
     orderedScorecards[0]?.userName ||
     allPersonScorecards[0]?.userName ||
+    employeeById.get(userId)?.name ||
     'Employee';
 
   const [periodFilterId, setPeriodFilterId] = useState('all');
@@ -383,7 +391,7 @@ export default function EmployeePepAuditPage() {
             )}
             isCurrentPeriod={isCurrent}
             pepRows={pepRows}
-            participants={buildWorkflowParticipants(scorecard, allUsers)}
+            participants={buildWorkflowParticipants(scorecard, employeeById)}
             scrollRef={isSelected ? selectedRef : undefined}
             isKpiSelected={(targetId) =>
               isBulkItemSelected({

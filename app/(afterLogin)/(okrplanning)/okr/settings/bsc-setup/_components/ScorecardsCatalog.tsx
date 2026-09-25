@@ -40,7 +40,11 @@ import {
   useGetBscCycles,
   useGetBscScorecards,
 } from '@/store/server/features/bsc/queries';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useGetAllUsers,
+  useGetAllUsersData,
+} from '@/store/server/features/employees/employeeManagment/queries';
+import { buildOrgEmployees } from '@/utils/bsc/orgUsers';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   BscScopeTarget,
@@ -55,23 +59,6 @@ const blueTagClassName =
   'm-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]';
 const metaTagClassName =
   'm-0 rounded-md border border-[#d9d9d9] bg-white px-3 py-0.5 text-xs font-normal text-[#8c8c8c]';
-
-function resolveProfileImageSrc(profileImage: unknown): string | undefined {
-  if (!profileImage || typeof profileImage !== 'string') return undefined;
-  try {
-    const parsed = JSON.parse(profileImage);
-    if (
-      parsed?.url &&
-      typeof parsed.url === 'string' &&
-      parsed.url.startsWith('http')
-    ) {
-      return parsed.url;
-    }
-  } catch {
-    if (profileImage.startsWith('http')) return profileImage;
-  }
-  return undefined;
-}
 
 function nameInitials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -92,10 +79,17 @@ function resolveScopeLabel(config: EvaluationCycle): string {
   return BscScopeTarget.Company;
 }
 
+/** One row per system employee; `scorecard` is null until they are on a program. */
 type IndividualAssignee = {
-  scorecard: EmployeeScorecard;
+  userId: string;
+  name: string;
+  email: string | null;
+  positionTitle: string | null;
+  departmentName: string | null;
+  profileImage: string | null;
+  scorecard: EmployeeScorecard | null;
   individualCount: number;
-  configLabel: string;
+  configLabel: string | null;
 };
 
 export default function ScorecardsCatalog() {
@@ -138,16 +132,16 @@ export default function ScorecardsCatalog() {
   const { data: configs, isLoading: configsLoading } = useGetBscCycles();
   const { data: peopleScorecards, isLoading: peopleLoading } =
     useGetBscScorecards();
-  const { data: allUsers } = useGetAllUsers();
+  // `/users/all-users/all` returns every employee; `/users` is a fallback that
+  // may be paginated or id-keyed.
+  const { data: allUsersData, isLoading: allUsersDataLoading } =
+    useGetAllUsersData();
+  const { data: allUsers, isLoading: allUsersLoading } = useGetAllUsers();
 
-  const profileImageByUserId = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const user of allUsers?.items || []) {
-      const src = resolveProfileImageSrc(user?.profileImage);
-      if (user?.id && src) map.set(user.id, src);
-    }
-    return map;
-  }, [allUsers]);
+  const orgEmployees = useMemo(
+    () => buildOrgEmployees(allUsersData, allUsers),
+    [allUsersData, allUsers],
+  );
 
   const scorecards = useMemo(() => configs || [], [configs]);
 
@@ -159,29 +153,61 @@ export default function ScorecardsCatalog() {
     return map;
   }, [scorecards]);
 
-  const peopleAssignees = useMemo(() => {
-    return latestScorecardsByEmployee(peopleScorecards).map((card) => ({
+  /** Employees already on a scorecard program (used by the scorecards filter). */
+  const peopleAssignees = useMemo(
+    () => latestScorecardsByEmployee(peopleScorecards),
+    [peopleScorecards],
+  );
+
+  /** Every system employee, enriched with their latest scorecard if any. */
+  const allPeople = useMemo<IndividualAssignee[]>(() => {
+    const cardByUserId = new Map<string, EmployeeScorecard>();
+    for (const card of peopleAssignees) cardByUserId.set(card.userId, card);
+
+    const toRow = (
+      card: EmployeeScorecard | null,
+      employee?: (typeof orgEmployees)[number],
+    ): IndividualAssignee => ({
+      userId: employee?.id || card?.userId || '',
+      name: employee?.name || card?.userName || 'Employee',
+      email: employee?.email ?? null,
+      positionTitle: employee?.positionTitle || card?.positionTitle || null,
+      departmentName: employee?.departmentName || card?.departmentName || null,
+      profileImage: employee?.profileImage ?? null,
       scorecard: card,
-      individualCount: card.targets.filter(
-        (t) => t.assignmentSource === 'individual',
-      ).length,
-      configLabel: configLabelById.get(card.cycleId) || card.cycleLabel,
-    }));
-  }, [peopleScorecards, configLabelById]);
+      individualCount: card
+        ? card.targets.filter((t) => t.assignmentSource === 'individual')
+            .length
+        : 0,
+      configLabel: card
+        ? configLabelById.get(card.cycleId) || card.cycleLabel || null
+        : null,
+    });
+
+    const rows = orgEmployees.map((employee) =>
+      toRow(cardByUserId.get(employee.id) ?? null, employee),
+    );
+    // Keep scorecard holders the user list did not return (e.g. inactive users).
+    const listed = new Set(orgEmployees.map((employee) => employee.id));
+    for (const card of peopleAssignees) {
+      if (!listed.has(card.userId)) rows.push(toRow(card));
+    }
+    return rows;
+  }, [orgEmployees, peopleAssignees, configLabelById]);
 
   const filteredPeople = useMemo(() => {
     const q = peopleSearch.trim().toLowerCase();
-    return peopleAssignees.filter((row) => {
-      if (!q) return true;
-      const person = row.scorecard;
-      return (
-        person.userName.toLowerCase().includes(q) ||
-        (person.positionTitle || '').toLowerCase().includes(q) ||
-        (person.departmentName || '').toLowerCase().includes(q) ||
-        row.configLabel.toLowerCase().includes(q)
-      );
-    });
-  }, [peopleAssignees, peopleSearch]);
+    if (!q) return allPeople;
+    return allPeople.filter((row) =>
+      [
+        row.name,
+        row.email,
+        row.positionTitle,
+        row.departmentName,
+        row.configLabel,
+      ].some((value) => (value || '').toLowerCase().includes(q)),
+    );
+  }, [allPeople, peopleSearch]);
 
   const pagedPeople = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -190,8 +216,10 @@ export default function ScorecardsCatalog() {
 
   const openPersonScorecard = (row: IndividualAssignee) => {
     setBscCatalogView('people');
+    const params = new URLSearchParams({ from: 'individual' });
+    if (row.scorecard) params.set('scorecard', row.scorecard.id);
     router.push(
-      `/bsc/employees/${encodeURIComponent(row.scorecard.userId)}?scorecard=${encodeURIComponent(row.scorecard.id)}&from=individual`,
+      `/bsc/employees/${encodeURIComponent(row.userId)}?${params.toString()}`,
     );
   };
 
@@ -393,11 +421,11 @@ export default function ScorecardsCatalog() {
         return false;
       }
       if (!q) return true;
-      const peopleMatch = peopleAssignees.some(
+      const peopleMatch = allPeople.some(
         (row) =>
-          row.scorecard.cycleId === c.id &&
-          (row.scorecard.userName.toLowerCase().includes(q) ||
-            (row.scorecard.positionTitle || '').toLowerCase().includes(q)),
+          row.scorecard?.cycleId === c.id &&
+          (row.name.toLowerCase().includes(q) ||
+            (row.positionTitle || '').toLowerCase().includes(q)),
       );
       return (
         peopleMatch ||
@@ -409,9 +437,12 @@ export default function ScorecardsCatalog() {
         resolveScopeLabel(c).toLowerCase().includes(q)
       );
     });
-  }, [scorecards, roleSearch, roleDepartmentFilter, peopleAssignees]);
+  }, [scorecards, roleSearch, roleDepartmentFilter, allPeople]);
 
-  const loading = configsLoading || peopleLoading;
+  const usersLoading =
+    allUsersDataLoading && allUsersLoading && !orgEmployees.length;
+  const loading =
+    configsLoading || peopleLoading || (view === 'people' && usersLoading);
 
   const loadingSkeleton =
     view === 'people' ? (
@@ -429,7 +460,7 @@ export default function ScorecardsCatalog() {
         >
           <ScorecardsGridSkeleton />
         </Spin>
-      ) : scorecards.length === 0 ? (
+      ) : scorecards.length === 0 && view === 'scorecards' ? (
         <div
           data-cy="okr-settings-bsc-setup-page-tsx-page-div-69"
           className="flex min-h-[240px] items-center justify-center py-8"
@@ -699,16 +730,14 @@ export default function ScorecardsCatalog() {
               </>
             ) : (
               <div data-cy="bsc-individual-assignees-panel">
-                {!peopleAssignees.length ? (
+                {!allPeople.length ? (
                   <div
                     className="flex min-h-[240px] items-center justify-center py-8"
                     data-cy="-okrplanning-okr-settings-bsc-setup-scorecardscatalog-div-17"
                   >
                     <EmptyState
-                      title="No employee scorecards yet"
-                      description="Create a scorecard program so employees appear here. Open a person to add individual KPIs on their scorecard."
-                      actionText="Add scorecard"
-                      onAction={openCreateSetup}
+                      title="No employees found"
+                      description="No employees were returned for this organization. Add employees first, then assign them individual KPIs."
                     />
                   </div>
                 ) : !filteredPeople.length ? (
@@ -725,18 +754,15 @@ export default function ScorecardsCatalog() {
                       data-cy="bsc-individual-people-grid"
                     >
                       {pagedPeople.map((row) => {
-                        const avatarSrc = profileImageByUserId.get(
-                          row.scorecard.userId,
-                        );
                         return (
                           <Card
-                            key={row.scorecard.id}
+                            key={row.userId}
                             bordered={false}
                             className="cursor-pointer rounded-xl transition-shadow hover:shadow-sm"
                             style={{ background: '#F9FAFB', boxShadow: 'none' }}
                             bodyStyle={{ padding: '16px' }}
                             onClick={() => openPersonScorecard(row)}
-                            data-cy={`bsc-individual-person-card-${row.scorecard.id}`}
+                            data-cy={`bsc-individual-person-card-${row.userId}`}
                           >
                             <div
                               data-cy="scorecardscatalog-div-528"
@@ -744,12 +770,12 @@ export default function ScorecardsCatalog() {
                             >
                               <Avatar
                                 size={40}
-                                src={avatarSrc}
+                                src={row.profileImage || undefined}
                                 icon={<UserOutlined />}
                                 className="shrink-0 bg-[#EFF6FF] font-semibold text-[#1D4ED8]"
-                                data-cy={`bsc-individual-person-avatar-${row.scorecard.id}`}
+                                data-cy={`bsc-individual-person-avatar-${row.userId}`}
                               >
-                                {nameInitials(row.scorecard.userName)}
+                                {nameInitials(row.name)}
                               </Avatar>
                               <div
                                 data-cy="scorecardscatalog-div-538"
@@ -759,23 +785,26 @@ export default function ScorecardsCatalog() {
                                   data-cy="scorecardscatalog-p-539"
                                   className="m-0 truncate text-sm font-semibold leading-5 text-gray-800"
                                 >
-                                  {row.scorecard.userName}
+                                  {row.name}
                                 </p>
                                 <p
                                   data-cy="scorecardscatalog-p-542"
                                   className="m-0 mt-1 truncate text-xs text-[#8F94A3]"
                                 >
-                                  {row.scorecard.positionTitle || '—'}
-                                  {row.scorecard.departmentName
-                                    ? ` · ${row.scorecard.departmentName}`
+                                  {row.positionTitle || '—'}
+                                  {row.departmentName
+                                    ? ` · ${row.departmentName}`
                                     : ''}
                                 </p>
                                 <div
                                   data-cy="scorecardscatalog-div-548"
                                   className="mt-2 flex flex-wrap items-center gap-2"
                                 >
-                                  <Tag className={metaTagClassName}>
-                                    {row.configLabel}
+                                  <Tag
+                                    className={metaTagClassName}
+                                    data-cy={`bsc-individual-person-program-${row.userId}`}
+                                  >
+                                    {row.configLabel || 'No scorecard yet'}
                                   </Tag>
                                   {row.individualCount > 0 ? (
                                     <Tag className={blueTagClassName}>

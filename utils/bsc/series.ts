@@ -40,17 +40,27 @@ export function scorecardSeriesKey(
   return `${program}::${cadence}::${role}::${dept}`;
 }
 
+/** "September 2026 2026" / "Q3 2026, 2026" → "September 2026" / "Q3 2026". */
+export function collapseRepeatedYear(label: string): string {
+  return label
+    .replace(/\b(\d{4})(?:[\s,]+\1\b)+/g, '$1')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 export function periodLabel(card: EmployeeScorecard): string {
   if (card.periodMonthName) {
+    // BE labels already carry the year ("September 2026", "Q3 2026", "Week 3, 2026").
     const alreadyHasYear =
       card.periodYear != null &&
       String(card.periodMonthName).includes(String(card.periodYear));
-    if (card.periodYear != null && !alreadyHasYear) {
-      return `${card.periodMonthName} ${card.periodYear}`;
-    }
-    return card.periodMonthName;
+    const label =
+      card.periodYear != null && !alreadyHasYear
+        ? `${card.periodMonthName} ${card.periodYear}`
+        : card.periodMonthName;
+    return collapseRepeatedYear(label);
   }
-  return card.cycleLabel || 'Period';
+  return collapseRepeatedYear(card.cycleLabel || 'Period');
 }
 
 export function periodSortKey(card: EmployeeScorecard): number {

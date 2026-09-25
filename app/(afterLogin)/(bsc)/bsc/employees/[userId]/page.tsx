@@ -12,9 +12,14 @@ import {
   useGetBscCycles,
   useGetBscScorecards,
 } from '@/store/server/features/bsc/queries';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useGetAllUsers,
+  useGetAllUsersData,
+} from '@/store/server/features/employees/employeeManagment/queries';
+import { buildOrgEmployees, namesById } from '@/utils/bsc/orgUsers';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
+  BscScopeTarget,
   EmployeeScorecard,
   EvaluationCycle,
   ScorecardKpiTarget,
@@ -22,7 +27,9 @@ import {
 } from '@/types/bsc';
 import { targetScorePercent } from '@/utils/bsc/rollup';
 import { scorecardInCalendarMonth } from '@/utils/bsc/periodFilter';
-import { scorecardProgramName } from '@/utils/bsc/series';
+import { periodLabel, scorecardContextLabel } from '@/utils/bsc/series';
+import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import {
   scorecardResultsHref,
   scorecardTabHref,
@@ -84,21 +91,15 @@ function currentYear(): number {
   return new Date().getFullYear();
 }
 
-function periodLabel(card: EmployeeScorecard): string {
-  if (card.periodMonthName) {
-    return card.periodYear
-      ? `${card.periodMonthName} ${card.periodYear}`
-      : card.periodMonthName;
-  }
-  return card.cycleLabel || 'Period';
-}
-
-/** Filter dropdown: scorecard/template name only (no period or cadence). */
+/**
+ * Period pill option: "Test 1 · September 2026 · Monthly".
+ * Program name alone made several periods of the same scorecard look identical.
+ */
 function scorecardOptionLabel(
   card: EmployeeScorecard,
   cycleById: Map<string, EvaluationCycle>,
 ): string {
-  return scorecardProgramName(card, cycleById.get(card.cycleId));
+  return scorecardContextLabel(card, cycleById.get(card.cycleId));
 }
 
 function pickDefaultScorecard(
@@ -126,7 +127,8 @@ export default function EmployeeKpiDetailPage() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  const { setScorecardTab, setBscCatalogView } = useBscUiStore();
+  const { setScorecardTab, setBscCatalogView, openCreateSetupFor } =
+    useBscUiStore();
   const userId = decodeURIComponent(String(params?.userId || ''));
   const preferredScorecardId = searchParams.get('scorecard') || undefined;
   const fromIndividual = searchParams.get('from') === 'individual';
@@ -137,7 +139,27 @@ export default function EmployeeKpiDetailPage() {
 
   const { data: scorecards, isLoading } = useGetBscScorecards();
   const { data: cycles } = useGetBscCycles();
+  const { data: allUsersData } = useGetAllUsersData();
   const { data: allUsers } = useGetAllUsers();
+
+  const orgEmployees = useMemo(
+    () => buildOrgEmployees(allUsersData, allUsers),
+    [allUsersData, allUsers],
+  );
+  const orgEmployee = useMemo(
+    () => orgEmployees.find((employee) => employee.id === userId) || null,
+    [orgEmployees, userId],
+  );
+  const { data: positionsData } = useGetAllPositions();
+  const { data: departmentsData } = useGetDepartments();
+  const positionNameById = useMemo(
+    () => namesById(positionsData),
+    [positionsData],
+  );
+  const departmentNameById = useMemo(
+    () => namesById(departmentsData),
+    [departmentsData],
+  );
 
   const cycleById = useMemo(() => {
     const map = new Map<string, EvaluationCycle>();
@@ -150,44 +172,21 @@ export default function EmployeeKpiDetailPage() {
       string,
       { label: string; initials?: string; profileImage?: string | null }
     >();
-    for (const user of allUsers?.items || []) {
-      const rawName =
-        `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
-          .replace(/\s+/g, ' ')
-          .trim();
-      const label: string =
-        rawName || (typeof user.email === 'string' && user.email) || 'Employee';
-      const initials = label
+    for (const employee of orgEmployees) {
+      const initials = employee.name
         .split(' ')
         .filter(Boolean)
         .slice(0, 2)
         .map((part) => part[0]?.toUpperCase() || '')
         .join('');
-      let profileImage: string | null = null;
-      if (typeof user.profileImage === 'string') {
-        try {
-          const parsed = JSON.parse(user.profileImage);
-          if (parsed?.url && typeof parsed.url === 'string') {
-            profileImage = parsed.url;
-          } else if (user.profileImage.startsWith('http')) {
-            profileImage = user.profileImage;
-          }
-        } catch {
-          if (user.profileImage.startsWith('http')) {
-            profileImage = user.profileImage;
-          }
-        }
-      }
-      if (user.id) {
-        map.set(user.id, {
-          label,
-          initials: initials || '?',
-          profileImage,
-        });
-      }
+      map.set(employee.id, {
+        label: employee.name,
+        initials: initials || '?',
+        profileImage: employee.profileImage,
+      });
     }
     return map;
-  }, [allUsers]);
+  }, [orgEmployees]);
 
   const personScorecards = useMemo(() => {
     return [...(scorecards || [])]
@@ -454,21 +453,39 @@ export default function EmployeeKpiDetailPage() {
     ? cycleById.get(scorecard.cycleId)?.cadence
     : undefined;
 
+  // BE scorecards carry position/department ids only — resolve names, then
+  // fall back to the employee's current job info.
+  const roleTitle =
+    scorecard?.positionTitle ||
+    (scorecard?.positionId
+      ? positionNameById.get(scorecard.positionId)
+      : undefined) ||
+    orgEmployee?.positionTitle ||
+    null;
+  const departmentTitle =
+    scorecard?.departmentName ||
+    (scorecard?.departmentId
+      ? departmentNameById.get(scorecard.departmentId)
+      : undefined) ||
+    orgEmployee?.departmentName ||
+    null;
+
   return (
     <div className="w-full" data-cy="bsc-employee-kpi-detail-page">
       <CustomBreadcrumb
-        title={scorecard?.userName || 'Employee KPI'}
+        title={scorecard?.userName || orgEmployee?.name || 'Employee KPI'}
         subtitle={
           scorecard
             ? [
-                scorecard.positionTitle,
-                scorecard.departmentName,
+                roleTitle,
+                departmentTitle,
                 periodLabel(scorecard),
                 selectedCadence,
               ]
                 .filter(Boolean)
                 .join(' · ') || 'Scorecard detail'
-            : 'Scorecard detail'
+            : [roleTitle, departmentTitle].filter(Boolean).join(' · ') ||
+              'Scorecard detail'
         }
       />
 
@@ -496,7 +513,44 @@ export default function EmployeeKpiDetailPage() {
           className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-12"
           data-cy="-bsc-bsc-employees-userid-page-div-19"
         >
-          <Empty description="No scorecard found for this employee" />
+          <Empty
+            description={
+              <div data-cy="bsc-employee-no-scorecard">
+                <p className="m-0 font-medium text-[#262626]">
+                  {orgEmployee?.name || 'This employee'} is not on a scorecard
+                  yet
+                </p>
+                <p className="m-0 mt-1 text-xs text-[#8F94A3]">
+                  Individual KPIs are added on top of an employee scorecard.
+                  Add a scorecard for this person (Individual scope, opens
+                  pre-filled), then add individual KPIs here.
+                </p>
+              </div>
+            }
+          >
+            {fromIndividual ? (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setBscCatalogView('people');
+                  setScorecardTab('bsc');
+                  // Individual (User) scope with this person already selected.
+                  openCreateSetupFor({
+                    name: orgEmployee?.name
+                      ? `${orgEmployee.name} scorecard`
+                      : undefined,
+                    scopeTarget: BscScopeTarget.Individual,
+                    employeeIds: [userId],
+                  });
+                  router.push(scorecardTabHref('bsc'));
+                }}
+                data-cy="bsc-employee-no-scorecard-add"
+              >
+                Add scorecard
+              </Button>
+            ) : null}
+          </Empty>
         </div>
       ) : (
         <div
@@ -515,16 +569,18 @@ export default function EmployeeKpiDetailPage() {
                 className="m-0 text-lg font-semibold text-[#262626]"
                 data-cy="-bsc-bsc-employees-userid-page-h2-23"
               >
-                {scorecard.userName}
+                {scorecard.userName || orgEmployee?.name || 'Employee'}
               </h2>
               <p
                 className="m-0 mt-1 text-sm text-[#8F94A3]"
                 data-cy="-bsc-bsc-employees-userid-page-p-24"
               >
+                {/* Person + evaluation context; the scorecard name lives in the period selector. */}
                 {[
-                  scorecard.positionTitle,
-                  scorecard.departmentName,
-                  scorecard.cycleLabel,
+                  roleTitle,
+                  departmentTitle,
+                  periodLabel(scorecard),
+                  selectedCadence,
                 ]
                   .filter(Boolean)
                   .join(' · ')}
@@ -537,7 +593,8 @@ export default function EmployeeKpiDetailPage() {
               {periodOptions.length > 1 ? (
                 <Select
                   size="small"
-                  className="w-[200px]"
+                  className="min-w-[200px] max-w-[320px]"
+                  popupMatchSelectWidth={false}
                   value={scorecard.id}
                   options={periodOptions}
                   onChange={selectPeriod}

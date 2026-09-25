@@ -277,10 +277,47 @@ export function mapMyScorecardDetailToEmployee(
   return mapEmployeeScorecardFromApi(merged, options);
 }
 
+/**
+ * Row from GET /bsc/check-ins/my-queue | review-queue.
+ * BE sends a nested `employeeScorecard` plus flat card fields; older/newer
+ * builds may send only one of them, so both are optional.
+ */
 export type BscCheckInQueueRowApi = {
   kpi: BscEmployeeScorecardKpiApi;
-  employeeScorecard: BscEmployeeScorecardApi;
+  employeeScorecard?: BscEmployeeScorecardApi | null;
+  employeeScorecardId?: string;
+  scorecardId?: string;
+  userId?: string;
+  managerId?: string | null;
+  departmentId?: string | null;
+  positionId?: string | null;
+  status?: string;
+  periodKey?: string;
+  periodLabel?: string;
+  periodStart?: string | Date;
+  periodEnd?: string | Date;
 };
+
+function queueRowCard(
+  row: BscCheckInQueueRowApi,
+): BscEmployeeScorecardApi | null {
+  if (row.employeeScorecard?.id) return row.employeeScorecard;
+  const id = row.employeeScorecardId || row.kpi?.employeeScorecardId;
+  if (!id) return null;
+  return {
+    id,
+    scorecardId: row.scorecardId || '',
+    userId: row.userId || '',
+    managerId: row.managerId ?? null,
+    departmentId: row.departmentId ?? null,
+    positionId: row.positionId ?? null,
+    periodKey: row.periodKey || '',
+    periodLabel: row.periodLabel || '',
+    periodStart: row.periodStart,
+    periodEnd: row.periodEnd,
+    status: row.status || 'Active',
+  };
+}
 
 /** Group queue KPI rows into FE employee scorecards for buildCheckinQueue. */
 export function mapCheckInQueueToScorecards(
@@ -290,7 +327,7 @@ export function mapCheckInQueueToScorecards(
   const byId = new Map<string, BscEmployeeScorecardApi>();
 
   for (const row of rows || []) {
-    const card = row.employeeScorecard;
+    const card = row ? queueRowCard(row) : null;
     if (!card?.id || !row.kpi) continue;
     const existing = byId.get(card.id);
     if (!existing) {

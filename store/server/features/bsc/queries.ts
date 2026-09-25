@@ -262,14 +262,6 @@ export const useGetBscReviewCheckInQueue = () => {
   );
 };
 
-export const useGetBscHrisOutbox = () =>
-  useQuery(BSC_QUERY_KEYS.hris, () => bscMockRepo.getHrisOutbox());
-
-export const useGetBscAudit = (scorecardId?: string) =>
-  useQuery([BSC_QUERY_KEYS.audit, scorecardId], () =>
-    bscMockRepo.listAudit(scorecardId),
-  );
-
 export const useGetBscPepAuditRows = (filters?: {
   managerId?: string;
   userId?: string;
@@ -285,13 +277,23 @@ export const useGetBscPerspectiveCatalog = () =>
     USE_BSC_API ? listBscPerspectives() : bscMockRepo.listPerspectives(),
   );
 
+/**
+ * Per-role perspective weights exist only in the prototype mock (BSC v1 has no
+ * backend for them — KPI weights live on the scorecard). In API mode return
+ * nothing so no mock numbers leak into real screens.
+ */
 export const useGetBscRolePerspectives = (filters?: {
   evaluationConfigId?: string;
   positionTitle?: string;
 }) =>
   useQuery(
     [BSC_QUERY_KEYS.perspectives, filters],
-    () => bscMockRepo.listRolePerspectives(filters),
+    () =>
+      USE_BSC_API
+        ? Promise.resolve([] as Awaited<
+            ReturnType<typeof bscMockRepo.listRolePerspectives>
+          >)
+        : bscMockRepo.listRolePerspectives(filters),
     { keepPreviousData: true },
   );
 
@@ -313,5 +315,6 @@ export const useGetBscRolePerspective = (
         positionId,
         positionTitle,
       ),
-    { enabled: !!evaluationConfigId && !!positionTitle },
+    // Mock-only (see useGetBscRolePerspectives).
+    { enabled: !USE_BSC_API && !!evaluationConfigId && !!positionTitle },
   );

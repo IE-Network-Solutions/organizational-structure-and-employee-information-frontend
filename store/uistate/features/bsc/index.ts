@@ -1,10 +1,18 @@
 import { create } from 'zustand';
 import {
+  BscScopeTarget,
   EvaluationCycle,
   KpiLibraryItem,
   BscPerspectiveDefinition,
 } from '@/types/bsc';
 import type { Month } from '@/store/server/features/organizationStructure/fiscalYear/interface';
+
+/** Initial values for a new scorecard (e.g. Individual scope for one person). */
+export interface BscSetupPrefill {
+  name?: string;
+  scopeTarget?: BscScopeTarget;
+  employeeIds?: string[];
+}
 
 export interface BscRoleContext {
   positionId: string | null;
@@ -16,6 +24,7 @@ export interface BscRoleContext {
 interface BscUiState {
   setupModalOpen: boolean;
   editingConfig: EvaluationCycle | null;
+  setupPrefill: BscSetupPrefill | null;
   selectedConfigId: string | null;
   roleContext: BscRoleContext | null;
   openDeleteModal: boolean;
@@ -49,6 +58,8 @@ interface BscUiState {
   setSetupModalOpen: (v: boolean) => void;
   setEditingConfig: (v: EvaluationCycle | null) => void;
   openCreateSetup: () => void;
+  /** Open "Add scorecard" pre-filled (kept separate: openCreateSetup is used as an onClick). */
+  openCreateSetupFor: (prefill: BscSetupPrefill) => void;
   openEditSetup: (config: EvaluationCycle) => void;
   closeSetupModal: () => void;
   setSelectedConfigId: (v: string | null) => void;
@@ -86,6 +97,7 @@ interface BscUiState {
 export const useBscUiStore = create<BscUiState>((set) => ({
   setupModalOpen: false,
   editingConfig: null,
+  setupPrefill: null,
   selectedConfigId: null,
   roleContext: null,
   openDeleteModal: false,
@@ -111,10 +123,14 @@ export const useBscUiStore = create<BscUiState>((set) => ({
   bscCatalogView: 'scorecards',
   setSetupModalOpen: (setupModalOpen) => set({ setupModalOpen }),
   setEditingConfig: (editingConfig) => set({ editingConfig }),
-  openCreateSetup: () => set({ setupModalOpen: true, editingConfig: null }),
+  openCreateSetup: () =>
+    set({ setupModalOpen: true, editingConfig: null, setupPrefill: null }),
+  openCreateSetupFor: (setupPrefill) =>
+    set({ setupModalOpen: true, editingConfig: null, setupPrefill }),
   openEditSetup: (editingConfig) =>
-    set({ setupModalOpen: true, editingConfig }),
-  closeSetupModal: () => set({ setupModalOpen: false, editingConfig: null }),
+    set({ setupModalOpen: true, editingConfig, setupPrefill: null }),
+  closeSetupModal: () =>
+    set({ setupModalOpen: false, editingConfig: null, setupPrefill: null }),
   setSelectedConfigId: (selectedConfigId) => set({ selectedConfigId }),
   setRoleContext: (roleContext) => set({ roleContext }),
   setOpenDeleteModal: (openDeleteModal) => set({ openDeleteModal }),

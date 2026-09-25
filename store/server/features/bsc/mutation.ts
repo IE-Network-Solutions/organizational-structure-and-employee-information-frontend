@@ -306,8 +306,17 @@ export const useDeleteBscKpi = () => {
 export const useSaveBscRoleKpis = () => {
   const qc = useQueryClient();
   return useMutation(
-    (input: Parameters<typeof bscMockRepo.syncRoleKpis>[0]) =>
-      bscMockRepo.syncRoleKpis(input),
+    (input: Parameters<typeof bscMockRepo.syncRoleKpis>[0]) => {
+      if (USE_BSC_API) {
+        // Mock-only: role KPIs are set on a Role-scope scorecard instead.
+        return Promise.reject(
+          new Error(
+            'Role KPIs are managed on the scorecard (Role scope) in BSC setup.',
+          ),
+        );
+      }
+      return bscMockRepo.syncRoleKpis(input);
+    },
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -384,8 +393,17 @@ export const useDeleteBscPerspective = () => {
 export const useSaveBscRolePerspectives = () => {
   const qc = useQueryClient();
   return useMutation(
-    (input: SaveRolePerspectiveInput) =>
-      bscMockRepo.saveRolePerspectives(input),
+    (input: SaveRolePerspectiveInput) => {
+      if (USE_BSC_API) {
+        // Mock-only: BSC v1 weights KPIs on the scorecard (total 100%).
+        return Promise.reject(
+          new Error(
+            'Perspective weights per role are not part of BSC v1 — set KPI weights on the scorecard.',
+          ),
+        );
+      }
+      return bscMockRepo.saveRolePerspectives(input);
+    },
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -656,55 +674,9 @@ export const useRemoveIndividualBscKpi = () => {
   );
 };
 
-export const useSubmitBscForAck = () => {
-  const qc = useQueryClient();
-  return useMutation(
-    (id: string) => {
-      if (USE_BSC_API) {
-        throw new Error(
-          'Acknowledgment is not available yet on the server. Scorecards become Active after assign.',
-        );
-      }
-      const actorId = useAuthenticationStore.getState().userId;
-      return bscMockRepo.submitForAck(id, actorId);
-    },
-    {
-      onSuccess: () => {
-        invalidateAll(qc);
-        NotificationMessage.success({
-          message: 'Submitted for acknowledgment',
-        });
-      },
-      onError: (e: Error) =>
-        NotificationMessage.error({ message: e.message || 'Submit failed' }),
-    },
-  );
-};
-
-export const useAcknowledgeBscScorecard = () => {
-  const qc = useQueryClient();
-  return useMutation(
-    (id: string) => {
-      if (USE_BSC_API) {
-        throw new Error(
-          'Acknowledgment is not available yet on the server. Scorecards become Active after assign.',
-        );
-      }
-      const actorId = useAuthenticationStore.getState().userId;
-      return bscMockRepo.acknowledge(id, actorId);
-    },
-    {
-      onSuccess: () => {
-        invalidateAll(qc);
-        NotificationMessage.success({ message: 'Scorecard acknowledged' });
-      },
-      onError: (e: Error) =>
-        NotificationMessage.error({
-          message: e.message || 'Acknowledge failed',
-        }),
-    },
-  );
-};
+// Acknowledgment and "lock to HRIS" are not part of the BSC v1 scope (no BE
+// endpoints) — their prototype-only hooks were removed. A scorecard is Active
+// once assigned and Completed after the last PEP approval.
 
 export const useReportBscKpis = () => {
   const qc = useQueryClient();
@@ -854,58 +826,6 @@ export const useFinalizeBscApprovals = () => {
       },
       onError: (e: Error) =>
         NotificationMessage.error({ message: e.message || 'Finalize failed' }),
-    },
-  );
-};
-
-export const useLockBscEvaluation = () => {
-  const qc = useQueryClient();
-  return useMutation(
-    async ({
-      scorecardId,
-      managerNote,
-      evaluatorUserId,
-    }: {
-      scorecardId: string;
-      managerNote: string;
-      evaluatorUserId: string;
-    }) => {
-      if (USE_BSC_API) {
-        // BE finalize already scores; Completed + HRIS outbox are not exposed yet.
-        void managerNote;
-        void evaluatorUserId;
-        try {
-          const detail = await getMyBscScorecardDetail(scorecardId);
-          if (
-            detail.status === ScorecardStatus.Scored ||
-            detail.status === ScorecardStatus.Completed
-          ) {
-            return detail;
-          }
-        } catch {
-          /* fall through */
-        }
-        throw new Error(
-          'Locking evaluation to HRIS is not available yet. Finalize review to score on the server (status becomes Scored).',
-        );
-      }
-      return bscMockRepo.lockEvaluation(
-        scorecardId,
-        managerNote,
-        evaluatorUserId,
-      );
-    },
-    {
-      onSuccess: () => {
-        invalidateAll(qc);
-        NotificationMessage.success({
-          message: USE_BSC_API
-            ? 'Score already finalized on the server'
-            : 'Evaluation locked — score pushed to HRIS (mock)',
-        });
-      },
-      onError: (e: Error) =>
-        NotificationMessage.error({ message: e.message || 'Lock failed' }),
     },
   );
 };

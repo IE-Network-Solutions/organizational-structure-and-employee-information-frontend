@@ -14,6 +14,7 @@ import {
   Radio,
   Row,
   Select,
+  Spin,
   Steps,
   Tag,
 } from 'antd';
@@ -45,8 +46,18 @@ import {
   useGetBscRolePerspectives,
 } from '@/store/server/features/bsc/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
+import {
+  useGetAllUsers,
+  useGetAllUsersData,
+} from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  useGetAllPositions,
+  useGetAllPositionsForPicker,
+} from '@/store/server/features/employees/positions/queries';
+import {
+  buildPositionOptions,
+  normalizeOrgUsers,
+} from '@/utils/bsc/orgUsers';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
@@ -85,6 +96,9 @@ function asList(data: any): any[] {
   if (!data) return [];
   if (Array.isArray(data)) return data;
   if (Array.isArray(data.items)) return data.items;
+  // Some org-emp endpoints wrap the payload: { data: [...] } / { data: { items } }
+  if (Array.isArray(data.data)) return data.data;
+  if (Array.isArray(data.data?.items)) return data.data.items;
   return [];
 }
 
@@ -274,12 +288,27 @@ export default function BscSetupModal() {
   const {
     setupModalOpen,
     editingConfig,
+    setupPrefill,
     closeSetupModal,
     setSelectedConfigId,
   } = useBscUiStore();
   const { data: departmentsData } = useGetDepartments();
-  const { data: positionsData } = useGetAllPositions();
+  // Roles: full positions list (explicit page size) → default `/positions` →
+  // employees' job positions, merged so the picker always has real positions.
+  const {
+    data: pickerPositionsData,
+    isLoading: pickerPositionsLoading,
+    isError: pickerPositionsError,
+    refetch: refetchPickerPositions,
+  } = useGetAllPositionsForPicker();
+  const {
+    data: positionsData,
+    isLoading: defaultPositionsLoading,
+    refetch: refetchDefaultPositions,
+  } = useGetAllPositions();
   const { data: allUsersData } = useGetAllUsers();
+  const { data: allUsersFullData, isLoading: allUsersFullLoading } =
+    useGetAllUsersData();
   const { data: catalog } = useGetBscPerspectiveCatalog();
   const { data: allKpis, isFetched: kpisFetched } = useGetBscKpiLibrary();
   const { data: existingCycles } = useGetBscCycles();
@@ -303,12 +332,38 @@ export default function BscSetupModal() {
     value: String(d.id),
     label: d.name || d.departmentName || 'Department',
   }));
-  const positionOptions = asList(positionsData).map((p: any) => ({
-    value: String(p.id),
-    label: p.name || p.positionName || 'Position',
-    departmentName: p.departmentName || p.department?.name || null,
-  }));
-  const employeeOptions = asList(allUsersData?.items || allUsersData || []).map(
+  const positionOptions = useMemo(
+    () =>
+      buildPositionOptions(
+        // Prefer the full list; fall back to the default page if it is empty.
+        asList(pickerPositionsData).length ? pickerPositionsData : positionsData,
+        allUsersFullData,
+        allUsersData,
+      ),
+    [pickerPositionsData, positionsData, allUsersFullData, allUsersData],
+  );
+  const positionsLoading =
+    !positionOptions.length &&
+    (pickerPositionsLoading || defaultPositionsLoading || allUsersFullLoading);
+  const positionsError = !positionOptions.length && pickerPositionsError;
+  const refetchPositions = () => {
+    refetchPickerPositions();
+    refetchDefaultPositions();
+  };
+  // Every employee: full list first, `/users` (may be paged or id-keyed) fills gaps.
+  const allEmployeeRows = useMemo(() => {
+    const byId = new Map<string, any>();
+    for (const source of [allUsersFullData, allUsersData]) {
+      for (const user of normalizeOrgUsers(source)) {
+        if (user?.id && !byId.has(String(user.id))) {
+          byId.set(String(user.id), user);
+        }
+      }
+    }
+    return Array.from(byId.values());
+  }, [allUsersFullData, allUsersData]);
+
+  const employeeOptions = allEmployeeRows.map(
     (user: any) => {
       const label =
         `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
@@ -529,15 +584,16 @@ export default function BscSetupModal() {
     } else {
       form.resetFields();
       form.setFieldsValue({
-        name: '',
+        name: setupPrefill?.name || '',
         description: '',
         setupKind: BscSetupKind.Permanent,
         effectiveFrom: dayjs(),
         endDate: undefined,
-        scopeTarget: undefined,
+        // e.g. "Add scorecard" for one employee → Individual scope, them selected.
+        scopeTarget: setupPrefill?.scopeTarget,
         departmentIds: [],
         positionIds: [],
-        employeeIds: [],
+        employeeIds: setupPrefill?.employeeIds || [],
         kpiEvaluationFlows: {},
         perspectiveRows: seedPerspectiveRows(catalogPerspectiveNames),
         measureWeights: {},
@@ -551,7 +607,7 @@ export default function BscSetupModal() {
         measureAcceptableThresholds: {},
       });
     }
-  }, [setupModalOpen, editingConfig, form]);
+  }, [setupModalOpen, editingConfig, setupPrefill, form]);
 
   // Prefill selected KPIs / weights / targets from the existing scorecard once
   useEffect(() => {
@@ -1956,6 +2012,60 @@ export default function BscSetupModal() {
                   placeholder="Select roles"
                   options={positionOptions}
                   optionFilterProp="label"
+                  optionRender={(option) => (
+                    <div
+                      className="flex items-center justify-between gap-2"
+                      data-cy={`bsc-scorecard-role-option-${option.value}`}
+                    >
+                      <span className="truncate">{option.label}</span>
+                      {option.data?.departmentName ? (
+                        <span className="shrink-0 text-[11px] text-[#8F94A3]">
+                          {option.data.departmentName}
+                        </span>
+                      ) : null}
+                    </div>
+                  )}
+                  loading={positionsLoading}
+                  // Render inside the modal so the popup scrolls/positions with it
+                  getPopupContainer={(trigger) =>
+                    trigger.parentElement || document.body
+                  }
+                  onDropdownVisibleChange={(open) => {
+                    if (open && (positionsError || !positionOptions.length)) {
+                      refetchPositions();
+                    }
+                  }}
+                  notFoundContent={
+                    positionsLoading ? (
+                      <div
+                        className="flex justify-center py-2"
+                        data-cy="bsc-scorecard-roles-loading"
+                      >
+                        <Spin size="small" />
+                      </div>
+                    ) : (
+                      <div
+                        className="flex items-center justify-between gap-2 px-1 py-1 text-[12px] text-[#8F94A3]"
+                        data-cy="bsc-scorecard-roles-empty"
+                      >
+                        <span>
+                          {positionsError
+                            ? 'Could not load roles.'
+                            : 'No roles found. Add positions in Employee settings.'}
+                        </span>
+                        {positionsError ? (
+                          <Button
+                            size="small"
+                            type="link"
+                            onClick={() => refetchPositions()}
+                            data-cy="bsc-scorecard-roles-retry"
+                          >
+                            Retry
+                          </Button>
+                        ) : null}
+                      </div>
+                    )
+                  }
                   data-cy="bsc-scorecard-roles"
                 />
               </Form.Item>

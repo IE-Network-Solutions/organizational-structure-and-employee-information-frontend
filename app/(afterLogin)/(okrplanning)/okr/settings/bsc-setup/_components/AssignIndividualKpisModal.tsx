@@ -451,9 +451,9 @@ export default function AssignIndividualKpisModal({
         });
         return;
       }
-      if (!measureDataSources[key]) {
+      if (!measureDataSources[key]?.trim()) {
         NotificationMessage.error({
-          message: `Select a data source for ${kpi.name}`,
+          message: `Enter a data source for ${kpi.name}`,
         });
         return;
       }
@@ -493,7 +493,7 @@ export default function AssignIndividualKpisModal({
         kpiLibraryId: kpi.id,
         weightPercentage: Number(personWeights[`new:${kpi.id}`]),
         targetValue: Number(measureTargets[`new:${kpi.id}`]),
-        dataSource: measureDataSources[`new:${kpi.id}`] ?? null,
+        dataSource: measureDataSources[`new:${kpi.id}`]?.trim() || null,
         acceptableThreshold:
           measureAcceptableThresholds[`new:${kpi.id}`] ?? null,
         worstCase:
@@ -541,9 +541,9 @@ export default function AssignIndividualKpisModal({
           });
           return;
         }
-        if (!measureDataSources[key]) {
+        if (!measureDataSources[key]?.trim()) {
           NotificationMessage.error({
-            message: `Select a data source for ${kpi.name}`,
+            message: `Enter a data source for ${kpi.name}`,
           });
           return;
         }

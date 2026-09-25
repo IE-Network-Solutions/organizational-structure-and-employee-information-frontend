@@ -634,6 +634,33 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/feedback/categories',
       permissions: ['view_feedback_conversation'], // Same permission as conversation page
     },
+    // BSC detail pages reached from tables/cards (not in the sidebar). Without
+    // these, the permission check below finds no route and sends non-owners to
+    // /unauthorized (e.g. Results → Review/View → pep-audit).
+    {
+      key: '/bsc/employees',
+      permissions: ['view_okr_overview'], // Employee KPI detail + PEP audit review
+    },
+    {
+      key: '/bsc/kpis',
+      permissions: ['view_okr_overview'],
+    },
+    {
+      key: '/bsc/perspectives',
+      permissions: ['view_okr_overview'],
+    },
+    {
+      key: '/bsc/roll-up',
+      permissions: ['view_okr_overview'],
+    },
+    {
+      key: '/bsc/setup',
+      permissions: ['view_okr_overview'],
+    },
+    {
+      key: '/bsc/cycles',
+      permissions: ['view_okr_overview'],
+    },
   ];
 
   const getRoutesAndPermissions = React.useCallback(
