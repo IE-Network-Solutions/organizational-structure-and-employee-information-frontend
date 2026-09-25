@@ -516,11 +516,17 @@ export default function EmployeeKpiDetailPage() {
           <Empty
             description={
               <div data-cy="bsc-employee-no-scorecard">
-                <p className="m-0 font-medium text-[#262626]">
+                <p
+                  className="m-0 font-medium text-[#262626]"
+                  data-cy="bsc-employee-no-scorecard-title"
+                >
                   {orgEmployee?.name || 'This employee'} is not on a scorecard
                   yet
                 </p>
-                <p className="m-0 mt-1 text-xs text-[#8F94A3]">
+                <p
+                  className="m-0 mt-1 text-xs text-[#8F94A3]"
+                  data-cy="bsc-employee-no-scorecard-hint"
+                >
                   Individual KPIs are added on top of an employee scorecard.
                   Add a scorecard for this person (Individual scope, opens
                   pre-filled), then add individual KPIs here.

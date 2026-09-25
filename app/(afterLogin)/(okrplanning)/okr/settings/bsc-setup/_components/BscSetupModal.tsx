@@ -2017,9 +2017,17 @@ export default function BscSetupModal() {
                       className="flex items-center justify-between gap-2"
                       data-cy={`bsc-scorecard-role-option-${option.value}`}
                     >
-                      <span className="truncate">{option.label}</span>
+                      <span
+                        className="truncate"
+                        data-cy={`bsc-scorecard-role-option-label-${option.value}`}
+                      >
+                        {option.label}
+                      </span>
                       {option.data?.departmentName ? (
-                        <span className="shrink-0 text-[11px] text-[#8F94A3]">
+                        <span
+                          className="shrink-0 text-[11px] text-[#8F94A3]"
+                          data-cy={`bsc-scorecard-role-option-dept-${option.value}`}
+                        >
                           {option.data.departmentName}
                         </span>
                       ) : null}
@@ -2048,7 +2056,7 @@ export default function BscSetupModal() {
                         className="flex items-center justify-between gap-2 px-1 py-1 text-[12px] text-[#8F94A3]"
                         data-cy="bsc-scorecard-roles-empty"
                       >
-                        <span>
+                        <span data-cy="bsc-scorecard-roles-empty-text">
                           {positionsError
                             ? 'Could not load roles.'
                             : 'No roles found. Add positions in Employee settings.'}

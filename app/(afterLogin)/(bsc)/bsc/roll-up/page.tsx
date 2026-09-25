@@ -72,33 +72,51 @@ function RollupCard({
       }`}
       data-cy={dataCy}
     >
-      <div className="flex items-start justify-between gap-2">
-        <span className="text-[15px] font-semibold text-[#262626]">
+      <div
+        className="flex items-start justify-between gap-2"
+        data-cy={`${dataCy}-header`}
+      >
+        <span
+          className="text-[15px] font-semibold text-[#262626]"
+          data-cy={`${dataCy}-label`}
+        >
           {summary.label}
         </span>
-        <RightOutlined className="mt-1 text-xs text-[#8c8c8c]" />
+        <RightOutlined
+          className="mt-1 text-xs text-[#8c8c8c]"
+          data-cy={`${dataCy}-open-icon`}
+        />
       </div>
-      <div className="flex items-end gap-2">
+      <div className="flex items-end gap-2" data-cy={`${dataCy}-score-row`}>
         <span
           className="text-3xl font-bold leading-none text-[#1E40AF]"
           data-cy={`${dataCy}-avg`}
         >
           {summary.evaluatedCount ? `${formatScore(summary.averageScore)}%` : '—'}
         </span>
-        <span className="pb-0.5 text-xs text-[#8F94A3]">avg performance</span>
+        <span
+          className="pb-0.5 text-xs text-[#8F94A3]"
+          data-cy={`${dataCy}-avg-caption`}
+        >
+          avg performance
+        </span>
       </div>
       <Progress
         percent={Math.max(0, Math.min(100, summary.averageScore))}
         showInfo={false}
         size="small"
         strokeColor="#1E40AF"
+        data-cy={`${dataCy}-progress`}
       />
-      <div className="flex flex-wrap gap-2 text-xs text-[#595959]">
+      <div
+        className="flex flex-wrap gap-2 text-xs text-[#595959]"
+        data-cy={`${dataCy}-tags`}
+      >
         <Tag className="m-0" data-cy={`${dataCy}-evaluated`}>
           {summary.evaluatedCount}/{summary.totalCount} evaluated
         </Tag>
         {summary.pendingCount > 0 ? (
-          <Tag className="m-0" color="orange">
+          <Tag className="m-0" color="orange" data-cy={`${dataCy}-pending`}>
             {summary.pendingCount} pending
           </Tag>
         ) : null}
@@ -359,7 +377,10 @@ export default function BscRollupDetailPage() {
               />
             </div>
             <div data-cy="bsc-rollup-departments">
-              <h3 className="mb-3 text-base font-semibold text-[#262626]">
+              <h3
+                className="mb-3 text-base font-semibold text-[#262626]"
+                data-cy="bsc-rollup-departments-title"
+              >
                 Departments
               </h3>
               <div
