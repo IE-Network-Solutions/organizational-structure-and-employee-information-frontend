@@ -11,6 +11,7 @@ import {
   Radio,
   Row,
   Skeleton,
+  Switch,
   Tooltip,
 } from 'antd';
 import CustomLabel from '@/components/form/customLabel/customLabel';
@@ -334,7 +335,21 @@ const RULE_TYPE_TOPIC_BY_TYPE: Record<AttendanceRuleType, string> = {
   [AttendanceRuleType.EARLY_CLOCK_OUT]: 'Early Clock-out',
   [AttendanceRuleType.MISSED_CHECK_IN_OUT]: 'Missed Check-in/out',
   [AttendanceRuleType.BREAK]: 'Break',
+  [AttendanceRuleType.EARLY_BREAKOUT]: 'Early Breakout',
+  [AttendanceRuleType.LATE_BREAKIN]: 'Late Breakin',
 };
+
+const MINUTE_BASED_SALARY_RULE_TYPES: AttendanceRuleType[] = [
+  AttendanceRuleType.LATE,
+  AttendanceRuleType.EARLY_CLOCK_OUT,
+  AttendanceRuleType.EARLY_BREAKOUT,
+  AttendanceRuleType.LATE_BREAKIN,
+];
+
+const supportsMinuteBasedSalaryDeduction = (
+  ruleType?: AttendanceRuleType | string,
+): boolean =>
+  MINUTE_BASED_SALARY_RULE_TYPES.includes(ruleType as AttendanceRuleType);
 
 const VP_DEDUCTION_ACTION_RULE_TYPES: AttendanceRuleType[] = [
   AttendanceRuleType.ABSENT,
@@ -399,6 +414,10 @@ const getLetterBodyParagraph = (
       return `This letter serves as a formal warning for your missed check-in/check-out on {{violationDates}}. In accordance with company policy, regular attendance is required.${vpClause}`;
     case AttendanceRuleType.BREAK:
       return `This letter serves as a formal warning regarding your break violation on {{violationDates}}. In accordance with company policy, break guidelines must be followed.${vpClause}`;
+    case AttendanceRuleType.EARLY_BREAKOUT:
+      return `This letter serves as a formal warning for your early breakout on {{violationDates}}. In accordance with company policy, break guidelines must be followed.${vpClause}`;
+    case AttendanceRuleType.LATE_BREAKIN:
+      return `This letter serves as a formal warning for your late break-in on {{violationDates}}. In accordance with company policy, break guidelines must be followed.${vpClause}`;
     default:
       return `This letter serves as a formal ${getActionLabel(actionTypes).toLowerCase()} regarding your attendance on {{violationDates}}. In accordance with company policy, regular attendance is required.${vpClause}`;
   }
@@ -416,6 +435,10 @@ const getLetterClosingParagraph = (ruleType?: AttendanceRuleType | string) => {
       return 'Repeated missed check-ins/check-outs may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
     case AttendanceRuleType.BREAK:
       return 'Repeated break violations may lead to further disciplinary measures. Please follow break guidelines moving forward.';
+    case AttendanceRuleType.EARLY_BREAKOUT:
+      return 'Repeated early breakouts may lead to further disciplinary measures. Please follow break guidelines moving forward.';
+    case AttendanceRuleType.LATE_BREAKIN:
+      return 'Repeated late break-ins may lead to further disciplinary measures. Please follow break guidelines moving forward.';
     default:
       return 'Repeated violations may lead to further disciplinary measures. Please ensure consistent attendance moving forward.';
   }
@@ -459,6 +482,10 @@ const getIcon = (ruleType: AttendanceRuleType) => {
       return <TimerOffOutlinedIcon className="text-slate-600" />;
     case AttendanceRuleType.BREAK:
       return <EventBusyIcon className="text-slate-600" />;
+    case AttendanceRuleType.EARLY_BREAKOUT:
+      return <UpdateIcon className="text-amber-700" />;
+    case AttendanceRuleType.LATE_BREAKIN:
+      return <TimerOffOutlinedIcon className="text-orange-600" />;
     default:
       return null;
   }
@@ -548,12 +575,26 @@ const buildAttendanceRulePayload = (
 
   const actionTypesArray = normalizeActionTypes(values.actionTypes);
   if (actionTypesArray.includes(AttendanceActionType.SALARY_DEDUCTION)) {
-    payload.isFixed = values.isFixed;
-    if (values.isFixed) {
-      payload.deductibleFixedAmount = Number(values.deductibleFixedAmount);
+    const isMinuteBased =
+      supportsMinuteBasedSalaryDeduction(ruleType) &&
+      Boolean(values.isMinuteBasedSalaryDeduction);
+
+    payload.isMinuteBasedSalaryDeduction = isMinuteBased;
+
+    if (isMinuteBased) {
+      payload.isFixed = false;
+      payload.deductibleFixedAmount = 0;
+      payload.deductibleSalaryDays = 0;
     } else {
-      payload.deductibleSalaryDays = Number(values.deductibleSalaryDays);
+      payload.isFixed = values.isFixed;
+      if (values.isFixed) {
+        payload.deductibleFixedAmount = Number(values.deductibleFixedAmount);
+      } else {
+        payload.deductibleSalaryDays = Number(values.deductibleSalaryDays);
+      }
     }
+  } else {
+    payload.isMinuteBasedSalaryDeduction = false;
   }
 
   if (
@@ -617,6 +658,9 @@ const CreateRuleSidebar = () => {
     'ABSENT',
     'EARLY_CLOCK_OUT',
     'MISSED_CHECK_IN_OUT',
+    'BREAK',
+    'EARLY_BREAKOUT',
+    'LATE_BREAKIN',
   ];
 
   const sortedAttendanceRuleTypes = useMemo(
@@ -685,6 +729,8 @@ const CreateRuleSidebar = () => {
         actionTypes: normalizeActionTypes(item.actionTypes),
         breakType: resolveBreakTypeId(item.breakType as string | BreakType),
         isFixed: item.isFixed,
+        isMinuteBasedSalaryDeduction:
+          item.isMinuteBasedSalaryDeduction ?? false,
         deductibleSalaryDays: item.deductibleSalaryDays,
         deductibleFixedAmount: item.deductibleFixedAmount,
         vpDeductionAmount: item.vpDeductionAmount,
@@ -768,12 +814,20 @@ const CreateRuleSidebar = () => {
       ? actionTypes
       : [actionTypes];
     if (actionTypesArray.includes(AttendanceActionType.SALARY_DEDUCTION)) {
-      fields.push('isFixed');
-      if (form.getFieldValue('isFixed') === true) {
-        fields.push('deductibleFixedAmount');
-      }
-      if (form.getFieldValue('isFixed') === false) {
-        fields.push('deductibleSalaryDays');
+      const isMinuteBased =
+        supportsMinuteBasedSalaryDeduction(selectedRule?.ruleType) &&
+        form.getFieldValue('isMinuteBasedSalaryDeduction') === true;
+
+      if (isMinuteBased) {
+        // Minute-based salary deduction does not use days/fixed amount.
+      } else {
+        fields.push('isFixed');
+        if (form.getFieldValue('isFixed') === true) {
+          fields.push('deductibleFixedAmount');
+        }
+        if (form.getFieldValue('isFixed') === false) {
+          fields.push('deductibleSalaryDays');
+        }
       }
     }
 
@@ -1173,6 +1227,8 @@ const CreateRuleSidebar = () => {
             shouldUpdate={(prevValues, currentValues) =>
               prevValues.actionTypes !== currentValues.actionTypes ||
               prevValues.isFixed !== currentValues.isFixed ||
+              prevValues.isMinuteBasedSalaryDeduction !==
+                currentValues.isMinuteBasedSalaryDeduction ||
               prevValues.hasMissedCheckout !== currentValues.hasMissedCheckout
             }
           >
@@ -1182,22 +1238,78 @@ const CreateRuleSidebar = () => {
                 ? actionTypesValue
                 : [actionTypesValue];
               const isFixed = getFieldValue('isFixed');
+              const isMinuteBasedSalaryDeduction = Boolean(
+                getFieldValue('isMinuteBasedSalaryDeduction'),
+              );
               const showSalaryDeductionFields = actionTypesArray.includes(
                 AttendanceActionType.SALARY_DEDUCTION,
               );
+              const showMinuteBasedToggle =
+                showSalaryDeductionFields &&
+                supportsMinuteBasedSalaryDeduction(selectedRule?.ruleType);
+              const useMinuteBasedSalary =
+                showMinuteBasedToggle && isMinuteBasedSalaryDeduction;
               const showVpDeductionField = shouldShowVpDeductionAmountField(
                 selectedRule?.ruleType,
                 actionTypesArray,
                 getFieldValue('hasMissedCheckout'),
               );
               const showAmountInDays =
-                showSalaryDeductionFields && isFixed === false;
+                showSalaryDeductionFields &&
+                !useMinuteBasedSalary &&
+                isFixed === false;
               const showFixedAmount =
-                showSalaryDeductionFields && isFixed === true;
+                showSalaryDeductionFields &&
+                !useMinuteBasedSalary &&
+                isFixed === true;
 
               return (
                 <>
-                  {showSalaryDeductionFields && (
+                  {showMinuteBasedToggle && (
+                    <Col span={24}>
+                      <div
+                        className="mb-4 rounded-lg border border-[#D9D9D9] bg-[#FAFAFA] px-4 py-3"
+                        data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-section"
+                      >
+                        <div
+                          className="flex items-start justify-between gap-4"
+                          data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-header"
+                        >
+                          <div
+                            className="min-w-0 flex-1"
+                            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-copy"
+                          >
+                            <p
+                              className="mb-0 text-sm font-medium text-[#262626]"
+                              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-title"
+                            >
+                              Deduct salary by configured minutes
+                            </p>
+                            <p
+                              className="mb-0 mt-1 text-xs text-gray-500"
+                              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-description"
+                            >
+                              Uses salary deduction minutes from VP time
+                              configuration and the employee basic salary.
+                              Deduction Type and Amount are not used.
+                            </p>
+                          </div>
+                          <Form.Item
+                            name="isMinuteBasedSalaryDeduction"
+                            valuePropName="checked"
+                            className="mb-0"
+                            data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-field"
+                          >
+                            <Switch
+                              data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-minute-based-salary-switch"
+                              aria-label="Deduct salary by configured minutes"
+                            />
+                          </Form.Item>
+                        </div>
+                      </div>
+                    </Col>
+                  )}
+                  {showSalaryDeductionFields && !useMinuteBasedSalary && (
                     <Col span={24}>
                       <Form.Item
                         label={

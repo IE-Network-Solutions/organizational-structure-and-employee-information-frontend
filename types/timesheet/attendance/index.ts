@@ -105,8 +105,18 @@ export interface AttendanceBreak extends DateInfo {
   endAt: string | null;
   attendanceRecordId: string;
   geolocations: Geolocation[];
+  /** @deprecated Compat mirror of earlyBreakoutByMinutes for legacy rows. */
   earlyByMinutes: number;
+  /** @deprecated Compat mirror of lateBreakinByMinutes for legacy rows. */
   lateByMinutes: number;
+  /** Device: breakout before scheduled startAt. */
+  earlyBreakoutByMinutes?: number;
+  /** Device: breakin after scheduled endAt. */
+  lateBreakinByMinutes?: number;
+  missedBreakoutBandByMinutes?: number;
+  missedBreakinBandByMinutes?: number;
+  missedBreakout?: boolean;
+  missedBreakin?: boolean;
   checkInSource?: AttendanceCheckInSource;
   checkOutSource?: AttendanceCheckOutSource;
 }
@@ -165,6 +175,7 @@ export interface AttendanceRule extends DateInfo {
   resetDays: number;
   ruleAppliedDays: number;
   isFixed?: boolean;
+  isMinuteBasedSalaryDeduction?: boolean;
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
   vpDeductionAmount?: number;
@@ -185,6 +196,8 @@ export enum AttendanceRuleType {
   ABSENT = 'ABSENT',
   MISSED_CHECK_IN_OUT = 'MISSED_CHECK_IN_OUT',
   BREAK = 'BREAK',
+  EARLY_BREAKOUT = 'EARLY_BREAKOUT',
+  LATE_BREAKIN = 'LATE_BREAKIN',
 }
 
 export interface AttendanceRuleTypes extends DateInfo {
@@ -204,6 +217,7 @@ export interface AttendanceRule {
   resetDays: number;
   ruleAppliedDays: number;
   isFixed?: boolean;
+  isMinuteBasedSalaryDeduction?: boolean;
   deductibleFixedAmount?: number;
   deductibleSalaryDays?: number;
   vpDeductionAmount?: number;
@@ -225,6 +239,8 @@ export interface AttendanceRuleViolation extends DateInfo {
   actionTaken: boolean;
   actionTakenAt: string | null;
   actionStatus?: AttendanceRuleActionStatus;
+  salaryDeductionMinutes?: number | null;
+  salaryDeductionAmount?: number | null;
   attendanceRule: AttendanceRule;
   attendanceRuleTypes?: AttendanceRuleTypes;
   logs: unknown[];

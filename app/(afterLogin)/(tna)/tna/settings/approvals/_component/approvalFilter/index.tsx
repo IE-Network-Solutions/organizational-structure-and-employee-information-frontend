@@ -1,17 +1,12 @@
 'use client';
-import React from 'react';
-
 import ApprovalFilterComponent from '@/components/Approval/approvalFilterComponent';
 import { useApprovalTNAStore } from '@/store/uistate/features/tna/settings/approval';
+import { APPROVALTYPES } from '@/types/enumTypes';
 import { useDebounce } from '@/utils/useDebounce';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
-import { Button } from 'antd';
-import { FaPlus } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
 
 const ApprovalFilter = () => {
   const { searchParams, setSearchParams } = useApprovalTNAStore();
+
   const handleSearchEmployee = async (
     value: string,
     keyValue: keyof typeof searchParams,
@@ -20,8 +15,6 @@ const ApprovalFilter = () => {
   };
   const onSelectChange = handleSearchEmployee;
   const onSearchChange = useDebounce(handleSearchEmployee, 2000);
-  const router = useRouter();
-  const { setApproverType } = useApprovalTNAStore();
 
   const handleSearchInput = (
     value: string,
@@ -30,6 +23,7 @@ const ApprovalFilter = () => {
     const trimmedValue = value.trim();
     onSearchChange(trimmedValue, keyValue);
   };
+
   const handleDepartmentChange = (
     value: string,
     key: 'entityType' | 'entityId' = 'entityType',
@@ -45,61 +39,31 @@ const ApprovalFilter = () => {
     }
   };
 
-  const handleApprovalTypeChange = (value: string[]) => {
-    const normalized =
-      value && value.length > 0 ? value : ['Leave', 'WorkFromHome'];
-    setSearchParams('approvalType', normalized);
+  // TNA has a single request type, so the type chooser stays pinned to it.
+  const handleApprovalTypeChange = () => {
+    setSearchParams('approvalType', [APPROVALTYPES.TNA]);
   };
 
-  const handleNavigation = () => {
-    router.push('/tna/settings/approvals/workFlow');
-    setApproverType('');
-  };
   return (
     <div
       className="flex justify-between gap-4 sm:block"
-      id="tnaApprovalFilterContainerId"
-      data-cy="tna-approval-filter-container"
+      id="tna-settings-approvals-filter-container"
+      data-cy="tna-settings-approvals-filter-container"
     >
       <div
         className="flex-1"
-        id="tnaApprovalFilterComponentId"
-        data-cy="tna-approval-filter-component"
+        id="tna-settings-approvals-filter-component-container"
+        data-cy="tna-settings-approvals-filter-component-container"
       >
         <ApprovalFilterComponent
           searchParams={searchParams}
           handleSearchInput={handleSearchInput}
           handleDepartmentChange={handleDepartmentChange}
           handleApprovalTypeChange={handleApprovalTypeChange}
-          data-cy="tna-approval-filter-component"
+          data-cy="tna-settings-approvals-filter-component"
         />
       </div>
-
-      <AccessGuard
-        permissions={[Permissions.CreateApprovalWorkFlow]}
-        data-cy="tna-approval-filter-create-guard"
-        id="tnaApprovalFilterCreateGuardId"
-      >
-        <Button
-          title="Set Approval"
-          id="createUserButton"
-          data-cy="tna-approval-filter-create-button"
-          className="h-10 w-10 sm:w-auto sm:hidden"
-          icon={<FaPlus />}
-          onClick={handleNavigation}
-          type="primary"
-        >
-          <span
-            className="hidden sm:inline"
-            data-cy="tna-approval-filter-create-button-text"
-            id="tnaApprovalFilterCreateButtonTextId"
-          >
-            Set Approval
-          </span>
-        </Button>
-      </AccessGuard>
     </div>
   );
 };
-
 export default ApprovalFilter;

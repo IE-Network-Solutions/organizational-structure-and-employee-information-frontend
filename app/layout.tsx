@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import './globals.css';
@@ -25,7 +25,22 @@ export const fetchCache = 'force-no-store';
 const BASE_PATH = '/workspace';
 const asset = (path: string) => `${BASE_PATH}${path}`;
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
+  themeColor: '#1890ff',
+  colorScheme: 'light',
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.PUBLIC_DOMAIN ||
+      'http://localhost:3000',
+  ),
   title: 'Selamnew Workspace',
   description:
     'Complete enterprise management system for organizational structure, employee information, payroll, recruitment, and more',
@@ -47,15 +62,6 @@ export const metadata: Metadata = {
   applicationName: 'Selamnew Workspace',
   generator: 'Next.js',
   manifest: asset('/manifest.json'),
-  themeColor: '#1890ff',
-  colorScheme: 'light',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-    viewportFit: 'cover',
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useWeeklyPriorityStore } from '@/store/uistate/features/weeklyPriority/useStore';
 import Department from './_components/department-team/department';
 import CustomBreadcrumb from '@/components/common/breadCramp';
@@ -7,9 +7,21 @@ import { Button, Tabs, ConfigProvider } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import FilterPopover from './_components/FilterPopover';
 import Link from 'next/link';
+import { useNotificationDeepLink } from '@/hooks/useNotificationDeepLink';
 
 function Page(): JSX.Element {
-  const { activeTab, setActiveTab, setModalOpen } = useWeeklyPriorityStore();
+  const { activeTab, setActiveTab, setModalOpen, setDepartmentId } =
+    useWeeklyPriorityStore();
+  const { tab: deepLinkTab, departmentId } = useNotificationDeepLink();
+
+  useEffect(() => {
+    if (deepLinkTab === 'team' || deepLinkTab === '2') {
+      setActiveTab(2);
+    } else if (deepLinkTab === 'department' || deepLinkTab === '1') {
+      setActiveTab(1);
+    }
+    if (departmentId) setDepartmentId(departmentId);
+  }, [deepLinkTab, departmentId, setActiveTab, setDepartmentId]);
 
   const handleTabChange = (key: string) => {
     setActiveTab(Number(key));
