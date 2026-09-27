@@ -1,6 +1,6 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { ORG_AND_EMP_URL } from '@/utils/constants';
+import { CORE_API_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 
@@ -104,6 +104,8 @@ const createEmployeeMutation = async (values: any) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
+  const { nationality: _nationality, user: _user, ...apiValues } = values ?? {};
+
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information`,
     method: 'post',
@@ -111,12 +113,15 @@ const createEmployeeMutation = async (values: any) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     },
-    data: values,
+    data: apiValues,
   });
 };
 const updateEmployeeMutation = async (id: string, values: any) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
+
+  // Drop runtime-only hydration fields (not columns on employee-information).
+  const { nationality: _nationality, user: _user, ...apiValues } = values ?? {};
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information/${id}`,
@@ -125,7 +130,7 @@ const updateEmployeeMutation = async (id: string, values: any) => {
       Authorization: `Bearer ${token}`,
       tenantId: tenantId,
     },
-    data: values,
+    data: apiValues,
   });
 };
 
@@ -154,12 +159,13 @@ export function mergeEmployeeInformationCache(
   }
   return next;
 }
+/** Identity fields (name) are Core-owned — do not PATCH Org /users/:id for these. */
 const updateEmployeeInformation = async (id: string, values: any) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   return crudRequest({
-    url: `${ORG_AND_EMP_URL}/users/${id}`,
+    url: `${CORE_API_URL}/users/${id}`,
     method: 'patch',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -375,14 +381,45 @@ export const useUpdateEmployee = () => {
     },
   );
 };
+export type CreateEmployeeVariables = {
+  values: Record<string, unknown>;
+  /** User id for `['employee', userId]` query cache (route param). */
+  userId?: string;
+};
+
 export const useCreateEmployee = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ values }: { values: any }) => createEmployeeMutation(values),
+    ({ values }: CreateEmployeeVariables) => createEmployeeMutation(values),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('employee');
+      onSuccess: async (data, variables) => {
+        const { userId, values } = variables;
+        const cachePatch = normalizePatchPayloadForCache(values);
+        const created = data && typeof data === 'object' ? data : null;
+
+        if (userId) {
+          queryClient.setQueryData(['employee', userId], (old: any) => {
+            if (!old) return old;
+            const fromApi =
+              created && (created as { id?: string }).id
+                ? parseEmployeeInformationJsonFields(
+                    created as Record<string, unknown>,
+                  )
+                : {};
+            return {
+              ...old,
+              employeeInformation: {
+                ...(old.employeeInformation ?? {}),
+                ...fromApi,
+                ...cachePatch,
+                userId,
+              },
+            };
+          });
+        }
+
+        queryClient.invalidateQueries('employees');
         NotificationMessage.success({
           message: 'Successfully Updated',
           description: 'Employee successfully updated',
@@ -410,19 +447,51 @@ export const useUpdateEmployeeRolePermission = () => {
     },
   );
 };
+export type UpdateEmployeeIdentityVariables = {
+  id: string;
+  values: {
+    firstName?: string;
+    middleName?: string;
+    lastName?: string;
+    [key: string]: unknown;
+  };
+  /** When true, skip the success toast (e.g. saved alongside employee-information). */
+  silent?: boolean;
+};
+
 export const useUpdateEmployeeInformation = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    ({ id, values }: { id: string; values: any }) =>
+    ({ id, values }: UpdateEmployeeIdentityVariables) =>
       updateEmployeeInformation(id, values),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries('employee');
-        NotificationMessage.success({
-          message: 'Successfully Updated',
-          description: 'Employee successfully updated',
+      onSuccess: (_data, variables) => {
+        const { id, values, silent } = variables;
+        queryClient.setQueryData(['employee', id], (old: any) => {
+          if (!old) return old;
+          return {
+            ...old,
+            ...(values.firstName !== undefined
+              ? { firstName: values.firstName }
+              : {}),
+            ...(values.middleName !== undefined
+              ? { middleName: values.middleName }
+              : {}),
+            ...(values.lastName !== undefined
+              ? { lastName: values.lastName }
+              : {}),
+          };
         });
+        // List only — avoid refetching GET /users/:id which can race with
+        // a concurrent PATCH /employee-information and overwrite fresh HR fields.
+        queryClient.invalidateQueries('employees');
+        if (!silent) {
+          NotificationMessage.success({
+            message: 'Successfully Updated',
+            description: 'Employee successfully updated',
+          });
+        }
       },
     },
   );
