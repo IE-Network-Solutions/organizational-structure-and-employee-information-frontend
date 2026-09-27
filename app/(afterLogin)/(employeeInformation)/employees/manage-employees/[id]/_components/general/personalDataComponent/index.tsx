@@ -20,11 +20,9 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 function PersonalDataComponent({
   id,
   handleSaveChanges,
-  isSavingEmployeeInfo = false,
 }: {
   id: string;
   handleSaveChanges: any;
-  isSavingEmployeeInfo?: boolean;
 }) {
   const [form] = Form.useForm();
   const [nameForm] = Form.useForm();
@@ -34,7 +32,7 @@ function PersonalDataComponent({
   const { openModal } = useModalStore();
   const { isLoading, data: employeeData } = useGetEmployee(id);
   const { userId } = useAuthenticationStore();
-  const { mutate: updateEmployeeIdentity, isLoading: isUpdatingNames } =
+  const { mutate: updateEmployeeInformation, isLoading: isLoadingUser } =
     useUpdateEmployeeInformation();
 
   const { data: nationalities, isLoading: isLoadingNationality } =
@@ -67,49 +65,31 @@ function PersonalDataComponent({
 
   const handleSaveEdit = () => {
     Promise.all([nameForm.validateFields(), form.validateFields()])
-      .then(([nameValues, otherValues]) => {
-        const nationality = nationalities?.items?.find(
-          (item: { id: string }) => item.id === otherValues.nationalityId,
-        );
-
-        // Names → Core (identity). Personal fields → Org employee-information.
-        // Do not chain: Org /users PATCH no longer persists identity or HR fields.
-        if (employeeData?.id) {
-          updateEmployeeIdentity({
-            id: employeeData.id,
-            values: nameValues,
-            silent: true,
-          });
-        }
-
-        handleSaveChanges(
-          'general',
+      .then(() => {
+        const nameValues = nameForm.getFieldsValue();
+        const otherValues = form.getFieldsValue();
+        updateEmployeeInformation(
           {
-            gender: otherValues.gender,
-            maritalStatus: otherValues.maritalStatus,
-            nationalityId: otherValues.nationalityId,
-            dateOfBirth: otherValues.dateOfBirth
-              ? dayjs(otherValues.dateOfBirth).format('YYYY-MM-DD')
-              : null,
-            joinedDate: otherValues.joinedDate
-              ? dayjs(otherValues.joinedDate).format('YYYY-MM-DD')
-              : null,
-            // Hydrated for cache display only; Nest whitelist strips it from the API body.
-            ...(nationality
-              ? {
-                  nationality: {
-                    id: nationality.id,
-                    name: nationality.name,
-                  },
-                }
-              : {}),
+            id: employeeData?.id,
+            values: nameValues,
+          },
+          {
+            onSuccess: () => {
+              handleSaveChanges('general', {
+                ...otherValues,
+                dateOfBirth: otherValues.dateOfBirth
+                  ? dayjs(otherValues.dateOfBirth).format('YYYY-MM-DD')
+                  : null,
+                joinedDate: otherValues.joinedDate
+                  ? dayjs(otherValues.joinedDate).format('YYYY-MM-DD')
+                  : null,
+              });
+            },
           },
         );
       })
       .catch(() => {});
   };
-
-  const isSaving = isUpdatingNames || isSavingEmployeeInfo;
 
   return (
     <>
@@ -205,7 +185,7 @@ function PersonalDataComponent({
                       type="primary"
                       size="small"
                       onClick={handleSaveEdit}
-                      loading={isSaving}
+                      loading={isLoadingUser}
                       id="personal-data-submit-btn"
                       data-cy="personal-data-submit-btn"
                       className="h-6 w-6"
