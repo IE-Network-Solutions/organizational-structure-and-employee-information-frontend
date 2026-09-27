@@ -215,8 +215,6 @@ export const useSetFinalApproveLeaveRequest = () => {
       queryClient.invalidateQueries('current_approval_all_status');
       queryClient.refetchQueries('current_approval_all_status');
       queryClient.invalidateQueries('leave-request');
-      queryClient.invalidateQueries('attendance');
-      queryClient.invalidateQueries('attendance-rule-violations');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },
@@ -291,8 +289,6 @@ export const useSetAllFinalApproveLeaveRequest = () => {
     onSuccess: (variables: any) => {
       queryClient.invalidateQueries('current_approval');
       queryClient.invalidateQueries('current_approval_all_status');
-      queryClient.invalidateQueries('attendance');
-      queryClient.invalidateQueries('attendance-rule-violations');
       const method = variables?.method?.toUpperCase();
       handleSuccessMessage(method);
     },

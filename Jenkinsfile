@@ -431,7 +431,7 @@ pipeline {
                 """,
                 from: 'selamnew@ienetworksolutions.com',
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'yordanos.z@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
+                to: 'biniyam.l@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
             )
         }
     }
