@@ -261,6 +261,7 @@ export const useGetSingleLeaveRequest = (requestId: string) => {
     () => getSingleLeaveRequest(requestId),
     {
       keepPreviousData: true,
+      enabled: !!requestId,
     },
   );
 };

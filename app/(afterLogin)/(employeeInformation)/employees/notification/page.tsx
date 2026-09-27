@@ -3,14 +3,15 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import React from 'react';
 import { Avatar, Divider, List, Skeleton, Tooltip } from 'antd';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
-import { useNotificationDetailStore } from '@/store/uistate/features/notification';
 import { NotificationType } from '@/store/server/features/notification/interface';
 import { AiFillNotification } from 'react-icons/ai';
-import { NotificationDetailVisible } from './_component/notificationDetail';
 import { useUpdateNotificationStatus } from '@/store/server/features/notification/mutation';
 import { CgCloseO } from 'react-icons/cg';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import EmptyState from '@/components/empty';
+import { useRouter } from 'next/navigation';
+import { resolveNotificationPath } from '@/utils/notificationRoute';
+import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -21,16 +22,17 @@ const toSlug = (value: string | number | null | undefined) =>
 const Notifications = () => {
   const { mutate: updateNotificationStatus } = useUpdateNotificationStatus();
   const userId = useAuthenticationStore.getState().userId;
+  const router = useRouter();
+  const { data: allUsersData } = useGetAllUsers();
+  const employees = allUsersData?.items;
 
-  const {
-    selectedNotificationId,
-    setIsNotificationDetailVisible,
-    setSelectedNotificationId,
-  } = useNotificationDetailStore();
-
-  const handleShowNotificationDetails = (id: string) => {
-    setSelectedNotificationId(id);
-    setIsNotificationDetailVisible(true);
+  const handleShowNotificationDetails = (item: NotificationType) => {
+    const path = resolveNotificationPath(item, {
+      recipientUserId: userId,
+      employees,
+    });
+    updateNotification(item.id);
+    router.push(path);
   };
   const updateNotification = (id: string) => {
     updateNotificationStatus(id);
@@ -134,7 +136,7 @@ const Notifications = () => {
                     </Tooltip>,
                   ]}
                   onClick={() => {
-                    handleShowNotificationDetails(item?.id);
+                    handleShowNotificationDetails(item);
                     updateNotification(item?.id);
                   }}
                   className="cursor-pointer"
@@ -229,7 +231,7 @@ const Notifications = () => {
               return (
                 <List.Item
                   onClick={() => {
-                    handleShowNotificationDetails(item?.id);
+                    handleShowNotificationDetails(item);
                   }}
                   className="cursor-pointer"
                   id={`notification-read-item-${itemSlug}`}
@@ -289,12 +291,6 @@ const Notifications = () => {
         </div>
       ) : (
         <EmptyState data-cy={`notification-read-empty-${pageSlug}`} />
-      )}
-      {selectedNotificationId && (
-        <NotificationDetailVisible
-          id={selectedNotificationId}
-          data-cy={`notification-detail-modal-${pageSlug}`}
-        />
       )}
     </div>
   );

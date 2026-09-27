@@ -1296,11 +1296,16 @@
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import { TableSkeleton } from '@/components/tableSkeleton';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { Button, Card, Col, Row, Select, Table, Tag } from 'antd';
+import { Button, Card, Select, Table, Tag } from 'antd';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import LocalAtmIcon from '@mui/icons-material/LocalAtm';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import TrendingDownOutlinedIcon from '@mui/icons-material/TrendingDownOutlined';
+import TrendingUpOutlinedIcon from '@mui/icons-material/TrendingUpOutlined';
+import { ArrowRightOutlined } from '@ant-design/icons';
 import { FaEye } from 'react-icons/fa';
 import PayrollReconcilationModal from './_components/modal';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import {
   useGetPayPeriod,
@@ -1313,7 +1318,7 @@ import {
 } from '@/store/server/features/payroll/reconcilation/queries';
 import { useReconciliationState } from '@/store/uistate/features/payroll/reconcilation';
 import useEmployeeStore from '@/store/uistate/features/payroll/employeeInfoStore';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 const { Option } = Select;
 const impactColors = {
@@ -1325,6 +1330,8 @@ const impactColors = {
 const PayrollReconcilation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
+  const isEmbedded = /\/payroll\/[^/]+\/reconciliation/.test(pathname);
   const {
     previousPayPeriodId,
     currentPayPeriodId,
@@ -1547,6 +1554,55 @@ const PayrollReconcilation = () => {
     setComponentType(type);
     setIsModalOpen(true);
   };
+
+  const formatAmount = (value: number | string | undefined | null) => {
+    const n = Number(value);
+    if (value == null || value === '' || Number.isNaN(n)) return '0';
+    return n.toLocaleString('en-US', {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+  };
+
+  const summaryMetrics = useMemo(() => {
+    const totalCost = Number(data?.summary?.totalPayrollCost || 0);
+    const previousCost = Number(data?.summary?.previousPayrollCost || 0);
+    const netVariance = Number(data?.summary?.netVariance || 0);
+    const netVariancePct = Number(data?.summary?.netVariancePercentage || 0);
+    const headcount = data?.summary?.headcount ?? 0;
+    const previousHeadcount = data?.summary?.previousHeadcount ?? 0;
+    const terminations = data?.summary?.terminations ?? 0;
+    const isVarianceIncrease = netVariance > 0;
+    const isVarianceDecrease = netVariance < 0;
+
+    return {
+      totalCost,
+      previousCost,
+      netVariance,
+      netVariancePct,
+      headcount,
+      previousHeadcount,
+      terminations,
+      isVarianceIncrease,
+      isVarianceDecrease,
+      varianceColorClass: isVarianceIncrease
+        ? 'text-[#F04438]'
+        : isVarianceDecrease
+          ? 'text-[#12B76A]'
+          : 'text-gray-800',
+      varianceIconBg: isVarianceIncrease
+        ? 'bg-[#FFF2F0]'
+        : isVarianceDecrease
+          ? 'bg-[#ECFDF3]'
+          : 'bg-gray-100',
+      varianceIconText: isVarianceIncrease
+        ? 'text-[#F04438]'
+        : isVarianceDecrease
+          ? 'text-[#12B76A]'
+          : 'text-gray-500',
+    };
+  }, [data?.summary]);
+
   const payrollVarianceData = data?.components?.map((item: any) => ({
     types: item.label,
     previous: Number(item.previous).toLocaleString(),
@@ -1587,195 +1643,284 @@ const PayrollReconcilation = () => {
       data-cy="manage-employees-page"
     >
       <BlockWrapper className="h-auto w-full bg-white">
-        <div
-          className="w-full"
-          id="manage-employees-header"
-          data-cy="manage-employees-header"
-        >
-          <CustomBreadcrumb
-            onBack={handleGoBack}
-            title="Payroll Reconciliation"
-            subtitle="Employee Payroll Reconciliation"
-            rootClassName="w-full !mb-0"
-            titleExtra={
-              <div
-                data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-278"
-                className="flex flex-wrap justify-start items-center gap-4 md:gap-8"
-              >
-                <Button
-                  type="default"
-                  size="small"
-                  className="h-8 w-8 sm:w-auto sm:px-4 text-[#3A3A3A] border-[#D9D9D9] pl-3 rounded-md"
-                  icon={<SaveAltIcon className="text-sm" />}
-                  loading={isExporting}
-                  disabled={!previousPayPeriodId || !currentPayPeriodId}
-                  onClick={() =>
-                    exportReconciliation({
-                      previousPayPeriodId,
-                      currentPayPeriodId,
-                    })
-                  }
+        {!isEmbedded && (
+          <div
+            className="w-full"
+            id="manage-employees-header"
+            data-cy="manage-employees-header"
+          >
+            <CustomBreadcrumb
+              onBack={handleGoBack}
+              title="Payroll Reconciliation"
+              subtitle="Employee Payroll Reconciliation"
+              rootClassName="w-full !mb-0"
+              titleExtra={
+                <div
+                  data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-278"
+                  className="flex flex-wrap justify-start items-center gap-4 md:gap-8"
                 >
-                  <span
-                    data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285"
-                    className="hidden sm:inline"
+                  <Button
+                    type="default"
+                    size="small"
+                    className="h-8 w-8 sm:w-auto sm:px-4 text-[#3A3A3A] border-[#D9D9D9] pl-3 rounded-md"
+                    icon={<SaveAltIcon className="text-sm" />}
+                    loading={isExporting}
+                    disabled={!previousPayPeriodId || !currentPayPeriodId}
+                    onClick={() =>
+                      exportReconciliation({
+                        previousPayPeriodId,
+                        currentPayPeriodId,
+                      })
+                    }
                   >
-                    Export
-                  </span>
-                </Button>
-              </div>
-            }
-          />
-        </div>
-        <Row gutter={[16, 16]} align="middle" className="mb-6">
-          <Col xs={24} sm={24} md={4} lg={4} xl={4}>
-            <div data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-291">
-              <Select
-                placeholder="Previous Pay Period"
-                allowClear
-                style={{ width: '100%', height: '48px' }}
-                value={previousPayPeriodId}
-                onChange={(value) => setPreviousPayPeriodId(value)}
-              >
-                {payPeriodData?.map((period: any) => (
-                  <Option key={period.id} value={period.id}>
-                    {dayjs(period.startDate).format('MMM DD, YYYY')} --
-                    {dayjs(period.endDate).format('MMM DD, YYYY')}
-                  </Option>
-                ))}
-              </Select>
-            </div>
-          </Col>
-          <Col xs={24} sm={24} md={4} lg={4} xl={4}>
+                    <span
+                      data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-285"
+                      className="hidden sm:inline"
+                    >
+                      Export
+                    </span>
+                  </Button>
+                </div>
+              }
+            />
+          </div>
+        )}
+        <div
+          className="mb-5 flex flex-wrap items-end gap-3"
+          data-cy="payroll-reconciliation-period-compare-bar"
+        >
+          <div
+            className="min-w-[220px] flex-1 sm:max-w-[280px]"
+            data-cy="payroll-reconciliation-previous-period-select"
+          >
+            <p
+              className="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-500"
+              data-cy="payroll-reconciliation-previous-period-label"
+            >
+              Previous
+            </p>
+            <Select
+              placeholder="Previous Pay Period"
+              allowClear
+              className="w-full [&_.ant-select-selector]:!bg-gray-50 [&_.ant-select-selector]:!border-gray-200"
+              style={{ height: 44 }}
+              value={previousPayPeriodId}
+              onChange={(value) => setPreviousPayPeriodId(value)}
+            >
+              {payPeriodData?.map((period: any) => (
+                <Option key={period.id} value={period.id}>
+                  {dayjs(period.startDate).format('MMM DD, YYYY')} —{' '}
+                  {dayjs(period.endDate).format('MMM DD, YYYY')}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          <div
+            className="mb-3 hidden h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 sm:flex"
+            data-cy="payroll-reconciliation-period-arrow"
+          >
+            <ArrowRightOutlined />
+          </div>
+
+          <div
+            className="min-w-[220px] flex-1 sm:max-w-[280px]"
+            data-cy="payroll-reconciliation-current-period-select"
+          >
+            <p
+              className="mb-1.5 text-xs font-medium uppercase tracking-wide text-primary"
+              data-cy="payroll-reconciliation-current-period-label"
+            >
+              Current
+            </p>
             <Select
               allowClear
-              className="min-h-12 w-full"
+              className="w-full [&_.ant-select-selector]:!border-primary/30 [&_.ant-select-selector]:!bg-[#F0F5FF]"
+              style={{ height: 44 }}
               placeholder="Current Pay Period"
               value={currentPayPeriodId}
               onChange={(value) => setCurrentPayPeriodId(value)}
             >
               {payPeriodData?.map((period: any) => (
                 <Option key={period.id} value={period.id}>
-                  {dayjs(period.startDate).format('MMM DD, YYYY')} --
+                  {dayjs(period.startDate).format('MMM DD, YYYY')} —{' '}
                   {dayjs(period.endDate).format('MMM DD, YYYY')}
                 </Option>
               ))}
             </Select>
-          </Col>
-        </Row>
+          </div>
+        </div>
 
         <div
-          data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-326"
-          className="grid grid-cols-1 lg:grid lg:grid-cols-3 xl:grid-cols-3 md:grid-cols-1 gap-12"
+          data-cy="payroll-reconciliation-summary-cards"
+          className="grid grid-cols-1 gap-4 md:grid-cols-3"
         >
           {/* Total Payroll Cost */}
-          <Card className="rounded-xl shadow-sm border" loading={isLoading}>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-329"
-              className="text-black text-sm mb-2 font-semibold"
+          <Card
+            className="rounded-xl border border-[#D0D7E2] shadow-none"
+            loading={isLoading}
+            styles={{ body: { padding: '16px 18px' } }}
+            data-cy="payroll-reconciliation-total-cost-card"
+          >
+            <div
+              className="mb-2 flex items-center gap-2"
+              data-cy="payroll-reconciliation-total-cost-header"
             >
-              Total Payroll Cost
-            </p>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-332"
-              className="text-2xl font-bold text-black"
-            >
-              {data?.summary?.totalPayrollCost
-                ? Number(data?.summary?.totalPayrollCost).toLocaleString()
-                : 0}
-            </p>
-
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-338"
-              className="text-sm text-black mt-3 font-semibold"
-            >
-              Previous:{' '}
               <span
-                data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-340"
-                className="font-semibold"
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#E6F4FF] text-[#1677FF]"
+                data-cy="payroll-reconciliation-total-cost-icon"
               >
-                {data?.summary?.previousPayrollCost
-                  ? Number(data?.summary?.previousPayrollCost).toLocaleString()
-                  : 0}
+                <LocalAtmIcon className="h-4 w-4" />
+              </span>
+              <p
+                className="m-0 text-sm font-medium text-gray-500"
+                data-cy="payroll-reconciliation-total-cost-label"
+              >
+                Total Payroll Cost
+              </p>
+            </div>
+            <p
+              className="m-0 text-2xl font-bold leading-tight text-gray-900"
+              data-cy="payroll-reconciliation-total-cost-value"
+            >
+              {formatAmount(summaryMetrics.totalCost)}
+            </p>
+            <p
+              className="mt-2 mb-0 text-sm text-gray-500"
+              data-cy="payroll-reconciliation-total-cost-comparison"
+            >
+              vs{' '}
+              <span
+                className="font-medium text-gray-700"
+                data-cy="payroll-reconciliation-total-cost-previous"
+              >
+                {formatAmount(summaryMetrics.previousCost)}
+              </span>{' '}
+              previous
+            </p>
+          </Card>
+
+          {/* Net Variance */}
+          <Card
+            className="rounded-xl border border-[#D0D7E2] shadow-none"
+            loading={isLoading}
+            styles={{ body: { padding: '16px 18px' } }}
+            data-cy="payroll-reconciliation-net-variance-card"
+          >
+            <div
+              className="mb-2 flex items-center gap-2"
+              data-cy="payroll-reconciliation-net-variance-header"
+            >
+              <span
+                className={`inline-flex h-7 w-7 items-center justify-center rounded-md ${summaryMetrics.varianceIconBg} ${summaryMetrics.varianceIconText}`}
+                data-cy="payroll-reconciliation-net-variance-icon"
+              >
+                {summaryMetrics.isVarianceIncrease ? (
+                  <TrendingUpOutlinedIcon className="h-4 w-4" />
+                ) : (
+                  <TrendingDownOutlinedIcon className="h-4 w-4" />
+                )}
+              </span>
+              <p
+                className="m-0 text-sm font-medium text-gray-500"
+                data-cy="payroll-reconciliation-net-variance-label"
+              >
+                Net Variance
+              </p>
+            </div>
+            <p
+              className={`m-0 text-2xl font-bold leading-tight ${summaryMetrics.varianceColorClass}`}
+              data-cy="payroll-reconciliation-net-variance-value"
+            >
+              {formatAmount(summaryMetrics.netVariance)}
+            </p>
+            <p
+              className="mt-2 mb-0 flex items-center gap-1.5 text-sm text-gray-500"
+              data-cy="payroll-reconciliation-net-variance-comparison"
+            >
+              <span
+                className={`inline-flex items-center gap-0.5 font-medium ${summaryMetrics.varianceColorClass}`}
+                data-cy="payroll-reconciliation-net-variance-pct"
+              >
+                {summaryMetrics.isVarianceIncrease ? (
+                  <TrendingUpOutlinedIcon className="!h-3.5 !w-3.5" />
+                ) : summaryMetrics.isVarianceDecrease ? (
+                  <TrendingDownOutlinedIcon className="!h-3.5 !w-3.5" />
+                ) : null}
+                {Number.isNaN(summaryMetrics.netVariancePct)
+                  ? '--'
+                  : `${summaryMetrics.netVariancePct > 0 ? '+' : ''}${summaryMetrics.netVariancePct}%`}
+              </span>
+              <span data-cy="payroll-reconciliation-net-variance-vs-label">
+                vs previous period
               </span>
             </p>
           </Card>
-          {/* Net Variance */}
-          <Card className="rounded-xl shadow-sm border" loading={isLoading}>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-349"
-              className="text-black text-sm mb-2 font-semibold"
-            >
-              Net Variance
-            </p>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-352"
-              className="text-2xl font-bold text-black"
-            >
-              {data?.summary?.netVariance
-                ? Number(data?.summary?.netVariance).toLocaleString()
-                : 0}
-            </p>
 
-            <p
-              className={`text-sm mt-3 font-semibold ${(() => {
-                const varianceValue = Number(
-                  data?.summary?.netVariancePercentage || 0,
-                );
-                if (varianceValue > 0) return 'text-red-500';
-                if (varianceValue < 0) return 'text-green-500';
-                return '';
-              })()}`}
-              data-cy="payroll-payroll-reconcilation-page-tsx-p-419"
-            >
-              {(() => {
-                const varianceValue = Number(
-                  data?.summary?.netVariancePercentage || 0,
-                );
-                if (isNaN(varianceValue)) {
-                  return '--';
-                }
-                return varianceValue;
-              })()}
-            </p>
-          </Card>
           {/* Headcount Impact */}
-          <Card className="rounded-xl shadow-sm border" loading={isLoading}>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-381"
-              className="text-black text-sm mb-2 font-semibold"
-            >
-              Headcount Impact
-            </p>
-            <p
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-384"
-              className="text-2xl font-bold text-black"
-            >
-              {data?.summary?.headcount} Employees
-            </p>
-
+          <Card
+            className="rounded-xl border border-[#D0D7E2] shadow-none"
+            loading={isLoading}
+            styles={{ body: { padding: '16px 18px' } }}
+            data-cy="payroll-reconciliation-headcount-card"
+          >
             <div
-              data-cy="-payroll-payroll-reconcilation-page-tsx-page-div-388"
-              className="flex gap-4 text-sm mt-3 text-black"
+              className="mb-2 flex items-center gap-2"
+              data-cy="payroll-reconciliation-headcount-header"
             >
-              <p data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-389">
-                Previous:{' '}
-                <span
-                  data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-391"
-                  className="font-semibold"
-                >
-                  {data?.summary?.previousHeadcount}
-                </span>
+              <span
+                className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-[#F9F0FF] text-[#722ED1]"
+                data-cy="payroll-reconciliation-headcount-icon"
+              >
+                <PeopleAltOutlinedIcon className="h-4 w-4" />
+              </span>
+              <p
+                className="m-0 text-sm font-medium text-gray-500"
+                data-cy="payroll-reconciliation-headcount-label"
+              >
+                Headcount Impact
               </p>
-              <p data-cy="-payroll-payroll-reconcilation-page-tsx-page-p-395">
-                Terminations:{' '}
+            </div>
+            <p
+              className="m-0 text-2xl font-bold leading-tight text-gray-900"
+              data-cy="payroll-reconciliation-headcount-value"
+            >
+              {summaryMetrics.headcount}{' '}
+              <span
+                className="text-base font-semibold text-gray-500"
+                data-cy="payroll-reconciliation-headcount-unit"
+              >
+                Employees
+              </span>
+            </p>
+            <div
+              className="mt-2 flex flex-wrap gap-2"
+              data-cy="payroll-reconciliation-headcount-badges"
+            >
+              <span
+                className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs text-gray-600"
+                data-cy="payroll-reconciliation-headcount-previous-badge"
+              >
+                Previous{' '}
                 <span
-                  data-cy="-payroll-payroll-reconcilation-page-tsx-page-span-397"
-                  className="font-semibold"
+                  className="ml-1 font-semibold text-gray-800"
+                  data-cy="payroll-reconciliation-headcount-previous-value"
                 >
-                  {data?.summary?.terminations}
+                  {summaryMetrics.previousHeadcount}
                 </span>
-              </p>
+              </span>
+              <span
+                className="inline-flex items-center rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs text-gray-600"
+                data-cy="payroll-reconciliation-headcount-terminations-badge"
+              >
+                Terminations{' '}
+                <span
+                  className="ml-1 font-semibold text-gray-800"
+                  data-cy="payroll-reconciliation-headcount-terminations-value"
+                >
+                  {summaryMetrics.terminations}
+                </span>
+              </span>
             </div>
           </Card>
         </div>

@@ -1704,9 +1704,7 @@ const EmployeeProfile = () => {
               </div>
             </div>
           </div>
-          <PayrollDetails
-            activeMergedPayroll={templatePayroll || undefined}
-          />
+          <PayrollDetails activeMergedPayroll={templatePayroll || undefined} />
         </div>
       </div>
       <style jsx data-cy="payroll-employee-detail-local-styles">{`

@@ -1,6 +1,8 @@
 export enum VpTimeConfigType {
   CLOCKIN = 'CLOCKIN',
   CLOCKOUT = 'CLOCKOUT',
+  EARLY_BREAKOUT = 'EARLY_BREAKOUT',
+  LATE_BREAKIN = 'LATE_BREAKIN',
 }
 
 export interface VpTimeConfiguration {
@@ -9,6 +11,7 @@ export interface VpTimeConfiguration {
   fromMinutes: number | null;
   toMinutes: number | null;
   deductableAmount: number;
+  salaryDeductionMinutes?: number | null;
   description?: string | null;
   missedClockout?: boolean;
   isAbsent?: boolean;
@@ -26,6 +29,7 @@ export interface CreateVpTimeConfigurationPayload {
   fromMinutes?: number;
   toMinutes?: number | null;
   deductableAmount: number;
+  salaryDeductionMinutes?: number | null;
   description?: string;
   missedClockout?: boolean;
   isAbsent?: boolean;
@@ -41,6 +45,8 @@ interface VpTimeConfigurationFormValues {
   endTime?: number;
   applyAdditionalRules?: boolean;
   deductibleAmount?: number;
+  salaryDeductionEnabled?: boolean;
+  salaryDeductionMinutes?: number;
   description?: string;
   missedClockout?: boolean;
   isAbsent?: boolean;
@@ -63,6 +69,10 @@ export const buildVpTimeConfigurationPayload = (
 ): CreateVpTimeConfigurationPayload => {
   const deductableAmount = Number(values.deductibleAmount ?? 0);
   const description = values.description?.trim() || undefined;
+  const salaryDeductionMinutes =
+    values.salaryDeductionEnabled && values.salaryDeductionMinutes != null
+      ? Number(values.salaryDeductionMinutes)
+      : null;
 
   if (
     values.configType === VpTimeConfigType.CLOCKOUT &&
@@ -72,6 +82,7 @@ export const buildVpTimeConfigurationPayload = (
       configType: VpTimeConfigType.CLOCKOUT,
       missedClockout: true,
       deductableAmount,
+      salaryDeductionMinutes,
       ...(description ? { description } : {}),
     };
   }
@@ -88,6 +99,7 @@ export const buildVpTimeConfigurationPayload = (
         ? Number(values.endTime)
         : null,
     deductableAmount,
+    salaryDeductionMinutes,
     ...(description ? { description } : {}),
     ...(isAbsent
       ? {
@@ -111,9 +123,19 @@ export const getVpTimeConfigTitle = (item: VpTimeConfiguration): string => {
     }
     return `${from}-${item.toMinutes} Minute Absent Configuration`;
   }
+
+  const typeLabel =
+    item.configType === VpTimeConfigType.EARLY_BREAKOUT
+      ? 'Early Breakout'
+      : item.configType === VpTimeConfigType.LATE_BREAKIN
+        ? 'Late Breakin'
+        : item.configType === VpTimeConfigType.CLOCKOUT
+          ? 'Early Checkout'
+          : 'Late Arrival';
+
   const from = item.fromMinutes ?? 0;
   if (item.toMinutes == null) {
-    return `${from}+ Minute Configuration`;
+    return `${from}+ Minute ${typeLabel} Configuration`;
   }
-  return `${from}-${item.toMinutes} Minute Configuration`;
+  return `${from}-${item.toMinutes} Minute ${typeLabel} Configuration`;
 };

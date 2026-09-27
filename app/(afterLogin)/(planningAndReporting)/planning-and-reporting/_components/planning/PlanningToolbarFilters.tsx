@@ -21,6 +21,7 @@ import {
   usePlanningToolbarFilters,
   type PlanningFilterDraft,
 } from './usePlanningToolbarFilters';
+import { extractDepartmentUserIds } from './departmentUsers';
 
 const { Option } = Select;
 
@@ -34,6 +35,7 @@ type Snapshot = {
   selectedUser: string[];
   planningFilterDepartment: string | undefined;
   planningFilterPlanType: string;
+  planningFilterEmployee: string;
   selectedFiscalYearId: string | null;
   selectedSessionIds: string[];
   allSessionsOfYear: string[];
@@ -49,7 +51,6 @@ export default function PlanningToolbarFilters() {
   const applyCloseRef = useRef(false);
 
   const { userId } = useAuthenticationStore();
-  const activeTab = PlanningAndReportingStore((s) => s.activeTab);
   const {
     employeeData,
     isEmployeesLoading,
@@ -60,54 +61,57 @@ export default function PlanningToolbarFilters() {
     useGetAllFiscalYears();
   const { data: draftFiscalYearData, isLoading: loadingSessions } =
     useGetFiscalYearById(draft?.fiscalYearId || '');
-  const { data: allLevelDepartmentUsers } = useGetDepartmentUsersAllLevels(
+  const {
+    data: allLevelDepartmentUsers,
+    isFetching: isDepartmentUsersFetching,
+  } = useGetDepartmentUsersAllLevels(
     draft?.department && draft.department !== 'all' ? draft.department : null,
   );
 
-  const allLevelDepartmentUserIds = useMemo(() => {
-    const payload = allLevelDepartmentUsers;
-    if (!payload) return [];
-    if (Array.isArray(payload)) {
-      return payload
-        .map((u: any) => String(u?.id ?? u?.userId ?? ''))
-        .filter((id: string) => id);
-    }
-    if (Array.isArray(payload?.users)) {
-      return payload.users
-        .map((u: any) => String(u?.id ?? u?.userId ?? ''))
-        .filter((id: string) => id);
-    }
-    if (Array.isArray(payload?.items)) {
-      return payload.items
-        .map((u: any) => String(u?.id ?? u?.userId ?? ''))
-        .filter((id: string) => id);
-    }
-    return [];
-  }, [allLevelDepartmentUsers]);
+  const allLevelDepartmentUserIds = useMemo(
+    () => extractDepartmentUserIds(allLevelDepartmentUsers),
+    [allLevelDepartmentUsers],
+  );
 
-  const employeeOptions = useMemo(
-    () =>
-      buildEmployeeOptions(
-        draft?.department ?? 'all',
-        employeeData,
-        departmentData,
-        allLevelDepartmentUserIds,
-      ),
-    [
-      draft?.department,
+  const employeeOptions = useMemo(() => {
+    const options = buildEmployeeOptions(
+      draft?.department ?? 'all',
       employeeData,
       departmentData,
       allLevelDepartmentUserIds,
-    ],
-  );
+    );
+    const selectedId = draft?.employeeSelect;
+    if (
+      selectedId &&
+      selectedId !== 'all' &&
+      selectedId !== 'subordinate' &&
+      !options.some((option) => option.value === selectedId)
+    ) {
+      const emp = employeeData?.items?.find(
+        (item: any) => item.id === selectedId,
+      );
+      const name = emp
+        ? `${emp.firstName || ''} ${emp.middleName || ''} ${emp.lastName || ''}`.trim()
+        : '';
+      if (name) {
+        options.push({ label: name, value: selectedId });
+      }
+    }
+    return options;
+  }, [
+    draft?.department,
+    draft?.employeeSelect,
+    employeeData,
+    departmentData,
+    allLevelDepartmentUserIds,
+  ]);
 
   const employeeSelectValue = useMemo(() => {
     if (!draft) return 'all';
     const v = draft.employeeSelect;
     if (v === 'all' || v === 'subordinate') return 'all';
-    const exists = employeeOptions.some((o) => o.value === v);
-    return exists ? v : undefined;
-  }, [draft, employeeOptions]);
+    return v;
+  }, [draft]);
 
   const captureSnapshot = (): Snapshot => {
     const s = PlanningAndReportingStore.getState();
@@ -115,6 +119,7 @@ export default function PlanningToolbarFilters() {
       selectedUser: [...s.selectedUser],
       planningFilterDepartment: s.planningFilterDepartment,
       planningFilterPlanType: s.planningFilterPlanType,
+      planningFilterEmployee: s.planningFilterEmployee,
       selectedFiscalYearId: s.selectedFiscalYearId,
       selectedSessionIds: [...s.selectedSessionIds],
       allSessionsOfYear: [...s.allSessionsOfYear],
@@ -128,6 +133,7 @@ export default function PlanningToolbarFilters() {
       setSelectedUser,
       setPlanningFilterDepartment,
       setPlanningFilterPlanType,
+      setPlanningFilterEmployee,
       setSelectedFiscalYearId,
       setSelectedSessionIds,
       setAllSessionsOfYear,
@@ -135,6 +141,7 @@ export default function PlanningToolbarFilters() {
     setSelectedUser(snap.selectedUser);
     setPlanningFilterDepartment(snap.planningFilterDepartment);
     setPlanningFilterPlanType(snap.planningFilterPlanType);
+    setPlanningFilterEmployee(snap.planningFilterEmployee);
     setSelectedFiscalYearId(snap.selectedFiscalYearId);
     setSelectedSessionIds(snap.selectedSessionIds);
     setAllSessionsOfYear(snap.allSessionsOfYear);
@@ -227,7 +234,7 @@ export default function PlanningToolbarFilters() {
                   placeholder="Select employee"
                   options={employeeOptions}
                   onChange={(value: string) =>
-                    updateDraft({ employeeSelect: value })
+                    updateDraft({ employeeSelect: value, planType: 'all' })
                   }
                   value={employeeSelectValue}
                   loading={isEmployeesLoading}
@@ -264,7 +271,13 @@ export default function PlanningToolbarFilters() {
                   className={planningSelectClass}
                   placeholder="Plan type"
                   options={planTypeOptions}
-                  onChange={(value: string) => updateDraft({ planType: value })}
+                  onChange={(value: string) =>
+                    updateDraft({
+                      planType: value,
+                      employeeSelect:
+                        value === 'all' ? draft.employeeSelect : 'all',
+                    })
+                  }
                   value={draft.planType}
                   size="large"
                 />
@@ -288,7 +301,7 @@ export default function PlanningToolbarFilters() {
                   placeholder="Department"
                   options={departmentOptions}
                   onChange={(value: string) =>
-                    updateDraft({ department: value })
+                    updateDraft({ department: value, employeeSelect: 'all' })
                   }
                   value={draft.department}
                   size="large"
@@ -303,97 +316,91 @@ export default function PlanningToolbarFilters() {
                 />
               </div>
             </Col>
-            {activeTab === 2 ? (
-              <>
-                <Col xs={24} sm={12}>
-                  <div
-                    data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-244"
-                    className="flex flex-col gap-2"
+            <>
+              <Col xs={24} sm={12}>
+                <div
+                  data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-244"
+                  className="flex flex-col gap-2"
+                >
+                  <span
+                    data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-245"
+                    className="text-sm font-medium text-gray-700"
                   >
-                    <span
-                      data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-245"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Fiscal year
-                    </span>
-                    <Select
-                      placeholder="Fiscal year"
-                      className={sessionSelectClass}
-                      allowClear
-                      value={draft.fiscalYearId}
-                      onChange={(yearId: string | null) =>
-                        updateDraft({
-                          fiscalYearId: yearId,
-                          sessionIds:
-                            yearId !== draft.fiscalYearId
-                              ? []
-                              : draft.sessionIds,
-                        })
-                      }
-                      loading={loadingYears}
-                      size="large"
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        option?.children
-                          ?.toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase()) ?? false
-                      }
-                    >
-                      {allFiscalYears?.items?.map((year) => (
-                        <Option key={year.id} value={year.id}>
-                          {year.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </div>
-                </Col>
-                <Col xs={24} sm={12}>
-                  <div
-                    data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-282"
-                    className="flex flex-col gap-2"
+                    Fiscal year
+                  </span>
+                  <Select
+                    placeholder="Fiscal year"
+                    className={sessionSelectClass}
+                    allowClear
+                    value={draft.fiscalYearId}
+                    onChange={(yearId: string | null) =>
+                      updateDraft({
+                        fiscalYearId: yearId,
+                        sessionIds:
+                          yearId !== draft.fiscalYearId ? [] : draft.sessionIds,
+                      })
+                    }
+                    loading={loadingYears}
+                    size="large"
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      option?.children
+                        ?.toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase()) ?? false
+                    }
                   >
-                    <span
-                      data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-283"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Session
-                    </span>
-                    <Select
-                      mode="multiple"
-                      placeholder="Session"
-                      className={sessionSelectClass}
-                      allowClear
-                      value={draft.sessionIds}
-                      onChange={(sessionIds: string[]) =>
-                        updateDraft({ sessionIds })
-                      }
-                      disabled={!draft.fiscalYearId}
-                      loading={loadingSessions}
-                      maxTagCount={1}
-                      size="large"
-                      showSearch
-                      optionFilterProp="children"
-                      filterOption={(input, option) =>
-                        option?.children
-                          ?.toString()
-                          .toLowerCase()
-                          .includes(input.toLowerCase()) ?? false
-                      }
-                    >
-                      {draftFiscalYearData?.sessions?.map(
-                        (session: Session) => (
-                          <Option key={session.id} value={session.id}>
-                            {session.name}
-                          </Option>
-                        ),
-                      )}
-                    </Select>
-                  </div>
-                </Col>
-              </>
-            ) : null}
+                    {allFiscalYears?.items?.map((year) => (
+                      <Option key={year.id} value={year.id}>
+                        {year.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
+              </Col>
+              <Col xs={24} sm={12}>
+                <div
+                  data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-div-282"
+                  className="flex flex-col gap-2"
+                >
+                  <span
+                    data-cy="planning-and-reporting-components-planning-planningtoolbarfilters-tsx-planningtoolbarfilters-span-283"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Session
+                  </span>
+                  <Select
+                    mode="multiple"
+                    placeholder="Session"
+                    className={sessionSelectClass}
+                    allowClear
+                    value={draft.sessionIds}
+                    onChange={(sessionIds: string[]) =>
+                      updateDraft({ sessionIds })
+                    }
+                    disabled={!draft.fiscalYearId}
+                    loading={loadingSessions}
+                    maxTagCount={1}
+                    size="large"
+                    showSearch
+                    optionFilterProp="children"
+                    filterOption={(input, option) =>
+                      option?.children
+                        ?.toString()
+                        .toLowerCase()
+                        .includes(input.toLowerCase()) ?? false
+                    }
+                  >
+                    {draftFiscalYearData?.sessions?.map((session: Session) => (
+                      <Option key={session.id} value={session.id}>
+                        {session.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
+              </Col>
+            </>
           </Row>
         ) : null}
       </div>
@@ -414,6 +421,16 @@ export default function PlanningToolbarFilters() {
           size="middle"
           className="rounded-md border-0 !bg-[#1E40AF] hover:!bg-[#1E3A8A]"
           onClick={handleFilterApply}
+          loading={
+            !!draft?.department &&
+            draft.department !== 'all' &&
+            isDepartmentUsersFetching
+          }
+          disabled={
+            !!draft?.department &&
+            draft.department !== 'all' &&
+            isDepartmentUsersFetching
+          }
           data-cy="planning-toolbar-filter-apply"
         >
           Filter

@@ -1,6 +1,7 @@
 'use client';
 import ApprovalFilterComponent from '@/components/Approval/approvalFilterComponent';
 import { useApprovalStore } from '@/store/uistate/features/approval';
+import { DEFAULT_TIMESHEET_APPROVAL_TYPES } from '@/utils/approval/timesheetApprovalTypes';
 import { useDebounce } from '@/utils/useDebounce';
 
 const ApprovalFilter = () => {
@@ -40,7 +41,7 @@ const ApprovalFilter = () => {
 
   const handleApprovalTypeChange = (value: string[]) => {
     const normalizedValue =
-      value && value.length > 0 ? value : ['Leave', 'WorkFromHome'];
+      value && value.length > 0 ? value : [...DEFAULT_TIMESHEET_APPROVAL_TYPES];
     setSearchParams('approvalType', normalizedValue);
   };
 
