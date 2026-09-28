@@ -327,71 +327,71 @@ pipeline {
             }
         }
 
-        stage('Sync core-production from production') {
-            when {
-                expression { env.RESOLVED_BRANCH == 'production' }
-            }
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'github-pat',
-                        usernameVariable: 'GH_USER',
-                        passwordVariable: 'GH_TOKEN'
-                    )
-                ]) {
-                    sh '''
-                        set -e
+        // stage('Sync core-production from production') {
+        //     when {
+        //         expression { env.RESOLVED_BRANCH == 'production' }
+        //     }
+        //     steps {
+        //         withCredentials([
+        //             usernamePassword(
+        //                 credentialsId: 'github-pat',
+        //                 usernameVariable: 'GH_USER',
+        //                 passwordVariable: 'GH_TOKEN'
+        //             )
+        //         ]) {
+        //             sh '''
+        //                 set -e
 
-                        rm -rf sync-tmp
+        //                 rm -rf sync-tmp
 
-                        git clone "https://${GH_TOKEN}@github.com/IE-Network-Solutions/selamnew-collaboration-fe.git" sync-tmp
+        //                 git clone "https://${GH_TOKEN}@github.com/IE-Network-Solutions/selamnew-collaboration-fe.git" sync-tmp
 
-                        cd sync-tmp
+        //                 cd sync-tmp
 
-                        git config user.email "jenkins@ienetworks.co"
-                        git config user.name "Jenkins CI"
+        //                 git config user.email "jenkins@ienetworks.co"
+        //                 git config user.name "Jenkins CI"
 
-                        git fetch origin production core-production
+        //                 git fetch origin production core-production
 
-                        echo "Switching to core-production..."
+        //                 echo "Switching to core-production..."
 
-                        git checkout core-production
+        //                 git checkout core-production
 
-                        echo "Making core-production match production..."
+        //                 echo "Making core-production match production..."
 
-                        git reset --hard origin/production
+        //                 git reset --hard origin/production
 
-                        echo "Restoring core-production Jenkinsfile..."
+        //                 echo "Restoring core-production Jenkinsfile..."
 
-                        git checkout origin/core-production -- Jenkinsfile
+        //                 git checkout origin/core-production -- Jenkinsfile
 
-                        git clean -fd
+        //                 git clean -fd
 
-                        if git diff --quiet origin/core-production -- . ':!Jenkinsfile' 2>/dev/null && \
-                           git diff --quiet HEAD --; then
+        //                 if git diff --quiet origin/core-production -- . ':!Jenkinsfile' 2>/dev/null && \
+        //                    git diff --quiet HEAD --; then
 
-                            echo "core-production already matches production (excluding Jenkinsfile)."
+        //                     echo "core-production already matches production (excluding Jenkinsfile)."
 
-                        else
+        //                 else
 
-                            git add -A
+        //                     git add -A
 
-                            git commit -m "Sync from production (build ${BUILD_NUMBER})" || \
-                                echo "Nothing to commit"
+        //                     git commit -m "Sync from production (build ${BUILD_NUMBER})" || \
+        //                         echo "Nothing to commit"
 
-                            git push origin HEAD:core-production --force
+        //                     git push origin HEAD:core-production --force
 
-                            echo "core-production synchronized successfully."
+        //                     echo "core-production synchronized successfully."
 
-                        fi
+        //                 fi
 
-                        cd ..
+        //                 cd ..
 
-                        rm -rf sync-tmp
-                    '''
-                }
-            }
-        }
+        //                 rm -rf sync-tmp
+        //             '''
+        //         }
+        //     }
+        // }
     }
 
     post {
