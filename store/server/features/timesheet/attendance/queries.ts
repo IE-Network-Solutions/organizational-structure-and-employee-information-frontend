@@ -230,6 +230,10 @@ export const useGetCurrentAttendance = (userId: string) => {
     () => getCurrentAttendance(userId),
     {
       keepPreviousData: true,
+      enabled: Boolean(userId),
+      staleTime: 30 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   );
 };
