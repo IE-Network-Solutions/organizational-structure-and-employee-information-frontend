@@ -151,6 +151,7 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
     isFetching,
     refetch,
   } = useGetRuleViolations(ruleViolationQuery);
+  const showTableSkeleton = isFetching && !ruleViolationsData;
   const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
   const {
     mutate: exportWarningLetter,
@@ -637,7 +638,7 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
           id="time-attendance-rule-violation-table-container"
           data-cy="time-attendance-rule-violation-table-container"
         >
-          {isFetching ? (
+          {showTableSkeleton ? (
             <TableSkeleton
               columns={columns}
               scroll={{ x: 'max-content' }}
