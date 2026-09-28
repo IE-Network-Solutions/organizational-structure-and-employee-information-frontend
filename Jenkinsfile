@@ -335,7 +335,7 @@ pipeline {
                     sh '''
                         set -e
                         rm -rf sync-tmp
-                        git clone "https://${env.REPO_URL}" sync-tmp
+                        git clone "https://${GH_TOKEN}@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git" sync-tmp
                         cd sync-tmp
                         git config user.email "jenkins@ienetworks.co"
                         git config user.name "Jenkins CI"
