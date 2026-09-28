@@ -221,7 +221,10 @@ export const useGetApprovalLeaveRequest = (
       getApprovalLeaveRequest(requesterId, page, limit, requestUserId, status),
     {
       keepPreviousData: true,
-      enabled: !!token,
+      enabled: !!token && !!requesterId,
+      staleTime: 3 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   );
 };
@@ -253,7 +256,10 @@ export const useGetApprovalLeaveRequestAllStatus = (
       ),
     {
       keepPreviousData: true,
-      enabled: !!token,
+      enabled: !!token && !!requesterId,
+      staleTime: 3 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   );
 };
