@@ -75,6 +75,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     { page: currentPage, limit: pageSize, orderBy, orderDirection },
     { filter },
   );
+  const showTableSkeleton = isFetching && !data;
 
   useEffect(() => {
     const linkedEmployee =
@@ -419,7 +420,7 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
           id="time-attendance-leave-management-table-scroll-wrapper"
           data-cy="time-attendance-leave-management-table-scroll-wrapper"
         >
-          {isFetching ? (
+          {showTableSkeleton ? (
             <TableSkeleton columns={columns} />
           ) : (
             <Table
