@@ -17,6 +17,8 @@ export interface WorkScheduleShiftBreak {
   startAtTo?: string | null;
   endAtFrom?: string | null;
   endAtTo?: string | null;
+  captureStartAt?: string | null;
+  captureEndAt?: string | null;
 }
 
 export interface WorkScheduleShift {

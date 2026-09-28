@@ -26,6 +26,8 @@ export interface ShiftDraft {
     startAtTo?: string | null;
     endAtFrom?: string | null;
     endAtTo?: string | null;
+    captureStartAt?: string | null;
+    captureEndAt?: string | null;
   }>;
 }
 

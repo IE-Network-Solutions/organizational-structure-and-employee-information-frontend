@@ -103,6 +103,7 @@ const BreakTypeSidebar = () => {
   );
   const [startWindowOpen, setStartWindowOpen] = React.useState(false);
   const [endWindowOpen, setEndWindowOpen] = React.useState(false);
+  const [captureWindowOpen, setCaptureWindowOpen] = React.useState(false);
   const watchedStartAt = Form.useWatch('startAt', form) as Dayjs | undefined;
   const watchedEndAt = Form.useWatch('endAt', form) as Dayjs | undefined;
   const watchedShiftIds = Form.useWatch('shiftIds', form) as
@@ -228,14 +229,20 @@ const BreakTypeSidebar = () => {
         startAtTo: parseTime(source.startAtTo),
         endAtFrom: parseTime(source.endAtFrom),
         endAtTo: parseTime(source.endAtTo),
+        captureStartAt: parseTime(source.captureStartAt),
+        captureEndAt: parseTime(source.captureEndAt),
       };
       form.setFieldsValue(formattedBreakType);
       setStartWindowOpen(Boolean(source.startAtFrom || source.startAtTo));
       setEndWindowOpen(Boolean(source.endAtFrom || source.endAtTo));
+      setCaptureWindowOpen(
+        Boolean(source.captureStartAt || source.captureEndAt),
+      );
     } else {
       form.resetFields();
       setStartWindowOpen(false);
       setEndWindowOpen(false);
+      setCaptureWindowOpen(false);
     }
   }, [selectedBreakType, breakTypeDetail, form]);
 
@@ -247,6 +254,8 @@ const BreakTypeSidebar = () => {
       startAtTo,
       endAtFrom,
       endAtTo,
+      captureStartAt,
+      captureEndAt,
       shiftIds,
       ...otherValues
     } = values;
@@ -285,6 +294,12 @@ const BreakTypeSidebar = () => {
       ...(formatTime(startAtTo) && { startAtTo: formatTime(startAtTo) }),
       ...(formatTime(endAtFrom) && { endAtFrom: formatTime(endAtFrom) }),
       ...(formatTime(endAtTo) && { endAtTo: formatTime(endAtTo) }),
+      ...(formatTime(captureStartAt) && {
+        captureStartAt: formatTime(captureStartAt),
+      }),
+      ...(formatTime(captureEndAt) && {
+        captureEndAt: formatTime(captureEndAt),
+      }),
     };
 
     setBreakType(formattedValues, {
@@ -294,6 +309,7 @@ const BreakTypeSidebar = () => {
         setSelectedBreakType(null);
         setStartWindowOpen(false);
         setEndWindowOpen(false);
+        setCaptureWindowOpen(false);
       },
     });
   };
@@ -668,6 +684,143 @@ const BreakTypeSidebar = () => {
                 ]}
               />
             </div>
+          </div>
+          <div
+            id="time-attendance-settings-break-type-sidebar-capture-window"
+            data-cy="time-attendance-settings-break-type-sidebar-capture-window"
+            className="mb-4"
+          >
+            <Collapse
+              ghost
+              size="small"
+              activeKey={captureWindowOpen ? ['capture-window'] : []}
+              onChange={(keys) =>
+                setCaptureWindowOpen(
+                  (Array.isArray(keys) ? keys : [keys]).includes(
+                    'capture-window',
+                  ),
+                )
+              }
+              className="bg-[#FAFAFA] rounded-md border border-[#E8E8E8] overflow-hidden [&_.ant-collapse-header]:!py-2 [&_.ant-collapse-header]:!px-3 [&_.ant-collapse-content-box]:!px-3 [&_.ant-collapse-content-box]:!pb-2"
+              items={[
+                {
+                  key: 'capture-window',
+                  label: (
+                    <span
+                      className="text-xs font-medium text-gray-500"
+                      id="time-attendance-settings-break-type-sidebar-capture-window-title"
+                      data-cy="time-attendance-settings-break-type-sidebar-capture-window-title"
+                    >
+                      Capture window (optional)
+                    </span>
+                  ),
+                  children: (
+                    <Row gutter={12}>
+                      <Col span={12}>
+                        <Form.Item
+                          id="captureStartAtFieldId"
+                          data-cy="time-attendance-settings-break-type-sidebar-capture-start-at-field-id"
+                          label={
+                            <span
+                              id="time-attendance-settings-break-type-sidebar-capture-start-at-label"
+                              data-cy="time-attendance-settings-break-type-sidebar-capture-start-at-label"
+                              className="text-xs font-normal text-gray-700 pr-1"
+                            >
+                              Capture start
+                            </span>
+                          }
+                          name="captureStartAt"
+                          className="mb-2"
+                          rules={[
+                            ({ getFieldValue }) => ({
+                              validator(
+                                notUsed: unknown,
+                                value: Dayjs | undefined,
+                              ) {
+                                const startAt = getFieldValue('startAt') as
+                                  | Dayjs
+                                  | undefined;
+                                if (
+                                  !value ||
+                                  !startAt ||
+                                  !value.isAfter(startAt)
+                                ) {
+                                  return Promise.resolve();
+                                }
+                                return Promise.reject(
+                                  new Error(
+                                    'Capture start must be at or before Start At.',
+                                  ),
+                                );
+                              },
+                            }),
+                          ]}
+                        >
+                          <TimePicker
+                            className={controlClass}
+                            format="HH:mm"
+                            id="time-attendance-settings-break-type-sidebar-capture-start-at-picker"
+                            data-cy="time-attendance-settings-break-type-sidebar-capture-start-at-picker"
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col span={12}>
+                        <Form.Item
+                          id="captureEndAtFieldId"
+                          data-cy="time-attendance-settings-break-type-sidebar-capture-end-at-field-id"
+                          label={
+                            <span
+                              id="time-attendance-settings-break-type-sidebar-capture-end-at-label"
+                              data-cy="time-attendance-settings-break-type-sidebar-capture-end-at-label"
+                              className="text-xs font-normal text-gray-700 pr-1"
+                            >
+                              Capture end
+                            </span>
+                          }
+                          name="captureEndAt"
+                          className="mb-2"
+                          rules={[
+                            windowAfterValidator(
+                              'captureStartAt',
+                              'Capture end must be after capture start.',
+                            ),
+                            ({ getFieldValue }) => ({
+                              validator(
+                                notUsed: unknown,
+                                value: Dayjs | undefined,
+                              ) {
+                                const endAt = getFieldValue('endAt') as
+                                  | Dayjs
+                                  | undefined;
+                                if (
+                                  !value ||
+                                  !endAt ||
+                                  !value.isBefore(endAt)
+                                ) {
+                                  return Promise.resolve();
+                                }
+                                return Promise.reject(
+                                  new Error(
+                                    'Capture end must be at or after End At.',
+                                  ),
+                                );
+                              },
+                            }),
+                          ]}
+                        >
+                          <TimePicker
+                            className={controlClass}
+                            format="HH:mm"
+                            id="time-attendance-settings-break-type-sidebar-capture-end-at-picker"
+                            data-cy="time-attendance-settings-break-type-sidebar-capture-end-at-picker"
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                  ),
+                },
+              ]}
+            />
           </div>
           <Form.Item
             id="BreakTypeDescriptionFieldId"

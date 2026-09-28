@@ -195,6 +195,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
     setIsShowEmployeeAttendanceSidebar,
     setEmployeeAttendanceId,
     setAttendanceRecordDate,
+    setEditingBreakTimes,
   } = useEmployeeAttendanceStore();
   const { filter, setFilter } = useEmployeeAttendanceStore();
   const { employeeId: linkedEmployee } = useNotificationDeepLink();
@@ -342,7 +343,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-no-matching-break`}
             className={MISSED_BREAK_BADGE_CLASS}
           >
-            Missed Break Clock In
+            Missed Breakin
           </div>
         ) : showBreakTimes ? (
           attendanceBreak?.endAt ? (
@@ -353,7 +354,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               data-cy={`time-attendance-employee-attendance-row-clock-in-div-${record.key}-missed-break-clock-in`}
               className={MISSED_BREAK_BADGE_CLASS}
             >
-              Missed Break Clock In
+              Missed Breakin
             </div>
           )
         ) : (
@@ -426,7 +427,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
             data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-no-matching-break`}
             className={MISSED_BREAK_BADGE_CLASS}
           >
-            Missed Break Clock Out
+            Missed Breakout
           </div>
         ) : showBreakTimes ? (
           attendanceBreak?.startAt ? (
@@ -437,7 +438,7 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               data-cy={`time-attendance-employee-attendance-row-clock-out-div-${record.key}-missed-break-clock-out`}
               className={MISSED_BREAK_BADGE_CLASS}
             >
-              Missed Break Clock Out
+              Missed Breakout
             </div>
           )
         ) : (
@@ -705,9 +706,24 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
               className="border-none hover:bg-transparent"
               id={`${item?.id}buttonPopOverActionForOnEditActionId`}
               onClick={() => {
+                const attendanceRecord = item as unknown as AttendanceRecord;
+                const breakTypeId = filter?.breakTypeId as string | undefined;
+                const attendanceBreak = breakTypeId
+                  ? getFilteredAttendanceBreak(attendanceRecord, breakTypeId)
+                  : undefined;
+
                 setEmployeeId(item?.userId);
                 setEmployeeAttendanceId(item?.id);
                 setAttendanceRecordDate(item?.createdAt ?? '');
+                setEditingBreakTimes(
+                  breakTypeId
+                    ? {
+                        breakTypeId,
+                        startAt: attendanceBreak?.startAt ?? null,
+                        endAt: attendanceBreak?.endAt ?? null,
+                      }
+                    : null,
+                );
                 setIsShowEmployeeAttendanceSidebar(true);
               }}
               data-cy={`time-attendance-employee-attendance-row-${item?.id}-edit-button`}

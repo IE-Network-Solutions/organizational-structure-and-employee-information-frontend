@@ -58,6 +58,8 @@ interface ScheduleItem {
       startAtTo?: string | null;
       endAtFrom?: string | null;
       endAtTo?: string | null;
+      captureStartAt?: string | null;
+      captureEndAt?: string | null;
     }>;
   }>;
 }
@@ -154,6 +156,8 @@ function WorkScheduleTab() {
           startAtTo: br.startAtTo ?? null,
           endAtFrom: br.endAtFrom ?? null,
           endAtTo: br.endAtTo ?? null,
+          captureStartAt: br.captureStartAt ?? null,
+          captureEndAt: br.captureEndAt ?? null,
         })),
       })),
     );
