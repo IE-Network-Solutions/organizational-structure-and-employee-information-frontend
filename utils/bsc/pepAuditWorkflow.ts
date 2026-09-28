@@ -166,7 +166,7 @@ function targetChainStates(target: ChainTarget): PepWorkflowStepState[] {
     Math.max(Number(target.evaluationStepIndex ?? 0), 0),
     Math.max(flow.length - 1, 0),
   );
-  return flow.map((_, index) =>
+  return flow.map((step, index) =>
     index < current ? 'done' : index === current ? 'active' : 'pending',
   );
 }
