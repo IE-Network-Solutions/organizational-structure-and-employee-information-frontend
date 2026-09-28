@@ -26,6 +26,17 @@ import { Dayjs } from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 
+const FILTER_ROOT_ID = 'time-attendance-leave-management-filter-root';
+
+function isDatePickerPopupOpen(): boolean {
+  if (typeof document === 'undefined') return false;
+  return Boolean(
+    document.querySelector(
+      '.ant-picker-dropdown:not(.ant-picker-dropdown-hidden)',
+    ),
+  );
+}
+
 interface LeaveManagementTableFilterProps {
   onChange: (val: CommonObject) => void;
 }
@@ -47,7 +58,6 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
   const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
   const [modalTopOffset, setModalTopOffset] = useState(0);
   const filterRootRef = useRef<HTMLDivElement>(null);
-  const FILTER_ROOT_ID = 'time-attendance-leave-management-filter-root';
 
   useLayoutEffect(() => {
     if (!isMobile || !filterPopoverOpen || !filterRootRef.current) return;
@@ -99,6 +109,14 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
       dateRange: undefined,
     });
     setFilterPopoverOpen(false);
+  };
+
+  const handleFilterOpenChange = (open: boolean) => {
+    // Keep the panel open while the date picker calendar is visible.
+    if (!open && isDatePickerPopupOpen()) {
+      return;
+    }
+    setFilterPopoverOpen(open);
   };
 
   /* Figma filter modal width (node 2623-3958): 424px on desktop; full width in modal on mobile.
@@ -457,7 +475,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
             content={filterContent}
             trigger="click"
             open={filterPopoverOpen}
-            onOpenChange={setFilterPopoverOpen}
+            onOpenChange={handleFilterOpenChange}
             placement="bottomRight"
             align={{
               offset: [0, 4],

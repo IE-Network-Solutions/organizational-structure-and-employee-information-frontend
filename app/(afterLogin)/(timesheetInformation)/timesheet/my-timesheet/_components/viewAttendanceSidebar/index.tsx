@@ -243,7 +243,7 @@ const ViewAttendanceSidebar = () => {
         width="40%"
         data-cy="time-attendance-view-attendance-sidebar"
       >
-        {!(data && attendance) || isFetching ? (
+        {!(data && attendance) && isFetching ? (
           <div
             className="flex items-center justify-center py-20 "
             id="time-attendance-view-attendance-sidebar-loading"
