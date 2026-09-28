@@ -7,6 +7,7 @@ import { PepAuditRow } from '@/types/bsc';
 import {
   resolveAggregatePepWorkflowSteps,
   resolvePepWorkflowSteps,
+  type ApprovalChainLevel,
   type PepWorkflowStepState,
 } from '@/utils/bsc/pepAuditWorkflow';
 
@@ -149,26 +150,23 @@ function PepApprovalConnector({
   );
 }
 
-type BarProps = {
-  steps: [PepWorkflowStepState, PepWorkflowStepState, PepWorkflowStepState];
-  participants: PepAuditBarParticipants;
-  dataCy?: string;
-  className?: string;
+export type ApprovalBarLevel = {
+  participant: PepAuditStepParticipant;
+  state: PepWorkflowStepState;
+  roleLabel: string;
 };
 
-export function PepAuditApprovalStatusBar({
-  steps,
-  participants,
-  dataCy = 'bsc-pep-audit-approval-bar',
+/** Generic approval path: any number of levels, left to right. */
+function ApprovalLevelsBar({
+  levels,
+  dataCy,
   className = '',
-}: BarProps) {
-  const displayStatuses = steps.map(mapStepState);
-  const stepParticipants = [
-    participants.reporter,
-    participants.manager,
-    participants.pep,
-  ] as const;
-  const roleLabels = ['Employee', 'Manager', 'PEP'] as const;
+}: {
+  levels: ApprovalBarLevel[];
+  dataCy: string;
+  className?: string;
+}) {
+  const displayStatuses = levels.map((level) => mapStepState(level.state));
 
   return (
     <div
@@ -179,7 +177,7 @@ export function PepAuditApprovalStatusBar({
         className="flex w-full min-w-0 items-center"
         data-cy={`${dataCy}-levels`}
       >
-        {stepParticipants.map((participant, idx) => {
+        {levels.map((level, idx) => {
           const status = displayStatuses[idx];
           const previousStatus = idx > 0 ? displayStatuses[idx - 1] : null;
           const connectorActive =
@@ -188,7 +186,7 @@ export function PepAuditApprovalStatusBar({
             previousStatus === 'Rejected' || status === 'Rejected';
 
           return (
-            <React.Fragment key={`${participant.name}-${idx}`}>
+            <React.Fragment key={`${level.participant.name}-${idx}`}>
               {idx > 0 ? (
                 <PepApprovalConnector
                   active={connectorActive}
@@ -197,9 +195,9 @@ export function PepAuditApprovalStatusBar({
                 />
               ) : null}
               <PepApprovalStepItem
-                participant={participant}
+                participant={level.participant}
                 status={status}
-                roleLabel={roleLabels[idx]}
+                roleLabel={level.roleLabel}
                 dataCy={`${dataCy}-step-${idx}`}
               />
             </React.Fragment>
@@ -207,6 +205,104 @@ export function PepAuditApprovalStatusBar({
         })}
       </div>
     </div>
+  );
+}
+
+type BarProps = {
+  steps: [PepWorkflowStepState, PepWorkflowStepState, PepWorkflowStepState];
+  participants: PepAuditBarParticipants;
+  dataCy?: string;
+  className?: string;
+};
+
+/** Legacy fixed path: Employee → Manager → PEP. */
+export function PepAuditApprovalStatusBar({
+  steps,
+  participants,
+  dataCy = 'bsc-pep-audit-approval-bar',
+  className = '',
+}: BarProps) {
+  return (
+    <ApprovalLevelsBar
+      levels={[
+        {
+          participant: participants.reporter,
+          state: steps[0],
+          roleLabel: 'Employee',
+        },
+        {
+          participant: participants.manager,
+          state: steps[1],
+          roleLabel: 'Manager',
+        },
+        { participant: participants.pep, state: steps[2], roleLabel: 'PEP' },
+      ]}
+      dataCy={dataCy}
+      className={className}
+    />
+  );
+}
+
+type ChainBarProps = {
+  chain: ApprovalChainLevel[];
+  /** Employee (Self step) and direct manager, already resolved. */
+  participants: PepAuditBarParticipants;
+  /** Names for "user" evaluator steps (configured in scorecard setup). */
+  resolveUser: (userId: string) => PepAuditStepParticipant | undefined;
+  dataCy?: string;
+  className?: string;
+};
+
+/**
+ * Approval path built from the KPIs' configured evaluation flow, so the
+ * evaluators match the scorecard setup's Evaluation step, then PEP.
+ */
+export function ApprovalChainStatusBar({
+  chain,
+  participants,
+  resolveUser,
+  dataCy = 'bsc-results-approval-bar',
+  className,
+}: ChainBarProps) {
+  if (!chain.length) {
+    return (
+      <span data-cy="auto-added" className="text-sm text-gray-400">
+        —
+      </span>
+    );
+  }
+  const levels: ApprovalBarLevel[] = chain.map((level) => {
+    if (level.kind === 'self') {
+      return {
+        participant: participants.reporter,
+        state: level.state,
+        roleLabel: 'Employee',
+      };
+    }
+    if (level.kind === 'directManager') {
+      return {
+        participant: participants.manager,
+        state: level.state,
+        roleLabel: 'Manager',
+      };
+    }
+    if (level.kind === 'pep') {
+      return {
+        participant: participants.pep,
+        state: level.state,
+        roleLabel: 'PEP',
+      };
+    }
+    return {
+      participant: (level.userId && resolveUser(level.userId)) || {
+        name: 'Evaluator',
+      },
+      state: level.state,
+      roleLabel: 'Evaluator',
+    };
+  });
+  return (
+    <ApprovalLevelsBar levels={levels} dataCy={dataCy} className={className} />
   );
 }
 

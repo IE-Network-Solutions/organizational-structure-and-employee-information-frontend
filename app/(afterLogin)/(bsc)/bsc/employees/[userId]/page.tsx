@@ -10,13 +10,14 @@ import AssignIndividualKpisModal from '@/app/(afterLogin)/(okrplanning)/okr/sett
 import KpiEvaluationFlowCompact from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiEvaluationFlowCompact';
 import {
   useGetBscCycles,
-  useGetBscScorecards,
+  useGetBscResultsScorecards,
 } from '@/store/server/features/bsc/queries';
 import {
   useGetAllUsers,
   useGetAllUsersData,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { buildOrgEmployees, namesById } from '@/utils/bsc/orgUsers';
+import { bscAccess } from '@/utils/bsc/permissions';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   BscScopeTarget,
@@ -137,7 +138,18 @@ export default function EmployeeKpiDetailPage() {
     string | undefined
   >(preferredScorecardId);
 
-  const { data: scorecards, isLoading } = useGetBscScorecards();
+  // Load everyone's scorecards; the unfiltered "mine" query would hide the
+  // viewed employee's cards whenever they are not the logged-in user.
+  const {
+    data: scorecards,
+    isLoading: scorecardsLoading,
+    isIdle: scorecardsIdle,
+    isError: scorecardsError,
+    refetch: refetchScorecards,
+  } = useGetBscResultsScorecards('all');
+  // Idle = waiting for the auth store (direct link / refresh). Treat it as
+  // loading so the page never flashes "not on a scorecard yet" before data.
+  const isLoading = scorecardsLoading || scorecardsIdle;
   const { data: cycles } = useGetBscCycles();
   const { data: allUsersData } = useGetAllUsersData();
   const { data: allUsers } = useGetAllUsers();
@@ -189,8 +201,9 @@ export default function EmployeeKpiDetailPage() {
   }, [orgEmployees]);
 
   const personScorecards = useMemo(() => {
+    const target = userId.trim().toLowerCase();
     return [...(scorecards || [])]
-      .filter((card) => card.userId === userId)
+      .filter((card) => (card.userId || '').trim().toLowerCase() === target)
       .sort((a, b) => {
         const byCycle = (a.cycleLabel || '').localeCompare(b.cycleLabel || '');
         if (byCycle) return byCycle;
@@ -320,6 +333,8 @@ export default function EmployeeKpiDetailPage() {
             <KpiEvaluationFlowCompact
               flow={row.evaluationFlow}
               employeeById={employeeById}
+              ownerUserId={userId}
+              managerUserId={scorecard?.managerId}
               dataCy={`bsc-employee-kpi-eval-${row.id}`}
             />
           </div>
@@ -508,6 +523,20 @@ export default function EmployeeKpiDetailPage() {
         >
           Loading…
         </div>
+      ) : scorecardsError && !scorecards ? (
+        <div
+          className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-12"
+          data-cy="bsc-employee-scorecards-error"
+        >
+          <Empty description="Could not load this employee's scorecards.">
+            <Button
+              onClick={() => refetchScorecards()}
+              data-cy="bsc-employee-scorecards-retry"
+            >
+              Retry
+            </Button>
+          </Empty>
+        </div>
       ) : !scorecard ? (
         <div
           className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-12"
@@ -615,15 +644,17 @@ export default function EmployeeKpiDetailPage() {
                     .join(' · ')}
                 </Tag>
               )}
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => setAssignOpen(true)}
-                className="bg-[#2b54ad]"
-                data-cy="bsc-employee-add-individual-kpis"
-              >
-                Add individual KPIs
-              </Button>
+              {bscAccess.assignIndividualKpis() ? (
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => setAssignOpen(true)}
+                  className="bg-[#2b54ad]"
+                  data-cy="bsc-employee-add-individual-kpis"
+                >
+                  Add individual KPIs
+                </Button>
+              ) : null}
             </div>
           </div>
 

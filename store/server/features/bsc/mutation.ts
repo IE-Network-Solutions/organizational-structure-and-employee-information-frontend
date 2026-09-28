@@ -57,6 +57,8 @@ function invalidateAll(qc: ReturnType<typeof useQueryClient>) {
   qc.invalidateQueries(BSC_QUERY_KEYS.kpis);
   qc.invalidateQueries(BSC_QUERY_KEYS.cycles);
   qc.invalidateQueries(BSC_QUERY_KEYS.scorecards);
+  // Results / all-employee lists (Individual KPIs, employee detail, PEP audit).
+  qc.invalidateQueries(BSC_QUERY_KEYS.resultsScorecards);
   qc.invalidateQueries(BSC_QUERY_KEYS.scorecardAssignments);
   qc.invalidateQueries(BSC_QUERY_KEYS.scorecard);
   qc.invalidateQueries(BSC_QUERY_KEYS.scorecardResults);

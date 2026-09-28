@@ -391,14 +391,24 @@ export enum Permissions {
   UpdateProbationTask = 'update-probation-task',
   DeleteProbationTask = 'delete-probation-task',
 
-  // Non-Financial Balanced Scorecard (BSC)
+  // Non-Financial Balanced Scorecard (BSC) — "BSC and KPI" permission group
+  // (org-emp permission.json). Menu access (view_bsc) sits in Basic Permission
+  // alongside view_okr, mirroring OKR.
   ViewBsc = 'view_bsc',
   ManageBscCycles = 'manage_bsc_cycles',
   ManageBscKpiLibrary = 'manage_bsc_kpi_library',
+  ImportBscKpis = 'import-bsc-kpis',
+  ManageBscPerspectives = 'manage_bsc_perspectives',
   ManageBscScorecards = 'manage_bsc_scorecards',
+  AssignIndividualBscKpis = 'assign-individual-bsc-kpis',
   EvaluateBscScorecards = 'evaluate_bsc_scorecards',
   AcknowledgeBscScorecard = 'acknowledge_bsc_scorecard',
   SubmitBscEvidence = 'submit_bsc_evidence',
+  ViewTeamBsc = 'view-team-bsc',
+  ViewCompanyBsc = 'view-company-bsc',
+  PepAuditBscKpis = 'pep-audit-bsc-kpis',
+  ExportBscAuditReport = 'export-bsc-audit-report',
+  ManageBscSettings = 'manage_bsc_settings',
 
   // Succession planning
   ViewSuccessionPlanning = 'view-succession-planning',

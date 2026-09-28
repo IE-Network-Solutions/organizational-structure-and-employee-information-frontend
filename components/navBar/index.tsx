@@ -151,6 +151,7 @@ import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizat
 import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import { BSC_ADMIN_PERMISSIONS } from '@/utils/bsc/permissions';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -637,29 +638,30 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     // BSC detail pages reached from tables/cards (not in the sidebar). Without
     // these, the permission check below finds no route and sends non-owners to
     // /unauthorized (e.g. Results → Review/View → pep-audit).
+    // BSC uses its own "BSC and KPI" permission group (like OKR), not OKR's.
     {
       key: '/bsc/employees',
-      permissions: ['view_okr_overview'], // Employee KPI detail + PEP audit review
+      permissions: [Permissions.ViewBsc], // Employee KPI detail + PEP audit review
     },
     {
       key: '/bsc/kpis',
-      permissions: ['view_okr_overview'],
+      permissions: [Permissions.ViewBsc],
     },
     {
       key: '/bsc/perspectives',
-      permissions: ['view_okr_overview'],
+      permissions: [Permissions.ViewBsc],
     },
     {
       key: '/bsc/roll-up',
-      permissions: ['view_okr_overview'],
+      permissions: [Permissions.ViewBsc],
     },
     {
       key: '/bsc/setup',
-      permissions: ['view_okr_overview'],
+      permissions: [Permissions.ManageBscScorecards],
     },
     {
       key: '/bsc/cycles',
-      permissions: ['view_okr_overview'],
+      permissions: [Permissions.ManageBscScorecards],
     },
   ];
 
@@ -707,39 +709,30 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   );
 
   const treeData: CustomMenuItem[] = React.useMemo(() => {
-    const canManageBscAdmin =
-      AccessGuard.checkAccess({
-        permissions: [Permissions.ManageBscCycles],
-      }) ||
-      AccessGuard.checkAccess({
-        permissions: [Permissions.ManageBscKpiLibrary],
-      }) ||
-      AccessGuard.checkAccess({
-        permissions: [Permissions.ViewCompanyOkr],
-      });
-
     const kpiTabChildren: CustomMenuItem[] = [
-      ...(canManageBscAdmin
-        ? [
-            {
-              title: <span data-cy="nav-tree-bsc-kpis">KPI</span>,
-              key: '/bsc/kpi',
-              className: 'font-bold',
-              permissions: ['view_okr_overview'],
-            },
-          ]
-        : []),
+      {
+        title: <span data-cy="nav-tree-bsc-kpis">KPI</span>,
+        key: '/bsc/kpi',
+        className: 'font-bold',
+        // KPI library + scorecard setup (like OKR settings: admin only).
+        permissions: BSC_ADMIN_PERMISSIONS,
+        requireAny: true,
+      },
       {
         title: <span data-cy="nav-tree-bsc-my-scorecard">My Scorecard</span>,
         key: scorecardTabHref('mine'),
         className: 'font-bold',
-        permissions: ['view_okr_overview'],
+        permissions: [Permissions.ViewBsc],
       },
       {
         title: <span data-cy="nav-tree-bsc-settings">Settings</span>,
         key: '/bsc/settings',
         className: 'font-bold',
-        permissions: ['view_okr_overview'],
+        permissions: [
+          Permissions.ManageBscSettings,
+          Permissions.ManageBscPerspectives,
+        ],
+        requireAny: true,
       },
     ];
 
@@ -898,7 +891,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         title: 'BSC',
         key: 'bsc-menu',
         className: 'font-bold',
-        permissions: ['view_okr_overview'],
+        permissions: [Permissions.ViewBsc],
         disabled: hasEndedFiscalYear,
         moduleCode: 'OKR',
         children: kpiTabChildren,

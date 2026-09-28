@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Button, Empty, Select } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
@@ -15,6 +21,7 @@ import {
   useGetAllUsersData,
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { buildOrgEmployees, type BscOrgEmployee } from '@/utils/bsc/orgUsers';
+import { bscAccess } from '@/utils/bsc/permissions';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
   EmployeeScorecard,
@@ -142,6 +149,17 @@ export default function EmployeePepAuditPage() {
     }
     return map;
   }, [allUsersData, allUsers]);
+
+  /** Named evaluators from the scorecard's Evaluation step. */
+  const resolveEvaluator = useCallback(
+    (evaluatorId: string) => {
+      const person = employeeById.get(evaluatorId);
+      return person
+        ? { name: person.name, profileImage: person.profileImage }
+        : undefined;
+    },
+    [employeeById],
+  );
 
   const cycleById = useMemo(() => {
     const map = new Map<string, { isActive?: boolean; status?: string }>();
@@ -353,15 +371,17 @@ export default function EmployeePepAuditPage() {
           data-cy="auto-added"
           className="flex shrink-0 flex-wrap items-center gap-2"
         >
-          <PepAuditBulkActionBar
-            variant="inline"
-            approveAppearance="toolbar"
-            selectedCount={bulkSelectedCount}
-            onApprove={handleBulkApprove}
-            onClear={clearBulkSelection}
-            loading={bulkApproving}
-            dataCy="bsc-pep-audit-detail-bulk-bar"
-          />
+          {bscAccess.pepAudit() ? (
+            <PepAuditBulkActionBar
+              variant="inline"
+              approveAppearance="toolbar"
+              selectedCount={bulkSelectedCount}
+              onApprove={handleBulkApprove}
+              onClear={clearBulkSelection}
+              loading={bulkApproving}
+              dataCy="bsc-pep-audit-detail-bulk-bar"
+            />
+          ) : null}
           {periodFilterOptions.length > 1 ? (
             <Select
               className="h-10 w-[220px]"
@@ -392,6 +412,7 @@ export default function EmployeePepAuditPage() {
             isCurrentPeriod={isCurrent}
             pepRows={pepRows}
             participants={buildWorkflowParticipants(scorecard, employeeById)}
+            resolveEvaluator={resolveEvaluator}
             scrollRef={isSelected ? selectedRef : undefined}
             isKpiSelected={(targetId) =>
               isBulkItemSelected({

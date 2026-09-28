@@ -180,10 +180,15 @@ function groupByScorecard(list: CheckinItem[]) {
   return Array.from(map.values());
 }
 
+/** The employee's own report (an evaluator adjustment is not theirs to edit). */
+function selfReportedValue(target: ScorecardKpiTarget): number | null {
+  return target.reportedValue ?? target.actualValue ?? null;
+}
+
 function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
   const [drafts, setDrafts] = useState<Record<string, number | null>>(() =>
     Object.fromEntries(
-      items.map((i) => [i.target.id, i.target.actualValue ?? null]),
+      items.map((i) => [i.target.id, selfReportedValue(i.target)]),
     ),
   );
   const [dataSourceDrafts, setDataSourceDrafts] = useState<
@@ -203,7 +208,7 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
       const next = { ...prev };
       for (const item of items) {
         if (!(item.target.id in next)) {
-          next[item.target.id] = item.target.actualValue ?? null;
+          next[item.target.id] = selfReportedValue(item.target);
         }
       }
       return next;
@@ -285,6 +290,8 @@ function SelfCheckinTable({ items }: { items: CheckinItem[] }) {
           </span>
           <KpiEvaluationFlowCompact
             flow={row.flow}
+            ownerUserId={row.scorecard.userId}
+            managerUserId={row.scorecard.managerId}
             dataCy={`bsc-checkin-self-flow-${row.target.id}`}
           />
         </div>
@@ -451,7 +458,7 @@ function ReviewCheckinGroup({
     ),
   );
   const [actingId, setActingId] = useState<string | null>(null);
-  const { mutate: adjust } = useAdjustBscReportedKpis();
+  const { mutateAsync: adjustAsync } = useAdjustBscReportedKpis();
   const { mutateAsync: setApprovalAsync } = useSetBscKpiApproval();
   const { mutateAsync: finalizeAsync } = useFinalizeBscApprovals();
   const busy = actingId != null;
@@ -477,7 +484,13 @@ function ReviewCheckinGroup({
     });
   }, [items]);
 
-  const saveEdits = (onDone?: () => void) => {
+  /**
+   * Persist the evaluator's adjusted values before approving. Awaited (not a
+   * fire-and-forget mutate callback) so the approval can never run — or be
+   * skipped — ahead of the adjustment. `actualValue` is the effective value
+   * (already-adjusted when a prior evaluator changed it).
+   */
+  const saveEdits = async (): Promise<void> => {
     const adjustments = items
       .filter((i) => {
         if (decisions[i.target.id] != null) return false;
@@ -494,41 +507,48 @@ function ReviewCheckinGroup({
         actualValue: (drafts[i.target.id] ?? i.target.actualValue) as number,
         dataSource: dataSourceDrafts[i.target.id]?.trim() || null,
       }))
-      .filter((row) => row.actualValue != null && Number.isFinite(row.actualValue));
-    if (!adjustments.length) {
-      onDone?.();
-      return;
-    }
-    adjust({ scorecardId: scorecard.id, adjustments }, { onSuccess: onDone });
+      .filter(
+        (row) => row.actualValue != null && Number.isFinite(row.actualValue),
+      );
+    if (!adjustments.length) return;
+    await adjustAsync({ scorecardId: scorecard.id, adjustments });
   };
 
-  const decide = (targetId: string) => {
-    saveEdits(async () => {
-      setActingId(targetId);
-      try {
-        const latest = await setApprovalAsync({
-          scorecardId: scorecard.id,
-          targetId,
-          approved: true,
+  const decide = async (targetId: string) => {
+    setActingId(targetId);
+    try {
+      await saveEdits();
+    } catch {
+      // Adjustment failed (error toast already shown) — do not approve.
+      setActingId(null);
+      return;
+    }
+    try {
+      const latest = await setApprovalAsync({
+        scorecardId: scorecard.id,
+        targetId,
+        approved: true,
+      });
+      onDecision(targetId, true);
+      // An evaluator may not be able to reload the card (owner-only detail),
+      // which returns a stub without KPIs — only finalize when we can see that
+      // every KPI is decided.
+      const targets: ScorecardKpiTarget[] = Array.isArray(latest?.targets)
+        ? latest.targets
+        : [];
+      const stillPending = targets.filter(
+        (target) => target.approvalStatus === KpiApprovalStatus.Pending,
+      );
+      if (targets.length > 0 && stillPending.length === 0) {
+        await finalizeAsync(scorecard.id);
+        NotificationMessage.success({
+          message: 'Check-in closed',
+          description: 'Final scores now reflect on the scorecard.',
         });
-        onDecision(targetId, true);
-        const targets: ScorecardKpiTarget[] = Array.isArray(latest?.targets)
-          ? latest.targets
-          : [];
-        const stillPending = targets.filter(
-          (target) => target.approvalStatus === KpiApprovalStatus.Pending,
-        );
-        if (stillPending.length === 0) {
-          await finalizeAsync(scorecard.id);
-          NotificationMessage.success({
-            message: 'Check-in closed',
-            description: 'Final scores now reflect on the scorecard.',
-          });
-        }
-      } finally {
-        setActingId(null);
       }
-    });
+    } finally {
+      setActingId(null);
+    }
   };
 
   const columns: ColumnsType<CheckinItem> = [
@@ -546,6 +566,8 @@ function ReviewCheckinGroup({
           </span>
           <KpiEvaluationFlowCompact
             flow={row.flow}
+            ownerUserId={row.scorecard.userId}
+            managerUserId={row.scorecard.managerId}
             dataCy={`bsc-checkin-review-flow-${row.target.id}`}
           />
         </div>
@@ -559,15 +581,33 @@ function ReviewCheckinGroup({
       ),
       key: 'reported',
       width: 90,
-      render: (unused, row) => (
-        <TargetMetricValue
-          value={row.target.actualValue}
-          unit={row.target.measurementUnit}
-          worstCase={row.target.worstCase}
-          bestCase={row.target.bestCase}
-          dataCy={`bsc-checkin-review-reported-${row.target.id}`}
-        />
-      ),
+      render: (unused, row) => {
+        // Employee's own report; note an evaluator adjustment beneath it.
+        const reported = row.target.reportedValue ?? row.target.actualValue;
+        const adjusted = row.target.adjustedValue;
+        return (
+          <div
+            className="flex flex-col gap-0.5"
+            data-cy={`bsc-checkin-review-reported-wrap-${row.target.id}`}
+          >
+            <TargetMetricValue
+              value={reported}
+              unit={row.target.measurementUnit}
+              worstCase={row.target.worstCase}
+              bestCase={row.target.bestCase}
+              dataCy={`bsc-checkin-review-reported-${row.target.id}`}
+            />
+            {adjusted != null && adjusted !== reported ? (
+              <span
+                className="text-[11px] text-amber-700"
+                data-cy={`bsc-checkin-review-adjusted-${row.target.id}`}
+              >
+                Adjusted: {adjusted}
+              </span>
+            ) : null}
+          </div>
+        );
+      },
     },
     {
       title: (

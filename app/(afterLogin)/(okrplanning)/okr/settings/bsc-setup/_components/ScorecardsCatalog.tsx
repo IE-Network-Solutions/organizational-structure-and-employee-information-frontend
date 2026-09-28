@@ -38,7 +38,7 @@ import {
 import { USE_BSC_API } from '@/store/server/features/bsc/config';
 import {
   useGetBscCycles,
-  useGetBscScorecards,
+  useGetBscResultsScorecards,
 } from '@/store/server/features/bsc/queries';
 import {
   useGetAllUsers,
@@ -130,8 +130,10 @@ export default function ScorecardsCatalog() {
   );
 
   const { data: configs, isLoading: configsLoading } = useGetBscCycles();
+  // Every employee's scorecards (not just the viewer's — useGetBscScorecards()
+  // without filters is "mine" only), so assigned people show their program.
   const { data: peopleScorecards, isLoading: peopleLoading } =
-    useGetBscScorecards();
+    useGetBscResultsScorecards('all');
   // `/users/all-users/all` returns every employee; `/users` is a fallback that
   // may be paginated or id-keyed.
   const { data: allUsersData, isLoading: allUsersDataLoading } =

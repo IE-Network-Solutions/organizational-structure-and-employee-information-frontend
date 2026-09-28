@@ -15,8 +15,7 @@ import { useGetAllUsers } from '@/store/server/features/employees/employeeManagm
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
+import { bscAccess } from '@/utils/bsc/permissions';
 import { EmployeeScorecard } from '@/types/bsc';
 import {
   computeRollup,
@@ -187,12 +186,8 @@ export default function EmployeeKpiTable({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { userId: actorId } = useAuthenticationStore();
-  const canViewTeamKpi =
-    canViewTeamProp ??
-    AccessGuard.checkAccess({ permissions: [Permissions.ViewTeamOkr] });
-  const canViewAllEmployeeKpi =
-    canViewAllProp ??
-    AccessGuard.checkAccess({ permissions: [Permissions.ViewCompanyOkr] });
+  const canViewTeamKpi = canViewTeamProp ?? bscAccess.viewTeam();
+  const canViewAllEmployeeKpi = canViewAllProp ?? bscAccess.viewCompany();
 
   const scopeOptions = useMemo(() => {
     // Always allow own results (like My OKR). Team / All match OKR tab gates.

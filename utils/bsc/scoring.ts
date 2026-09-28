@@ -18,10 +18,24 @@ export function normalizeRatio(
     worstCase?: number | null;
     bestCase?: number | null;
     rMax?: number;
+    /** Min acceptable (higher-is-better) / max acceptable (lower-is-better). */
+    acceptableThreshold?: number | null;
   },
 ): { ratio: number; capped: boolean } {
   const rMax = options?.rMax ?? DEFAULT_R_MAX;
   let raw = 0;
+
+  // Threshold gate (same rule as the BE): wrong side of the acceptable
+  // threshold earns no credit — e.g. target 90, threshold 80, actual 75 → 0.
+  const threshold = options?.acceptableThreshold;
+  if (threshold != null && Number.isFinite(threshold)) {
+    if (logic === TargetLogic.HigherBetter && actual < threshold) {
+      return { ratio: 0, capped: false };
+    }
+    if (logic === TargetLogic.LowerBetter && actual > threshold) {
+      return { ratio: 0, capped: false };
+    }
+  }
 
   if (logic === TargetLogic.Bounded) {
     const worst = options?.worstCase;
@@ -225,6 +239,7 @@ export function computeCompositeScore(
         worstCase: t.worstCase,
         bestCase: t.bestCase,
         rMax,
+        acceptableThreshold: t.acceptableThreshold,
       },
     );
     const weightedValue = weight * ratio;

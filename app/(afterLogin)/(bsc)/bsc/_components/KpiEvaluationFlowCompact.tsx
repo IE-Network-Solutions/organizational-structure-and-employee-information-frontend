@@ -4,6 +4,11 @@ import React from 'react';
 import { Avatar, Tooltip } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import { BscEvaluatorStep } from '@/types/bsc';
+import {
+  useGetAllUsers,
+  useGetAllUsersData,
+} from '@/store/server/features/employees/employeeManagment/queries';
+import { buildOrgEmployees } from '@/utils/bsc/orgUsers';
 
 type EmployeeLookup = {
   label: string;
@@ -11,44 +16,60 @@ type EmployeeLookup = {
   profileImage?: string | null;
 };
 
-function stepLabel(
-  step: BscEvaluatorStep,
-  employeeById?: Map<string, EmployeeLookup>,
-): string {
-  if (step.kind === 'self') return 'Self';
-  if (step.kind === 'directManager') return 'Manager';
-  if (step.userId) {
-    return employeeById?.get(step.userId)?.label || 'Person';
+/**
+ * One org-employee lookup shared by every row: the flow renders once per KPI,
+ * so rebuild only when the cached user payloads change.
+ */
+let cachedSources: [unknown, unknown] | null = null;
+let cachedLookup = new Map<string, EmployeeLookup>();
+
+function orgEmployeeLookup(
+  allUsersData: unknown,
+  allUsers: unknown,
+): Map<string, EmployeeLookup> {
+  if (
+    cachedSources &&
+    cachedSources[0] === allUsersData &&
+    cachedSources[1] === allUsers
+  ) {
+    return cachedLookup;
   }
-  return 'Person';
+  const map = new Map<string, EmployeeLookup>();
+  for (const employee of buildOrgEmployees(allUsersData, allUsers)) {
+    map.set(employee.id, {
+      label: employee.name,
+      profileImage: employee.profileImage,
+    });
+  }
+  cachedSources = [allUsersData, allUsers];
+  cachedLookup = map;
+  return map;
 }
 
-function stepShort(
-  step: BscEvaluatorStep,
-  employeeById?: Map<string, EmployeeLookup>,
-): string {
-  if (step.kind === 'self') return 'Self';
-  if (step.kind === 'directManager') return 'Mgr';
-  if (step.userId) {
-    const emp = employeeById?.get(step.userId);
-    if (emp?.initials) return emp.initials;
-    const label = emp?.label || 'Person';
-    return (
-      label
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((p) => p[0])
-        .join('')
-        .toUpperCase() || '?'
-    );
-  }
-  return '?';
+function initialsOf(label: string): string {
+  return (
+    label
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase() || '?'
+  );
+}
+
+function firstName(label: string): string {
+  return label.split(/\s+/).filter(Boolean)[0] || label;
 }
 
 type Props = {
   flow?: BscEvaluatorStep[] | null;
+  /** Optional caller-provided lookup; falls back to the org user list. */
   employeeById?: Map<string, EmployeeLookup>;
+  /** Scorecard owner — names the "Self" step. */
+  ownerUserId?: string | null;
+  /** Owner's manager — names the "Manager" step. */
+  managerUserId?: string | null;
   dataCy?: string;
 };
 
@@ -56,8 +77,19 @@ type Props = {
 export default function KpiEvaluationFlowCompact({
   flow,
   employeeById,
+  ownerUserId,
+  managerUserId,
   dataCy = 'bsc-kpi-eval-compact',
 }: Props) {
+  const { data: allUsersData } = useGetAllUsersData();
+  const { data: allUsers } = useGetAllUsers();
+  const orgLookup = orgEmployeeLookup(allUsersData, allUsers);
+
+  const findPerson = (id?: string | null): EmployeeLookup | undefined => {
+    if (!id) return undefined;
+    return employeeById?.get(id) || orgLookup.get(id);
+  };
+
   const steps = flow?.length
     ? flow
     : ([{ kind: 'self' }, { kind: 'directManager' }] as BscEvaluatorStep[]);
@@ -68,11 +100,29 @@ export default function KpiEvaluationFlowCompact({
       data-cy={dataCy}
     >
       {steps.map((step, index) => {
-        const label = stepLabel(step, employeeById);
-        const employee =
-          step.kind === 'user' && step.userId
-            ? employeeById?.get(step.userId)
-            : undefined;
+        const role =
+          step.kind === 'self'
+            ? 'Self'
+            : step.kind === 'directManager'
+              ? 'Manager'
+              : 'Evaluator';
+        const person =
+          step.kind === 'self'
+            ? findPerson(ownerUserId)
+            : step.kind === 'directManager'
+              ? findPerson(managerUserId)
+              : findPerson(step.userId);
+        // Tooltip always names the approver when known: "Manager: Abebe Kebede".
+        const tooltip = person?.label ? `${role}: ${person.label}` : role;
+        const badgeText =
+          step.kind === 'self'
+            ? 'Self'
+            : step.kind === 'directManager'
+              ? 'Mgr'
+              : person?.label
+                ? firstName(person.label)
+                : 'Evaluator';
+
         return (
           <React.Fragment key={`${step.kind}-${step.userId || ''}-${index}`}>
             {index > 0 ? (
@@ -83,17 +133,26 @@ export default function KpiEvaluationFlowCompact({
                 →
               </span>
             ) : null}
-            <Tooltip title={label}>
+            <Tooltip title={tooltip}>
               <span
                 className="inline-flex items-center gap-0.5"
                 data-cy={`${dataCy}-step-${index}`}
+                aria-label={tooltip}
               >
-                {employee?.profileImage ? (
-                  <Avatar size={16} src={employee.profileImage} />
+                {person?.profileImage ? (
+                  <Avatar
+                    size={16}
+                    src={person.profileImage}
+                    data-cy={`${dataCy}-step-${index}-avatar`}
+                  />
                 ) : (
                   <Avatar
                     size={16}
-                    icon={step.kind === 'user' ? undefined : <UserOutlined />}
+                    icon={
+                      step.kind === 'user' && person?.label ? undefined : (
+                        <UserOutlined />
+                      )
+                    }
                     className={
                       step.kind === 'self'
                         ? 'bg-[#E6F4FF] text-[8px] text-[#1677ff]'
@@ -101,21 +160,18 @@ export default function KpiEvaluationFlowCompact({
                           ? 'bg-[#F0F5FF] text-[8px] text-[#5B67D9]'
                           : 'bg-[#EFF6FF] text-[8px] text-[#1D4ED8]'
                     }
+                    data-cy={`${dataCy}-step-${index}-avatar`}
                   >
-                    {step.kind === 'user'
-                      ? stepShort(step, employeeById)
+                    {step.kind === 'user' && person?.label
+                      ? person.initials || initialsOf(person.label)
                       : null}
                   </Avatar>
                 )}
                 <span
                   data-cy="kpievaluationflowcompact-span-110"
-                  className="text-[10px] font-medium text-[#595959]"
+                  className="max-w-[88px] truncate text-[10px] font-medium text-[#595959]"
                 >
-                  {step.kind === 'user'
-                    ? stepShort(step, employeeById)
-                    : step.kind === 'self'
-                      ? 'Self'
-                      : 'Mgr'}
+                  {badgeText}
                 </span>
               </span>
             </Tooltip>

@@ -60,6 +60,8 @@ export type BscPepAuditRowApi = {
   targetValue: number | string;
   stretchTarget?: number | string | null;
   actualValue?: number | string | null;
+  reportedValue?: number | string | null;
+  adjustedValue?: number | string | null;
   acceptableThreshold?: number | string | null;
   dataSource?: string | null;
   targetDirection: string;
@@ -184,7 +186,10 @@ export function mapEmployeeKpiToTarget(
     bestCase: toNullableNum(row.bestCase),
     cadence: mapCadenceFromApi(row.cadence),
     checkInDay: row.checkInDay ?? null,
-    actualValue: toNullableNum(row.actualValue ?? row.adjustedValue),
+    // Evaluator adjustment wins over the self-report (same rule as BE scoring).
+    actualValue: toNullableNum(row.adjustedValue ?? row.actualValue),
+    reportedValue: toNullableNum(row.actualValue),
+    adjustedValue: toNullableNum(row.adjustedValue),
     score: toNullableNum(row.score),
     approvalStatus: mapApprovalStatusFromApi(row.approvalStatus),
     rejectionReason: row.rejectionReason ?? null,
@@ -203,7 +208,8 @@ export function mapPepAuditRowFromApi(row: BscPepAuditRowApi): PepAuditRow {
     scorecardId: row.employeeScorecardId,
     targetId: row.kpiRowId,
     userId: row.userId,
-    employeeName: row.employeeName || row.userId,
+    // Never surface the raw user UUID as a name; screens resolve it from HRIS.
+    employeeName: row.employeeName?.trim() || '',
     cycleLabel: row.scorecardName || row.cycleLabel || '',
     departmentName: row.departmentName ?? null,
     kpiName: row.kpiName,
@@ -211,6 +217,8 @@ export function mapPepAuditRowFromApi(row: BscPepAuditRowApi): PepAuditRow {
     targetValue: toNum(row.targetValue),
     stretchTarget: toNullableNum(row.stretchTarget),
     actualValue: toNullableNum(row.actualValue),
+    reportedValue: toNullableNum(row.reportedValue),
+    adjustedValue: toNullableNum(row.adjustedValue),
     acceptableThreshold: toNullableNum(row.acceptableThreshold),
     dataSource: row.dataSource?.trim() ? row.dataSource.trim() : null,
     targetLogic: mapTargetLogicFromApi(row.targetDirection),

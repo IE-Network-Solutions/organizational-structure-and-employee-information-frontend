@@ -7,6 +7,7 @@ import {
 } from '@/types/bsc';
 import {
   resolveAggregatePepWorkflowSteps,
+  resolveApprovalChain,
   resolvePepWorkflowSteps,
   rowNeedsPepAction,
 } from './pepAuditWorkflow';
@@ -36,6 +37,81 @@ function sampleRow(overrides: Partial<PepAuditRow> = {}): PepAuditRow {
     ...overrides,
   };
 }
+
+describe('resolveApprovalChain', () => {
+  const flow = [
+    { kind: 'self' as const },
+    { kind: 'user' as const, userId: 'eval-1' },
+    { kind: 'directManager' as const },
+  ];
+
+  it('follows the configured evaluation flow, then PEP', () => {
+    const chain = resolveApprovalChain(
+      [
+        {
+          id: 't-1',
+          evaluationFlow: flow,
+          evaluationStepIndex: 1,
+          approvalStatus: KpiApprovalStatus.Pending,
+          actualValue: 70,
+        },
+      ],
+      [sampleRow({ approvalStatus: KpiApprovalStatus.Pending })],
+    );
+    expect(chain.map((level) => level.kind)).toEqual([
+      'self',
+      'user',
+      'directManager',
+      'pep',
+    ]);
+    expect(chain[1].userId).toBe('eval-1');
+    expect(chain.map((level) => level.state)).toEqual([
+      'done',
+      'active',
+      'pending',
+      'pending',
+    ]);
+  });
+
+  it('marks every evaluator done once the KPI is approved', () => {
+    const chain = resolveApprovalChain(
+      [
+        {
+          id: 't-1',
+          evaluationFlow: flow,
+          evaluationStepIndex: 2,
+          approvalStatus: KpiApprovalStatus.Approved,
+          actualValue: 70,
+        },
+      ],
+      [sampleRow({ approvalStatus: KpiApprovalStatus.Approved })],
+    );
+    expect(chain.slice(0, 3).every((level) => level.state === 'done')).toBe(
+      true,
+    );
+    expect(chain[3].state).toBe('active');
+  });
+
+  it('falls back to Self → Manager when no flow is configured', () => {
+    const chain = resolveApprovalChain(
+      [
+        {
+          id: 't-1',
+          evaluationFlow: [],
+          evaluationStepIndex: 0,
+          approvalStatus: KpiApprovalStatus.Pending,
+          actualValue: null,
+        },
+      ],
+      [],
+    );
+    expect(chain.map((level) => level.kind)).toEqual([
+      'self',
+      'directManager',
+      'pep',
+    ]);
+  });
+});
 
 describe('pepAuditWorkflow', () => {
   it('does not activate PEP before manager approval on a single row', () => {

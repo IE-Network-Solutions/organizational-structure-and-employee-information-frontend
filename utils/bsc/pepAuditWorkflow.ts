@@ -1,7 +1,9 @@
 import {
+  BscEvaluatorStep,
   KpiApprovalStatus,
   PepAuditFlag,
   PepAuditRow,
+  ScorecardKpiTarget,
   ScorecardStatus,
 } from '@/types/bsc';
 
@@ -119,4 +121,96 @@ export function resolveAggregatePepWorkflowSteps(
   }
 
   return [reported, manager, pep];
+}
+
+/** One level of the approval chain shown on Results / PEP audit. */
+export type ApprovalChainLevel = {
+  kind: 'self' | 'directManager' | 'user' | 'pep';
+  userId?: string | null;
+  state: PepWorkflowStepState;
+};
+
+type ChainTarget = Pick<
+  ScorecardKpiTarget,
+  | 'id'
+  | 'evaluationFlow'
+  | 'evaluationStepIndex'
+  | 'approvalStatus'
+  | 'actualValue'
+>;
+
+const DEFAULT_CHAIN: BscEvaluatorStep[] = [
+  { kind: 'self' },
+  { kind: 'directManager' },
+];
+
+function targetFlow(target: ChainTarget): BscEvaluatorStep[] {
+  return target.evaluationFlow?.length ? target.evaluationFlow : DEFAULT_CHAIN;
+}
+
+/** Per-step state for one KPI, following its own evaluation flow. */
+function targetChainStates(target: ChainTarget): PepWorkflowStepState[] {
+  const flow = targetFlow(target);
+  if (target.approvalStatus === KpiApprovalStatus.Approved) {
+    return flow.map(() => 'done');
+  }
+  if (target.approvalStatus === KpiApprovalStatus.Rejected) {
+    // Returned to the employee: the first reviewer after Self declined it.
+    const reviewer = flow.findIndex((step) => step.kind !== 'self');
+    return flow.map((step, index) => {
+      if (step.kind === 'self') return 'active';
+      return index === reviewer ? 'rejected' : 'pending';
+    });
+  }
+  const current = Math.min(
+    Math.max(Number(target.evaluationStepIndex ?? 0), 0),
+    Math.max(flow.length - 1, 0),
+  );
+  return flow.map((_, index) =>
+    index < current ? 'done' : index === current ? 'active' : 'pending',
+  );
+}
+
+/**
+ * Approval chain for a scorecard: the KPIs' configured evaluation flow
+ * (Self → Manager → named evaluators…) followed by PEP. Uses the flow set in
+ * scorecard setup's Evaluation step so Results shows the same evaluators.
+ *
+ * KPIs normally share one flow; if they differ, the longest flow is shown and
+ * each level aggregates the KPIs that have a step at that position.
+ */
+export function resolveApprovalChain(
+  targets: ChainTarget[],
+  pepRows: PepAuditRow[],
+): ApprovalChainLevel[] {
+  if (!targets.length) return [];
+
+  const reference = targets
+    .map(targetFlow)
+    .reduce((longest, flow) => (flow.length > longest.length ? flow : longest));
+  const perTarget = targets.map((target) => targetChainStates(target));
+
+  const levels: ApprovalChainLevel[] = reference.map((step, index) => {
+    const states = perTarget
+      .map((list) => list[index])
+      .filter((state): state is PepWorkflowStepState => Boolean(state));
+    const state: PepWorkflowStepState = states.includes('rejected')
+      ? 'rejected'
+      : states.includes('active')
+        ? 'active'
+        : states.length && states.every((s) => s === 'done')
+          ? 'done'
+          : 'pending';
+    return {
+      kind: step.kind,
+      userId: step.kind === 'user' ? step.userId ?? null : null,
+      state,
+    };
+  });
+
+  const pepState = pepRows.length
+    ? resolveAggregatePepWorkflowSteps(pepRows)[2]
+    : 'pending';
+  levels.push({ kind: 'pep', state: pepState });
+  return levels;
 }

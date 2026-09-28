@@ -87,46 +87,50 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
     );
   }, [scorecard]);
 
-  const { mutate: adjust } = useAdjustBscReportedKpis();
+  const { mutateAsync: adjustAsync } = useAdjustBscReportedKpis();
   const { mutateAsync: setApprovalAsync } = useSetBscKpiApproval();
   const { mutateAsync: finalizeAsync, isLoading: finalizing } =
     useFinalizeBscApprovals();
 
-  const saveEdits = (onDone?: () => void) => {
+  /** Persist adjusted values first (awaited) so approval keeps them. */
+  const saveEdits = async (): Promise<void> => {
     const adjustments = scorecard.targets
       .filter((t) => {
         const next = drafts[t.id];
         return next != null && next !== t.actualValue;
       })
       .map((t) => ({ targetId: t.id, actualValue: drafts[t.id] as number }));
-    if (!adjustments.length) {
-      onDone?.();
-      return;
-    }
-    adjust({ scorecardId: scorecard.id, adjustments }, { onSuccess: onDone });
+    if (!adjustments.length) return;
+    await adjustAsync({ scorecardId: scorecard.id, adjustments });
   };
 
-  const decideAll = (approved: boolean, rejectionReason?: string) => {
-    saveEdits(async () => {
-      const pending = scorecard.targets.filter(
-        (t) => t.approvalStatus === KpiApprovalStatus.Pending,
-      );
-      let latest = scorecard;
-      for (const row of pending) {
-        latest = await setApprovalAsync({
-          scorecardId: scorecard.id,
-          targetId: row.id,
-          approved,
-          rejectionReason,
-        });
-      }
-      const stillPending = latest.targets.filter(
-        (t) => t.approvalStatus === KpiApprovalStatus.Pending,
-      );
-      if (stillPending.length === 0) {
-        await finalizeAsync(scorecard.id);
-      }
-    });
+  const decideAll = async (approved: boolean, rejectionReason?: string) => {
+    try {
+      await saveEdits();
+    } catch {
+      return; // adjustment failed (toast shown) — do not approve/reject
+    }
+    const pending = scorecard.targets.filter(
+      (t) => t.approvalStatus === KpiApprovalStatus.Pending,
+    );
+    let latest = scorecard;
+    for (const row of pending) {
+      latest = await setApprovalAsync({
+        scorecardId: scorecard.id,
+        targetId: row.id,
+        approved,
+        rejectionReason,
+      });
+    }
+    // The reload can be a stub without KPIs (owner-only detail) — only
+    // finalize when every KPI is visibly decided.
+    const latestTargets = Array.isArray(latest?.targets) ? latest.targets : [];
+    const stillPending = latestTargets.filter(
+      (t) => t.approvalStatus === KpiApprovalStatus.Pending,
+    );
+    if (approved && latestTargets.length > 0 && stillPending.length === 0) {
+      await finalizeAsync(scorecard.id);
+    }
   };
 
   const cardApprovalMenu: MenuProps['items'] = [
@@ -322,7 +326,10 @@ function TeamScorecardCard({ scorecard }: { scorecard: EmployeeScorecard }) {
                 [row.id]: next,
               }));
             }}
-            onBlur={() => saveEdits()}
+            onBlur={() => {
+              // Error toast comes from the mutation; nothing else to do here.
+              saveEdits().catch(() => undefined);
+            }}
             data-cy={`bsc-team-kpi-actual-${row.id}`}
           />
         );

@@ -33,8 +33,7 @@ import {
   filterScorecardsByFiscalMonths,
   scorecardInCalendarMonth,
 } from '@/utils/bsc/periodFilter';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
+import { bscAccess } from '@/utils/bsc/permissions';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import PerspectiveKpiCard, {
   ScorecardKpiRow,
@@ -193,22 +192,11 @@ export default function MyBscScorecardPage() {
     setMyScorecardSessionMonths,
   } = useBscUiStore();
   const { isMobile, isTablet } = useIsMobile();
-  const canViewAllEmployeeKpi = AccessGuard.checkAccess({
-    permissions: [Permissions.ViewCompanyOkr],
-  });
-  const canViewTeamKpi = AccessGuard.checkAccess({
-    permissions: [Permissions.ViewTeamOkr],
-  });
-  const canManageBscAdmin =
-    AccessGuard.checkAccess({
-      permissions: [Permissions.ManageBscCycles],
-    }) ||
-    AccessGuard.checkAccess({
-      permissions: [Permissions.ManageBscKpiLibrary],
-    }) ||
-    AccessGuard.checkAccess({
-      permissions: [Permissions.ViewCompanyOkr],
-    });
+  // "BSC and KPI" permission group (like OKR's view-team/company-okr).
+  const canViewAllEmployeeKpi = bscAccess.viewCompany();
+  const canViewTeamKpi = bscAccess.viewTeam();
+  const canManageBscAdmin = bscAccess.manageAdmin();
+  const canEvaluateCheckIns = bscAccess.evaluateCheckIns();
 
   const tabFromUrl = parseScorecardTab(searchParams);
 
@@ -451,7 +439,7 @@ export default function MyBscScorecardPage() {
       label: tabLabel('checkin', 'Check-in'),
       children: (
         <div data-cy="bsc-checkin-tab-content">
-          <CheckinQueue inbox={checkinInbox} />
+          <CheckinQueue inbox={canEvaluateCheckIns ? checkinInbox : 'mine'} />
         </div>
       ),
     },
@@ -467,9 +455,10 @@ export default function MyBscScorecardPage() {
     },
   ];
 
-  const checkinInboxToggle = (
+  // "Assigned to me" (reviewing others) needs Evaluate KPI Check-ins.
+  const checkinInboxToggle = canEvaluateCheckIns ? (
     <CheckinInboxToggle value={checkinInbox} onChange={setCheckinInbox} />
-  );
+  ) : undefined;
 
   const tabBarExtraContent =
     activeTab === 'mine'

@@ -241,7 +241,15 @@ export interface ScorecardKpiTarget {
    * Weekly: 1–7 (Mon–Sun), BiWeekly: 1–14, Monthly: 1–31
    */
   checkInDay?: number | null;
+  /**
+   * Effective result used for display and scoring: the evaluator-adjusted
+   * value when one exists, otherwise the employee's self-reported value.
+   */
   actualValue?: number | null;
+  /** Employee's self-reported value (before any evaluator adjustment). */
+  reportedValue?: number | null;
+  /** Evaluator-adjusted value, when an evaluator changed the report. */
+  adjustedValue?: number | null;
   /** Final evaluated score for this KPI (0–100), set after evaluation */
   score?: number | null;
   evidenceUrl?: string | null;
@@ -386,6 +394,14 @@ export interface PepAuditRow {
   approvalStatus: KpiApprovalStatus;
   rejectionReason?: string | null;
   pepReturnReason?: string | null;
+  /** Employee's role (resolved from HRIS for reports). */
+  positionTitle?: string | null;
+  /** Employee's self-reported value (actualValue is the effective one). */
+  reportedValue?: number | null;
+  /** Manager/evaluator-adjusted value, if any. */
+  adjustedValue?: number | null;
+  worstCase?: number | null;
+  bestCase?: number | null;
 }
 
 export interface CreateEvaluationConfigInput {

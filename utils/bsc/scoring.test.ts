@@ -16,6 +16,28 @@ describe('bsc scoring', () => {
     expect(normalizeRatio(12, 10, TargetLogic.HigherBetter).ratio).toBe(1.2);
   });
 
+  it('gives no credit below the higher-is-better threshold', () => {
+    expect(
+      normalizeRatio(75, 90, TargetLogic.HigherBetter, {
+        acceptableThreshold: 80,
+      }).ratio,
+    ).toBe(0);
+    // At the threshold it still scores normally (80 / 100).
+    expect(
+      normalizeRatio(80, 100, TargetLogic.HigherBetter, {
+        acceptableThreshold: 80,
+      }).ratio,
+    ).toBe(0.8);
+  });
+
+  it('gives no credit above the lower-is-better threshold', () => {
+    expect(
+      normalizeRatio(20, 10, TargetLogic.LowerBetter, {
+        acceptableThreshold: 15,
+      }).ratio,
+    ).toBe(0);
+  });
+
   it('normalizes lower-is-better and caps at R_max', () => {
     const { ratio, capped } = normalizeRatio(1, 10, TargetLogic.LowerBetter);
     expect(ratio).toBe(1.25);

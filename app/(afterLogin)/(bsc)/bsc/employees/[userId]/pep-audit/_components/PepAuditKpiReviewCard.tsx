@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Checkbox, Tag, Tooltip } from 'antd';
 import {
   CheckOutlined,
@@ -26,6 +26,7 @@ import {
   achievedStretchTarget,
 } from '@/utils/bsc/pepAudit';
 import { targetScorePercent } from '@/utils/bsc/rollup';
+import { bscAccess } from '@/utils/bsc/permissions';
 
 function DataSourceReview({ url }: { url: string | null | undefined }) {
   if (!url?.trim()) {
@@ -53,6 +54,12 @@ function DataSourceReview({ url }: { url: string | null | undefined }) {
   );
 }
 
+/** Auditor action just taken on this card (before the list refetch lands). */
+type AuditOutcome = {
+  kind: 'approved' | 'rejected' | 'returned';
+  comment?: string;
+};
+
 type Props = {
   scorecardId: string;
   target: ScorecardKpiTarget;
@@ -72,6 +79,23 @@ export default function PepAuditKpiReviewCard({
 }: Props) {
   const [rejectOpen, setRejectOpen] = useState(false);
   const [unrealisticOpen, setUnrealisticOpen] = useState(false);
+  /**
+   * Outcome of the auditor's action on this card, applied as soon as the
+   * request succeeds so the buttons lock immediately (the list refetch lands
+   * a moment later and then drives the same state from server data).
+   */
+  const [localOutcome, setLocalOutcome] = useState<AuditOutcome | null>(null);
+
+  // New server data for this KPI supersedes the local outcome.
+  useEffect(() => {
+    setLocalOutcome(null);
+  }, [
+    target.id,
+    target.approvalStatus,
+    target.pepAuditFlag,
+    target.pepReturnReason,
+    target.rejectionReason,
+  ]);
 
   const { mutateAsync: approveAsync, isLoading: approveLoading } =
     useApproveKpiForPepAudit();
@@ -81,26 +105,47 @@ export default function PepAuditKpiReviewCard({
     useReturnUnrealisticKpiForPepAudit();
 
   const pepFlag = resolvePepAuditFlag(target);
-  const isRejected = target.approvalStatus === KpiApprovalStatus.Rejected;
-  const progress = isRejected ? 0 : targetScorePercent(target);
-  const hitStretch = achievedStretchTarget(
-    target.actualValue,
-    target.stretchTarget,
-    target.targetLogic,
-  );
+  const isRejected =
+    localOutcome?.kind === 'rejected' ||
+    (!localOutcome && target.approvalStatus === KpiApprovalStatus.Rejected);
   const isReturnedToManager =
-    target.approvalStatus === KpiApprovalStatus.Pending &&
-    !!target.pepReturnReason?.trim();
-  const isApproved = pepFlag === PepAuditFlag.Realistic;
+    localOutcome?.kind === 'returned' ||
+    (!localOutcome &&
+      target.approvalStatus === KpiApprovalStatus.Pending &&
+      !!target.pepReturnReason?.trim());
+  const isApproved =
+    localOutcome?.kind === 'approved' ||
+    (!localOutcome && pepFlag === PepAuditFlag.Realistic);
+  // Reject resets progress for resubmission.
+  const progress = isRejected ? 0 : targetScorePercent(target);
+  const hitStretch =
+    !isRejected &&
+    achievedStretchTarget(
+      target.actualValue,
+      target.stretchTarget,
+      target.targetLogic,
+    );
+  // Approve / Unrealistic / Reject need "PEP Audit KPI Results".
   const canAct =
+    bscAccess.pepAudit() &&
+    !localOutcome &&
     target.actualValue != null &&
     target.approvalStatus === KpiApprovalStatus.Approved &&
     (pepFlag === PepAuditFlag.Unrealistic ||
       pepFlag === PepAuditFlag.PendingReview);
   const acting = approveLoading || rejectLoading || returnLoading;
+  const rejectionReason =
+    localOutcome?.kind === 'rejected'
+      ? localOutcome.comment
+      : target.rejectionReason;
+  const returnReason =
+    localOutcome?.kind === 'returned'
+      ? localOutcome.comment
+      : target.pepReturnReason;
 
   const handleApprove = async () => {
     await approveAsync({ scorecardId, targetId: target.id });
+    setLocalOutcome({ kind: 'approved' });
   };
 
   const handleReject = async (comment: string) => {
@@ -109,6 +154,7 @@ export default function PepAuditKpiReviewCard({
       targetId: target.id,
       rejectionReason: comment,
     });
+    setLocalOutcome({ kind: 'rejected', comment });
     setRejectOpen(false);
   };
 
@@ -118,6 +164,7 @@ export default function PepAuditKpiReviewCard({
       targetId: target.id,
       returnReason: comment,
     });
+    setLocalOutcome({ kind: 'returned', comment });
     setUnrealisticOpen(false);
   };
 
@@ -176,7 +223,7 @@ export default function PepAuditKpiReviewCard({
                 <span data-cy="auto-added">
                   Reported:{' '}
                   <TargetMetricValue
-                    value={target.actualValue}
+                    value={isRejected ? null : target.actualValue}
                     unit={target.measurementUnit}
                     worstCase={target.worstCase}
                     bestCase={target.bestCase}
@@ -212,17 +259,20 @@ export default function PepAuditKpiReviewCard({
               <DataSourceReview url={target.dataSource} />
             </div>
 
-            {isReturnedToManager && target.pepReturnReason ? (
+            {isReturnedToManager && returnReason ? (
               <p
                 data-cy="auto-added"
                 className="m-0 mt-2 text-sm text-amber-700"
               >
-                Returned to manager: {target.pepReturnReason}
+                Returned to manager: {returnReason}
               </p>
             ) : null}
-            {isRejected && target.rejectionReason ? (
-              <p data-cy="auto-added" className="m-0 mt-2 text-sm text-red-600">
-                {target.rejectionReason}
+            {isRejected && rejectionReason ? (
+              <p
+                data-cy={`bsc-pep-audit-rejection-reason-${target.id}`}
+                className="m-0 mt-2 text-sm text-red-600"
+              >
+                Rejected: {rejectionReason}
               </p>
             ) : null}
           </div>
@@ -232,7 +282,16 @@ export default function PepAuditKpiReviewCard({
           data-cy="auto-added"
           className="flex shrink-0 flex-wrap items-center gap-2"
         >
-          {canAct ? (
+          {/* Rejected wins: it resets the KPI for the employee to resubmit. */}
+          {isRejected ? (
+            <Tag
+              color="red"
+              className="m-0"
+              data-cy={`bsc-pep-audit-status-rejected-${target.id}`}
+            >
+              Rejected
+            </Tag>
+          ) : canAct ? (
             <>
               <Button
                 type="primary"
@@ -268,16 +327,20 @@ export default function PepAuditKpiReviewCard({
               </Button>
             </>
           ) : isApproved ? (
-            <Tag color="green" className="m-0">
+            <Tag
+              color="green"
+              className="m-0"
+              data-cy={`bsc-pep-audit-status-approved-${target.id}`}
+            >
               Approved
             </Tag>
           ) : isReturnedToManager ? (
-            <Tag color="orange" className="m-0">
+            <Tag
+              color="orange"
+              className="m-0"
+              data-cy={`bsc-pep-audit-status-returned-${target.id}`}
+            >
               Returned to manager
-            </Tag>
-          ) : isRejected ? (
-            <Tag color="red" className="m-0">
-              Rejected
             </Tag>
           ) : null}
         </div>

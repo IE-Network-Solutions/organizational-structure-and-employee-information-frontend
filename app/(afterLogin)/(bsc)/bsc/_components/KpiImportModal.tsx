@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { Button, Modal, Table, Tag, Upload } from 'antd';
+import { Button, Modal, Select, Table, Tag, Upload } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   CloseOutlined,
@@ -12,12 +12,22 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import CustomButton from '@/components/common/buttons/customButton';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import { useImportBscKpis } from '@/store/server/features/bsc/mutation';
-import { useGetBscCycles } from '@/store/server/features/bsc/queries';
-import { CycleStatus, KpiImportRowResult } from '@/types/bsc';
 import {
+  useGetBscCycles,
+  useGetBscPerspectiveCatalog,
+} from '@/store/server/features/bsc/queries';
+import { CycleStatus, KpiImportRowResult, TargetLogic } from '@/types/bsc';
+import {
+  KPI_IMPORT_HEADERS,
   buildKpiImportTemplateBuffer,
   parseKpiImportFile,
 } from '@/utils/bsc/kpiImport';
+
+const TARGET_DIRECTION_LABEL: Record<TargetLogic, string> = {
+  [TargetLogic.HigherBetter]: 'Higher is Better',
+  [TargetLogic.LowerBetter]: 'Lower is Better',
+  [TargetLogic.Bounded]: 'Bounded',
+};
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function pickUploadFile(fileField: unknown): File | undefined {
@@ -33,11 +43,25 @@ function pickUploadFile(fileField: unknown): File | undefined {
 export default function KpiImportModal() {
   const { kpiImportModalOpen, closeKpiImportModal } = useBscUiStore();
   const { data: configs } = useGetBscCycles();
+  const { data: perspectiveCatalog } = useGetBscPerspectiveCatalog();
   const importKpis = useImportBscKpis();
   const [file, setFile] = useState<File | undefined>();
   const [parsedRows, setParsedRows] = useState<KpiImportRowResult[]>([]);
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [parseLoading, setParseLoading] = useState(false);
+  // The approved template has no Perspective column — every KPI in the file
+  // goes into the perspective chosen here (BE requires one per KPI).
+  const [perspective, setPerspective] = useState<string | undefined>();
+
+  const perspectiveOptions = useMemo(
+    () =>
+      (perspectiveCatalog || [])
+        .map((item) => item.name?.trim())
+        .filter((name): name is string => Boolean(name))
+        .map((name) => ({ value: name, label: name })),
+    [perspectiveCatalog],
+  );
+  const selectedPerspective = perspective || perspectiveOptions[0]?.value;
 
   const evaluationConfigId = useMemo(() => {
     const openConfig = (configs || []).find(
@@ -63,19 +87,36 @@ export default function KpiImportModal() {
         ),
     },
     {
-      title: 'Name',
+      title: 'KPI Name',
       key: 'name',
       render: (ignored, row) => row.input?.name || '—',
     },
     {
-      title: 'Perspective',
-      key: 'perspective',
-      render: (ignored, row) => row.input?.perspective || '—',
+      title: 'Unit',
+      key: 'unit',
+      width: 80,
+      render: (ignored, row) => row.input?.measurementUnit || '—',
+    },
+    {
+      title: 'Target',
+      key: 'target',
+      width: 90,
+      render: (ignored, row) =>
+        row.input?.defaultTarget != null ? row.input.defaultTarget : '—',
+    },
+    {
+      title: 'Target Direction',
+      key: 'direction',
+      width: 140,
+      render: (ignored, row) =>
+        row.input?.targetLogic
+          ? TARGET_DIRECTION_LABEL[row.input.targetLogic]
+          : '—',
     },
     {
       title: 'Details',
       key: 'details',
-      render: (ignored, row) => row.error || row.input?.measurementUnit || '—',
+      render: (ignored, row) => row.error || row.input?.description || '—',
     },
   ];
 
@@ -120,7 +161,7 @@ export default function KpiImportModal() {
     }
     setParseLoading(true);
     try {
-      const rows = await parseKpiImportFile(upload);
+      const rows = await parseKpiImportFile(upload, selectedPerspective || '');
       setParsedRows(rows);
       if (!rows.length) {
         NotificationMessage.warning({ message: 'No rows found in the file' });
@@ -137,8 +178,15 @@ export default function KpiImportModal() {
       NotificationMessage.error({ message: 'No valid rows to import' });
       return;
     }
+    if (!selectedPerspective) {
+      NotificationMessage.error({ message: 'Select a perspective' });
+      return;
+    }
     await importKpis.mutateAsync({
-      rows: validRows.map((row) => row.input!),
+      rows: validRows.map((row) => ({
+        ...row.input!,
+        perspective: selectedPerspective,
+      })),
       evaluationConfigId,
     });
     handleClose();
@@ -166,6 +214,37 @@ export default function KpiImportModal() {
           >
             Download template
           </Button>
+          <span
+            className="text-xs text-[#8F94A3]"
+            data-cy="bsc-kpi-import-columns-hint"
+          >
+            Columns: {KPI_IMPORT_HEADERS.join(' · ')}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-1" data-cy="bsc-kpi-import-perspective">
+          <span
+            className="text-sm font-medium text-gray-700"
+            data-cy="bsc-kpi-import-perspective-label"
+          >
+            Perspective
+          </span>
+          <Select
+            className="w-full sm:w-[280px]"
+            placeholder="Select perspective"
+            value={selectedPerspective}
+            options={perspectiveOptions}
+            onChange={setPerspective}
+            showSearch
+            optionFilterProp="label"
+            data-cy="bsc-kpi-import-perspective-select"
+          />
+          <span
+            className="text-xs text-[#8F94A3]"
+            data-cy="bsc-kpi-import-perspective-hint"
+          >
+            All KPIs in the file are added to this perspective.
+          </span>
         </div>
 
         <Upload.Dragger

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Avatar, Button, Popover, Select, Table } from 'antd';
 import type { ColumnsType, TableRowSelection } from 'antd/es/table/interface';
 import {
@@ -36,12 +36,12 @@ import {
 } from '@/store/server/features/employees/employeeManagment/queries';
 import { buildOrgEmployees } from '@/utils/bsc/orgUsers';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
+import { bscAccess } from '@/utils/bsc/permissions';
 import {
   EmployeeScorecard,
   PepAuditFlag,
   PepAuditRow,
+  ScorecardKpiTarget,
   ScorecardStatus,
 } from '@/types/bsc';
 import { actionableItemsFromPepRows } from '@/utils/bsc/pepAuditBulk';
@@ -106,6 +106,8 @@ type ResultsScorecardRow = {
   needsPepReview: boolean;
   pepRows: PepAuditRow[];
   workflowParticipants: PepAuditBarParticipants;
+  /** Scorecard KPIs — their evaluation flow drives the approval path. */
+  targets: ScorecardKpiTarget[];
 };
 
 type Props = {
@@ -205,6 +207,7 @@ function buildScorecardRow(
     needsPepReview: scorecardNeedsPepReview(pepRows, scorecard.status),
     pepRows,
     workflowParticipants: buildWorkflowParticipants(scorecard, employeeById),
+    targets: scorecard.targets || [],
   };
 }
 
@@ -238,12 +241,11 @@ export default function ResultsEmployeeTable({
   const { userId: actorId } = useAuthenticationStore();
   const { isMobile, isTablet } = useIsMobile();
 
-  const canViewTeamKpi =
-    canViewTeamProp ??
-    AccessGuard.checkAccess({ permissions: [Permissions.ViewTeamOkr] });
-  const canViewAllEmployeeKpi =
-    canViewAllProp ??
-    AccessGuard.checkAccess({ permissions: [Permissions.ViewCompanyOkr] });
+  // "BSC and KPI" permission group (like view-team-okr / view-company-okr).
+  const canViewTeamKpi = canViewTeamProp ?? bscAccess.viewTeam();
+  const canViewAllEmployeeKpi = canViewAllProp ?? bscAccess.viewCompany();
+  const canExportAuditReport = bscAccess.exportAuditReport();
+  const canPepAudit = bscAccess.pepAudit();
 
   const scopeOptions = useMemo(() => {
     const options: { value: ResultsScope; label: string }[] = [];
@@ -310,6 +312,17 @@ export default function ResultsEmployeeTable({
     [allUsersData, allUsers],
   );
 
+  /** Named evaluators from the scorecard's Evaluation step. */
+  const resolveEvaluator = useCallback(
+    (evaluatorId: string) => {
+      const person = employeeById.get(evaluatorId);
+      return person
+        ? { name: person.label, profileImage: person.profileImage ?? null }
+        : undefined;
+    },
+    [employeeById],
+  );
+
   const profileImageByUserId = useMemo(() => {
     const map = new Map<string, string>();
     for (const [id, employee] of employeeById.entries()) {
@@ -333,12 +346,27 @@ export default function ResultsEmployeeTable({
     [scopedScorecards],
   );
 
+  // BE PEP rows carry ids only — fill employee / department names from HRIS so
+  // the table, search and Excel export never show raw user UUIDs.
   const scopedPepRows = useMemo(
     () =>
-      (allPepRows || []).filter((row) =>
-        scopedScorecardIds.has(row.scorecardId),
-      ),
-    [allPepRows, scopedScorecardIds],
+      (allPepRows || [])
+        .filter((row) => scopedScorecardIds.has(row.scorecardId))
+        .map((row) => {
+          const employee = employeeById.get(row.userId);
+          const hasRealName =
+            !!row.employeeName?.trim() && row.employeeName !== row.userId;
+          return {
+            ...row,
+            employeeName: hasRealName
+              ? row.employeeName
+              : employee?.label || 'Employee',
+            departmentName:
+              row.departmentName || employee?.departmentName || null,
+            positionTitle: row.positionTitle || employee?.positionTitle || null,
+          };
+        }),
+    [allPepRows, scopedScorecardIds, employeeById],
   );
 
   const cycleById = useMemo(() => {
@@ -667,6 +695,8 @@ export default function ResultsEmployeeTable({
         <PepAuditWorkflowStepsAggregate
           rows={row.pepRows}
           participants={row.workflowParticipants}
+          targets={row.targets}
+          resolveUser={resolveEvaluator}
           dataCy={`bsc-results-approval-bar-${row.scorecardId}`}
         />
       ),
@@ -833,24 +863,28 @@ export default function ResultsEmployeeTable({
                 Filter
               </Button>
             </Popover>
-            <Button
-              icon={<DownloadOutlined />}
-              loading={exporting}
-              disabled={!currentPepRows.length}
-              onClick={handleExport}
-              data-cy="bsc-results-export"
-            >
-              Export
-            </Button>
-            <PepAuditBulkActionBar
-              variant="inline"
-              approveAppearance="toolbar"
-              selectedCount={selectedRowKeys.length}
-              onApprove={handleBulkApprove}
-              onClear={() => setSelectedRowKeys([])}
-              loading={bulkApproving}
-              dataCy="bsc-results-bulk-bar"
-            />
+            {canExportAuditReport ? (
+              <Button
+                icon={<DownloadOutlined />}
+                loading={exporting}
+                disabled={!currentPepRows.length}
+                onClick={handleExport}
+                data-cy="bsc-results-export"
+              >
+                Export
+              </Button>
+            ) : null}
+            {canPepAudit ? (
+              <PepAuditBulkActionBar
+                variant="inline"
+                approveAppearance="toolbar"
+                selectedCount={selectedRowKeys.length}
+                onApprove={handleBulkApprove}
+                onClear={() => setSelectedRowKeys([])}
+                loading={bulkApproving}
+                dataCy="bsc-results-bulk-bar"
+              />
+            ) : null}
           </div>
         </div>
 
@@ -865,7 +899,7 @@ export default function ResultsEmployeeTable({
               pagination={false}
               tableLayout="fixed"
               rowKey="userId"
-              rowSelection={rowSelection}
+              rowSelection={canPepAudit ? rowSelection : undefined}
               rowClassName={(ignored, index) =>
                 `${bscTableRowClassName(index)} cursor-pointer`
               }

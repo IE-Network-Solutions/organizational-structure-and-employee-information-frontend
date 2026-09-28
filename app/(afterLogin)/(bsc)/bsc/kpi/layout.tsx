@@ -10,8 +10,7 @@ import KpiImportModal from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiImportMo
 import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
+import { bscAccess } from '@/utils/bsc/permissions';
 import {
   bscKpiAdminHref,
   parseBscKpiAdminTab,
@@ -34,16 +33,11 @@ export default function BscKpiAdminLayout({
     useBscUiStore();
   const activeTab = parseBscKpiAdminTab(pathname || '');
 
-  const canManageBscAdmin =
-    AccessGuard.checkAccess({
-      permissions: [Permissions.ManageBscCycles],
-    }) ||
-    AccessGuard.checkAccess({
-      permissions: [Permissions.ManageBscKpiLibrary],
-    }) ||
-    AccessGuard.checkAccess({
-      permissions: [Permissions.ViewCompanyOkr],
-    });
+  // "BSC and KPI" permission group (KPI library / scorecards / import).
+  const canManageBscAdmin = bscAccess.manageAdmin();
+  const canImportKpis = bscAccess.importKpis();
+  const canManageKpiLibrary = bscAccess.manageKpiLibrary();
+  const canManageScorecards = bscAccess.manageScorecards();
 
   useEffect(() => {
     if (!canManageBscAdmin) {
@@ -150,40 +144,46 @@ export default function BscKpiAdminLayout({
           </div>
           {activeTab === 'kpis' ? (
             <>
-              <Button
-                icon={
-                  <IosShareIcon
-                    fontSize="small"
-                    className="text-[#374151]"
-                    data-cy="bsc-kpi-import-icon"
-                  />
-                }
-                onClick={openKpiImportModal}
-                className={`${bscFilterButtonClassName} mb-[6px] hidden h-8 shrink-0 rounded-md sm:inline-flex`}
-                data-cy="bsc-kpi-import"
-              >
-                Import
-              </Button>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => openCatalogKpiForm()}
-                className="mb-[6px] hidden h-8 shrink-0 rounded-md border-none bg-[#2b54ad] sm:inline-flex hover:bg-[#3d66c2]"
-                data-cy="bsc-kpi-add"
-              >
-                Add KPI
-              </Button>
-              <button
-                type="button"
-                aria-label="Add KPI"
-                onClick={() => openCatalogKpiForm()}
-                className="mb-[6px] flex h-8 w-8 min-h-8 min-w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border-none bg-[#2b54ad] text-white outline-none hover:opacity-90 sm:hidden"
-                data-cy="bsc-kpi-add-mobile"
-              >
-                <PlusOutlined className="text-sm" />
-              </button>
+              {canImportKpis ? (
+                <Button
+                  icon={
+                    <IosShareIcon
+                      fontSize="small"
+                      className="text-[#374151]"
+                      data-cy="bsc-kpi-import-icon"
+                    />
+                  }
+                  onClick={openKpiImportModal}
+                  className={`${bscFilterButtonClassName} mb-[6px] hidden h-8 shrink-0 rounded-md sm:inline-flex`}
+                  data-cy="bsc-kpi-import"
+                >
+                  Import
+                </Button>
+              ) : null}
+              {canManageKpiLibrary ? (
+                <>
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => openCatalogKpiForm()}
+                    className="mb-[6px] hidden h-8 shrink-0 rounded-md border-none bg-[#2b54ad] sm:inline-flex hover:bg-[#3d66c2]"
+                    data-cy="bsc-kpi-add"
+                  >
+                    Add KPI
+                  </Button>
+                  <button
+                    type="button"
+                    aria-label="Add KPI"
+                    onClick={() => openCatalogKpiForm()}
+                    className="mb-[6px] flex h-8 w-8 min-h-8 min-w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border-none bg-[#2b54ad] text-white outline-none hover:opacity-90 sm:hidden"
+                    data-cy="bsc-kpi-add-mobile"
+                  >
+                    <PlusOutlined className="text-sm" />
+                  </button>
+                </>
+              ) : null}
             </>
-          ) : activeTab === 'bsc' ? (
+          ) : activeTab === 'bsc' && canManageScorecards ? (
             <>
               <Button
                 type="primary"

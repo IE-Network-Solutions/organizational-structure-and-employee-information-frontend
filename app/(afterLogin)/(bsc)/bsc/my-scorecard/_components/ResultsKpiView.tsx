@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
+import { bscAccess } from '@/utils/bsc/permissions';
 import EmployeeKpiTable from './EmployeeKpiTable';
 
 type Props = {
@@ -12,19 +11,15 @@ type Props = {
 
 /**
  * Results page: employee KPI table.
- * Always includes own ("My KPI") scope; Team / All match OKR ViewTeamOkr /
- * ViewCompanyOkr gates.
+ * Always includes own ("My KPI") scope; Team / All use the BSC permission
+ * group (view-team-bsc / view-company-bsc).
  */
 export default function ResultsKpiView({
   canViewTeamKpi: canViewTeamProp,
   canViewAllEmployeeKpi: canViewAllProp,
 }: Props) {
-  const canViewTeamKpi =
-    canViewTeamProp ??
-    AccessGuard.checkAccess({ permissions: [Permissions.ViewTeamOkr] });
-  const canViewAllEmployeeKpi =
-    canViewAllProp ??
-    AccessGuard.checkAccess({ permissions: [Permissions.ViewCompanyOkr] });
+  const canViewTeamKpi = canViewTeamProp ?? bscAccess.viewTeam();
+  const canViewAllEmployeeKpi = canViewAllProp ?? bscAccess.viewCompany();
 
   return (
     <EmployeeKpiTable

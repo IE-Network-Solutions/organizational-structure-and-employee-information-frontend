@@ -10,7 +10,10 @@ import {
   ScorecardKpiTarget,
 } from '@/types/bsc';
 import { PepAuditWorkflowStepsAggregate } from '@/app/(afterLogin)/(bsc)/bsc/my-scorecard/_components/PepAuditWorkflowSteps';
-import type { PepAuditBarParticipants } from '@/app/(afterLogin)/(bsc)/bsc/_components/PepAuditApprovalStatusBar';
+import type {
+  PepAuditBarParticipants,
+  PepAuditStepParticipant,
+} from '@/app/(afterLogin)/(bsc)/bsc/_components/PepAuditApprovalStatusBar';
 import {
   resolveScorecardResultsStatus,
   type ResultsApprovalStatus,
@@ -27,6 +30,8 @@ type Props = {
   isCurrentPeriod?: boolean;
   pepRows: PepAuditRow[];
   participants: PepAuditBarParticipants;
+  /** Names for named evaluators in the KPIs' evaluation flow. */
+  resolveEvaluator?: (userId: string) => PepAuditStepParticipant | undefined;
   scrollRef?: React.Ref<HTMLDivElement>;
   isKpiSelected?: (targetId: string) => boolean;
   onKpiSelectedChange?: (targetId: string, checked: boolean) => void;
@@ -95,6 +100,7 @@ export default function PepAuditPeriodCard({
   isCurrentPeriod = false,
   pepRows,
   participants,
+  resolveEvaluator,
   scrollRef,
   isKpiSelected,
   onKpiSelectedChange,
@@ -154,6 +160,8 @@ export default function PepAuditPeriodCard({
             <PepAuditWorkflowStepsAggregate
               rows={pepRows}
               participants={participants}
+              targets={scorecard.targets}
+              resolveUser={resolveEvaluator}
               dataCy={`bsc-pep-audit-approval-bar-${scorecard.id}`}
               className="ml-auto w-full max-w-[50%] shrink-0 justify-end"
             />
