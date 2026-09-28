@@ -63,7 +63,12 @@ export const useGetRuleViolations = (query: RuleViolationQueryParams) => {
   return useQuery<ApiResponse<AttendanceRuleViolation>>(
     ['attendance-rule-violations', query],
     () => getRuleViolations(query),
-    { keepPreviousData: true },
+    {
+      keepPreviousData: true,
+      staleTime: 3 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   );
 };
 

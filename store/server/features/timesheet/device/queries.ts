@@ -36,11 +36,19 @@ export const discoverAttendanceDevices = async (): Promise<
 export const useGetAttendanceDevices = () =>
   useQuery<AttendanceDevice[]>(['attendance-devices'], getAttendanceDevices, {
     staleTime: 30 * 1000,
+    keepPreviousData: true,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
 export const useDiscoverAttendanceDevices = () =>
   useQuery<DiscoveredAttendanceDevice[]>(
     ['attendance-devices-discover'],
     discoverAttendanceDevices,
-    { staleTime: 30 * 1000 },
+    {
+      staleTime: 30 * 1000,
+      keepPreviousData: true,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   );
