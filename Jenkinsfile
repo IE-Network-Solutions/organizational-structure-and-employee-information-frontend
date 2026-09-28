@@ -288,45 +288,41 @@ pipeline {
                 // a failed branch mirror marks the build UNSTABLE, not FAILURE
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE',
                            message: 'core-develop sync failed — the deployment itself succeeded') {
-                    withCredentials([
-                        usernamePassword(
-                            credentialsId: 'github-pat',
-                            usernameVariable: 'GH_USER',
-                            passwordVariable: 'GH_TOKEN'
-                        )
-                    ]) {
-                        sh '''#!/bin/bash
-                            set -e
-                            rm -rf sync-tmp
-                            git clone "https://x-access-token:${GH_TOKEN}@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git" sync-tmp
-                            cd sync-tmp
-                            git config user.email "jenkins@ienetworks.co"
-                            git config user.name "Jenkins CI"
-                            git fetch origin develop core-develop
+                    // REPO_URL (from the secrets file) already carries its own credentials and is
+                    // what the clone/fetch in Pull Latest Changes uses. It is referenced as a shell
+                    // variable, never interpolated into the script text, so the token stays out of
+                    // the console log.
+                    sh '''#!/bin/bash
+                        set -e
+                        rm -rf sync-tmp
+                        git clone "$REPO_URL" sync-tmp
+                        cd sync-tmp
+                        git config user.email "jenkins@ienetworks.co"
+                        git config user.name "Jenkins CI"
+                        git fetch origin develop core-develop
 
-                            # Make core-develop EXACTLY match develop...
-                            git checkout -B core-develop origin/develop
+                        # Make core-develop EXACTLY match develop...
+                        git checkout -B core-develop origin/develop
 
-                            # ...except keep core-develop's own Jenkinsfile (different env/branch logic)
-                            git checkout origin/core-develop -- Jenkinsfile
-                            git clean -fd
+                        # ...except keep core-develop's own Jenkinsfile (different env/branch logic)
+                        git checkout origin/core-develop -- Jenkinsfile
+                        git clean -fd
 
-                            # Only push if the content actually differs.
-                            # (The old second test, `git diff --quiet HEAD --`, could never pass:
-                            #  restoring Jenkinsfile always leaves a staged change, so every build
-                            #  force-pushed a new commit even when nothing had changed.)
-                            if git diff --quiet origin/core-develop -- . ':!Jenkinsfile'; then
-                                echo "core-develop already matches develop (excl. Jenkinsfile) — nothing to sync."
-                            else
-                                git add -A
-                                git commit -m "Sync from develop (build ${BUILD_NUMBER})"
-                                git push origin HEAD:core-develop --force
-                            fi
+                        # Only push if the content actually differs.
+                        # (The old second test, `git diff --quiet HEAD --`, could never pass:
+                        #  restoring Jenkinsfile always leaves a staged change, so every build
+                        #  force-pushed a new commit even when nothing had changed.)
+                        if git diff --quiet origin/core-develop -- . ':!Jenkinsfile'; then
+                            echo "core-develop already matches develop (excl. Jenkinsfile) — nothing to sync."
+                        else
+                            git add -A
+                            git commit -m "Sync from develop (build ${BUILD_NUMBER})"
+                            git push origin HEAD:core-develop --force
+                        fi
 
-                            cd ..
-                            rm -rf sync-tmp
-                        '''
-                    }
+                        cd ..
+                        rm -rf sync-tmp
+                    '''
                 }
             }
         }
@@ -338,42 +334,35 @@ pipeline {
             steps {
                 catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE',
                            message: 'core-production sync failed — the deployment itself succeeded') {
-                    withCredentials([
-                        usernamePassword(
-                            credentialsId: 'github-pat',
-                            usernameVariable: 'GH_USER',
-                            passwordVariable: 'GH_TOKEN'
-                        )
-                    ]) {
-                        sh '''#!/bin/bash
-                            set -e
-                            rm -rf sync-tmp
-                            git clone "https://x-access-token:${GH_TOKEN}@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git" sync-tmp
-                            cd sync-tmp
-                            git config user.email "jenkins@ienetworks.co"
-                            git config user.name "Jenkins CI"
-                            git fetch origin production core-production
+                    // same REPO_URL the clone/fetch in Pull Latest Changes uses
+                    sh '''#!/bin/bash
+                        set -e
+                        rm -rf sync-tmp
+                        git clone "$REPO_URL" sync-tmp
+                        cd sync-tmp
+                        git config user.email "jenkins@ienetworks.co"
+                        git config user.name "Jenkins CI"
+                        git fetch origin production core-production
 
-                            # Make core-production EXACTLY match production...
-                            git checkout -B core-production origin/production
+                        # Make core-production EXACTLY match production...
+                        git checkout -B core-production origin/production
 
-                            # ...except keep core-production's own Jenkinsfile (different env/branch logic)
-                            git checkout origin/core-production -- Jenkinsfile
-                            git clean -fd
+                        # ...except keep core-production's own Jenkinsfile (different env/branch logic)
+                        git checkout origin/core-production -- Jenkinsfile
+                        git clean -fd
 
-                            # Only push if the content actually differs (see note in the develop sync stage)
-                            if git diff --quiet origin/core-production -- . ':!Jenkinsfile'; then
-                                echo "core-production already matches production (excl. Jenkinsfile) — nothing to sync."
-                            else
-                                git add -A
-                                git commit -m "Sync from production (build ${BUILD_NUMBER})"
-                                git push origin HEAD:core-production --force
-                            fi
+                        # Only push if the content actually differs (see note in the develop sync stage)
+                        if git diff --quiet origin/core-production -- . ':!Jenkinsfile'; then
+                            echo "core-production already matches production (excl. Jenkinsfile) — nothing to sync."
+                        else
+                            git add -A
+                            git commit -m "Sync from production (build ${BUILD_NUMBER})"
+                            git push origin HEAD:core-production --force
+                        fi
 
-                            cd ..
-                            rm -rf sync-tmp
-                        '''
-                    }
+                        cd ..
+                        rm -rf sync-tmp
+                    '''
                 }
             }
         }
