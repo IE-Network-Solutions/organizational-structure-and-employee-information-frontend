@@ -193,6 +193,9 @@ export const useGetLeaveRequest = (
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled,
+      staleTime: 3 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   );
 };
