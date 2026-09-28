@@ -243,7 +243,7 @@ const ViewAttendanceSidebar = () => {
         width="40%"
         data-cy="time-attendance-view-attendance-sidebar"
       >
-        {!(data && attendance) && isFetching ? (
+        {isFetching && !attendance ? (
           <div
             className="flex items-center justify-center py-20 "
             id="time-attendance-view-attendance-sidebar-loading"
@@ -254,14 +254,14 @@ const ViewAttendanceSidebar = () => {
               data-cy="time-attendance-view-attendance-sidebar-loading-spin"
             />
           </div>
-        ) : (
+        ) : attendance ? (
           <>
             <Row
               gutter={[24, 24]}
               id="time-attendance-view-attendance-sidebar-info-row"
               data-cy="time-attendance-view-attendance-sidebar-info-row"
             >
-              {attendance?.createdBy && (
+              {attendance.createdBy && (
                 <Col
                   data-cy="time-attendance-view-attendance-sidebar-employee-column"
                   span={24}
@@ -447,8 +447,8 @@ const ViewAttendanceSidebar = () => {
                   id="time-attendance-view-attendance-sidebar-overtime-value"
                   data-cy="time-attendance-view-attendance-sidebar-overtime-value"
                 >
-                  {minuteToHour(attendance?.overTimeMinutes)} hr &nbsp;
-                  {minuteToLastMinute(attendance?.overTimeMinutes)} min
+                  {minuteToHour(attendance.overTimeMinutes ?? 0)} hr &nbsp;
+                  {minuteToLastMinute(attendance.overTimeMinutes ?? 0)} min
                 </div>
               </Col>
               <Col
@@ -543,7 +543,7 @@ const ViewAttendanceSidebar = () => {
               </div>
             )}
           </>
-        )}
+        ) : null}
       </CustomDrawerLayout>
     )
   );
