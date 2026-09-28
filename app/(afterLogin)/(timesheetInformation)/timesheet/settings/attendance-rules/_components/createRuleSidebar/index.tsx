@@ -794,7 +794,9 @@ const CreateRuleSidebar = () => {
   const itemClass = 'w-full font-semibold text-xs';
   const controlClass =
     'h-[40px] w-full text-sm font-normal text-black opacity-70';
-  const isPending = isFetching || isCreating || isUpdating;
+  const isPending = isCreating || isUpdating;
+  const showEditSkeleton =
+    !!attendanceRuleId && isFetching && !attendanceRuleData;
 
   const getStepTwoFieldsToValidate = () => {
     const fields = [
@@ -1642,7 +1644,7 @@ const CreateRuleSidebar = () => {
         width={660}
       >
         <Skeleton
-          loading={isPending && !!attendanceRuleId}
+          loading={showEditSkeleton}
           active
           data-cy="time-attendance-settings-attendance-rules-create-rule-sidebar-spin"
         >

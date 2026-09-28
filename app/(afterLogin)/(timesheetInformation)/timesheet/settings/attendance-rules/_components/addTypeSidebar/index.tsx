@@ -128,7 +128,7 @@ const AddTypesSidebar = () => {
               id="time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button"
               data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-cancel-button"
               className="border border-[#D9D9D9] text-base font-normal text-gray-900"
-              disabled={isFetching || isLoading}
+              disabled={isLoading}
             >
               Cancel
             </Button>
@@ -149,7 +149,7 @@ const AddTypesSidebar = () => {
         width={480}
       >
         <Skeleton
-          loading={isFetching || isLoading}
+          loading={!!typeId && isFetching && !attendanceTypeData}
           active
           data-cy="time-attendance-settings-attendance-rules-add-type-sidebar-spin"
         >

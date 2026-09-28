@@ -195,6 +195,7 @@ const LocationSidebar = () => {
               type="primary"
               className="h-10 px-6 rounded-lg"
               onClick={() => form.submit()}
+              loading={isLoading}
             >
               {allowedAreaId ? 'Update' : 'Create'}
             </Button>
@@ -205,7 +206,7 @@ const LocationSidebar = () => {
         centered
       >
         <Skeleton
-          loading={isFetching || isLoading}
+          loading={!!areaId && isFetching && !allowedAreaData}
           active
           data-cy="time-attendance-settings-allowed-areas-sidebar-spin"
         >
