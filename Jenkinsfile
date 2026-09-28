@@ -332,35 +332,61 @@ pipeline {
                 expression { env.RESOLVED_BRANCH == 'production' }
             }
             steps {
-                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE',
-                           message: 'core-production sync failed — the deployment itself succeeded') {
-                    // same REPO_URL the clone/fetch in Pull Latest Changes uses
-                    sh '''#!/bin/bash
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'github-pat',
+                        usernameVariable: 'GH_USER',
+                        passwordVariable: 'GH_TOKEN'
+                    )
+                ]) {
+                    sh '''
                         set -e
+
                         rm -rf sync-tmp
-                        git clone "$REPO_URL" sync-tmp
+
+                        git clone "https://${GH_TOKEN}@github.com/IE-Network-Solutions/selamnew-collaboration-fe.git" sync-tmp
+
                         cd sync-tmp
+
                         git config user.email "jenkins@ienetworks.co"
                         git config user.name "Jenkins CI"
+
                         git fetch origin production core-production
 
-                        # Make core-production EXACTLY match production...
-                        git checkout -B core-production origin/production
+                        echo "Switching to core-production..."
 
-                        # ...except keep core-production's own Jenkinsfile (different env/branch logic)
+                        git checkout core-production
+
+                        echo "Making core-production match production..."
+
+                        git reset --hard origin/production
+
+                        echo "Restoring core-production Jenkinsfile..."
+
                         git checkout origin/core-production -- Jenkinsfile
+
                         git clean -fd
 
-                        # Only push if the content actually differs (see note in the develop sync stage)
-                        if git diff --quiet origin/core-production -- . ':!Jenkinsfile'; then
-                            echo "core-production already matches production (excl. Jenkinsfile) — nothing to sync."
+                        if git diff --quiet origin/core-production -- . ':!Jenkinsfile' 2>/dev/null && \
+                           git diff --quiet HEAD --; then
+
+                            echo "core-production already matches production (excluding Jenkinsfile)."
+
                         else
+
                             git add -A
-                            git commit -m "Sync from production (build ${BUILD_NUMBER})"
+
+                            git commit -m "Sync from production (build ${BUILD_NUMBER})" || \
+                                echo "Nothing to commit"
+
                             git push origin HEAD:core-production --force
+
+                            echo "core-production synchronized successfully."
+
                         fi
 
                         cd ..
+
                         rm -rf sync-tmp
                     '''
                 }
