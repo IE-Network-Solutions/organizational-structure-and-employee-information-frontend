@@ -1,6 +1,9 @@
 import { Col, Row } from 'antd';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { useUpdateEmployee } from '@/store/server/features/employees/employeeDetail/mutations';
+import {
+  useCreateEmployee,
+  useUpdateEmployee,
+} from '@/store/server/features/employees/employeeDetail/mutations';
 import { useGetNationalities } from '@/store/server/features/employees/employeeManagment/nationality/querier';
 import {
   EditState,
@@ -13,6 +16,8 @@ import AddressComponent from './AddressComponent';
 import { useGetEmployeInformationForms } from '@/store/server/features/employees/employeeManagment/employeInformationForm/queries';
 import AdditionalInformation from './additionalInformation';
 import { prepareJsonFieldForPatch } from '@/utils/employeeBankInformation';
+
+const EMPTY_JSON_OBJECT = '{}';
 
 function General({ id }: { id: string }) {
   const { data: employeeData } = useGetEmployee(id);
@@ -41,7 +46,10 @@ function General({ id }: { id: string }) {
       }),
     ) || [];
 
-  const { mutate: updateEmployeeInformation } = useUpdateEmployee();
+  const { mutate: updateEmployeeInformation, isLoading: isUpdating } =
+    useUpdateEmployee();
+  const { mutate: createEmployeeInformation, isLoading: isCreating } =
+    useCreateEmployee();
   useGetNationalities();
 
   const handleSaveChanges = (
@@ -49,9 +57,6 @@ function General({ id }: { id: string }) {
     values: any,
     options?: { onSuccess?: () => void; onError?: () => void },
   ) => {
-    const employeeInfoId = employeeData?.employeeInformation?.id;
-    if (!employeeInfoId) return;
-
     let payload: Record<string, unknown>;
     switch (editKey) {
       case 'general':
@@ -93,17 +98,38 @@ function General({ id }: { id: string }) {
         return;
     }
 
+    const onDone = {
+      onSuccess: () => {
+        options?.onSuccess?.();
+        setEdit(editKey);
+      },
+      onError: () => {
+        options?.onError?.();
+      },
+    };
+
+    const employeeInfoId = employeeData?.employeeInformation?.id;
+    if (!employeeInfoId) {
+      createEmployeeInformation(
+        {
+          userId: id,
+          values: {
+            userId: id,
+            addresses: EMPTY_JSON_OBJECT,
+            emergencyContact: EMPTY_JSON_OBJECT,
+            bankInformation: EMPTY_JSON_OBJECT,
+            additionalInformation: EMPTY_JSON_OBJECT,
+            ...payload,
+          },
+        },
+        onDone,
+      );
+      return;
+    }
+
     updateEmployeeInformation(
       { id: employeeInfoId, values: payload, userId: id },
-      {
-        onSuccess: () => {
-          options?.onSuccess?.();
-          setEdit(editKey);
-        },
-        onError: () => {
-          options?.onError?.();
-        },
-      },
+      onDone,
     );
   };
 
@@ -115,6 +141,7 @@ function General({ id }: { id: string }) {
             id={id}
             data-cy="general-personal-data-component"
             handleSaveChanges={handleSaveChanges}
+            isSavingEmployeeInfo={isUpdating || isCreating}
           />
           <AddressComponent
             mergedFields={mergedFields}

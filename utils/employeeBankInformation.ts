@@ -177,6 +177,14 @@ export function mergeEmployeeInformationRowPreservingBank(
   const parsedFresh = parseEmployeeInformationJsonFields(freshRow);
   const merged = { ...(current ?? {}), ...parsedFresh };
 
+  // Keep runtime-hydrated nationality when the fresh DB row has none.
+  if (
+    current?.nationality &&
+    (merged.nationality == null || merged.nationality === undefined)
+  ) {
+    merged.nationality = current.nationality;
+  }
+
   if (bankPatch && Object.keys(bankPatch).length > 0) {
     merged.bankInformation = {
       ...normalizeBankInformation(merged.bankInformation),
