@@ -239,7 +239,8 @@ export const useGetTeamObjective = (
     {
       keepPreviousData: true,
       staleTime: 30_000,
-      enabled: (queryOptions?.enabled ?? true) && users.length > 0 && !!userId,
+      // Backend scopes Team OKR by header userId's department; users[] is unused.
+      enabled: (queryOptions?.enabled ?? true) && !!userId,
     },
   );
 
