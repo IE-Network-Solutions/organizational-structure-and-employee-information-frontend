@@ -13,6 +13,7 @@ import {
 } from '@/store/server/features/okrplanning/okr/objective/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
+import { useGetDepartmentUsersAllLevels } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { EmptyImage } from '@/components/emptyIndicator';
 import ObjectiveCardSkeleton from '@/components/okr/objectiveCardSkeleton';
@@ -26,6 +27,13 @@ import {
   OKR_STATUS_PILLS,
   toKeyResultDeadlineFilter,
 } from '../../../_constants/okrStatusPills';
+import {
+  extractDepartmentUserIds,
+  extractUserIdsFromPayload,
+  resolveCompanyFilterUserIds,
+  resolveEmployeeDepartmentId,
+  resolveTeamViewerUserId,
+} from '../okrFilterUsers';
 
 const TAB_CONFIG = [
   { key: '1', label: 'My OKR' },
@@ -49,11 +57,9 @@ export default function OkrTab({
   const { data: departmentUsers } = useGetUserDepartment();
   const { data: userData } = useGetEmployee(userId);
   const isBasicOkr = useIsBasicOkr();
-  const departmentId = userData?.employeeJobInformation?.[0]?.departmentId;
-  const users =
-    departmentUsers
-      ?.find((i: any) => i.id === departmentId)
-      ?.users?.map((user: any) => user.id) || [];
+  const myDepartmentId = resolveEmployeeDepartmentId(
+    userData?.employeeJobInformation?.[0],
+  );
 
   const {
     pageSize,
@@ -77,10 +83,67 @@ export default function OkrTab({
     setOkrStatusPillId,
   } = useOKRStore();
   const { isMobile, isTablet } = useIsMobile();
-  const usersInDepartment =
-    departmentUsers
-      ?.find((i: any) => i.id == searchObjParams?.departmentId)
-      ?.users?.map((user: any) => user.id) || [];
+
+  const filterDepartmentId = searchObjParams?.departmentId || '';
+  const filterUserId = searchObjParams?.userId || '';
+
+  const { data: allLevelDepartmentUsers, isFetching: isDeptUsersFetching } =
+    useGetDepartmentUsersAllLevels(filterDepartmentId || null);
+  const allLevelDepartmentUserIds = useMemo(
+    () => extractUserIdsFromPayload(allLevelDepartmentUsers),
+    [allLevelDepartmentUsers],
+  );
+
+  const teamViewerUserId = useMemo(
+    () =>
+      resolveTeamViewerUserId({
+        filterUserId,
+        filterDepartmentId,
+        currentUserId: userId,
+        departments: departmentUsers,
+      }),
+    [filterUserId, filterDepartmentId, userId, departmentUsers],
+  );
+
+  /** Kept for API body compatibility; Team backend scopes by header userId. */
+  const teamUsersFallback = useMemo(() => {
+    const fromMyDept = extractDepartmentUserIds(
+      departmentUsers,
+      myDepartmentId,
+    );
+    return fromMyDept.length > 0
+      ? fromMyDept
+      : teamViewerUserId
+        ? [teamViewerUserId]
+        : [];
+  }, [departmentUsers, myDepartmentId, teamViewerUserId]);
+
+  const companyFilterUserIds = useMemo(
+    () =>
+      resolveCompanyFilterUserIds({
+        filterUserId,
+        filterDepartmentId,
+        departments: departmentUsers,
+        allLevelDepartmentUserIds,
+      }),
+    [
+      filterUserId,
+      filterDepartmentId,
+      departmentUsers,
+      allLevelDepartmentUserIds,
+    ],
+  );
+
+  const companyDeptFilterEmpty =
+    !!filterDepartmentId &&
+    !filterUserId &&
+    !isDeptUsersFetching &&
+    companyFilterUserIds.length === 0;
+
+  const companyQueryEnabled =
+    String(activeKey) === '3' &&
+    !companyDeptFilterEmpty &&
+    (!filterDepartmentId || !isDeptUsersFetching || !!filterUserId);
 
   const keyResultDeadlineFilter = useMemo(
     () =>
@@ -117,13 +180,13 @@ export default function OkrTab({
   } = useGetTeamObjective(
     teamPageSize,
     teamCurrentPage,
-    users,
-    searchObjParams.userId || userId, // Use current userId if searchObjParams.userId is empty
-    searchObjParams?.metricTypeId || '', // Provide empty string as fallback
+    teamUsersFallback,
+    teamViewerUserId,
+    searchObjParams?.metricTypeId || '',
     fiscalYearId,
     sessionIds,
     undefined,
-    { enabled: String(activeKey) === '2' },
+    { enabled: String(activeKey) === '2' && !!teamViewerUserId },
   );
 
   const {
@@ -134,18 +197,24 @@ export default function OkrTab({
     userId,
     companyPageSize,
     companyCurrentPage,
-    usersInDepartment,
-    searchObjParams.userId,
-    searchObjParams?.metricTypeId,
+    companyFilterUserIds,
+    filterUserId,
+    searchObjParams?.metricTypeId || '',
     fiscalYearId,
     sessionIds,
     undefined,
-    { enabled: String(activeKey) === '3' },
+    {
+      enabled: companyQueryEnabled,
+    },
   );
 
   const isUserLoading = isLoading;
   const isTeamLoading = teamLoading;
-  const isCompanyLoading = companyLoading;
+  const isCompanyLoading =
+    companyLoading ||
+    (String(activeKey) === '3' &&
+      !!filterDepartmentId &&
+      isDeptUsersFetching);
 
   const canVieTeamOkr = AccessGuard.checkAccess({
     permissions: [Permissions.ViewTeamOkr],
@@ -170,18 +239,36 @@ export default function OkrTab({
     }
   }, [teamPageSize, teamCurrentPage, isMounted, activeKey]);
 
-  // Refetch Team OKR when year/session filters change
+  // Refetch Team OKR when year/session/people filters change
   useEffect(() => {
     if (isMounted && String(activeKey) === '2') {
       refetch();
     }
-  }, [fiscalYearId, sessionIds, isMounted, activeKey]);
+  }, [
+    fiscalYearId,
+    sessionIds,
+    teamViewerUserId,
+    isMounted,
+    activeKey,
+    refetch,
+  ]);
+
+  const companyFilterUserIdsKey = companyFilterUserIds.join(',');
 
   useEffect(() => {
     if (isMounted && String(activeKey) === '3') {
       CompanyRefetch();
     }
-  }, [companyPageSize, companyCurrentPage, isMounted, activeKey]);
+  }, [
+    companyPageSize,
+    companyCurrentPage,
+    companyFilterUserIdsKey,
+    filterUserId,
+    fiscalYearId,
+    sessionIds,
+    isMounted,
+    activeKey,
+  ]);
 
   useEffect(() => {
     setActiveKey(String(okrTab));
@@ -385,7 +472,8 @@ export default function OkrTab({
                     showAssignee={true}
                   />
                 ) : null}
-                {companyObjective?.items?.length !== 0 && (
+                {companyObjective?.items?.length !== 0 &&
+                  !companyDeptFilterEmpty && (
                   <div
                     id="company-okr-objectives-list"
                     data-cy="okr-company-okr-objectives-list"
@@ -439,7 +527,9 @@ export default function OkrTab({
                     )}
                   </div>
                 )}
-                {companyObjective?.items?.length === 0 && (
+                {(companyDeptFilterEmpty ||
+                  companyObjective?.items?.length === 0) &&
+                  !isCompanyLoading && (
                   <div
                     id="company-okr-empty-state"
                     data-cy="okr-company-okr-empty-state"

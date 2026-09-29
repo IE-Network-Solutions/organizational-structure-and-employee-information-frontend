@@ -19,8 +19,13 @@ import {
 } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
 import { toKeyResultDeadlineFilter } from '../../../_constants/okrStatusPills';
+import { selectValueOrUndefined } from '../okrFilterUsers';
 
 const { Option } = Select;
+
+/** Keep Select dropdowns inside Popover/Modal so choices don't close the panel. */
+const popupContainer = (node: HTMLElement) =>
+  node.parentElement ?? document.body;
 
 /** Match manage-employees `UserTable` header / body typography */
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
@@ -188,7 +193,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
     value: string,
     key: keyof typeof employeeSearchObjParams,
   ) => {
-    setEmployeeSearchObjParams(key, value);
+    setEmployeeSearchObjParams(key, value ?? '');
   };
 
   const handleReset = () => {
@@ -296,8 +301,8 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
     [],
   );
 
-  // Filter content component for popover/modal
-  const FilterContent = () => (
+  // Filter fields as JSX (not an inner component) so Selects don't remount on each store update
+  const filterFields = (
     <div
       id="employee-okr-filter-content"
       data-cy="employee-okr-filter-content"
@@ -318,23 +323,18 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
             data-cy="employee-okr-employee-label"
             className="text-sm font-medium text-gray-700"
           >
-            Employee{' '}
-            <span
-              className="text-red-500"
-              data-cy="employee-okr-employee-required"
-            >
-              *
-            </span>
+            Employee
           </label>
           <Select
             id="employee-okr-employee-select"
             data-cy="employee-okr-employee-select"
             showSearch
-            placeholder="Select a person"
+            placeholder="All employees"
             className="w-full h-10 rounded-lg"
             allowClear
-            value={employeeSearchObjParams.userId}
-            onChange={(value) => handleFilter(value, 'userId')}
+            getPopupContainer={popupContainer}
+            value={selectValueOrUndefined(employeeSearchObjParams.userId)}
+            onChange={(value) => handleFilter(value ?? '', 'userId')}
             filterOption={(input: any, option: any) =>
               (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
@@ -363,12 +363,15 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           <Select
             id="employee-okr-department-select"
             data-cy="employee-okr-department-select"
-            placeholder="Filter by Department"
+            placeholder="All departments"
             className="w-full h-10 rounded-lg"
             allowClear
             showSearch
-            value={employeeSearchObjParams.departmentId}
-            onChange={(value) => handleFilter(value, 'departmentId')}
+            getPopupContainer={popupContainer}
+            value={selectValueOrUndefined(
+              employeeSearchObjParams.departmentId,
+            )}
+            onChange={(value) => handleFilter(value ?? '', 'departmentId')}
             filterOption={(input, option) =>
               (option?.children as any)
                 .toLowerCase()
@@ -409,7 +412,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
         </label>
         <Select
           loading={fyLoading}
-          value={employeeFiscalYearId}
+          value={selectValueOrUndefined(employeeFiscalYearId)}
           id="employee-okr-fiscal-year-select"
           data-cy="employee-okr-fiscal-year-select"
           placeholder="Filter by Fiscal Year"
@@ -427,6 +430,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           }}
           allowClear
           showSearch
+          getPopupContainer={popupContainer}
           className="w-full h-10 rounded-lg"
           optionFilterProp="children"
           filterOption={(input, option) =>
@@ -472,9 +476,10 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           id="employee-okr-session-select"
           data-cy="employee-okr-session-select"
           placeholder="Filter by Session"
-          className="w-full min-h-[40px] rounded-lg"
+          className="w-full min-h-[40px] rounded-lg [&_.ant-select-selector]:!overflow-hidden [&_.ant-select-selection-overflow]:!flex-nowrap"
           allowClear
           showSearch
+          getPopupContainer={popupContainer}
           maxTagCount="responsive"
           maxTagTextLength={14}
           maxTagPlaceholder={(omittedValues) => `+${omittedValues.length} more`}
@@ -517,26 +522,18 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
           data-cy="employee-okr-metric-type-label"
           className="text-sm font-medium text-gray-700"
         >
-          Metric Type{' '}
-          <span
-            className="text-red-500"
-            data-cy="employee-okr-metric-type-required"
-          >
-            *
-          </span>
+          Metric Type
         </label>
         <Select
           id="employee-okr-metric-type-select"
           data-cy="employee-okr-metric-type-select"
-          placeholder="Filter by Metric Type"
+          placeholder="All metrics"
           className="w-full h-10 rounded-lg"
           allowClear
-          value={employeeSearchObjParams.metricTypeId}
-          onChange={(value) => handleFilter(value, 'metricTypeId')}
+          getPopupContainer={popupContainer}
+          value={selectValueOrUndefined(employeeSearchObjParams.metricTypeId)}
+          onChange={(value) => handleFilter(value ?? '', 'metricTypeId')}
         >
-          <Option data-cy="employee-okr-metric-type-select-option-all" value="">
-            All
-          </Option>
           {Metrics?.items?.map((metric: any) => (
             <Option
               data-cy={`employee-okr-metric-type-select-option-${metric?.id}`}
@@ -552,17 +549,17 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
   );
 
   const filterPopoverContent = (
-    <div
-      id="employee-okr-filter-popover-content"
-      data-cy="employee-okr-filter-popover-content"
-      className="w-[460px] max-w-[460px]"
-    >
-      <FilterContent />
       <div
-        id="employee-okr-filter-popover-footer"
-        data-cy="employee-okr-filter-popover-footer"
-        className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100"
+        id="employee-okr-filter-popover-content"
+        data-cy="employee-okr-filter-popover-content"
+        className="w-[460px] max-w-[460px]"
       >
+        {filterFields}
+        <div
+          id="employee-okr-filter-popover-footer"
+          data-cy="employee-okr-filter-popover-footer"
+          className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100"
+        >
         <Button
           id="employee-okr-filter-reset-button"
           data-cy="employee-okr-filter-reset-button"
@@ -811,7 +808,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
                 styles={{ content: { borderRadius: 8 } }}
                 style={{ maxWidth: '100%', paddingBottom: 0 }}
               >
-                <FilterContent />
+                {filterFields}
               </Modal>
             </>
           )}

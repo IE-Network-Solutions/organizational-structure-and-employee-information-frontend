@@ -63,7 +63,7 @@ export default function PlanningToolbarFilters() {
     useGetFiscalYearById(draft?.fiscalYearId || '');
   const {
     data: allLevelDepartmentUsers,
-    isFetching: isDepartmentUsersFetching,
+    isLoading: isDepartmentUsersLoading,
   } = useGetDepartmentUsersAllLevels(
     draft?.department && draft.department !== 'all' ? draft.department : null,
   );
@@ -424,12 +424,12 @@ export default function PlanningToolbarFilters() {
           loading={
             !!draft?.department &&
             draft.department !== 'all' &&
-            isDepartmentUsersFetching
+            isDepartmentUsersLoading
           }
           disabled={
             !!draft?.department &&
             draft.department !== 'all' &&
-            isDepartmentUsersFetching
+            isDepartmentUsersLoading
           }
           data-cy="planning-toolbar-filter-apply"
         >
