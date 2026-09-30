@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
+import { BannerActions, useInBanner } from '@/components/navBar/BannerActions';
 import WhatYouNeed from '../jobs/[id]/_components/candidateSearch/whatYouNeed';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import ForwardIcon from '@mui/icons-material/Forward';
@@ -46,6 +47,7 @@ const AllCandidates: React.FC = () => {
   }, [linkedJobId, setSearchParams]);
 
   const { isMobile, isTablet } = useIsMobile();
+  const inBanner = useInBanner();
   const pathname = usePathname();
 
   const { data: employeeDepartments } = useEmployeeDepartments();
@@ -396,134 +398,137 @@ const AllCandidates: React.FC = () => {
     </div>
   );
 
+  const candidateActions = (
+    <div
+      id="talent-acquisition-candidate-page-div-buttons"
+      data-cy="talent-acquisition-candidate-page-div-buttons"
+      className="flex flex-wrap items-center justify-end gap-2 sm:gap-4"
+    >
+      {selectedCandidate?.length > 0 && (
+        <div
+          id="talent-acquisition-candidate-page-div-move-button"
+          data-cy="talent-acquisition-candidate-page-div-move-button"
+          className="sm:mr-0"
+        >
+          <Button
+            type="primary"
+            id="createUserButton"
+            data-cy="talent-acquisition-candidate-button-move-talent-pool"
+            icon={
+              <ForwardIcon
+                className="shrink-0 translate-y-[1px]"
+                fontSize="inherit"
+                style={
+                  isMobile || isTablet ? undefined : { width: 18, height: 18 }
+                }
+              />
+            }
+            onClick={handleMoveToTalentsPool}
+            style={{
+              height: isMobile || isTablet ? 32 : 40,
+              width: isMobile || isTablet ? 32 : 186,
+            }}
+            className="w-8 sm:w-[186px] !h-8 sm:!h-10 !p-0 sm:!px-4 sm:!py-0 !flex !items-center !justify-center sm:!justify-start gap-2 rounded-lg overflow-hidden"
+          >
+            {!(isMobile || isTablet) && (
+              <span
+                data-cy="-recruitment-recruitment-candidate-page-tsx-page-span-83"
+                className="max-w-[186px] truncate whitespace-nowrap text-sm font-normal leading-5 text-white"
+              >
+                Move to Talent Pool
+              </span>
+            )}
+          </Button>
+        </div>
+      )}
+      <AccessGuard permissions={[Permissions.CreateCandidate]}>
+        <Button
+          type="primary"
+          id="createUserButton"
+          data-cy="talent-acquisition-candidate-button-add"
+          icon={
+            <PersonAddOutlinedIcon
+              className="shrink-0"
+              fontSize="inherit"
+              style={
+                isMobile || isTablet ? undefined : { width: 18, height: 18 }
+              }
+            />
+          }
+          onClick={showDrawer}
+          style={{
+            height: isMobile || isTablet ? 32 : 40,
+            width: isMobile || isTablet ? 32 : 186,
+          }}
+          className="w-8 sm:w-[152px] !h-8 sm:!h-10 !p-0 sm:!px-4 sm:!py-0 !flex !items-center !justify-center sm:!justify-start gap-2 rounded-lg overflow-hidden"
+        >
+          {!(isMobile || isTablet) && (
+            <span
+              data-cy="-recruitment-recruitment-candidate-page-tsx-page-span-100"
+              className="text-sm font-medium text-white"
+            >
+              Add candidate
+            </span>
+          )}
+        </Button>
+        <CreateCandidate
+          data-cy="talent-acquisition-candidate-page-create-candidate"
+          onClose={onClose}
+        />
+      </AccessGuard>
+    </div>
+  );
+
   return (
     <div
       id="talent-acquisition-candidate-page-div-container"
       data-cy="talent-acquisition-candidate-page-div-container"
       className="h-auto w-full min-h-screen bg-white"
     >
+      {inBanner ? <BannerActions>{candidateActions}</BannerActions> : null}
       <Card
         data-cy="talent-acquisition-candidate-card"
         className="w-full border-none [&_.ant-card-head]:flex-wrap [&_.ant-card-head]:gap-2 [&_.ant-card-head]:px-0 [&_.ant-card-head]:py-1.5 [&_.ant-card-head]:min-h-0 [&_.ant-card-head-title]:w-full [&_.ant-card-body]:px-0"
+        // Under the workspace banner the card drops its header row (and its
+        // divider); the actions move up into the banner.
         title={
-          <div
-            className="py-0.5"
-            data-cy="talent-acquisition-candidate-breadcrumb-container"
-          >
-            <CustomBreadcrumb
-              compact
-              title={
-                <span
-                  className="text-lg sm:text-2xl font-bold text-[#000000B2]"
-                  data-cy="talent-acquisition-candidate-breadcrumb-title"
-                >
-                  Candidates
-                </span>
-              }
-              subtitle={
-                <>
+          inBanner ? undefined : (
+            <div
+              className="py-0.5"
+              data-cy="talent-acquisition-candidate-breadcrumb-container"
+            >
+              <CustomBreadcrumb
+                compact
+                title={
                   <span
-                    className="text-slate-500"
-                    data-cy="talent-acquisition-candidate-breadcrumb-prefix"
-                  >
-                    Talent Acquisition /{' '}
-                  </span>
-                  <span
-                    className="text-[#000000B2]"
-                    data-cy="talent-acquisition-candidate-breadcrumb-current"
+                    className="text-lg sm:text-2xl font-bold text-[#000000B2]"
+                    data-cy="talent-acquisition-candidate-breadcrumb-title"
                   >
                     Candidates
                   </span>
-                </>
-              }
-              data-cy="talent-acquisition-candidate-breadcrumb"
-            />
-          </div>
-        }
-        extra={
-          <div
-            id="talent-acquisition-candidate-page-div-buttons"
-            data-cy="talent-acquisition-candidate-page-div-buttons"
-            className="flex flex-wrap items-center justify-end gap-2 sm:gap-4"
-          >
-            {selectedCandidate?.length > 0 && (
-              <div
-                id="talent-acquisition-candidate-page-div-move-button"
-                data-cy="talent-acquisition-candidate-page-div-move-button"
-                className="sm:mr-0"
-              >
-                <Button
-                  type="primary"
-                  id="createUserButton"
-                  data-cy="talent-acquisition-candidate-button-move-talent-pool"
-                  icon={
-                    <ForwardIcon
-                      className="shrink-0 translate-y-[1px]"
-                      fontSize="inherit"
-                      style={
-                        isMobile || isTablet
-                          ? undefined
-                          : { width: 18, height: 18 }
-                      }
-                    />
-                  }
-                  onClick={handleMoveToTalentsPool}
-                  style={{
-                    height: isMobile || isTablet ? 32 : 40,
-                    width: isMobile || isTablet ? 32 : 186,
-                  }}
-                  className="w-8 sm:w-[186px] !h-8 sm:!h-10 !p-0 sm:!px-4 sm:!py-0 !flex !items-center !justify-center sm:!justify-start gap-2 rounded-lg overflow-hidden"
-                >
-                  {!(isMobile || isTablet) && (
-                    <span
-                      data-cy="-recruitment-recruitment-candidate-page-tsx-page-span-83"
-                      className="max-w-[186px] truncate whitespace-nowrap text-sm font-normal leading-5 text-white"
-                    >
-                      Move to Talent Pool
-                    </span>
-                  )}
-                </Button>
-              </div>
-            )}
-            <AccessGuard permissions={[Permissions.CreateCandidate]}>
-              <Button
-                type="primary"
-                id="createUserButton"
-                data-cy="talent-acquisition-candidate-button-add"
-                icon={
-                  <PersonAddOutlinedIcon
-                    className="shrink-0"
-                    fontSize="inherit"
-                    style={
-                      isMobile || isTablet
-                        ? undefined
-                        : { width: 18, height: 18 }
-                    }
-                  />
                 }
-                onClick={showDrawer}
-                style={{
-                  height: isMobile || isTablet ? 32 : 40,
-                  width: isMobile || isTablet ? 32 : 186,
-                }}
-                className="w-8 sm:w-[152px] !h-8 sm:!h-10 !p-0 sm:!px-4 sm:!py-0 !flex !items-center !justify-center sm:!justify-start gap-2 rounded-lg overflow-hidden"
-              >
-                {!(isMobile || isTablet) && (
-                  <span
-                    data-cy="-recruitment-recruitment-candidate-page-tsx-page-span-100"
-                    className="text-sm font-medium text-white"
-                  >
-                    Add candidate
-                  </span>
-                )}
-              </Button>
-              <CreateCandidate
-                data-cy="talent-acquisition-candidate-page-create-candidate"
-                onClose={onClose}
+                subtitle={
+                  <>
+                    <span
+                      className="text-slate-500"
+                      data-cy="talent-acquisition-candidate-breadcrumb-prefix"
+                    >
+                      Talent Acquisition /{' '}
+                    </span>
+                    <span
+                      className="text-[#000000B2]"
+                      data-cy="talent-acquisition-candidate-breadcrumb-current"
+                    >
+                      Candidates
+                    </span>
+                  </>
+                }
+                data-cy="talent-acquisition-candidate-breadcrumb"
               />
-            </AccessGuard>
-          </div>
+            </div>
+          )
         }
+        extra={inBanner ? undefined : candidateActions}
       >
         <div
           id="talent-acquisition-candidate-page-div-table"

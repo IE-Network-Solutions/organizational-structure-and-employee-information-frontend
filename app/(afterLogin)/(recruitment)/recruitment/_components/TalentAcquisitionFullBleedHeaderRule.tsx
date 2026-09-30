@@ -1,4 +1,6 @@
+'use client';
 import React from 'react';
+import { useInBanner } from '@/components/navBar/BannerActions';
 
 /**
  * Horizontal rule under page headers, flush with the recruitment layout shell.
@@ -14,12 +16,16 @@ type TalentAcquisitionFullBleedHeaderRuleProps = {
 
 const TalentAcquisitionFullBleedHeaderRule: React.FC<
   TalentAcquisitionFullBleedHeaderRuleProps
-> = ({ dataCy, className = '', borderClassName = 'border-gray-200' }) => (
-  <div
-    className={`box-border -mx-2 w-[calc(100%+16px)] border-0 border-b border-solid md:-mx-6 md:w-[calc(100%+48px)] ${borderClassName} ${className}`}
-    aria-hidden
-    data-cy={dataCy}
-  />
-);
+> = ({ dataCy, className = '', borderClassName = 'border-gray-200' }) => {
+  // Under the workspace banner the page header it underlines is gone.
+  if (useInBanner()) return null;
+  return (
+    <div
+      className={`box-border -mx-2 w-[calc(100%+16px)] border-0 border-b border-solid md:-mx-6 md:w-[calc(100%+48px)] ${borderClassName} ${className}`}
+      aria-hidden
+      data-cy={dataCy}
+    />
+  );
+};
 
 export default TalentAcquisitionFullBleedHeaderRule;

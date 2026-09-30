@@ -66,9 +66,7 @@ function Page(): JSX.Element {
       <div data-cy="weekly-priority-content">
         {!embeddedInHome && (
           <CustomBreadcrumb
-            title={
-              <span data-cy="weekly-priority-title">Weekly priority</span>
-            }
+            title={<span data-cy="weekly-priority-title">Weekly priority</span>}
             subtitle={
               <div
                 className="flex items-center gap-1 text-[12px] md:text-[13px] text-gray-400"

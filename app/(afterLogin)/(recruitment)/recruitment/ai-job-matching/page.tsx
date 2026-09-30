@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useInBanner } from '@/components/navBar/BannerActions';
 import { useRouter } from 'next/navigation';
 import { Card, Input, Skeleton } from 'antd';
 import {
@@ -134,6 +135,8 @@ const JobCard: React.FC<JobCardProps> = ({ job, onClick }) => {
 
 const AIJobMatchingPage: React.FC = () => {
   const router = useRouter();
+  // The banner and its tabs already name this page.
+  const inBanner = useInBanner();
   const { data: jobs, isLoading, isError } = useGetJobMatchSummaries();
 
   const handleJobClick = (jobId: string) => {
@@ -147,26 +150,28 @@ const AIJobMatchingPage: React.FC = () => {
         data-cy="ai-job-matching-page-loading"
         className="min-h-screen"
       >
-        <div
-          id="ai-job-matching-header-loading"
-          data-cy="ai-job-matching-header-loading"
-          className="bg-white px-6 py-4 border-b border-gray-200"
-        >
-          <h1
-            id="ai-job-matching-title-loading"
-            data-cy="ai-job-matching-title-loading"
-            className="text-xl font-semibold text-gray-900"
+        {!inBanner && (
+          <div
+            id="ai-job-matching-header-loading"
+            data-cy="ai-job-matching-header-loading"
+            className="bg-white px-6 py-4 border-b border-gray-200"
           >
-            AI Job Matching
-          </h1>
-          <p
-            id="ai-job-matching-subtitle-loading"
-            data-cy="ai-job-matching-subtitle-loading"
-            className="text-sm text-gray-500"
-          >
-            Match candidates to jobs using AI-powered analysis
-          </p>
-        </div>
+            <h1
+              id="ai-job-matching-title-loading"
+              data-cy="ai-job-matching-title-loading"
+              className="text-xl font-semibold text-gray-900"
+            >
+              AI Job Matching
+            </h1>
+            <p
+              id="ai-job-matching-subtitle-loading"
+              data-cy="ai-job-matching-subtitle-loading"
+              className="text-sm text-gray-500"
+            >
+              Match candidates to jobs using AI-powered analysis
+            </p>
+          </div>
+        )}
         <div
           id="ai-job-matching-spinner-container"
           data-cy="ai-job-matching-spinner-container"
@@ -220,26 +225,28 @@ const AIJobMatchingPage: React.FC = () => {
         className="min-h-screen"
         data-cy="ai-job-matching-page-error"
       >
-        <div
-          id="ai-job-matching-header-error"
-          data-cy="ai-job-matching-header-error"
-          className="bg-white px-6 py-4 border-b border-gray-200"
-        >
-          <h1
-            id="ai-job-matching-title-error"
-            data-cy="ai-job-matching-title-error"
-            className="text-xl font-semibold text-gray-900"
+        {!inBanner && (
+          <div
+            id="ai-job-matching-header-error"
+            data-cy="ai-job-matching-header-error"
+            className="bg-white px-6 py-4 border-b border-gray-200"
           >
-            AI Job Matching
-          </h1>
-          <p
-            id="ai-job-matching-subtitle-error"
-            data-cy="ai-job-matching-subtitle-error"
-            className="text-sm text-gray-500"
-          >
-            Match candidates to jobs using AI-powered analysis
-          </p>
-        </div>
+            <h1
+              id="ai-job-matching-title-error"
+              data-cy="ai-job-matching-title-error"
+              className="text-xl font-semibold text-gray-900"
+            >
+              AI Job Matching
+            </h1>
+            <p
+              id="ai-job-matching-subtitle-error"
+              data-cy="ai-job-matching-subtitle-error"
+              className="text-sm text-gray-500"
+            >
+              Match candidates to jobs using AI-powered analysis
+            </p>
+          </div>
+        )}
         <div
           id="ai-job-matching-error-container"
           data-cy="ai-job-matching-error-container"
@@ -263,26 +270,28 @@ const AIJobMatchingPage: React.FC = () => {
       data-cy="ai-job-matching-page"
     >
       {/* Header */}
-      <div
-        id="ai-job-matching-header"
-        data-cy="ai-job-matching-header"
-        className="bg-white px-6 py-4 border-b border-gray-200"
-      >
-        <h1
-          id="ai-job-matching-title"
-          data-cy="ai-job-matching-title"
-          className="text-xl font-semibold text-gray-900"
+      {!inBanner && (
+        <div
+          id="ai-job-matching-header"
+          data-cy="ai-job-matching-header"
+          className="bg-white px-6 py-4 border-b border-gray-200"
         >
-          AI Job Matching
-        </h1>
-        <p
-          id="ai-job-matching-subtitle"
-          data-cy="ai-job-matching-subtitle"
-          className="text-sm text-gray-500"
-        >
-          Match candidates to jobs using AI-powered analysis
-        </p>
-      </div>
+          <h1
+            id="ai-job-matching-title"
+            data-cy="ai-job-matching-title"
+            className="text-xl font-semibold text-gray-900"
+          >
+            AI Job Matching
+          </h1>
+          <p
+            id="ai-job-matching-subtitle"
+            data-cy="ai-job-matching-subtitle"
+            className="text-sm text-gray-500"
+          >
+            Match candidates to jobs using AI-powered analysis
+          </p>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div

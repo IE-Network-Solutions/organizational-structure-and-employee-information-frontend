@@ -11,91 +11,206 @@
   display: none; /* Chrome, Safari, Opera */
 }
 
-.home-primary-tabs .ant-tabs-nav {
-  margin: 0 !important;
-  height: 44px;
-  background: #3636f0;
-  padding: 0 16px 0 32px;
+/* App banner: the rounded primary band heading Home and every module page. */
+.app-banner {
+  position: relative;
+  border-radius: 20px;
+  background: var(--app-accent, #1e40af);
+  color: #fff;
 }
 
-.home-primary-tabs .ant-tabs-nav::before {
-  border-bottom: 0 !important;
-}
-
-.home-primary-tabs .ant-tabs-nav-wrap {
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.home-primary-tabs .ant-tabs-nav-wrap::-webkit-scrollbar {
-  display: none;
-}
-
-.home-primary-tabs .ant-tabs-nav-list {
+.app-banner-tabs {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
+  gap: 12px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 12px 0 20px;
 }
 
-.home-primary-tabs .ant-tabs-tab {
-  margin: 0 4px 0 0 !important;
-  padding: 0 !important;
+/* Tabs that do not fit move into the "More" menu (see AppBannerTabs). */
+.app-banner-tabs-list {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.home-primary-tabs .ant-tabs-tab:last-child {
-  margin-right: 0 !important;
-}
-
-.home-primary-tabs .ant-tabs-tab-btn {
-  border-radius: 4px 4px 0 0;
+.app-banner-tab {
+  flex-shrink: 0;
+  border-radius: 12px 12px 0 0;
   color: rgba(255, 255, 255, 0.86) !important;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   line-height: 1;
-  padding: 15px 14px;
+  padding: 14px 18px 15px;
+  white-space: nowrap;
   transition:
-    background-color 180ms ease,
-    color 180ms ease;
+    background-color 160ms ease,
+    color 160ms ease;
 }
 
-.home-primary-tabs .ant-tabs-tab-btn .ant-badge {
+.app-banner-tab .ant-badge {
   color: inherit !important;
 }
 
-.home-primary-tabs .ant-tabs-tab:hover .ant-tabs-tab-btn {
-  background: rgba(255, 255, 255, 0.1);
+.app-banner-tab:hover {
+  background: rgba(255, 255, 255, 0.12);
   color: #fff !important;
 }
 
-.home-primary-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
-  background: #fff;
-  color: #3636f0 !important;
+/* The active tab takes the page colour so it opens into the content below. */
+.app-banner-tab[aria-current='page'] {
+  background: var(--app-shell-background, #fff);
+  color: var(--app-accent, #1e40af) !important;
 }
 
-.home-primary-tabs .ant-tabs-tab:focus-visible {
+.app-banner-tab:focus-visible {
   outline: 2px solid #fff;
   outline-offset: -3px;
 }
 
-.home-primary-tabs .ant-tabs-ink-bar {
+.app-banner-tab[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.app-banner-tab[aria-disabled='true']:hover {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.86) !important;
+}
+
+/* Kept in the DOM so its width can be measured, but out of flow and unseen. */
+.app-banner-tab.is-overflowed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.app-banner-tabs-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.app-banner-tabs-more.ant-dropdown-open {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff !important;
+}
+
+.app-banner-tabs-more-icon {
+  font-size: 11px;
+}
+
+.app-banner-tabs-extra {
+  display: flex;
+  flex-shrink: 0;
+  align-self: center;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Page header actions, moved up beside the tabs (see BannerActions). White
+   chips so they stand out on the blue; primary actions take the blue text. */
+.app-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-banner-actions:empty {
   display: none;
 }
 
-.home-primary-tabs .ant-tabs-extra-content {
-  margin-left: auto;
+/* Header wrappers brought their own spacing for a row under the title. */
+.app-banner-actions > * {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.app-banner-actions .ant-btn {
+  height: 34px !important;
+  box-shadow: none !important;
+}
+
+.app-banner-actions .ant-btn-primary {
+  background: #fff !important;
+  border-color: #fff !important;
+  color: var(--app-accent, #1e40af) !important;
+  font-weight: 600;
+}
+
+.app-banner-actions .ant-btn-primary * {
+  color: inherit !important;
+}
+
+.app-banner-actions .ant-btn-primary:not(:disabled):hover {
+  background: #eff6ff !important;
+  border-color: #eff6ff !important;
+}
+
+.app-banner-actions .ant-btn-default:not(:disabled),
+.app-banner-actions .ant-btn-dashed:not(:disabled) {
+  background: #fff;
+  border-color: #fff;
+}
+
+.app-banner-actions .ant-btn-text,
+.app-banner-actions .ant-btn-link {
+  color: #fff !important;
+}
+
+.app-banner-actions .ant-btn:disabled {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border-color: transparent !important;
+  color: rgba(30, 64, 175, 0.55) !important;
+}
+
+.app-banner-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 34px;
+  padding: 0 12px 0 8px;
+  border: 0;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff !important;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 160ms ease;
+}
+
+.app-banner-back:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.app-banner-back:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+@media (min-width: 640px) {
+  .app-banner-tabs {
+    padding: 0 16px 0 32px;
+  }
 }
 
 @media (max-width: 767px) {
-  .home-primary-tabs .ant-tabs-nav {
-    padding: 0 14px;
-  }
-
-  .home-primary-tabs .ant-tabs-tab {
-    margin-right: 4px !important;
-  }
-
-  .home-primary-tabs .ant-tabs-tab-btn {
+  .app-banner-tab {
     font-size: 14px;
-    padding: 15px 12px;
+    padding: 15px 14px;
   }
 }
 
@@ -460,8 +575,14 @@ body {
 :root {
   --app-scrollbar-thumb: #d1d5db; /* light gray */
   --app-scrollbar-track: transparent;
-  /* Main nav sidebar: light wash aligned with AntD colorPrimary (#1E40AF) */
+  /* Sidebar, header and page share one surface so the shell reads as a whole;
+     the app banner carries the colour. */
+  --app-shell-background: #ffffff;
+  /* Classic console sidebar (components/navBar/legacy) — as on develop. */
   --nav-sider-background: #eff6ff;
+  /* Blue of the workspace frame: banner, active tabs and navigation. Matches
+     antd's colorPrimary so buttons and the frame read as one palette. */
+  --app-accent: #1e40af;
 }
 
 /* Global scrollbar styling */

@@ -39,26 +39,28 @@ function Form({ params: { id } }: CategoryForms) {
         <CustomBreadcrumb
           title={formCategories?.name ? formCategories?.name : ''}
           subtitle={`Manage your ${formCategories?.name ? formCategories?.name : ''}`}
+          titleExtra={
+            <div
+              id="category-form-component-actions"
+              data-cy="category-form-component-actions"
+              className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
+            >
+              <CustomButton
+                title="Add new survey"
+                id="createSurveyButton"
+                data-cy="createSurveyButton"
+                onClick={showDrawer}
+                className="bg-blue-600 hover:bg-blue-700"
+              />
+            </div>
+          }
           data-cy="category-form-component-breadcrumb"
         />
-        <div
-          id="category-form-component-actions"
-          data-cy="category-form-component-actions"
-          className="flex flex-wrap justify-start items-center my-4 gap-4 md:gap-8"
-        >
-          <CustomButton
-            title="Add new survey"
-            id="createSurveyButton"
-            data-cy="createSurveyButton"
-            onClick={showDrawer}
-            className="bg-blue-600 hover:bg-blue-700"
-          />
-          <FormDrawer
-            onClose={onClose}
-            id={id}
-            data-cy="category-form-component-form-drawer"
-          />
-        </div>
+        <FormDrawer
+          onClose={onClose}
+          id={id}
+          data-cy="category-form-component-form-drawer"
+        />
         <div
           id="category-form-component-list"
           data-cy="category-form-component-list"

@@ -52,7 +52,7 @@ export default function ShellSection({
         >
           {Icon ? (
             <span
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-brand"
               aria-hidden
               data-cy={`${dataCy}-icon`}
             >

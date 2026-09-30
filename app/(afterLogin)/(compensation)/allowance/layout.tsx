@@ -1,12 +1,11 @@
 'use client';
 import { FC, ReactNode } from 'react';
-import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { Breadcrumb, Button } from 'antd';
 import { FaUserPlus } from 'react-icons/fa';
-import { LeftOutlined } from '@ant-design/icons';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import { useInBanner } from '@/components/navBar/BannerActions';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useFetchAllowance } from '@/store/server/features/compensation/allowance/queries';
@@ -29,31 +28,24 @@ const AllowanceDetailHeader = ({ allowanceId }: { allowanceId: string }) => {
 
   return (
     <div
-      className="flex flex-wrap justify-between items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 sm:py-4"
-      id="compensation-allowance-detail-header"
+      className="px-3 sm:px-4"
       data-cy="compensation-allowance-detail-header"
+      id="compensation-allowance-detail-header"
     >
-      <div
-        className="min-w-0 flex-1 flex items-center gap-2 sm:gap-3"
-        data-cy="compensation-allowance-detail-header-main"
-      >
-        <Link
-          href="/allowance"
-          className="flex items-center justify-center w-8 h-8 rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 shrink-0"
-          data-cy="compensation-allowance-detail-back"
-        >
-          <LeftOutlined style={{ fontSize: 14 }} />
-        </Link>
-        <div
-          className="min-w-0 flex-1 flex flex-col gap-1.5"
-          data-cy="compensation-allowance-detail-header-breadcrumb-wrap"
-        >
+      <CustomBreadcrumb
+        href="/allowance"
+        backControlDataCy="compensation-allowance-detail-header-back"
+        showBottomSeparator={false}
+        titleClassName="!text-lg sm:!text-2xl !font-bold !text-gray-900 truncate min-w-0"
+        title={
           <span
             className="block min-w-0 text-lg sm:text-2xl font-bold text-gray-900 truncate"
             data-cy="compensation-allowance-detail-title"
           >
             {allowanceName}
           </span>
+        }
+        subtitle={
           <Breadcrumb
             separator="/"
             className="text-sm"
@@ -80,30 +72,27 @@ const AllowanceDetailHeader = ({ allowanceId }: { allowanceId: string }) => {
               },
             ]}
           />
-        </div>
-      </div>
-      <div
-        className="flex flex-shrink-0 flex-wrap justify-end items-center gap-2 sm:gap-4 mr-3"
-        data-cy="compensation-allowance-detail-header-actions"
-      >
-        <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
-          <Button
-            type="primary"
-            icon={<FaUserPlus className="text-base sm:text-lg" />}
-            className="h-9 w-9 min-w-9 sm:h-10 sm:w-auto sm:min-w-0 sm:px-4 text-xs sm:text-base font-normal"
-            onClick={() => setIsAllowanceEntitlementSidebarOpen(true)}
-            disabled={isGlobal}
-            data-cy="compensation-allowance-detail-add-employee-button"
-          >
-            <span
-              className="hidden sm:inline"
-              data-cy="compensation-allowance-detail-add-employee-label"
+        }
+        titleExtra={
+          <AccessGuard permissions={[Permissions.CreateAllowanceEntitlement]}>
+            <Button
+              type="primary"
+              icon={<FaUserPlus className="text-base sm:text-lg" />}
+              className="h-9 w-9 min-w-9 sm:h-10 sm:w-auto sm:min-w-0 sm:px-4 text-xs sm:text-base font-normal"
+              onClick={() => setIsAllowanceEntitlementSidebarOpen(true)}
+              disabled={isGlobal}
+              data-cy="compensation-allowance-detail-add-employee-button"
             >
-              Add Employee
-            </span>
-          </Button>
-        </AccessGuard>
-      </div>
+              <span
+                className="hidden sm:inline"
+                data-cy="compensation-allowance-detail-add-employee-label"
+              >
+                Add Employee
+              </span>
+            </Button>
+          </AccessGuard>
+        }
+      />
     </div>
   );
 };
@@ -171,6 +160,9 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const isDetailPage = Boolean(allowanceId);
   const { setIsAllowanceOpen, setSelectedAllowanceRecord } =
     useCompensationSettingStore();
+  // Under the banner the desktop header's actions serve every screen size, so
+  // the phone-only header would only duplicate them.
+  const inBanner = useInBanner();
 
   const handleAddAllowanceType = () => {
     setSelectedAllowanceRecord(null);
@@ -198,75 +190,77 @@ const AllowanceLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
           </>
         ) : (
           <>
-            <div
-              className="block sm:hidden px-4 pt-4 pb-3"
-              id="compensation-allowance-layout-page-header"
-              data-cy="compensation-allowance-layout-page-header"
-            >
+            {!inBanner && (
               <div
-                className="w-full min-w-0"
-                data-cy="compensation-allowance-layout-mobile-header-row"
+                className="block sm:hidden px-4 pt-4 pb-3"
+                id="compensation-allowance-layout-page-header"
+                data-cy="compensation-allowance-layout-page-header"
               >
                 <div
-                  className="min-w-0 w-full"
-                  data-cy="compensation-allowance-layout-mobile-title-col"
+                  className="w-full min-w-0"
+                  data-cy="compensation-allowance-layout-mobile-header-row"
                 >
                   <div
                     className="min-w-0 w-full"
-                    data-cy="compensation-allowance-layout-mobile-breadcrumb-wrap"
+                    data-cy="compensation-allowance-layout-mobile-title-col"
                   >
-                    <CustomBreadcrumb
-                      title={
-                        <span data-cy="compensation-allowance-layout-mobile-title">
-                          Allowance
-                        </span>
-                      }
-                      subtitle={
-                        <Breadcrumb
-                          separator="/"
-                          className="text-sm"
-                          items={[
-                            {
-                              title: (
-                                <span
-                                  className="text-sm font-medium text-slate-500"
-                                  data-cy="compensation-allowance-layout-mobile-crumb-compensation"
-                                >
-                                  Compensation and Benefit
-                                </span>
-                              ),
-                            },
-                            {
-                              title: (
-                                <span
-                                  className="text-sm font-bold text-slate-500"
-                                  data-cy="compensation-allowance-layout-mobile-crumb-allowance"
-                                >
-                                  Allowance
-                                </span>
-                              ),
-                            },
-                          ]}
-                        />
-                      }
-                      titleExtra={
-                        <AccessGuard
-                          permissions={[Permissions.CreateAllowanceType]}
-                        >
-                          <Button
-                            type="primary"
-                            icon={<MdOutlinePayments className="text-base" />}
-                            className="h-10 w-10 min-w-10 rounded-md"
-                            onClick={handleAddAllowanceType}
-                            data-cy="compensation-allowance-add-allowance-type-button"
+                    <div
+                      className="min-w-0 w-full"
+                      data-cy="compensation-allowance-layout-mobile-breadcrumb-wrap"
+                    >
+                      <CustomBreadcrumb
+                        title={
+                          <span data-cy="compensation-allowance-layout-mobile-title">
+                            Allowance
+                          </span>
+                        }
+                        subtitle={
+                          <Breadcrumb
+                            separator="/"
+                            className="text-sm"
+                            items={[
+                              {
+                                title: (
+                                  <span
+                                    className="text-sm font-medium text-slate-500"
+                                    data-cy="compensation-allowance-layout-mobile-crumb-compensation"
+                                  >
+                                    Compensation and Benefit
+                                  </span>
+                                ),
+                              },
+                              {
+                                title: (
+                                  <span
+                                    className="text-sm font-bold text-slate-500"
+                                    data-cy="compensation-allowance-layout-mobile-crumb-allowance"
+                                  >
+                                    Allowance
+                                  </span>
+                                ),
+                              },
+                            ]}
                           />
-                        </AccessGuard>
-                      }
-                    />
+                        }
+                        titleExtra={
+                          <AccessGuard
+                            permissions={[Permissions.CreateAllowanceType]}
+                          >
+                            <Button
+                              type="primary"
+                              icon={<MdOutlinePayments className="text-base" />}
+                              className="h-10 w-10 min-w-10 rounded-md"
+                              onClick={handleAddAllowanceType}
+                              data-cy="compensation-allowance-add-allowance-type-button"
+                            />
+                          </AccessGuard>
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             <BlockWrapper className="h-auto w-full min-w-0 bg-white hidden sm:block">
               <div

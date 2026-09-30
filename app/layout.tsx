@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { cookies } from 'next/headers';
 import { Suspense } from 'react';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import './globals.css';
@@ -14,6 +15,7 @@ import { NotificationSocketProvider } from '@/providers/NotificationSocketProvid
 import RouteTopLoader from '@/components/RouteTopLoader';
 import CopilotFloatEntry from '@/components/copilot/CopilotFloatEntry';
 import ProductIframeRouteReporter from '@/providers/ProductIframeRouteReporter';
+import { ROLE_COOKIE } from '@/utils/navigation/workspaceUi';
 // Disable static prerendering globally; ensure all pages are rendered dynamically
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -162,6 +164,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Which shell to render is decided by role; the server only has the cookie.
+  const initialRoleSlug = cookies().get(ROLE_COOKIE)?.value ?? '';
+
   return (
     <html
       lang="en"
@@ -366,7 +371,9 @@ export default function RootLayout({
                         <Suspense fallback={null}>
                           <ProductIframeRouteReporter />
                         </Suspense>
-                        <ConditionalNav>{children}</ConditionalNav>
+                        <ConditionalNav initialRoleSlug={initialRoleSlug}>
+                          {children}
+                        </ConditionalNav>
                         <CopilotFloatEntry />
                         {/* <ChatBotButton /> */}
                       </RecaptchaProvider>

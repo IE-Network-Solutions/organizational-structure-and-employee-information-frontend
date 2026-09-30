@@ -4,7 +4,7 @@ const SidebarSkeleton: React.FC = () => {
   return (
     <div
       className="w-64 h-full p-4"
-      style={{ backgroundColor: 'var(--nav-sider-background, #eff6ff)' }}
+      style={{ backgroundColor: 'var(--app-shell-background, #ffffff)' }}
       data-cy="sidebar-skeleton"
     >
       {/* Menu items skeleton */}

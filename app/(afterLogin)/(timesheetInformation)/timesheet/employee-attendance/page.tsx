@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
+import { BannerActions, useInBanner } from '@/components/navBar/BannerActions';
 import {
   Breadcrumb,
   Button,
@@ -40,6 +41,7 @@ import MoveToDeductionModal, {
 
 const EmployeeAttendance = () => {
   const isSmallScreen = useMediaQuery({ maxWidth: 768 }); // Detect small screens
+  const inBanner = useInBanner();
 
   const importAttendance = useRef<HTMLInputElement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -195,6 +197,167 @@ const EmployeeAttendance = () => {
     </Menu>
   );
 
+  const headerActions = (
+    <>
+      {activeTabKey === '1' && (
+        <div
+          className="flex gap-2"
+          id="time-attendance-employee-attendance-actions-row"
+          data-cy="time-attendance-employee-attendance-actions-row"
+        >
+          {/* Import Button */}
+          <PermissionWrapper
+            data-cy="time-attendance-employee-attendance-import-permission-wrapper"
+            permissions={[Permissions.ImportEmployeeAttendanceInformation]}
+          >
+            <Dropdown
+              overlay={importMenu}
+              trigger={['click']}
+              data-cy="time-attendance-employee-attendance-import-dropdown"
+            >
+              <Button
+                icon={
+                  <IosShareIcon
+                    fontSize="small"
+                    data-cy="time-attendance-employee-attendance-import-button-icon"
+                    className="text-[#374151] h-10"
+                  />
+                }
+                loading={isLoading || isLoadingImport}
+                className={`border  border-[#d9d9d9] text-base font-normal text-[#4d4d4d] ${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : ' h-10'}`}
+                id="time-attendance-employee-attendance-import-button"
+                data-cy="time-attendance-employee-attendance-import-button"
+              >
+                {!isSmallScreen && 'Import'}
+              </Button>
+            </Dropdown>
+          </PermissionWrapper>
+
+          {/* Export Button */}
+          <PermissionWrapper
+            permissions={[Permissions.ExportEmployeeAttendanceInformation]}
+            data-cy="time-attendance-employee-attendance-export-permission-wrapper"
+          >
+            <Popover
+              trigger="click"
+              placement={isSmallScreen ? 'bottomLeft' : 'bottomRight'}
+              title={
+                <div
+                  id="time-attendance-employee-attendance-export-popover-title"
+                  data-cy="time-attendance-employee-attendance-export-popover-title"
+                  className="text-base text-gray-900 font-bold"
+                >
+                  Export Format
+                </div>
+              }
+              content={
+                <div
+                  id="time-attendance-employee-attendance-export-popover-content"
+                  data-cy="time-attendance-employee-attendance-export-popover-content"
+                  className="pt-4"
+                >
+                  <Row
+                    id="time-attendance-employee-attendance-export-popover-content-row"
+                    data-cy="time-attendance-employee-attendance-export-popover-content-row"
+                    gutter={[8, 8]}
+                  >
+                    <Col
+                      id="time-attendance-employee-attendance-export-popover-content-row-col-1"
+                      data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1"
+                      span={12}
+                    >
+                      <Button
+                        size="small"
+                        className="w-full flex items-center justify-center gap-1"
+                        type="primary"
+                        icon={
+                          <TbLayoutList
+                            data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1-icon"
+                            size={16}
+                          />
+                        }
+                        onClick={() => onExport('EXCEL')}
+                        loading={isExportingData && exportType === 'EXCEL'}
+                        disabled={isExportDisabled}
+                        id="time-attendance-employee-attendance-export-excel-button"
+                        data-cy="time-attendance-employee-attendance-export-excel-button"
+                      >
+                        Excel
+                      </Button>
+                    </Col>
+                    <Col span={12}>
+                      <Button
+                        size="small"
+                        className="w-full flex items-center justify-center gap-1"
+                        type="primary"
+                        icon={<LuBookmark size={16} />}
+                        onClick={() => onExport('PDF')}
+                        loading={isExportingData && exportType === 'PDF'}
+                        disabled={isExportDisabled}
+                        id="time-attendance-employee-attendance-export-pdf-button"
+                        data-cy="time-attendance-employee-attendance-export-pdf-button"
+                      >
+                        PDF
+                      </Button>
+                    </Col>
+                  </Row>
+                </div>
+              }
+              id="time-attendance-employee-attendance-export-popover"
+              data-cy="time-attendance-employee-attendance-export-popover"
+            >
+              <Button
+                icon={
+                  <SaveAltIcon
+                    data-cy="time-attendance-employee-attendance-export-button-icon"
+                    className="text-white"
+                  />
+                }
+                size="large"
+                type="primary"
+                loading={isExportingData}
+                className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center text-base font-normal text-white' : ' h-10 text-base font-normal text-white'}`}
+                id="time-attendance-employee-attendance-export-button"
+                data-cy="time-attendance-employee-attendance-export-button"
+              >
+                {!isSmallScreen && 'Export'}
+              </Button>
+            </Popover>
+          </PermissionWrapper>
+        </div>
+      )}
+      {activeTabKey === '2' && (
+        <div
+          id="time-attendance-rule-violation-actions-row"
+          data-cy="time-attendance-rule-violation-actions-row"
+        >
+          <PermissionWrapper
+            permissions={[Permissions.ExportEmployeeAttendanceInformation]}
+            data-cy="time-attendance-rule-violation-export-permission-wrapper"
+          >
+            <Button
+              icon={
+                <SaveAltIcon
+                  data-cy="time-attendance-rule-violation-export-button-icon"
+                  className="text-white"
+                />
+              }
+              size="large"
+              type="primary"
+              loading={isExportingRuleViolations}
+              onClick={onExportRuleViolations}
+              className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center text-base font-normal text-white' : ' h-10 text-base font-normal text-white'}`}
+              id="time-attendance-rule-violation-export-button"
+              data-cy="time-attendance-rule-violation-export-button"
+            >
+              {!isSmallScreen && 'Export'}
+            </Button>
+          </PermissionWrapper>
+        </div>
+      )}
+    </>
+  );
+
   return (
     <>
       <style data-cy="time-attendance-employee-attendance-page-styles">{`
@@ -216,211 +379,62 @@ const EmployeeAttendance = () => {
         id="time-attendance-employee-attendance-page-container-view"
         data-cy="time-attendance-employee-attendance-page-container-view"
       >
-        {/* Header Section */}
-        <div
-          className="flex justify-between pt-6"
-          id="time-attendance-employee-attendance-header-section"
-          data-cy="time-attendance-employee-attendance-header-section"
-        >
-          <div
-            className="flex flex-col gap-2"
-            data-cy="time-attendance-employee-attendance-header-title"
-          >
-            <h3
-              className="text-gray-900 text-xl font-bold mb-0"
-              data-cy="time-attendance-employee-attendance-header-title"
-              id="time-attendance-employee-attendance-header-title"
-            >
-              Employee Attendance
-            </h3>
-            <Breadcrumb
-              items={[
-                {
-                  title: (
-                    <span
-                      className="text-xs sm:text-sm font-normal"
-                      data-cy="time-attendance-employee-attendance-breadcrumb-title-1"
-                    >
-                      Time and Attendance
-                    </span>
-                  ),
-                },
-                {
-                  title: (
-                    <span
-                      className="text-xs sm:text-sm text-[#4d4d4d] font-normal"
-                      data-cy="time-attendance-employee-attendance-breadcrumb-title-2"
-                    >
-                      Employee Attendance
-                    </span>
-                  ),
-                },
-              ]}
-            />
-          </div>
-
-          {/* Action Buttons */}
-          {activeTabKey === '1' && (
+        {/* Header — under the workspace banner its actions move up into the
+            banner and the title, breadcrumb and divider are dropped. */}
+        {inBanner ? (
+          <BannerActions>{headerActions}</BannerActions>
+        ) : (
+          <>
             <div
-              className="flex gap-2"
-              id="time-attendance-employee-attendance-actions-row"
-              data-cy="time-attendance-employee-attendance-actions-row"
+              className="flex justify-between pt-6"
+              id="time-attendance-employee-attendance-header-section"
+              data-cy="time-attendance-employee-attendance-header-section"
             >
-              {/* Import Button */}
-              <PermissionWrapper
-                data-cy="time-attendance-employee-attendance-import-permission-wrapper"
-                permissions={[Permissions.ImportEmployeeAttendanceInformation]}
+              <div
+                className="flex flex-col gap-2"
+                data-cy="time-attendance-employee-attendance-header-title"
               >
-                <Dropdown
-                  overlay={importMenu}
-                  trigger={['click']}
-                  data-cy="time-attendance-employee-attendance-import-dropdown"
+                <h3
+                  className="text-gray-900 text-xl font-bold mb-0"
+                  data-cy="time-attendance-employee-attendance-header-title"
+                  id="time-attendance-employee-attendance-header-title"
                 >
-                  <Button
-                    icon={
-                      <IosShareIcon
-                        fontSize="small"
-                        data-cy="time-attendance-employee-attendance-import-button-icon"
-                        className="text-[#374151] h-10"
-                      />
-                    }
-                    loading={isLoading || isLoadingImport}
-                    className={`border  border-[#d9d9d9] text-base font-normal text-[#4d4d4d] ${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center' : ' h-10'}`}
-                    id="time-attendance-employee-attendance-import-button"
-                    data-cy="time-attendance-employee-attendance-import-button"
-                  >
-                    {!isSmallScreen && 'Import'}
-                  </Button>
-                </Dropdown>
-              </PermissionWrapper>
-
-              {/* Export Button */}
-              <PermissionWrapper
-                permissions={[Permissions.ExportEmployeeAttendanceInformation]}
-                data-cy="time-attendance-employee-attendance-export-permission-wrapper"
-              >
-                <Popover
-                  trigger="click"
-                  placement={isSmallScreen ? 'bottomLeft' : 'bottomRight'}
-                  title={
-                    <div
-                      id="time-attendance-employee-attendance-export-popover-title"
-                      data-cy="time-attendance-employee-attendance-export-popover-title"
-                      className="text-base text-gray-900 font-bold"
-                    >
-                      Export Format
-                    </div>
-                  }
-                  content={
-                    <div
-                      id="time-attendance-employee-attendance-export-popover-content"
-                      data-cy="time-attendance-employee-attendance-export-popover-content"
-                      className="pt-4"
-                    >
-                      <Row
-                        id="time-attendance-employee-attendance-export-popover-content-row"
-                        data-cy="time-attendance-employee-attendance-export-popover-content-row"
-                        gutter={[8, 8]}
-                      >
-                        <Col
-                          id="time-attendance-employee-attendance-export-popover-content-row-col-1"
-                          data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1"
-                          span={12}
+                  Employee Attendance
+                </h3>
+                <Breadcrumb
+                  items={[
+                    {
+                      title: (
+                        <span
+                          className="text-xs sm:text-sm font-normal"
+                          data-cy="time-attendance-employee-attendance-breadcrumb-title-1"
                         >
-                          <Button
-                            size="small"
-                            className="w-full flex items-center justify-center gap-1"
-                            type="primary"
-                            icon={
-                              <TbLayoutList
-                                data-cy="time-attendance-employee-attendance-export-popover-content-row-col-1-icon"
-                                size={16}
-                              />
-                            }
-                            onClick={() => onExport('EXCEL')}
-                            loading={isExportingData && exportType === 'EXCEL'}
-                            disabled={isExportDisabled}
-                            id="time-attendance-employee-attendance-export-excel-button"
-                            data-cy="time-attendance-employee-attendance-export-excel-button"
-                          >
-                            Excel
-                          </Button>
-                        </Col>
-                        <Col span={12}>
-                          <Button
-                            size="small"
-                            className="w-full flex items-center justify-center gap-1"
-                            type="primary"
-                            icon={<LuBookmark size={16} />}
-                            onClick={() => onExport('PDF')}
-                            loading={isExportingData && exportType === 'PDF'}
-                            disabled={isExportDisabled}
-                            id="time-attendance-employee-attendance-export-pdf-button"
-                            data-cy="time-attendance-employee-attendance-export-pdf-button"
-                          >
-                            PDF
-                          </Button>
-                        </Col>
-                      </Row>
-                    </div>
-                  }
-                  id="time-attendance-employee-attendance-export-popover"
-                  data-cy="time-attendance-employee-attendance-export-popover"
-                >
-                  <Button
-                    icon={
-                      <SaveAltIcon
-                        data-cy="time-attendance-employee-attendance-export-button-icon"
-                        className="text-white"
-                      />
-                    }
-                    size="large"
-                    type="primary"
-                    loading={isExportingData}
-                    className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center text-base font-normal text-white' : ' h-10 text-base font-normal text-white'}`}
-                    id="time-attendance-employee-attendance-export-button"
-                    data-cy="time-attendance-employee-attendance-export-button"
-                  >
-                    {!isSmallScreen && 'Export'}
-                  </Button>
-                </Popover>
-              </PermissionWrapper>
+                          Time and Attendance
+                        </span>
+                      ),
+                    },
+                    {
+                      title: (
+                        <span
+                          className="text-xs sm:text-sm text-[#4d4d4d] font-normal"
+                          data-cy="time-attendance-employee-attendance-breadcrumb-title-2"
+                        >
+                          Employee Attendance
+                        </span>
+                      ),
+                    },
+                  ]}
+                />
+              </div>
+
+              {headerActions}
             </div>
-          )}
-          {activeTabKey === '2' && (
-            <div
-              id="time-attendance-rule-violation-actions-row"
-              data-cy="time-attendance-rule-violation-actions-row"
-            >
-              <PermissionWrapper
-                permissions={[Permissions.ExportEmployeeAttendanceInformation]}
-                data-cy="time-attendance-rule-violation-export-permission-wrapper"
-              >
-                <Button
-                  icon={
-                    <SaveAltIcon
-                      data-cy="time-attendance-rule-violation-export-button-icon"
-                      className="text-white"
-                    />
-                  }
-                  size="large"
-                  type="primary"
-                  loading={isExportingRuleViolations}
-                  onClick={onExportRuleViolations}
-                  className={`${isSmallScreen ? 'w-10 h-10 p-0 flex items-center justify-center text-base font-normal text-white' : ' h-10 text-base font-normal text-white'}`}
-                  id="time-attendance-rule-violation-export-button"
-                  data-cy="time-attendance-rule-violation-export-button"
-                >
-                  {!isSmallScreen && 'Export'}
-                </Button>
-              </PermissionWrapper>
-            </div>
-          )}
-        </div>
-        <Divider
-          className="full-bleed-header-divider"
-          style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
-        />
+            <Divider
+              className="full-bleed-header-divider"
+              style={{ margin: '24px 0 24px 0', borderColor: '#f0f0f0' }}
+            />
+          </>
+        )}
 
         <Tabs
           activeKey={activeTabKey}

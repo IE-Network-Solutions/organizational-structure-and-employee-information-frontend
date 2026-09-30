@@ -1,12 +1,21 @@
 'use client';
-import React, { ReactNode, useState, useEffect } from 'react';
-import '../../app/globals.css';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+/**
+ * The classic workspace shell — expandable module sidebar, header, full page
+ * headers — exactly as on `develop`. Every role except `user` gets this; the
+ * `user` role gets the workspace UI in `../index.tsx` (see ConditionalNav).
+ *
+ * Kept verbatim from develop (only relative import paths changed) so it can be
+ * re-synced with a straight copy.
+ */
+import React, { ReactNode, useState, useEffect, useRef } from 'react';
+import '../../../app/globals.css';
+import { useRouter, usePathname } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/utils/firebaseConfig';
 import Image from 'next/image';
+import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
-import AnnouncementMegaphoneIcon from '@/components/collaboration/AnnouncementMegaphoneIcon';
+import AnnouncementMegaphoneIcon from '@/app/(afterLogin)/(organizationalStructure)/organization/announcement/_components/AnnouncementMegaphoneIcon';
 import {
   MdPeople,
   MdPersonSearch,
@@ -17,40 +26,30 @@ import {
   MdAdminPanelSettings,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
-import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
-import { Layout, Button, theme, Skeleton, Tooltip } from 'antd';
+import {
+  Layout,
+  Button,
+  theme,
+  Skeleton,
+  message,
+  Popover,
+  Tooltip,
+} from 'antd';
 
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
-import { useQueryClient } from 'react-query';
-import { BSC_QUERY_KEYS } from '@/store/server/features/bsc/queries';
-
-import {
-  menuKeyMatchScore,
-  scorecardTabHref,
-  splitMenuKey,
-} from '@/utils/bsc/scorecardTab';
-
-const menuKeyPath = (key: string) => splitMenuKey(String(key)).path;
-
-const locationHref = (pathname: string, search: string) => {
-  const q = search.startsWith('?') ? search.slice(1) : search;
-  return q ? `${pathname}?${q}` : pathname;
-};
 
 // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
 const isRouteMatch = (routePattern: string, pathname: string) => {
-  const pattern = menuKeyPath(routePattern);
-
   // Exact match
-  if (pattern === pathname) return true;
+  if (routePattern === pathname) return true;
 
   // Conversation: surveys and category list live under /feedback/categories — keep nav item active
-  if (pattern === '/feedback/conversation') {
+  if (routePattern === '/feedback/conversation') {
     if (
       pathname === '/feedback/categories' ||
       pathname.startsWith('/feedback/categories/')
@@ -60,132 +59,47 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
   }
 
   // Time & Attendance → Settings: one nav item should stay active for all settings sub-routes
-  if (pattern === '/timesheet/settings/closed-date') {
+  if (routePattern === '/timesheet/settings/closed-date') {
     return (
       pathname === '/timesheet/settings' ||
       pathname.startsWith('/timesheet/settings/')
     );
   }
 
-  // KPI → Settings: keep nav active for all BSC settings sub-routes
-  if (pattern === '/bsc/settings') {
-    return (
-      pathname === '/bsc/settings' || pathname.startsWith('/bsc/settings/')
-    );
-  }
-
-  // BSC → KPI admin: keep nav active for KPI catalog + scorecards tabs
-  if (pattern === '/bsc/kpi') {
-    return pathname === '/bsc/kpi' || pathname.startsWith('/bsc/kpi/');
-  }
-
   // Match [id] to UUIDs (or any non-slash segment)
-  if (pattern.includes('[id]')) {
-    const regexPattern = pattern.replace('[id]', '[0-9a-fA-F-]{36}');
+  if (routePattern.includes('[id]')) {
+    const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
     const regex = new RegExp('^' + regexPattern + '(/.*)?$');
     return regex.test(pathname);
   }
 
   // Generic dynamic segment: [something] => [^/]+
-  if (pattern.match(/\[.*?\]/g)) {
-    const regexPattern = pattern.replace(/\[.*?\]/g, '[^/]+');
+  if (routePattern.match(/\[.*?\]/g)) {
+    const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
     const regex = new RegExp('^' + regexPattern + '(/.*)?$');
     return regex.test(pathname);
   }
 
   // Prefix match for subpages
-  return pathname === pattern || pathname.startsWith(pattern + '/');
+  return pathname === routePattern || pathname.startsWith(routePattern + '/');
 };
-
-const findBestMatchingKey = (
-  items: any[] | undefined,
-  pathname: string,
-  search: string,
-): string | undefined => {
-  if (!items?.length) return undefined;
-
-  let bestKey: string | undefined;
-  let bestScore = -1;
-
-  const visit = (nodes: any[]) => {
-    for (const node of nodes) {
-      const key = String(node.key);
-      const score = menuKeyMatchScore(key, pathname, search);
-      if (score > bestScore) {
-        bestScore = score;
-        bestKey = key;
-      } else if (score < 0 && isRouteMatch(key, pathname)) {
-        // Nested detail pages (e.g. /bsc/my-scorecard/kpis/:id): keep parent path active
-        // without preferring a specific tab query key.
-        if (bestScore < 0) {
-          bestScore = 0;
-          bestKey = key.includes('?') ? undefined : key;
-        }
-      }
-      if (node.children?.length) visit(node.children);
-    }
-  };
-
-  visit(items);
-  return bestKey;
-};
-
-// A tab's route can land one level below the section it stands for (Settings →
-// `/tna/settings/course-category`); match the whole section so sibling pages
-// keep the tab active.
-const getRouteSection = (route: string) => {
-  const segments = route.split('/').filter(Boolean);
-  return segments.length > 2 ? `/${segments.slice(0, 2).join('/')}` : route;
-};
-
-// Length of the most specific of `routes` that `pathname` falls under; 0 if none.
-const getRouteMatchLength = (routes: string[], pathname: string) =>
-  routes.reduce((best, route) => {
-    if (!route.startsWith('/')) return best;
-    const section = getRouteSection(route);
-    return isRouteMatch(section, pathname)
-      ? Math.max(best, section.length)
-      : best;
-  }, 0);
-
-// An employee's own page puts that employee in the banner, as a profile would;
-// everywhere else it is the signed-in user.
-const getViewedEmployeeId = (pathname: string) =>
-  pathname.match(
-    /^\/employees\/manage-employees\/([0-9a-fA-F-]{36})(?:\/|$)/,
-  )?.[1];
-
-// Where a sidebar module opens: its first tab, or its own page when it has none.
-const getModuleLandingRoute = (item: {
-  key: React.Key | bigint;
-  children?: { key: React.Key | bigint }[];
-}) => String(item.children?.[0]?.key ?? item.key);
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useCollaborationMentionNotifications } from '@/store/server/features/collaboration';
 import { useCollaboration } from '@/components/collaboration/collaboration-context';
 import { COLLABORATION_SPACES_PATH } from '@/utils/collaboration';
 import {
   CollaborationDock,
   useCollaborationPanelStore,
 } from '@/components/collaboration/collaboration-dock';
+import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
 import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
-import { Permissions } from '@/types/commons/permissionEnum';
-import {
-  BSC_ADMIN_PERMISSIONS,
-  BSC_SCORECARD_PERMISSIONS,
-} from '@/utils/bsc/permissions';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { Permissions } from '@/types/commons/permissionEnum';
 import { findMostSpecificMatchingRoute } from '@/utils/routePermissions';
-import {
-  filterAdminSidebarChildren,
-  shouldShowModuleInSidebar,
-} from '@/utils/navigation/sidebarVisibility';
-import { isHomePath } from '@/utils/navigation/personalRoutes';
-import { IS_HOME_PROTOTYPE } from '@/config/homePrototype';
-import { useHomeBannerTabs } from '@/app/(afterLogin)/home/_components/useHomeTabs';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 // import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
@@ -215,7 +129,7 @@ interface CustomMenuItem {
 
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module, Subscription } from '@/types/tenant-management';
-import { ChevronsLeft, ChevronsRight, ChevronDown } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight } from 'lucide-react';
 import Link from 'next/link';
 import { MobileBottomNav } from './MobileBottomNav';
 
@@ -226,24 +140,10 @@ interface MyComponentProps {
 // Core host (SelamNew Core) provides its own top bar when this app is embedded inside it.
 const IS_CORE = process.env.NEXT_PUBLIC_IS_CORE === 'true';
 
-// Sidebar, header and page share one surface; the banner carries the colour.
-const SHELL_BACKGROUND = 'var(--app-shell-background, #ffffff)';
-// Tailwind `brand` — the banner colour, reused for active navigation.
-const SHELL_ACCENT = '#1E40AF';
-
-interface SidebarNavItem {
-  key: React.Key | bigint;
-  icon?: React.ReactNode;
-  label: React.ReactNode;
-  children?: { key: React.Key | bigint; label: React.ReactNode }[];
-}
-
-// One sidebar module. Sub-modules are not listed here — they are the tabs in the
-// module banner at the top of the page.
 const NavMenuItem: React.FC<{
-  item: SidebarNavItem;
+  item: any;
   collapsed: boolean;
-  active: boolean;
+  colorPrimary: string;
   fontSize: number;
   selectedKeys: (string | number | bigint)[];
   setSelectedKeys: React.Dispatch<
@@ -251,7 +151,6 @@ const NavMenuItem: React.FC<{
   >;
   router: any;
   pathname: string;
-  search: string;
   triggerRouteLoaderStart: () => void;
   expandedKeys: (string | number | bigint)[];
   setExpandedKeys: React.Dispatch<
@@ -269,7 +168,6 @@ const NavMenuItem: React.FC<{
   setSelectedKeys,
   router,
   pathname,
-  search,
   triggerRouteLoaderStart,
   expandedKeys,
   setExpandedKeys,
@@ -281,42 +179,31 @@ const NavMenuItem: React.FC<{
   const isItemDisabled = Boolean(item.disabled) || Boolean(navigationDisabled);
   const [flyoutOpen, setFlyoutOpen] = React.useState(false);
   const showFlyout = collapsed && hasChildren;
-  const currentHref = locationHref(pathname, search);
 
-  const bestMatchingChildKey = React.useMemo(
-    () => findBestMatchingKey(item.children, pathname, search),
-    [item.children, pathname, search],
-  );
+  const bestMatchingChildKey = React.useMemo(() => {
+    if (!hasChildren) return undefined;
+    const matches = item.children
+      .map((child: any) => String(child.key))
+      .filter((key: string) => isRouteMatch(key, pathname));
+    if (matches.length === 0) return undefined;
+    return matches.sort((a: string, b: string) => b.length - a.length)[0];
+  }, [hasChildren, item.children, pathname]);
 
   // Check if this item or any of its children matches the current path
-  const itemPath = menuKeyPath(String(item.key));
   const isDirectlyActive =
-    selectedKeys.includes(item.key) ||
-    (itemPath.startsWith('/') &&
-      menuKeyMatchScore(String(item.key), pathname, search) >= 0) ||
-    (itemPath.startsWith('/') &&
-      !String(item.key).includes('?') &&
-      isRouteMatch(String(item.key), pathname) &&
-      !hasChildren);
+    selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
   const isChildActive = Boolean(bestMatchingChildKey);
   const isActive =
     isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
-  const navigateToKey = (key: string) => {
-    if (!key.startsWith('/')) return;
-    if (isItemDisabled) return;
-    if (currentHref !== key) {
-      triggerRouteLoaderStart();
-      router.push(key);
-      setSelectedKeys([key]);
-    }
-    setFlyoutOpen(false);
-    onNavigate?.();
-  };
-
   const handleChildNavigate = (child: any) => {
     if (isItemDisabled) return;
-    navigateToKey(String(child.key));
+    const path = String(child.key);
+    triggerRouteLoaderStart();
+    router.push(path);
+    setSelectedKeys([path]);
+    setFlyoutOpen(false);
+    onNavigate?.();
   };
 
   const handleToggle = () => {
@@ -324,7 +211,13 @@ const NavMenuItem: React.FC<{
     if (hasChildren) {
       setExpandedKeys((prev) => (prev.includes(item.key) ? [] : [item.key]));
     } else {
-      navigateToKey(String(item.key));
+      const path = String(item.key);
+      if (pathname !== path) {
+        triggerRouteLoaderStart();
+        router.push(path);
+        setSelectedKeys([path]);
+      }
+      onNavigate?.();
     }
   };
 
@@ -338,11 +231,9 @@ const NavMenuItem: React.FC<{
   };
 
   const renderChildRow = (child: any) => {
-    const childKey = String(child.key);
     const isChildSelected =
       selectedKeys.includes(child.key) ||
-      childKey === bestMatchingChildKey ||
-      menuKeyMatchScore(childKey, pathname, search) >= 2;
+      String(child.key) === bestMatchingChildKey;
     return (
       <div
         key={child.key}
@@ -386,9 +277,7 @@ const NavMenuItem: React.FC<{
       aria-disabled={isItemDisabled || undefined}
       aria-label={collapsed ? item.label : undefined}
       aria-haspopup={showFlyout ? 'menu' : undefined}
-      aria-expanded={
-        showFlyout ? flyoutOpen : hasChildren ? isExpanded : undefined
-      }
+      aria-expanded={showFlyout ? flyoutOpen : undefined}
       onClick={handleToggle}
       onKeyDown={handleTriggerKeyDown}
       className={`
@@ -405,62 +294,87 @@ const NavMenuItem: React.FC<{
     >
       <div
         data-cy="nav-menu-item-icon"
-        className="flex shrink-0 items-center text-[21px] leading-none"
+        className={`text-[21px] transition-colors ${
+          isActive ? '' : 'text-black'
+        }`}
+        style={isActive ? { color: colorPrimary } : undefined}
       >
         {item.icon}
-      </span>
+      </div>
+
       {!collapsed && (
         <span
           data-cy="nav-menu-item-label"
-          className="min-w-0 flex-1 truncate"
+          className="flex-1 transition-colors"
           style={{ fontSize }}
         >
           {item.label}
         </span>
       )}
-
-      {!collapsed && hasChildren ? (
-        <ChevronDown
-          data-cy="nav-menu-item-chevron"
-          className={`h-3.5 w-3.5 shrink-0 transition-transform ${
-            isExpanded ? 'rotate-180' : ''
-          }`}
-          aria-hidden
-        />
-      ) : null}
     </div>
   );
 
-  const row = disabled ? (
-    <span
-      data-cy="nav-menu-item"
-      aria-disabled="true"
-      aria-label={collapsed ? label : undefined}
-      className={className}
-    >
-      {content}
-    </span>
-  ) : (
-    <Link
-      data-cy="nav-menu-item"
-      href={getModuleLandingRoute(item)}
-      prefetch={false}
-      aria-current={active ? 'true' : undefined}
-      aria-label={collapsed ? label : undefined}
-      className={className}
-    >
-      {content}
-    </Link>
-  );
+  if (showFlyout) {
+    return (
+      <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
+        <Popover
+          placement="right"
+          trigger={isItemDisabled ? [] : ['hover', 'focus']}
+          open={isItemDisabled ? false : flyoutOpen}
+          onOpenChange={setFlyoutOpen}
+          arrow={false}
+          overlayClassName="nav-flyout-popover"
+          content={
+            <div
+              role="menu"
+              aria-label={String(item.label)}
+              data-cy="nav-menu-item-flyout"
+              className="min-w-[190px]"
+            >
+              <div
+                data-cy="nav-menu-item-flyout-header"
+                className="px-3 py-1.5 text-[13px] font-bold"
+                style={isActive ? { color: colorPrimary } : undefined}
+              >
+                {item.label}
+              </div>
+              <div
+                data-cy="nav-menu-item-flyout-children"
+                className="flex flex-col"
+              >
+                {item.children.map((child: any) => renderChildRow(child))}
+              </div>
+            </div>
+          }
+        >
+          {triggerRow}
+        </Popover>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex w-full flex-col" data-cy="nav-menu-item-wrapper">
+    <div className="flex flex-col w-full" data-cy="nav-menu-item-wrapper">
       {collapsed ? (
-        <Tooltip placement="right" title={item.label}>
-          {row}
+        <Tooltip
+          placement="right"
+          trigger={isItemDisabled ? [] : ['hover', 'focus']}
+          title={item.label}
+        >
+          {triggerRow}
         </Tooltip>
       ) : (
-        row
+        triggerRow
+      )}
+
+      {hasChildren && !collapsed && isExpanded && (
+        <div
+          className="flex flex-col mt-1 ml-[33px] space-y-1"
+          data-cy="nav-menu-item-children-container"
+          role="menu"
+        >
+          {item.children.map((child: any) => renderChildRow(child))}
+        </div>
       )}
     </div>
   );
@@ -468,16 +382,28 @@ const NavMenuItem: React.FC<{
 
 const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const {
-    token: { borderRadiusLG, fontSize, fontSizeSM },
+    token: { borderRadiusLG, colorPrimary, fontSize, fontSizeSM },
   } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const search = searchParams.toString();
-  const currentHref = locationHref(pathname, search);
   const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
+  const enabledAnnouncementChannelIds = useAnnouncementChannelsStore(
+    (state) => state.enabledChannelIds,
+  );
+  const { data: collaborationMentionNotifications = [] } =
+    useCollaborationMentionNotifications();
+  const hasAnnouncementMention = React.useMemo(() => {
+    const integratedChannelIds = new Set(enabledAnnouncementChannelIds);
+    return collaborationMentionNotifications.some(
+      (notification) =>
+        notification.unread &&
+        notification.channelId &&
+        integratedChannelIds.has(notification.channelId),
+    );
+  }, [collaborationMentionNotifications, enabledAnnouncementChannelIds]);
   const {
     enabled: collaborationEnabled,
     isOpen: collaborationOpen,
@@ -503,12 +429,29 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     isCheckingPermissions,
     setIsCheckingPermissions,
   } = useAuthenticationStore();
-  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const styleId = 'nav-flyout-popover-styles';
+    if (document.getElementById(styleId)) return;
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      .nav-flyout-popover .ant-popover-inner {
+        padding: 6px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+      }
+      .nav-flyout-popover .ant-popover-inner-content {
+        padding: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
   }, []);
 
   useEffect(() => {
@@ -530,6 +473,41 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     }
   };
 
+  const loadExpandedKeysFromStorage = (): (string | number | bigint)[] => {
+    if (typeof window === 'undefined') return [];
+
+    try {
+      const saved = localStorage.getItem('navBar-expandedKeys');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.slice(0, 1);
+        }
+      }
+    } catch (error: any) {
+      message.error('Error loading expandedKeys from localStorage:', error);
+    }
+    return [];
+  };
+
+  const saveExpandedKeysToStorage = (keys: (string | number | bigint)[]) => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      localStorage.setItem('navBar-expandedKeys', JSON.stringify(keys));
+    } catch (error: any) {
+      message.error('Error saving expandedKeys to localStorage:', error);
+    }
+  };
+
+  const [expandedKeys, setExpandedKeys] = useState<
+    (string | number | bigint)[]
+  >(loadExpandedKeysFromStorage);
+  const [selectedKeys, setSelectedKeys] = useState<
+    (string | number | bigint)[]
+  >([pathname]);
+  const hasInitialized = useRef(false);
+
   // ===========> Fiscal Year Ended Section <=================
 
   const { token } = useAuthenticationStore();
@@ -547,22 +525,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // ===========> Fiscal Year Ended Section <=================
 
   // Separate array for routes that should be accessible but not shown in navigation
-  const hiddenRoutes: {
-    key: string;
-    permissions: string[];
-    requireAny?: boolean;
-  }[] = [
+  const hiddenRoutes: { key: string; permissions: string[] }[] = [
     {
       key: '/dashboard',
       permissions: [], // No permissions required
-    },
-    {
-      key: '/home/overview',
-      permissions: [],
-    },
-    {
-      key: '/home',
-      permissions: [],
     },
     {
       key: '/',
@@ -587,36 +553,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     {
       key: '/feedback/categories',
       permissions: ['view_feedback_conversation'], // Same permission as conversation page
-    },
-    // BSC detail pages reached from tables/cards (not in the sidebar). Without
-    // these, the permission check below finds no route and sends non-owners to
-    // /unauthorized (e.g. Results → Review/View → pep-audit).
-    // BSC uses its own "BSC and KPI" permission group (like OKR), not OKR's.
-    {
-      key: '/bsc/employees',
-      permissions: [Permissions.ViewBsc], // Employee KPI detail + PEP audit review
-    },
-    {
-      key: '/bsc/kpis',
-      permissions: [Permissions.ViewBsc],
-    },
-    {
-      key: '/bsc/perspectives',
-      permissions: [Permissions.ViewBsc],
-    },
-    {
-      key: '/bsc/roll-up',
-      permissions: [Permissions.ViewBsc],
-    },
-    {
-      key: '/bsc/setup',
-      permissions: BSC_SCORECARD_PERMISSIONS,
-      requireAny: true,
-    },
-    {
-      key: '/bsc/cycles',
-      permissions: BSC_SCORECARD_PERMISSIONS,
-      requireAny: true,
     },
   ];
 
@@ -652,7 +588,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           routes.push({
             route: route.key,
             permissions: route.permissions,
-            ...(route.requireAny ? { requireAny: true } : {}),
           });
         }
       });
@@ -664,35 +599,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     [hiddenRoutes],
   );
 
-  const treeData: CustomMenuItem[] = React.useMemo(() => {
-    const kpiTabChildren: CustomMenuItem[] = [
-      {
-        title: <span data-cy="nav-tree-bsc-kpis">KPI</span>,
-        key: '/bsc/kpi',
-        className: 'font-bold',
-        // KPI library + scorecard setup (like OKR settings: admin only).
-        permissions: BSC_ADMIN_PERMISSIONS,
-        requireAny: true,
-      },
-      {
-        title: <span data-cy="nav-tree-bsc-my-scorecard">My Scorecard</span>,
-        key: scorecardTabHref('mine'),
-        className: 'font-bold',
-        permissions: [Permissions.ViewBsc],
-      },
-      {
-        title: <span data-cy="nav-tree-bsc-settings">Settings</span>,
-        key: '/bsc/settings',
-        className: 'font-bold',
-        permissions: [Permissions.CreateBscPerspective],
-      },
-    ];
-
-    return [
+  const treeData: CustomMenuItem[] = React.useMemo(
+    () => [
       {
         icon: <DashboardIcon style={{ fontSize: 20 }} />,
-        title: 'Home',
-        key: '/home/overview',
+        title: 'Dashboard',
+        key: '/dashboard',
         className: 'font-bold',
         permissions: [],
         moduleCode: 'DASHBOARD',
@@ -837,16 +749,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             permissions: ['manage_okr_settings'],
           },
         ],
-      },
-      {
-        icon: <AssessmentOutlinedIcon style={{ fontSize: 20 }} />,
-        title: 'BSC',
-        key: 'bsc-menu',
-        className: 'font-bold',
-        permissions: [Permissions.ViewBsc],
-        disabled: hasEndedFiscalYear,
-        moduleCode: 'OKR',
-        children: kpiTabChildren,
       },
       {
         icon: <ChatBubbleOutlinedIcon style={{ fontSize: 20 }} />,
@@ -1104,17 +1006,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           },
         ],
       },
-    ];
-  }, [hasEndedFiscalYear, userData]);
+    ],
+    [hasEndedFiscalYear],
+  );
 
   // Helper function moved to global scope
 
   const checkPathnamePermissions = React.useCallback(
     (pathname: string): boolean => {
-      if (IS_HOME_PROTOTYPE && isHomePath(pathname)) {
-        return true;
-      }
-
       // Get all routes and their permissions
       const routesWithPermissions = getRoutesAndPermissions(treeData);
 
@@ -1268,7 +1167,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setIsCheckingPermissions(true);
       try {
         if (pathname === '/') {
-          router.push('/home/overview');
+          router.push('/dashboard');
           return;
         }
 
@@ -1319,25 +1218,22 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   ]);
 
   const findParentMenuKey = React.useCallback(
-    (
-      pathname: string,
-      search: string,
-      menuItems: CustomMenuItem[],
-    ): string | null => {
+    (pathname: string, menuItems: CustomMenuItem[]): string | null => {
       for (const item of menuItems) {
-        if (!item.children) continue;
+        if (item.children) {
+          const matchesChild = item.children.some((child) => {
+            const childKey = String(child.key);
+            return isRouteMatch(childKey, pathname);
+          });
 
-        const matchesChild = item.children.some((child) => {
-          const childKey = String(child.key);
-          if (menuKeyMatchScore(childKey, pathname, search) >= 0) return true;
-          return (
-            menuKeyPath(childKey).startsWith('/') &&
-            isRouteMatch(childKey, pathname)
-          );
-        });
+          if (matchesChild) {
+            return String(item.key);
+          }
 
-        if (matchesChild) {
-          return String(item.key);
+          const nestedParent = findParentMenuKey(pathname, item.children);
+          if (nestedParent) {
+            return String(item.key);
+          }
         }
       }
       return null;
@@ -1350,11 +1246,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   }, [expandedKeys]);
 
   useEffect(() => {
-    if (isHomePath(pathname)) {
+    if (pathname === '/dashboard' || pathname === '/') {
       setExpandedKeys([]);
       return;
     }
-    const parentKey = findParentMenuKey(pathname, search, treeData);
+    const parentKey = findParentMenuKey(pathname, treeData);
     if (parentKey) {
       setExpandedKeys((prev) => {
         if (prev.length !== 1 || prev[0] !== parentKey) {
@@ -1363,11 +1259,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return prev;
       });
     }
-  }, [pathname, search, findParentMenuKey, treeData]);
+  }, [pathname, findParentMenuKey, treeData]);
 
   useEffect(() => {
-    setSelectedKeys([currentHref]);
-  }, [currentHref]);
+    setSelectedKeys([pathname]);
+  }, [pathname]);
 
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -1381,11 +1277,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return;
     }
 
-    const parentKey = findParentMenuKey(pathname, search, treeData);
+    const parentKey = findParentMenuKey(pathname, treeData);
     if (parentKey && expandedKeys.length === 0) {
       setExpandedKeys([parentKey]);
     }
-  }, [expandedKeys.length, findParentMenuKey, pathname, search, treeData]);
+  }, [expandedKeys.length, findParentMenuKey, pathname, treeData]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1397,9 +1293,19 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Only reachable on desktop: mobile navigates from the bottom bar instead.
   const toggleCollapsed = () => {
-    setCollapsed((value) => !value);
+    // On mobile the sidebar behaves like an off-canvas drawer.
+    // We never want the "mini collapsed" (80px) variant there.
+    if (isMobile) {
+      setMobileCollapsed((v) => !v);
+      setCollapsed(false);
+      return;
+    }
+    setCollapsed(!collapsed);
+  };
+
+  const toggleMobileCollapsed = () => {
+    setMobileCollapsed(!mobileCollapsed);
   };
 
   useEffect(() => {
@@ -1457,11 +1363,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setToken('');
       setUser2FA({ email: '', pass: '' });
 
-      // Drop user-scoped BSC cache so the next login cannot reuse My Scorecard data.
-      Object.values(BSC_QUERY_KEYS).forEach((key) => {
-        queryClient.removeQueries(key);
-      });
-
       // Then remove cookies
       removeCookie('token');
       removeCookie('tenantId');
@@ -1494,37 +1395,23 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return v.replace(/\/+$/, '') || '/';
     };
 
-    type GroupedMenuChild = {
-      key: string;
-      label: React.ReactNode;
-    };
-
     const accessibleTreeItems = treeData
       .map((item) => {
-        if (item.moduleCode === 'DASHBOARD') {
-          return { ...item, children: [] };
-        }
-
         const hasAccess = AccessGuard.checkAccess({
           permissions: item.permissions,
           requireAny: item.requireAny,
         });
         if (!hasAccess) return null;
-
-        if (!shouldShowModuleInSidebar(item, isOwner)) return null;
-
-        const permittedChildren = item.children
-          ? item.children.filter((child) =>
-              AccessGuard.checkAccess({
-                permissions: child.permissions,
-                requireAny: child.requireAny,
-              }),
-            )
-          : [];
-
         return {
           ...item,
-          children: filterAdminSidebarChildren(permittedChildren),
+          children: item.children
+            ? item.children.filter((child) =>
+                AccessGuard.checkAccess({
+                  permissions: child.permissions,
+                  requireAny: child.requireAny,
+                }),
+              )
+            : [],
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
@@ -1555,13 +1442,9 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     });
 
     const nameMapping: Record<string, string> = {
-      overview: 'home',
-      dashboard: 'home',
-      home: 'home',
+      overview: 'dashboard',
       people: 'employees',
       performance: 'okr',
-      okr: 'okr',
-      kpi: 'kpi',
       finance: 'payroll',
       administration: 'admin',
       organization: 'organization',
@@ -1579,32 +1462,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       timesheet: 'time & attendance',
       'employee info': 'employees',
       'okr and planning': 'okr',
-      bsc: 'kpi',
-      scorecard: 'kpi',
       feedback: 'cfr',
       cfr: 'cfr',
       recruitment: 'talent acquisition',
     };
-
-    const mapTreeItemToMenuChild = (
-      treeItem: CustomMenuItem,
-    ): {
-      key: string;
-      icon?: React.ReactNode;
-      label: React.ReactNode;
-      children?: GroupedMenuChild[];
-    } => ({
-      key: treeItem.key,
-      icon: treeItem.icon,
-      label: treeItem.title,
-      children:
-        treeItem.children && treeItem.children.length > 0
-          ? treeItem.children.map((child) => ({
-              key: child.key,
-              label: child.title,
-            }))
-          : undefined,
-    });
 
     const modules: Module[] = modulesData?.items || [];
     const activeSubscriptionFromTenant =
@@ -1664,8 +1525,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ? treeItemByRouteMap.get(normalizedDescription)
         : undefined;
       const treeItem = treeItemFromDescription || treeItemMap.get(mappedName);
-      // Home is pinned above the groups rather than filed under one.
-      if (!treeItem || treeItem.moduleCode === 'DASHBOARD') return;
+      if (!treeItem) return;
 
       const groupLabelRaw = String(module.moduleGroup).trim();
       if (!groupLabelRaw) return;
@@ -1687,167 +1547,29 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       );
       if (alreadyAdded) return;
 
-      currentGroup.children.push(mapTreeItemToMenuChild(treeItem));
+      currentGroup.children.push({
+        key: treeItem.key,
+        icon: treeItem.icon,
+        label: treeItem.title,
+        children:
+          treeItem.children && treeItem.children.length > 0
+            ? treeItem.children.map((child) => ({
+                key: child.key,
+                label: child.title,
+              }))
+            : undefined,
+      });
     });
-
-    // BSC shares the OKR subscription (no separate BSC module yet). When OKR
-    // is present, insert BSC beside it like CFR — accordion children = scorecard tabs.
-    for (const group of groupedByParent.values()) {
-      const okrIndex = group.children.findIndex(
-        (child) => String(child.key) === '/okr-menu',
-      );
-      const hasBsc = group.children.some(
-        (child) => String(child.key) === 'bsc-menu',
-      );
-      if (okrIndex === -1 || hasBsc) continue;
-
-      const bscTreeItem = treeItemMap.get('bsc') || treeItemMap.get('kpi');
-      if (!bscTreeItem) continue;
-
-      group.children.splice(
-        okrIndex + 1,
-        0,
-        mapTreeItemToMenuChild(bscTreeItem),
-      );
-    }
 
     return Array.from(groupedByParent.values()).filter(
       (group) => group.children.length > 0,
     );
-    const homeGroup = {
-      type: 'group' as const,
-      key: 'group-home',
-      label: '',
-      linkKey: '/home/overview',
-      children: [
-        {
-          key: '/home/overview',
-          icon: homeTreeItem?.icon ?? (
-            <DashboardIcon style={{ fontSize: 20 }} />
-          ),
-          label: 'Home',
-        },
-      ],
-    };
-
-    return [
-      homeGroup,
-      ...Array.from(groupedByParent.values()).filter(
-        (group) => group.children.length > 0,
-      ),
-    ];
-  }, [treeData, modulesData, subscriptionData, subscriptionsData, userData]);
-
-  // The module the current page belongs to, with the sub-modules this user can
-  // open as its tabs. Home renders its own banner.
-  const activeModule = React.useMemo(() => {
-    if (isHomePath(pathname)) return null;
-
-    // Match against every sub-route, including the personal ones hidden from
-    // the tabs, so e.g. `/feedback/categories` still resolves to CFR.
-    let matchedItem: CustomMenuItem | undefined;
-    let matchedLength = 0;
-    for (const item of treeData) {
-      if (item.moduleCode === 'DASHBOARD') continue;
-      const childRoutes = (item.children ?? []).map((child) =>
-        String(child.key),
-      );
-      // Each sub-module's top-level URL area (`/feedback` for CFR) also
-      // counts, at lower priority, so detail and form pages that are not a tab
-      // of their own (`/feedback/categories/…`) still sit under their module.
-      const areaRoutes = childRoutes
-        .map((route) => route.split('/').filter(Boolean)[0])
-        .filter(Boolean)
-        .map((segment) => `/${segment}`);
-      const routes = [String(item.key), ...childRoutes, ...areaRoutes];
-      const length = getRouteMatchLength(routes, pathname);
-      if (length > matchedLength) {
-        matchedItem = item;
-        matchedLength = length;
-      }
-    }
-    if (!matchedItem) return null;
-
-    const moduleKey = String(matchedItem.key);
-    const sidebarItem: SidebarNavItem | undefined = groupedMenuItems
-      .flatMap((group) => group.children)
-      .find((item) => String(item.key) === moduleKey);
-    // Not in this user's sidebar (no access, or not subscribed): no banner.
-    if (!sidebarItem) return null;
-
-    // A module without sub-modules is its own single tab.
-    const tabSources = sidebarItem.children?.length
-      ? sidebarItem.children
-      : moduleKey.startsWith('/')
-        ? [{ key: moduleKey, label: sidebarItem.label }]
-        : [];
-    const tabs = tabSources.map((child) => {
-      const route = String(child.key);
-      return {
-        key: route,
-        label: child.label,
-        title: getNodeText(child.label),
-        href: route,
-        disabled: subscriptionExpired && !route.startsWith('/admin'),
-      };
-    });
-    const activeTab = tabs.reduce<{ key?: string; length: number }>(
-      (best, tab) => {
-        const length = getRouteMatchLength([tab.key], pathname);
-        return length > best.length ? { key: tab.key, length } : best;
-      },
-      { length: 0 },
-    );
-
-    return {
-      key: moduleKey,
-      icon: sidebarItem.icon,
-      title: sidebarItem.label,
-      tabs,
-      activeTabKey: activeTab.key,
-    };
-  }, [pathname, treeData, groupedMenuItems, subscriptionExpired]);
-
-  const activeSidebarKey = isHomePath(pathname)
-    ? '/home/overview'
-    : activeModule?.key;
-
-  // Home and every module share one page frame; only its tabs differ. Pages
-  // outside both (e.g. Copilot) keep the whole content area.
-  const homeBannerTabs = useHomeBannerTabs();
-  const shellSection: WorkspaceSection | null = isHomePath(pathname)
-    ? {
-        title: homeBannerTabs.pageTitle,
-        tabs: homeBannerTabs.tabs,
-        activeKey: homeBannerTabs.activeKey,
-        // The Edit action depends on the signed-in user; see shellEmployeeId.
-        extra: isMounted ? homeBannerTabs.extra : undefined,
-        tabsLabel: 'Home sections',
-        tabsIdPrefix: 'home-tabs',
-        fixedFrame: !IS_CORE,
-      }
-    : activeModule
-      ? {
-          title: activeModule.title,
-          tabs: activeModule.tabs,
-          activeKey: activeModule.activeTabKey,
-          extra: undefined,
-          tabsLabel: `${getNodeText(activeModule.title) || 'Module'} sections`,
-          tabsIdPrefix: 'module-tabs',
-          spaceBelowBanner: true,
-        }
-      : null;
-  // The session lives in localStorage, so the server renders with no user
-  // while the browser's first render already has one. Show the profile from
-  // mount on so both renders match and hydration doesn't fail.
-  const shellEmployeeId = isMounted
-    ? (getViewedEmployeeId(pathname) ?? (userId || undefined))
-    : undefined;
+  }, [treeData, modulesData, subscriptionData, subscriptionsData]);
 
   // Fallback skeleton structure used while modules data is not yet available
   const skeletonMenuItems = React.useMemo(
     () =>
-      groupedMenuItems.length > 1
+      groupedMenuItems.length > 0
         ? groupedMenuItems
         : [
             {
@@ -1926,29 +1648,12 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   //   });
   // };
 
-  const pageContent =
-    isMounted && isCheckingPermissions ? (
-      <div
-        data-cy="nav-content-loading"
-        className="flex items-center justify-center py-16"
-      >
-        <Skeleton active />
-      </div>
-    ) : (
-      children
-    );
-
   // Render the component with the layout and navigation on the left
-  const siderOffset = isMobile ? 0 : collapsed ? 80 : 280;
-  // Core embeds this app under its own top bar.
-  const showTopHeader = !IS_CORE;
-  // The header logo, the banner and the page content share one left edge.
-  const contentGutter = isMobile ? 8 : 24;
 
   return (
     <Layout
       style={{
-        background: SHELL_BACKGROUND,
+        background: '#fff',
         minHeight: '100vh',
         display: 'flex',
         flexDirection: 'row',
@@ -1967,7 +1672,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           top: 0,
           bottom: 0,
           zIndex: 100,
-          backgroundColor: SHELL_BACKGROUND,
+          backgroundColor: 'var(--nav-sider-background, #eff6ff)',
           // On mobile the bottom nav handles navigation — slide the sidebar fully off-screen.
           transform: isMobile ? 'translateX(-100%)' : 'none',
           transition: 'transform 0.3s ease',
@@ -1980,6 +1685,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           setIsMobile(broken);
           if (broken) {
             setCollapsed(false);
+            setMobileCollapsed(true);
           }
         }}
         collapsedWidth={80}
@@ -1988,66 +1694,94 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           data-cy="nav-sider-children-wrap"
           className="relative flex flex-col flex-1 min-h-0"
         >
+          {!IS_CORE && (
+            <div
+              data-cy="nav-sider-logo-wrap"
+              className={`flex items-center pt-6 mb-10 ${collapsed ? 'justify-center pl-0' : 'pl-10'}`}
+            >
+              <div
+                data-cy="nav-sider-logo"
+                className="relative h-10 w-full flex items-center"
+              >
+                {collapsed ? (
+                  <div
+                    data-cy="nav-sider-logo-collapsed-container"
+                    className="w-full flex justify-center"
+                  >
+                    <Image
+                      unoptimized
+                      src="/image/selamnew-workspace-logo-collapsed.svg"
+                      alt="SelamNew Workspace Logo"
+                      width={32}
+                      height={32}
+                      style={{ objectFit: 'contain' }}
+                    />
+                  </div>
+                ) : (
+                  <Image
+                    unoptimized
+                    src="/image/selamnew-workspace-logo.svg"
+                    alt="SelamNew Workspace Logo"
+                    width={150}
+                    height={40}
+                    style={{ objectFit: 'contain' }}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
           <div
             data-cy="nav-sider-menu-scroll"
-            className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide"
+            className={`flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide ${IS_CORE ? 'pt-6' : ''}`}
             style={{ minHeight: 0 }}
           >
-            {/* Top padding lines Home up with the logo in the header row. */}
-            <nav
+            <div
               data-cy="nav-sider-menu-inner"
-              aria-label="Main navigation"
-              className="px-4 pb-8 pt-4"
+              className={`${collapsed ? 'mt-1' : 'mt-2'} pb-10 ${collapsed ? 'px-0' : 'pl-10 pr-3'}`}
             >
               {!isMounted || isLoadingData ? (
-                <div data-cy="nav-sider-loading" className="space-y-5">
+                <div
+                  data-cy="nav-sider-loading"
+                  className="space-y-4 max-w-[209px]"
+                >
                   {skeletonMenuItems.map((group: any) => (
                     <div
                       data-cy="nav-sider-group-skeleton"
                       key={group.key}
                       className="space-y-1"
                     >
-                      {group.label ? (
+                      <div
+                        data-cy="nav-sider-group-header-skeleton"
+                        className="mb-2 mt-4 first:mt-2"
+                      >
                         <div
-                          data-cy="nav-sider-group-header-skeleton"
-                          className={
-                            collapsed ? 'mb-2 flex justify-center' : 'mb-1 px-3'
-                          }
+                          data-cy="nav-sider-group-label-skeleton"
+                          className={`w-full font-light text-[#64748B] tracking-wide ${
+                            collapsed ? 'text-center truncate' : ''
+                          }`}
+                          style={{ fontSize: fontSizeSM }}
                         >
-                          {collapsed ? (
-                            <div
-                              data-cy="nav-sider-group-divider-skeleton"
-                              className="h-px w-8 bg-[#E5E7EB]"
-                            />
-                          ) : (
-                            <div
-                              data-cy="nav-sider-group-label-skeleton"
-                              className="font-light tracking-wide text-[#64748B]"
-                              style={{ fontSize: fontSizeSM }}
-                            >
-                              {group.label}
-                            </div>
-                          )}
+                          {group.label}
                         </div>
-                      ) : null}
+                      </div>
 
                       <div
                         data-cy="nav-sider-group-children-skeleton"
-                        className="space-y-1"
+                        className={`space-y-1 ${collapsed ? '' : 'pl-2'}`}
                       >
                         {group.children?.map((item: any) => (
                           <div
                             key={item.key}
                             data-cy="nav-sider-menu-item-skeleton"
-                            className={`flex items-center py-3 ${
-                              collapsed ? 'justify-center' : 'px-3'
-                            }`}
+                            className={`
+                              group flex items-center py-2 rounded-xl
+                              ${collapsed ? 'justify-center mx-[10px]' : ''}
+                            `}
                           >
                             <div
                               data-cy="nav-sider-menu-item-skeleton-bar"
-                              className={`h-4 rounded-md bg-gray-200 ${
-                                collapsed ? 'w-6' : 'w-full'
-                              }`}
+                              className="h-[16px] w-full rounded-md bg-gray-200"
                             />
                           </div>
                         ))}
@@ -2056,23 +1790,29 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   ))}
                 </div>
               ) : (
-                <div data-cy="nav-sider-groups" className="space-y-5">
+                <div
+                  data-cy="nav-sider-groups"
+                  className="space-y-4 max-w-[209px]"
+                >
                   {groupedMenuItems.map((group: any) => (
                     <div
                       data-cy="nav-sider-group"
                       key={group.key}
                       className="space-y-1"
                     >
-                      {group.label && collapsed ? (
-                        <div
-                          data-cy="nav-sider-group-divider"
-                          className="mx-auto mb-2 h-px w-8 bg-[#E5E7EB]"
-                        />
-                      ) : null}
-                      {group.label && !collapsed ? (
-                        <div
-                          data-cy="nav-sider-group-header"
-                          className="mb-1 px-3"
+                      <div
+                        data-cy="nav-sider-group-header"
+                        className={`mb-2 mt-4 first:mt-2 ${collapsed ? 'text-center' : ''}`}
+                      >
+                        <Link
+                          href={
+                            group.linkKey || `/${group.label.toLowerCase()}`
+                          }
+                          data-cy="nav-sider-group-label-wrap"
+                          className={`w-full font-light text-[#64748B] tracking-wide transition-colors ${
+                            collapsed ? 'text-center truncate' : ''
+                          }`}
+                          style={{ fontSize: fontSizeSM }}
                         >
                           {group.label}
                         </Link>
@@ -2095,7 +1835,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                             setSelectedKeys={setSelectedKeys}
                             router={router}
                             pathname={pathname}
-                            search={search}
                             triggerRouteLoaderStart={triggerRouteLoaderStart}
                             expandedKeys={expandedKeys}
                             setExpandedKeys={setExpandedKeys}
@@ -2115,127 +1854,200 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                   ))}
                 </div>
               )}
-            </nav>
+            </div>
           </div>
 
-          {collaborationEnabled &&
-            AccessGuard.checkAccess({
-              permissions: ['view_organization'],
-            }) && (
+          {AccessGuard.checkAccess({
+            permissions: ['view_organization'],
+          }) && (
+            <div
+              data-cy="nav-sider-announcement-wrap"
+              className={`mt-2 w-full shrink-0 border-t border-[#E2E8F0] bg-white/40 pt-3 pb-2 ${
+                collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
+              }`}
+            >
               <div
-                data-cy="nav-sider-announcement-wrap"
-                className="w-full shrink-0 border-t border-[#EEF0F4] px-4 pb-1 pt-3"
+                data-cy="nav-sider-announcement-inner"
+                className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
               >
-                <div data-cy="nav-sider-announcement-inner">
-                  {(() => {
-                    // Opens the embedded collaboration iframe (post channels only).
-                    const isAnnouncementActive = collaborationOpen && !isMobile;
-                    const announcementButton = (
-                      <Button
-                        data-cy="nav-sider-announcement-btn"
-                        type="text"
-                        block
-                        aria-label={collapsed ? 'Announcement' : undefined}
-                        disabled={hasEndedFiscalYear}
-                        icon={
-                          <span
-                            data-cy="nav-sider-announcement-icon-wrap"
-                            className="relative flex items-center justify-center text-[21px] leading-none"
-                          >
-                            <AnnouncementMegaphoneIcon
-                              size={21}
-                              data-cy="nav-sider-announcement-icon"
-                            />
-                          </span>
-                        }
-                        className={`
-                        !h-auto !min-h-0 !w-full flex items-center gap-3 !rounded-xl !border-0 !py-2.5 !shadow-none transition-colors duration-150
-                        ${
-                          isAnnouncementActive
-                            ? '!bg-brand-soft !font-semibold !text-brand'
-                            : '!font-medium !text-[#374151] hover:!bg-[#F4F5F9] hover:!text-[#111827]'
-                        }
-                        ${collapsed ? '!justify-center !px-0' : '!justify-start !px-3'}
-                      `}
-                        onClick={() => {
-                          if (hasEndedFiscalYear) return;
-                          // Panel is desktop-only (`md+`); on mobile the dock is hidden.
-                          if (isMobile) return;
+                {(() => {
+                  // Announcement is the collaboration panel's launcher on
+                  // desktop, so it reads as active whenever the panel is open —
+                  // not only on the standalone page, which stays reachable at
+                  // its own URL.
+                  const opensCollaborationPanel =
+                    collaborationEnabled && !isMobile;
+                  const isAnnouncementActive = opensCollaborationPanel
+                    ? collaborationOpen
+                    : pathname.startsWith('/organization/announcement');
+                  const announcementButton = (
+                    <Button
+                      data-cy="nav-sider-announcement-btn"
+                      type="text"
+                      block={!collapsed}
+                      aria-label={collapsed ? 'Announcement' : undefined}
+                      disabled={hasEndedFiscalYear}
+                      icon={
+                        <span
+                          data-cy="nav-sider-announcement-icon-wrap"
+                          className={`relative flex items-center justify-center text-[21px] leading-none transition-colors ${
+                            isAnnouncementActive ? '' : 'text-black'
+                          }`}
+                          style={
+                            isAnnouncementActive
+                              ? { color: colorPrimary }
+                              : undefined
+                          }
+                        >
+                          <AnnouncementMegaphoneIcon
+                            size={21}
+                            data-cy="nav-sider-announcement-icon"
+                          />
+                          {collapsed && hasAnnouncementMention ? (
+                            <span
+                              className="absolute -right-2 -top-1 inline-flex items-center justify-center text-xs font-bold leading-none text-[#ff4d4f]"
+                              aria-label="You were mentioned in an announcement channel"
+                              title="Mention"
+                              data-cy="nav-sider-announcement-mention"
+                            >
+                              @
+                            </span>
+                          ) : null}
+                        </span>
+                      }
+                      className={`
+                      !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
+                      ${
+                        isAnnouncementActive
+                          ? '!font-bold'
+                          : '!font-medium !text-black hover:!bg-[#E6F4FF]'
+                      }
+                      ${
+                        collapsed
+                          ? '!flex !w-[52px] !justify-center !px-0 !py-2 mx-[10px]'
+                          : '!w-full !max-w-none !justify-start !py-2 !pl-[5px] -ml-[5px]'
+                      }
+                    `}
+                      style={
+                        isAnnouncementActive
+                          ? { color: colorPrimary }
+                          : undefined
+                      }
+                      onClick={() => {
+                        if (hasEndedFiscalYear) return;
+                        // The panel has no room on a phone (it is hidden below
+                        // `md`), so mobile keeps navigating to the page.
+                        if (opensCollaborationPanel) {
                           toggleCollaboration({
                             title: 'Announcement',
                             module: 'announcement',
+                            // Land on the spaces list rather than the embedded
+                            // app's own home — post channels live there, and
+                            // `channels=posts` has already narrowed it to them.
                             path: COLLABORATION_SPACES_PATH,
                           });
-                        }}
-                      >
-                        {!collapsed && (
+                          return;
+                        }
+                        triggerRouteLoaderStart();
+                        router.push('/organization/announcement');
+                        setSelectedKeys(['/organization/announcement']);
+                        if (isMobile) {
+                          setMobileCollapsed(true);
+                        }
+                      }}
+                    >
+                      {!collapsed && (
+                        <span
+                          data-cy="nav-sider-announcement-label"
+                          className="flex flex-1 items-center justify-start gap-1 text-left transition-colors"
+                          style={{ fontSize }}
+                        >
                           <span
-                            data-cy="nav-sider-announcement-label"
-                            className="flex flex-1 items-center justify-start gap-1 text-left"
-                            style={{ fontSize }}
+                            className="leading-none"
+                            data-cy="nav-sider-announcement-text"
                           >
-                            <span
-                              className="leading-none"
-                              data-cy="nav-sider-announcement-text"
-                            >
-                              Announcement
-                            </span>
+                            Announcement
                           </span>
-                        )}
-                      </Button>
-                    );
-                    return collapsed ? (
-                      <Tooltip
-                        placement="right"
-                        trigger={['hover', 'focus']}
-                        title="Announcement"
-                      >
-                        {announcementButton}
-                      </Tooltip>
-                    ) : (
-                      announcementButton
-                    );
-                  })()}
-                </div>
+                          {hasAnnouncementMention ? (
+                            <span
+                              className="inline-flex shrink-0 items-center justify-start font-bold leading-none text-[#ff4d4f]"
+                              style={{ fontSize }}
+                              aria-label="You were mentioned in an announcement channel"
+                              title="Mention"
+                              data-cy="nav-sider-announcement-mention"
+                            >
+                              @
+                            </span>
+                          ) : null}
+                        </span>
+                      )}
+                    </Button>
+                  );
+                  return collapsed ? (
+                    <Tooltip
+                      placement="right"
+                      trigger={['hover', 'focus']}
+                      title="Announcement"
+                    >
+                      {announcementButton}
+                    </Tooltip>
+                  ) : (
+                    announcementButton
+                  );
+                })()}
               </div>
-            )}
+            </div>
+          )}
         </div>
 
         {!isMobile && (
           <div
             data-cy="nav-sider-collapse-footer"
-            className="w-full shrink-0 px-4 pb-3"
+            className={`w-full shrink-0 bg-white/40 pb-2 ${
+              collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
+            }`}
           >
-            <button
-              type="button"
-              data-cy="nav-sider-toggle"
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-              aria-expanded={!collapsed}
-              onClick={toggleCollapsed}
-              className={`flex w-full cursor-pointer items-center gap-3 rounded-xl border-0 bg-transparent py-2.5 font-medium text-[#6B7280] transition-colors duration-150 hover:bg-[#F4F5F9] hover:text-[#111827] ${
-                collapsed ? 'justify-center px-0' : 'px-3'
-              }`}
+            <div
+              data-cy="nav-sider-collapse-inner"
+              className={`max-w-[209px] w-full ${collapsed ? '' : 'pl-2'}`}
             >
-              <span
-                data-cy="nav-sider-collapse-icon"
-                className="flex shrink-0 items-center text-[21px] leading-none"
+              <div
+                data-cy="nav-sider-collapse-wrapper"
+                className="flex flex-col w-full"
               >
-                {collapsed ? (
-                  <ChevronsRight size={21} />
-                ) : (
-                  <ChevronsLeft size={21} />
-                )}
-              </span>
-              {!collapsed && (
-                <span
-                  data-cy="nav-sider-collapse-label"
-                  className="flex-1 text-left"
-                  style={{ fontSize }}
+                <div
+                  data-cy="nav-sider-toggle"
+                  role="button"
+                  aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                  onClick={toggleCollapsed}
+                  className={`group flex items-center gap-3 py-2 transition-all duration-200 rounded-[6px] font-medium hover:bg-[#E6F4FF] cursor-pointer text-black ${
+                    collapsed
+                      ? 'justify-center px-0 mx-[10px]'
+                      : 'pl-[5px] -ml-[5px]'
+                  }`}
                 >
-                  Collapse
-                </span>
-              )}
-            </button>
+                  <div
+                    data-cy="nav-sider-collapse-icon"
+                    className="text-[21px] transition-colors text-black"
+                  >
+                    {collapsed ? (
+                      <ChevronsRight size={21} />
+                    ) : (
+                      <ChevronsLeft size={21} />
+                    )}
+                  </div>
+                  {!collapsed && (
+                    <span
+                      data-cy="nav-sider-collapse-label"
+                      className="flex-1 transition-colors"
+                      style={{ fontSize }}
+                    >
+                      Collapse
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </Sider>
@@ -2243,7 +2055,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         style={{
           marginLeft: 0,
           transition: 'margin-left 0.3s ease',
-          background: SHELL_BACKGROUND,
+          background: '#ffffff',
           flex: 1,
           minWidth: 0,
           minHeight: '100vh',
@@ -2251,82 +2063,96 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           flexDirection: 'column',
         }}
       >
-        {showTopHeader && (
+        {!IS_CORE && (
           <Header
             style={{
               padding: 0,
-              background: SHELL_BACKGROUND,
-              display: 'flex',
+              background: '#fff',
+              display: isMobile ? 'none' : 'flex',
               alignItems: 'center',
               position: 'fixed',
               // Fixed, so it is sized off the viewport rather than off its flex
               // parent — the collaboration panel's width has to come out by hand
               // or the header runs underneath it.
-              width: `calc(100% - ${siderOffset}px${
-                collaborationOpen ? ` - ${collaborationPanelWidth}px` : ''
-              })`,
+              width: isMobile
+                ? '100%'
+                : `calc(100% - ${collapsed ? 80 : 280}px${
+                    collaborationOpen ? ` - ${collaborationPanelWidth}px` : ''
+                  })`,
               zIndex: 40,
               top: 0,
-              left: siderOffset,
+              left: isMobile ? 0 : collapsed ? 80 : 280,
               transition: 'left 0.3s ease, width 0.3s ease',
               height: '74px',
+              borderBottom: '1px solid #F1F5F9',
               boxShadow: 'none',
             }}
           >
-            <Link
-              href="/home/overview"
-              className="flex shrink-0 items-center"
-              style={{ paddingLeft: contentGutter }}
-              data-cy="nav-header-logo-link"
-            >
-              <Image
-                unoptimized
-                src="/image/selamnew-workspace-logo.svg"
-                alt="SelamNew Workspace Logo"
-                width={isMobile ? 120 : 150}
-                height={40}
-                style={{ objectFit: 'contain' }}
-                data-cy="nav-header-logo"
-              />
-            </Link>
+            {isMobile && mobileCollapsed && (
+              <div
+                data-cy="nav-header-mobile-toggle-wrap"
+                className="pl-3 pr-1 flex justify-center items-center h-full flex-shrink-0"
+              >
+                <Button
+                  data-cy="nav-header-mobile-toggle"
+                  type="text"
+                  aria-label="Open menu"
+                  className="h-10 w-10 flex items-center justify-center rounded-xl flex-shrink-0"
+                  onClick={toggleMobileCollapsed}
+                  icon={<MenuOutlined className="text-gray-600 text-[20px]" />}
+                />
+              </div>
+            )}
 
             <NavBar handleLogout={handleLogout} />
           </Header>
         )}
 
+        {/* Mobile drawer close button: retained for potential future use but not rendered */}
         <Content
           className="flex min-h-0 flex-1 flex-col overflow-hidden"
           style={{
             paddingInline: 0,
-            paddingLeft: siderOffset,
+            paddingLeft: isMobile ? 0 : collapsed ? 80 : 280,
             paddingRight: 0,
-            paddingTop: showTopHeader ? '74px' : 0,
+            paddingTop: isMobile || IS_CORE ? 0 : '74px',
             paddingBottom: isMobile ? 68 : 0,
             transition: 'padding-left 0.3s ease',
-            background: SHELL_BACKGROUND,
+            background: '#ffffff',
           }}
         >
-          <div
-            data-cy="nav-content-inner"
-            className="scrollbar-hide min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
-            style={{
-              borderRadius: borderRadiusLG,
-              marginTop: 0,
-              width: '100%',
-              maxWidth: '100%',
-              paddingInline: contentGutter,
-              background: SHELL_BACKGROUND,
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
+          {isMounted && isCheckingPermissions ? (
+            <div
+              data-cy="nav-content-loading"
+              className="flex min-h-0 flex-1 items-center justify-center"
+            >
+              <Skeleton active />
+            </div>
+          ) : (
+            <div
+              data-cy="nav-content-inner"
+              className="scrollbar-hide min-h-0 flex-1 overflow-x-hidden overflow-y-auto"
+              style={{
+                borderRadius: borderRadiusLG,
+                marginTop: 0,
+                width: '100%',
+                maxWidth: '100%',
+                paddingInline: isMobile ? 8 : 24,
+                background: '#ffffff',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              <OfflineIndicator variant="content" showNotifications={false} />
+              {children}
+            </div>
+          )}
+          {/* <CreateEmployeeJobInformation
+            onInfoSubmition={() => {
+              handleUserInfoUpdate();
             }}
-          >
-            <OfflineIndicator variant="content" showNotifications={false} />
-            {/* The frame stays up while permissions re-check, so switching tabs
-                does not flash it. */}
-            <WorkspaceShell section={shellSection} employeeId={shellEmployeeId}>
-              {pageContent}
-            </WorkspaceShell>
-          </div>
+            id={userId}
+          /> */}
           <JobInfoAccessModal
             open={isModalOpen}
             onClose={handleCancel}
@@ -2334,11 +2160,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           />
         </Content>
 
-        {/* Mobile bottom navigation — replaces the sidebar on small screens */}
+        {/* Mobile bottom navigation — replaces the hamburger drawer on small screens */}
         {isMobile && (
           <MobileBottomNav
             groups={groupedMenuItems}
-            colorPrimary={SHELL_ACCENT}
+            colorPrimary={colorPrimary}
           />
         )}
       </Layout>

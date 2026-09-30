@@ -18,6 +18,6 @@ export const approvalPillClass = (isActive: boolean) =>
     'text-[13px]',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-1',
     isActive
-      ? 'bg-shell-tint font-semibold text-primary'
+      ? 'bg-shell-tint font-semibold text-brand'
       : 'font-medium text-shell-muted hover:bg-shell-wash hover:text-shell-ink',
   );

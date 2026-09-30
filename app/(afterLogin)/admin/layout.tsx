@@ -4,9 +4,9 @@ import React, { ReactNode, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button, notification } from 'antd';
-import { LeftOutlined } from '@ant-design/icons';
 import { TbUserSquare } from 'react-icons/tb';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import { useInBanner } from '@/components/navBar/BannerActions';
 import { MdOutlinePayment } from 'react-icons/md';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { usePrepaySubscription } from '@/store/server/features/tenant-management/manage-subscriptions/mutation';
@@ -56,6 +56,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const tenantId = useAuthenticationStore((s) => s.tenantId);
   const [invoiceId, setInvoiceId] = useState<string | null>(null);
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
+  const inBanner = useInBanner();
   const isBillingPage = pathname?.startsWith('/admin/billing');
   const isProfilePage = pathname?.startsWith('/admin/profile');
   const isDashboardPage =
@@ -136,79 +137,66 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       className="admin-console-scope h-auto w-auto py-6"
       data-cy="admin-layout"
     >
-      <div
-        data-cy="app-afterlogin-admin-layout-tsx-layout-div-136"
-        className="flex items-start justify-between gap-2 flex-nowrap"
-      >
-        <div
-          data-cy="app-afterlogin-admin-layout-tsx-layout-div-137"
-          className="flex items-start gap-3 min-w-0 flex-1"
-        >
-          {!isDashboardPage && (
-            <span
-              className="mt-[22px] border border-gray-300 rounded-lg p-2 cursor-pointer flex items-center justify-center"
-              data-cy="admin-layout-back-button"
-              onClick={() => router.back()}
-            >
-              <LeftOutlined className="text-base" size={16} />
-            </span>
-          )}
-          <CustomBreadcrumb
-            title={title}
-            rootClassName="!w-full min-w-0"
-            titleClassName="!text-[#000000]/[0.7]"
-            subtitle={null}
-            showBottomSeparator={false}
-          />
-        </div>
-        {isBillingPage ? (
-          <Button
-            type="default"
-            onClick={handlePayNextBill}
-            loading={prepaySubscriptionMutation.isLoading}
-            data-cy="admin-layout-pay-next-bill"
-            className="!inline-flex !items-center !shrink-0 !mt-[10px] !h-10 !font-normal"
-          >
-            <span
-              data-cy="app-afterlogin-admin-layout-tsx-layout-span-174"
-              className="inline-flex items-center gap-2 leading-none"
-            >
-              <MdOutlinePayment size={20} className="shrink-0" />
-              <span
-                data-cy="app-afterlogin-admin-layout-tsx-layout-span-176"
-                className="hidden sm:inline"
-              >
-                Pay Next Bill
-              </span>
-            </span>
-          </Button>
-        ) : !isProfilePage ? (
-          <Link href="/admin/profile" className="shrink-0">
+      <CustomBreadcrumb
+        title={title}
+        rootClassName="!w-full min-w-0"
+        titleClassName="!text-[#000000]/[0.7]"
+        subtitle={null}
+        showBottomSeparator={false}
+        onBack={isDashboardPage ? undefined : () => router.back()}
+        backControlDataCy="admin-layout-back-button"
+        titleExtra={
+          isBillingPage ? (
             <Button
-              type="primary"
-              icon={<TbUserSquare />}
-              data-cy="admin-layout-update-profile"
-              className="!mt-[10px] !h-10"
+              type="default"
+              onClick={handlePayNextBill}
+              loading={prepaySubscriptionMutation.isLoading}
+              data-cy="admin-layout-pay-next-bill"
+              className="!inline-flex !items-center !shrink-0 !h-10 !font-normal"
             >
               <span
-                data-cy="app-afterlogin-admin-layout-tsx-layout-span-187"
-                className="hidden sm:inline font-normal"
+                data-cy="app-afterlogin-admin-layout-tsx-layout-span-174"
+                className="inline-flex items-center gap-2 leading-none"
               >
-                Update Profile
+                <MdOutlinePayment size={20} className="shrink-0" />
+                <span
+                  data-cy="app-afterlogin-admin-layout-tsx-layout-span-176"
+                  className="hidden sm:inline"
+                >
+                  Pay Next Bill
+                </span>
               </span>
             </Button>
-          </Link>
-        ) : null}
-      </div>
-      <div
-        className="mt-1 h-px w-[calc(100%+16px)] -ml-2 bg-[#E5E7EB] md:w-[calc(100%+48px)] md:-ml-6"
-        data-cy={
-          isDashboardPage
-            ? 'admin-dashboard-title-separator'
-            : 'admin-layout-title-separator'
+          ) : !isProfilePage ? (
+            <Link href="/admin/profile" className="shrink-0">
+              <Button
+                type="primary"
+                icon={<TbUserSquare />}
+                data-cy="admin-layout-update-profile"
+                className="!h-10"
+              >
+                <span
+                  data-cy="app-afterlogin-admin-layout-tsx-layout-span-187"
+                  className="hidden sm:inline font-normal"
+                >
+                  Update Profile
+                </span>
+              </Button>
+            </Link>
+          ) : null
         }
-        aria-hidden
       />
+      {!inBanner && (
+        <div
+          className="mt-1 h-px w-[calc(100%+16px)] -ml-2 bg-[#E5E7EB] md:w-[calc(100%+48px)] md:-ml-6"
+          data-cy={
+            isDashboardPage
+              ? 'admin-dashboard-title-separator'
+              : 'admin-layout-title-separator'
+          }
+          aria-hidden
+        />
+      )}
       {/* <Card className="rounded-lg" styles={{ body: { padding: 0 } }}> */}
       <InvoiceModal
         open={invoiceModalOpen}

@@ -127,17 +127,9 @@ const CandidateDetailPage: React.FC = () => {
       <header className="w-full">
         <div className="px-4 pt-4 sm:px-6 sm:pt-6">
           <div className="flex items-center gap-3">
-            <button
-              type="button"
-              id="candidate-detail-back"
-              onClick={handleBack}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[6px] border border-solid border-[#D9D9D9] bg-white text-[rgba(0,0,0,0.45)] hover:bg-[#FAFAFA]"
-              data-cy="talent-acquisition-candidate-detail-back"
-              aria-label="Back to jobs"
-            >
-              <IoIosArrowBack className="h-4 w-4" />
-            </button>
             <CustomBreadcrumb
+              onBack={handleBack}
+              backControlDataCy="talent-acquisition-candidate-detail-back"
               data-cy="talent-acquisition-candidate-detail-breadcrumb"
               title={
                 <span data-cy="talent-acquisition-candidate-detail-title">

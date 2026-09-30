@@ -1,6 +1,7 @@
 'use client';
 
 import React, { FC, ReactNode } from 'react';
+import { useInBanner } from '@/components/navBar/BannerActions';
 import Link from 'next/link';
 import { Typography, Breadcrumb, Divider, Button } from 'antd';
 import { FaPlus } from 'react-icons/fa';
@@ -67,6 +68,8 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
   const router = useRouter();
   const layoutSlug = toSlug(pathname || 'settings-layout');
   const { isMobile } = useIsMobile();
+  // The banner and its tabs already name this page.
+  const inBanner = useInBanner();
   const { setOpen, setIsEditMode, setEditingEmploymentType } =
     EmployeTypeManagementStore();
 
@@ -194,26 +197,30 @@ const SettingsLayout: FC<SettingsLayoutProps> = ({ children }) => {
         id={`settings-layout-content-${layoutSlug}`}
         data-cy={`settings-layout-content-${layoutSlug}`}
       >
-        <div
-          className="pb-4 py-4"
-          data-cy={`settings-page-header-${layoutSlug}`}
-        >
-          <Title level={4} className="!mb-1 !font-bold !text-gray-700">
-            Employee Settings
-          </Title>
-          <Breadcrumb
-            className="text-sm text-gray-400"
-            items={[
-              {
-                title: <Link href="/employees/manage-employees">Employee</Link>,
-              },
-              {
-                title: 'Employee Settings',
-              },
-            ]}
-          />
-          <Divider className="!my-0 !mt-4 !border-gray-200" />
-        </div>
+        {!inBanner && (
+          <div
+            className="pb-4 py-4"
+            data-cy={`settings-page-header-${layoutSlug}`}
+          >
+            <Title level={4} className="!mb-1 !font-bold !text-gray-700">
+              Employee Settings
+            </Title>
+            <Breadcrumb
+              className="text-sm text-gray-400"
+              items={[
+                {
+                  title: (
+                    <Link href="/employees/manage-employees">Employee</Link>
+                  ),
+                },
+                {
+                  title: 'Employee Settings',
+                },
+              ]}
+            />
+            <Divider className="!my-0 !mt-4 !border-gray-200" />
+          </div>
+        )}
 
         <div
           id={`settings-layout-body-${layoutSlug}`}

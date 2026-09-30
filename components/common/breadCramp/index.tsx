@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { BreadcrumbProps } from 'antd/lib/breadcrumb';
 import { MdKeyboardArrowLeft } from 'react-icons/md';
 import Link from 'next/link';
+import { BannerActions, useInBanner } from '@/components/navBar/BannerActions';
 // import { Breadcrumb } from 'antd';
 
 type BackLinkHref = ComponentProps<typeof Link>['href'];
@@ -32,6 +33,11 @@ interface CustomBreadcrumbProps extends Omit<BreadcrumbProps, 'href'> {
   onBack?: () => void;
   /** `data-cy` for the back Link or button (default: timesheet-dashboard-back-link). */
   backControlDataCy?: string;
+  /**
+   * Keep the full header in place even under the workspace banner — for a
+   * header that heads a panel within the page rather than the page itself.
+   */
+  inline?: boolean;
 }
 
 const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
@@ -47,11 +53,50 @@ const CustomBreadcrumb: React.FC<CustomBreadcrumbProps> = ({
   onBack,
   backControlDataCy = 'timesheet-dashboard-back-link',
   subtitleClassName,
+  inline = false,
   // className,
   // ...rest
 }) => {
+  const inBanner = useInBanner() && !inline;
   const showSubtitle =
     subtitle !== undefined && subtitle !== null && subtitle !== '';
+
+  // Under the workspace banner the page header is redundant — the banner and
+  // its tabs say where the user is — so only its controls remain, moved up
+  // into the banner beside the tabs.
+  if (inBanner) {
+    const hasBack = onBack != null || Boolean(href);
+    if (!hasBack && !titleExtra) return null;
+    const backLabel = (
+      <>
+        <MdKeyboardArrowLeft size={18} />
+        <span data-cy={`${backControlDataCy}-label`}>Back</span>
+      </>
+    );
+    return (
+      <BannerActions>
+        {onBack != null ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="app-banner-back"
+            data-cy={backControlDataCy}
+          >
+            {backLabel}
+          </button>
+        ) : href ? (
+          <Link
+            href={href as BackLinkHref}
+            className="app-banner-back"
+            data-cy={backControlDataCy}
+          >
+            {backLabel}
+          </Link>
+        ) : null}
+        {titleExtra}
+      </BannerActions>
+    );
+  }
 
   return (
     <div

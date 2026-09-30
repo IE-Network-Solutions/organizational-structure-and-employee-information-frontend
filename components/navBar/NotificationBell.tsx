@@ -7,7 +7,14 @@ import { useGetUnreadCount } from '@/store/server/features/notification/queries'
 import { FiBell } from 'react-icons/fi';
 import { NotificationDropdownPanel } from './NotificationDropdownPanel';
 
-const NotificationBell = () => {
+interface NotificationBellProps {
+  /** Icon colour on hover; each shell passes its own accent. */
+  hoverClassName?: string;
+}
+
+const NotificationBell = ({
+  hoverClassName = 'group-hover:text-[#3636F0]',
+}: NotificationBellProps) => {
   const { userId } = useAuthenticationStore();
   const { notificationCount, setNotificationCount } = useNotificationStore();
   const [mounted, setMounted] = useState(false);
@@ -48,7 +55,7 @@ const NotificationBell = () => {
         <Badge count={notificationCount} size="small" offset={[-2, 2]}>
           <FiBell
             size={23}
-            className="text-[#475569] group-hover:text-[#3636F0] transition-colors"
+            className={`text-[#475569] ${hoverClassName} transition-colors`}
           />
         </Badge>
       </div>

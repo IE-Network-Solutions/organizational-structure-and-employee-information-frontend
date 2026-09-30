@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getCookie } from './helpers/storageHelper';
+import { ROLE_COOKIE, usesWorkspaceUi } from './utils/navigation/workspaceUi';
 
 const isCore =
   (process.env.IS_CORE ?? process.env.NEXT_PUBLIC_IS_CORE ?? '')
@@ -63,7 +64,10 @@ function workspaceUrl(req: NextRequest, pathname: string): URL {
   return url;
 }
 
-/** Legacy personal routes → Home hub tabs (preserve query string). */
+/**
+ * `user` role (workspace UI): legacy personal routes → Home hub tabs
+ * (preserve query string).
+ */
 function resolveHomeHubRedirect(pathname: string): string | null {
   const exact: Record<string, string> = {
     '/dashboard': '/home/overview',
@@ -99,6 +103,39 @@ function resolveHomeHubRedirect(pathname: string): string | null {
   return null;
 }
 
+/**
+ * Every other role (classic console, no Home hub): Home hub URLs — bookmarks,
+ * notification links — → the pages they stand in for.
+ */
+function resolveClassicRoute(
+  pathname: string,
+  searchParams: URLSearchParams,
+): string | null {
+  if (pathname !== '/home' && !pathname.startsWith('/home/')) return null;
+  const tab = pathname.split('/')[2] || 'overview';
+  if (tab === 'approvals') {
+    return searchParams.get('module') === 'learning'
+      ? '/tna/review'
+      : '/timesheet/my-timesheet/my-approvals';
+  }
+  const classic: Record<string, string> = {
+    overview: '/dashboard',
+    okr: '/okr',
+    plan: '/planning-and-reporting',
+    'weekly-priority': '/weekly-priority',
+    conversation: '/feedback/conversation',
+    feedback: '/feedback/feedback',
+    recognition: '/feedback/recognition',
+    training: '/tna/my-training',
+    payroll: '/myPayroll',
+    attendance: '/timesheet/my-timesheet/attendance',
+    leave: '/timesheet/my-timesheet/leave',
+    schedule: '/timesheet/my-timesheet/schedule',
+    announcement: '/organization/announcement',
+  };
+  return classic[tab] ?? '/dashboard';
+}
+
 export function middleware(req: NextRequest) {
   try {
     const url = req.nextUrl;
@@ -115,6 +152,9 @@ export function middleware(req: NextRequest) {
     const calendarCookie = getCookie('activeCalendar', req);
     const canManageFiscalYear =
       getCookie('canManageFiscalYear', req) === 'true';
+    // The `user` role lands in the Home hub; other roles on the dashboard.
+    const workspaceUi = usesWorkspaceUi(getCookie(ROLE_COOKIE, req));
+    const landingPath = workspaceUi ? '/home/overview' : '/dashboard';
 
     let hasEndedFiscalYear = false;
 
@@ -185,7 +225,7 @@ export function middleware(req: NextRequest) {
 
     if (!isExcludedPath && isRootPath) {
       if (token) {
-        return NextResponse.redirect(workspaceUrl(req, '/home/overview'));
+        return NextResponse.redirect(workspaceUrl(req, landingPath));
       } else {
         return NextResponse.redirect(loginRedirectUrl(req));
       }
@@ -196,13 +236,15 @@ export function middleware(req: NextRequest) {
       pathname.startsWith('/organization/settings/fiscalYear/fiscalYearCard')
     ) {
       if (!canManageFiscalYear) {
-        return NextResponse.redirect(workspaceUrl(req, '/home/overview'));
+        return NextResponse.redirect(workspaceUrl(req, landingPath));
       }
     }
 
-    const homeRedirect = resolveHomeHubRedirect(pathname);
-    if (homeRedirect) {
-      const target = workspaceUrl(req, homeRedirect);
+    const shellRedirect = workspaceUi
+      ? resolveHomeHubRedirect(pathname)
+      : resolveClassicRoute(pathname, url.searchParams);
+    if (shellRedirect) {
+      const target = workspaceUrl(req, shellRedirect);
       target.search = url.search;
       return NextResponse.redirect(target);
     }
