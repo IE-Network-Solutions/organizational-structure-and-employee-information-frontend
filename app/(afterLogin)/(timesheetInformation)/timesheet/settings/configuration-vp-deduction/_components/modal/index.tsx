@@ -169,12 +169,6 @@ const ConfigureVpDeductionModal = () => {
     }
   }, [isAbsent, form]);
 
-  useEffect(() => {
-    if (!salaryDeductionEnabled) {
-      form.setFieldValue([activeFormKey, 'salaryDeductionMinutes'], undefined);
-    }
-  }, [salaryDeductionEnabled, activeFormKey, form]);
-
   const onClose = useCallback(() => {
     form.resetFields();
     setActiveTab('late_arrival');
@@ -614,40 +608,51 @@ const ConfigureVpDeductionModal = () => {
                   <Switch
                     data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-enabled-switch"
                     aria-label="Salary Deduction by Minutes"
+                    onChange={(checked) => {
+                      if (!checked) {
+                        form.setFieldValue(
+                          [activeFormKey, 'salaryDeductionMinutes'],
+                          undefined,
+                        );
+                      }
+                    }}
                   />
                 </Form.Item>
               </div>
 
-              {salaryDeductionEnabled && (
-                <Form.Item
-                  name={[activeFormKey, 'salaryDeductionMinutes']}
-                  label={
-                    <span
-                      data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes-label"
-                      className="text-sm font-normal text-gray-900"
-                    >
-                      Salary Deduction Minutes
-                    </span>
-                  }
-                  className="mb-0 mt-4"
-                  rules={[
-                    {
-                      required: true,
-                      message: 'Salary deduction minutes are required',
-                    },
-                  ]}
-                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes-field"
-                >
-                  <InputNumber
-                    className={controlClass}
-                    placeholder="Minutes of salary to deduct"
-                    min={0}
-                    controls={false}
-                    id="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes"
-                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes"
-                  />
-                </Form.Item>
-              )}
+              <Form.Item
+                name={[activeFormKey, 'salaryDeductionMinutes']}
+                label={
+                  <span
+                    data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes-label"
+                    className="text-sm font-normal text-gray-900"
+                  >
+                    Salary Deduction Minutes
+                  </span>
+                }
+                className="mb-0 mt-4"
+                hidden={!salaryDeductionEnabled}
+                rules={
+                  salaryDeductionEnabled
+                    ? [
+                        {
+                          required: true,
+                          message: 'Salary deduction minutes are required',
+                        },
+                      ]
+                    : []
+                }
+                data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes-field"
+              >
+                <InputNumber
+                  className={controlClass}
+                  placeholder="Minutes of salary to deduct"
+                  min={0}
+                  controls={false}
+                  id="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes"
+                  data-cy="time-attendance-settings-configuration-vp-deduction-modal-salary-deduction-minutes"
+                />
+              </Form.Item>
             </div>
 
             <Form.Item
