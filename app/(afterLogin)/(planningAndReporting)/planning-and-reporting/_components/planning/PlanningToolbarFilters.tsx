@@ -61,12 +61,10 @@ export default function PlanningToolbarFilters() {
     useGetAllFiscalYears();
   const { data: draftFiscalYearData, isLoading: loadingSessions } =
     useGetFiscalYearById(draft?.fiscalYearId || '');
-  const {
-    data: allLevelDepartmentUsers,
-    isFetching: isDepartmentUsersFetching,
-  } = useGetDepartmentUsersAllLevels(
-    draft?.department && draft.department !== 'all' ? draft.department : null,
-  );
+  const { data: allLevelDepartmentUsers, isLoading: isDepartmentUsersLoading } =
+    useGetDepartmentUsersAllLevels(
+      draft?.department && draft.department !== 'all' ? draft.department : null,
+    );
 
   const allLevelDepartmentUserIds = useMemo(
     () => extractDepartmentUserIds(allLevelDepartmentUsers),
@@ -424,12 +422,12 @@ export default function PlanningToolbarFilters() {
           loading={
             !!draft?.department &&
             draft.department !== 'all' &&
-            isDepartmentUsersFetching
+            isDepartmentUsersLoading
           }
           disabled={
             !!draft?.department &&
             draft.department !== 'all' &&
-            isDepartmentUsersFetching
+            isDepartmentUsersLoading
           }
           data-cy="planning-toolbar-filter-apply"
         >
