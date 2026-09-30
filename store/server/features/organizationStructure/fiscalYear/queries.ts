@@ -51,6 +51,7 @@ export const useGetAllFiscalYears = (pageSize?: number, currentPage?: number) =>
 
 export const useGetFiscalYearById = (id: string) =>
   useQuery<FiscalYear>(['fiscalYear', id], () => getFiscalYear(id), {
+    enabled: !!id,
     keepPreviousData: true,
   });
 
