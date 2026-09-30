@@ -4,7 +4,10 @@ import { useCallback } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { BSC_ADMIN_PERMISSIONS } from '@/utils/bsc/permissions';
+import {
+  BSC_ADMIN_PERMISSIONS,
+  BSC_SCORECARD_PERMISSIONS,
+} from '@/utils/bsc/permissions';
 
 /** Route + permissions used for pathname-based access check (same as sidebar). */
 export type RouteWithPermissions = {
@@ -122,8 +125,7 @@ const MENU_ROUTES: MenuRouteNode[] = [
           { key: '/bsc/my-scorecard', permissions: ['view_bsc'] },
           {
             key: '/bsc/settings',
-            permissions: ['manage_bsc_settings', 'manage_bsc_perspectives'],
-            requireAny: true,
+            permissions: ['create-bsc-perspective'],
           },
         ],
       },
@@ -135,15 +137,22 @@ const MENU_ROUTES: MenuRouteNode[] = [
       { key: '/bsc/my-scorecard', permissions: ['view_bsc'] },
       {
         key: '/bsc/settings',
-        permissions: ['manage_bsc_settings', 'manage_bsc_perspectives'],
-        requireAny: true,
+        permissions: ['create-bsc-perspective'],
       },
       { key: '/bsc/perspectives', permissions: ['view_bsc'] },
       { key: '/bsc/kpis', permissions: ['view_bsc'] },
       { key: '/bsc/employees', permissions: ['view_bsc'] },
       { key: '/bsc/roll-up', permissions: ['view_bsc'] },
-      { key: '/bsc/setup', permissions: ['manage_bsc_scorecards'] },
-      { key: '/bsc/cycles', permissions: ['manage_bsc_scorecards'] },
+      {
+        key: '/bsc/setup',
+        permissions: BSC_SCORECARD_PERMISSIONS,
+        requireAny: true,
+      },
+      {
+        key: '/bsc/cycles',
+        permissions: BSC_SCORECARD_PERMISSIONS,
+        requireAny: true,
+      },
       { key: '/okr/settings', permissions: ['manage_okr_settings'] },
     ],
   },

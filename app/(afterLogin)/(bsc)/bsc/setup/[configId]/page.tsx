@@ -29,7 +29,7 @@ import BscSetupModal from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-set
 import { computeKpiRollup, formatScore } from '@/utils/bsc/rollup';
 import { enrichAssignmentsWithTemplateKpis } from '@/utils/bsc/enrichAssignments';
 import { scorecardTabHref } from '@/utils/bsc/scorecardTab';
-import { cadenceLabel, checkInDayLabel } from '@/utils/bsc/checkInSchedule';
+import { bscAccess } from '@/utils/bsc/permissions';
 import {
   bscTableCellClassName as tableCellClassName,
   bscTableClassName as tableClassName,
@@ -547,30 +547,6 @@ export default function BscScorecardDetailPage() {
     },
     {
       title: (
-        <span data-cy="page-span-290" className={tableHeaderClassName}>
-          Check-in
-        </span>
-      ),
-      key: 'checkIn',
-      width: 160,
-      render: (unused, row) => {
-        const cadence = cadenceLabel(row.cadence);
-        const day = checkInDayLabel(row.cadence, row.checkInDay);
-        if (!cadence)
-          return (
-            <span data-cy="page-span-296" className={tableCellClassName}>
-              —
-            </span>
-          );
-        return (
-          <span data-cy="page-span-298" className={tableCellClassName}>
-            {[cadence, day].filter(Boolean).join(' · ')}
-          </span>
-        );
-      },
-    },
-    {
-      title: (
         <span data-cy="page-span-305" className={tableHeaderClassName}>
           Avg progress
         </span>
@@ -760,15 +736,17 @@ export default function BscScorecardDetailPage() {
               onChange={setKpiSearch}
               data-cy="bsc-scorecard-detail-kpi-search"
             />
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              onClick={() => openEditSetup(config)}
-              className="bg-[#2b54ad]"
-              data-cy="bsc-scorecard-detail-edit"
-            >
-              Edit
-            </Button>
+            {bscAccess.updateScorecard() ? (
+              <Button
+                type="primary"
+                icon={<EditOutlined />}
+                onClick={() => openEditSetup(config)}
+                className="bg-[#2b54ad]"
+                data-cy="bsc-scorecard-detail-edit"
+              >
+                Edit
+              </Button>
+            ) : null}
           </div>
 
           <div data-cy="bsc-scorecard-detail-kpis">

@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { useRouter } from 'next/navigation';
+import { bscAccess } from '@/utils/bsc/permissions';
 import EmptyState from '@/components/empty';
 import CustomPagination from '@/components/customPagination';
 import { CustomMobilePagination } from '@/components/customPagination/mobilePagination';
@@ -114,6 +115,9 @@ export default function ScorecardsCatalog() {
   const activateCycle = useActivateBscCycle();
   const lockCycle = useLockBscCycle();
   const assignScorecard = useAssignBscScorecard();
+  const canCreateScorecards = bscAccess.createScorecard();
+  const canUpdateScorecards = bscAccess.updateScorecard();
+  const canDeleteScorecards = bscAccess.deleteScorecard();
   /** Blocks card navigation when a menu click falls through after the overlay closes. */
   const suppressCardNavUntilRef = useRef(0);
 
@@ -274,7 +278,7 @@ export default function ScorecardsCatalog() {
       const isActive = config.isActive !== false && !isLocked && !isClosed;
       const canDelete = !isActive && !isLocked && !isClosed;
 
-      return [
+      const items: NonNullable<MenuProps['items']> = [
         {
           key: 'edit',
           label: 'Edit',
@@ -392,10 +396,22 @@ export default function ScorecardsCatalog() {
           },
         },
       ];
+      // "BSC and KPI" permissions: changes need Update Scorecard, Delete its
+      // own permission; "Open details" only needs to view.
+      return items.filter((item) => {
+        if (!item || !('key' in item)) {
+          return canDeleteScorecards; // divider before Delete
+        }
+        if (item.key === 'open') return true;
+        if (item.key === 'delete') return canDeleteScorecards;
+        return canUpdateScorecards;
+      });
     },
     [
       activateCycle,
       assignScorecard,
+      canDeleteScorecards,
+      canUpdateScorecards,
       confirmDeactivateScorecard,
       confirmDeleteScorecard,
       confirmLockScorecard,
@@ -470,8 +486,8 @@ export default function ScorecardsCatalog() {
           <EmptyState
             title="No scorecards yet"
             description="Create a scorecard with scope, KPIs, and weights to get started."
-            actionText="Add scorecard"
-            onAction={openCreateSetup}
+            actionText={canCreateScorecards ? 'Add scorecard' : undefined}
+            onAction={canCreateScorecards ? openCreateSetup : undefined}
           />
         </div>
       ) : (

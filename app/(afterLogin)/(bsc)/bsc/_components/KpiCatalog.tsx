@@ -18,8 +18,8 @@ import {
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import { KpiLibraryItem, TargetLogic } from '@/types/bsc';
 import { TableColumnsType } from '@/types/table/table';
-import { cadenceLabel, checkInDayLabel } from '@/utils/bsc/checkInSchedule';
 import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
+import { bscAccess } from '@/utils/bsc/permissions';
 import { unitTagClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/TargetValueCell';
 import {
   bscTableCellClassName as tableCellClassName,
@@ -103,6 +103,10 @@ export default function KpiCatalog() {
   );
 
   const hasPerspectives = (catalog || []).length > 0;
+  const canCreateKpi = bscAccess.createKpi();
+  const canUpdateKpi = bscAccess.updateKpi();
+  const canDeleteKpi = bscAccess.deleteKpi();
+  const hasRowActions = canUpdateKpi || canDeleteKpi;
 
   const confirmDeleteKpi = useCallback(
     (row: KpiLibraryItem) => {
@@ -120,19 +124,27 @@ export default function KpiCatalog() {
 
   const kpiMenuItems = useCallback(
     (row: KpiLibraryItem): MenuProps['items'] => [
-      {
-        key: 'edit',
-        label: 'Edit',
-        onClick: () => openCatalogKpiForm(row),
-      },
-      {
-        key: 'delete',
-        label: 'Delete',
-        danger: true,
-        onClick: () => confirmDeleteKpi(row),
-      },
+      ...(canUpdateKpi
+        ? [
+            {
+              key: 'edit',
+              label: 'Edit',
+              onClick: () => openCatalogKpiForm(row),
+            },
+          ]
+        : []),
+      ...(canDeleteKpi
+        ? [
+            {
+              key: 'delete',
+              label: 'Delete',
+              danger: true,
+              onClick: () => confirmDeleteKpi(row),
+            },
+          ]
+        : []),
     ],
-    [confirmDeleteKpi, openCatalogKpiForm],
+    [canDeleteKpi, canUpdateKpi, confirmDeleteKpi, openCatalogKpiForm],
   );
 
   const columns: TableColumnsType<KpiLibraryItem> = [
@@ -236,54 +248,29 @@ export default function KpiCatalog() {
       ),
     },
     {
-      title: (
-        <span data-cy="kpicatalog-span-181" className={tableHeaderClassName}>
-          Check-in
-        </span>
-      ),
-      key: 'checkIn',
-      width: 160,
-      render: (unused, row) => {
-        const cadence = cadenceLabel(row.cadence);
-        const day = checkInDayLabel(row.cadence, row.checkInDay);
-        if (!cadence) {
-          return (
-            <span data-cy="kpicatalog-span-188" className={tableCellClassName}>
-              —
-            </span>
-          );
-        }
-        return (
-          <span data-cy="kpicatalog-span-191" className={tableCellClassName}>
-            {cadence}
-            {day ? ` · ${day}` : ''}
-          </span>
-        );
-      },
-    },
-    {
       key: 'menu',
       width: 48,
       fixed: 'right',
       align: 'center',
-      render: (unused, row) => (
-        <Dropdown
-          menu={{ items: kpiMenuItems(row) }}
-          trigger={['click']}
-          placement="bottomRight"
-          overlayClassName="okr-actions-dropdown"
-        >
-          <button
-            type="button"
-            aria-label="KPI actions"
-            className="flex h-8 w-8 items-center justify-center border-none bg-transparent text-[#8c8c8c] transition-colors hover:text-[#262626] cursor-pointer"
-            onClick={(e) => e.stopPropagation()}
-            data-cy={`bsc-kpi-catalog-menu-${row.id}`}
+      render: (unused, row) =>
+        hasRowActions ? (
+          <Dropdown
+            menu={{ items: kpiMenuItems(row) }}
+            trigger={['click']}
+            placement="bottomRight"
+            overlayClassName="okr-actions-dropdown"
           >
-            <EllipsisOutlined style={{ fontSize: 14 }} />
-          </button>
-        </Dropdown>
-      ),
+            <button
+              type="button"
+              aria-label="KPI actions"
+              className="flex h-8 w-8 items-center justify-center border-none bg-transparent text-[#8c8c8c] transition-colors hover:text-[#262626] cursor-pointer"
+              onClick={(e) => e.stopPropagation()}
+              data-cy={`bsc-kpi-catalog-menu-${row.id}`}
+            >
+              <EllipsisOutlined style={{ fontSize: 14 }} />
+            </button>
+          </Dropdown>
+        ) : null,
     },
   ];
 
@@ -339,8 +326,10 @@ export default function KpiCatalog() {
                 <EmptyState
                   title="No KPIs yet"
                   description="Add KPIs from the catalog and tag each one with a perspective."
-                  actionText="Add KPI"
-                  onAction={() => openCatalogKpiForm()}
+                  actionText={canCreateKpi ? 'Add KPI' : undefined}
+                  onAction={
+                    canCreateKpi ? () => openCatalogKpiForm() : undefined
+                  }
                 />
               </div>
             ) : !filteredKpis.length ? (

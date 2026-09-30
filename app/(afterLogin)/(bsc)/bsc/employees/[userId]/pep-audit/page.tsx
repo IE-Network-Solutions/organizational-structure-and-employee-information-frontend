@@ -20,7 +20,14 @@ import {
   useGetAllUsers,
   useGetAllUsersData,
 } from '@/store/server/features/employees/employeeManagment/queries';
-import { buildOrgEmployees, type BscOrgEmployee } from '@/utils/bsc/orgUsers';
+import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { useGetAllPositions } from '@/store/server/features/employees/positions/queries';
+import {
+  buildOrgEmployees,
+  enrichScorecardPeople,
+  namesById,
+  type BscOrgEmployee,
+} from '@/utils/bsc/orgUsers';
 import { bscAccess } from '@/utils/bsc/permissions';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
@@ -142,6 +149,8 @@ export default function EmployeePepAuditPage() {
   );
   const { data: allUsersData } = useGetAllUsersData();
   const { data: allUsers } = useGetAllUsers();
+  const { data: departmentsData } = useGetDepartments();
+  const { data: positionsData } = useGetAllPositions();
   const employeeById = useMemo(() => {
     const map = new Map<string, BscOrgEmployee>();
     for (const employee of buildOrgEmployees(allUsersData, allUsers)) {
@@ -172,10 +181,48 @@ export default function EmployeePepAuditPage() {
     return map;
   }, [cycles]);
 
-  const allPersonScorecards = useMemo(
-    () => (scorecards || []).filter((card) => card.userId === userId),
-    [scorecards, userId],
-  );
+  /**
+   * BE cards carry ids only (userName ''), so fill name / department / role
+   * from HRIS + org lookups. Anything still missing on one period is taken
+   * from the person's other periods, so every period header matches.
+   */
+  const allPersonScorecards = useMemo(() => {
+    const lookups = {
+      employeeById,
+      departmentNameById: namesById(departmentsData),
+      positionNameById: namesById(positionsData),
+    };
+    const cards = (scorecards || [])
+      .filter((card) => card.userId === userId)
+      .map((card) =>
+        enrichScorecardPeople(
+          {
+            ...card,
+            // Never render a raw user id as the employee name.
+            userName:
+              card.userName?.trim() && card.userName !== card.userId
+                ? card.userName
+                : '',
+          },
+          lookups,
+        ),
+      );
+    const known = (pick: (card: EmployeeScorecard) => string | null) =>
+      cards.map(pick).find((value) => !!value?.trim()) || null;
+    const isPlaceholder = (card: EmployeeScorecard) =>
+      card.userName === 'Employee';
+    const name =
+      known((card) => (isPlaceholder(card) ? null : card.userName)) ||
+      'Employee';
+    const departmentName = known((card) => card.departmentName ?? null);
+    const positionTitle = known((card) => card.positionTitle ?? null);
+    return cards.map((card) => ({
+      ...card,
+      userName: isPlaceholder(card) ? name : card.userName,
+      departmentName: card.departmentName || departmentName,
+      positionTitle: card.positionTitle || positionTitle,
+    }));
+  }, [departmentsData, employeeById, positionsData, scorecards, userId]);
 
   const personScorecards = useMemo(
     () =>
@@ -286,6 +333,12 @@ export default function EmployeePepAuditPage() {
     clearBulkSelection();
   }, [clearBulkSelection, periodFilterId, userId]);
 
+  // "View PEP Audit" (or "Update PEP Audit") opens this page.
+  const canViewPepAudit = bscAccess.viewPepAudit();
+  useEffect(() => {
+    if (!canViewPepAudit) router.replace(scorecardResultsHref(scope));
+  }, [canViewPepAudit, router, scope]);
+
   useEffect(() => {
     if (!scorecardIdParam || !selectedRef.current) return;
     selectedRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -319,6 +372,17 @@ export default function EmployeePepAuditPage() {
       { scroll: false },
     );
   };
+
+  if (!canViewPepAudit) {
+    return (
+      <div
+        className="py-16 text-center text-gray-400"
+        data-cy="bsc-pep-audit-detail-denied"
+      >
+        Redirecting…
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

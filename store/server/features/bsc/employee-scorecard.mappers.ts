@@ -265,6 +265,7 @@ export function mapEmployeeScorecardFromApi(
             evaluatorUserId: 'system',
           }
         : null,
+    submittedAt: row.submittedAt ? toIso(row.submittedAt) : null,
     createdAt: toIso(row.createdAt || periodStart),
     updatedAt: toIso(row.updatedAt || row.createdAt),
   };

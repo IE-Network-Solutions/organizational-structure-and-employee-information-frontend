@@ -3,7 +3,10 @@
 import React from 'react';
 import { Tag } from 'antd';
 import { TargetLogic } from '@/types/bsc';
-import { formatTargetDisplay } from '@/utils/bsc/measurementUnit';
+import {
+  formatTargetDisplay,
+  measurementUnitLabel,
+} from '@/utils/bsc/measurementUnit';
 import { isUnrealisticKpiResult } from '@/utils/bsc/pepAudit';
 
 export const unitTagClassName =
@@ -57,10 +60,27 @@ export function TargetMetricUnitTag({
   bestCase,
   dataCy,
   className = '',
-}: ValueProps) {
-  const { unitTag } = targetDisplayProps({ value, unit, worstCase, bestCase });
+  standalone = true,
+}: ValueProps & {
+  /**
+   * Unit column (default): always name the configured unit. `%` is folded
+   * into the value ("2%") and has no display tag, so without this the column
+   * showed "—" for percentage KPIs. Inline next to a value (TargetValueCell)
+   * only the extra tag is shown, so "2%" isn't followed by "Percentage".
+   */
+  standalone?: boolean;
+}) {
+  const { unitTag: displayTag } = targetDisplayProps({
+    value,
+    unit,
+    worstCase,
+    bestCase,
+  });
+  const unitTag =
+    displayTag || (standalone ? measurementUnitLabel(unit) : null);
 
   if (!unitTag) {
+    if (!standalone) return null;
     return (
       <span
         className={`text-[#4d4d4d] text-sm font-normal ${className}`}
@@ -96,7 +116,11 @@ export default function TargetValueCell(props: ValueProps) {
       className={`flex flex-wrap items-center gap-1.5 ${props.className || ''}`}
     >
       <TargetMetricValue {...props} />
-      <TargetMetricUnitTag {...props} dataCy={undefined} />
+      <TargetMetricUnitTag
+        {...props}
+        dataCy={undefined}
+        standalone={false}
+      />
       {showThresholdWarning ? (
         <Tag color="red" className="m-0">
           Below threshold

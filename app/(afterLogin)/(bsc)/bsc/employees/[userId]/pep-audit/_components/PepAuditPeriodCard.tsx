@@ -135,8 +135,9 @@ export default function PepAuditPeriodCard({
               {scorecard.userName}
             </h2>
             <p data-cy="auto-added" className="m-0 mt-1 text-sm text-gray-500">
-              {scorecard.departmentName || '—'}
-              {scorecard.positionTitle ? ` · ${scorecard.positionTitle}` : ''}
+              {[scorecard.departmentName, scorecard.positionTitle]
+                .filter((part) => !!part?.trim())
+                .join(' · ') || '—'}
             </p>
             <div data-cy="auto-added" className="mt-2">
               {isCurrentPeriod ? (

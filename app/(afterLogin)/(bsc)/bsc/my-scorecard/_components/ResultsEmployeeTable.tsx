@@ -108,6 +108,8 @@ type ResultsScorecardRow = {
   workflowParticipants: PepAuditBarParticipants;
   /** Scorecard KPIs — their evaluation flow drives the approval path. */
   targets: ScorecardKpiTarget[];
+  /** Latest report time (submit, else last update) — newest rows first. */
+  lastReportedAt: number;
 };
 
 type Props = {
@@ -208,6 +210,8 @@ function buildScorecardRow(
     pepRows,
     workflowParticipants: buildWorkflowParticipants(scorecard, employeeById),
     targets: scorecard.targets || [],
+    lastReportedAt:
+      Date.parse(scorecard.submittedAt || scorecard.updatedAt || '') || 0,
   };
 }
 
@@ -246,6 +250,7 @@ export default function ResultsEmployeeTable({
   const canViewAllEmployeeKpi = canViewAllProp ?? bscAccess.viewCompany();
   const canExportAuditReport = bscAccess.exportAuditReport();
   const canPepAudit = bscAccess.pepAudit();
+  const canViewPepAudit = bscAccess.viewPepAudit();
 
   const scopeOptions = useMemo(() => {
     const options: { value: ResultsScope; label: string }[] = [];
@@ -457,12 +462,14 @@ export default function ResultsEmployeeTable({
         return filteredPep.length > 0;
       })
       .sort((a, b) => {
+        // Most recently reported scorecards on top.
+        const byRecent = b.lastReportedAt - a.lastReportedAt;
+        if (byRecent !== 0) return byRecent;
         const byStatus =
           resultsApprovalSortOrder(a.approvalStatus) -
           resultsApprovalSortOrder(b.approvalStatus);
         if (byStatus !== 0) return byStatus;
-        const byName = a.userName.localeCompare(b.userName);
-        return byName;
+        return a.userName.localeCompare(b.userName);
       });
   }, [department, pepListFilters, search, statusFilter, tableRows]);
 
@@ -498,14 +505,11 @@ export default function ResultsEmployeeTable({
     router.push(scorecardPepAuditHref(row.userId, row.scorecardId, scope));
   };
 
+  // Every Results row opens the PEP audit review — also rows with no reports
+  // yet (no approval diagram); that page shows "No reported KPIs" for them.
+  // Needs "View PEP Audit"; without it rows are read-only.
   const openEmployeeRow = (row: ResultsScorecardRow) => {
-    if (row.pepRows.length > 0) {
-      openPepAudit(row);
-      return;
-    }
-    router.push(
-      `/bsc/employees/${encodeURIComponent(row.userId)}?scorecard=${encodeURIComponent(row.scorecardId)}`,
-    );
+    if (canViewPepAudit) openPepAudit(row);
   };
 
   const openRollupHub = () => {
@@ -714,17 +718,17 @@ export default function ResultsEmployeeTable({
       width: ACTIONS_COLUMN_WIDTH,
       align: 'left',
       render: (ignored, row) => {
-        if (!row.pepRows.length) {
+        if (!row.pepRows.length || !canViewPepAudit) {
           return (
             <span data-cy="auto-added" className={bscTableCellClassName}>
               —
             </span>
           );
         }
-        const label = row.needsPepReview ? 'Review' : 'View';
+        const label = row.needsPepReview && canPepAudit ? 'Review' : 'View';
         return (
           <Button
-            type={row.needsPepReview ? 'primary' : 'default'}
+            type={row.needsPepReview && canPepAudit ? 'primary' : 'default'}
             size="small"
             onClick={(event) => {
               event.stopPropagation();
@@ -901,7 +905,7 @@ export default function ResultsEmployeeTable({
               rowKey="userId"
               rowSelection={canPepAudit ? rowSelection : undefined}
               rowClassName={(ignored, index) =>
-                `${bscTableRowClassName(index)} cursor-pointer`
+                `${bscTableRowClassName(index)}${canViewPepAudit ? ' cursor-pointer' : ''}`
               }
               onRow={(row) => ({
                 onClick: (event) => {

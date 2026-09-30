@@ -1,15 +1,17 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { DownloadOutlined, PlusOutlined } from '@ant-design/icons';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import KpiImportModal from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiImportModal';
 import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
+import { useGetBscKpiLibrary } from '@/store/server/features/bsc/queries';
+import { exportKpiLibrary } from '@/utils/bsc/kpiImport';
 import { bscAccess } from '@/utils/bsc/permissions';
 import {
   bscKpiAdminHref,
@@ -33,19 +35,39 @@ export default function BscKpiAdminLayout({
     useBscUiStore();
   const activeTab = parseBscKpiAdminTab(pathname || '');
 
-  // "BSC and KPI" permission group (KPI library / scorecards / import).
-  const canManageBscAdmin = bscAccess.manageAdmin();
+  // "BSC and KPI" permission group: the KPI tab needs any KPI permission, the
+  // BSC tab any scorecard permission; each action has its own permission.
+  const canViewKpis = bscAccess.viewKpis();
+  const canViewScorecards = bscAccess.viewScorecards();
   const canImportKpis = bscAccess.importKpis();
-  const canManageKpiLibrary = bscAccess.manageKpiLibrary();
-  const canManageScorecards = bscAccess.manageScorecards();
+  const canExportKpis = bscAccess.exportKpis();
+  const canCreateKpi = bscAccess.createKpi();
+  const canCreateScorecard = bscAccess.createScorecard();
+  const canOpenActiveTab =
+    activeTab === 'kpis' ? canViewKpis : canViewScorecards;
+  const visibleTabs = TABS.filter((tab) =>
+    tab.key === 'kpis' ? canViewKpis : canViewScorecards,
+  );
+
+  const { data: libraryKpis } = useGetBscKpiLibrary();
+  const [exporting, setExporting] = useState(false);
+  const handleExportKpis = async () => {
+    setExporting(true);
+    try {
+      await exportKpiLibrary(libraryKpis || []);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // Land on the tab this user can open, else back to My Scorecard.
+  const fallbackHref = visibleTabs[0]?.href ?? scorecardTabHref('mine');
 
   useEffect(() => {
-    if (!canManageBscAdmin) {
-      router.replace(scorecardTabHref('mine'));
-    }
-  }, [canManageBscAdmin, router]);
+    if (!canOpenActiveTab) router.replace(fallbackHref);
+  }, [canOpenActiveTab, fallbackHref, router]);
 
-  if (!canManageBscAdmin) {
+  if (!canOpenActiveTab) {
     return (
       <div
         className="py-16 text-center text-gray-400"
@@ -113,7 +135,7 @@ export default function BscKpiAdminLayout({
               data-cy="layout-div-99"
               className="flex w-max min-w-full items-end gap-0"
             >
-              {TABS.map((tab) => {
+              {visibleTabs.map((tab) => {
                 const isActive = activeTab === tab.key;
                 return (
                   <button
@@ -160,7 +182,19 @@ export default function BscKpiAdminLayout({
                   Import
                 </Button>
               ) : null}
-              {canManageKpiLibrary ? (
+              {canExportKpis ? (
+                <Button
+                  icon={<DownloadOutlined />}
+                  onClick={handleExportKpis}
+                  loading={exporting}
+                  disabled={!libraryKpis?.length}
+                  className={`${bscFilterButtonClassName} mb-[6px] hidden h-8 shrink-0 rounded-md sm:inline-flex`}
+                  data-cy="bsc-kpi-export"
+                >
+                  Export
+                </Button>
+              ) : null}
+              {canCreateKpi ? (
                 <>
                   <Button
                     type="primary"
@@ -183,7 +217,7 @@ export default function BscKpiAdminLayout({
                 </>
               ) : null}
             </>
-          ) : activeTab === 'bsc' && canManageScorecards ? (
+          ) : activeTab === 'bsc' && canCreateScorecard ? (
             <>
               <Button
                 type="primary"

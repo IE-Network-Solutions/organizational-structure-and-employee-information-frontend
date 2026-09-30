@@ -392,23 +392,24 @@ export enum Permissions {
   DeleteProbationTask = 'delete-probation-task',
 
   // Non-Financial Balanced Scorecard (BSC) — "BSC and KPI" permission group
-  // (org-emp permission.json). Menu access (view_bsc) sits in Basic Permission
-  // alongside view_okr, mirroring OKR.
+  // (org-emp permission.json). "View My Scorecard" (view_bsc) sits in Basic
+  // Permission alongside view_okr, so every employee gets the BSC menu.
   ViewBsc = 'view_bsc',
-  ManageBscCycles = 'manage_bsc_cycles',
-  ManageBscKpiLibrary = 'manage_bsc_kpi_library',
-  ImportBscKpis = 'import-bsc-kpis',
-  ManageBscPerspectives = 'manage_bsc_perspectives',
-  ManageBscScorecards = 'manage_bsc_scorecards',
-  AssignIndividualBscKpis = 'assign-individual-bsc-kpis',
-  EvaluateBscScorecards = 'evaluate_bsc_scorecards',
-  AcknowledgeBscScorecard = 'acknowledge_bsc_scorecard',
-  SubmitBscEvidence = 'submit_bsc_evidence',
-  ViewTeamBsc = 'view-team-bsc',
-  ViewCompanyBsc = 'view-company-bsc',
-  PepAuditBscKpis = 'pep-audit-bsc-kpis',
-  ExportBscAuditReport = 'export-bsc-audit-report',
-  ManageBscSettings = 'manage_bsc_settings',
+  CreateBscKpi = 'create-bsc-kpi',
+  ViewBscKpi = 'view-bsc-kpi',
+  UpdateBscKpi = 'update-bsc-kpi',
+  DeleteBscKpi = 'delete-bsc-kpi',
+  ImportBscKpi = 'import-bsc-kpi',
+  ExportBscKpi = 'export-bsc-kpi',
+  ViewBscScorecard = 'view-bsc-scorecard',
+  CreateBscScorecard = 'create-bsc-scorecard',
+  UpdateBscScorecard = 'update-bsc-scorecard',
+  DeleteBscScorecard = 'delete-bsc-scorecard',
+  ViewBscResults = 'view-bsc-results',
+  ViewBscPepAudit = 'view-bsc-pep-audit',
+  UpdateBscPepAudit = 'update-bsc-pep-audit',
+  ExportBscPepAudit = 'export-bsc-pep-audit',
+  CreateBscPerspective = 'create-bsc-perspective',
 
   // Succession planning
   ViewSuccessionPlanning = 'view-succession-planning',

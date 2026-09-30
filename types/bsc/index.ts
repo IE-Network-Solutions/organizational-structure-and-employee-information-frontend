@@ -324,6 +324,8 @@ export interface EmployeeScorecard {
   /** Mock digital signature token applied on employee ack */
   acknowledgmentSignature?: string | null;
   finalEvaluation?: FinalEvaluation | null;
+  /** When the employee last submitted a check-in (report). */
+  submittedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

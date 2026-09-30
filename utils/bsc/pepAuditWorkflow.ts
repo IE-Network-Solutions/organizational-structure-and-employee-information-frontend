@@ -52,7 +52,8 @@ export function resolvePepWorkflowSteps(
   }
 
   let pep: PepWorkflowStepState = 'pending';
-  if (row.pepAuditFlag === PepAuditFlag.Realistic) {
+  // PEP is done only after the evaluator chain finished AND PEP approved.
+  if (manager === 'done' && row.pepAuditFlag === PepAuditFlag.Realistic) {
     pep = 'done';
   } else if (manager === 'rejected') {
     pep = 'pending';
@@ -112,12 +113,12 @@ export function resolveAggregatePepWorkflowSteps(
   );
 
   let pep: PepWorkflowStepState = 'pending';
-  if (allPepApproved && !hasReturned) {
+  // "PEP approved" needs every KPI through the whole evaluator chain first —
+  // a first approver's sign-off (KPI still Pending) never completes PEP.
+  if (allManagerApproved && allPepApproved && !hasReturned) {
     pep = 'done';
-  } else if (needsPep && manager === 'done') {
+  } else if (manager === 'done' && (needsPep || !allPepApproved)) {
     pep = 'active';
-  } else if (hasReturned && !needsPep) {
-    pep = 'pending';
   }
 
   return [reported, manager, pep];

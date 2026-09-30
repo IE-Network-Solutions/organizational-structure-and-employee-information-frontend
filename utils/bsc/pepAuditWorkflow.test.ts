@@ -146,6 +146,24 @@ describe('pepAuditWorkflow', () => {
     expect(steps[2]).toBe('active');
   });
 
+  it('never marks PEP done while the evaluator chain is unfinished', () => {
+    // First approver signed off, KPI still Pending at the next evaluator.
+    const pendingButFlagged = sampleRow({
+      approvalStatus: KpiApprovalStatus.Pending,
+      pepAuditFlag: PepAuditFlag.Realistic,
+    });
+    expect(resolvePepWorkflowSteps(pendingButFlagged)[2]).not.toBe('done');
+    expect(resolveAggregatePepWorkflowSteps([pendingButFlagged])[2]).not.toBe(
+      'done',
+    );
+    expect(
+      resolveScorecardResultsStatus(
+        [pendingButFlagged],
+        ScorecardStatus.PendingEval,
+      ),
+    ).toBe('awaiting-manager');
+  });
+
   it('requires manager approval for rowNeedsPepAction', () => {
     expect(
       rowNeedsPepAction(

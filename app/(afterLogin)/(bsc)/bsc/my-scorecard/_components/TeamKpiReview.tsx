@@ -1,12 +1,20 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Dropdown, Input, Modal, Table, Tag, Tooltip } from 'antd';
+import {
+  Button,
+  Dropdown,
+  Empty,
+  Input,
+  Modal,
+  Table,
+  Tag,
+  Tooltip,
+} from 'antd';
 import type { MenuProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { CloseOutlined, MoreOutlined } from '@ant-design/icons';
 import { IoCheckmarkSharp } from 'react-icons/io5';
-import { EmptyImage } from '@/components/emptyIndicator';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
 import { useGetBscScorecards } from '@/store/server/features/bsc/queries';
 import {
@@ -466,7 +474,11 @@ export default function TeamKpiReview() {
   if (!team.length) {
     return (
       <div className="flex justify-center py-10" data-cy="bsc-team-kpi-empty">
-        <EmptyImage />
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description="No team members with scorecards yet."
+          data-cy="bsc-team-kpi-empty-state"
+        />
       </div>
     );
   }

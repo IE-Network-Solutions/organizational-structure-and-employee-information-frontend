@@ -54,6 +54,15 @@ describe('pepAudit', () => {
         targetLogic: TargetLogic.HigherBetter,
       }),
     ).toBe(PepAuditFlag.PendingReview);
+    // In-threshold but not audited → still pending, never "Approved".
+    expect(
+      resolvePepAuditFlag({
+        actualValue: 90,
+        targetValue: 90,
+        acceptableThreshold: 81,
+        targetLogic: TargetLogic.HigherBetter,
+      }),
+    ).toBe(PepAuditFlag.PendingReview);
   });
 
   it('builds audit rows from pending evaluation scorecards', () => {

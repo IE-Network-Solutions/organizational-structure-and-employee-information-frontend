@@ -53,9 +53,12 @@ export function resolvePepAuditFlag(
     | 'pepAuditFlag'
   >,
 ): PepAuditFlag {
+  // A stored flag is PEP's (or a return's) decision — always wins.
   if (target.pepAuditFlag) return target.pepAuditFlag;
-  if (target.actualValue == null) return PepAuditFlag.PendingReview;
+  // Not audited yet: the threshold only suggests risk. Realistic means "PEP
+  // approved" and is never inferred (same rule as the BE).
   if (
+    target.actualValue != null &&
     isUnrealisticKpiResult(
       target.actualValue,
       target.targetValue,
@@ -65,7 +68,7 @@ export function resolvePepAuditFlag(
   ) {
     return PepAuditFlag.Unrealistic;
   }
-  return PepAuditFlag.Realistic;
+  return PepAuditFlag.PendingReview;
 }
 
 export function buildPepAuditRows(

@@ -1729,7 +1729,7 @@ export default function BscSetupModal() {
       onCancel={handleClose}
       footer={null}
       centered
-      width={860}
+      width={1040}
       closeIcon={<CloseOutlined />}
       title={
         <div data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-1">
@@ -1766,7 +1766,12 @@ export default function BscSetupModal() {
         />
       </div>
 
-      <Form form={form} layout="vertical" className="mt-2">
+      <Form
+        form={form}
+        layout="vertical"
+        className="mt-2"
+        requiredMark={false}
+      >
         {/* Keep object fields mounted across wizard steps so maps are not dropped. */}
         <Form.Item name="perspectiveRows" hidden>
           <FormObjectField />

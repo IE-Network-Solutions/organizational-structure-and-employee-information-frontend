@@ -202,15 +202,13 @@ export function resolveScorecardResultsStatus(
     return 'awaiting-manager';
   }
 
-  if (
-    manager === 'done' &&
-    pep === 'active' &&
-    isPepAuditActionableScorecard(scorecardStatus)
-  ) {
+  // Only an explicit PEP approval of every (fully evaluated) KPI is "approved";
+  // anything else past the evaluators is still waiting for PEP.
+  if (pep === 'done') return 'approved';
+  if (manager === 'done' && isPepAuditActionableScorecard(scorecardStatus)) {
     return 'awaiting-pep';
   }
-
-  return 'approved';
+  return 'awaiting-manager';
 }
 
 export function scorecardNeedsPepReview(

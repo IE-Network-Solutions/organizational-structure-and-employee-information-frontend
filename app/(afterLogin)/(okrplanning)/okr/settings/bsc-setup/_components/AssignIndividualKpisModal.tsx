@@ -5,12 +5,14 @@ import {
   Avatar,
   Button,
   Checkbox,
+  Input,
   InputNumber,
   Modal,
   Popover,
   Select,
   Steps,
   Tag,
+  Tooltip,
 } from 'antd';
 import {
   CloseOutlined,
@@ -20,7 +22,6 @@ import {
 } from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
 import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchInput';
-import KpiAssignmentMetricFields from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiAssignmentMetricFields';
 import { unitTagClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/TargetValueCell';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useAppendIndividualBscKpis } from '@/store/server/features/bsc/mutation';
@@ -31,12 +32,19 @@ import {
   isEvaluationStepAlreadyInFlow,
 } from '@/utils/bsc/evaluationFlow';
 import {
+  BscCadence,
   BscEvaluatorStep,
   BscEvaluatorStepKind,
   EmployeeScorecard,
   KpiLibraryItem,
   TargetLogic,
 } from '@/types/bsc';
+import {
+  checkInDayOptions,
+  formatCheckInDate,
+  KPI_CHECKIN_CADENCES,
+  resolveFirstCheckInDate,
+} from '@/utils/bsc/checkInSchedule';
 import {
   validateAcceptableThreshold,
   validateWeights,
@@ -45,6 +53,27 @@ import { measurementUnitLabel } from '@/utils/bsc/measurementUnit';
 
 const KPI_LIST_ROW_GRID =
   'grid grid-cols-[32px_minmax(0,1fr)_120px_120px] gap-x-6 items-center px-2';
+
+/* Weights step — same layout as the Add Scorecard BscSetupWeightsStep. */
+const WEIGHTS_KPI_ROW_LAYOUT =
+  'grid grid-cols-1 gap-y-3 px-3 py-3 sm:grid-cols-2 sm:gap-x-4 sm:px-4';
+const WEIGHTS_TABLE_HEADER_LAYOUT =
+  'grid grid-cols-1 gap-y-1 px-3 sm:grid-cols-2 sm:gap-x-4 sm:px-4';
+const WEIGHTS_INPUT_FIELDS_GRID =
+  'grid w-full max-w-full grid-cols-[minmax(60px,0.85fr)_minmax(72px,1fr)_minmax(72px,1fr)_minmax(72px,1fr)_minmax(100px,1.2fr)] grid-rows-[auto_auto] gap-x-2 gap-y-2';
+const WEIGHTS_INPUT_HEADER_GRID =
+  'grid grid-cols-[minmax(60px,0.85fr)_minmax(72px,1fr)_minmax(72px,1fr)_minmax(72px,1fr)_minmax(100px,1.2fr)] gap-x-2';
+const weightsHeaderCellClassName = 'py-2.5 text-xs font-semibold text-gray-500';
+const weightsFieldLabelClassName =
+  'mb-1 block text-[11px] font-medium text-gray-500';
+const weightsInputNumberClassName = '!w-full !h-8';
+const weightsSelectClassName =
+  '!w-full [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!items-center';
+const weightsTextInputClassName = '!w-full h-8 text-sm';
+const CADENCE_OPTIONS = KPI_CHECKIN_CADENCES.map((cadence) => ({
+  value: cadence,
+  label: cadence,
+}));
 
 type PersonOption = {
   scorecard: EmployeeScorecard;
@@ -63,6 +92,12 @@ type WeightRow = {
   targetLogic?: TargetLogic;
   defaultTarget?: number | null;
   existingTarget?: number | null;
+  /** Current settings of an existing KPI (shown read-only). */
+  existingThreshold?: number | null;
+  existingStretch?: number | null;
+  existingCadence?: BscCadence | null;
+  existingCheckInDay?: number | null;
+  existingDataSource?: string | null;
 };
 
 type Props = {
@@ -162,6 +197,22 @@ export default function AssignIndividualKpisModal({
   >({});
   const [measureAcceptableThresholds, setMeasureAcceptableThresholds] =
     useState<Record<string, number | null>>({});
+  // Same per-KPI fields as the Add Scorecard weights step.
+  const [measureStretchTargets, setMeasureStretchTargets] = useState<
+    Record<string, number | null>
+  >({});
+  const [measureCadences, setMeasureCadences] = useState<
+    Record<string, BscCadence | null>
+  >({});
+  const [measureCheckInDays, setMeasureCheckInDays] = useState<
+    Record<string, number | null>
+  >({});
+  const [measureWorstCases, setMeasureWorstCases] = useState<
+    Record<string, number | null>
+  >({});
+  const [measureBestCases, setMeasureBestCases] = useState<
+    Record<string, number | null>
+  >({});
   const [kpiEvaluationFlows, setKpiEvaluationFlows] = useState<
     Record<string, BscEvaluatorStep[]>
   >({});
@@ -298,6 +349,11 @@ export default function AssignIndividualKpisModal({
       measurementUnit: target.measurementUnit,
       targetLogic: target.targetLogic,
       existingTarget: target.targetValue,
+      existingThreshold: target.acceptableThreshold ?? null,
+      existingStretch: target.stretchTarget ?? null,
+      existingCadence: target.cadence ?? null,
+      existingCheckInDay: target.checkInDay ?? null,
+      existingDataSource: target.dataSource ?? null,
     }));
     const incoming: WeightRow[] = selectedKpis.map((kpi) => ({
       key: `new:${kpi.id}`,
@@ -322,6 +378,11 @@ export default function AssignIndividualKpisModal({
     setMeasureTargets({});
     setMeasureDataSources({});
     setMeasureAcceptableThresholds({});
+    setMeasureStretchTargets({});
+    setMeasureCadences({});
+    setMeasureCheckInDays({});
+    setMeasureWorstCases({});
+    setMeasureBestCases({});
     setKpiEvaluationFlows({});
     setAddStepKpiId(null);
     setEmployeePickerSearch('');
@@ -340,11 +401,18 @@ export default function AssignIndividualKpisModal({
     setPersonWeights(next);
 
     const targets: Record<string, number | null> = {};
+    const worst: Record<string, number | null> = {};
+    const best: Record<string, number | null> = {};
     selectedKpis.forEach((kpi) => {
-      targets[`new:${kpi.id}`] =
-        measureTargets[`new:${kpi.id}`] ?? kpi.defaultTarget ?? null;
+      const key = `new:${kpi.id}`;
+      targets[key] = measureTargets[key] ?? kpi.defaultTarget ?? null;
+      // Bounded KPIs: prefill worst/best from the catalog.
+      worst[key] = measureWorstCases[key] ?? kpi.worstCase ?? null;
+      best[key] = measureBestCases[key] ?? kpi.bestCase ?? null;
     });
     setMeasureTargets((prev) => ({ ...prev, ...targets }));
+    setMeasureWorstCases((prev) => ({ ...prev, ...worst }));
+    setMeasureBestCases((prev) => ({ ...prev, ...best }));
   };
 
   const seedKpiEvaluationFlows = () => {
@@ -496,9 +564,17 @@ export default function AssignIndividualKpisModal({
         dataSource: measureDataSources[`new:${kpi.id}`]?.trim() || null,
         acceptableThreshold:
           measureAcceptableThresholds[`new:${kpi.id}`] ?? null,
+        stretchTarget: measureStretchTargets[`new:${kpi.id}`] ?? null,
+        cadence: measureCadences[`new:${kpi.id}`] ?? null,
+        checkInDay: measureCheckInDays[`new:${kpi.id}`] ?? null,
         worstCase:
-          kpi.targetLogic === TargetLogic.Bounded ? kpi.worstCase : null,
-        bestCase: kpi.targetLogic === TargetLogic.Bounded ? kpi.bestCase : null,
+          kpi.targetLogic === TargetLogic.Bounded
+            ? (measureWorstCases[`new:${kpi.id}`] ?? null)
+            : null,
+        bestCase:
+          kpi.targetLogic === TargetLogic.Bounded
+            ? (measureBestCases[`new:${kpi.id}`] ?? null)
+            : null,
         evaluationFlow: normalizeEvaluationFlow(kpiEvaluationFlows[kpi.id]),
       })),
     });
@@ -571,6 +647,22 @@ export default function AssignIndividualKpisModal({
             return;
           }
         }
+        if (kpi.targetLogic === TargetLogic.Bounded) {
+          const worst = measureWorstCases[key];
+          const best = measureBestCases[key];
+          if (worst == null || best == null) {
+            NotificationMessage.error({
+              message: `Set worst and best case for ${kpi.name}`,
+            });
+            return;
+          }
+          if (Number(worst) === Number(best)) {
+            NotificationMessage.error({
+              message: `Worst and best case cannot be equal for ${kpi.name}`,
+            });
+            return;
+          }
+        }
       }
       seedKpiEvaluationFlows();
       setCurrent(2);
@@ -587,7 +679,7 @@ export default function AssignIndividualKpisModal({
       onCancel={onClose}
       footer={null}
       centered
-      width={860}
+      width={1040}
       closeIcon={<CloseOutlined />}
       destroyOnClose
       title={
@@ -837,10 +929,10 @@ export default function AssignIndividualKpisModal({
               data-cy="assignindividualkpismodal-p-669"
               className="mb-4 text-[12px] text-[#8F94A3]"
             >
-              Set every KPI weight for {activeScorecard?.userName} only (sum
-              100%). New KPI weights start empty — lower shared weights as
-              needed so the total still adds to 100%. Targets are prefilled from
-              the catalog when available.
+              Assign weights (must sum to 100%), targets, validation fields, and
+              check-in schedule for each new KPI. Existing KPIs keep their
+              settings — only their weight can change, so the total still adds
+              to 100% for this person.
             </p>
 
             {!weightRows.length ? (
@@ -885,156 +977,427 @@ export default function AssignIndividualKpisModal({
                   </p>
                 ) : null}
 
-                {weightRows.map((row) => (
+                {/* Same table layout as the Add Scorecard "Weights" step. */}
+                <div
+                  className="overflow-hidden rounded-lg border border-[#D9D9D9] bg-white shadow-none"
+                  data-cy="bsc-assign-weights-table"
+                >
                   <div
-                    key={row.key}
-                    className="rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] px-3 py-3"
-                    data-cy={`bsc-assign-weight-row-${row.key}`}
+                    data-cy="bsc-assign-weights-table-head"
+                    className="sticky top-0 z-[1] border-b border-[#E5E7EB] bg-white"
                   >
                     <div
-                      data-cy="assignindividualkpismodal-div-712"
-                      className="mb-2 flex flex-wrap items-start justify-between gap-2"
+                      data-cy="bsc-assign-weights-head-row"
+                      className={WEIGHTS_TABLE_HEADER_LAYOUT}
                     >
-                      <div
-                        data-cy="assignindividualkpismodal-div-713"
-                        className="min-w-0"
+                      <span
+                        data-cy="bsc-assign-weights-head-kpi"
+                        className={weightsHeaderCellClassName}
                       >
-                        <div
-                          data-cy="assignindividualkpismodal-div-714"
-                          className="mb-1 flex flex-wrap items-center gap-2"
-                        >
-                          <p
-                            data-cy="assignindividualkpismodal-p-715"
-                            className="m-0 text-[13px] font-medium text-[#262626]"
-                          >
-                            {row.name}
-                          </p>
-                          {row.perspective ? (
-                            <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                              {row.perspective}
-                            </Tag>
-                          ) : null}
-                          <Tag className="m-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]">
-                            {row.source === 'individual'
-                              ? 'Individual'
-                              : 'Shared'}
-                          </Tag>
-                          {row.kind === 'new' ? (
-                            <Tag className="m-0 h-5 rounded border border-[#b7eb8f] bg-[#f6ffed] px-1.5 text-[11px] font-normal leading-5 text-[#389E0D]">
-                              New
-                            </Tag>
-                          ) : null}
-                        </div>
-                        <p
-                          data-cy="assignindividualkpismodal-p-734"
-                          className="m-0 text-[11px] text-[#8F94A3]"
-                        >
-                          {row.measurementUnit || '—'} ·{' '}
-                          {targetLogicLabel(row.targetLogic)}
-                          {row.kind === 'new' && row.defaultTarget != null
-                            ? ` · catalog default ${row.defaultTarget}`
-                            : ''}
-                        </p>
-                      </div>
+                        KPI
+                      </span>
                       <div
-                        data-cy="assignindividualkpismodal-div-742"
-                        className="flex items-center gap-2"
+                        data-cy="bsc-assign-weights-head-inputs"
+                        className={WEIGHTS_INPUT_HEADER_GRID}
                       >
-                        <span
-                          data-cy="assignindividualkpismodal-span-743"
-                          className="text-[11px] text-[#595959]"
-                        >
-                          Weight %
-                        </span>
-                        <InputNumber
-                          className="w-20"
-                          min={1}
-                          max={100}
-                          placeholder={
-                            row.kind === 'new' ? 'Weight' : undefined
-                          }
-                          value={
-                            personWeights[row.key]
-                              ? personWeights[row.key]
-                              : undefined
-                          }
-                          onChange={(value) =>
-                            setPersonWeights((prev) => ({
-                              ...prev,
-                              [row.key]: Number(value) || 0,
-                            }))
-                          }
-                          data-cy={`bsc-assign-weight-${row.key}`}
-                        />
-                      </div>
-                    </div>
-
-                    <div
-                      data-cy="assignindividualkpismodal-div-769"
-                      className="flex flex-wrap items-center gap-3"
-                    >
-                      {row.kind === 'new' ? (
-                        <div
-                          data-cy="assignindividualkpismodal-div-771"
-                          className="flex items-center gap-2"
-                        >
+                        {[
+                          'Weight',
+                          'Target',
+                          'Threshold',
+                          'Stretch',
+                          'Cadence',
+                        ].map((label) => (
                           <span
-                            data-cy="assignindividualkpismodal-span-772"
-                            className="text-[11px] text-[#595959]"
+                            key={label}
+                            data-cy={`bsc-assign-weights-head-${label.toLowerCase()}`}
+                            className={weightsHeaderCellClassName}
                           >
-                            Target
+                            {label}
                           </span>
-                          <InputNumber
-                            className="w-28"
-                            placeholder={
-                              row.defaultTarget != null
-                                ? String(row.defaultTarget)
-                                : 'Enter target'
-                            }
-                            value={measureTargets[row.key] ?? undefined}
-                            onChange={(value) =>
-                              setMeasureTargets((prev) => ({
-                                ...prev,
-                                [row.key]: value == null ? null : Number(value),
-                              }))
-                            }
-                            data-cy={`bsc-assign-target-${row.key}`}
-                          />
-                        </div>
-                      ) : row.existingTarget != null ? (
-                        <span
-                          data-cy="assignindividualkpismodal-span-793"
-                          className="text-[11px] text-[#8F94A3]"
-                        >
-                          Target {row.existingTarget}
-                        </span>
-                      ) : null}
+                        ))}
+                      </div>
                     </div>
-                    {row.kind === 'new' && row.targetLogic ? (
-                      <KpiAssignmentMetricFields
-                        kpiKey={row.key}
-                        targetLogic={row.targetLogic}
-                        targetValue={measureTargets[row.key]}
-                        dataSource={measureDataSources[row.key] ?? null}
-                        acceptableThreshold={
-                          measureAcceptableThresholds[row.key] ?? null
-                        }
-                        onDataSourceChange={(value) =>
-                          setMeasureDataSources((prev) => ({
-                            ...prev,
-                            [row.key]: value,
-                          }))
-                        }
-                        onThresholdChange={(value) =>
-                          setMeasureAcceptableThresholds((prev) => ({
-                            ...prev,
-                            [row.key]: value,
-                          }))
-                        }
-                      />
-                    ) : null}
                   </div>
-                ))}
+
+                  <div data-cy="bsc-assign-weights-table-body">
+                    {weightRows.map((row) => {
+                      const isNew = row.kind === 'new';
+                      const isBounded = row.targetLogic === TargetLogic.Bounded;
+                      const showThreshold =
+                        row.targetLogic === TargetLogic.HigherBetter ||
+                        row.targetLogic === TargetLogic.LowerBetter;
+                      const kpiCadence = measureCadences[row.key] ?? null;
+                      const firstCheckInDate = isNew
+                        ? resolveFirstCheckInDate(
+                            kpiCadence,
+                            measureCheckInDays[row.key],
+                            activeScorecard?.periodStart,
+                          )
+                        : null;
+                      const thresholdCheck =
+                        isNew &&
+                        row.targetLogic &&
+                        measureTargets[row.key] != null &&
+                        measureAcceptableThresholds[row.key] != null
+                          ? validateAcceptableThreshold(
+                              Number(measureTargets[row.key]),
+                              Number(measureAcceptableThresholds[row.key]),
+                              row.targetLogic,
+                            )
+                          : { valid: true as const };
+                      const readOnly = (
+                        value: React.ReactNode,
+                        cy: string,
+                      ) => (
+                        <span
+                          data-cy={`bsc-assign-${cy}-${row.key}`}
+                          className="self-center truncate text-sm text-gray-500"
+                        >
+                          {value ?? '—'}
+                        </span>
+                      );
+
+                      return (
+                        <div
+                          key={row.key}
+                          className="border-b border-[#F0F0F0] bg-white last:border-b-0"
+                          data-cy={`bsc-assign-weight-row-${row.key}`}
+                        >
+                          <div
+                            className={`${WEIGHTS_KPI_ROW_LAYOUT} [&_.ant-input-number]:self-center [&_.ant-select]:self-center`}
+                            data-cy={`bsc-assign-weight-block-${row.key}`}
+                          >
+                            <div
+                              data-cy={`bsc-assign-weight-kpi-${row.key}`}
+                              className="flex min-w-0 items-center self-center"
+                            >
+                              <div
+                                data-cy={`bsc-assign-weight-kpi-info-${row.key}`}
+                                className="flex min-w-0 flex-col gap-1"
+                              >
+                                <p
+                                  data-cy={`bsc-assign-weight-kpi-name-${row.key}`}
+                                  className="m-0 min-w-0 truncate text-base font-semibold leading-6 text-gray-900"
+                                >
+                                  {row.name}
+                                </p>
+                                <div
+                                  data-cy={`bsc-assign-weight-kpi-meta-${row.key}`}
+                                  className="flex flex-wrap items-center gap-x-3 gap-y-1.5"
+                                >
+                                  {row.perspective ? (
+                                    <Tag
+                                      data-cy={`bsc-assign-weight-perspective-${row.key}`}
+                                      className="m-0 h-5 shrink-0 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[10px] font-normal leading-5 text-[#1677ff]"
+                                    >
+                                      {row.perspective}
+                                    </Tag>
+                                  ) : null}
+                                  <Tag
+                                    data-cy={`bsc-assign-weight-source-${row.key}`}
+                                    className={`m-0 h-5 shrink-0 rounded border px-1.5 text-[10px] font-normal leading-5 ${
+                                      isNew
+                                        ? 'border-[#b7eb8f] bg-[#f6ffed] text-[#389E0D]'
+                                        : 'border-[#d9d9d9] bg-[#fafafa] text-[#595959]'
+                                    }`}
+                                  >
+                                    {isNew
+                                      ? 'New · Individual'
+                                      : row.source === 'individual'
+                                        ? 'Individual'
+                                        : 'Shared'}
+                                  </Tag>
+                                  <span
+                                    data-cy={`bsc-assign-weight-logic-${row.key}`}
+                                    className="shrink-0 text-[10px] text-gray-500"
+                                  >
+                                    {targetLogicLabel(row.targetLogic)}
+                                  </span>
+                                  {firstCheckInDate ? (
+                                    <span
+                                      data-cy={`bsc-assign-weight-first-checkin-${row.key}`}
+                                      className="shrink-0 text-[10px] text-gray-500"
+                                    >
+                                      First check-in:{' '}
+                                      {formatCheckInDate(firstCheckInDate)}
+                                    </span>
+                                  ) : null}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div
+                              className={`${WEIGHTS_INPUT_FIELDS_GRID} min-w-0 justify-self-stretch sm:max-w-full`}
+                              data-cy={`bsc-assign-weight-fields-${row.key}`}
+                            >
+                              {/* Weight — editable for every KPI (total 100%). */}
+                              <InputNumber
+                                className={weightsInputNumberClassName}
+                                min={1}
+                                max={100}
+                                placeholder="%"
+                                value={
+                                  personWeights[row.key]
+                                    ? personWeights[row.key]
+                                    : undefined
+                                }
+                                onChange={(value) =>
+                                  setPersonWeights((prev) => ({
+                                    ...prev,
+                                    [row.key]: Number(value) || 0,
+                                  }))
+                                }
+                                data-cy={`bsc-assign-weight-${row.key}`}
+                              />
+
+                              {isNew ? (
+                                <InputNumber
+                                  className={weightsInputNumberClassName}
+                                  placeholder={
+                                    row.defaultTarget != null
+                                      ? String(row.defaultTarget)
+                                      : 'Target'
+                                  }
+                                  value={measureTargets[row.key] ?? undefined}
+                                  onChange={(value) =>
+                                    setMeasureTargets((prev) => ({
+                                      ...prev,
+                                      [row.key]:
+                                        value == null ? null : Number(value),
+                                    }))
+                                  }
+                                  data-cy={`bsc-assign-target-${row.key}`}
+                                />
+                              ) : (
+                                readOnly(row.existingTarget, 'target-ro')
+                              )}
+
+                              {isNew && showThreshold ? (
+                                <Tooltip
+                                  title={
+                                    !thresholdCheck.valid
+                                      ? thresholdCheck.message
+                                      : row.targetLogic ===
+                                          TargetLogic.HigherBetter
+                                        ? 'Must be ≤ target'
+                                        : 'Must be ≥ target'
+                                  }
+                                >
+                                  <InputNumber
+                                    className={weightsInputNumberClassName}
+                                    placeholder="Min/max"
+                                    status={
+                                      !thresholdCheck.valid
+                                        ? 'error'
+                                        : undefined
+                                    }
+                                    value={
+                                      measureAcceptableThresholds[row.key] ??
+                                      undefined
+                                    }
+                                    onChange={(value) =>
+                                      setMeasureAcceptableThresholds(
+                                        (prev) => ({
+                                          ...prev,
+                                          [row.key]:
+                                            value == null
+                                              ? null
+                                              : Number(value),
+                                        }),
+                                      )
+                                    }
+                                    data-cy={`bsc-kpi-assignment-threshold-${row.key}`}
+                                  />
+                                </Tooltip>
+                              ) : (
+                                readOnly(
+                                  isNew ? null : row.existingThreshold,
+                                  'threshold-ro',
+                                )
+                              )}
+
+                              {isNew ? (
+                                <Tooltip title="Optional aspirational target beyond the standard target">
+                                  <InputNumber
+                                    className={weightsInputNumberClassName}
+                                    placeholder="Stretch"
+                                    value={
+                                      measureStretchTargets[row.key] ??
+                                      undefined
+                                    }
+                                    onChange={(value) =>
+                                      setMeasureStretchTargets((prev) => ({
+                                        ...prev,
+                                        [row.key]:
+                                          value == null ? null : Number(value),
+                                      }))
+                                    }
+                                    data-cy={`bsc-assign-stretch-${row.key}`}
+                                  />
+                                </Tooltip>
+                              ) : (
+                                readOnly(row.existingStretch, 'stretch-ro')
+                              )}
+
+                              {isNew ? (
+                                <Select
+                                  className={weightsSelectClassName}
+                                  placeholder="Cadence"
+                                  options={CADENCE_OPTIONS}
+                                  value={kpiCadence ?? undefined}
+                                  onChange={(value: BscCadence) => {
+                                    setMeasureCadences((prev) => ({
+                                      ...prev,
+                                      [row.key]: value,
+                                    }));
+                                    setMeasureCheckInDays((prev) => ({
+                                      ...prev,
+                                      [row.key]: null,
+                                    }));
+                                  }}
+                                  data-cy={`bsc-assign-cadence-${row.key}`}
+                                />
+                              ) : (
+                                readOnly(row.existingCadence, 'cadence-ro')
+                              )}
+
+                              <div
+                                data-cy={`bsc-assign-data-source-wrap-${row.key}`}
+                                className="col-span-4 min-w-0"
+                              >
+                                <label
+                                  data-cy={`bsc-assign-data-source-label-${row.key}`}
+                                  className={weightsFieldLabelClassName}
+                                >
+                                  Data source
+                                </label>
+                                {isNew ? (
+                                  <Input
+                                    className={weightsTextInputClassName}
+                                    type="url"
+                                    placeholder="https://example.com/report"
+                                    value={measureDataSources[row.key] ?? ''}
+                                    onChange={(event) =>
+                                      setMeasureDataSources((prev) => ({
+                                        ...prev,
+                                        [row.key]: event.target.value || null,
+                                      }))
+                                    }
+                                    data-cy={`bsc-kpi-assignment-data-source-${row.key}`}
+                                  />
+                                ) : (
+                                  readOnly(
+                                    row.existingDataSource,
+                                    'data-source-ro',
+                                  )
+                                )}
+                              </div>
+
+                              <div
+                                data-cy={`bsc-assign-checkin-wrap-${row.key}`}
+                                className="min-w-0"
+                              >
+                                <label
+                                  data-cy={`bsc-assign-checkin-label-${row.key}`}
+                                  className={weightsFieldLabelClassName}
+                                >
+                                  Check-in day
+                                </label>
+                                {isNew ? (
+                                  <Select
+                                    className={weightsSelectClassName}
+                                    placeholder="Day"
+                                    options={checkInDayOptions(kpiCadence)}
+                                    disabled={!kpiCadence}
+                                    value={
+                                      measureCheckInDays[row.key] ?? undefined
+                                    }
+                                    onChange={(value: number) =>
+                                      setMeasureCheckInDays((prev) => ({
+                                        ...prev,
+                                        [row.key]: value,
+                                      }))
+                                    }
+                                    data-cy={`bsc-assign-checkin-day-${row.key}`}
+                                  />
+                                ) : (
+                                  readOnly(
+                                    row.existingCheckInDay != null
+                                      ? `Day ${row.existingCheckInDay}`
+                                      : null,
+                                    'checkin-ro',
+                                  )
+                                )}
+                              </div>
+
+                              {isNew && isBounded ? (
+                                <div
+                                  data-cy={`bsc-assign-bounds-${row.key}`}
+                                  className="col-span-5 flex flex-wrap items-center gap-3 pt-1"
+                                >
+                                  <div
+                                    data-cy={`bsc-assign-worst-wrap-${row.key}`}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <span
+                                      data-cy={`bsc-assign-worst-label-${row.key}`}
+                                      className="text-[11px] font-medium text-gray-500"
+                                    >
+                                      Worst
+                                    </span>
+                                    <InputNumber
+                                      className="w-24"
+                                      value={
+                                        measureWorstCases[row.key] ?? undefined
+                                      }
+                                      onChange={(value) =>
+                                        setMeasureWorstCases((prev) => ({
+                                          ...prev,
+                                          [row.key]:
+                                            value == null
+                                              ? null
+                                              : Number(value),
+                                        }))
+                                      }
+                                      data-cy={`bsc-assign-worst-${row.key}`}
+                                    />
+                                  </div>
+                                  <div
+                                    data-cy={`bsc-assign-best-wrap-${row.key}`}
+                                    className="flex items-center gap-2"
+                                  >
+                                    <span
+                                      data-cy={`bsc-assign-best-label-${row.key}`}
+                                      className="text-[11px] font-medium text-gray-500"
+                                    >
+                                      Best
+                                    </span>
+                                    <InputNumber
+                                      className="w-24"
+                                      value={
+                                        measureBestCases[row.key] ?? undefined
+                                      }
+                                      onChange={(value) =>
+                                        setMeasureBestCases((prev) => ({
+                                          ...prev,
+                                          [row.key]:
+                                            value == null
+                                              ? null
+                                              : Number(value),
+                                        }))
+                                      }
+                                      data-cy={`bsc-assign-best-${row.key}`}
+                                    />
+                                  </div>
+                                </div>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             )}
           </>

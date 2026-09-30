@@ -1,12 +1,11 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Tabs } from 'antd';
+import { Empty, Tabs } from 'antd';
 import type { RenderTabBar } from 'rc-tabs/es/interface';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { EmptyImage } from '@/components/emptyIndicator';
 import {
   useGetBscCycles,
   useGetBscKpiLibrary,
@@ -29,10 +28,7 @@ import {
   scorecardContextLabel,
   scorecardProgramName,
 } from '@/utils/bsc/series';
-import {
-  filterScorecardsByFiscalMonths,
-  scorecardInCalendarMonth,
-} from '@/utils/bsc/periodFilter';
+import { filterScorecardsByFiscalMonths } from '@/utils/bsc/periodFilter';
 import { bscAccess } from '@/utils/bsc/permissions';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import PerspectiveKpiCard, {
@@ -52,14 +48,6 @@ import {
   scorecardTabHref,
   type ScorecardTab,
 } from '@/utils/bsc/scorecardTab';
-
-function currentMonthName(): string {
-  return new Date().toLocaleString('en-US', { month: 'long' });
-}
-
-function currentYear(): number {
-  return new Date().getFullYear();
-}
 
 function averageScoresForSeries(
   seriesCards: EmployeeScorecard[],
@@ -192,11 +180,11 @@ export default function MyBscScorecardPage() {
     setMyScorecardSessionMonths,
   } = useBscUiStore();
   const { isMobile, isTablet } = useIsMobile();
-  // "BSC and KPI" permission group (like OKR's view-team/company-okr).
+  // "BSC and KPI" permission group: "View Results" = all employees (like
+  // view-company-okr); managers always see their direct reports.
   const canViewAllEmployeeKpi = bscAccess.viewCompany();
   const canViewTeamKpi = bscAccess.viewTeam();
   const canManageBscAdmin = bscAccess.manageAdmin();
-  const canEvaluateCheckIns = bscAccess.evaluateCheckIns();
 
   const tabFromUrl = parseScorecardTab(searchParams);
 
@@ -315,14 +303,15 @@ export default function MyBscScorecardPage() {
   const visibleScorecards = useMemo(() => {
     if (!mine.length) return [];
     if (!isHistoryFilterActive) {
-      const active = mine.filter((s) => s.status === ScorecardStatus.Active);
-      if (active.length) return active;
-
-      const thisMonth = currentMonthName();
-      const year = currentYear();
-      return mine.filter((s) =>
-        scorecardInCalendarMonth(s, thisMonth, year),
-      );
+      // Latest started period of every series, whatever its status — an
+      // Active card elsewhere must not hide a PEP-approved (Completed) one.
+      const now = Date.now();
+      const started = mine.filter((s) => {
+        if (!s.periodStart) return true;
+        const start = new Date(s.periodStart).getTime();
+        return !Number.isFinite(start) || start <= now;
+      });
+      return started.length ? started : mine;
     }
     if (selectedMonth) {
       return filterScorecardsByFiscalMonths(mine, [selectedMonth]);
@@ -394,7 +383,11 @@ export default function MyBscScorecardPage() {
           data-cy="bsc-my-scorecard-empty"
           className="flex justify-center py-10"
         >
-          <EmptyImage />
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="No scorecard assigned for this period."
+            data-cy="bsc-my-scorecard-empty-state"
+          />
         </div>
       ) : (
         <div data-cy="bsc-my-scorecard-list" className="flex flex-col gap-4">
@@ -439,7 +432,7 @@ export default function MyBscScorecardPage() {
       label: tabLabel('checkin', 'Check-in'),
       children: (
         <div data-cy="bsc-checkin-tab-content">
-          <CheckinQueue inbox={canEvaluateCheckIns ? checkinInbox : 'mine'} />
+          <CheckinQueue inbox={checkinInbox} />
         </div>
       ),
     },
@@ -455,10 +448,11 @@ export default function MyBscScorecardPage() {
     },
   ];
 
-  // "Assigned to me" (reviewing others) needs Evaluate KPI Check-ins.
-  const checkinInboxToggle = canEvaluateCheckIns ? (
+  // "Assigned to me": KPIs where this user is the current evaluator in the
+  // evaluation flow — no separate permission needed.
+  const checkinInboxToggle = (
     <CheckinInboxToggle value={checkinInbox} onChange={setCheckinInbox} />
-  ) : undefined;
+  );
 
   const tabBarExtraContent =
     activeTab === 'mine'

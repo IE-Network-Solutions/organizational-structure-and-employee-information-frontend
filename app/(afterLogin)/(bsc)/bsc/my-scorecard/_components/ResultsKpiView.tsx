@@ -12,7 +12,7 @@ type Props = {
 /**
  * Results page: employee KPI table.
  * Always includes own ("My KPI") scope; Team / All use the BSC permission
- * group (view-team-bsc / view-company-bsc).
+ * group (managers see direct reports; "View Results" = all employees).
  */
 export default function ResultsKpiView({
   canViewTeamKpi: canViewTeamProp,

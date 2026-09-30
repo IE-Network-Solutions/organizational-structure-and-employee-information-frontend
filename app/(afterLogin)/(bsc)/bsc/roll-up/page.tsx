@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import { Button, Empty, Progress, Table, Tag } from 'antd';
+import { Button, Empty, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { LeftOutlined } from '@ant-design/icons';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useGetBscResultsScorecards } from '@/store/server/features/bsc/queries';
@@ -16,7 +16,6 @@ import { useGetAllPositions } from '@/store/server/features/employees/positions/
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import { EmployeeScorecard } from '@/types/bsc';
 import {
-  RollupSummary,
   computeRollup,
   departmentRollups,
   formatScore,
@@ -40,6 +39,7 @@ import {
   scorecardResultsHref,
 } from '@/utils/bsc/scorecardTab';
 import type { ResultsScope } from '@/utils/bsc/scorecardTab';
+import RollupHubCards from './_components/RollupHubCards';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
 const tableCellClassName = 'text-[#4d4d4d] text-sm font-normal';
@@ -49,81 +49,6 @@ type ContributorRow = EmployeeScorecard & {
   kpiScore: number;
   evaluated: boolean;
 };
-
-function RollupCard({
-  summary,
-  onOpen,
-  highlight = false,
-  dataCy,
-}: {
-  summary: RollupSummary;
-  onOpen: () => void;
-  highlight?: boolean;
-  dataCy: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className={`flex w-full cursor-pointer flex-col gap-3 rounded-xl border p-5 text-left transition-shadow hover:shadow-sm ${
-        highlight
-          ? 'border-[#91caff] bg-[#F0F7FF]'
-          : 'border-[#E5E7EB] bg-white'
-      }`}
-      data-cy={dataCy}
-    >
-      <div
-        className="flex items-start justify-between gap-2"
-        data-cy={`${dataCy}-header`}
-      >
-        <span
-          className="text-[15px] font-semibold text-[#262626]"
-          data-cy={`${dataCy}-label`}
-        >
-          {summary.label}
-        </span>
-        <RightOutlined
-          className="mt-1 text-xs text-[#8c8c8c]"
-          data-cy={`${dataCy}-open-icon`}
-        />
-      </div>
-      <div className="flex items-end gap-2" data-cy={`${dataCy}-score-row`}>
-        <span
-          className="text-3xl font-bold leading-none text-[#1E40AF]"
-          data-cy={`${dataCy}-avg`}
-        >
-          {summary.evaluatedCount ? `${formatScore(summary.averageScore)}%` : '—'}
-        </span>
-        <span
-          className="pb-0.5 text-xs text-[#8F94A3]"
-          data-cy={`${dataCy}-avg-caption`}
-        >
-          avg performance
-        </span>
-      </div>
-      <Progress
-        percent={Math.max(0, Math.min(100, summary.averageScore))}
-        showInfo={false}
-        size="small"
-        strokeColor="#1E40AF"
-        data-cy={`${dataCy}-progress`}
-      />
-      <div
-        className="flex flex-wrap gap-2 text-xs text-[#595959]"
-        data-cy={`${dataCy}-tags`}
-      >
-        <Tag className="m-0" data-cy={`${dataCy}-evaluated`}>
-          {summary.evaluatedCount}/{summary.totalCount} evaluated
-        </Tag>
-        {summary.pendingCount > 0 ? (
-          <Tag className="m-0" color="orange" data-cy={`${dataCy}-pending`}>
-            {summary.pendingCount} pending
-          </Tag>
-        ) : null}
-      </div>
-    </button>
-  );
-}
 
 export default function BscRollupDetailPage() {
   const router = useRouter();
@@ -206,11 +131,14 @@ export default function BscRollupDetailPage() {
     [view, departmentName, latestCards, companySummary],
   );
 
+  // Same labels as the prototype roll-up.
+  const companyLabel =
+    resultsScope === 'team' ? 'Subordinate scorecard' : 'Company-wide';
   const title =
     view === 'department' && departmentName
       ? `${departmentName} roll-up`
       : view === 'company'
-        ? 'Company-wide roll-up'
+        ? companyLabel
         : 'Scorecard roll-up';
 
   const back = () => {
@@ -331,7 +259,11 @@ export default function BscRollupDetailPage() {
     <div className="w-full" data-cy="bsc-rollup-detail-page">
       <CustomBreadcrumb
         title={title}
-        subtitle="Average of evaluated employee scorecards in this scope"
+        subtitle={
+          view === 'hub'
+            ? 'Average performance by company and department for the current period'
+            : 'Average of evaluated employee scorecards in this scope'
+        }
       />
 
       <div className="mb-4" data-cy="bsc-rollup-back-wrap">
@@ -342,7 +274,7 @@ export default function BscRollupDetailPage() {
           className="!px-0 text-[#595959]"
           data-cy="bsc-rollup-detail-back"
         >
-          {view === 'hub' ? 'All Employee KPI' : 'Scorecard roll-up'}
+          {view === 'hub' ? 'Back to Results' : 'Back to roll-up cards'}
         </Button>
       </div>
 
@@ -362,49 +294,19 @@ export default function BscRollupDetailPage() {
             <Empty description="No employee scorecards in this scope yet" />
           </div>
         ) : (
-          <div className="flex flex-col gap-6" data-cy="bsc-rollup-hub">
-            <div
-              className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
-              data-cy="bsc-rollup-company-grid"
-            >
-              <RollupCard
-                summary={companySummary}
-                highlight
-                onOpen={() =>
-                  router.push(bscRollupCompanyDetailHref(resultsScope))
-                }
-                dataCy="bsc-rollup-company-card"
-              />
-            </div>
-            <div data-cy="bsc-rollup-departments">
-              <h3
-                className="mb-3 text-base font-semibold text-[#262626]"
-                data-cy="bsc-rollup-departments-title"
-              >
-                Departments
-              </h3>
-              <div
-                className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
-                data-cy="bsc-rollup-department-grid"
-              >
-                {departmentSummaries.map((summary) => (
-                  <RollupCard
-                    key={summary.label}
-                    summary={summary}
-                    onOpen={() =>
-                      router.push(
-                        bscRollupDepartmentDetailHref(
-                          summary.departmentName || summary.label,
-                          resultsScope,
-                        ),
-                      )
-                    }
-                    dataCy={`bsc-rollup-department-card-${summary.label}`}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
+          // Prototype design: company + department metric cards in one grid.
+          <RollupHubCards
+            companyRollup={companySummary}
+            deptRollups={departmentSummaries}
+            resultsScope={resultsScope}
+            companyLabel={companyLabel}
+            onCompanyClick={() =>
+              router.push(bscRollupCompanyDetailHref(resultsScope))
+            }
+            onDepartmentClick={(name) =>
+              router.push(bscRollupDepartmentDetailHref(name, resultsScope))
+            }
+          />
         )
       ) : (
         <div

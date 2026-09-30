@@ -151,7 +151,10 @@ import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizat
 import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { BSC_ADMIN_PERMISSIONS } from '@/utils/bsc/permissions';
+import {
+  BSC_ADMIN_PERMISSIONS,
+  BSC_SCORECARD_PERMISSIONS,
+} from '@/utils/bsc/permissions';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
@@ -606,7 +609,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // ===========> Fiscal Year Ended Section <=================
 
   // Separate array for routes that should be accessible but not shown in navigation
-  const hiddenRoutes: { key: string; permissions: string[] }[] = [
+  const hiddenRoutes: {
+    key: string;
+    permissions: string[];
+    requireAny?: boolean;
+  }[] = [
     {
       key: '/dashboard',
       permissions: [], // No permissions required
@@ -657,11 +664,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     },
     {
       key: '/bsc/setup',
-      permissions: [Permissions.ManageBscScorecards],
+      permissions: BSC_SCORECARD_PERMISSIONS,
+      requireAny: true,
     },
     {
       key: '/bsc/cycles',
-      permissions: [Permissions.ManageBscScorecards],
+      permissions: BSC_SCORECARD_PERMISSIONS,
+      requireAny: true,
     },
   ];
 
@@ -697,6 +706,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           routes.push({
             route: route.key,
             permissions: route.permissions,
+            ...(route.requireAny ? { requireAny: true } : {}),
           });
         }
       });
@@ -728,11 +738,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         title: <span data-cy="nav-tree-bsc-settings">Settings</span>,
         key: '/bsc/settings',
         className: 'font-bold',
-        permissions: [
-          Permissions.ManageBscSettings,
-          Permissions.ManageBscPerspectives,
-        ],
-        requireAny: true,
+        permissions: [Permissions.CreateBscPerspective],
       },
     ];
 

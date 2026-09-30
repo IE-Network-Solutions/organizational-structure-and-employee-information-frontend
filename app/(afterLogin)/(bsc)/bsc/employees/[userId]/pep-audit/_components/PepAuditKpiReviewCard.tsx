@@ -26,6 +26,7 @@ import {
   achievedStretchTarget,
 } from '@/utils/bsc/pepAudit';
 import { targetScorePercent } from '@/utils/bsc/rollup';
+import { normalizeRatio } from '@/utils/bsc/scoring';
 import { bscAccess } from '@/utils/bsc/permissions';
 
 function DataSourceReview({ url }: { url: string | null | undefined }) {
@@ -52,6 +53,25 @@ function DataSourceReview({ url }: { url: string | null | undefined }) {
       </a>
     </Tooltip>
   );
+}
+
+/**
+ * Achievement % of the reported (effective) value against target, with the
+ * same threshold gate as BE scoring. Used before the card has a stored score.
+ */
+function reportedAchievementPercent(target: ScorecardKpiTarget): number | null {
+  if (target.actualValue == null || target.targetValue == null) return null;
+  const { ratio } = normalizeRatio(
+    target.actualValue,
+    target.targetValue,
+    target.targetLogic,
+    {
+      worstCase: target.worstCase,
+      bestCase: target.bestCase,
+      acceptableThreshold: target.acceptableThreshold,
+    },
+  );
+  return Math.round(ratio * 1000) / 10;
 }
 
 /** Auditor action just taken on this card (before the list refetch lands). */
@@ -113,11 +133,27 @@ export default function PepAuditKpiReviewCard({
     (!localOutcome &&
       target.approvalStatus === KpiApprovalStatus.Pending &&
       !!target.pepReturnReason?.trim());
+  // "Approved" = PEP explicitly approved a manager-approved result — never
+  // inferred from the threshold.
   const isApproved =
     localOutcome?.kind === 'approved' ||
-    (!localOutcome && pepFlag === PepAuditFlag.Realistic);
-  // Reject resets progress for resubmission.
-  const progress = isRejected ? 0 : targetScorePercent(target);
+    (!localOutcome &&
+      target.approvalStatus === KpiApprovalStatus.Approved &&
+      target.pepAuditFlag === PepAuditFlag.Realistic);
+  const awaitingManager =
+    !localOutcome &&
+    !isRejected &&
+    !isReturnedToManager &&
+    target.approvalStatus === KpiApprovalStatus.Pending;
+  // Result breaks the acceptable threshold → flag for the auditor.
+  const isFlagged =
+    !isApproved && !isRejected && pepFlag === PepAuditFlag.Unrealistic;
+  // Reject resets progress for resubmission. Otherwise show the finalized
+  // score, or — until the card is scored — the reported result's achievement
+  // so the auditor can judge it.
+  const progress = isRejected
+    ? 0
+    : (targetScorePercent(target) ?? reportedAchievementPercent(target));
   const hitStretch =
     !isRejected &&
     achievedStretchTarget(
@@ -126,13 +162,13 @@ export default function PepAuditKpiReviewCard({
       target.targetLogic,
     );
   // Approve / Unrealistic / Reject need "PEP Audit KPI Results".
-  const canAct =
-    bscAccess.pepAudit() &&
+  const awaitingPep =
     !localOutcome &&
     target.actualValue != null &&
     target.approvalStatus === KpiApprovalStatus.Approved &&
     (pepFlag === PepAuditFlag.Unrealistic ||
       pepFlag === PepAuditFlag.PendingReview);
+  const canAct = bscAccess.pepAudit() && awaitingPep;
   const acting = approveLoading || rejectLoading || returnLoading;
   const rejectionReason =
     localOutcome?.kind === 'rejected'
@@ -197,6 +233,15 @@ export default function PepAuditKpiReviewCard({
             >
               {target.kpiName}
             </p>
+            {isFlagged ? (
+              <Tag
+                color="red"
+                className="m-0 mt-1 mr-1"
+                data-cy={`bsc-pep-audit-flagged-${target.id}`}
+              >
+                Below acceptable threshold
+              </Tag>
+            ) : null}
             {hitStretch ? (
               <Tag
                 color="purple"
@@ -341,6 +386,22 @@ export default function PepAuditKpiReviewCard({
               data-cy={`bsc-pep-audit-status-returned-${target.id}`}
             >
               Returned to manager
+            </Tag>
+          ) : awaitingManager ? (
+            <Tag
+              color="blue"
+              className="m-0"
+              data-cy={`bsc-pep-audit-status-awaiting-manager-${target.id}`}
+            >
+              Pending evaluation
+            </Tag>
+          ) : awaitingPep ? (
+            <Tag
+              color="gold"
+              className="m-0"
+              data-cy={`bsc-pep-audit-status-pending-review-${target.id}`}
+            >
+              Pending PEP review
             </Tag>
           ) : null}
         </div>

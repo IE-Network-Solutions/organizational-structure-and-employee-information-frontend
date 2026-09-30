@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
-import { KpiImportRowResult, TargetLogic } from '@/types/bsc';
+import { saveAs } from 'file-saver';
+import { KpiImportRowResult, KpiLibraryItem, TargetLogic } from '@/types/bsc';
 import { normalizeMeasurementUnit } from '@/utils/bsc/measurementUnit';
 
 /**
@@ -247,6 +248,67 @@ export async function buildKpiImportTemplateBuffer(): Promise<ArrayBuffer> {
   });
 
   return workbook.xlsx.writeBuffer();
+}
+
+const TARGET_DIRECTION_LABEL: Record<TargetLogic, string> = {
+  [TargetLogic.HigherBetter]: 'Higher is Better',
+  [TargetLogic.LowerBetter]: 'Lower is Better',
+  [TargetLogic.Bounded]: 'Bounded',
+};
+
+/**
+ * KPI library export ("Export KPI"). Same layout as the import template so the
+ * file can be edited and imported back; Perspective is extra (import ignores it).
+ */
+export async function exportKpiLibrary(kpis: KpiLibraryItem[]): Promise<void> {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('KPIs');
+
+  worksheet.getColumn(1).width = 4.33;
+  [40, 46, 10, 12, 18, 24].forEach((width, index) => {
+    worksheet.getColumn(TEMPLATE_FIRST_COLUMN + index).width = width;
+  });
+
+  const rows = [...kpis]
+    .sort(
+      (a, b) =>
+        (a.perspective || '').localeCompare(b.perspective || '') ||
+        a.name.localeCompare(b.name),
+    )
+    .map((kpi) => [
+      kpi.name,
+      kpi.description || '',
+      kpi.measurementUnit || '',
+      kpi.defaultTarget ?? '',
+      TARGET_DIRECTION_LABEL[kpi.targetLogic] || 'Higher is Better',
+      kpi.perspective || '',
+    ]);
+
+  worksheet.addTable({
+    name: 'KPI_Table',
+    ref: `B${TEMPLATE_HEADER_ROW}`,
+    headerRow: true,
+    style: { theme: 'TableStyleMedium2', showRowStripes: true },
+    columns: [...KPI_IMPORT_HEADERS, 'Perspective'].map((header) => ({
+      name: header,
+      filterButton: true,
+    })),
+    // ExcelJS tables need at least one row.
+    rows: rows.length ? rows : [['', '', '', '', '', '']],
+  });
+
+  worksheet.getRow(TEMPLATE_HEADER_ROW).font = { bold: true };
+  worksheet.eachRow((row) => {
+    row.alignment = { vertical: 'top', wrapText: true };
+  });
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(
+    new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    }),
+    `kpi-library-${new Date().toISOString().split('T')[0]}.xlsx`,
+  );
 }
 
 export async function parseKpiImportFile(
