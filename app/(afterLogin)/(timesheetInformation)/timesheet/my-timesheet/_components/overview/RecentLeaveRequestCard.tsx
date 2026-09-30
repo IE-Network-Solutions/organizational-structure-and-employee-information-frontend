@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Button, Card, List, Skeleton, Tag, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import Link from 'next/link';
@@ -26,18 +27,29 @@ export default function RecentLeaveRequestCard() {
   const { setIsShowLeaveRequestSidebar, setLeaveRequestSidebarData } =
     useMyTimesheetStore();
 
-  const filter: Partial<LeaveRequestBody['filter']> = {
-    userIds: [userId ?? ''],
-  };
+  const filter = useMemo<Partial<LeaveRequestBody['filter']>>(
+    () => ({
+      userIds: [userId ?? ''],
+    }),
+    [userId],
+  );
 
-  const { data, isFetching } = useGetLeaveRequest(
-    { page: 1, limit: RECENT_LIMIT },
-    { filter },
+  const queryData = useMemo(
+    () => ({ page: 1, limit: RECENT_LIMIT }),
+    [],
+  );
+
+  const body = useMemo(() => ({ filter }), [filter]);
+
+  const { data, isLoading } = useGetLeaveRequest(
+    queryData,
+    body,
     true,
-    true,
+    !!userId,
   );
 
   const items = data?.items ?? [];
+  const showSkeleton = isLoading && !data;
 
   const handleNewRequest = () => {
     setLeaveRequestSidebarData(null);
@@ -85,7 +97,7 @@ export default function RecentLeaveRequestCard() {
         className="flex-1 min-h-0 overflow-y-auto pt-2 pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:w-0"
         data-cy="my-timesheet-overview-recent-leave-list-container"
       >
-        {isFetching ? (
+        {showSkeleton ? (
           <List
             dataSource={Array.from(
               { length: RECENT_LIMIT },
