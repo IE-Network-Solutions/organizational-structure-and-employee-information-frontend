@@ -11,12 +11,12 @@
 
 /* Keep in sync with the `shell` colours in tailwind.config.ts. */
 .home-surface {
-  --home-brand: #3636f0;
-  --home-brand-strong: #2828c9;
-  --home-tint: #f0f2ff; /* same as the Home sidebar */
-  --home-tint-line: #dfe3ff;
-  --home-table-head: #e9ecfd;
-  --home-line: #e3e6f5;
+  --home-brand: #1e40af; /* the workspace frame's blue (--app-accent) */
+  --home-brand-strong: #1a3793;
+  --home-tint: #eff6ff; /* same as the Home sidebar */
+  --home-tint-line: #dbeafe;
+  --home-table-head: #e6edfa;
+  --home-line: #e1e7f2;
   --home-ink: #1f2240;
   --home-ink-2: #42465f;
   --home-ink-3: #5b6078;
@@ -81,6 +81,23 @@
 
 .home-surface .hover\:\!border-\[\#1E3A8A\]:hover {
   border-color: var(--home-brand-strong) !important;
+}
+
+/* Tailwind's app-wide `primary` (#3636F0) follows the brand here too. */
+.home-surface .text-primary,
+.home-surface .\!text-primary,
+.home-surface .hover\:text-primary:hover {
+  color: var(--home-brand) !important;
+}
+
+.home-surface .bg-primary,
+.home-surface .\!bg-primary {
+  background-color: var(--home-brand) !important;
+}
+
+.home-surface .border-primary,
+.home-surface .\!border-primary {
+  border-color: var(--home-brand) !important;
 }
 
 /* ── Flat surfaces ────────────────────────────────────────────────────────

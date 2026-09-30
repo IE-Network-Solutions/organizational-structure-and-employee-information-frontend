@@ -1,13 +1,15 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
 import Nav from '@/components/navBar';
+import LegacyNav from '@/components/navBar/legacy';
 import { CollaborationProvider } from '@/components/collaboration/collaboration-context';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import type { Subscription } from '@/types/tenant-management';
 
 import { GlobalStateStore } from '@/store/uistate/features/global';
+import { usesWorkspaceUi } from '@/utils/navigation/workspaceUi';
 
 /**
  * ConditionalNav component that conditionally renders the Nav component
@@ -16,11 +18,26 @@ import { GlobalStateStore } from '@/store/uistate/features/global';
  * @param children The child components to be rendered
  * @returns The Nav component with children inside, or just the children if the pathname is excluded
  */
-const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
+const ConditionalNav: React.FC<{
+  children: React.ReactNode;
+  /** Role slug from the `loggedUserRole` cookie, read by the server. */
+  initialRoleSlug?: string;
+}> = ({ children, initialRoleSlug = '' }) => {
   const pathname = usePathname();
   const router = useRouter();
+
+  // The `user` role gets the workspace UI; everyone else the classic console.
+  // The server only sees the role cookie, so the first client render uses it
+  // too (matching the server HTML); after mount the signed-in profile decides,
+  // which also covers a login or role change within this page load.
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+  const profileRoleSlug = useAuthenticationStore((s) => s.userData?.role?.slug);
+  const Shell = usesWorkspaceUi(
+    isMounted ? (profileRoleSlug ?? initialRoleSlug) : initialRoleSlug,
+  )
+    ? Nav
+    : LegacyNav;
 
   const { isRouteLoading } = GlobalStateStore();
   const excludeNavPaths = [
@@ -122,7 +139,7 @@ const ConditionalNav: React.FC<{ children: React.ReactNode }> = ({
         // Wraps the shell, not the app: the panel is a signed-in surface, and the
         // auth screens have no place to dock it.
         <CollaborationProvider>
-          <Nav>{children}</Nav>
+          <Shell>{children}</Shell>
         </CollaborationProvider>
       )}
       {isRouteLoading && (

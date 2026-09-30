@@ -94,6 +94,7 @@ const Notifications = () => {
         <CustomBreadcrumb
           subtitle=""
           title="Latest Notifications"
+          inline
           data-cy={`notification-latest-breadcrumb-${pageSlug}`}
         />
       </Divider>
@@ -205,6 +206,7 @@ const Notifications = () => {
         <CustomBreadcrumb
           subtitle=""
           title="Previous Notifications"
+          inline
           data-cy={`notification-previous-breadcrumb-${pageSlug}`}
         />
       </Divider>

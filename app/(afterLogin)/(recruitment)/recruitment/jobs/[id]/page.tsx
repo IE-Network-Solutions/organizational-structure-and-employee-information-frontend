@@ -516,45 +516,47 @@ const Candidates = ({ params: { id } }: CandidateProps) => {
                       compact
                       rootClassName="!py-0 !gap-1 min-w-0 flex-1"
                       titleClassName="!text-2xl !font-bold !leading-tight !text-gray-900"
-                    />
-                    <div className="flex items-center gap-2">
-                      {activePanel === 'notes' ? (
-                        <Button
-                          type="default"
-                          onClick={() => setActivePanel(null)}
-                          className="h-10 w-10 rounded-lg"
-                        >
-                          <CloseIcon fontSize="medium" />
-                        </Button>
-                      ) : (
-                        <Button
-                          type="default"
-                          onClick={() => setActivePanel('notes')}
-                          className="h-10 w-10 rounded-lg"
-                        >
-                          <StickyNote2OutlinedIcon fontSize="medium" />
-                        </Button>
-                      )}
+                      titleExtra={
+                        <div className="flex items-center gap-2">
+                          {activePanel === 'notes' ? (
+                            <Button
+                              type="default"
+                              onClick={() => setActivePanel(null)}
+                              className="h-10 w-10 rounded-lg"
+                            >
+                              <CloseIcon fontSize="medium" />
+                            </Button>
+                          ) : (
+                            <Button
+                              type="default"
+                              onClick={() => setActivePanel('notes')}
+                              className="h-10 w-10 rounded-lg"
+                            >
+                              <StickyNote2OutlinedIcon fontSize="medium" />
+                            </Button>
+                          )}
 
-                      {activePanel === 'chat' ? (
-                        <Button
-                          type="default"
-                          onClick={() => setActivePanel(null)}
-                          className="h-10 w-10 rounded-lg"
-                        >
-                          <CloseIcon fontSize="medium" />
-                        </Button>
-                      ) : (
-                        <Button
-                          type="primary"
-                          onClick={() => setActivePanel('chat')}
-                          className="h-10 w-10 rounded-lg"
-                          data-cy="talent-acquisition-job-detail-chat-panel-button"
-                        >
-                          <QuestionAnswerOutlinedIcon fontSize="medium" />
-                        </Button>
-                      )}
-                    </div>
+                          {activePanel === 'chat' ? (
+                            <Button
+                              type="default"
+                              onClick={() => setActivePanel(null)}
+                              className="h-10 w-10 rounded-lg"
+                            >
+                              <CloseIcon fontSize="medium" />
+                            </Button>
+                          ) : (
+                            <Button
+                              type="primary"
+                              onClick={() => setActivePanel('chat')}
+                              className="h-10 w-10 rounded-lg"
+                              data-cy="talent-acquisition-job-detail-chat-panel-button"
+                            >
+                              <QuestionAnswerOutlinedIcon fontSize="medium" />
+                            </Button>
+                          )}
+                        </div>
+                      }
+                    />
                   </div>
                 </div>
               </header>

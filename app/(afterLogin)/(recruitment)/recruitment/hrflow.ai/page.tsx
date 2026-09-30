@@ -36,31 +36,38 @@ const AllCandidates: React.FC = () => {
           title="Candidates"
           data-cy="talent-acquisition-hrflow-breadcrumb"
           subtitle="This is the data of all candidates who applied"
+          titleExtra={
+            <div
+              id="talent-acquisition-hrflow-div-buttons"
+              data-cy="talent-acquisition-hrflow-div-buttons"
+              className="flex items-center my-4 gap-4 md:gap-8"
+            >
+              <WhatYouNeed data-cy="talent-acquisition-hrflow-what-you-need" />
+              <AccessGuard
+                permissions={[Permissions.CreateCandidate]}
+                data-cy="talent-acquisition-hrflow-access-guard"
+              >
+                <CustomButton
+                  title="Add candidate"
+                  id="createUserButton"
+                  data-cy="talent-acquisition-hrflow-button-add-candidate"
+                  icon={<FaPlus className="mr-2" />}
+                  onClick={showDrawer}
+                  className="bg-blue-600 hover:bg-blue-700"
+                />
+              </AccessGuard>
+            </div>
+          }
         />
-        <div
-          id="talent-acquisition-hrflow-div-buttons"
-          data-cy="talent-acquisition-hrflow-div-buttons"
-          className="flex items-center my-4 gap-4 md:gap-8"
+        <AccessGuard
+          permissions={[Permissions.CreateCandidate]}
+          data-cy="talent-acquisition-hrflow-create-candidate-guard"
         >
-          <WhatYouNeed data-cy="talent-acquisition-hrflow-what-you-need" />
-          <AccessGuard
-            permissions={[Permissions.CreateCandidate]}
-            data-cy="talent-acquisition-hrflow-access-guard"
-          >
-            <CustomButton
-              title="Add candidate"
-              id="createUserButton"
-              data-cy="talent-acquisition-hrflow-button-add-candidate"
-              icon={<FaPlus className="mr-2" />}
-              onClick={showDrawer}
-              className="bg-blue-600 hover:bg-blue-700"
-            />
-            <CreateCandidate
-              data-cy="talent-acquisition-hrflow-create-candidate"
-              onClose={onClose}
-            />
-          </AccessGuard>
-        </div>
+          <CreateCandidate
+            data-cy="talent-acquisition-hrflow-create-candidate"
+            onClose={onClose}
+          />
+        </AccessGuard>
       </div>
       <div
         id="talent-acquisition-hrflow-div-table"

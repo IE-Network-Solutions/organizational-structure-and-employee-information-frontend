@@ -3,7 +3,7 @@
 import { Col, Row } from 'antd';
 import React from 'react';
 import IncentiveDetail from './_components/incentiveDetail';
-import { IoChevronBackOutline } from 'react-icons/io5';
+import CustomBreadcrumb from '@/components/common/breadCramp';
 import IncentiveUserInfo from './_components/userInfo';
 import { useRouter } from 'next/navigation';
 
@@ -27,25 +27,12 @@ function Page({ params: { dataId } }: IncentiveTableDetailsProps) {
       data-cy="incentive-detail-page-container"
       className="mt-4 mb-8 mx-0"
     >
-      <div
-        id="incentive-detail-page-back-button"
-        data-cy="incentive-detail-page-back-button"
-        onClick={handleGoBack}
-        className="flex items-center justify-start space-x-1 mb-4 text-gray-800 "
-      >
-        <IoChevronBackOutline
-          id="incentive-detail-page-back-icon"
-          data-cy="incentive-detail-page-back-icon"
-          className="text-xl text-gray-500"
-        />
-        <span
-          id="incentive-detail-page-back-text"
-          data-cy="incentive-detail-page-back-text"
-          className="text-2xl font-bold"
-        >
-          Detail
-        </span>
-      </div>
+      <CustomBreadcrumb
+        title="Detail"
+        onBack={handleGoBack}
+        backControlDataCy="incentive-detail-back-button"
+        showBottomSeparator={false}
+      />
       <Row
         id="incentive-detail-page-content-row"
         data-cy="incentive-detail-page-content-row"

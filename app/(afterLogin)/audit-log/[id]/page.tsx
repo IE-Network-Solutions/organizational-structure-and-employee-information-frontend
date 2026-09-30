@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { BannerActions, useInBanner } from '@/components/navBar/BannerActions';
 import {
   Card,
   Avatar,
@@ -137,6 +138,7 @@ const AuditLogDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const inBanner = useInBanner();
 
   useEffect(() => {
     const storedData = sessionStorage.getItem(`audit-log-${id}`);
@@ -169,9 +171,9 @@ const AuditLogDetailPage = () => {
 
     setIsExporting(true);
     try {
-      const headerButtons = document.querySelector(
-        '.flex.flex-col.md\\:flex-row.justify-between',
-      ) as HTMLElement;
+      // Absent under the workspace banner, where the buttons live outside
+      // the captured container.
+      const headerButtons = document.getElementById('audit-log-detail-header');
       const originalDisplay = headerButtons?.style.display;
       if (headerButtons) headerButtons.style.display = 'none';
 
@@ -236,6 +238,33 @@ const AuditLogDetailPage = () => {
     </div>
   );
 
+  const headerActions = (
+    <>
+      <Button
+        type="text"
+        icon={<ArrowLeftOutlined />}
+        onClick={() => router.back()}
+        className="text-lg font-semibold p-0"
+        data-cy="audit-log-detail-back-button"
+        id="audit-log-detail-back-button"
+      >
+        Audit log
+      </Button>
+      <Button
+        type="primary"
+        icon={isExporting ? <LoadingOutlined /> : <DownloadOutlined />}
+        onClick={handleExport}
+        className="bg-blue-600 border-none"
+        loading={isExporting}
+        disabled={isExporting}
+        data-cy="audit-log-detail-export-button"
+        id="audit-log-detail-export-button"
+      >
+        Export detail
+      </Button>
+    </>
+  );
+
   return (
     <div
       className="bg-white min-h-screen p-4 md:p-6"
@@ -243,34 +272,19 @@ const AuditLogDetailPage = () => {
       data-cy="audit-log-detail-page-container"
       id="audit-log-detail-page-container"
     >
-      <div
-        className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0"
-        data-cy="audit-log-detail-header"
-        id="audit-log-detail-header"
-      >
-        <Button
-          type="text"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => router.back()}
-          className="text-lg font-semibold p-0"
-          data-cy="audit-log-detail-back-button"
-          id="audit-log-detail-back-button"
+      {/* Under the workspace banner the buttons move up into it; they also
+          stay out of the exported snapshot of this container. */}
+      {inBanner ? (
+        <BannerActions>{headerActions}</BannerActions>
+      ) : (
+        <div
+          className="flex flex-col md:flex-row justify-between items-center mb-6 space-y-3 md:space-y-0"
+          data-cy="audit-log-detail-header"
+          id="audit-log-detail-header"
         >
-          Audit log
-        </Button>
-        <Button
-          type="primary"
-          icon={isExporting ? <LoadingOutlined /> : <DownloadOutlined />}
-          onClick={handleExport}
-          className="bg-blue-600 border-none"
-          loading={isExporting}
-          disabled={isExporting}
-          data-cy="audit-log-detail-export-button"
-          id="audit-log-detail-export-button"
-        >
-          Export detail
-        </Button>
-      </div>
+          {headerActions}
+        </div>
+      )}
 
       <div
         className="mb-4"

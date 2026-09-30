@@ -5,6 +5,7 @@ import { Button, Breadcrumb } from 'antd';
 import { MdOutlinePayments } from 'react-icons/md';
 import { FaUserPlus } from 'react-icons/fa';
 import CustomBreadcrumb from '@/components/common/breadCramp';
+import { useInBanner } from '@/components/navBar/BannerActions';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -116,6 +117,9 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
   const benefitId = params?.id;
   const { setIsBenefitOpen, setSelectedBenefitRecord } =
     useCompensationSettingStore();
+  // Under the banner the desktop header's actions serve every screen size, so
+  // the phone-only header would only duplicate them.
+  const inBanner = useInBanner();
 
   const handleAddBenefitType = () => {
     setSelectedBenefitRecord(null);
@@ -142,65 +146,67 @@ const BenefitLayout: FC<TimesheetSettingsLayoutProps> = ({ children }) => {
         ) : (
           <>
             {/* Mobile page header */}
-            <div
-              className="block sm:hidden px-3 pt-4 pb-3"
-              id="compensation-benefit-layout-page-header"
-              data-cy="compensation-benefit-layout-page-header"
-            >
+            {!inBanner && (
               <div
-                className="flex items-center justify-between gap-3"
-                data-cy="compensation-benefit-layout-mobile-header-row"
+                className="block sm:hidden px-3 pt-4 pb-3"
+                id="compensation-benefit-layout-page-header"
+                data-cy="compensation-benefit-layout-page-header"
               >
                 <div
-                  className="min-w-0 flex-1"
-                  data-cy="compensation-benefit-layout-mobile-breadcrumb-wrap"
+                  className="flex items-center justify-between gap-3"
+                  data-cy="compensation-benefit-layout-mobile-header-row"
                 >
-                  <CustomBreadcrumb
-                    title="Benefit"
-                    titleClassName="!text-[#000000]"
-                    rootClassName="!py-0 gap-1.5"
-                    subtitle={
-                      <Breadcrumb
-                        separator="/"
-                        className="text-sm"
-                        items={[
-                          {
-                            title: (
-                              <span
-                                className="text-sm font-medium text-slate-500"
-                                data-cy="compensation-benefit-breadcrumb-parent"
-                              >
-                                Compensation and Benefit
-                              </span>
-                            ),
-                          },
-                          {
-                            title: (
-                              <span
-                                className="text-sm font-bold text-slate-500"
-                                data-cy="compensation-benefit-breadcrumb-benefit"
-                              >
-                                Benefit
-                              </span>
-                            ),
-                          },
-                        ]}
-                      />
-                    }
-                    data-cy="compensation-benefit-layout-breadcrumb"
-                  />
+                  <div
+                    className="min-w-0 flex-1"
+                    data-cy="compensation-benefit-layout-mobile-breadcrumb-wrap"
+                  >
+                    <CustomBreadcrumb
+                      title="Benefit"
+                      titleClassName="!text-[#000000]"
+                      rootClassName="!py-0 gap-1.5"
+                      subtitle={
+                        <Breadcrumb
+                          separator="/"
+                          className="text-sm"
+                          items={[
+                            {
+                              title: (
+                                <span
+                                  className="text-sm font-medium text-slate-500"
+                                  data-cy="compensation-benefit-breadcrumb-parent"
+                                >
+                                  Compensation and Benefit
+                                </span>
+                              ),
+                            },
+                            {
+                              title: (
+                                <span
+                                  className="text-sm font-bold text-slate-500"
+                                  data-cy="compensation-benefit-breadcrumb-benefit"
+                                >
+                                  Benefit
+                                </span>
+                              ),
+                            },
+                          ]}
+                        />
+                      }
+                      data-cy="compensation-benefit-layout-breadcrumb"
+                    />
+                  </div>
+                  <AccessGuard permissions={[Permissions.CreateBenefitType]}>
+                    <Button
+                      type="primary"
+                      icon={<MdOutlinePayments className="text-base" />}
+                      className="h-10 w-10 min-w-10 rounded-md"
+                      onClick={handleAddBenefitType}
+                      data-cy="compensation-benefit-add-benefit-type-button"
+                    />
+                  </AccessGuard>
                 </div>
-                <AccessGuard permissions={[Permissions.CreateBenefitType]}>
-                  <Button
-                    type="primary"
-                    icon={<MdOutlinePayments className="text-base" />}
-                    className="h-10 w-10 min-w-10 rounded-md"
-                    onClick={handleAddBenefitType}
-                    data-cy="compensation-benefit-add-benefit-type-button"
-                  />
-                </AccessGuard>
               </div>
-            </div>
+            )}
 
             {/* Desktop page header */}
             <BlockWrapper className="h-auto w-full min-w-0 bg-white hidden sm:block">

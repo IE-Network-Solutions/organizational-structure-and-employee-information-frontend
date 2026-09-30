@@ -14,7 +14,6 @@ import {
 } from 'antd';
 import {
   CloseOutlined,
-  LeftOutlined,
   LoadingOutlined,
   SearchOutlined,
   UserOutlined,
@@ -469,14 +468,6 @@ export default function ActionPlansPage() {
         data-cy="feedback-action-plan-page-div-header"
         id="feedback-action-plan-page-div-header"
       >
-        <Button
-          type="default"
-          className="!flex h-9 w-9 shrink-0 items-center justify-center !p-0"
-          icon={<LeftOutlined />}
-          onClick={() => router.back()}
-          aria-label="Go back"
-          data-cy="feedback-action-plan-back-button"
-        />
         <div
           className="min-w-0 flex-1"
           data-cy="feedback-action-plan-page-div-title-section"
@@ -486,6 +477,8 @@ export default function ActionPlansPage() {
             title="Action Plan"
             subtitle={breadcrumbSubtitle}
             compact
+            onBack={() => router.back()}
+            backControlDataCy="feedback-action-plan-back-button"
           />
         </div>
       </div>

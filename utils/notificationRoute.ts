@@ -624,18 +624,23 @@ function resolveTimesheetPath(
 
   // Both first approver ("New Leave Request") and later levels
   // ("Leave Request Approval") open My Approvals — ignore generic backend routes.
-  const isShiftSwap =
-    text.includes('shift swap') || text.includes('shiftswap');
+  const isShiftSwap = text.includes('shift swap') || text.includes('shiftswap');
 
   if (isLeaveApproverActionNotification(text)) {
     params.set('module', 'timesheet');
-    params.set('type', isShiftSwap ? 'ShiftSwap' : isWfh ? 'WorkFromHome' : 'Leave');
+    params.set(
+      'type',
+      isShiftSwap ? 'ShiftSwap' : isWfh ? 'WorkFromHome' : 'Leave',
+    );
     return withParams('/home/approvals', params);
   }
 
   if (isApproverNotification(text) && (isMyTimesheetContext || !pathname)) {
     params.set('module', 'timesheet');
-    params.set('type', isShiftSwap ? 'ShiftSwap' : isWfh ? 'WorkFromHome' : 'Leave');
+    params.set(
+      'type',
+      isShiftSwap ? 'ShiftSwap' : isWfh ? 'WorkFromHome' : 'Leave',
+    );
     return withParams('/home/approvals', params);
   }
 
@@ -658,7 +663,10 @@ function resolveTimesheetPath(
 
   if (pathname.includes('/my-approvals')) {
     params.set('module', 'timesheet');
-    params.set('type', isShiftSwap ? 'ShiftSwap' : isWfh ? 'WorkFromHome' : 'Leave');
+    params.set(
+      'type',
+      isShiftSwap ? 'ShiftSwap' : isWfh ? 'WorkFromHome' : 'Leave',
+    );
     return withParams('/home/approvals', params);
   }
 

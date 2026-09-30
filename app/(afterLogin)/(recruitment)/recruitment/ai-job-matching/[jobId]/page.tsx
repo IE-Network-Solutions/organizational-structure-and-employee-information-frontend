@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import CustomBreadcrumb from '@/components/common/breadCramp';
+import { useInBanner } from '@/components/navBar/BannerActions';
 import { Avatar, Button, Card, Skeleton, Tag } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -18,6 +20,7 @@ dayjs.extend(relativeTime);
 
 const AIJobMatchingJobDetailPage: React.FC = () => {
   const router = useRouter();
+  const inBanner = useInBanner();
   const params = useParams();
   const jobId = params?.jobId as string;
 
@@ -201,47 +204,55 @@ const AIJobMatchingJobDetailPage: React.FC = () => {
       className="min-h-screen"
       data-cy="ai-job-detail-page"
     >
-      {/* Header */}
-      <div
-        id="ai-job-detail-header"
-        className="bg-white px-6 py-4 border-b border-gray-200"
-        data-cy="ai-job-detail-header"
-      >
+      {/* Header — under the workspace banner only its Back control remains. */}
+      {inBanner ? (
+        <CustomBreadcrumb
+          title="AI Job Matching"
+          onBack={() => router.push('/recruitment/ai-job-matching')}
+          backControlDataCy="ai-job-detail-back-button"
+        />
+      ) : (
         <div
-          data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-209"
-          className="flex items-center gap-4"
+          id="ai-job-detail-header"
+          className="bg-white px-6 py-4 border-b border-gray-200"
+          data-cy="ai-job-detail-header"
         >
-          <Button
-            id="ai-job-detail-back-button"
-            data-cy="ai-job-detail-back-button"
-            type="text"
-            onClick={() => router.push('/recruitment/ai-job-matching')}
-            className="flex items-center text-gray-600 hover:text-gray-800"
-          >
-            ← Back
-          </Button>
           <div
-            data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-219"
-            id="ai-job-detail-header-content"
-            className="flex-1"
+            data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-209"
+            className="flex items-center gap-4"
           >
-            <h1
-              id="ai-job-detail-title"
-              data-cy="ai-job-detail-title"
-              className="text-xl font-semibold text-gray-900"
+            <Button
+              id="ai-job-detail-back-button"
+              data-cy="ai-job-detail-back-button"
+              type="text"
+              onClick={() => router.push('/recruitment/ai-job-matching')}
+              className="flex items-center text-gray-600 hover:text-gray-800"
             >
-              AI Job Matching
-            </h1>
-            <p
-              id="ai-job-detail-subtitle"
-              data-cy="ai-job-detail-subtitle"
-              className="text-sm text-gray-500"
+              ← Back
+            </Button>
+            <div
+              data-cy="recruitment-ai-job-matching-jobid-page-tsx-page-div-219"
+              id="ai-job-detail-header-content"
+              className="flex-1"
             >
-              Match candidates to jobs using AI-powered analysis
-            </p>
+              <h1
+                id="ai-job-detail-title"
+                data-cy="ai-job-detail-title"
+                className="text-xl font-semibold text-gray-900"
+              >
+                AI Job Matching
+              </h1>
+              <p
+                id="ai-job-detail-subtitle"
+                data-cy="ai-job-detail-subtitle"
+                className="text-sm text-gray-500"
+              >
+                Match candidates to jobs using AI-powered analysis
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div
         id="ai-job-detail-content"

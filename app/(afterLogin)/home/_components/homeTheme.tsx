@@ -3,8 +3,8 @@
 import { ReactNode } from 'react';
 import { ConfigProvider, ThemeConfig } from 'antd';
 
-/** Home shell brand colour (hero, tab bar, sidebar labels) — Tailwind `primary`. */
-export const HOME_BRAND = '#3636F0';
+/** Home shell brand colour (banner, tab bar, sidebar labels) — Tailwind `brand`. */
+export const HOME_BRAND = '#1E40AF';
 
 /**
  * AntD tokens for Home tab content, so buttons, links, tabs, pagination and
@@ -14,11 +14,11 @@ export const HOME_BRAND = '#3636F0';
 export const homeTheme: ThemeConfig = {
   token: {
     colorPrimary: HOME_BRAND,
-    colorPrimaryHover: '#5A5AF4',
-    colorPrimaryActive: '#2828C9',
+    colorPrimaryHover: '#2B4FC0',
+    colorPrimaryActive: '#1A3793',
     colorLink: HOME_BRAND,
-    colorLinkHover: '#5A5AF4',
-    colorLinkActive: '#2828C9',
+    colorLinkHover: '#2B4FC0',
+    colorLinkActive: '#1A3793',
   },
   components: {
     Button: {
@@ -26,12 +26,12 @@ export const homeTheme: ThemeConfig = {
       defaultShadow: 'none',
     },
     Table: {
-      headerBg: '#E9ECFD',
+      headerBg: '#E6EDFA',
       headerColor: '#42465F',
       headerSplitColor: 'transparent',
       headerBorderRadius: 0,
-      rowHoverBg: '#F7F8FF',
-      borderColor: '#E3E6F5',
+      rowHoverBg: '#F5F8FF',
+      borderColor: '#E1E7F2',
     },
     Tabs: {
       inkBarColor: HOME_BRAND,

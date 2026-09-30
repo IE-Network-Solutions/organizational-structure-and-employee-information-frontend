@@ -74,7 +74,8 @@ export function getAllowedAreaCircleBounds(
   const radiusMeters = getAreaRadiusMeters(area);
   if (radiusMeters <= 0 || typeof window === 'undefined') return null;
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  // Lazy, client-only: Leaflet touches `window` when imported.
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const L = require('leaflet') as typeof import('leaflet');
 
   const lat = area.latitude;

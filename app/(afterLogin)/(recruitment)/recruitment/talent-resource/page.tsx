@@ -1,5 +1,6 @@
 'use client';
 import TalentPoolPage from '../talent-resource/talent-pool/_components/talentPoolpage';
+import { useInBanner } from '@/components/navBar/BannerActions';
 import { useTalentResourceStore } from '@/store/uistate/features/recruitment/talent-resource';
 import TalentRoasterPage from './talent-roaster/page';
 import InternPage from './intern/page';
@@ -17,6 +18,7 @@ import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 
 const TalentResourcePage = () => {
+  const inBanner = useInBanner();
   const { setActiveTab, activeTab } = useTalentResourceStore();
   const { setIsAddCandidateVisible } = useInternStore();
   const { isMobile } = useIsMobile();
@@ -126,45 +128,50 @@ const TalentResourcePage = () => {
         }
       }
       `}</style>
-      <div
-        data-cy="talent-acquisition-talent-resource-page-breadcrumb"
-        className="pt-6"
-      >
-        <h3
-          className="text-black text-2xl font-bold mb-0"
-          data-cy="talent-acquisition-talent-resource-page-breadcrumb-title"
-          id="talent-acquisition-talent-resource-page-breadcrumb-title"
-        >
-          Talent Resource
-        </h3>
+      {/* The banner and its tabs already name this page. */}
+      {!inBanner && (
+        <>
+          <div
+            data-cy="talent-acquisition-talent-resource-page-breadcrumb"
+            className="pt-6"
+          >
+            <h3
+              className="text-black text-2xl font-bold mb-0"
+              data-cy="talent-acquisition-talent-resource-page-breadcrumb-title"
+              id="talent-acquisition-talent-resource-page-breadcrumb-title"
+            >
+              Talent Resource
+            </h3>
 
-        <Breadcrumb
-          data-cy="talent-acquisition-talent-resource-page-breadcrumb"
-          items={[
-            {
-              title: (
-                <span
-                  className="text-sm font-normal"
-                  data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-title"
-                >
-                  Talent Aquistion
-                </span>
-              ),
-            },
-            {
-              title: (
-                <span
-                  className="text-sm text-[#4d4d4d] font-normal"
-                  data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-link"
-                >
-                  Talent Resource
-                </span>
-              ),
-            },
-          ]}
-        />
-      </div>
-      <Divider className="full-bleed-header-divider" />
+            <Breadcrumb
+              data-cy="talent-acquisition-talent-resource-page-breadcrumb"
+              items={[
+                {
+                  title: (
+                    <span
+                      className="text-sm font-normal"
+                      data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-title"
+                    >
+                      Talent Aquistion
+                    </span>
+                  ),
+                },
+                {
+                  title: (
+                    <span
+                      className="text-sm text-[#4d4d4d] font-normal"
+                      data-cy="talent-acquisition-talent-resource-page-breadcrumb-item-link"
+                    >
+                      Talent Resource
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          </div>
+          <Divider className="full-bleed-header-divider" />
+        </>
+      )}
 
       <Tabs
         id="talent-acquisition-talent-resource-page-div-tabs"

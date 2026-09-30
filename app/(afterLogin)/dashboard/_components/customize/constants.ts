@@ -27,8 +27,13 @@ export const GRID_GUIDE_ROW_STEP = 4;
 /** How close a dragged edge must get to another one before it snaps to it. */
 export const GRID_SNAP_TOLERANCE = 2;
 
-/** Below this container width the grid degrades to a single stacked column. */
-export const GRID_STACKED_BREAKPOINT = 768;
+/**
+ * Below this container width the grid degrades to a single stacked column.
+ * Sized to the dashboard's own column, not the screen: beside the workspace
+ * sidebar and profile panel a 1366–1440px laptop leaves it ~670–750px, which
+ * the proportional grid still lays out well.
+ */
+export const GRID_STACKED_BREAKPOINT = 600;
 
 /** Pixel height of a widget spanning `rows` grid rows. */
 export const rowsToPixels = (rows: number) => rows * GRID_ROW_PITCH - GRID_GAP;

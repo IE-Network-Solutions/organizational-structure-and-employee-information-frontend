@@ -41,7 +41,7 @@ export default function ShellStat({
       data-cy={dataCy}
     >
       <div
-        className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.04em] text-primary"
+        className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.04em] text-brand"
         data-cy={`${dataCy}-label`}
       >
         {Icon ? <Icon size={15} strokeWidth={2.1} aria-hidden /> : null}

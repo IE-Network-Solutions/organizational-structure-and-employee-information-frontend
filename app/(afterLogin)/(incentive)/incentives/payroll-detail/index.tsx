@@ -45,13 +45,15 @@ const PayRoleView: React.FC<PayRoleViewProps> = ({ operationSlot }) => {
           data-cy="payroll-view-breadcrumb"
           title="Incentive"
           subtitle="Generated Incentive Report"
+          titleExtra={
+            <div
+              id="payroll-view-operation-slot"
+              data-cy="payroll-view-operation-slot"
+            >
+              {operationSlot}
+            </div>
+          }
         />
-        <div
-          id="payroll-view-operation-slot"
-          data-cy="payroll-view-operation-slot"
-        >
-          {operationSlot}
-        </div>
       </div>
       <div
         id="payroll-view-cards-container"

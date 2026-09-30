@@ -57,14 +57,14 @@ function ProfileInfoLine({
       data-cy={dataCy}
     >
       <div
-        className="flex h-6 items-center justify-center text-[#7C82A7]"
+        className="flex h-6 items-center justify-center text-brand-muted"
         data-cy={`${dataCy}-icon`}
       >
         {icon}
       </div>
       <div className="min-w-0" data-cy={`${dataCy}-content`}>
         <div
-          className="text-[12px] font-semibold uppercase leading-4 text-primary"
+          className="text-[12px] font-semibold uppercase leading-4 text-brand"
           data-cy={`${dataCy}-label`}
         >
           {label}
@@ -478,7 +478,7 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
     return (
       <>
         <section
-          className="relative z-10 overflow-visible bg-primary px-5 py-7 sm:px-8 lg:min-h-[180px] lg:px-0 lg:py-7"
+          className="relative z-10 overflow-visible px-5 py-7 sm:px-8 lg:min-h-[180px] lg:px-0 lg:py-7"
           id="basic-info-personal-hero"
           data-cy="basic-info-personal-hero"
         >
@@ -497,7 +497,7 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
                 <Avatar
                   size={100}
                   src={getDisplayImageUrl() || undefined}
-                  className="!h-32 !w-32 border-4 border-white bg-[#e8ebff] !text-[48px] text-primary lg:!h-52 lg:!w-52 lg:!text-[72px]"
+                  className="!h-32 !w-32 border-4 border-white bg-brand-soft !text-[48px] text-brand lg:!h-52 lg:!w-52 lg:!text-[72px]"
                   data-cy="basic-info-personal-avatar"
                   icon={<UserOutlined />}
                 />
@@ -619,7 +619,7 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
   if (variant === 'personalSidebar') {
     return (
       <aside
-        className="scrollbar-hide h-full bg-[#f0f2ff] px-5 py-7 sm:px-7 lg:ml-5 lg:w-[calc(100%-1.25rem)] lg:overflow-y-auto lg:pt-12"
+        className="scrollbar-hide h-full bg-brand-soft px-5 py-7 sm:px-7 lg:ml-5 lg:w-[calc(100%-1.25rem)] lg:overflow-y-auto lg:pt-12"
         id="basic-info-personal-sidebar"
         data-cy="basic-info-personal-sidebar"
       >
@@ -652,7 +652,7 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
           </section>
 
           <section
-            className="space-y-4 border-t border-[#DFE3FF] pt-6"
+            className="space-y-4 border-t border-brand-line pt-6"
             data-cy="basic-info-personal-employment"
           >
             <ProfileInfoLine
@@ -694,7 +694,7 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
           </section>
 
           <section
-            className="space-y-4 border-t border-[#DFE3FF] pt-6"
+            className="space-y-4 border-t border-brand-line pt-6"
             data-cy="basic-info-personal-organization"
           >
             <ProfileInfoLine

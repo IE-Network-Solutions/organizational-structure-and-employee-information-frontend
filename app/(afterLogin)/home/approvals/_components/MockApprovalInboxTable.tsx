@@ -305,7 +305,7 @@ export default function MockApprovalInboxTable({
           data-cy={`${dataCyPrefix}-header`}
         >
           <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-primary"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-shell-tint text-brand"
             aria-hidden
             data-cy={`${dataCyPrefix}-icon`}
           >
@@ -392,7 +392,7 @@ export default function MockApprovalInboxTable({
             </Button>
             <Button
               type="primary"
-              className="h-12 w-full bg-primary text-lg font-semibold"
+              className="h-12 w-full bg-brand text-lg font-semibold"
               onClick={() => activeRow && handleApprove(activeRow)}
               loading={isSubmitting}
               data-cy={`${dataCyPrefix}-approve-modal-confirm`}
