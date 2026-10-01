@@ -21,7 +21,8 @@ export type BscPerspectiveApi = {
 /** Raw KPI row from /bsc/kpis (perspective relation may be joined) */
 export type BscKpiApi = {
   id: string;
-  perspectiveId: string;
+  /** Null = Unassigned (imported without a perspective). */
+  perspectiveId: string | null;
   name: string;
   description?: string | null;
   targetDirection: string;
@@ -67,7 +68,8 @@ export function mapKpiFromApi(row: BscKpiApi): KpiLibraryItem {
     evaluationConfigId: 'library',
     name: row.name,
     description: row.description ?? null,
-    perspective: row.perspective?.name || row.perspectiveId,
+    // '' = Unassigned (imported without a perspective).
+    perspective: row.perspective?.name || '',
     targetLogic: mapTargetLogicFromApi(row.targetDirection),
     measurementUnit: row.measurementUnit || '%',
     defaultTarget: toNullableNumber(row.defaultTarget),

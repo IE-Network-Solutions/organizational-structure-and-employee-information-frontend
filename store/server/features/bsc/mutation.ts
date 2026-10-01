@@ -84,9 +84,20 @@ export const useImportBscKpis = () => {
     {
       onSuccess: (result) => {
         invalidateAll(qc);
+        const newPerspectives = result.createdPerspectives || [];
         if (result.created.length) {
           NotificationMessage.success({
             message: `${result.created.length} KPI(s) imported`,
+            description: newPerspectives.length
+              ? `New perspective(s) created: ${newPerspectives.join(', ')}.`
+              : undefined,
+          });
+        }
+        if (result.unassignedCount) {
+          NotificationMessage.warning({
+            message: `${result.unassignedCount} KPI(s) have no perspective`,
+            description:
+              'Create the perspectives you need in BSC → Settings, then assign one to each KPI with Edit KPI in the KPI library. Unassigned KPIs cannot be added to a scorecard.',
           });
         }
         if (result.errors.length) {

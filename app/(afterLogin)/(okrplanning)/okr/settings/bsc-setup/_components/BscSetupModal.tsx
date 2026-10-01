@@ -456,15 +456,22 @@ export default function BscSetupModal() {
     [catalog],
   );
 
+  // Unassigned KPIs (imported without a perspective) can't go on a
+  // scorecard until a perspective is assigned in the KPI library.
+  const assignableKpis = useMemo(
+    () => (allKpis || []).filter((kpi) => !!kpi.perspective?.trim()),
+    [allKpis],
+  );
+
   const catalogKpisByPerspective = useMemo(() => {
     const map = new Map<string, KpiLibraryItem[]>();
-    for (const kpi of allKpis || []) {
+    for (const kpi of assignableKpis) {
       const list = map.get(kpi.perspective) || [];
       list.push(kpi);
       map.set(kpi.perspective, list);
     }
     return map;
-  }, [allKpis]);
+  }, [assignableKpis]);
 
   /** Deduped catalog KPIs for every perspective on the scorecard. */
   const uniqueCatalogKpis = useMemo(() => {
@@ -476,13 +483,13 @@ export default function BscSetupModal() {
       }
     }
     // Include orphan KPIs whose perspective isn't in catalog yet
-    for (const kpi of allKpis || []) {
+    for (const kpi of assignableKpis) {
       if (catalogPerspectiveNames.includes(kpi.perspective)) continue;
       const key = `${kpi.perspective}::${kpi.name}`;
       if (!byName.has(key)) byName.set(key, kpi);
     }
     return Array.from(byName.values());
-  }, [catalogPerspectiveNames, catalogKpisByPerspective, allKpis]);
+  }, [catalogPerspectiveNames, catalogKpisByPerspective, assignableKpis]);
 
   const selectedKpis = useMemo(
     () => uniqueCatalogKpis.filter((kpi) => selectedKpiIds.includes(kpi.id)),

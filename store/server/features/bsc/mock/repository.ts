@@ -174,6 +174,7 @@ export class BscMockRepository {
       try {
         const item = await this.createKpi({
           ...row,
+          perspective: row.perspective?.trim() || '',
           evaluationConfigId,
           measurementUnit:
             normalizeMeasurementUnit(row.measurementUnit) ||

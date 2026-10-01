@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useMemo, useState } from 'react';
-import { Button, Modal, Select, Table, Tag, Upload } from 'antd';
+import { Alert, Button, Modal, Table, Tag, Upload } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   CloseOutlined,
@@ -30,6 +30,8 @@ const TARGET_DIRECTION_LABEL: Record<TargetLogic, string> = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+type PerspectiveStatus = 'existing' | 'new' | 'unassigned';
+
 function pickUploadFile(fileField: unknown): File | undefined {
   const raw = fileField as
     | { file?: { originFileObj?: File }; originFileObj?: File }
@@ -49,19 +51,27 @@ export default function KpiImportModal() {
   const [parsedRows, setParsedRows] = useState<KpiImportRowResult[]>([]);
   const [downloadLoading, setDownloadLoading] = useState(false);
   const [parseLoading, setParseLoading] = useState(false);
-  // The approved template has no Perspective column — every KPI in the file
-  // goes into the perspective chosen here (BE requires one per KPI).
-  const [perspective, setPerspective] = useState<string | undefined>();
 
-  const perspectiveOptions = useMemo(
-    () =>
-      (perspectiveCatalog || [])
-        .map((item) => item.name?.trim())
-        .filter((name): name is string => Boolean(name))
-        .map((name) => ({ value: name, label: name })),
-    [perspectiveCatalog],
+  /** Existing perspectives by lower-cased name (matching is case-insensitive). */
+  const existingPerspectives = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of perspectiveCatalog || []) {
+      const name = item.name?.trim();
+      if (name) map.set(name.toLowerCase(), name);
+    }
+    return map;
+  }, [perspectiveCatalog]);
+
+  // Each row brings its own perspective: existing → reused, unknown → created
+  // on import, empty → KPI imported as Unassigned.
+  const perspectiveStatusOf = useCallback(
+    (row: KpiImportRowResult): PerspectiveStatus => {
+      const name = row.input?.perspective?.trim();
+      if (!name) return 'unassigned';
+      return existingPerspectives.has(name.toLowerCase()) ? 'existing' : 'new';
+    },
+    [existingPerspectives],
   );
-  const selectedPerspective = perspective || perspectiveOptions[0]?.value;
 
   const evaluationConfigId = useMemo(() => {
     const openConfig = (configs || []).find(
@@ -72,6 +82,19 @@ export default function KpiImportModal() {
 
   const validRows = parsedRows.filter((row) => row.input);
   const invalidRows = parsedRows.filter((row) => row.error);
+  const unassignedCount = validRows.filter(
+    (row) => perspectiveStatusOf(row) === 'unassigned',
+  ).length;
+  const newPerspectiveNames = Array.from(
+    new Map(
+      validRows
+        .filter((row) => perspectiveStatusOf(row) === 'new')
+        .map((row) => {
+          const name = (row.input?.perspective || '').trim();
+          return [name.toLowerCase(), name] as const;
+        }),
+    ).values(),
+  );
 
   const previewColumns: ColumnsType<KpiImportRowResult> = [
     { title: 'Row', dataIndex: 'row', width: 70 },
@@ -112,6 +135,35 @@ export default function KpiImportModal() {
         row.input?.targetLogic
           ? TARGET_DIRECTION_LABEL[row.input.targetLogic]
           : '—',
+    },
+    {
+      title: 'Perspective',
+      key: 'perspective',
+      width: 170,
+      render: (ignored, row) => {
+        if (!row.input) return '—';
+        const status = perspectiveStatusOf(row);
+        if (status === 'unassigned') {
+          return (
+            <Tag color="orange" data-cy="bsc-kpi-import-perspective-unassigned">
+              Unassigned
+            </Tag>
+          );
+        }
+        const name = (row.input.perspective || '').trim();
+        if (status === 'new') {
+          return (
+            <Tag color="green" data-cy="bsc-kpi-import-perspective-new">
+              New: {name}
+            </Tag>
+          );
+        }
+        return (
+          <Tag color="blue" data-cy="bsc-kpi-import-perspective-existing">
+            {existingPerspectives.get(name.toLowerCase()) || name}
+          </Tag>
+        );
+      },
     },
     {
       title: 'Details',
@@ -161,7 +213,7 @@ export default function KpiImportModal() {
     }
     setParseLoading(true);
     try {
-      const rows = await parseKpiImportFile(upload, selectedPerspective || '');
+      const rows = await parseKpiImportFile(upload);
       setParsedRows(rows);
       if (!rows.length) {
         NotificationMessage.warning({ message: 'No rows found in the file' });
@@ -178,15 +230,8 @@ export default function KpiImportModal() {
       NotificationMessage.error({ message: 'No valid rows to import' });
       return;
     }
-    if (!selectedPerspective) {
-      NotificationMessage.error({ message: 'Select a perspective' });
-      return;
-    }
     await importKpis.mutateAsync({
-      rows: validRows.map((row) => ({
-        ...row.input!,
-        perspective: selectedPerspective,
-      })),
+      rows: validRows.map((row) => row.input!),
       evaluationConfigId,
     });
     handleClose();
@@ -218,32 +263,7 @@ export default function KpiImportModal() {
             className="text-xs text-[#8F94A3]"
             data-cy="bsc-kpi-import-columns-hint"
           >
-            Columns: {KPI_IMPORT_HEADERS.join(' · ')}
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-1" data-cy="bsc-kpi-import-perspective">
-          <span
-            className="text-sm font-medium text-gray-700"
-            data-cy="bsc-kpi-import-perspective-label"
-          >
-            Perspective
-          </span>
-          <Select
-            className="w-full sm:w-[280px]"
-            placeholder="Select perspective"
-            value={selectedPerspective}
-            options={perspectiveOptions}
-            onChange={setPerspective}
-            showSearch
-            optionFilterProp="label"
-            data-cy="bsc-kpi-import-perspective-select"
-          />
-          <span
-            className="text-xs text-[#8F94A3]"
-            data-cy="bsc-kpi-import-perspective-hint"
-          >
-            All KPIs in the file are added to this perspective.
+            Columns: {KPI_IMPORT_HEADERS.join(' · ')} (Perspective is optional)
           </span>
         </div>
 
@@ -287,7 +307,34 @@ export default function KpiImportModal() {
               <span data-cy="bsc-kpi-import-invalid-count">
                 Invalid: {invalidRows.length}
               </span>
+              {newPerspectiveNames.length ? (
+                <span data-cy="bsc-kpi-import-new-perspective-count">
+                  New perspectives: {newPerspectiveNames.length}
+                </span>
+              ) : null}
+              {unassignedCount ? (
+                <span data-cy="bsc-kpi-import-unassigned-count">
+                  Unassigned: {unassignedCount}
+                </span>
+              ) : null}
             </div>
+            {newPerspectiveNames.length ? (
+              <Alert
+                type="info"
+                showIcon
+                message={`These perspectives will be created: ${newPerspectiveNames.join(', ')}`}
+                data-cy="bsc-kpi-import-new-perspectives-alert"
+              />
+            ) : null}
+            {unassignedCount ? (
+              <Alert
+                type="warning"
+                showIcon
+                message={`${unassignedCount} KPI(s) have no perspective and will be imported as Unassigned`}
+                description="After import, create the perspectives you need in BSC → Settings and assign one to each KPI with Edit KPI. Unassigned KPIs cannot be added to a scorecard."
+                data-cy="bsc-kpi-import-unassigned-alert"
+              />
+            ) : null}
             <Table
               size="small"
               rowKey={(row) => `${row.row}-${row.input?.name || row.error}`}

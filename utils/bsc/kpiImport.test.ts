@@ -54,18 +54,20 @@ function sampleSheet(): ExcelJS.Worksheet {
 }
 
 describe('kpiImport', () => {
-  it('uses the approved 5 columns', () => {
+  it('uses the approved columns plus an optional Perspective column', () => {
     expect([...KPI_IMPORT_HEADERS]).toEqual([
       'KPI Name',
       'Definition',
       'Unit',
       'Target',
       'Target Direction',
+      'Perspective',
     ]);
   });
 
   it('reads only the approved columns from the sample layout', () => {
-    const rows = parseKpiImportWorksheet(sampleSheet(), 'Customer');
+    // No Perspective column → every KPI is imported as Unassigned.
+    const rows = parseKpiImportWorksheet(sampleSheet());
     expect(rows).toHaveLength(3);
     expect(rows[0].input).toMatchObject({
       name: 'SLA compliance',
@@ -73,7 +75,7 @@ describe('kpiImport', () => {
       measurementUnit: '%',
       defaultTarget: 90,
       targetLogic: TargetLogic.HigherBetter,
-      perspective: 'Customer',
+      perspective: null,
     });
     expect(rows[1].input?.defaultTarget).toBe(10);
     expect(rows[1].input?.targetLogic).toBe(TargetLogic.LowerBetter);
@@ -85,18 +87,27 @@ describe('kpiImport', () => {
     const sheet = workbook.addWorksheet('KPIs');
     sheet.addRow(['KPI Name', 'Unit']);
     sheet.addRow(['X', '%']);
-    expect(parseKpiImportWorksheet(sheet, 'Customer')[0].error).toMatch(
-      /Missing column/,
-    );
+    expect(parseKpiImportWorksheet(sheet)[0].error).toMatch(/Missing column/);
+  });
+
+  it('reads the Perspective column per row; empty cells stay Unassigned', () => {
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('KPIs');
+    sheet.addRow([...KPI_IMPORT_HEADERS]);
+    sheet.addRow(['CSAT', 'x', '%', '90%', 'Higher is Better', ' Finance ']);
+    sheet.addRow(['Cost', 'y', 'ETB', 100, 'Lower is Better', '']);
+
+    const rows = parseKpiImportWorksheet(sheet);
+    expect(rows[0].input?.perspective).toBe('Finance');
+    expect(rows[1].error).toBeUndefined();
+    expect(rows[1].input?.perspective).toBeNull();
   });
 
   it('flags Bounded KPIs, which need worst/best case', () => {
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('KPIs');
     sheet.addRow([...KPI_IMPORT_HEADERS]);
-    sheet.addRow(['Rating', 'x', 'Score', 4, 'Bounded']);
-    expect(parseKpiImportWorksheet(sheet, 'Customer')[0].error).toMatch(
-      /Bounded/,
-    );
+    sheet.addRow(['Rating', 'x', 'Score', 4, 'Bounded', 'Customer']);
+    expect(parseKpiImportWorksheet(sheet)[0].error).toMatch(/Bounded/);
   });
 });

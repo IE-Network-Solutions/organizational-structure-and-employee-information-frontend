@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Dropdown, Modal, Select, Spin, Table, Tag } from 'antd';
+import { Alert, Button, Dropdown, Modal, Select, Spin, Table, Tag } from 'antd';
 import type { MenuProps } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
 import EmptyState from '@/components/empty';
@@ -28,6 +28,12 @@ import {
   bscTableRowClassName,
 } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import KpiCatalogFormModal from './KpiCatalogFormModal';
+
+/** Filter value for KPIs imported without a perspective. */
+const UNASSIGNED_FILTER = '__unassigned__';
+
+const unassignedTagClassName =
+  'm-0 h-5 rounded border border-[#ffd591] bg-[#fff7e6] px-1.5 text-[11px] font-normal leading-5 text-[#d46b08]';
 
 const blueTagClassName =
   'm-0 h-5 rounded border border-[#91caff] bg-[#e6f4ff] px-1.5 text-[11px] font-normal leading-5 text-[#1677ff]';
@@ -66,26 +72,35 @@ export default function KpiCatalog() {
     for (const kpi of kpis || []) {
       if (kpi.perspective?.trim()) names.add(kpi.perspective.trim());
     }
-    return Array.from(names)
+    const options = Array.from(names)
       .sort((a, b) => a.localeCompare(b))
       .map((name) => ({ value: name, label: name }));
+    return [...options, { value: UNASSIGNED_FILTER, label: 'Unassigned' }];
   }, [catalog, kpis]);
+
+  /** KPIs imported without a perspective (assign one via Edit KPI). */
+  const unassignedCount = useMemo(
+    () => (kpis || []).filter((kpi) => !kpi.perspective?.trim()).length,
+    [kpis],
+  );
 
   const filteredKpis = useMemo(() => {
     const q = search.trim().toLowerCase();
     const list = [...(kpis || [])].sort((a, b) => a.name.localeCompare(b.name));
     return list.filter((kpi) => {
-      if (
+      const perspective = (kpi.perspective || '').trim().toLowerCase();
+      if (perspectiveFilter === UNASSIGNED_FILTER) {
+        if (perspective) return false;
+      } else if (
         perspectiveFilter &&
-        (kpi.perspective || '').trim().toLowerCase() !==
-          perspectiveFilter.trim().toLowerCase()
+        perspective !== perspectiveFilter.trim().toLowerCase()
       ) {
         return false;
       }
       if (!q) return true;
       return (
         kpi.name.toLowerCase().includes(q) ||
-        kpi.perspective.toLowerCase().includes(q) ||
+        perspective.includes(q) ||
         (kpi.description || '').toLowerCase().includes(q) ||
         (kpi.measurementUnit || '').toLowerCase().includes(q)
       );
@@ -193,9 +208,12 @@ export default function KpiCatalog() {
             {perspective}
           </Tag>
         ) : (
-          <span data-cy="kpicatalog-span-144" className={tableCellClassName}>
-            —
-          </span>
+          <Tag
+            className={unassignedTagClassName}
+            data-cy="bsc-kpi-catalog-unassigned-tag"
+          >
+            Unassigned
+          </Tag>
         ),
     },
     {
@@ -288,6 +306,27 @@ export default function KpiCatalog() {
         </div>
       ) : (
         <>
+          {unassignedCount ? (
+            <Alert
+              type="warning"
+              showIcon
+              className="mb-4"
+              message={`${unassignedCount} KPI(s) have no perspective`}
+              description="Create the perspectives you need in BSC → Settings, then assign one to each KPI with Edit. Unassigned KPIs cannot be added to a scorecard."
+              action={
+                perspectiveFilter !== UNASSIGNED_FILTER ? (
+                  <Button
+                    size="small"
+                    onClick={() => setPerspectiveFilter(UNASSIGNED_FILTER)}
+                    data-cy="bsc-kpi-catalog-show-unassigned"
+                  >
+                    Show them
+                  </Button>
+                ) : undefined
+              }
+              data-cy="bsc-kpi-catalog-unassigned-alert"
+            />
+          ) : null}
           <div
             data-cy="kpicatalog-div-233"
             className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center"

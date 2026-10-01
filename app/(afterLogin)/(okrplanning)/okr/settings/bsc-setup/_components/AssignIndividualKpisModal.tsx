@@ -288,6 +288,8 @@ export default function AssignIndividualKpisModal({
     const seen = new Set<string>();
     const list: KpiLibraryItem[] = [];
     for (const kpi of allKpis || []) {
+      // Unassigned KPIs need a perspective before they can be assigned.
+      if (!kpi.perspective?.trim()) continue;
       const key = kpiKey(kpi);
       if (seen.has(key)) continue;
       if (

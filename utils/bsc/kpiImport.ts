@@ -4,8 +4,10 @@ import { KpiImportRowResult, KpiLibraryItem, TargetLogic } from '@/types/bsc';
 import { normalizeMeasurementUnit } from '@/utils/bsc/measurementUnit';
 
 /**
- * Approved KPI import columns (IE-KPIs Sample V.0.1). Only these are read;
- * any other columns in the sheet (Role, Period, Formula…) are ignored.
+ * Approved KPI import columns (IE-KPIs Sample V.0.1) plus an optional
+ * Perspective column. Any other columns in the sheet (Role, Period, Formula…)
+ * are ignored. Per row: an existing perspective is reused, an unknown one is
+ * created on import, and an empty one imports the KPI as Unassigned.
  */
 export const KPI_IMPORT_HEADERS = [
   'KPI Name',
@@ -13,9 +15,21 @@ export const KPI_IMPORT_HEADERS = [
   'Unit',
   'Target',
   'Target Direction',
+  'Perspective',
 ] as const;
 
-type ImportColumn = 'name' | 'definition' | 'unit' | 'target' | 'direction';
+/** Columns a file must have; Perspective may be missing entirely. */
+const REQUIRED_IMPORT_HEADERS = KPI_IMPORT_HEADERS.filter(
+  (header) => header !== 'Perspective',
+);
+
+type ImportColumn =
+  | 'name'
+  | 'definition'
+  | 'unit'
+  | 'target'
+  | 'direction'
+  | 'perspective';
 
 /** Header text (lower-case, trimmed) → column; tolerant of older labels. */
 const HEADER_ALIASES: Record<string, ImportColumn> = {
@@ -30,6 +44,8 @@ const HEADER_ALIASES: Record<string, ImportColumn> = {
   'default target': 'target',
   'target direction': 'direction',
   'target logic': 'direction',
+  perspective: 'perspective',
+  'bsc perspective': 'perspective',
 };
 
 /** Template origin, matching the sample: header row 2, table from column B. */
@@ -114,7 +130,6 @@ function locateHeaders(worksheet: ExcelJS.Worksheet): {
 
 export function parseKpiImportWorksheet(
   worksheet: ExcelJS.Worksheet,
-  perspective: string,
 ): KpiImportRowResult[] {
   const located = locateHeaders(worksheet);
   if (!located) {
@@ -126,7 +141,7 @@ export function parseKpiImportWorksheet(
     ];
   }
   const { headerRow, columns } = located;
-  const missing = KPI_IMPORT_HEADERS.filter((header) => {
+  const missing = REQUIRED_IMPORT_HEADERS.filter((header) => {
     const key = HEADER_ALIASES[header.toLowerCase()];
     return columns[key] == null;
   });
@@ -151,7 +166,16 @@ export function parseKpiImportWorksheet(
     const unitRaw = cellText(cell(row, 'unit'));
     const directionRaw = cellText(cell(row, 'direction'));
     const targetText = cellText(cell(row, 'target'));
-    if (!name && !definition && !unitRaw && !directionRaw && !targetText) {
+    const perspective =
+      columns.perspective != null ? cellText(cell(row, 'perspective')) : '';
+    if (
+      !name &&
+      !definition &&
+      !unitRaw &&
+      !directionRaw &&
+      !targetText &&
+      !perspective
+    ) {
       return; // blank line
     }
 
@@ -193,7 +217,7 @@ export function parseKpiImportWorksheet(
       input: {
         name,
         description: definition || null,
-        perspective,
+        perspective: perspective || null,
         measurementUnit,
         targetLogic,
         defaultTarget: target.value,
@@ -210,7 +234,7 @@ export async function buildKpiImportTemplateBuffer(): Promise<ArrayBuffer> {
   const worksheet = workbook.addWorksheet('KPIs');
 
   worksheet.getColumn(1).width = 4.33;
-  [40, 46, 10, 12, 18].forEach((width, index) => {
+  [40, 46, 10, 12, 18, 24].forEach((width, index) => {
     worksheet.getColumn(TEMPLATE_FIRST_COLUMN + index).width = width;
   });
 
@@ -230,6 +254,7 @@ export async function buildKpiImportTemplateBuffer(): Promise<ArrayBuffer> {
         '%',
         '90%',
         'Higher is Better',
+        'Customer',
       ],
       [
         'Minimize recurring technical problems',
@@ -237,6 +262,7 @@ export async function buildKpiImportTemplateBuffer(): Promise<ArrayBuffer> {
         '%',
         '< 10%',
         'Lower is Better',
+        'Internal Process',
       ],
     ],
   });
@@ -258,7 +284,7 @@ const TARGET_DIRECTION_LABEL: Record<TargetLogic, string> = {
 
 /**
  * KPI library export ("Export KPI"). Same layout as the import template so the
- * file can be edited and imported back; Perspective is extra (import ignores it).
+ * file can be edited and imported back.
  */
 export async function exportKpiLibrary(kpis: KpiLibraryItem[]): Promise<void> {
   const workbook = new ExcelJS.Workbook();
@@ -289,7 +315,7 @@ export async function exportKpiLibrary(kpis: KpiLibraryItem[]): Promise<void> {
     ref: `B${TEMPLATE_HEADER_ROW}`,
     headerRow: true,
     style: { theme: 'TableStyleMedium2', showRowStripes: true },
-    columns: [...KPI_IMPORT_HEADERS, 'Perspective'].map((header) => ({
+    columns: KPI_IMPORT_HEADERS.map((header) => ({
       name: header,
       filterButton: true,
     })),
@@ -313,12 +339,11 @@ export async function exportKpiLibrary(kpis: KpiLibraryItem[]): Promise<void> {
 
 export async function parseKpiImportFile(
   file: File,
-  perspective: string,
 ): Promise<KpiImportRowResult[]> {
   const buffer = await file.arrayBuffer();
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.load(buffer);
   const worksheet = workbook.worksheets[0];
   if (!worksheet) return [];
-  return parseKpiImportWorksheet(worksheet, perspective);
+  return parseKpiImportWorksheet(worksheet);
 }

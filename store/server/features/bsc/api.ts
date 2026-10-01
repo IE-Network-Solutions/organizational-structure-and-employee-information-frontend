@@ -961,9 +961,10 @@ export async function finalizeBscCheckIn(
 function mapKpiImportRowToApi(row: KpiImportRowInput): Record<string, unknown> {
   const body: Record<string, unknown> = {
     name: row.name.trim(),
-    perspective: row.perspective.trim(),
     measurementUnit: (row.measurementUnit || '%').trim(),
   };
+  // Empty → BE imports the KPI as Unassigned.
+  if (row.perspective?.trim()) body.perspective = row.perspective.trim();
   if (row.description != null && row.description !== '') {
     body.description = row.description;
   }
@@ -987,7 +988,12 @@ export async function importBscKpis(
       method: 'POST',
       headers,
       data: { rows: rows.map(mapKpiImportRowToApi) },
-    })) as { created?: BscKpiApi[]; errors?: Array<{ row: number; error?: string; input?: KpiImportRowInput }> };
+    })) as {
+      created?: BscKpiApi[];
+      errors?: Array<{ row: number; error?: string; input?: KpiImportRowInput }>;
+      createdPerspectives?: string[];
+      unassignedCount?: number;
+    };
 
     return {
       created: (data.created || []).map(mapKpiFromApi),
@@ -996,6 +1002,8 @@ export async function importBscKpis(
         error: err.error,
         input: err.input,
       })),
+      createdPerspectives: data.createdPerspectives || [],
+      unassignedCount: data.unassignedCount || 0,
     };
   } catch (error) {
     throw toBscError(error, 'Failed to import KPIs');

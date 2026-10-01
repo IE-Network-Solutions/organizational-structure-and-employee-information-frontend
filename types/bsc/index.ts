@@ -357,7 +357,8 @@ export interface CreateKpiLibraryInput {
 export interface KpiImportRowInput {
   name: string;
   description?: string | null;
-  perspective: string;
+  /** Perspective name; empty → imported as Unassigned (no perspective). */
+  perspective?: string | null;
   measurementUnit: string;
   weight?: number;
   targetLogic?: TargetLogic;
@@ -374,6 +375,10 @@ export interface KpiImportRowResult {
 export interface KpiImportBatchResult {
   created: KpiLibraryItem[];
   errors: KpiImportRowResult[];
+  /** Perspectives created because the file named one that did not exist. */
+  createdPerspectives?: string[];
+  /** KPIs imported without a perspective (assign via Edit KPI). */
+  unassignedCount?: number;
 }
 
 export interface PepAuditRow {

@@ -49,7 +49,8 @@ export default function KpiCatalogFormModal() {
     if (!catalogKpiFormOpen) return;
     if (catalogEditingKpi) {
       form.setFieldsValue({
-        perspective: catalogEditingKpi.perspective,
+        // Unassigned (imported) KPIs start empty — the field is required.
+        perspective: catalogEditingKpi.perspective || undefined,
         name: catalogEditingKpi.name,
         description: catalogEditingKpi.description || '',
         targetLogic: catalogEditingKpi.targetLogic || TargetLogic.HigherBetter,
