@@ -4,33 +4,72 @@ import React, { useEffect, useMemo, useState } from 'react';
 import LeaveBalanceTable from './_components/leaveBalanceTable';
 import { Button, Dropdown, Form, Select } from 'antd';
 import type { MenuProps } from 'antd';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useTimesheetFilterUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import { useLeaveBalanceStore } from '@/store/uistate/features/timesheet/leaveBalance';
 import { useGetLeaveTypes } from '@/store/server/features/timesheet/leaveType/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { SearchOutlined } from '@ant-design/icons';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import {
+  TIMESHEET_EMPLOYMENT_STATUS_ACTIVE,
+  TIMESHEET_EMPLOYMENT_STATUS_INACTIVE,
+  isTimesheetInactiveStatus,
+  type TimesheetEmploymentStatus,
+} from '@/utils/timesheetEmploymentStatus';
+
 const LeaveBalance = () => {
   const [form] = Form.useForm();
   const { userId } = useAuthenticationStore();
   const [showAllLeaveTypes, setShowAllLeaveTypes] = useState(false);
 
-  const { data: users, isLoading: usersLoading } = useGetAllUsers();
+  const {
+    selectedUserId,
+    leaveTypeId,
+    employmentStatus,
+    setLeaveTypeId,
+    setUserId,
+    setEmploymentStatus,
+  } = useLeaveBalanceStore();
+  const { data: users, isLoading: usersLoading } =
+    useTimesheetFilterUsers(employmentStatus);
   const { data: leaveTypes } = useGetLeaveTypes();
-  const { selectedUserId, leaveTypeId, setLeaveTypeId, setUserId } =
-    useLeaveBalanceStore();
+  const isInactiveView = isTimesheetInactiveStatus(employmentStatus);
+
   const handleChange = (values: any) => {
     setUserId(values || '');
   };
 
+  const handleEmploymentStatusChange = (value?: TimesheetEmploymentStatus) => {
+    const next = value || TIMESHEET_EMPLOYMENT_STATUS_ACTIVE;
+    setEmploymentStatus(next);
+    setUserId('');
+    form.setFieldsValue({
+      employmentStatus: next,
+      userId: undefined,
+    });
+  };
+
   useEffect(() => {
-    if (!usersLoading && users?.items) {
-      userId ? setUserId(userId) : '';
+    if (isInactiveView) {
+      return;
+    }
+    if (!usersLoading && users?.items && userId) {
+      setUserId(userId);
       form.setFieldsValue({
         userId: userId || '',
+        employmentStatus,
       });
     }
-  }, [userId, form, usersLoading, users]);
+  }, [
+    userId,
+    form,
+    usersLoading,
+    users,
+    isInactiveView,
+    setUserId,
+    employmentStatus,
+  ]);
+
   const handleLeaveChange = (values: any) => {
     const nextLeaveTypeId = leaveTypeId === values ? '' : values || '';
     setLeaveTypeId(nextLeaveTypeId);
@@ -57,11 +96,35 @@ const LeaveBalance = () => {
     [allLeaveTypes],
   );
 
+  const employeeOptions = useMemo(
+    () =>
+      users?.items?.map((list: any) => ({
+        value: list?.id,
+        label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
+      })) || [],
+    [users?.items],
+  );
+
   useEffect(() => {
     if (!selectedUserId) {
       setShowAllLeaveTypes(false);
     }
   }, [selectedUserId]);
+
+  const statusSelect = (
+    <Select
+      placeholder="Status"
+      className="w-[140px] shrink-0 [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!items-center"
+      value={employmentStatus}
+      onChange={handleEmploymentStatusChange}
+      options={[
+        { value: TIMESHEET_EMPLOYMENT_STATUS_ACTIVE, label: 'Active' },
+        { value: TIMESHEET_EMPLOYMENT_STATUS_INACTIVE, label: 'Inactive' },
+      ]}
+      id="time-attendance-leave-balance-employment-status"
+      data-cy="time-attendance-leave-balance-employment-status"
+    />
+  );
 
   return (
     <div
@@ -83,10 +146,14 @@ const LeaveBalance = () => {
           >
             <Form
               form={form}
+              initialValues={{
+                employmentStatus: TIMESHEET_EMPLOYMENT_STATUS_ACTIVE,
+              }}
               id="time-attendance-leave-balance-mobile-filter-form"
               data-cy="time-attendance-leave-balance-mobile-filter-form"
               className="flex min-w-0 items-center gap-3"
             >
+              <Form.Item className="mb-0 shrink-0">{statusSelect}</Form.Item>
               <Form.Item
                 id="filterByLeaveRequestUserIdsMobile"
                 name="userId"
@@ -105,10 +172,7 @@ const LeaveBalance = () => {
                   value={
                     usersLoading ? undefined : form.getFieldValue('userId')
                   }
-                  options={users?.items?.map((list: any) => ({
-                    value: list?.id,
-                    label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
-                  }))}
+                  options={employeeOptions}
                   id="time-attendance-leave-balance-mobile-user-select"
                   data-cy="time-attendance-leave-balance-mobile-user-select"
                 />
@@ -152,42 +216,46 @@ const LeaveBalance = () => {
             {!showAllLeaveTypes ? (
               <div
                 data-cy="time-attendance-leave-balance-filter-form-container-inner"
-                className="flex items-start justify-between gap-2"
+                className="flex items-center justify-between gap-2"
               >
                 <Form
                   form={form}
+                  initialValues={{
+                    employmentStatus: TIMESHEET_EMPLOYMENT_STATUS_ACTIVE,
+                  }}
                   id="time-attendance-leave-balance-filter-form"
                   data-cy="time-attendance-leave-balance-filter-form"
-                  className="flex flex-row items-center gap-3"
+                  className="flex flex-row items-center gap-3 mb-0"
                 >
                   <div
                     data-cy="time-attendance-leave-balance-filter-form-container-inner-label"
-                    className="text-sm text-black font-normal text-nowrap items-center mb-2"
+                    className="text-sm text-black font-normal text-nowrap leading-8"
                   >
                     Select User to view Leave Balance:
                   </div>
 
+                  <Form.Item className="mb-0 shrink-0">
+                    {statusSelect}
+                  </Form.Item>
+
                   <Form.Item
                     id="filterByLeaveRequestUserIds"
                     name="userId"
-                    className="w-full"
+                    className="mb-0 w-full min-w-[200px]"
                     data-cy="time-attendance-leave-balance-user-select-form-item"
                   >
                     <Select
                       showSearch
                       onChange={handleChange}
                       placeholder="Select a person"
-                      className="w-full h-8"
+                      className="w-full [&_.ant-select-selector]:!h-8 [&_.ant-select-selector]:!items-center"
                       allowClear
                       loading={usersLoading}
                       optionFilterProp="label"
                       value={
                         usersLoading ? undefined : form.getFieldValue('userId')
                       }
-                      options={users?.items?.map((list: any) => ({
-                        value: list?.id,
-                        label: `${list?.firstName ? list?.firstName : ''} ${list?.middleName ? list?.middleName : ''} ${list?.lastName ? list?.lastName : ''}`,
-                      }))}
+                      options={employeeOptions}
                       id="time-attendance-leave-balance-user-select"
                       data-cy="time-attendance-leave-balance-user-select"
                     />
@@ -196,7 +264,7 @@ const LeaveBalance = () => {
 
                 {selectedUserId && (
                   <div
-                    className="flex w-1/2 items-center justify-end gap-2 flex-wrap"
+                    className="flex w-1/2 items-center justify-end gap-2 flex-wrap self-center"
                     id="time-attendance-leave-balance-leave-type-chip-wrapper"
                     data-cy="time-attendance-leave-balance-leave-type-chip-wrapper"
                   >

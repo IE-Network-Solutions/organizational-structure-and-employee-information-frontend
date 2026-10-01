@@ -22,6 +22,11 @@ import {
   formatToAttendanceStatuses,
 } from '@/helpers/formatTo';
 import { CommonObject } from '@/types/commons/commonObject';
+import {
+  isTimesheetInactiveStatus,
+  resolveTimesheetDeletedAtParam,
+  resolveTimesheetUserIdsFilter,
+} from '@/utils/timesheetEmploymentStatus';
 import EmployeeAttendanceNameCell from '../employeeAttendanceNameCell';
 import AttendanceTimeWithImagePopover from '../attendanceTimeWithImagePopover';
 import {
@@ -693,6 +698,16 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       dataIndex: 'action',
       key: 'action',
       render: (item: EmployeeAttendance) => {
+        if (isTimesheetInactiveStatus(filter?.employmentStatus)) {
+          return (
+            <span
+              className="text-gray-400 text-sm"
+              data-cy={`time-attendance-employee-attendance-row-${item?.id}-view-only`}
+            >
+              View only
+            </span>
+          );
+        }
         return (
           <Dropdown
             trigger={['click']}
@@ -814,11 +829,17 @@ const EmployeeAttendanceTable: FC<EmployeeAttendanceTableProps> = ({
       nFilter['checkOutSource'] = val.checkOutSource;
     }
 
-    if (val.employeeId) {
-      nFilter['userIds'] = Array.isArray(val.employeeId)
-        ? val.employeeId
-        : [val.employeeId];
+    const userIds = resolveTimesheetUserIdsFilter({
+      employmentStatus: val.employmentStatus,
+      employeeId: val.employeeId,
+    });
+    if (userIds) {
+      nFilter['userIds'] = userIds;
     }
+
+    (nFilter as any).employmentStatus = resolveTimesheetDeletedAtParam(
+      val.employmentStatus,
+    );
 
     setCurrentPage(1);
     setFilter(nFilter);
