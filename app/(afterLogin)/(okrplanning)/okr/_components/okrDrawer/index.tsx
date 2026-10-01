@@ -78,6 +78,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const resetMilestoneForm = useMilestoneFormStore((s) => s.resetMilestoneForm);
   const resetKeyResultForm = useKeyResultFormStore((s) => s.resetKeyResultForm);
   const objectiveTypes = useObjectiveTypesStore((s) => s.types);
+  const hasObjectiveTypes = objectiveTypes.length > 0;
   const allocations = useObjectiveTypeAllocationStore((s) => s.allocations);
   const getRemainingForType = useObjectiveTypeAllocationStore(
     (s) => s.getRemainingForType,
@@ -304,34 +305,35 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           const objectiveWeight = Number(
             formValues.weight ?? objectiveValue?.weight ?? 0,
           );
-          const remainingForType = typeId ? getTypeRemaining(typeId) : 0;
 
-          if (!typeId) {
-            NotificationMessage.warning({
-              message: 'Please select an objective type',
-            });
-            return;
-          }
-          if (objectiveWeight < 1) {
-            NotificationMessage.warning({
-              message: 'Please enter an objective weight of at least 1%',
-            });
-            return;
-          }
-          if (objectiveWeight > remainingForType) {
-            NotificationMessage.warning({
-              message: `Weight cannot exceed remaining type budget (${remainingForType}%)`,
-            });
-            return;
+          if (hasObjectiveTypes) {
+            const remainingForType = typeId ? getTypeRemaining(typeId) : 0;
+
+            if (!typeId) {
+              NotificationMessage.warning({
+                message: 'Please select an objective type',
+              });
+              return;
+            }
+            if (objectiveWeight < 1) {
+              NotificationMessage.warning({
+                message: 'Please enter an objective weight of at least 1%',
+              });
+              return;
+            }
+            if (objectiveWeight > remainingForType) {
+              NotificationMessage.warning({
+                message: `Weight cannot exceed remaining type budget (${remainingForType}%)`,
+              });
+              return;
+            }
           }
 
-          const modifiedObjectiveValue = {
+          const modifiedObjectiveValue: Record<string, any> = {
             ...objectiveValue,
             keyResults: keyResults,
             // Merge form values as safety net (form holds user's latest input)
             title: formValues.title ?? objectiveValue?.title,
-            objectiveTypeId: typeId,
-            weight: objectiveWeight,
             bscPillarId: formValues.bscPillarId ?? objectiveValue?.bscPillarId,
             allignedKeyResultId:
               formValues.allignedKeyResultId ??
@@ -340,6 +342,14 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               ? dayjs(formValues.ObjectiveDeadline).format('YYYY-MM-DD')
               : objectiveValue?.deadline,
           };
+
+          if (hasObjectiveTypes) {
+            modifiedObjectiveValue.objectiveTypeId = typeId;
+            modifiedObjectiveValue.weight = objectiveWeight;
+          } else {
+            delete modifiedObjectiveValue.objectiveTypeId;
+            delete modifiedObjectiveValue.weight;
+          }
 
           if (
             modifiedObjectiveValue?.allignedKeyResultId === '' ||
@@ -358,13 +368,15 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           createObjective(modifiedObjectiveValue, {
             onSuccess: (data: any) => {
               const createdId = extractCreatedObjectiveId(data);
-              addAllocation({
-                objectiveTypeId: String(typeId),
-                weight: objectiveWeight,
-                objectiveId: createdId,
-                bscPillarId: modifiedObjectiveValue?.bscPillarId ?? null,
-                title: modifiedObjectiveValue?.title ?? null,
-              });
+              if (hasObjectiveTypes && typeId) {
+                addAllocation({
+                  objectiveTypeId: String(typeId),
+                  weight: objectiveWeight,
+                  objectiveId: createdId,
+                  bscPillarId: modifiedObjectiveValue?.bscPillarId ?? null,
+                  title: modifiedObjectiveValue?.title ?? null,
+                });
+              }
               handleDrawerClose();
             },
           });
@@ -399,8 +411,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
 
   const isCreateActionEnabled =
     Boolean(objectiveValue?.title?.trim()) &&
-    Boolean(objectiveValue?.objectiveTypeId) &&
-    Number(objectiveValue?.weight ?? 0) >= 1 &&
+    (!hasObjectiveTypes ||
+      (Boolean(objectiveValue?.objectiveTypeId) &&
+        Number(objectiveValue?.weight ?? 0) >= 1)) &&
     Boolean(objectiveValue?.deadline) &&
     Boolean(objective?.keyResults?.length);
 
@@ -786,114 +799,117 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               data-cy="okr-drawer-mobile-form-alignment-select"
               className="flex flex-col w-full gap-6 mb-6"
             >
-              <Form.Item
-                id="okr-drawer-mobile-objective-type-select"
-                data-cy="okr-drawer-mobile-objective-type-select"
-                className="h-11 w-full mb-0"
-                name="objectiveTypeId"
-                label={
-                  <span
-                    className="text-sm font-medium text-gray-700"
-                    data-cy="okr-drawer-mobile-objective-type-label"
-                  >
-                    Objective Type{' '}
-                    <span
-                      className="text-red-500"
-                      data-cy="okr-drawer-mobile-objective-type-required"
-                    >
-                      *
-                    </span>
-                  </span>
-                }
-                rules={[
-                  {
-                    required: true,
-                    message: 'Please select an objective type',
-                  },
-                ]}
-              >
-                <Select
-                  id="okr-drawer-mobile-objective-type-dropdown"
-                  data-cy="okr-drawer-mobile-objective-type-dropdown"
-                  className="h-11 w-full rounded-lg"
-                  placeholder={
-                    objectiveTypes.length
-                      ? 'Select type'
-                      : 'Define types in OKR Settings first'
-                  }
-                  disabled={!objectiveTypes.length}
-                  value={objectiveValue?.objectiveTypeId || undefined}
-                  onChange={handleObjectiveTypeChange}
-                  style={{ fontSize: '14px', height: '44px' }}
-                >
-                  {objectiveTypes.map((type) => {
-                    const remaining = getTypeRemaining(type.id);
-                    const fullyAllocated = remaining <= 0;
-                    return (
-                      <Select.Option
-                        key={type.id}
-                        value={type.id}
-                        disabled={fullyAllocated}
-                        data-cy="okr-drawer-mobile-objective-type-option"
+              {hasObjectiveTypes ? (
+                <>
+                  <Form.Item
+                    id="okr-drawer-mobile-objective-type-select"
+                    data-cy="okr-drawer-mobile-objective-type-select"
+                    className="h-11 w-full mb-0"
+                    name="objectiveTypeId"
+                    label={
+                      <span
+                        className="text-sm font-medium text-gray-700"
+                        data-cy="okr-drawer-mobile-objective-type-label"
                       >
-                        {type.name}
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Form.Item>
-              <Form.Item
-                id="okr-drawer-mobile-objective-weight"
-                data-cy="okr-drawer-mobile-objective-weight"
-                className="h-11 w-full mb-0"
-                name="weight"
-                label={
-                  <span
-                    className="text-sm font-medium text-gray-700"
-                    data-cy="okr-drawer-mobile-objective-weight-label"
+                        Objective Type{' '}
+                        <span
+                          className="text-red-500"
+                          data-cy="okr-drawer-mobile-objective-type-required"
+                        >
+                          *
+                        </span>
+                      </span>
+                    }
+                    rules={[
+                      {
+                        required: true,
+                        message: 'Please select an objective type',
+                      },
+                    ]}
                   >
-                    Weight (%){' '}
-                    <span
-                      className="text-red-500"
-                      data-cy="okr-drawer-mobile-objective-weight-required"
+                    <Select
+                      id="okr-drawer-mobile-objective-type-dropdown"
+                      data-cy="okr-drawer-mobile-objective-type-dropdown"
+                      className="h-11 w-full rounded-lg"
+                      placeholder="Select type"
+                      value={objectiveValue?.objectiveTypeId || undefined}
+                      onChange={handleObjectiveTypeChange}
+                      style={{ fontSize: '14px', height: '44px' }}
                     >
-                      *
-                    </span>
-                  </span>
-                }
-                rules={[
-                  { required: true, message: 'Please enter weight' },
-                  {
-                    type: 'number',
-                    min: 1,
-                    max: Math.max(selectedTypeRemaining, 1),
-                    message: `Weight must be between 1 and ${Math.max(selectedTypeRemaining, 1)}`,
-                  },
-                ]}
-              >
-                <InputNumber
-                  id="okr-drawer-mobile-objective-weight-input"
-                  data-cy="okr-drawer-mobile-objective-weight-input"
-                  className="h-11 w-full rounded-lg"
-                  min={1}
-                  max={Math.max(selectedTypeRemaining, 1)}
-                  disabled={!objectiveValue?.objectiveTypeId}
-                  value={objectiveValue?.weight ?? undefined}
-                  onChange={(value) =>
-                    handleObjectiveWeightChange(
-                      value === null || value === undefined
-                        ? null
-                        : Number(value),
-                    )
-                  }
-                  placeholder={
-                    objectiveValue?.objectiveTypeId
-                      ? 'Enter weight'
-                      : 'Select type first'
-                  }
-                  style={{ fontSize: '14px', width: '100%', height: '44px' }}
-                />
-              </Form.Item>
+                      {objectiveTypes.map((type) => {
+                        const remaining = getTypeRemaining(type.id);
+                        const fullyAllocated = remaining <= 0;
+                        return (
+                          <Select.Option
+                            key={type.id}
+                            value={type.id}
+                            disabled={fullyAllocated}
+                            data-cy="okr-drawer-mobile-objective-type-option"
+                          >
+                            {type.name}
+                          </Select.Option>
+                        );
+                      })}
+                    </Select>
+                  </Form.Item>
+                  <Form.Item
+                    id="okr-drawer-mobile-objective-weight"
+                    data-cy="okr-drawer-mobile-objective-weight"
+                    className="h-11 w-full mb-0"
+                    name="weight"
+                    label={
+                      <span
+                        className="text-sm font-medium text-gray-700"
+                        data-cy="okr-drawer-mobile-objective-weight-label"
+                      >
+                        Weight (%){' '}
+                        <span
+                          className="text-red-500"
+                          data-cy="okr-drawer-mobile-objective-weight-required"
+                        >
+                          *
+                        </span>
+                      </span>
+                    }
+                    rules={[
+                      { required: true, message: 'Please enter weight' },
+                      {
+                        type: 'number',
+                        min: 1,
+                        max: Math.max(selectedTypeRemaining, 1),
+                        message: `Weight must be between 1 and ${Math.max(selectedTypeRemaining, 1)}`,
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      id="okr-drawer-mobile-objective-weight-input"
+                      data-cy="okr-drawer-mobile-objective-weight-input"
+                      className="h-11 w-full rounded-lg"
+                      min={1}
+                      max={Math.max(selectedTypeRemaining, 1)}
+                      disabled={!objectiveValue?.objectiveTypeId}
+                      value={objectiveValue?.weight ?? undefined}
+                      onChange={(value) =>
+                        handleObjectiveWeightChange(
+                          value === null || value === undefined
+                            ? null
+                            : Number(value),
+                        )
+                      }
+                      placeholder={
+                        objectiveValue?.objectiveTypeId
+                          ? 'Enter weight'
+                          : 'Select type first'
+                      }
+                      style={{
+                        fontSize: '14px',
+                        width: '100%',
+                        height: '44px',
+                      }}
+                    />
+                  </Form.Item>
+                </>
+              ) : null}
               <Form.Item
                 id="okr-drawer-mobile-bsc-select"
                 data-cy="okr-drawer-mobile-bsc-select"
@@ -1070,7 +1086,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             <Form.Item
               id="okr-drawer-desktop-title-input"
               data-cy="okr-drawer-desktop-title-input"
-              className="col-span-12 lg:col-span-4 mb-6"
+              className={`col-span-12 mb-6 ${hasObjectiveTypes ? 'lg:col-span-4' : 'lg:col-span-6'}`}
               name="title"
               label={
                 <span
@@ -1131,118 +1147,117 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 style={{ fontSize: '14px', height: '44px' }}
               />
             </Form.Item>
-            <Form.Item
-              id="okr-drawer-desktop-objective-type-select"
-              data-cy="okr-drawer-desktop-objective-type-select"
-              className="col-span-12 lg:col-span-3 mb-6"
-              name="objectiveTypeId"
-              label={
-                <span
-                  className="text-sm font-medium text-gray-700"
-                  data-cy="okr-drawer-desktop-objective-type-label"
-                >
-                  Objective Type{' '}
-                  <span
-                    className="text-red-500"
-                    data-cy="okr-drawer-desktop-objective-type-required"
-                  >
-                    *
-                  </span>
-                </span>
-              }
-              rules={[
-                {
-                  required: true,
-                  message: 'Please select an objective type',
-                },
-              ]}
-            >
-              <Select
-                id="okr-drawer-desktop-objective-type-dropdown"
-                data-cy="okr-drawer-desktop-objective-type-dropdown"
-                className="h-11 w-full"
-                placeholder={
-                  objectiveTypes.length
-                    ? 'Select type'
-                    : 'Define types in OKR Settings first'
-                }
-                disabled={!objectiveTypes.length}
-                value={objectiveValue?.objectiveTypeId || undefined}
-                onChange={handleObjectiveTypeChange}
-                style={{ fontSize: '14px', height: '44px' }}
-              >
-                {objectiveTypes.map((type) => {
-                  const remaining = getTypeRemaining(type.id);
-                  const fullyAllocated = remaining <= 0;
-                  return (
-                    <Select.Option
-                      key={type.id}
-                      value={type.id}
-                      disabled={fullyAllocated}
-                      data-cy="okr-drawer-desktop-objective-type-option"
+            {hasObjectiveTypes ? (
+              <>
+                <Form.Item
+                  id="okr-drawer-desktop-objective-type-select"
+                  data-cy="okr-drawer-desktop-objective-type-select"
+                  className="col-span-12 lg:col-span-3 mb-6"
+                  name="objectiveTypeId"
+                  label={
+                    <span
+                      className="text-sm font-medium text-gray-700"
+                      data-cy="okr-drawer-desktop-objective-type-label"
                     >
-                      {type.name}
-                    </Select.Option>
-                  );
-                })}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              id="okr-drawer-desktop-objective-weight"
-              data-cy="okr-drawer-desktop-objective-weight"
-              className="col-span-12 lg:col-span-2 mb-6"
-              name="weight"
-              label={
-                <span
-                  className="text-sm font-medium text-gray-700"
-                  data-cy="okr-drawer-desktop-objective-weight-label"
+                      Objective Type{' '}
+                      <span
+                        className="text-red-500"
+                        data-cy="okr-drawer-desktop-objective-type-required"
+                      >
+                        *
+                      </span>
+                    </span>
+                  }
+                  rules={[
+                    {
+                      required: true,
+                      message: 'Please select an objective type',
+                    },
+                  ]}
                 >
-                  Weight (%){' '}
-                  <span
-                    className="text-red-500"
-                    data-cy="okr-drawer-desktop-objective-weight-required"
+                  <Select
+                    id="okr-drawer-desktop-objective-type-dropdown"
+                    data-cy="okr-drawer-desktop-objective-type-dropdown"
+                    className="h-11 w-full"
+                    placeholder="Select type"
+                    value={objectiveValue?.objectiveTypeId || undefined}
+                    onChange={handleObjectiveTypeChange}
+                    style={{ fontSize: '14px', height: '44px' }}
                   >
-                    *
-                  </span>
-                </span>
-              }
-              rules={[
-                { required: true, message: 'Please enter weight' },
-                {
-                  type: 'number',
-                  min: 1,
-                  max: Math.max(selectedTypeRemaining, 1),
-                  message: `Weight must be between 1 and ${Math.max(selectedTypeRemaining, 1)}`,
-                },
-              ]}
-            >
-              <InputNumber
-                id="okr-drawer-desktop-objective-weight-input"
-                data-cy="okr-drawer-desktop-objective-weight-input"
-                className="h-11 w-full"
-                min={1}
-                max={Math.max(selectedTypeRemaining, 1)}
-                disabled={!objectiveValue?.objectiveTypeId}
-                value={objectiveValue?.weight ?? undefined}
-                onChange={(value) =>
-                  handleObjectiveWeightChange(
-                    value === null || value === undefined
-                      ? null
-                      : Number(value),
-                  )
-                }
-                placeholder={
-                  objectiveValue?.objectiveTypeId
-                    ? 'Enter weight'
-                    : 'Select type first'
-                }
-                style={{ fontSize: '14px', width: '100%', height: '44px' }}
-              />
-            </Form.Item>
+                    {objectiveTypes.map((type) => {
+                      const remaining = getTypeRemaining(type.id);
+                      const fullyAllocated = remaining <= 0;
+                      return (
+                        <Select.Option
+                          key={type.id}
+                          value={type.id}
+                          disabled={fullyAllocated}
+                          data-cy="okr-drawer-desktop-objective-type-option"
+                        >
+                          {type.name}
+                        </Select.Option>
+                      );
+                    })}
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  id="okr-drawer-desktop-objective-weight"
+                  data-cy="okr-drawer-desktop-objective-weight"
+                  className="col-span-12 lg:col-span-2 mb-6"
+                  name="weight"
+                  label={
+                    <span
+                      className="text-sm font-medium text-gray-700"
+                      data-cy="okr-drawer-desktop-objective-weight-label"
+                    >
+                      Weight (%){' '}
+                      <span
+                        className="text-red-500"
+                        data-cy="okr-drawer-desktop-objective-weight-required"
+                      >
+                        *
+                      </span>
+                    </span>
+                  }
+                  rules={[
+                    { required: true, message: 'Please enter weight' },
+                    {
+                      type: 'number',
+                      min: 1,
+                      max: Math.max(selectedTypeRemaining, 1),
+                      message: `Weight must be between 1 and ${Math.max(selectedTypeRemaining, 1)}`,
+                    },
+                  ]}
+                >
+                  <InputNumber
+                    id="okr-drawer-desktop-objective-weight-input"
+                    data-cy="okr-drawer-desktop-objective-weight-input"
+                    className="h-11 w-full"
+                    min={1}
+                    max={Math.max(selectedTypeRemaining, 1)}
+                    disabled={!objectiveValue?.objectiveTypeId}
+                    value={objectiveValue?.weight ?? undefined}
+                    onChange={(value) =>
+                      handleObjectiveWeightChange(
+                        value === null || value === undefined
+                          ? null
+                          : Number(value),
+                      )
+                    }
+                    placeholder={
+                      objectiveValue?.objectiveTypeId
+                        ? 'Enter weight'
+                        : 'Select type first'
+                    }
+                    style={{ fontSize: '14px', width: '100%', height: '44px' }}
+                  />
+                </Form.Item>
+              </>
+            ) : null}
             <Form.Item
               id="okr-drawer-desktop-bsc-select"
               data-cy="okr-drawer-desktop-bsc-select"
-              className="col-span-12 lg:col-span-3 mb-6"
+              className={`col-span-12 mb-6 ${hasObjectiveTypes ? 'lg:col-span-3' : 'lg:col-span-6'}`}
               name="bscPillarId"
               label={
                 <span
