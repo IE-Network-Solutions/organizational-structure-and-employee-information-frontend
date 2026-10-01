@@ -26,6 +26,7 @@ import {
   ReadOutlined,
   GiftOutlined,
   GlobalOutlined,
+  SettingOutlined,
 } from '@ant-design/icons';
 import { requestAndRegisterPushSubscription } from '@/hooks/usePushSubscription';
 import { VAPID_PUBLIC_KEY } from '@/utils/constants';
@@ -33,6 +34,8 @@ import { getNotificationThemeClasses } from '@/store/server/features/notificatio
 import { useCanAccessRoute } from '@/utils/routePermissions';
 import { resolveNotificationPath } from '@/utils/notificationRoute';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { filterNotificationsByPreferences } from '@/store/server/features/notification/preferenceCatalog';
+import { useNotificationPreferencesStore } from '@/store/uistate/features/notification/preferences';
 
 const toSlug = (v: string | number | null | undefined) =>
   String(v ?? 'na')
@@ -287,7 +290,14 @@ export function NotificationDropdownPanel({
     }
   };
 
+  const enabledById = useNotificationPreferencesStore(
+    (s) => s.byUserId[userId]?.enabledById,
+  );
+  const prefsHydrated = useNotificationPreferencesStore((s) => s.hasHydrated);
+  const browserPushEnabled = enabledById?.channel_browser_push !== false;
+
   const showEnablePush =
+    browserPushEnabled &&
     !!VAPID_PUBLIC_KEY &&
     !!userId &&
     (pushPermission !== 'granted' || !isSubscribed);
@@ -301,10 +311,14 @@ export function NotificationDropdownPanel({
   const { mutate: markAsRead } = useUpdateNotificationStatus();
   const { mutate: markAllAsRead } = useMarkAllAsRead();
 
-  const list = useMemo(
-    () => (Array.isArray(data) ? data : ((data as any)?.data ?? [])),
-    [data],
-  );
+  const list = useMemo(() => {
+    const raw = Array.isArray(data) ? data : ((data as any)?.data ?? []);
+    if (!prefsHydrated) return raw as NotificationType[];
+    return filterNotificationsByPreferences(
+      raw as NotificationType[],
+      enabledById ?? {},
+    );
+  }, [data, enabledById, prefsHydrated]);
   const unreadList = useMemo(() => list.filter(isUnread), [list]);
   const readList = useMemo(
     () => list.filter((i: NotificationType) => !isUnread(i)),
@@ -323,6 +337,11 @@ export function NotificationDropdownPanel({
 
   const handleMarkAllAsRead = () => {
     markAllAsRead(userId);
+  };
+
+  const handleOpenSettings = () => {
+    onRequestClose?.();
+    router.push('/employees/notification/settings');
   };
 
   const handleItemClick = (item: NotificationType) => {
@@ -353,15 +372,32 @@ export function NotificationDropdownPanel({
           >
             Notifications
           </span>
-          <button
-            type="button"
-            id="notification-mark-all-read"
-            data-cy="notification-mark-all-read"
-            onClick={handleMarkAllAsRead}
-            className="text-sm font-medium text-[#5B4FFF] hover:underline"
+          <div
+            className="flex items-center gap-3"
+            id="notification-panel-header-actions"
+            data-cy="notification-panel-header-actions"
           >
-            Mark all as read
-          </button>
+            <button
+              type="button"
+              id="notification-settings-gear"
+              data-cy="notification-settings-gear"
+              onClick={handleOpenSettings}
+              aria-label="Notification settings"
+              title="Notification settings"
+              className="inline-flex items-center justify-center text-gray-500 hover:text-[#5B4FFF] transition-colors"
+            >
+              <SettingOutlined className="text-base" />
+            </button>
+            <button
+              type="button"
+              id="notification-mark-all-read"
+              data-cy="notification-mark-all-read"
+              onClick={handleMarkAllAsRead}
+              className="text-sm font-medium text-[#5B4FFF] hover:underline"
+            >
+              Mark all as read
+            </button>
+          </div>
         </div>
 
         {/* Filters - selected tab: solid blue bg + white text (match design) */}

@@ -38,8 +38,18 @@ export interface PushSubscriptionPayload {
   tenantId?: string;
 }
 
-/** Response from GET /push-subscriptions/status?userId=... */
-export interface PushSubscriptionStatusResponse {
-  subscribed?: boolean;
-  hasSubscription?: boolean;
+/** Response from GET /notification/preferences?userId=... */
+export interface NotificationPreferencesResponse {
+  userId: string;
+  preset: 'basic' | 'custom' | 'all';
+  enabledById: Record<string, boolean>;
+  updatedAt?: string;
+}
+
+/** Body for PUT /notification/preferences */
+export interface UpsertNotificationPreferencesPayload {
+  userId: string;
+  tenantId?: string;
+  preset: 'basic' | 'custom' | 'all';
+  enabledById: Record<string, boolean>;
 }
