@@ -87,7 +87,8 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
     const vals = values ?? form.getFieldsValue();
     const payload: CommonObject = {
       ...vals,
-      employmentStatus: (vals.employmentStatus as TimesheetEmploymentStatus) ??
+      employmentStatus:
+        (vals.employmentStatus as TimesheetEmploymentStatus) ??
         employmentStatus,
     };
     if (payload.departmentId && departmentUsers?.length) {
