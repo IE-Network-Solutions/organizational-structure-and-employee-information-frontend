@@ -70,6 +70,9 @@ export type CollaborationContext = {
 /** postMessage channel name used to hand context to the embedded app. */
 export const COLLABORATION_MESSAGE_TYPE = 'selamnew:collaboration:context';
 
+/** postMessage the embedded app sends from its own close button. */
+export const COLLABORATION_CLOSE_MESSAGE_TYPE = 'selamnew:embed-close';
+
 /** Custom DOM event any Workspace component can dispatch to open the panel. */
 export const COLLABORATION_OPEN_EVENT = 'selamnew:collaboration:open';
 
