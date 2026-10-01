@@ -70,47 +70,47 @@ pipeline {
                         def secretsFile = env.SECRETS_PATH
 
                         env.REPO_URL = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_URL ${secretsFile} | cut -d= -f2'",
+                            script: "#!/bin/bash\nssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_URL ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.BRANCH_NAME = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep BRANCH_NAME ${secretsFile} | cut -d= -f2'",
+                            script: "#!/bin/bash\nssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep BRANCH_NAME ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.REPO_DIR = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_DIR ${secretsFile} | cut -d= -f2'",
+                            script: "#!/bin/bash\nssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep REPO_DIR ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.DOCKERHUB_REPO = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep DOCKERHUB_REPO ${secretsFile} | cut -d= -f2'",
+                            script: "#!/bin/bash\nssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep DOCKERHUB_REPO ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.SERVICE_NAME = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep SERVICE_NAME ${secretsFile} | cut -d= -f2'",
+                            script: "#!/bin/bash\nssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep SERVICE_NAME ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.VAULT_ADDR = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_ADDR ${secretsFile} | cut -d= -f2'",
+                            script: "#!/bin/bash\nssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_ADDR ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.VAULT_USERNAME = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_USERNAME ${secretsFile} | cut -d= -f2'",
+                            script: "#!/bin/bash\nssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_USERNAME ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.VAULT_PASSWORD = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_PASSWORD ${secretsFile} | cut -d= -f2'",
+                            script: "#!/bin/bash\nssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_PASSWORD ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
                         env.VAULT_SECRET_PATH = sh(
-                            script: "ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_SECRET_PATH ${secretsFile} | cut -d= -f2'",
+                            script: "#!/bin/bash\nssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} 'grep VAULT_SECRET_PATH ${secretsFile} | cut -d= -f2'",
                             returnStdout: true
                         ).trim()
 
@@ -127,7 +127,8 @@ pipeline {
         stage('Prepare Repository') {
             steps {
                 sshagent(credentials: [env.SECRET_KEY]) {
-                    sh """
+                    sh """#!/bin/bash
+                        set -e
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                             if [ -d "${env.REPO_DIR}" ]; then
                                 sudo chown -R \$USER:\$USER ${env.REPO_DIR}
@@ -142,7 +143,10 @@ pipeline {
         stage('Pull Latest Changes') {
             steps {
                 sshagent(credentials: [env.SECRET_KEY]) {
-                    sh """
+                    // shebang suppresses Jenkins' default `set -x` trace, which was printing
+                    // the PAT embedded in REPO_URL into the console log
+                    sh """#!/bin/bash
+                        set -e
                         ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
                             if [ ! -d "${env.REPO_DIR}/.git" ]; then
                                 git clone ${env.REPO_URL} -b ${env.BRANCH_NAME} ${env.REPO_DIR}
@@ -168,7 +172,9 @@ pipeline {
                             passwordVariable: 'DOCKERHUB_PASSWORD'
                         )
                     ]) {
-                        sh """
+                        // shebang suppresses the `set -x` trace that was printing VAULT_PASSWORD
+                        sh """#!/bin/bash
+                            set -e
                             ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} "
                                 set -e
 
@@ -209,9 +215,10 @@ pipeline {
                             passwordVariable: 'DOCKERHUB_PASSWORD'
                         )
                     ]) {
-                        sh """
+                        sh """#!/bin/bash
+                            set -e
                             ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                                set -ex
+                                set -e
 
                                 echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin || { echo "Docker login failed"; exit 1; }
 
@@ -277,39 +284,39 @@ pipeline {
                 expression { env.RESOLVED_BRANCH == 'develop' }
             }
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'github-pat',
-                        usernameVariable: 'GH_USER',
-                        passwordVariable: 'GH_TOKEN'
-                    )
-                ]) {
-                    sh '''
+                // the deployment itself is already done and verified by this point —
+                // a failed branch mirror marks the build UNSTABLE, not FAILURE
+                catchError(buildResult: 'UNSTABLE', stageResult: 'FAILURE',
+                           message: 'core-develop sync failed — the deployment itself succeeded') {
+                    // REPO_URL (from the secrets file) already carries its own credentials and is
+                    // what the clone/fetch in Pull Latest Changes uses. It is referenced as a shell
+                    // variable, never interpolated into the script text, so the token stays out of
+                    // the console log.
+                    sh '''#!/bin/bash
                         set -e
                         rm -rf sync-tmp
-                        git clone "https://${GH_TOKEN}@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git" sync-tmp
+                        git clone "$REPO_URL" sync-tmp
                         cd sync-tmp
                         git config user.email "jenkins@ienetworks.co"
                         git config user.name "Jenkins CI"
                         git fetch origin develop core-develop
 
-                        # Switch to core-develop
-                        git checkout core-develop
-
                         # Make core-develop EXACTLY match develop...
-                        git reset --hard origin/develop
+                        git checkout -B core-develop origin/develop
 
                         # ...except keep core-develop's own Jenkinsfile (different env/branch logic)
                         git checkout origin/core-develop -- Jenkinsfile
                         git clean -fd
 
-                        # Only push if something actually changed
-                        if git diff --quiet origin/core-develop -- . ':!Jenkinsfile' 2>/dev/null && \
-                           git diff --quiet HEAD --; then
+                        # Only push if the content actually differs.
+                        # (The old second test, `git diff --quiet HEAD --`, could never pass:
+                        #  restoring Jenkinsfile always leaves a staged change, so every build
+                        #  force-pushed a new commit even when nothing had changed.)
+                        if git diff --quiet origin/core-develop -- . ':!Jenkinsfile'; then
                             echo "core-develop already matches develop (excl. Jenkinsfile) — nothing to sync."
                         else
                             git add -A
-                            git commit -m "Sync from develop (build ${BUILD_NUMBER})" || echo "nothing to commit"
+                            git commit -m "Sync from develop (build ${BUILD_NUMBER})"
                             git push origin HEAD:core-develop --force
                         fi
 
@@ -320,69 +327,81 @@ pipeline {
             }
         }
 
-        stage('Sync core-production from production') {
-            when {
-                expression { env.RESOLVED_BRANCH == 'production' }
-            }
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'github-pat',
-                        usernameVariable: 'GH_USER',
-                        passwordVariable: 'GH_TOKEN'
-                    )
-                ]) {
-                    sh '''
-                        set -e
-                        rm -rf sync-tmp
-                        git clone "https://${GH_TOKEN}@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git" sync-tmp
-                        cd sync-tmp
-                        git config user.email "jenkins@ienetworks.co"
-                        git config user.name "Jenkins CI"
-                        git fetch origin production core-production
+        // stage('Sync core-production from production') {
+        //     when {
+        //         expression { env.RESOLVED_BRANCH == 'production' }
+        //     }
+        //     steps {
+        //         withCredentials([
+        //             usernamePassword(
+        //                 credentialsId: 'github-pat',
+        //                 usernameVariable: 'GH_USER',
+        //                 passwordVariable: 'GH_TOKEN'
+        //             )
+        //         ]) {
+        //             sh '''
+        //                 set -e
 
-                        # Switch to core-production
-                        git checkout core-production
+        //                 rm -rf sync-tmp
 
-                        # Make core-production EXACTLY match production...
-                        git reset --hard origin/production
+        //                 git clone "https://${GH_TOKEN}@github.com/IE-Network-Solutions/selamnew-collaboration-fe.git" sync-tmp
 
-                        # ...except keep core-production's own Jenkinsfile (different env/branch logic)
-                        git checkout origin/core-production -- Jenkinsfile
-                        git clean -fd
+        //                 cd sync-tmp
 
-                        # Only push if something actually changed
-                        if git diff --quiet origin/core-production -- . ':!Jenkinsfile' 2>/dev/null && \
-                           git diff --quiet HEAD --; then
-                            echo "core-production already matches production (excl. Jenkinsfile) — nothing to sync."
-                        else
-                            git add -A
-                            git commit -m "Sync from production (build ${BUILD_NUMBER})" || echo "nothing to commit"
-                            git push origin HEAD:core-production --force
-                        fi
+        //                 git config user.email "jenkins@ienetworks.co"
+        //                 git config user.name "Jenkins CI"
 
-                        cd ..
-                        rm -rf sync-tmp
-                    '''
-                }
-            }
-        }
+        //                 git fetch origin production core-production
+
+        //                 echo "Switching to core-production..."
+
+        //                 git checkout core-production
+
+        //                 echo "Making core-production match production..."
+
+        //                 git reset --hard origin/production
+
+        //                 echo "Restoring core-production Jenkinsfile..."
+
+        //                 git checkout origin/core-production -- Jenkinsfile
+
+        //                 git clean -fd
+
+        //                 if git diff --quiet origin/core-production -- . ':!Jenkinsfile' 2>/dev/null && \
+        //                    git diff --quiet HEAD --; then
+
+        //                     echo "core-production already matches production (excluding Jenkinsfile)."
+
+        //                 else
+
+        //                     git add -A
+
+        //                     git commit -m "Sync from production (build ${BUILD_NUMBER})" || \
+        //                         echo "Nothing to commit"
+
+        //                     git push origin HEAD:core-production --force
+
+        //                     echo "core-production synchronized successfully."
+
+        //                 fi
+
+        //                 cd ..
+
+        //                 rm -rf sync-tmp
+        //             '''
+        //         }
+        //     }
+        // }
     }
 
     post {
         success {
-            sshagent(credentials: [env.SECRET_KEY]) {
-                sh """
-                   ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
-                    if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
-                        echo "Cleaning up stopped containers for service ${env.SERVICE_NAME}..."
-                        docker ps -a \
-                            --filter "label=com.docker.swarm.service.name=${env.SERVICE_NAME}" \
-                            --filter "status=exited" -q | xargs -r docker rm -f
-                    fi
-                '
-                """
-            }
+            script { cleanupStoppedContainers() }
+        }
+
+        // an UNSTABLE build (failed branch sync) still deployed, so still clean up
+        unstable {
+            script { cleanupStoppedContainers() }
         }
 
         failure {
@@ -434,5 +453,27 @@ pipeline {
                 to: 'biniyam.l@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
             )
         }
+    }
+}
+
+// shared by the success and unstable post blocks
+def cleanupStoppedContainers() {
+    if (!env.SECRET_KEY || !env.REMOTE_SERVER || !env.SERVICE_NAME) {
+        echo 'Environment not resolved — skipping container cleanup.'
+        return
+    }
+
+    sshagent(credentials: [env.SECRET_KEY]) {
+        sh """#!/bin/bash
+            set -e
+            ssh -o StrictHostKeyChecking=no ${env.REMOTE_SERVER} '
+                if docker service inspect ${env.SERVICE_NAME} >/dev/null 2>&1; then
+                    echo "Cleaning up stopped containers for service ${env.SERVICE_NAME}..."
+                    docker ps -a \\
+                        --filter "label=com.docker.swarm.service.name=${env.SERVICE_NAME}" \\
+                        --filter "status=exited" -q | xargs -r docker rm -f
+                fi
+            '
+        """
     }
 }

@@ -212,7 +212,9 @@ export default function OkrTab({
   const isTeamLoading = teamLoading;
   const isCompanyLoading =
     companyLoading ||
-    (String(activeKey) === '3' && !!filterDepartmentId && isDeptUsersFetching);
+    (String(activeKey) === '3' &&
+      !!filterDepartmentId &&
+      isDeptUsersFetching);
 
   const canVieTeamOkr = AccessGuard.checkAccess({
     permissions: [Permissions.ViewTeamOkr],
@@ -522,20 +524,51 @@ export default function OkrTab({
                             setCompanyCurrentPage(1);
                           }}
                         />
-                      )}
-                    </div>
-                  )}
+                      ),
+                    )}
+                    {isMobile || isTablet ? (
+                      <CustomMobilePagination
+                        data-cy="okr-company-okr-mobile-pagination"
+                        totalResults={companyObjective?.meta?.totalItems ?? 0}
+                        pageSize={companyPageSize}
+                        currentPage={companyCurrentPage}
+                        onChange={(page, pageSize) => {
+                          setCompanyCurrentPage(page);
+                          setCompanyPageSize(pageSize);
+                        }}
+                        onShowSizeChange={(size) => {
+                          setCompanyPageSize(size);
+                        }}
+                      />
+                    ) : (
+                      <CustomPagination
+                        data-cy="okr-company-okr-pagination"
+                        current={companyObjective?.meta?.currentPage || 1}
+                        total={companyObjective?.meta?.totalItems || 1}
+                        pageSize={companyPageSize}
+                        onChange={(page, pageSize) => {
+                          setCompanyCurrentPage(page);
+                          setCompanyPageSize(pageSize);
+                        }}
+                        onShowSizeChange={(size) => {
+                          setCompanyPageSize(size);
+                          setCompanyCurrentPage(1);
+                        }}
+                      />
+                    )}
+                  </div>
+                )}
                 {(companyDeptFilterEmpty ||
                   companyObjective?.items?.length === 0) &&
                   !isCompanyLoading && (
-                    <div
-                      id="company-okr-empty-state"
-                      data-cy="okr-company-okr-empty-state"
-                      className="flex justify-center"
-                    >
-                      <EmptyImage data-cy="okr-company-okr-empty-image" />
-                    </div>
-                  )}
+                  <div
+                    id="company-okr-empty-state"
+                    data-cy="okr-company-okr-empty-state"
+                    className="flex justify-center"
+                  >
+                    <EmptyImage data-cy="okr-company-okr-empty-image" />
+                  </div>
+                )}
               </div>
             ),
           },

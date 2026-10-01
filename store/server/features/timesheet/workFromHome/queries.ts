@@ -34,6 +34,9 @@ export const useGetWorkFromHomeRequest = (
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled && !!token,
+      staleTime: 3 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   );
 };
