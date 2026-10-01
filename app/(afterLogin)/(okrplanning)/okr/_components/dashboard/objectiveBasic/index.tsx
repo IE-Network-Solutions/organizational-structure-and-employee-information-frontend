@@ -43,6 +43,7 @@ import dayjs from 'dayjs';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { hasAnyProgress } from '../../../_utils/keyResultGuards';
+import ObjectiveMetaBadges from '../objectiveMetaBadges';
 
 const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const {
@@ -401,6 +402,7 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                             >
                               {objective?.daysLeft ?? '—'} Days Left
                             </span>
+                            <ObjectiveMetaBadges objective={objective} />
                           </div>
                         </div>
                       </div>

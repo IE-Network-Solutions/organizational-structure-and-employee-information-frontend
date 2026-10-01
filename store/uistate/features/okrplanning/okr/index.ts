@@ -418,6 +418,8 @@ export const useOKRStore = create<OKRState>()(
       userId: '',
       metricTypeId: '',
       departmentId: '',
+      objectiveTypeId: '',
+      bscPillarId: '',
     },
     setSearchObjParams: (key, value) =>
       set((state) => ({
@@ -427,6 +429,8 @@ export const useOKRStore = create<OKRState>()(
       userId: '',
       metricTypeId: '',
       departmentId: '',
+      objectiveTypeId: '',
+      bscPillarId: '',
     },
     setEmployeeSearchObjParams: (key, value) =>
       set((state) => ({

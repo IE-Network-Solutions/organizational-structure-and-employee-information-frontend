@@ -1,6 +1,7 @@
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useObjectiveTypeAllocationStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypeAllocationStore';
 import { OKR_AND_PLANNING_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { useMutation, useQueryClient } from 'react-query';
@@ -11,7 +12,7 @@ const tenantId = useAuthenticationStore.getState().tenantId;
 const createObjective = async (values: any) => {
   const token = await getCurrentToken();
   try {
-    await crudRequest({
+    const response = await crudRequest({
       url: `${OKR_AND_PLANNING_URL}/objective`,
       method: 'POST',
       data: values,
@@ -26,6 +27,7 @@ const createObjective = async (values: any) => {
       message: 'Successfully Created',
       description: 'Objective successfully Created.',
     });
+    return response?.data ?? response;
   } catch (error) {
     // Handle error (optional)
     throw error; // Re-throw error if needed for further handling
@@ -281,7 +283,10 @@ export const useUpdateObjectiveNestedDelete = () => {
 export const useDeleteObjective = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteObjective, {
-    onSuccess: () => {
+    onSuccess: (_data, deletedId) => {
+      useObjectiveTypeAllocationStore
+        .getState()
+        .removeAllocationByObjectiveId(String(deletedId));
       queryClient.invalidateQueries('ObjectiveInformation');
       queryClient.invalidateQueries(['okrPlans']);
       queryClient.invalidateQueries(['okrPlansKrPanel']);

@@ -11,6 +11,7 @@ import useDrawerStore from '@/store/uistate/features/okrplanning/okrSetting/assi
 import { useOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/okr-rule';
 import { useAverageOkrRuleAssignmentStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/average-okr-rule-assignment';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
+import { useObjectiveTypesStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypesStore';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import Link from 'next/link';
 
@@ -31,10 +32,21 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     setAssignment: setAverageOkrRuleAssignment,
   } = useAverageOkrRuleAssignmentStore();
   const { showNotReportedList } = useOKRSettingStore();
+  const {
+    types: objectiveTypes,
+    setOpen: setObjectiveTypeOpen,
+    setSelectedType: setSelectedObjectiveType,
+  } = useObjectiveTypesStore();
 
   const isPlanningAssignation = activeTab === 'planning-assignation';
   const isCriteriaManagement = activeTab === 'criteria-management';
   const isAverageOkrRuleAssignment = activeTab === 'okr-rule-assignment';
+  const isObjectiveTypes = activeTab === 'objective-types';
+  const objectiveTypesRemaining = Math.max(
+    0,
+    100 -
+      objectiveTypes.reduce((sum, t) => sum + Number(t.weight || 0), 0),
+  );
 
   const handleAddAssignee = () => {
     setPlanningOpen(true);
@@ -53,11 +65,21 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     setAverageOkrRuleAssignmentOpen(true);
   };
 
+  const handleAddObjectiveType = () => {
+    setSelectedObjectiveType(null);
+    setObjectiveTypeOpen(true);
+  };
+
   const tabs = [
     {
       key: 'okr-type',
       label: 'OKR Type',
       path: '/okr/settings/okr-type',
+    },
+    {
+      key: 'objective-types',
+      label: 'Objective Types',
+      path: '/okr/settings/objective-types',
     },
     {
       key: 'planning-assignation',
@@ -93,6 +115,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     // Map pathname to tab key
     const tabMap: Record<string, string> = {
       'okr-type': 'okr-type',
+      'objective-types': 'objective-types',
       'planning-assignation': 'planning-assignation',
       'criteria-management': 'criteria-management',
       'target-assignment': 'target-assignment',
@@ -204,6 +227,24 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                 className="flex-shrink-0 ml-2"
                 data-cy="okr-settings-tab-actions"
               >
+                {isObjectiveTypes && (
+                  <Button
+                    icon={<FaPlus />}
+                    onClick={handleAddObjectiveType}
+                    disabled={objectiveTypesRemaining <= 0}
+                    className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-[40px] px-3 sm:px-6 text-white border-none mb-3 rounded-lg flex items-center justify-center font-medium disabled:opacity-50"
+                    type="primary"
+                    id="okr-settings-add-objective-type-button"
+                    data-cy="okr-settings-add-objective-type-button"
+                  >
+                    <span
+                      className="hidden sm:inline ml-2"
+                      data-cy="okr-settings-add-objective-type-button-text"
+                    >
+                      Add Type
+                    </span>
+                  </Button>
+                )}
                 {isPlanningAssignation && (
                   <AccessGuard
                     permissions={[Permissions.AssignPlanningPeriod]}

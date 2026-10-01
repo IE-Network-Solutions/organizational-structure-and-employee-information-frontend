@@ -41,6 +41,7 @@ import { PiCalendarBold } from 'react-icons/pi';
 import dayjs from 'dayjs';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import ObjectiveMetaBadges from '../objectiveMetaBadges';
 
 const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const {
@@ -423,6 +424,7 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                             >
                               {objective?.daysLeft ?? '—'} Days Left
                             </span>
+                            <ObjectiveMetaBadges objective={objective} />
                           </div>
                         </div>
                       </div>

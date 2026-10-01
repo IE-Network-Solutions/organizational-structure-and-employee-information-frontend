@@ -17,6 +17,8 @@ import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 import { selectValueOrUndefined } from '../okrFilterUsers';
+import { useObjectiveTypesStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypesStore';
+import { BSC_PILLARS } from '../../../_constants/bscPillars';
 
 /** Keep Select dropdowns inside Popover/Modal so choices don't close the panel. */
 const popupContainer = (node: HTMLElement) =>
@@ -76,6 +78,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
   const { data: Metrics } = useGetMetrics();
   const { data: allUsers } = useGetAllUsers();
   const { data: Departments } = useGetUserDepartment();
+  const objectiveTypes = useObjectiveTypesStore((s) => s.types);
 
   // Use refs to track previous values and prevent infinite loops
   const prevFiscalYearIdRef = useRef<string>(fiscalYearId);
@@ -160,6 +163,8 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
     handleFilter('', 'metricTypeId');
     handleFilter('', 'userId');
     handleFilter('', 'departmentId');
+    handleFilter('', 'objectiveTypeId');
+    handleFilter('', 'bscPillarId');
   };
 
   const renderMobileFilterContent = (showStatusPills = false) => (
@@ -419,6 +424,80 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                 value={metric.id}
               >
                 {metric.name}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      )}
+
+      {/* Objective Type */}
+      {okrTab != 4 && (
+        <div
+          id="mobile-objective-type-field"
+          data-cy="okr-mobile-objective-type-field"
+          className="flex flex-col gap-2"
+        >
+          <label
+            id="mobile-objective-type-label"
+            data-cy="okr-mobile-objective-type-label"
+            className="text-sm font-medium text-gray-700"
+          >
+            Objective Type
+          </label>
+          <Select
+            id="mobile-objective-type-select"
+            data-cy="okr-mobile-objective-type-select"
+            placeholder="All objective types"
+            className="w-full h-12 rounded-lg"
+            allowClear
+            getPopupContainer={popupContainer}
+            value={selectValueOrUndefined(searchObjParams.objectiveTypeId)}
+            onChange={(value) => handleFilter(value ?? '', 'objectiveTypeId')}
+          >
+            {objectiveTypes.map((type) => (
+              <Option
+                data-cy={`okr-mobile-objective-type-select-option-${type.id}`}
+                key={type.id}
+                value={type.id}
+              >
+                {type.name}
+              </Option>
+            ))}
+          </Select>
+        </div>
+      )}
+
+      {/* BSC Pillar */}
+      {okrTab != 4 && (
+        <div
+          id="mobile-bsc-pillar-field"
+          data-cy="okr-mobile-bsc-pillar-field"
+          className="flex flex-col gap-2"
+        >
+          <label
+            id="mobile-bsc-pillar-label"
+            data-cy="okr-mobile-bsc-pillar-label"
+            className="text-sm font-medium text-gray-700"
+          >
+            BSC Pillar
+          </label>
+          <Select
+            id="mobile-bsc-pillar-select"
+            data-cy="okr-mobile-bsc-pillar-select"
+            placeholder="All BSC pillars"
+            className="w-full h-12 rounded-lg"
+            allowClear
+            getPopupContainer={popupContainer}
+            value={selectValueOrUndefined(searchObjParams.bscPillarId)}
+            onChange={(value) => handleFilter(value ?? '', 'bscPillarId')}
+          >
+            {BSC_PILLARS.map((pillar) => (
+              <Option
+                data-cy={`okr-mobile-bsc-pillar-select-option-${pillar.id}`}
+                key={pillar.id}
+                value={pillar.id}
+              >
+                {pillar.name}
               </Option>
             ))}
           </Select>
@@ -1120,6 +1199,64 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                       value={metric.id}
                     >
                       {metric.name}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+            )}
+
+            {/* Objective Type */}
+            {showMetricTypeFilter && (
+              <div
+                className="col-span-12 lg:col-span-2"
+                data-cy="okr-desktop-objective-type-container"
+              >
+                <Select
+                  id="desktop-objective-type-select"
+                  data-cy="okr-desktop-objective-type-select"
+                  placeholder="Filter by Objective Type"
+                  className="w-full h-14"
+                  allowClear
+                  value={selectValueOrUndefined(searchObjParams.objectiveTypeId)}
+                  onChange={(value) =>
+                    handleFilter(value ?? '', 'objectiveTypeId')
+                  }
+                >
+                  {objectiveTypes.map((type) => (
+                    <Option
+                      data-cy={`okr-desktop-objective-type-select-option-${type.id}`}
+                      key={type.id}
+                      value={type.id}
+                    >
+                      {type.name}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+            )}
+
+            {/* BSC Pillar */}
+            {showMetricTypeFilter && (
+              <div
+                className="col-span-12 lg:col-span-2"
+                data-cy="okr-desktop-bsc-pillar-container"
+              >
+                <Select
+                  id="desktop-bsc-pillar-select"
+                  data-cy="okr-desktop-bsc-pillar-select"
+                  placeholder="Filter by BSC Pillar"
+                  className="w-full h-14"
+                  allowClear
+                  value={selectValueOrUndefined(searchObjParams.bscPillarId)}
+                  onChange={(value) => handleFilter(value ?? '', 'bscPillarId')}
+                >
+                  {BSC_PILLARS.map((pillar) => (
+                    <Option
+                      data-cy={`okr-desktop-bsc-pillar-select-option-${pillar.id}`}
+                      key={pillar.id}
+                      value={pillar.id}
+                    >
+                      {pillar.name}
                     </Option>
                   ))}
                 </Select>

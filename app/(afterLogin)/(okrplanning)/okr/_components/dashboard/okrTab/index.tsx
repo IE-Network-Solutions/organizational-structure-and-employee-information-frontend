@@ -34,6 +34,12 @@ import {
   resolveEmployeeDepartmentId,
   resolveTeamViewerUserId,
 } from '../okrFilterUsers';
+import { useObjectiveTypesStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypesStore';
+import { useObjectiveTypeAllocationStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypeAllocationStore';
+
+/** Prototype mock badges on cards use these labels when API meta is missing. */
+const MOCK_OBJECTIVE_TYPE_NAME = 'Business';
+const MOCK_BSC_PILLAR_ID = 'financial';
 
 const TAB_CONFIG = [
   { key: '1', label: 'My OKR' },
@@ -86,6 +92,36 @@ export default function OkrTab({
 
   const filterDepartmentId = searchObjParams?.departmentId || '';
   const filterUserId = searchObjParams?.userId || '';
+  const filterObjectiveTypeId = searchObjParams?.objectiveTypeId || '';
+  const filterBscPillarId = searchObjParams?.bscPillarId || '';
+  const objectiveTypes = useObjectiveTypesStore((s) => s.types);
+  const getAllocationForObjective = useObjectiveTypeAllocationStore(
+    (s) => s.getAllocationForObjective,
+  );
+
+  const matchesObjectiveMetaFilters = (obj: any) => {
+    if (!filterObjectiveTypeId && !filterBscPillarId) return true;
+    const allocation = getAllocationForObjective(obj?.id, obj?.title);
+    const typeId = obj?.objectiveTypeId || allocation?.objectiveTypeId || null;
+    const bscId = obj?.bscPillarId || allocation?.bscPillarId || null;
+
+    const selectedTypeName = objectiveTypes.find(
+      (t) => t.id === filterObjectiveTypeId,
+    )?.name;
+
+    const typeOk =
+      !filterObjectiveTypeId ||
+      typeId === filterObjectiveTypeId ||
+      // mock card badges fallback
+      (!typeId && selectedTypeName === MOCK_OBJECTIVE_TYPE_NAME);
+
+    const bscOk =
+      !filterBscPillarId ||
+      bscId === filterBscPillarId ||
+      (!bscId && filterBscPillarId === MOCK_BSC_PILLAR_ID);
+
+    return Boolean(typeOk && bscOk);
+  };
 
   const { data: allLevelDepartmentUsers, isFetching: isDeptUsersFetching } =
     useGetDepartmentUsersAllLevels(filterDepartmentId || null);
@@ -313,7 +349,9 @@ export default function OkrTab({
               id="my-okr-objectives-list"
               data-cy="okr-my-okr-objectives-list"
             >
-              {userObjectives?.items?.map((obj: any) =>
+              {userObjectives?.items
+                ?.filter(matchesObjectiveMetaFilters)
+                ?.map((obj: any) =>
                 isBasicOkr ? (
                   <ObjectiveBasic
                     data-cy={`okr-my-okr-objective-basic-card-${obj?.id}`}

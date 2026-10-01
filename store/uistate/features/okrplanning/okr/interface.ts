@@ -55,6 +55,9 @@ export interface Objective {
   id?: string;
   allignedKeyResultId?: string | null;
   metricTypeId?: string | null;
+  objectiveTypeId?: string | null;
+  weight?: number | null;
+  bscPillarId?: string | null;
   title: string;
   deadline: string;
   userId: string;
@@ -69,6 +72,9 @@ export interface Objective {
 }
 export const defaultObjective: Objective = {
   allignedKeyResultId: '',
+  objectiveTypeId: null,
+  weight: null,
+  bscPillarId: null,
   title: '',
   deadline: '',
   userId: '',
@@ -83,11 +89,15 @@ interface SearchObjParams {
   userId: string;
   metricTypeId: string;
   departmentId: string;
+  objectiveTypeId: string;
+  bscPillarId: string;
 }
 interface EmployeeSearchObjParams {
   userId: string;
   metricTypeId: string;
   departmentId: string;
+  objectiveTypeId: string;
+  bscPillarId: string;
 }
 export interface OKRProps {
   keyValue: KeyResult;
