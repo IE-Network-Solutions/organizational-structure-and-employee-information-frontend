@@ -1,29 +1,28 @@
 'use client';
 
 import { useEffect, useMemo, useRef } from 'react';
-import { ExternalLink, X } from 'lucide-react';
 import { create } from 'zustand';
 import { useCollaboration } from '@/components/collaboration/collaboration-context';
 import {
   buildCollaborationSrc,
+  COLLABORATION_CLOSE_MESSAGE_TYPE,
   COLLABORATION_MESSAGE_TYPE,
 } from '@/utils/collaboration';
 
-/** Workspace's Ant Design `colorPrimary` — see providers/antdProvider. */
-const WORKSPACE_PRIMARY = '#1E40AF';
 /** Sidebar blue-50, the same wash the nav sider uses. */
-const WORKSPACE_PANEL_HEADER = '#EFF6FF';
+const WORKSPACE_PANEL_BACKGROUND = '#EFF6FF';
 /** Slate-200, the border tone the shell already uses between columns. */
 const WORKSPACE_BORDER = '#E2E8F0';
 
 export const COLLABORATION_MIN_PANEL_WIDTH = 240;
 export const COLLABORATION_DEFAULT_PANEL_WIDTH = 480;
 /**
- * Hard ceiling on the panel. Past this the embed stops being a companion column
- * and starts crowding the page it is meant to sit beside — and the host's own
- * content is the reason the user is here. Kept in step with CRM and Operations.
+ * Hard ceiling on the panel, the same as Core's chat dock (CHAT_MAX_WIDTH).
+ * Past this the embed stops being a companion column and starts crowding the
+ * page it is meant to sit beside — and the host's own content is the reason
+ * the user is here. Kept in step with CRM and Operations.
  */
-export const COLLABORATION_MAX_PANEL_WIDTH = 760;
+export const COLLABORATION_MAX_PANEL_WIDTH = 680;
 const PANEL_WIDTH_STORAGE_KEY = 'collaboration-panel-width';
 
 /**
@@ -141,6 +140,17 @@ export function CollaborationDock() {
     return () => window.removeEventListener('keydown', onKey);
   }, [isOpen, close]);
 
+  // The embedded app's own header has a close button; it asks via postMessage.
+  // Only our iframe may close the panel.
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      if (event.source !== iframeRef.current?.contentWindow) return;
+      if (event.data?.type === COLLABORATION_CLOSE_MESSAGE_TYPE) close();
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [close]);
+
   useEffect(() => {
     if (!dragging) return;
 
@@ -192,21 +202,6 @@ export function CollaborationDock() {
 
   if (!enabled) return null;
 
-  // Only a record-specific context earns header text. Without one the bar is
-  // actions-only — a default title would just restate what the embedded app
-  // already shows one row below.
-  const title = context?.title;
-  const subtitle = context?.subtitle;
-
-  // Explicit over `onClick={close}`: stops the click reaching anything that
-  // might re-open the panel, and keeps the button from acting as a submit if the
-  // panel ever renders inside a form.
-  const handleClose = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
-    close();
-  };
-
   return (
     <aside
       ref={panelRef}
@@ -226,8 +221,6 @@ export function CollaborationDock() {
         maxWidth: '100%',
         borderLeft: `1px solid ${WORKSPACE_BORDER}`,
         background: '#FFFFFF',
-        boxShadow:
-          '0 0 0 1px rgba(15,23,42,0.03), 0 18px 45px rgba(15,23,42,0.12)',
       }}
     >
       <div
@@ -243,61 +236,12 @@ export function CollaborationDock() {
         className="absolute inset-y-0 left-0 z-30 w-3 cursor-ew-resize touch-none bg-transparent transition hover:bg-slate-300/70 active:bg-slate-400/80"
       />
 
-      {/* `relative z-40` keeps the header — and its close button — above the
-          z-30 resize handle, which spans the panel's full height. */}
-      <header
-        data-cy="collaboration-panel-header"
-        className="relative z-40 flex items-center gap-1 pl-3 pr-2"
-        style={{
-          minHeight: 36,
-          background: WORKSPACE_PANEL_HEADER,
-          borderBottom: `1px solid ${WORKSPACE_BORDER}`,
-          color: WORKSPACE_PRIMARY,
-        }}
-      >
-        {title ? (
-          <p
-            data-cy="collaboration-panel-title"
-            className="min-w-0 flex-1 truncate text-xs font-semibold leading-tight"
-          >
-            {title}
-            {subtitle ? (
-              <span
-                data-cy="collaboration-panel-subtitle"
-                className="ml-1.5 font-normal text-slate-600"
-              >
-                {subtitle}
-              </span>
-            ) : null}
-          </p>
-        ) : (
-          <span data-cy="collaboration-panel-title-spacer" className="flex-1" />
-        )}
-        <a
-          href={src}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Open collaboration in a new tab"
-          data-cy="collaboration-open-full"
-          className="inline-flex size-7 items-center justify-center rounded-md text-slate-600 transition hover:bg-slate-900/10 hover:text-slate-900"
-        >
-          <ExternalLink className="size-4" />
-        </a>
-        <button
-          type="button"
-          onClick={handleClose}
-          title="Close"
-          aria-label="Close collaboration"
-          data-cy="collaboration-close"
-          className="inline-flex size-7 items-center justify-center rounded-md text-slate-600 transition hover:bg-slate-900/10 hover:text-slate-900"
-        >
-          <X className="size-4" />
-        </button>
-      </header>
-
+      {/* No host bar: the embedded app's own header carries the title, the
+          ⋯ menu and the close button (it posts COLLABORATION_CLOSE_MESSAGE_TYPE).
+          The Announcement nav item still toggles the panel too. */}
       <div
         className="relative min-h-0 flex-1 p-2"
-        style={{ background: WORKSPACE_PANEL_HEADER }}
+        style={{ background: WORKSPACE_PANEL_BACKGROUND }}
         data-cy="collaboration-panel-body"
       >
         {/* Swallows pointer events mid-drag so the iframe cannot capture them. */}

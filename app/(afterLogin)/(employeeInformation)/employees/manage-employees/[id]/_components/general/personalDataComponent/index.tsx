@@ -82,29 +82,26 @@ function PersonalDataComponent({
           });
         }
 
-        handleSaveChanges(
-          'general',
-          {
-            gender: otherValues.gender,
-            maritalStatus: otherValues.maritalStatus,
-            nationalityId: otherValues.nationalityId,
-            dateOfBirth: otherValues.dateOfBirth
-              ? dayjs(otherValues.dateOfBirth).format('YYYY-MM-DD')
-              : null,
-            joinedDate: otherValues.joinedDate
-              ? dayjs(otherValues.joinedDate).format('YYYY-MM-DD')
-              : null,
-            // Hydrated for cache display only; Nest whitelist strips it from the API body.
-            ...(nationality
-              ? {
-                  nationality: {
-                    id: nationality.id,
-                    name: nationality.name,
-                  },
-                }
-              : {}),
-          },
-        );
+        handleSaveChanges('general', {
+          gender: otherValues.gender,
+          maritalStatus: otherValues.maritalStatus,
+          nationalityId: otherValues.nationalityId,
+          dateOfBirth: otherValues.dateOfBirth
+            ? dayjs(otherValues.dateOfBirth).format('YYYY-MM-DD')
+            : null,
+          joinedDate: otherValues.joinedDate
+            ? dayjs(otherValues.joinedDate).format('YYYY-MM-DD')
+            : null,
+          // Hydrated for cache display only; Nest whitelist strips it from the API body.
+          ...(nationality
+            ? {
+                nationality: {
+                  id: nationality.id,
+                  name: nationality.name,
+                },
+              }
+            : {}),
+        });
       })
       .catch(() => {});
   };
