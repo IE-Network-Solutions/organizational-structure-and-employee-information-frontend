@@ -4,7 +4,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 export const ORG_AND_EMP_URL = process.env.ORG_AND_EMP_URL;
 /** Selamnew Collaboration API (spaces, channels, messages). */
 export const COLLAB_URL =
-  process.env.COLLAB_URL ?? 'https://test-api.ienetworks.co/collab/api/v1';
+  process.env.NEXT_PUBLIC_COLLAB_URL;
 export const OKR_URL = process.env.OKR_URL;
 export const PAYROLL_URL = process.env.PAYROLL_URL;
 export const CORE_API_URL = process.env.CORE_API_URL;
