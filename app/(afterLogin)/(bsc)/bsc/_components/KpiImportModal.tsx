@@ -29,18 +29,7 @@ const TARGET_DIRECTION_LABEL: Record<TargetLogic, string> = {
   [TargetLogic.Bounded]: 'Bounded',
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type PerspectiveStatus = 'existing' | 'new' | 'unassigned';
-
-function pickUploadFile(fileField: unknown): File | undefined {
-  const raw = fileField as
-    | { file?: { originFileObj?: File }; originFileObj?: File }
-    | Array<{ originFileObj?: File }>
-    | undefined;
-  if (!raw) return undefined;
-  if (Array.isArray(raw)) return raw[0]?.originFileObj;
-  return raw.file?.originFileObj ?? raw.originFileObj;
-}
 
 export default function KpiImportModal() {
   const { kpiImportModalOpen, closeKpiImportModal } = useBscUiStore();
