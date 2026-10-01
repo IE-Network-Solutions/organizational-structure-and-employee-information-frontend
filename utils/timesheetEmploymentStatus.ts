@@ -18,8 +18,10 @@ export function resolveTimesheetDeletedAtParam(
 export function isTimesheetInactiveStatus(
   status: TimesheetEmploymentStatus | '' | null | undefined,
 ): boolean {
-  return resolveTimesheetDeletedAtParam(status) ===
-    TIMESHEET_EMPLOYMENT_STATUS_INACTIVE;
+  return (
+    resolveTimesheetDeletedAtParam(status) ===
+    TIMESHEET_EMPLOYMENT_STATUS_INACTIVE
+  );
 }
 
 /**
@@ -34,11 +36,7 @@ export function resolveTimesheetUserIdsFilter(options: {
 }): string[] | undefined {
   const inactive = isTimesheetInactiveStatus(options.employmentStatus);
   const raw = options.employeeId;
-  const selected = Array.isArray(raw)
-    ? raw.filter(Boolean)
-    : raw
-      ? [raw]
-      : [];
+  const selected = Array.isArray(raw) ? raw.filter(Boolean) : raw ? [raw] : [];
 
   if (selected.length > 0) {
     return selected;

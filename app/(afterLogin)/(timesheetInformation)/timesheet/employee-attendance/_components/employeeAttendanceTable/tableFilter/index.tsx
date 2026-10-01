@@ -438,7 +438,8 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
     mutateAsync: calculateAbsentAttendance,
     isLoading: isCalculatingAbsent,
   } = useCalculateAbsentAttendance();
-  const isInactiveView = employmentStatus === TIMESHEET_EMPLOYMENT_STATUS_INACTIVE;
+  const isInactiveView =
+    employmentStatus === TIMESHEET_EMPLOYMENT_STATUS_INACTIVE;
 
   const getFilterValues = useCallback((): CommonObject => {
     const values = { ...form.getFieldsValue() };
