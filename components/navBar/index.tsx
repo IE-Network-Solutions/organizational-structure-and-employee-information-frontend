@@ -7,7 +7,7 @@ import { auth } from '@/utils/firebaseConfig';
 import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
-import AnnouncementMegaphoneIcon from '@/app/(afterLogin)/(organizationalStructure)/organization/announcement/_components/AnnouncementMegaphoneIcon';
+import AnnouncementMegaphoneIcon from '@/components/collaboration/AnnouncementMegaphoneIcon';
 import {
   MdPeople,
   MdPersonSearch,
@@ -77,14 +77,12 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
 };
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { useCollaborationMentionNotifications } from '@/store/server/features/collaboration';
 import { useCollaboration } from '@/components/collaboration/collaboration-context';
 import { COLLABORATION_SPACES_PATH } from '@/utils/collaboration';
 import {
   CollaborationDock,
   useCollaborationPanelStore,
 } from '@/components/collaboration/collaboration-dock';
-import { useAnnouncementChannelsStore } from '@/store/uistate/features/organizationStructure/announcementChannels';
 import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
@@ -382,20 +380,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const router = useRouter();
   const pathname = usePathname();
   const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
-  const enabledAnnouncementChannelIds = useAnnouncementChannelsStore(
-    (state) => state.enabledChannelIds,
-  );
-  const { data: collaborationMentionNotifications = [] } =
-    useCollaborationMentionNotifications();
-  const hasAnnouncementMention = React.useMemo(() => {
-    const integratedChannelIds = new Set(enabledAnnouncementChannelIds);
-    return collaborationMentionNotifications.some(
-      (notification) =>
-        notification.unread &&
-        notification.channelId &&
-        integratedChannelIds.has(notification.channelId),
-    );
-  }, [collaborationMentionNotifications, enabledAnnouncementChannelIds]);
   const {
     enabled: collaborationEnabled,
     isOpen: collaborationOpen,
@@ -1849,9 +1833,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           </div>
 
-          {AccessGuard.checkAccess({
-            permissions: ['view_organization'],
-          }) && (
+          {collaborationEnabled &&
+            AccessGuard.checkAccess({
+              permissions: ['view_organization'],
+            }) && (
             <div
               data-cy="nav-sider-announcement-wrap"
               className={`mt-2 w-full shrink-0 border-t border-[#E2E8F0] bg-white/40 pt-3 pb-2 ${
@@ -1863,15 +1848,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                 className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
               >
                 {(() => {
-                  // Announcement is the collaboration panel's launcher on
-                  // desktop, so it reads as active whenever the panel is open —
-                  // not only on the standalone page, which stays reachable at
-                  // its own URL.
-                  const opensCollaborationPanel =
-                    collaborationEnabled && !isMobile;
-                  const isAnnouncementActive = opensCollaborationPanel
-                    ? collaborationOpen
-                    : pathname.startsWith('/organization/announcement');
+                  // Opens the embedded collaboration iframe (post channels only).
+                  const isAnnouncementActive = collaborationOpen && !isMobile;
                   const announcementButton = (
                     <Button
                       data-cy="nav-sider-announcement-btn"
@@ -1895,16 +1873,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                             size={21}
                             data-cy="nav-sider-announcement-icon"
                           />
-                          {collapsed && hasAnnouncementMention ? (
-                            <span
-                              className="absolute -right-2 -top-1 inline-flex items-center justify-center text-xs font-bold leading-none text-[#ff4d4f]"
-                              aria-label="You were mentioned in an announcement channel"
-                              title="Mention"
-                              data-cy="nav-sider-announcement-mention"
-                            >
-                              @
-                            </span>
-                          ) : null}
                         </span>
                       }
                       className={`
@@ -1927,25 +1895,13 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                       }
                       onClick={() => {
                         if (hasEndedFiscalYear) return;
-                        // The panel has no room on a phone (it is hidden below
-                        // `md`), so mobile keeps navigating to the page.
-                        if (opensCollaborationPanel) {
-                          toggleCollaboration({
-                            title: 'Announcement',
-                            module: 'announcement',
-                            // Land on the spaces list rather than the embedded
-                            // app's own home — post channels live there, and
-                            // `channels=posts` has already narrowed it to them.
-                            path: COLLABORATION_SPACES_PATH,
-                          });
-                          return;
-                        }
-                        triggerRouteLoaderStart();
-                        router.push('/organization/announcement');
-                        setSelectedKeys(['/organization/announcement']);
-                        if (isMobile) {
-                          setMobileCollapsed(true);
-                        }
+                        // Panel is desktop-only (`md+`); on mobile the dock is hidden.
+                        if (isMobile) return;
+                        toggleCollaboration({
+                          title: 'Announcement',
+                          module: 'announcement',
+                          path: COLLABORATION_SPACES_PATH,
+                        });
                       }}
                     >
                       {!collapsed && (
@@ -1960,17 +1916,6 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                           >
                             Announcement
                           </span>
-                          {hasAnnouncementMention ? (
-                            <span
-                              className="inline-flex shrink-0 items-center justify-start font-bold leading-none text-[#ff4d4f]"
-                              style={{ fontSize }}
-                              aria-label="You were mentioned in an announcement channel"
-                              title="Mention"
-                              data-cy="nav-sider-announcement-mention"
-                            >
-                              @
-                            </span>
-                          ) : null}
                         </span>
                       )}
                     </Button>
