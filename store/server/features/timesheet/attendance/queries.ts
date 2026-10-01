@@ -63,7 +63,12 @@ export const useGetRuleViolations = (query: RuleViolationQueryParams) => {
   return useQuery<ApiResponse<AttendanceRuleViolation>>(
     ['attendance-rule-violations', query],
     () => getRuleViolations(query),
-    { keepPreviousData: true },
+    {
+      keepPreviousData: true,
+      staleTime: 3 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   );
 };
 
@@ -230,6 +235,10 @@ export const useGetCurrentAttendance = (userId: string) => {
     () => getCurrentAttendance(userId),
     {
       keepPreviousData: true,
+      enabled: Boolean(userId),
+      staleTime: 30 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   );
 };
