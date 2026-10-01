@@ -45,10 +45,6 @@ const MENU_ROUTES: MenuRouteNode[] = [
     children: [
       { key: '/organization/chart', permissions: ['view_organization_chart'] },
       {
-        key: '/organization/announcement',
-        permissions: ['view_organization'],
-      },
-      {
         key: '/organization/settings',
         permissions: ['view_organization_settings'],
       },
