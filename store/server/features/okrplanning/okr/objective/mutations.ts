@@ -283,7 +283,7 @@ export const useUpdateObjectiveNestedDelete = () => {
 export const useDeleteObjective = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteObjective, {
-    onSuccess: (_data, deletedId) => {
+    onSuccess: (...[, deletedId]) => {
       useObjectiveTypeAllocationStore
         .getState()
         .removeAllocationByObjectiveId(String(deletedId));

@@ -44,8 +44,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
   const isObjectiveTypes = activeTab === 'objective-types';
   const objectiveTypesRemaining = Math.max(
     0,
-    100 -
-      objectiveTypes.reduce((sum, t) => sum + Number(t.weight || 0), 0),
+    100 - objectiveTypes.reduce((sum, t) => sum + Number(t.weight || 0), 0),
   );
 
   const handleAddAssignee = () => {

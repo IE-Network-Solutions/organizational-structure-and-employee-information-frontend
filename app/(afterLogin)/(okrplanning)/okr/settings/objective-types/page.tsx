@@ -163,7 +163,9 @@ const ObjectiveTypesPage = () => {
                 className="flex items-end justify-between"
                 data-cy={`okr-objective-type-card-footer-${item.id}`}
               >
-                <div data-cy={`okr-objective-type-card-weight-block-${item.id}`}>
+                <div
+                  data-cy={`okr-objective-type-card-weight-block-${item.id}`}
+                >
                   <p
                     className="text-lg font-bold text-gray-800 m-0 leading-6"
                     id={`okr-objective-type-card-weight-${item.id}`}

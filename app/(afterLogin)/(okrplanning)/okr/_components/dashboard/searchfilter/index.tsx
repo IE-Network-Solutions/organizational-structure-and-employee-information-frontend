@@ -1217,7 +1217,9 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                   placeholder="Filter by Objective Type"
                   className="w-full h-14"
                   allowClear
-                  value={selectValueOrUndefined(searchObjParams.objectiveTypeId)}
+                  value={selectValueOrUndefined(
+                    searchObjParams.objectiveTypeId,
+                  )}
                   onChange={(value) =>
                     handleFilter(value ?? '', 'objectiveTypeId')
                   }

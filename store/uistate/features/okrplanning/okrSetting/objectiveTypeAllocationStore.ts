@@ -23,7 +23,10 @@ interface ObjectiveTypeAllocationState {
   }) => void;
   removeAllocationByObjectiveId: (objectiveId: string) => void;
   /** Bind a pending (null objectiveId) allocation to a real objective id via title. */
-  linkAllocationToObjective: (objectiveId: string, title?: string | null) => void;
+  linkAllocationToObjective: (
+    objectiveId: string,
+    title?: string | null,
+  ) => void;
   getAllocationForObjective: (
     objectiveId?: string | null,
     title?: string | null,

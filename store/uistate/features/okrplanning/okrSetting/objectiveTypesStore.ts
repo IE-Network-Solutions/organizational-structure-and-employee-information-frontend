@@ -51,9 +51,7 @@ export const useObjectiveTypesStore = create<ObjectiveTypesState>()(
       getTotalWeight: (excludeId) =>
         get().types.reduce(
           (sum, t) =>
-            excludeId && t.id === excludeId
-              ? sum
-              : sum + Number(t.weight || 0),
+            excludeId && t.id === excludeId ? sum : sum + Number(t.weight || 0),
           0,
         ),
       addType: (type) => get().addTypes([type]),
@@ -118,11 +116,13 @@ export const useObjectiveTypesStore = create<ObjectiveTypesState>()(
     {
       name: 'okr-objective-types-mock',
       storage: createJSONStorage(() =>
-        typeof window !== 'undefined' ? localStorage : {
-          getItem: () => null,
-          setItem: () => undefined,
-          removeItem: () => undefined,
-        },
+        typeof window !== 'undefined'
+          ? localStorage
+          : {
+              getItem: () => null,
+              setItem: () => undefined,
+              removeItem: () => undefined,
+            },
       ),
       partialize: (state) => ({ types: state.types }),
     },

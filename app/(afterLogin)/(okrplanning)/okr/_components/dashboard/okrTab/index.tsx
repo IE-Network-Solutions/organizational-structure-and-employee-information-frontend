@@ -352,22 +352,22 @@ export default function OkrTab({
               {userObjectives?.items
                 ?.filter(matchesObjectiveMetaFilters)
                 ?.map((obj: any) =>
-                isBasicOkr ? (
-                  <ObjectiveBasic
-                    data-cy={`okr-my-okr-objective-basic-card-${obj?.id}`}
-                    key={obj.id}
-                    myOkr={true}
-                    objective={obj}
-                  />
-                ) : (
-                  <ObjectiveCard
-                    data-cy={`okr-my-okr-objective-card-${obj?.id}`}
-                    key={obj.id}
-                    myOkr={true}
-                    objective={obj}
-                  />
-                ),
-              )}
+                  isBasicOkr ? (
+                    <ObjectiveBasic
+                      data-cy={`okr-my-okr-objective-basic-card-${obj?.id}`}
+                      key={obj.id}
+                      myOkr={true}
+                      objective={obj}
+                    />
+                  ) : (
+                    <ObjectiveCard
+                      data-cy={`okr-my-okr-objective-card-${obj?.id}`}
+                      key={obj.id}
+                      myOkr={true}
+                      objective={obj}
+                    />
+                  ),
+                )}
               {isMobile || isTablet ? (
                 <CustomMobilePagination
                   data-cy="okr-my-okr-mobile-pagination"
