@@ -2,7 +2,12 @@ import { NOTIFICATION_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { requestHeader } from '@/helpers/requestHeader';
 import { useMutation, useQueryClient } from 'react-query';
-import type { PushSubscriptionPayload } from './interface';
+import type {
+  PushSubscriptionPayload,
+  UpsertNotificationPreferencesPayload,
+  NotificationPreferencesResponse,
+} from './interface';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 export const registerPushSubscription = async (
   payload: PushSubscriptionPayload,
@@ -36,6 +41,20 @@ export const markAllAsRead = async (userId: string) => {
   });
 };
 
+export const upsertNotificationPreferences = async (
+  payload: UpsertNotificationPreferencesPayload,
+): Promise<NotificationPreferencesResponse> => {
+  const headers = await requestHeader();
+  const res = await crudRequest({
+    url: `${NOTIFICATION_URL}/notification/preferences`,
+    method: 'PUT',
+    params: { userId: payload.userId },
+    data: payload,
+    headers,
+  });
+  return (res ?? payload) as NotificationPreferencesResponse;
+};
+
 export const useMarkAsRead = () => {
   const queryClient = useQueryClient();
   return useMutation(
@@ -59,7 +78,21 @@ export const useMarkAllAsRead = () => {
   });
 };
 
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+export const useUpsertNotificationPreferences = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (payload: UpsertNotificationPreferencesPayload) =>
+      upsertNotificationPreferences(payload),
+    {
+      onSuccess: (data, payload) => {
+        queryClient.setQueryData(
+          ['notification-preferences', payload.userId],
+          data,
+        );
+      },
+    },
+  );
+};
 
 /** @deprecated Use useMarkAsRead. Kept for backward compatibility. */
 export const useUpdateNotificationStatus = () => {
