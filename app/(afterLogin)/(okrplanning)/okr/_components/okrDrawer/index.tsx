@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   DatePicker,
@@ -41,6 +41,7 @@ import {
   useObjectiveTypeAllocationStore,
   extractCreatedObjectiveId,
 } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypeAllocationStore';
+import { useObjectiveTypeAssignmentStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypeAssignmentStore';
 import { BSC_PILLARS } from '../../_constants/bscPillars';
 
 interface OkrDrawerProps {
@@ -78,31 +79,120 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const resetMilestoneForm = useMilestoneFormStore((s) => s.resetMilestoneForm);
   const resetKeyResultForm = useKeyResultFormStore((s) => s.resetKeyResultForm);
   const objectiveTypes = useObjectiveTypesStore((s) => s.types);
-  const hasObjectiveTypes = objectiveTypes.length > 0;
+  const resolveAssignmentForUser = useObjectiveTypeAssignmentStore(
+    (s) => s.resolveAssignmentForUser,
+  );
+  const assignments = useObjectiveTypeAssignmentStore((s) => s.assignments);
   const allocations = useObjectiveTypeAllocationStore((s) => s.allocations);
   const getRemainingForType = useObjectiveTypeAllocationStore(
     (s) => s.getRemainingForType,
   );
   const addAllocation = useObjectiveTypeAllocationStore((s) => s.addAllocation);
 
-  const getTypeRemaining = (typeId: string) => {
-    const type = objectiveTypes.find((t) => t.id === typeId);
-    if (!type) return 0;
-    return getRemainingForType(type.id, type.weight);
+  const { userId } = useAuthenticationStore();
+  const { data: userData } = useGetEmployee(userId);
+
+  const jobInfo =
+    userData?.employeeJobInformation?.find?.(
+      (j: any) => j?.isPositionActive || j?.status === 'active',
+    ) || userData?.employeeJobInformation?.[0];
+
+  const userAssignment = useMemo(() => {
+    void assignments;
+    return resolveAssignmentForUser({
+      userId,
+      departmentId: jobInfo?.departmentId || null,
+      roleId: jobInfo?.positionId || jobInfo?.position?.id || null,
+    });
+  }, [
+    assignments,
+    resolveAssignmentForUser,
+    userId,
+    jobInfo?.departmentId,
+    jobInfo?.positionId,
+    jobInfo?.position?.id,
+  ]);
+
+  /**
+   * Prototype budgets by type kind (Business / Strategic).
+   * Strategic = 20%, Business = 80%.
+   */
+  const getPrototypeTypeBudget = (type: {
+    isStrategic?: boolean;
+    name?: string;
+  }) => {
+    const name = String(type.name || '')
+      .trim()
+      .toLowerCase();
+    if (type.isStrategic || name.includes('strategic')) return 20;
+    return 80;
   };
 
-  const selectedTypeRemaining = objectiveValue?.objectiveTypeId
-    ? getTypeRemaining(objectiveValue.objectiveTypeId)
+  /**
+   * Prefer types from the user’s Type Assignment; fall back to catalog.
+   * Budgets always follow prototype kind rules (20 / 80) for the demo.
+   */
+  const availableTypes = useMemo(() => {
+    const withBudget = (type: (typeof objectiveTypes)[number]) => ({
+      ...type,
+      // Keep flag consistent with name for older mock data
+      isStrategic:
+        Boolean(type.isStrategic) ||
+        String(type.name || '')
+          .trim()
+          .toLowerCase()
+          .includes('strategic'),
+      assignmentWeight: getPrototypeTypeBudget(type),
+    });
+
+    if (userAssignment?.items?.length) {
+      return userAssignment.items
+        .map((item) => {
+          const type = objectiveTypes.find(
+            (t) => t.id === item.objectiveTypeId,
+          );
+          if (!type) return null;
+          return withBudget(type);
+        })
+        .filter(Boolean) as Array<
+        (typeof objectiveTypes)[number] & { assignmentWeight: number }
+      >;
+    }
+
+    return objectiveTypes.map((type) => withBudget(type));
+  }, [userAssignment, objectiveTypes]);
+
+  const hasObjectiveTypes = availableTypes.length > 0;
+
+  const getTypeBudget = (typeId: string) => {
+    const assigned = availableTypes.find((t) => t.id === typeId);
+    return assigned ? getPrototypeTypeBudget(assigned) : 0;
+  };
+
+  /** Prototype: treat budget as remaining so options stay selectable. */
+  const getTypeRemaining = (typeId: string) => getTypeBudget(typeId);
+
+  const selectedTypeBudget = objectiveValue?.objectiveTypeId
+    ? getTypeBudget(objectiveValue.objectiveTypeId)
     : 0;
+
+  const selectedTypeRemaining = selectedTypeBudget;
+
+  const selectedObjectiveType = availableTypes.find(
+    (t) => t.id === objectiveValue?.objectiveTypeId,
+  );
+  const isStrategicObjective = Boolean(selectedObjectiveType?.isStrategic);
 
   // Keep subscription alive so remaining updates after create/delete
   void allocations;
+  void getRemainingForType;
 
   const handleObjectiveTypeChange = (typeId: string) => {
-    const remaining = getTypeRemaining(typeId);
+    const type = availableTypes.find((t) => t.id === typeId);
     const latest = useOKRStore.getState().objectiveValue;
     const currentUserId = useAuthenticationStore.getState().userId;
-    const nextWeight = remaining > 0 ? remaining : null;
+    // Prototype: Strategic → 20%, Business → 80%
+    const nextWeight = type ? getPrototypeTypeBudget(type) : null;
     setObjectiveValue({
       ...latest,
       userId: currentUserId,
@@ -113,6 +203,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       objectiveTypeId: typeId,
       weight: nextWeight,
     });
+    if (type?.isStrategic) {
+      const keyResults = useOKRStore.getState().objective?.keyResults || [];
+      for (let i = 0; i < keyResults.length; i += 1) {
+        updateKeyResult(i, 'weight', 0);
+      }
+    }
   };
 
   const handleObjectiveWeightChange = (value: number | null) => {
@@ -136,8 +232,6 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     </div>
   );
 
-  const { userId } = useAuthenticationStore();
-  const { data: userData } = useGetEmployee(userId);
   const reportsToId = userData?.delegatedTo?.id || userData?.reportingTo?.id;
 
   const sessionId = sessionIds?.[0];
@@ -213,16 +307,27 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
       .validateFields()
       .then(() => {
         const keyResults = objective?.keyResults || [];
-        const keyResultSum = keyResults.reduce(
-          (sum: number, keyResult: Record<string, any>) =>
-            sum + Number(keyResult?.weight ?? 0),
-          0,
-        );
-        if (keyResultSum !== 100) {
-          NotificationMessage.warning({
-            message: `The sum of key result should equal to 100. Current sum: ${keyResultSum}`,
-          });
-          return; // Stop submission if the sum is not 100
+        if (!isStrategicObjective) {
+          const keyResultSum = keyResults.reduce(
+            (sum: number, keyResult: Record<string, any>) =>
+              sum + Number(keyResult?.weight ?? 0),
+            0,
+          );
+          if (keyResultSum !== 100) {
+            NotificationMessage.warning({
+              message: `The sum of key result should equal to 100. Current sum: ${keyResultSum}`,
+            });
+            return; // Stop submission if the sum is not 100
+          }
+        } else {
+          const missingKind = keyResults.find((kr: any) => !kr?.krKind);
+          if (missingKind) {
+            NotificationMessage.warning({
+              message:
+                'Strategic key results require Committed or Aspirational type.',
+            });
+            return;
+          }
         }
 
         if (keyResults && keyResults.length !== 0) {
@@ -282,18 +387,57 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             if (
               keyType === 'Currency' ||
               keyType === 'Numeric' ||
-              keyType === 'Percentage'
+              keyType === 'Percentage' ||
+              keyType === 'Milestone'
             ) {
-              // Check if at least one milestone is added
-
               if (
+                keyType !== 'Milestone' &&
                 Number(keyResult?.initialValue) >=
-                Number(keyResult?.targetValue)
+                  Number(keyResult?.targetValue)
               ) {
                 NotificationMessage.warning({
-                  message: `On number:${index + 1} title:${keyResult.title}: Target value must be greater than the initial value.`,
+                  message: `On number:${index + 1} title:${keyResult.title}: Target value must be greater than the baseline.`,
                 });
-                return; // Stop submission if the sum is not 100
+                return;
+              }
+
+              const baseline = Number(keyResult?.initialValue);
+              const threshold =
+                keyResult?.threshold != null
+                  ? Number(keyResult.threshold)
+                  : null;
+              const target = Number(keyResult?.targetValue);
+              const stretch =
+                keyResult?.stretch != null ? Number(keyResult.stretch) : null;
+
+              if (
+                keyType !== 'Milestone' &&
+                threshold != null &&
+                !Number.isNaN(threshold)
+              ) {
+                if (!Number.isNaN(baseline) && threshold < baseline) {
+                  NotificationMessage.warning({
+                    message: `On number:${index + 1} title:${keyResult.title}: Threshold must be ≥ baseline.`,
+                  });
+                  return;
+                }
+                if (!Number.isNaN(target) && threshold > target) {
+                  NotificationMessage.warning({
+                    message: `On number:${index + 1} title:${keyResult.title}: Threshold must be ≤ target.`,
+                  });
+                  return;
+                }
+              }
+              if (
+                stretch != null &&
+                !Number.isNaN(stretch) &&
+                !Number.isNaN(target) &&
+                stretch < target
+              ) {
+                NotificationMessage.warning({
+                  message: `On number:${index + 1} title:${keyResult.title}: Stretch must be ≥ target.`,
+                });
+                return;
               }
             }
           }
@@ -417,9 +561,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     Boolean(objectiveValue?.deadline) &&
     Boolean(objective?.keyResults?.length);
 
-  // Adding another key result only makes sense while there's weight left to give.
+  // Adding another key result only makes sense while there's weight left (non-strategic).
   const canAddKeyResult =
-    Boolean(objectiveValue?.title?.trim()) && totalWeight < 100;
+    Boolean(objectiveValue?.title?.trim()) &&
+    (isStrategicObjective || totalWeight < 100);
 
   const footer = (
     <div
@@ -836,7 +981,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                       onChange={handleObjectiveTypeChange}
                       style={{ fontSize: '14px', height: '44px' }}
                     >
-                      {objectiveTypes.map((type) => {
+                      {availableTypes.map((type) => {
                         const remaining = getTypeRemaining(type.id);
                         const fullyAllocated = remaining <= 0;
                         return (
@@ -920,13 +1065,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     className="text-sm font-medium text-gray-700"
                     data-cy="okr-drawer-mobile-bsc-label"
                   >
-                    BSC Pillar{' '}
-                    <span
-                      className="text-gray-400 text-xs ml-1"
-                      data-cy="okr-drawer-mobile-bsc-optional"
-                    >
-                      (optional)
-                    </span>
+                    BSC Pillar
                   </span>
                 }
               >
@@ -1184,7 +1323,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                     onChange={handleObjectiveTypeChange}
                     style={{ fontSize: '14px', height: '44px' }}
                   >
-                    {objectiveTypes.map((type) => {
+                    {availableTypes.map((type) => {
                       const remaining = getTypeRemaining(type.id);
                       const fullyAllocated = remaining <= 0;
                       return (
@@ -1264,13 +1403,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   className="text-sm font-medium text-gray-700"
                   data-cy="okr-drawer-desktop-bsc-label"
                 >
-                  BSC Pillar{' '}
-                  <span
-                    className="text-gray-400 text-xs ml-1"
-                    data-cy="okr-drawer-desktop-bsc-optional"
-                  >
-                    (optional)
-                  </span>
+                  BSC Pillar
                 </span>
               }
             >
@@ -1610,12 +1743,21 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                           className="flex items-start justify-between gap-3 mb-2"
                           data-cy={`okr-drawer-saved-kr-header-${index}`}
                         >
-                          <span
-                            className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 shrink-0"
-                            data-cy={`okr-drawer-saved-kr-weight-${index}`}
-                          >
-                            Weight {keyItem?.weight ?? 0}%
-                          </span>
+                          {isStrategicObjective ? (
+                            <span
+                              className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 shrink-0 capitalize"
+                              data-cy={`okr-drawer-saved-kr-kind-${index}`}
+                            >
+                              {keyItem?.krKind || 'Strategic KR'}
+                            </span>
+                          ) : (
+                            <span
+                              className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 border border-gray-200 shrink-0"
+                              data-cy={`okr-drawer-saved-kr-weight-${index}`}
+                            >
+                              Weight {keyItem?.weight ?? 0}%
+                            </span>
+                          )}
                           <Tooltip title="Edit">
                             <button
                               type="button"
@@ -1658,13 +1800,14 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                       removeKeyResult={removeKeyResult}
                       addKeyResultValue={addKeyResultValue}
                       embedInOkrSheet={isMobile}
+                      isStrategicObjective={isStrategicObjective}
                     />
                   );
                 })}
           </div>
 
           {/* Total Weight Display */}
-          {objective?.keyResults?.length > 0 && (
+          {objective?.keyResults?.length > 0 && !isStrategicObjective && (
             <div
               id="okr-drawer-total-weight-display"
               data-cy="okr-drawer-total-weight-display"

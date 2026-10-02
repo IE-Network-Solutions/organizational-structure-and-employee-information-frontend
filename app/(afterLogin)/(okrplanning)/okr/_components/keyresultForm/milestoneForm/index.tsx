@@ -36,6 +36,8 @@ import {
   ADVANCED_ROW_CLASS,
   ADVANCED_WRAPPER_CLASS,
   INPUT_CLASS,
+  ExtendedMetricFields,
+  KrKindField,
 } from '../_ui';
 
 /** Stable empty array to avoid useEffect loop when keyItem has no milestones. */
@@ -49,6 +51,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
   disableWeightEdit: disableWeightEditProp,
   disableMetricTypeEdit: disableMetricTypeEditProp,
   hideRemoveButton,
+  isStrategicObjective = false,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -256,6 +259,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               className="flex flex-row gap-2"
             >
               <Form.Item
+                hidden={isStrategicObjective}
                 className="flex-1 mb-0"
                 name="weight"
                 label={
@@ -554,6 +558,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                 </Select>
               </Form.Item>
               <Form.Item
+                hidden={isStrategicObjective}
                 className="w-24 mb-0"
                 name="weight"
                 rules={[
@@ -806,6 +811,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                       onPressEnter={(e) => e.preventDefault()}
                     />
                   </Form.Item>
+                  {isStrategicObjective ? (
+                    <KrKindField
+                      index={index}
+                      value={keyItem.krKind}
+                      updateKeyResult={updateKeyResult}
+                      dataCyPrefix="okr-milestone-kind"
+                    />
+                  ) : null}
                   <Form.Item
                     className="w-44 mb-0"
                     label={
@@ -850,6 +863,7 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     </Select>
                   </Form.Item>
                   <Form.Item
+                    hidden={isStrategicObjective}
                     className="w-32 mb-0"
                     name="weight"
                     label={
@@ -921,6 +935,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
                     />
                   </Form.Item>
                 </div>
+
+                <ExtendedMetricFields
+                  index={index}
+                  keyItem={keyItem}
+                  updateKeyResult={updateKeyResult}
+                  showThresholdStretch
+                  dataCyPrefix="okr-milestone"
+                />
 
                 <KeyResultSectionCard
                   id={`okr-milestone-desktop-advanced-list-${index}`}

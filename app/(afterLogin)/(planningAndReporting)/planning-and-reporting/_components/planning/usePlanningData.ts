@@ -17,6 +17,11 @@ import {
   getSubordinateIds,
   resolveDefaultPlanScope,
 } from './departmentUsers';
+import {
+  buildPrototypeQuarterlyPlans,
+  isPrototypeQuarterlyPeriodId,
+} from '@/app/(afterLogin)/(okrplanning)/okr/_constants/prototypeMockObjectives';
+import { useObjectiveTypesStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypesStore';
 
 function buildActivePlanningItems(items: any[], userId: string) {
   const activeOnly = (items ?? []).filter(
@@ -184,6 +189,7 @@ export function usePlanningData(enabled = true) {
   const listQueryEnabled =
     enabled &&
     !!planningPeriodId &&
+    !isPrototypeQuarterlyPeriodId(planningPeriodId) &&
     planningDefaultFilterApplied &&
     effectiveSelectedUsers.length > 0;
 
@@ -219,19 +225,45 @@ export function usePlanningData(enabled = true) {
     return planningPeriods?.items?.find((p: any) => p?.id === id) || {};
   };
 
-  const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+  const isQuarterlyPrototype = isPrototypeQuarterlyPeriodId(planningPeriodId);
+  const objectiveTypes = useObjectiveTypesStore((s) => s.types);
 
-  const activePlanningItems = useMemo(
-    () => buildActivePlanningItems(allPlanning?.items ?? [], userId),
-    [allPlanning?.items, userId],
-  );
+  const activeTabName = isQuarterlyPrototype
+    ? 'Quarterly'
+    : getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
 
-  const krActivePlanningItems = useMemo(
-    () => buildActivePlanningItems(allPlanningForKrPanel?.items ?? [], userId),
-    [allPlanningForKrPanel?.items, userId],
-  );
+  const prototypeQuarterlyPlans = useMemo(() => {
+    if (!isQuarterlyPrototype || !userId) return [];
+    return buildPrototypeQuarterlyPlans({ userId, types: objectiveTypes });
+  }, [isQuarterlyPrototype, userId, objectiveTypes]);
 
-  const isKrPanelReady = allPlanningForKrPanel !== undefined;
+  const activePlanningItems = useMemo(() => {
+    if (isQuarterlyPrototype) {
+      return buildActivePlanningItems(prototypeQuarterlyPlans, userId);
+    }
+    return buildActivePlanningItems(allPlanning?.items ?? [], userId);
+  }, [
+    isQuarterlyPrototype,
+    prototypeQuarterlyPlans,
+    allPlanning?.items,
+    userId,
+  ]);
+
+  const krActivePlanningItems = useMemo(() => {
+    if (isQuarterlyPrototype) {
+      return buildActivePlanningItems(prototypeQuarterlyPlans, userId);
+    }
+    return buildActivePlanningItems(allPlanningForKrPanel?.items ?? [], userId);
+  }, [
+    isQuarterlyPrototype,
+    prototypeQuarterlyPlans,
+    allPlanningForKrPanel?.items,
+    userId,
+  ]);
+
+  const isKrPanelReady = isQuarterlyPrototype
+    ? true
+    : allPlanningForKrPanel !== undefined;
   const totalItems = isKrPanelReady
     ? krActivePlanningItems.length
     : (allPlanning?.meta?.totalItems ?? 0);

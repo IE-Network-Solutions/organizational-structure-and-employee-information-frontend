@@ -17,6 +17,10 @@ import PlanCardSkeleton from '../cards/PlanCardSkeleton';
 import PlanningPanelView from './PlanningPanelView';
 import { Cadence, PlanSummary } from '../types';
 import { canApproveSubordinateWork, formatPlanningReportDate } from '../utils';
+import {
+  buildPrototypeQuarterlyPlans,
+  isPrototypeQuarterlyPeriodId,
+} from '@/app/(afterLogin)/(okrplanning)/okr/_constants/prototypeMockObjectives';
 
 export interface PlanningExposedData {
   planSummaries: PlanSummary[];
@@ -76,13 +80,18 @@ function Planning({
   const planningPeriodId =
     activePlanPeriodId || userPlanningPeriods?.[activePlanPeriod - 1]?.id;
 
+  const isQuarterlyPrototype = isPrototypeQuarterlyPeriodId(planningPeriodId);
+
   const planSummaries = planSummariesFromParent ?? [];
   const transformedData = transformedDataFromParent ?? [];
   const getPlanningLoading = planningLoadingFromParent ?? false;
 
   const isPlanningListLoading =
     userPlanningPeriodsLoading ||
-    (Boolean(planningPeriodId) && getPlanningLoading && activeTab === 1);
+    (Boolean(planningPeriodId) &&
+      !isQuarterlyPrototype &&
+      getPlanningLoading &&
+      activeTab === 1);
 
   useEffect(() => {
     setPage(1);
@@ -101,16 +110,26 @@ function Planning({
     return transformedData ?? [];
   }, [transformedData]);
 
-  const activeTabName = getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
+  const activeTabName = isQuarterlyPrototype
+    ? 'Quarterly'
+    : getPlanningPeriodDetail(planningPeriodId ?? '')?.name;
 
   const { data: plannedTasksForReport, isLoading: plannedForReportLoading } =
     useGetPlannedTaskForReport(planningPeriodId, {
-      enabled: activeTab === 1 && !!planningPeriodId,
+      enabled: activeTab === 1 && !!planningPeriodId && !isQuarterlyPrototype,
     });
-  const ownerCanOpenSubmitReport =
-    !plannedForReportLoading &&
-    Array.isArray(plannedTasksForReport) &&
-    plannedTasksForReport.length > 0;
+
+  const prototypePlannedTasks = useMemo(() => {
+    if (!isQuarterlyPrototype || !userId) return [];
+    const plans = buildPrototypeQuarterlyPlans({ userId });
+    return plans.flatMap((p) => p.tasks ?? []);
+  }, [isQuarterlyPrototype, userId]);
+
+  const ownerCanOpenSubmitReport = isQuarterlyPrototype
+    ? prototypePlannedTasks.length > 0
+    : !plannedForReportLoading &&
+      Array.isArray(plannedTasksForReport) &&
+      plannedTasksForReport.length > 0;
   const closeInlineReport = useCallback(() => {
     resetStatuses();
     resetWeights();

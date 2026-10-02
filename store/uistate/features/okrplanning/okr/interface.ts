@@ -47,6 +47,14 @@ export interface KeyResult {
   initialValue: number;
   currentValue?: number;
   targetValue: number | string;
+  /** Prototype: threshold between baseline and target */
+  threshold?: number | null;
+  /** Prototype: stretch above target */
+  stretch?: number | null;
+  /** Prototype: optional data source URL */
+  dataSourceUrl?: string | null;
+  /** Prototype: strategic KR only — committed | aspirational */
+  krKind?: 'committed' | 'aspirational' | null;
   milestones: Milestone[];
   isAISuggestion?: boolean;
 }
@@ -124,6 +132,8 @@ export interface OKRFormProps {
   onSaveSuccess?: () => void;
   /** When true, the remove key result button is hidden (e.g. in Edit KR modal where delete is handled separately) */
   hideRemoveButton?: boolean;
+  /** Prototype: parent objective type is strategic — hide weight, show krKind */
+  isStrategicObjective?: boolean;
 }
 export interface ObjectiveProps {
   objective: Objective;

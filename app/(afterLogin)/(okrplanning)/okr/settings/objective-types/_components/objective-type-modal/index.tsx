@@ -1,14 +1,18 @@
 'use client';
 
-import CustomButton from '@/components/common/buttons/customButton';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   ObjectiveType,
   useObjectiveTypesStore,
 } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypesStore';
-import { CloseOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Form, Input, InputNumber, Modal } from 'antd';
-import React, { useEffect, useMemo } from 'react';
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons';
+import { Button, Col, Form, Input, Modal, Radio, Row, Tooltip } from 'antd';
+import React, { useEffect } from 'react';
 
 interface ObjectiveTypeModalProps {
   open: boolean;
@@ -16,44 +20,57 @@ interface ObjectiveTypeModalProps {
   objectiveType?: ObjectiveType | null;
 }
 
+type TypeKind = 'business' | 'strategic';
+
 interface TypeRow {
   name?: string;
-  weight?: number | null;
+  kind?: TypeKind;
 }
+
+const FieldLabel = ({
+  label,
+  tooltip,
+  dataCy,
+}: {
+  label: string;
+  tooltip: string;
+  dataCy: string;
+}) => (
+  <div className="flex items-center gap-1" data-cy={`${dataCy}-label`}>
+    <span
+      className="text-[14px] font-medium text-[#262626]"
+      data-cy={`${dataCy}-label-text`}
+    >
+      {label}
+    </span>
+    <Tooltip title={tooltip}>
+      <QuestionCircleOutlined
+        className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
+        data-cy={`${dataCy}-tooltip`}
+      />
+    </Tooltip>
+  </div>
+);
+
+const KindRadio = ({ dataCy }: { dataCy: string }) => (
+  <Radio.Group className="flex items-center gap-4 h-11" data-cy={dataCy}>
+    <Radio value="business" data-cy={`${dataCy}-business`}>
+      Business
+    </Radio>
+    <Radio value="strategic" data-cy={`${dataCy}-strategic`}>
+      Strategic
+    </Radio>
+  </Radio.Group>
+);
 
 const ObjectiveTypeModal: React.FC<ObjectiveTypeModalProps> = ({
   open,
   onClose,
   objectiveType,
 }) => {
-  const { setSelectedType, addTypes, updateType, types } =
-    useObjectiveTypesStore();
+  const { setSelectedType, addTypes, updateType } = useObjectiveTypesStore();
   const [form] = Form.useForm();
   const isEdit = Boolean(objectiveType);
-  const watchedRows = Form.useWatch('rows', form) as TypeRow[] | undefined;
-  const watchedWeight = Form.useWatch('weight', form);
-
-  const existingTotal = useMemo(
-    () =>
-      types.reduce(
-        (sum, t) =>
-          objectiveType?.id && t.id === objectiveType.id
-            ? sum
-            : sum + Number(t.weight || 0),
-        0,
-      ),
-    [types, objectiveType?.id],
-  );
-
-  const draftTotal = isEdit
-    ? Number(watchedWeight || 0)
-    : (watchedRows || []).reduce(
-        (sum, row) => sum + Number(row?.weight || 0),
-        0,
-      );
-
-  const projectedTotal = existingTotal + draftTotal;
-  const remaining = Math.max(0, 100 - existingTotal);
 
   const handleModalClose = () => {
     form.resetFields();
@@ -61,15 +78,23 @@ const ObjectiveTypeModal: React.FC<ObjectiveTypeModalProps> = ({
     setSelectedType(null);
   };
 
+  const kindToStrategic = (kind?: TypeKind) => kind === 'strategic';
+
   const onFinish = (values: {
     name?: string;
-    weight?: number;
+    kind?: TypeKind;
     rows?: TypeRow[];
   }) => {
     if (isEdit && objectiveType) {
+      if (!values.kind) {
+        NotificationMessage.warning({
+          message: 'Please select Business or Strategic',
+        });
+        return;
+      }
       const result = updateType(objectiveType.id, {
         name: String(values.name || '').trim(),
-        weight: Number(values.weight),
+        isStrategic: kindToStrategic(values.kind),
       });
 
       if (!result.ok) {
@@ -87,11 +112,21 @@ const ObjectiveTypeModal: React.FC<ObjectiveTypeModalProps> = ({
     const rows = (values.rows || [])
       .map((row) => ({
         name: String(row?.name || '').trim(),
-        weight: Number(row?.weight || 0),
+        isStrategic: kindToStrategic(row?.kind),
+        kind: row?.kind,
       }))
-      .filter((row) => row.name || row.weight);
+      .filter((row) => row.name);
 
-    const result = addTypes(rows);
+    if (rows.some((row) => !row.kind)) {
+      NotificationMessage.warning({
+        message: 'Please select Business or Strategic for each type',
+      });
+      return;
+    }
+
+    const result = addTypes(
+      rows.map(({ name, isStrategic }) => ({ name, isStrategic })),
+    );
     if (!result.ok) {
       NotificationMessage.warning({
         message: result.message || 'Unable to save objective types',
@@ -99,13 +134,7 @@ const ObjectiveTypeModal: React.FC<ObjectiveTypeModalProps> = ({
       return;
     }
 
-    const nextTotal = existingTotal + rows.reduce((s, r) => s + r.weight, 0);
-    NotificationMessage.success({
-      message:
-        nextTotal === 100
-          ? 'Objective types saved — weights total 100%'
-          : `Objective types saved — ${100 - nextTotal}% still remaining`,
-    });
+    NotificationMessage.success({ message: 'Objective types saved' });
     handleModalClose();
   };
 
@@ -114,42 +143,48 @@ const ObjectiveTypeModal: React.FC<ObjectiveTypeModalProps> = ({
     if (objectiveType) {
       form.setFieldsValue({
         name: objectiveType.name,
-        weight: objectiveType.weight,
+        kind: objectiveType.isStrategic ? 'strategic' : 'business',
         rows: undefined,
       });
     } else {
       form.setFieldsValue({
         name: undefined,
-        weight: undefined,
-        rows: [{ name: '', weight: null }],
+        kind: undefined,
+        rows: [{ name: '', kind: undefined }],
       });
     }
   }, [objectiveType, form, open]);
 
   const footer = (
     <div
-      className="flex justify-end gap-3 mt-4"
+      className="flex justify-end gap-3"
       id="okr-objective-type-modal-footer"
       data-cy="okr-objective-type-modal-footer"
     >
-      <CustomButton
+      <Button
         type="default"
-        title="Cancel"
         onClick={handleModalClose}
-        className="h-10 px-6 rounded-lg"
+        className="h-10 px-6 rounded-lg border-[#d9d9d9] text-[#595959] hover:text-[#262626] font-medium"
         id="okr-objective-type-modal-cancel-button"
         data-cy="okr-objective-type-modal-cancel-button"
-      />
-      <CustomButton
-        title={isEdit ? 'Update' : 'Save'}
+      >
+        Cancel
+      </Button>
+      <Button
         type="primary"
         onClick={() => form.submit()}
-        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2]"
+        className="h-10 px-8 rounded-lg bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] border-none font-medium flex items-center justify-center"
         id="okr-objective-type-modal-submit-button"
         data-cy="okr-objective-type-modal-submit-button"
-      />
+      >
+        {isEdit ? 'Update' : 'Create'}
+      </Button>
     </div>
   );
+
+  const kindRules = [
+    { required: true, message: 'Please select Business or Strategic' },
+  ];
 
   return (
     <Modal
@@ -165,7 +200,7 @@ const ObjectiveTypeModal: React.FC<ObjectiveTypeModalProps> = ({
         </span>
       }
       footer={footer}
-      width={640}
+      width={800}
       centered
       destroyOnClose
       closeIcon={
@@ -186,47 +221,49 @@ const ObjectiveTypeModal: React.FC<ObjectiveTypeModalProps> = ({
         data-cy="okr-objective-type-modal-form"
       >
         {isEdit ? (
-          <>
-            <Form.Item
-              label="Objective Type"
-              name="name"
-              rules={[
-                {
-                  required: true,
-                  message: 'Please enter objective type name',
-                },
-              ]}
-              data-cy="okr-objective-type-modal-name-field"
-            >
-              <Input
-                placeholder="Enter objective type name"
-                data-cy="okr-objective-type-modal-name-input"
-              />
-            </Form.Item>
-            <Form.Item
-              label="Weight (%)"
-              name="weight"
-              className="w-full"
-              rules={[
-                { required: true, message: 'Please enter weight' },
-                {
-                  type: 'number',
-                  min: 1,
-                  max: Math.max(remaining, 1),
-                  message: `Weight must be between 1 and ${Math.max(remaining, 1)}`,
-                },
-              ]}
-              data-cy="okr-objective-type-modal-weight-field"
-            >
-              <InputNumber
-                className="w-full"
-                min={1}
-                max={Math.max(remaining, 1)}
-                placeholder="Enter weight (%)"
-                data-cy="okr-objective-type-modal-weight-input"
-              />
-            </Form.Item>
-          </>
+          <Row gutter={24} data-cy="okr-objective-type-modal-edit-row">
+            <Col span={12}>
+              <Form.Item
+                label={
+                  <FieldLabel
+                    label="Objective Type"
+                    tooltip="Name of this objective type as it appears in Create Objective and filters."
+                    dataCy="okr-objective-type-modal-name"
+                  />
+                }
+                name="name"
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please enter objective type name',
+                  },
+                ]}
+                data-cy="okr-objective-type-modal-name-field"
+              >
+                <Input
+                  placeholder="Enter objective type name"
+                  className="h-11"
+                  data-cy="okr-objective-type-modal-name-input"
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={
+                  <FieldLabel
+                    label="Type"
+                    tooltip="Business uses weighted KRs. Strategic uses Committed/Aspirational KRs without weight."
+                    dataCy="okr-objective-type-modal-kind"
+                  />
+                }
+                name="kind"
+                rules={kindRules}
+                data-cy="okr-objective-type-modal-kind-field"
+              >
+                <KindRadio dataCy="okr-objective-type-modal-kind-radio" />
+              </Form.Item>
+            </Col>
+          </Row>
         ) : (
           <Form.List name="rows">
             {(fields, { add, remove }) => (
@@ -235,71 +272,86 @@ const ObjectiveTypeModal: React.FC<ObjectiveTypeModalProps> = ({
                 data-cy="okr-objective-type-modal-rows"
               >
                 {fields.map(({ key, name, ...restField }, index) => (
-                  <div
+                  <Row
                     key={key}
-                    className="flex gap-2 items-start"
+                    gutter={16}
+                    align="top"
                     data-cy={`okr-objective-type-modal-row-${index}`}
                   >
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'name']}
-                      label={index === 0 ? 'Objective Type' : undefined}
-                      className="flex-1 mb-0"
-                      rules={[
-                        {
-                          required: true,
-                          message: 'Please enter objective type name',
-                        },
-                      ]}
-                      data-cy={`okr-objective-type-modal-row-name-field-${index}`}
-                    >
-                      <Input
-                        placeholder="Enter objective type name"
-                        data-cy={`okr-objective-type-modal-row-name-input-${index}`}
-                      />
-                    </Form.Item>
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'weight']}
-                      label={index === 0 ? 'Weight (%)' : undefined}
-                      className="w-[120px] mb-0"
-                      rules={[
-                        { required: true, message: 'Required' },
-                        {
-                          type: 'number',
-                          min: 1,
-                          message: 'Min 1',
-                        },
-                      ]}
-                      data-cy={`okr-objective-type-modal-row-weight-field-${index}`}
-                    >
-                      <InputNumber
-                        className="w-full"
-                        min={1}
-                        max={100}
-                        placeholder="%"
-                        data-cy={`okr-objective-type-modal-row-weight-input-${index}`}
-                      />
-                    </Form.Item>
+                    <Col flex="auto">
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'name']}
+                        label={
+                          index === 0 ? (
+                            <FieldLabel
+                              label="Objective Type"
+                              tooltip="Name of this objective type as it appears in Create Objective and filters."
+                              dataCy={`okr-objective-type-modal-row-name-${index}`}
+                            />
+                          ) : undefined
+                        }
+                        className="mb-0"
+                        rules={[
+                          {
+                            required: true,
+                            message: 'Please enter objective type name',
+                          },
+                        ]}
+                        data-cy={`okr-objective-type-modal-row-name-field-${index}`}
+                      >
+                        <Input
+                          placeholder="Enter objective type name"
+                          className="h-11"
+                          data-cy={`okr-objective-type-modal-row-name-input-${index}`}
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col flex="260px">
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'kind']}
+                        label={
+                          index === 0 ? (
+                            <FieldLabel
+                              label="Type"
+                              tooltip="Business uses weighted KRs. Strategic uses Committed/Aspirational KRs without weight."
+                              dataCy={`okr-objective-type-modal-row-kind-${index}`}
+                            />
+                          ) : undefined
+                        }
+                        className="mb-0"
+                        rules={kindRules}
+                        data-cy={`okr-objective-type-modal-row-kind-field-${index}`}
+                      >
+                        <KindRadio
+                          dataCy={`okr-objective-type-modal-row-kind-radio-${index}`}
+                        />
+                      </Form.Item>
+                    </Col>
                     {fields.length > 1 && (
-                      <Button
-                        type="text"
-                        danger
-                        className={index === 0 ? 'mt-7' : 'mt-1'}
-                        icon={<DeleteOutlined />}
-                        onClick={() => remove(name)}
-                        data-cy={`okr-objective-type-modal-row-remove-${index}`}
-                      />
+                      <Col
+                        flex="40px"
+                        className={index === 0 ? 'mt-8' : 'mt-1'}
+                      >
+                        <Button
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={() => remove(name)}
+                          className="h-11 w-10 flex items-center justify-center"
+                          data-cy={`okr-objective-type-modal-row-remove-${index}`}
+                        />
+                      </Col>
                     )}
-                  </div>
+                  </Row>
                 ))}
 
                 <Button
                   type="dashed"
                   icon={<PlusOutlined />}
-                  onClick={() => add({ name: '', weight: null })}
-                  disabled={projectedTotal >= 100}
-                  className="w-full"
+                  onClick={() => add({ name: '', kind: undefined })}
+                  className="w-full h-11 rounded-lg"
                   data-cy="okr-objective-type-modal-add-row-button"
                 >
                   Add another type
@@ -309,36 +361,31 @@ const ObjectiveTypeModal: React.FC<ObjectiveTypeModalProps> = ({
           </Form.List>
         )}
 
-        <div
-          className="mt-4 flex items-center justify-end"
-          id="okr-objective-type-modal-info"
-          data-cy="okr-objective-type-modal-info"
-        >
-          <span
-            className="whitespace-nowrap text-[12px] tabular-nums text-[#475569] md:text-sm"
-            data-cy="okr-objective-type-modal-weight-total"
-          >
-            <span
-              className={`text-[18px] font-extrabold md:text-[20px] ${
-                projectedTotal === 100
-                  ? 'text-[#059669]'
-                  : projectedTotal > 100
-                    ? 'text-[#DC2626]'
-                    : 'text-[#D97706]'
-              }`}
-              data-cy="okr-objective-type-modal-weight-value"
-            >
-              {projectedTotal}
-            </span>
-            <span
-              className="text-[13px] font-medium text-[#94A3B8] md:text-[14px]"
-              data-cy="okr-objective-type-modal-weight-max"
-            >
-              {' '}
-              / 100
-            </span>
-          </span>
-        </div>
+        <style jsx global data-cy="okr-objective-type-modal-styles">{`
+          .okr-settings-modal .ant-modal-content {
+            padding: 0 !important;
+            border-radius: 8px !important;
+          }
+          .okr-settings-modal .ant-modal-title {
+            margin-bottom: 24px !important;
+          }
+          .okr-settings-modal .ant-modal-header {
+            padding: 20px 24px 16px 24px !important;
+            border-bottom: none !important;
+          }
+          .okr-settings-modal .ant-modal-body {
+            padding: 24px !important;
+          }
+          .okr-settings-modal .ant-modal-footer {
+            padding: 8px 24px 24px 24px !important;
+            border-top: none !important;
+          }
+          .okr-settings-modal .ant-form-item-label > label {
+            height: auto !important;
+            line-height: 1.5 !important;
+            padding-bottom: 4px !important;
+          }
+        `}</style>
       </Form>
     </Modal>
   );

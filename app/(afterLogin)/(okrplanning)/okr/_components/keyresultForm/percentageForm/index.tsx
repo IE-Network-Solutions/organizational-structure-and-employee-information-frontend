@@ -28,6 +28,8 @@ import {
   ADVANCED_WRAPPER_CLASS,
   ADVANCED_VALUES_ROW_CLASS,
   INPUT_CLASS,
+  ExtendedMetricFields,
+  KrKindField,
 } from '../_ui';
 
 const PercentageForm: React.FC<OKRFormProps> = ({
@@ -38,6 +40,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
   disableWeightEdit: disableWeightEditProp,
   disableMetricTypeEdit: disableMetricTypeEditProp,
   hideRemoveButton,
+  isStrategicObjective = false,
 }) => {
   const { Option } = Select;
   const { isMobile } = useIsMobile();
@@ -51,7 +54,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
     disableMetricTypeEditProp ?? Number(keyItem?.progress ?? 0) !== 0;
   const [isCardView, setIsCardView] = useState(false);
   const initialValueRules = [
-    { required: true, message: 'Please enter the initial value' },
+    { required: true, message: 'Please enter the baseline' },
     ({
       getFieldValue,
     }: {
@@ -68,7 +71,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
           return Promise.resolve();
         }
         return Promise.reject(
-          new Error('Initial value must be less than the target value.'),
+          new Error('Baseline must be less than the target value.'),
         );
       },
     }),
@@ -91,7 +94,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
           return Promise.resolve();
         }
         return Promise.reject(
-          new Error('Target value must be greater than the initial value.'),
+          new Error('Target value must be greater than the baseline.'),
         );
       },
     }),
@@ -232,6 +235,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 </Select>
               </Form.Item>
               <Form.Item
+                hidden={isStrategicObjective}
                 className="w-24 mb-0"
                 name="weight"
                 rules={[
@@ -306,7 +310,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   data-cy={`okr-percentage-desktop-initial-input-${index}`}
                   min={0}
                   max={100}
-                  placeholder="Initial Value"
+                  placeholder="Baseline"
                   value={keyItem.initialValue ?? 0}
                   onChange={(value) =>
                     updateKeyResult(index, 'initialValue', value)
@@ -409,6 +413,14 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                       aria-label="Key Result Name"
                     />
                   </Form.Item>
+                  {isStrategicObjective ? (
+                    <KrKindField
+                      index={index}
+                      value={keyItem.krKind}
+                      updateKeyResult={updateKeyResult}
+                      dataCyPrefix="okr-percentage-kind"
+                    />
+                  ) : null}
                   <Form.Item
                     className="w-44 mb-0"
                     label={
@@ -453,6 +465,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     </Select>
                   </Form.Item>
                   <Form.Item
+                    hidden={isStrategicObjective}
                     className="w-32 mb-0"
                     name="weight"
                     label={
@@ -461,7 +474,11 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                         tooltip={WEIGHT_TOOLTIP}
                       />
                     }
-                    rules={[{ required: true, message: 'Weight required' }]}
+                    rules={
+                      isStrategicObjective
+                        ? []
+                        : [{ required: true, message: 'Weight required' }]
+                    }
                     id={`key-result-weight-${index}`}
                     data-cy={`okr-percentage-desktop-weight-item-${index}`}
                   >
@@ -557,8 +574,8 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     name="initialValue"
                     label={
                       <KeyResultFieldLabel
-                        label="Initial Value"
-                        tooltip="Starting percentage value"
+                        label="Baseline"
+                        tooltip="Starting / baseline value"
                       />
                     }
                     dependencies={['targetValue']}
@@ -625,6 +642,13 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     />
                   </Form.Item>
                 </div>
+                <ExtendedMetricFields
+                  index={index}
+                  keyItem={keyItem}
+                  updateKeyResult={updateKeyResult}
+                  showThresholdStretch={true}
+                  dataCyPrefix="okr-percentage"
+                />
               </div>
             )}
           </>
@@ -704,7 +728,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                       className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block"
                       data-cy={`okr-percentage-mobile-saved-card-initial-label-${index}`}
                     >
-                      Initial Value :{' '}
+                      Baseline :{' '}
                       <span
                         className="font-semibold text-gray-900"
                         data-cy={`okr-percentage-mobile-saved-card-initial-value-${index}`}
@@ -773,7 +797,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     name="initialValue"
                     label={
                       <KeyResultFieldLabel
-                        label="Initial Value"
+                        label="Baseline"
                         tooltip="Initial percentage value (0-100)"
                       />
                     }
@@ -786,7 +810,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                       data-cy={`okr-percentage-mobile-initial-input-${index}`}
                       min={0}
                       max={100}
-                      placeholder="Initial Value"
+                      placeholder="Baseline"
                       value={keyItem.initialValue ?? 0}
                       onChange={(value) =>
                         updateKeyResult(index, 'initialValue', value)
@@ -847,6 +871,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                   className="flex gap-2 items-end"
                 >
                   <Form.Item
+                    hidden={isStrategicObjective}
                     className="flex-1 mb-0"
                     name="weight"
                     label={

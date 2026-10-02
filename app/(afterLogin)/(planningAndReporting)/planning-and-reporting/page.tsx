@@ -145,7 +145,11 @@ function Page() {
         a.planningPeriod.intervalLength - b.planningPeriod.intervalLength,
     );
 
-    return hasPermission ? mergedPlanningPeriods : safePlanningPeriods;
+    const withPermission = hasPermission
+      ? mergedPlanningPeriods
+      : safePlanningPeriods;
+
+    return withPermission;
   }, [planningPeriods, defaultPlanningPeriods, hasPermission]);
 
   const tabItems = useMemo(() => {
@@ -260,14 +264,12 @@ function Page() {
     selectedTab?.id ?? '',
   );
 
-  const userKeyResultItems = useMemo(
-    () =>
-      mergeUserKeyResultSources(
-        normalizeUserKeyResultItems(userKeyResultsRaw),
-        flattenObjectiveKeyResults(userObjectives?.items),
-      ),
-    [userKeyResultsRaw, userObjectives?.items],
-  );
+  const userKeyResultItems = useMemo(() => {
+    return mergeUserKeyResultSources(
+      normalizeUserKeyResultItems(userKeyResultsRaw),
+      flattenObjectiveKeyResults(userObjectives?.items),
+    );
+  }, [userKeyResultsRaw, userObjectives?.items]);
 
   const parentPlanContext = useMemo(
     () => getActiveUnreportedParentPlanContext(planningPeriodHierarchy),

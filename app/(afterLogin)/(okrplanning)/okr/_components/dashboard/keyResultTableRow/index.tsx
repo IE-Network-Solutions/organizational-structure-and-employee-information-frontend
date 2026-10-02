@@ -315,7 +315,18 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
         : resolvedKeyResult;
   const isBasicAchieveOrNot =
     isBasicOkr && rowKeyResult?.metricType?.name === 'Achieve';
-  const metricName = rowKeyResult?.metricType?.name || 'N/A';
+  const metricName =
+    rowKeyResult?.metricType?.name || rowKeyResult?.key_type || 'N/A';
+  const metricDisplayName =
+    metricName === 'Achieved' || metricName === 'Achieve'
+      ? 'Achieve or Not'
+      : metricName;
+  const krKindLabel =
+    rowKeyResult?.krKind === 'committed'
+      ? 'Committed'
+      : rowKeyResult?.krKind === 'aspirational'
+        ? 'Aspirational'
+        : null;
   const progress = getKeyResultProgressPercent(rowKeyResult);
   const canInlineEditFromObjective =
     objectiveEditMode &&
@@ -590,20 +601,33 @@ const KeyResultTableRow: FC<KeyResultTableRowProps> = ({
             className="px-3 py-3 whitespace-nowrap sm:px-6 sm:py-4"
             data-cy={`okr-key-result-table-row-metric-${keyResult?.id}`}
           >
-            <span
-              className="px-2 py-1 text-xs border border-gray-300 rounded text-gray-600"
-              data-cy={`okr-key-result-table-row-metric-badge-${keyResult?.id}`}
-              title={metricName}
+            <div
+              className="flex flex-wrap items-center gap-1.5"
+              data-cy={`okr-key-result-table-row-metric-tags-${keyResult?.id}`}
             >
-              <span className="inline-flex items-center gap-1">
-                {isMobile ? metricIcon : metricName}
-                {!isMobile &&
-                canOpenMilestoneModal &&
-                metricName === 'Milestone' ? (
-                  <EyeOutlined className="text-[11px] text-blue-600" />
-                ) : null}
+              {krKindLabel ? (
+                <span
+                  className="px-2 py-1 text-xs border border-gray-300 rounded text-gray-600"
+                  data-cy={`okr-key-result-table-row-kind-badge-${keyResult?.id}`}
+                >
+                  {krKindLabel}
+                </span>
+              ) : null}
+              <span
+                className="px-2 py-1 text-xs border border-gray-300 rounded text-gray-600"
+                data-cy={`okr-key-result-table-row-metric-badge-${keyResult?.id}`}
+                title={metricDisplayName}
+              >
+                <span className="inline-flex items-center gap-1">
+                  {isMobile ? metricIcon : metricDisplayName}
+                  {!isMobile &&
+                  canOpenMilestoneModal &&
+                  metricName === 'Milestone' ? (
+                    <EyeOutlined className="text-[11px] text-blue-600" />
+                  ) : null}
+                </span>
               </span>
-            </span>
+            </div>
           </td>
         )}
         {(objectiveEditMode || rowInlineEdit) && (

@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import classNames from 'classnames';
 import { createPortal } from 'react-dom';
-import { Button, Dropdown, Tooltip } from 'antd';
+import { Button, Dropdown, InputNumber, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
 import {
   MoreOutlined,
@@ -14,8 +14,9 @@ import { FaBomb, FaRegThumbsUp } from 'react-icons/fa';
 import { AiOutlineEdit } from 'react-icons/ai';
 import { IoCheckmarkSharp, IoOpen } from 'react-icons/io5';
 import { LuLoader } from 'react-icons/lu';
-import { PlanSummary, PlanTask, ViewMode, Cadence } from '../types';
+import { PlanSummary, PlanTask, ViewMode, Cadence, KeyResult } from '../types';
 import { formatPlanningReportDate } from '../utils';
+import { formatKrMetricTypeDisplayName } from '@/utils/okrKeyResultProgressDisplay';
 import UserInfo from '../UserInfo';
 import StatusBadge from '../StatusBadge';
 import CommentsSection from '../comments/CommentsSection';
@@ -56,6 +57,7 @@ function flattenAllTasks(plan: PlanSummary) {
     krId?: string;
     tasks: any[];
     metricType?: string;
+    kr?: KeyResult;
   }[] = [];
 
   if (plan.keyResults && plan.keyResults.length > 0) {
@@ -77,7 +79,8 @@ function flattenAllTasks(plan: PlanSummary) {
           sectionTitle: kr.title || kr.name || plan.summary,
           krId: kr.id,
           tasks: sectionTasks,
-          metricType: kr.metricType?.name,
+          metricType: kr.metricType?.name || kr.key_type || kr.metricTypeName,
+          kr,
         });
       }
     }
@@ -109,6 +112,166 @@ const meta = {
 
 const metaHead =
   'text-right text-[11px] font-medium uppercase leading-none tracking-tighter text-[#B0B3C0] sm:text-[12px] sm:tracking-wider';
+
+const krMetaBadgeClass =
+  'inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap';
+
+const continuumInputClass =
+  'w-[4.5rem] min-w-[4.5rem] max-w-[4.5rem] !shadow-none [&_.ant-input-number]:!h-6 [&_.ant-input-number]:!min-h-6 [&_.ant-input-number]:border-[#E5E7EB] [&_.ant-input-number]:bg-white [&_.ant-input-number-input-wrap]:!h-6 [&_.ant-input-number-input-wrap]:!min-h-6 [&_.ant-input-number-input]:!h-full [&_.ant-input-number-input]:!px-1.5 [&_.ant-input-number-input]:!py-0 [&_.ant-input-number-input]:!text-[12px] [&_.ant-input-number-input]:!font-semibold [&_.ant-input-number-input]:tabular-nums [&_.ant-input-number-input]:!text-[#1E40AF]';
+
+/** Quarterly-only OKR continuum band above tasks for a key result. */
+function QuarterlyKrBand({
+  kr,
+  sectionTitle,
+  metricType,
+}: {
+  kr?: KeyResult;
+  sectionTitle: string;
+  metricType?: string;
+}) {
+  const baselineNum =
+    kr?.initialValue != null && kr.initialValue !== ''
+      ? Number(kr.initialValue)
+      : undefined;
+  const [currentReport, setCurrentReport] = useState<number | null>(
+    baselineNum != null && !Number.isNaN(baselineNum) ? baselineNum : null,
+  );
+
+  if (!kr) return null;
+
+  const metricLabel =
+    formatKrMetricTypeDisplayName(
+      metricType || kr.metricType?.name || kr.key_type || kr.metricTypeName,
+    ) ||
+    metricType ||
+    'Metric';
+  const isMilestone =
+    String(metricLabel).toLowerCase() === 'milestone' ||
+    String(kr.key_type || '').toLowerCase() === 'milestone';
+  const isAchieve =
+    /achieve/i.test(String(metricLabel)) ||
+    /achieve/i.test(String(kr.key_type || ''));
+  const kindLabel =
+    kr.krKind === 'committed'
+      ? 'Committed'
+      : kr.krKind === 'aspirational'
+        ? 'Aspirational'
+        : null;
+
+  const continuum: {
+    label: string;
+    value: string | number | null | undefined;
+  }[] = [];
+  if (!isMilestone && !isAchieve) {
+    continuum.push(
+      { label: 'Baseline', value: kr.initialValue },
+      { label: 'Threshold', value: kr.threshold },
+      { label: 'Target', value: kr.targetValue },
+      { label: 'Stretch', value: kr.stretch },
+    );
+  }
+
+  const dataUrl = kr.dataSourceUrl?.trim() || null;
+
+  return (
+    <div
+      data-cy={`plan-card-quarterly-kr-band-${kr.id}`}
+      className="mb-1.5 mt-2 rounded-lg border border-[#F1F2F6] bg-[#FAFBFC] px-2.5 py-2"
+    >
+      <div
+        className="flex min-w-0 flex-wrap items-center gap-1.5"
+        data-cy={`plan-card-quarterly-kr-header-${kr.id}`}
+      >
+        <p
+          className="min-w-0 flex-1 text-[13px] font-semibold text-[#1E293B] sm:text-[14px]"
+          data-cy={`plan-card-quarterly-kr-title-${kr.id}`}
+        >
+          {kr.title || kr.name || sectionTitle}
+        </p>
+        {kindLabel ? (
+          <span
+            className={krMetaBadgeClass}
+            data-cy={`plan-card-quarterly-kr-kind-${kr.id}`}
+          >
+            {kindLabel}
+          </span>
+        ) : null}
+        <span
+          className={krMetaBadgeClass}
+          data-cy={`plan-card-quarterly-kr-metric-${kr.id}`}
+        >
+          {metricLabel === 'Achieved' ? 'Achieve or Not' : metricLabel}
+        </span>
+      </div>
+      {continuum.length > 0 ? (
+        <div
+          className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-[#64748B] sm:text-[12px]"
+          data-cy={`plan-card-quarterly-kr-continuum-${kr.id}`}
+        >
+          {continuum.map((item) => (
+            <span
+              key={item.label}
+              className="inline-flex items-center gap-1"
+              data-cy={`plan-card-quarterly-kr-continuum-item-${kr.id}-${item.label.toLowerCase()}`}
+            >
+              <span
+                className="font-medium text-[#94A3B8]"
+                data-cy={`plan-card-quarterly-kr-continuum-label-${kr.id}-${item.label.toLowerCase()}`}
+              >
+                {item.label}
+              </span>
+              <span
+                className="font-semibold tabular-nums text-[#334155]"
+                data-cy={`plan-card-quarterly-kr-continuum-value-${kr.id}-${item.label.toLowerCase()}`}
+              >
+                {item.value == null || item.value === ''
+                  ? '—'
+                  : formatNum(item.value)}
+              </span>
+            </span>
+          ))}
+          <span
+            className="inline-flex items-center gap-1.5"
+            data-cy={`plan-card-quarterly-kr-current-wrap-${kr.id}`}
+          >
+            <span
+              className="font-medium text-[#1E40AF]"
+              data-cy={`plan-card-quarterly-kr-current-label-${kr.id}`}
+            >
+              Current
+            </span>
+            <InputNumber
+              data-cy={`plan-card-quarterly-kr-current-${kr.id}`}
+              value={currentReport}
+              onChange={(v) =>
+                setCurrentReport(typeof v === 'number' ? v : null)
+              }
+              placeholder="0"
+              controls={false}
+              className={continuumInputClass}
+              formatter={(value) =>
+                `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+              }
+              aria-label={`Current report value for ${kr.title || kr.name || sectionTitle}`}
+            />
+          </span>
+        </div>
+      ) : null}
+      {dataUrl ? (
+        <a
+          href={dataUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1 inline-block max-w-full truncate text-[11px] text-[#1E40AF] hover:underline"
+          data-cy={`plan-card-quarterly-kr-datasource-${kr.id}`}
+          title={dataUrl}
+        >
+          {dataUrl.replace(/^https?:\/\//, '')}
+        </a>
+      ) : null}
+    </div>
+  );
+}
 
 /** Priority pill: on small screens use a 3-letter label for Medium ("Med"). */
 function priorityChipText(priorityKey: string): React.ReactNode {
@@ -891,6 +1054,8 @@ export default function PlanCard({
     })),
   );
 
+  const isQuarterlyCard = activeCadence === 'quarterly';
+
   const checkedCount = allTasks.filter((t: any) => {
     const s = optimisticStatuses[t.id] ?? t.status;
     return s === 'pre_achieved' || s === 'completed';
@@ -898,6 +1063,192 @@ export default function PlanCard({
   const totalTasks = allTasks.length;
   const progressPct =
     totalTasks > 0 ? Math.round((checkedCount / totalTasks) * 100) : 0;
+
+  const renderPlanningTaskRow = (task: any) => {
+    const taskAny = task as any;
+    const taskName =
+      taskAny.taskName ||
+      taskAny.task ||
+      taskAny.name ||
+      task.title ||
+      taskAny.planTask?.task ||
+      'Untitled Task';
+
+    const priorityKey = task.priority || 'Low';
+    const priorityColors: Record<
+      string,
+      { dot: string; bg: string; text: string }
+    > = {
+      High: { dot: '#EF4444', bg: '#FEE2E2', text: '#991B1B' },
+      Priority: { dot: '#7C3AED', bg: '#EDE9FE', text: '#5B21B6' },
+      Medium: { dot: '#F59E0B', bg: '#FEF9C3', text: '#854D0E' },
+      Low: { dot: '#22C55E', bg: '#DCFCE7', text: '#166534' },
+    };
+    const pc = priorityColors[priorityKey] || priorityColors.Low;
+
+    const showTarget =
+      task.target !== undefined &&
+      task.target !== 0 &&
+      task._metricType !== 'Milestone';
+
+    const effectiveStatus = optimisticStatuses[task.id] ?? task.status;
+    const isChecked = effectiveStatus === 'pre_achieved';
+    const isCompleted = effectiveStatus === 'completed';
+    const isLoading = loadingTasks.has(task.id);
+
+    return (
+      <div
+        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1094"
+        key={task.id}
+        className={`group/row flex items-start gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150 ${
+          isChecked ? 'bg-[#2563EB]/[0.03]' : 'hover:bg-[#FAFBFC]'
+        }`}
+        onMouseEnter={() => task._krId && onHoverKR?.(task._krId)}
+        onMouseLeave={() => onHoverKR?.(null)}
+      >
+        {isTeammatePlan ? (
+          <span
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1104"
+            className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
+              isCompleted
+                ? 'border-[#D1D5DB] bg-[#F3F4F6]'
+                : isChecked
+                  ? 'border-[#2563EB] bg-[#2563EB] shadow-[0_0_0_2px_rgba(37,99,235,0.10)]'
+                  : 'border-current bg-white text-[#D1D5DB]'
+            }`}
+            aria-hidden
+          >
+            {isChecked || isCompleted ? (
+              <CheckOutlined
+                className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
+              />
+            ) : (
+              <span
+                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1119"
+                className="inline-block h-1.5 w-1.5 rounded-full bg-current"
+                aria-hidden
+              />
+            )}
+          </span>
+        ) : (
+          <button
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-button-1126"
+            type="button"
+            onClick={() =>
+              !isPlanReadOnly &&
+              !isCompleted &&
+              !isLoading &&
+              handleTaskToggle(task.id, effectiveStatus ?? '')
+            }
+            disabled={isPlanReadOnly || isCompleted || isLoading}
+            className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
+              isPlanReadOnly || isCompleted
+                ? 'border-[#D1D5DB] bg-[#F3F4F6] cursor-not-allowed'
+                : isChecked
+                  ? 'border-[#2563EB] bg-[#2563EB] shadow-[0_0_0_2px_rgba(37,99,235,0.10)]'
+                  : 'border-[#D1D5DB] bg-white hover:border-[#2563EB]/45 hover:shadow-[0_0_0_2px_rgba(37,99,235,0.07)] cursor-pointer'
+            }`}
+          >
+            {isLoading ? (
+              <LuLoader className="h-3 w-3 animate-spin text-[#2563EB]" />
+            ) : isChecked || isCompleted ? (
+              <CheckOutlined
+                className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
+              />
+            ) : null}
+          </button>
+        )}
+
+        <p
+          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-1153"
+          className={`min-w-0 flex-1 break-words text-[14px] leading-snug line-clamp-2 transition-all duration-200 ${
+            isChecked
+              ? 'line-through text-[#B0B3C0]'
+              : isCompleted
+                ? 'line-through text-[#D1D5DB]'
+                : 'text-[#2D2F45]'
+          }`}
+          title={taskName}
+        >
+          {taskName}
+        </p>
+
+        <div
+          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-971"
+          className="flex flex-shrink-0 items-center self-center"
+        >
+          {!isQuarterlyCard ? (
+            <div
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-972"
+              className={classNames(meta.pri, 'flex justify-end')}
+            >
+              <span
+                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1175"
+                className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[11px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[12px]"
+                style={{ backgroundColor: pc.bg, color: pc.text }}
+              >
+                <span
+                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1179"
+                  className="inline-block h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: pc.dot }}
+                />
+                {priorityChipText(priorityKey)}
+              </span>
+            </div>
+          ) : null}
+
+          <div
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-985"
+            className={classNames(meta.wt, 'text-right')}
+          >
+            <span
+              data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-986"
+              className="text-[12px] font-semibold text-[#8F94A3] tabular-nums sm:text-[13px]"
+            >
+              {formatNum(task.weight)}
+            </span>
+          </div>
+
+          <div
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-991"
+            className={classNames(meta.tgt, 'text-right')}
+          >
+            {showTarget ? (
+              <span
+                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-993"
+                className="text-[11px] font-semibold text-[#10B981] tabular-nums sm:text-[12px]"
+              >
+                {formatNum(task.target)}
+              </span>
+            ) : null}
+          </div>
+
+          <div
+            data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1213"
+            className={classNames(
+              meta.out,
+              'flex flex-shrink-0 items-center justify-center self-center',
+            )}
+          >
+            {(task as PlanTask).achieveMK ? (
+              <Tooltip
+                title={
+                  (task as PlanTask).outcomeMilestoneId
+                    ? 'Milestone planned as outcome'
+                    : 'Key result planned as outcome'
+                }
+              >
+                <FlagOutlined
+                  className="text-[10px] text-[#059669] sm:text-[12px]"
+                  aria-label="Outcome task"
+                />
+              </Tooltip>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <article
@@ -1071,23 +1422,25 @@ export default function PlanCard({
               data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-845"
               className="flex flex-shrink-0 items-center"
             >
-              <div
-                data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-846"
-                className={classNames(meta.pri, metaHead)}
-              >
-                <span
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-847"
-                  className="sm:hidden"
+              {!isQuarterlyCard ? (
+                <div
+                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-846"
+                  className={classNames(meta.pri, metaHead)}
                 >
-                  Pri
-                </span>
-                <span
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-848"
-                  className="hidden sm:inline"
-                >
-                  Priority
-                </span>
-              </div>
+                  <span
+                    data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-847"
+                    className="sm:hidden"
+                  >
+                    Pri
+                  </span>
+                  <span
+                    data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-848"
+                    className="hidden sm:inline"
+                  >
+                    Priority
+                  </span>
+                </div>
+              ) : null}
               <div
                 data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-850"
                 className={classNames(meta.wt, metaHead)}
@@ -1124,192 +1477,28 @@ export default function PlanCard({
           className="space-y-[2px]"
         >
           {!inlineReportActive &&
-            allTasks.map((task: any) => {
-              const taskAny = task as any;
-              const taskName =
-                taskAny.taskName ||
-                taskAny.task ||
-                taskAny.name ||
-                task.title ||
-                taskAny.planTask?.task ||
-                'Untitled Task';
-
-              const priorityKey = task.priority || 'Low';
-              const priorityColors: Record<
-                string,
-                { dot: string; bg: string; text: string }
-              > = {
-                High: { dot: '#EF4444', bg: '#FEE2E2', text: '#991B1B' },
-                Priority: { dot: '#7C3AED', bg: '#EDE9FE', text: '#5B21B6' },
-                Medium: { dot: '#F59E0B', bg: '#FEF9C3', text: '#854D0E' },
-                Low: { dot: '#22C55E', bg: '#DCFCE7', text: '#166534' },
-              };
-              const pc = priorityColors[priorityKey] || priorityColors.Low;
-
-              const showTarget =
-                task.target !== undefined &&
-                task.target !== 0 &&
-                task._metricType !== 'Milestone';
-
-              const effectiveStatus =
-                optimisticStatuses[task.id] ?? task.status;
-              const isChecked = effectiveStatus === 'pre_achieved';
-              const isCompleted = effectiveStatus === 'completed';
-              const isLoading = loadingTasks.has(task.id);
-
-              return (
-                <div
-                  data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1094"
-                  key={task.id}
-                  className={`group/row flex items-start gap-2.5 rounded-lg px-2.5 py-2 transition-all duration-150 ${
-                    isChecked ? 'bg-[#2563EB]/[0.03]' : 'hover:bg-[#FAFBFC]'
-                  }`}
-                  onMouseEnter={() => task._krId && onHoverKR?.(task._krId)}
-                  onMouseLeave={() => onHoverKR?.(null)}
-                >
-                  {/* Pre-achieve: owner uses interactive control; teammates see same visuals, read-only */}
-                  {isTeammatePlan ? (
-                    <span
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1104"
-                      className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
-                        isCompleted
-                          ? 'border-[#D1D5DB] bg-[#F3F4F6]'
-                          : isChecked
-                            ? 'border-[#2563EB] bg-[#2563EB] shadow-[0_0_0_2px_rgba(37,99,235,0.10)]'
-                            : 'border-current bg-white text-[#D1D5DB]'
-                      }`}
-                      aria-hidden
-                    >
-                      {isChecked || isCompleted ? (
-                        <CheckOutlined
-                          className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
-                        />
-                      ) : (
-                        <span
-                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1119"
-                          className="inline-block h-1.5 w-1.5 rounded-full bg-current"
-                          aria-hidden
-                        />
-                      )}
-                    </span>
-                  ) : (
-                    <button
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-button-1126"
-                      type="button"
-                      onClick={() =>
-                        !isPlanReadOnly &&
-                        !isCompleted &&
-                        !isLoading &&
-                        handleTaskToggle(task.id, effectiveStatus ?? '')
-                      }
-                      disabled={isPlanReadOnly || isCompleted || isLoading}
-                      className={`relative mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[5px] border-[1.5px] transition-all duration-200 ${
-                        isPlanReadOnly || isCompleted
-                          ? 'border-[#D1D5DB] bg-[#F3F4F6] cursor-not-allowed'
-                          : isChecked
-                            ? 'border-[#2563EB] bg-[#2563EB] shadow-[0_0_0_2px_rgba(37,99,235,0.10)]'
-                            : 'border-[#D1D5DB] bg-white hover:border-[#2563EB]/45 hover:shadow-[0_0_0_2px_rgba(37,99,235,0.07)] cursor-pointer'
-                      }`}
-                    >
-                      {isLoading ? (
-                        <LuLoader className="h-3 w-3 animate-spin text-[#2563EB]" />
-                      ) : isChecked || isCompleted ? (
-                        <CheckOutlined
-                          className={`text-[10px] ${isCompleted ? 'text-[#B0B3C0]' : 'text-white'}`}
-                        />
-                      ) : null}
-                    </button>
-                  )}
-
-                  <p
-                    data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-p-1153"
-                    className={`min-w-0 flex-1 break-words text-[14px] leading-snug line-clamp-2 transition-all duration-200 ${
-                      isChecked
-                        ? 'line-through text-[#B0B3C0]'
-                        : isCompleted
-                          ? 'line-through text-[#D1D5DB]'
-                          : 'text-[#2D2F45]'
-                    }`}
-                    title={taskName}
-                  >
-                    {taskName}
-                  </p>
-
-                  {/* Right-side meta columns — fixed widths for alignment */}
+            (isQuarterlyCard
+              ? sections.map((section) => (
                   <div
-                    data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-971"
-                    className="flex flex-shrink-0 items-center self-center"
+                    key={section.krId || section.sectionTitle}
+                    className="space-y-[2px] pb-2 last:pb-0"
+                    data-cy={`plan-card-quarterly-kr-section-${section.krId || 'unknown'}`}
                   >
-                    <div
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-972"
-                      className={classNames(meta.pri, 'flex justify-end')}
-                    >
-                      <span
-                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1175"
-                        className="inline-flex max-w-full items-center gap-1 rounded-full px-1.5 py-[4px] text-[11px] font-bold leading-none sm:gap-1 sm:px-2 sm:py-1 sm:text-[12px]"
-                        style={{ backgroundColor: pc.bg, color: pc.text }}
-                      >
-                        <span
-                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-1179"
-                          className="inline-block h-2 w-2 shrink-0 rounded-full"
-                          style={{ backgroundColor: pc.dot }}
-                        />
-                        {priorityChipText(priorityKey)}
-                      </span>
-                    </div>
-
-                    <div
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-985"
-                      className={classNames(meta.wt, 'text-right')}
-                    >
-                      <span
-                        data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-986"
-                        className="text-[12px] font-semibold text-[#8F94A3] tabular-nums sm:text-[13px]"
-                      >
-                        {formatNum(task.weight)}
-                      </span>
-                    </div>
-
-                    <div
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-991"
-                      className={classNames(meta.tgt, 'text-right')}
-                    >
-                      {showTarget ? (
-                        <span
-                          data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-993"
-                          className="text-[11px] font-semibold text-[#10B981] tabular-nums sm:text-[12px]"
-                        >
-                          {formatNum(task.target)}
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <div
-                      data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-1213"
-                      className={classNames(
-                        meta.out,
-                        'flex flex-shrink-0 items-center justify-center self-center',
-                      )}
-                    >
-                      {(task as PlanTask).achieveMK ? (
-                        <Tooltip
-                          title={
-                            (task as PlanTask).outcomeMilestoneId
-                              ? 'Milestone planned as outcome'
-                              : 'Key result planned as outcome'
-                          }
-                        >
-                          <FlagOutlined
-                            className="text-[10px] text-[#059669] sm:text-[12px]"
-                            aria-label="Outcome task"
-                          />
-                        </Tooltip>
-                      ) : null}
-                    </div>
+                    <QuarterlyKrBand
+                      kr={section.kr}
+                      sectionTitle={section.sectionTitle}
+                      metricType={section.metricType}
+                    />
+                    {section.tasks.map((task: any) =>
+                      renderPlanningTaskRow({
+                        ...task,
+                        _krId: section.krId,
+                        _metricType: section.metricType,
+                      }),
+                    )}
                   </div>
-                </div>
-              );
-            })}
+                ))
+              : allTasks.map((task: any) => renderPlanningTaskRow(task)))}
         </div>
       </div>
 

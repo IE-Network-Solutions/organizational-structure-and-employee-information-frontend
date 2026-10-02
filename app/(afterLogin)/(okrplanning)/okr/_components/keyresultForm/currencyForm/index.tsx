@@ -31,6 +31,8 @@ import {
   ADVANCED_WRAPPER_CLASS,
   ADVANCED_VALUES_ROW_CLASS,
   INPUT_CLASS,
+  ExtendedMetricFields,
+  KrKindField,
 } from '../_ui';
 
 const CurrencyForm: React.FC<OKRFormProps> = ({
@@ -41,6 +43,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   disableWeightEdit: disableWeightEditProp,
   disableMetricTypeEdit: disableMetricTypeEditProp,
   hideRemoveButton,
+  isStrategicObjective = false,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -58,7 +61,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
     (s) => s.cardViewByKey[cardViewKey] ?? false,
   );
   const initialValueRules = [
-    { required: true, message: 'Please enter the initial value' },
+    { required: true, message: 'Please enter the baseline' },
     ({
       getFieldValue,
     }: {
@@ -75,7 +78,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
           return Promise.resolve();
         }
         return Promise.reject(
-          new Error('Initial value must be less than the target value.'),
+          new Error('Baseline must be less than the target value.'),
         );
       },
     }),
@@ -98,7 +101,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
           return Promise.resolve();
         }
         return Promise.reject(
-          new Error('Target value must be greater than the initial value.'),
+          new Error('Target value must be greater than the baseline.'),
         );
       },
     }),
@@ -239,6 +242,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 </Select>
               </Form.Item>
               <Form.Item
+                hidden={isStrategicObjective}
                 className="w-24 mb-0"
                 name={`weight_${index}`}
                 rules={[{ required: true, message: 'Please enter the weight' }]}
@@ -308,7 +312,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   className="w-full h-10 rounded-lg text-base"
                   data-cy={`okr-currency-desktop-initial-input-${index}`}
                   min={0}
-                  placeholder="Initial Value"
+                  placeholder="Baseline"
                   value={keyItem.initialValue ?? 0}
                   onChange={(value) =>
                     updateKeyResult(index, 'initialValue', value)
@@ -410,6 +414,14 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       aria-label="Key Result Name"
                     />
                   </Form.Item>
+                  {isStrategicObjective ? (
+                    <KrKindField
+                      index={index}
+                      value={keyItem.krKind}
+                      updateKeyResult={updateKeyResult}
+                      dataCyPrefix="okr-currency-kind"
+                    />
+                  ) : null}
                   <Form.Item
                     className="w-44 mb-0"
                     label={
@@ -454,6 +466,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     </Select>
                   </Form.Item>
                   <Form.Item
+                    hidden={isStrategicObjective}
                     className="w-32 mb-0"
                     name={`weight_${index}`}
                     label={
@@ -462,7 +475,11 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                         tooltip={WEIGHT_TOOLTIP}
                       />
                     }
-                    rules={[{ required: true, message: 'Weight required' }]}
+                    rules={
+                      isStrategicObjective
+                        ? []
+                        : [{ required: true, message: 'Weight required' }]
+                    }
                     id={`weight-input-${index}`}
                     data-cy={`okr-currency-desktop-weight-item-${index}`}
                   >
@@ -558,8 +575,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     name="initialValue"
                     label={
                       <KeyResultFieldLabel
-                        label="Initial Value"
-                        tooltip="Starting currency value"
+                        label="Baseline"
+                        tooltip="Starting / baseline value"
                       />
                     }
                     dependencies={['targetValue']}
@@ -624,6 +641,13 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     />
                   </Form.Item>
                 </div>
+                <ExtendedMetricFields
+                  index={index}
+                  keyItem={keyItem}
+                  updateKeyResult={updateKeyResult}
+                  showThresholdStretch={true}
+                  dataCyPrefix="okr-currency"
+                />
               </div>
             )}
           </>
@@ -703,7 +727,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block"
                       data-cy={`okr-currency-mobile-saved-card-initial-label-${index}`}
                     >
-                      Initial Value :{' '}
+                      Baseline :{' '}
                       <span
                         className="font-semibold text-gray-900"
                         data-cy={`okr-currency-mobile-saved-card-initial-value-${index}`}
@@ -772,8 +796,8 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                     name="initialValue"
                     label={
                       <KeyResultFieldLabel
-                        label="Initial Value"
-                        tooltip="Starting currency value"
+                        label="Baseline"
+                        tooltip="Starting / baseline value"
                       />
                     }
                     dependencies={['targetValue']}
@@ -784,7 +808,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       className="w-full h-10 rounded-lg text-base"
                       data-cy={`okr-currency-mobile-initial-input-${index}`}
                       min={0}
-                      placeholder="Initial Value"
+                      placeholder="Baseline"
                       value={keyItem.initialValue ?? 0}
                       onChange={(value) =>
                         updateKeyResult(index, 'initialValue', value)
@@ -844,6 +868,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   className="flex gap-2 items-end"
                 >
                   <Form.Item
+                    hidden={isStrategicObjective}
                     className="flex-1 mb-0"
                     name={`weight_${index}`}
                     label={

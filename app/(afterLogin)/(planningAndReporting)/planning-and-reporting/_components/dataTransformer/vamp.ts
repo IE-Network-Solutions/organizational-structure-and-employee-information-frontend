@@ -290,9 +290,15 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
         }
       : null,
     metricType: metricType ?? keyResult.metricType,
+    key_type: keyResult.key_type,
+    metricTypeName: keyResult.metricTypeName ?? metricType?.name,
     targetValue: resolvedTarget,
     currentValue,
     initialValue,
+    threshold: keyResult.threshold ?? null,
+    stretch: keyResult.stretch ?? null,
+    dataSourceUrl: keyResult.dataSourceUrl ?? null,
+    krKind: keyResult.krKind ?? null,
     progress: resolvedProgress,
     status: keyResult.status,
     keyResultCompletionStatus: keyResult.keyResultCompletionStatus,
@@ -764,6 +770,7 @@ export const transformToPlanSummary = (
   return {
     id: dataItem.id || '',
     ownerUserId: dataItem?.userId ?? '',
+    isReported: Boolean(dataItem?.isReported),
     cadence: cadence,
     owner: {
       name: fullName,

@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 export interface ObjectiveType {
   id: string;
   name: string;
-  weight: number;
+  isStrategic: boolean;
 }
 
 interface ObjectiveTypesState {
@@ -30,11 +30,17 @@ interface ObjectiveTypesState {
     type: Omit<ObjectiveType, 'id'>,
   ) => { ok: boolean; message?: string };
   removeType: (id: string) => void;
-  getTotalWeight: (excludeId?: string) => number;
 }
 
 const createId = () =>
   `obj-type-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+
+const normalizeType = (
+  t: Partial<ObjectiveType> & { weight?: number; name?: string },
+): Omit<ObjectiveType, 'id'> => ({
+  name: String(t.name || '').trim(),
+  isStrategic: Boolean(t.isStrategic),
+});
 
 export const useObjectiveTypesStore = create<ObjectiveTypesState>()(
   persist(
@@ -48,39 +54,16 @@ export const useObjectiveTypesStore = create<ObjectiveTypesState>()(
       setOpenDeleteModal: (openDeleteModal) => set({ openDeleteModal }),
       setDeletedId: (deletedId) => set({ deletedId }),
       setSelectedType: (selectedType) => set({ selectedType }),
-      getTotalWeight: (excludeId) =>
-        get().types.reduce(
-          (sum, t) =>
-            excludeId && t.id === excludeId ? sum : sum + Number(t.weight || 0),
-          0,
-        ),
       addType: (type) => get().addTypes([type]),
       addTypes: (newTypes) => {
         if (!newTypes.length) {
           return { ok: false, message: 'Add at least one objective type' };
         }
 
-        const normalized = newTypes.map((t) => ({
-          name: String(t.name || '').trim(),
-          weight: Number(t.weight || 0),
-        }));
+        const normalized = newTypes.map(normalizeType);
 
         if (normalized.some((t) => !t.name)) {
           return { ok: false, message: 'Each type needs a name' };
-        }
-        if (normalized.some((t) => t.weight < 1)) {
-          return { ok: false, message: 'Each weight must be at least 1%' };
-        }
-
-        const batchTotal = normalized.reduce((sum, t) => sum + t.weight, 0);
-        const currentTotal = get().getTotalWeight();
-        const nextTotal = currentTotal + batchTotal;
-
-        if (nextTotal > 100) {
-          return {
-            ok: false,
-            message: `Total weight cannot exceed 100%. Current: ${currentTotal}%, adding: ${batchTotal}%, remaining: ${100 - currentTotal}%`,
-          };
         }
 
         set((state) => ({
@@ -92,18 +75,13 @@ export const useObjectiveTypesStore = create<ObjectiveTypesState>()(
         return { ok: true };
       },
       updateType: (id, type) => {
-        const weight = Number(type.weight || 0);
-        const currentTotal = get().getTotalWeight(id);
-        const nextTotal = currentTotal + weight;
-        if (nextTotal > 100) {
-          return {
-            ok: false,
-            message: `Total weight cannot exceed 100%. Other types: ${currentTotal}%, remaining: ${100 - currentTotal}%`,
-          };
+        const normalized = normalizeType(type);
+        if (!normalized.name) {
+          return { ok: false, message: 'Please enter objective type name' };
         }
         set((state) => ({
           types: state.types.map((t) =>
-            t.id === id ? { ...t, name: type.name.trim(), weight } : t,
+            t.id === id ? { ...t, ...normalized } : t,
           ),
         }));
         return { ok: true };
@@ -125,6 +103,20 @@ export const useObjectiveTypesStore = create<ObjectiveTypesState>()(
             },
       ),
       partialize: (state) => ({ types: state.types }),
+      merge: (persisted, current) => {
+        const p = persisted as Partial<ObjectiveTypesState> | undefined;
+        const rawTypes = Array.isArray(p?.types) ? p.types : [];
+        const types: ObjectiveType[] = rawTypes.map((t: any) => ({
+          id: String(t.id || createId()),
+          name: String(t.name || '').trim(),
+          isStrategic: Boolean(t.isStrategic),
+        }));
+        return {
+          ...current,
+          ...p,
+          types,
+        };
+      },
     },
   ),
 );

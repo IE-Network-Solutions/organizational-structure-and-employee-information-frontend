@@ -252,6 +252,16 @@ export function aggregateKeyResultForPanel(
     resolveKrPanelMetricType(displayKr, apiKr) ||
     formatKrMetricTypeDisplayName(getMetricTypeName(displayKr));
 
+  const krKindRaw = displayKr?.krKind ?? apiKr?.krKind ?? kr?.krKind;
+  const krKindLabel =
+    krKindRaw === 'committed'
+      ? 'Committed'
+      : krKindRaw === 'aspirational'
+        ? 'Aspirational'
+        : null;
+  const metricTypeWithKind =
+    krKindLabel && metricType ? `${krKindLabel} · ${metricType}` : metricType;
+
   // Re-inject resolved metric so ratio/percent match OKR dashboard helpers.
   const progressSource = metricType
     ? {
@@ -269,7 +279,7 @@ export function aggregateKeyResultForPanel(
       'Untitled KR',
     progress: getKeyResultProgressPercent(progressSource),
     taskCount,
-    metricType,
+    metricType: metricTypeWithKind || metricType,
     targetValue: progressSource.targetValue ?? 0,
     currentValue: progressSource.currentValue ?? 0,
     progressLabel: getKeyResultProgressRatioText(progressSource),

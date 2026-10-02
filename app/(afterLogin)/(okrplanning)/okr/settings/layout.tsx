@@ -12,6 +12,7 @@ import { useOkrRuleStore } from '@/store/uistate/features/okrplanning/monitoring
 import { useAverageOkrRuleAssignmentStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/average-okr-rule-assignment';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 import { useObjectiveTypesStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypesStore';
+import { useObjectiveTypeAssignmentStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypeAssignmentStore';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import Link from 'next/link';
 
@@ -33,19 +34,19 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
   } = useAverageOkrRuleAssignmentStore();
   const { showNotReportedList } = useOKRSettingStore();
   const {
-    types: objectiveTypes,
     setOpen: setObjectiveTypeOpen,
     setSelectedType: setSelectedObjectiveType,
   } = useObjectiveTypesStore();
+  const {
+    setOpen: setObjectiveTypeAssignmentOpen,
+    setSelectedAssignment: setSelectedObjectiveTypeAssignment,
+  } = useObjectiveTypeAssignmentStore();
 
   const isPlanningAssignation = activeTab === 'planning-assignation';
   const isCriteriaManagement = activeTab === 'criteria-management';
   const isAverageOkrRuleAssignment = activeTab === 'okr-rule-assignment';
   const isObjectiveTypes = activeTab === 'objective-types';
-  const objectiveTypesRemaining = Math.max(
-    0,
-    100 - objectiveTypes.reduce((sum, t) => sum + Number(t.weight || 0), 0),
-  );
+  const isObjectiveTypeAssignment = activeTab === 'objective-type-assignment';
 
   const handleAddAssignee = () => {
     setPlanningOpen(true);
@@ -69,6 +70,11 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     setObjectiveTypeOpen(true);
   };
 
+  const handleAddObjectiveTypeAssignment = () => {
+    setSelectedObjectiveTypeAssignment(null);
+    setObjectiveTypeAssignmentOpen(true);
+  };
+
   const tabs = [
     {
       key: 'okr-type',
@@ -79,6 +85,11 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
       key: 'objective-types',
       label: 'Objective Types',
       path: '/okr/settings/objective-types',
+    },
+    {
+      key: 'objective-type-assignment',
+      label: 'Type Assignment',
+      path: '/okr/settings/objective-type-assignment',
     },
     {
       key: 'planning-assignation',
@@ -115,6 +126,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     const tabMap: Record<string, string> = {
       'okr-type': 'okr-type',
       'objective-types': 'objective-types',
+      'objective-type-assignment': 'objective-type-assignment',
       'planning-assignation': 'planning-assignation',
       'criteria-management': 'criteria-management',
       'target-assignment': 'target-assignment',
@@ -230,8 +242,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                   <Button
                     icon={<FaPlus />}
                     onClick={handleAddObjectiveType}
-                    disabled={objectiveTypesRemaining <= 0}
-                    className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-[40px] px-3 sm:px-6 text-white border-none mb-3 rounded-lg flex items-center justify-center font-medium disabled:opacity-50"
+                    className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-[40px] px-3 sm:px-6 text-white border-none mb-3 rounded-lg flex items-center justify-center font-medium"
                     type="primary"
                     id="okr-settings-add-objective-type-button"
                     data-cy="okr-settings-add-objective-type-button"
@@ -241,6 +252,23 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                       data-cy="okr-settings-add-objective-type-button-text"
                     >
                       Add Type
+                    </span>
+                  </Button>
+                )}
+                {isObjectiveTypeAssignment && (
+                  <Button
+                    icon={<FaPlus />}
+                    onClick={handleAddObjectiveTypeAssignment}
+                    className="bg-[#2b54ad] hover:bg-[#3d66c2] focus:bg-[#3d66c2] h-[40px] px-3 sm:px-6 text-white border-none mb-3 rounded-lg flex items-center justify-center font-medium"
+                    type="primary"
+                    id="okr-settings-add-objective-type-assignment-button"
+                    data-cy="okr-settings-add-objective-type-assignment-button"
+                  >
+                    <span
+                      className="hidden sm:inline ml-2"
+                      data-cy="okr-settings-add-objective-type-assignment-button-text"
+                    >
+                      Add Assignment
                     </span>
                   </Button>
                 )}

@@ -12,6 +12,9 @@ import {
   useObjectiveTypesStore,
 } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypesStore';
 
+const metaBadgeClass =
+  'inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border border-gray-200 text-gray-600 bg-white whitespace-nowrap';
+
 const ObjectiveTypesPage = () => {
   const {
     types,
@@ -104,7 +107,7 @@ const ObjectiveTypesPage = () => {
       {types.length === 0 ? (
         <EmptyState
           title="No objective types yet"
-          description="Add a type to get started. Weights must total 100%."
+          description="Add a type to get started. Mark strategic types to drive strategic KR rules."
           data-cy="okr-objective-types-empty"
         />
       ) : (
@@ -163,23 +166,21 @@ const ObjectiveTypesPage = () => {
                 className="flex items-end justify-between"
                 data-cy={`okr-objective-type-card-footer-${item.id}`}
               >
-                <div
-                  data-cy={`okr-objective-type-card-weight-block-${item.id}`}
-                >
-                  <p
-                    className="text-lg font-bold text-gray-800 m-0 leading-6"
-                    id={`okr-objective-type-card-weight-${item.id}`}
-                    data-cy={`okr-objective-type-card-weight-${item.id}`}
+                {item.isStrategic ? (
+                  <span
+                    className={metaBadgeClass}
+                    data-cy={`okr-objective-type-card-strategic-badge-${item.id}`}
                   >
-                    {item.weight}%
-                  </p>
-                  <p
-                    className="text-xs text-gray-400 m-0 mt-0.5"
-                    data-cy={`okr-objective-type-card-weight-label-${item.id}`}
+                    Strategic
+                  </span>
+                ) : (
+                  <span
+                    className={metaBadgeClass}
+                    data-cy={`okr-objective-type-card-business-badge-${item.id}`}
                   >
-                    Total %
-                  </p>
-                </div>
+                    Business
+                  </span>
+                )}
               </div>
             </Card>
           ))}

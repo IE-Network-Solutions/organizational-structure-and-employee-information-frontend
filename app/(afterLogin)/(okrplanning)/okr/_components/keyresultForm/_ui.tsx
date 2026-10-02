@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip } from 'antd';
+import { Tooltip, Form, Input, InputNumber, Select } from 'antd';
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
@@ -253,6 +253,10 @@ export interface KeyResultSavedCardProps {
   onEdit: () => void;
   id?: string;
   'data-cy'?: string;
+  /** Hide weight pill (strategic objectives) */
+  hideWeight?: boolean;
+  /** Optional strategic kind label instead of / beside weight */
+  krKindLabel?: string | null;
 }
 
 /**
@@ -264,6 +268,8 @@ export function KeyResultSavedCard({
   onEdit,
   id,
   'data-cy': dataCy,
+  hideWeight,
+  krKindLabel,
 }: KeyResultSavedCardProps) {
   return (
     <div
@@ -275,12 +281,22 @@ export function KeyResultSavedCard({
         className="flex flex-col gap-2 flex-1 min-w-0"
         data-cy="key-result-saved-card-content"
       >
-        <span
-          className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block"
-          data-cy="key-result-saved-card-weight"
-        >
-          Weight {weight}%
-        </span>
+        {!hideWeight && (
+          <span
+            className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block"
+            data-cy="key-result-saved-card-weight"
+          >
+            Weight {weight}%
+          </span>
+        )}
+        {krKindLabel ? (
+          <span
+            className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block"
+            data-cy="key-result-saved-card-kind"
+          >
+            {krKindLabel}
+          </span>
+        ) : null}
         <p
           className="text-sm font-medium text-gray-900 truncate"
           data-cy="key-result-saved-card-title"
@@ -314,5 +330,173 @@ export function KeyResultSavedCard({
         </Tooltip>
       </div>
     </div>
+  );
+}
+
+export const BASELINE_TOOLTIP = 'Starting / baseline value for this key result';
+
+export const URL_VALIDATION_RULE = {
+  //eslint-disable-next-line
+  validator(_: unknown, value: string | undefined) {
+    if (!value || !String(value).trim()) return Promise.resolve();
+    try {
+      // Accept with or without protocol
+      const raw = String(value).trim();
+      const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+      // eslint-disable-next-line no-new
+      new URL(url);
+      return Promise.resolve();
+    } catch {
+      return Promise.reject(new Error('Enter a valid URL'));
+    }
+  },
+};
+
+export interface ExtendedMetricFieldsProps {
+  index: number;
+  keyItem: {
+    threshold?: number | null;
+    stretch?: number | null;
+    dataSourceUrl?: string | null;
+    initialValue?: number | null;
+    targetValue?: number | string | null;
+  };
+  updateKeyResult: (index: number, field: any, value: any) => void;
+  /** When false, omit Threshold/Stretch (Achieve-or-Not) */
+  showThresholdStretch?: boolean;
+  dataCyPrefix?: string;
+}
+
+/**
+ * Prototype fields: Threshold / Stretch / Data source on one row below Key Result.
+ */
+export function ExtendedMetricFields({
+  index,
+  keyItem,
+  updateKeyResult,
+  showThresholdStretch = true,
+  dataCyPrefix = 'okr-extended',
+}: ExtendedMetricFieldsProps) {
+  return (
+    <div
+      className={`${ADVANCED_ROW_CLASS} items-end mt-4 w-full`}
+      data-cy={`${dataCyPrefix}-fields-${index}`}
+    >
+      {showThresholdStretch ? (
+        <>
+          <Form.Item
+            className="flex-1 min-w-0 mb-0"
+            name="threshold"
+            label={
+              <KeyResultFieldLabel
+                label="Threshold"
+                tooltip="Minimum acceptable value (baseline ≤ threshold ≤ target)"
+                required={false}
+              />
+            }
+            data-cy={`${dataCyPrefix}-threshold-item-${index}`}
+          >
+            <InputNumber
+              className={`w-full ${INPUT_CLASS}`}
+              min={0}
+              placeholder="Threshold"
+              value={keyItem.threshold ?? undefined}
+              onChange={(value: number | null) =>
+                updateKeyResult(index, 'threshold', value)
+              }
+              data-cy={`${dataCyPrefix}-threshold-input-${index}`}
+            />
+          </Form.Item>
+          <Form.Item
+            className="flex-1 min-w-0 mb-0"
+            name="stretch"
+            label={
+              <KeyResultFieldLabel
+                label="Stretch"
+                tooltip="Aspirational value above target (target ≤ stretch)"
+                required={false}
+              />
+            }
+            data-cy={`${dataCyPrefix}-stretch-item-${index}`}
+          >
+            <InputNumber
+              className={`w-full ${INPUT_CLASS}`}
+              min={0}
+              placeholder="Stretch"
+              value={keyItem.stretch ?? undefined}
+              onChange={(value: number | null) =>
+                updateKeyResult(index, 'stretch', value)
+              }
+              data-cy={`${dataCyPrefix}-stretch-input-${index}`}
+            />
+          </Form.Item>
+        </>
+      ) : null}
+      <Form.Item
+        className="flex-1 min-w-0 mb-0"
+        name="dataSourceUrl"
+        label={
+          <KeyResultFieldLabel
+            label="Data source"
+            tooltip="Optional URL for the metric data source"
+            required={false}
+          />
+        }
+        rules={[URL_VALIDATION_RULE]}
+        data-cy={`${dataCyPrefix}-datasource-item-${index}`}
+      >
+        <Input
+          className={INPUT_CLASS}
+          placeholder="https://"
+          value={keyItem.dataSourceUrl ?? undefined}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            updateKeyResult(index, 'dataSourceUrl', e.target.value)
+          }
+          data-cy={`${dataCyPrefix}-datasource-input-${index}`}
+        />
+      </Form.Item>
+    </div>
+  );
+}
+
+export interface KrKindFieldProps {
+  index: number;
+  value?: 'committed' | 'aspirational' | null;
+  updateKeyResult: (index: number, field: any, value: any) => void;
+  dataCyPrefix?: string;
+}
+
+export function KrKindField({
+  index,
+  value,
+  updateKeyResult,
+  dataCyPrefix = 'okr-kr-kind',
+}: KrKindFieldProps) {
+  return (
+    <Form.Item
+      className="w-44 mb-0"
+      name="krKind"
+      label={
+        <KeyResultFieldLabel
+          label="KR Type"
+          tooltip="Committed or Aspirational (strategic objectives only)"
+        />
+      }
+      rules={[{ required: true, message: 'Select Committed or Aspirational' }]}
+      data-cy={`${dataCyPrefix}-item-${index}`}
+    >
+      <Select
+        className={`w-full ${INPUT_CLASS}`}
+        placeholder="Select"
+        value={value || undefined}
+        onChange={(v: 'committed' | 'aspirational') =>
+          updateKeyResult(index, 'krKind', v)
+        }
+        data-cy={`${dataCyPrefix}-select-${index}`}
+      >
+        <Select.Option value="committed">Committed</Select.Option>
+        <Select.Option value="aspirational">Aspirational</Select.Option>
+      </Select>
+    </Form.Item>
   );
 }

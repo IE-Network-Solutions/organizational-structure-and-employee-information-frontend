@@ -461,6 +461,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                 value={type.id}
               >
                 {type.name}
+                {type.isStrategic ? ' (Strategic)' : ''}
               </Option>
             ))}
           </Select>
@@ -1231,6 +1232,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                       value={type.id}
                     >
                       {type.name}
+                      {type.isStrategic ? ' (Strategic)' : ''}
                     </Option>
                   ))}
                 </Select>

@@ -1,5 +1,5 @@
 export type Priority = 'Low' | 'Medium' | 'High' | 'Priority';
-export type Cadence = 'daily' | 'weekly' | 'monthly';
+export type Cadence = 'daily' | 'weekly' | 'monthly' | 'quarterly';
 export type ViewMode = 'planning' | 'reporting';
 
 export interface PlanTask {
@@ -57,6 +57,11 @@ export interface KeyResult {
   targetValue?: string | number;
   currentValue?: string | number;
   initialValue?: string | number;
+  /** Prototype / OKR: baseline ≤ threshold ≤ target ≤ stretch */
+  threshold?: number | null;
+  stretch?: number | null;
+  dataSourceUrl?: string | null;
+  krKind?: 'committed' | 'aspirational' | null;
   progress?: string | number;
   status?: string;
   keyResultCompletionStatus?: string;

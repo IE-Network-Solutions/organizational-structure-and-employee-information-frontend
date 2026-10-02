@@ -1,7 +1,7 @@
 'use client';
 
 import classNames from 'classnames';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Button, Form } from 'antd';
 import { useQueryClient } from 'react-query';
 import {
@@ -14,6 +14,7 @@ import {
   useGetReportingById,
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   markMilestonesCompletedInOkrCaches,
   markMilestonesReopenedInOkrCaches,
@@ -32,6 +33,10 @@ import { PlanCardInlineReportFields } from './PlanCardInlineReportFields';
 import { computeReportTotalWeight } from './reportFormUtils';
 import { PlanCardInlineReportFormSkeleton } from './PlanCardInlineReportFormSkeleton';
 import { useCreateReportFormEffects } from './useCreateReportFormEffects';
+import {
+  buildPrototypeQuarterlyPlans,
+  isPrototypeQuarterlyPeriodId,
+} from '@/app/(afterLogin)/(okrplanning)/okr/_constants/prototypeMockObjectives';
 
 type PlanCardInlineReportFormProps = {
   planId: string;
@@ -57,12 +62,17 @@ export function PlanCardInlineReportForm({
   const isEditMode = Boolean(reportId);
   const queryClient = useQueryClient();
 
+  const { userId } = useAuthenticationStore();
+  const isQuarterlyPrototype = isPrototypeQuarterlyPeriodId(planningPeriodId);
+
   const {
     data: allPlannedTaskForReport,
     isLoading: plannedTaskForReportLoading,
     isFetching: plannedTaskForReportFetching,
     refetch: refetchPlannedTasks,
-  } = useGetPlannedTaskForReport(planningPeriodId);
+  } = useGetPlannedTaskForReport(planningPeriodId, {
+    enabled: !isQuarterlyPrototype && !!planningPeriodId,
+  });
   const {
     data: allReportedPlanning,
     isLoading: reportedPlanningLoading,
@@ -70,12 +80,21 @@ export function PlanCardInlineReportForm({
   } = useGetReportedPlanning(isEditMode ? planId : '');
 
   useEffect(() => {
-    refetchPlannedTasks();
-  }, [refetchPlannedTasks]);
+    if (!isQuarterlyPrototype) refetchPlannedTasks();
+  }, [refetchPlannedTasks, isQuarterlyPrototype]);
+
+  const prototypePlannedTasks = useMemo(() => {
+    if (!isQuarterlyPrototype || !userId) return [];
+    return buildPrototypeQuarterlyPlans({ userId }).flatMap(
+      (p) => p.tasks ?? [],
+    );
+  }, [isQuarterlyPrototype, userId]);
 
   const sourceTasks = isEditMode
     ? allReportedPlanning
-    : allPlannedTaskForReport;
+    : isQuarterlyPrototype
+      ? prototypePlannedTasks
+      : allPlannedTaskForReport;
   const formattedData =
     sourceTasks != null
       ? groupUnReportedTasksByKeyResultAndMilestone(sourceTasks)
@@ -91,10 +110,12 @@ export function PlanCardInlineReportForm({
       ? allReportedPlanning === undefined ||
         reportedPlanningLoading ||
         reportedPlanningFetching
-      : !!planningPeriodId &&
-        (allPlannedTaskForReport === undefined ||
-          plannedTaskForReportLoading ||
-          plannedTaskForReportFetching));
+      : isQuarterlyPrototype
+        ? false
+        : !!planningPeriodId &&
+          (allPlannedTaskForReport === undefined ||
+            plannedTaskForReportLoading ||
+            plannedTaskForReportFetching));
 
   useCreateReportFormEffects(hasReportTaskRows ? formattedData : null, form);
 

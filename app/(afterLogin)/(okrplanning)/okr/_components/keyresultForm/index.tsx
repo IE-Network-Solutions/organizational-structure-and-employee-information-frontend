@@ -26,6 +26,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
   disableMetricTypeEdit,
   onSaveSuccess,
   hideRemoveButton,
+  isStrategicObjective = false,
 }) => {
   const { isMobile } = useIsMobile();
   const renderInline = !isMobile || embedInOkrSheet;
@@ -73,6 +74,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           disableWeightEdit={disableWeightEdit}
           disableMetricTypeEdit={disableMetricTypeEdit}
           hideRemoveButton={hideRemoveButton}
+          isStrategicObjective={isStrategicObjective}
         />
       );
     }
@@ -91,6 +93,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           disableMetricTypeEdit={disableMetricTypeEdit}
           onSaveSuccess={onSaveSuccess}
           hideRemoveButton={hideRemoveButton}
+          isStrategicObjective={isStrategicObjective}
         />
       );
     }
@@ -108,6 +111,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           disableWeightEdit={disableWeightEdit}
           disableMetricTypeEdit={disableMetricTypeEdit}
           hideRemoveButton={hideRemoveButton}
+          isStrategicObjective={isStrategicObjective}
         />
       );
     }
@@ -125,6 +129,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           disableWeightEdit={disableWeightEdit}
           disableMetricTypeEdit={disableMetricTypeEdit}
           hideRemoveButton={hideRemoveButton}
+          isStrategicObjective={isStrategicObjective}
         />
       );
     }
@@ -142,6 +147,7 @@ const KeyResultForm: React.FC<OKRFormProps> = ({
           disableWeightEdit={disableWeightEdit}
           disableMetricTypeEdit={disableMetricTypeEdit}
           hideRemoveButton={hideRemoveButton}
+          isStrategicObjective={isStrategicObjective}
         />
       );
     }

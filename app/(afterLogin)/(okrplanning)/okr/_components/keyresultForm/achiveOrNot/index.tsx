@@ -21,6 +21,8 @@ import {
   ADVANCED_ROW_CLASS,
   ADVANCED_WRAPPER_CLASS,
   INPUT_CLASS,
+  ExtendedMetricFields,
+  KrKindField,
 } from '../_ui';
 
 const AchieveOrNot: React.FC<OKRFormProps> = ({
@@ -32,6 +34,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
   disableMetricTypeEdit: disableMetricTypeEditProp,
   onSaveSuccess,
   hideRemoveButton,
+  isStrategicObjective = false,
 }) => {
   const { Option } = Select;
   const [form] = Form.useForm();
@@ -131,22 +134,27 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
               />
             </Form.Item>
             <Form.Item
+              hidden={isStrategicObjective}
               className="w-28 mb-0"
               name="weight"
               label={
                 <KeyResultFieldLabel label="Weight" tooltip={WEIGHT_TOOLTIP} />
               }
-              rules={[
-                { required: true, message: 'Please enter the Weight' },
-                {
-                  type: 'number',
-                  min: 0,
-                  max: 100,
-                  transform: (v: any) =>
-                    v != null && v !== '' ? Number(v) : v,
-                  message: 'Weight must be between 0 and 100',
-                },
-              ]}
+              rules={
+                isStrategicObjective
+                  ? []
+                  : [
+                      { required: true, message: 'Please enter the Weight' },
+                      {
+                        type: 'number',
+                        min: 0,
+                        max: 100,
+                        transform: (v: any) =>
+                          v != null && v !== '' ? Number(v) : v,
+                        message: 'Weight must be between 0 and 100',
+                      },
+                    ]
+              }
               id={`weight-input-${index}`}
               data-cy={`okr-achieve-desktop-weight-item-${index}`}
             >
@@ -292,6 +300,14 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                       }
                     />
                   </Form.Item>
+                  {isStrategicObjective ? (
+                    <KrKindField
+                      index={index}
+                      value={keyItem.krKind}
+                      updateKeyResult={updateKeyResult}
+                      dataCyPrefix="okr-achieve-kind"
+                    />
+                  ) : null}
                   <Form.Item
                     className="w-44 mb-0"
                     label={
@@ -336,6 +352,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                     </Select>
                   </Form.Item>
                   <Form.Item
+                    hidden={isStrategicObjective}
                     className="w-32 mb-0"
                     name="weight"
                     label={
@@ -535,6 +552,7 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
                   className="flex gap-2 items-end"
                 >
                   <Form.Item
+                    hidden={isStrategicObjective}
                     className="flex-1 mb-0"
                     name="weight"
                     label={
@@ -654,6 +672,13 @@ const AchieveOrNot: React.FC<OKRFormProps> = ({
             )}
           </>
         )}
+        <ExtendedMetricFields
+          index={index}
+          keyItem={keyItem}
+          updateKeyResult={updateKeyResult}
+          showThresholdStretch={false}
+          dataCyPrefix="okr-achieve"
+        />
       </Form>
     </div>
   );

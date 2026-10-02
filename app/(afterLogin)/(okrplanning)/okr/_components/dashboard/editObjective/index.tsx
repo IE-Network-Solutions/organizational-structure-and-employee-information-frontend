@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   Button,
   DatePicker,
@@ -39,6 +39,8 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
 import { hasAnyProgress } from '../../../_utils/keyResultGuards';
+import { useObjectiveTypesStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypesStore';
+import { useObjectiveTypeAllocationStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypeAllocationStore';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -78,6 +80,30 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const resetMilestoneForm = useMilestoneFormStore((s) => s.resetMilestoneForm);
   const resetAchieveOrNot = useAchieveOrNotStore((s) => s.resetAchieveOrNot);
   const resetKeyResultForm = useKeyResultFormStore((s) => s.resetKeyResultForm);
+  const objectiveTypes = useObjectiveTypesStore((s) => s.types);
+  const getAllocationForObjective = useObjectiveTypeAllocationStore(
+    (s) => s.getAllocationForObjective,
+  );
+  const isStrategicObjective = useMemo(() => {
+    const allocation = getAllocationForObjective(
+      objectiveValue?.id || props.objective?.id,
+      objectiveValue?.title || props.objective?.title,
+    );
+    const typeId =
+      objectiveValue?.objectiveTypeId ||
+      props.objective?.objectiveTypeId ||
+      allocation?.objectiveTypeId;
+    return Boolean(objectiveTypes.find((t) => t.id === typeId)?.isStrategic);
+  }, [
+    objectiveTypes,
+    getAllocationForObjective,
+    objectiveValue?.id,
+    objectiveValue?.title,
+    objectiveValue?.objectiveTypeId,
+    props.objective?.id,
+    props.objective?.title,
+    props.objective?.objectiveTypeId,
+  ]);
   /** Advanced mode: show inline metric type pills (same as Create OKR) instead of dropdown. */
   const [showMetricSelector, setShowMetricSelector] = React.useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = React.useState(false);
@@ -127,8 +153,12 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         0,
       );
 
-      if (keyResultSum !== 100) {
+      if (!isStrategicObjective && keyResultSum !== 100) {
         return false;
+      }
+      if (isStrategicObjective) {
+        const missingKind = allKeyResults.find((kr: any) => !kr?.krKind);
+        if (missingKind) return false;
       }
 
       for (const keyResult of allKeyResults) {
@@ -205,11 +235,21 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             sum + Number(keyResult.weight || 0),
           0,
         );
-        if (keyResultSum !== 100) {
+        if (!isStrategicObjective && keyResultSum !== 100) {
           NotificationMessage.warning({
             message: `The sum of key result should equal to 100. Current sum: ${keyResultSum}%`,
           });
           return;
+        }
+        if (isStrategicObjective) {
+          const missingKind = allKeyResults.find((kr: any) => !kr?.krKind);
+          if (missingKind) {
+            NotificationMessage.warning({
+              message:
+                'Strategic key results require Committed or Aspirational type.',
+            });
+            return;
+          }
         }
         if (allKeyResults && allKeyResults.length !== 0) {
           for (const [index, keyResult] of allKeyResults.entries()) {
@@ -1212,6 +1252,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                          editor collapses back to the card (delete lives on the card). */
                       hideRemoveButton={isExisting}
                       onSaveSuccess={() => setEditingKeyResultIndex(null)}
+                      isStrategicObjective={isStrategicObjective}
                     />
                     <div
                       className="flex justify-end mt-2"

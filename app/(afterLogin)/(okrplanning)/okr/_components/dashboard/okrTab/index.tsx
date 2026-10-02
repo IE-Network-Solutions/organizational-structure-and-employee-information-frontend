@@ -36,10 +36,14 @@ import {
 } from '../okrFilterUsers';
 import { useObjectiveTypesStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypesStore';
 import { useObjectiveTypeAllocationStore } from '@/store/uistate/features/okrplanning/okrSetting/objectiveTypeAllocationStore';
+import { buildPrototypeMockObjectives } from '../../../_constants/prototypeMockObjectives';
 
 /** Prototype mock badges on cards use these labels when API meta is missing. */
 const MOCK_OBJECTIVE_TYPE_NAME = 'Business';
 const MOCK_BSC_PILLAR_ID = 'financial';
+
+/** When true, My OKR list merges local prototype objectives (Business/Strategic + KR combos). */
+const USE_PROTOTYPE_MY_OKR_MOCKS = true;
 
 const TAB_CONFIG = [
   { key: '1', label: 'My OKR' },
@@ -95,9 +99,66 @@ export default function OkrTab({
   const filterObjectiveTypeId = searchObjParams?.objectiveTypeId || '';
   const filterBscPillarId = searchObjParams?.bscPillarId || '';
   const objectiveTypes = useObjectiveTypesStore((s) => s.types);
+  const addTypes = useObjectiveTypesStore((s) => s.addTypes);
   const getAllocationForObjective = useObjectiveTypeAllocationStore(
     (s) => s.getAllocationForObjective,
   );
+  const addAllocation = useObjectiveTypeAllocationStore((s) => s.addAllocation);
+  const allocations = useObjectiveTypeAllocationStore((s) => s.allocations);
+
+  // Ensure catalog has Business + Strategic for prototype demos
+  useEffect(() => {
+    if (!USE_PROTOTYPE_MY_OKR_MOCKS) return;
+    const hasNonStrategic = objectiveTypes.some((t) => !t.isStrategic);
+    const hasStrategic = objectiveTypes.some((t) => t.isStrategic);
+    const toAdd: { name: string; isStrategic: boolean }[] = [];
+    if (!hasNonStrategic) toAdd.push({ name: 'Business', isStrategic: false });
+    if (!hasStrategic) toAdd.push({ name: 'Strategic', isStrategic: true });
+    if (toAdd.length) addTypes(toAdd);
+  }, [objectiveTypes, addTypes]);
+
+  const prototypeObjectives = useMemo(() => {
+    if (!USE_PROTOTYPE_MY_OKR_MOCKS || !userId) return [];
+    const hasNonStrategic = objectiveTypes.some((t) => !t.isStrategic);
+    const hasStrategic = objectiveTypes.some((t) => t.isStrategic);
+    // Wait until catalog types exist so badges resolve to real names
+    if (!hasNonStrategic || !hasStrategic) return [];
+    return buildPrototypeMockObjectives({
+      userId,
+      types: objectiveTypes,
+    });
+  }, [userId, objectiveTypes]);
+
+  // Seed prototype allocations so Type / BSC badges resolve
+  useEffect(() => {
+    if (!USE_PROTOTYPE_MY_OKR_MOCKS || !prototypeObjectives.length) return;
+    const removeAllocationByObjectiveId =
+      useObjectiveTypeAllocationStore.getState().removeAllocationByObjectiveId;
+    prototypeObjectives.forEach((obj) => {
+      if (!obj.id || !obj.objectiveTypeId) return;
+      const existing = getAllocationForObjective(obj.id, obj.title);
+      if (
+        existing &&
+        existing.objectiveTypeId === obj.objectiveTypeId &&
+        (existing.bscPillarId || null) === (obj.bscPillarId ?? null)
+      ) {
+        return;
+      }
+      if (existing) removeAllocationByObjectiveId(obj.id);
+      addAllocation({
+        objectiveId: obj.id,
+        title: obj.title,
+        objectiveTypeId: obj.objectiveTypeId,
+        bscPillarId: obj.bscPillarId ?? null,
+        weight: Number(obj.weight || 0) || 1,
+      });
+    });
+  }, [
+    prototypeObjectives,
+    getAllocationForObjective,
+    addAllocation,
+    allocations.length,
+  ]);
 
   const matchesObjectiveMetaFilters = (obj: any) => {
     if (!filterObjectiveTypeId && !filterBscPillarId) return true;
@@ -209,6 +270,17 @@ export default function OkrTab({
     keyResultDeadlineFilter,
     { enabled: String(activeKey) === '1' },
   );
+
+  const myOkrItems = useMemo(() => {
+    const apiItems = userObjectives?.items ?? [];
+    if (!USE_PROTOTYPE_MY_OKR_MOCKS) return apiItems;
+    const apiIds = new Set(apiItems.map((o: any) => String(o?.id)));
+    const mocks = prototypeObjectives.filter(
+      (o) => o.id && !apiIds.has(String(o.id)),
+    );
+    return [...mocks, ...apiItems];
+  }, [userObjectives?.items, prototypeObjectives]);
+
   const {
     data: teamObjective,
     isLoading: teamLoading,
@@ -337,19 +409,19 @@ export default function OkrTab({
       label: 'My OKR',
       children: (
         <div id="my-okr-tab-content" data-cy="okr-my-okr-tab-content">
-          {isUserLoading ? (
+          {isUserLoading && myOkrItems.length === 0 ? (
             <ObjectiveCardSkeleton
               data-cy="okr-my-okr-loading-skeleton"
               count={Math.min(Number(pageSize || 3), 6)}
               showAssignee={false}
             />
           ) : null}
-          {userObjectives?.items?.length !== 0 && (
+          {myOkrItems.length !== 0 && (
             <div
               id="my-okr-objectives-list"
               data-cy="okr-my-okr-objectives-list"
             >
-              {userObjectives?.items
+              {myOkrItems
                 ?.filter(matchesObjectiveMetaFilters)
                 ?.map((obj: any) =>
                   isBasicOkr ? (
@@ -371,7 +443,12 @@ export default function OkrTab({
               {isMobile || isTablet ? (
                 <CustomMobilePagination
                   data-cy="okr-my-okr-mobile-pagination"
-                  totalResults={userObjectives?.meta?.totalItems ?? 0}
+                  totalResults={
+                    (userObjectives?.meta?.totalItems ?? 0) +
+                    (USE_PROTOTYPE_MY_OKR_MOCKS
+                      ? prototypeObjectives.length
+                      : 0)
+                  }
                   pageSize={pageSize}
                   currentPage={currentPage}
                   onChange={(page, pageSize) => {
@@ -385,7 +462,12 @@ export default function OkrTab({
               ) : (
                 <CustomPagination
                   current={userObjectives?.meta?.currentPage || 1}
-                  total={userObjectives?.meta?.totalItems || 1}
+                  total={
+                    (userObjectives?.meta?.totalItems || 0) +
+                    (USE_PROTOTYPE_MY_OKR_MOCKS
+                      ? prototypeObjectives.length
+                      : 0)
+                  }
                   pageSize={pageSize}
                   onChange={(page, pageSize) => {
                     setCurrentPage(page);
@@ -399,7 +481,7 @@ export default function OkrTab({
               )}
             </div>
           )}
-          {userObjectives?.items?.length === 0 && (
+          {myOkrItems.length === 0 && !isUserLoading && (
             <div
               id="my-okr-empty-state"
               data-cy="okr-my-okr-empty-state"
