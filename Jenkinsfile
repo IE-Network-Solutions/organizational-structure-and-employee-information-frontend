@@ -40,7 +40,12 @@ pipeline {
                             env.SECRETS_PATH = '/home/ubuntu/secrets/.osei-front-env'
                             env.SECRET_KEY = 'peptest'
 
-                        } else if (branchName == 'staging') {
+                        } else if (branchName == 'core-staging') {
+                            env.REMOTE_SERVER = REMOTE_SERVER_PROD
+                            env.SECRETS_PATH = '/home/ubuntu/secrets/staging/core/.core-workspace-env'
+                            env.SECRET_KEY = 'pepproduction'
+
+                        }else if (branchName == 'staging') {
                             env.REMOTE_SERVER = REMOTE_SERVER_PROD
                             env.SECRETS_PATH = '/home/ubuntu/secrets/staging/.osei-front-env'
                             env.SECRET_KEY = 'pepproduction'
@@ -237,6 +242,8 @@ pipeline {
                                         docker stack deploy --with-registry-auth -c redesign-docker-compose.yml redesign || { echo "Stack deploy (redesign) failed"; exit 1; }
                                     elif [ "${BRANCH_NAME}" = "core-production" ]; then
                                         docker stack deploy --with-registry-auth -c core-docker-compose.yml service || { echo "Stack deploy (core-prod) failed"; exit 1; }
+                                    elif [ "${BRANCH_NAME}" = "core-staging" ]; then
+                                        docker stack deploy --with-registry-auth -c core-docker-compose.yml core || { echo "Stack deploy (core-staging) failed"; exit 1; }
                                     else
                                         docker stack deploy --with-registry-auth -c docker-compose.yml pep || { echo "Stack deploy (prod/develop) failed"; exit 1; }
                                     fi
