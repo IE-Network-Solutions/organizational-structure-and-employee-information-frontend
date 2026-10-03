@@ -3,8 +3,9 @@ import { OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
+import { OkrScoringMode } from '../../okr-setting/interface';
 
-interface Dashboard {
+export interface Dashboard {
   daysLeft: number;
   okrCompleted: number;
   userOkr: number;
@@ -14,6 +15,9 @@ interface Dashboard {
   supervisorOkr?: number;
   supervisorKeyResultAchieved?: number;
   supervisorKeyResultCount?: number;
+  scoringMode?: OkrScoringMode;
+  overall?: number;
+  typeScores?: Record<string, number>;
 }
 
 type ResponseData = Dashboard;
