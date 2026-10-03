@@ -1,13 +1,26 @@
 'use client';
 
+/* eslint-disable local-rules/data-cy-required */
+
 import React, { useState, useEffect } from 'react';
-import { Radio, Skeleton } from 'antd';
+import {
+  Alert,
+  Button,
+  InputNumber,
+  Modal,
+  Radio,
+  Skeleton,
+  Switch,
+} from 'antd';
+import AccessGuard from '@/utils/permissionGuard';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
 import {
   useUpdateOkrSetting,
   useSwitchOkrMode,
+  usePatchOkrScoringMode,
 } from '@/store/server/features/okrplanning/okr-setting/mutations';
 import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
+import { OkrScoringMode } from '@/store/server/features/okrplanning/okr-setting/interface';
 import OkrModeConfirmationModal from './_components/OkrModeConfirmationModal';
 import OkrModeEffectsModal from './_components/OkrModeEffectsModal';
 import UnreportedUsersModal from './_components/UnreportedUsersModal';
@@ -16,9 +29,11 @@ import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSett
 
 const OkrTypePage = () => {
   const { okrMode, refetch, isInitialLoading } = useOkrSetting();
-  const { refetch: refetchSetting } = useGetOkrSetting();
+  const { data: setting, refetch: refetchSetting } = useGetOkrSetting();
   const { isLoading: isUpdating } = useUpdateOkrSetting();
   const { mutate: switchOkrMode, isLoading: isSwitching } = useSwitchOkrMode();
+  const { mutate: patchOkrScoringMode, isLoading: isPatchingScoringMode } =
+    usePatchOkrScoringMode();
   const {
     showNotReportedList,
     setShowNotReportedList,
@@ -35,11 +50,22 @@ const OkrTypePage = () => {
   const [transitionDirection, setTransitionDirection] = useState<
     'BasicToAdvanced' | 'AdvancedToBasic' | null
   >(null);
+  const [pendingScoringMode, setPendingScoringMode] =
+    useState<OkrScoringMode | null>(null);
+  const [isScoringModalOpen, setIsScoringModalOpen] = useState(false);
+  const [stretchScoreMax, setStretchScoreMax] = useState<number>(100);
+  const [scoringError, setScoringError] = useState<string | null>(null);
 
   // Fetch setting data when component mounts
   useEffect(() => {
     refetchSetting();
   }, [refetchSetting]);
+
+  useEffect(() => {
+    if (setting?.stretchScoreMax !== undefined) {
+      setStretchScoreMax(setting.stretchScoreMax);
+    }
+  }, [setting?.stretchScoreMax]);
 
   const handleRadioChange = (mode: 'Basic' | 'Advanced') => {
     // If already in this mode, do nothing
@@ -91,6 +117,54 @@ const OkrTypePage = () => {
     setEffectsModalOpen(false);
     setTargetMode(null);
     setTransitionDirection(null);
+  };
+
+  const currentScoringMode = setting?.scoringMode ?? 'CLASSIC_AVERAGE';
+  const isTypeWeighted = currentScoringMode === 'TYPE_WEIGHTED';
+
+  const requestScoringModeChange = (checked: boolean) => {
+    const nextMode: OkrScoringMode = checked
+      ? 'TYPE_WEIGHTED'
+      : 'CLASSIC_AVERAGE';
+    if (nextMode === currentScoringMode) return;
+
+    setScoringError(null);
+    setPendingScoringMode(nextMode);
+    setIsScoringModalOpen(true);
+  };
+
+  const confirmScoringModeChange = () => {
+    if (!pendingScoringMode) return;
+
+    patchOkrScoringMode(
+      {
+        scoringMode: pendingScoringMode,
+        stretchScoreMax,
+      },
+      {
+        onSuccess: () => {
+          setIsScoringModalOpen(false);
+          setPendingScoringMode(null);
+          refetchSetting();
+        },
+        onError: (error: any) => {
+          const message = error?.response?.data?.message;
+          setScoringError(
+            Array.isArray(message)
+              ? message.join(', ')
+              : message ||
+                  'The scoring mode could not be updated. Check the tenant default weights and try again.',
+          );
+        },
+      },
+    );
+  };
+
+  const saveStretchScoreMax = () => {
+    patchOkrScoringMode(
+      { stretchScoreMax },
+      { onSuccess: () => refetchSetting() },
+    );
   };
 
   const isBasicActive = okrMode === 'Basic';
@@ -251,6 +325,67 @@ const OkrTypePage = () => {
         time
       </p>
 
+      <AccessGuard permissions={['manage_okr_settings']}>
+        <div className="mx-auto mt-10 max-w-2xl rounded-xl border border-[#f0f0f0] bg-white p-5 sm:p-6">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h3 className="mb-1 text-[18px] font-semibold text-[#262626]">
+                Scoring Mode
+              </h3>
+              <p className="m-0 text-sm leading-relaxed text-[#595959]">
+                Type-weighted scoring uses the configured objective-type
+                weights. Classic scoring continues to average objective scores.
+              </p>
+            </div>
+            <Switch
+              checked={isTypeWeighted}
+              checkedChildren="Type weighted"
+              unCheckedChildren="Classic"
+              loading={isPatchingScoringMode}
+              onChange={requestScoringModeChange}
+            />
+          </div>
+
+          <div className="mt-5 flex flex-col gap-3 border-t border-[#f0f0f0] pt-5 sm:flex-row sm:items-end">
+            <div className="flex-1">
+              <label
+                className="mb-2 block text-sm font-medium text-[#262626]"
+                htmlFor="stretch-score-max"
+              >
+                Stretch score maximum
+              </label>
+              <InputNumber
+                id="stretch-score-max"
+                className="w-full sm:max-w-[200px]"
+                min={100}
+                max={1000}
+                precision={0}
+                value={stretchScoreMax}
+                onChange={(value) =>
+                  setStretchScoreMax(typeof value === 'number' ? value : 100)
+                }
+              />
+            </div>
+            <Button
+              onClick={saveStretchScoreMax}
+              loading={isPatchingScoringMode}
+              disabled={stretchScoreMax < 100}
+            >
+              Save maximum
+            </Button>
+          </div>
+          {scoringError && (
+            <Alert
+              className="mt-5"
+              type="error"
+              showIcon
+              message="Scoring mode was not changed"
+              description={scoringError}
+            />
+          )}
+        </div>
+      </AccessGuard>
+
       <style jsx global data-cy="okr-type-styles">{`
         .custom-brand-radio .ant-radio-inner {
           border-color: #d9d9d9;
@@ -298,6 +433,44 @@ const OkrTypePage = () => {
           }}
         />
       )}
+
+      <Modal
+        title={
+          pendingScoringMode === 'TYPE_WEIGHTED'
+            ? 'Enable type-weighted scoring?'
+            : 'Use classic average scoring?'
+        }
+        open={isScoringModalOpen}
+        onCancel={() => {
+          if (!isPatchingScoringMode) {
+            setIsScoringModalOpen(false);
+            setPendingScoringMode(null);
+          }
+        }}
+        onOk={confirmScoringModeChange}
+        okText={
+          pendingScoringMode === 'TYPE_WEIGHTED'
+            ? 'Enable type-weighted scoring'
+            : 'Use classic scoring'
+        }
+        confirmLoading={isPatchingScoringMode}
+        closable={!isPatchingScoringMode}
+        maskClosable={!isPatchingScoringMode}
+      >
+        {pendingScoringMode === 'TYPE_WEIGHTED' ? (
+          <p className="mb-0 text-[#595959]">
+            Each objective must have an objective type, and active objective
+            type weights must total 100% at the tenant default level. The system
+            will verify this readiness before enabling the mode.
+          </p>
+        ) : (
+          <p className="mb-0 text-[#595959]">
+            Type and perspective fields remain available, but their weights and
+            weighted scores will be ignored while classic average scoring is
+            active.
+          </p>
+        )}
+      </Modal>
     </div>
   );
 };
