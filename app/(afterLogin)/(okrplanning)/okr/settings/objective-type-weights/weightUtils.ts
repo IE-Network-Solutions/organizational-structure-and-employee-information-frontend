@@ -1,3 +1,3 @@
 export const calculateTotalWeight = (
   values: Array<number | undefined | null>,
-) => values.reduce((total, value) => total + (Number(value) || 0), 0);
+): number => values.reduce<number>((total, value) => total + (Number(value) || 0), 0);
