@@ -25,12 +25,10 @@ describe('okrFilterUsers', () => {
 
   describe('resolveEmployeeDepartmentId', () => {
     it('prefers departmentId then nested department.id', () => {
-      expect(
-        resolveEmployeeDepartmentId({ departmentId: 'd1' }),
-      ).toBe('d1');
-      expect(
-        resolveEmployeeDepartmentId({ department: { id: 'd2' } }),
-      ).toBe('d2');
+      expect(resolveEmployeeDepartmentId({ departmentId: 'd1' })).toBe('d1');
+      expect(resolveEmployeeDepartmentId({ department: { id: 'd2' } })).toBe(
+        'd2',
+      );
       expect(
         resolveEmployeeDepartmentId({
           departmentId: 'd1',
