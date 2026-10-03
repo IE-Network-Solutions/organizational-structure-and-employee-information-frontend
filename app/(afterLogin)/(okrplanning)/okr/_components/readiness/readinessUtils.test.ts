@@ -44,4 +44,15 @@ describe('OKR readiness helpers', () => {
       'Increase MRR: Set a target value',
     ]);
   });
+
+  it('lists tenant-level reasons first so unconfigured weights are explained', () => {
+    expect(
+      getReadinessIssueSummary({
+        missingObjectiveTypes: [],
+        incompleteObjectives: [],
+        incompleteKeyResults: [],
+        reasons: ['Objective type weights are not configured for this tenant.'],
+      }),
+    ).toEqual(['Objective type weights are not configured for this tenant.']);
+  });
 });

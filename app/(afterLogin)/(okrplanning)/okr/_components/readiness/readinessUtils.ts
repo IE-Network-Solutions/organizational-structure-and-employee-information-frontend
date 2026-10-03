@@ -17,11 +17,14 @@ export const getReadinessIssueSummary = ({
   missingObjectiveTypes,
   incompleteObjectives,
   incompleteKeyResults,
+  reasons,
 }: {
   missingObjectiveTypes: MissingObjectiveType[];
   incompleteObjectives: IncompleteObjective[];
   incompleteKeyResults: IncompleteKeyResult[];
+  reasons?: string[];
 }) => [
+  ...(reasons ?? []),
   ...missingObjectiveTypes.map(
     (type) => `${type.name} (${type.weight}%) has not been created.`,
   ),

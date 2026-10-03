@@ -27,6 +27,13 @@ import UnreportedUsersModal from './_components/UnreportedUsersModal';
 import NotReportedEmployeesList from './_components/NotReportedEmployeesList';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 
+/**
+ * Score ceiling applied to the Target→Stretch band. At 100 the band collapses
+ * and over-achievement disappears, so this must never be used as a silent
+ * fallback for an unloaded or cleared input.
+ */
+const DEFAULT_STRETCH_SCORE_MAX = 120;
+
 const OkrTypePage = () => {
   const { okrMode, refetch, isInitialLoading } = useOkrSetting();
   const { data: setting, refetch: refetchSetting } = useGetOkrSetting();
@@ -53,7 +60,10 @@ const OkrTypePage = () => {
   const [pendingScoringMode, setPendingScoringMode] =
     useState<OkrScoringMode | null>(null);
   const [isScoringModalOpen, setIsScoringModalOpen] = useState(false);
-  const [stretchScoreMax, setStretchScoreMax] = useState<number>(100);
+  const [stretchScoreMax, setStretchScoreMax] = useState<number>(
+    DEFAULT_STRETCH_SCORE_MAX,
+  );
+  const [isStretchScoreMaxEdited, setIsStretchScoreMaxEdited] = useState(false);
   const [scoringError, setScoringError] = useState<string | null>(null);
 
   // Fetch setting data when component mounts
@@ -62,9 +72,8 @@ const OkrTypePage = () => {
   }, [refetchSetting]);
 
   useEffect(() => {
-    if (setting?.stretchScoreMax !== undefined) {
-      setStretchScoreMax(setting.stretchScoreMax);
-    }
+    setStretchScoreMax(setting?.stretchScoreMax ?? DEFAULT_STRETCH_SCORE_MAX);
+    setIsStretchScoreMaxEdited(false);
   }, [setting?.stretchScoreMax]);
 
   const handleRadioChange = (mode: 'Basic' | 'Advanced') => {
@@ -139,7 +148,9 @@ const OkrTypePage = () => {
     patchOkrScoringMode(
       {
         scoringMode: pendingScoringMode,
-        stretchScoreMax,
+        // Only send the ceiling when the admin actually changed it, so a mode
+        // toggle can never overwrite the configured value.
+        ...(isStretchScoreMaxEdited ? { stretchScoreMax } : {}),
       },
       {
         onSuccess: () => {
@@ -361,9 +372,14 @@ const OkrTypePage = () => {
                 max={1000}
                 precision={0}
                 value={stretchScoreMax}
-                onChange={(value) =>
-                  setStretchScoreMax(typeof value === 'number' ? value : 100)
-                }
+                onChange={(value) => {
+                  setIsStretchScoreMaxEdited(true);
+                  setStretchScoreMax(
+                    typeof value === 'number'
+                      ? value
+                      : DEFAULT_STRETCH_SCORE_MAX,
+                  );
+                }}
               />
             </div>
             <Button

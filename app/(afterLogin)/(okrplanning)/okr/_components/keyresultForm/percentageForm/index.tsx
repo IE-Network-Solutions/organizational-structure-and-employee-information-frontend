@@ -264,6 +264,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                 scoringMode={setting?.scoringMode}
                 updateKeyResult={updateKeyResult}
                 max={100}
+                stretchMax={1000}
                 suffix="%"
                 allowDecimal
               />
@@ -473,6 +474,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     scoringMode={setting?.scoringMode}
                     updateKeyResult={updateKeyResult}
                     max={100}
+                    stretchMax={1000}
                     suffix="%"
                     allowDecimal
                   />
@@ -630,6 +632,7 @@ const PercentageForm: React.FC<OKRFormProps> = ({
                     scoringMode={setting?.scoringMode}
                     updateKeyResult={updateKeyResult}
                     max={100}
+                    stretchMax={1000}
                     suffix="%"
                     allowDecimal
                   />

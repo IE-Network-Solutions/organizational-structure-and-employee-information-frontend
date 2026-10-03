@@ -34,6 +34,8 @@ export interface OkrReadinessResponse {
   incompleteObjectives: IncompleteObjective[];
   incompleteKeyResults: IncompleteKeyResult[];
   typeChecklist: TypeChecklistItem[];
+  /** Tenant-level blockers not tied to a single objective or key result. */
+  reasons?: string[];
 }
 
 export interface FinalizeOkrPayload {

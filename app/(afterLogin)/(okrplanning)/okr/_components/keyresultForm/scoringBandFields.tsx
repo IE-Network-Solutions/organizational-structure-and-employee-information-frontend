@@ -22,6 +22,12 @@ interface ScoringBandFieldsProps {
     value: number | null,
   ) => void;
   max?: number;
+  /**
+   * Separate ceiling for Stretch. Percentage key results cap the other bands at
+   * 100, but Stretch must stay above Target, so Target 100 + Stretch 120 needs
+   * headroom here.
+   */
+  stretchMax?: number;
   suffix?: string;
   allowDecimal?: boolean;
 }
@@ -57,6 +63,7 @@ export function ScoringBandFields({
   scoringMode,
   updateKeyResult,
   max,
+  stretchMax,
   suffix,
   allowDecimal = false,
 }: ScoringBandFieldsProps) {
@@ -128,7 +135,7 @@ export function ScoringBandFields({
             className={inputClass}
             data-cy={`okr-${metric}-${layout}-${field.name}-input-${index}`}
             min={0}
-            max={max}
+            max={field.name === 'stretchValue' ? stretchMax : max}
             suffix={suffix}
             placeholder={isBasic ? field.label : 'Input'}
             value={keyItem[field.name] as number | undefined}
