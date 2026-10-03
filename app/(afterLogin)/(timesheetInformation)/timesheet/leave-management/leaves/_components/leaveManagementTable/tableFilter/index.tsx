@@ -16,7 +16,12 @@ import { formatToOptions } from '@/helpers/formatTo';
 import { LeaveRequestStatusOption } from '@/types/timesheet/settings';
 import { MdKeyboardArrowDown } from 'react-icons/md';
 import { SearchOutlined } from '@ant-design/icons';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useTimesheetFilterUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  TIMESHEET_EMPLOYMENT_STATUS_ACTIVE,
+  TIMESHEET_EMPLOYMENT_STATUS_INACTIVE,
+  type TimesheetEmploymentStatus,
+} from '@/utils/timesheetEmploymentStatus';
 import {
   useGetDepartments,
   useGetDepartmentUsersAllLevels,
@@ -54,7 +59,9 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
     selectedDepartmentId ?? null,
   );
   const [form] = Form.useForm();
-  const { data: users } = useGetAllUsers();
+  const [employmentStatus, setEmploymentStatus] =
+    useState<TimesheetEmploymentStatus>(TIMESHEET_EMPLOYMENT_STATUS_ACTIVE);
+  const { data: users } = useTimesheetFilterUsers(employmentStatus);
   const [filterPopoverOpen, setFilterPopoverOpen] = useState(false);
   const [modalTopOffset, setModalTopOffset] = useState(0);
   const filterRootRef = useRef<HTMLDivElement>(null);
@@ -78,7 +85,12 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
 
   const notifyChange = (values?: CommonObject) => {
     const vals = values ?? form.getFieldsValue();
-    const payload: CommonObject = { ...vals };
+    const payload: CommonObject = {
+      ...vals,
+      employmentStatus:
+        (vals.employmentStatus as TimesheetEmploymentStatus) ??
+        employmentStatus,
+    };
     if (payload.departmentId && departmentUsers?.length) {
       payload.userIds = departmentUsers
         .map((user: { id?: string }) => user.id)
@@ -87,6 +99,20 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
       payload.userIds = undefined;
     }
     onChange(payload);
+  };
+
+  const handleEmploymentStatusChange = (value?: TimesheetEmploymentStatus) => {
+    const next = value || TIMESHEET_EMPLOYMENT_STATUS_ACTIVE;
+    setEmploymentStatus(next);
+    form.setFieldsValue({
+      employmentStatus: next,
+      searchEmployee: undefined,
+    });
+    notifyChange({
+      ...form.getFieldsValue(),
+      employmentStatus: next,
+      searchEmployee: undefined,
+    });
   };
 
   const handleSaveFilter = async () => {
@@ -101,12 +127,15 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
 
   const handleReset = () => {
     form.resetFields();
+    setEmploymentStatus(TIMESHEET_EMPLOYMENT_STATUS_ACTIVE);
     notifyChange({
       type: undefined,
       departmentId: undefined,
       status: undefined,
       userIds: undefined,
       dateRange: undefined,
+      searchEmployee: undefined,
+      employmentStatus: TIMESHEET_EMPLOYMENT_STATUS_ACTIVE,
     });
     setFilterPopoverOpen(false);
   };
@@ -368,6 +397,7 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
   return (
     <Form
       form={form}
+      initialValues={{ employmentStatus: TIMESHEET_EMPLOYMENT_STATUS_ACTIVE }}
       onValuesChange={(changed, all) => {
         if (Object.keys(changed).includes('searchEmployee')) {
           notifyChange(all);
@@ -381,9 +411,29 @@ const LeaveManagementTableFilter: FC<LeaveManagementTableFilterProps> = ({
         data-cy="time-attendance-leave-management-filter-row"
       >
         <div
-          className="flex justify-between"
+          className="flex justify-between gap-2 flex-wrap"
           data-cy="time-attendance-leave-management-filter-search-wrapper"
         >
+          <Form.Item name="employmentStatus" className="mb-0">
+            <Select
+              placeholder="Status"
+              className="h-8 w-[140px]"
+              value={employmentStatus}
+              onChange={handleEmploymentStatusChange}
+              options={[
+                {
+                  value: TIMESHEET_EMPLOYMENT_STATUS_ACTIVE,
+                  label: 'Active',
+                },
+                {
+                  value: TIMESHEET_EMPLOYMENT_STATUS_INACTIVE,
+                  label: 'Inactive',
+                },
+              ]}
+              id="time-attendance-leave-management-employment-status"
+              data-cy="time-attendance-leave-management-employment-status"
+            />
+          </Form.Item>
           <Form.Item name="searchEmployee" className="mb-0">
             <Select
               showSearch

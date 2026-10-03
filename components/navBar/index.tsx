@@ -2044,45 +2044,45 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             AccessGuard.checkAccess({
               permissions: ['view_organization'],
             }) && (
-            <div
-              data-cy="nav-sider-announcement-wrap"
-              className={`mt-2 w-full shrink-0 border-t border-[#E2E8F0] bg-white/40 pt-3 pb-2 ${
-                collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
-              }`}
-            >
               <div
-                data-cy="nav-sider-announcement-inner"
-                className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
+                data-cy="nav-sider-announcement-wrap"
+                className={`mt-2 w-full shrink-0 border-t border-[#E2E8F0] bg-white/40 pt-3 pb-2 ${
+                  collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
+                }`}
               >
-                {(() => {
-                  // Opens the embedded collaboration iframe (post channels only).
-                  const isAnnouncementActive = collaborationOpen && !isMobile;
-                  const announcementButton = (
-                    <Button
-                      data-cy="nav-sider-announcement-btn"
-                      type="text"
-                      block={!collapsed}
-                      aria-label={collapsed ? 'Announcement' : undefined}
-                      disabled={hasEndedFiscalYear}
-                      icon={
-                        <span
-                          data-cy="nav-sider-announcement-icon-wrap"
-                          className={`relative flex items-center justify-center text-[21px] leading-none transition-colors ${
-                            isAnnouncementActive ? '' : 'text-black'
-                          }`}
-                          style={
-                            isAnnouncementActive
-                              ? { color: colorPrimary }
-                              : undefined
-                          }
-                        >
-                          <AnnouncementMegaphoneIcon
-                            size={21}
-                            data-cy="nav-sider-announcement-icon"
-                          />
-                        </span>
-                      }
-                      className={`
+                <div
+                  data-cy="nav-sider-announcement-inner"
+                  className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
+                >
+                  {(() => {
+                    // Opens the embedded collaboration iframe (post channels only).
+                    const isAnnouncementActive = collaborationOpen && !isMobile;
+                    const announcementButton = (
+                      <Button
+                        data-cy="nav-sider-announcement-btn"
+                        type="text"
+                        block={!collapsed}
+                        aria-label={collapsed ? 'Announcement' : undefined}
+                        disabled={hasEndedFiscalYear}
+                        icon={
+                          <span
+                            data-cy="nav-sider-announcement-icon-wrap"
+                            className={`relative flex items-center justify-center text-[21px] leading-none transition-colors ${
+                              isAnnouncementActive ? '' : 'text-black'
+                            }`}
+                            style={
+                              isAnnouncementActive
+                                ? { color: colorPrimary }
+                                : undefined
+                            }
+                          >
+                            <AnnouncementMegaphoneIcon
+                              size={21}
+                              data-cy="nav-sider-announcement-icon"
+                            />
+                          </span>
+                        }
+                        className={`
                       !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
                       ${
                         isAnnouncementActive
@@ -2095,53 +2095,53 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                           : '!w-full !max-w-none !justify-start !py-2 !pl-[5px] -ml-[5px]'
                       }
                     `}
-                      style={
-                        isAnnouncementActive
-                          ? { color: colorPrimary }
-                          : undefined
-                      }
-                      onClick={() => {
-                        if (hasEndedFiscalYear) return;
-                        // Panel is desktop-only (`md+`); on mobile the dock is hidden.
-                        if (isMobile) return;
-                        toggleCollaboration({
-                          title: 'Announcement',
-                          module: 'announcement',
-                          path: COLLABORATION_SPACES_PATH,
-                        });
-                      }}
-                    >
-                      {!collapsed && (
-                        <span
-                          data-cy="nav-sider-announcement-label"
-                          className="flex flex-1 items-center justify-start gap-1 text-left transition-colors"
-                          style={{ fontSize }}
-                        >
+                        style={
+                          isAnnouncementActive
+                            ? { color: colorPrimary }
+                            : undefined
+                        }
+                        onClick={() => {
+                          if (hasEndedFiscalYear) return;
+                          // Panel is desktop-only (`md+`); on mobile the dock is hidden.
+                          if (isMobile) return;
+                          toggleCollaboration({
+                            title: 'Announcement',
+                            module: 'announcement',
+                            path: COLLABORATION_SPACES_PATH,
+                          });
+                        }}
+                      >
+                        {!collapsed && (
                           <span
-                            className="leading-none"
-                            data-cy="nav-sider-announcement-text"
+                            data-cy="nav-sider-announcement-label"
+                            className="flex flex-1 items-center justify-start gap-1 text-left transition-colors"
+                            style={{ fontSize }}
                           >
-                            Announcement
+                            <span
+                              className="leading-none"
+                              data-cy="nav-sider-announcement-text"
+                            >
+                              Announcement
+                            </span>
                           </span>
-                        </span>
-                      )}
-                    </Button>
-                  );
-                  return collapsed ? (
-                    <Tooltip
-                      placement="right"
-                      trigger={['hover', 'focus']}
-                      title="Announcement"
-                    >
-                      {announcementButton}
-                    </Tooltip>
-                  ) : (
-                    announcementButton
-                  );
-                })()}
+                        )}
+                      </Button>
+                    );
+                    return collapsed ? (
+                      <Tooltip
+                        placement="right"
+                        trigger={['hover', 'focus']}
+                        title="Announcement"
+                      >
+                        {announcementButton}
+                      </Tooltip>
+                    ) : (
+                      announcementButton
+                    );
+                  })()}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         {!isMobile && (
