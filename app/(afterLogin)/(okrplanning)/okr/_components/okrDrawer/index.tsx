@@ -38,6 +38,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import OKRInlineSuggestions from '@/components/ai/OKRInlineSuggestions';
 import { useIsBasicOkr } from '../../_utils/okrMode';
 import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
+import { getKeyResultBandValidationError } from '@/utils/okrScoringBands';
 import { useGetOkrObjectiveTypes } from '@/store/server/features/okrplanning/okr-objective-type/queries';
 import { useGetOkrPerspectives } from '@/store/server/features/okrplanning/okr-perspective/queries';
 import { useGetEffectiveObjectiveTypeWeights } from '@/store/server/features/okrplanning/okr-objective-type-weight/queries';
@@ -255,25 +256,32 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
               keyType === 'Numeric' ||
               keyType === 'Percentage'
             ) {
-              // Check if at least one milestone is added
-
-              if (
-                Number(keyResult?.initialValue) >=
-                Number(keyResult?.targetValue)
-              ) {
+              const scoreBandError = getKeyResultBandValidationError(
+                keyResult,
+                setting?.scoringMode,
+              );
+              if (scoreBandError) {
                 NotificationMessage.warning({
-                  message: `On number:${index + 1} title:${keyResult.title}: Target value must be greater than the initial value.`,
+                  message: `On number:${index + 1} title:${keyResult.title}: ${scoreBandError}`,
                 });
-                return; // Stop submission if the sum is not 100
+                return;
               }
             }
           }
 
           // Transfer key results from objective to objectiveValue for submission
           const formValues = form.getFieldsValue();
+          const submissionKeyResults = isTypeWeighted
+            ? keyResults
+            : keyResults.map((keyResult: Record<string, any>) => {
+                const classicKeyResult = { ...keyResult };
+                delete classicKeyResult.thresholdValue;
+                delete classicKeyResult.stretchValue;
+                return classicKeyResult;
+              });
           const modifiedObjectiveValue = {
             ...objectiveValue,
-            keyResults: keyResults,
+            keyResults: submissionKeyResults,
             // Merge form values as safety net (form holds user's latest input)
             title: formValues.title ?? objectiveValue?.title,
             allignedKeyResultId:

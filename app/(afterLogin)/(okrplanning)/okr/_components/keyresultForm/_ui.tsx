@@ -48,7 +48,7 @@ export const DEADLINE_TOOLTIP = 'Set the key result deadline';
 export const ADVANCED_ROW_CLASS = 'flex flex-row gap-4 items-start';
 export const ADVANCED_WRAPPER_CLASS = 'flex flex-col gap-4 pt-4';
 export const ADVANCED_VALUES_ROW_CLASS =
-  'flex flex-row gap-4 items-start mt-4 w-full';
+  'flex flex-row flex-wrap gap-4 items-start mt-4 w-full';
 /** Standard input height and radius */
 export const INPUT_CLASS = 'h-10 rounded-lg';
 

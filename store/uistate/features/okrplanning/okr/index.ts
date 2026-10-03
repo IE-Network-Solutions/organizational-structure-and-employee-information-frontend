@@ -125,10 +125,13 @@ export const useOKRStore = create<OKRState>()(
             keyType === 'Numeric' || keyType === 'Percentage'
               ? (suggestion?.initialValue ?? suggestion?.initial_value ?? 0)
               : (suggestion?.initialValue ?? 0),
+          thresholdValue:
+            suggestion?.thresholdValue ?? suggestion?.threshold_value,
           targetValue:
             keyType === 'Numeric' || keyType === 'Percentage'
               ? (suggestion?.targetValue ?? suggestion?.target_value ?? 0)
               : (suggestion?.targetValue ?? 0),
+          stretchValue: suggestion?.stretchValue ?? suggestion?.stretch_value,
           milestones: keyType === 'Milestone' ? normalizedMilestones : [],
           isAISuggestion: Boolean(suggestion?.isAISuggestion),
         };

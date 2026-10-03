@@ -45,8 +45,10 @@ export interface KeyResult {
   deadline: any;
   progress?: number;
   initialValue: number;
+  thresholdValue?: number | string | null;
   currentValue?: number;
   targetValue: number | string;
+  stretchValue?: number | string | null;
   milestones: Milestone[];
   isAISuggestion?: boolean;
 }
