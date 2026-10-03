@@ -13,7 +13,7 @@ describe('OKR readiness helpers', () => {
         objectiveCount: 0,
         status: 'missing',
       }),
-    ).toBe('Strategic Objective (20%) — not created yet');
+    ).toBe('Strategic Objective (20%) - not created yet');
   });
 
   it('summarizes all readiness blockers for the submit dialog', () => {
