@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Button,
+  Alert,
   DatePicker,
   Form,
   Input,
@@ -36,6 +37,10 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useIsMobile } from '@/hooks/useIsMobile';
 import OKRInlineSuggestions from '@/components/ai/OKRInlineSuggestions';
 import { useIsBasicOkr } from '../../_utils/okrMode';
+import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
+import { useGetOkrObjectiveTypes } from '@/store/server/features/okrplanning/okr-objective-type/queries';
+import { useGetOkrPerspectives } from '@/store/server/features/okrplanning/okr-perspective/queries';
+import { useGetEffectiveObjectiveTypeWeights } from '@/store/server/features/okrplanning/okr-objective-type-weight/queries';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -85,6 +90,26 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const { userId } = useAuthenticationStore();
   const { data: userData } = useGetEmployee(userId);
   const reportsToId = userData?.delegatedTo?.id || userData?.reportingTo?.id;
+  const { data: setting, refetch: refetchSetting } = useGetOkrSetting();
+  const isTypeWeighted = setting?.scoringMode === 'TYPE_WEIGHTED';
+  const { data: objectiveTypes = [] } = useGetOkrObjectiveTypes(
+    { activeOnly: true },
+    { enabled: isTypeWeighted },
+  );
+  const { data: perspectives = [] } = useGetOkrPerspectives(undefined, {
+    enabled: isTypeWeighted,
+  });
+  const { data: effectiveWeights, isError: isEffectiveWeightsError } =
+    useGetEffectiveObjectiveTypeWeights(userId, {
+      enabled: isTypeWeighted && Boolean(userId),
+    });
+  const selectedObjectiveTypeWeight = effectiveWeights?.lines.find(
+    (line) => line.objectiveTypeId === objectiveValue?.objectiveTypeId,
+  )?.weightPercent;
+
+  useEffect(() => {
+    refetchSetting();
+  }, [refetchSetting]);
 
   const sessionId = sessionIds?.[0];
   const { data: keyResultByUser } = useGetUserKeyResult(
@@ -254,6 +279,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             allignedKeyResultId:
               formValues.allignedKeyResultId ??
               objectiveValue?.allignedKeyResultId,
+            objectiveTypeId: isTypeWeighted
+              ? (formValues.objectiveTypeId ?? objectiveValue?.objectiveTypeId)
+              : undefined,
+            perspectiveId: isTypeWeighted
+              ? (formValues.perspectiveId ?? objectiveValue?.perspectiveId)
+              : undefined,
             deadline: formValues.ObjectiveDeadline
               ? dayjs(formValues.ObjectiveDeadline).format('YYYY-MM-DD')
               : objectiveValue?.deadline,
@@ -264,6 +295,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             modifiedObjectiveValue?.allignedKeyResultId === null
           ) {
             delete modifiedObjectiveValue.allignedKeyResultId;
+          }
+          if (!isTypeWeighted) {
+            delete modifiedObjectiveValue.objectiveTypeId;
+            delete modifiedObjectiveValue.perspectiveId;
           }
           // If all checks pass, proceed with the objective creation
           createObjective(modifiedObjectiveValue, {
@@ -303,7 +338,10 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
   const isCreateActionEnabled =
     Boolean(objectiveValue?.title?.trim()) &&
     Boolean(objectiveValue?.deadline) &&
-    Boolean(objective?.keyResults?.length);
+    Boolean(objective?.keyResults?.length) &&
+    (!isTypeWeighted ||
+      (Boolean(objectiveValue?.objectiveTypeId) &&
+        Boolean(objectiveValue?.perspectiveId)));
 
   // Adding another key result only makes sense while there's weight left to give.
   const canAddKeyResult =
@@ -1035,6 +1073,93 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                   current && current < dayjs().startOf('day')
                 }
                 style={{ fontSize: '14px', height: '44px' }}
+              />
+            </Form.Item>
+          </div>
+        )}
+
+        {isTypeWeighted && (
+          <div
+            id="okr-drawer-type-weighted-fields"
+            data-cy="okr-drawer-type-weighted-fields"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+          >
+            {isEffectiveWeightsError && (
+              <Alert
+                data-cy="okr-drawer-effective-weights-error"
+                className="sm:col-span-3"
+                type="error"
+                showIcon
+                message="Objective type weights are unavailable"
+                description="Please contact an OKR administrator to configure effective objective type weights for your account."
+              />
+            )}
+            <Form.Item
+              id="okr-drawer-objective-type-select"
+              data-cy="okr-drawer-objective-type-select"
+              name="objectiveTypeId"
+              label="Objective type"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select an objective type',
+                },
+              ]}
+              className="mb-2"
+            >
+              <Select
+                data-cy="okr-drawer-objective-type-select-dropdown"
+                placeholder="Select objective type"
+                value={objectiveValue?.objectiveTypeId}
+                onChange={(value) =>
+                  handleObjectiveChange(value, 'objectiveTypeId')
+                }
+                options={objectiveTypes.map((type) => ({
+                  label: type.name,
+                  value: type.id,
+                }))}
+              />
+            </Form.Item>
+            <Form.Item
+              id="okr-drawer-objective-type-weight"
+              data-cy="okr-drawer-objective-type-weight"
+              label="Weight"
+              className="mb-2"
+            >
+              <Input
+                data-cy="okr-drawer-objective-type-weight-input"
+                disabled
+                value={
+                  selectedObjectiveTypeWeight === undefined
+                    ? '—'
+                    : `${selectedObjectiveTypeWeight}%`
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              id="okr-drawer-perspective-select"
+              data-cy="okr-drawer-perspective-select"
+              name="perspectiveId"
+              label="BSC perspective"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select a BSC perspective',
+                },
+              ]}
+              className="mb-2"
+            >
+              <Select
+                data-cy="okr-drawer-perspective-select-dropdown"
+                placeholder="Select BSC perspective"
+                value={objectiveValue?.perspectiveId}
+                onChange={(value) =>
+                  handleObjectiveChange(value, 'perspectiveId')
+                }
+                options={perspectives.map((perspective) => ({
+                  label: perspective.name,
+                  value: perspective.id,
+                }))}
               />
             </Form.Item>
           </div>

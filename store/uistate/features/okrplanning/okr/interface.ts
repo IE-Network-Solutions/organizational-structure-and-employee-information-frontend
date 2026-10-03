@@ -55,6 +55,8 @@ export interface Objective {
   id?: string;
   allignedKeyResultId?: string | null;
   metricTypeId?: string | null;
+  objectiveTypeId?: string | null;
+  perspectiveId?: string | null;
   title: string;
   deadline: string;
   userId: string;
