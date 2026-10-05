@@ -49,14 +49,7 @@ export function useSyncNotificationPreferences(): void {
     skipNextSave.current = true;
     setPreset(userId, remotePrefs.preset ?? 'all');
     setEnabledMap(userId, remotePrefs.enabledById ?? {});
-  }, [
-    userId,
-    hasHydrated,
-    isSuccess,
-    remotePrefs,
-    setPreset,
-    setEnabledMap,
-  ]);
+  }, [userId, hasHydrated, isSuccess, remotePrefs, setPreset, setEnabledMap]);
 
   // Debounced save of local changes to the API.
   useEffect(() => {

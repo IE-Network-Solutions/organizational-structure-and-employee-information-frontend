@@ -34,7 +34,8 @@ export function usePushSubscription(): void {
   const userId = useAuthenticationStore((s) => s.userId);
   const tenantId = useAuthenticationStore((s) => s.tenantId);
   const browserPushEnabled = useNotificationPreferencesStore(
-    (s) => s.byUserId[userId ?? '']?.enabledById?.channel_browser_push !== false,
+    (s) =>
+      s.byUserId[userId ?? '']?.enabledById?.channel_browser_push !== false,
   );
   const prefsHydrated = useNotificationPreferencesStore((s) => s.hasHydrated);
   const registeredRef = useRef<string | null>(null);

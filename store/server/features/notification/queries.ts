@@ -123,10 +123,7 @@ const getNotificationPreferences = async (
   }) as NotificationPreferencesResponse;
 };
 
-export const useGetNotificationPreferences = (
-  userId: string,
-  enabled = true,
-) =>
+export const useGetNotificationPreferences = (userId: string, enabled = true) =>
   useQuery(
     ['notification-preferences', userId],
     () => getNotificationPreferences(userId),

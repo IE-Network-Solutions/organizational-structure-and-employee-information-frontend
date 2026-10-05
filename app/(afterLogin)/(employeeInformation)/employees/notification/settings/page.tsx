@@ -13,7 +13,10 @@ import {
   type DeliveryPreset,
   type NotificationPreferenceItem,
 } from '@/store/server/features/notification/preferenceCatalog';
-import { useNotificationPreferencesStore, hydrateNotificationPreferencesStore } from '@/store/uistate/features/notification/preferences';
+import {
+  useNotificationPreferencesStore,
+  hydrateNotificationPreferencesStore,
+} from '@/store/uistate/features/notification/preferences';
 
 const ACCENT = '#2563EB';
 
@@ -54,17 +57,29 @@ function PreferenceRow({
       id={`notification-pref-row-${item.id}`}
       data-cy={`notification-pref-row-${item.id}`}
     >
-      <div className="min-w-0 pr-2">
-        <div className="text-sm text-gray-900 font-medium leading-snug">
+      <div
+        className="min-w-0 pr-2"
+        data-cy={`notification-pref-row-copy-${item.id}`}
+      >
+        <div
+          className="text-sm text-gray-900 font-medium leading-snug"
+          data-cy={`notification-pref-row-label-${item.id}`}
+        >
           {item.label}
         </div>
         {item.description ? (
-          <div className="text-xs text-gray-400 mt-0.5 leading-snug">
+          <div
+            className="text-xs text-gray-400 mt-0.5 leading-snug"
+            data-cy={`notification-pref-row-description-${item.id}`}
+          >
             {item.description}
           </div>
         ) : null}
         {item.fromHistory ? (
-          <div className="text-[11px] text-gray-400 mt-0.5">
+          <div
+            className="text-[11px] text-gray-400 mt-0.5"
+            data-cy={`notification-pref-row-history-${item.id}`}
+          >
             Seen in your notification history
           </div>
         ) : null}
@@ -164,12 +179,21 @@ const NotificationSettingsPage = () => {
         id="notification-delivery-preset"
         data-cy="notification-delivery-preset"
       >
-        <div className="flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 className="text-base font-semibold text-gray-900 m-0">
+        <div
+          className="flex flex-wrap items-end justify-between gap-2"
+          data-cy="notification-delivery-preset-header"
+        >
+          <div data-cy="notification-delivery-preset-copy">
+            <h2
+              className="text-base font-semibold text-gray-900 m-0"
+              data-cy="notification-delivery-preset-title"
+            >
               Delivery preset
             </h2>
-            <p className="text-sm text-gray-500 mt-1 mb-0">
+            <p
+              className="text-sm text-gray-500 mt-1 mb-0"
+              data-cy="notification-delivery-preset-subtitle"
+            >
               Quickly switch between essential-only and all notifications.
             </p>
           </div>
@@ -184,7 +208,10 @@ const NotificationSettingsPage = () => {
           ) : null}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
+        <div
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3"
+          data-cy="notification-delivery-preset-grid"
+        >
           {PRESETS.map((item) => {
             const selected = preset === item.id;
             return (
@@ -204,10 +231,14 @@ const NotificationSettingsPage = () => {
                   className={`text-sm font-semibold ${
                     selected ? 'text-[#2563EB]' : 'text-gray-900'
                   }`}
+                  data-cy={`notification-preset-title-${item.id}`}
                 >
                   {item.title}
                 </div>
-                <div className="text-xs text-gray-500 mt-1 leading-snug">
+                <div
+                  className="text-xs text-gray-500 mt-1 leading-snug"
+                  data-cy={`notification-preset-description-${item.id}`}
+                >
                   {item.description}
                 </div>
               </button>
@@ -222,7 +253,10 @@ const NotificationSettingsPage = () => {
         data-cy={`notification-settings-${preset}`}
       >
         {!hasHydrated || isLoading ? (
-          <div className="flex justify-center py-16">
+          <div
+            className="flex justify-center py-16"
+            data-cy="notification-settings-loading"
+          >
             <Spin size="large" />
           </div>
         ) : grouped.length === 0 ? (
@@ -231,22 +265,33 @@ const NotificationSettingsPage = () => {
             id="notification-settings-empty"
             data-cy="notification-settings-empty"
           >
-            <p className="text-sm text-gray-600 m-0">
+            <p
+              className="text-sm text-gray-600 m-0"
+              data-cy="notification-settings-empty-copy"
+            >
               No notification types available for this preset.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-10 gap-y-8">
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-10 gap-y-8"
+            data-cy="notification-settings-grid"
+          >
             {grouped.map((group) => (
               <div
                 key={group.category}
                 id={`notification-pref-category-${group.category}`}
                 data-cy={`notification-pref-category-${group.category}`}
               >
-                <h3 className="text-xs font-semibold tracking-wide text-gray-400 uppercase m-0 mb-1">
+                <h3
+                  className="text-xs font-semibold tracking-wide text-gray-400 uppercase m-0 mb-1"
+                  data-cy={`notification-pref-category-title-${group.category}`}
+                >
                   {group.label}
                 </h3>
-                <div>
+                <div
+                  data-cy={`notification-pref-category-list-${group.category}`}
+                >
                   {group.items.map((item) => (
                     <PreferenceRow
                       key={item.id}

@@ -146,7 +146,12 @@ export function NotificationSocketProvider({
 
       socket.on(
         NOTIFICATION_CREATED,
-        (payload?: Partial<NotificationType> & { title?: string; body?: string }) => {
+        (
+          payload?: Partial<NotificationType> & {
+            title?: string;
+            body?: string;
+          },
+        ) => {
           queryClient.invalidateQueries(['notifications', userId]);
           queryClient.invalidateQueries(['notifications-unread-count', userId]);
 

@@ -54,12 +54,7 @@ const NotificationBell = () => {
       return;
     }
     if (typeof unreadCount === 'number') setNotificationCount(unreadCount);
-  }, [
-    mounted,
-    unreadCount,
-    preferenceAwareUnread,
-    setNotificationCount,
-  ]);
+  }, [mounted, unreadCount, preferenceAwareUnread, setNotificationCount]);
 
   return (
     <Dropdown

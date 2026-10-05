@@ -22,10 +22,7 @@ type NotificationPreferencesStore = {
   getUserPrefs: (userId: string) => UserNotificationPreferenceState;
   setPreset: (userId: string, preset: DeliveryPreset) => void;
   setEnabled: (userId: string, preferenceId: string, enabled: boolean) => void;
-  setEnabledMap: (
-    userId: string,
-    enabledById: Record<string, boolean>,
-  ) => void;
+  setEnabledMap: (userId: string, enabledById: Record<string, boolean>) => void;
   ensureDefaults: (userId: string, preferenceIds?: string[]) => void;
   applyPreset: (userId: string, preset: DeliveryPreset) => void;
 };
@@ -82,8 +79,7 @@ export const useNotificationPreferencesStore =
         setPreset: (userId, preset) => {
           if (!userId || !get().hasHydrated) return;
           set((state) => {
-            const current =
-              state.byUserId[userId] ?? createDefaultUserPrefs();
+            const current = state.byUserId[userId] ?? createDefaultUserPrefs();
             return {
               byUserId: {
                 ...state.byUserId,
@@ -96,8 +92,7 @@ export const useNotificationPreferencesStore =
         setEnabled: (userId, preferenceId, enabled) => {
           if (!userId || !preferenceId || !get().hasHydrated) return;
           set((state) => {
-            const current =
-              state.byUserId[userId] ?? createDefaultUserPrefs();
+            const current = state.byUserId[userId] ?? createDefaultUserPrefs();
             return {
               byUserId: {
                 ...state.byUserId,
@@ -116,8 +111,7 @@ export const useNotificationPreferencesStore =
         setEnabledMap: (userId, enabledById) => {
           if (!userId || !get().hasHydrated) return;
           set((state) => {
-            const current =
-              state.byUserId[userId] ?? createDefaultUserPrefs();
+            const current = state.byUserId[userId] ?? createDefaultUserPrefs();
             return {
               byUserId: {
                 ...state.byUserId,
@@ -168,8 +162,7 @@ export const useNotificationPreferencesStore =
           if (!userId || !get().hasHydrated) return;
           // Only switch the visible filter — never rewrite toggle states.
           set((state) => {
-            const current =
-              state.byUserId[userId] ?? createDefaultUserPrefs();
+            const current = state.byUserId[userId] ?? createDefaultUserPrefs();
             if (current.preset === preset) return state;
             return {
               byUserId: {
@@ -203,9 +196,7 @@ export function hydrateNotificationPreferencesStore(): void {
   if (typeof window === 'undefined' || rehydrateStarted) return;
   rehydrateStarted = true;
 
-  void useNotificationPreferencesStore.persist
-    .rehydrate()
-    .finally(() => {
-      useNotificationPreferencesStore.getState().setHasHydrated(true);
-    });
+  void useNotificationPreferencesStore.persist.rehydrate().finally(() => {
+    useNotificationPreferencesStore.getState().setHasHydrated(true);
+  });
 }

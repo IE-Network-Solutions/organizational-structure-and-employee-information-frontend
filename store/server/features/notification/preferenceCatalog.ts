@@ -112,7 +112,7 @@ const SOURCE_TO_CATEGORY: Record<string, PreferenceCategoryId> = {
   payroll: 'payroll_and_pay',
   'compensation-and-benefits': 'payroll_and_pay',
   'time-and-attendance': 'essential',
-  'time_and_attendance': 'essential',
+  time_and_attendance: 'essential',
   approval: 'essential',
   'planning-and-reporting': 'planning_and_okr',
   planning: 'planning_and_okr',
@@ -453,7 +453,7 @@ export function buildHybridPreferenceList(
       id: key,
       label: notificationType
         ? humanizeTypeKey(notificationType)
-        : (historyItem.title?.trim() || 'Unknown notification'),
+        : historyItem.title?.trim() || 'Unknown notification',
       description: historyItem.body?.trim() || undefined,
       category: categoryForSourceService(source),
       sourceService: source,
@@ -522,7 +522,9 @@ export function isPreferenceEnabled(
   if (Object.prototype.hasOwnProperty.call(enabledById, preferenceId)) {
     return enabledById[preferenceId] === true;
   }
-  const known = KNOWN_NOTIFICATION_PREFERENCES.find((p) => p.id === preferenceId);
+  const known = KNOWN_NOTIFICATION_PREFERENCES.find(
+    (p) => p.id === preferenceId,
+  );
   if (known) return known.defaultEnabled !== false;
   return fallback;
 }
