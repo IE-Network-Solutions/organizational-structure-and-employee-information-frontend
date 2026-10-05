@@ -38,6 +38,12 @@ export interface PushSubscriptionPayload {
   tenantId?: string;
 }
 
+/** Response from GET /push-subscriptions/status */
+export interface PushSubscriptionStatusResponse {
+  subscribed?: boolean;
+  hasSubscription?: boolean;
+}
+
 /** Response from GET /notification/preferences?userId=... */
 export interface NotificationPreferencesResponse {
   userId: string;
