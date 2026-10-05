@@ -196,7 +196,9 @@ export function hydrateNotificationPreferencesStore(): void {
   if (typeof window === 'undefined' || rehydrateStarted) return;
   rehydrateStarted = true;
 
-  void useNotificationPreferencesStore.persist.rehydrate().finally(() => {
+  void Promise.resolve(
+    useNotificationPreferencesStore.persist.rehydrate(),
+  ).finally(() => {
     useNotificationPreferencesStore.getState().setHasHydrated(true);
   });
 }
