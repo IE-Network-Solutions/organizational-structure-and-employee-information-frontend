@@ -22,7 +22,7 @@ import { Subscription } from '@/types/tenant-management';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import type { AppBannerTab } from '@/components/navBar/AppBanner';
+import type { AppBannerTab } from '@/components/workspace/AppBanner';
 
 /** The Home tabs this tenant subscribes to and this user may open. */
 export const useVisibleHomeTabs = () => {

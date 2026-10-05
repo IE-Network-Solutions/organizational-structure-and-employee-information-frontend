@@ -1,7 +1,7 @@
 'use client';
 import { usePathname, useRouter } from 'next/navigation';
 import Nav from '@/components/navBar';
-import LegacyNav from '@/components/navBar/legacy';
+import WorkspaceNav from '@/components/workspace/WorkspaceNav';
 import { CollaborationProvider } from '@/components/collaboration/collaboration-context';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
@@ -36,8 +36,8 @@ const ConditionalNav: React.FC<{
   const Shell = usesWorkspaceUi(
     isMounted ? (profileRoleSlug ?? initialRoleSlug) : initialRoleSlug,
   )
-    ? Nav
-    : LegacyNav;
+    ? WorkspaceNav
+    : Nav;
 
   const { isRouteLoading } = GlobalStateStore();
   const excludeNavPaths = [

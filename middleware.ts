@@ -78,7 +78,10 @@ function resolveHomeHubRedirect(pathname: string): string | null {
     '/feedback/feedback': '/home/feedback',
     '/feedback/conversation': '/home/conversation',
     '/okr': '/home/okr',
-    '/organization/announcement': '/home/announcement',
+    // Announcements live in the embedded collaboration panel (sidebar); the
+    // local Announcement pages were removed on develop.
+    '/organization/announcement': '/home/overview',
+    '/home/announcement': '/home/overview',
   };
   if (exact[pathname]) return exact[pathname];
 
@@ -131,7 +134,6 @@ function resolveClassicRoute(
     attendance: '/timesheet/my-timesheet/attendance',
     leave: '/timesheet/my-timesheet/leave',
     schedule: '/timesheet/my-timesheet/schedule',
-    announcement: '/organization/announcement',
   };
   return classic[tab] ?? '/dashboard';
 }

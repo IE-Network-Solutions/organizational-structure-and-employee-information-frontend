@@ -8,6 +8,8 @@ import {
   BSC_ADMIN_PERMISSIONS,
   BSC_SCORECARD_PERMISSIONS,
 } from '@/utils/bsc/permissions';
+import { IS_HOME_PROTOTYPE } from '@/config/homePrototype';
+import { isHomePath } from '@/utils/navigation/personalRoutes';
 
 /** Route + permissions used for pathname-based access check (same as sidebar). */
 export type RouteWithPermissions = {
@@ -41,7 +43,6 @@ const HIDDEN_ROUTES: RouteWithPermissions[] = [
   { route: '/home/weekly-priority', permissions: ['view_weekly_priority'] },
   { route: '/home/approvals', permissions: ['view_my_timesheet'] },
   { route: '/home/profile', permissions: [] },
-  { route: '/home/announcement', permissions: ['view_organization'] },
   { route: '/myPayroll', permissions: ['view_my_payroll'] },
   {
     route: '/planning-and-reporting',

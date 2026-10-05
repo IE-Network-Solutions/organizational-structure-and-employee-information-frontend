@@ -5,7 +5,10 @@ import classNames from 'classnames';
 import { BreadcrumbProps } from 'antd/lib/breadcrumb';
 import { MdKeyboardArrowLeft } from 'react-icons/md';
 import Link from 'next/link';
-import { BannerActions, useInBanner } from '@/components/navBar/BannerActions';
+import {
+  BannerActions,
+  useInBanner,
+} from '@/components/workspace/BannerActions';
 // import { Breadcrumb } from 'antd';
 
 type BackLinkHref = ComponentProps<typeof Link>['href'];

@@ -1,7 +1,7 @@
 'use client';
 import { FC, ReactNode } from 'react';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
-import { useInBanner } from '@/components/navBar/BannerActions';
+import { useInBanner } from '@/components/workspace/BannerActions';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   SettingsAddButtonProvider,

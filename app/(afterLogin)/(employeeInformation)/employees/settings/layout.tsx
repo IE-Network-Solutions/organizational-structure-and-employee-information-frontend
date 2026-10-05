@@ -1,7 +1,7 @@
 'use client';
 
 import React, { FC, ReactNode } from 'react';
-import { useInBanner } from '@/components/navBar/BannerActions';
+import { useInBanner } from '@/components/workspace/BannerActions';
 import Link from 'next/link';
 import { Typography, Breadcrumb, Divider, Button } from 'antd';
 import { FaPlus } from 'react-icons/fa';

@@ -11,7 +11,7 @@ interface HomeLayoutProps {
 }
 
 // The profile banner, tabs and profile panel come from the workspace shell
-// (components/navBar), which frames every module the same way.
+// (components/workspace), which frames every module the same way.
 const HomeLayout: FC<HomeLayoutProps> = ({ children }) => {
   const { visibleTabs, activeKey, pageTitle } = useVisibleHomeTabs();
   // Overview keeps its current dashboard look; every other tab gets the Home

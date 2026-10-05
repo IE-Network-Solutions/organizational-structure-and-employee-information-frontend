@@ -1,6 +1,6 @@
 'use client';
 import TalentPoolPage from '../talent-resource/talent-pool/_components/talentPoolpage';
-import { useInBanner } from '@/components/navBar/BannerActions';
+import { useInBanner } from '@/components/workspace/BannerActions';
 import { useTalentResourceStore } from '@/store/uistate/features/recruitment/talent-resource';
 import TalentRoasterPage from './talent-roaster/page';
 import InternPage from './intern/page';

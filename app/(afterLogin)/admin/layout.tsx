@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Button, notification } from 'antd';
 import { TbUserSquare } from 'react-icons/tb';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { useInBanner } from '@/components/navBar/BannerActions';
+import { useInBanner } from '@/components/workspace/BannerActions';
 import { MdOutlinePayment } from 'react-icons/md';
 import { useGetSubscriptions } from '@/store/server/features/tenant-management/subscriptions/queries';
 import { usePrepaySubscription } from '@/store/server/features/tenant-management/manage-subscriptions/mutation';

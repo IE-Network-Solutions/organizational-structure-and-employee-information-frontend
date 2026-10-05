@@ -1,6 +1,9 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { BannerActions, useInBanner } from '@/components/navBar/BannerActions';
+import {
+  BannerActions,
+  useInBanner,
+} from '@/components/workspace/BannerActions';
 import {
   Breadcrumb,
   Button,

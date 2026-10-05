@@ -13,7 +13,7 @@ export type HomeTabDef = {
   moduleCode?: string;
 };
 
-/** Sidebar module order: OKR → CFR → TNA → Payroll → Timesheet; Announcements & Profile last. */
+/** Sidebar module order: OKR → CFR → TNA → Payroll → Timesheet; Profile last. */
 export const HOME_TABS: HomeTabDef[] = [
   {
     key: 'overview',
@@ -103,13 +103,6 @@ export const HOME_TABS: HomeTabDef[] = [
       'approve-shift-swap-peer',
     ],
     requireAny: true,
-  },
-  {
-    key: 'announcement',
-    label: 'Announcements',
-    href: `${HOME_BASE}/announcement`,
-    permissions: ['view_organization'],
-    moduleCode: 'ORGANIZATION',
   },
   {
     key: 'profile',

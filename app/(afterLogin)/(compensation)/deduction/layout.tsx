@@ -5,7 +5,7 @@ import { Breadcrumb, Button } from 'antd';
 import { MdOutlinePayments } from 'react-icons/md';
 import { FaUserPlus } from 'react-icons/fa';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { useInBanner } from '@/components/navBar/BannerActions';
+import { useInBanner } from '@/components/workspace/BannerActions';
 import BlockWrapper from '@/components/common/blockWrapper/blockWrapper';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';

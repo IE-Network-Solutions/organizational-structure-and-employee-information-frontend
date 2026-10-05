@@ -1,7 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { BannerActions, useInBanner } from '@/components/navBar/BannerActions';
+import {
+  BannerActions,
+  useInBanner,
+} from '@/components/workspace/BannerActions';
 import {
   Card,
   Avatar,

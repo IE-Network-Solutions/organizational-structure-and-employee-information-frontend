@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { useInBanner } from '@/components/navBar/BannerActions';
+import { useInBanner } from '@/components/workspace/BannerActions';
 import { Avatar, Button, Card, Skeleton, Tag } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';

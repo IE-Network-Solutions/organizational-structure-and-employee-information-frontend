@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useInBanner } from '@/components/navBar/BannerActions';
+import { useInBanner } from '@/components/workspace/BannerActions';
 import { useRouter } from 'next/navigation';
 import { Card, Input, Skeleton } from 'antd';
 import {

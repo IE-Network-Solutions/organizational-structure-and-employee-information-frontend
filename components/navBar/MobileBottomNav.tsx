@@ -29,12 +29,6 @@ interface MobileBottomNavProps {
   colorPrimary: string;
 }
 
-function getGroupDisplayLabel(group: NavGroup): React.ReactNode {
-  if (group.label) return group.label;
-  const first = group.children[0];
-  return first?.label ?? 'Home';
-}
-
 function groupIsActive(group: NavGroup, pathname: string): boolean {
   return group.children.some((item) => {
     if (item.children && item.children.length > 0) {
@@ -160,10 +154,7 @@ export function MobileBottomNav({
   if (!groups.length) return null;
 
   const tabs = groups.slice(0, 4);
-  const showMore = groups.length > 4;
-  const moreActive = showMore
-    ? groups.slice(4).some((g) => groupIsActive(g, pathname))
-    : false;
+  const moreActive = groups.slice(4).some((g) => groupIsActive(g, pathname));
   const isOpen = sheet.type !== 'closed';
 
   function navigateTo(path: string) {
@@ -217,27 +208,25 @@ export function MobileBottomNav({
                 data-cy={`mobile-bottom-nav-tab-label-${group.key}`}
                 className="truncate max-w-full px-0.5"
               >
-                {getGroupDisplayLabel(group)}
+                {group.label}
               </span>
             </button>
           );
         })}
 
-        {showMore && (
-          <button
-            type="button"
-            data-cy="mobile-bottom-nav-more"
-            onClick={() => setSheet({ type: 'all' })}
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 pb-1 text-[10px] font-medium transition-colors min-w-0"
-            style={{ color: moreActive ? colorPrimary : '#6b7280' }}
-          >
-            <MoreHorizontal
-              data-cy="mobile-bottom-nav-more-icon"
-              className="w-[22px] h-[22px]"
-            />
-            <span data-cy="mobile-bottom-nav-more-label">More</span>
-          </button>
-        )}
+        <button
+          type="button"
+          data-cy="mobile-bottom-nav-more"
+          onClick={() => setSheet({ type: 'all' })}
+          className="flex flex-1 flex-col items-center justify-center gap-0.5 pb-1 text-[10px] font-medium transition-colors min-w-0"
+          style={{ color: moreActive ? colorPrimary : '#6b7280' }}
+        >
+          <MoreHorizontal
+            data-cy="mobile-bottom-nav-more-icon"
+            className="w-[22px] h-[22px]"
+          />
+          <span data-cy="mobile-bottom-nav-more-label">More</span>
+        </button>
       </nav>
 
       {isOpen && (

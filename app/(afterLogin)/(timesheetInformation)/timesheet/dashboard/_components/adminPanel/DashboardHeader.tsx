@@ -1,6 +1,6 @@
 import React from 'react';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import { useInBanner } from '@/components/navBar/BannerActions';
+import { useInBanner } from '@/components/workspace/BannerActions';
 import { TimeAndAttendaceDashboardStore } from '@/store/uistate/features/timesheet/dashboard';
 import { useSearchParams } from 'next/navigation';
 import CheckControl from '../../../my-timesheet/_components/checkControls/index';

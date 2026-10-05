@@ -8,22 +8,20 @@ import { usePWA } from '@/hooks/usePWA';
 import { DownloadOutlined, UserOutlined } from '@ant-design/icons';
 import { AiOutlineDown } from 'react-icons/ai';
 import { IS_CORE } from '@/utils/constants';
-import NotificationBell from '../NotificationBell';
+import NotificationBell from '@/components/navBar/NotificationBell';
 
 interface NavBarProps {
   handleLogout: () => void;
-  /** On mobile the notification bell renders on the left of the header instead. */
-  isMobile?: boolean;
 }
 
-const NavBar = ({ handleLogout, isMobile = false }: NavBarProps) => {
+const NavBar = ({ handleLogout }: NavBarProps) => {
   const router = useRouter();
   const { userId } = useAuthenticationStore();
   const { data: employeeData } = useGetEmployee(userId);
   const { isInstallable, isInstalled, isStandalone, installApp } = usePWA();
 
   const handleProfileRoute = () => {
-    router.push(`/employees/manage-employees/${userId}`);
+    router.push('/home/profile');
   };
 
   const handleInstallClick = async () => {
@@ -75,7 +73,7 @@ const NavBar = ({ handleLogout, isMobile = false }: NavBarProps) => {
   return (
     <div
       data-cy="top-nav-bar"
-      className="flex justify-end items-center bg-white w-full h-full px-6"
+      className="workspace-top-bar flex flex-1 justify-end items-center w-full h-full px-6"
     >
       <div data-cy="top-nav-actions" className="flex items-center gap-5">
         {/* PWA Install Button */}
@@ -86,14 +84,13 @@ const NavBar = ({ handleLogout, isMobile = false }: NavBarProps) => {
             icon={<DownloadOutlined />}
             onClick={handleInstallClick}
             size="middle"
-            className="hidden md:flex rounded-xl bg-[#3636F0] border-none hover:bg-[#1e1eb9] shadow-sm font-semibold h-[40px]"
+            className="hidden md:flex rounded-xl bg-brand border-none hover:bg-[#1A3793] shadow-sm font-semibold h-[40px]"
           >
             Install App
           </Button>
         )}
 
-        {/* Notification Bell: on mobile this renders on the left of the header instead */}
-        {!isMobile && <NotificationBell />}
+        <NotificationBell />
 
         {/* User Profile */}
         <Dropdown

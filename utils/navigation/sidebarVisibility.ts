@@ -16,9 +16,9 @@ export type SidebarMenuItem = {
 };
 
 /** Filter personal routes out of module submenu items. */
-export function filterAdminSidebarChildren(
-  children: SidebarMenuChild[] | undefined,
-): SidebarMenuChild[] {
+export function filterAdminSidebarChildren<T extends SidebarMenuChild>(
+  children: T[] | undefined,
+): T[] {
   if (!children?.length) return [];
   return children.filter((child) => !isPersonalRoute(String(child.key)));
 }

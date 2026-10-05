@@ -1,6 +1,9 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { BannerActions, useInBanner } from '@/components/navBar/BannerActions';
+import {
+  BannerActions,
+  useInBanner,
+} from '@/components/workspace/BannerActions';
 import WhatYouNeed from '../jobs/[id]/_components/candidateSearch/whatYouNeed';
 import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
 import ForwardIcon from '@mui/icons-material/Forward';

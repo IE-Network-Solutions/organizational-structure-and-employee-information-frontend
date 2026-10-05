@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import { useInBanner } from '@/components/navBar/BannerActions';
+import { useInBanner } from '@/components/workspace/BannerActions';
 
 /**
  * Horizontal rule under page headers, flush with the recruitment layout shell.
