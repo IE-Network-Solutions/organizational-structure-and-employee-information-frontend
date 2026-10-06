@@ -10,6 +10,7 @@ import BscSearchInput from '@/app/(afterLogin)/(bsc)/bsc/_components/BscSearchIn
 import { BscKpiCountCard } from '@/app/(afterLogin)/(bsc)/bsc/_components/BscKpiMetricCard';
 import {
   useGetBscCycle,
+  useGetBscCycles,
   useGetBscKpiLibrary,
   useGetBscPerspectiveCatalog,
   useGetBscScorecardAssignments,
@@ -23,6 +24,7 @@ import {
   EmployeeScorecard,
   EvaluationCycle,
   KpiLibraryItem,
+  ScorecardStatus,
   TargetLogic,
 } from '@/types/bsc';
 import BscSetupModal from '@/app/(afterLogin)/(okrplanning)/okr/settings/bsc-setup/_components/BscSetupModal';
@@ -253,6 +255,12 @@ export default function BscScorecardDetailPage() {
   // Catalog enrichment only (names / perspective) — not the scorecard KPI set.
   const { data: catalogKpis, isLoading: kpisLoading } = useGetBscKpiLibrary();
   const { data: perspectiveCatalog } = useGetBscPerspectiveCatalog();
+  const { data: allCycles } = useGetBscCycles();
+  /** Scorecard names, for "Overridden by …" on superseded people. */
+  const cycleNameById = useMemo(
+    () => new Map((allCycles || []).map((cycle) => [cycle.id, cycle.label])),
+    [allCycles],
+  );
   const { data: peopleScorecards, isLoading: peopleLoading } =
     useGetBscScorecardAssignments(configId);
   const { data: allUsers } = useGetAllUsers();
@@ -861,6 +869,17 @@ export default function BscScorecardDetailPage() {
                             .filter(Boolean)
                             .join(' · ') || '—'}
                         </span>
+                        {person.status === ScorecardStatus.Superseded ? (
+                          <span
+                            className="truncate text-xs text-[#d46b08]"
+                            data-cy={`bsc-scorecard-person-overridden-${person.userId}`}
+                          >
+                            Overridden by{' '}
+                            {cycleNameById.get(
+                              person.supersededByScorecardId || '',
+                            ) || 'a higher-priority scorecard'}
+                          </span>
+                        ) : null}
                       </div>
                     </button>
                   ))}

@@ -50,6 +50,11 @@ export enum ScorecardStatus {
   NeedsResubmit = 'NeedsResubmit',
   Scored = 'Scored',
   Completed = 'Completed',
+  /**
+   * Overridden by a higher-priority scorecard (Individual > Position >
+   * Department > Company). Kept; becomes Active again on fallback.
+   */
+  Superseded = 'Superseded',
 }
 
 export enum CycleStatus {
@@ -256,6 +261,8 @@ export interface ScorecardKpiTarget {
   evidenceFileName?: string | null;
   evidenceHash?: string | null;
   submittedAt?: string | null;
+  /** Set while Superseded: the scorecard (cycle) that applies instead. */
+  supersededByScorecardId?: string | null;
   approvalStatus: KpiApprovalStatus;
   rejectionReason?: string | null;
   /** Source system for validating reported results */

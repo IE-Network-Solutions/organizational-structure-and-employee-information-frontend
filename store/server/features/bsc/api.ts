@@ -464,6 +464,17 @@ export type BscAssignResult = {
     departmentId?: string | null;
     positionId?: string | null;
   }>;
+  /** In scope, but a higher-priority scorecard applies to them instead. */
+  overridden?: Array<{ userId: string; effectiveScorecardId: string }>;
+  /** This scorecard wins, but applies from next period (lower one started). */
+  deferred?: Array<{ userId: string; effectiveScorecardId: string }>;
+};
+
+export type BscReconcileResult = {
+  userCount: number;
+  applied: number;
+  deferred: number;
+  superseded: number;
 };
 
 function unwrapListPayload(data: unknown): unknown[] {
@@ -500,6 +511,23 @@ export async function assignBscScorecard(
     return data;
   } catch (error) {
     throw toBscError(error, 'Failed to assign scorecard');
+  }
+}
+
+/**
+ * Re-apply Individual > Position > Department > Company for every active
+ * employee (e.g. after people changed position or department).
+ */
+export async function recalculateBscAssignments(): Promise<BscReconcileResult> {
+  try {
+    const headers = await bscAuthHeaders();
+    return (await crudRequest({
+      url: `${BSC_BASE}/scorecards/assignments/recalculate`,
+      method: 'POST',
+      headers,
+    })) as BscReconcileResult;
+  } catch (error) {
+    throw toBscError(error, 'Failed to recalculate assignments');
   }
 }
 
