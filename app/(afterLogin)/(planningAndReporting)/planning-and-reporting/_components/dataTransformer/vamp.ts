@@ -46,18 +46,26 @@ const getKeyResultCurrentValue = (
     return rawKeyResult?.currentValue ?? 0;
   }
 
-  if (hasUsableMetricValue(rawKeyResult?.currentValue)) {
-    return Number(rawKeyResult.currentValue);
-  }
+  const summedAchieved =
+    viewMode === 'reporting'
+      ? allTasks.reduce(
+          (sum, task) => sum + (Number(task.achieved) || 0),
+          0,
+        )
+      : 0;
 
-  if (viewMode === 'reporting') {
-    const summedAchieved = allTasks.reduce(
-      (sum, task) => sum + (Number(task.achieved) || 0),
-      0,
-    );
-    if (summedAchieved > 0) {
+  if (hasUsableMetricValue(rawKeyResult?.currentValue)) {
+    const fromKr = Number(rawKeyResult.currentValue);
+    // Report task scores can lead KR currentValue (e.g. stretch 110 while KR
+    // row still shows 100). Prefer the higher absolute reading for display.
+    if (viewMode === 'reporting' && summedAchieved > fromKr) {
       return summedAchieved;
     }
+    return fromKr;
+  }
+
+  if (viewMode === 'reporting' && summedAchieved > 0) {
+    return summedAchieved;
   }
 
   return 0;
@@ -266,6 +274,8 @@ const transformKeyResult = (keyResult: any, viewMode: ViewMode): KeyResult => {
     currentValue,
     initialValue,
     targetValue: resolvedTarget,
+    stretchValue: keyResult.stretchValue ?? null,
+    thresholdValue: keyResult.thresholdValue ?? null,
   };
 
   const resolvedProgress = getKeyResultProgressPercent(progressPayload);
@@ -585,6 +595,8 @@ export const transformReportToPlanSummary = (
       currentValue,
       initialValue,
       targetValue: resolvedTarget,
+      stretchValue: kr.stretchValue ?? null,
+      thresholdValue: kr.thresholdValue ?? null,
     };
 
     const krResolvedProgress = getKeyResultProgressPercent(progressPayload);

@@ -3,21 +3,13 @@
 /* eslint-disable local-rules/data-cy-required */
 
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Popconfirm,
-  Table,
-  Tag,
-} from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Modal, Popconfirm, Table } from 'antd';
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AccessGuard from '@/utils/permissionGuard';
 import {
   useCreateOkrObjectiveType,
-  useDeactivateOkrObjectiveType,
+  useDeleteOkrObjectiveType,
   useUpdateOkrObjectiveType,
 } from '@/store/server/features/okrplanning/okr-objective-type/mutations';
 import { useGetOkrObjectiveTypes } from '@/store/server/features/okrplanning/okr-objective-type/queries';
@@ -34,13 +26,15 @@ const ObjectiveTypesPage = () => {
     null,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { data: objectiveTypes = [], isLoading } = useGetOkrObjectiveTypes();
+  const { data: objectiveTypes = [], isLoading } = useGetOkrObjectiveTypes({
+    activeOnly: true,
+  });
   const { mutate: createObjectiveType, isLoading: isCreating } =
     useCreateOkrObjectiveType();
   const { mutate: updateObjectiveType, isLoading: isUpdating } =
     useUpdateOkrObjectiveType();
-  const { mutate: deactivateObjectiveType, isLoading: isDeactivating } =
-    useDeactivateOkrObjectiveType();
+  const { mutate: deleteObjectiveType, isLoading: isDeleting } =
+    useDeleteOkrObjectiveType();
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -54,11 +48,10 @@ const ObjectiveTypesPage = () => {
         ? {
             name: selectedType.name,
             description: selectedType.description,
-            sortOrder: selectedType.sortOrder,
           }
-        : { sortOrder: objectiveTypes.length + 1 },
+        : {},
     );
-  }, [form, isModalOpen, objectiveTypes.length, selectedType]);
+  }, [form, isModalOpen, selectedType]);
 
   const closeModal = () => setIsModalOpen(false);
 
@@ -71,7 +64,13 @@ const ObjectiveTypesPage = () => {
       return;
     }
 
-    createObjectiveType(values, { onSuccess });
+    createObjectiveType(
+      {
+        ...values,
+        sortOrder: objectiveTypes.length + 1,
+      },
+      { onSuccess },
+    );
   };
 
   const columns = [
@@ -91,52 +90,37 @@ const ObjectiveTypesPage = () => {
       ),
     },
     {
-      title: 'Order',
-      dataIndex: 'sortOrder',
-      key: 'sortOrder',
-      width: 100,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      width: 120,
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'green' : 'default'}>
-          {isActive ? 'Active' : 'Inactive'}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Actions',
+      title: 'Action',
       key: 'actions',
-      width: 180,
-      render: (unusedValue: unknown, record: OkrObjectiveType) => (
+      width: 120,
+      align: 'center' as const,
+      render: (_unusedValue: unknown, record: OkrObjectiveType) => (
         <AccessGuard permissions={[MANAGE_OKR_SETTINGS]}>
-          <div className="flex gap-2">
+          <div className="flex items-center justify-center gap-2">
             <Button
-              type="link"
-              className="px-0"
+              icon={<EditOutlinedIcon fontSize="small" />}
+              className="bg-blue text-white"
+              shape="circle"
+              aria-label={`Edit ${record.name}`}
               onClick={() => {
                 setSelectedType(record);
                 setIsModalOpen(true);
               }}
+            />
+            <Popconfirm
+              title="Delete objective type?"
+              description="It will no longer be available for new objectives."
+              okText="Delete"
+              okButtonProps={{ danger: true, loading: isDeleting }}
+              onConfirm={() => deleteObjectiveType(record.id)}
             >
-              Edit
-            </Button>
-            {record.isActive && (
-              <Popconfirm
-                title="Deactivate objective type?"
-                description="It will no longer be available for new objectives."
-                okText="Deactivate"
-                okButtonProps={{ danger: true, loading: isDeactivating }}
-                onConfirm={() => deactivateObjectiveType(record.id)}
-              >
-                <Button type="link" danger className="px-0">
-                  Deactivate
-                </Button>
-              </Popconfirm>
-            )}
+              <Button
+                icon={<DeleteOutlined />}
+                className="bg-red-500 text-white"
+                shape="circle"
+                aria-label={`Delete ${record.name}`}
+              />
+            </Popconfirm>
           </div>
         </AccessGuard>
       ),
@@ -199,13 +183,6 @@ const ObjectiveTypesPage = () => {
               rows={3}
               placeholder="Optional description"
             />
-          </Form.Item>
-          <Form.Item
-            name="sortOrder"
-            label="Display order"
-            rules={[{ required: true, message: 'Enter a display order.' }]}
-          >
-            <InputNumber min={0} precision={0} className="w-full" />
           </Form.Item>
         </Form>
       </Modal>

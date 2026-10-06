@@ -3,15 +3,7 @@
 /* eslint-disable local-rules/data-cy-required */
 
 import React, { useState, useEffect } from 'react';
-import {
-  Alert,
-  Button,
-  InputNumber,
-  Modal,
-  Radio,
-  Skeleton,
-  Switch,
-} from 'antd';
+import { Alert, Modal, Skeleton, Switch } from 'antd';
 import AccessGuard from '@/utils/permissionGuard';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
 import {
@@ -27,12 +19,26 @@ import UnreportedUsersModal from './_components/UnreportedUsersModal';
 import NotReportedEmployeesList from './_components/NotReportedEmployeesList';
 import { useOKRSettingStore } from '@/store/uistate/features/okrplanning/okrSetting';
 
-/**
- * Score ceiling applied to the Target→Stretch band. At 100 the band collapses
- * and over-achievement disappears, so this must never be used as a silent
- * fallback for an unloaded or cleared input.
- */
-const DEFAULT_STRETCH_SCORE_MAX = 120;
+type OkrModeOption = 'Basic' | 'Advanced';
+
+const OKR_MODE_OPTIONS: Array<{
+  value: OkrModeOption;
+  title: string;
+  description: string;
+}> = [
+  {
+    value: 'Advanced',
+    title: 'Advanced OKR',
+    description:
+      'Advanced OKR allows employees to define Objectives and Key Results for goal tracking. Daily and weekly plans are not linked to OKRs. OKR progress has no impact on variable pay.',
+  },
+  {
+    value: 'Basic',
+    title: 'Basic',
+    description:
+      'Basic OKR allows employees to define Objectives and Key Results for goal tracking. Daily and weekly plans are not linked to OKRs. OKR progress has no impact on variable pay.',
+  },
+];
 
 const OkrTypePage = () => {
   const { okrMode, refetch, isInitialLoading } = useOkrSetting();
@@ -51,19 +57,13 @@ const OkrTypePage = () => {
   const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [effectsModalOpen, setEffectsModalOpen] = useState(false);
   const [unreportedModalOpen, setUnreportedModalOpen] = useState(false);
-  const [targetMode, setTargetMode] = useState<'Basic' | 'Advanced' | null>(
-    null,
-  );
+  const [targetMode, setTargetMode] = useState<OkrModeOption | null>(null);
   const [transitionDirection, setTransitionDirection] = useState<
     'BasicToAdvanced' | 'AdvancedToBasic' | null
   >(null);
   const [pendingScoringMode, setPendingScoringMode] =
     useState<OkrScoringMode | null>(null);
   const [isScoringModalOpen, setIsScoringModalOpen] = useState(false);
-  const [stretchScoreMax, setStretchScoreMax] = useState<number>(
-    DEFAULT_STRETCH_SCORE_MAX,
-  );
-  const [isStretchScoreMaxEdited, setIsStretchScoreMaxEdited] = useState(false);
   const [scoringError, setScoringError] = useState<string | null>(null);
 
   // Fetch setting data when component mounts
@@ -71,12 +71,9 @@ const OkrTypePage = () => {
     refetchSetting();
   }, [refetchSetting]);
 
-  useEffect(() => {
-    setStretchScoreMax(setting?.stretchScoreMax ?? DEFAULT_STRETCH_SCORE_MAX);
-    setIsStretchScoreMaxEdited(false);
-  }, [setting?.stretchScoreMax]);
+  const isModeBusy = isUpdating || isSwitching;
 
-  const handleRadioChange = (mode: 'Basic' | 'Advanced') => {
+  const handleRadioChange = (mode: OkrModeOption) => {
     // If already in this mode, do nothing
     if (okrMode === mode) {
       return;
@@ -148,9 +145,6 @@ const OkrTypePage = () => {
     patchOkrScoringMode(
       {
         scoringMode: pendingScoringMode,
-        // Only send the ceiling when the admin actually changed it, so a mode
-        // toggle can never overwrite the configured value.
-        ...(isStretchScoreMaxEdited ? { stretchScoreMax } : {}),
       },
       {
         onSuccess: () => {
@@ -171,16 +165,6 @@ const OkrTypePage = () => {
     );
   };
 
-  const saveStretchScoreMax = () => {
-    patchOkrScoringMode(
-      { stretchScoreMax },
-      { onSuccess: () => refetchSetting() },
-    );
-  };
-
-  const isBasicActive = okrMode === 'Basic';
-  const isAdvancedActive = okrMode === 'Advanced';
-
   if (showNotReportedList && transitionDirection) {
     return (
       <NotReportedEmployeesList
@@ -196,224 +180,188 @@ const OkrTypePage = () => {
 
   return (
     <div
-      className="w-full"
+      className="w-full py-5 sm:px-4"
       data-cy="okr-type-page-container"
       id="okr-type-page-container"
     >
-      {/* Heading */}
-      <h2
-        className="text-[20px] font-bold text-[#262626] text-center mb-3"
-        data-cy="okr-type-heading"
-        id="okr-type-heading"
-      >
-        Switch Between OKR Types
-      </h2>
+      <div className="mx-auto items-center justify-center w-full max-w-[850px]">
+        {/* Heading */}
+        <div className="mb-8 text-center">
+          <p
+            className="mb-2 text-[11px] font-medium uppercase tracking-[0.18em] text-[#2563eb]"
+            data-cy="okr-type-eyebrow"
+          >
+            Workspace preferences
+          </p>
+          <h2
+            className="mb-2 text-[24px] font-semibold leading-tight text-[#0f172a]"
+            data-cy="okr-type-heading"
+            id="okr-type-heading"
+          >
+            Switch between OKR types
+          </h2>
+          <p
+            className="m-0 text-[13px] text-[#64748b]"
+            data-cy="okr-type-description"
+            id="okr-type-description"
+          >
+            Use the options below to choose how your workspace structures
+            objectives and key results.
+          </p>
+        </div>
 
-      {/* Description */}
-      <p
-        className="text-[14px] text-[#595959] text-center mb-10 max-w-2xl mx-auto"
-        data-cy="okr-type-description"
-        id="okr-type-description"
-      >
-        Use the below buttons to switch between the two OKR types provided in
-        your work space. Please note this will affect the interface of Objective
-        screen
-      </p>
-
-      {/* Radio Button Cards — skeleton replaces card footprint only while mode is loading */}
-      <div
-        className="mb-12 flex flex-col items-center justify-center gap-6 px-4 lg:flex-row"
-        data-cy="okr-type-cards-container"
-        id="okr-type-cards-container"
-      >
-        {isInitialLoading ? (
-          <>
-            <Skeleton.Button
-              active
-              className="!h-[200px] !w-full !max-w-[420px] !min-w-0 !rounded-[8px] lg:!w-[420px]"
-              data-cy="okr-type-advanced-card-skeleton"
-            />
-            <Skeleton.Button
-              active
-              className="!h-[200px] !w-full !max-w-[420px] !min-w-0 !rounded-[8px] lg:!w-[420px]"
-              data-cy="okr-type-basic-card-skeleton"
-            />
-          </>
-        ) : (
-          <>
-            {/* Advanced OKR Card */}
-            <div
-              onClick={() =>
-                !(isUpdating || isSwitching) && handleRadioChange('Advanced')
-              }
-              className={`relative w-full max-w-[420px] cursor-pointer rounded-[8px] border-2 p-8 transition-all duration-300 lg:w-[420px] ${
-                isAdvancedActive
-                  ? 'border-[#2b54ad] bg-white shadow-md'
-                  : 'border-[#f0f0f0] bg-white hover:border-[#d9d9d9] hover:shadow-sm'
-              } ${isUpdating || isSwitching ? 'cursor-not-allowed opacity-50' : ''}`}
-              data-cy="okr-type-advanced-card"
-              id="okr-type-advanced-card"
-            >
-              <div
-                className="mb-4 flex items-center gap-4"
-                data-cy="okr-type-advanced-card-header"
-              >
-                <Radio
-                  checked={isAdvancedActive}
-                  disabled={isUpdating}
-                  onChange={() => !isUpdating && handleRadioChange('Advanced')}
-                  className="custom-brand-radio"
-                  data-cy="okr-type-advanced-radio"
+        {/* OKR type cards */}
+        <div
+          role="radiogroup"
+          aria-labelledby="okr-type-heading"
+          className="grid grid-cols-1 gap-4 md:grid-cols-2"
+          data-cy="okr-type-cards-container"
+          id="okr-type-cards-container"
+        >
+          {isInitialLoading
+            ? OKR_MODE_OPTIONS.map((option) => (
+                <Skeleton.Button
+                  key={option.value}
+                  active
+                  block
+                  className="!h-[136px] !rounded-xl"
+                  data-cy={`okr-type-${option.value.toLowerCase()}-card-skeleton`}
                 />
+              ))
+            : OKR_MODE_OPTIONS.map((option) => {
+                const isActive = okrMode === option.value;
+                const key = option.value.toLowerCase();
+                return (
+                  <div
+                    key={option.value}
+                    role="radio"
+                    aria-checked={isActive}
+                    aria-disabled={isModeBusy}
+                    tabIndex={isModeBusy ? -1 : 0}
+                    onClick={() =>
+                      !isModeBusy && handleRadioChange(option.value)
+                    }
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        if (!isModeBusy) handleRadioChange(option.value);
+                      }
+                    }}
+                    className={`rounded-xl border bg-white p-5 outline-none transition-all duration-200 focus-visible:ring-2 focus-visible:ring-[#2563eb]/40 ${
+                      isActive
+                        ? 'border-[#3b82f6] shadow-[0_1px_3px_rgba(37,99,235,0.15)]'
+                        : 'border-[#e2e8f0] shadow-[0_1px_2px_rgba(15,23,42,0.04)] hover:border-[#cbd5e1] hover:shadow-[0_2px_6px_rgba(15,23,42,0.06)]'
+                    } ${
+                      isModeBusy
+                        ? 'cursor-not-allowed opacity-60'
+                        : 'cursor-pointer'
+                    }`}
+                    data-cy={`okr-type-${key}-card`}
+                    id={`okr-type-${key}-card`}
+                  >
+                    <div
+                      className="mb-3 flex items-center gap-3"
+                      data-cy={`okr-type-${key}-card-header`}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+                          isActive
+                            ? 'border-[#2563eb]'
+                            : 'border-[#cbd5e1] bg-white'
+                        }`}
+                        data-cy={`okr-type-${key}-radio`}
+                      >
+                        {isActive && (
+                          <span className="h-[8px] w-[8px] rounded-full bg-[#2563eb]" />
+                        )}
+                      </span>
+                      <h3
+                        className="m-0 text-[14px] font-semibold text-[#0f172a]"
+                        data-cy={`okr-type-${key}-card-title`}
+                      >
+                        {option.title}
+                      </h3>
+                    </div>
+                    <p
+                      className="m-0 pl-[30px] text-[12.5px] leading-[1.7] text-[#64748b]"
+                      data-cy={`okr-type-${key}-card-description`}
+                    >
+                      {option.description}
+                    </p>
+                  </div>
+                );
+              })}
+        </div>
+
+        {/* Info note */}
+        <div
+          className="mt-6 rounded-lg border border-[#dbeafe] bg-[#eff6ff] px-4 py-2.5 text-center text-[11.5px] text-[#1e3a8a]"
+          data-cy="okr-type-warning-text"
+          id="okr-type-warning-text"
+          role="note"
+        >
+          Only one OKR type can be active in a workspace at a time.
+        </div>
+
+        {/* Scoring mode */}
+        <AccessGuard permissions={['manage_okr_settings']}>
+          <section
+            className="mt-6 rounded-xl border border-[#e2e8f0] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+            aria-labelledby="okr-scoring-mode-heading"
+            data-cy="okr-scoring-mode-card"
+          >
+            <div className="flex items-start justify-between gap-6">
+              <div className="min-w-0">
                 <h3
-                  className="m-0 text-[18px] font-bold text-[#262626]"
-                  data-cy="okr-type-advanced-card-title"
+                  id="okr-scoring-mode-heading"
+                  className="mb-1.5 text-[14px] font-semibold text-[#0f172a]"
                 >
-                  Advanced OKR
+                  Scoring mode
                 </h3>
+                <p className="m-0 max-w-[460px] text-[12.5px] leading-[1.7] text-[#64748b]">
+                  Type-weighted scoring uses the configured objective-type
+                  weights. Classic scoring continues to average objective
+                  scores.
+                </p>
               </div>
-              <p
-                className="m-0 text-[14px] leading-relaxed text-[#595959]"
-                data-cy="okr-type-advanced-card-description"
-              >
-                Advanced OKR allows employees to define Objectives and Key
-                Results for goal tracking. Daily and weekly plans are not linked
-                to OKRs. OKR progress has no impact on variable pay.
-              </p>
-            </div>
-
-            {/* Basic OKR Card */}
-            <div
-              onClick={() =>
-                !(isUpdating || isSwitching) && handleRadioChange('Basic')
-              }
-              className={`relative w-full max-w-[420px] cursor-pointer rounded-[8px] border-2 p-8 transition-all duration-300 lg:w-[420px] ${
-                isBasicActive
-                  ? 'border-[#2b54ad] bg-white shadow-md'
-                  : 'border-[#f0f0f0] bg-white hover:border-[#d9d9d9] hover:shadow-sm'
-              } ${isUpdating || isSwitching ? 'cursor-not-allowed opacity-50' : ''}`}
-              data-cy="okr-type-basic-card"
-              id="okr-type-basic-card"
-            >
-              <div
-                className="mb-4 flex items-center gap-4"
-                data-cy="okr-type-basic-card-header"
-              >
-                <Radio
-                  checked={isBasicActive}
-                  disabled={isUpdating}
-                  onChange={() => !isUpdating && handleRadioChange('Basic')}
-                  className="custom-brand-radio"
-                  data-cy="okr-type-basic-radio"
-                />
-                <h3
-                  className="m-0 text-[18px] font-bold text-[#262626]"
-                  data-cy="okr-type-basic-card-title"
-                >
-                  Basic
-                </h3>
-              </div>
-              <p
-                className="m-0 text-[14px] leading-relaxed text-[#595959]"
-                data-cy="okr-type-basic-card-description"
-              >
-                Basic OKR allows employees to define Objectives and Key Results
-                for goal tracking. Daily and weekly plans are not linked to
-                OKRs. OKR progress has no impact on variable pay.
-              </p>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* Bottom Note */}
-      <p
-        className="text-[14px] text-[#8c8c8c] text-center"
-        data-cy="okr-type-warning-text"
-        id="okr-type-warning-text"
-      >
-        Please Note that you can not use both types of OKR&apos;s at the same
-        time
-      </p>
-
-      <AccessGuard permissions={['manage_okr_settings']}>
-        <div className="mx-auto mt-10 max-w-2xl rounded-xl border border-[#f0f0f0] bg-white p-5 sm:p-6">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h3 className="mb-1 text-[18px] font-semibold text-[#262626]">
-                Scoring Mode
-              </h3>
-              <p className="m-0 text-sm leading-relaxed text-[#595959]">
-                Type-weighted scoring uses the configured objective-type
-                weights. Classic scoring continues to average objective scores.
-              </p>
-            </div>
-            <Switch
-              checked={isTypeWeighted}
-              checkedChildren="Type weighted"
-              unCheckedChildren="Classic"
-              loading={isPatchingScoringMode}
-              onChange={requestScoringModeChange}
-            />
-          </div>
-
-          <div className="mt-5 flex flex-col gap-3 border-t border-[#f0f0f0] pt-5 sm:flex-row sm:items-end">
-            <div className="flex-1">
-              <label
-                className="mb-2 block text-sm font-medium text-[#262626]"
-                htmlFor="stretch-score-max"
-              >
-                Stretch score maximum
-              </label>
-              <InputNumber
-                id="stretch-score-max"
-                className="w-full sm:max-w-[200px]"
-                min={100}
-                max={1000}
-                precision={0}
-                value={stretchScoreMax}
-                onChange={(value) => {
-                  setIsStretchScoreMaxEdited(true);
-                  setStretchScoreMax(
-                    typeof value === 'number'
-                      ? value
-                      : DEFAULT_STRETCH_SCORE_MAX,
-                  );
-                }}
+              <Switch
+                className="okr-scoring-switch mt-0.5 shrink-0"
+                checked={isTypeWeighted}
+                loading={isPatchingScoringMode}
+                onChange={requestScoringModeChange}
+                aria-label="Use type-weighted scoring"
+                data-cy="okr-scoring-mode-switch"
               />
             </div>
-            <Button
-              onClick={saveStretchScoreMax}
-              loading={isPatchingScoringMode}
-              disabled={stretchScoreMax < 100}
-            >
-              Save maximum
-            </Button>
-          </div>
-          {scoringError && (
-            <Alert
-              className="mt-5"
-              type="error"
-              showIcon
-              message="Scoring mode was not changed"
-              description={scoringError}
-            />
-          )}
-        </div>
-      </AccessGuard>
+
+            <div className="mt-4 flex items-center justify-between border-t border-[#f1f5f9] pt-3 text-[11.5px]">
+              <span className="text-[#64748b]">Current selection</span>
+              <span
+                className="font-semibold text-[#0f172a]"
+                data-cy="okr-scoring-mode-current"
+              >
+                {isTypeWeighted ? 'Type-weighted' : 'Classic average'}
+              </span>
+            </div>
+
+            {scoringError && (
+              <Alert
+                className="mt-4"
+                type="error"
+                showIcon
+                message="Scoring mode was not changed"
+                description={scoringError}
+              />
+            )}
+          </section>
+        </AccessGuard>
+      </div>
 
       <style jsx global data-cy="okr-type-styles">{`
-        .custom-brand-radio .ant-radio-inner {
-          border-color: #d9d9d9;
-          width: 20px;
-          height: 20px;
-        }
-        .custom-brand-radio .ant-radio-checked .ant-radio-inner {
-          border-color: #2b54ad !important;
-          background-color: #2b54ad !important;
-        }
-        .custom-brand-radio .ant-radio-checked .ant-radio-inner::after {
-          background-color: #fff;
+        .okr-scoring-switch.ant-switch-checked,
+        .okr-scoring-switch.ant-switch-checked:hover:not(.ant-switch-disabled) {
+          background: #1d4ed8;
         }
       `}</style>
 

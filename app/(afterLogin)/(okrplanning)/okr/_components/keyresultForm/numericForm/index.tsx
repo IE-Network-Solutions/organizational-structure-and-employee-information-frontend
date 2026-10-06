@@ -33,6 +33,7 @@ import {
   ADVANCED_WRAPPER_CLASS,
   ADVANCED_VALUES_ROW_CLASS,
   INPUT_CLASS,
+  KeyResultDataSourceField,
 } from '../_ui';
 
 const NumericForm: React.FC<OKRFormProps> = ({
@@ -727,6 +728,14 @@ const NumericForm: React.FC<OKRFormProps> = ({
               </div>
             )}
           </>
+        )}
+        {!isCardView && (
+          <KeyResultDataSourceField
+            index={index}
+            value={keyItem.dataSource}
+            onChange={(value) => updateKeyResult(index, 'dataSource', value)}
+            data-cy={`okr-numeric-data-source-${index}`}
+          />
         )}
       </Form>
     </div>

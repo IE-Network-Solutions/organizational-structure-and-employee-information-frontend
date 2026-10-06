@@ -6,7 +6,6 @@ export interface OkrSetting {
   tenantId: string;
   modeSwitchedAt?: Date | string | null;
   scoringMode?: OkrScoringMode;
-  stretchScoreMax?: number;
   createdAt: Date | string;
   updatedAt: Date | string;
 }
@@ -18,11 +17,9 @@ export interface OkrSettingCheckResponse {
 export interface OkrSettingRequest {
   name: 'Basic' | 'Advanced';
   scoringMode?: OkrScoringMode;
-  stretchScoreMax?: number;
 }
 
 export interface UpdateOkrSettingPayload {
   name?: 'Basic' | 'Advanced';
   scoringMode?: OkrScoringMode;
-  stretchScoreMax?: number;
 }

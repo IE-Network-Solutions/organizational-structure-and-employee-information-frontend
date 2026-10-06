@@ -34,7 +34,6 @@ import {
   resolveEmployeeDepartmentId,
   resolveTeamViewerUserId,
 } from '../okrFilterUsers';
-import OkrReadinessBanner from '../../readiness/OkrReadinessBanner';
 
 const TAB_CONFIG = [
   { key: '1', label: 'My OKR' },
@@ -302,13 +301,6 @@ export default function OkrTab({
       label: 'My OKR',
       children: (
         <div id="my-okr-tab-content" data-cy="okr-my-okr-tab-content">
-          <OkrReadinessBanner
-            userId={userId}
-            sessionId={sessionIds[0]}
-            onFinalized={() => {
-              void userRefetch();
-            }}
-          />
           {isUserLoading ? (
             <ObjectiveCardSkeleton
               data-cy="okr-my-okr-loading-skeleton"

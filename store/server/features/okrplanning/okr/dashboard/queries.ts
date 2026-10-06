@@ -1,5 +1,5 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
+import { OKR_AND_PLANNING_URL, OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';
@@ -22,6 +22,15 @@ export interface Dashboard {
 
 type ResponseData = Dashboard;
 
+/** Type-weighted total when the API sends it; otherwise the saved user OKR. */
+export function displayedAverageOkr(
+  data?: { overall?: number | null; userOkr?: number | null } | null,
+): number {
+  const value = data?.overall ?? data?.userOkr ?? 0;
+  const score = Number(value);
+  return Number.isFinite(score) ? score : 0;
+}
+
 /**
  * Function to fetch posts by sending a GET request to the API
  * @returns The response data from the API
@@ -37,7 +46,7 @@ const getObjectiveDashboardByUser = async (
   if (fiscalYearId) params.set('fiscalYearId', fiscalYearId);
   if (sessionId) params.set('sessionId', sessionId);
   return crudRequest({
-    url: `${OKR_URL}/okr-total-summary/user/dashboard/${id}?${params.toString()}`,
+    url: `${OKR_AND_PLANNING_URL}/okr-total-summary/user/dashboard/${id}?${params.toString()}`,
     method: 'GET',
     headers: {
       Authorization: `Bearer ${token}`,
@@ -182,7 +191,10 @@ export const useGetUserObjectiveDashboard = (
     ['ObjectiveDashboard', postId, fiscalYearId, sessionId],
     () => getObjectiveDashboardByUser(postId, fiscalYearId, sessionId),
     {
-      keepPreviousData: true,
+      keepPreviousData: false,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: true,
+      staleTime: 0,
       enabled: !!tenantId && enabled,
     },
   );

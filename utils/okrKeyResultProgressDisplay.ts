@@ -65,6 +65,8 @@ export type KeyResultLikeInput = KrMilestoneFields & {
   targetValue?: number | string | null;
   currentValue?: number | string | null;
   initialValue?: number | string | null;
+  thresholdValue?: number | string | null;
+  stretchValue?: number | string | null;
   status?: string;
   keyResultCompletionStatus?: string;
   completionStatus?: string;
@@ -581,6 +583,8 @@ export function buildKrPlanningSource(
       targetValue: panelKr.targetValue,
       // Never seed initialValue from currentValue — that zeros numeric progress.
       initialValue: panelKr.initialValue ?? 0,
+      stretchValue: (panelKr as any).stretchValue ?? null,
+      thresholdValue: (panelKr as any).thresholdValue ?? null,
     });
     return {
       ...source,
@@ -616,6 +620,10 @@ export function buildKrPlanningSource(
       currentValue: apiKr.currentValue ?? panelKr.currentValue,
       targetValue: apiKr.targetValue ?? panelKr.targetValue,
       initialValue: apiKr.initialValue ?? panelKr.initialValue ?? 0,
+      stretchValue:
+        apiKr.stretchValue ?? (panelKr as any).stretchValue ?? null,
+      thresholdValue:
+        apiKr.thresholdValue ?? (panelKr as any).thresholdValue ?? null,
       milestones: mergedMilestones,
     },
     apiKr,
@@ -678,6 +686,73 @@ export function getMilestoneProgressCounts(
   return { completed, total };
 }
 
+/** Flatten plan/report task rows attached to a KR payload (all nesting shapes). */
+export function collectKeyResultPlanTasks(
+  kr: KeyResultLikeInput | null | undefined,
+): Array<{ achieved?: number | string | null; actualValue?: number | string | null }> {
+  if (!kr) return [];
+  const tasks: Array<{
+    achieved?: number | string | null;
+    actualValue?: number | string | null;
+  }> = [];
+  if (Array.isArray(kr.tasks)) tasks.push(...(kr.tasks as any[]));
+  const milestones = Array.isArray(kr.milestones) ? kr.milestones : [];
+  milestones.forEach((raw) => {
+    const m = raw as {
+      tasks?: unknown[];
+      parentTask?: Array<{ tasks?: unknown[] }>;
+    };
+    if (Array.isArray(m?.tasks)) tasks.push(...(m.tasks as any[]));
+    if (Array.isArray(m?.parentTask)) {
+      m.parentTask.forEach((p) => {
+        if (Array.isArray(p?.tasks)) tasks.push(...(p.tasks as any[]));
+      });
+    }
+  });
+  const parents = Array.isArray(kr.parentTask) ? kr.parentTask : [];
+  parents.forEach((raw) => {
+    const p = raw as { tasks?: unknown[] };
+    if (Array.isArray(p?.tasks)) tasks.push(...(p.tasks as any[]));
+  });
+  return tasks;
+}
+
+/**
+ * Sum report/plan task achieved or actualValue for quantitative KRs.
+ * Returns NaN when no task metric readings exist.
+ */
+export function sumKeyResultTaskMetricReadings(
+  kr: KeyResultLikeInput | null | undefined,
+): number {
+  const tasks = collectKeyResultPlanTasks(kr);
+  let sum = 0;
+  let has = false;
+  for (const t of tasks) {
+    const raw = t?.achieved ?? t?.actualValue;
+    if (raw === undefined || raw === null || raw === '') continue;
+    const n = Number(raw);
+    if (!Number.isFinite(n)) continue;
+    sum += n;
+    has = true;
+  }
+  return has ? sum : NaN;
+}
+
+/**
+ * Prefer the higher absolute reading: stored KR currentValue vs summed report tasks.
+ * Keeps stretch overshoot (e.g. 110) visible when the API row still shows 100.
+ */
+export function withReportTaskCurrentValue<T extends KeyResultLikeInput>(
+  kr: T,
+): T {
+  const taskSum = sumKeyResultTaskMetricReadings(kr);
+  if (!Number.isFinite(taskSum)) return kr;
+  const fromKr = getNumericMetricCurrentValue(kr);
+  const next = Math.max(fromKr, taskSum);
+  if (next === fromKr) return kr;
+  return { ...kr, currentValue: next };
+}
+
 /** Current reading for numeric / currency / % KRs (absolute scale, same as target). */
 export function getNumericMetricCurrentValue(kr: {
   currentValue?: number | string | null;
@@ -725,14 +800,44 @@ export function formatRawProgressValue(value: number): string {
   return formatPlainNumber(value);
 }
 
-/** Backend `progress` as 0–100 (handles 0–1 fractions). */
-export function normalizeProgressPercent(kr: {
-  progress?: number | string | null;
-}): number {
+/** Backend `progress` as percent (handles 0–1 fractions). Allows >100 for stretch. */
+export function normalizeProgressPercent(
+  kr: {
+    progress?: number | string | null;
+    stretchValue?: number | string | null;
+    targetValue?: number | string | null;
+    initialValue?: number | string | null;
+  },
+  options?: { allowStretchAboveHundred?: boolean },
+): number {
   let p = Number(kr?.progress ?? 0);
   if (!Number.isFinite(p)) p = 0;
   if (p > 0 && p <= 1) p *= 100;
-  return Math.min(100, Math.max(0, Math.round(p)));
+  const rounded = Math.max(0, Math.round(p));
+  if (!options?.allowStretchAboveHundred) {
+    return Math.min(100, rounded);
+  }
+  const stretchCap = getStretchProgressCap(kr);
+  if (stretchCap != null) {
+    return Math.min(stretchCap, rounded);
+  }
+  return Math.min(100, rounded);
+}
+
+/** Max display/score % from stretch vs target (e.g. stretch 110 → cap 110). */
+function getStretchProgressCap(kr: {
+  stretchValue?: number | string | null;
+  targetValue?: number | string | null;
+  initialValue?: number | string | null;
+}): number | null {
+  const initial = Number(kr?.initialValue ?? 0);
+  const target = Number(kr?.targetValue ?? 0);
+  const stretch = Number(kr?.stretchValue ?? NaN);
+  if (!Number.isFinite(stretch) || !Number.isFinite(target)) return null;
+  const span = target - (Number.isFinite(initial) ? initial : 0);
+  if (!Number.isFinite(span) || Math.abs(span) < 1e-9) return null;
+  if (!(stretch > Math.max(initial || 0, target))) return null;
+  return Math.max(0, Math.round((100 * (stretch - (initial || 0))) / span));
 }
 
 function isPercentScaleMetric(metric: KeyResultMetricName): boolean {
@@ -756,8 +861,15 @@ export function getKeyResultProgressRatioText(
     return `${completed}/${total}`;
   }
 
+  const stretchCap = getStretchProgressCap(kr);
+  const allowStretch = stretchCap != null;
+
   if (metric === 'Achieve' || metric === 'Achieved') {
-    return `${normalizeProgressPercent(kr)}/100`;
+    const percent = normalizeProgressPercent(kr, {
+      allowStretchAboveHundred: allowStretch,
+    });
+    const denom = allowStretch && stretchCap != null ? stretchCap : 100;
+    return `${percent}/${denom}`;
   }
 
   const current = getNumericMetricCurrentValue(kr);
@@ -767,9 +879,12 @@ export function getKeyResultProgressRatioText(
     return `${formatRawProgressValue(current)}/${formatRawProgressValue(target)}`;
   }
 
-  const percent = normalizeProgressPercent(kr);
+  const percent = normalizeProgressPercent(kr, {
+    allowStretchAboveHundred: allowStretch,
+  });
   if (percent > 0 || isPercentScaleMetric(metric)) {
-    return `${percent}/100`;
+    const denom = allowStretch && stretchCap != null ? stretchCap : 100;
+    return `${percent}/${denom}`;
   }
 
   // Progress-only KRs (Achieve) when metric metadata was omitted on plan payloads.
@@ -779,7 +894,8 @@ export function getKeyResultProgressRatioText(
     kr?.progress !== null &&
     String(kr.progress).trim() !== ''
   ) {
-    return `${percent}/100`;
+    const denom = allowStretch && stretchCap != null ? stretchCap : 100;
+    return `${percent}/${denom}`;
   }
 
   if (current === 0 && target === 0) return '';
@@ -823,13 +939,16 @@ export function getKeyResultMetricDetailLine(
 }
 
 /**
- * Progress ring / summary percent (0–100).
+ * Progress ring / summary percent.
  * Prefers a linear mapping from initial→target when possible; otherwise backend `progress`.
+ * When stretch is configured, values may exceed 100 up to the stretch score (e.g. 110%).
  */
 export function getKeyResultProgressPercent(
   kr: KeyResultProgressInput,
 ): number {
   const metric = getMetricTypeName(kr);
+  const stretchCap = getStretchProgressCap(kr);
+  const allowStretch = stretchCap != null;
 
   if (isMilestoneKeyResult(kr)) {
     const { completed, total } = getMilestoneProgressCounts(kr);
@@ -838,11 +957,13 @@ export function getKeyResultProgressPercent(
       // weighted against a shorter status-only list (e.g. 20% while 2 of 5 done).
       return Math.min(100, Math.max(0, Math.round((100 * completed) / total)));
     }
-    return normalizeProgressPercent(kr);
+    return normalizeProgressPercent(kr, { allowStretchAboveHundred: allowStretch });
   }
 
   if (metric === 'Achieve' || metric === 'Achieved') {
-    return normalizeProgressPercent(kr);
+    return normalizeProgressPercent(kr, {
+      allowStretchAboveHundred: allowStretch,
+    });
   }
 
   const initial = Number(kr?.initialValue ?? 0);
@@ -851,10 +972,16 @@ export function getKeyResultProgressPercent(
   const span = target - initial;
   if (Number.isFinite(span) && Math.abs(span) > 1e-9) {
     const raw = (100 * (current - initial)) / span;
-    return Math.min(100, Math.max(0, Math.round(raw)));
+    const rounded = Math.max(0, Math.round(raw));
+    if (allowStretch && stretchCap != null) {
+      return Math.min(stretchCap, rounded);
+    }
+    return Math.min(100, rounded);
   }
 
-  return normalizeProgressPercent(kr);
+  return normalizeProgressPercent(kr, {
+    allowStretchAboveHundred: allowStretch,
+  });
 }
 
 /**
@@ -868,6 +995,7 @@ export function mergeKeyResultWithUserApi(
   const apiKr = userKeyResultItems.find(
     (k) => k && k.deletedAt == null && String(k.id) === String(kr?.id),
   );
+  const planKrWithReportCurrent = withReportTaskCurrentValue(kr ?? {});
   if (!apiKr) {
     const milestones = resolveOkrMilestones(kr);
     const planMilestoneShells = hasPlanMilestoneTaskGroupings(kr);
@@ -877,7 +1005,7 @@ export function mergeKeyResultWithUserApi(
         ? { name: 'Milestone' }
         : undefined);
     const fallback = withResolvedMetricForDisplay({
-      ...kr,
+      ...planKrWithReportCurrent,
       milestones,
       metricType: metricTypeObj ?? kr?.metricType,
       key_type: kr?.key_type ?? metricTypeObj?.name,
@@ -894,7 +1022,7 @@ export function mergeKeyResultWithUserApi(
     coerceMetricTypeObject(kr?.metricType, kr?.key_type);
 
   const merged = withResolvedMetricForDisplay(
-    {
+    withReportTaskCurrentValue({
       ...kr,
       ...apiKr,
       metricType: apiMetricType,
@@ -913,6 +1041,8 @@ export function mergeKeyResultWithUserApi(
       currentValue: apiKr.currentValue ?? kr?.currentValue,
       initialValue: apiKr.initialValue ?? kr?.initialValue ?? 0,
       targetValue: apiKr.targetValue ?? kr?.targetValue,
+      stretchValue: apiKr.stretchValue ?? kr?.stretchValue ?? null,
+      thresholdValue: apiKr.thresholdValue ?? kr?.thresholdValue ?? null,
       status: apiKr.status ?? kr?.status,
       keyResultCompletionStatus:
         apiKr.keyResultCompletionStatus ?? kr?.keyResultCompletionStatus,
@@ -920,7 +1050,7 @@ export function mergeKeyResultWithUserApi(
         { milestones: apiKr.milestones ?? apiKr.Milestones },
         asMilestoneRows(kr?.milestones ?? kr?.Milestones),
       ),
-    },
+    }),
     apiKr,
   );
 

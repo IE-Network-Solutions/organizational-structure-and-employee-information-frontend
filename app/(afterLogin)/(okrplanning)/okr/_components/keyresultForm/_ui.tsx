@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip } from 'antd';
+import { Form, Input, Tooltip } from 'antd';
 import { QuestionCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
@@ -51,6 +51,50 @@ export const ADVANCED_VALUES_ROW_CLASS =
   'flex flex-row flex-wrap gap-4 items-start mt-4 w-full';
 /** Standard input height and radius */
 export const INPUT_CLASS = 'h-10 rounded-lg';
+
+export interface KeyResultDataSourceFieldProps {
+  index: number;
+  value?: string | null;
+  onChange: (value: string) => void;
+  'data-cy'?: string;
+}
+
+/**
+ * Optional Data Source text field shared across all KR metric forms.
+ */
+export function KeyResultDataSourceField({
+  index,
+  value,
+  onChange,
+  'data-cy': dataCy,
+}: KeyResultDataSourceFieldProps) {
+  return (
+    <Form.Item
+      className="mb-0 mt-4 w-full"
+      name={`dataSource_${index}`}
+      label={
+        <span
+          className="inline-flex items-center gap-1 text-sm font-medium text-gray-700"
+          data-cy={`okr-data-source-label-${index}`}
+        >
+          Data Source
+        </span>
+      }
+      data-cy={dataCy ?? `okr-data-source-item-${index}`}
+    >
+      <Input
+        id={`okr-data-source-input-${index}`}
+        data-cy={`okr-data-source-input-${index}`}
+        value={value ?? ''}
+        maxLength={1000}
+        placeholder="https://example.com/report"
+        className={`${INPUT_CLASS} text-base w-full`}
+        onChange={(e) => onChange(e.target.value)}
+        aria-label="Data Source"
+      />
+    </Form.Item>
+  );
+}
 
 export interface KeyResultFieldLabelProps {
   label: string;

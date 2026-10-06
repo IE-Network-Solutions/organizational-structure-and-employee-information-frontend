@@ -132,6 +132,7 @@ export const useOKRStore = create<OKRState>()(
               ? (suggestion?.targetValue ?? suggestion?.target_value ?? 0)
               : (suggestion?.targetValue ?? 0),
           stretchValue: suggestion?.stretchValue ?? suggestion?.stretch_value,
+          dataSource: suggestion?.dataSource ?? suggestion?.data_source ?? null,
           milestones: keyType === 'Milestone' ? normalizedMilestones : [],
           isAISuggestion: Boolean(suggestion?.isAISuggestion),
         };

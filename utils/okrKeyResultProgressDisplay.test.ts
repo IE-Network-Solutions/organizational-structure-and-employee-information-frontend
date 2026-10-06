@@ -284,4 +284,43 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
     expect(getKeyResultProgressPercent(merged)).toBe(25);
     expect(getKeyResultProgressRatioText(merged)).toBe('1/4');
   });
+
+  it('shows stretch overshoot (110%) when actual exceeds target', () => {
+    const kr: KeyResultLikeInput = {
+      metricType: { name: 'Percentage' },
+      initialValue: 0,
+      targetValue: 100,
+      stretchValue: 110,
+      currentValue: 110,
+      progress: 110,
+    };
+
+    expect(getKeyResultProgressPercent(kr)).toBe(110);
+    expect(getKeyResultProgressRatioText(kr)).toBe('110/100');
+  });
+
+  it('uses report task achieved when higher than stale KR currentValue', () => {
+    const planKr = {
+      id: 'kr-stretch',
+      metricType: { name: 'Percentage' },
+      initialValue: 0,
+      targetValue: 100,
+      stretchValue: 110,
+      currentValue: 100,
+      progress: 100,
+      tasks: [{ achieved: 110 }],
+    };
+    const apiKr = {
+      id: 'kr-stretch',
+      metricType: { name: 'Percentage' },
+      initialValue: 0,
+      targetValue: 100,
+      stretchValue: 110,
+      currentValue: 100,
+      progress: 100,
+    };
+
+    const merged = mergeKeyResultWithUserApi(planKr, [apiKr]);
+    expect(getKeyResultProgressPercent(merged)).toBe(110);
+  });
 });

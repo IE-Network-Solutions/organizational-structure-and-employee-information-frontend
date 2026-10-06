@@ -1,6 +1,9 @@
 'use client';
 
-import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import {
+  displayedAverageOkr,
+  useGetUserObjectiveDashboard,
+} from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import ProgressStatCard from './ProgressStatCard';
 import { OkrHeaderStatCardSkeleton } from './shared';
@@ -21,8 +24,8 @@ export default function AverageOkrCard() {
   return (
     <ProgressStatCard
       label="Your Average OKR"
-      value={`${Number(objectiveDashboard?.userOkr?.toFixed(2) || 0)}%`}
-      percent={Number(objectiveDashboard?.userOkr || 0)}
+      value={`${displayedAverageOkr(objectiveDashboard).toFixed(2)}%`}
+      percent={displayedAverageOkr(objectiveDashboard)}
       iconBgClassName="bg-[#e6edff]"
       icon={
         <svg

@@ -44,6 +44,8 @@ export interface KeyResult {
   weight: number;
   deadline: any;
   progress?: number;
+  /** Optional free-text note for where KR data is tracked. */
+  dataSource?: string | null;
   initialValue: number;
   thresholdValue?: number | string | null;
   currentValue?: number;

@@ -33,6 +33,7 @@ import {
   ADVANCED_WRAPPER_CLASS,
   ADVANCED_VALUES_ROW_CLASS,
   INPUT_CLASS,
+  KeyResultDataSourceField,
 } from '../_ui';
 
 const CurrencyForm: React.FC<OKRFormProps> = ({
@@ -738,6 +739,14 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               </div>
             )}
           </>
+        )}
+        {!isCardView && (
+          <KeyResultDataSourceField
+            index={index}
+            value={keyItem.dataSource}
+            onChange={(value) => updateKeyResult(index, 'dataSource', value)}
+            data-cy={`okr-currency-data-source-${index}`}
+          />
         )}
       </Form>
     </div>

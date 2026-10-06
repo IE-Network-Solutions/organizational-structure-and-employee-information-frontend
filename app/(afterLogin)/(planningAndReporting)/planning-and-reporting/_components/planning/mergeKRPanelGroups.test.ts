@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import {
   aggregateKeyResultForPanel,
+  calculateTypeWeightedPanelOkr,
   flattenObjectiveKeyResults,
   mergeUserKeyResultSources,
   normalizeUserKeyResultItems,
@@ -96,5 +97,47 @@ describe('mergeKRPanelGroups — KRLeftPanel aggregation', () => {
     });
     expect(items).toHaveLength(1);
     expect(items[0].metricType.name).toBe('Currency');
+  });
+
+  it('scores business KRs at 110 and an 80% type weight as 88', () => {
+    const percentageKr = (
+      id: string,
+      weight: number,
+      progress: number,
+      objectiveId: string,
+      objectiveTypeId: string,
+    ) => ({
+      id,
+      weight,
+      progress,
+      objectiveId,
+      objectiveTypeId,
+      metricType: { name: 'Percentage' },
+      initialValue: 0,
+      targetValue: 100,
+      thresholdValue: 80,
+      stretchValue: 110,
+      currentValue: progress,
+    });
+
+    const score = calculateTypeWeightedPanelOkr({
+      panelKrs: [
+        { id: 'kr-1', progress: 110 },
+        { id: 'kr-2', progress: 110 },
+        { id: 'kr-3', progress: 110 },
+      ],
+      userKeyResultItems: [
+        percentageKr('kr-1', 50, 100, 'business', 'type-business'),
+        percentageKr('kr-2', 30, 100, 'business', 'type-business'),
+        percentageKr('kr-3', 20, 100, 'business', 'type-business'),
+        percentageKr('kr-4', 100, 0, 'strategic', 'type-strategic'),
+      ],
+      typeWeights: [
+        { objectiveTypeId: 'type-business', weightPercent: 80 },
+        { objectiveTypeId: 'type-strategic', weightPercent: 20 },
+      ],
+    });
+
+    expect(score).toBe(88);
   });
 });

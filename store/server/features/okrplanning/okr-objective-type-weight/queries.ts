@@ -79,7 +79,11 @@ export const useGetObjectiveTypeWeightAssignments = (
   options?: UseQueryOptions<OkrObjectiveTypeWeightAssignment[]>,
 ) => {
   return useQuery<OkrObjectiveTypeWeightAssignment[]>(
-    ['objectiveTypeWeightAssignments', filter?.scopeType, filter?.scopeId],
+    [
+      'objectiveTypeWeightAssignments',
+      filter?.scopeType ?? 'ALL',
+      filter?.scopeId ?? 'ALL',
+    ],
     () => getObjectiveTypeWeightAssignments(filter),
     {
       refetchOnWindowFocus: false,

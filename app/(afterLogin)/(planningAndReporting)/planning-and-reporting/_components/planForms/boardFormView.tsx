@@ -3,6 +3,7 @@ import { Button, Col, Form, Input, InputNumber, Row, Select } from 'antd';
 import { MdCancel } from 'react-icons/md';
 import { NAME } from '@/types/enumTypes';
 import {
+  getKeyResultMetricCeiling,
   getMetricValueInputMax,
   getMetricValueInputMin,
   validateMetricValueAgainstInitial,

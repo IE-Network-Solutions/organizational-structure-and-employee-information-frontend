@@ -120,6 +120,8 @@ export function preferRicherKeyResult(a: any, b: any): any {
     currentValue: a.currentValue ?? b.currentValue,
     initialValue: a.initialValue ?? b.initialValue,
     targetValue: a.targetValue ?? b.targetValue,
+    thresholdValue: a.thresholdValue ?? b.thresholdValue,
+    stretchValue: a.stretchValue ?? b.stretchValue,
   };
 }
 
@@ -286,9 +288,57 @@ function apiKRToAggregated(
   return aggregateKeyResultForPanel(kr, 0, userKeyResultItems);
 }
 
-function recalcAvgProgress(krs: KRPanelAggregatedKR[]): number {
+export function recalcPanelKrAvgProgress(
+  krs: KRPanelAggregatedKR[],
+  userKeyResultItems: any[] = [],
+): number {
   if (krs.length === 0) return 0;
+
+  let weightSum = 0;
+  let weightedTotal = 0;
+  let hasKrWeight = false;
+  for (const k of krs) {
+    const apiKr = findUserApiKeyResult(userKeyResultItems, k.id);
+    const w = Number(apiKr?.weight ?? 0);
+    if (Number.isFinite(w) && w > 0) {
+      hasKrWeight = true;
+      weightSum += w;
+      weightedTotal += k.progress * w;
+    }
+  }
+  if (hasKrWeight && weightSum > 0) {
+    return Math.round(weightedTotal / weightSum);
+  }
+
   return Math.round(krs.reduce((s, k) => s + k.progress, 0) / krs.length);
+}
+
+function objectiveIdsFromPlansForOwner(
+  plans: PlanSummary[],
+  ownerKey: string,
+): Set<string> {
+  const ids = new Set<string>();
+  for (const plan of plans) {
+    const key = plan.owner?.name || plan.id;
+    if (key !== ownerKey) continue;
+    for (const kr of plan.keyResults ?? []) {
+      const oid = kr?.objectiveId ?? kr?.objective?.id;
+      if (oid != null && String(oid).trim() !== '') {
+        ids.add(String(oid));
+      }
+    }
+  }
+  return ids;
+}
+
+function orphanMatchesPlanObjectiveScope(
+  raw: any,
+  scopedObjectiveIds: Set<string>,
+): boolean {
+  if (scopedObjectiveIds.size === 0) return true;
+  const oid = raw?.objectiveId ?? raw?.objective?.id;
+  if (oid == null || String(oid).trim() === '') return false;
+  return scopedObjectiveIds.has(String(oid));
 }
 
 function isGroupForCurrentUser(
@@ -349,11 +399,16 @@ export function mergeUserKeyResultsIntoOwnerGroups(
 
   if (targetIdx >= 0) {
     const g = merged[targetIdx]!;
-    const nextKrs = [...g.krs, ...orphans];
+    const scopedObjectiveIds = objectiveIdsFromPlansForOwner(plans, g.ownerKey);
+    const scopedOrphans = orphans.filter((panelKr) => {
+      const raw = findUserApiKeyResult(userKeyResultItems, panelKr.id);
+      return orphanMatchesPlanObjectiveScope(raw, scopedObjectiveIds);
+    });
+    const nextKrs = [...g.krs, ...scopedOrphans];
     merged[targetIdx] = {
       ...g,
       krs: nextKrs,
-      avgProgress: recalcAvgProgress(nextKrs),
+      avgProgress: recalcPanelKrAvgProgress(nextKrs, userKeyResultItems),
     };
     return merged;
   }
@@ -367,7 +422,7 @@ export function mergeUserKeyResultsIntoOwnerGroups(
       avatar: undefined,
     },
     krs: orphans,
-    avgProgress: recalcAvgProgress(orphans),
+    avgProgress: recalcPanelKrAvgProgress(orphans, userKeyResultItems),
   });
 
   return merged;
@@ -422,7 +477,17 @@ export function enrichOwnerGroupsPlanningBlocked(
       // Always rebuild from OKR sources when available so cancelled-report → restored-plan
       // cards never keep stale plan-task progress (e.g. 100% / 0/0).
       const planningSource = buildKrPlanningSource(
-        panelKr,
+        {
+          ...panelKr,
+          stretchValue:
+            apiKr?.stretchValue ?? (panelKr as { stretchValue?: unknown }).stretchValue,
+          thresholdValue:
+            apiKr?.thresholdValue ??
+            (panelKr as { thresholdValue?: unknown }).thresholdValue,
+          initialValue:
+            apiKr?.initialValue ??
+            (panelKr as { initialValue?: unknown }).initialValue,
+        },
         apiKr,
         objectiveMilestones,
       );
@@ -442,8 +507,18 @@ export function enrichOwnerGroupsPlanningBlocked(
         : planningSource;
 
       const planningBlocked = resolveKrPlanningBlocked(panelKr, apiKr);
-      const progress = getKeyResultProgressPercent(displaySource);
-      const progressLabel = getKeyResultProgressRatioText(displaySource);
+      const progress = Math.max(
+        panelKr.progress,
+        getKeyResultProgressPercent(displaySource),
+      );
+      const progressLabel = getKeyResultProgressRatioText({
+        ...displaySource,
+        progress,
+        currentValue: Math.max(
+          Number(panelKr.currentValue ?? 0),
+          Number(displaySource.currentValue ?? 0),
+        ),
+      });
 
       if (
         planningBlocked === panelKr.planningBlocked &&
@@ -468,7 +543,7 @@ export function enrichOwnerGroupsPlanningBlocked(
     return {
       ...group,
       krs,
-      avgProgress: recalcAvgProgress(krs),
+      avgProgress: recalcPanelKrAvgProgress(krs, userKeyResultItems),
     };
   });
 }

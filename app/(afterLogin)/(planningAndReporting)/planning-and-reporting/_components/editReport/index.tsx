@@ -386,6 +386,18 @@ function EditReport() {
                             ),
                           );
                         }
+                        const achievedMax = getMetricValueInputMax(keyresult);
+                        if (
+                          isDone &&
+                          achievedMax != null &&
+                          numericValue > achievedMax
+                        ) {
+                          return Promise.reject(
+                            new Error(
+                              `Max ${Number(achievedMax).toLocaleString()}`,
+                            ),
+                          );
+                        }
                         if (isNot && numericValue > task?.targetValue) {
                           return Promise.reject(
                             new Error(

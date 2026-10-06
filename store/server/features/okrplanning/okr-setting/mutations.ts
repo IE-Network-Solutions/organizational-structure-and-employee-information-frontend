@@ -181,7 +181,7 @@ export const useSwitchOkrMode = () => {
 
 /**
  * Update OKR setting for current tenant via PATCH /okr-setting.
- * Used for updating scoringMode, stretchScoreMax, etc.
+ * Used for updating scoringMode and related OKR setting fields.
  */
 const patchOkrSetting = async (
   payload: UpdateOkrSettingPayload,

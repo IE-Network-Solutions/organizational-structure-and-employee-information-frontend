@@ -30,6 +30,7 @@ import {
   ADVANCED_WRAPPER_CLASS,
   ADVANCED_VALUES_ROW_CLASS,
   INPUT_CLASS,
+  KeyResultDataSourceField,
 } from '../_ui';
 
 const PercentageForm: React.FC<OKRFormProps> = ({
@@ -747,6 +748,14 @@ const PercentageForm: React.FC<OKRFormProps> = ({
               </div>
             )}
           </>
+        )}
+        {!isCardView && (
+          <KeyResultDataSourceField
+            index={index}
+            value={keyItem.dataSource}
+            onChange={(value) => updateKeyResult(index, 'dataSource', value)}
+            data-cy={`okr-percentage-data-source-${index}`}
+          />
         )}
       </Form>
     </div>

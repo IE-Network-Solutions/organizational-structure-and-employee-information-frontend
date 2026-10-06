@@ -97,6 +97,16 @@ export function PlanCardInlineReportFields({
             new Error(`Min ${Number(task?.targetValue)?.toLocaleString()}`),
           );
         }
+        const achievedMax = getMetricValueInputMax(keyresult);
+        if (
+          selectedStatuses[task.taskId] === 'Done' &&
+          achievedMax != null &&
+          numericValue > achievedMax
+        ) {
+          return Promise.reject(
+            new Error(`Max ${Number(achievedMax).toLocaleString()}`),
+          );
+        }
         if (
           selectedStatuses[task.taskId] === 'Not' &&
           numericValue > task?.targetValue

@@ -73,7 +73,8 @@ const nextConfig = {
     NOTIFICATION_URL: process.env.NOTIFICATION_URL,
     RECRUITMENT_URL: process.env.RECRUITMENT_URL,
     PUBLIC_DOMAIN: process.env.PUBLIC_DOMAIN,
-    OKR_URL: process.env.OKR_URL,
+    OKR_URL:
+      process.env.OKR_URL || process.env.NEXT_PUBLIC_OKR_AND_PLANNING_URL,
     APPROVER_URL: process.env.NEXT_PUBLIC_APPROVERS_URL,
     ORG_DEV: process.env.ORG_DEV,
     EMAIL_URL: process.env.EMAIL_URL,
