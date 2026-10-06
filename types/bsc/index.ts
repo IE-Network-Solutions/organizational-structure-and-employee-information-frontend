@@ -261,8 +261,6 @@ export interface ScorecardKpiTarget {
   evidenceFileName?: string | null;
   evidenceHash?: string | null;
   submittedAt?: string | null;
-  /** Set while Superseded: the scorecard (cycle) that applies instead. */
-  supersededByScorecardId?: string | null;
   approvalStatus: KpiApprovalStatus;
   rejectionReason?: string | null;
   /** Source system for validating reported results */
@@ -333,6 +331,8 @@ export interface EmployeeScorecard {
   finalEvaluation?: FinalEvaluation | null;
   /** When the employee last submitted a check-in (report). */
   submittedAt?: string | null;
+  /** Set while Superseded: the scorecard (cycle) that applies instead. */
+  supersededByScorecardId?: string | null;
   createdAt: string;
   updatedAt: string;
 }
