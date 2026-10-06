@@ -12,8 +12,8 @@ import {
 const SAVE_DEBOUNCE_MS = 400;
 
 /**
- * Loads notification preferences from the notification service into the local
- * store (server wins when a row exists), and debounces PUT syncs on change.
+ * Preserves browser preferences, loads service preferences only when no local
+ * preferences exist, and debounces PUT syncs on change.
  */
 export function useSyncNotificationPreferences(): void {
   const userId = useAuthenticationStore((s) => s.userId) ?? '';
@@ -27,6 +27,11 @@ export function useSyncNotificationPreferences(): void {
   const skipNextSave = useRef(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const remoteApplied = useRef<string | null>(null);
+  const locallyStoredUsers = useRef<Set<string> | null>(null);
+
+  if (hasHydrated && locallyStoredUsers.current === null) {
+    locallyStoredUsers.current = new Set(Object.keys(byUserId));
+  }
 
   useEffect(() => {
     hydrateNotificationPreferencesStore();
@@ -37,11 +42,13 @@ export function useSyncNotificationPreferences(): void {
     !!userId && hasHydrated,
   );
 
-  // Apply server prefs once per user (server is source of truth when present).
+  // Apply server prefs once per user only when the browser has no saved copy.
   useEffect(() => {
     if (!userId || !hasHydrated || !isSuccess || !remotePrefs) return;
     if (remoteApplied.current === userId) return;
     remoteApplied.current = userId;
+
+    if (locallyStoredUsers.current?.has(userId)) return;
 
     const hasRemoteRow = Boolean(remotePrefs.updatedAt);
     if (!hasRemoteRow) return;

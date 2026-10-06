@@ -98,6 +98,7 @@ export const useNotificationPreferencesStore =
                 ...state.byUserId,
                 [userId]: {
                   ...current,
+                  preset: 'custom',
                   enabledById: {
                     ...current.enabledById,
                     [preferenceId]: enabled,
@@ -160,7 +161,7 @@ export const useNotificationPreferencesStore =
 
         applyPreset: (userId, preset) => {
           if (!userId || !get().hasHydrated) return;
-          // Only switch the visible filter — never rewrite toggle states.
+          // Preset toggle states are applied by the settings page.
           set((state) => {
             const current = state.byUserId[userId] ?? createDefaultUserPrefs();
             if (current.preset === preset) return state;

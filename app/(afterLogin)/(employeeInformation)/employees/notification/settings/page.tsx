@@ -7,8 +7,8 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import { useGetNotifications } from '@/store/server/features/notification/queries';
 import type { NotificationType } from '@/store/server/features/notification/interface';
 import {
+  buildEnabledMapForPreset,
   buildHybridPreferenceList,
-  filterPreferencesForPreset,
   groupPreferencesByCategory,
   type DeliveryPreset,
   type NotificationPreferenceItem,
@@ -28,12 +28,12 @@ const PRESETS: Array<{
   {
     id: 'basic',
     title: 'Basic',
-    description: 'Essential only — security and action required.',
+    description: 'All types shown, with essential notifications on.',
   },
   {
     id: 'custom',
     title: 'Custom',
-    description: 'Your mix of toggles below.',
+    description: 'Customize which notification types are on.',
   },
   {
     id: 'all',
@@ -102,6 +102,7 @@ const NotificationSettingsPage = () => {
   const byUserId = useNotificationPreferencesStore((s) => s.byUserId);
   const applyPreset = useNotificationPreferencesStore((s) => s.applyPreset);
   const setEnabled = useNotificationPreferencesStore((s) => s.setEnabled);
+  const setEnabledMap = useNotificationPreferencesStore((s) => s.setEnabledMap);
   const ensureDefaults = useNotificationPreferencesStore(
     (s) => s.ensureDefaults,
   );
@@ -140,19 +141,19 @@ const NotificationSettingsPage = () => {
     );
   }, [userId, hasHydrated, preferences, ensureDefaults]);
 
-  const visiblePreferences = useMemo(
-    () => filterPreferencesForPreset(preferences, preset, enabledById),
-    [preferences, preset, enabledById],
-  );
-
   const grouped = useMemo(
-    () => groupPreferencesByCategory(visiblePreferences),
-    [visiblePreferences],
+    () => groupPreferencesByCategory(preferences),
+    [preferences],
   );
 
   const handlePresetClick = (next: DeliveryPreset) => {
     if (!userId) return;
-    // Change which types are listed — do not reset toggle on/off states.
+    if (next !== 'custom') {
+      setEnabledMap(
+        userId,
+        buildEnabledMapForPreset(preferences, next, enabledById),
+      );
+    }
     applyPreset(userId, next);
   };
 
@@ -208,43 +209,90 @@ const NotificationSettingsPage = () => {
           ) : null}
         </div>
 
-        <div
-          className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3"
+        <fieldset
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3 border-0 p-0"
           data-cy="notification-delivery-preset-grid"
         >
+          <legend
+            className="sr-only"
+            data-cy="notification-delivery-preset-legend"
+          >
+            Notification delivery preset
+          </legend>
           {PRESETS.map((item) => {
             const selected = preset === item.id;
             return (
-              <button
+              <label
                 key={item.id}
-                type="button"
-                id={`notification-preset-${item.id}`}
-                data-cy={`notification-preset-${item.id}`}
-                onClick={() => handlePresetClick(item.id)}
-                className={`text-left rounded-xl border px-4 py-3 transition-colors ${
+                className={`relative flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-colors focus-within:ring-2 focus-within:ring-[#2563EB]/30 ${
                   selected
-                    ? 'border-[#2563EB] bg-white shadow-sm'
+                    ? 'border-[#2563EB] bg-[#EFF6FF] shadow-[0_0_0_2px_rgba(37,99,235,0.16)]'
                     : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
+                data-cy={`notification-preset-${item.id}`}
               >
+                <input
+                  type="radio"
+                  name="notification-delivery-preset"
+                  id={`notification-preset-${item.id}`}
+                  value={item.id}
+                  checked={selected}
+                  onChange={() => handlePresetClick(item.id)}
+                  className="sr-only"
+                  data-cy={`notification-preset-radio-${item.id}`}
+                />
                 <div
-                  className={`text-sm font-semibold ${
-                    selected ? 'text-[#2563EB]' : 'text-gray-900'
+                  className="min-w-0"
+                  data-cy={`notification-preset-copy-${item.id}`}
+                >
+                  <div
+                    className={`text-sm font-semibold ${
+                      selected ? 'text-[#1D4ED8]' : 'text-gray-900'
+                    }`}
+                    data-cy={`notification-preset-title-${item.id}`}
+                  >
+                    {item.title}
+                  </div>
+                  <div
+                    className={`mt-1 text-xs leading-snug ${
+                      selected ? 'text-[#1D4ED8]' : 'text-gray-500'
+                    }`}
+                    data-cy={`notification-preset-description-${item.id}`}
+                  >
+                    {item.description}
+                  </div>
+                </div>
+                <span
+                  aria-hidden="true"
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+                    selected
+                      ? 'border-[#CBD5E1] bg-[#E2E8F0] text-[#64748B]'
+                      : 'border-transparent'
                   }`}
-                  data-cy={`notification-preset-title-${item.id}`}
+                  data-cy={`notification-preset-check-${item.id}`}
                 >
-                  {item.title}
-                </div>
-                <div
-                  className="text-xs text-gray-500 mt-1 leading-snug"
-                  data-cy={`notification-preset-description-${item.id}`}
-                >
-                  {item.description}
-                </div>
-              </button>
+                  {selected ? (
+                    <svg
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      className="h-3 w-3"
+                      data-cy={`notification-preset-check-icon-${item.id}`}
+                    >
+                      <path
+                        d="m3.5 8 3 3 6-6"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        data-cy={`notification-preset-checkmark-${item.id}`}
+                      />
+                    </svg>
+                  ) : null}
+                </span>
+              </label>
             );
           })}
-        </div>
+        </fieldset>
       </section>
 
       <section

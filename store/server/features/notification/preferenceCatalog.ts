@@ -59,30 +59,6 @@ export function isBasicPreference(
   return item.isBasic === true || BASIC_PREFERENCE_IDS.has(item.id);
 }
 
-/**
- * Filter preferences for a delivery preset:
- * - basic → basic items only
- * - custom → basic items + non-basic items that are currently on
- * - all → every type
- */
-export function filterPreferencesForPreset(
-  items: NotificationPreferenceItem[],
-  preset: DeliveryPreset,
-  enabledById: Record<string, boolean> = {},
-): NotificationPreferenceItem[] {
-  if (preset === 'basic') {
-    return items.filter((item) => isBasicPreference(item));
-  }
-  if (preset === 'custom') {
-    return items.filter((item) => {
-      if (isBasicPreference(item)) return true;
-      const enabled = enabledById[item.id] ?? item.defaultEnabled !== false;
-      return enabled;
-    });
-  }
-  return items;
-}
-
 export const PREFERENCE_CATEGORY_LABELS: Record<PreferenceCategoryId, string> =
   {
     channels: 'Channels',
