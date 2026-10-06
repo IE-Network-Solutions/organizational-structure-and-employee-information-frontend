@@ -48,7 +48,8 @@ export default function BscKpiMetricCard({
   onClick,
   className = '',
 }: Props) {
-  const value = Math.min(Math.max(Number(percent) || 0, 0), 100);
+  // Scores can exceed 100% up to the stretch cap.
+  const value = Math.max(Number(percent) || 0, 0);
   const display = `${formatScore(value)}%`;
   const clickable = Boolean(onClick);
 

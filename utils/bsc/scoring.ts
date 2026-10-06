@@ -10,6 +10,67 @@ export const DEFAULT_R_MAX = 1.25;
 /** Absolute upper bound for a single perspective weight (100% when only one is used). */
 export const MAX_PERSPECTIVE_WEIGHT = 100;
 
+/**
+ * Wrong side of the acceptable threshold: below it (higher-is-better) or above
+ * it (lower-is-better). No threshold configured → never fails.
+ */
+export function failsAcceptableThreshold(
+  actual: number,
+  logic: TargetLogic,
+  threshold?: number | null,
+): boolean {
+  if (threshold == null || !Number.isFinite(threshold)) return false;
+  if (logic === TargetLogic.HigherBetter) return actual < threshold;
+  if (logic === TargetLogic.LowerBetter) return actual > threshold;
+  return false;
+}
+
+/** True when any reported KPI on a scorecard breaches its threshold. */
+export function hasThresholdBreach(
+  items: Array<{
+    actualValue?: number | null;
+    targetLogic: TargetLogic;
+    acceptableThreshold?: number | null;
+  }>,
+): boolean {
+  return items.some(
+    (item) =>
+      item.actualValue != null &&
+      failsAcceptableThreshold(
+        item.actualValue,
+        item.targetLogic,
+        item.acceptableThreshold,
+      ),
+  );
+}
+
+/**
+ * Over-achievement cap as a ratio of target: stretch / target
+ * (target / stretch for lower-is-better). No usable stretch → 1 (100%).
+ */
+function stretchCapRatio(
+  target: number,
+  logic: TargetLogic,
+  stretch?: number | null,
+): number {
+  if (stretch == null || !Number.isFinite(stretch)) return 1;
+  if (logic === TargetLogic.HigherBetter) {
+    return stretch > target && target > 0 ? stretch / target : 1;
+  }
+  if (logic === TargetLogic.LowerBetter) {
+    return stretch > 0 && stretch < target ? target / stretch : 1;
+  }
+  return 1;
+}
+
+/**
+ * Progress ratio (same rule as BE scoring):
+ * - Below target: actual / target (target / actual for lower-is-better).
+ * - KPI's own result on the wrong side of its threshold: 0.
+ * - Better than target: actual / target, capped at stretch / target
+ *   (no stretch → 100%). If any KPI on the scorecard breaches its threshold
+ *   (`cardThresholdBreached`), over-achievement is capped at 100% instead.
+ */
 export function normalizeRatio(
   actual: number,
   target: number,
@@ -20,26 +81,24 @@ export function normalizeRatio(
     rMax?: number;
     /** Min acceptable (higher-is-better) / max acceptable (lower-is-better). */
     acceptableThreshold?: number | null;
+    /** Best result that still earns extra credit. */
+    stretchTarget?: number | null;
+    /** Some KPI on the same scorecard breaches its threshold. */
+    cardThresholdBreached?: boolean;
   },
 ): { ratio: number; capped: boolean } {
   const rMax = options?.rMax ?? DEFAULT_R_MAX;
-  let raw = 0;
 
-  // Threshold gate (same rule as the BE): wrong side of the acceptable
-  // threshold earns no credit — e.g. target 90, threshold 80, actual 75 → 0.
-  const threshold = options?.acceptableThreshold;
-  if (threshold != null && Number.isFinite(threshold)) {
-    if (logic === TargetLogic.HigherBetter && actual < threshold) {
-      return { ratio: 0, capped: false };
-    }
-    if (logic === TargetLogic.LowerBetter && actual > threshold) {
-      return { ratio: 0, capped: false };
-    }
+  // Threshold gate: wrong side of the acceptable threshold earns no credit —
+  // e.g. target 90, threshold 80, actual 75 → 0.
+  if (failsAcceptableThreshold(actual, logic, options?.acceptableThreshold)) {
+    return { ratio: 0, capped: false };
   }
 
   if (logic === TargetLogic.Bounded) {
     const worst = options?.worstCase;
     const best = options?.bestCase;
+    let raw = 0;
     if (
       worst === null ||
       worst === undefined ||
@@ -56,22 +115,25 @@ export function normalizeRatio(
     } else {
       raw = (worst - actual) / (worst - best);
     }
-  } else if (logic === TargetLogic.LowerBetter) {
-    if (actual <= 0) {
-      raw = rMax;
-    } else {
-      raw = target / actual;
-    }
-  } else {
-    if (target <= 0) {
-      raw = 0;
-    } else {
-      raw = actual / target;
-    }
+    const capped = raw > rMax;
+    return { ratio: Math.min(Math.max(raw, 0), rMax), capped };
   }
 
-  const capped = raw > rMax;
-  return { ratio: Math.min(Math.max(raw, 0), rMax), capped };
+  let raw = 0;
+  if (logic === TargetLogic.LowerBetter) {
+    // Zero or below is as good as it gets → takes the cap below.
+    raw = actual <= 0 ? Number.POSITIVE_INFINITY : target / actual;
+  } else {
+    raw = target <= 0 ? 0 : actual / target;
+  }
+
+  const cap = options?.cardThresholdBreached
+    ? 1
+    : stretchCapRatio(target, logic, options?.stretchTarget);
+  if (raw > 1 && raw > cap) {
+    return { ratio: cap, capped: true };
+  }
+  return { ratio: Math.max(raw, 0), capped: false };
 }
 
 export function validateWeights(
@@ -216,6 +278,7 @@ export function computeCompositeScore(
 ): CompositeScoreResult {
   const items: ScoreBreakdownItem[] = [];
   let sum = 0;
+  const cardThresholdBreached = hasThresholdBreach(targets);
 
   for (const t of targets) {
     const weight = t.weightPercentage / 100;
@@ -240,6 +303,8 @@ export function computeCompositeScore(
         bestCase: t.bestCase,
         rMax,
         acceptableThreshold: t.acceptableThreshold,
+        stretchTarget: t.stretchTarget,
+        cardThresholdBreached,
       },
     );
     const weightedValue = weight * ratio;
