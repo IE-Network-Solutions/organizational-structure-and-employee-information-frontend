@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { registerPushSubscription } from '@/store/server/features/notification/mutation';
 import { VAPID_PUBLIC_KEY } from '@/utils/constants';
+import { useNotificationPreferencesStore } from '@/store/uistate/features/notification/preferences';
 
 /**
  * Converts a base64url-encoded VAPID public key to Uint8Array for pushManager.subscribe().
@@ -25,11 +26,18 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
  * - User is logged in (userId set)
  * - Notification permission is granted
  * - Service worker is ready and VAPID key is configured
+ * - Browser push channel preference is enabled
  * Runs once per userId when conditions are met. Does not auto-request permission.
+ * Unsubscribes when the browser push preference is turned off.
  */
 export function usePushSubscription(): void {
   const userId = useAuthenticationStore((s) => s.userId);
   const tenantId = useAuthenticationStore((s) => s.tenantId);
+  const browserPushEnabled = useNotificationPreferencesStore(
+    (s) =>
+      s.byUserId[userId ?? '']?.enabledById?.channel_browser_push !== false,
+  );
+  const prefsHydrated = useNotificationPreferencesStore((s) => s.hasHydrated);
   const registeredRef = useRef<string | null>(null);
 
   useEffect(() => {
@@ -38,17 +46,27 @@ export function usePushSubscription(): void {
       !('serviceWorker' in navigator) ||
       !('PushManager' in window) ||
       !userId ||
-      !VAPID_PUBLIC_KEY
+      !VAPID_PUBLIC_KEY ||
+      !prefsHydrated
     ) {
       return;
     }
+
+    let cancelled = false;
+
+    if (!browserPushEnabled) {
+      registeredRef.current = null;
+      void unsubscribeAllPushSubscriptions().catch(() => undefined);
+      return () => {
+        cancelled = true;
+      };
+    }
+
     if (Notification.permission !== 'granted') return;
 
     if (registeredRef.current === userId) {
       return;
     }
-
-    let cancelled = false;
 
     void unsubscribeMainSwPush()
       .then(() => getActivePushRegistration())
@@ -85,7 +103,7 @@ export function usePushSubscription(): void {
     return () => {
       cancelled = true;
     };
-  }, [userId, tenantId]);
+  }, [userId, tenantId, browserPushEnabled, prefsHydrated]);
 }
 
 /**
@@ -175,6 +193,15 @@ async function unsubscribeMainSwPush(): Promise<void> {
   if (!reg?.pushManager) return;
   const subs = await reg.pushManager.getSubscription();
   if (subs) await subs.unsubscribe();
+}
+
+/** Unsubscribe push on both the main SW and the dedicated push SW. */
+export async function unsubscribeAllPushSubscriptions(): Promise<void> {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+  await unsubscribeMainSwPush();
+  const pushReg = await navigator.serviceWorker.getRegistration(PUSH_SW_SCOPE);
+  const pushSub = await pushReg?.pushManager?.getSubscription();
+  if (pushSub) await pushSub.unsubscribe();
 }
 
 async function getActivePushRegistration(): Promise<ServiceWorkerRegistration> {

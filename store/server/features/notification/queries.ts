@@ -5,6 +5,7 @@ import { useQuery } from 'react-query';
 import type {
   PushSubscriptionStatusResponse,
   NotificationType,
+  NotificationPreferencesResponse,
 } from './interface';
 
 function parseThemeFromRoute(routeStr: string): string | null {
@@ -103,4 +104,32 @@ export const useGetPushSubscriptionStatus = (
     ['push-subscription-status', userId],
     () => getPushSubscriptionStatus(userId),
     { enabled: !!userId && enabled },
+  );
+
+const getNotificationPreferences = async (
+  userId: string,
+): Promise<NotificationPreferencesResponse> => {
+  const headers = await requestHeader();
+  const res = await crudRequest({
+    url: `${NOTIFICATION_URL}/notification/preferences`,
+    method: 'GET',
+    params: { userId },
+    headers,
+  });
+  return (res ?? {
+    userId,
+    preset: 'all',
+    enabledById: {},
+  }) as NotificationPreferencesResponse;
+};
+
+export const useGetNotificationPreferences = (userId: string, enabled = true) =>
+  useQuery(
+    ['notification-preferences', userId],
+    () => getNotificationPreferences(userId),
+    {
+      enabled: !!userId && enabled,
+      staleTime: 30_000,
+      retry: 1,
+    },
   );

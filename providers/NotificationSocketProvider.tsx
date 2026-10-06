@@ -17,6 +17,13 @@ import {
   requestAndRegisterPushSubscription,
 } from '@/hooks/usePushSubscription';
 import { useGetPushSubscriptionStatus } from '@/store/server/features/notification/queries';
+import { isNotificationAllowedInApp } from '@/store/server/features/notification/preferenceCatalog';
+import {
+  hydrateNotificationPreferencesStore,
+  useNotificationPreferencesStore,
+} from '@/store/uistate/features/notification/preferences';
+import { useSyncNotificationPreferences } from '@/hooks/useSyncNotificationPreferences';
+import type { NotificationType } from '@/store/server/features/notification/interface';
 
 const NOTIFICATION_CREATED = 'notification:created';
 const NOTIFICATION_READ = 'notification:read';
@@ -31,14 +38,25 @@ export function NotificationSocketProvider({
   const { notification } = App.useApp();
   const userId = useAuthenticationStore((s) => s.userId);
   const tenantId = useAuthenticationStore((s) => s.tenantId);
+  const enabledById = useNotificationPreferencesStore(
+    (s) => s.byUserId[userId ?? '']?.enabledById,
+  );
+  const browserPushPreferred = enabledById?.channel_browser_push !== false;
   const socketRef = useRef<Socket | null>(null);
   const socketUserIdRef = useRef<string | null>(null);
   const notificationRef = useRef(notification);
   notificationRef.current = notification;
+  const enabledByIdRef = useRef(enabledById);
+  enabledByIdRef.current = enabledById;
   const [pushPromptDismissed, setPushPromptDismissed] = useState(false);
   const [pushPromptLoading, setPushPromptLoading] = useState(false);
 
   usePushSubscription();
+  useSyncNotificationPreferences();
+
+  useEffect(() => {
+    hydrateNotificationPreferencesStore();
+  }, []);
 
   const { data: subscriptionStatus, isLoading: statusLoading } =
     useGetPushSubscriptionStatus(userId ?? '', !!userId);
@@ -49,6 +67,7 @@ export function NotificationSocketProvider({
   const showPushPrompt =
     !!userId &&
     !!VAPID_PUBLIC_KEY &&
+    browserPushPreferred &&
     !pushPromptDismissed &&
     !statusLoading &&
     !isSubscribed &&
@@ -127,9 +146,22 @@ export function NotificationSocketProvider({
 
       socket.on(
         NOTIFICATION_CREATED,
-        (payload?: { title?: string; body?: string }) => {
+        (
+          payload?: Partial<NotificationType> & {
+            title?: string;
+            body?: string;
+          },
+        ) => {
           queryClient.invalidateQueries(['notifications', userId]);
           queryClient.invalidateQueries(['notifications-unread-count', userId]);
+
+          const prefs = enabledByIdRef.current ?? {};
+          const allowed = isNotificationAllowedInApp(
+            (payload ?? {}) as NotificationType,
+            prefs,
+          );
+          if (!allowed) return;
+
           notificationRef.current.info({
             message: payload?.title ?? 'New notification',
             description: payload?.body ?? 'You have a new notification.',

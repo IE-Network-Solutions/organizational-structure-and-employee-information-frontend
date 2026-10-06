@@ -1,6 +1,6 @@
 'use client';
 import CustomBreadcrumb from '@/components/common/breadCramp';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Avatar, Divider, List, Skeleton, Tooltip } from 'antd';
 import { useGetNotifications } from '@/store/server/features/notification/queries';
 import { NotificationType } from '@/store/server/features/notification/interface';
@@ -12,6 +12,8 @@ import EmptyState from '@/components/empty';
 import { useRouter } from 'next/navigation';
 import { resolveNotificationPath } from '@/utils/notificationRoute';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { filterNotificationsByPreferences } from '@/store/server/features/notification/preferenceCatalog';
+import { useNotificationPreferencesStore } from '@/store/uistate/features/notification/preferences';
 
 const toSlug = (value: string | number | null | undefined) =>
   String(value ?? 'na')
@@ -38,7 +40,19 @@ const Notifications = () => {
     updateNotificationStatus(id);
   };
   const { data, isLoading } = useGetNotifications(userId);
-  const list = Array.isArray(data) ? data : ((data as any)?.data ?? []);
+  const enabledById = useNotificationPreferencesStore(
+    (s) => s.byUserId[userId ?? '']?.enabledById,
+  );
+  const prefsHydrated = useNotificationPreferencesStore((s) => s.hasHydrated);
+
+  const list = useMemo(() => {
+    const raw = Array.isArray(data) ? data : ((data as any)?.data ?? []);
+    if (!prefsHydrated) return raw as NotificationType[];
+    return filterNotificationsByPreferences(
+      raw as NotificationType[],
+      enabledById ?? {},
+    );
+  }, [data, enabledById, prefsHydrated]);
   const unReadNotification = list.filter(
     (item: NotificationType) => item.isRead === false,
   );
