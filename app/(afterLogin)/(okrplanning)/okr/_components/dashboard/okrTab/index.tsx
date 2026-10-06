@@ -15,7 +15,7 @@ import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useGetUserDepartment } from '@/store/server/features/okrplanning/okr/department/queries';
 import { useGetDepartmentUsersAllLevels } from '@/store/server/features/employees/employeeManagment/department/queries';
 import { useGetEmployee } from '@/store/server/features/employees/employeeDetail/queries';
-import { EmptyImage } from '@/components/emptyIndicator';
+import EmptyState from '@/components/empty';
 import ObjectiveCardSkeleton from '@/components/okr/objectiveCardSkeleton';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -378,7 +378,11 @@ export default function OkrTab({
               data-cy="okr-my-okr-empty-state"
               className="flex justify-center"
             >
-              <EmptyImage />
+              <EmptyState
+                compact
+                description="You have no objectives for the selected period."
+                data-cy="okr-my-okr-empty-image"
+              />
             </div>
           )}
         </div>
@@ -456,7 +460,11 @@ export default function OkrTab({
                     data-cy="okr-team-okr-empty-state"
                     className="flex justify-center"
                   >
-                    <EmptyImage data-cy="okr-team-okr-empty-image" />
+                    <EmptyState
+                      compact
+                      description="Your team has no objectives for the selected period."
+                      data-cy="okr-team-okr-empty-image"
+                    />
                   </div>
                 )}
               </div>
@@ -544,7 +552,11 @@ export default function OkrTab({
                       data-cy="okr-company-okr-empty-state"
                       className="flex justify-center"
                     >
-                      <EmptyImage data-cy="okr-company-okr-empty-image" />
+                      <EmptyState
+                        compact
+                        description="No objectives match the selected filters."
+                        data-cy="okr-company-okr-empty-image"
+                      />
                     </div>
                   )}
               </div>
@@ -650,8 +662,10 @@ export default function OkrTab({
     isCompactTabBar
       ? '[&_.ant-tabs-nav]:min-w-0 [&_.ant-tabs-nav-wrap]:min-w-0 [&_.ant-tabs-nav-list]:!flex-nowrap [&_.ant-tabs-nav-wrap]:overflow-x-auto [&_.ant-tabs-nav-wrap]:scrollbar-none [&_.ant-tabs-extra-content]:!shrink-0'
       : '',
+    // Home's My OKR: the page's banner tab names it, so drop the tab strip
+    // but keep its toolbar (status pills, year and session filters).
     myOkrOnly
-      ? '[&_.ant-tabs-nav]:!hidden [&_.ant-tabs-content-holder]:!mt-0'
+      ? '[&_.ant-tabs-nav-wrap]:!hidden [&_.ant-tabs-nav-operations]:!hidden [&_.ant-tabs-nav]:before:!hidden [&_.ant-tabs-extra-content]:!flex-1 [&_.ant-tabs-content-holder]:!mt-4'
       : '',
   ]
     .filter(Boolean)

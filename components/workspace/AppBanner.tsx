@@ -1,21 +1,11 @@
 'use client';
-import React, {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Dropdown } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
 
 export interface AppBannerTab {
   key: string;
   label: ReactNode;
-  /** Plain-text name, used in the "More" menu. */
+  /** Plain-text name of the tab. */
   title: string;
   href: string;
   disabled?: boolean;
@@ -36,12 +26,6 @@ export const getNodeText = (node: ReactNode): string => {
 /** Route keys contain slashes; keep generated ids and data-cy hooks plain. */
 const toIdSegment = (key: string) =>
   key.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-
-// Must match the `gap` on `.app-banner-tabs-list`.
-const TAB_GAP = 2;
-
-const useIsomorphicLayoutEffect =
-  typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
 interface AppBannerProps {
   children: ReactNode;
@@ -75,8 +59,8 @@ interface AppBannerTabsProps {
 
 /**
  * Tabs along the banner's bottom edge. The active tab takes the page colour so
- * it reads as the top of the content below it. Tabs that do not fit move into
- * a "More" menu; the active tab always keeps its place in the row.
+ * it reads as the top of the content below it. Tabs that do not fit scroll
+ * sideways, and the active one is kept in view.
  */
 export const AppBannerTabs: React.FC<AppBannerTabsProps> = ({
   tabs,
@@ -86,63 +70,23 @@ export const AppBannerTabs: React.FC<AppBannerTabsProps> = ({
   extra,
   className = '',
 }) => {
-  const router = useRouter();
   const listRef = useRef<HTMLElement>(null);
-  const moreRef = useRef<HTMLButtonElement>(null);
   const tabRefs = useRef(new Map<string, HTMLElement>());
-  const [hiddenKeys, setHiddenKeys] = useState<string[]>([]);
 
-  // Overflowed tabs stay rendered (hidden, out of flow) so they can be measured.
-  const measure = useCallback(() => {
+  useEffect(() => {
     const list = listRef.current;
-    if (!list) return;
-
-    const available = list.clientWidth;
-    const widths = tabs.map(
-      (tab) => tabRefs.current.get(tab.key)?.offsetWidth ?? 0,
-    );
-    const fullWidth = widths.reduce(
-      (sum, width) => sum + width + TAB_GAP,
-      -TAB_GAP,
-    );
-
-    let nextHiddenKeys: string[] = [];
-    if (fullWidth > available) {
-      const shownKeys = new Set<string>();
-      let used = moreRef.current?.offsetWidth ?? 0;
-      const activeIndex = tabs.findIndex((tab) => tab.key === activeKey);
-      if (activeIndex >= 0) {
-        shownKeys.add(tabs[activeIndex].key);
-        used += widths[activeIndex] + TAB_GAP;
-      }
-      for (let index = 0; index < tabs.length; index += 1) {
-        if (index === activeIndex) continue;
-        if (used + widths[index] + TAB_GAP > available) break;
-        shownKeys.add(tabs[index].key);
-        used += widths[index] + TAB_GAP;
-      }
-      nextHiddenKeys = tabs
-        .filter((tab) => !shownKeys.has(tab.key))
-        .map((tab) => tab.key);
+    const tab = activeKey ? tabRefs.current.get(activeKey) : undefined;
+    if (!list || !tab) return;
+    // The list is the tabs' offset parent, so offsets are within its scroll.
+    if (tab.offsetLeft < list.scrollLeft) {
+      list.scrollLeft = tab.offsetLeft;
+    } else if (
+      tab.offsetLeft + tab.offsetWidth >
+      list.scrollLeft + list.clientWidth
+    ) {
+      list.scrollLeft = tab.offsetLeft + tab.offsetWidth - list.clientWidth;
     }
-
-    setHiddenKeys((current) =>
-      current.join('|') === nextHiddenKeys.join('|') ? current : nextHiddenKeys,
-    );
-  }, [tabs, activeKey]);
-
-  useIsomorphicLayoutEffect(() => {
-    measure();
-    if (typeof ResizeObserver === 'undefined') return;
-    // Tabs are observed too: their widths change once the web font loads.
-    const observer = new ResizeObserver(() => measure());
-    if (listRef.current) observer.observe(listRef.current);
-    if (moreRef.current) observer.observe(moreRef.current);
-    tabRefs.current.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }, [measure]);
-
-  const hiddenTabs = tabs.filter((tab) => hiddenKeys.includes(tab.key));
+  }, [activeKey, tabs]);
 
   return (
     <div
@@ -159,9 +103,6 @@ export const AppBannerTabs: React.FC<AppBannerTabsProps> = ({
       >
         {tabs.map((tab) => {
           const tabId = `${idPrefix}-tab-${toIdSegment(tab.key)}`;
-          const tabClassName = `app-banner-tab${
-            hiddenKeys.includes(tab.key) ? ' is-overflowed' : ''
-          }`;
           const setTabRef = (element: HTMLElement | null) => {
             if (element) tabRefs.current.set(tab.key, element);
             else tabRefs.current.delete(tab.key);
@@ -173,7 +114,7 @@ export const AppBannerTabs: React.FC<AppBannerTabsProps> = ({
                 key={tab.key}
                 ref={setTabRef}
                 aria-disabled="true"
-                className={tabClassName}
+                className="app-banner-tab"
                 data-cy={tabId}
                 id={tabId}
               >
@@ -189,7 +130,7 @@ export const AppBannerTabs: React.FC<AppBannerTabsProps> = ({
               href={tab.href}
               prefetch={false}
               aria-current={tab.key === activeKey ? 'page' : undefined}
-              className={tabClassName}
+              className="app-banner-tab"
               data-cy={tabId}
               id={tabId}
             >
@@ -197,36 +138,6 @@ export const AppBannerTabs: React.FC<AppBannerTabsProps> = ({
             </Link>
           );
         })}
-
-        <Dropdown
-          trigger={['click']}
-          placement="bottomRight"
-          disabled={!hiddenTabs.length}
-          menu={{
-            items: hiddenTabs.map((tab) => ({
-              key: tab.key,
-              label: tab.title,
-              disabled: tab.disabled,
-            })),
-            onClick: ({ key }) => {
-              const tab = tabs.find((item) => item.key === key);
-              if (tab) router.push(tab.href);
-            },
-          }}
-        >
-          <button
-            ref={moreRef}
-            type="button"
-            className={`app-banner-tab app-banner-tabs-more${
-              hiddenTabs.length ? '' : ' is-overflowed'
-            }`}
-            data-cy={`${idPrefix}-more`}
-            id={`${idPrefix}-more`}
-          >
-            More
-            <DownOutlined className="app-banner-tabs-more-icon" />
-          </button>
-        </Dropdown>
       </nav>
       {extra ? (
         <div

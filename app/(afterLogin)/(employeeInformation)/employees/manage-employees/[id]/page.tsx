@@ -15,8 +15,9 @@ import OffboardingFormControl from './_components/offboarding/_components/offboa
 import { useFetchUserTerminationByUserId } from '@/store/server/features/employees/offboarding/queries';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { isHomePath } from '@/utils/navigation/personalRoutes';
+import { PROFILE_TABS } from '@/config/homeTabs';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useResignedEmployee } from '@/store/server/features/employees/offboarding/mutation';
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
@@ -40,6 +41,7 @@ interface EmployeeDetailsProps {
 function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
   const pathname = usePathname();
   const embeddedInHome = isHomePath(pathname);
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [form] = Form.useForm();
   const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
@@ -249,6 +251,12 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
     },
   ];
 
+  // In My Profile the sections are the banner's tabs (`?tab=job`).
+  const profileTabKey = embeddedInHome
+    ? (PROFILE_TABS.find((tab) => tab.key === searchParams.get('tab'))
+        ?.itemKey ?? PROFILE_TABS[0].itemKey)
+    : undefined;
+
   // Memoize menu items to avoid recalculating on every render
   const menuItems = useMemo(
     () => buildMenuItems(),
@@ -329,20 +337,25 @@ function EmployeeDetails({ params: { id } }: EmployeeDetailsProps) {
         </div>
       )}
 
-      <div
-        id="employee-detail-basic-info-wrapper"
-        data-cy="employee-detail-basic-info-wrapper"
-      >
-        <BasicInfo id={id} data-cy="employee-detail-basic-info" />
-      </div>
+      {/* My Profile's banner already names the person; the details panel
+          beside the page holds the rest. */}
+      {!embeddedInHome && (
+        <div
+          id="employee-detail-basic-info-wrapper"
+          data-cy="employee-detail-basic-info-wrapper"
+        >
+          <BasicInfo id={id} data-cy="employee-detail-basic-info" />
+        </div>
+      )}
       {/* <Card
             id="employee-detail-tabs-card"
             data-cy="employee-detail-tabs-card"
           > */}
       <div data-cy="employee-detail-tabs-wrapper">
         <Tabs
-          activeKey={employeeDetailActiveTab}
+          activeKey={profileTabKey ?? employeeDetailActiveTab}
           onChange={setEmployeeDetailActiveTab}
+          renderTabBar={embeddedInHome ? () => <></> : undefined}
           items={items}
           tabBarGutter={16}
           size="small"

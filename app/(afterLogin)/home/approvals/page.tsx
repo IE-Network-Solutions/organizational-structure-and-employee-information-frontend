@@ -1,64 +1,18 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
-import classNames from 'classnames';
-import { Badge, ConfigProvider, Segmented } from 'antd';
-import { useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import ApprovalTable from '@/app/(afterLogin)/(timesheetInformation)/timesheet/my-timesheet/_components/approvalTable';
-import { useIsMobile } from '@/hooks/useIsMobile';
 import {
-  MOCK_APPROVAL_PENDING_BY_MODULE,
   MOCK_TNA_ROWS,
   MOCK_TRAINING_ROWS,
   type ApprovalModuleKey,
 } from '@/config/homeApprovalsMock';
 import MockApprovalInboxTable from './_components/MockApprovalInboxTable';
 import PayrollApprovalsPanel from './_components/PayrollApprovalsPanel';
-import {
-  approvalPillClass,
-  approvalToolbarSegmentedClassName,
-} from './_components/approvalSegmentedClassName';
+import { approvalPillClass } from './_components/approvalSegmentedClassName';
 
 type LearningSubtype = 'tna' | 'training';
-
-const MODULE_OPTIONS: { label: React.ReactNode; value: ApprovalModuleKey }[] = [
-  {
-    label: (
-      <span
-        className="inline-flex items-center gap-2"
-        data-cy="home-approvals-module-label-timesheet"
-      >
-        Timesheet
-        <Badge count={MOCK_APPROVAL_PENDING_BY_MODULE.timesheet} size="small" />
-      </span>
-    ),
-    value: 'timesheet',
-  },
-  {
-    label: (
-      <span
-        className="inline-flex items-center gap-2"
-        data-cy="home-approvals-module-label-learning"
-      >
-        Learning
-        <Badge count={MOCK_APPROVAL_PENDING_BY_MODULE.learning} size="small" />
-      </span>
-    ),
-    value: 'learning',
-  },
-  {
-    label: (
-      <span
-        className="inline-flex items-center gap-2"
-        data-cy="home-approvals-module-label-payroll"
-      >
-        Payroll
-        <Badge count={MOCK_APPROVAL_PENDING_BY_MODULE.payroll} size="small" />
-      </span>
-    ),
-    value: 'payroll',
-  },
-];
 
 function parseModuleParam(value: string | null): ApprovalModuleKey | null {
   const normalized = (value ?? '').toLowerCase();
@@ -79,41 +33,48 @@ function parseLearningSubtype(value: string | null): LearningSubtype {
   return 'tna';
 }
 
+// Older links name the request type instead of the inbox (`?type=leave`).
+function moduleFromTypeParam(value: string | null): ApprovalModuleKey | null {
+  const type = (value ?? '').replace(/[-_]/g, '');
+  if (/^(workfromhome|wfh|shiftswap|swap|leave)$/i.test(type)) {
+    return 'timesheet';
+  }
+  if (/^(tna|training)$/i.test(type)) return 'learning';
+  if (/^payroll$/i.test(type)) return 'payroll';
+  return null;
+}
+
 export default function HomeApprovalsPage() {
-  const { isMobile } = useIsMobile();
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [activeModule, setActiveModule] =
-    useState<ApprovalModuleKey>('timesheet');
+  // The inbox is the banner's tab (`?module=`), so the URL decides it.
+  const activeModule: ApprovalModuleKey =
+    parseModuleParam(searchParams.get('module')) ?? 'timesheet';
   const [learningSubtype, setLearningSubtype] =
     useState<LearningSubtype>('tna');
 
   useEffect(() => {
-    const moduleFromUrl = parseModuleParam(searchParams.get('module'));
-    const typeParam = (searchParams.get('type') ?? '').replace(/[-_]/g, '');
-    const subtypeParam = searchParams.get('subtype');
-
-    if (moduleFromUrl) {
-      setActiveModule(moduleFromUrl);
-    } else if (/^workfromhome$/i.test(typeParam) || /^wfh$/i.test(typeParam)) {
-      setActiveModule('timesheet');
-    } else if (/^shiftswap$/i.test(typeParam) || /^swap$/i.test(typeParam)) {
-      setActiveModule('timesheet');
-    } else if (/^leave$/i.test(typeParam)) {
-      setActiveModule('timesheet');
-    } else if (/^tna$/i.test(typeParam)) {
-      setActiveModule('learning');
-      setLearningSubtype('tna');
-    } else if (/^training$/i.test(typeParam)) {
-      setActiveModule('learning');
-      setLearningSubtype('training');
-    } else if (/^payroll$/i.test(typeParam)) {
-      setActiveModule('payroll');
+    // Name the inbox in the URL the way the banner's tabs do (`?type=leave`
+    // or `?module=tna` → `?module=…`) so the right tab is marked.
+    const moduleParam = searchParams.get('module');
+    const canonicalModule = moduleParam
+      ? parseModuleParam(moduleParam)
+      : moduleFromTypeParam(searchParams.get('type'));
+    if (canonicalModule && canonicalModule !== moduleParam) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('module', canonicalModule);
+      router.replace(`${pathname}?${params.toString()}`);
     }
 
+    const typeParam = (searchParams.get('type') ?? '').toLowerCase();
+    const subtypeParam = searchParams.get('subtype');
     if (subtypeParam) {
       setLearningSubtype(parseLearningSubtype(subtypeParam));
+    } else if (typeParam === 'tna' || typeParam === 'training') {
+      setLearningSubtype(typeParam);
     }
-  }, [searchParams]);
+  }, [searchParams, pathname, router]);
 
   const moduleContent = useMemo(() => {
     switch (activeModule) {
@@ -183,42 +144,6 @@ export default function HomeApprovalsPage() {
         className="home-embed-main flex min-w-0 max-w-full w-full flex-col gap-3 p-0 sm:gap-4 sm:rounded-xl sm:p-4"
         data-cy="home-approvals-main-card"
       >
-        <div
-          className={classNames(
-            'sticky top-0 z-20 flex w-full min-w-0 max-w-full flex-col items-stretch gap-2 border-b border-shell-line bg-white pb-2 pt-1',
-            'sm:flex-row sm:items-end sm:gap-3 sm:pb-0 lg:gap-x-8 sm:[&>*:not(:first-child)]:pb-2',
-          )}
-          data-cy="home-approvals-toolbar-row"
-        >
-          <div
-            className="flex w-full shrink-0 items-center sm:w-auto sm:justify-center"
-            data-cy="home-approvals-module-segmented-wrap"
-          >
-            <ConfigProvider
-              theme={{
-                components: {
-                  Segmented: {
-                    trackBg: '#f1f5f9',
-                    itemSelectedBg: '#ffffff',
-                    itemSelectedColor: '#0f172a',
-                  },
-                },
-              }}
-            >
-              <Segmented
-                size={isMobile ? 'middle' : 'large'}
-                value={activeModule}
-                onChange={(value) =>
-                  setActiveModule(value as ApprovalModuleKey)
-                }
-                options={MODULE_OPTIONS}
-                className={approvalToolbarSegmentedClassName}
-                data-cy="home-approvals-module-segmented"
-              />
-            </ConfigProvider>
-          </div>
-        </div>
-
         <div
           className="min-w-0 max-w-full w-full"
           data-cy="home-approvals-content-area"

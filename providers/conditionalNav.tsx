@@ -9,7 +9,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import type { Subscription } from '@/types/tenant-management';
 
 import { GlobalStateStore } from '@/store/uistate/features/global';
-import { usesWorkspaceUi } from '@/utils/navigation/workspaceUi';
+import { ROLE_COOKIE, usesWorkspaceUi } from '@/utils/navigation/workspaceUi';
 
 /**
  * ConditionalNav component that conditionally renders the Nav component
@@ -38,6 +38,23 @@ const ConditionalNav: React.FC<{
   )
     ? WorkspaceNav
     : Nav;
+
+  // The middleware routes on the role cookie, which can go missing or stale
+  // while the session lives on. Keep it in step with the signed-in profile,
+  // and send the `user` role from the dashboard to its Home hub.
+  useEffect(() => {
+    if (!isMounted || !profileRoleSlug) return;
+    const cookieRole =
+      document.cookie.match(
+        new RegExp(`(?:^|;\\s*)${ROLE_COOKIE}=([^;]*)`),
+      )?.[1] ?? '';
+    if (cookieRole !== profileRoleSlug) {
+      useAuthenticationStore.getState().setLoggedUserRole(profileRoleSlug);
+    }
+    if (usesWorkspaceUi(profileRoleSlug) && pathname === '/dashboard') {
+      router.replace('/home/overview');
+    }
+  }, [isMounted, profileRoleSlug, pathname, router]);
 
   const { isRouteLoading } = GlobalStateStore();
   const excludeNavPaths = [

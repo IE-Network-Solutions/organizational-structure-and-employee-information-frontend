@@ -29,7 +29,7 @@
   padding: 0 12px 0 20px;
 }
 
-/* Tabs that do not fit move into the "More" menu (see AppBannerTabs). */
+/* Tabs that do not fit scroll sideways (see AppBannerTabs). */
 .app-banner-tabs-list {
   position: relative;
   display: flex;
@@ -37,7 +37,13 @@
   align-items: flex-end;
   gap: 2px;
   min-width: 0;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.app-banner-tabs-list::-webkit-scrollbar {
+  display: none;
 }
 
 .app-banner-tab {
@@ -82,34 +88,6 @@
 .app-banner-tab[aria-disabled='true']:hover {
   background: transparent;
   color: rgba(255, 255, 255, 0.86) !important;
-}
-
-/* Kept in the DOM so its width can be measured, but out of flow and unseen. */
-.app-banner-tab.is-overflowed {
-  position: absolute;
-  top: 0;
-  left: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.app-banner-tabs-more {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.app-banner-tabs-more.ant-dropdown-open {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff !important;
-}
-
-.app-banner-tabs-more-icon {
-  font-size: 11px;
 }
 
 .app-banner-tabs-extra {

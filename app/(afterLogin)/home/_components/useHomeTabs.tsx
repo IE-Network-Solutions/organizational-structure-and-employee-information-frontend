@@ -1,16 +1,17 @@
 'use client';
 
 import { ReactNode, useMemo } from 'react';
-import { Button, Badge } from 'antd';
+import { Button } from 'antd';
 import { usePathname } from 'next/navigation';
 import { FaPlus } from 'react-icons/fa';
 import { LuPencil } from 'react-icons/lu';
-import { MOCK_APPROVAL_TOTAL_PENDING } from '@/config/homeApprovalsMock';
 import {
   buildSubscribedModuleCodes,
   getHomePageTitle,
   getHomeTabFromPathname,
   getVisibleHomeTabs,
+  type HomeSubTabDef,
+  type HomeTabDef,
 } from '@/config/homeTabs';
 import { OPEN_HOME_DASHBOARD_EDIT_EVENT } from '@/config/homeDashboardEvents';
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
@@ -22,7 +23,6 @@ import { Subscription } from '@/types/tenant-management';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import type { AppBannerTab } from '@/components/workspace/AppBanner';
 
 /** The Home tabs this tenant subscribes to and this user may open. */
 export const useVisibleHomeTabs = () => {
@@ -85,45 +85,38 @@ export const useVisibleHomeTabs = () => {
   };
 };
 
-/** Home's tabs and the action beside them, for the workspace banner. */
-export const useHomeBannerTabs = (): {
-  tabs: AppBannerTab[];
-  activeKey: string;
-  pageTitle: string;
+/** A Home page's name as a banner tab. */
+export const homeTabLabel = (key: string, label: string): ReactNode => (
+  <span data-cy={`home-${key}-tab-label`} id={`home-${key}-tab-label`}>
+    {label}
+  </span>
+);
+
+/** A view of a Home page (an Approvals inbox, a profile section) as a banner tab. */
+export const homeSubTabLabel = (
+  tabKey: string,
+  subTab: HomeSubTabDef,
+): ReactNode => {
+  const dataCy = `home-${tabKey}-${subTab.key}-tab-label`;
+  return (
+    <span data-cy={dataCy} id={dataCy}>
+      {subTab.label}
+    </span>
+  );
+};
+
+/**
+ * Home's pages this user can open (the workspace sidebar files them under
+ * their modules) and the action beside the current page's banner tabs.
+ */
+export const useHomeBanner = (): {
+  visibleTabs: HomeTabDef[];
   extra?: ReactNode;
 } => {
-  const { visibleTabs, activeKey, pageTitle } = useVisibleHomeTabs();
+  const { visibleTabs, activeKey } = useVisibleHomeTabs();
   const { isMobile } = useIsMobile();
   const { userId } = useAuthenticationStore();
   const { setIsShowLeaveRequestSidebar } = useMyTimesheetStore();
-
-  const tabs = useMemo<AppBannerTab[]>(
-    () =>
-      visibleTabs.map((tab) => ({
-        key: tab.key,
-        href: tab.href,
-        title: tab.label,
-        label: (
-          <span
-            data-cy={`home-${tab.key}-tab-label`}
-            id={`home-${tab.key}-tab-label`}
-          >
-            {tab.key === 'approvals' ? (
-              <Badge
-                count={MOCK_APPROVAL_TOTAL_PENDING}
-                size="small"
-                offset={[8, 0]}
-              >
-                <span data-cy="home-approvals-tab-label-text">{tab.label}</span>
-              </Badge>
-            ) : (
-              tab.label
-            )}
-          </span>
-        ),
-      })),
-    [visibleTabs],
-  );
 
   const leaveRequestAction =
     activeKey === 'leave' && isMobile ? (
@@ -161,9 +154,7 @@ export const useHomeBannerTabs = (): {
     ) : undefined;
 
   return {
-    tabs,
-    activeKey,
-    pageTitle,
+    visibleTabs,
     extra: overviewEditAction || leaveRequestAction,
   };
 };

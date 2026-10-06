@@ -155,7 +155,11 @@ export function middleware(req: NextRequest) {
     const canManageFiscalYear =
       getCookie('canManageFiscalYear', req) === 'true';
     // The `user` role lands in the Home hub; other roles on the dashboard.
-    const workspaceUi = usesWorkspaceUi(getCookie(ROLE_COOKIE, req));
+    // The role cookie can be missing (expired, cleared) while the session is
+    // still valid; the client re-syncs it, so until then don't push Home
+    // routes over to the classic pages.
+    const roleSlug = getCookie(ROLE_COOKIE, req)?.trim() ?? '';
+    const workspaceUi = usesWorkspaceUi(roleSlug);
     const landingPath = workspaceUi ? '/home/overview' : '/dashboard';
 
     let hasEndedFiscalYear = false;
@@ -244,7 +248,9 @@ export function middleware(req: NextRequest) {
 
     const shellRedirect = workspaceUi
       ? resolveHomeHubRedirect(pathname)
-      : resolveClassicRoute(pathname, url.searchParams);
+      : roleSlug
+        ? resolveClassicRoute(pathname, url.searchParams)
+        : null;
     if (shellRedirect) {
       const target = workspaceUrl(req, shellRedirect);
       target.search = url.search;

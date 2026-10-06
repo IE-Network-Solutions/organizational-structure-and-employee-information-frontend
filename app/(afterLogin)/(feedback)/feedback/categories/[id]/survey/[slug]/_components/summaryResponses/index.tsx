@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge, Col, Form, Progress, Row } from 'antd';
 import { useGetAllSummaryResultByformId } from '@/store/server/features/organization-development/categories/queries';
-import { EmptyImage } from '@/components/emptyIndicator';
+import EmptyState from '@/components/empty';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 interface Params {
   id: string;
@@ -29,7 +29,7 @@ function SummaryResponses({ id }: Params) {
             data-cy="summary-responses-empty"
             className="flex justify-center"
           >
-            <EmptyImage data-cy="summary-responses-empty-image" />
+            <EmptyState compact data-cy="summary-responses-empty-image" />
           </div>
         ) : (
           summaryResult?.map((q: any, index: number) => (

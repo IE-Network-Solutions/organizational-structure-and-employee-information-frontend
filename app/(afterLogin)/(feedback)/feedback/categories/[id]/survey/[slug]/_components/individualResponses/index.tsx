@@ -6,7 +6,6 @@ import { Pagination, Skeleton } from 'antd';
 import { useOrganizationalDevelopment } from '@/store/uistate/features/organizationalDevelopment';
 import { useFetchedAllIndividualResponsesByFormId } from '@/store/server/features/organization-development/categories/queries';
 import { useGetFormsByID } from '@/store/server/features/feedback/form/queries';
-import { EmptyImage } from '@/components/emptyIndicator';
 import {
   isSurveyBarSummaryChoiceType,
   isSurveyChoiceFieldType,

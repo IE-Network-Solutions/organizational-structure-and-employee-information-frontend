@@ -11,7 +11,7 @@
  */
 import React, { ReactNode, useState, useEffect } from 'react';
 import '../../app/globals.css';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/utils/firebaseConfig';
 import Image from 'next/image';
@@ -119,6 +119,29 @@ const getRouteMatchLength = (routes: string[], pathname: string) =>
       : best;
   }, 0);
 
+// How closely a banner tab's link matches the page: its route, plus a point
+// when its query (Approvals' `?module=payroll`) matches as well.
+const getTabMatchScore = (
+  href: string,
+  pathname: string,
+  searchParams: URLSearchParams,
+) => {
+  const [route, query] = href.split('?');
+  const length = getRouteMatchLength([route], pathname);
+  if (!length || !query) return length;
+  const matchesQuery = Array.from(new URLSearchParams(query)).every(
+    ([key, value]) => searchParams.get(key) === value,
+  );
+  return matchesQuery ? length + 1 : length;
+};
+
+// Home's own sidebar entries; its other pages sit inside their modules.
+const HOME_OVERVIEW_ROUTE = `${HOME_BASE}/overview`;
+const HOME_ENTRY_ICONS: Record<string, React.ReactNode> = {
+  approvals: <ClipboardCheck size={20} strokeWidth={2} />,
+  profile: <CircleUserRound size={20} strokeWidth={2} />,
+};
+
 // An employee's own page puts that employee in the banner, as a profile would;
 // everywhere else it is the signed-in user.
 const getViewedEmployeeId = (pathname: string) =>
@@ -156,7 +179,12 @@ import {
 } from '@/utils/navigation/sidebarVisibility';
 import { isHomePath } from '@/utils/navigation/personalRoutes';
 import { IS_HOME_PROTOTYPE } from '@/config/homePrototype';
-import { useHomeBannerTabs } from '@/app/(afterLogin)/home/_components/useHomeTabs';
+import {
+  homeSubTabLabel,
+  homeTabLabel,
+  useHomeBanner,
+} from '@/app/(afterLogin)/home/_components/useHomeTabs';
+import { HOME_BASE } from '@/config/homeTabs';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 // import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
@@ -184,9 +212,60 @@ interface CustomMenuItem {
   moduleCode?: string;
 }
 
+// The nav tree module a page outside Home belongs to. Every sub-route counts,
+// including the personal ones hidden from the tabs, so e.g.
+// `/feedback/categories` still resolves to CFR.
+const findModuleKey = (
+  treeData: CustomMenuItem[],
+  pathname: string,
+): string | undefined => {
+  let matchedItem: CustomMenuItem | undefined;
+  let matchedLength = 0;
+  for (const item of treeData) {
+    if (item.moduleCode === 'DASHBOARD') continue;
+    const childRoutes = (item.children ?? []).map((child) => String(child.key));
+    // Each sub-module's top-level URL area (`/feedback` for CFR) also counts,
+    // at lower priority, so detail and form pages that are not a tab of their
+    // own (`/feedback/categories/…`) still sit under their module.
+    const areaRoutes = childRoutes
+      .map((route) => route.split('/').filter(Boolean)[0])
+      .filter(Boolean)
+      .map((segment) => `/${segment}`);
+    const routes = [String(item.key), ...childRoutes, ...areaRoutes];
+    const length = getRouteMatchLength(routes, pathname);
+    if (length > matchedLength) {
+      matchedItem = item;
+      matchedLength = length;
+    }
+  }
+  return matchedItem ? String(matchedItem.key) : undefined;
+};
+
+// Home's pages sit in the sidebar entry that has them as tabs (Leave under
+// Time & Attendance); one filed nowhere stays under Home.
+const findHomeSidebarItem = (
+  items: SidebarNavItem[],
+  pathname: string,
+): SidebarNavItem | undefined => {
+  const route = pathname === HOME_BASE ? HOME_OVERVIEW_ROUTE : pathname;
+  const routesOf = (item: SidebarNavItem) =>
+    [item.key, ...(item.children ?? []).map((child) => child.key)].map(
+      (key) => String(key).split('?')[0],
+    );
+  return (
+    items.find((item) => routesOf(item).includes(route)) ??
+    items.find((item) => String(item.key) === HOME_OVERVIEW_ROUTE)
+  );
+};
+
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module, Subscription } from '@/types/tenant-management';
-import { ChevronsLeft, ChevronsRight } from 'lucide-react';
+import {
+  ChevronsLeft,
+  ChevronsRight,
+  CircleUserRound,
+  ClipboardCheck,
+} from 'lucide-react';
 import Link from 'next/link';
 import { MobileBottomNav } from './WorkspaceMobileNav';
 
@@ -292,6 +371,8 @@ const WorkspaceNav: React.FC<MyComponentProps> = ({ children }) => {
   const [isMobile, setIsMobile] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const search = searchParams?.toString() ?? '';
   const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
   const {
     enabled: collaborationEnabled,
@@ -1226,6 +1307,10 @@ const WorkspaceNav: React.FC<MyComponentProps> = ({ children }) => {
     people: '/employees/dashboard',
   };
 
+  // Home's pages this user can open, and the action beside their tabs.
+  const homeBanner = useHomeBanner();
+  const visibleHomeTabs = homeBanner.visibleTabs;
+
   const groupedMenuItems = React.useMemo(() => {
     const normalizeRoute = (value?: string | null) => {
       if (!value) return '';
@@ -1240,32 +1325,46 @@ const WorkspaceNav: React.FC<MyComponentProps> = ({ children }) => {
       label: React.ReactNode;
     };
 
+    // Home's personal pages lead their module's tabs (My OKR under OKR, Leave
+    // under Time & Attendance), ahead of the module's own pages.
+    const personalPagesByModule = new Map<string, CustomMenuItem[]>();
+    visibleHomeTabs.forEach((tab) => {
+      if (!tab.menuKey) return;
+      const pages = personalPagesByModule.get(tab.menuKey) ?? [];
+      pages.push({ key: tab.href, title: homeTabLabel(tab.key, tab.label) });
+      personalPagesByModule.set(tab.menuKey, pages);
+    });
+
     const accessibleTreeItems = treeData
       .map((item) => {
         if (item.moduleCode === 'DASHBOARD') {
           return { ...item, children: [] };
         }
 
-        const hasAccess = AccessGuard.checkAccess({
-          permissions: item.permissions,
-          requireAny: item.requireAny,
-        });
-        if (!hasAccess) return null;
+        const personalPages = personalPagesByModule.get(String(item.key)) ?? [];
+        const showModulePages =
+          AccessGuard.checkAccess({
+            permissions: item.permissions,
+            requireAny: item.requireAny,
+          }) && shouldShowModuleInSidebar(item, isOwner);
+        if (!showModulePages && !personalPages.length) return null;
 
-        if (!shouldShowModuleInSidebar(item, isOwner)) return null;
-
-        const permittedChildren = item.children
-          ? item.children.filter((child) =>
-              AccessGuard.checkAccess({
-                permissions: child.permissions,
-                requireAny: child.requireAny,
-              }),
-            )
-          : [];
+        const permittedChildren =
+          showModulePages && item.children
+            ? item.children.filter((child) =>
+                AccessGuard.checkAccess({
+                  permissions: child.permissions,
+                  requireAny: child.requireAny,
+                }),
+              )
+            : [];
 
         return {
           ...item,
-          children: filterAdminSidebarChildren(permittedChildren),
+          children: [
+            ...personalPages,
+            ...filterAdminSidebarChildren(permittedChildren),
+          ],
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
@@ -1459,16 +1558,43 @@ const WorkspaceNav: React.FC<MyComponentProps> = ({ children }) => {
       type: 'group' as const,
       key: 'group-home',
       label: '',
-      linkKey: '/home/overview',
+      linkKey: HOME_OVERVIEW_ROUTE,
       children: [
         {
-          key: '/home/overview',
+          key: HOME_OVERVIEW_ROUTE,
           icon: homeTreeItem?.icon ?? (
             <DashboardIcon style={{ fontSize: 20 }} />
           ),
           label: 'Home',
+          children: [
+            {
+              key: HOME_OVERVIEW_ROUTE,
+              label: homeTabLabel('overview', 'Overview'),
+            },
+          ],
         },
       ],
+    };
+
+    // Approvals and My Profile belong to no module: each is an entry of its
+    // own, with its views (inboxes, profile sections) as its tabs.
+    const ownEntries = visibleHomeTabs
+      .filter((tab) => !tab.menuKey && tab.href !== HOME_OVERVIEW_ROUTE)
+      .map((tab) => ({
+        key: tab.href,
+        icon: HOME_ENTRY_ICONS[tab.key],
+        label: tab.label,
+        children: tab.subTabs?.map((subTab) => ({
+          key: subTab.href,
+          label: homeSubTabLabel(tab.key, subTab),
+        })),
+      }));
+    const ownGroup = {
+      type: 'group' as const,
+      key: 'group-own',
+      label: '',
+      linkKey: '',
+      children: ownEntries,
     };
 
     return [
@@ -1476,47 +1602,37 @@ const WorkspaceNav: React.FC<MyComponentProps> = ({ children }) => {
       ...Array.from(groupedByParent.values()).filter(
         (group) => group.children.length > 0,
       ),
+      ...(ownEntries.length ? [ownGroup] : []),
     ];
-  }, [treeData, modulesData, subscriptionData, subscriptionsData, userData]);
+  }, [
+    treeData,
+    modulesData,
+    subscriptionData,
+    subscriptionsData,
+    userData,
+    visibleHomeTabs,
+  ]);
 
-  // The module the current page belongs to, with the sub-modules this user can
-  // open as its tabs. Home renders its own banner.
+  // The sidebar entry the current page belongs to, with the pages this user
+  // can open in it as its tabs.
   const activeModule = React.useMemo(() => {
-    if (isHomePath(pathname)) return null;
-
-    // Match against every sub-route, including the personal ones hidden from
-    // the tabs, so e.g. `/feedback/categories` still resolves to CFR.
-    let matchedItem: CustomMenuItem | undefined;
-    let matchedLength = 0;
-    for (const item of treeData) {
-      if (item.moduleCode === 'DASHBOARD') continue;
-      const childRoutes = (item.children ?? []).map((child) =>
-        String(child.key),
+    const sidebarItems: SidebarNavItem[] = groupedMenuItems.flatMap(
+      (group) => group.children,
+    );
+    let sidebarItem: SidebarNavItem | undefined;
+    if (isHomePath(pathname)) {
+      sidebarItem = findHomeSidebarItem(sidebarItems, pathname);
+    } else {
+      const moduleKey = findModuleKey(treeData, pathname);
+      // Not in this user's sidebar (no access, or not subscribed): no banner.
+      sidebarItem = sidebarItems.find(
+        (item) => moduleKey && String(item.key) === moduleKey,
       );
-      // Each sub-module's top-level URL area (`/feedback` for CFR) also
-      // counts, at lower priority, so detail and form pages that are not a tab
-      // of their own (`/feedback/categories/…`) still sit under their module.
-      const areaRoutes = childRoutes
-        .map((route) => route.split('/').filter(Boolean)[0])
-        .filter(Boolean)
-        .map((segment) => `/${segment}`);
-      const routes = [String(item.key), ...childRoutes, ...areaRoutes];
-      const length = getRouteMatchLength(routes, pathname);
-      if (length > matchedLength) {
-        matchedItem = item;
-        matchedLength = length;
-      }
     }
-    if (!matchedItem) return null;
-
-    const moduleKey = String(matchedItem.key);
-    const sidebarItem: SidebarNavItem | undefined = groupedMenuItems
-      .flatMap((group) => group.children)
-      .find((item) => String(item.key) === moduleKey);
-    // Not in this user's sidebar (no access, or not subscribed): no banner.
     if (!sidebarItem) return null;
 
     // A module without sub-modules is its own single tab.
+    const moduleKey = String(sidebarItem.key);
     const tabSources = sidebarItem.children?.length
       ? sidebarItem.children
       : moduleKey.startsWith('/')
@@ -1532,12 +1648,13 @@ const WorkspaceNav: React.FC<MyComponentProps> = ({ children }) => {
         disabled: subscriptionExpired && !route.startsWith('/admin'),
       };
     });
-    const activeTab = tabs.reduce<{ key?: string; length: number }>(
+    const currentSearch = new URLSearchParams(search);
+    const activeTab = tabs.reduce<{ key?: string; score: number }>(
       (best, tab) => {
-        const length = getRouteMatchLength([tab.key], pathname);
-        return length > best.length ? { key: tab.key, length } : best;
+        const score = getTabMatchScore(tab.href, pathname, currentSearch);
+        return score > best.score ? { key: tab.key, score } : best;
       },
-      { length: 0 },
+      { score: 0 },
     );
 
     return {
@@ -1547,37 +1664,28 @@ const WorkspaceNav: React.FC<MyComponentProps> = ({ children }) => {
       tabs,
       activeTabKey: activeTab.key,
     };
-  }, [pathname, treeData, groupedMenuItems, subscriptionExpired]);
+  }, [pathname, search, treeData, groupedMenuItems, subscriptionExpired]);
 
-  const activeSidebarKey = isHomePath(pathname)
-    ? '/home/overview'
-    : activeModule?.key;
+  const activeSidebarKey = activeModule?.key;
 
-  // Home and every module share one page frame; only its tabs differ. Pages
-  // outside both (e.g. Copilot) keep the whole content area.
-  const homeBannerTabs = useHomeBannerTabs();
-  const shellSection: WorkspaceSection | null = isHomePath(pathname)
+  // Every sidebar entry shares one page frame; only its tabs differ. Pages
+  // outside all of them (e.g. Copilot) keep the whole content area.
+  const onHomePage = isHomePath(pathname);
+  const shellSection: WorkspaceSection | null = activeModule
     ? {
-        title: homeBannerTabs.pageTitle,
-        tabs: homeBannerTabs.tabs,
-        activeKey: homeBannerTabs.activeKey,
-        // The Edit action depends on the signed-in user; see shellEmployeeId.
-        extra: isMounted ? homeBannerTabs.extra : undefined,
-        tabsLabel: 'Home sections',
-        tabsIdPrefix: 'home-tabs',
-        fixedFrame: !IS_CORE,
+        title: activeModule.title,
+        tabs: activeModule.tabs,
+        activeKey: activeModule.activeTabKey,
+        // Home's actions depend on the signed-in user; see shellEmployeeId.
+        extra: onHomePage && isMounted ? homeBanner.extra : undefined,
+        tabsLabel: `${getNodeText(activeModule.title) || 'Module'} sections`,
+        tabsIdPrefix: onHomePage ? 'home-tabs' : 'module-tabs',
+        // Home's pages bring their own top spacing and scroll in the frame.
+        spaceBelowBanner: !onHomePage,
+        fixedFrame: onHomePage && !IS_CORE,
+        profilePanel: pathname === `${HOME_BASE}/profile`,
       }
-    : activeModule
-      ? {
-          title: activeModule.title,
-          tabs: activeModule.tabs,
-          activeKey: activeModule.activeTabKey,
-          extra: undefined,
-          tabsLabel: `${getNodeText(activeModule.title) || 'Module'} sections`,
-          tabsIdPrefix: 'module-tabs',
-          spaceBelowBanner: true,
-        }
-      : null;
+    : null;
   // The session lives in localStorage, so the server renders with no user
   // while the browser's first render already has one. Show the profile from
   // mount on so both renders match and hydration doesn't fail.

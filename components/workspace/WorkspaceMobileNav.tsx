@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { MoreHorizontal, X, ChevronLeft } from 'lucide-react';
 
 interface SubItem {
@@ -35,27 +35,37 @@ function getGroupDisplayLabel(group: NavGroup): React.ReactNode {
   return first?.label ?? 'Home';
 }
 
+// Keys can carry a view's query (`/home/approvals?module=payroll`); it only
+// counts when the current search is given.
+function keyMatches(key: string, pathname: string, search?: string): boolean {
+  const [route, query] = key.split('?');
+  const onRoute = pathname === route || pathname.startsWith(route + '/');
+  if (!onRoute || !query || search === undefined) return onRoute;
+  const current = new URLSearchParams(search);
+  return Array.from(new URLSearchParams(query)).every(
+    ([name, value]) => current.get(name) === value,
+  );
+}
+
 function groupIsActive(group: NavGroup, pathname: string): boolean {
   return group.children.some((item) => {
     if (item.children && item.children.length > 0) {
-      return item.children.some((sub) => {
-        const k = String(sub.key);
-        return pathname === k || pathname.startsWith(k + '/');
-      });
+      return item.children.some((sub) => keyMatches(String(sub.key), pathname));
     }
-    const k = String(item.key);
-    return pathname === k || pathname.startsWith(k + '/');
+    return keyMatches(String(item.key), pathname);
   });
 }
 
 function GroupSheet({
   group,
   pathname,
+  search,
   colorPrimary,
   onNavigate,
 }: {
   group: NavGroup;
   pathname: string;
+  search: string;
   colorPrimary: string;
   onNavigate: (path: string) => void;
 }) {
@@ -90,8 +100,7 @@ function GroupSheet({
               </div>
               {item.children.map((sub) => {
                 const subKey = String(sub.key);
-                const active =
-                  pathname === subKey || pathname.startsWith(subKey + '/');
+                const active = keyMatches(subKey, pathname, search);
                 return (
                   <button
                     key={subKey}
@@ -154,6 +163,7 @@ export function MobileBottomNav({
   colorPrimary,
 }: MobileBottomNavProps) {
   const pathname = usePathname();
+  const search = useSearchParams()?.toString() ?? '';
   const router = useRouter();
   const [sheet, setSheet] = useState<Sheet>({ type: 'closed' });
 
@@ -303,6 +313,7 @@ export function MobileBottomNav({
                 <GroupSheet
                   group={sheet.group}
                   pathname={pathname}
+                  search={search}
                   colorPrimary={colorPrimary}
                   onNavigate={navigateTo}
                 />
@@ -322,6 +333,7 @@ export function MobileBottomNav({
                     <GroupSheet
                       group={group}
                       pathname={pathname}
+                      search={search}
                       colorPrimary={colorPrimary}
                       onNavigate={navigateTo}
                     />

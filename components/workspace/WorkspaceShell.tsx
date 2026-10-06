@@ -23,6 +23,12 @@ export interface WorkspaceSection {
    * banner, tabs and profile panel stay put and only the page scrolls.
    */
   fixedFrame?: boolean;
+  /**
+   * Show the person's details (contact, employment) down the left, with the
+   * avatar hanging over them. Only My Profile has it; other pages get the
+   * full width and a compact banner.
+   */
+  profilePanel?: boolean;
 }
 
 interface WorkspaceShellProps {
@@ -35,9 +41,9 @@ interface WorkspaceShellProps {
 
 /**
  * The frame every section shares — Home and each module alike: a profile
- * banner carrying the section's tabs and the page's actions, the profile
- * details down the left, and the page beside them. Only the tabs, actions and
- * page change between sections.
+ * banner carrying the section's tabs and the page's actions, and the page
+ * below it (beside the profile details on My Profile). Only the tabs, actions
+ * and page change between sections.
  *
  * Pages outside any section get the full width. The page keeps the same
  * position in the tree either way, so it is not remounted (losing its state)
@@ -53,7 +59,7 @@ const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
     () => ({ inBanner: Boolean(section), slot: actionsSlot }),
     [section, actionsSlot],
   );
-  const hasProfile = Boolean(section && employeeId);
+  const hasProfile = Boolean(section?.profilePanel && employeeId);
   const fixedFrame = Boolean(section?.fixedFrame);
 
   return (
@@ -80,6 +86,7 @@ const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
               <BasicInfo
                 id={employeeId}
                 variant="personalHero"
+                compact={!hasProfile}
                 data-cy="workspace-profile-hero"
               />
             ) : (
@@ -100,13 +107,13 @@ const WorkspaceShell: React.FC<WorkspaceShellProps> = ({
 
             <div
               className={
-                employeeId ? 'grid lg:grid-cols-[300px_minmax(0,1fr)]' : ''
+                hasProfile ? 'grid lg:grid-cols-[300px_minmax(0,1fr)]' : ''
               }
               data-cy="workspace-tabs-container"
               id="workspace-tabs-container"
             >
               {/* Keeps the tabs clear of the avatar, which hangs over this row. */}
-              {employeeId ? (
+              {hasProfile ? (
                 <div
                   className="hidden lg:block"
                   data-cy="workspace-tabs-rail"

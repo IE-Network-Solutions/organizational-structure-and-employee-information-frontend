@@ -3,6 +3,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useGetActiveFiscalYears } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { usesWorkspaceUi } from '@/utils/navigation/workspaceUi';
 
 const FISCAL_YEAR_MANAGE_PERMISSIONS = [
   Permissions.CreateCalendar,
@@ -32,6 +33,10 @@ export function useFiscalYearRedirect() {
     [userData?.userPermissions],
   );
   const isOwner = userData?.role?.slug === 'owner';
+  // The `user` role's landing page is the Home hub, not the dashboard.
+  const landingPath = usesWorkspaceUi(userData?.role?.slug)
+    ? '/home/overview'
+    : '/dashboard';
 
   // Fiscal year end logic (replace with your real logic if needed)
   const hasEndedFiscalYear =
@@ -51,10 +56,17 @@ export function useFiscalYearRedirect() {
         router.replace('/organization/settings/fiscalYear/fiscalYearCard');
       }
     } else {
-      // Otherwise, redirect to dashboard
-      if (pathname !== '/dashboard') {
-        router.replace('/dashboard');
+      // Otherwise, redirect to the landing page
+      if (pathname !== landingPath) {
+        router.replace(landingPath);
       }
     }
-  }, [hasEndedFiscalYear, isOwner, userPermissions, pathname, router]);
+  }, [
+    hasEndedFiscalYear,
+    isOwner,
+    userPermissions,
+    pathname,
+    router,
+    landingPath,
+  ]);
 }

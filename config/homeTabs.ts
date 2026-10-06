@@ -3,6 +3,13 @@ import { IS_HOME_PROTOTYPE } from '@/config/homePrototype';
 
 export const HOME_BASE = '/home';
 
+/** A view inside a Home page (selected by query), shown as a banner tab. */
+export type HomeSubTabDef = {
+  key: string;
+  label: string;
+  href: string;
+};
+
 export type HomeTabDef = {
   key: string;
   label: string;
@@ -11,9 +18,49 @@ export type HomeTabDef = {
   requireAny?: boolean;
   /** Matches navBar `moduleCode`; omitted for Overview (always available). */
   moduleCode?: string;
+  /**
+   * The workspace sidebar module (its nav tree key) the page sits in, as one
+   * of that module's banner tabs. Pages without one are sidebar entries of
+   * their own: Home, Approvals and My Profile.
+   */
+  menuKey?: string;
+  /** The page's own views, shown as its banner tabs. */
+  subTabs?: HomeSubTabDef[];
 };
 
-/** Sidebar module order: OKR → CFR → TNA → Payroll → Timesheet; Profile last. */
+/** Approvals' inboxes, picked by `?module=`. */
+export const APPROVAL_TABS: HomeSubTabDef[] = [
+  {
+    key: 'timesheet',
+    label: 'Timesheet',
+    href: `${HOME_BASE}/approvals?module=timesheet`,
+  },
+  {
+    key: 'learning',
+    label: 'Learning',
+    href: `${HOME_BASE}/approvals?module=learning`,
+  },
+  {
+    key: 'payroll',
+    label: 'Payroll',
+    href: `${HOME_BASE}/approvals?module=payroll`,
+  },
+];
+
+/**
+ * My Profile's sections, picked by `?tab=`. `itemKey` is the matching tab of
+ * the employee details page.
+ */
+export const PROFILE_TABS: (HomeSubTabDef & { itemKey: string })[] = [
+  { key: 'general', label: 'General', itemKey: '1' },
+  { key: 'job', label: 'Job', itemKey: '2' },
+  { key: 'documents', label: 'Documents', itemKey: '3' },
+  { key: 'role-permission', label: 'Role Permission', itemKey: '4' },
+  { key: 'offboarding', label: 'OffBoarding', itemKey: '5' },
+  { key: 'probation', label: 'Probation', itemKey: '6' },
+].map((tab) => ({ ...tab, href: `${HOME_BASE}/profile?tab=${tab.key}` }));
+
+/** Tab order within each sidebar module follows this list. */
 export const HOME_TABS: HomeTabDef[] = [
   {
     key: 'overview',
@@ -27,6 +74,7 @@ export const HOME_TABS: HomeTabDef[] = [
     href: `${HOME_BASE}/okr`,
     permissions: ['view_okr_overview'],
     moduleCode: 'OKR',
+    menuKey: '/okr-menu',
   },
   {
     key: 'plan',
@@ -34,6 +82,7 @@ export const HOME_TABS: HomeTabDef[] = [
     href: `${HOME_BASE}/plan`,
     permissions: ['manage_planning_reporting'],
     moduleCode: 'OKR',
+    menuKey: '/okr-menu',
   },
   {
     key: 'weekly-priority',
@@ -41,6 +90,7 @@ export const HOME_TABS: HomeTabDef[] = [
     href: `${HOME_BASE}/weekly-priority`,
     permissions: ['view_weekly_priority'],
     moduleCode: 'OKR',
+    menuKey: '/okr-menu',
   },
   {
     key: 'conversation',
@@ -48,6 +98,7 @@ export const HOME_TABS: HomeTabDef[] = [
     href: `${HOME_BASE}/conversation`,
     permissions: ['view_feedback_conversation'],
     moduleCode: 'CFR',
+    menuKey: 'feedback-menu',
   },
   {
     key: 'feedback',
@@ -55,6 +106,7 @@ export const HOME_TABS: HomeTabDef[] = [
     href: `${HOME_BASE}/feedback`,
     permissions: ['view_feedback_list'],
     moduleCode: 'CFR',
+    menuKey: 'feedback-menu',
   },
   {
     key: 'training',
@@ -62,6 +114,7 @@ export const HOME_TABS: HomeTabDef[] = [
     href: `${HOME_BASE}/training`,
     permissions: ['view_learning_growth'],
     moduleCode: 'TNA',
+    menuKey: 'tna-menu',
   },
   {
     key: 'payroll',
@@ -69,6 +122,7 @@ export const HOME_TABS: HomeTabDef[] = [
     href: `${HOME_BASE}/payroll`,
     permissions: ['view_my_payroll'],
     moduleCode: 'PAYROLL',
+    menuKey: '/payroll-menu',
   },
   {
     key: 'attendance',
@@ -76,6 +130,7 @@ export const HOME_TABS: HomeTabDef[] = [
     href: `${HOME_BASE}/attendance`,
     permissions: ['view_my_timesheet'],
     moduleCode: 'TIMESHEET',
+    menuKey: 'timesheet-menu',
   },
   {
     key: 'leave',
@@ -83,6 +138,7 @@ export const HOME_TABS: HomeTabDef[] = [
     href: `${HOME_BASE}/leave`,
     permissions: ['view_my_timesheet'],
     moduleCode: 'TIMESHEET',
+    menuKey: 'timesheet-menu',
   },
   {
     key: 'schedule',
@@ -90,6 +146,7 @@ export const HOME_TABS: HomeTabDef[] = [
     href: `${HOME_BASE}/schedule`,
     permissions: ['view_my_timesheet'],
     moduleCode: 'TIMESHEET',
+    menuKey: 'timesheet-menu',
   },
   {
     key: 'approvals',
@@ -103,12 +160,14 @@ export const HOME_TABS: HomeTabDef[] = [
       'approve-shift-swap-peer',
     ],
     requireAny: true,
+    subTabs: APPROVAL_TABS,
   },
   {
     key: 'profile',
     label: 'My Profile',
     href: `${HOME_BASE}/profile`,
     permissions: [],
+    subTabs: PROFILE_TABS,
   },
 ];
 

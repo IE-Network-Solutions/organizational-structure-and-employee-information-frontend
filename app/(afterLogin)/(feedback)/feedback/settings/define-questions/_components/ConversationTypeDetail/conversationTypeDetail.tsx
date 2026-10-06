@@ -7,7 +7,7 @@ import { Popconfirm } from 'antd/lib';
 import { ConversationStore } from '@/store/uistate/features/conversation';
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import QuestionSetForm from '../../../_components/questionSetForm';
-import { EmptyImage } from '@/components/emptyIndicator';
+import EmptyState from '@/components/empty';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import {
@@ -232,7 +232,7 @@ const ConversationTypeDetail = ({ id }: { id: string }) => {
           data-cy="conversation-type-detail-empty"
           id="conversationTypeDetailEmpty"
         >
-          <EmptyImage data-cy="conversation-type-detail-empty-image" />
+          <EmptyState compact data-cy="conversation-type-detail-empty-image" />
         </div>
       )}
       <CustomDrawerLayout

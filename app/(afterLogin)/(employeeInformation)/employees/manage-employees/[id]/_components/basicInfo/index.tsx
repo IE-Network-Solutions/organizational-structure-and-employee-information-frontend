@@ -26,7 +26,6 @@ import {
   CalendarDays,
   Clock3,
   Mail,
-  MapPin,
   Phone,
   UserRoundCheck,
   UsersRound,
@@ -37,6 +36,12 @@ type BasicInfoVariant = 'default' | 'personalHero' | 'personalSidebar';
 type BasicInfoProps = {
   id: string;
   variant?: BasicInfoVariant;
+  /**
+   * personalHero: name and title only, with the avatar inside the banner
+   * instead of hanging over the profile panel below. Employment, office and
+   * service show on My Profile alone.
+   */
+  compact?: boolean;
   'data-cy'?: string;
 };
 
@@ -102,7 +107,11 @@ function formatAddress(
   return parts.length ? parts.join(' ') : '-';
 }
 
-function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
+function BasicInfo({
+  id,
+  variant = 'default',
+  compact = false,
+}: BasicInfoProps) {
   const { isLoading, data: employeeData } = useGetEmployee(id);
   const { profileFileList, setProfileFileList } = useEmployeeManagementStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -337,7 +346,6 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
       .filter(Boolean)
       .join(' ') || '-';
   const jobTitle = activeJob?.position?.name || activeJob?.jobTitle || '-';
-  const departmentName = activeJob?.department?.name || '-';
   const employmentType = activeJob?.employementType?.name || '-';
   const manager = employeeData?.reportingTo || employeeData?.delegatedTo;
   const managerName = manager
@@ -345,7 +353,6 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
         .filter(Boolean)
         .join(' ')
     : '-';
-  const location = formatAddress(addresses);
   const phoneNumber =
     (addresses as any)?.phoneNumber ||
     employeeData?.phoneNumber ||
@@ -478,26 +485,42 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
     return (
       <>
         <section
-          className="relative z-10 overflow-visible px-5 py-7 sm:px-8 lg:min-h-[180px] lg:px-0 lg:py-7"
+          className={
+            compact
+              ? 'relative z-10 px-5 py-6 sm:px-8 lg:px-10 lg:py-7'
+              : 'relative z-10 overflow-visible px-5 py-7 sm:px-8 lg:min-h-[180px] lg:px-0 lg:py-7'
+          }
           id="basic-info-personal-hero"
           data-cy="basic-info-personal-hero"
         >
           <div
-            className="relative grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-0"
+            className={
+              compact
+                ? 'relative flex flex-col items-center gap-5 sm:flex-row sm:gap-8'
+                : 'relative grid gap-5 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-0'
+            }
             data-cy="basic-info-personal-hero-grid"
           >
             <div
-              className="relative flex justify-center"
+              className="relative flex shrink-0 justify-center"
               data-cy="basic-info-personal-avatar-column"
             >
               <div
-                className="relative lg:absolute lg:bottom-[-96px] lg:left-[calc(50%+10px)] lg:-translate-x-1/2"
+                className={
+                  compact
+                    ? 'relative'
+                    : 'relative lg:absolute lg:bottom-[-96px] lg:left-[calc(50%+10px)] lg:-translate-x-1/2'
+                }
                 data-cy="basic-info-personal-avatar-frame"
               >
                 <Avatar
                   size={100}
                   src={getDisplayImageUrl() || undefined}
-                  className="!h-32 !w-32 border-4 border-white bg-brand-soft !text-[48px] text-brand lg:!h-52 lg:!w-52 lg:!text-[72px]"
+                  className={`border-4 border-white bg-brand-soft text-brand ${
+                    compact
+                      ? '!h-24 !w-24 !text-[36px] lg:!h-28 lg:!w-28 lg:!text-[44px]'
+                      : '!h-32 !w-32 !text-[48px] lg:!h-52 lg:!w-52 lg:!text-[72px]'
+                  }`}
                   data-cy="basic-info-personal-avatar"
                   icon={<UserOutlined />}
                 />
@@ -525,7 +548,11 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
             </div>
 
             <div
-              className="min-w-0 text-center text-white lg:pl-8 lg:pr-6 lg:text-left"
+              className={
+                compact
+                  ? 'min-w-0 flex-1 text-center text-white sm:text-left'
+                  : 'min-w-0 text-center text-white lg:pl-8 lg:pr-6 lg:text-left'
+              }
               data-cy="basic-info-personal-identity"
             >
               <h2
@@ -540,74 +567,76 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
               >
                 {jobTitle}
               </p>
-              <div
-                className="mt-6 grid gap-y-3 text-left sm:grid-cols-3"
-                data-cy="basic-info-personal-summary-grid"
-              >
+              {!compact && (
                 <div
-                  className="min-w-0 pr-6"
-                  data-cy="basic-info-personal-employment-summary"
+                  className="mt-6 grid gap-y-3 text-left sm:grid-cols-3"
+                  data-cy="basic-info-personal-summary-grid"
                 >
                   <div
-                    className="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/75"
-                    data-cy="basic-info-personal-employment-summary-label"
+                    className="min-w-0 pr-6"
+                    data-cy="basic-info-personal-employment-summary"
                   >
-                    <BriefcaseBusiness
-                      size={15}
-                      data-cy="basic-info-personal-employment-summary-icon"
-                    />
-                    Employment
+                    <div
+                      className="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/75"
+                      data-cy="basic-info-personal-employment-summary-label"
+                    >
+                      <BriefcaseBusiness
+                        size={15}
+                        data-cy="basic-info-personal-employment-summary-icon"
+                      />
+                      Employment
+                    </div>
+                    <div
+                      className="mt-1 text-sm font-semibold text-white"
+                      data-cy="basic-info-personal-employment-summary-value"
+                    >
+                      {employmentType}
+                    </div>
                   </div>
                   <div
-                    className="mt-1 text-sm font-semibold text-white"
-                    data-cy="basic-info-personal-employment-summary-value"
+                    className="min-w-0 sm:border-l sm:border-white/25 sm:px-6"
+                    data-cy="basic-info-personal-office-summary"
                   >
-                    {employmentType}
+                    <div
+                      className="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/75"
+                      data-cy="basic-info-personal-office-summary-label"
+                    >
+                      <Building2
+                        size={15}
+                        data-cy="basic-info-personal-office-summary-icon"
+                      />
+                      Office
+                    </div>
+                    <div
+                      className="mt-1 truncate text-sm font-semibold text-white"
+                      data-cy="basic-info-personal-office-summary-value"
+                    >
+                      {officeName}
+                    </div>
+                  </div>
+                  <div
+                    className="min-w-0 sm:border-l sm:border-white/25 sm:px-6"
+                    data-cy="basic-info-personal-service-summary"
+                  >
+                    <div
+                      className="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/75"
+                      data-cy="basic-info-personal-service-summary-label"
+                    >
+                      <Clock3
+                        size={15}
+                        data-cy="basic-info-personal-service-summary-icon"
+                      />
+                      Service
+                    </div>
+                    <div
+                      className="mt-1 text-sm font-semibold text-white"
+                      data-cy="basic-info-personal-service-summary-value"
+                    >
+                      {formatServiceYear(joinedDate)}
+                    </div>
                   </div>
                 </div>
-                <div
-                  className="min-w-0 sm:border-l sm:border-white/25 sm:px-6"
-                  data-cy="basic-info-personal-office-summary"
-                >
-                  <div
-                    className="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/75"
-                    data-cy="basic-info-personal-office-summary-label"
-                  >
-                    <Building2
-                      size={15}
-                      data-cy="basic-info-personal-office-summary-icon"
-                    />
-                    Office
-                  </div>
-                  <div
-                    className="mt-1 truncate text-sm font-semibold text-white"
-                    data-cy="basic-info-personal-office-summary-value"
-                  >
-                    {officeName}
-                  </div>
-                </div>
-                <div
-                  className="min-w-0 sm:border-l sm:border-white/25 sm:px-6"
-                  data-cy="basic-info-personal-service-summary"
-                >
-                  <div
-                    className="flex items-center gap-2 text-[11px] font-semibold uppercase text-white/75"
-                    data-cy="basic-info-personal-service-summary-label"
-                  >
-                    <Clock3
-                      size={15}
-                      data-cy="basic-info-personal-service-summary-icon"
-                    />
-                    Service
-                  </div>
-                  <div
-                    className="mt-1 text-sm font-semibold text-white"
-                    data-cy="basic-info-personal-service-summary-value"
-                  >
-                    {formatServiceYear(joinedDate)}
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
@@ -663,9 +692,21 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
                   data-cy="basic-info-personal-hire-date-icon"
                 />
               }
-              label="Hire Date"
+              label="Joined At"
               value={joinedDate ? dayjs(joinedDate).format('MMM D, YYYY') : '-'}
               dataCy="basic-info-personal-hire-date"
+            />
+            <ProfileInfoLine
+              icon={
+                <Clock3
+                  size={17}
+                  strokeWidth={2.1}
+                  data-cy="basic-info-personal-service-year-icon"
+                />
+              }
+              label="Service Year"
+              value={formatServiceYear(joinedDate)}
+              dataCy="basic-info-personal-service-year"
             />
             <ProfileInfoLine
               icon={
@@ -697,30 +738,6 @@ function BasicInfo({ id, variant = 'default' }: BasicInfoProps) {
             className="space-y-4 border-t border-brand-line pt-6"
             data-cy="basic-info-personal-organization"
           >
-            <ProfileInfoLine
-              icon={
-                <Building2
-                  size={17}
-                  strokeWidth={2.1}
-                  data-cy="basic-info-personal-sidebar-department-icon"
-                />
-              }
-              label="Department"
-              value={departmentName}
-              dataCy="basic-info-personal-sidebar-department"
-            />
-            <ProfileInfoLine
-              icon={
-                <MapPin
-                  size={17}
-                  strokeWidth={2.1}
-                  data-cy="basic-info-personal-location-icon"
-                />
-              }
-              label="Location"
-              value={location}
-              dataCy="basic-info-personal-location"
-            />
             <ProfileInfoLine
               icon={
                 <UsersRound
