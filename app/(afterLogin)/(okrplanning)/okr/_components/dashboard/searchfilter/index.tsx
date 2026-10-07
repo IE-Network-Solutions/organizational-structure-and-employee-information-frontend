@@ -16,6 +16,11 @@ import {
 import CustomButton from '@/components/common/buttons/customButton';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import { selectValueOrUndefined } from '../okrFilterUsers';
+
+/** Keep Select dropdowns inside Popover/Modal so choices don't close the panel. */
+const popupContainer = (node: HTMLElement) =>
+  node.parentElement ?? document.body;
 
 const { Option } = Select;
 
@@ -74,49 +79,47 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
 
   // Use refs to track previous values and prevent infinite loops
   const prevFiscalYearIdRef = useRef<string>(fiscalYearId);
-  const prevOkrTabRef = useRef<number | string>(okrTab);
   const initializedRef = useRef<boolean>(false);
 
-  // Only sync fiscal year and sessions on mount or when okrTab/fiscalYearId changes
-  // This prevents infinite loops by checking if values actually changed
+  // Sync sessions only on first init or when the fiscal year changes.
+  // Do NOT reset sessions on tab switches — that wiped the user's selection.
   useEffect(() => {
-    // Skip if data isn't loaded yet
     if (!getAllFiscalYears?.items && !getActiveFisicalYear) {
       return;
     }
 
-    // Check if fiscalYearId was changed externally (by user selection)
-    const fiscalYearChangedExternally =
-      prevFiscalYearIdRef.current !== fiscalYearId;
-    const okrTabChanged = prevOkrTabRef.current !== okrTab;
+    const applyDefaultSessionsForFiscalYear = (selectedFiscalYear: {
+      sessions?: Array<{ id: string; active?: boolean }>;
+    }) => {
+      if (useAllSessionsForEmployeeOkr) {
+        const allSessionIds =
+          selectedFiscalYear?.sessions?.map((item) => item.id) || [];
+        setSessionIds(allSessionIds);
+        return;
+      }
+      const activeSessionId = selectedFiscalYear?.sessions?.find(
+        (s) => s?.active,
+      )?.id;
+      const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
+      const chosen = activeSessionId || fallbackFirstSessionId || '';
+      setSessionIds(chosen ? [chosen] : []);
+    };
 
-    // If fiscal year was changed externally, update sessions for that fiscal year
-    if (fiscalYearChangedExternally && fiscalYearId) {
+    const fiscalYearChanged = prevFiscalYearIdRef.current !== fiscalYearId;
+
+    // User (or store) changed fiscal year → sessions must match the new year
+    if (fiscalYearChanged && fiscalYearId) {
       const selectedFiscalYear = getAllFiscalYears?.items?.find(
         (i) => i?.id == fiscalYearId,
       );
-
       if (selectedFiscalYear) {
-        if (useAllSessionsForEmployeeOkr) {
-          const allSessionIds =
-            selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-          setSessionIds(allSessionIds);
-        } else {
-          const activeSessionId = selectedFiscalYear?.sessions?.find(
-            (s: any) => s?.active,
-          )?.id;
-          const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
-          const chosen = activeSessionId || fallbackFirstSessionId || '';
-          setSessionIds(chosen ? [chosen] : []);
-        }
+        applyDefaultSessionsForFiscalYear(selectedFiscalYear);
       }
-      // Update refs after handling the change
       prevFiscalYearIdRef.current = fiscalYearId;
-      prevOkrTabRef.current = okrTab;
       return;
     }
 
-    // Only initialize default fiscal year if not already initialized and no fiscal year is set
+    // First load: pick active fiscal year + default session(s)
     if (!initializedRef.current && !fiscalYearId) {
       const selectedFiscalYear = getActiveFisicalYear;
 
@@ -126,59 +129,20 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       }
 
       const newFiscalYearId = selectedFiscalYear?.id || '';
-
-      if (useAllSessionsForEmployeeOkr) {
-        const allSessionIds =
-          selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-        setSessionIds(allSessionIds);
-      } else {
-        const activeSessionId = selectedFiscalYear?.sessions?.find(
-          (s: any) => s?.active,
-        )?.id;
-        const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
-        const chosen = activeSessionId || fallbackFirstSessionId || '';
-        setSessionIds(chosen ? [chosen] : []);
-      }
-
+      applyDefaultSessionsForFiscalYear(selectedFiscalYear);
       setFiscalYearId(newFiscalYearId);
       prevFiscalYearIdRef.current = newFiscalYearId;
-      prevOkrTabRef.current = okrTab;
       initializedRef.current = true;
-      return;
-    }
-
-    // If okrTab changed, update sessions for current fiscal year
-    if (okrTabChanged && fiscalYearId) {
-      const selectedFiscalYear = getAllFiscalYears?.items?.find(
-        (i) => i?.id == fiscalYearId,
-      );
-
-      if (selectedFiscalYear) {
-        if (useAllSessionsForEmployeeOkr) {
-          const allSessionIds =
-            selectedFiscalYear?.sessions?.map((item: any) => item.id) || [];
-          setSessionIds(allSessionIds);
-        } else {
-          const activeSessionId = selectedFiscalYear?.sessions?.find(
-            (s: any) => s?.active,
-          )?.id;
-          const fallbackFirstSessionId = selectedFiscalYear?.sessions?.[0]?.id;
-          const chosen = activeSessionId || fallbackFirstSessionId || '';
-          setSessionIds(chosen ? [chosen] : []);
-        }
-      }
-      // Update ref after handling the change
-      prevOkrTabRef.current = okrTab;
     }
   }, [
     getAllFiscalYears?.items,
     getActiveFisicalYear,
-    okrTab,
     allEmployeeLayout,
     filterInPopover,
     fiscalYearId,
     setFiscalYearId,
     setSessionIds,
+    useAllSessionsForEmployeeOkr,
   ]);
 
   const DepartmentWithUsers = Departments?.filter(
@@ -198,11 +162,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
     handleFilter('', 'departmentId');
   };
 
-  const MobileFilterContent = ({
-    showStatusPills = false,
-  }: {
-    showStatusPills?: boolean;
-  }) => (
+  const renderMobileFilterContent = (showStatusPills = false) => (
     <div
       id="mobile-filter-content"
       data-cy="okr-mobile-filter-content"
@@ -250,24 +210,18 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
             data-cy="okr-mobile-employee-label"
             className="text-sm font-medium text-gray-700"
           >
-            Employee{' '}
-            <span
-              className="text-red-500"
-              data-cy="okr-mobile-employee-required"
-            >
-              *
-            </span>
+            Employee
           </label>
           <Select
             id="mobile-employee-select"
             data-cy="okr-mobile-employee-select"
             showSearch
-            placeholder="Input"
+            placeholder="All employees"
             className="w-full h-12 rounded-lg"
             allowClear
-            getPopupContainer={(node) => node.parentElement ?? document.body}
-            value={searchObjParams.userId}
-            onChange={(value) => handleFilter(value, 'userId')}
+            getPopupContainer={popupContainer}
+            value={selectValueOrUndefined(searchObjParams.userId)}
+            onChange={(value) => handleFilter(value ?? '', 'userId')}
             filterOption={(input: any, option: any) =>
               (option?.label ?? '')?.toLowerCase().includes(input.toLowerCase())
             }
@@ -293,23 +247,18 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
             data-cy="okr-mobile-department-label"
             className="text-sm font-medium text-gray-700"
           >
-            Department{' '}
-            <span
-              className="text-red-500"
-              data-cy="okr-mobile-department-required"
-            >
-              *
-            </span>
+            Department
           </label>
           <Select
             id="mobile-department-select"
             data-cy="okr-mobile-department-select"
-            placeholder="Select"
+            placeholder="All departments"
             className="w-full h-12 rounded-lg"
             allowClear
             showSearch
-            value={searchObjParams.departmentId}
-            onChange={(value) => handleFilter(value, 'departmentId')}
+            getPopupContainer={popupContainer}
+            value={selectValueOrUndefined(searchObjParams.departmentId)}
+            onChange={(value) => handleFilter(value ?? '', 'departmentId')}
             filterOption={(input, option) =>
               (option?.children as any)
                 ?.toLowerCase()
@@ -350,14 +299,14 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
         </label>
         <Select
           loading={fyLoading}
-          value={fiscalYearId}
+          value={selectValueOrUndefined(fiscalYearId)}
           id="mobile-fiscal-year-select"
           data-cy="okr-mobile-fiscal-year-select"
           placeholder="Select"
-          onChange={(value) => setFiscalYearId(value)}
+          onChange={(value) => setFiscalYearId(value ?? '')}
           allowClear
           showSearch
-          getPopupContainer={(node) => node.parentElement ?? document.body}
+          getPopupContainer={popupContainer}
           className="w-full h-12 rounded-lg"
           optionFilterProp="children"
           filterOption={(input, option) =>
@@ -396,14 +345,19 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
         </label>
         <Select
           loading={fyLoading}
-          value={useAllSessionsForEmployeeOkr ? sessionIds : sessionIds?.[0]}
+          value={
+            useAllSessionsForEmployeeOkr
+              ? sessionIds
+              : selectValueOrUndefined(sessionIds?.[0])
+          }
           id="mobile-session-select"
           data-cy="okr-mobile-session-select"
           placeholder="Select"
-          className="w-full h-12 rounded-lg overflow-y-auto"
+          className="w-full [&_.ant-select-selector]:!min-h-12 [&_.ant-select-selector]:!h-auto [&_.ant-select-selector]:!py-1.5 [&_.ant-select-selector]:!overflow-hidden [&_.ant-select-selection-overflow]:!flex-nowrap"
           allowClear
           showSearch
-          getPopupContainer={(node) => node.parentElement ?? document.body}
+          maxTagCount={useAllSessionsForEmployeeOkr ? 1 : undefined}
+          getPopupContainer={popupContainer}
           onChange={(value: any) => {
             if (useAllSessionsForEmployeeOkr) {
               setSessionIds(
@@ -446,27 +400,18 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
             data-cy="okr-mobile-metric-type-label"
             className="text-sm font-medium text-gray-700"
           >
-            Metric Type{' '}
-            <span
-              className="text-red-500"
-              data-cy="okr-mobile-metric-type-required"
-            >
-              *
-            </span>
+            Metric Type
           </label>
           <Select
             id="mobile-metric-type-select"
             data-cy="okr-mobile-metric-type-select"
-            placeholder="Select"
+            placeholder="All metrics"
             className="w-full h-12 rounded-lg"
             allowClear
-            getPopupContainer={(node) => node.parentElement ?? document.body}
-            value={searchObjParams.metricTypeId}
-            onChange={(value) => handleFilter(value, 'metricTypeId')}
+            getPopupContainer={popupContainer}
+            value={selectValueOrUndefined(searchObjParams.metricTypeId)}
+            onChange={(value) => handleFilter(value ?? '', 'metricTypeId')}
           >
-            <Option data-cy="okr-mobile-metric-type-select-option-all" value="">
-              All
-            </Option>
             {Metrics?.items?.map((metric: any) => (
               <Option
                 data-cy={`okr-mobile-metric-type-select-option-${metric?.id}`}
@@ -488,7 +433,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
       data-cy="okr-filter-popover-content"
       className="w-[460px]"
     >
-      <MobileFilterContent showStatusPills={false} />
+      {renderMobileFilterContent(false)}
       <div
         id="filter-popover-footer"
         data-cy="okr-filter-popover-footer"
@@ -646,9 +591,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                 </div>
               }
             >
-              <MobileFilterContent
-                showStatusPills={isMobileView && isMyOkrTab}
-              />
+              {renderMobileFilterContent(isMobileView && isMyOkrTab)}
             </Modal>
           </>
         ) : (
@@ -788,21 +731,15 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                           className="text-sm text-gray-700"
                           data-cy="okr-performance-filter-label-employee"
                         >
-                          Employee{' '}
-                          <span
-                            className="text-red-500"
-                            aria-hidden
-                            data-cy="okr-performance-filter-label-employee-required"
-                          >
-                            *
-                          </span>
+                          Employee
                         </span>
                         <Select
                           showSearch
-                          placeholder="Input"
+                          placeholder="All employees"
                           className="w-full [&_.ant-select-selector]:h-10 [&_.ant-select-selector]:rounded-lg"
                           allowClear
-                          value={searchObjParams.userId || undefined}
+                          getPopupContainer={popupContainer}
+                          value={selectValueOrUndefined(searchObjParams.userId)}
                           onChange={(value) =>
                             handleFilter(value ?? '', 'userId')
                           }
@@ -832,21 +769,17 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                           className="text-sm text-gray-700"
                           data-cy="okr-performance-filter-label-department"
                         >
-                          Department{' '}
-                          <span
-                            className="text-red-500"
-                            aria-hidden
-                            data-cy="okr-performance-filter-label-department-required"
-                          >
-                            *
-                          </span>
+                          Department
                         </span>
                         <Select
-                          placeholder="Filter by Department"
+                          placeholder="All departments"
                           className="w-full [&_.ant-select-selector]:h-10 [&_.ant-select-selector]:rounded-lg"
                           allowClear
                           showSearch
-                          value={searchObjParams.departmentId || undefined}
+                          getPopupContainer={popupContainer}
+                          value={selectValueOrUndefined(
+                            searchObjParams.departmentId,
+                          )}
                           onChange={(value) =>
                             handleFilter(value ?? '', 'departmentId')
                           }
@@ -889,11 +822,12 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                       </span>
                       <Select
                         loading={fyLoading}
-                        value={fiscalYearId || undefined}
+                        value={selectValueOrUndefined(fiscalYearId)}
                         placeholder="Filter by Fiscal Year"
-                        onChange={(value) => setFiscalYearId(value)}
+                        onChange={(value) => setFiscalYearId(value ?? '')}
                         allowClear
                         showSearch
+                        getPopupContainer={popupContainer}
                         className="w-full [&_.ant-select-selector]:h-10 [&_.ant-select-selector]:rounded-lg"
                         optionFilterProp="children"
                         filterOption={(input, option) =>
@@ -934,11 +868,12 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                       </span>
                       <Select
                         loading={fyLoading}
-                        value={sessionIds?.[0]}
+                        value={selectValueOrUndefined(sessionIds?.[0])}
                         placeholder="Filter by Session"
                         className="w-full [&_.ant-select-selector]:h-10 [&_.ant-select-selector]:rounded-lg"
                         allowClear
                         showSearch
+                        getPopupContainer={popupContainer}
                         onChange={(value: string) => {
                           setSessionIds(value ? [value] : []);
                         }}
@@ -1091,9 +1026,10 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
                 id="desktop-session-select"
                 data-cy="okr-desktop-session-select"
                 placeholder="Filter by Session"
-                className="w-full h-14 overflow-y-auto text-[10px]"
+                className="w-full [&_.ant-select-selector]:!min-h-14 [&_.ant-select-selector]:!h-auto [&_.ant-select-selector]:!overflow-hidden [&_.ant-select-selection-overflow]:!flex-nowrap"
                 allowClear
                 showSearch
+                maxTagCount={useAllSessionsForEmployeeOkr ? 1 : undefined}
                 onChange={(value: any) => {
                   if (useAllSessionsForEmployeeOkr) {
                     setSessionIds(
@@ -1297,7 +1233,7 @@ const OkrSearch: React.FC<OkrSearchProps> = ({
           styles={{ content: { borderRadius: 8 } }}
           style={{ maxWidth: '100%', paddingBottom: 0 }}
         >
-          <MobileFilterContent showStatusPills={isMyOkrTab} />
+          {renderMobileFilterContent(isMyOkrTab)}
         </Modal>
       </div>
     </>

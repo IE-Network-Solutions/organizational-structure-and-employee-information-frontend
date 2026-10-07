@@ -691,7 +691,7 @@ const Calender = () => {
 
   return (
     <div
-      className="min-h-[620px] rounded-lg border border-gray-200 bg-white p-3"
+      className="min-h-[620px] h-full rounded-lg border border-gray-200 bg-white p-3"
       data-cy="calendar-container"
     >
       <Calendar

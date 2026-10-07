@@ -42,6 +42,7 @@ import {
   type KRPanelOwnerGroup,
   type ParentPlanContext,
 } from './mergeKRPanelGroups';
+import { canApproveSubordinateWork } from '../utils';
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
@@ -459,6 +460,7 @@ function KRProgressCard({
     ...(dropdownSlotItems ?? []),
   ];
 
+  // Always open the select menu — including when only one milestone remains.
   const pickButton =
     showPickControl && onPickPlanningTarget ? (
       <Dropdown
@@ -1561,11 +1563,10 @@ export default function PlanningPanelView({
               onApprove={() => onApprove(originalDataItem.id, true)}
               onOpen={() => onApprove(originalDataItem.id, false)}
               onEdit={() => onEdit(originalDataItem.id)}
-              canApprove={
-                userId ===
-                (getEmployeeData(ownerUserId)?.reportingTo?.id ||
-                  getEmployeeData(ownerUserId)?.delegatedTo?.id)
-              }
+              canApprove={canApproveSubordinateWork(
+                userId,
+                getEmployeeData(ownerUserId),
+              )}
               canEdit={
                 userId === ownerUserId &&
                 originalDataItem?.plan?.isReportValidated == false &&
@@ -1605,11 +1606,10 @@ export default function PlanningPanelView({
             onApprove={() => onApprove(originalDataItem.id, true)}
             onOpen={() => onApprove(originalDataItem.id, false)}
             onEdit={() => onEdit(originalDataItem.id)}
-            canApprove={
-              userId ===
-              (getEmployeeData(originalDataItem?.userId)?.delegatedTo?.id ||
-                getEmployeeData(originalDataItem?.userId)?.reportingTo?.id)
-            }
+            canApprove={canApproveSubordinateWork(
+              userId,
+              getEmployeeData(originalDataItem?.userId),
+            )}
             canEdit={
               userId === originalDataItem?.userId &&
               originalDataItem?.isValidated == false &&

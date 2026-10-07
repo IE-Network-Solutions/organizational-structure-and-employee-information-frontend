@@ -19,14 +19,32 @@ import {
   useEmployeeManagementStore,
 } from '@/store/uistate/features/employees/employeeManagment';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
-import { useGetWorkSchedules } from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
+import {
+  useGetWorkSchedules,
+  useGetWorkScheduleShifts,
+} from '@/store/server/features/employees/employeeManagment/workSchedule/queries';
 import { useUpdateEmployeeJobInformation } from '@/store/server/features/employees/employeeDetail/mutations';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import { shiftDurationHours } from '@/helpers/breakShiftWindow';
 
 const { Option } = Select;
+
+const unwrapShiftList = (payload: unknown): any[] => {
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== 'object') return [];
+  const data = payload as Record<string, unknown>;
+  if (Array.isArray(data.items)) return data.items;
+  if (Array.isArray(data.data)) return data.data;
+  if (data.data && typeof data.data === 'object') {
+    const nested = data.data as Record<string, unknown>;
+    if (Array.isArray(nested.items)) return nested.items;
+  }
+  if (Array.isArray(data.shifts)) return data.shifts;
+  return [];
+};
 
 type WorkScheduleComponentProps = {
   employeeId: string;
@@ -51,6 +69,9 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
   const { data: workSchedules } = useGetWorkSchedules();
   const [form] = Form.useForm();
   const [dailySchedule, setDailySchedule] = React.useState<any[]>([]);
+  const watchedShiftId = Form.useWatch('workScheduleShiftId', form) as
+    | string
+    | undefined;
 
   const handleSaveChanges = (editKey: keyof EditState) => {
     form
@@ -82,6 +103,7 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
     setWorkSchedule(value);
     // CRITICAL: Update the form field value so it's included in form submission
     form.setFieldValue('workScheduleId', value);
+    form.setFieldValue('workScheduleShiftId', undefined);
 
     // Update daily schedule when schedule changes
     if (selectedValue?.detail) {
@@ -214,16 +236,98 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
   const editTotalWorkingDays = dailySchedule.filter(
     (day) => day.workDay,
   ).length;
-  const editTotalWorkingHours = dailySchedule.reduce((total, day) => {
-    return total + (day.workDay ? day.duration || 0 : 0);
+
+  // Find the active job's work schedule
+  const activeJob = employeeData?.employeeJobInformation?.find(
+    (e: any) => e.isPositionActive === true,
+  );
+  const activeWorkScheduleId = activeJob?.workScheduleId;
+  const activeShiftId = activeJob?.workScheduleShiftId;
+
+  const scheduleIdForShifts = edit.workSchedule
+    ? workSchedule || activeWorkScheduleId
+    : activeWorkScheduleId;
+  const { data: scheduleShiftsPayload } = useGetWorkScheduleShifts(
+    scheduleIdForShifts || '',
+  );
+
+  // Only use selectedWorkSchedule when in edit mode; otherwise use the schedule from employeeData
+  const activeWorkSchedule = edit.workSchedule
+    ? selectedWorkSchedule ||
+      workSchedules?.items?.find(
+        (schedule: any) => schedule.id === activeWorkScheduleId,
+      )
+    : workSchedules?.items?.find(
+        (schedule: any) => schedule.id === activeWorkScheduleId,
+      );
+
+  const availableShifts = (() => {
+    const fromApi = unwrapShiftList(scheduleShiftsPayload);
+    if (fromApi.length) return fromApi;
+    const nested = (activeWorkSchedule?.shifts ?? []) as any[];
+    if (nested.length) return nested;
+    return [];
+  })() as Array<{
+    id?: string;
+    name: string;
+    startTime: string;
+    endTime: string;
+  }>;
+
+  const resolvedShiftId = edit.workSchedule
+    ? watchedShiftId || activeShiftId
+    : activeShiftId;
+
+  const activeShift =
+    availableShifts.find((s) => s.id && s.id === resolvedShiftId) ||
+    (activeJob?.workScheduleShift?.name ? activeJob.workScheduleShift : null);
+
+  // Working-day count still comes from the schedule calendar.
+  const workingDays =
+    activeWorkSchedule?.detail?.filter(
+      (day: any) => day.workDay === true || day.workday === true,
+    ) || [];
+  const scheduleTotalHours = workingDays.reduce((total: number, day: any) => {
+    const dayHours = day.duration ?? day.hours ?? 0;
+    const hoursValue = Number(dayHours);
+    return total + (isNaN(hoursValue) ? 0 : hoursValue);
   }, 0);
+  const scheduleDailyHours =
+    workingDays.length > 0 && scheduleTotalHours > 0
+      ? Number((scheduleTotalHours / workingDays.length).toFixed(1))
+      : 0;
+
+  // Prefer assigned shift duration when a shift is selected.
+  const shiftDailyHours = activeShift
+    ? shiftDurationHours(activeShift.startTime, activeShift.endTime)
+    : 0;
+  const dailyWorkingHours =
+    shiftDailyHours > 0 ? shiftDailyHours : scheduleDailyHours;
+  const totalWorkingHours =
+    shiftDailyHours > 0
+      ? Number((shiftDailyHours * workingDays.length).toFixed(1))
+      : scheduleTotalHours;
+
+  const editShift =
+    availableShifts.find((s) => s.id && s.id === watchedShiftId) || null;
+  const editShiftDailyHours = editShift
+    ? shiftDurationHours(editShift.startTime, editShift.endTime)
+    : 0;
+  const editTotalWorkingHours =
+    editShiftDailyHours > 0
+      ? Number((editShiftDailyHours * editTotalWorkingDays).toFixed(1))
+      : dailySchedule.reduce((total, day) => {
+          return total + (day.workDay ? day.duration || 0 : 0);
+        }, 0);
 
   useEffect(() => {
+    const activeJobInfo = employeeData?.employeeJobInformation?.find(
+      (e: any) => e.isPositionActive === true,
+    );
     const employeeDataInfo = {
       ...employeeData,
-      workScheduleId: employeeData?.employeeJobInformation?.find(
-        (e: any) => e.isPositionActive === true,
-      )?.workScheduleId,
+      workScheduleId: activeJobInfo?.workScheduleId,
+      workScheduleShiftId: activeJobInfo?.workScheduleShiftId,
     };
 
     // CRITICAL: Don't update state when in edit mode - let user's selection persist
@@ -279,41 +383,6 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
     workSchedules,
     edit.workSchedule,
   ]);
-
-  // Find the active job's work schedule
-  const activeJob = employeeData?.employeeJobInformation?.find(
-    (e: any) => e.isPositionActive === true,
-  );
-  const activeWorkScheduleId = activeJob?.workScheduleId;
-
-  // Try to get work schedule from selectedWorkSchedule first (if in edit mode), then from workSchedules list
-  // Only use selectedWorkSchedule when in edit mode; otherwise use the schedule from employeeData
-  const activeWorkSchedule = edit.workSchedule
-    ? selectedWorkSchedule ||
-      workSchedules?.items?.find(
-        (schedule: any) => schedule.id === activeWorkScheduleId,
-      )
-    : workSchedules?.items?.find(
-        (schedule: any) => schedule.id === activeWorkScheduleId,
-      );
-
-  // Calculate total working hours per week (only for working days)
-  const workingDays =
-    activeWorkSchedule?.detail?.filter(
-      (day: any) => day.workDay === true || day.workday === true,
-    ) || [];
-  const totalWorkingHours = workingDays.reduce((total: number, day: any) => {
-    // Use duration field (which is in decimal hours) or hours field if available
-    const dayHours = day.duration ?? day.hours ?? 0;
-    const hoursValue = Number(dayHours);
-    return total + (isNaN(hoursValue) ? 0 : hoursValue);
-  }, 0);
-
-  // Calculate daily working hours (average) - round to 1 decimal place
-  const dailyWorkingHours =
-    workingDays.length > 0 && totalWorkingHours > 0
-      ? Number((totalWorkingHours / workingDays.length).toFixed(1))
-      : 0;
 
   return (
     <Card
@@ -388,6 +457,26 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                   data-cy="job-work-schedule-current-schedule-value"
                 >
                   {activeJob?.workSchedule?.name || '-'}
+                </p>
+              </div>
+              <div
+                className="mb-5"
+                id="job-work-schedule-current-shift"
+                data-cy="job-work-schedule-current-shift"
+              >
+                <p
+                  className="text-sm text-[#4d4d4d] font-normal m-0 mb-0.5"
+                  data-cy="job-work-schedule-current-shift-label"
+                >
+                  Assigned Shift
+                </p>
+                <p
+                  className="text-base font-normal text-[#4d4d4d] m-0"
+                  data-cy="job-work-schedule-current-shift-value"
+                >
+                  {activeShift?.name
+                    ? `${activeShift.name} (${activeShift.startTime} - ${activeShift.endTime})`
+                    : '-'}
                 </p>
               </div>
             </Col>
@@ -564,6 +653,54 @@ const WorkScheduleComponent: React.FC<WorkScheduleComponentProps> = ({
                     data-cy={`job-work-schedule-edit-option-${schedule.id}`}
                   >
                     {schedule.name}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              className="font-semibold text-xs mb-4"
+              name="workScheduleShiftId"
+              id="workScheduleShiftId"
+              data-cy="job-work-schedule-shift-form-item"
+              label={
+                <span
+                  className="text-sm font-normal text-[#4d4d4d]"
+                  data-cy="job-work-schedule-shift-form-label"
+                >
+                  Shift
+                </span>
+              }
+              rules={[
+                {
+                  required: availableShifts.length > 0,
+                  message: 'Please select a shift!',
+                },
+              ]}
+            >
+              <Select
+                placeholder={
+                  workSchedule
+                    ? availableShifts.length
+                      ? 'Select a shift'
+                      : 'No shifts on this schedule'
+                    : 'Select a work schedule first'
+                }
+                className="mt-2"
+                allowClear
+                disabled={!workSchedule || availableShifts.length === 0}
+                id="job-work-schedule-shift-select"
+                data-cy="job-work-schedule-shift-select"
+                size="large"
+              >
+                {availableShifts.map((shift) => (
+                  <Option
+                    key={shift.id}
+                    value={shift.id}
+                    id={`job-work-schedule-shift-option-${shift.id}`}
+                    data-cy={`job-work-schedule-shift-option-${shift.id}`}
+                  >
+                    {`${shift.name} (${shift.startTime} - ${shift.endTime})`}
                   </Option>
                 ))}
               </Select>

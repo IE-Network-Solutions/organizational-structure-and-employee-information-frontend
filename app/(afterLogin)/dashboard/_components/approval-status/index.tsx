@@ -11,14 +11,26 @@ import MyLeaveRequestDashboard from '../my-leave-request';
 
 const ApprovalStatus = ({ type }: { type: string }) => {
   const { userId } = useAuthenticationStore();
-  const { data: LeaveTransferData, isLoading: isLoadingLeaveTransfer } =
-    useGetApprovalLeaveRequest(userId, 1, 4);
-  const { data: BranchTransferData, isLoading: isLoadingBranchTransfer } =
-    useGetBranchTransferApproveById(userId, 4, 1);
+  const {
+    data: LeaveTransferData,
+    isLoading: isLoadingLeaveTransfer,
+    isFetching: isFetchingLeaveTransfer,
+  } = useGetApprovalLeaveRequest(userId, 1, 4);
+  const {
+    data: BranchTransferData,
+    isLoading: isLoadingBranchTransfer,
+    isFetching: isFetchingBranchTransfer,
+  } = useGetBranchTransferApproveById(userId, 4, 1);
   const { approverType, setApproverType } = useDashboardApprovalStore();
 
+  const showLeaveSkeleton =
+    (isLoadingLeaveTransfer || isFetchingLeaveTransfer) && !LeaveTransferData;
+  const showBranchSkeleton =
+    (isLoadingBranchTransfer || isFetchingBranchTransfer) &&
+    !BranchTransferData;
+
   useEffect(() => {
-    if (isLoadingLeaveTransfer || approverType !== 'Leave') return;
+    if (showLeaveSkeleton || approverType !== 'Leave') return;
     const leaveCount =
       LeaveTransferData?.meta?.totalItems ??
       LeaveTransferData?.items?.length ??
@@ -27,7 +39,7 @@ const ApprovalStatus = ({ type }: { type: string }) => {
       setApproverType('Personal');
     }
   }, [
-    isLoadingLeaveTransfer,
+    showLeaveSkeleton,
     approverType,
     LeaveTransferData?.meta?.totalItems,
     LeaveTransferData?.items?.length,
@@ -48,21 +60,20 @@ const ApprovalStatus = ({ type }: { type: string }) => {
         0;
 
   const isHeaderActionsLoading =
-    (approverType === 'Leave' && isLoadingLeaveTransfer) ||
-    (approverType === 'BranchTransfer' && isLoadingBranchTransfer);
+    (approverType === 'Leave' && showLeaveSkeleton) ||
+    (approverType === 'BranchTransfer' && showBranchSkeleton);
 
   const leaveApprovalCount =
     LeaveTransferData?.meta?.totalItems ??
     LeaveTransferData?.items?.length ??
     0;
-  const isLeaveTransferEmpty =
-    !isLoadingLeaveTransfer && leaveApprovalCount === 0;
+  const isLeaveTransferEmpty = !showLeaveSkeleton && leaveApprovalCount === 0;
   const showHeaderActions =
     approverType === 'BranchTransfer' || !isLeaveTransferEmpty;
 
   return (
     <div
-      className={`bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none p-3 ${type !== 'Essential Plan ' ? 'h-[343px]' : 'h-[343px]'}`}
+      className={`bg-white rounded-lg w-full border border-[#D9D9D9] shadow-none p-3 h-full min-h-[343px]`}
       data-cy="dashboard-approval-status-container"
     >
       <div
@@ -158,11 +169,11 @@ const ApprovalStatus = ({ type }: { type: string }) => {
         {approverType === 'Personal' ? (
           <MyLeaveRequestDashboard />
         ) : approverType === 'BranchTransfer' ? (
-          isLoadingBranchTransfer ? (
+          showBranchSkeleton ? (
             <Card
               className="border-0"
               bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
-              loading={isLoadingBranchTransfer}
+              loading
               data-cy="dashboard-approval-status-branch-transfer-card"
             >
               <div
@@ -174,12 +185,11 @@ const ApprovalStatus = ({ type }: { type: string }) => {
             <Card
               className="border-0"
               bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
-              loading={isLoadingBranchTransfer}
               data-cy="dashboard-approval-status-branch-transfer-card"
             >
               {BranchTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
-                  isLoading={isLoadingBranchTransfer}
+                  isLoading={false}
                   key={index}
                   id={request.id}
                   name={request.name}
@@ -209,11 +219,11 @@ const ApprovalStatus = ({ type }: { type: string }) => {
             </div>
           )
         ) : approverType === 'Leave' ? (
-          isLoadingLeaveTransfer ? (
+          showLeaveSkeleton ? (
             <Card
               className="border-0"
               bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
-              loading={isLoadingLeaveTransfer}
+              loading
               data-cy="dashboard-approval-status-leave-card"
             >
               <div
@@ -225,12 +235,11 @@ const ApprovalStatus = ({ type }: { type: string }) => {
             <Card
               className="border-0"
               bodyStyle={{ padding: '0px', margin: '0px', border: 'none' }}
-              loading={isLoadingLeaveTransfer}
               data-cy="dashboard-approval-status-leave-card"
             >
               {LeaveTransferData.items.map((request: any, index: number) => (
                 <ApprovalRequestCard
-                  isLoading={isLoadingLeaveTransfer}
+                  isLoading={false}
                   key={index}
                   id={request.id}
                   name={request.name}

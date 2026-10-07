@@ -49,6 +49,8 @@ import { PlanningReportingHeaderActions } from './_components/PlanningReportingH
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useSearchParams } from 'next/navigation';
+import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 
 interface PlanningPeriod {
   id: string;
@@ -62,12 +64,18 @@ interface PlanningPeriod {
 
 function Page() {
   useFiscalYearSessionSync();
+  const searchParams = useSearchParams();
   const {
     setActiveTab,
     activeTab,
     activePlanPeriod,
     setActivePlanPeriod,
     setActivePlanPeriodId,
+    setSelectedUser,
+    setPlanningFilterPlanType,
+    setPlanningFilterDepartment,
+    setPage,
+    setPageReporting,
     inlinePlanningMode,
     setInlinePlanningMode,
     mobilePlanComposerOpen,
@@ -159,6 +167,51 @@ function Page() {
     );
   }, [processedPlanningPeriods]);
 
+  useEffect(() => {
+    const recipientUserId = useAuthenticationStore.getState().userId;
+    const tab = (searchParams.get('tab') ?? '').toLowerCase();
+    if (tab === 'report' || tab === 'reporting') {
+      setActiveTab(2);
+    } else if (tab === 'plan' || tab === 'planning') {
+      setActiveTab(1);
+    }
+
+    const employeeIdParam = searchParams.get('employeeId');
+    const userIdParam = searchParams.get('userId');
+    const linkedEmployee = employeeIdParam || userIdParam || '';
+    const onlyRecipientFallback =
+      !employeeIdParam && !!userIdParam && userIdParam === recipientUserId;
+
+    if (linkedEmployee && linkedEmployee !== 'all' && !onlyRecipientFallback) {
+      setPlanningFilterPlanType('all');
+      setPlanningFilterDepartment(undefined);
+      setSelectedUser([linkedEmployee]);
+      setPage(1);
+      setPageReporting(1);
+    }
+  }, [
+    searchParams,
+    setActiveTab,
+    setSelectedUser,
+    setPlanningFilterPlanType,
+    setPlanningFilterDepartment,
+    setPage,
+    setPageReporting,
+  ]);
+
+  useEffect(() => {
+    const periodId =
+      searchParams.get('planningPeriodId') ||
+      searchParams.get('periodId') ||
+      '';
+    if (!periodId || tabItems.length === 0) return;
+    const match = tabItems.find((item) => item.id === periodId);
+    if (match?.key) {
+      setActivePlanPeriod(Number(match.key));
+      setActivePlanPeriodId(match.id);
+    }
+  }, [searchParams, tabItems, setActivePlanPeriod, setActivePlanPeriodId]);
+
   const selectedTab = tabItems.find(
     (item) => item.key === String(activePlanPeriod),
   );
@@ -171,9 +224,12 @@ function Page() {
   const {
     planSummaries,
     transformedData,
+    krPlanSummaries,
+    krTransformedData,
     isLoading: planningLoading,
     userId,
-  } = usePlanningData();
+    totalItems: planningTotalItems,
+  } = usePlanningData(activeTab === 1);
 
   const {
     data: userKeyResultsRaw,
@@ -181,9 +237,8 @@ function Page() {
     isFetching: userKeyResultsFetching,
     refetch: refetchUserKeyResults,
   } = useGetUserKeyResult(userId, keyResultFiscalYearId, keyResultSessionId, {
-    refetchOnMount: 'always',
-    staleTime: 0,
-    keepPreviousData: false,
+    staleTime: 30_000,
+    keepPreviousData: true,
   });
 
   // Same objective payload the OKR dashboard uses — fills metricType / milestones
@@ -224,6 +279,13 @@ function Page() {
   const stickyOkrCurrentByKrId = useRecentOkrMetricOverrides(
     (s) => s.currentByKrId,
   );
+  const {
+    reportSummaries,
+    krReportSummaries,
+    krReportingItems,
+    isLoading: reportingLoading,
+    isFilterScopePending: reportingFilterPending,
+  } = useReportingData(activeTab === 2);
 
   const enrichedPlanSummaries = useMemo(
     () =>
@@ -241,9 +303,11 @@ function Page() {
 
   const krPanelBlockingLoading =
     activeTab === 2
-      ? (userKeyResultsLoading || userObjectivesLoading) &&
-        reportSummaries.length === 0 &&
-        planSummaries.length === 0
+      ? reportingFilterPending ||
+        reportingLoading ||
+        ((userKeyResultsLoading || userObjectivesLoading) &&
+          reportSummaries.length === 0 &&
+          planSummaries.length === 0)
       : planningLoading ||
         ((userKeyResultsLoading || userObjectivesLoading) &&
           planSummaries.length === 0);
@@ -287,15 +351,19 @@ function Page() {
     planKeyResultsForTargets,
   );
 
-  // Re-pull user KR + objective milestone status when returning to this tab
-  // (e.g. after achieving a milestone on the OKR page) without re-login.
+  // Soft refresh KR/objective milestone status when returning to this tab
+  // (throttled to avoid refetch storms under concurrent usage).
   useEffect(() => {
     if (!userId || typeof document === 'undefined') return;
+    let lastRefreshAt = 0;
+    const MIN_INTERVAL_MS = 60_000;
     const onVisible = () => {
-      if (document.visibilityState === 'visible') {
-        void refetchUserKeyResults();
-        refetchObjectives();
-      }
+      if (document.visibilityState !== 'visible') return;
+      const now = Date.now();
+      if (now - lastRefreshAt < MIN_INTERVAL_MS) return;
+      lastRefreshAt = now;
+      void refetchUserKeyResults();
+      refetchObjectives();
     };
     document.addEventListener('visibilitychange', onVisible);
     return () => document.removeEventListener('visibilitychange', onVisible);
@@ -649,6 +717,10 @@ function Page() {
                 <Planning
                   onHoverKR={setHighlightedKRId}
                   onOpenThread={handleOpenThread}
+                  planSummaries={planSummaries}
+                  transformedData={transformedData}
+                  isLoading={planningLoading}
+                  totalItems={planningTotalItems}
                 />
               </div>
               <div

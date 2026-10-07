@@ -70,7 +70,7 @@ export default function CurrentTimeCard() {
     (s) => s.isSubmitInProgress,
   );
 
-  const { data: currentAttendanceData, isFetching } = useGetCurrentAttendance(
+  const { data: currentAttendanceData, isLoading } = useGetCurrentAttendance(
     userId ?? '',
   );
 
@@ -124,7 +124,9 @@ export default function CurrentTimeCard() {
     [breakTypes, currentTime],
   );
 
-  const loading = isSubmitInProgress || isFetching;
+  // Only show button spinner for an in-flight check-in submit or the initial
+  // attendance fetch — not every background refetch of current attendance.
+  const loading = isSubmitInProgress || (isLoading && !currentAttendanceData);
 
   return (
     <Card

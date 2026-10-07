@@ -30,17 +30,16 @@ const getAttendances = async (
   query: RequestCommonQueryData,
   data: Partial<AttendanceRequestBody>,
 ) => {
-  const params = buildAttendanceQueryParams(query);
-  const requestHeaders = await requestHeader();
-  const requestData = {
-    ...data,
+  const params = {
+    ...buildAttendanceQueryParams(query),
+    ...(data.filter ? { filter: JSON.stringify(data.filter) } : {}),
   };
+  const requestHeaders = await requestHeader();
 
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
-    method: 'POST',
+    method: 'GET',
     headers: requestHeaders,
-    data: requestData,
     params,
   });
 };
@@ -64,7 +63,12 @@ export const useGetRuleViolations = (query: RuleViolationQueryParams) => {
   return useQuery<ApiResponse<AttendanceRuleViolation>>(
     ['attendance-rule-violations', query],
     () => getRuleViolations(query),
-    { keepPreviousData: true },
+    {
+      keepPreviousData: true,
+      staleTime: 3 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   );
 };
 
@@ -184,6 +188,7 @@ export const useGetAttendances = (
   data: Partial<AttendanceRequestBody> = {},
   isKeepData: boolean = true,
   isEnabled: boolean = true,
+  refetchInterval?: number | false,
 ) => {
   return useQuery<ApiResponse<AttendanceRecord>>(
     ['attendance', query, data],
@@ -191,6 +196,11 @@ export const useGetAttendances = (
     {
       keepPreviousData: isKeepData,
       enabled: isEnabled,
+      staleTime: 3 * 60 * 1000,
+      refetchInterval,
+      refetchIntervalInBackground: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
       select: (data) => {
         // You can transform the data here if needed
         return data;
@@ -225,6 +235,10 @@ export const useGetCurrentAttendance = (userId: string) => {
     () => getCurrentAttendance(userId),
     {
       keepPreviousData: true,
+      enabled: Boolean(userId),
+      staleTime: 30 * 1000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
     },
   );
 };

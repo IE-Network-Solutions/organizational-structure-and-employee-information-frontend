@@ -50,7 +50,10 @@ const getMetrics = async () => {
  * the query object containing the posts data and any loading or error states.
  */
 export const useGetMetrics = () =>
-  useQuery<ResponseData>('metrics', getMetrics);
+  useQuery<ResponseData>('metrics', getMetrics, {
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+  });
 
 /**
  * Custom hook to fetch a single post by ID using useQuery from react-query.

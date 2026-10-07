@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { DEFAULT_TIMESHEET_APPROVAL_TYPES } from '@/utils/approval/timesheetApprovalTypes';
 import { devtools, persist } from 'zustand/middleware';
 interface SearchParams {
   name: string;
@@ -148,7 +149,7 @@ export const useApprovalStore = create<UserState>()(
           name: '',
           entityType: '',
           entityId: '',
-          approvalType: ['Leave', 'WorkFromHome'],
+          approvalType: [...DEFAULT_TIMESHEET_APPROVAL_TYPES],
         },
         setSearchParams: (key, value) =>
           set((state) => ({

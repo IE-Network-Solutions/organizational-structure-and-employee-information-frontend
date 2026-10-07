@@ -1,12 +1,13 @@
 'use client';
 import React, { ReactNode, useState, useEffect, useRef } from 'react';
 import '../../app/globals.css';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '@/utils/firebaseConfig';
 import Image from 'next/image';
 import { MenuOutlined } from '@ant-design/icons';
 import NavBar from './topNavBar';
+import AnnouncementMegaphoneIcon from '@/components/collaboration/AnnouncementMegaphoneIcon';
 import {
   MdPeople,
   MdPersonSearch,
@@ -15,9 +16,9 @@ import {
   MdCardGiftcard,
   MdWidgets,
   MdAdminPanelSettings,
-  MdSettings,
 } from 'react-icons/md';
 import AlbumIcon from '@mui/icons-material/Album';
+import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import ChatBubbleOutlinedIcon from '@mui/icons-material/ChatBubbleOutlined';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import AccessTimeFilledIcon from '@mui/icons-material/AccessTimeFilled';
@@ -34,14 +35,31 @@ import {
 
 const { Header, Content, Sider } = Layout;
 import { removeCookie } from '@/helpers/storageHelper';
+import { useQueryClient } from 'react-query';
+import { BSC_QUERY_KEYS } from '@/store/server/features/bsc/queries';
+
+import {
+  menuKeyMatchScore,
+  scorecardTabHref,
+  splitMenuKey,
+} from '@/utils/bsc/scorecardTab';
+
+const menuKeyPath = (key: string) => splitMenuKey(String(key)).path;
+
+const locationHref = (pathname: string, search: string) => {
+  const q = search.startsWith('?') ? search.slice(1) : search;
+  return q ? `${pathname}?${q}` : pathname;
+};
 
 // Helper function to match dynamic routes like [id] to UUIDs or any non-slash segment
 const isRouteMatch = (routePattern: string, pathname: string) => {
+  const pattern = menuKeyPath(routePattern);
+
   // Exact match
-  if (routePattern === pathname) return true;
+  if (pattern === pathname) return true;
 
   // Conversation: surveys and category list live under /feedback/categories — keep nav item active
-  if (routePattern === '/feedback/conversation') {
+  if (pattern === '/feedback/conversation') {
     if (
       pathname === '/feedback/categories' ||
       pathname.startsWith('/feedback/categories/')
@@ -51,37 +69,94 @@ const isRouteMatch = (routePattern: string, pathname: string) => {
   }
 
   // Time & Attendance → Settings: one nav item should stay active for all settings sub-routes
-  if (routePattern === '/timesheet/settings/closed-date') {
+  if (pattern === '/timesheet/settings/closed-date') {
     return (
       pathname === '/timesheet/settings' ||
       pathname.startsWith('/timesheet/settings/')
     );
   }
 
+  // KPI → Settings: keep nav active for all BSC settings sub-routes
+  if (pattern === '/bsc/settings') {
+    return (
+      pathname === '/bsc/settings' || pathname.startsWith('/bsc/settings/')
+    );
+  }
+
+  // BSC → KPI admin: keep nav active for KPI catalog + scorecards tabs
+  if (pattern === '/bsc/kpi') {
+    return pathname === '/bsc/kpi' || pathname.startsWith('/bsc/kpi/');
+  }
+
   // Match [id] to UUIDs (or any non-slash segment)
-  if (routePattern.includes('[id]')) {
-    const regexPattern = routePattern.replace('[id]', '[0-9a-fA-F-]{36}');
+  if (pattern.includes('[id]')) {
+    const regexPattern = pattern.replace('[id]', '[0-9a-fA-F-]{36}');
     const regex = new RegExp('^' + regexPattern + '(/.*)?$');
     return regex.test(pathname);
   }
 
   // Generic dynamic segment: [something] => [^/]+
-  if (routePattern.match(/\[.*?\]/g)) {
-    const regexPattern = routePattern.replace(/\[.*?\]/g, '[^/]+');
+  if (pattern.match(/\[.*?\]/g)) {
+    const regexPattern = pattern.replace(/\[.*?\]/g, '[^/]+');
     const regex = new RegExp('^' + regexPattern + '(/.*)?$');
     return regex.test(pathname);
   }
 
   // Prefix match for subpages
-  return pathname === routePattern || pathname.startsWith(routePattern + '/');
+  return pathname === pattern || pathname.startsWith(pattern + '/');
+};
+
+const findBestMatchingKey = (
+  items: any[] | undefined,
+  pathname: string,
+  search: string,
+): string | undefined => {
+  if (!items?.length) return undefined;
+
+  let bestKey: string | undefined;
+  let bestScore = -1;
+
+  const visit = (nodes: any[]) => {
+    for (const node of nodes) {
+      const key = String(node.key);
+      const score = menuKeyMatchScore(key, pathname, search);
+      if (score > bestScore) {
+        bestScore = score;
+        bestKey = key;
+      } else if (score < 0 && isRouteMatch(key, pathname)) {
+        // Nested detail pages (e.g. /bsc/my-scorecard/kpis/:id): keep parent path active
+        // without preferring a specific tab query key.
+        if (bestScore < 0) {
+          bestScore = 0;
+          bestKey = key.includes('?') ? undefined : key;
+        }
+      }
+      if (node.children?.length) visit(node.children);
+    }
+  };
+
+  visit(items);
+  return bestKey;
 };
 
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
+import { useCollaboration } from '@/components/collaboration/collaboration-context';
+import { COLLABORATION_SPACES_PATH } from '@/utils/collaboration';
+import {
+  CollaborationDock,
+  useCollaborationPanelStore,
+} from '@/components/collaboration/collaboration-dock';
 import { fetchCurrentUserAndUpdateStore } from '@/store/server/features/employees/authentication/queries';
 import AccessGuard from '@/utils/permissionGuard';
+import { Permissions } from '@/types/commons/permissionEnum';
+import {
+  BSC_ADMIN_PERMISSIONS,
+  BSC_SCORECARD_PERMISSIONS,
+} from '@/utils/bsc/permissions';
 import { useGetEmployee } from '@/store/server/features/employees/employeeManagment/queries';
 import { useGetActiveFiscalYearsData } from '@/store/server/features/organizationStructure/fiscalYear/queries';
 import { useGetDepartments } from '@/store/server/features/employees/employeeManagment/department/queries';
+import { findMostSpecificMatchingRoute } from '@/utils/routePermissions';
 
 import { useEmployeeManagementStore } from '@/store/uistate/features/employees/employeeManagment';
 // import { CreateEmployeeJobInformation } from '@/app/(afterLogin)/(employeeInformation)/employees/manage-employees/[id]/_components/job/addEmployeeJobInfrmation';
@@ -103,6 +178,7 @@ interface CustomMenuItem {
   title: React.ReactNode; // Changed from `label` to `title`
   className?: string;
   permissions?: string[];
+  requireAny?: boolean;
   children?: CustomMenuItem[];
   disabled?: boolean;
   moduleCode?: string;
@@ -110,7 +186,7 @@ interface CustomMenuItem {
 
 import { useGetModules } from '@/store/server/features/tenant-management/modules/queries';
 import { Module, Subscription } from '@/types/tenant-management';
-import { ChevronsLeft, ChevronsRight } from 'lucide-react';
+import { ChevronsLeft, ChevronsRight, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { MobileBottomNav } from './MobileBottomNav';
 
@@ -132,6 +208,7 @@ const NavMenuItem: React.FC<{
   >;
   router: any;
   pathname: string;
+  search: string;
   triggerRouteLoaderStart: () => void;
   expandedKeys: (string | number | bigint)[];
   setExpandedKeys: React.Dispatch<
@@ -149,6 +226,7 @@ const NavMenuItem: React.FC<{
   setSelectedKeys,
   router,
   pathname,
+  search,
   triggerRouteLoaderStart,
   expandedKeys,
   setExpandedKeys,
@@ -160,33 +238,42 @@ const NavMenuItem: React.FC<{
   const isItemDisabled = Boolean(item.disabled) || Boolean(navigationDisabled);
   const [flyoutOpen, setFlyoutOpen] = React.useState(false);
   const showFlyout = collapsed && hasChildren;
+  const currentHref = locationHref(pathname, search);
 
-  const bestMatchingChildKey = React.useMemo(() => {
-    if (!hasChildren) return undefined;
-    const matches = item.children
-      .map((child: any) => String(child.key))
-      .filter((key: string) => isRouteMatch(key, pathname));
-    if (matches.length === 0) return undefined;
-    return matches.sort((a: string, b: string) => b.length - a.length)[0];
-  }, [hasChildren, item.children, pathname]);
+  const bestMatchingChildKey = React.useMemo(
+    () => findBestMatchingKey(item.children, pathname, search),
+    [item.children, pathname, search],
+  );
 
   // Check if this item or any of its children matches the current path
+  const itemPath = menuKeyPath(String(item.key));
   const isDirectlyActive =
-    selectedKeys.includes(item.key) || isRouteMatch(String(item.key), pathname);
+    selectedKeys.includes(item.key) ||
+    (itemPath.startsWith('/') &&
+      menuKeyMatchScore(String(item.key), pathname, search) >= 0) ||
+    (itemPath.startsWith('/') &&
+      !String(item.key).includes('?') &&
+      isRouteMatch(String(item.key), pathname) &&
+      !hasChildren);
   const isChildActive = Boolean(bestMatchingChildKey);
   const isActive =
     isDirectlyActive || isChildActive || (hasChildren && isExpanded);
 
-  const handleChildNavigate = (child: any) => {
+  const navigateToKey = (key: string) => {
+    if (!key.startsWith('/')) return;
     if (isItemDisabled) return;
-    const path = String(child.key);
-    if (pathname !== path) {
+    if (currentHref !== key) {
       triggerRouteLoaderStart();
-      router.push(path);
-      setSelectedKeys([path]);
+      router.push(key);
+      setSelectedKeys([key]);
     }
     setFlyoutOpen(false);
     onNavigate?.();
+  };
+
+  const handleChildNavigate = (child: any) => {
+    if (isItemDisabled) return;
+    navigateToKey(String(child.key));
   };
 
   const handleToggle = () => {
@@ -194,13 +281,7 @@ const NavMenuItem: React.FC<{
     if (hasChildren) {
       setExpandedKeys((prev) => (prev.includes(item.key) ? [] : [item.key]));
     } else {
-      const path = String(item.key);
-      if (pathname !== path) {
-        triggerRouteLoaderStart();
-        router.push(path);
-        setSelectedKeys([path]);
-      }
-      onNavigate?.();
+      navigateToKey(String(item.key));
     }
   };
 
@@ -214,9 +295,11 @@ const NavMenuItem: React.FC<{
   };
 
   const renderChildRow = (child: any) => {
+    const childKey = String(child.key);
     const isChildSelected =
       selectedKeys.includes(child.key) ||
-      String(child.key) === bestMatchingChildKey;
+      childKey === bestMatchingChildKey ||
+      menuKeyMatchScore(childKey, pathname, search) >= 2;
     return (
       <div
         key={child.key}
@@ -233,7 +316,7 @@ const NavMenuItem: React.FC<{
           }
         }}
         className={`
-          py-2 rounded-[6px] transition-all duration-200 outline-none
+          flex items-center gap-1.5 py-2 rounded-[6px] transition-all duration-200 outline-none
           ${collapsed ? 'px-3' : 'pl-[33px] -ml-[33px]'}
           ${
             isChildSelected
@@ -260,7 +343,9 @@ const NavMenuItem: React.FC<{
       aria-disabled={isItemDisabled || undefined}
       aria-label={collapsed ? item.label : undefined}
       aria-haspopup={showFlyout ? 'menu' : undefined}
-      aria-expanded={showFlyout ? flyoutOpen : undefined}
+      aria-expanded={
+        showFlyout ? flyoutOpen : hasChildren ? isExpanded : undefined
+      }
       onClick={handleToggle}
       onKeyDown={handleTriggerKeyDown}
       className={`
@@ -294,6 +379,16 @@ const NavMenuItem: React.FC<{
           {item.label}
         </span>
       )}
+
+      {!collapsed && hasChildren ? (
+        <ChevronDown
+          data-cy="nav-menu-item-chevron"
+          className={`h-3.5 w-3.5 shrink-0 transition-transform ${
+            isExpanded ? 'rotate-180' : ''
+          }`}
+          aria-hidden
+        />
+      ) : null}
     </div>
   );
 
@@ -372,7 +467,18 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   const [mobileCollapsed, setMobileCollapsed] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const search = searchParams.toString();
+  const currentHref = locationHref(pathname, search);
   const { userId, tenantId, hasHydrated, userData } = useAuthenticationStore();
+  const {
+    enabled: collaborationEnabled,
+    isOpen: collaborationOpen,
+    toggle: toggleCollaboration,
+  } = useCollaboration();
+  const collaborationPanelWidth = useCollaborationPanelStore(
+    (state) => state.panelWidth,
+  );
   useGetEmployee(userId);
   // const { mutate: updateEmployeeInformation } = useUpdateEmployeeInformation();
   const {
@@ -390,6 +496,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     isCheckingPermissions,
     setIsCheckingPermissions,
   } = useAuthenticationStore();
+  const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -486,7 +593,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   // ===========> Fiscal Year Ended Section <=================
 
   // Separate array for routes that should be accessible but not shown in navigation
-  const hiddenRoutes: { key: string; permissions: string[] }[] = [
+  const hiddenRoutes: {
+    key: string;
+    permissions: string[];
+    requireAny?: boolean;
+  }[] = [
     {
       key: '/dashboard',
       permissions: [], // No permissions required
@@ -515,13 +626,47 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       key: '/feedback/categories',
       permissions: ['view_feedback_conversation'], // Same permission as conversation page
     },
+    // BSC detail pages reached from tables/cards (not in the sidebar). Without
+    // these, the permission check below finds no route and sends non-owners to
+    // /unauthorized (e.g. Results → Review/View → pep-audit).
+    // BSC uses its own "BSC and KPI" permission group (like OKR), not OKR's.
+    {
+      key: '/bsc/employees',
+      permissions: [Permissions.ViewBsc], // Employee KPI detail + PEP audit review
+    },
+    {
+      key: '/bsc/kpis',
+      permissions: [Permissions.ViewBsc],
+    },
+    {
+      key: '/bsc/perspectives',
+      permissions: [Permissions.ViewBsc],
+    },
+    {
+      key: '/bsc/roll-up',
+      permissions: [Permissions.ViewBsc],
+    },
+    {
+      key: '/bsc/setup',
+      permissions: BSC_SCORECARD_PERMISSIONS,
+      requireAny: true,
+    },
+    {
+      key: '/bsc/cycles',
+      permissions: BSC_SCORECARD_PERMISSIONS,
+      requireAny: true,
+    },
   ];
 
   const getRoutesAndPermissions = React.useCallback(
     (
       menuItems: CustomMenuItem[],
-    ): { route: string; permissions: string[] }[] => {
-      const routes: { route: string; permissions: string[] }[] = [];
+    ): { route: string; permissions: string[]; requireAny?: boolean }[] => {
+      const routes: {
+        route: string;
+        permissions: string[];
+        requireAny?: boolean;
+      }[] = [];
 
       const traverse = (items: CustomMenuItem[]) => {
         items.forEach((item) => {
@@ -529,6 +674,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             routes.push({
               route: item.key,
               permissions: item.permissions,
+              ...(item.requireAny ? { requireAny: true } : {}),
             });
           }
 
@@ -544,6 +690,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           routes.push({
             route: route.key,
             permissions: route.permissions,
+            ...(route.requireAny ? { requireAny: true } : {}),
           });
         }
       });
@@ -555,8 +702,31 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
     [hiddenRoutes],
   );
 
-  const treeData: CustomMenuItem[] = React.useMemo(
-    () => [
+  const treeData: CustomMenuItem[] = React.useMemo(() => {
+    const kpiTabChildren: CustomMenuItem[] = [
+      {
+        title: <span data-cy="nav-tree-bsc-kpis">KPI</span>,
+        key: '/bsc/kpi',
+        className: 'font-bold',
+        // KPI library + scorecard setup (like OKR settings: admin only).
+        permissions: BSC_ADMIN_PERMISSIONS,
+        requireAny: true,
+      },
+      {
+        title: <span data-cy="nav-tree-bsc-my-scorecard">My Scorecard</span>,
+        key: scorecardTabHref('mine'),
+        className: 'font-bold',
+        permissions: [Permissions.ViewBsc],
+      },
+      {
+        title: <span data-cy="nav-tree-bsc-settings">Settings</span>,
+        key: '/bsc/settings',
+        className: 'font-bold',
+        permissions: [Permissions.CreateBscPerspective],
+      },
+    ];
+
+    return [
       {
         icon: <DashboardIcon style={{ fontSize: 20 }} />,
         title: 'Dashboard',
@@ -605,6 +775,20 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             key: '/employees/manage-employees',
             className: 'font-bold',
             permissions: ['manage_employees'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-succession-planning">
+                Succession Planning
+              </span>
+            ),
+            key: '/employees/succession-planning',
+            className: 'font-bold',
+            permissions: [
+              Permissions.ViewSuccessionPlanning,
+              Permissions.SubmitSuccessionEvaluation,
+            ],
+            requireAny: true,
           },
           {
             title: <span data-cy="nav-tree-employees-settings">Settings</span>,
@@ -693,6 +877,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         ],
       },
       {
+        icon: <AssessmentOutlinedIcon style={{ fontSize: 20 }} />,
+        title: 'BSC',
+        key: 'bsc-menu',
+        className: 'font-bold',
+        permissions: [Permissions.ViewBsc],
+        disabled: hasEndedFiscalYear,
+        moduleCode: 'OKR',
+        children: kpiTabChildren,
+      },
+      {
         icon: <ChatBubbleOutlinedIcon style={{ fontSize: 20 }} />,
         title: 'CFR',
         key: 'feedback-menu',
@@ -745,6 +939,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             key: '/tna/management',
             className: 'font-bold',
             permissions: ['manage_training'],
+          },
+          {
+            title: (
+              <span data-cy="nav-tree-tna-management">TNA Management</span>
+            ),
+            key: '/tna/tna-management',
+            className: 'font-bold',
+            permissions: ['manage_tna'],
           },
           {
             title: <span data-cy="nav-tree-tna-settings">Settings</span>,
@@ -940,9 +1142,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           },
         ],
       },
-    ],
-    [hasEndedFiscalYear],
-  );
+    ];
+  }, [hasEndedFiscalYear, userData]);
 
   // Helper function moved to global scope
 
@@ -957,17 +1158,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return true;
       }
 
-      // First check if the pathname matches any defined route (supporting dynamic segments)
-      const matchingRoute = routesWithPermissions.find((route) => {
-        if (isRouteMatch(route.route, pathname)) {
-          return true;
-        }
-        // Check for parent-child relationship - allow any level of nesting
-        if (pathname.startsWith(route.route + '/')) {
-          return true;
-        }
-        return false;
-      });
+      // Prefer the deepest, most-specific policy over an earlier parent route.
+      const matchingRoute = findMostSpecificMatchingRoute(
+        routesWithPermissions,
+        pathname,
+      );
 
       // If no matching route found, check if it's a deeply nested route
       if (!matchingRoute) {
@@ -984,16 +1179,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
 
           if (parentRoute) {
             // Check if user has permissions for parent route
-            const userPermissions = userData?.userPermissions || [];
-            const hasParentPermissions = parentRoute.permissions.every(
-              (requiredPermission: any) => {
-                const found = userPermissions?.find(
-                  (permission: any) =>
-                    permission.permission.slug === requiredPermission,
-                );
-                return found;
-              },
-            );
+            const hasParentPermissions = AccessGuard.checkAccess({
+              permissions: parentRoute.permissions,
+              requireAny: parentRoute.requireAny,
+            });
 
             if (hasParentPermissions) {
               return true;
@@ -1013,22 +1202,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return true;
       }
 
-      // Get user's permissions from the authentication store
-
-      const userPermissions = userData?.userPermissions || [];
-
-      // Check if user has ALL required permissions for this route
-
-      const hasAllPermissions = matchingRoute.permissions.every(
-        (requiredPermission: any) => {
-          const found = userPermissions?.find(
-            (permission: any) =>
-              permission.permission.slug === requiredPermission,
-          );
-          return found;
-        },
-      );
-      return hasAllPermissions;
+      // Check if user has the required permission(s) for this route
+      return AccessGuard.checkAccess({
+        permissions: matchingRoute.permissions,
+        requireAny: matchingRoute.requireAny,
+      });
     },
     [treeData, userData],
   );
@@ -1175,22 +1353,25 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
   ]);
 
   const findParentMenuKey = React.useCallback(
-    (pathname: string, menuItems: CustomMenuItem[]): string | null => {
+    (
+      pathname: string,
+      search: string,
+      menuItems: CustomMenuItem[],
+    ): string | null => {
       for (const item of menuItems) {
-        if (item.children) {
-          const matchesChild = item.children.some((child) => {
-            const childKey = String(child.key);
-            return isRouteMatch(childKey, pathname);
-          });
+        if (!item.children) continue;
 
-          if (matchesChild) {
-            return String(item.key);
-          }
+        const matchesChild = item.children.some((child) => {
+          const childKey = String(child.key);
+          if (menuKeyMatchScore(childKey, pathname, search) >= 0) return true;
+          return (
+            menuKeyPath(childKey).startsWith('/') &&
+            isRouteMatch(childKey, pathname)
+          );
+        });
 
-          const nestedParent = findParentMenuKey(pathname, item.children);
-          if (nestedParent) {
-            return String(item.key);
-          }
+        if (matchesChild) {
+          return String(item.key);
         }
       }
       return null;
@@ -1207,7 +1388,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setExpandedKeys([]);
       return;
     }
-    const parentKey = findParentMenuKey(pathname, treeData);
+    const parentKey = findParentMenuKey(pathname, search, treeData);
     if (parentKey) {
       setExpandedKeys((prev) => {
         if (prev.length !== 1 || prev[0] !== parentKey) {
@@ -1216,11 +1397,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
         return prev;
       });
     }
-  }, [pathname, findParentMenuKey, treeData]);
+  }, [pathname, search, findParentMenuKey, treeData]);
 
   useEffect(() => {
-    setSelectedKeys([pathname]);
-  }, [pathname]);
+    setSelectedKeys([currentHref]);
+  }, [currentHref]);
 
   useEffect(() => {
     if (hasInitialized.current) return;
@@ -1234,11 +1415,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return;
     }
 
-    const parentKey = findParentMenuKey(pathname, treeData);
+    const parentKey = findParentMenuKey(pathname, search, treeData);
     if (parentKey && expandedKeys.length === 0) {
       setExpandedKeys([parentKey]);
     }
-  }, [expandedKeys.length, findParentMenuKey, pathname, treeData]);
+  }, [expandedKeys.length, findParentMenuKey, pathname, search, treeData]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -1320,6 +1501,11 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       setToken('');
       setUser2FA({ email: '', pass: '' });
 
+      // Drop user-scoped BSC cache so the next login cannot reuse My Scorecard data.
+      Object.values(BSC_QUERY_KEYS).forEach((key) => {
+        queryClient.removeQueries(key);
+      });
+
       // Then remove cookies
       removeCookie('token');
       removeCookie('tenantId');
@@ -1352,10 +1538,16 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       return v.replace(/\/+$/, '') || '/';
     };
 
+    type GroupedMenuChild = {
+      key: string;
+      label: React.ReactNode;
+    };
+
     const accessibleTreeItems = treeData
       .map((item) => {
         const hasAccess = AccessGuard.checkAccess({
           permissions: item.permissions,
+          requireAny: item.requireAny,
         });
         if (!hasAccess) return null;
         return {
@@ -1364,6 +1556,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             ? item.children.filter((child) =>
                 AccessGuard.checkAccess({
                   permissions: child.permissions,
+                  requireAny: child.requireAny,
                 }),
               )
             : [],
@@ -1400,6 +1593,8 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       overview: 'dashboard',
       people: 'employees',
       performance: 'okr',
+      okr: 'okr',
+      kpi: 'kpi',
       finance: 'payroll',
       administration: 'admin',
       organization: 'organization',
@@ -1417,10 +1612,32 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       timesheet: 'time & attendance',
       'employee info': 'employees',
       'okr and planning': 'okr',
+      bsc: 'kpi',
+      scorecard: 'kpi',
       feedback: 'cfr',
       cfr: 'cfr',
       recruitment: 'talent acquisition',
     };
+
+    const mapTreeItemToMenuChild = (
+      treeItem: CustomMenuItem,
+    ): {
+      key: string;
+      icon?: React.ReactNode;
+      label: React.ReactNode;
+      children?: GroupedMenuChild[];
+    } => ({
+      key: treeItem.key,
+      icon: treeItem.icon,
+      label: treeItem.title,
+      children:
+        treeItem.children && treeItem.children.length > 0
+          ? treeItem.children.map((child) => ({
+              key: child.key,
+              label: child.title,
+            }))
+          : undefined,
+    });
 
     const modules: Module[] = modulesData?.items || [];
     const activeSubscriptionFromTenant =
@@ -1502,19 +1719,29 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       );
       if (alreadyAdded) return;
 
-      currentGroup.children.push({
-        key: treeItem.key,
-        icon: treeItem.icon,
-        label: treeItem.title,
-        children:
-          treeItem.children && treeItem.children.length > 0
-            ? treeItem.children.map((child) => ({
-                key: child.key,
-                label: child.title,
-              }))
-            : undefined,
-      });
+      currentGroup.children.push(mapTreeItemToMenuChild(treeItem));
     });
+
+    // BSC shares the OKR subscription (no separate BSC module yet). When OKR
+    // is present, insert BSC beside it like CFR — accordion children = scorecard tabs.
+    for (const group of groupedByParent.values()) {
+      const okrIndex = group.children.findIndex(
+        (child) => String(child.key) === '/okr-menu',
+      );
+      const hasBsc = group.children.some(
+        (child) => String(child.key) === 'bsc-menu',
+      );
+      if (okrIndex === -1 || hasBsc) continue;
+
+      const bscTreeItem = treeItemMap.get('bsc') || treeItemMap.get('kpi');
+      if (!bscTreeItem) continue;
+
+      group.children.splice(
+        okrIndex + 1,
+        0,
+        mapTreeItemToMenuChild(bscTreeItem),
+      );
+    }
 
     return Array.from(groupedByParent.values()).filter(
       (group) => group.children.length > 0,
@@ -1790,6 +2017,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                             setSelectedKeys={setSelectedKeys}
                             router={router}
                             pathname={pathname}
+                            search={search}
                             triggerRouteLoaderStart={triggerRouteLoaderStart}
                             expandedKeys={expandedKeys}
                             setExpandedKeys={setExpandedKeys}
@@ -1812,45 +2040,52 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
             </div>
           </div>
 
-          {AccessGuard.checkAccess({
-            permissions: ['view_admin_configuration'],
-          }) && (
-            <div
-              data-cy="nav-sider-admin-wrap"
-              className={`mt-2 w-full shrink-0 border-t border-[#E2E8F0] bg-white/40 pt-3 pb-2 ${
-                collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
-              }`}
-            >
+          {collaborationEnabled &&
+            AccessGuard.checkAccess({
+              permissions: ['view_organization'],
+            }) && (
               <div
-                data-cy="nav-sider-admin-inner"
-                className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
+                data-cy="nav-sider-announcement-wrap"
+                className={`mt-2 w-full shrink-0 border-t border-[#E2E8F0] bg-white/40 pt-3 pb-2 ${
+                  collapsed ? 'flex justify-center px-0' : 'pl-10 pr-3'
+                }`}
               >
-                {(() => {
-                  const adminButton = (
-                    <Button
-                      data-cy="nav-sider-admin-btn"
-                      type="text"
-                      block={!collapsed}
-                      aria-label={collapsed ? 'Admin Console' : undefined}
-                      icon={
-                        <span
-                          data-cy="nav-sider-admin-icon-wrap"
-                          className={`flex items-center justify-center text-[21px] leading-none transition-colors ${
-                            pathname.startsWith('/admin') ? '' : 'text-black'
-                          }`}
-                          style={
-                            pathname.startsWith('/admin')
-                              ? { color: colorPrimary }
-                              : undefined
-                          }
-                        >
-                          <MdSettings size={21} />
-                        </span>
-                      }
-                      className={`
+                <div
+                  data-cy="nav-sider-announcement-inner"
+                  className={`max-w-[209px] ${collapsed ? '' : 'pl-2'}`}
+                >
+                  {(() => {
+                    // Opens the embedded collaboration iframe (post channels only).
+                    const isAnnouncementActive = collaborationOpen && !isMobile;
+                    const announcementButton = (
+                      <Button
+                        data-cy="nav-sider-announcement-btn"
+                        type="text"
+                        block={!collapsed}
+                        aria-label={collapsed ? 'Announcement' : undefined}
+                        disabled={hasEndedFiscalYear}
+                        icon={
+                          <span
+                            data-cy="nav-sider-announcement-icon-wrap"
+                            className={`relative flex items-center justify-center text-[21px] leading-none transition-colors ${
+                              isAnnouncementActive ? '' : 'text-black'
+                            }`}
+                            style={
+                              isAnnouncementActive
+                                ? { color: colorPrimary }
+                                : undefined
+                            }
+                          >
+                            <AnnouncementMegaphoneIcon
+                              size={21}
+                              data-cy="nav-sider-announcement-icon"
+                            />
+                          </span>
+                        }
+                        className={`
                       !h-auto !min-h-0 flex items-center gap-3 !rounded-[6px] !shadow-none transition-all duration-200
                       ${
-                        pathname.startsWith('/admin')
+                        isAnnouncementActive
                           ? '!font-bold'
                           : '!font-medium !text-black hover:!bg-[#E6F4FF]'
                       }
@@ -1860,45 +2095,53 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
                           : '!w-full !max-w-none !justify-start !py-2 !pl-[5px] -ml-[5px]'
                       }
                     `}
-                      style={
-                        pathname.startsWith('/admin')
-                          ? { color: colorPrimary }
-                          : undefined
-                      }
-                      onClick={() => {
-                        triggerRouteLoaderStart();
-                        router.push('/admin/dashboard');
-                        if (isMobile) {
-                          setMobileCollapsed(true);
+                        style={
+                          isAnnouncementActive
+                            ? { color: colorPrimary }
+                            : undefined
                         }
-                      }}
-                    >
-                      {!collapsed && (
-                        <span
-                          data-cy="nav-sider-admin-label"
-                          className="flex-1 text-left transition-colors"
-                          style={{ fontSize }}
-                        >
-                          Admin Console
-                        </span>
-                      )}
-                    </Button>
-                  );
-                  return collapsed ? (
-                    <Tooltip
-                      placement="right"
-                      trigger={['hover', 'focus']}
-                      title="Admin Console"
-                    >
-                      {adminButton}
-                    </Tooltip>
-                  ) : (
-                    adminButton
-                  );
-                })()}
+                        onClick={() => {
+                          if (hasEndedFiscalYear) return;
+                          // Panel is desktop-only (`md+`); on mobile the dock is hidden.
+                          if (isMobile) return;
+                          toggleCollaboration({
+                            title: 'Announcement',
+                            module: 'announcement',
+                            path: COLLABORATION_SPACES_PATH,
+                          });
+                        }}
+                      >
+                        {!collapsed && (
+                          <span
+                            data-cy="nav-sider-announcement-label"
+                            className="flex flex-1 items-center justify-start gap-1 text-left transition-colors"
+                            style={{ fontSize }}
+                          >
+                            <span
+                              className="leading-none"
+                              data-cy="nav-sider-announcement-text"
+                            >
+                              Announcement
+                            </span>
+                          </span>
+                        )}
+                      </Button>
+                    );
+                    return collapsed ? (
+                      <Tooltip
+                        placement="right"
+                        trigger={['hover', 'focus']}
+                        title="Announcement"
+                      >
+                        {announcementButton}
+                      </Tooltip>
+                    ) : (
+                      announcementButton
+                    );
+                  })()}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         {!isMobile && (
@@ -1972,11 +2215,14 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
               display: isMobile ? 'none' : 'flex',
               alignItems: 'center',
               position: 'fixed',
+              // Fixed, so it is sized off the viewport rather than off its flex
+              // parent — the collaboration panel's width has to come out by hand
+              // or the header runs underneath it.
               width: isMobile
                 ? '100%'
-                : collapsed
-                  ? 'calc(100% - 80px)'
-                  : 'calc(100% - 280px)',
+                : `calc(100% - ${collapsed ? 80 : 280}px${
+                    collaborationOpen ? ` - ${collaborationPanelWidth}px` : ''
+                  })`,
               zIndex: 40,
               top: 0,
               left: isMobile ? 0 : collapsed ? 80 : 280,
@@ -2066,6 +2312,10 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
           />
         )}
       </Layout>
+
+      {/* Inline collaboration panel — a flex sibling of the content column
+          above, so opening it narrows the page instead of covering it. */}
+      <CollaborationDock />
     </Layout>
   );
 };
