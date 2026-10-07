@@ -224,8 +224,6 @@ function Page() {
   const {
     planSummaries,
     transformedData,
-    krPlanSummaries,
-    krTransformedData,
     isLoading: planningLoading,
     userId,
     totalItems: planningTotalItems,
@@ -275,14 +273,11 @@ function Page() {
     [planningPeriodHierarchy],
   );
 
-  const { reportSummaries } = useReportingData();
   const stickyOkrCurrentByKrId = useRecentOkrMetricOverrides(
     (s) => s.currentByKrId,
   );
   const {
     reportSummaries,
-    krReportSummaries,
-    krReportingItems,
     isLoading: reportingLoading,
     isFilterScopePending: reportingFilterPending,
   } = useReportingData(activeTab === 2);
