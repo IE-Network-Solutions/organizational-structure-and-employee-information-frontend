@@ -391,6 +391,26 @@ export enum Permissions {
   UpdateProbationTask = 'update-probation-task',
   DeleteProbationTask = 'delete-probation-task',
 
+  // Non-Financial Balanced Scorecard (BSC) — "BSC and KPI" permission group
+  // (org-emp permission.json). "View My Scorecard" (view_bsc) sits in Basic
+  // Permission alongside view_okr, so every employee gets the BSC menu.
+  ViewBsc = 'view_bsc',
+  CreateBscKpi = 'create-bsc-kpi',
+  ViewBscKpi = 'view-bsc-kpi',
+  UpdateBscKpi = 'update-bsc-kpi',
+  DeleteBscKpi = 'delete-bsc-kpi',
+  ImportBscKpi = 'import-bsc-kpi',
+  ExportBscKpi = 'export-bsc-kpi',
+  ViewBscScorecard = 'view-bsc-scorecard',
+  CreateBscScorecard = 'create-bsc-scorecard',
+  UpdateBscScorecard = 'update-bsc-scorecard',
+  DeleteBscScorecard = 'delete-bsc-scorecard',
+  ViewBscResults = 'view-bsc-results',
+  ViewBscPepAudit = 'view-bsc-pep-audit',
+  UpdateBscPepAudit = 'update-bsc-pep-audit',
+  ExportBscPepAudit = 'export-bsc-pep-audit',
+  CreateBscPerspective = 'create-bsc-perspective',
+
   // Succession planning
   ViewSuccessionPlanning = 'view-succession-planning',
   CreateCriticalRole = 'create-critical-role',

@@ -107,10 +107,18 @@ const AntdConfigProvider = ({ children }: { children: React.ReactNode }) => {
           />
         );
 
+      // Dropdown popups: keep the empty state small so it never overflows
+      // the popup and covers surrounding (e.g. modal) controls.
+      case 'Select':
+      case 'AutoComplete':
       case 'TreeSelect':
       case 'Cascader':
         return (
-          <EmptyState title="No Options" description="No options available." />
+          <EmptyState
+            minimal
+            description="No options available."
+            data-cy="empty-state-dropdown"
+          />
         );
 
       case 'Transfer':
