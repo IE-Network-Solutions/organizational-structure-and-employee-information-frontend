@@ -1,5 +1,5 @@
 export type Priority = 'Low' | 'Medium' | 'High' | 'Priority';
-export type Cadence = 'daily' | 'weekly' | 'monthly';
+export type Cadence = 'daily' | 'weekly' | 'monthly' | 'quarterly';
 export type ViewMode = 'planning' | 'reporting';
 
 export interface PlanTask {
