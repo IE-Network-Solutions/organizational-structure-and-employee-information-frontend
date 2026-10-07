@@ -366,7 +366,36 @@ export const getUser = async (id: string) => {
 };
 
 export const useGetAllUsers = () =>
-  useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination);
+  useQuery<any>('employeesWithOutPagination', getAllUsersWithOutPagination, {
+    staleTime: 5 * 60_000,
+  });
+
+/**
+ * Timesheet admin filters only — Active (`null`) or Inactive (`notNull`).
+ * Do not use for create/assign flows; keep those on `useGetAllUsers`.
+ */
+const getTimesheetFilterUsers = async (deletedAt: 'null' | 'notNull') => {
+  const token = await getCurrentToken();
+  const tenantId = useAuthenticationStore.getState().tenantId;
+
+  return crudRequest({
+    url: `${ORG_AND_EMP_URL}/users?deletedAt=${deletedAt}`,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
+};
+
+export const useTimesheetFilterUsers = (deletedAt: 'null' | 'notNull') =>
+  useQuery<any>(
+    ['timesheetFilterUsers', deletedAt],
+    () => getTimesheetFilterUsers(deletedAt),
+    {
+      staleTime: 5 * 60_000,
+    },
+  );
 
 const getAllUsersDataWithOutPagination = async () => {
   const token = await getCurrentToken();

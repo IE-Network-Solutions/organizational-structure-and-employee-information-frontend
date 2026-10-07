@@ -63,6 +63,14 @@ export interface EditAttendance {
   isOnGoing: boolean;
 }
 
+export interface EditAttendanceBreak {
+  breakTypeId: string;
+  /** Breakout (leave) time */
+  startAt: string | null;
+  /** Breakin (return) time */
+  endAt: string | null;
+}
+
 export interface EditRuleViolation {
   actionTypes: string[];
 }

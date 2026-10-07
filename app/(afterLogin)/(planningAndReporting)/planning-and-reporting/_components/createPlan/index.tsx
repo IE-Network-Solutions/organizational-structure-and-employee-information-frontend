@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import CustomDrawerLayout from '@/components/common/customDrawer';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { Button, Form, Spin, Tooltip } from 'antd';
@@ -49,11 +50,13 @@ function CreatePlan() {
     hasAutoPopulated.current = false;
   };
   const { mutate: createTask, isLoading } = useCreatePlanTasks();
-  const { data: objective } = useFetchObjectives(userId);
+  const { data: objective } = useFetchObjectives(userId, {
+    enabled: open && !!userId,
+  });
   const { fiscalYearId: keyResultFiscalYearId, sessionId: keyResultSessionId } =
     useOkrPlanningScope();
   const { data: userKeyResultsRaw } = useGetUserKeyResult(
-    userId,
+    open ? userId : null,
     keyResultFiscalYearId,
     keyResultSessionId,
   );
@@ -68,19 +71,21 @@ function CreatePlan() {
     data: planningPeriodHierarchy,
     isLoading: loadingPlanningPeriodHierarchy,
     refetch: refetchHierarchy,
-  } = useGetPlanningPeriodsHierarchy(
-    userId,
-    planningPeriodId || '', // Provide a default string value if undefined
-  );
+  } = useGetPlanningPeriodsHierarchy(userId, planningPeriodId || '', {
+    enabled: open && !!planningPeriodId,
+  });
 
   // Fetch the last report to get failed tasks
-  const { data: lastReportData, refetch: refetchLastReport } = useGetReporting({
-    userId: [userId],
-    planPeriodId: planningPeriodId || '',
-    pageReporting: 1,
-    pageSizeReporting: 1, // Get only the first (most recent) report
-    sessionId: [],
-  });
+  const { data: lastReportData, refetch: refetchLastReport } = useGetReporting(
+    {
+      userId: [userId],
+      planPeriodId: planningPeriodId || '',
+      pageReporting: 1,
+      pageSizeReporting: 1,
+      sessionId: [],
+    },
+    { enabled: open && !!planningPeriodId },
+  );
 
   // Refetch data when drawer opens to ensure we have the latest failed tasks
   useEffect(() => {
@@ -354,6 +359,7 @@ function CreatePlan() {
     }, 100);
 
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     open,
     planningPeriodHierarchy,

@@ -11,6 +11,7 @@ import { handleSuccessMessage } from '@/utils/showSuccessMessage';
 import {
   AttendanceSetShiftRequestBody,
   EditAttendance,
+  EditAttendanceBreak,
   EditRuleViolation,
   ExportWarningLetterBody,
 } from '@/store/server/features/timesheet/attendance/interface';
@@ -48,6 +49,19 @@ const setEditAttendance = async (data: EditAttendance, id: string) => {
   const requestHeaders = await requestHeader();
   return await crudRequest({
     url: `${TIME_AND_ATTENDANCE_URL}/attendance/${id}`,
+    method: 'PATCH',
+    headers: requestHeaders,
+    data,
+  });
+};
+
+const setEditAttendanceBreak = async (
+  data: EditAttendanceBreak,
+  attendanceRecordId: string,
+) => {
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/${attendanceRecordId}/break`,
     method: 'PATCH',
     headers: requestHeaders,
     data,
@@ -323,6 +337,28 @@ export const useSetEditAttendance = () => {
   );
 };
 
+export const useSetEditAttendanceBreak = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    ({
+      attendanceRecordId,
+      data,
+    }: {
+      attendanceRecordId: string;
+      data: EditAttendanceBreak;
+    }) => setEditAttendanceBreak(data, attendanceRecordId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('attendance');
+        NotificationMessage.success({
+          message: 'Successfully Edit',
+          description: 'Break times successfully updated.',
+        });
+      },
+    },
+  );
+};
+
 export const useEditRuleViolation = () => {
   const queryClient = useQueryClient();
   return useMutation(
@@ -485,6 +521,58 @@ const buildZktSyncRequestData = async (filter?: {
       },
     },
   };
+};
+
+type AttendanceDateFilter = {
+  date: { from: string; to: string };
+};
+
+const calculateAbsentAttendance = async (filter?: AttendanceDateFilter) => {
+  const today = getTodayDate();
+  const requestHeaders = await requestHeader();
+  return await crudRequest({
+    url: `${TIME_AND_ATTENDANCE_URL}/attendance/sync-absent`,
+    method: 'POST',
+    headers: requestHeaders,
+    data: {
+      filter: filter || {
+        date: { from: today, to: today },
+      },
+    },
+  });
+};
+
+export const useCalculateAbsentAttendance = () => {
+  const queryClient = useQueryClient();
+  return useMutation(
+    (filter?: AttendanceDateFilter) => calculateAbsentAttendance(filter),
+    {
+      onSuccess: (response: any) => {
+        queryClient.invalidateQueries('attendance');
+
+        const item = response?.item ?? response?.data?.item ?? response;
+        NotificationMessage.success({
+          message: item?.message || 'Absent calculation completed',
+          description:
+            String(item?.absented ?? 0) +
+            ' marked absent; ' +
+            String(item?.skippedLeave ?? 0) +
+            ' skipped on leave; ' +
+            String(item?.skippedExisting ?? 0) +
+            ' skipped with existing attendance.',
+        });
+      },
+      onError(error: any) {
+        NotificationMessage.error({
+          message: 'Error',
+          description:
+            error?.response?.data?.message ||
+            error?.message ||
+            'Failed to calculate absent attendance.',
+        });
+      },
+    },
+  );
 };
 
 type ZktImportWarning = {

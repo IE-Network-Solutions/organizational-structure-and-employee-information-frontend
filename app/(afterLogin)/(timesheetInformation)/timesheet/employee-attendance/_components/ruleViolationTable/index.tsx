@@ -1,15 +1,7 @@
-import React, {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 import { Avatar, Button, Dropdown, Table, message } from 'antd';
 import TableFilter from './tableFilter';
 import {
-  AttendanceRequestBody,
   ExportWarningLetterFormat,
   RuleViolationQueryParams,
 } from '@/store/server/features/timesheet/attendance/interface';
@@ -98,7 +90,6 @@ interface RuleViolationTableRow {
 }
 
 interface RuleViolationTableProps {
-  setBodyRequest: Dispatch<SetStateAction<AttendanceRequestBody>>;
   isImport: boolean;
   selectedRowKeys?: Key[];
   setSelectedRowKeys?: (keys: Key[]) => void;
@@ -160,6 +151,7 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
     isFetching,
     refetch,
   } = useGetRuleViolations(ruleViolationQuery);
+  const showTableSkeleton = isFetching && !ruleViolationsData;
   const { data: attendanceRuleTypesData } = useGetAttendanceRuleTypes();
   const {
     mutate: exportWarningLetter,
@@ -288,25 +280,28 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
           Action
         </span>
       ),
-      dataIndex: 'actionTypes',
       key: 'actionTypes',
-      render: (actionTypes: string[]) => (
-        <div
-          className="flex flex-col gap-1"
-          data-cy="time-attendance-rule-violation-table-action-tags"
-        >
-          {actionTypes?.length
-            ? actionTypes.map((type) => (
-                <div
-                  data-cy="time-attendance-rule-violation-table-action-tags-div"
-                  key={type}
-                >
-                  {statusType(type)}
-                </div>
-              ))
-            : '-'}
-        </div>
-      ),
+      render: (notUsed: unknown, row: RuleViolationTableRow) => {
+        const actionTypes = row.actionTypes;
+
+        return (
+          <div
+            className="flex flex-col gap-1"
+            data-cy="time-attendance-rule-violation-table-action-tags"
+          >
+            {actionTypes?.length
+              ? actionTypes.map((type) => (
+                  <div
+                    data-cy="time-attendance-rule-violation-table-action-tags-div"
+                    key={type}
+                  >
+                    {statusType(type)}
+                  </div>
+                ))
+              : '-'}
+          </div>
+        );
+      },
     },
     {
       title: (
@@ -643,7 +638,7 @@ const RuleViolationTable: FC<RuleViolationTableProps> = ({
           id="time-attendance-rule-violation-table-container"
           data-cy="time-attendance-rule-violation-table-container"
         >
-          {isFetching ? (
+          {showTableSkeleton ? (
             <TableSkeleton
               columns={columns}
               scroll={{ x: 'max-content' }}

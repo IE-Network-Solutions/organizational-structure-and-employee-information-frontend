@@ -174,7 +174,7 @@ const AssignTargetModal: React.FC = () => {
                   >
                     Department
                   </span>
-                  <Tooltip title="Select the department for this assignment.">
+                  <Tooltip title="Optionally select the department for this assignment.">
                     <QuestionCircleOutlined
                       className="text-[#bfbfbf] text-[14px] ml-1 cursor-help"
                       data-cy="okr-target-modal-department-tooltip"
@@ -183,12 +183,11 @@ const AssignTargetModal: React.FC = () => {
                 </div>
               }
               name="department"
-              required
-              rules={[{ required: true, message: 'Please select department' }]}
               data-cy="okr-target-modal-department-field"
             >
               <Select
-                placeholder="Select Department"
+                allowClear
+                placeholder="Select Department (optional)"
                 className="w-full h-11 custom-modal-select"
                 dropdownClassName="custom-assignee-dropdown"
                 data-cy="okr-target-modal-department-select"

@@ -539,16 +539,22 @@ export function withResolvedMetricForDisplay<T extends KeyResultLikeInput>(
   };
 }
 
+/** Plan-panel KR row accepted by planning eligibility helpers. */
+type KrPlanningPanelInput = {
+  metricType?: string;
+  progress?: number;
+  currentValue?: string | number;
+  targetValue?: string | number;
+  initialValue?: string | number;
+  milestones?: Array<{
+    status?: string | null;
+    deletedAt?: string | null;
+  }>;
+};
+
 /** Merge plan-panel KR row with user KR API for eligibility (shared by panel + targets). */
 export function buildKrPlanningSource(
-  panelKr: {
-    metricType?: string;
-    progress?: number;
-    currentValue?: string | number;
-    targetValue?: string | number;
-    initialValue?: string | number;
-    milestones?: Array<{ status?: string; deletedAt?: string | null }>;
-  },
+  panelKr: KrPlanningPanelInput,
   apiKr?: any | null,
   objectiveMilestones: any[] = [],
 ) {
@@ -626,13 +632,7 @@ export function buildKrPlanningSource(
  * only reopen when API shows measured progress below 100%.
  */
 export function resolveKrPlanningBlocked(
-  panelKr: {
-    metricType?: string;
-    progress?: number;
-    currentValue?: string | number;
-    targetValue?: string | number;
-    milestones?: Array<{ status?: string; deletedAt?: string | null }>;
-  },
+  panelKr: KrPlanningPanelInput,
   apiKr?: any | null,
 ): boolean {
   const planningSource = buildKrPlanningSource(panelKr, apiKr);

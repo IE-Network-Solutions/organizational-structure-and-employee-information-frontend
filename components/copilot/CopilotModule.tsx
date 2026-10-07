@@ -590,7 +590,9 @@ const CopilotModule: React.FC = () => {
       updateSavedPrompt(
         { id, title: trimmed, content: trimmed },
         {
-          onSuccess: () => message.success('Saved chat renamed.'),
+          onSuccess: () => {
+            message.success('Saved chat renamed.');
+          },
         },
       );
     },
@@ -622,7 +624,9 @@ const CopilotModule: React.FC = () => {
     (id: string, e?: React.MouseEvent) => {
       e?.stopPropagation();
       deleteSavedPrompt(id, {
-        onSuccess: () => message.success('Saved chat removed'),
+        onSuccess: () => {
+          message.success('Saved chat removed');
+        },
       });
     },
     [deleteSavedPrompt],
