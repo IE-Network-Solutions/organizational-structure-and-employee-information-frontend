@@ -94,7 +94,7 @@ const ObjectiveTypesPage = () => {
       key: 'actions',
       width: 120,
       align: 'center' as const,
-      render: (_unusedValue: unknown, record: OkrObjectiveType) => (
+      render: (cell: unknown, record: OkrObjectiveType) => (
         <AccessGuard permissions={[MANAGE_OKR_SETTINGS]}>
           <div className="flex items-center justify-center gap-2">
             <Button

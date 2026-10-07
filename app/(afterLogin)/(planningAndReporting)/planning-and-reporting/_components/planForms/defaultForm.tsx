@@ -2,7 +2,6 @@ import { Col, Form, Input, InputNumber, Row, Select } from 'antd';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
 import { NAME } from '@/types/enumTypes';
 import {
-  getKeyResultMetricCeiling,
   getMetricValueInputMax,
   getMetricValueInputMin,
   validateMetricValueAgainstInitial,
