@@ -939,6 +939,26 @@ export function getKeyResultMetricDetailLine(
 }
 
 /**
+ * Backend score (already a percent, may exceed 100) for key results that carry
+ * type-weighted scoring bands; null when the key result has no threshold or
+ * the backend progress is unavailable.
+ */
+function getBandedBackendProgress(kr: {
+  thresholdValue?: number | string | null;
+  progress?: number | string | null;
+}): number | null {
+  const threshold = kr?.thresholdValue;
+  if (threshold === undefined || threshold === null || threshold === '') {
+    return null;
+  }
+  if (!Number.isFinite(Number(threshold))) return null;
+  const raw = kr?.progress;
+  if (raw === undefined || raw === null || raw === '') return null;
+  const progress = Number(raw);
+  return Number.isFinite(progress) ? Math.max(0, Math.round(progress)) : null;
+}
+
+/**
  * Progress ring / summary percent.
  * Prefers a linear mapping from initial→target when possible; otherwise backend `progress`.
  * When stretch is configured, values may exceed 100 up to the stretch score (e.g. 110%).
@@ -964,6 +984,16 @@ export function getKeyResultProgressPercent(
     return normalizeProgressPercent(kr, {
       allowStretchAboveHundred: allowStretch,
     });
+  }
+
+  // Type-weighted (banded) key results: the backend score is authoritative.
+  // It applies the threshold cliff and the objective-level threshold gate,
+  // neither of which can be derived from this one key result alone.
+  const bandedBackendProgress = getBandedBackendProgress(kr);
+  if (bandedBackendProgress != null) {
+    return allowStretch && stretchCap != null
+      ? Math.min(stretchCap, bandedBackendProgress)
+      : Math.min(100, bandedBackendProgress);
   }
 
   const initial = Number(kr?.initialValue ?? 0);
