@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { create } from 'zustand';
 import { useCollaboration } from '@/components/collaboration/collaboration-context';
+import { CollaborationAccessDenied } from '@/components/collaboration/collaboration-access-denied';
 import {
   buildCollaborationSrc,
+  COLLABORATION_ACCESS_DENIED_MESSAGE_TYPE,
   COLLABORATION_CLOSE_MESSAGE_TYPE,
   COLLABORATION_MESSAGE_TYPE,
 } from '@/utils/collaboration';
@@ -40,8 +42,14 @@ function clampPanelWidth(width: number): number {
 type CollaborationPanelStore = {
   panelWidth: number;
   dragging: boolean;
+  /**
+   * The embedded app reported the user is not a member of collaboration. Holds
+   * for the life of the page: the frame is dropped, so a reload re-checks.
+   */
+  accessDenied: boolean;
   setPanelWidth: (width: number) => void;
   setDragging: (dragging: boolean) => void;
+  setAccessDenied: () => void;
 };
 
 function readStoredPanelWidth(): number {
@@ -87,6 +95,8 @@ export const useCollaborationPanelStore = create<CollaborationPanelStore>(
       set({ panelWidth });
     },
     setDragging: (dragging) => set({ dragging }),
+    accessDenied: false,
+    setAccessDenied: () => set({ accessDenied: true }),
   }),
 );
 
@@ -129,6 +139,12 @@ export function CollaborationDock() {
     (state) => state.setPanelWidth,
   );
   const setDragging = useCollaborationPanelStore((state) => state.setDragging);
+  const accessDenied = useCollaborationPanelStore(
+    (state) => state.accessDenied,
+  );
+  const setAccessDenied = useCollaborationPanelStore(
+    (state) => state.setAccessDenied,
+  );
 
   // Close on Escape for keyboard users.
   useEffect(() => {
@@ -141,15 +157,19 @@ export function CollaborationDock() {
   }, [isOpen, close]);
 
   // The embedded app's own header has a close button; it asks via postMessage.
-  // Only our iframe may close the panel.
+  // It also reports when the user has no collaboration access. Only our iframe
+  // is listened to.
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       if (event.source !== iframeRef.current?.contentWindow) return;
       if (event.data?.type === COLLABORATION_CLOSE_MESSAGE_TYPE) close();
+      if (event.data?.type === COLLABORATION_ACCESS_DENIED_MESSAGE_TYPE) {
+        setAccessDenied();
+      }
     };
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
-  }, [close]);
+  }, [close, setAccessDenied]);
 
   useEffect(() => {
     if (!dragging) return;
@@ -238,7 +258,9 @@ export function CollaborationDock() {
 
       {/* No host bar: the embedded app's own header carries the title, the
           ⋯ menu and the close button (it posts COLLABORATION_CLOSE_MESSAGE_TYPE).
-          The Announcement nav item still toggles the panel too. */}
+          The Announcement nav item still toggles the panel too. When access
+          is denied the frame is dropped and the Access Denied state brings
+          its own close button. */}
       <div
         className="relative min-h-0 flex-1 p-2"
         style={{ background: WORKSPACE_PANEL_BACKGROUND }}
@@ -251,15 +273,19 @@ export function CollaborationDock() {
           }`}
           data-cy="collaboration-panel-overlay"
         />
-        <iframe
-          ref={iframeRef}
-          src={src}
-          title="Selamnew Collaboration"
-          onLoad={postContext}
-          data-cy="collaboration-panel-iframe"
-          className="absolute inset-0 size-full border-0"
-          allow="camera; microphone; display-capture; clipboard-read; clipboard-write; autoplay"
-        />
+        {accessDenied ? (
+          <CollaborationAccessDenied onClose={close} />
+        ) : (
+          <iframe
+            ref={iframeRef}
+            src={src}
+            title="Selamnew Collaboration"
+            onLoad={postContext}
+            data-cy="collaboration-panel-iframe"
+            className="absolute inset-0 size-full border-0"
+            allow="camera; microphone; display-capture; clipboard-read; clipboard-write; autoplay"
+          />
+        )}
       </div>
     </aside>
   );

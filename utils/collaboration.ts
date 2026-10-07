@@ -73,6 +73,13 @@ export const COLLABORATION_MESSAGE_TYPE = 'selamnew:collaboration:context';
 /** postMessage the embedded app sends from its own close button. */
 export const COLLABORATION_CLOSE_MESSAGE_TYPE = 'selamnew:embed-close';
 
+/**
+ * postMessage the embedded app sends when the user is not a member of the
+ * collaboration platform. The panel shows Access Denied in place of the frame.
+ */
+export const COLLABORATION_ACCESS_DENIED_MESSAGE_TYPE =
+  'selamnew:embed-access-denied';
+
 /** Custom DOM event any Workspace component can dispatch to open the panel. */
 export const COLLABORATION_OPEN_EVENT = 'selamnew:collaboration:open';
 
