@@ -480,7 +480,8 @@ export function enrichOwnerGroupsPlanningBlocked(
         {
           ...panelKr,
           stretchValue:
-            apiKr?.stretchValue ?? (panelKr as { stretchValue?: unknown }).stretchValue,
+            apiKr?.stretchValue ??
+            (panelKr as { stretchValue?: unknown }).stretchValue,
           thresholdValue:
             apiKr?.thresholdValue ??
             (panelKr as { thresholdValue?: unknown }).thresholdValue,

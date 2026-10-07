@@ -18,7 +18,7 @@ const QUANTITATIVE_METRICS = new Set([
 ]);
 
 export type MetricValueKrInput =
-  | Pick<
+  | (Pick<
       KeyResultLikeInput,
       | 'metricType'
       | 'metricTypeName'
@@ -27,7 +27,7 @@ export type MetricValueKrInput =
       | 'targetValue'
     > & {
       stretchValue?: number | string | null;
-    }
+    })
   | null
   | undefined;
 
@@ -62,7 +62,9 @@ export type QuantitativeMetricBounds =
  * Upper absolute reading for planning / reporting: stretch when set, else target.
  * Used so type-weighted KRs can plan/report above target up to stretch.
  */
-export function getKeyResultMetricCeiling(kr: MetricValueKrInput): number | null {
+export function getKeyResultMetricCeiling(
+  kr: MetricValueKrInput,
+): number | null {
   const stretch = coerceFiniteNumber(kr?.stretchValue);
   const target = coerceFiniteNumber(kr?.targetValue);
   if (stretch != null && (target == null || stretch > target)) {

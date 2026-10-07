@@ -48,10 +48,7 @@ const getKeyResultCurrentValue = (
 
   const summedAchieved =
     viewMode === 'reporting'
-      ? allTasks.reduce(
-          (sum, task) => sum + (Number(task.achieved) || 0),
-          0,
-        )
+      ? allTasks.reduce((sum, task) => sum + (Number(task.achieved) || 0), 0)
       : 0;
 
   if (hasUsableMetricValue(rawKeyResult?.currentValue)) {

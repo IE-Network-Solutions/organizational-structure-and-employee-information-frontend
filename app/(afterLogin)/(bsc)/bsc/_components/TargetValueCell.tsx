@@ -116,11 +116,7 @@ export default function TargetValueCell(props: ValueProps) {
       className={`flex flex-wrap items-center gap-1.5 ${props.className || ''}`}
     >
       <TargetMetricValue {...props} />
-      <TargetMetricUnitTag
-        {...props}
-        dataCy={undefined}
-        standalone={false}
-      />
+      <TargetMetricUnitTag {...props} dataCy={undefined} standalone={false} />
       {showThresholdWarning ? (
         <Tag color="red" className="m-0">
           Below threshold

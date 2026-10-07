@@ -620,8 +620,7 @@ export function buildKrPlanningSource(
       currentValue: apiKr.currentValue ?? panelKr.currentValue,
       targetValue: apiKr.targetValue ?? panelKr.targetValue,
       initialValue: apiKr.initialValue ?? panelKr.initialValue ?? 0,
-      stretchValue:
-        apiKr.stretchValue ?? (panelKr as any).stretchValue ?? null,
+      stretchValue: apiKr.stretchValue ?? (panelKr as any).stretchValue ?? null,
       thresholdValue:
         apiKr.thresholdValue ?? (panelKr as any).thresholdValue ?? null,
       milestones: mergedMilestones,
@@ -689,7 +688,10 @@ export function getMilestoneProgressCounts(
 /** Flatten plan/report task rows attached to a KR payload (all nesting shapes). */
 export function collectKeyResultPlanTasks(
   kr: KeyResultLikeInput | null | undefined,
-): Array<{ achieved?: number | string | null; actualValue?: number | string | null }> {
+): Array<{
+  achieved?: number | string | null;
+  actualValue?: number | string | null;
+}> {
   if (!kr) return [];
   const tasks: Array<{
     achieved?: number | string | null;
@@ -977,7 +979,9 @@ export function getKeyResultProgressPercent(
       // weighted against a shorter status-only list (e.g. 20% while 2 of 5 done).
       return Math.min(100, Math.max(0, Math.round((100 * completed) / total)));
     }
-    return normalizeProgressPercent(kr, { allowStretchAboveHundred: allowStretch });
+    return normalizeProgressPercent(kr, {
+      allowStretchAboveHundred: allowStretch,
+    });
   }
 
   if (metric === 'Achieve' || metric === 'Achieved') {

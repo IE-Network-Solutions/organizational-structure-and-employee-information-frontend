@@ -30,12 +30,9 @@ export function enrichAssignmentsWithTemplateKpis(
         scorecardId: card.id,
         kpiLibraryId: line.kpiLibraryId,
         kpiName: line.name || catalog?.name || 'KPI',
-        perspective:
-          line.perspective || catalog?.perspective || 'Perspective',
+        perspective: line.perspective || catalog?.perspective || 'Perspective',
         targetLogic:
-          line.targetLogic ||
-          catalog?.targetLogic ||
-          TargetLogic.HigherBetter,
+          line.targetLogic || catalog?.targetLogic || TargetLogic.HigherBetter,
         measurementUnit:
           line.measurementUnit || catalog?.measurementUnit || '%',
         weightPercentage: Number(line.weightPercentage) || 0,

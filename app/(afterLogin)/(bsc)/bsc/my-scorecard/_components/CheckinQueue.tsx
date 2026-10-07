@@ -1,6 +1,12 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { Empty, Input, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
@@ -33,9 +39,17 @@ import {
   useSubmitBscFinal,
 } from '@/store/server/features/bsc/mutation';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { EvaluationCycle, KpiApprovalStatus, ScorecardKpiTarget } from '@/types/bsc';
+import {
+  EvaluationCycle,
+  KpiApprovalStatus,
+  ScorecardKpiTarget,
+} from '@/types/bsc';
 import { formatScore } from '@/utils/bsc/rollup';
-import { buildCheckinQueue, dedupeSelfCheckinItems, type CheckinItem } from '@/utils/bsc/checkin';
+import {
+  buildCheckinQueue,
+  dedupeSelfCheckinItems,
+  type CheckinItem,
+} from '@/utils/bsc/checkin';
 import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
 import type { CheckinInbox } from './CheckinInboxToggle';
 
@@ -788,9 +802,7 @@ function AssignedCheckinQueue({
 }) {
   const ANIM_MS = 340;
   const [orderIds, setOrderIds] = useState<string[]>([]);
-  const [snapshots, setSnapshots] = useState<Record<string, CheckinItem[]>>(
-    {},
-  );
+  const [snapshots, setSnapshots] = useState<Record<string, CheckinItem[]>>({});
   const [decisions, setDecisions] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(1);
   const [anim, setAnim] = useState<'in' | 'out' | 'from'>('in');
@@ -899,10 +911,8 @@ function AssignedCheckinQueue({
     );
   }
 
-  const slideOut =
-    animDir === 'next' ? '-translate-x-8' : 'translate-x-8';
-  const slideFrom =
-    animDir === 'next' ? 'translate-x-8' : '-translate-x-8';
+  const slideOut = animDir === 'next' ? '-translate-x-8' : 'translate-x-8';
+  const slideFrom = animDir === 'next' ? 'translate-x-8' : '-translate-x-8';
   const slideClass =
     anim === 'in'
       ? 'opacity-100 translate-x-0 scale-100'
@@ -982,7 +992,8 @@ export default function CheckinQueue({ inbox }: { inbox: CheckinInbox }) {
   const preferredActor = resolveCheckinActorId(userId);
   const { data: scorecards, isLoading: scorecardsLoading } =
     useGetBscScorecards();
-  const { data: myQueue, isLoading: myQueueLoading } = useGetBscMyCheckInQueue();
+  const { data: myQueue, isLoading: myQueueLoading } =
+    useGetBscMyCheckInQueue();
   const { data: reviewQueue, isLoading: reviewQueueLoading } =
     useGetBscReviewCheckInQueue();
   const { data: cycles } = useGetBscCycles();

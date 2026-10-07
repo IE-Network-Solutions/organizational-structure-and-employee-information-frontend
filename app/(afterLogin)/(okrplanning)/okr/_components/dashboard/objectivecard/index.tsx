@@ -290,9 +290,8 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
   const isAnyKeyResultInlineEditActive = Boolean(activeInlineKeyResultId);
 
   const completedKeyResults =
-    objective?.keyResults?.filter(
-      (kr: any) => Number(kr?.progress ?? 0) >= 100,
-    ).length || 0;
+    objective?.keyResults?.filter((kr: any) => Number(kr?.progress ?? 0) >= 100)
+      .length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
 
   const canManageOkr =

@@ -1,5 +1,9 @@
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
-import { OKR_AND_PLANNING_URL, OKR_URL, ORG_AND_EMP_URL } from '@/utils/constants';
+import {
+  OKR_AND_PLANNING_URL,
+  OKR_URL,
+  ORG_AND_EMP_URL,
+} from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import { useQuery } from 'react-query';

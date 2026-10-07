@@ -220,7 +220,10 @@ function buildScopeFromItems(
   };
 }
 
-function toNum(value: number | string | null | undefined, fallback = 0): number {
+function toNum(
+  value: number | string | null | undefined,
+  fallback = 0,
+): number {
   if (value === undefined || value === null || value === '') return fallback;
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;
@@ -230,9 +233,10 @@ export function mapScorecardToCycle(row: BscScorecardApi): EvaluationCycle {
   const kpis = row.scorecardKpis || [];
   const firstKpi = kpis[0];
   const cadence = mapCadenceFromApi(firstKpi?.cadence);
-  const horizon = firstKpi?.horizon === 'Temporary'
-    ? BscSetupKind.Temporary
-    : BscSetupKind.Permanent;
+  const horizon =
+    firstKpi?.horizon === 'Temporary'
+      ? BscSetupKind.Temporary
+      : BscSetupKind.Permanent;
   const effectiveFrom =
     toDateOnly(row.effectiveFrom) ||
     toDateOnly(firstKpi?.effectiveFrom) ||
@@ -240,9 +244,7 @@ export function mapScorecardToCycle(row: BscScorecardApi): EvaluationCycle {
     new Date().toISOString().slice(0, 10);
   const endDate =
     toDateOnly(firstKpi?.endDate) ||
-    (horizon === BscSetupKind.Temporary
-      ? effectiveFrom
-      : '2099-12-31');
+    (horizon === BscSetupKind.Temporary ? effectiveFrom : '2099-12-31');
 
   const kpiEvaluationFlows: Record<string, BscEvaluatorStep[]> = {};
   for (const line of kpis) {
@@ -321,7 +323,8 @@ export function mapScorecardToCycle(row: BscScorecardApi): EvaluationCycle {
     useCustomDates: horizon === BscSetupKind.Temporary,
     ...scope,
     evaluatorMode: managerStep?.kind === 'user' ? 'user' : 'directManager',
-    evaluatorUserId: managerStep?.kind === 'user' ? managerStep.userId ?? null : null,
+    evaluatorUserId:
+      managerStep?.kind === 'user' ? (managerStep.userId ?? null) : null,
     kpiEvaluationFlows,
     templateKpis,
   };
@@ -428,10 +431,7 @@ function defaultEvaluationFlowFromInput(
     return flows[0].map(mapEvaluatorStepToApi);
   }
   if (input.evaluatorMode === 'user' && input.evaluatorUserId) {
-    return [
-      { kind: 'Self' },
-      { kind: 'User', userId: input.evaluatorUserId },
-    ];
+    return [{ kind: 'Self' }, { kind: 'User', userId: input.evaluatorUserId }];
   }
   return [{ kind: 'Self' }, { kind: 'DirectManager' }];
 }
@@ -446,9 +446,7 @@ export function mapCycleCreateToApi(
   const scope = resolveScopeIds(input);
   return {
     name: input.label?.trim() || 'Scorecard',
-    ...(input.description
-      ? { purpose: input.description }
-      : {}),
+    ...(input.description ? { purpose: input.description } : {}),
     scopeType: scope.scopeType,
     scopeIds: scope.scopeIds,
     ...(scope.scopeLabels.length ? { scopeLabels: scope.scopeLabels } : {}),

@@ -43,7 +43,9 @@ function toIso(value?: string | Date | null): string {
   return new Date().toISOString();
 }
 
-function toNullableNumber(value: number | string | null | undefined): number | null {
+function toNullableNumber(
+  value: number | string | null | undefined,
+): number | null {
   if (value === undefined || value === null || value === '') return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
@@ -173,8 +175,7 @@ export function mapKpiUpdateToApi(
     }
   } else {
     if (input.worstCase !== undefined) {
-      body.worstCase =
-        input.worstCase == null ? null : Number(input.worstCase);
+      body.worstCase = input.worstCase == null ? null : Number(input.worstCase);
     }
     if (input.bestCase !== undefined) {
       body.bestCase = input.bestCase == null ? null : Number(input.bestCase);
