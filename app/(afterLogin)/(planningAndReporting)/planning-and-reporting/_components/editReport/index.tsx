@@ -41,6 +41,7 @@ import {
   rememberAchievedMilestones,
 } from '@/utils/recentlyAchievedMilestones';
 import { buildReportTaskStatusPatches } from '@/utils/recentReportTaskStatuses';
+import { resolveDoneActualValue } from '@/utils/reportActualValue';
 
 const { TextArea } = Input;
 
@@ -453,7 +454,10 @@ function EditReport() {
                       form.setFieldsValue({
                         [task.taskId]: {
                           status: 'Done',
-                          actualValue: Number(task?.targetValue ?? 0),
+                          actualValue: resolveDoneActualValue(
+                            form.getFieldValue([task.taskId, 'actualValue']),
+                            task?.targetValue,
+                          ),
                         },
                       });
                     }}

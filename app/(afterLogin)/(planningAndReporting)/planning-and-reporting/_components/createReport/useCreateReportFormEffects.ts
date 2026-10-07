@@ -3,6 +3,7 @@
 import type { FormInstance } from 'antd';
 import { useEffect } from 'react';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { resolveDoneActualValue } from '@/utils/reportActualValue';
 
 /** Plan tasks use `pre_achieved`; some payloads used `pre-achieved`. */
 function isPreAchievedStatus(status: unknown): boolean {
@@ -64,6 +65,14 @@ export function useCreateReportFormEffects(
 
     const initialValues: Record<string, any> = {};
 
+    // Seed only fields that hold no value yet. Anything already in the form is
+    // either typed by the user or loaded from a saved report (edit) and must
+    // survive status changes / refetches — e.g. 110 reported against target 100.
+    const hasValue = (taskId: string) => {
+      const current = form.getFieldValue([taskId, 'actualValue']);
+      return current !== undefined && current !== null && current !== '';
+    };
+
     formattedData.forEach((objective: any) => {
       objective?.keyResults?.forEach((keyresult: any) => {
         keyresult?.milestones?.forEach((milestone: any) => {
@@ -72,12 +81,21 @@ export function useCreateReportFormEffects(
               if (selectedStatuses[task.taskId] === 'Done') {
                 initialValues[task.taskId] = {
                   status: selectedStatuses[task.taskId],
-                  actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
+                  ...(hasValue(task.taskId)
+                    ? {}
+                    : {
+                        actualValue: resolveDoneActualValue(
+                          undefined,
+                          task?.targetValue,
+                        ),
+                      }),
                 };
               } else if (selectedStatuses[task.taskId] === 'Not') {
                 initialValues[task.taskId] = {
                   status: selectedStatuses[task.taskId],
-                  actualValue: Number(task?.actualValue ?? 0)?.toLocaleString(),
+                  ...(hasValue(task.taskId)
+                    ? {}
+                    : { actualValue: Number(task?.actualValue ?? 0) }),
                 };
               }
             }
@@ -88,12 +106,19 @@ export function useCreateReportFormEffects(
             if (selectedStatuses[task.taskId] === 'Done') {
               initialValues[task.taskId] = {
                 status: selectedStatuses[task.taskId],
-                actualValue: Number(task?.targetValue ?? 0)?.toLocaleString(),
+                ...(hasValue(task.taskId)
+                  ? {}
+                  : {
+                      actualValue: resolveDoneActualValue(
+                        undefined,
+                        task?.targetValue,
+                      ),
+                    }),
               };
             } else if (selectedStatuses[task.taskId] === 'Not') {
               initialValues[task.taskId] = {
                 status: selectedStatuses[task.taskId],
-                actualValue: 0,
+                ...(hasValue(task.taskId) ? {} : { actualValue: 0 }),
               };
             }
           }

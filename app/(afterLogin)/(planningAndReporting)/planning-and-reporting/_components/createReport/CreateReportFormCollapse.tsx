@@ -10,6 +10,7 @@ import {
   validateMetricValueAgainstInitial,
 } from '@/utils/okrMetricValueBounds';
 import { metricAddonSymbol } from './reportFormUtils';
+import { resolveDoneActualValue } from '@/utils/reportActualValue';
 
 const { TextArea } = Input;
 
@@ -80,9 +81,7 @@ export function CreateReportFormCollapse({
                 <Form.Item
                   name={[task.taskId, 'actualValue']}
                   className="mb-0"
-                  initialValue={
-                    Number(task?.actualValue)?.toLocaleString() || 0
-                  }
+                  initialValue={Number(task?.actualValue) || 0}
                   rules={[
                     {
                       validator(unusedRule, value) {
@@ -184,7 +183,10 @@ export function CreateReportFormCollapse({
                       form.setFieldsValue({
                         [task.taskId]: {
                           status: 'Done',
-                          actualValue: Number(task?.targetValue ?? 0),
+                          actualValue: resolveDoneActualValue(
+                            form.getFieldValue([task.taskId, 'actualValue']),
+                            task?.targetValue,
+                          ),
                         },
                       });
                     }}

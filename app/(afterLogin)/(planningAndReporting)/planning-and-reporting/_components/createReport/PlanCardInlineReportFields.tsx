@@ -12,6 +12,7 @@ import {
   validateMetricValueAgainstInitial,
 } from '@/utils/okrMetricValueBounds';
 import { metricAddonSymbol } from './reportFormUtils';
+import { resolveDoneActualValue } from '@/utils/reportActualValue';
 
 const { TextArea } = Input;
 
@@ -179,7 +180,10 @@ export function PlanCardInlineReportFields({
                   form.setFieldsValue({
                     [task.taskId]: {
                       status: 'Done',
-                      actualValue: Number(task?.targetValue ?? 0),
+                      actualValue: resolveDoneActualValue(
+                        form.getFieldValue([task.taskId, 'actualValue']),
+                        task?.targetValue,
+                      ),
                     },
                   });
                 }}
