@@ -548,6 +548,8 @@ type KrPlanningPanelInput = {
   currentValue?: string | number;
   targetValue?: string | number;
   initialValue?: string | number;
+  thresholdValue?: number | string | null;
+  stretchValue?: number | string | null;
   milestones?: Array<{
     status?: string | null;
     deletedAt?: string | null;
