@@ -61,6 +61,8 @@ export interface Objective {
   metricTypeId?: string | null;
   objectiveTypeId?: string | null;
   perspectiveId?: string | null;
+  /** Type-weighted: share of the objective type weight (percent of total score). */
+  weight?: number | string | null;
   title: string;
   deadline: string;
   userId: string;

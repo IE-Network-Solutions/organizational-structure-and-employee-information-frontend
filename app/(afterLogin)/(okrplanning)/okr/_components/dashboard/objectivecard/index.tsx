@@ -455,7 +455,18 @@ const ObjectiveCard: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
                               data-cy={`okr-objective-title-inline-input-${objective?.id}`}
                             />
                           ) : (
-                            objective?.title
+                            <>
+                              {objective?.title}
+                              {Number(objective?.weight) > 0 && (
+                                <span
+                                  title="This objective's share of the total OKR score"
+                                  className="ml-2 inline-block rounded-md border border-[#c7d2fe] bg-[#EFF6FF] px-2 py-0.5 align-middle text-xs font-medium text-[#2b54ad]"
+                                  data-cy={`okr-objective-weight-badge-${objective?.id}`}
+                                >
+                                  Weight {Number(objective?.weight)}%
+                                </span>
+                              )}
+                            </>
                           )}
                         </h2>
                         {isInlineEditing ? (

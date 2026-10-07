@@ -44,6 +44,7 @@ import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-settin
 import { useGetOkrObjectiveTypes } from '@/store/server/features/okrplanning/okr-objective-type/queries';
 import { useGetOkrPerspectives } from '@/store/server/features/okrplanning/okr-perspective/queries';
 import { useGetEffectiveObjectiveTypeWeights } from '@/store/server/features/okrplanning/okr-objective-type-weight/queries';
+import ObjectiveWeightField from '../../objectiveWeightField';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -238,9 +239,16 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               formValues.objectiveTypeId ?? objectiveValueNew.objectiveTypeId;
             submissionData.perspectiveId =
               formValues.perspectiveId ?? objectiveValueNew.perspectiveId;
+            const weight = formValues.weight ?? objectiveValueNew.weight;
+            if (weight !== undefined && weight !== null && weight !== '') {
+              submissionData.weight = Number(weight);
+            } else {
+              delete submissionData.weight;
+            }
           } else {
             delete submissionData.objectiveTypeId;
             delete submissionData.perspectiveId;
+            delete submissionData.weight;
           }
           return submissionData;
         };
@@ -460,6 +468,33 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     setAlignment(Boolean(objectiveValue?.allignedKeyResultId));
   }, [objectiveValue?.allignedKeyResultId]);
 
+  // The objective as saved when the modal opened: its weight is already counted
+  // as allocated, so the weight field gives it back when the type is unchanged.
+  const [savedObjective, setSavedObjective] = React.useState<{
+    id?: string;
+    userId?: string;
+    objectiveTypeId?: string | null;
+    weight?: number | string | null;
+  } | null>(null);
+  useEffect(() => {
+    if (!props.open) {
+      setSavedObjective(null);
+      return;
+    }
+    if (!objectiveValue?.id) return;
+    setSavedObjective((previous) =>
+      previous?.id === objectiveValue.id
+        ? previous
+        : {
+            id: objectiveValue.id,
+            userId: (objectiveValue as any).userId,
+            objectiveTypeId: objectiveValue.objectiveTypeId,
+            weight: objectiveValue.weight,
+          },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.open, objectiveValue?.id]);
+
   // Initialize form with existing data when modal opens
   useEffect(() => {
     if (props.open && objectiveValue) {
@@ -472,6 +507,10 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           : null,
         objectiveTypeId: objectiveValue.objectiveTypeId || null,
         perspectiveId: objectiveValue.perspectiveId || null,
+        weight:
+          objectiveValue.weight !== undefined && objectiveValue.weight !== null
+            ? Number(objectiveValue.weight)
+            : null,
       });
     }
   }, [props.open, objectiveValue, form]);
@@ -926,12 +965,12 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           <div
             id="okr-edit-objective-type-weighted-fields"
             data-cy="okr-edit-objective-type-weighted-fields"
-            className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-6"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-6"
           >
             {isEffectiveWeightsError && (
               <Alert
                 data-cy="okr-edit-objective-effective-weights-error"
-                className="sm:col-span-3"
+                className="sm:col-span-2"
                 type="error"
                 showIcon
                 message="Objective type weights are unavailable"
@@ -967,7 +1006,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             <Form.Item
               id="okr-edit-objective-type-weight"
               data-cy="okr-edit-objective-type-weight"
-              label="Weight"
+              label="Type weight"
               className="mb-2"
             >
               <Input
@@ -980,6 +1019,13 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 }
               />
             </Form.Item>
+            <ObjectiveWeightField
+              userId={savedObjective?.userId ?? userId}
+              objectiveTypeId={objectiveValue?.objectiveTypeId}
+              typeWeight={selectedObjectiveTypeWeight}
+              editing={savedObjective ?? undefined}
+              onChange={(value) => handleObjectiveChange(value, 'weight')}
+            />
             <Form.Item
               id="okr-edit-objective-perspective-select"
               data-cy="okr-edit-objective-perspective-select"

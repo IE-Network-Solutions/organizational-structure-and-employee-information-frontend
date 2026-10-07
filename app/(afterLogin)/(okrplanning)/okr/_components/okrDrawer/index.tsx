@@ -42,6 +42,7 @@ import { getKeyResultBandValidationError } from '@/utils/okrScoringBands';
 import { useGetOkrObjectiveTypes } from '@/store/server/features/okrplanning/okr-objective-type/queries';
 import { useGetOkrPerspectives } from '@/store/server/features/okrplanning/okr-perspective/queries';
 import { useGetEffectiveObjectiveTypeWeights } from '@/store/server/features/okrplanning/okr-objective-type-weight/queries';
+import ObjectiveWeightField from '../objectiveWeightField';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -293,6 +294,9 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             perspectiveId: isTypeWeighted
               ? (formValues.perspectiveId ?? objectiveValue?.perspectiveId)
               : undefined,
+            weight: isTypeWeighted
+              ? Number(formValues.weight ?? objectiveValue?.weight)
+              : undefined,
             deadline: formValues.ObjectiveDeadline
               ? dayjs(formValues.ObjectiveDeadline).format('YYYY-MM-DD')
               : objectiveValue?.deadline,
@@ -307,6 +311,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           if (!isTypeWeighted) {
             delete modifiedObjectiveValue.objectiveTypeId;
             delete modifiedObjectiveValue.perspectiveId;
+            delete modifiedObjectiveValue.weight;
           }
           // If all checks pass, proceed with the objective creation
           createObjective(modifiedObjectiveValue, {
@@ -349,7 +354,8 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
     Boolean(objective?.keyResults?.length) &&
     (!isTypeWeighted ||
       (Boolean(objectiveValue?.objectiveTypeId) &&
-        Boolean(objectiveValue?.perspectiveId)));
+        Boolean(objectiveValue?.perspectiveId) &&
+        Number(objectiveValue?.weight) > 0));
 
   // Adding another key result only makes sense while there's weight left to give.
   const canAddKeyResult =
@@ -1090,12 +1096,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
           <div
             id="okr-drawer-type-weighted-fields"
             data-cy="okr-drawer-type-weighted-fields"
-            className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2"
           >
             {isEffectiveWeightsError && (
               <Alert
                 data-cy="okr-drawer-effective-weights-error"
-                className="sm:col-span-3"
+                className="sm:col-span-2"
                 type="error"
                 showIcon
                 message="Objective type weights are unavailable"
@@ -1131,7 +1137,7 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
             <Form.Item
               id="okr-drawer-objective-type-weight"
               data-cy="okr-drawer-objective-type-weight"
-              label="Weight"
+              label="Type weight"
               className="mb-2"
             >
               <Input
@@ -1144,6 +1150,12 @@ const OkrDrawer: React.FC<OkrDrawerProps> = (props) => {
                 }
               />
             </Form.Item>
+            <ObjectiveWeightField
+              userId={userId}
+              objectiveTypeId={objectiveValue?.objectiveTypeId}
+              typeWeight={selectedObjectiveTypeWeight}
+              onChange={(value) => handleObjectiveChange(value, 'weight')}
+            />
             <Form.Item
               id="okr-drawer-perspective-select"
               data-cy="okr-drawer-perspective-select"
