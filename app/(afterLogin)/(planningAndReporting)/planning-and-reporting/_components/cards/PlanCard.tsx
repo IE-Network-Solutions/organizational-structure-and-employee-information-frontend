@@ -402,6 +402,18 @@ export default function PlanCard({
       }
       return t.isAchieved;
     };
+    const resolveActualValue = (t: any): number | undefined => {
+      const override =
+        reportTaskOverrides?.[String(t.planTaskId ?? '')] ||
+        reportTaskOverrides?.[String(t.id ?? '')];
+      if (override?.actualValue !== undefined) {
+        return Number(override.actualValue);
+      }
+      if (t.achieved !== undefined && t.achieved !== null) {
+        return Number(t.achieved);
+      }
+      return undefined;
+    };
     const completedCount = reportTasks.filter((t: any) => {
       const s = resolveStatus(t)
         .trim()
@@ -779,7 +791,7 @@ export default function PlanCard({
                         data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-div-610"
                         className={classNames(meta.tgt, 'text-right')}
                       >
-                        {task.achieved !== undefined ? (
+                        {resolveActualValue(task) !== undefined ? (
                           <span
                             data-cy="planning-and-reporting-components-cards-plancard-tsx-plancard-span-722"
                             className={`text-[12px] font-semibold tabular-nums sm:text-[13px] ${
@@ -790,7 +802,7 @@ export default function PlanCard({
                                   : 'text-[#F59E0B]'
                             }`}
                           >
-                            {formatNum(task.achieved)}
+                            {formatNum(resolveActualValue(task))}
                           </span>
                         ) : null}
                       </div>

@@ -197,7 +197,10 @@ function listRows(data: unknown): any[] {
   }
   return Object.values(body).filter(
     (value) =>
-      value && typeof value === 'object' && !Array.isArray(value) && 'id' in value,
+      value &&
+      typeof value === 'object' &&
+      !Array.isArray(value) &&
+      'id' in value,
   );
 }
 
@@ -261,7 +264,5 @@ export function buildOrgEmployees(
       if (employee && !byId.has(employee.id)) byId.set(employee.id, employee);
     }
   }
-  return Array.from(byId.values()).sort((a, b) =>
-    a.name.localeCompare(b.name),
-  );
+  return Array.from(byId.values()).sort((a, b) => a.name.localeCompare(b.name));
 }

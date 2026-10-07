@@ -41,6 +41,7 @@ import {
 
 import { useGetAssignedPlanningPeriodForUserId } from '@/store/server/features/employees/planning/planningPeriod/queries';
 import { useOkrPlanningScope } from '@/hooks/useOkrPlanningScope';
+import { useRecentOkrMetricOverrides } from '@/utils/recentOkrMetricOverrides';
 import CreatePlan from './_components/createPlan';
 import Reporting from './_components/reporting';
 import CreateReport from './_components/createReport';
@@ -223,8 +224,6 @@ function Page() {
   const {
     planSummaries,
     transformedData,
-    krPlanSummaries,
-    krTransformedData,
     isLoading: planningLoading,
     userId,
     totalItems: planningTotalItems,
@@ -274,10 +273,11 @@ function Page() {
     [planningPeriodHierarchy],
   );
 
+  const stickyOkrCurrentByKrId = useRecentOkrMetricOverrides(
+    (s) => s.currentByKrId,
+  );
   const {
     reportSummaries,
-    krReportSummaries,
-    krReportingItems,
     isLoading: reportingLoading,
     isFilterScopePending: reportingFilterPending,
   } = useReportingData(activeTab === 2);
@@ -285,29 +285,16 @@ function Page() {
   const enrichedPlanSummaries = useMemo(
     () =>
       enrichPlanSummariesWithUserKeyResults(planSummaries, userKeyResultItems),
-    [planSummaries, userKeyResultItems],
-  );
-  const enrichedKrPlanSummaries = useMemo(
-    () =>
-      enrichPlanSummariesWithUserKeyResults(
-        krPlanSummaries,
-        userKeyResultItems,
-      ),
-    [krPlanSummaries, userKeyResultItems],
-  );
-  const enrichedKrReportSummaries = useMemo(
-    () =>
-      enrichPlanSummariesWithUserKeyResults(
-        krReportSummaries,
-        userKeyResultItems,
-      ),
-    [krReportSummaries, userKeyResultItems],
+    [planSummaries, userKeyResultItems, stickyOkrCurrentByKrId],
   );
 
-  const krPanelPlans =
-    activeTab === 2 ? enrichedKrReportSummaries : enrichedKrPlanSummaries;
-  const krPanelTransformedData =
-    activeTab === 2 ? krReportingItems : krTransformedData;
+  // Left KR panel must show the same overall OKR progress on both tabs.
+  // Report summaries carry per-report Achieved scores (e.g. 7, 20) which must
+  // not replace KR currentValue in the panel — that caused Plans vs Reports flicker.
+  // Use plan summaries + plan rows for ownership matching so the logged-in user
+  // is always one "Your key results" group on both tabs.
+  const krPanelPlans = enrichedPlanSummaries;
+  const krPanelTransformedData = transformedData;
 
   const krPanelBlockingLoading =
     activeTab === 2

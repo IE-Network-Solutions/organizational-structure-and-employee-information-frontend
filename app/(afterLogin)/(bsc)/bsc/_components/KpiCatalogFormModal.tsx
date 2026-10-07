@@ -1,16 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo } from 'react';
-import {
-  Col,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Radio,
-  Row,
-  Select,
-} from 'antd';
+import { Col, Form, Input, InputNumber, Modal, Radio, Row, Select } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import CustomButton from '@/components/common/buttons/customButton';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
@@ -233,9 +224,7 @@ export default function KpiCatalogFormModal() {
                   <Form.Item
                     name="worstCase"
                     label="Minimum"
-                    rules={[
-                      { required: true, message: 'Minimum is required' },
-                    ]}
+                    rules={[{ required: true, message: 'Minimum is required' }]}
                   >
                     <InputNumber
                       className="w-full"
@@ -248,9 +237,7 @@ export default function KpiCatalogFormModal() {
                   <Form.Item
                     name="bestCase"
                     label="Maximum"
-                    rules={[
-                      { required: true, message: 'Maximum is required' },
-                    ]}
+                    rules={[{ required: true, message: 'Maximum is required' }]}
                   >
                     <InputNumber
                       className="w-full"

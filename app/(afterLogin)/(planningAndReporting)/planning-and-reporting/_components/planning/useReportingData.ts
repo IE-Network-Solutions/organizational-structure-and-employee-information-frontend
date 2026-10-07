@@ -7,6 +7,7 @@ import {
 } from '@/store/server/features/okrPlanningAndReporting/queries';
 import { useGetAllUsersData } from '@/store/server/features/employees/employeeManagment/queries';
 import { PlanningAndReportingStore } from '@/store/uistate/features/planningAndReporting/useStore';
+import { useRecentReportTaskStatuses } from '@/utils/recentReportTaskStatuses';
 import { transformReportToPlanSummary } from '../dataTransformer/vamp';
 import { Cadence, PlanSummary } from '../types';
 import { getEmployeeItems } from './departmentUsers';
@@ -33,6 +34,7 @@ export function useReportingData(enabled = true) {
   );
   const { data: planningPeriods } = useDefaultPlanningPeriods();
   const { data: userPlanningPeriods } = AllPlanningPeriods();
+  const reportTaskOverrides = useRecentReportTaskStatuses((s) => s.byReport);
   const { isFilterScopePending } = usePlanningFilterScopeReady();
   const effectiveSelectedUsers = useEffectivePlanUserIds();
 
@@ -88,7 +90,7 @@ export function useReportingData(enabled = true) {
     return allReporting.items.map((dataItem: any) =>
       transformReportToPlanSummary(dataItem, cadence, employeeData),
     );
-  }, [allReporting?.items, cadence, employeeData]);
+  }, [allReporting?.items, cadence, employeeData, reportTaskOverrides]);
 
   const krReportSummaries: PlanSummary[] = useMemo(() => {
     return (allReportingForKrPanel?.items ?? []).map((dataItem: any) =>

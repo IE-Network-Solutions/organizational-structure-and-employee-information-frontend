@@ -73,7 +73,10 @@ function cellText(cell: ExcelJS.Cell): string {
 }
 
 function parseTargetDirection(raw: string): TargetLogic | null {
-  const value = raw.trim().toLowerCase().replace(/[\s_-]/g, '');
+  const value = raw
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]/g, '');
   if (!value) return TargetLogic.HigherBetter;
   if (value.includes('lower')) return TargetLogic.LowerBetter;
   if (value.includes('bound')) return TargetLogic.Bounded;

@@ -160,9 +160,7 @@ function buildKpiRowsForScorecard(
         assignmentSource: 'shared' as const,
       };
     })
-    .sort((a, b) =>
-      (a.perspective || '').localeCompare(b.perspective || ''),
-    );
+    .sort((a, b) => (a.perspective || '').localeCompare(b.perspective || ''));
 }
 
 export default function MyBscScorecardPage() {
@@ -538,7 +536,10 @@ export default function MyBscScorecardPage() {
                 </Link>
               </li>
               <li data-cy="bsc-my-scorecard-breadcrumb-sep">
-                <span data-cy="bsc-my-scorecard-breadcrumb-sep-text" className="text-gray-400">
+                <span
+                  data-cy="bsc-my-scorecard-breadcrumb-sep-text"
+                  className="text-gray-400"
+                >
                   /
                 </span>
               </li>

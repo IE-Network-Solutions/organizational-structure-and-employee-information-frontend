@@ -46,18 +46,17 @@ const getKeyResultCurrentValue = (
     return rawKeyResult?.currentValue ?? 0;
   }
 
-  if (hasUsableMetricValue(rawKeyResult?.currentValue)) {
-    return Number(rawKeyResult.currentValue);
-  }
-
-  if (viewMode === 'reporting') {
-    const summedAchieved = allTasks.reduce(
+  // Reporting cards: derive from this report's task actuals so editing Achieved
+  // (increase or decrease) updates KR progress immediately.
+  if (viewMode === 'reporting' && allTasks.length > 0) {
+    return allTasks.reduce(
       (sum, task) => sum + (Number(task.achieved) || 0),
       0,
     );
-    if (summedAchieved > 0) {
-      return summedAchieved;
-    }
+  }
+
+  if (hasUsableMetricValue(rawKeyResult?.currentValue)) {
+    return Number(rawKeyResult.currentValue);
   }
 
   return 0;

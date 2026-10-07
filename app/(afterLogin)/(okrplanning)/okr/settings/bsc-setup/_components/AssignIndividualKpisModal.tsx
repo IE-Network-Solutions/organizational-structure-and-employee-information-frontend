@@ -1047,10 +1047,7 @@ export default function AssignIndividualKpisModal({
                               row.targetLogic,
                             )
                           : { valid: true as const };
-                      const readOnly = (
-                        value: React.ReactNode,
-                        cy: string,
-                      ) => (
+                      const readOnly = (value: React.ReactNode, cy: string) => (
                         <span
                           data-cy={`bsc-assign-${cy}-${row.key}`}
                           className="self-center truncate text-sm text-gray-500"

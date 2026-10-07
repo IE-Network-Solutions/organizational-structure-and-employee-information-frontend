@@ -204,7 +204,7 @@ export function resolveApprovalChain(
           : 'pending';
     return {
       kind: step.kind,
-      userId: step.kind === 'user' ? step.userId ?? null : null,
+      userId: step.kind === 'user' ? (step.userId ?? null) : null,
       state,
     };
   });

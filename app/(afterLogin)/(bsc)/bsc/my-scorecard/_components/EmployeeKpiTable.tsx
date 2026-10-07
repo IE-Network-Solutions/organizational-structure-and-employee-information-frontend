@@ -590,14 +590,14 @@ export default function EmployeeKpiTable({
           />
         </div>
         <div className="flex flex-col gap-2" data-cy="bsc-results-filter-dept">
-            <label
-              className={`text-sm font-medium ${
-                draftScope === 'team' || draftScope === 'mine'
-                  ? 'text-gray-400'
-                  : 'text-gray-700'
-              }`}
-              data-cy="bsc-results-filter-dept-label"
-            >
+          <label
+            className={`text-sm font-medium ${
+              draftScope === 'team' || draftScope === 'mine'
+                ? 'text-gray-400'
+                : 'text-gray-700'
+            }`}
+            data-cy="bsc-results-filter-dept-label"
+          >
             Department
           </label>
           <Select

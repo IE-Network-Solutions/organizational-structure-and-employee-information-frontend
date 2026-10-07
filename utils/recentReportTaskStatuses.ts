@@ -5,11 +5,18 @@ export type ReportTaskStatusOverride = {
   actualValue?: number;
   customReason?: string;
   isAchieved?: boolean;
+  /** Used to update OKR progress when planTask nesting is thin in list cache. */
+  keyResultId?: string;
 };
 
 type RecentReportTaskStatusesState = {
   /** reportId → planTaskId → override */
   byReport: Record<string, Record<string, ReportTaskStatusOverride>>;
+  /**
+   * planTaskId → last actualValue already applied into OKR currentValue caches.
+   * Prevents double-subtracting on restamp / duplicate patch calls.
+   */
+  okrAppliedActual: Record<string, number>;
   remember: (
     reportId: string,
     statusByPlanTaskId: Record<string, ReportTaskStatusOverride>,
@@ -18,6 +25,8 @@ type RecentReportTaskStatusesState = {
     reportId: string | number | null | undefined,
     planTaskId: string | number | null | undefined,
   ) => ReportTaskStatusOverride | null;
+  getOkrAppliedActual: (planTaskId: string) => number | undefined;
+  markOkrActualApplied: (planTaskId: string, actualValue: number) => void;
   /** Drop overrides that now match the API row (or clear whole report). */
   reconcile: (
     reportId: string,
@@ -25,6 +34,7 @@ type RecentReportTaskStatusesState = {
       planTaskId?: string | number | null;
       status?: string | null;
       isAchieved?: boolean | null;
+      actualValue?: number | string | null;
     }>,
   ) => void;
   clearReport: (reportId: string) => void;
@@ -68,9 +78,35 @@ function statusesMatch(
   );
 }
 
+function actualValuesMatch(
+  override: ReportTaskStatusOverride,
+  api: { actualValue?: number | string | null },
+): boolean {
+  // No sticky actual — status-only overrides can clear when status catches up.
+  if (override.actualValue === undefined) return true;
+  const want = Number(override.actualValue);
+  const got = Number(api.actualValue ?? 0);
+  if (!Number.isFinite(want)) return true;
+  if (!Number.isFinite(got)) return false;
+  return Math.abs(want - got) < 1e-9;
+}
+
+/** Clear sticky patch only when status AND actualValue have caught up. */
+function overrideMatchesApi(
+  override: ReportTaskStatusOverride,
+  api: {
+    status?: string | null;
+    isAchieved?: boolean | null;
+    actualValue?: number | string | null;
+  },
+): boolean {
+  return statusesMatch(override, api) && actualValuesMatch(override, api);
+}
+
 export const useRecentReportTaskStatuses =
   create<RecentReportTaskStatusesState>()((set, get) => ({
     byReport: {},
+    okrAppliedActual: {},
     remember: (reportId, statusByPlanTaskId) => {
       if (!reportId || !statusByPlanTaskId) return;
       const nextForReport = {
@@ -108,16 +144,30 @@ export const useRecentReportTaskStatuses =
       if (reportId == null || planTaskId == null) return null;
       return get().byReport[String(reportId)]?.[String(planTaskId)] ?? null;
     },
+    getOkrAppliedActual: (planTaskId) => {
+      return get().okrAppliedActual[String(planTaskId)];
+    },
+    markOkrActualApplied: (planTaskId, actualValue) => {
+      if (!planTaskId || !Number.isFinite(actualValue)) return;
+      set({
+        okrAppliedActual: {
+          ...get().okrAppliedActual,
+          [String(planTaskId)]: actualValue,
+        },
+      });
+    },
     reconcile: (reportId, apiTasks) => {
       const current = get().byReport[reportId];
       if (!current) return;
       const next = { ...current };
+      const nextOkrApplied = { ...get().okrAppliedActual };
       let changed = false;
       for (const task of apiTasks) {
         const id = task?.planTaskId != null ? String(task.planTaskId) : '';
         if (!id || !next[id]) continue;
-        if (statusesMatch(next[id], task)) {
+        if (overrideMatchesApi(next[id], task)) {
           delete next[id];
+          delete nextOkrApplied[id];
           changed = true;
         }
       }
@@ -128,15 +178,20 @@ export const useRecentReportTaskStatuses =
       } else {
         byReport[reportId] = next;
       }
-      set({ byReport });
+      set({ byReport, okrAppliedActual: nextOkrApplied });
     },
     clearReport: (reportId) => {
-      if (!get().byReport[reportId]) return;
+      const current = get().byReport[reportId];
+      if (!current) return;
       const byReport = { ...get().byReport };
       delete byReport[reportId];
-      set({ byReport });
+      const nextOkrApplied = { ...get().okrAppliedActual };
+      for (const planTaskId of Object.keys(current)) {
+        delete nextOkrApplied[planTaskId];
+      }
+      set({ byReport, okrAppliedActual: nextOkrApplied });
     },
-    clear: () => set({ byReport: {} }),
+    clear: () => set({ byReport: {}, okrAppliedActual: {} }),
   }));
 
 export function rememberReportTaskStatuses(
@@ -210,6 +265,54 @@ export function buildReportTaskStatusPatches(
   return out;
 }
 
+/**
+ * Attach keyResultId onto status patches by walking report/plan formatted tasks.
+ * Ensures OKR progress sticky can resolve even when list-cache planTask is thin.
+ */
+export function attachKeyResultIdsToReportPatches(
+  patches: Record<string, ReportTaskStatusOverride>,
+  formattedData: any[] | null | undefined | false,
+): Record<string, ReportTaskStatusOverride> {
+  if (!patches || !formattedData || !Array.isArray(formattedData)) {
+    return patches;
+  }
+
+  const krByTaskId: Record<string, string> = {};
+  const visitTask = (task: any, keyResultId: unknown) => {
+    if (!task || keyResultId == null || String(keyResultId) === '') return;
+    const kr = String(keyResultId);
+    for (const id of [
+      task.taskId,
+      task.id,
+      task.planTaskId,
+      task.planTask?.id,
+    ]) {
+      if (id != null && String(id) !== '') {
+        krByTaskId[String(id)] = kr;
+      }
+    }
+  };
+
+  formattedData.forEach((objective: any) => {
+    objective?.keyResults?.forEach((keyresult: any) => {
+      const krId = keyresult?.id ?? keyresult?.keyResultId;
+      keyresult?.milestones?.forEach((milestone: any) => {
+        milestone?.tasks?.forEach((task: any) => visitTask(task, krId));
+      });
+      keyresult?.tasks?.forEach((task: any) => visitTask(task, krId));
+    });
+  });
+
+  const next: Record<string, ReportTaskStatusOverride> = {};
+  for (const [taskId, patch] of Object.entries(patches)) {
+    next[taskId] = {
+      ...patch,
+      keyResultId: patch.keyResultId ?? krByTaskId[taskId],
+    };
+  }
+  return next;
+}
+
 export function applyReportTaskStatusOverride(
   reportId: string | number | null | undefined,
   task: any,
@@ -246,6 +349,7 @@ export function reconcileReportTaskStatusOverrides(
     planTaskId?: string | number | null;
     status?: string | null;
     isAchieved?: boolean | null;
+    actualValue?: number | string | null;
   }>,
 ): void {
   useRecentReportTaskStatuses.getState().reconcile(reportId, apiTasks);

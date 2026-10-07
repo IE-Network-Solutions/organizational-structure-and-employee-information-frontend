@@ -141,6 +141,9 @@ export function CreateReportFormCollapse({
                     formatter={(value) =>
                       `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
                     }
+                    parser={(value) =>
+                      value ? Number(value.replace(/,/g, '')) : 0
+                    }
                     addonAfter={
                       <span
                         data-cy="planning-and-reporting-components-createreport-createreportformcollapse-tsx-createreportformcollapse-span-126"

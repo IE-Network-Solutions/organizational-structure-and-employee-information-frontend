@@ -5,11 +5,14 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import {
+  invalidateOkrPlanningCaches,
   invalidatePlanningCaches,
   invalidateReportingCaches,
   markMilestonesCompletedInOkrCaches,
   markMilestonesReopenedInOkrCaches,
   patchReportTaskStatusesInCaches,
+  restampStickyOkrMetricOverrides,
+  restampStickyReportTaskStatuses,
   scheduleDashboardAndVpRefetch,
   scheduleOkrMilestoneStatusRefetch,
 } from '@/utils/invalidateOkrPlanningCaches';
@@ -352,6 +355,8 @@ export const useEditReportByReportId = () => {
       onSuccess: async (data, variables) => {
         void data;
         applyAchievedMilestoneIds(queryClient, variables.achievedMilestoneIds);
+        // Optimistic patch once before invalidate. Do NOT patch again after —
+        // that re-applied the Achieved delta (10→7 became −6).
         if (variables.selectedReportId && variables.reportTaskStatuses) {
           patchReportTaskStatusesInCaches(
             queryClient,
@@ -359,14 +364,14 @@ export const useEditReportByReportId = () => {
             variables.reportTaskStatuses,
           );
         }
-        await invalidateReportingCaches(queryClient);
-        // Stale refetch often lands with old Done — re-apply sticky overrides.
-        if (variables.selectedReportId && variables.reportTaskStatuses) {
-          patchReportTaskStatusesInCaches(
+        await invalidateOkrPlanningCaches(queryClient);
+        if (variables.selectedReportId) {
+          restampStickyReportTaskStatuses(
             queryClient,
             variables.selectedReportId,
-            variables.reportTaskStatuses,
           );
+        } else {
+          restampStickyOkrMetricOverrides(queryClient);
         }
         scheduleOkrMilestoneStatusRefetch(
           queryClient,

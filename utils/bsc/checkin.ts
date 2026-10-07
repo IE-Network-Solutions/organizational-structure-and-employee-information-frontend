@@ -145,10 +145,7 @@ export function buildCheckinQueue(
       if (!step) continue;
 
       const actorForCard = actorId || scorecard.userId;
-      if (
-        !trustServerQueue &&
-        !isActorForStep(scorecard, step, actorForCard)
-      ) {
+      if (!trustServerQueue && !isActorForStep(scorecard, step, actorForCard)) {
         continue;
       }
 
@@ -254,7 +251,10 @@ export function dedupeSelfCheckinItems(items: CheckinItem[]): CheckinItem[] {
   for (const item of items) {
     const key = selfCheckinDedupeKey(item);
     const existing = best.get(key);
-    if (!existing || selfCheckinPriority(item) > selfCheckinPriority(existing)) {
+    if (
+      !existing ||
+      selfCheckinPriority(item) > selfCheckinPriority(existing)
+    ) {
       best.set(key, item);
     }
   }
