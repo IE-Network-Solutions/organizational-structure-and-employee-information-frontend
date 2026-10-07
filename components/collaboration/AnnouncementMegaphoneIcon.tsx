@@ -25,14 +25,17 @@ const AnnouncementMegaphoneIcon = ({
     data-cy={dataCy ?? 'announcement-megaphone-icon'}
   >
     <path
+      data-cy="collaboration-announcement-megaphone-path-horn"
       d="M11 6a13 13 0 0 0 8.4-2.8A1 1 0 0 1 21 4v12a1 1 0 0 1-1.6.8A13 13 0 0 0 11 14H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"
-      data-cy="announcement-megaphone-path-body"
     />
     <path
+      data-cy="collaboration-announcement-megaphone-path-handle"
       d="M6 14a12 12 0 0 0 2.4 7.2 2 2 0 0 0 3.2-2.4A8 8 0 0 1 10 14"
-      data-cy="announcement-megaphone-path-stand"
     />
-    <path d="M8 6v8" data-cy="announcement-megaphone-path-handle" />
+    <path
+      data-cy="collaboration-announcement-megaphone-path-stand"
+      d="M8 6v8"
+    />
   </svg>
 );
 
