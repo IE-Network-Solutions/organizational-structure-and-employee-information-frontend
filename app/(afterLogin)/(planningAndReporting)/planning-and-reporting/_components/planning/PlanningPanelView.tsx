@@ -1452,7 +1452,7 @@ export function KRLeftPanel({
                           p.owner?.name === group.owner?.name ||
                           p.id === group.ownerKey),
                     ) ||
-                    (!!transformedData?.some(
+                    !!transformedData?.some(
                       (d: any) =>
                         d.userId === userId &&
                         plans.some(
@@ -1461,7 +1461,7 @@ export function KRLeftPanel({
                             (p.owner?.name === group.owner?.name ||
                               p.owner?.name === group.ownerKey),
                         ),
-                    ));
+                    );
 
                   return (
                     <OwnerKRSection

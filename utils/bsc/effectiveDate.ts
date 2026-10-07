@@ -13,7 +13,8 @@ export function isScorecardTemplateLive(
   if (cycle.isActive === false) return false;
   const effective = cycle.effectiveFrom || cycle.startDate;
   const asOfDay = dayjs(asOf).startOf('day');
-  if (effective && asOfDay.isBefore(dayjs(effective).startOf('day'))) return false;
+  if (effective && asOfDay.isBefore(dayjs(effective).startOf('day')))
+    return false;
   const end = cycle.endDate;
   if (
     end &&

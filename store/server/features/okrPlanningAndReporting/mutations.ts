@@ -5,6 +5,7 @@ import { useAuthenticationStore } from '@/store/uistate/features/authentication'
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { getCurrentToken } from '@/utils/getCurrentToken';
 import {
+  invalidateOkrPlanningCaches,
   invalidatePlanningCaches,
   invalidateReportingCaches,
   markMilestonesCompletedInOkrCaches,

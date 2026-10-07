@@ -54,10 +54,7 @@ import {
   useGetAllPositions,
   useGetAllPositionsForPicker,
 } from '@/store/server/features/employees/positions/queries';
-import {
-  buildPositionOptions,
-  normalizeOrgUsers,
-} from '@/utils/bsc/orgUsers';
+import { buildPositionOptions, normalizeOrgUsers } from '@/utils/bsc/orgUsers';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import {
@@ -336,7 +333,9 @@ export default function BscSetupModal() {
     () =>
       buildPositionOptions(
         // Prefer the full list; fall back to the default page if it is empty.
-        asList(pickerPositionsData).length ? pickerPositionsData : positionsData,
+        asList(pickerPositionsData).length
+          ? pickerPositionsData
+          : positionsData,
         allUsersFullData,
         allUsersData,
       ),
@@ -363,43 +362,41 @@ export default function BscSetupModal() {
     return Array.from(byId.values());
   }, [allUsersFullData, allUsersData]);
 
-  const employeeOptions = allEmployeeRows.map(
-    (user: any) => {
-      const label =
-        `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
-          .replace(/\s+/g, ' ')
-          .trim() ||
-        user.email ||
-        'Employee';
-      const initials = label
-        .split(' ')
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part: string) => part[0]?.toUpperCase() || '')
-        .join('');
-      return {
-        value: String(user.id),
-        label,
-        initials: initials || '?',
-        profileImage: user.profileImage || null,
-        departmentId:
-          user.employeeInformation?.departmentId ||
-          user.departmentId ||
-          user.department?.id ||
-          null,
-        positionId:
-          user.employeeJobInformation?.[0]?.positionId ||
-          user.positionId ||
-          user.position?.id ||
-          null,
-        managerId:
-          user.delegatedTo?.id ||
-          user.reportingTo?.id ||
-          user.employeeJobInformation?.[0]?.reportingToId ||
-          null,
-      };
-    },
-  );
+  const employeeOptions = allEmployeeRows.map((user: any) => {
+    const label =
+      `${user.firstName || ''} ${user.middleName || ''} ${user.lastName || ''}`
+        .replace(/\s+/g, ' ')
+        .trim() ||
+      user.email ||
+      'Employee';
+    const initials = label
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part: string) => part[0]?.toUpperCase() || '')
+      .join('');
+    return {
+      value: String(user.id),
+      label,
+      initials: initials || '?',
+      profileImage: user.profileImage || null,
+      departmentId:
+        user.employeeInformation?.departmentId ||
+        user.departmentId ||
+        user.department?.id ||
+        null,
+      positionId:
+        user.employeeJobInformation?.[0]?.positionId ||
+        user.positionId ||
+        user.position?.id ||
+        null,
+      managerId:
+        user.delegatedTo?.id ||
+        user.reportingTo?.id ||
+        user.employeeJobInformation?.[0]?.reportingToId ||
+        null,
+    };
+  });
 
   const employeeById = useMemo(() => {
     const map = new Map<string, (typeof employeeOptions)[number]>();
@@ -686,7 +683,8 @@ export default function BscSetupModal() {
         );
         if (!existing) continue;
         selectedIds.push(catalogKpi.id);
-        if (existing.weight > 0) measureWeights[catalogKpi.id] = existing.weight;
+        if (existing.weight > 0)
+          measureWeights[catalogKpi.id] = existing.weight;
         if (existing.defaultTarget != null) {
           measureTargets[catalogKpi.id] = existing.defaultTarget;
         }
@@ -1697,7 +1695,8 @@ export default function BscSetupModal() {
         setSelectedConfigId(created.id);
         await assignScorecard.mutateAsync({
           scorecardId: created.id,
-          asOf: created.effectiveFrom || payload.effectiveFrom || payload.startDate,
+          asOf:
+            created.effectiveFrom || payload.effectiveFrom || payload.startDate,
         });
         handleClose();
         return;
@@ -1773,12 +1772,7 @@ export default function BscSetupModal() {
         />
       </div>
 
-      <Form
-        form={form}
-        layout="vertical"
-        className="mt-2"
-        requiredMark={false}
-      >
+      <Form form={form} layout="vertical" className="mt-2" requiredMark={false}>
         {/* Keep object fields mounted across wizard steps so maps are not dropped. */}
         <Form.Item name="perspectiveRows" hidden>
           <FormObjectField />

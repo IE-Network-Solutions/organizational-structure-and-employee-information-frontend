@@ -6,13 +6,8 @@ import {
   ScorecardKpiTarget,
   ScorecardStatus,
 } from '@/types/bsc';
-import {
-  mapCadenceFromApi,
-} from './scorecard.mappers';
-import {
-  mapEvaluatorStepFromApi,
-  mapTargetLogicFromApi,
-} from './mappers';
+import { mapCadenceFromApi } from './scorecard.mappers';
+import { mapEvaluatorStepFromApi, mapTargetLogicFromApi } from './mappers';
 
 export type BscEmployeeScorecardKpiApi = {
   id: string;
@@ -103,7 +98,10 @@ function toIso(value?: string | Date | null): string {
   return new Date().toISOString();
 }
 
-function toNum(value: number | string | null | undefined, fallback = 0): number {
+function toNum(
+  value: number | string | null | undefined,
+  fallback = 0,
+): number {
   if (value === undefined || value === null || value === '') return fallback;
   const n = Number(value);
   return Number.isFinite(n) ? n : fallback;

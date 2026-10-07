@@ -60,8 +60,7 @@ async function fetchKpiLibrary(filters?: {
   if (filters?.departmentName) {
     const q = filters.departmentName.toLowerCase();
     next = next.filter(
-      (k) =>
-        !k.departmentName || k.departmentName.toLowerCase().includes(q),
+      (k) => !k.departmentName || k.departmentName.toLowerCase().includes(q),
     );
   }
   if (filters?.positionTitle) {
@@ -80,11 +79,9 @@ export const useGetBscKpiLibrary = (filters?: {
   positionTitle?: string;
   search?: string;
 }) =>
-  useQuery(
-    [BSC_QUERY_KEYS.kpis, filters],
-    () => fetchKpiLibrary(filters),
-    { keepPreviousData: true },
-  );
+  useQuery([BSC_QUERY_KEYS.kpis, filters], () => fetchKpiLibrary(filters), {
+    keepPreviousData: true,
+  });
 
 export const useGetBscCycles = () =>
   useQuery(BSC_QUERY_KEYS.cycles, () =>
@@ -174,8 +171,7 @@ export const useGetBscScorecards = (filters?: {
       // Never reuse another user's "mine" payload across account switches.
       keepPreviousData: Boolean(filters?.cycleId),
       enabled:
-        Boolean(actorUserId) &&
-        (!filters?.cycleId || Boolean(filters.cycleId)),
+        Boolean(actorUserId) && (!filters?.cycleId || Boolean(filters.cycleId)),
     },
   );
 };
@@ -195,8 +191,7 @@ export const useGetBscResultsScorecards = (scope: ResultsScope = 'mine') => {
         }
         if (scope === 'team') {
           return list.filter(
-            (card) =>
-              card.managerId === actorId && card.userId !== actorId,
+            (card) => card.managerId === actorId && card.userId !== actorId,
           );
         }
         return list;
@@ -290,9 +285,9 @@ export const useGetBscRolePerspectives = (filters?: {
     [BSC_QUERY_KEYS.perspectives, filters],
     () =>
       USE_BSC_API
-        ? Promise.resolve([] as Awaited<
-            ReturnType<typeof bscMockRepo.listRolePerspectives>
-          >)
+        ? Promise.resolve(
+            [] as Awaited<ReturnType<typeof bscMockRepo.listRolePerspectives>>,
+          )
         : bscMockRepo.listRolePerspectives(filters),
     { keepPreviousData: true },
   );

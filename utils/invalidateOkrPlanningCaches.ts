@@ -537,9 +537,7 @@ function computeOkrDeltasFromPatches(
     }
 
     const oldVal =
-      prevApplied !== undefined
-        ? prevApplied
-        : Number(task?.actualValue ?? 0);
+      prevApplied !== undefined ? prevApplied : Number(task?.actualValue ?? 0);
     const delta = newVal - (Number.isFinite(oldVal) ? oldVal : 0);
     const krId = resolvePatchKeyResultId(patch, task);
     if (!krId || delta === 0) continue;
@@ -610,11 +608,7 @@ function applyOkrCurrentValueDeltasAsAbsolute(
     const sticky = useRecentOkrMetricOverrides.getState().get(krId);
     const cached = readOkrCurrentValueFromCaches(queryClient, krId);
     const baseline =
-      sticky !== undefined
-        ? sticky
-        : cached !== undefined
-          ? cached
-          : 0;
+      sticky !== undefined ? sticky : cached !== undefined ? cached : 0;
     const next = baseline + delta;
     absoluteByKrId[krId] = next;
     rememberOkrCurrentValue(krId, next);

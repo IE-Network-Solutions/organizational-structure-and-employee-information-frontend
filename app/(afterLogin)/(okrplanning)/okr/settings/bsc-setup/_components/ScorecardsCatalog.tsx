@@ -182,8 +182,7 @@ export default function ScorecardsCatalog() {
       profileImage: employee?.profileImage ?? null,
       scorecard: card,
       individualCount: card
-        ? card.targets.filter((t) => t.assignmentSource === 'individual')
-            .length
+        ? card.targets.filter((t) => t.assignmentSource === 'individual').length
         : 0,
       configLabel: card
         ? configLabelById.get(card.cycleId) || card.cycleLabel || null
