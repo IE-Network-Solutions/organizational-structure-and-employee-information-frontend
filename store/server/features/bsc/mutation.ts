@@ -595,12 +595,16 @@ export const useAssignBscScorecard = () => {
         invalidateAll(qc);
         const overridden = result.overridden?.length || 0;
         const deferred = result.deferred?.length || 0;
+        const replaced = result.replaced?.length || 0;
         const notes = [
           overridden
             ? `${overridden} kept a higher-priority scorecard (Individual > Position > Department > Company)`
             : '',
           deferred
             ? `${deferred} switch next period (already started their current scorecard)`
+            : '',
+          replaced
+            ? `${replaced} replaced a scorecard they had already started — that progress is kept but hidden`
             : '',
         ].filter(Boolean);
         NotificationMessage.success({

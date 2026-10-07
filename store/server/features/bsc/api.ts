@@ -468,6 +468,8 @@ export type BscAssignResult = {
   overridden?: Array<{ userId: string; effectiveScorecardId: string }>;
   /** This scorecard wins, but applies from next period (lower one started). */
   deferred?: Array<{ userId: string; effectiveScorecardId: string }>;
+  /** Same-level scorecard already in progress, replaced by this newer one. */
+  replaced?: Array<{ userId: string; previousScorecardId: string }>;
 };
 
 export type BscReconcileResult = {
