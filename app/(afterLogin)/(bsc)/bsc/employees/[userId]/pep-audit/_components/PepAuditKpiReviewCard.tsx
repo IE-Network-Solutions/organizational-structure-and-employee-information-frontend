@@ -69,6 +69,7 @@ function reportedAchievementPercent(target: ScorecardKpiTarget): number | null {
       worstCase: target.worstCase,
       bestCase: target.bestCase,
       acceptableThreshold: target.acceptableThreshold,
+      stretchTarget: target.stretchTarget,
     },
   );
   return Math.round(ratio * 1000) / 10;

@@ -33,7 +33,9 @@ export default function ScoreProgressBar({
     );
   }
 
-  const percent = Math.min(Math.max(resolved, 0), 100);
+  // Bar fill stops at 100%; the label shows stretch credit (e.g. 120%).
+  const shown = Math.max(resolved, 0);
+  const percent = Math.min(shown, 100);
   return (
     <div
       className={`flex min-w-[140px] max-w-[220px] items-center gap-2 ${className || ''}`}
@@ -53,7 +55,7 @@ export default function ScoreProgressBar({
         className="shrink-0 text-sm font-normal text-[#4d4d4d]"
         data-cy={`${dataCy}-label`}
       >
-        {formatScore(percent)}%
+        {formatScore(shown)}%
       </span>
     </div>
   );

@@ -7,7 +7,7 @@ import {
   TargetLogic,
 } from '@/types/bsc';
 import { formatTargetDisplay } from '@/utils/bsc/measurementUnit';
-import { normalizeRatio } from '@/utils/bsc/scoring';
+import { hasThresholdBreach, normalizeRatio } from '@/utils/bsc/scoring';
 
 /**
  * Layout of the approved "IE-Export Report Sample V.0.1": title, intro,
@@ -51,8 +51,11 @@ function formatTarget(row: PepAuditRow): string {
   return row.targetLogic === TargetLogic.LowerBetter ? `≤ ${value}` : value;
 }
 
-/** Achievement % with the same threshold gate as scoring. */
-function performancePercent(row: PepAuditRow): string {
+/** Achievement % with the same threshold gate and stretch caps as scoring. */
+function performancePercent(
+  row: PepAuditRow,
+  cardThresholdBreached: boolean,
+): string {
   if (row.actualValue == null || row.targetValue == null) return '';
   const { ratio } = normalizeRatio(
     row.actualValue,
@@ -62,6 +65,8 @@ function performancePercent(row: PepAuditRow): string {
       worstCase: row.worstCase,
       bestCase: row.bestCase,
       acceptableThreshold: row.acceptableThreshold,
+      stretchTarget: row.stretchTarget,
+      cardThresholdBreached,
     },
   );
   return `${Math.round(ratio * 100)}%`;
@@ -142,6 +147,19 @@ export async function buildPepAuditReportWorkbook(
     cell.border = BORDER;
   });
 
+  // A threshold breach on any KPI of a scorecard caps its over-achievement.
+  const rowsByScorecard = new Map<string, PepAuditRow[]>();
+  for (const row of rows) {
+    const list = rowsByScorecard.get(row.scorecardId) || [];
+    list.push(row);
+    rowsByScorecard.set(row.scorecardId, list);
+  }
+  const breachedScorecards = new Set(
+    Array.from(rowsByScorecard.entries())
+      .filter(([, cardRows]) => hasThresholdBreach(cardRows))
+      .map(([scorecardId]) => scorecardId),
+  );
+
   rows.forEach((row, index) => {
     const sheetRow = sheet.getRow(headerRowNumber + 1 + index);
     const values = [
@@ -149,7 +167,7 @@ export async function buildPepAuditReportWorkbook(
       row.kpiName,
       formatValue(row.reportedValue ?? row.actualValue, row),
       formatTarget(row),
-      performancePercent(row),
+      performancePercent(row, breachedScorecards.has(row.scorecardId)),
       managerScore(row),
       row.approvalStatus === KpiApprovalStatus.Rejected
         ? row.rejectionReason || ''

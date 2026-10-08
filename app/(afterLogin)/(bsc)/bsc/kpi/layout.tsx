@@ -3,14 +3,19 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Button } from 'antd';
-import { DownloadOutlined, PlusOutlined } from '@ant-design/icons';
+import { Button, Tooltip } from 'antd';
+import {
+  DownloadOutlined,
+  PlusOutlined,
+  SyncOutlined,
+} from '@ant-design/icons';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import KpiImportModal from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiImportModal';
 import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { useBscUiStore } from '@/store/uistate/features/bsc';
 import { useGetBscKpiLibrary } from '@/store/server/features/bsc/queries';
+import { useRecalculateBscAssignments } from '@/store/server/features/bsc/mutation';
 import { exportKpiLibrary } from '@/utils/bsc/kpiImport';
 import { bscAccess } from '@/utils/bsc/permissions';
 import {
@@ -18,6 +23,10 @@ import {
   parseBscKpiAdminTab,
   scorecardTabHref,
 } from '@/utils/bsc/scorecardTab';
+
+/** Tooltip for the BSC tab "Recalculate assignments" action. */
+const RECALCULATE_HINT =
+  'Re-apply Individual > Position > Department > Company so each employee has one effective scorecard (e.g. after position or department changes).';
 
 const TABS = [
   { key: 'kpis' as const, label: 'KPI', href: bscKpiAdminHref('kpis') },
@@ -43,6 +52,8 @@ export default function BscKpiAdminLayout({
   const canExportKpis = bscAccess.exportKpis();
   const canCreateKpi = bscAccess.createKpi();
   const canCreateScorecard = bscAccess.createScorecard();
+  const canUpdateScorecard = bscAccess.updateScorecard();
+  const recalculate = useRecalculateBscAssignments();
   const canOpenActiveTab =
     activeTab === 'kpis' ? canViewKpis : canViewScorecards;
   const visibleTabs = TABS.filter((tab) =>
@@ -217,26 +228,44 @@ export default function BscKpiAdminLayout({
                 </>
               ) : null}
             </>
-          ) : activeTab === 'bsc' && canCreateScorecard ? (
+          ) : activeTab === 'bsc' &&
+            (canCreateScorecard || canUpdateScorecard) ? (
             <>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={openCreateSetup}
-                className="mb-[6px] hidden h-8 shrink-0 rounded-md border-none bg-[#2b54ad] sm:inline-flex hover:bg-[#3d66c2]"
-                data-cy="bsc-setup-add"
-              >
-                Add scorecard
-              </Button>
-              <button
-                type="button"
-                aria-label="Add scorecard"
-                onClick={openCreateSetup}
-                className="mb-[6px] flex h-8 w-8 min-h-8 min-w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border-none bg-[#2b54ad] text-white outline-none hover:opacity-90 sm:hidden"
-                data-cy="bsc-setup-add-mobile"
-              >
-                <PlusOutlined className="text-sm" />
-              </button>
+              {canUpdateScorecard ? (
+                <Tooltip title={RECALCULATE_HINT}>
+                  <Button
+                    icon={<SyncOutlined spin={recalculate.isLoading} />}
+                    onClick={() => recalculate.mutate()}
+                    loading={recalculate.isLoading}
+                    className={`${bscFilterButtonClassName} mb-[6px] hidden h-8 shrink-0 rounded-md sm:inline-flex`}
+                    data-cy="bsc-setup-recalculate"
+                  >
+                    Recalculate assignments
+                  </Button>
+                </Tooltip>
+              ) : null}
+              {canCreateScorecard ? (
+                <>
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={openCreateSetup}
+                    className="mb-[6px] hidden h-8 shrink-0 rounded-md border-none bg-[#2b54ad] sm:inline-flex hover:bg-[#3d66c2]"
+                    data-cy="bsc-setup-add"
+                  >
+                    Add scorecard
+                  </Button>
+                  <button
+                    type="button"
+                    aria-label="Add scorecard"
+                    onClick={openCreateSetup}
+                    className="mb-[6px] flex h-8 w-8 min-h-8 min-w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border-none bg-[#2b54ad] text-white outline-none hover:opacity-90 sm:hidden"
+                    data-cy="bsc-setup-add-mobile"
+                  >
+                    <PlusOutlined className="text-sm" />
+                  </button>
+                </>
+              ) : null}
             </>
           ) : null}
         </div>

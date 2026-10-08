@@ -25,6 +25,7 @@ const TRANSITIONS: Record<ScorecardStatus, ScorecardStatus[]> = {
   [ScorecardStatus.NeedsResubmit]: [ScorecardStatus.PendingEval],
   [ScorecardStatus.Scored]: [ScorecardStatus.Completed],
   [ScorecardStatus.Completed]: [],
+  [ScorecardStatus.Superseded]: [ScorecardStatus.Active],
 };
 
 export function canTransition(
@@ -51,6 +52,7 @@ export const SCORECARD_STATUS_LABEL: Record<ScorecardStatus, string> = {
   [ScorecardStatus.NeedsResubmit]: 'Needs Resubmit',
   [ScorecardStatus.Scored]: 'Scored',
   [ScorecardStatus.Completed]: 'Completed',
+  [ScorecardStatus.Superseded]: 'Overridden',
 };
 
 export const SCORECARD_STATUS_COLOR: Record<ScorecardStatus, string> = {
@@ -61,4 +63,5 @@ export const SCORECARD_STATUS_COLOR: Record<ScorecardStatus, string> = {
   [ScorecardStatus.NeedsResubmit]: 'red',
   [ScorecardStatus.Scored]: 'cyan',
   [ScorecardStatus.Completed]: 'green',
+  [ScorecardStatus.Superseded]: 'default',
 };
