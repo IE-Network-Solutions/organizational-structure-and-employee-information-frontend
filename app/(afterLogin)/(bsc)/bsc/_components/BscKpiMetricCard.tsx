@@ -174,10 +174,7 @@ function OverflowChipRow({
 
   if (!items.length) {
     return (
-      <span
-        className="text-[12px] text-[#8F94A3]"
-        data-cy={`${dataCy}-empty`}
-      >
+      <span className="text-[12px] text-[#8F94A3]" data-cy={`${dataCy}-empty`}>
         {emptyLabel || 'None assigned'}
       </span>
     );
@@ -305,5 +302,3 @@ export function BscKpiCountCard({
     </div>
   );
 }
-
-

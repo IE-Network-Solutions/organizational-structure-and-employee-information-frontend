@@ -1,5 +1,8 @@
 /** Normalize Nest / Axios errors into a plain Error for React Query onError handlers. */
-export function toBscError(error: unknown, fallback = 'BSC request failed'): Error {
+export function toBscError(
+  error: unknown,
+  fallback = 'BSC request failed',
+): Error {
   if (error instanceof Error && !(error as { response?: unknown }).response) {
     return error;
   }

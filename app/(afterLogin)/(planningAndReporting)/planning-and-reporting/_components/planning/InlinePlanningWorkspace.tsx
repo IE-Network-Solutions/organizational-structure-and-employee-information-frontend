@@ -417,6 +417,13 @@ function PlanningMetricsRow({
           min={getMetricValueInputMin(keyResultForBounds)}
           max={getMetricValueInputMax(keyResultForBounds)}
           className={`w-full min-w-0 rounded-lg ${inputNumH40} [&_.ant-input-number]:!rounded-lg`}
+          // Thousands separators while typing (1000000 → 1,000,000); value stays a plain number.
+          formatter={(v) =>
+            v === undefined || v === null
+              ? ''
+              : `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+          }
+          parser={(v) => (v ?? '').replace(/,/g, '') as unknown as number}
           value={targetValue ?? undefined}
           onChange={(v) => {
             if (v == null) {

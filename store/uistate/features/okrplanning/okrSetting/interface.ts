@@ -24,6 +24,8 @@ export type PlanningPeriodItem = {
   userId: string;
   tenantId: string;
   planningPeriodId: string;
+  /** This period's reports progress KR / Average OKR for the user. */
+  drivesOkrProgress?: boolean;
   planningPeriod: PlanningPeriod;
 };
 

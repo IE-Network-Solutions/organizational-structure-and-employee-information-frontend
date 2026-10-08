@@ -1,5 +1,6 @@
 import React from 'react';
 import { Spin } from 'antd';
+import { OkrScoreContribution } from '@/utils/okrScoreBreakdown';
 
 interface PercentageProps {
   percent: number | string;
@@ -7,6 +8,7 @@ interface PercentageProps {
   format?: string;
   loading: boolean;
   type: 'percent' | 'ratio' | 'daysLeft';
+  scoreBreakdown?: OkrScoreContribution[];
 }
 
 const ProgressPercent: React.FC<PercentageProps> = ({
@@ -15,8 +17,11 @@ const ProgressPercent: React.FC<PercentageProps> = ({
   loading,
   type,
   format,
+  scoreBreakdown = [],
 }) => {
   const normalizedTitle = title.replace(/\s+/g, '-').toLowerCase();
+  const formatScore = (score: number) =>
+    Number(score).toLocaleString(undefined, { maximumFractionDigits: 2 });
 
   const formatText = () => {
     if (type === 'percent') {
@@ -63,6 +68,41 @@ const ProgressPercent: React.FC<PercentageProps> = ({
       >
         {formatText()}
       </div>
+      {type === 'percent' && scoreBreakdown.length > 0 && (
+        <div
+          className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-gray-600"
+          data-cy={`okr-progress-percent-breakdown-${normalizedTitle}`}
+        >
+          {scoreBreakdown.map((item, index) => (
+            <React.Fragment key={item.name}>
+              {index > 0 && (
+                <span
+                  aria-hidden="true"
+                  data-cy={`okr-progress-percent-breakdown-separator-${index}`}
+                >
+                  ·
+                </span>
+              )}
+              <span
+                data-cy={`okr-progress-percent-breakdown-contribution-${index}`}
+              >
+                {item.name} {formatScore(item.score)}% ×{' '}
+                {formatScore(item.weightPercent)}% ={' '}
+                {formatScore(item.contribution)}
+              </span>
+            </React.Fragment>
+          ))}
+          <span
+            aria-hidden="true"
+            data-cy="okr-progress-percent-breakdown-overall-separator"
+          >
+            ·
+          </span>
+          <span data-cy="okr-progress-percent-breakdown-overall">
+            Overall {formatScore(Number(percent))}
+          </span>
+        </div>
+      )}
     </div>
   );
 };

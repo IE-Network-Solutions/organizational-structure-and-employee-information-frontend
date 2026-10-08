@@ -85,7 +85,8 @@ const ObjectiveBasic: React.FC<ObjectiveProps> = ({ objective, myOkr }) => {
       false);
 
   const completedKeyResults =
-    objective?.keyResults?.filter((kr: any) => kr.progress === 100).length || 0;
+    objective?.keyResults?.filter((kr: any) => Number(kr?.progress ?? 0) >= 100)
+      .length || 0;
   const totalKeyResults = objective?.keyResults?.length || 0;
   const { mutate: updateKeyResult } = useUpdateKeyResult();
   const { data: metrics } = useGetMetrics();

@@ -36,6 +36,7 @@ import {
   ADVANCED_ROW_CLASS,
   ADVANCED_WRAPPER_CLASS,
   INPUT_CLASS,
+  KeyResultDataSourceField,
 } from '../_ui';
 
 /** Stable empty array to avoid useEffect loop when keyItem has no milestones. */
@@ -1126,6 +1127,14 @@ const MilestoneForm: React.FC<OKRFormProps> = ({
               </>
             )}
           </div>
+        )}
+        {!isCardView && (
+          <KeyResultDataSourceField
+            index={index}
+            value={keyItem.dataSource}
+            onChange={(value) => updateKeyResult(index, 'dataSource', value)}
+            data-cy={`okr-milestone-data-source-${index}`}
+          />
         )}
       </Form>
     </div>

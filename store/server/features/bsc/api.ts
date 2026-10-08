@@ -550,7 +550,8 @@ export async function listBscScorecardAssignments(
 
     return unwrapListPayload(data).map((row) =>
       mapEmployeeScorecardFromApi(row as BscEmployeeScorecardApi, {
-        userName: options?.userNameByUserId?.[(row as BscEmployeeScorecardApi).userId],
+        userName:
+          options?.userNameByUserId?.[(row as BscEmployeeScorecardApi).userId],
       }),
     );
   } catch (error) {
@@ -645,8 +646,7 @@ export async function listBscResultsScorecards(
       params,
     });
 
-    const userName =
-      scope === 'mine' ? currentUserDisplayName() : undefined;
+    const userName = scope === 'mine' ? currentUserDisplayName() : undefined;
     const actorUserId = authStoreUserId();
     return unwrapListPayload(data)
       .map((row) =>
@@ -819,7 +819,9 @@ export async function listMyBscCheckInQueue(): Promise<EmployeeScorecard[]> {
   }
 }
 
-export async function listBscReviewCheckInQueue(): Promise<EmployeeScorecard[]> {
+export async function listBscReviewCheckInQueue(): Promise<
+  EmployeeScorecard[]
+> {
   try {
     const headers = await bscAuthHeaders();
     const data = await crudRequest({
@@ -1020,7 +1022,11 @@ export async function importBscKpis(
       data: { rows: rows.map(mapKpiImportRowToApi) },
     })) as {
       created?: BscKpiApi[];
-      errors?: Array<{ row: number; error?: string; input?: KpiImportRowInput }>;
+      errors?: Array<{
+        row: number;
+        error?: string;
+        input?: KpiImportRowInput;
+      }>;
       createdPerspectives?: string[];
       unassignedCount?: number;
     };
@@ -1060,7 +1066,7 @@ export async function listBscPepAuditRows(filters?: {
     const rows = Array.isArray(data)
       ? data
       : Array.isArray((data as { items?: unknown })?.items)
-        ? ((data as { items: BscPepAuditRowApi[] }).items)
+        ? (data as { items: BscPepAuditRowApi[] }).items
         : [];
 
     return rows.map((row) => mapPepAuditRowFromApi(row as BscPepAuditRowApi));

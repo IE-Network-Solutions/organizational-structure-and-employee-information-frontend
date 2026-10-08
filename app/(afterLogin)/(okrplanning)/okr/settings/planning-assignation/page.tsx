@@ -1,18 +1,9 @@
 'use client';
-import {
-  Input,
-  Popconfirm,
-  Avatar,
-  Dropdown,
-  MenuProps,
-  Tag,
-  Card,
-} from 'antd';
-import { SearchOutlined, CalendarOutlined } from '@ant-design/icons';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import dayjs from 'dayjs';
+import { Input, Popconfirm, MenuProps } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import PlanningAssignationModal from './_components/planning-assignation-drawer';
 import PlanningAssignationPageSkeleton from './_components/planningAssignationPageSkeleton';
+import AssigneeCard from './_components/assigneeCard';
 import EmptyState from '@/components/empty';
 import DeleteModal from '@/components/common/deleteConfirmationModal';
 import { usePlanningAssignationStore } from '@/store/uistate/features/okrplanning/monitoring-evaluation/planning-assignation-drawer';
@@ -97,6 +88,17 @@ const PlanAssignment: React.FC = () => {
     ? globalSearchGroupedByUser?.items || []
     : allUserWithPlanningPeriodGroupedByUser?.items || [];
 
+  const employeeById = useMemo(
+    () =>
+      new Map<string, EmployeeData>(
+        (employeeData?.items ?? []).map((user: EmployeeData) => [
+          user.id,
+          user,
+        ]),
+      ),
+    [employeeData],
+  );
+
   const getEmployeeData = useMemo(() => {
     return (userId: string) => {
       const employee = employeeData?.items?.find(
@@ -109,13 +111,24 @@ const PlanAssignment: React.FC = () => {
     };
   }, [employeeData]);
 
-  const getPlanningPeriodType = useMemo(() => {
-    return (planningPeriodId: string) => {
-      const planningPeriod = allPlanningPeriods?.items?.find(
-        (period: any) => period.id === planningPeriodId,
-      );
-      return planningPeriod?.intervalType || 'daily';
-    };
+  /** Every assigned plan of a user, longest interval first (matches the modal). */
+  const getAssignedPlans = useMemo(() => {
+    return (item: GroupedUserWithPlanningPeriods) =>
+      (item?.planningPeriod ?? [])
+        .map((assignment) => {
+          const period =
+            assignment.planningPeriod ??
+            allPlanningPeriods?.items?.find(
+              (p: any) => p.id === assignment.planningPeriodId,
+            );
+          return {
+            id: assignment.planningPeriodId,
+            name: period?.name ?? '-',
+            intervalLength: Number(period?.intervalLength) || 0,
+            drivesOkrProgress: !!assignment.drivesOkrProgress,
+          };
+        })
+        .sort((a, b) => b.intervalLength - a.intervalLength);
   }, [allPlanningPeriods]);
 
   const showDrawer = () => {
@@ -163,26 +176,28 @@ const PlanAssignment: React.FC = () => {
         return employeeName.includes(searchLower);
       })
       ?.map((item: GroupedUserWithPlanningPeriods) => {
-        const firstPlanningPeriod = item?.planningPeriod?.[0];
-        const planningPeriodType = firstPlanningPeriod?.planningPeriodId
-          ? getPlanningPeriodType(firstPlanningPeriod.planningPeriodId)
-          : 'daily';
+        // Search path groups rows in the browser and has no lastUpdated.
+        const lastUpdated =
+          item?.lastUpdated ??
+          item?.planningPeriod
+            ?.map((assignment) => assignment.updatedAt)
+            .filter(Boolean)
+            .sort()
+            .pop();
         return {
           ...item,
           employeeName: getEmployeeData(item?.userId),
-          planningPeriodType:
-            planningPeriodType.charAt(0).toUpperCase() +
-            planningPeriodType.slice(1),
-          updatedAt: item?.lastUpdated,
+          assignedPlans: getAssignedPlans(item),
+          updatedAt: lastUpdated,
         };
       });
   }, [
     userToPlanning,
     employeeData,
     debouncedSearch,
-    allPlanningPeriods,
+
     getEmployeeData,
-    getPlanningPeriodType,
+    getAssignedPlans,
   ]);
 
   const paginatedData = useMemo(() => {
@@ -361,124 +376,16 @@ const PlanAssignment: React.FC = () => {
               id="okr-planning-assignation-cards-grid"
               data-cy="okr-planning-assignation-cards-grid"
             >
-              {paginatedData.map((item: any) => {
-                const initials = item.employeeName
-                  .split(' ')
-                  .map((name: string) => name[0]?.toUpperCase())
-                  .join('')
-                  .slice(0, 2);
-
-                return (
-                  <Card
-                    key={item.userId}
-                    bordered={false}
-                    className="rounded-xl hover:shadow-sm transition-shadow"
-                    style={{ background: '#F9FAFB', boxShadow: 'none' }}
-                    bodyStyle={{ padding: '16px' }}
-                    id={`okr-planning-assignation-card-${item.userId}`}
-                    data-cy={`okr-planning-assignation-card-${item.userId}`}
-                  >
-                    <div
-                      className="flex items-start gap-3"
-                      data-cy={`okr-planning-assignation-card-content-${item.userId}`}
-                    >
-                      {/* Avatar */}
-                      <div
-                        className="shrink-0"
-                        id={`okr-planning-assignation-card-avatar-wrapper-${item.userId}`}
-                        data-cy={`okr-planning-assignation-card-avatar-wrapper-${item.userId}`}
-                      >
-                        {item?.profileImage ? (
-                          <Avatar
-                            size={40}
-                            src={item?.profileImage}
-                            data-cy={`okr-planning-assignation-card-avatar-${item.userId}`}
-                          />
-                        ) : (
-                          <Avatar
-                            size={40}
-                            className="bg-[#EFF6FF] text-[#1D4ED8] font-semibold"
-                            data-cy={`okr-planning-assignation-card-avatar-initials-${item.userId}`}
-                          >
-                            {initials}
-                          </Avatar>
-                        )}
-                      </div>
-
-                      {/* Content block */}
-                      <div
-                        className="flex-1 min-w-0"
-                        data-cy={`okr-planning-assignation-card-content-block-${item.userId}`}
-                      >
-                        {/* Name + 3-dot row */}
-                        <div
-                          className="flex items-start justify-between gap-1"
-                          data-cy={`okr-planning-assignation-card-name-row-${item.userId}`}
-                        >
-                          <p
-                            className="text-sm font-semibold text-gray-800 truncate m-0 leading-5"
-                            id={`okr-planning-assignation-card-name-${item.userId}`}
-                            data-cy={`okr-planning-assignation-card-name-${item.userId}`}
-                          >
-                            {item.employeeName}
-                          </p>
-                          <div
-                            className="shrink-0"
-                            id={`okr-planning-assignation-card-menu-wrapper-${item.userId}`}
-                            data-cy={`okr-planning-assignation-card-menu-wrapper-${item.userId}`}
-                          >
-                            <Dropdown
-                              menu={{ items: getMenuItems(item) }}
-                              trigger={['click']}
-                              placement="bottomRight"
-                              overlayClassName="custom-menu-dropdown"
-                              data-cy={`okr-planning-assignation-card-dropdown-${item.userId}`}
-                            >
-                              <button
-                                type="button"
-                                className="flex h-6 w-6 items-center justify-center text-[#8c8c8c] transition-colors hover:text-[#262626] bg-transparent border-none cursor-pointer p-0"
-                                onClick={(e) => e.stopPropagation()}
-                                data-cy={`okr-planning-assignation-card-menu-button-${item.userId}`}
-                              >
-                                <MoreHorizIcon
-                                  style={{ fontSize: 14 }}
-                                  data-cy={`okr-planning-assignation-card-menu-icon-${item.userId}`}
-                                />
-                              </button>
-                            </Dropdown>
-                          </div>
-                        </div>
-
-                        {/* Tag + Date row */}
-                        <div
-                          className="flex items-center gap-2 mt-2 flex-wrap"
-                          data-cy={`okr-planning-assignation-card-meta-${item.userId}`}
-                        >
-                          <Tag
-                            className="m-0 rounded-md px-3 py-0.5 border-[#d9d9d9] bg-white text-[#8c8c8c] text-xs font-normal"
-                            id={`okr-planning-assignation-card-tag-${item.userId}`}
-                            data-cy={`okr-planning-assignation-card-tag-${item.userId}`}
-                          >
-                            {item.planningPeriodType}
-                          </Tag>
-                          <span
-                            className="flex items-center gap-1 text-xs text-gray-400"
-                            data-cy={`okr-planning-assignation-card-date-${item.userId}`}
-                          >
-                            <CalendarOutlined
-                              style={{ fontSize: 11 }}
-                              data-cy={`okr-planning-assignation-card-date-icon-${item.userId}`}
-                            />
-                            {item.updatedAt
-                              ? dayjs(item.updatedAt).format('DD MMM YYYY')
-                              : '-'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
+              {paginatedData.map((item: any) => (
+                <AssigneeCard
+                  key={item.userId}
+                  userId={item.userId}
+                  bulkEmployee={employeeById.get(item.userId)}
+                  plans={item.assignedPlans}
+                  updatedAt={item.updatedAt}
+                  menuItems={getMenuItems(item)}
+                />
+              ))}
             </div>
           )}
         </div>

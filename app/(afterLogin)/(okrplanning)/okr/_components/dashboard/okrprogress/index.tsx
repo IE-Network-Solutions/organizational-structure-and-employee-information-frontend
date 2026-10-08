@@ -2,8 +2,10 @@ import React from 'react';
 import ProgressPercent from '../progressbar';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import { useGetEffectiveObjectiveTypeWeights } from '@/store/server/features/okrplanning/okr-objective-type-weight/queries';
 import { useOKRStore } from '@/store/uistate/features/okrplanning/okr';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { buildOkrScoreBreakdown } from '@/utils/okrScoreBreakdown';
 
 export default function OkrProgress() {
   const { userId } = useAuthenticationStore();
@@ -14,9 +16,20 @@ export default function OkrProgress() {
     isLoading,
     isFetching,
   } = useGetUserObjectiveDashboard(userId, fiscalYearId, sessionId);
+  const { data: effectiveWeights } =
+    useGetEffectiveObjectiveTypeWeights(userId);
   const { isMobile } = useIsMobile();
 
   const isSummaryLoading = isLoading || isFetching;
+  const overallProgress =
+    objectiveDashboard?.overall ?? objectiveDashboard?.userOkr ?? 0;
+  const scoreBreakdown =
+    objectiveDashboard?.scoringMode === 'TYPE_WEIGHTED'
+      ? buildOkrScoreBreakdown(
+          objectiveDashboard.typeScores,
+          effectiveWeights?.lines,
+        )
+      : [];
 
   return (
     <div
@@ -37,9 +50,10 @@ export default function OkrProgress() {
           <ProgressPercent
             data-cy="okr-progress-primary-card-progress-percent"
             title="Overall Progress"
-            percent={(objectiveDashboard?.userOkr as number) || 0}
+            percent={overallProgress}
             loading={isSummaryLoading}
             type="percent"
+            scoreBreakdown={scoreBreakdown}
           />
         ) : okrTab == 2 ? (
           <ProgressPercent

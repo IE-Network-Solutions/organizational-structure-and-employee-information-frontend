@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Form, Tooltip, Button } from 'antd';
 import { useQueryClient } from 'react-query';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -13,6 +13,8 @@ import { useUpdateKeyResult } from '@/store/server/features/okrplanning/okr/obje
 import { persistKeyResultMilestones } from '../../../_utils/milestoneSave';
 import { isKeyResultLockedForWeightEdit } from '../../../_utils/keyResultGuards';
 import { useGetKeyResultForEdit } from '@/store/server/features/okrplanning/okr/keyresult/queries';
+import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
+import { getKeyResultBandValidationError } from '@/utils/okrScoringBands';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
@@ -34,6 +36,7 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
   const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
   const { mutateAsync: updateKeyResultAsync } = useUpdateKeyResult();
+  const { data: setting, refetch: refetchSetting } = useGetOkrSetting();
   const {
     keyResultValue,
     handleSingleKeyResultChange,
@@ -117,6 +120,12 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
     return n === 'Numeric' || n === 'Currency' || n === 'Percentage';
   };
 
+  useEffect(() => {
+    if (props.open) {
+      refetchSetting();
+    }
+  }, [props.open, refetchSetting]);
+
   const onSubmit = () => {
     form
       .validateFields()
@@ -173,16 +182,15 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
           keyType === 'Numeric' ||
           keyType === 'Percentage'
         ) {
-          // Check if at least one milestone is added
-
-          if (
-            Number(keyResultForValidation?.initialValue) >=
-            Number(keyResultForValidation?.targetValue)
-          ) {
+          const scoreBandError = getKeyResultBandValidationError(
+            keyResultForValidation,
+            setting?.scoringMode,
+          );
+          if (scoreBandError) {
             NotificationMessage.warning({
-              message: `Title:${keyResultForValidation.title}: Target value must be greater than the initial value.`,
+              message: `Title:${keyResultForValidation.title}: ${scoreBandError}`,
             });
-            return; // Stop submission if the sum is not 100
+            return;
           }
         }
 
@@ -204,7 +212,11 @@ const EditKeyResult: React.FC<EditKeyResultProps> = (props) => {
         }
 
         // If all checks pass, proceed with the key result update
-        const merged = keyResultForValidation;
+        const merged = { ...keyResultForValidation };
+        if (setting?.scoringMode !== 'TYPE_WEIGHTED') {
+          delete merged.thresholdValue;
+          delete merged.stretchValue;
+        }
         const removedMilestoneIds = [...(deletedMilestoneIds || [])];
 
         void (async () => {

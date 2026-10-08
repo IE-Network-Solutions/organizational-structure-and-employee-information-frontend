@@ -56,9 +56,7 @@ export function PepAuditWorkflowStepsAggregate({
   if (targets?.length && rows.length) {
     // Only the KPIs that are in this audit (reported), like the PEP rows.
     const reportedIds = new Set(rows.map((row) => row.targetId));
-    const chainTargets = targets.filter((target) =>
-      reportedIds.has(target.id),
-    );
+    const chainTargets = targets.filter((target) => reportedIds.has(target.id));
     return (
       <ApprovalChainStatusBar
         chain={resolveApprovalChain(

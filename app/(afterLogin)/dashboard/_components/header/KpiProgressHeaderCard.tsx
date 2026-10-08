@@ -42,7 +42,8 @@ export function computeKpiProgressPercent(
     );
     if (weightSum <= 0) return 0;
     const weighted = fromServerScores.reduce(
-      (sum, t) => sum + (Number(t.score) * (t.weightPercentage || 0)) / weightSum,
+      (sum, t) =>
+        sum + (Number(t.score) * (t.weightPercentage || 0)) / weightSum,
       0,
     );
     return weighted;

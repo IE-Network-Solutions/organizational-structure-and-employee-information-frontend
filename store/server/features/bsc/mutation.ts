@@ -75,12 +75,7 @@ function invalidateAll(qc: ReturnType<typeof useQueryClient>) {
 export const useImportBscKpis = () => {
   const qc = useQueryClient();
   return useMutation(
-    ({
-      rows,
-    }: {
-      rows: KpiImportRowInput[];
-      evaluationConfigId?: string;
-    }) =>
+    ({ rows }: { rows: KpiImportRowInput[]; evaluationConfigId?: string }) =>
       USE_BSC_API ? importBscKpis(rows) : bscMockRepo.importKpiBatch(rows),
     {
       onSuccess: (result) => {
@@ -132,12 +127,7 @@ export const useRejectKpiForPepAudit = () => {
       }
       const actorId = useAuthenticationStore.getState().userId;
       return bscMockRepo
-        .rejectKpiForPepAudit(
-          scorecardId,
-          targetId,
-          rejectionReason,
-          actorId,
-        )
+        .rejectKpiForPepAudit(scorecardId, targetId, rejectionReason, actorId)
         .then(() => undefined);
     },
     {
@@ -283,9 +273,7 @@ export const useUpdateBscKpi = () => {
   const qc = useQueryClient();
   return useMutation(
     ({ id, input }: { id: string; input: Partial<CreateKpiLibraryInput> }) =>
-      USE_BSC_API
-        ? updateBscKpi(id, input)
-        : bscMockRepo.updateKpi(id, input),
+      USE_BSC_API ? updateBscKpi(id, input) : bscMockRepo.updateKpi(id, input),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -490,9 +478,7 @@ export const useLockBscCycle = () => {
   const qc = useQueryClient();
   return useMutation(
     (id: string) =>
-      USE_BSC_API
-        ? lockBscScorecardTemplate(id)
-        : bscMockRepo.lockCycle(id),
+      USE_BSC_API ? lockBscScorecardTemplate(id) : bscMockRepo.lockCycle(id),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -535,7 +521,10 @@ export const useActivateBscCycle = () => {
     (id: string) =>
       USE_BSC_API
         ? activateBscScorecardTemplate(id)
-        : bscMockRepo.updateCycle(id, { isActive: true, status: CycleStatus.Open }),
+        : bscMockRepo.updateCycle(id, {
+            isActive: true,
+            status: CycleStatus.Open,
+          }),
     {
       onSuccess: () => {
         invalidateAll(qc);
@@ -572,13 +561,8 @@ export const useDeleteBscCycle = () => {
 export const useAssignBscScorecard = () => {
   const qc = useQueryClient();
   return useMutation(
-    ({
-      scorecardId,
-      asOf,
-    }: {
-      scorecardId: string;
-      asOf?: string | null;
-    }) => assignBscScorecard(scorecardId, asOf),
+    ({ scorecardId, asOf }: { scorecardId: string; asOf?: string | null }) =>
+      assignBscScorecard(scorecardId, asOf),
     {
       onSuccess: (result, variables) => {
         const people = mapAssignAssigneesToScorecards(result);

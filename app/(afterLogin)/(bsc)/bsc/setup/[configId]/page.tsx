@@ -55,7 +55,7 @@ function asNamedList(data: unknown): Array<{ id: string; name: string }> {
   const raw = Array.isArray(data)
     ? data
     : Array.isArray((data as { items?: unknown })?.items)
-      ? ((data as { items: unknown[] }).items)
+      ? (data as { items: unknown[] }).items
       : [];
   return raw
     .map((row: any) => ({
@@ -312,9 +312,9 @@ export default function BscScorecardDetailPage() {
     const looksLikeId = (value?: string | null) =>
       Boolean(
         value &&
-          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-            value,
-          ),
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          value,
+        ),
       );
     const resolvePerspectiveName = (
       lineName?: string | null,
@@ -616,9 +616,7 @@ export default function BscScorecardDetailPage() {
       individuals: resolveNamedLabels(
         config.employeeIds,
         config.employeeNames,
-        new Map(
-          uniquePeople.map((person) => [person.userId, person.userName]),
-        ),
+        new Map(uniquePeople.map((person) => [person.userId, person.userName])),
       ),
     };
   }, [config, departmentNameById, positionNameById, uniquePeople]);

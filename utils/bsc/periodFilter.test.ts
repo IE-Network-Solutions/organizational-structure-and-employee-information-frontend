@@ -7,9 +7,7 @@ import {
   toUtcDayString,
 } from './periodFilter';
 
-function card(
-  overrides: Partial<EmployeeScorecard> = {},
-): EmployeeScorecard {
+function card(overrides: Partial<EmployeeScorecard> = {}): EmployeeScorecard {
   return {
     id: 'esc-1',
     userId: 'u1',
