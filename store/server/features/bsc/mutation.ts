@@ -23,6 +23,7 @@ import {
   approveBscCheckInKpi,
   approveBscPepAuditKpi,
   assignBscScorecard,
+  recalculateBscAssignments,
   bulkApproveBscPepAuditKpis,
   createBscKpi,
   createBscPerspective,
@@ -576,9 +577,26 @@ export const useAssignBscScorecard = () => {
           );
         }
         invalidateAll(qc);
+        const overridden = result.overridden?.length || 0;
+        const deferred = result.deferred?.length || 0;
+        const replaced = result.replaced?.length || 0;
+        const notes = [
+          overridden
+            ? `${overridden} kept a higher-priority scorecard (Individual > Position > Department > Company)`
+            : '',
+          deferred
+            ? `${deferred} switch next period (already started their current scorecard)`
+            : '',
+          replaced
+            ? `${replaced} replaced a scorecard they had already started — that progress is kept but hidden`
+            : '',
+        ].filter(Boolean);
         NotificationMessage.success({
           message: 'Scorecard assigned',
-          description: `${result.created} created, ${result.updated} updated for ${result.userCount} user(s) (${result.period.periodLabel}).`,
+          description: [
+            `${result.created} created, ${result.updated} updated for ${result.created + result.updated} of ${result.userCount} user(s) (${result.period.periodLabel}).`,
+            ...notes,
+          ].join(' '),
         });
       },
       onError: (e: Error) =>
@@ -587,6 +605,28 @@ export const useAssignBscScorecard = () => {
         }),
     },
   );
+};
+
+/** Re-apply the scorecard priority (Individual > Position > Department > Company). */
+export const useRecalculateBscAssignments = () => {
+  const qc = useQueryClient();
+  return useMutation(() => recalculateBscAssignments(), {
+    onSuccess: (result) => {
+      invalidateAll(qc);
+      NotificationMessage.success({
+        message: 'Assignments recalculated',
+        description: `${result.applied} employee(s) on their effective scorecard, ${result.superseded} lower scorecard(s) overridden${
+          result.deferred
+            ? `, ${result.deferred} switch next period (already started)`
+            : ''
+        }.`,
+      });
+    },
+    onError: (e: Error) =>
+      NotificationMessage.error({
+        message: e.message || 'Failed to recalculate assignments',
+      }),
+  });
 };
 
 export const useCreateBscScorecard = () => {

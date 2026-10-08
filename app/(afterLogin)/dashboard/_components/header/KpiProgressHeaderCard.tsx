@@ -25,7 +25,8 @@ export function computeKpiProgressPercent(
   if (!scorecard) return 0;
 
   if (scorecard.finalEvaluation?.compositeScore != null) {
-    return Math.min(Number(scorecard.finalEvaluation.compositeScore), 100);
+    // Can exceed 100% up to the stretch caps (see BE scoring).
+    return Number(scorecard.finalEvaluation.compositeScore);
   }
 
   // Only show a score after the evaluation flow is finished (finalize).
@@ -45,7 +46,7 @@ export function computeKpiProgressPercent(
         sum + (Number(t.score) * (t.weightPercentage || 0)) / weightSum,
       0,
     );
-    return Math.min(weighted, 100);
+    return weighted;
   }
 
   return 0;

@@ -50,6 +50,11 @@ export enum ScorecardStatus {
   NeedsResubmit = 'NeedsResubmit',
   Scored = 'Scored',
   Completed = 'Completed',
+  /**
+   * Overridden by a higher-priority scorecard (Individual > Position >
+   * Department > Company). Kept; becomes Active again on fallback.
+   */
+  Superseded = 'Superseded',
 }
 
 export enum CycleStatus {
@@ -326,6 +331,8 @@ export interface EmployeeScorecard {
   finalEvaluation?: FinalEvaluation | null;
   /** When the employee last submitted a check-in (report). */
   submittedAt?: string | null;
+  /** Set while Superseded: the scorecard (cycle) that applies instead. */
+  supersededByScorecardId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

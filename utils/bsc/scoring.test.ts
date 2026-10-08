@@ -13,7 +13,33 @@ import { ScorecardStatus } from '@/types/bsc';
 
 describe('bsc scoring', () => {
   it('normalizes higher-is-better', () => {
-    expect(normalizeRatio(12, 10, TargetLogic.HigherBetter).ratio).toBe(1.2);
+    expect(normalizeRatio(8, 10, TargetLogic.HigherBetter).ratio).toBe(0.8);
+    expect(
+      normalizeRatio(12, 10, TargetLogic.HigherBetter, { stretchTarget: 15 })
+        .ratio,
+    ).toBe(1.2);
+  });
+
+  it('caps over-achievement at stretch / target, or 100% without a stretch', () => {
+    expect(
+      normalizeRatio(150, 100, TargetLogic.HigherBetter, { stretchTarget: 120 })
+        .ratio,
+    ).toBe(1.2);
+    expect(normalizeRatio(150, 100, TargetLogic.HigherBetter).ratio).toBe(1);
+  });
+
+  it('caps over-achievement at 100% when the card has a threshold breach', () => {
+    const options = { stretchTarget: 120, cardThresholdBreached: true };
+    expect(
+      normalizeRatio(110, 100, TargetLogic.HigherBetter, options).ratio,
+    ).toBe(1);
+    expect(
+      normalizeRatio(150, 100, TargetLogic.HigherBetter, options).ratio,
+    ).toBe(1);
+    // Below target is unaffected.
+    expect(
+      normalizeRatio(90, 100, TargetLogic.HigherBetter, options).ratio,
+    ).toBe(0.9);
   });
 
   it('gives no credit below the higher-is-better threshold', () => {
@@ -38,10 +64,18 @@ describe('bsc scoring', () => {
     ).toBe(0);
   });
 
-  it('normalizes lower-is-better and caps at R_max', () => {
-    const { ratio, capped } = normalizeRatio(1, 10, TargetLogic.LowerBetter);
+  it('normalizes lower-is-better and caps at target / stretch', () => {
+    const { ratio, capped } = normalizeRatio(1, 10, TargetLogic.LowerBetter, {
+      stretchTarget: 8,
+    });
     expect(ratio).toBe(1.25);
     expect(capped).toBe(true);
+    expect(
+      normalizeRatio(1, 10, TargetLogic.LowerBetter, {
+        stretchTarget: 8,
+        cardThresholdBreached: true,
+      }).ratio,
+    ).toBe(1);
   });
 
   it('matches Tier-1 Support Agent golden fixture', () => {
@@ -86,7 +120,9 @@ describe('bsc scoring', () => {
         approvalStatus: 'Approved' as any,
       },
     ]);
-    expect(result.compositeScore).toBeCloseTo(105.78, 2);
+    // ASA 25s vs 30s target has no stretch → capped at 100%:
+    // 0.4 * 85/90 + 0.4 * 1 + 0.2 * 1 = 97.78
+    expect(result.compositeScore).toBeCloseTo(97.78, 2);
   });
 
   it('rejects invalid weight distribution', () => {

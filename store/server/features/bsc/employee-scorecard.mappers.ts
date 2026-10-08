@@ -83,6 +83,7 @@ export type BscEmployeeScorecardApi = {
   periodStart?: string | Date;
   periodEnd?: string | Date;
   status: string;
+  supersededByScorecardId?: string | null;
   compositeScore?: number | string | null;
   submittedAt?: string | Date | null;
   completedAt?: string | Date | null;
@@ -129,6 +130,8 @@ export function mapEmployeeStatusFromApi(status: string): ScorecardStatus {
       return ScorecardStatus.Scored;
     case 'Completed':
       return ScorecardStatus.Completed;
+    case 'Superseded':
+      return ScorecardStatus.Superseded;
     default:
       return ScorecardStatus.Active;
   }
@@ -253,6 +256,7 @@ export function mapEmployeeScorecardFromApi(
     periodStart: row.periodStart ? toIso(row.periodStart) : null,
     periodEnd: row.periodEnd ? toIso(row.periodEnd) : null,
     status: mapEmployeeStatusFromApi(row.status),
+    supersededByScorecardId: row.supersededByScorecardId ?? null,
     targets: kpis.map((kpi) => mapEmployeeKpiToTarget(kpi, row.id)),
     finalEvaluation:
       row.compositeScore != null
