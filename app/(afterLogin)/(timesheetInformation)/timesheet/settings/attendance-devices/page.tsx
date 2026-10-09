@@ -79,6 +79,13 @@ const AttendanceDevicesPage = () => {
     }));
   const rows = discoveredQuery.isError ? fallbackRows : discoveredRows;
 
+  // Only block the table on the initial fetch for whichever source we are showing.
+  // Do not OR both queries' loading flags — a slow "configured" fetch must not
+  // keep a spinner over already-loaded discovered devices (and vice versa).
+  const isTableLoading = discoveredQuery.isError
+    ? configuredQuery.isLoading && !configuredQuery.data
+    : discoveredQuery.isLoading && !discoveredQuery.data;
+
   const openConfigure = (row: DeviceRow) => {
     const configured = row.configuredDevice;
     setEditingDevice(configured);
@@ -302,7 +309,7 @@ const AttendanceDevicesPage = () => {
           rowKey="key"
           columns={columns}
           dataSource={rows}
-          loading={discoveredQuery.isLoading || configuredQuery.isLoading}
+          loading={isTableLoading}
           pagination={{ pageSize: 10 }}
           locale={{ emptyText: 'No biometric devices found.' }}
           data-cy="attendance-devices-table"

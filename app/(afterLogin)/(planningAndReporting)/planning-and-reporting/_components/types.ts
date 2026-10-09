@@ -1,5 +1,5 @@
 export type Priority = 'Low' | 'Medium' | 'High' | 'Priority';
-export type Cadence = 'daily' | 'weekly' | 'monthly';
+export type Cadence = 'daily' | 'weekly' | 'monthly' | 'quarterly';
 export type ViewMode = 'planning' | 'reporting';
 
 export interface PlanTask {
@@ -46,6 +46,8 @@ export interface KeyResult {
   milestones?: Milestone[];
   parentTask?: any[];
   objective?: any;
+  /** Owning objective id (used to scope KRs to the plan's objectives). */
+  objectiveId?: string | null;
   metricType?: {
     id: string;
     name: string;

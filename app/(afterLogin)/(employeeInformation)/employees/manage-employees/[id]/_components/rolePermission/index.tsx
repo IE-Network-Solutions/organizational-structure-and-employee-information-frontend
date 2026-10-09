@@ -34,7 +34,7 @@ import {
 } from '@ant-design/icons';
 import { CiCalendar, CiSettings, CiStar, CiBookmark } from 'react-icons/ci';
 import { TbMessage2 } from 'react-icons/tb';
-import { AiOutlineDollarCircle } from 'react-icons/ai';
+import { AiOutlineBarChart, AiOutlineDollarCircle } from 'react-icons/ai';
 import { PiMoneyLight, PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 import { Permissions } from '@/types/commons/permissionEnum';
@@ -335,6 +335,10 @@ const RolePermission: React.FC<Ids> = ({ id }) => {
 
     if (name.includes('okr')) {
       return <CiStar size={18} />;
+    }
+
+    if (name.includes('bsc') || name.includes('kpi')) {
+      return <AiOutlineBarChart size={18} />;
     }
 
     if (

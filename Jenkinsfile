@@ -320,6 +320,54 @@ pipeline {
             }
         }
 
+        stage('Sync core-staging from staging') {
+            when {
+                expression { env.RESOLVED_BRANCH == 'staging' }
+            }
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'github-pat',
+                        usernameVariable: 'GH_USER',
+                        passwordVariable: 'GH_TOKEN'
+                    )
+                ]) {
+                    sh '''
+                        set -e
+                        rm -rf sync-tmp
+                        git clone "https://${GH_TOKEN}@github.com/IE-Network-Solutions/organizational-structure-and-employee-information-frontend.git" sync-tmp
+                        cd sync-tmp
+                        git config user.email "jenkins@ienetworks.co"
+                        git config user.name "Jenkins CI"
+                        git fetch origin staging core-staging
+
+                        # Switch to core-staging
+                        git checkout core-staging
+
+                        # Make core-staging EXACTLY match staging...
+                        git reset --hard origin/staging
+
+                        # ...except keep core-staging's own Jenkinsfile (different env/branch logic)
+                        git checkout origin/core-staging -- Jenkinsfile
+                        git clean -fd
+
+                        # Only push if something actually changed
+                        if git diff --quiet origin/core-staging -- . ':!Jenkinsfile' 2>/dev/null && \
+                           git diff --quiet HEAD --; then
+                            echo "core-staging already matches staging (excl. Jenkinsfile) — nothing to sync."
+                        else
+                            git add -A
+                            git commit -m "Sync from staging (build ${BUILD_NUMBER})" || echo "nothing to commit"
+                            git push origin HEAD:core-staging --force
+                        fi
+
+                        cd ..
+                        rm -rf sync-tmp
+                    '''
+                }
+            }
+        }
+
         stage('Sync core-production from production') {
             when {
                 expression { env.RESOLVED_BRANCH == 'production' }
@@ -431,7 +479,7 @@ pipeline {
                 """,
                 from: 'selamnew@ienetworksolutions.com',
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: 'biniyam.l@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
+                to: 'yordanos.z@ienetworks.co, surafel@ienetworks.co, abeselom.g@ienetworksolutions.com, yohannes.t@ienetworks.co'
             )
         }
     }

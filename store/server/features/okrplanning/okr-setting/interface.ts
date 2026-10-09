@@ -1,9 +1,13 @@
+export type OkrScoringMode = 'CLASSIC_AVERAGE' | 'TYPE_WEIGHTED';
+
 export interface OkrSetting {
   id: string;
   name: 'Basic' | 'Advanced';
   tenantId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  modeSwitchedAt?: Date | string | null;
+  scoringMode?: OkrScoringMode;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 export interface OkrSettingCheckResponse {
@@ -12,4 +16,10 @@ export interface OkrSettingCheckResponse {
 
 export interface OkrSettingRequest {
   name: 'Basic' | 'Advanced';
+  scoringMode?: OkrScoringMode;
+}
+
+export interface UpdateOkrSettingPayload {
+  name?: 'Basic' | 'Advanced';
+  scoringMode?: OkrScoringMode;
 }

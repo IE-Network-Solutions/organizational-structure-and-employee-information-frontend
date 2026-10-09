@@ -112,27 +112,25 @@ const fetchPlanningPeriodWithUser = async (
   searchString?: string,
 ) => fetchAssignedUserRows(page, pageSize, userId, searchString);
 
+/** Assignees paged by user in the backend, each with all assigned plans. */
 const fetchPlanningPeriodWithUserGroupedByUser = async (
   page: number,
   pageSize: number,
   userId: string | null,
-  searchString?: string,
-) => {
-  const response = await fetchAssignedUserRows(
-    page,
-    pageSize,
-    userId,
-    searchString,
-  );
-
-  if (response && response.items) {
-    return {
-      items: groupAssignedUserRows(response.items),
-      meta: response.meta,
-    };
+): Promise<PaginatedGroupedUsers> => {
+  const token = await getCurrentToken();
+  let url = `${OKR_URL}/planning-periods/assignment/assignees?page=${page}&limit=${pageSize}`;
+  if (userId && userId.trim() !== '') {
+    url += `&userId=${encodeURIComponent(userId)}`;
   }
-
-  return response;
+  return crudRequest({
+    url,
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      tenantId: tenantId,
+    },
+  });
 };
 
 /** Load every assignment row (paginated API) so name search can run across all assignees. */
@@ -185,7 +183,9 @@ const fetchAllAssignedUsersGroupedByUser = async (
 };
 
 export const useGetAllPlanningPeriods = () =>
-  useQuery<ResponsePlanningPeriod>('planningPeriods', () =>
+  // Sub-key: Plan & Report caches the user's assignment *array* under
+  // 'planningPeriods'; sharing that key handed it this paginated object.
+  useQuery<ResponsePlanningPeriod>(['planningPeriods', 'all'], () =>
     fetchAllPlanningPeriods(),
   );
 
@@ -237,13 +237,7 @@ export const useGetAllAssignedUserGroupedByUser = (
       userId,
       searchString ?? '',
     ],
-    () =>
-      fetchPlanningPeriodWithUserGroupedByUser(
-        page,
-        pageSize,
-        userId,
-        searchString,
-      ),
+    () => fetchPlanningPeriodWithUserGroupedByUser(page, pageSize, userId),
     { keepPreviousData: true },
   );
 

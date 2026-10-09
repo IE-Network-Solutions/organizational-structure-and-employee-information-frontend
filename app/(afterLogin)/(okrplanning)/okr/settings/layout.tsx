@@ -53,11 +53,34 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     setAverageOkrRuleAssignmentOpen(true);
   };
 
-  const tabs = [
+  const tabs: Array<{
+    key: string;
+    label: string;
+    path: string;
+    permissions?: string[];
+  }> = [
     {
       key: 'okr-type',
       label: 'OKR Type',
       path: '/okr/settings/okr-type',
+    },
+    {
+      key: 'objective-types',
+      label: 'Objective Types',
+      path: '/okr/settings/objective-types',
+      permissions: ['manage_okr_settings'],
+    },
+    {
+      key: 'objective-type-weights',
+      label: 'Type Weights',
+      path: '/okr/settings/objective-type-weights',
+      permissions: ['manage_okr_settings'],
+    },
+    {
+      key: 'okr-perspectives',
+      label: 'OKR Perspectives',
+      path: '/okr/settings/okr-perspectives',
+      permissions: ['manage_okr_settings'],
     },
     {
       key: 'planning-assignation',
@@ -93,6 +116,9 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
     // Map pathname to tab key
     const tabMap: Record<string, string> = {
       'okr-type': 'okr-type',
+      'objective-types': 'objective-types',
+      'objective-type-weights': 'objective-type-weights',
+      'okr-perspectives': 'okr-perspectives',
       'planning-assignation': 'planning-assignation',
       'criteria-management': 'criteria-management',
       'target-assignment': 'target-assignment',
@@ -177,7 +203,7 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
               >
                 {tabs.map((tab) => {
                   const isActive = activeTab === tab.key;
-                  return (
+                  const tabButton = (
                     <button
                       key={tab.key}
                       onClick={() => handleTabClick(tab.path, tab.key)}
@@ -198,6 +224,20 @@ const OkrSettingsLayout: React.FC<OkrSettingsLayoutProps> = ({ children }) => {
                       )}
                     </button>
                   );
+
+                  if (tab.permissions) {
+                    return (
+                      <AccessGuard
+                        key={tab.key}
+                        permissions={tab.permissions}
+                        data-cy={`okr-settings-tab-guard-${tab.key}`}
+                      >
+                        {tabButton}
+                      </AccessGuard>
+                    );
+                  }
+
+                  return tabButton;
                 })}
               </div>
               <div

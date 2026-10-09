@@ -3,9 +3,11 @@ import { devtools } from 'zustand/middleware';
 interface UserState {
   selectedUserId: string;
   leaveTypeId: string;
+  employmentStatus: 'null' | 'notNull';
 
   setUserId: (selectedUserId: string) => void;
   setLeaveTypeId: (selectedUserId: string) => void;
+  setEmploymentStatus: (employmentStatus: 'null' | 'notNull') => void;
 
   isDownloading: boolean;
   setIsDownloading: (isDownloading: boolean) => void;
@@ -19,5 +21,9 @@ export const useLeaveBalanceStore = create<UserState>()(
 
     leaveTypeId: '',
     setLeaveTypeId: (leaveTypeId: string) => set({ leaveTypeId }),
+
+    employmentStatus: 'null',
+    setEmploymentStatus: (employmentStatus: 'null' | 'notNull') =>
+      set({ employmentStatus }),
   })),
 );
