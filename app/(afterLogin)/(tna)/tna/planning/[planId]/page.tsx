@@ -16,6 +16,7 @@ import {
   goalDisplayProgress,
   GROWTH_PLAN_PROGRESS_STATUS_OPTIONS,
   GrowthPlanGoal,
+  isPlanStarted,
   isUrlLikeOutcome,
   normalizeChecklist,
 } from '@/types/tna/growthPlan';
@@ -33,8 +34,7 @@ const GrowthPlanDetailPage = () => {
   const { data: taxonomy } = useGetGrowthPlanTaxonomy();
   const { mutate: submitPlan, isLoading: submitting } = useSubmitGrowthPlan();
 
-  const isApproved =
-    plan?.status === 'approved' || plan?.status === 'partially_approved';
+  const isApproved = isPlanStarted(plan?.status);
 
   const goals = useMemo(() => plan?.goals ?? [], [plan]);
 
@@ -137,7 +137,7 @@ const GrowthPlanDetailPage = () => {
               ? ` · ${overall.completed}/${overall.total} complete`
               : ''}
             {plan.submittedAt
-              ? ` · Submitted ${dayjs(plan.submittedAt).format(DATE_FORMAT)}`
+              ? ` · Started ${dayjs(plan.submittedAt).format(DATE_FORMAT)}`
               : plan.createdAt
                 ? ` · Created ${dayjs(plan.createdAt).format(DATE_FORMAT)}`
                 : ''}
@@ -205,7 +205,8 @@ const GrowthPlanDetailPage = () => {
               (o) => o.value === (goal.progressStatus ?? 'not_started'),
             );
             const recCount = resourceCount(goal);
-            const matCount = goal.materials?.length ?? 0;
+            const matCount = goal.materialCount ?? goal.materials?.length ?? 0;
+            const noteCount = goal.noteCount ?? goal.activities?.length ?? 0;
 
             return (
               <button
@@ -294,8 +295,8 @@ const GrowthPlanDetailPage = () => {
                 >
                   {recCount} recommended · {matCount} material
                   {matCount === 1 ? '' : 's'}
-                  {(goal.activities?.length ?? 0) > 0
-                    ? ` · ${goal.activities!.length} update${goal.activities!.length === 1 ? '' : 's'}`
+                  {noteCount > 0
+                    ? ` · ${noteCount} note${noteCount === 1 ? '' : 's'}`
                     : ''}
                 </p>
               </button>

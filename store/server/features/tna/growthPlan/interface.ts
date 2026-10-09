@@ -1,7 +1,6 @@
 import {
   GrowthPlanCategory,
   GrowthPlanConfig,
-  GrowthPlanGoal,
   GrowthPlanMaterialType,
   GrowthPlanSkill,
 } from '@/types/tna/growthPlan';
@@ -26,30 +25,24 @@ export type SaveGrowthPlanSkillPayload = Partial<GrowthPlanSkill> & {
   resources?: GrowthPlanSkill['resources'];
 };
 
+/** A dated note on a skill (the only activity type the API stores). */
 export interface AddGoalActivityPayload {
   planId: string;
   goalId: string;
-  type: 'note' | 'link' | 'youtube' | 'file';
+  type: 'note';
   title?: string;
   body?: string;
-  url?: string;
-  videoId?: string;
-  fileName?: string;
-  courseId?: string;
 }
 
 export interface SaveGoalMaterialPayload {
   planId: string;
   goalId: string;
-  id?: string;
   type?: GrowthPlanMaterialType;
   title: string;
+  /** YouTube / Vimeo / web link. Omit when uploading a file. */
   url?: string;
-  videoId?: string;
-  fileName?: string;
-  fileUrl?: string;
-  mimeType?: string;
-  tags?: string[];
+  /** File to upload (video, document or image). */
+  file?: File;
 }
 
 export interface DeleteGoalMaterialPayload {
@@ -58,21 +51,22 @@ export interface DeleteGoalMaterialPayload {
   materialId: string;
 }
 
+/** Marks a recommended TNA course completed on the skill. */
 export interface ApplyCourseEvidencePayload {
   planId: string;
   goalId: string;
-  courseId: string;
-  courseTitle: string;
-  requestCompletion?: boolean;
+  /** Recommended-course resource id from the skill page. */
+  resourceId: string;
+  courseId?: string | null;
+  courseTitle?: string;
+  isCompleted?: boolean;
 }
 
-export interface SaveGoalReflectionPayload {
+/** Enrols the employee in a recommended TNA course. */
+export interface EnrollGoalCoursePayload {
   planId: string;
-  quarterId: string;
-  quarterLabel?: string;
-  whatWentWell: string;
-  whatBlocked: string;
-  nextFocus: string;
+  goalId: string;
+  resourceId: string;
 }
 
 export interface CreateGrowthPlanPayload {
@@ -82,6 +76,8 @@ export interface CreateGrowthPlanPayload {
   /** When true, plan stays editable draft; otherwise it becomes active immediately. */
   asDraft?: boolean;
   goals: Array<{
+    /** Existing goal (plan skill) id when updating. */
+    id?: string;
     skillId?: string | null;
     skillName: string;
     isCustom: boolean;
@@ -95,34 +91,6 @@ export interface CreateGrowthPlanPayload {
 export type UpdateGrowthPlanPayload = Partial<CreateGrowthPlanPayload> & {
   id: string;
 };
-
-export interface RejectGoalPayload {
-  planId: string;
-  goalId: string;
-  feedback: string;
-  revisionDeadline: string;
-}
-
-export interface RequestCompletionPayload {
-  planId: string;
-  goalId: string;
-  evidenceUrl?: string;
-  evidenceFileName?: string;
-  evidenceVideoId?: string;
-  evidenceAttachments?: Array<{
-    id?: string;
-    fileName: string;
-    fileUrl: string;
-    mimeType?: string;
-  }>;
-}
-
-export interface UpdateGoalProgressPayload {
-  planId: string;
-  goalId: string;
-  progressStatus?: GrowthPlanGoal['progressStatus'];
-  progressPercent?: number | null;
-}
 
 export interface ToggleGoalChecklistPayload {
   planId: string;
@@ -142,21 +110,6 @@ export interface DeleteGoalChecklistItemPayload {
   planId: string;
   goalId: string;
   checklistItemId: string;
-}
-
-export interface ProposeEditPayload {
-  planId: string;
-  goalId: string;
-  changes: Partial<
-    Pick<
-      GrowthPlanGoal,
-      | 'skillName'
-      | 'measurableOutcome'
-      | 'targetDeadline'
-      | 'quarterId'
-      | 'quarterLabel'
-    >
-  >;
 }
 
 export interface GrowthPlanListParams {

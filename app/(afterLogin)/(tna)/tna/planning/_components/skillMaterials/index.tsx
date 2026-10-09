@@ -18,7 +18,6 @@ import {
   MATERIAL_CATEGORY_LABEL,
   inferMaterialTypeFromMime,
   inferMaterialTypeFromUrl,
-  parseYouTubeId,
   resolveVideoEmbed,
 } from '@/types/tna/growthPlan';
 import {
@@ -122,7 +121,7 @@ const SkillMaterialsPanel = ({
 
   const openAdd = () => {
     form.resetFields();
-    form.setFieldsValue({ source: 'url', tags: '' });
+    form.setFieldsValue({ source: 'url' });
     setFileList([]);
     setUrlPreview('');
     setModalOpen(true);
@@ -142,17 +141,13 @@ const SkillMaterialsPanel = ({
         });
         return;
       }
-      const type = inferMaterialTypeFromUrl(url);
       saveMaterial(
         {
           planId,
           goalId,
           title: values.title?.trim() || url,
           url,
-          type,
-          videoId:
-            type === 'youtube' ? (parseYouTubeId(url) ?? undefined) : undefined,
-          tags: parseTags(values.tags),
+          type: inferMaterialTypeFromUrl(url),
         },
         { onSuccess: () => setModalOpen(false) },
       );
@@ -168,13 +163,15 @@ const SkillMaterialsPanel = ({
       return;
     }
     const origin = file.originFileObj as File | undefined;
-    const mimeType = origin?.type || file.type;
+    if (!origin) {
+      NotificationMessage.warning({
+        message: 'File required',
+        description: 'Select the file again and retry.',
+      });
+      return;
+    }
     const fileName = file.name;
-    const type = inferMaterialTypeFromMime(mimeType, fileName);
-    const fileUrl =
-      file.thumbUrl ||
-      file.url ||
-      (origin ? URL.createObjectURL(origin) : `mock://${fileName}`);
+    const type = inferMaterialTypeFromMime(origin.type || file.type, fileName);
 
     saveMaterial(
       {
@@ -182,10 +179,7 @@ const SkillMaterialsPanel = ({
         goalId,
         title: values.title?.trim() || fileName,
         type,
-        fileName,
-        fileUrl,
-        mimeType,
-        tags: parseTags(values.tags),
+        file: origin,
       },
       { onSuccess: () => setModalOpen(false) },
     );
@@ -422,9 +416,6 @@ const SkillMaterialsPanel = ({
               )
             }
           </Form.Item>
-          <Form.Item name="tags" label="Tags (optional)">
-            <Input placeholder="comma-separated, e.g. reading, week-1" />
-          </Form.Item>
         </Form>
         {urlPreview && resolveVideoEmbed(urlPreview) ? (
           <div
@@ -575,11 +566,5 @@ const MaterialCard = ({
     </div>
   );
 };
-
-const parseTags = (raw?: string): string[] =>
-  String(raw || '')
-    .split(',')
-    .map((t) => t.trim())
-    .filter(Boolean);
 
 export default SkillMaterialsPanel;

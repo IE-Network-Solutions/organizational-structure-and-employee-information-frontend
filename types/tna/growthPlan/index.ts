@@ -1,12 +1,26 @@
+/**
+ * Backend plan lifecycle: `draft` → `active` → `completed` (no approval step).
+ * The approval-era values are kept so older UI branches still type-check.
+ */
 export type GrowthPlanStatus =
   | 'draft'
+  | 'active'
+  | 'completed'
   | 'pending_approval'
   | 'approved'
   | 'rejected'
   | 'partially_approved';
 
+/** True once a plan has started (active or completed). */
+export const isPlanStarted = (status?: GrowthPlanStatus | null) =>
+  status === 'active' ||
+  status === 'completed' ||
+  status === 'approved' ||
+  status === 'partially_approved';
+
 export type GrowthPlanGoalStatus =
   | 'draft'
+  | 'active'
   | 'pending'
   | 'approved'
   | 'rejected'
@@ -37,7 +51,13 @@ export interface GrowthPlanSkill {
   resources?: GrowthPlanSkillResource[];
 }
 
-export type GrowthPlanResourceType = 'link' | 'youtube' | 'document' | 'course';
+export type GrowthPlanResourceType =
+  | 'link'
+  | 'youtube'
+  | 'vimeo'
+  | 'video'
+  | 'document'
+  | 'course';
 
 export interface GrowthPlanSkillResource {
   id: string;
@@ -49,6 +69,9 @@ export interface GrowthPlanSkillResource {
   /** TNA course id when type === 'course'. */
   courseId?: string | null;
   courseName?: string | null;
+  /** Course resources on the skill page: the employee's state on this plan. */
+  enrolled?: boolean;
+  isCompleted?: boolean;
 }
 
 export type GrowthPlanActivityType = 'note' | 'link' | 'youtube' | 'file';
@@ -179,6 +202,9 @@ export interface GrowthPlanGoal {
   activities?: GrowthPlanActivity[];
   /** Employee-attached learning materials for this skill. */
   materials?: GrowthPlanMaterial[];
+  /** Counts from plan listings, where materials/notes are not loaded. */
+  materialCount?: number;
+  noteCount?: number;
   proposedChanges?: Partial<
     Pick<
       GrowthPlanGoal,

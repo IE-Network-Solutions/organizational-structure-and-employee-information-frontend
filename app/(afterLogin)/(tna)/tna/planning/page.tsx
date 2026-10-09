@@ -21,6 +21,7 @@ import {
 import {
   goalDisplayProgress,
   GrowthPlan,
+  isPlanStarted,
   normalizeChecklist,
 } from '@/types/tna/growthPlan';
 import PlanWizardDrawer from './_components/planWizardDrawer';
@@ -335,8 +336,7 @@ const MyPlansList = ({
     >
       {plans.map((plan) => {
         const { total, completed, avg } = planProgress(plan);
-        const showProgress =
-          plan.status === 'approved' || plan.status === 'partially_approved';
+        const showProgress = isPlanStarted(plan.status);
 
         return (
           <div

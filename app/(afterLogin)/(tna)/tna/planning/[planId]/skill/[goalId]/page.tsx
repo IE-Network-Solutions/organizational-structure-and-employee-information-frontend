@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Button,
   Checkbox,
@@ -26,25 +26,16 @@ import { useParams, useRouter } from 'next/navigation';
 import EmptyState from '@/components/empty';
 import TextEditor from '@/components/form/textEditor';
 import { DATE_FORMAT } from '@/utils/constants';
-import {
-  useGetGrowthPlanById,
-  useGetGrowthPlanTaxonomy,
-} from '@/store/server/features/tna/growthPlan/queries';
+import { useGetGrowthPlanSkill } from '@/store/server/features/tna/growthPlan/queries';
 import {
   useAddGoalActivity,
   useAddGoalChecklistItem,
   useApplyCourseEvidence,
   useDeleteGoalChecklistItem,
   useDeleteGoalMaterial,
+  useEnrollGoalCourse,
   useToggleGoalChecklist,
-  useUpdateGoalProgress,
 } from '@/store/server/features/tna/growthPlan/mutations';
-import {
-  useGetCoursesManagement,
-  useGetMyCourses,
-} from '@/store/server/features/tna/management/queries';
-import { useEnrollSelfInCourse } from '@/store/server/features/tna/management/mutation';
-import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import {
   checklistItemWeight,
   goalDisplayProgress,
@@ -55,7 +46,6 @@ import {
   normalizeChecklist,
   resolveVideoEmbed,
 } from '@/types/tna/growthPlan';
-import { Course } from '@/types/tna/course';
 import SkillMaterialsPanel from '../../../_components/skillMaterials';
 import SkillVideoQueue, {
   resolveVideoPlatform,
@@ -72,13 +62,10 @@ const GrowthPlanSkillDetailPage = () => {
   const planId = String(params?.planId ?? '');
   const goalId = String(params?.goalId ?? '');
 
-  const { userId } = useAuthenticationStore();
-  const { data: plan, isLoading } = useGetGrowthPlanById(planId, !!planId);
-  const { data: taxonomy } = useGetGrowthPlanTaxonomy();
-  const { data: coursesData } = useGetCoursesManagement({}, true, true);
-  const { data: myCoursesData } = useGetMyCourses(userId ?? '', !!userId);
-  const { mutate: updateProgress, isLoading: savingProgress } =
-    useUpdateGoalProgress();
+  const { data: workspace, isLoading } = useGetGrowthPlanSkill(
+    goalId,
+    !!goalId,
+  );
   const { mutate: toggleChecklist } = useToggleGoalChecklist();
   const { mutate: addChecklistItem, isLoading: addingChecklist } =
     useAddGoalChecklistItem();
@@ -87,54 +74,20 @@ const GrowthPlanSkillDetailPage = () => {
   const { mutate: addActivity, isLoading: addingNote } = useAddGoalActivity();
   const { mutate: applyCourseEvidence, isLoading: applyingCourse } =
     useApplyCourseEvidence();
-  const { mutate: enrollCourse, isLoading: enrolling } =
-    useEnrollSelfInCourse();
+  const { mutate: enrollCourse, isLoading: enrolling } = useEnrollGoalCourse();
 
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [checklistForm] = Form.useForm();
   const [noteForm] = Form.useForm();
-  const [localPercent, setLocalPercent] = useState<number | null>(null);
-  const percentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const goal = useMemo(
-    () => plan?.goals?.find((g) => g.id === goalId) ?? null,
-    [plan, goalId],
+  const plan = workspace?.plan ?? null;
+  const goal = workspace?.goal ?? null;
+
+  /** Recommended learning, including TNA courses with enrolment state. */
+  const resources = useMemo(
+    (): GrowthPlanSkillResource[] => workspace?.resources ?? [],
+    [workspace],
   );
-
-  const resources = useMemo((): GrowthPlanSkillResource[] => {
-    if (!goal?.skillId) return [];
-    for (const cat of taxonomy ?? []) {
-      const skill = cat.skills.find((s) => s.id === goal.skillId);
-      if (skill) return skill.resources ?? [];
-    }
-    return [];
-  }, [goal, taxonomy]);
-
-  const courseCatalog = useMemo((): Course[] => {
-    const items = coursesData?.items ?? [];
-    return items.filter((c) => Boolean(c?.id) && !c.isDraft);
-  }, [coursesData]);
-
-  const enrolledCourseIds = useMemo(() => {
-    const raw: any = myCoursesData;
-    const items = Array.isArray(raw)
-      ? raw
-      : (raw?.items ?? raw?.data?.items ?? raw?.data ?? []);
-    return new Set(
-      (Array.isArray(items) ? items : [])
-        .map((c: any) => c?.id)
-        .filter(Boolean)
-        .map(String),
-    );
-  }, [myCoursesData]);
-
-  /** Bind suggested course resources to live TNA catalog (fallback: first published). */
-  const resolveLiveCourse = (res: GrowthPlanSkillResource): Course | null => {
-    if (res.type !== 'course') return null;
-    const match = courseCatalog.find((c) => c.id === res.courseId);
-    if (match) return match;
-    return courseCatalog[0] ?? null;
-  };
 
   const { videos, other, attachments } = useMemo(() => {
     const queue: SkillVideoItem[] = [];
@@ -199,48 +152,11 @@ const GrowthPlanSkillDetailPage = () => {
   );
 
   const checklist = normalizeChecklist(goal?.checklist as any);
-  const pct = goal
-    ? (localPercent ?? goalDisplayProgress({ ...goal, checklist }))
-    : 0;
+  /** Progress comes from the weighted checklist (calculated server-side). */
+  const pct = goal ? goalDisplayProgress({ ...goal, checklist }) : 0;
 
-  const canEdit =
-    !!goal &&
-    (goal.status === 'approved' ||
-      goal.status === 'draft' ||
-      goal.status === 'pending' ||
-      goal.status === 'completion_requested') &&
-    plan?.status !== 'rejected';
-
-  useEffect(() => {
-    setLocalPercent(null);
-  }, [goal?.id, goal?.progressPercent]);
-
-  useEffect(
-    () => () => {
-      if (percentTimer.current) clearTimeout(percentTimer.current);
-    },
-    [],
-  );
-
-  const onPercentChange = (value: number | null) => {
-    if (!planId || !goal || value == null || Number.isNaN(value)) return;
-    const clamped = Math.max(0, Math.min(100, Math.round(value)));
-    setLocalPercent(clamped);
-    if (percentTimer.current) clearTimeout(percentTimer.current);
-    percentTimer.current = setTimeout(() => {
-      updateProgress({
-        planId,
-        goalId: goal.id,
-        progressPercent: clamped,
-        progressStatus:
-          clamped >= 100
-            ? 'ready_for_review'
-            : clamped > 0
-              ? 'in_progress'
-              : 'not_started',
-      });
-    }, 350);
-  };
+  /** The API only accepts work on a skill once its plan is activated. */
+  const canEdit = !!goal && !!plan && plan.status !== 'draft';
 
   const onAddChecklist = async () => {
     if (!goal) return;
@@ -280,7 +196,7 @@ const GrowthPlanSkillDetailPage = () => {
         planId,
         goalId: goal.id,
         type: 'note',
-        title: values.title?.trim() || 'Note',
+        title: values.title?.trim() || undefined,
         body,
       },
       {
@@ -443,26 +359,6 @@ const GrowthPlanSkillDetailPage = () => {
             />
           </div>
 
-          {canEdit ? (
-            <InputNumber
-              min={0}
-              max={100}
-              value={localPercent ?? goal.progressPercent ?? pct}
-              onChange={(v) => onPercentChange(typeof v === 'number' ? v : 0)}
-              className="mb-3 w-full"
-              addonAfter="%"
-              data-cy="pgp-skill-percent"
-            />
-          ) : null}
-          {savingProgress ? (
-            <p
-              data-cy="tna-planning-planid-skill-goalid-page-p-407"
-              className="mb-2 text-[10px] text-[#8c8c8c]"
-            >
-              Saving…
-            </p>
-          ) : null}
-
           <div
             data-cy="tna-planning-planid-skill-goalid-page-div-410"
             className="mb-3 border-t border-[#F0F2F5] pt-3"
@@ -612,20 +508,13 @@ const GrowthPlanSkillDetailPage = () => {
               >
                 {other.map((res) => {
                   if (res.type === 'course') {
-                    const live = resolveLiveCourse(res);
-                    const courseId = live?.id ?? res.courseId ?? null;
-                    const label = live?.title || res.courseName || res.title;
+                    const courseId = res.courseId ?? null;
+                    const label = res.courseName || res.title;
                     const href = courseId
                       ? `/tna/management/${courseId}`
                       : null;
-                    const enrolled = courseId
-                      ? enrolledCourseIds.has(courseId)
-                      : false;
-                    const completed = courseId
-                      ? (goal.activities ?? []).some(
-                          (a) => a.courseId === courseId,
-                        )
-                      : false;
+                    const enrolled = !!res.enrolled;
+                    const completed = !!res.isCompleted;
 
                     return (
                       <li
@@ -660,12 +549,12 @@ const GrowthPlanSkillDetailPage = () => {
                           >
                             {label}
                           </div>
-                          {!live && courseCatalog.length === 0 ? (
+                          {!courseId ? (
                             <div
                               data-cy="tna-planning-planid-skill-goalid-page-div-559"
                               className="text-[11px] text-[#8c8c8c]"
                             >
-                              No published TNA courses available yet.
+                              This TNA course is no longer available.
                             </div>
                           ) : (
                             <div
@@ -674,21 +563,16 @@ const GrowthPlanSkillDetailPage = () => {
                             >
                               <Checkbox
                                 checked={completed}
-                                disabled={
-                                  !canEdit ||
-                                  !courseId ||
-                                  completed ||
-                                  applyingCourse
-                                }
+                                disabled={!canEdit || applyingCourse}
                                 onChange={(e) => {
-                                  if (!e.target.checked || !courseId || !goal)
-                                    return;
+                                  if (!goal) return;
                                   applyCourseEvidence({
                                     planId,
                                     goalId: goal.id,
+                                    resourceId: res.id,
                                     courseId,
                                     courseTitle: label,
-                                    requestCompletion: false,
+                                    isCompleted: e.target.checked,
                                   });
                                 }}
                                 data-cy={`pgp-course-complete-${courseId ?? res.id}`}
@@ -722,7 +606,13 @@ const GrowthPlanSkillDetailPage = () => {
                               type="link"
                               className="h-auto p-0 text-xs text-[#1E40AF]"
                               loading={enrolling}
-                              onClick={() => enrollCourse(courseId)}
+                              onClick={() =>
+                                enrollCourse({
+                                  planId,
+                                  goalId: goal.id,
+                                  resourceId: res.id,
+                                })
+                              }
                               data-cy={`pgp-course-enroll-${courseId}`}
                             >
                               Enroll
