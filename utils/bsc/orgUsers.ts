@@ -178,7 +178,43 @@ export type BscPositionOption = {
   value: string;
   label: string;
   departmentName: string | null;
+  /**
+   * Employees whose current job holds this position (title); null when the
+   * employee list carries no positions at all (count unknown).
+   */
+  holderCount: number | null;
 };
+
+/** Position titles compared without case / extra spaces (same as the BE). */
+function titleKey(value: string): string {
+  return value.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function timeOf(value: unknown): number {
+  const time = value ? new Date(value as string).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
+}
+
+/**
+ * A person's current job: the latest active job record (a transfer can leave
+ * the old one active too), else the latest record. Same rule as the BE.
+ */
+function currentJob(user: any): any {
+  const jobs = (
+    Array.isArray(user?.employeeJobInformation)
+      ? user.employeeJobInformation
+      : user?.employeeJobInformation
+        ? [user.employeeJobInformation]
+        : []
+  ).filter(Boolean);
+  const newestFirst = (a: any, b: any) =>
+    timeOf(b?.effectiveStartDate) - timeOf(a?.effectiveStartDate) ||
+    timeOf(b?.createdAt) - timeOf(a?.createdAt);
+  const active = jobs
+    .filter((job: any) => job?.isPositionActive !== false)
+    .sort(newestFirst);
+  return active[0] ?? [...jobs].sort(newestFirst)[0] ?? null;
+}
 
 /** Rows from any org-emp list shape: array, {items}, {data}, {data:{items}}, id-keyed map. */
 function listRows(data: unknown): any[] {
@@ -205,31 +241,43 @@ function listRows(data: unknown): any[] {
 }
 
 /**
- * Role picker options. Primary source is the positions list; employees' current
- * job positions fill in anything missing (or everything, if `/positions`
- * failed or returned nothing), so the picker always shows real positions.
+ * Role picker options. Primary source is the positions list; employees' job
+ * positions fill in anything missing (or everything, if `/positions` failed).
+ * One option per title (the list can hold the same title under several ids;
+ * the BE matches by id or title), with how many people hold it now.
  */
 export function buildPositionOptions(
   positionsData: unknown,
   ...userSources: unknown[]
 ): BscPositionOption[] {
-  const byId = new Map<string, BscPositionOption>();
+  const byTitle = new Map<string, BscPositionOption & { ids: Set<string> }>();
   const add = (row: any, departmentName?: string | null) => {
     const id = row?.id ? String(row.id) : '';
     const label = String(
       row?.name || row?.positionName || row?.title || '',
     ).trim();
-    if (!id || !label || byId.has(id)) return;
-    byId.set(id, {
+    if (!id || !label) return;
+    const key = titleKey(label);
+    const existing = byTitle.get(key);
+    if (existing) {
+      existing.ids.add(id);
+      return;
+    }
+    byTitle.set(key, {
       value: id,
       label,
       departmentName:
         departmentName ?? row?.departmentName ?? row?.department?.name ?? null,
+      holderCount: 0,
+      ids: new Set([id]),
     });
   };
 
   for (const row of listRows(positionsData)) add(row);
 
+  // Count each person once, on their current job only.
+  const holdersById = new Map<string, number>();
+  const counted = new Set<string>();
   for (const source of userSources) {
     for (const user of normalizeOrgUsers(source)) {
       const jobs = Array.isArray(user?.employeeJobInformation)
@@ -241,12 +289,43 @@ export function buildPositionOptions(
         if (job?.position) add(job.position, job?.department?.name ?? null);
       }
       if (user?.position) add(user.position);
+
+      const userId = String(user?.id || user?.userId || '');
+      const job = currentJob(user);
+      const positionId = job?.positionId || job?.position?.id;
+      if (!userId || counted.has(userId) || !positionId) continue;
+      counted.add(userId);
+      holdersById.set(
+        String(positionId),
+        (holdersById.get(String(positionId)) || 0) + 1,
+      );
     }
   }
 
-  return Array.from(byId.values()).sort((a, b) =>
-    a.label.localeCompare(b.label),
-  );
+  // Some org-emp builds return job records without positions — then the
+  // count is unknown, not zero.
+  const countsKnown = holdersById.size > 0;
+  return Array.from(byTitle.values())
+    .map(({ ids, ...option }) => {
+      // Keep the id people actually hold as the saved value.
+      let value = option.value;
+      let best = -1;
+      let holderCount = 0;
+      for (const id of ids) {
+        const count = holdersById.get(id) || 0;
+        holderCount += count;
+        if (count > best) {
+          best = count;
+          value = id;
+        }
+      }
+      return {
+        ...option,
+        value,
+        holderCount: countsKnown ? holderCount : null,
+      };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
 }
 
 /**
