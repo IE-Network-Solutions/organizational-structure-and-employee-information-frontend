@@ -2035,12 +2035,22 @@ export default function BscSetupModal() {
                       >
                         {option.label}
                       </span>
-                      {option.data?.departmentName ? (
+                      {option.data?.holderCount != null ? (
                         <span
-                          className="shrink-0 text-[11px] text-[#8F94A3]"
-                          data-cy={`bsc-scorecard-role-option-dept-${option.value}`}
+                          className={`shrink-0 text-[11px] ${
+                            option.data.holderCount
+                              ? 'text-[#8F94A3]'
+                              : 'text-[#d46b08]'
+                          }`}
+                          data-cy={`bsc-scorecard-role-option-holders-${option.value}`}
                         >
-                          {option.data.departmentName}
+                          {option.data.holderCount
+                            ? `${option.data.holderCount} ${
+                                option.data.holderCount === 1
+                                  ? 'person'
+                                  : 'people'
+                              }`
+                            : 'No one holds this now'}
                         </span>
                       ) : null}
                     </div>
