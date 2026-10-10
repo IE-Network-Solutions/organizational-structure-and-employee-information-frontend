@@ -335,6 +335,13 @@ const PlanningPeriod = () => {
               >
                 Monthly
               </Option>
+              <Option
+                value="quarterly"
+                id="okr-planning-period-edit-form-interval-type-option-quarterly-display-option"
+                data-cy="okr-planning-period-edit-form-interval-type-option-quarterly-display-option"
+              >
+                Quarterly
+              </Option>
             </Select>
           </Form.Item>
           <Form.Item

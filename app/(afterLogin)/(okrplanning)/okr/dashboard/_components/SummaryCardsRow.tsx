@@ -42,7 +42,7 @@ const SummaryCardsRow: React.FC = () => {
   const isObjectivesLoading = objectivesLoading || objectivesFetching;
 
   // Fallbacks for missing data
-  const userOkr = Number(data?.userOkr ?? 0);
+  const userOkr = Number(data?.overall ?? data?.userOkr ?? 0);
   const companyOkr = Number(data?.companyOkr ?? 0);
 
   // Aggregate objective status counts from objectivesData

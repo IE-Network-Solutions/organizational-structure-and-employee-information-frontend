@@ -4,6 +4,10 @@ import { useCallback } from 'react';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import AccessGuard from '@/utils/permissionGuard';
 import { Permissions } from '@/types/commons/permissionEnum';
+import {
+  BSC_ADMIN_PERMISSIONS,
+  BSC_SCORECARD_PERMISSIONS,
+} from '@/utils/bsc/permissions';
 
 /** Route + permissions used for pathname-based access check (same as sidebar). */
 export type RouteWithPermissions = {
@@ -44,10 +48,6 @@ const MENU_ROUTES: MenuRouteNode[] = [
     permissions: ['view_organization'],
     children: [
       { key: '/organization/chart', permissions: ['view_organization_chart'] },
-      {
-        key: '/organization/announcement',
-        permissions: ['view_organization'],
-      },
       {
         key: '/organization/settings',
         permissions: ['view_organization_settings'],
@@ -108,6 +108,47 @@ const MENU_ROUTES: MenuRouteNode[] = [
         permissions: ['manage_planning_reporting'],
       },
       { key: '/weekly-priority', permissions: ['view_weekly_priority'] },
+      // BSC: own "BSC and KPI" permission group (see utils/bsc/permissions).
+      {
+        key: 'bsc-menu',
+        permissions: ['view_bsc'],
+        children: [
+          {
+            key: '/bsc/kpi',
+            permissions: BSC_ADMIN_PERMISSIONS,
+            requireAny: true,
+          },
+          { key: '/bsc/my-scorecard', permissions: ['view_bsc'] },
+          {
+            key: '/bsc/settings',
+            permissions: ['create-bsc-perspective'],
+          },
+        ],
+      },
+      {
+        key: '/bsc/kpi',
+        permissions: BSC_ADMIN_PERMISSIONS,
+        requireAny: true,
+      },
+      { key: '/bsc/my-scorecard', permissions: ['view_bsc'] },
+      {
+        key: '/bsc/settings',
+        permissions: ['create-bsc-perspective'],
+      },
+      { key: '/bsc/perspectives', permissions: ['view_bsc'] },
+      { key: '/bsc/kpis', permissions: ['view_bsc'] },
+      { key: '/bsc/employees', permissions: ['view_bsc'] },
+      { key: '/bsc/roll-up', permissions: ['view_bsc'] },
+      {
+        key: '/bsc/setup',
+        permissions: BSC_SCORECARD_PERMISSIONS,
+        requireAny: true,
+      },
+      {
+        key: '/bsc/cycles',
+        permissions: BSC_SCORECARD_PERMISSIONS,
+        requireAny: true,
+      },
       { key: '/okr/settings', permissions: ['manage_okr_settings'] },
     ],
   },

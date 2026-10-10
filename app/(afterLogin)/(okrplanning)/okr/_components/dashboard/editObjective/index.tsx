@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import {
+  Alert,
   Button,
   DatePicker,
   Form,
@@ -39,6 +40,11 @@ import NotificationMessage from '@/components/common/notification/notificationMe
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
 import { hasAnyProgress } from '../../../_utils/keyResultGuards';
+import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
+import { useGetOkrObjectiveTypes } from '@/store/server/features/okrplanning/okr-objective-type/queries';
+import { useGetOkrPerspectives } from '@/store/server/features/okrplanning/okr-perspective/queries';
+import { useGetEffectiveObjectiveTypeWeights } from '@/store/server/features/okrplanning/okr-objective-type-weight/queries';
+import ObjectiveWeightField from '../../objectiveWeightField';
 
 interface OkrDrawerProps {
   open: boolean;
@@ -75,6 +81,22 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const { isMobile } = useIsMobile();
   const { data: metrics } = useGetMetrics();
   const isBasic = useIsBasicOkr();
+  const { data: setting } = useGetOkrSetting();
+  const isTypeWeighted = setting?.scoringMode === 'TYPE_WEIGHTED';
+  const { data: objectiveTypes = [] } = useGetOkrObjectiveTypes(
+    { activeOnly: true },
+    { enabled: isTypeWeighted },
+  );
+  const { data: perspectives = [] } = useGetOkrPerspectives(undefined, {
+    enabled: isTypeWeighted,
+  });
+  const { data: effectiveWeights, isError: isEffectiveWeightsError } =
+    useGetEffectiveObjectiveTypeWeights(userId, {
+      enabled: isTypeWeighted && Boolean(userId),
+    });
+  const selectedObjectiveTypeWeight = effectiveWeights?.lines.find(
+    (line) => line.objectiveTypeId === objectiveValue?.objectiveTypeId,
+  )?.weightPercent;
   const resetMilestoneForm = useMilestoneFormStore((s) => s.resetMilestoneForm);
   const resetAchieveOrNot = useAchieveOrNotStore((s) => s.resetAchieveOrNot);
   const resetKeyResultForm = useKeyResultFormStore((s) => s.resetKeyResultForm);
@@ -194,11 +216,42 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
   const onSubmit = () => {
     form
       .validateFields()
-      .then(() => {
+      .then((formValues) => {
         // Combine existing key results with newly added key results
         const existingKeyResults = objectiveValue?.keyResults || [];
         const newKeyResults = objective?.keyResults || [];
         const allKeyResults = [...existingKeyResults, ...newKeyResults];
+
+        const buildSubmissionData = () => {
+          const submissionData: Record<string, any> = {
+            ...objectiveValueNew,
+            title: formValues.title ?? objectiveValueNew.title,
+            allignedKeyResultId:
+              formValues.allignedKeyResultId ??
+              objectiveValueNew.allignedKeyResultId,
+            deadline: formValues.ObjectiveDeadline
+              ? dayjs(formValues.ObjectiveDeadline).format('YYYY-MM-DD')
+              : objectiveValueNew.deadline,
+            keyResults: allKeyResults,
+          };
+          if (isTypeWeighted) {
+            submissionData.objectiveTypeId =
+              formValues.objectiveTypeId ?? objectiveValueNew.objectiveTypeId;
+            submissionData.perspectiveId =
+              formValues.perspectiveId ?? objectiveValueNew.perspectiveId;
+            const weight = formValues.weight ?? objectiveValueNew.weight;
+            if (weight !== undefined && weight !== null && weight !== '') {
+              submissionData.weight = Number(weight);
+            } else {
+              delete submissionData.weight;
+            }
+          } else {
+            delete submissionData.objectiveTypeId;
+            delete submissionData.perspectiveId;
+            delete submissionData.weight;
+          }
+          return submissionData;
+        };
 
         const keyResultSum = allKeyResults.reduce(
           (sum: number, keyResult: Record<string, number>) =>
@@ -308,10 +361,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
             Promise.all(deleteOperations)
               .then(() => {
                 // After all deletions complete, update objective with remaining key results
-                const submissionData = {
-                  ...objectiveValueNew,
-                  keyResults: allKeyResults,
-                };
+                const submissionData = buildSubmissionData();
 
                 updateObjective(submissionData, {
                   onSuccess: () => {
@@ -331,10 +381,7 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
               });
           } else {
             // No deletions, just update normally
-            const submissionData = {
-              ...objectiveValueNew,
-              keyResults: allKeyResults,
-            };
+            const submissionData = buildSubmissionData();
 
             updateObjective(submissionData, {
               onSuccess: () => {
@@ -421,6 +468,33 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
     setAlignment(Boolean(objectiveValue?.allignedKeyResultId));
   }, [objectiveValue?.allignedKeyResultId]);
 
+  // The objective as saved when the modal opened: its weight is already counted
+  // as allocated, so the weight field gives it back when the type is unchanged.
+  const [savedObjective, setSavedObjective] = React.useState<{
+    id?: string;
+    userId?: string;
+    objectiveTypeId?: string | null;
+    weight?: number | string | null;
+  } | null>(null);
+  useEffect(() => {
+    if (!props.open) {
+      setSavedObjective(null);
+      return;
+    }
+    if (!objectiveValue?.id) return;
+    setSavedObjective((previous) =>
+      previous?.id === objectiveValue.id
+        ? previous
+        : {
+            id: objectiveValue.id,
+            userId: (objectiveValue as any).userId,
+            objectiveTypeId: objectiveValue.objectiveTypeId,
+            weight: objectiveValue.weight,
+          },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.open, objectiveValue?.id]);
+
   // Initialize form with existing data when modal opens
   useEffect(() => {
     if (props.open && objectiveValue) {
@@ -431,6 +505,12 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
         ObjectiveDeadline: objectiveValue.deadline
           ? dayjs(objectiveValue.deadline)
           : null,
+        objectiveTypeId: objectiveValue.objectiveTypeId || null,
+        perspectiveId: objectiveValue.perspectiveId || null,
+        weight:
+          objectiveValue.weight !== undefined && objectiveValue.weight !== null
+            ? Number(objectiveValue.weight)
+            : null,
       });
     }
   }, [props.open, objectiveValue, form]);
@@ -641,6 +721,8 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
           ObjectiveDeadline: objectiveValue?.deadline
             ? dayjs(objectiveValue.deadline)
             : null,
+          objectiveTypeId: objectiveValue?.objectiveTypeId || null,
+          perspectiveId: objectiveValue?.perspectiveId || null,
         }}
       >
         {/* OKR Section Title - same style for Basic and Advanced */}
@@ -874,6 +956,100 @@ const EditObjective: React.FC<OkrDrawerProps> = (props) => {
                 onChange={(date) => {
                   handleObjectiveChange(date?.format('YYYY-MM-DD'), 'deadline');
                 }}
+              />
+            </Form.Item>
+          </div>
+        )}
+
+        {isTypeWeighted && (
+          <div
+            id="okr-edit-objective-type-weighted-fields"
+            data-cy="okr-edit-objective-type-weighted-fields"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-6"
+          >
+            {isEffectiveWeightsError && (
+              <Alert
+                data-cy="okr-edit-objective-effective-weights-error"
+                className="sm:col-span-2"
+                type="error"
+                showIcon
+                message="Objective type weights are unavailable"
+                description="Please contact an OKR administrator to configure effective objective type weights for your account."
+              />
+            )}
+            <Form.Item
+              id="okr-edit-objective-type-select"
+              data-cy="okr-edit-objective-type-select"
+              name="objectiveTypeId"
+              label="Objective type"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select an objective type',
+                },
+              ]}
+              className="mb-2"
+            >
+              <Select
+                data-cy="okr-edit-objective-type-select-dropdown"
+                placeholder="Select objective type"
+                value={objectiveValue?.objectiveTypeId}
+                onChange={(value) =>
+                  handleObjectiveChange(value, 'objectiveTypeId')
+                }
+                options={objectiveTypes.map((type) => ({
+                  label: type.name,
+                  value: type.id,
+                }))}
+              />
+            </Form.Item>
+            <Form.Item
+              id="okr-edit-objective-type-weight"
+              data-cy="okr-edit-objective-type-weight"
+              label="Type weight"
+              className="mb-2"
+            >
+              <Input
+                data-cy="okr-edit-objective-type-weight-input"
+                disabled
+                value={
+                  selectedObjectiveTypeWeight === undefined
+                    ? '—'
+                    : `${selectedObjectiveTypeWeight}%`
+                }
+              />
+            </Form.Item>
+            <ObjectiveWeightField
+              userId={savedObjective?.userId ?? userId}
+              objectiveTypeId={objectiveValue?.objectiveTypeId}
+              typeWeight={selectedObjectiveTypeWeight}
+              editing={savedObjective ?? undefined}
+              onChange={(value) => handleObjectiveChange(value, 'weight')}
+            />
+            <Form.Item
+              id="okr-edit-objective-perspective-select"
+              data-cy="okr-edit-objective-perspective-select"
+              name="perspectiveId"
+              label="BSC perspective"
+              rules={[
+                {
+                  required: true,
+                  message: 'Please select a BSC perspective',
+                },
+              ]}
+              className="mb-2"
+            >
+              <Select
+                data-cy="okr-edit-objective-perspective-select-dropdown"
+                placeholder="Select BSC perspective"
+                value={objectiveValue?.perspectiveId}
+                onChange={(value) =>
+                  handleObjectiveChange(value, 'perspectiveId')
+                }
+                options={perspectives.map((perspective) => ({
+                  label: perspective.name,
+                  value: perspective.id,
+                }))}
               />
             </Form.Item>
           </div>
