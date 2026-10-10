@@ -50,6 +50,8 @@ export const upsertObjectiveTypeWeights = async (
 export const useUpsertObjectiveTypeWeights = () => {
   const queryClient = useQueryClient();
   return useMutation(upsertObjectiveTypeWeights, {
+    // The request function already shows the error; skip the global toast.
+    onError: () => undefined,
     onSuccess: () => {
       queryClient.invalidateQueries('objectiveTypeWeightAssignments');
       queryClient.invalidateQueries('effectiveObjectiveTypeWeights');
@@ -94,6 +96,8 @@ export const deleteObjectiveTypeWeightAssignment = async (
 export const useDeleteObjectiveTypeWeightAssignment = () => {
   const queryClient = useQueryClient();
   return useMutation(deleteObjectiveTypeWeightAssignment, {
+    // The request function already shows the error; skip the global toast.
+    onError: () => undefined,
     onSuccess: () => {
       queryClient.invalidateQueries('objectiveTypeWeightAssignments');
       queryClient.invalidateQueries('effectiveObjectiveTypeWeights');
