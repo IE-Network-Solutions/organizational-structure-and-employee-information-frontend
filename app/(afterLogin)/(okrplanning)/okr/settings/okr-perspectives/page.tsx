@@ -47,12 +47,6 @@ const OkrPerspectivesPage = () => {
               ),
             },
             {
-              title: 'Order',
-              dataIndex: 'sortOrder',
-              key: 'sortOrder',
-              width: 120,
-            },
-            {
               title: 'Type',
               key: 'type',
               width: 140,
