@@ -3,8 +3,13 @@
 /* eslint-disable local-rules/data-cy-required */
 
 import React, { useState, useEffect } from 'react';
-import { Alert, Modal, Skeleton, Switch } from 'antd';
+import { Alert, Button, Modal, Skeleton, Switch } from 'antd';
+import { useRouter } from 'next/navigation';
 import AccessGuard from '@/utils/permissionGuard';
+import {
+  FriendlyOkrError,
+  getFriendlyOkrError,
+} from '@/utils/okrErrorMessages';
 import { useOkrSetting } from '@/hooks/useOkrSetting';
 import {
   useUpdateOkrSetting,
@@ -12,6 +17,9 @@ import {
   usePatchOkrScoringMode,
 } from '@/store/server/features/okrplanning/okr-setting/mutations';
 import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
+import { useGetOkrObjectiveTypes } from '@/store/server/features/okrplanning/okr-objective-type/queries';
+import { useGetObjectiveTypeWeightAssignments } from '@/store/server/features/okrplanning/okr-objective-type-weight/queries';
+import { getTypeWeightedReadiness } from '@/utils/okrScoringReadiness';
 import { OkrScoringMode } from '@/store/server/features/okrplanning/okr-setting/interface';
 import OkrModeConfirmationModal from './_components/OkrModeConfirmationModal';
 import OkrModeEffectsModal from './_components/OkrModeEffectsModal';
@@ -64,7 +72,40 @@ const OkrTypePage = () => {
   const [pendingScoringMode, setPendingScoringMode] =
     useState<OkrScoringMode | null>(null);
   const [isScoringModalOpen, setIsScoringModalOpen] = useState(false);
-  const [scoringError, setScoringError] = useState<string | null>(null);
+  const [scoringError, setScoringError] = useState<FriendlyOkrError | null>(
+    null,
+  );
+  const router = useRouter();
+
+  // Check readiness up front so the admin sees what is missing before clicking,
+  // instead of hitting a server error.
+  const isEnablingTypeWeighted =
+    isScoringModalOpen && pendingScoringMode === 'TYPE_WEIGHTED';
+  const { data: activeTypes, isLoading: isTypesLoading } =
+    useGetOkrObjectiveTypes(
+      { activeOnly: true },
+      { enabled: isEnablingTypeWeighted, staleTime: 0 },
+    );
+  const { data: tenantAssignments, isLoading: isWeightsLoading } =
+    useGetObjectiveTypeWeightAssignments(
+      { scopeType: 'TENANT' },
+      { enabled: isEnablingTypeWeighted, staleTime: 0 },
+    );
+  const isCheckingReadiness =
+    isEnablingTypeWeighted && (isTypesLoading || isWeightsLoading);
+  const readiness = getTypeWeightedReadiness(
+    activeTypes ?? [],
+    tenantAssignments?.[0] ?? null,
+  );
+  const isBlockedByReadiness =
+    isEnablingTypeWeighted && !isCheckingReadiness && !readiness.ready;
+
+  const closeScoringModal = () => {
+    if (isPatchingScoringMode) return;
+    setIsScoringModalOpen(false);
+    setPendingScoringMode(null);
+    setScoringError(null);
+  };
 
   // Fetch setting data when component mounts
   useEffect(() => {
@@ -153,12 +194,11 @@ const OkrTypePage = () => {
           refetchSetting();
         },
         onError: (error: any) => {
-          const message = error?.response?.data?.message;
           setScoringError(
-            Array.isArray(message)
-              ? message.join(', ')
-              : message ||
-                  'The scoring mode could not be updated. Check the tenant default weights and try again.',
+            getFriendlyOkrError(
+              error,
+              'The scoring mode could not be updated. Check the tenant default weights and try again.',
+            ),
           );
         },
       },
@@ -344,16 +384,6 @@ const OkrTypePage = () => {
                 {isTypeWeighted ? 'Type-weighted' : 'Classic average'}
               </span>
             </div>
-
-            {scoringError && (
-              <Alert
-                className="mt-4"
-                type="error"
-                showIcon
-                message="Scoring mode was not changed"
-                description={scoringError}
-              />
-            )}
           </section>
         </AccessGuard>
       </div>
@@ -405,28 +435,74 @@ const OkrTypePage = () => {
             : 'Use classic average scoring?'
         }
         open={isScoringModalOpen}
-        onCancel={() => {
-          if (!isPatchingScoringMode) {
-            setIsScoringModalOpen(false);
-            setPendingScoringMode(null);
-          }
-        }}
-        onOk={confirmScoringModeChange}
-        okText={
-          pendingScoringMode === 'TYPE_WEIGHTED'
-            ? 'Enable type-weighted scoring'
-            : 'Use classic scoring'
+        onCancel={closeScoringModal}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              onClick={closeScoringModal}
+              disabled={isPatchingScoringMode}
+              data-cy="okr-scoring-cancel-button"
+            >
+              Cancel
+            </Button>
+            {isBlockedByReadiness ? (
+              <Button
+                type="primary"
+                data-cy="okr-scoring-set-weights-button"
+                onClick={() =>
+                  router.push('/okr/settings/objective-type-weights')
+                }
+              >
+                Set type weights
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                data-cy="okr-scoring-confirm-button"
+                loading={isPatchingScoringMode || isCheckingReadiness}
+                onClick={confirmScoringModeChange}
+              >
+                {pendingScoringMode === 'TYPE_WEIGHTED'
+                  ? 'Enable type-weighted scoring'
+                  : 'Use classic scoring'}
+              </Button>
+            )}
+          </div>
         }
-        confirmLoading={isPatchingScoringMode}
         closable={!isPatchingScoringMode}
         maskClosable={!isPatchingScoringMode}
+        centered
       >
         {pendingScoringMode === 'TYPE_WEIGHTED' ? (
-          <p className="mb-0 text-[#595959]">
-            Each objective must have an objective type, and active objective
-            type weights must total 100% at the tenant default level. The system
-            will verify this readiness before enabling the mode.
-          </p>
+          <div className="flex flex-col gap-3 text-[#595959]">
+            <p className="mb-0">
+              Scores will be calculated using the weight of each objective type.
+              Every objective needs an objective type, and the default weights
+              must add up to 100%.
+            </p>
+            {isBlockedByReadiness && (
+              <Alert
+                type="warning"
+                showIcon
+                message="A few things need to be set up first"
+                description={
+                  <ul className="mb-0 mt-1 list-disc pl-4">
+                    {readiness.issues.map((issue) => (
+                      <li key={issue}>{issue}</li>
+                    ))}
+                  </ul>
+                }
+              />
+            )}
+            {scoringError && (
+              <Alert
+                type="error"
+                showIcon
+                message="Scoring mode was not changed"
+                description={scoringError.message}
+              />
+            )}
+          </div>
         ) : (
           <p className="mb-0 text-[#595959]">
             Type and perspective fields remain available, but their weights and
