@@ -15,7 +15,7 @@ const OkrPerspectivesPage = () => {
 
   return (
     <AccessGuard permissions={[MANAGE_OKR_SETTINGS]}>
-      <div className="rounded-xl bg-white p-4 sm:p-6 lg:p-8">
+      <div className="rounded-xl">
         <div className="mb-6">
           <h2 className="mb-1 text-xl font-semibold text-[#262626]">
             OKR Perspectives
