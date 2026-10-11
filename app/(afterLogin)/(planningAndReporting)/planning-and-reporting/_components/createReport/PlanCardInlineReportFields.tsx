@@ -12,6 +12,7 @@ import {
   validateMetricValueAgainstInitial,
 } from '@/utils/okrMetricValueBounds';
 import { metricAddonSymbol } from './reportFormUtils';
+import { resolveDoneActualValue } from '@/utils/reportActualValue';
 
 const { TextArea } = Input;
 
@@ -97,6 +98,16 @@ export function PlanCardInlineReportFields({
             new Error(`Min ${Number(task?.targetValue)?.toLocaleString()}`),
           );
         }
+        const achievedMax = getMetricValueInputMax(keyresult);
+        if (
+          selectedStatuses[task.taskId] === 'Done' &&
+          achievedMax != null &&
+          numericValue > achievedMax
+        ) {
+          return Promise.reject(
+            new Error(`Max ${Number(achievedMax).toLocaleString()}`),
+          );
+        }
         if (
           selectedStatuses[task.taskId] === 'Not' &&
           numericValue > task?.targetValue
@@ -169,7 +180,10 @@ export function PlanCardInlineReportFields({
                   form.setFieldsValue({
                     [task.taskId]: {
                       status: 'Done',
-                      actualValue: Number(task?.targetValue ?? 0),
+                      actualValue: resolveDoneActualValue(
+                        form.getFieldValue([task.taskId, 'actualValue']),
+                        task?.targetValue,
+                      ),
                     },
                   });
                 }}

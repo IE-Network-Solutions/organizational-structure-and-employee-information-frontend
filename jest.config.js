@@ -324,6 +324,7 @@ module.exports = {
     '^@/hooks(.*)$': '<rootDir>/hooks$1',
     '^@/mocks(.*)$': '<rootDir>/__mocks__$1',
     '^@/utils(.*)$': '<rootDir>/utils$1',
+    '^@/types/(.*)$': '<rootDir>/types/$1',
 
     '^@/__tests__(.*)$': '<rootDir>/__tests__$1',
 

@@ -26,6 +26,7 @@ export function getCadenceLabel(cadence: Cadence): string {
     daily: 'Daily',
     weekly: 'Weekly',
     monthly: 'Monthly',
+    quarterly: 'Quarterly',
   };
   return labels[cadence];
 }
@@ -36,6 +37,7 @@ export function getSectionTitle(cadence: Cadence, viewMode: ViewMode): string {
       daily: "Today's Daily Report",
       weekly: "This week's Weekly Report",
       monthly: "This month's Monthly Report",
+      quarterly: "This quarter's Quarterly Report",
     };
     return titles[cadence];
   }
@@ -44,6 +46,7 @@ export function getSectionTitle(cadence: Cadence, viewMode: ViewMode): string {
     daily: "Today's Daily Plan",
     weekly: "This week's Weekly Plan",
     monthly: "This month's Monthly Plan",
+    quarterly: "This quarter's Quarterly Plan",
   };
   return titles[cadence];
 }

@@ -61,12 +61,10 @@ export default function PlanningToolbarFilters() {
     useGetAllFiscalYears();
   const { data: draftFiscalYearData, isLoading: loadingSessions } =
     useGetFiscalYearById(draft?.fiscalYearId || '');
-  const {
-    data: allLevelDepartmentUsers,
-    isLoading: isDepartmentUsersLoading,
-  } = useGetDepartmentUsersAllLevels(
-    draft?.department && draft.department !== 'all' ? draft.department : null,
-  );
+  const { data: allLevelDepartmentUsers, isLoading: isDepartmentUsersLoading } =
+    useGetDepartmentUsersAllLevels(
+      draft?.department && draft.department !== 'all' ? draft.department : null,
+    );
 
   const allLevelDepartmentUserIds = useMemo(
     () => extractDepartmentUserIds(allLevelDepartmentUsers),

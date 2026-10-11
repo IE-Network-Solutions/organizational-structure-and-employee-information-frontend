@@ -126,8 +126,7 @@ export default function CurrentTimeCard() {
 
   // Only show button spinner for an in-flight check-in submit or the initial
   // attendance fetch — not every background refetch of current attendance.
-  const loading =
-    isSubmitInProgress || (isLoading && !currentAttendanceData);
+  const loading = isSubmitInProgress || (isLoading && !currentAttendanceData);
 
   return (
     <Card

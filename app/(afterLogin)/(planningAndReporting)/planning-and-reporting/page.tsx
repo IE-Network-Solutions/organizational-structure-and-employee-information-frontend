@@ -409,6 +409,26 @@ function Page() {
     return item?.planningPeriod?.name?.trim() || 'Plan';
   }, [processedPlanningPeriods, activePlanPeriod]);
 
+  /** Viewer's progress period; null keeps legacy (every period progresses). */
+  const okrProgressPlanningPeriod = useMemo(() => {
+    const assignments = Array.isArray(planningPeriods) ? planningPeriods : [];
+    return (
+      assignments.find((item: any) => item?.drivesOkrProgress)
+        ?.planningPeriod ?? null
+    );
+  }, [planningPeriods]);
+
+  const isActivePeriodInformational = useMemo(() => {
+    if (!okrProgressPlanningPeriod) return false;
+    const item = processedPlanningPeriods[activePlanPeriod - 1] as
+      | PlanningPeriod
+      | undefined;
+    return (
+      !!item?.planningPeriod?.id &&
+      item.planningPeriod.id !== okrProgressPlanningPeriod.id
+    );
+  }, [okrProgressPlanningPeriod, processedPlanningPeriods, activePlanPeriod]);
+
   useEffect(() => {
     if (!inlinePlanningMode) setSelectedPlanningTargetId(null);
   }, [inlinePlanningMode]);
@@ -622,6 +642,12 @@ function Page() {
                           aria-selected={isActive}
                           data-cy={`planning-period-pill-${n}`}
                           onClick={() => setActivePlanPeriod(n)}
+                          title={
+                            okrProgressPlanningPeriod?.id ===
+                            item.planningPeriod.id
+                              ? 'Reports on this plan progress your Key Results and Average OKR'
+                              : undefined
+                          }
                           className={classNames(
                             'inline-flex h-9 shrink-0 items-center rounded-md border font-medium transition-colors',
                             'text-xs sm:text-sm',
@@ -632,6 +658,15 @@ function Page() {
                           )}
                         >
                           {item.planningPeriod.name || 'No name available'}
+                          {okrProgressPlanningPeriod?.id ===
+                            item.planningPeriod.id && (
+                            <span
+                              data-cy={`planning-period-pill-okr-badge-${n}`}
+                              className="ml-1.5 rounded bg-blue-50 px-1.5 text-[10px] font-semibold uppercase leading-4 text-blue-700"
+                            >
+                              OKR
+                            </span>
+                          )}
                         </button>
                       );
                     },
@@ -646,6 +681,17 @@ function Page() {
               </div>
             )}
           </div>
+
+          {isActivePeriodInformational && (
+            <div
+              data-cy="planning-period-informational-notice"
+              className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600 sm:text-sm"
+            >
+              {inlinePlanningPeriodLabel} plans and reports are informational.
+              Your Key Results and Average OKR progress from{' '}
+              {okrProgressPlanningPeriod?.name} reports.
+            </div>
+          )}
 
           {/* ── KR + plans/reports: stacked on mobile/tablet, grid on lg+; same inline create flow everywhere ── */}
           <div
@@ -719,6 +765,7 @@ function Page() {
                       onClearTarget={() => setSelectedPlanningTargetId(null)}
                       onExit={handleInlineWorkspaceExit}
                       editPlanId={inlineEditPlanId}
+                      planAllTargets={planningTargets}
                     />
                   </section>
                 ) : null}
@@ -854,6 +901,7 @@ function Page() {
               onClearTarget={() => setSelectedPlanningTargetId(null)}
               onExit={handleMobileInlineExit}
               editPlanId={inlineEditPlanId}
+              planAllTargets={planningTargets}
             />
           </div>
         </div>

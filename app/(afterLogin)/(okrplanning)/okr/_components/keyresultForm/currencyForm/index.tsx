@@ -11,6 +11,7 @@ import {
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import { OKRFormProps } from '@/store/uistate/features/okrplanning/okr/interface';
 import { useGetMetrics } from '@/store/server/features/okrplanning/okr/metrics/queries';
+import { useGetOkrSetting } from '@/store/server/features/okrplanning/okr-setting/queries';
 import {
   useOKRStore,
   useAchieveOrNotStore,
@@ -19,6 +20,7 @@ import dayjs from 'dayjs';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useIsBasicOkr } from '../../../_utils/okrMode';
 import { isKeyResultLockedForWeightEdit } from '../../../_utils/keyResultGuards';
+import { ScoringBandFields } from '../scoringBandFields';
 import {
   KeyResultFieldLabel,
   KeyResultRemoveButton,
@@ -31,6 +33,7 @@ import {
   ADVANCED_WRAPPER_CLASS,
   ADVANCED_VALUES_ROW_CLASS,
   INPUT_CLASS,
+  KeyResultDataSourceField,
 } from '../_ui';
 
 const CurrencyForm: React.FC<OKRFormProps> = ({
@@ -47,6 +50,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   const { objectiveValue } = useOKRStore();
   const { isMobile } = useIsMobile();
   const { data: metrics } = useGetMetrics();
+  const { data: setting, refetch: refetchSetting } = useGetOkrSetting();
   const isBasic = useIsBasicOkr();
   const disableWeightEdit =
     disableWeightEditProp ?? isKeyResultLockedForWeightEdit(keyItem);
@@ -57,58 +61,15 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
   const isCardView = useAchieveOrNotStore(
     (s) => s.cardViewByKey[cardViewKey] ?? false,
   );
-  const initialValueRules = [
-    { required: true, message: 'Please enter the initial value' },
-    ({
-      getFieldValue,
-    }: {
-      getFieldValue: (name: string) => number | undefined;
-    }) => ({
-      //eslint-disable-next-line
-      validator(_: unknown, value: number | undefined) {
-        const targetValue = getFieldValue('targetValue');
-        if (
-          value == null ||
-          targetValue == null ||
-          Number(value) < Number(targetValue)
-        ) {
-          return Promise.resolve();
-        }
-        return Promise.reject(
-          new Error('Initial value must be less than the target value.'),
-        );
-      },
-    }),
-  ];
-  const targetValueRules = [
-    { required: true, message: 'Please enter the target value' },
-    ({
-      getFieldValue,
-    }: {
-      getFieldValue: (name: string) => number | undefined;
-    }) => ({
-      //eslint-disable-next-line
-      validator(_: unknown, value: number | undefined) {
-        const initialValue = getFieldValue('initialValue');
-        if (
-          value == null ||
-          initialValue == null ||
-          Number(value) > Number(initialValue)
-        ) {
-          return Promise.resolve();
-        }
-        return Promise.reject(
-          new Error('Target value must be greater than the initial value.'),
-        );
-      },
-    }),
-  ];
-
   useEffect(() => {
     if (keyItem?.deadline) {
       form.setFieldsValue({ [`dead_line_${index}`]: dayjs(keyItem.deadline) });
     }
   }, [keyItem?.deadline, index, form]);
+
+  useEffect(() => {
+    refetchSetting();
+  }, [refetchSetting]);
 
   return (
     <div
@@ -149,7 +110,9 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
           [`key_name_${index}`]: keyItem.title,
           [`weight_${index}`]: keyItem.weight,
           initialValue: keyItem.initialValue ?? 0,
+          thresholdValue: keyItem.thresholdValue,
           targetValue: keyItem.targetValue ?? 0,
+          stretchValue: keyItem.stretchValue,
           [`dead_line_${index}`]: keyItem?.deadline
             ? dayjs(keyItem.deadline)
             : undefined,
@@ -295,66 +258,17 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
             <div
               id={`okr-currency-desktop-values-row-${index}`}
               data-cy={`okr-currency-desktop-values-row-${index}`}
-              className="flex flex-row gap-4 items-center mt-4 mx-4 w-full"
+              className="flex flex-row flex-wrap gap-4 items-center mt-4 mx-4 w-full"
             >
-              <Form.Item
-                className="flex-1 min-w-0 mb-0"
-                name="initialValue"
-                dependencies={['targetValue']}
-                rules={initialValueRules}
-                data-cy={`okr-currency-desktop-initial-item-${index}`}
-              >
-                <InputNumber
-                  className="w-full h-10 rounded-lg text-base"
-                  data-cy={`okr-currency-desktop-initial-input-${index}`}
-                  min={0}
-                  placeholder="Initial Value"
-                  value={keyItem.initialValue ?? 0}
-                  onChange={(value) =>
-                    updateKeyResult(index, 'initialValue', value)
-                  }
-                  onKeyPress={(e) => {
-                    if (
-                      !/[0-9]/.test(e.key) &&
-                      e.key !== 'Backspace' &&
-                      e.key !== 'Delete' &&
-                      e.key !== 'Tab' &&
-                      e.key !== '.'
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
-                />
-              </Form.Item>
-              <Form.Item
-                className="flex-1 min-w-0 mb-0"
-                name="targetValue"
-                dependencies={['initialValue']}
-                rules={targetValueRules}
-                data-cy={`okr-currency-desktop-target-item-${index}`}
-              >
-                <InputNumber
-                  className="w-full h-10 rounded-lg text-base"
-                  data-cy={`okr-currency-desktop-target-input-${index}`}
-                  min={0}
-                  placeholder="Target Value"
-                  value={keyItem.targetValue ?? 0}
-                  onChange={(value) =>
-                    updateKeyResult(index, 'targetValue', value)
-                  }
-                  onKeyPress={(e) => {
-                    if (
-                      !/[0-9]/.test(e.key) &&
-                      e.key !== 'Backspace' &&
-                      e.key !== 'Delete' &&
-                      e.key !== 'Tab' &&
-                      e.key !== '.'
-                    ) {
-                      e.preventDefault();
-                    }
-                  }}
-                />
-              </Form.Item>
+              <ScoringBandFields
+                keyItem={keyItem}
+                index={index}
+                metric="currency"
+                layout="basic"
+                scoringMode={setting?.scoringMode}
+                updateKeyResult={updateKeyResult}
+                allowDecimal
+              />
             </div>
           </>
         )}
@@ -553,76 +467,15 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                   data-cy={`okr-currency-desktop-values-row-${index}`}
                   className={ADVANCED_VALUES_ROW_CLASS}
                 >
-                  <Form.Item
-                    className="flex-1 min-w-0 mb-0"
-                    name="initialValue"
-                    label={
-                      <KeyResultFieldLabel
-                        label="Initial Value"
-                        tooltip="Starting currency value"
-                      />
-                    }
-                    dependencies={['targetValue']}
-                    rules={initialValueRules}
-                    data-cy={`okr-currency-desktop-initial-item-${index}`}
-                  >
-                    <InputNumber
-                      className={`w-full ${INPUT_CLASS}`}
-                      data-cy={`okr-currency-desktop-initial-input-${index}`}
-                      min={0}
-                      placeholder="Input"
-                      value={keyItem.initialValue ?? 0}
-                      onChange={(value) =>
-                        updateKeyResult(index, 'initialValue', value)
-                      }
-                      onKeyPress={(e) => {
-                        if (
-                          !/[0-9]/.test(e.key) &&
-                          e.key !== 'Backspace' &&
-                          e.key !== 'Delete' &&
-                          e.key !== 'Tab' &&
-                          e.key !== '.'
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </Form.Item>
-                  <Form.Item
-                    className="flex-1 min-w-0 mb-0"
-                    name="targetValue"
-                    label={
-                      <KeyResultFieldLabel
-                        label="Target Value"
-                        tooltip="Target currency value"
-                      />
-                    }
-                    dependencies={['initialValue']}
-                    rules={targetValueRules}
-                    data-cy={`okr-currency-desktop-target-item-${index}`}
-                  >
-                    <InputNumber
-                      className={`w-full ${INPUT_CLASS}`}
-                      data-cy={`okr-currency-desktop-target-input-${index}`}
-                      min={0}
-                      placeholder="Input"
-                      value={keyItem.targetValue ?? 0}
-                      onChange={(value) =>
-                        updateKeyResult(index, 'targetValue', value)
-                      }
-                      onKeyPress={(e) => {
-                        if (
-                          !/[0-9]/.test(e.key) &&
-                          e.key !== 'Backspace' &&
-                          e.key !== 'Delete' &&
-                          e.key !== 'Tab' &&
-                          e.key !== '.'
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </Form.Item>
+                  <ScoringBandFields
+                    keyItem={keyItem}
+                    index={index}
+                    metric="currency"
+                    layout="advanced"
+                    scoringMode={setting?.scoringMode}
+                    updateKeyResult={updateKeyResult}
+                    allowDecimal
+                  />
                 </div>
               </div>
             )}
@@ -684,7 +537,9 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                               ? dayjs(keyItem.deadline)
                               : null,
                             initialValue: keyItem.initialValue ?? 0,
+                            thresholdValue: keyItem.thresholdValue,
                             targetValue: keyItem.targetValue ?? 0,
+                            stretchValue: keyItem.stretchValue,
                           });
                         }}
                         className="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-300"
@@ -703,7 +558,7 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                       className="text-xs font-medium text-gray-600 border border-gray-300 rounded-md px-2.5 py-1.5 w-fit inline-block"
                       data-cy={`okr-currency-mobile-saved-card-initial-label-${index}`}
                     >
-                      Initial Value :{' '}
+                      Baseline :{' '}
                       <span
                         className="font-semibold text-gray-900"
                         data-cy={`okr-currency-mobile-saved-card-initial-value-${index}`}
@@ -765,78 +620,17 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
                 <div
                   id={`okr-currency-mobile-values-row-${index}`}
                   data-cy={`okr-currency-mobile-values-row-${index}`}
-                  className="flex gap-4 w-full"
+                  className="flex flex-wrap gap-4 w-full"
                 >
-                  <Form.Item
-                    className="flex-1 min-w-0 mb-0"
-                    name="initialValue"
-                    label={
-                      <KeyResultFieldLabel
-                        label="Initial Value"
-                        tooltip="Starting currency value"
-                      />
-                    }
-                    dependencies={['targetValue']}
-                    rules={initialValueRules}
-                    data-cy={`okr-currency-mobile-initial-item-${index}`}
-                  >
-                    <InputNumber
-                      className="w-full h-10 rounded-lg text-base"
-                      data-cy={`okr-currency-mobile-initial-input-${index}`}
-                      min={0}
-                      placeholder="Initial Value"
-                      value={keyItem.initialValue ?? 0}
-                      onChange={(value) =>
-                        updateKeyResult(index, 'initialValue', value)
-                      }
-                      onKeyPress={(e) => {
-                        if (
-                          !/[0-9]/.test(e.key) &&
-                          e.key !== 'Backspace' &&
-                          e.key !== 'Delete' &&
-                          e.key !== 'Tab' &&
-                          e.key !== '.'
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </Form.Item>
-                  <Form.Item
-                    className="flex-1 min-w-0 mb-0"
-                    name="targetValue"
-                    label={
-                      <KeyResultFieldLabel
-                        label="Target Value"
-                        tooltip="Target currency value"
-                      />
-                    }
-                    dependencies={['initialValue']}
-                    rules={targetValueRules}
-                    data-cy={`okr-currency-mobile-target-item-${index}`}
-                  >
-                    <InputNumber
-                      className="w-full h-10 rounded-lg text-base"
-                      data-cy={`okr-currency-mobile-target-input-${index}`}
-                      min={0}
-                      placeholder="Target Value"
-                      value={keyItem.targetValue ?? 0}
-                      onChange={(value) =>
-                        updateKeyResult(index, 'targetValue', value)
-                      }
-                      onKeyPress={(e) => {
-                        if (
-                          !/[0-9]/.test(e.key) &&
-                          e.key !== 'Backspace' &&
-                          e.key !== 'Delete' &&
-                          e.key !== 'Tab' &&
-                          e.key !== '.'
-                        ) {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </Form.Item>
+                  <ScoringBandFields
+                    keyItem={keyItem}
+                    index={index}
+                    metric="currency"
+                    layout="mobile"
+                    scoringMode={setting?.scoringMode}
+                    updateKeyResult={updateKeyResult}
+                    allowDecimal
+                  />
                 </div>
                 <div
                   id={`okr-currency-mobile-meta-row-${index}`}
@@ -945,6 +739,14 @@ const CurrencyForm: React.FC<OKRFormProps> = ({
               </div>
             )}
           </>
+        )}
+        {!isCardView && (
+          <KeyResultDataSourceField
+            index={index}
+            value={keyItem.dataSource}
+            onChange={(value) => updateKeyResult(index, 'dataSource', value)}
+            data-cy={`okr-currency-data-source-${index}`}
+          />
         )}
       </Form>
     </div>

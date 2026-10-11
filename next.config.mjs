@@ -14,9 +14,7 @@ try {
   const mod = require('next-pwa');
   const init = mod && mod.default ? mod.default : mod;
   if (typeof init === 'function') withPWA = init;
-} catch {
- 
-}
+} catch {}
 
 // In Core mode the app is served behind the reverse proxy at `<host>/workspace`;
 // standalone (e.g. local dev) serves from the origin root. Keep this in sync with
@@ -35,7 +33,7 @@ const nextConfig = {
   // The codebase has pre-existing lint and strict-TS errors that `next dev` never
   // enforced; production builds elsewhere run `npm run lint || true`. Don't let
   // them fail `next build`.
- 
+
   experimental: {
     // This can help reduce memory usage during builds on servers with many cores.
     cpus: 1,
@@ -54,7 +52,7 @@ const nextConfig = {
       'files.ienetworks.co',
       'example.com',
     ],
-     remotePatterns: [
+    remotePatterns: [
       {
         protocol: 'https',
         hostname: 'files.ienetworks.co',
@@ -73,7 +71,8 @@ const nextConfig = {
     NOTIFICATION_URL: process.env.NOTIFICATION_URL,
     RECRUITMENT_URL: process.env.RECRUITMENT_URL,
     PUBLIC_DOMAIN: process.env.PUBLIC_DOMAIN,
-    OKR_URL: process.env.OKR_URL,
+    OKR_URL:
+      process.env.OKR_URL || process.env.NEXT_PUBLIC_OKR_AND_PLANNING_URL,
     APPROVER_URL: process.env.NEXT_PUBLIC_APPROVERS_URL,
     ORG_DEV: process.env.ORG_DEV,
     EMAIL_URL: process.env.EMAIL_URL,
@@ -90,7 +89,9 @@ const nextConfig = {
 
 const pwaConfig = withPWA({
   dest: 'public',
-  disable: process.env.NODE_ENV === 'development' || process.env.DISABLE_PWA === 'true',
+  disable:
+    process.env.NODE_ENV === 'development' ||
+    process.env.DISABLE_PWA === 'true',
   register: true,
   skipWaiting: false,
   sw: 'sw.js',
@@ -102,9 +103,9 @@ const pwaConfig = withPWA({
         cacheName: 'google-fonts',
         expiration: {
           maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
-        }
-      }
+          maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
+        },
+      },
     },
     {
       urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
@@ -113,9 +114,9 @@ const pwaConfig = withPWA({
         cacheName: 'google-fonts-static',
         expiration: {
           maxEntries: 4,
-          maxAgeSeconds: 365 * 24 * 60 * 60 // 365 days
-        }
-      }
+          maxAgeSeconds: 365 * 24 * 60 * 60, // 365 days
+        },
+      },
     },
     {
       urlPattern: /\.(?:jpg|jpeg|gif|png|svg|ico|webp)$/i,
@@ -124,9 +125,9 @@ const pwaConfig = withPWA({
         cacheName: 'static-image-assets',
         expiration: {
           maxEntries: 64,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        }
-      }
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+      },
     },
     {
       urlPattern: /\.(?:js|css)$/i,
@@ -135,9 +136,9 @@ const pwaConfig = withPWA({
         cacheName: 'static-js-css-assets',
         expiration: {
           maxEntries: 32,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
-        }
-      }
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
+        },
+      },
     },
     {
       urlPattern: /^\/api\/.*/i,
@@ -146,10 +147,10 @@ const pwaConfig = withPWA({
         cacheName: 'api-cache',
         expiration: {
           maxEntries: 16,
-          maxAgeSeconds: 24 * 60 * 60 // 24 hours
+          maxAgeSeconds: 24 * 60 * 60, // 24 hours
         },
-        networkTimeoutSeconds: 10
-      }
+        networkTimeoutSeconds: 10,
+      },
     },
     // {
     //   urlPattern: /.*/i,
@@ -163,7 +164,7 @@ const pwaConfig = withPWA({
     //     networkTimeoutSeconds: 10
     //   }
     // }
-  ]
+  ],
 });
 
 export default pwaConfig(nextConfig);

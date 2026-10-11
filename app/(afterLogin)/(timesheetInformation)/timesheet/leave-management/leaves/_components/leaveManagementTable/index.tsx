@@ -15,6 +15,7 @@ import dayjs from 'dayjs';
 import { DATE_FORMAT } from '@/utils/constants';
 import { LeaveRequestStatus } from '@/types/timesheet/settings';
 import { CommonObject } from '@/types/commons/commonObject';
+import { resolveTimesheetUserIdsFilter } from '@/utils/timesheetEmploymentStatus';
 import { useGetSimpleEmployee } from '@/store/server/features/employees/employeeDetail/queries';
 import { useMyTimesheetStore } from '@/store/uistate/features/timesheet/myTimesheet';
 import UserCard from '@/components/common/userCard/userCard';
@@ -361,11 +362,12 @@ const LeaveManagementTable: FC<LeaveManagementTableProps> = ({
     if (val.status) {
       nFilter['status'] = val.status;
     }
-    const userIdsFilter = val.searchEmployee ?? val.userIds;
+    const userIdsFilter = resolveTimesheetUserIdsFilter({
+      employmentStatus: val.employmentStatus,
+      employeeId: val.searchEmployee ?? val.userIds,
+    });
     if (userIdsFilter) {
-      nFilter['userIds'] = Array.isArray(userIdsFilter)
-        ? userIdsFilter
-        : [userIdsFilter];
+      nFilter['userIds'] = userIdsFilter;
     }
 
     setFilter(nFilter);

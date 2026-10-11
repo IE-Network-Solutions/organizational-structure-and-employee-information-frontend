@@ -56,7 +56,7 @@ const getDepartmentsWithUsers = async () => {
 
 const DEPARTMENT_USERS_PAGE_SIZE = 1000;
 
-const getDepartmentUsersAllLevels = async (departmentId: string) => {
+export const getDepartmentUsersAllLevels = async (departmentId: string) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
   const headers = {

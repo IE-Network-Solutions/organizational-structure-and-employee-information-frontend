@@ -1,4 +1,5 @@
 import {
+  getKeyResultMetricCeiling,
   getMetricValueInputMax,
   getMetricValueInputMin,
   getQuantitativeMetricValueBounds,
@@ -71,6 +72,26 @@ describe('okrMetricValueBounds', () => {
     expect(validateMetricValueAgainstInitial(75, kr)).toBeNull();
     expect(getMetricValueInputMax(kr)).toBe(100);
     expect(getMetricValueInputMin(kr)).toBe(50);
+  });
+
+  it('raises increasing ceiling to stretch when stretch is above target', () => {
+    const kr = {
+      metricType: { name: 'Percentage' },
+      initialValue: 0,
+      targetValue: 100,
+      stretchValue: 110,
+    };
+    expect(getQuantitativeMetricValueBounds(kr)).toMatchObject({
+      applies: true,
+      direction: 'increasing',
+      min: 0,
+      max: 110,
+    });
+    expect(validateMetricValueAgainstInitial(100, kr)).toBeNull();
+    expect(validateMetricValueAgainstInitial(110, kr)).toBeNull();
+    expect(validateMetricValueAgainstInitial(111, kr)).toMatch(/stretch/);
+    expect(getMetricValueInputMax(kr)).toBe(110);
+    expect(getKeyResultMetricCeiling(kr)).toBe(110);
   });
 
   it('treats missing initialValue as 0 for quantitative metrics', () => {

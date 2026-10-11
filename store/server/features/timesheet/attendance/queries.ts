@@ -114,11 +114,16 @@ export const useExportRuleViolationsExcel = () => {
 
 const exportAttendanceData = async (data: any) => {
   const requestHeaders = await requestHeader();
+  // The export DTO rejects `employmentStatus` (whitelist validation). Inactive
+  // filtering is already applied through `userIds`, so drop it here.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { employmentStatus, ...exportFilter } = data?.filter ?? {};
+  const payload = data?.filter ? { ...data, filter: exportFilter } : data;
   try {
     const response = await crudRequest({
       url: `${TIME_AND_ATTENDANCE_URL}/attendance`,
       method: 'POST',
-      data,
+      data: payload,
       headers: requestHeaders,
       skipEncryption: true, // Skip encryption for file downloads
       responseType: 'blob', // Tell axios to handle binary data

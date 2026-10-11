@@ -368,9 +368,7 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
             allowClear
             showSearch
             getPopupContainer={popupContainer}
-            value={selectValueOrUndefined(
-              employeeSearchObjParams.departmentId,
-            )}
+            value={selectValueOrUndefined(employeeSearchObjParams.departmentId)}
             onChange={(value) => handleFilter(value ?? '', 'departmentId')}
             filterOption={(input, option) =>
               (option?.children as any)
@@ -549,17 +547,17 @@ const EmployeeOKRTable: React.FC<EmployeeOKRTableProps> = ({
   );
 
   const filterPopoverContent = (
+    <div
+      id="employee-okr-filter-popover-content"
+      data-cy="employee-okr-filter-popover-content"
+      className="w-[460px] max-w-[460px]"
+    >
+      {filterFields}
       <div
-        id="employee-okr-filter-popover-content"
-        data-cy="employee-okr-filter-popover-content"
-        className="w-[460px] max-w-[460px]"
+        id="employee-okr-filter-popover-footer"
+        data-cy="employee-okr-filter-popover-footer"
+        className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100"
       >
-        {filterFields}
-        <div
-          id="employee-okr-filter-popover-footer"
-          data-cy="employee-okr-filter-popover-footer"
-          className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-100"
-        >
         <Button
           id="employee-okr-filter-reset-button"
           data-cy="employee-okr-filter-reset-button"

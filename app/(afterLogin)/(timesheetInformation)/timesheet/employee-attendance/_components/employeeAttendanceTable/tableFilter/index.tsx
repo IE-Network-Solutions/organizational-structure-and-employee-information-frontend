@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 import {
   Col,
   DatePicker,
@@ -26,7 +26,12 @@ import {
 import { DATE_FORMAT } from '@/utils/constants';
 import dayjs, { Dayjs } from 'dayjs';
 import { CommonObject } from '@/types/commons/commonObject';
-import { useGetAllUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import { useTimesheetFilterUsers } from '@/store/server/features/employees/employeeManagment/queries';
+import {
+  TIMESHEET_EMPLOYMENT_STATUS_ACTIVE,
+  TIMESHEET_EMPLOYMENT_STATUS_INACTIVE,
+  type TimesheetEmploymentStatus,
+} from '@/utils/timesheetEmploymentStatus';
 import { useGetBreakTypes } from '@/store/server/features/timesheet/breakType/queries';
 import { useEmployeeAttendanceStore } from '@/store/uistate/features/timesheet/employeeAtendance';
 import { useCalculateAbsentAttendance } from '@/store/server/features/timesheet/attendance/mutation';
@@ -423,7 +428,9 @@ const AttendanceFilterPanel: FC<AttendanceFilterPanelProps> = ({
 const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   const [form] = Form.useForm();
   const { isMobile } = useIsMobile();
-  const { data: employeeData } = useGetAllUsers();
+  const [employmentStatus, setEmploymentStatus] =
+    useState<TimesheetEmploymentStatus>(TIMESHEET_EMPLOYMENT_STATUS_ACTIVE);
+  const { data: employeeData } = useTimesheetFilterUsers(employmentStatus);
   const { data: breakTypeData } = useGetBreakTypes();
   const { isShowMobileFilters, setIsShowMobileFilters, filter } =
     useEmployeeAttendanceStore();
@@ -431,6 +438,8 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
     mutateAsync: calculateAbsentAttendance,
     isLoading: isCalculatingAbsent,
   } = useCalculateAbsentAttendance();
+  const isInactiveView =
+    employmentStatus === TIMESHEET_EMPLOYMENT_STATUS_INACTIVE;
 
   const getFilterValues = useCallback((): CommonObject => {
     const values = { ...form.getFieldsValue() };
@@ -439,8 +448,23 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
       const end = values.endDate ?? values.startDate;
       values.date = [start, end];
     }
+    values.employmentStatus = employmentStatus;
     return values;
-  }, [form]);
+  }, [form, employmentStatus]);
+
+  const handleEmploymentStatusChange = (value?: TimesheetEmploymentStatus) => {
+    const next = value || TIMESHEET_EMPLOYMENT_STATUS_ACTIVE;
+    setEmploymentStatus(next);
+    form.setFieldsValue({
+      employmentStatus: next,
+      employeeId: undefined,
+    });
+    onChange({
+      ...getFilterValues(),
+      employmentStatus: next,
+      employeeId: undefined,
+    });
+  };
 
   const getAbsentDateFilter = () => {
     const today = dayjs().format('YYYY-MM-DD');
@@ -554,7 +578,11 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
 
   const handleReset = useCallback(() => {
     form.resetFields();
-    onChange({});
+    setEmploymentStatus(TIMESHEET_EMPLOYMENT_STATUS_ACTIVE);
+    form.setFieldsValue({
+      employmentStatus: TIMESHEET_EMPLOYMENT_STATUS_ACTIVE,
+    });
+    onChange({ employmentStatus: TIMESHEET_EMPLOYMENT_STATUS_ACTIVE });
   }, [form, onChange]);
 
   const handleCloseFilters = useCallback(() => {
@@ -600,6 +628,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
   return (
     <Form
       form={form}
+      initialValues={{ employmentStatus: TIMESHEET_EMPLOYMENT_STATUS_ACTIVE }}
       id="time-attendance-employee-attendance-filter-form"
       data-cy="time-attendance-employee-attendance-filter-form"
     >
@@ -610,11 +639,40 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
         <div
           id="time-attendance-employee-attendance-mobile-filter-date-range-div"
           data-cy="time-attendance-employee-attendance-mobile-filter-date-range-div"
-          className="flex justify-between"
+          className="flex justify-between gap-2 flex-wrap"
         >
           <div
+            data-cy="time-attendance-employee-attendance-mobile-filter-status-select-div"
+            className="w-[140px] sm:w-[160px]"
+          >
+            <Form.Item
+              data-cy="time-attendance-employee-attendance-mobile-filter-status-select-form-item"
+              name="employmentStatus"
+              className="mb-0"
+            >
+              <Select
+                id="time-attendance-employee-attendance-mobile-filter-status-select"
+                data-cy="time-attendance-employee-attendance-mobile-filter-status-select"
+                placeholder="Status"
+                className="h-8"
+                value={employmentStatus}
+                onChange={handleEmploymentStatusChange}
+                options={[
+                  {
+                    value: TIMESHEET_EMPLOYMENT_STATUS_ACTIVE,
+                    label: 'Active',
+                  },
+                  {
+                    value: TIMESHEET_EMPLOYMENT_STATUS_INACTIVE,
+                    label: 'Inactive',
+                  },
+                ]}
+              />
+            </Form.Item>
+          </div>
+          <div
             data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-div"
-            className="w-1/2 sm:w-1/3 "
+            className="w-1/2 sm:w-1/3 flex-1 min-w-[160px]"
           >
             <Form.Item
               data-cy="time-attendance-employee-attendance-mobile-filter-employee-select-form-item"
@@ -669,6 +727,7 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
                     icon={<ReloadOutlined />}
                     loading={isCalculatingAbsent}
                     onClick={handleCalculateAbsent}
+                    disabled={isInactiveView}
                     aria-label="Calculate Absent"
                   />
                 </span>
@@ -677,12 +736,13 @@ const TableFilter: FC<TableFilterProps> = ({ onChange }) => {
               <Button
                 type="primary"
                 size="large"
-                className="h-10 text-base font-normal text-white"
+                className="h-8 px-4 flex items-center justify-center text-base font-normal text-white"
                 id="time-attendance-employee-attendance-calculate-absent-button"
                 data-cy="time-attendance-employee-attendance-calculate-absent-button"
+                icon={<ReloadOutlined />}
                 loading={isCalculatingAbsent}
                 onClick={handleCalculateAbsent}
-                aria-label="Calculate Absent"
+                disabled={isInactiveView}
               >
                 Calculate Absent
               </Button>

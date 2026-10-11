@@ -34,10 +34,7 @@ export default function RecentLeaveRequestCard() {
     [userId],
   );
 
-  const queryData = useMemo(
-    () => ({ page: 1, limit: RECENT_LIMIT }),
-    [],
-  );
+  const queryData = useMemo(() => ({ page: 1, limit: RECENT_LIMIT }), []);
 
   const body = useMemo(() => ({ filter }), [filter]);
 
