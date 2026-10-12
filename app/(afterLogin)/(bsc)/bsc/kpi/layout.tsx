@@ -1,0 +1,280 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { Button, Tooltip } from 'antd';
+import {
+  DownloadOutlined,
+  PlusOutlined,
+  SyncOutlined,
+} from '@ant-design/icons';
+import IosShareIcon from '@mui/icons-material/IosShare';
+import KpiImportModal from '@/app/(afterLogin)/(bsc)/bsc/_components/KpiImportModal';
+import { bscFilterButtonClassName } from '@/app/(afterLogin)/(bsc)/bsc/_components/bscToolbarStyles';
+import CustomBreadcrumb from '@/components/common/breadCramp';
+import { useBscUiStore } from '@/store/uistate/features/bsc';
+import { useGetBscKpiLibrary } from '@/store/server/features/bsc/queries';
+import { useRecalculateBscAssignments } from '@/store/server/features/bsc/mutation';
+import { exportKpiLibrary } from '@/utils/bsc/kpiImport';
+import { bscAccess } from '@/utils/bsc/permissions';
+import {
+  bscKpiAdminHref,
+  parseBscKpiAdminTab,
+  scorecardTabHref,
+} from '@/utils/bsc/scorecardTab';
+
+/** Tooltip for the BSC tab "Recalculate assignments" action. */
+const RECALCULATE_HINT =
+  'Re-apply Individual > Position > Department > Company so each employee has one effective scorecard (e.g. after position or department changes).';
+
+const TABS = [
+  { key: 'kpis' as const, label: 'KPI', href: bscKpiAdminHref('kpis') },
+  { key: 'bsc' as const, label: 'BSC', href: bscKpiAdminHref('bsc') },
+];
+
+export default function BscKpiAdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { openCreateSetup, openCatalogKpiForm, openKpiImportModal } =
+    useBscUiStore();
+  const activeTab = parseBscKpiAdminTab(pathname || '');
+
+  // "BSC and KPI" permission group: the KPI tab needs any KPI permission, the
+  // BSC tab any scorecard permission; each action has its own permission.
+  const canViewKpis = bscAccess.viewKpis();
+  const canViewScorecards = bscAccess.viewScorecards();
+  const canImportKpis = bscAccess.importKpis();
+  const canExportKpis = bscAccess.exportKpis();
+  const canCreateKpi = bscAccess.createKpi();
+  const canCreateScorecard = bscAccess.createScorecard();
+  const canUpdateScorecard = bscAccess.updateScorecard();
+  const recalculate = useRecalculateBscAssignments();
+  const canOpenActiveTab =
+    activeTab === 'kpis' ? canViewKpis : canViewScorecards;
+  const visibleTabs = TABS.filter((tab) =>
+    tab.key === 'kpis' ? canViewKpis : canViewScorecards,
+  );
+
+  const { data: libraryKpis } = useGetBscKpiLibrary();
+  const [exporting, setExporting] = useState(false);
+  const handleExportKpis = async () => {
+    setExporting(true);
+    try {
+      await exportKpiLibrary(libraryKpis || []);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  // Land on the tab this user can open, else back to My Scorecard.
+  const fallbackHref = visibleTabs[0]?.href ?? scorecardTabHref('mine');
+
+  useEffect(() => {
+    if (!canOpenActiveTab) router.replace(fallbackHref);
+  }, [canOpenActiveTab, fallbackHref, router]);
+
+  if (!canOpenActiveTab) {
+    return (
+      <div
+        className="py-16 text-center text-gray-400"
+        data-cy="bsc-kpi-admin-denied"
+      >
+        Redirecting…
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="min-h-screen w-full bg-white"
+      data-cy="bsc-kpi-admin-layout"
+    >
+      <CustomBreadcrumb
+        titleClassName="!text-gray-900"
+        title={
+          <span
+            data-cy="layout-span-68"
+            className="text-2xl font-bold text-gray-900"
+          >
+            KPI
+          </span>
+        }
+        subtitle={
+          <nav
+            aria-label="Breadcrumb"
+            className="mt-1 flex text-sm font-medium text-gray-500"
+            data-cy="bsc-kpi-admin-breadcrumb"
+          >
+            <Link
+              href={scorecardTabHref('mine')}
+              className="!text-gray-800"
+              data-cy="bsc-kpi-admin-breadcrumb-bsc"
+            >
+              BSC
+            </Link>
+            <span data-cy="layout-span-82" className="mx-2 text-gray-400">
+              /
+            </span>
+            <span
+              className="text-gray-900"
+              data-cy="bsc-kpi-admin-breadcrumb-current"
+            >
+              KPI
+            </span>
+          </nav>
+        }
+      />
+
+      <div
+        className="border-b border-[#D9D9D9] pt-3"
+        data-cy="bsc-kpi-admin-tabs"
+      >
+        <div
+          data-cy="layout-div-97"
+          className="flex min-w-0 items-end justify-between gap-2 pb-0"
+        >
+          <div
+            data-cy="layout-div-98"
+            className="min-w-0 flex-1 overflow-x-auto scrollbar-thin"
+          >
+            <div
+              data-cy="layout-div-99"
+              className="flex w-max min-w-full items-end gap-0"
+            >
+              {visibleTabs.map((tab) => {
+                const isActive = activeTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    type="button"
+                    onClick={() => router.push(tab.href)}
+                    className={[
+                      'relative shrink-0 cursor-pointer border-none bg-transparent px-3 pb-[10px] pt-0 outline-none',
+                      'whitespace-nowrap text-[14px] transition-colors duration-150 lg:px-4 lg:text-[16px]',
+                      isActive
+                        ? 'font-bold text-[#1E40AF]'
+                        : 'font-normal text-[rgba(0,0,0,0.7)] hover:text-[#1E40AF]',
+                    ].join(' ')}
+                    data-cy={`bsc-kpi-admin-tab-${tab.key}`}
+                  >
+                    {tab.label}
+                    {isActive ? (
+                      <span
+                        data-cy="layout-span-118"
+                        className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#1E40AF]"
+                        aria-hidden="true"
+                      />
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          {activeTab === 'kpis' ? (
+            <>
+              {canImportKpis ? (
+                <Button
+                  icon={
+                    <IosShareIcon
+                      fontSize="small"
+                      className="text-[#374151]"
+                      data-cy="bsc-kpi-import-icon"
+                    />
+                  }
+                  onClick={openKpiImportModal}
+                  className={`${bscFilterButtonClassName} mb-[6px] hidden h-8 shrink-0 rounded-md sm:inline-flex`}
+                  data-cy="bsc-kpi-import"
+                >
+                  Import
+                </Button>
+              ) : null}
+              {canExportKpis ? (
+                <Button
+                  icon={<DownloadOutlined />}
+                  onClick={handleExportKpis}
+                  loading={exporting}
+                  disabled={!libraryKpis?.length}
+                  className={`${bscFilterButtonClassName} mb-[6px] hidden h-8 shrink-0 rounded-md sm:inline-flex`}
+                  data-cy="bsc-kpi-export"
+                >
+                  Export
+                </Button>
+              ) : null}
+              {canCreateKpi ? (
+                <>
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={() => openCatalogKpiForm()}
+                    className="mb-[6px] hidden h-8 shrink-0 rounded-md border-none bg-[#2b54ad] sm:inline-flex hover:bg-[#3d66c2]"
+                    data-cy="bsc-kpi-add"
+                  >
+                    Add KPI
+                  </Button>
+                  <button
+                    type="button"
+                    aria-label="Add KPI"
+                    onClick={() => openCatalogKpiForm()}
+                    className="mb-[6px] flex h-8 w-8 min-h-8 min-w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border-none bg-[#2b54ad] text-white outline-none hover:opacity-90 sm:hidden"
+                    data-cy="bsc-kpi-add-mobile"
+                  >
+                    <PlusOutlined className="text-sm" />
+                  </button>
+                </>
+              ) : null}
+            </>
+          ) : activeTab === 'bsc' &&
+            (canCreateScorecard || canUpdateScorecard) ? (
+            <>
+              {canUpdateScorecard ? (
+                <Tooltip title={RECALCULATE_HINT}>
+                  <Button
+                    icon={<SyncOutlined spin={recalculate.isLoading} />}
+                    onClick={() => recalculate.mutate()}
+                    loading={recalculate.isLoading}
+                    className={`${bscFilterButtonClassName} mb-[6px] hidden h-8 shrink-0 rounded-md sm:inline-flex`}
+                    data-cy="bsc-setup-recalculate"
+                  >
+                    Recalculate assignments
+                  </Button>
+                </Tooltip>
+              ) : null}
+              {canCreateScorecard ? (
+                <>
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={openCreateSetup}
+                    className="mb-[6px] hidden h-8 shrink-0 rounded-md border-none bg-[#2b54ad] sm:inline-flex hover:bg-[#3d66c2]"
+                    data-cy="bsc-setup-add"
+                  >
+                    Add scorecard
+                  </Button>
+                  <button
+                    type="button"
+                    aria-label="Add scorecard"
+                    onClick={openCreateSetup}
+                    className="mb-[6px] flex h-8 w-8 min-h-8 min-w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border-none bg-[#2b54ad] text-white outline-none hover:opacity-90 sm:hidden"
+                    data-cy="bsc-setup-add-mobile"
+                  >
+                    <PlusOutlined className="text-sm" />
+                  </button>
+                </>
+              ) : null}
+            </>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="pb-8 pt-5" data-cy="bsc-kpi-admin-content">
+        {children}
+      </div>
+      <KpiImportModal />
+    </div>
+  );
+}

@@ -1,6 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useGetUserObjectiveDashboard } from '@/store/server/features/okrplanning/okr/dashboard/queries';
+import {
+  displayedAverageOkr,
+  useGetUserObjectiveDashboard,
+} from '@/store/server/features/okrplanning/okr/dashboard/queries';
 import { useGetVPScore } from '@/store/server/features/okrplanning/okr/dashboard/VP/queries';
 import { useAuthenticationStore } from '@/store/uistate/features/authentication';
 import { useGetPersonalRecognition } from '@/store/server/features/CFR/recognition/queries';
@@ -168,7 +171,7 @@ export const AverageOkrKpiCard = () => {
           className="font-semibold text-[27px] leading-7 tracking-normal text-gray-900"
           data-cy="okr-card-value"
         >
-          {Number(objectiveDashboard?.userOkr?.toFixed(2) || 0)}%
+          {displayedAverageOkr(objectiveDashboard).toFixed(2)}%
         </div>
       </div>
       <div className="flex flex-col mt-3" data-cy="okr-card-average-okr-body">
@@ -180,7 +183,7 @@ export const AverageOkrKpiCard = () => {
         </div>
         <div className=" flex gap-2 items-center" data-cy="okr-card-details">
           <Progress
-            percent={Number(objectiveDashboard?.userOkr || 0)}
+            percent={displayedAverageOkr(objectiveDashboard)}
             showInfo={false}
             strokeColor="#1f4fd8"
             trailColor="#e5e7eb"

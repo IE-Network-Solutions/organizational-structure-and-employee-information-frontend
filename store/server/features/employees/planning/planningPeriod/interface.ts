@@ -62,6 +62,8 @@ export type PlanningPeriodUser = {
   userId: string;
   tenantId: string;
   planningPeriodId: string;
+  /** This period's reports progress KR / Average OKR for the user. */
+  drivesOkrProgress?: boolean;
   planningPeriod?: PlanningPeriod;
 };
 
@@ -102,6 +104,8 @@ export type PaginatedGroupedUsers = {
 export interface PlanningUserPayload {
   userIds: string[];
   planningPeriodIds: string[];
+  /** Assigned period whose reports progress KR / Average OKR. */
+  okrProgressPlanningPeriodId?: string;
   scoringConfigurationId?: string;
   okrRuleId?: string;
 }

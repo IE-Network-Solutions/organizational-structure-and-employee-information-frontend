@@ -86,7 +86,9 @@ const ObjectiveKeyResult: React.FC = () => {
                   id="okr-objective-average-score-value-display-h2"
                   data-cy="okr-objective-average-score-value-display-h2"
                 >
-                  {Number(OKRData?.userOkr).toLocaleString() ?? 0}
+                  {Number(
+                    OKRData?.overall ?? OKRData?.userOkr ?? 0,
+                  ).toLocaleString()}
                 </h2>
                 <h5
                   id="okr-objective-average-score-percent-display-h5"

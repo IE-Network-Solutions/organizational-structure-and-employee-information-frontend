@@ -67,11 +67,11 @@ export const useCheckOkrSetting = (enabled: boolean = true) => {
   );
 };
 
-export const useGetOkrSetting = () => {
+export const useGetOkrSetting = (options?: { enabled?: boolean }) => {
   return useQuery<OkrSetting | null>(['okrSetting'], () => getOkrSetting(), {
     retry: false,
     refetchOnWindowFocus: false,
-    enabled: false, // Only fetch when explicitly called
+    enabled: options?.enabled ?? false,
     staleTime: 5 * 60_000,
   });
 };

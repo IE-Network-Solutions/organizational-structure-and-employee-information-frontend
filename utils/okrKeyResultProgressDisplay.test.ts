@@ -284,4 +284,95 @@ describe('okrKeyResultProgressDisplay — OKR vs Plan & Report sync', () => {
     expect(getKeyResultProgressPercent(merged)).toBe(25);
     expect(getKeyResultProgressRatioText(merged)).toBe('1/4');
   });
+
+  it('shows stretch overshoot (110%) when actual exceeds target', () => {
+    const kr: KeyResultLikeInput = {
+      metricType: { name: 'Percentage' },
+      initialValue: 0,
+      targetValue: 100,
+      stretchValue: 110,
+      currentValue: 110,
+      progress: 110,
+    };
+
+    expect(getKeyResultProgressPercent(kr)).toBe(110);
+    expect(getKeyResultProgressRatioText(kr)).toBe('110/100');
+  });
+
+  it('uses report task achieved when higher than stale KR currentValue', () => {
+    const planKr = {
+      id: 'kr-stretch',
+      metricType: { name: 'Percentage' },
+      initialValue: 0,
+      targetValue: 100,
+      stretchValue: 110,
+      currentValue: 100,
+      progress: 100,
+      tasks: [{ achieved: 110 }],
+    };
+    const apiKr = {
+      id: 'kr-stretch',
+      metricType: { name: 'Percentage' },
+      initialValue: 0,
+      targetValue: 100,
+      stretchValue: 110,
+      currentValue: 100,
+      progress: 100,
+    };
+
+    const merged = mergeKeyResultWithUserApi(planKr, [apiKr]);
+    expect(getKeyResultProgressPercent(merged)).toBe(110);
+  });
+
+  describe('type-weighted (banded) key results', () => {
+    const banded = {
+      metricType: { name: 'Numeric' },
+      initialValue: 0,
+      thresholdValue: 80,
+      targetValue: 100,
+      stretchValue: 120,
+      currentValue: 110,
+    };
+
+    it('shows the backend score, so an objective-level cap reaches the panel', () => {
+      // actual 110 would be 110% locally; backend capped it at target because a
+      // sibling key result is below its threshold.
+      expect(getKeyResultProgressPercent({ ...banded, progress: 100 })).toBe(
+        100,
+      );
+    });
+
+    it('shows stretch progress when the backend allows it', () => {
+      expect(getKeyResultProgressPercent({ ...banded, progress: 110 })).toBe(
+        110,
+      );
+    });
+
+    it('shows 0 below threshold (backend cliff)', () => {
+      expect(
+        getKeyResultProgressPercent({
+          ...banded,
+          currentValue: 70,
+          progress: 0,
+        }),
+      ).toBe(0);
+    });
+
+    it('never exceeds the stretch score', () => {
+      expect(getKeyResultProgressPercent({ ...banded, progress: 150 })).toBe(
+        120,
+      );
+    });
+
+    it('still derives progress locally for key results without a threshold', () => {
+      expect(
+        getKeyResultProgressPercent({
+          ...banded,
+          thresholdValue: null,
+          currentValue: 50,
+          progress: 100,
+        }),
+      ).toBe(50);
+    });
+  });
 });

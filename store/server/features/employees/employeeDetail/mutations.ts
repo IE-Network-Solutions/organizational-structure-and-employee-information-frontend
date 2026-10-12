@@ -104,7 +104,10 @@ const createEmployeeMutation = async (values: any) => {
   const token = await getCurrentToken();
   const tenantId = useAuthenticationStore.getState().tenantId;
 
-  const { nationality: _nationality, user: _user, ...apiValues } = values ?? {};
+  // Drop runtime-only hydration fields (not columns on employee-information).
+  const apiValues = { ...(values ?? {}) };
+  delete apiValues.nationality;
+  delete apiValues.user;
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information`,
@@ -121,7 +124,9 @@ const updateEmployeeMutation = async (id: string, values: any) => {
   const tenantId = useAuthenticationStore.getState().tenantId;
 
   // Drop runtime-only hydration fields (not columns on employee-information).
-  const { nationality: _nationality, user: _user, ...apiValues } = values ?? {};
+  const apiValues = { ...(values ?? {}) };
+  delete apiValues.nationality;
+  delete apiValues.user;
 
   return crudRequest({
     url: `${ORG_AND_EMP_URL}/employee-information/${id}`,
@@ -466,7 +471,8 @@ export const useUpdateEmployeeInformation = () => {
     ({ id, values }: UpdateEmployeeIdentityVariables) =>
       updateEmployeeInformation(id, values),
     {
-      onSuccess: (_data, variables) => {
+      onSuccess: (response, variables) => {
+        void response;
         const { id, values, silent } = variables;
         queryClient.setQueryData(['employee', id], (old: any) => {
           if (!old) return old;

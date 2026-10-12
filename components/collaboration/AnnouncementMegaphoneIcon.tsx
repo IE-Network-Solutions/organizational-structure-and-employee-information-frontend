@@ -22,7 +22,7 @@ const AnnouncementMegaphoneIcon = ({
     strokeLinejoin="round"
     className={className ?? 'shrink-0'}
     aria-hidden
-    data-cy={dataCy}
+    data-cy={dataCy ?? 'announcement-megaphone-icon'}
   >
     <path
       data-cy="collaboration-announcement-megaphone-path-horn"

@@ -29,7 +29,7 @@ import type { Permission as PermissionType } from '@/store/server/features/emplo
 import { AppstoreOutlined, FileTextOutlined } from '@ant-design/icons';
 import { CiCalendar, CiSettings, CiStar, CiBookmark } from 'react-icons/ci';
 import { TbMessage2 } from 'react-icons/tb';
-import { AiOutlineDollarCircle } from 'react-icons/ai';
+import { AiOutlineBarChart, AiOutlineDollarCircle } from 'react-icons/ai';
 import { PiMoneyLight, PiSuitcaseSimpleThin } from 'react-icons/pi';
 import { LuCircleDollarSign, LuUsers } from 'react-icons/lu';
 const ROLE_STEP_TITLES = [
@@ -137,6 +137,10 @@ const ListOfRoles = () => {
 
     if (name.includes('okr')) {
       return <CiStar size={18} />;
+    }
+
+    if (name.includes('bsc') || name.includes('kpi')) {
+      return <AiOutlineBarChart size={18} />;
     }
 
     if (
