@@ -1,11 +1,16 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import {
   DeadlineTask,
   DeadlineTaskStatusFilter,
 } from '@/store/server/features/deadlinePlan/interface';
 
 export type DeadlineViewMode = 'list' | 'grouped';
-export type DeadlineDuration = 'today' | 'week' | 'month' | 'history';
+export type DeadlineDuration =
+  | 'upcoming'
+  | 'today'
+  | 'week'
+  | 'month'
+  | 'history';
 
 interface DeadlinePlanState {
   viewMode: DeadlineViewMode;
@@ -23,6 +28,8 @@ interface DeadlinePlanState {
   editingTask: DeadlineTask | null;
   /** Pre-selects the key result when adding a task from the KR panel. */
   taskFormKeyResult: { id: string; ownerId: string } | null;
+  /** Pre-selects a person when adding a task from their grouped plan. */
+  taskFormAssigneeId: string | null;
   reportingTask: DeadlineTask | null;
 
   setViewMode: (viewMode: DeadlineViewMode) => void;
@@ -35,14 +42,15 @@ interface DeadlinePlanState {
   openTaskForm: (options?: {
     task?: DeadlineTask;
     keyResult?: { id: string; ownerId: string };
+    assigneeId?: string;
   }) => void;
   closeTaskForm: () => void;
   setReportingTask: (task: DeadlineTask | null) => void;
 }
 
 export const useDeadlinePlanStore = create<DeadlinePlanState>((set) => ({
-  viewMode: 'grouped',
-  duration: 'today',
+  viewMode: 'list',
+  duration: 'upcoming',
   historyRange: null,
   department: 'all',
   status: 'active',
@@ -52,6 +60,7 @@ export const useDeadlinePlanStore = create<DeadlinePlanState>((set) => ({
   isTaskFormOpen: false,
   editingTask: null,
   taskFormKeyResult: null,
+  taskFormAssigneeId: null,
   reportingTask: null,
 
   setViewMode: (viewMode) => set({ viewMode }),
@@ -67,8 +76,14 @@ export const useDeadlinePlanStore = create<DeadlinePlanState>((set) => ({
       isTaskFormOpen: true,
       editingTask: options?.task ?? null,
       taskFormKeyResult: options?.keyResult ?? null,
+      taskFormAssigneeId: options?.assigneeId ?? null,
     }),
   closeTaskForm: () =>
-    set({ isTaskFormOpen: false, editingTask: null, taskFormKeyResult: null }),
+    set({
+      isTaskFormOpen: false,
+      editingTask: null,
+      taskFormKeyResult: null,
+      taskFormAssigneeId: null,
+    }),
   setReportingTask: (reportingTask) => set({ reportingTask }),
 }));

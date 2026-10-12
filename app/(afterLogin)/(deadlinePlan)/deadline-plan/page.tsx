@@ -112,11 +112,10 @@ function DeadlinePlanPage() {
         isRecognition
       />
 
-      {/* Two columns on desktop. The Key Results panel owns the left one, so
-          the filters sit above the task list only, never above the panel. */}
+      {/* Keep the key-result panel beside the date-grouped task workspace. */}
       <div
         data-cy="deadline-plan-main"
-        className="grid w-full min-w-0 max-w-full grid-cols-1 gap-x-4 gap-y-3 p-0 sm:p-4 lg:grid-cols-[auto_minmax(0,1fr)]"
+        className="grid w-full min-w-0 max-w-full grid-cols-1 gap-x-6 gap-y-4 p-0 sm:p-4 lg:grid-cols-[auto_minmax(0,1fr)]"
       >
         <KeyResultPanel
           userId={userId}

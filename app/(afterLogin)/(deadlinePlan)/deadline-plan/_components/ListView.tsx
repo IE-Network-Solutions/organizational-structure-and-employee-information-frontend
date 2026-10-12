@@ -3,7 +3,7 @@ import React, { useCallback, useMemo } from 'react';
 import { DeadlineTaskSearchFilter } from '@/store/server/features/deadlinePlan/interface';
 import { useDeadlineTasks } from '@/store/server/features/deadlinePlan/queries';
 import LoadMore from './LoadMore';
-import TaskTable from './TaskTable';
+import TaskList from './TaskList';
 import { PersonOption } from './useDeadlinePeople';
 import { flattenTaskPages, TaskViewer } from './utils';
 
@@ -13,7 +13,7 @@ interface ListViewProps {
   getPerson: (id: string | null | undefined) => PersonOption | null;
 }
 
-/** One cross-team table of every selected person's tasks. */
+/** One date-grouped list of every selected person's tasks. */
 export default function ListView({ filter, viewer, getPerson }: ListViewProps) {
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     useDeadlineTasks(filter);
@@ -24,15 +24,14 @@ export default function ListView({ filter, viewer, getPerson }: ListViewProps) {
   return (
     <section
       data-cy="deadline-plan-list-view"
-      className="w-full rounded-2xl border border-slate-100 bg-white p-4"
+      className="w-full min-w-0 bg-white px-1 py-2 sm:px-4"
     >
-      <TaskTable
+      <TaskList
         tasks={tasks}
-        mode="list"
         viewer={viewer}
         getPerson={getPerson}
         loading={isLoading}
-        emptyText="No tasks for these filters."
+        emptyText="No tasks to show for the selected people and dates."
       />
       <LoadMore
         hasMore={!!hasNextPage}

@@ -69,7 +69,7 @@ export default function AssigneePicker({
       maxTagPlaceholder={(omitted) => (
         <span
           data-cy="deadline-assignee-more"
-          className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-semibold text-indigo-700"
+          className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-okr-primary"
         >
           +{omitted.length}
         </span>

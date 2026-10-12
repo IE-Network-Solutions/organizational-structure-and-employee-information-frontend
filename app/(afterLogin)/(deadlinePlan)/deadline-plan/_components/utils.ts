@@ -14,8 +14,8 @@ export type Tone = 'neutral' | 'success' | 'warning' | 'danger' | 'info';
 /* ------------------------------- duration ------------------------------- */
 
 export interface DurationRange {
-  from: string;
-  to: string;
+  from?: string;
+  to?: string;
   /** Carry unreported tasks whose deadline already passed into the view. */
   includeOverdue: boolean;
 }
@@ -26,6 +26,12 @@ export function resolveDurationRange(
   today: Dayjs,
   historyRange?: [string, string] | null,
 ): DurationRange {
+  // The date-grouped task list shows the full active schedule by default.
+  // The existing API accepts an omitted window; overdue tasks still carry over.
+  if (duration === 'upcoming') {
+    return { includeOverdue: true };
+  }
+
   if (duration === 'history') {
     if (historyRange) {
       return {

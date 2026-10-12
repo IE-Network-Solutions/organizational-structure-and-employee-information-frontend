@@ -42,6 +42,12 @@ const viewerOf = (overrides: Partial<TaskViewer> = {}): TaskViewer => ({
 const today = dayjs('2026-10-11');
 
 describe('resolveDurationRange', () => {
+  it('shows the full schedule for Upcoming without imposing a date window', () => {
+    expect(resolveDurationRange('upcoming', today)).toEqual({
+      includeOverdue: true,
+    });
+  });
+
   it('uses a single day for Today and carries overdue tasks', () => {
     expect(resolveDurationRange('today', today)).toEqual({
       from: '2026-10-11',

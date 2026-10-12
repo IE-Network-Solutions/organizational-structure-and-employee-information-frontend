@@ -40,9 +40,9 @@ import {
 } from './taskDrafts';
 import { DATE_FORMAT, resolveMetricKind } from './utils';
 import { PersonOption } from './useDeadlinePeople';
+import styles from './deadlinePlan.module.css';
 
-const LABEL_CLASS =
-  'mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-400';
+const LABEL_CLASS = 'mb-2 block text-xs font-medium text-slate-500';
 const ERROR_CLASS = 'mt-1 text-xs text-red-600';
 const NO_KEY_RESULT = 'none';
 
@@ -63,6 +63,9 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
   const presetKeyResult = useDeadlinePlanStore(
     (state) => state.taskFormKeyResult,
   );
+  const presetAssigneeId = useDeadlinePlanStore(
+    (state) => state.taskFormAssigneeId,
+  );
   const closeTaskForm = useDeadlinePlanStore((state) => state.closeTaskForm);
 
   const { mutate: createTasks, isLoading: isCreating } =
@@ -81,12 +84,12 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
       editingTask
         ? draftFromTask(editingTask)
         : createTaskDraft({
-            assigneeId: presetKeyResult?.ownerId ?? userId,
+            assigneeId: presetKeyResult?.ownerId ?? presetAssigneeId ?? userId,
             date: dayjs().format(DATE_FORMAT),
             keyResultId: presetKeyResult?.id,
           }),
     ]);
-  }, [isOpen, editingTask, presetKeyResult, userId]);
+  }, [isOpen, editingTask, presetKeyResult, presetAssigneeId, userId]);
 
   const assigneeIds = useMemo(
     () => Array.from(new Set(drafts.map((draft) => draft.assigneeId))),
@@ -144,7 +147,7 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
     setDrafts((current) => [
       ...current,
       createTaskDraft({
-        assigneeId: userId,
+        assigneeId: presetKeyResult?.ownerId ?? presetAssigneeId ?? userId,
         date: dayjs().format(DATE_FORMAT),
       }),
     ]);
@@ -197,15 +200,12 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
     return (
       <>
         {draft.subTasks.length > 0 ? (
-          <div
-            data-cy="deadline-form-subtasks"
-            className="rounded-xl border border-slate-200 p-3"
-          >
+          <div data-cy="deadline-form-subtasks" className="mt-2">
             <button
               type="button"
               data-cy="deadline-form-subtasks-toggle"
               onClick={() => toggleCollapsed(sectionKey)}
-              className="flex w-full items-center gap-2 text-sm text-slate-700"
+              className="flex w-full items-center gap-2 text-sm font-medium text-[#161A2C]"
               aria-expanded={!collapsed}
             >
               {collapsed ? <RightOutlined /> : <DownOutlined />}
@@ -215,21 +215,21 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
             {!collapsed ? (
               <div
                 data-cy="deadline-form-subtask-list"
-                className="mt-3 flex flex-col gap-3"
+                className="mt-3 flex flex-col gap-2"
               >
                 {draft.subTasks.map((subTask, index) => (
                   <div
                     key={subTask.key}
                     data-cy={`deadline-form-subtask-${index}`}
-                    className="rounded-xl border border-slate-200 p-3"
+                    className="py-3"
                   >
                     <div
                       data-cy="deadline-form-subtask-header"
-                      className="mb-3 flex items-center justify-between"
+                      className="mb-1 flex items-center justify-between"
                     >
                       <span
                         data-cy="deadline-form-subtask-number"
-                        className="text-sm font-semibold text-slate-800"
+                        className="text-xs text-slate-500"
                       >
                         Subtask {index + 1}
                       </span>
@@ -251,9 +251,12 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
                     </div>
                     <div
                       data-cy="deadline-form-subtask-fields"
-                      className="flex flex-col gap-3"
+                      className="grid grid-cols-1 items-start gap-2 sm:grid-cols-[minmax(0,1fr)_148px]"
                     >
                       <Input
+                        variant="borderless"
+                        className="!px-0 !font-medium"
+                        aria-label={`Subtask ${index + 1} title`}
                         value={subTask.title}
                         placeholder="Subtask title"
                         onChange={(event) =>
@@ -264,7 +267,9 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
                         data-cy={`deadline-form-subtask-title-${index}`}
                       />
                       <DatePicker
-                        className="w-full sm:w-1/2"
+                        variant="borderless"
+                        className="w-full !px-0"
+                        aria-label={`Subtask ${index + 1} date`}
                         allowClear={false}
                         value={dayjs(subTask.date)}
                         disabledDate={(date) =>
@@ -279,14 +284,20 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
                         }
                         data-cy={`deadline-form-subtask-date-${index}`}
                       />
-                      <div data-cy="deadline-form-subtask-description-field">
+                      <div
+                        data-cy="deadline-form-subtask-description-field"
+                        className="sm:col-span-2"
+                      >
                         <span
                           data-cy="deadline-form-subtask-description-label"
-                          className={LABEL_CLASS}
+                          className="sr-only"
                         >
                           Description
                         </span>
                         <Input.TextArea
+                          variant="borderless"
+                          className="!px-0 !text-sm"
+                          aria-label={`Subtask ${index + 1} description`}
                           rows={2}
                           value={subTask.description}
                           placeholder="Optional subtask description"
@@ -301,7 +312,7 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
                       {errors?.subTasks[subTask.key] ? (
                         <div
                           data-cy="deadline-form-subtask-error"
-                          className={ERROR_CLASS}
+                          className={classNames(ERROR_CLASS, 'sm:col-span-2')}
                         >
                           {errors.subTasks[subTask.key]}
                         </div>
@@ -318,9 +329,9 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
           type="button"
           data-cy="deadline-form-add-subtask"
           onClick={addSubTask}
-          className="inline-flex items-center gap-2 self-start text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+          className="inline-flex items-center gap-2 self-start py-2 text-sm text-slate-500 hover:text-okr-primary"
         >
-          <PlusOutlined /> Add subtask
+          <PlusOutlined className="text-okr-primary" /> Add subtask
         </button>
       </>
     );
@@ -343,35 +354,35 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
       <div
         key={draft.key}
         data-cy={`deadline-form-task-${index}`}
-        className="rounded-2xl border border-slate-200"
+        className="min-w-0"
       >
         <div
           data-cy="deadline-form-task-header"
-          className="flex items-center gap-3 px-4 py-3"
+          className="flex items-center gap-3 px-6 py-3 sm:px-8"
         >
           <button
             type="button"
             data-cy={`deadline-form-task-toggle-${index}`}
             onClick={() => toggleCollapsed(draft.key)}
-            className="flex min-w-0 flex-1 items-center gap-3 text-left"
+            className="flex min-w-0 flex-1 items-center gap-2 text-left"
             aria-expanded={!collapsed}
           >
             {collapsed ? (
-              <RightOutlined className="text-slate-500" />
+              <RightOutlined className="text-[10px] text-slate-400" />
             ) : (
-              <DownOutlined className="text-slate-500" />
+              <DownOutlined className="text-[10px] text-slate-400" />
             )}
             <span
               data-cy="deadline-form-task-number"
-              className="inline-flex h-6 min-w-6 items-center justify-center rounded-md bg-slate-100 px-1.5 text-xs font-semibold text-slate-600"
+              className="shrink-0 text-xs text-slate-500"
             >
-              {index + 1}
+              Task {index + 1}
             </span>
             <span
               data-cy="deadline-form-task-heading"
-              className="truncate text-sm font-semibold text-slate-900"
+              className="truncate text-xs text-slate-500"
             >
-              {draft.title.trim() || 'Task Name'}
+              {collapsed ? draft.title.trim() || 'Untitled task' : ''}
             </span>
           </button>
           {drafts.length > 1 ? (
@@ -393,263 +404,288 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
         {!collapsed ? (
           <div
             data-cy="deadline-form-task-body"
-            className="flex flex-col gap-4 px-4 pb-4"
+            className="grid min-w-0 grid-cols-1 md:grid-cols-[minmax(0,1fr)_320px]"
           >
-            <div data-cy="deadline-form-title-field">
-              <Input
-                variant="borderless"
-                className="!px-0 !text-lg !font-semibold"
-                value={draft.title}
-                placeholder="Task Name"
-                autoFocus={index === drafts.length - 1}
-                onChange={(event) =>
-                  patchDraft(draft.key, (current) => ({
-                    ...current,
-                    title: event.target.value,
-                  }))
-                }
-                data-cy={`deadline-form-title-${index}`}
-              />
-              {errors?.title ? (
-                <div
-                  data-cy="deadline-form-title-error"
-                  className={ERROR_CLASS}
-                >
-                  {errors.title}
-                </div>
-              ) : null}
-            </div>
-
-            <div data-cy="deadline-form-assignee-field">
-              <span
-                data-cy="deadline-form-assignee-label"
-                className={LABEL_CLASS}
-              >
-                Assignee
-              </span>
-              <Select
-                className="w-full"
-                size="large"
-                showSearch
-                optionFilterProp="name"
-                value={draft.assigneeId}
-                options={assigneeOptions}
-                fieldNames={{ label: 'name', value: 'value' }}
-                optionRender={(option) => (
-                  <span
-                    data-cy="deadline-form-assignee-option"
-                    className="inline-flex items-center gap-2"
-                  >
-                    <UserAvatar name={String(option.data.name)} size="sm" />
-                    {option.data.name}
-                  </span>
-                )}
-                onChange={(assigneeId) =>
-                  patchDraft(draft.key, (current) =>
-                    withAssignee(current, assigneeId),
-                  )
-                }
-                data-cy={`deadline-form-assignee-${index}`}
-              />
-            </div>
-
             <div
-              data-cy="deadline-form-dates-row"
-              className="grid grid-cols-1 gap-4 sm:grid-cols-3"
+              data-cy="deadline-form-writing-area"
+              className="flex min-w-0 flex-col gap-5 px-6 pb-8 pt-3 sm:px-8"
             >
-              <div
-                data-cy="deadline-form-dates-field"
-                className="sm:col-span-2"
-              >
-                <span
-                  data-cy="deadline-form-dates-label"
-                  className={LABEL_CLASS}
-                >
-                  Date range
-                </span>
-                <DatePicker.RangePicker
-                  className="w-full"
-                  size="large"
-                  allowClear={false}
-                  value={[dayjs(draft.startDate), dayjs(draft.deadline)]}
-                  onChange={(range) => {
-                    const [start, end] = range ?? [];
-                    if (!start || !end) return;
-                    patchDraft(draft.key, (current) =>
-                      withDateRange(
-                        current,
-                        start.format(DATE_FORMAT),
-                        end.format(DATE_FORMAT),
-                      ),
-                    );
-                  }}
-                  data-cy={`deadline-form-dates-${index}`}
+              <div data-cy="deadline-form-title-field">
+                <Input
+                  variant="borderless"
+                  className="!px-0 !text-[22px] !font-semibold !text-[#161A2C]"
+                  value={draft.title}
+                  placeholder="Task Name"
+                  aria-label="Task name"
+                  autoFocus={index === drafts.length - 1}
+                  onChange={(event) =>
+                    patchDraft(draft.key, (current) => ({
+                      ...current,
+                      title: event.target.value,
+                    }))
+                  }
+                  data-cy={`deadline-form-title-${index}`}
                 />
-                {errors?.dates ? (
+                {errors?.title ? (
                   <div
-                    data-cy="deadline-form-dates-error"
+                    data-cy="deadline-form-title-error"
                     className={ERROR_CLASS}
                   >
-                    {errors.dates}
+                    {errors.title}
                   </div>
                 ) : null}
               </div>
-              <div data-cy="deadline-form-priority-field">
+
+              <div data-cy="deadline-form-description-field">
                 <span
-                  data-cy="deadline-form-priority-label"
-                  className={LABEL_CLASS}
+                  data-cy="deadline-form-description-label"
+                  className="sr-only"
                 >
-                  Priority
+                  Description
                 </span>
-                <Select
-                  className="w-full"
-                  size="large"
-                  value={draft.priority}
-                  options={PRIORITY_OPTIONS}
-                  onChange={(priority) =>
+                <Input.TextArea
+                  variant="borderless"
+                  className="!px-0 !text-sm"
+                  rows={3}
+                  aria-label="Task description"
+                  value={draft.description}
+                  placeholder="Add a description…"
+                  onChange={(event) =>
                     patchDraft(draft.key, (current) => ({
                       ...current,
-                      priority,
+                      description: event.target.value,
                     }))
                   }
-                  data-cy={`deadline-form-priority-${index}`}
+                  data-cy={`deadline-form-description-${index}`}
                 />
               </div>
+              {renderSubTasks(draft, errors)}
             </div>
 
-            <div data-cy="deadline-form-key-result-field">
-              <span
-                data-cy="deadline-form-key-result-label"
-                className={LABEL_CLASS}
+            <div
+              data-cy="deadline-form-metadata"
+              className={classNames(
+                'flex min-w-0 flex-col gap-5 bg-slate-50/80 px-6 py-6',
+                styles.formMetadata,
+              )}
+            >
+              <div data-cy="deadline-form-assignee-field">
+                <span
+                  data-cy="deadline-form-assignee-label"
+                  className={LABEL_CLASS}
+                >
+                  Assignee
+                </span>
+                <Select
+                  variant="borderless"
+                  aria-label="Task assignee"
+                  className="w-full"
+                  size="large"
+                  showSearch
+                  optionFilterProp="name"
+                  value={draft.assigneeId}
+                  options={assigneeOptions}
+                  fieldNames={{ label: 'name', value: 'value' }}
+                  optionRender={(option) => (
+                    <span
+                      data-cy="deadline-form-assignee-option"
+                      className="inline-flex items-center gap-2"
+                    >
+                      <UserAvatar name={String(option.data.name)} size="sm" />
+                      {option.data.name}
+                    </span>
+                  )}
+                  onChange={(assigneeId) =>
+                    patchDraft(draft.key, (current) =>
+                      withAssignee(current, assigneeId),
+                    )
+                  }
+                  data-cy={`deadline-form-assignee-${index}`}
+                />
+              </div>
+
+              <div
+                data-cy="deadline-form-dates-row"
+                className="flex flex-col gap-5"
               >
-                Key result
-              </span>
-              <Select
-                className="w-full"
-                size="large"
-                showSearch
-                optionFilterProp="label"
-                loading={isLoadingKeyResults}
-                value={draft.keyResultId ?? NO_KEY_RESULT}
-                options={[
-                  { label: 'No key result', value: NO_KEY_RESULT },
-                  ...keyResults.map((item) => ({
-                    label: item.title,
-                    value: item.id,
-                  })),
-                ]}
-                onChange={(value) =>
-                  patchDraft(draft.key, (current) =>
-                    withKeyResult(
-                      current,
-                      value === NO_KEY_RESULT ? null : value,
-                    ),
-                  )
-                }
-                data-cy={`deadline-form-key-result-${index}`}
-              />
-            </div>
-
-            {keyResult && milestones.length > 0 ? (
-              <div data-cy="deadline-form-milestone-field">
-                <span
-                  data-cy="deadline-form-milestone-label"
-                  className={LABEL_CLASS}
-                >
-                  Milestone
-                </span>
-                <Select
-                  className="w-full"
-                  size="large"
-                  allowClear
-                  placeholder="No milestone"
-                  value={draft.milestoneId ?? undefined}
-                  options={milestones.map((milestone) => ({
-                    label: milestone.title,
-                    value: milestone.id,
-                  }))}
-                  onChange={(milestoneId) =>
-                    patchDraft(draft.key, (current) => ({
-                      ...current,
-                      milestoneId: milestoneId ?? null,
-                      achieveKR: milestoneId ? current.achieveKR : false,
-                    }))
-                  }
-                  data-cy={`deadline-form-milestone-${index}`}
-                />
-              </div>
-            ) : null}
-
-            {keyResult && metricKind === 'numeric' ? (
-              <div data-cy="deadline-form-target-field">
-                <span
-                  data-cy="deadline-form-target-label"
-                  className={LABEL_CLASS}
-                >
-                  Target ({keyResult.metricType?.name})
-                </span>
-                <InputNumber
-                  className="w-full"
-                  size="large"
-                  value={draft.targetValue}
-                  placeholder="How much this task should contribute"
-                  onChange={(targetValue) =>
-                    patchDraft(draft.key, (current) => ({
-                      ...current,
-                      targetValue,
-                    }))
-                  }
-                  data-cy={`deadline-form-target-${index}`}
-                />
-                <div
-                  data-cy="deadline-form-target-hint"
-                  className="mt-1 text-xs text-slate-500"
-                >
-                  Key result is at {Number(keyResult.currentValue ?? 0)} of{' '}
-                  {Number(keyResult.targetValue ?? 0)}.
+                <div data-cy="deadline-form-dates-field" className="min-w-0">
+                  <span
+                    data-cy="deadline-form-dates-label"
+                    className={LABEL_CLASS}
+                  >
+                    Date range
+                  </span>
+                  <DatePicker.RangePicker
+                    variant="borderless"
+                    aria-label="Task date range"
+                    className="w-full"
+                    size="large"
+                    allowClear={false}
+                    value={[dayjs(draft.startDate), dayjs(draft.deadline)]}
+                    onChange={(range) => {
+                      const [start, end] = range ?? [];
+                      if (!start || !end) return;
+                      patchDraft(draft.key, (current) =>
+                        withDateRange(
+                          current,
+                          start.format(DATE_FORMAT),
+                          end.format(DATE_FORMAT),
+                        ),
+                      );
+                    }}
+                    data-cy={`deadline-form-dates-${index}`}
+                  />
+                  {errors?.dates ? (
+                    <div
+                      data-cy="deadline-form-dates-error"
+                      className={ERROR_CLASS}
+                    >
+                      {errors.dates}
+                    </div>
+                  ) : null}
+                </div>
+                <div data-cy="deadline-form-priority-field">
+                  <span
+                    data-cy="deadline-form-priority-label"
+                    className={LABEL_CLASS}
+                  >
+                    Priority
+                  </span>
+                  <Select
+                    variant="borderless"
+                    aria-label="Task priority"
+                    className="w-full"
+                    size="large"
+                    value={draft.priority}
+                    options={PRIORITY_OPTIONS}
+                    onChange={(priority) =>
+                      patchDraft(draft.key, (current) => ({
+                        ...current,
+                        priority,
+                      }))
+                    }
+                    data-cy={`deadline-form-priority-${index}`}
+                  />
                 </div>
               </div>
-            ) : null}
 
-            {keyResult && showAchieve ? (
-              <Checkbox
-                checked={draft.achieveKR}
-                onChange={(event) =>
-                  patchDraft(draft.key, (current) => ({
-                    ...current,
-                    achieveKR: event.target.checked,
-                  }))
-                }
-                data-cy={`deadline-form-achieve-${index}`}
-              >
-                {metricKind === 'achieve'
-                  ? 'Achieve KR when this task is done'
-                  : 'Complete this milestone when the task is done'}
-              </Checkbox>
-            ) : null}
+              <div data-cy="deadline-form-key-result-field">
+                <span
+                  data-cy="deadline-form-key-result-label"
+                  className={LABEL_CLASS}
+                >
+                  Key result
+                </span>
+                <Select
+                  variant="borderless"
+                  aria-label="Task key result"
+                  className="w-full"
+                  size="large"
+                  showSearch
+                  optionFilterProp="label"
+                  loading={isLoadingKeyResults}
+                  value={draft.keyResultId ?? NO_KEY_RESULT}
+                  options={[
+                    { label: 'No key result', value: NO_KEY_RESULT },
+                    ...keyResults.map((item) => ({
+                      label: item.title,
+                      value: item.id,
+                    })),
+                  ]}
+                  onChange={(value) =>
+                    patchDraft(draft.key, (current) =>
+                      withKeyResult(
+                        current,
+                        value === NO_KEY_RESULT ? null : value,
+                      ),
+                    )
+                  }
+                  data-cy={`deadline-form-key-result-${index}`}
+                />
+              </div>
 
-            <div data-cy="deadline-form-description-field">
-              <span
-                data-cy="deadline-form-description-label"
-                className={LABEL_CLASS}
-              >
-                Description
-              </span>
-              <Input.TextArea
-                rows={2}
-                value={draft.description}
-                placeholder="Optional task description"
-                onChange={(event) =>
-                  patchDraft(draft.key, (current) => ({
-                    ...current,
-                    description: event.target.value,
-                  }))
-                }
-                data-cy={`deadline-form-description-${index}`}
-              />
+              {keyResult && milestones.length > 0 ? (
+                <div data-cy="deadline-form-milestone-field">
+                  <span
+                    data-cy="deadline-form-milestone-label"
+                    className={LABEL_CLASS}
+                  >
+                    Milestone
+                  </span>
+                  <Select
+                    variant="borderless"
+                    aria-label="Task milestone"
+                    className="w-full"
+                    size="large"
+                    allowClear
+                    placeholder="No milestone"
+                    value={draft.milestoneId ?? undefined}
+                    options={milestones.map((milestone) => ({
+                      label: milestone.title,
+                      value: milestone.id,
+                    }))}
+                    onChange={(milestoneId) =>
+                      patchDraft(draft.key, (current) => ({
+                        ...current,
+                        milestoneId: milestoneId ?? null,
+                        achieveKR: milestoneId ? current.achieveKR : false,
+                      }))
+                    }
+                    data-cy={`deadline-form-milestone-${index}`}
+                  />
+                </div>
+              ) : null}
+
+              {keyResult && metricKind === 'numeric' ? (
+                <div data-cy="deadline-form-target-field">
+                  <span
+                    data-cy="deadline-form-target-label"
+                    className={LABEL_CLASS}
+                  >
+                    Target ({keyResult.metricType?.name})
+                  </span>
+                  <InputNumber
+                    variant="borderless"
+                    aria-label="Task target value"
+                    className="w-full"
+                    size="large"
+                    value={draft.targetValue}
+                    placeholder="How much this task should contribute"
+                    onChange={(targetValue) =>
+                      patchDraft(draft.key, (current) => ({
+                        ...current,
+                        targetValue,
+                      }))
+                    }
+                    data-cy={`deadline-form-target-${index}`}
+                  />
+                  <div
+                    data-cy="deadline-form-target-hint"
+                    className="mt-1 text-xs text-slate-500"
+                  >
+                    Key result is at {Number(keyResult.currentValue ?? 0)} of{' '}
+                    {Number(keyResult.targetValue ?? 0)}.
+                  </div>
+                </div>
+              ) : null}
+
+              {keyResult && showAchieve ? (
+                <Checkbox
+                  checked={draft.achieveKR}
+                  onChange={(event) =>
+                    patchDraft(draft.key, (current) => ({
+                      ...current,
+                      achieveKR: event.target.checked,
+                    }))
+                  }
+                  data-cy={`deadline-form-achieve-${index}`}
+                >
+                  {metricKind === 'achieve'
+                    ? 'Achieve KR when this task is done'
+                    : 'Complete this milestone when the task is done'}
+                </Checkbox>
+              ) : null}
             </div>
-
-            {renderSubTasks(draft, errors)}
           </div>
         ) : null}
       </div>
@@ -661,7 +697,9 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
       open={isOpen}
       title={editingTask ? 'Edit task' : 'Add task'}
       onCancel={closeTaskForm}
-      width={760}
+      width={980}
+      className={styles.formModal}
+      centered
       destroyOnClose
       maskClosable={false}
       data-cy="deadline-task-form-modal"
@@ -672,6 +710,8 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
         >
           {!editingTask ? (
             <Button
+              type="text"
+              className="!mr-auto !text-okr-primary"
               icon={<PlusOutlined />}
               onClick={addDraft}
               data-cy="deadline-form-add-plan"
@@ -679,7 +719,11 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
               Add plan
             </Button>
           ) : null}
-          <Button onClick={closeTaskForm} data-cy="deadline-form-cancel">
+          <Button
+            type="text"
+            onClick={closeTaskForm}
+            data-cy="deadline-form-cancel"
+          >
             Cancel
           </Button>
           <Button
@@ -695,9 +739,7 @@ export default function TaskFormModal({ userId, people }: TaskFormModalProps) {
     >
       <div
         data-cy="deadline-form-tasks"
-        className={classNames(
-          'flex max-h-[65vh] flex-col gap-3 overflow-y-auto pr-1 pt-2',
-        )}
+        className="flex max-h-[70vh] flex-col divide-y divide-[#F1F2F6] overflow-y-auto"
       >
         {drafts.map(renderDraft)}
       </div>
