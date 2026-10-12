@@ -107,6 +107,7 @@ const MENU_ROUTES: MenuRouteNode[] = [
         key: '/planning-and-reporting',
         permissions: ['manage_planning_reporting'],
       },
+      { key: '/deadline-plan', permissions: ['manage_planning_reporting'] },
       { key: '/weekly-priority', permissions: ['view_weekly_priority'] },
       // BSC: own "BSC and KPI" permission group (see utils/bsc/permissions).
       {
