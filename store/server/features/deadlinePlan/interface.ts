@@ -18,6 +18,7 @@ export interface DeadlineKeyResult {
   initialValue?: number | string | null;
   targetValue?: number | string | null;
   currentValue?: number | string | null;
+  weight?: number | string | null;
   isClosed?: boolean;
   metricType?: { id: string; name: string } | null;
   milestones?: DeadlineMilestone[];
@@ -101,4 +102,12 @@ export interface DeadlineTaskReportPayload {
   outcome: DeadlineTaskOutcome;
   actualValue?: number | null;
   customReason?: string | null;
+}
+
+/** Task counts for one assignee and key result (null = general tasks). */
+export interface DeadlineTaskSummaryRow {
+  assigneeId: string;
+  keyResultId: string | null;
+  total: number;
+  done: number;
 }

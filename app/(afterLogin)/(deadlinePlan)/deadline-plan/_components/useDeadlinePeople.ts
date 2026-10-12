@@ -26,6 +26,7 @@ export interface PersonOption {
  */
 export function useDeadlinePeople() {
   const userId = useAuthenticationStore((state) => state.userId);
+  const userData = useAuthenticationStore((state) => state.userData);
   const { data: employeesRaw, isLoading } = useGetAllUsersData();
   const { data: departments } = useGetDepartmentsWithUsers();
 
@@ -57,7 +58,11 @@ export function useDeadlinePeople() {
   const getPerson = useCallback(
     (id: string | null | undefined): PersonOption | null => {
       if (!id) return null;
-      const employee = employeeById.get(String(id));
+      // The signed-in user's own profile covers the gap while the employee
+      // list is loading (or when it does not include them).
+      const employee =
+        employeeById.get(String(id)) ??
+        (String(id) === userId ? userData : undefined);
       const name = employee ? getEmployeeName(employee) : '';
       return {
         id: String(id),
@@ -67,7 +72,7 @@ export function useDeadlinePeople() {
           : undefined,
       };
     },
-    [employeeById],
+    [employeeById, userId, userData],
   );
 
   /** Everyone the user may pick as an assignee or filter by; self first. */

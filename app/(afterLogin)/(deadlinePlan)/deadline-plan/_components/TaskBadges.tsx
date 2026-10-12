@@ -111,7 +111,6 @@ export function UserCell({
       data-cy="deadline-plan-user-cell"
       className="inline-flex min-w-0 items-center gap-2"
     >
-      <UserAvatar name={name} />
       <span
         data-cy="deadline-plan-user-name"
         className="truncate text-sm text-slate-700"

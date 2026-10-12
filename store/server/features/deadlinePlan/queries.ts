@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQueries } from 'react-query';
+import { useInfiniteQuery, useQueries, useQuery } from 'react-query';
 import { OKR_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
 import { getCurrentToken } from '@/utils/getCurrentToken';
@@ -7,6 +7,7 @@ import {
   DeadlineKeyResult,
   DeadlineTaskPage,
   DeadlineTaskSearchFilter,
+  DeadlineTaskSummaryRow,
 } from './interface';
 
 export const DEADLINE_TASKS_QUERY_KEY = 'deadlineTasks';
@@ -76,4 +77,27 @@ export const useDeadlineKeyResults = (userIds: string[]) =>
       staleTime: 60_000,
       enabled: !!userId,
     })),
+  );
+
+const getDeadlineTaskSummary = async (
+  filter: DeadlineTaskSearchFilter,
+): Promise<DeadlineTaskSummaryRow[]> => {
+  const response = await crudRequest({
+    url: `${OKR_URL}/deadline-tasks/summary`,
+    method: 'post',
+    data: filter,
+    headers: await deadlinePlanHeaders(),
+  });
+  return Array.isArray(response) ? response : [];
+};
+
+/**
+ * Task counts per assignee and key result for the current filters. Shares the
+ * task list's key prefix so it refreshes whenever tasks change.
+ */
+export const useDeadlineTaskSummary = (filter: DeadlineTaskSearchFilter) =>
+  useQuery<DeadlineTaskSummaryRow[]>(
+    [DEADLINE_TASKS_QUERY_KEY, 'summary', filter],
+    () => getDeadlineTaskSummary(filter),
+    { keepPreviousData: true, enabled: filter.assigneeIds.length > 0 },
   );

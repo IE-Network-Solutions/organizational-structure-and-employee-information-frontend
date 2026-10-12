@@ -5,6 +5,7 @@ import CustomBreadcrumb from '@/components/common/breadCramp';
 import { DeadlineTaskSearchFilter } from '@/store/server/features/deadlinePlan/interface';
 import { useDeadlinePlanStore } from '@/store/uistate/features/deadlinePlan/useStore';
 import GroupedView from './_components/GroupedView';
+import KeyResultPanel from './_components/KeyResultPanel';
 import ListView from './_components/ListView';
 import ReportTaskModal from './_components/ReportTaskModal';
 import TaskFormModal from './_components/TaskFormModal';
@@ -111,11 +112,21 @@ function DeadlinePlanPage() {
         isRecognition
       />
 
+      {/* Two columns on desktop. The Key Results panel owns the left one, so
+          the filters sit above the task list only, never above the panel. */}
       <div
         data-cy="deadline-plan-main"
-        className="flex w-full min-w-0 max-w-full flex-col gap-4 p-0 sm:p-4"
+        className="grid w-full min-w-0 max-w-full grid-cols-1 gap-x-4 gap-y-3 p-0 sm:p-4 lg:grid-cols-[auto_minmax(0,1fr)]"
       >
+        <KeyResultPanel
+          userId={userId}
+          ownerIds={selectedAssigneeIds}
+          filter={listFilter}
+          getPerson={getPerson}
+        />
+
         <Toolbar
+          className="order-first lg:order-none lg:col-start-2 lg:row-start-1"
           userId={userId}
           people={peopleInScope}
           departmentOptions={departmentOptions}
@@ -123,18 +134,26 @@ function DeadlinePlanPage() {
           onDepartmentChange={handleDepartmentChange}
         />
 
-        {viewMode === 'list' ? (
-          <ListView filter={listFilter} viewer={viewer} getPerson={getPerson} />
-        ) : (
-          <GroupedView
-            assigneeIds={selectedAssigneeIds}
-            filter={baseFilter}
-            viewer={viewer}
-            getPerson={getPerson}
-          />
-        )}
+        <div
+          data-cy="deadline-plan-content"
+          className="min-w-0 lg:col-start-2 lg:row-start-2"
+        >
+          {viewMode === 'list' ? (
+            <ListView
+              filter={listFilter}
+              viewer={viewer}
+              getPerson={getPerson}
+            />
+          ) : (
+            <GroupedView
+              assigneeIds={selectedAssigneeIds}
+              filter={baseFilter}
+              viewer={viewer}
+              getPerson={getPerson}
+            />
+          )}
+        </div>
       </div>
-
       <TaskFormModal userId={userId} people={selectablePeople} />
       <ReportTaskModal />
     </div>

@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from 'antd';
 import { DeadlineTaskSearchFilter } from '@/store/server/features/deadlinePlan/interface';
-import KeyResultPanel from './KeyResultPanel';
 import PlanCard from './PlanCard';
 import { PersonOption } from './useDeadlinePeople';
 import { TaskViewer } from './utils';
@@ -18,6 +17,7 @@ interface GroupedViewProps {
   getPerson: (id: string | null | undefined) => PersonOption | null;
 }
 
+/** One plan card per selected person, "My Plan" first. */
 export default function GroupedView({
   assigneeIds,
   filter,
@@ -36,54 +36,41 @@ export default function GroupedView({
   return (
     <div
       data-cy="deadline-plan-grouped-view"
-      className="flex w-full flex-col items-start gap-4 lg:flex-row"
+      className="flex min-w-0 flex-col gap-4"
     >
-      <KeyResultPanel
-        userId={viewer.userId}
-        ownerIds={assigneeIds}
-        getPerson={getPerson}
-      />
+      {visibleIds.map((assigneeId) => (
+        <PlanCard
+          key={assigneeId}
+          assigneeId={assigneeId}
+          filter={filter}
+          viewer={viewer}
+          getPerson={getPerson}
+        />
+      ))}
 
-      <div
-        data-cy="deadline-plan-cards"
-        className="flex min-w-0 flex-1 flex-col gap-4 self-stretch"
-      >
-        {visibleIds.map((assigneeId) => (
-          <PlanCard
-            key={assigneeId}
-            assigneeId={assigneeId}
-            filter={filter}
-            viewer={viewer}
-            getPerson={getPerson}
-          />
-        ))}
+      {assigneeIds.length === 0 ? (
+        <div
+          data-cy="deadline-plan-cards-empty"
+          className="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-500"
+        >
+          Choose at least one person to see their plan.
+        </div>
+      ) : null}
 
-        {assigneeIds.length === 0 ? (
-          <div
-            data-cy="deadline-plan-cards-empty"
-            className="rounded-2xl border border-dashed border-slate-200 p-8 text-center text-sm text-slate-500"
+      {remaining > 0 ? (
+        <div
+          data-cy="deadline-plan-more-people"
+          className="flex justify-center"
+        >
+          <Button
+            onClick={() => setVisibleCount((count) => count + CARD_BATCH_SIZE)}
+            data-cy="deadline-plan-more-people-button"
           >
-            Choose at least one person to see their plan.
-          </div>
-        ) : null}
-
-        {remaining > 0 ? (
-          <div
-            data-cy="deadline-plan-more-people"
-            className="flex justify-center"
-          >
-            <Button
-              onClick={() =>
-                setVisibleCount((count) => count + CARD_BATCH_SIZE)
-              }
-              data-cy="deadline-plan-more-people-button"
-            >
-              Show {Math.min(remaining, CARD_BATCH_SIZE)} more people (
-              {remaining} left)
-            </Button>
-          </div>
-        ) : null}
-      </div>
+            Show {Math.min(remaining, CARD_BATCH_SIZE)} more people ({remaining}{' '}
+            left)
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

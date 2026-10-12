@@ -1,8 +1,8 @@
 'use client';
 import React from 'react';
 import dayjs from 'dayjs';
+import classNames from 'classnames';
 import { Button, DatePicker, Select } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
 import { DeadlineTaskStatusFilter } from '@/store/server/features/deadlinePlan/interface';
 import {
   DeadlineDuration,
@@ -38,6 +38,7 @@ interface ToolbarProps {
   selectedAssigneeIds: string[];
   /** Changing the department also re-scopes the selected assignees. */
   onDepartmentChange: (department: string) => void;
+  className?: string;
 }
 
 export default function Toolbar({
@@ -46,6 +47,7 @@ export default function Toolbar({
   departmentOptions,
   selectedAssigneeIds,
   onDepartmentChange,
+  className,
 }: ToolbarProps) {
   const {
     viewMode,
@@ -65,82 +67,89 @@ export default function Toolbar({
   const range = resolveDurationRange(duration, dayjs(), historyRange);
 
   return (
+    // The filters stay together on one line. When the Key Results panel is
+    // open and there is no room left, only "+ Task" drops to the next line.
     <div
       data-cy="deadline-plan-toolbar"
-      className="flex w-full flex-wrap items-center justify-end gap-2"
+      className={classNames(
+        'flex min-w-0 flex-wrap items-center justify-end gap-2',
+        className,
+      )}
     >
-      <Select
-        className="w-32"
-        size="large"
-        value={viewMode}
-        options={VIEW_OPTIONS}
-        onChange={setViewMode}
-        aria-label="View mode"
-        data-cy="deadline-plan-view-mode"
-      />
-      <Select
-        className="w-36"
-        size="large"
-        value={duration}
-        options={DURATION_OPTIONS}
-        onChange={setDuration}
-        aria-label="Duration"
-        data-cy="deadline-plan-duration"
-      />
-      {isHistory ? (
-        <DatePicker.RangePicker
+      <div
+        data-cy="deadline-plan-filters"
+        className="flex max-w-full flex-wrap items-center justify-end gap-2"
+      >
+        <Select
+          className="w-28"
           size="large"
-          allowClear={false}
-          value={[dayjs(range.from), dayjs(range.to)]}
-          onChange={(value) => {
-            const [from, to] = value ?? [];
-            if (from && to) {
-              setHistoryRange([
-                from.format(DATE_FORMAT),
-                to.format(DATE_FORMAT),
-              ]);
-            }
-          }}
-          aria-label="History range"
-          data-cy="deadline-plan-history-range"
+          value={viewMode}
+          options={VIEW_OPTIONS}
+          onChange={setViewMode}
+          aria-label="View mode"
+          data-cy="deadline-plan-view-mode"
         />
-      ) : null}
-      <Select
-        className="w-44"
-        size="large"
-        showSearch
-        optionFilterProp="label"
-        value={department}
-        options={departmentOptions}
-        onChange={onDepartmentChange}
-        aria-label="Department"
-        data-cy="deadline-plan-department"
-      />
-      <Select
-        className="w-32"
-        size="large"
-        // History is the archive: it always lists reported and closed tasks.
-        value={isHistory ? 'reported' : status}
-        disabled={isHistory}
-        options={STATUS_OPTIONS}
-        onChange={setStatus}
-        aria-label="Task status"
-        data-cy="deadline-plan-status"
-      />
-      <AssigneePicker
-        userId={userId}
-        people={people}
-        selectedIds={selectedAssigneeIds}
-        onChange={setAssigneeIds}
-      />
+        <Select
+          className="w-[124px]"
+          size="large"
+          value={duration}
+          options={DURATION_OPTIONS}
+          onChange={setDuration}
+          aria-label="Duration"
+          data-cy="deadline-plan-duration"
+        />
+        {isHistory ? (
+          <DatePicker.RangePicker
+            size="large"
+            allowClear={false}
+            value={[dayjs(range.from), dayjs(range.to)]}
+            onChange={(value) => {
+              const [from, to] = value ?? [];
+              if (from && to) {
+                setHistoryRange([
+                  from.format(DATE_FORMAT),
+                  to.format(DATE_FORMAT),
+                ]);
+              }
+            }}
+            aria-label="History range"
+            data-cy="deadline-plan-history-range"
+          />
+        ) : null}
+        <Select
+          className="w-40"
+          size="large"
+          value={department}
+          options={departmentOptions}
+          onChange={onDepartmentChange}
+          aria-label="Department"
+          data-cy="deadline-plan-department"
+        />
+        <Select
+          className="w-28"
+          size="large"
+          // History is the archive: it always lists reported and closed tasks.
+          value={isHistory ? 'reported' : status}
+          disabled={isHistory}
+          options={STATUS_OPTIONS}
+          onChange={setStatus}
+          aria-label="Task status"
+          data-cy="deadline-plan-status"
+        />
+        <AssigneePicker
+          userId={userId}
+          people={people}
+          selectedIds={selectedAssigneeIds}
+          onChange={setAssigneeIds}
+        />
+      </div>
       <Button
         type="primary"
         size="large"
-        icon={<PlusOutlined />}
         onClick={() => openTaskForm()}
         data-cy="deadline-plan-add-task"
       >
-        Task
+        + Task
       </Button>
     </div>
   );
