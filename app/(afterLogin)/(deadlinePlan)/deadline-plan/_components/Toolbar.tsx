@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import classNames from 'classnames';
 import { Button, DatePicker, Popover, Select } from 'antd';
@@ -34,7 +34,8 @@ interface ToolbarProps {
   people: PersonOption[];
   departmentOptions: { label: string; value: string }[];
   selectedAssigneeIds: string[];
-  onDepartmentChange: (department: string) => void;
+  directReportIds: string[];
+  getDepartmentMemberIds: (department: string) => string[];
   className?: string;
 }
 
@@ -43,7 +44,8 @@ export default function Toolbar({
   people,
   departmentOptions,
   selectedAssigneeIds,
-  onDepartmentChange,
+  directReportIds,
+  getDepartmentMemberIds,
   className,
 }: ToolbarProps) {
   const {
@@ -52,15 +54,42 @@ export default function Toolbar({
     historyRange,
     department,
     status,
+    assigneeIds,
     setViewMode,
-    setDuration,
-    setHistoryRange,
-    setStatus,
-    setAssigneeIds,
+    applyFilters,
     openTaskForm,
   } = useDeadlinePlanStore();
+  const snapshot = () => ({
+    duration,
+    historyRange,
+    department,
+    status,
+    assigneeIds,
+  });
+  const [draft, setDraft] = useState(snapshot);
+  const [activePopover, setActivePopover] = useState<
+    'filters' | 'people' | null
+  >(null);
+  const setPopover = (kind: 'filters' | 'people', open: boolean) => {
+    if (open) setDraft(snapshot());
+    setActivePopover(open ? kind : null);
+  };
+  const draftPeople =
+    draft.department === 'all'
+      ? people
+      : people.filter((person) =>
+          getDepartmentMemberIds(draft.department).includes(person.id),
+        );
+  const draftAssigneeIds = (
+    draft.assigneeIds ?? [userId, ...directReportIds]
+  ).filter((id) => draftPeople.some((person) => person.id === id));
   const isHistory = duration === 'history';
-  const range = resolveDurationRange(duration, dayjs(), historyRange);
+  const draftIsHistory = draft.duration === 'history';
+  const range = resolveDurationRange(
+    draft.duration,
+    dayjs(),
+    draft.historyRange,
+  );
   const heading =
     DURATION_OPTIONS.find((option) => option.value === duration)?.label ??
     'Upcoming';
@@ -82,9 +111,24 @@ export default function Toolbar({
         </span>
         <Select
           className="w-full"
-          value={department}
+          value={draft.department}
           options={departmentOptions}
-          onChange={onDepartmentChange}
+          onChange={(nextDepartment) =>
+            setDraft((current) => ({
+              ...current,
+              department: nextDepartment,
+              assigneeIds:
+                nextDepartment === 'all'
+                  ? null
+                  : people
+                      .filter((person) =>
+                        getDepartmentMemberIds(nextDepartment).includes(
+                          person.id,
+                        ),
+                      )
+                      .map((person) => person.id),
+            }))
+          }
           aria-label="Department"
           data-cy="deadline-plan-department"
         />
@@ -101,21 +145,53 @@ export default function Toolbar({
         </span>
         <AssigneePicker
           userId={userId}
-          people={people}
-          selectedIds={selectedAssigneeIds}
-          onChange={setAssigneeIds}
+          people={draftPeople}
+          selectedIds={draftAssigneeIds}
+          onChange={(ids) =>
+            setDraft((current) => ({ ...current, assigneeIds: ids }))
+          }
         />
       </div>
       <Button
         type="text"
         size="small"
         className="self-start !text-okr-primary"
-        onClick={() => onDepartmentChange('all')}
+        onClick={() =>
+          setDraft((current) => ({
+            ...current,
+            department: 'all',
+            assigneeIds: null,
+          }))
+        }
         data-cy="deadline-plan-direct-reports"
       >
         Me & direct reports
       </Button>
     </>
+  );
+
+  const filterActions = (
+    <div
+      className="flex justify-end gap-2 border-t border-[#F1F2F6] pt-3"
+      data-cy="deadline-plan-filter-actions"
+    >
+      <Button
+        onClick={() => setActivePopover(null)}
+        data-cy="deadline-plan-filter-cancel"
+      >
+        Cancel
+      </Button>
+      <Button
+        type="primary"
+        onClick={() => {
+          applyFilters(draft);
+          setActivePopover(null);
+        }}
+        data-cy="deadline-plan-filter-apply"
+      >
+        Apply
+      </Button>
+    </div>
   );
 
   const peopleOptions = (
@@ -130,6 +206,7 @@ export default function Toolbar({
         Choose whose plans to review
       </div>
       {scopeFields}
+      {filterActions}
     </div>
   );
 
@@ -156,14 +233,16 @@ export default function Toolbar({
         </span>
         <Select
           className="w-full"
-          value={duration}
+          value={draft.duration}
           options={DURATION_OPTIONS}
-          onChange={setDuration}
+          onChange={(nextDuration) =>
+            setDraft((current) => ({ ...current, duration: nextDuration }))
+          }
           aria-label="Duration"
           data-cy="deadline-plan-duration"
         />
       </div>
-      {isHistory ? (
+      {draftIsHistory ? (
         <DatePicker.RangePicker
           className="w-full"
           allowClear={false}
@@ -171,10 +250,13 @@ export default function Toolbar({
           onChange={(value) => {
             const [from, to] = value ?? [];
             if (from && to)
-              setHistoryRange([
-                from.format(DATE_FORMAT),
-                to.format(DATE_FORMAT),
-              ]);
+              setDraft((current) => ({
+                ...current,
+                historyRange: [
+                  from.format(DATE_FORMAT),
+                  to.format(DATE_FORMAT),
+                ],
+              }));
           }}
           aria-label="History range"
           data-cy="deadline-plan-history-range"
@@ -195,16 +277,19 @@ export default function Toolbar({
             </span>
             <Select
               className="w-full"
-              value={isHistory ? 'reported' : status}
-              disabled={isHistory}
+              value={draftIsHistory ? 'reported' : draft.status}
+              disabled={draftIsHistory}
               options={STATUS_OPTIONS}
-              onChange={setStatus}
+              onChange={(nextStatus) =>
+                setDraft((current) => ({ ...current, status: nextStatus }))
+              }
               aria-label="Task status"
               data-cy="deadline-plan-status"
             />
           </div>
         </>
       ) : null}
+      {filterActions}
     </div>
   );
 
@@ -245,6 +330,8 @@ export default function Toolbar({
         >
           <Popover
             content={filters}
+            open={activePopover === 'filters'}
+            onOpenChange={(open) => setPopover('filters', open)}
             trigger="click"
             placement="bottomRight"
             overlayClassName={styles.filterPopover}
@@ -281,6 +368,8 @@ export default function Toolbar({
         {viewMode === 'grouped' ? (
           <Popover
             content={peopleOptions}
+            open={activePopover === 'people'}
+            onOpenChange={(open) => setPopover('people', open)}
             trigger="click"
             placement="bottomRight"
             overlayClassName={styles.filterPopover}

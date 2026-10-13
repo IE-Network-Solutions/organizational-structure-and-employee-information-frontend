@@ -98,7 +98,10 @@ export default function ReportTaskModal() {
             </span>
             <Radio.Group
               value={outcome}
-              onChange={(event) => setOutcome(event.target.value)}
+              onChange={(event) => {
+                setOutcome(event.target.value);
+                if (event.target.value === 'not_done') setActualValue(0);
+              }}
               options={[
                 { label: 'Done', value: 'done' },
                 { label: 'Not done', value: 'not_done' },

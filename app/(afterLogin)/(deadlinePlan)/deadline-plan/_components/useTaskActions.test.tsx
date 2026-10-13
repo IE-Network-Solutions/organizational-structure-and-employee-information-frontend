@@ -76,6 +76,22 @@ beforeEach(() => {
 });
 
 describe('preserved task actions', () => {
+  it('retains Lock and removes Close task for an active subordinate task', () => {
+    const { result } = renderHook(() =>
+      useTaskActions({ ...viewer, subordinateIds: ['employee'] }),
+    );
+    const labels = result.current
+      .menuItemsOf(taskOf({ assigneeId: 'employee' }))
+      ?.map((item: any) => item?.label);
+    expect(labels).toContain('Lock');
+    expect(labels).not.toContain('Close task');
+    expect(labels).not.toContain('Approve reported');
+    expect(
+      result.current
+        .menuItemsOf(taskOf({ assigneeId: 'employee', status: 'reported' }))
+        ?.map((item: any) => item?.label),
+    ).toContain('Approve reported');
+  });
   it('opens the reporting flow for a numeric task instead of posting a completion without its value', () => {
     const task = taskOf({
       keyResult: {

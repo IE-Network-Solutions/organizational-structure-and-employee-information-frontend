@@ -4,6 +4,7 @@ import { DeadlineTask } from '@/store/server/features/deadlinePlan/interface';
 import {
   deadlineLabel,
   getInitials,
+  getEmployeeItems,
   getSubordinateIds,
   pinFirst,
   resolveApproval,
@@ -149,12 +150,45 @@ describe('resolveTaskStatus / resolveApproval', () => {
 });
 
 describe('resolveTaskPermissions', () => {
-  it('lets the assignee edit, report and lock their open task', () => {
+  it('ignores broad approval permission for an unrelated reporter', () => {
+    const permissions = resolveTaskPermissions(
+      taskOf({
+        assigneeId: 'alice',
+        status: 'reported',
+        approvalStatus: 'closed',
+      }),
+      viewerOf({ canManageAll: true }),
+    );
+    expect(permissions.canApprove).toBe(false);
+    expect(permissions.canUndoReport).toBe(false);
+    expect(
+      resolveTaskPermissions(
+        taskOf({ assigneeId: 'alice' }),
+        viewerOf({ canManageAll: true }),
+      ).canLock,
+    ).toBe(false);
+  });
+
+  it('allows only a direct manager to lock open tasks and approve reported tasks', () => {
+    const viewer = viewerOf({ subordinateIds: ['alice'] });
+    const active = resolveTaskPermissions(
+      taskOf({ assigneeId: 'alice' }),
+      viewer,
+    );
+    expect(active.canLock).toBe(true);
+    expect(active.canApprove).toBe(false);
+    const locked = resolveTaskPermissions(
+      taskOf({ assigneeId: 'alice', isLocked: true }),
+      viewer,
+    );
+    expect(locked.canUnlock).toBe(true);
+  });
+  it('lets the assignee edit and report without manager controls', () => {
     expect(resolveTaskPermissions(taskOf(), viewerOf())).toEqual({
       canEdit: true,
       canReport: true,
       canUndoReport: false,
-      canLock: true,
+      canLock: false,
       canUnlock: false,
       canApprove: false,
     });
@@ -182,13 +216,13 @@ describe('resolveTaskPermissions', () => {
     expect(permissions.canEdit).toBe(false);
   });
 
-  it('treats the person who delegated a task as its manager', () => {
+  it('does not grant approval to the task creator', () => {
     expect(
       resolveTaskPermissions(
         taskOf({ assigneeId: 'bob', assignedById: 'me' }),
         viewerOf(),
       ).canApprove,
-    ).toBe(true);
+    ).toBe(false);
   });
 
   it('gives no control over an unrelated person’s task', () => {
@@ -211,7 +245,7 @@ describe('resolveTaskPermissions', () => {
     );
     expect(permissions.canEdit).toBe(false);
     expect(permissions.canReport).toBe(true);
-    expect(permissions.canUnlock).toBe(true);
+    expect(permissions.canUnlock).toBe(false);
   });
 
   it('stops the assignee lifting a lock their manager placed', () => {
@@ -241,6 +275,11 @@ describe('resolveTaskPermissions', () => {
 });
 
 describe('helpers', () => {
+  it('reads employees from a nested API response', () => {
+    expect(getEmployeeItems({ data: { items: [{ id: 'employee' }] } })).toEqual(
+      [{ id: 'employee' }],
+    );
+  });
   it('maps metric type names to how the form treats them', () => {
     expect(
       resolveMetricKind({ metricType: { name: 'Milestone' } } as any),
@@ -254,13 +293,15 @@ describe('helpers', () => {
     expect(resolveMetricKind(null)).toBeNull();
   });
 
-  it('finds direct reports, honouring a delegated manager', () => {
+  it('finds direct reports without granting delegated users manager rights', () => {
     const employees = [
-      { id: 'a', reportingTo: { id: 'me' } },
+      { id: 'a', reportingTo: { id: 'me' }, delegatedTo: { id: 'other' } },
       { id: 'b', reportingTo: { id: 'other' } },
       { id: 'c', reportingTo: { id: 'other' }, delegatedTo: { id: 'me' } },
+      { id: 'd', reportingToId: 'me' },
+      { id: 'e', reportingTo: 'me' },
     ];
-    expect(getSubordinateIds(employees, 'me')).toEqual(['a', 'c']);
+    expect(getSubordinateIds(employees, 'me')).toEqual(['a', 'd', 'e']);
   });
 
   it('pins the signed-in user first without adding them', () => {

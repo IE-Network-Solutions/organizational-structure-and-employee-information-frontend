@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import dayjs from 'dayjs';
 import CustomBreadcrumb from '@/components/common/breadCramp';
 import { DeadlineTaskSearchFilter } from '@/store/server/features/deadlinePlan/interface';
@@ -16,7 +16,6 @@ import { pinFirst, resolveDurationRange } from './_components/utils';
 function DeadlinePlanPage() {
   const {
     userId,
-    isLoading: isPeopleLoading,
     viewer,
     subordinateIds,
     selectablePeople,
@@ -25,23 +24,8 @@ function DeadlinePlanPage() {
     getDepartmentMemberIds,
   } = useDeadlinePeople();
 
-  const {
-    viewMode,
-    duration,
-    historyRange,
-    department,
-    status,
-    assigneeIds,
-    setDepartment,
-    setAssigneeIds,
-  } = useDeadlinePlanStore();
-
-  // Default scope: the user and their direct reports.
-  useEffect(() => {
-    if (assigneeIds === null && userId && !isPeopleLoading) {
-      setAssigneeIds([userId, ...subordinateIds]);
-    }
-  }, [assigneeIds, userId, isPeopleLoading, subordinateIds, setAssigneeIds]);
+  const { viewMode, duration, historyRange, department, status, assigneeIds } =
+    useDeadlinePlanStore();
 
   /** People the picker offers: everyone in scope, narrowed by department. */
   const peopleInScope = useMemo(() => {
@@ -52,35 +36,11 @@ function DeadlinePlanPage() {
 
   const selectedAssigneeIds = useMemo(() => {
     const scopeIds = new Set(peopleInScope.map((person) => person.id));
-    const selected = (assigneeIds ?? (userId ? [userId] : [])).filter((id) =>
-      scopeIds.has(id),
-    );
+    const selected = (
+      assigneeIds ?? (userId ? [userId, ...subordinateIds] : [])
+    ).filter((id) => scopeIds.has(id));
     return pinFirst(selected, userId);
-  }, [assigneeIds, peopleInScope, userId]);
-
-  const handleDepartmentChange = useCallback(
-    (nextDepartment: string) => {
-      setDepartment(nextDepartment);
-      if (nextDepartment === 'all') {
-        setAssigneeIds([userId, ...subordinateIds]);
-        return;
-      }
-      const memberIds = new Set(getDepartmentMemberIds(nextDepartment));
-      setAssigneeIds(
-        selectablePeople
-          .filter((person) => memberIds.has(person.id))
-          .map((person) => person.id),
-      );
-    },
-    [
-      setDepartment,
-      setAssigneeIds,
-      userId,
-      subordinateIds,
-      selectablePeople,
-      getDepartmentMemberIds,
-    ],
-  );
+  }, [assigneeIds, peopleInScope, userId, subordinateIds]);
 
   const today = dayjs().format('YYYY-MM-DD');
   const baseFilter = useMemo<
@@ -127,10 +87,11 @@ function DeadlinePlanPage() {
         <Toolbar
           className="order-first lg:order-none lg:col-start-2 lg:row-start-1"
           userId={userId}
-          people={peopleInScope}
+          people={selectablePeople}
           departmentOptions={departmentOptions}
           selectedAssigneeIds={selectedAssigneeIds}
-          onDepartmentChange={handleDepartmentChange}
+          directReportIds={subordinateIds}
+          getDepartmentMemberIds={getDepartmentMemberIds}
         />
 
         <div

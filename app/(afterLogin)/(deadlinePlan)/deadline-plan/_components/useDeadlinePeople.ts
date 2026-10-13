@@ -37,10 +37,23 @@ export function useDeadlinePeople() {
     permissions: [Permissions.approveAndRejectPlan],
   });
 
-  const employees = useMemo(
-    () => getEmployeeItems(employeesRaw),
-    [employeesRaw],
-  );
+  const employees = useMemo(() => {
+    const byId = new Map<string, any>();
+    const departmentPeople = (
+      Array.isArray(departments) ? departments : []
+    ).flatMap((department) => department?.users ?? []);
+    for (const employee of [
+      ...departmentPeople,
+      ...getEmployeeItems(employeesRaw),
+    ]) {
+      if (employee?.id)
+        byId.set(String(employee.id), {
+          ...byId.get(String(employee.id)),
+          ...employee,
+        });
+    }
+    return Array.from(byId.values());
+  }, [employeesRaw, departments]);
 
   const employeeById = useMemo(
     () =>

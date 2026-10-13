@@ -304,7 +304,13 @@ module.exports = {
   ],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
-    '^.+\\.module\\.(css|sass|scss)$': 'identity-obj-proxy',
+    '^.+\\.module\\.(css|sass|scss)$': (() => {
+      try {
+        return require.resolve('identity-obj-proxy');
+      } catch {
+        return '<rootDir>/__mocks__/styleMock.js';
+      }
+    })(),
     '^.+\\.(css|sass|scss)$': '<rootDir>/__mocks__/styleMock.js',
     '^.+\\.(png|jpg|jpeg|gif|webp|avif|ico|bmp|svg)$':
       '<rootDir>/__mocks__/fileMock.js',
@@ -325,6 +331,7 @@ module.exports = {
     '^@/mocks(.*)$': '<rootDir>/__mocks__$1',
     '^@/utils(.*)$': '<rootDir>/utils$1',
     '^@/types/(.*)$': '<rootDir>/types/$1',
+    '^@/store/(.*)$': '<rootDir>/store/$1',
 
     '^@/__tests__(.*)$': '<rootDir>/__tests__$1',
 

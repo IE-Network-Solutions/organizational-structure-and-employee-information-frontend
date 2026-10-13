@@ -16,6 +16,8 @@ export interface DeadlineKeyResult {
   title: string;
   progress?: number | string | null;
   initialValue?: number | string | null;
+  thresholdValue?: number | string | null;
+  stretchValue?: number | string | null;
   targetValue?: number | string | null;
   currentValue?: number | string | null;
   weight?: number | string | null;

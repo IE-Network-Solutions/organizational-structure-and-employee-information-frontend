@@ -20,6 +20,24 @@ const percentageKr = (
 });
 
 describe('buildOwnerGroup', () => {
+  it('updates the progress bar and owner badge from a 70/90 achievement', () => {
+    const group = buildOwnerGroup(
+      'me',
+      [
+        percentageKr({
+          currentValue: 70,
+          targetValue: 90,
+          thresholdValue: 50,
+          stretchValue: 100,
+          progress: 0,
+        }),
+      ],
+      [],
+    );
+    expect(group.cards[0].progress).toBe(78);
+    expect(group.cards[0].ratioLabel).toBe('70/90');
+    expect(group.avgProgress).toBe(78);
+  });
   it('shows a key result the way Plan & Report does', () => {
     const group = buildOwnerGroup('me', [percentageKr()], []);
 

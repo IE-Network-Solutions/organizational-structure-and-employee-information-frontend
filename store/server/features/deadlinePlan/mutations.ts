@@ -1,13 +1,22 @@
 import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import { OKR_URL } from '@/utils/constants';
 import { crudRequest } from '@/utils/crudRequest';
+import {
+  invalidateOkrPlanningCaches,
+  scheduleDashboardAndVpRefetch,
+  scheduleOkrMilestoneStatusRefetch,
+} from '@/utils/invalidateOkrPlanningCaches';
 import NotificationMessage from '@/components/common/notification/notificationMessage';
 import {
   DEADLINE_KEY_RESULTS_QUERY_KEY,
   DEADLINE_TASKS_QUERY_KEY,
   deadlinePlanHeaders,
 } from './queries';
-import { DeadlineTaskPayload, DeadlineTaskReportPayload } from './interface';
+import {
+  DeadlineTask,
+  DeadlineTaskPayload,
+  DeadlineTaskReportPayload,
+} from './interface';
 
 const BASE_URL = `${OKR_URL}/deadline-tasks`;
 
@@ -26,7 +35,9 @@ const refreshTasks = (queryClient: QueryClient) =>
 const refreshTasksAndProgress = (queryClient: QueryClient) => {
   refreshTasks(queryClient);
   queryClient.invalidateQueries(DEADLINE_KEY_RESULTS_QUERY_KEY);
-  queryClient.invalidateQueries('ObjectiveInformation');
+  void invalidateOkrPlanningCaches(queryClient);
+  scheduleOkrMilestoneStatusRefetch(queryClient);
+  scheduleDashboardAndVpRefetch(queryClient);
 };
 
 const createDeadlineTasks = async (tasks: DeadlineTaskPayload[]) =>
@@ -148,7 +159,22 @@ export const useReportDeadlineTasks = () => {
 export const useUnreportDeadlineTasks = () => {
   const queryClient = useQueryClient();
   return useMutation(unreportDeadlineTasks, {
-    onSuccess: () => refreshTasksAndProgress(queryClient),
+    onSuccess: (tasks: DeadlineTask[]) => {
+      const updated = new Map(tasks.map((task) => [task.id, task]));
+      queryClient.setQueriesData(DEADLINE_TASKS_QUERY_KEY, (cached: any) => {
+        if (!cached?.pages) return cached;
+        return {
+          ...cached,
+          pages: cached.pages.map((page: any) => ({
+            ...page,
+            items: page.items.map(
+              (task: DeadlineTask) => updated.get(task.id) ?? task,
+            ),
+          })),
+        };
+      });
+      refreshTasksAndProgress(queryClient);
+    },
     onError: (error) => showError(error, 'Could not undo the report'),
   });
 };

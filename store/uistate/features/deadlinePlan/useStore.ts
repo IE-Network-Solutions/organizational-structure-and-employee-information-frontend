@@ -20,7 +20,7 @@ interface DeadlinePlanState {
   /** 'all' or a department id. */
   department: string;
   status: DeadlineTaskStatusFilter;
-  /** Null until the default scope (me + direct reports) has been applied. */
+  /** Null follows the live Me & direct reports scope; an array is a custom selection. */
   assigneeIds: string[] | null;
   isKeyResultPanelOpen: boolean;
 
@@ -37,7 +37,13 @@ interface DeadlinePlanState {
   setHistoryRange: (range: [string, string] | null) => void;
   setDepartment: (department: string) => void;
   setStatus: (status: DeadlineTaskStatusFilter) => void;
-  setAssigneeIds: (assigneeIds: string[]) => void;
+  setAssigneeIds: (assigneeIds: string[] | null) => void;
+  applyFilters: (
+    filters: Pick<
+      DeadlinePlanState,
+      'duration' | 'historyRange' | 'department' | 'status' | 'assigneeIds'
+    >,
+  ) => void;
   setKeyResultPanelOpen: (open: boolean) => void;
   openTaskForm: (options?: {
     task?: DeadlineTask;
@@ -69,6 +75,7 @@ export const useDeadlinePlanStore = create<DeadlinePlanState>((set) => ({
   setDepartment: (department) => set({ department }),
   setStatus: (status) => set({ status }),
   setAssigneeIds: (assigneeIds) => set({ assigneeIds }),
+  applyFilters: (filters) => set(filters),
   setKeyResultPanelOpen: (isKeyResultPanelOpen) =>
     set({ isKeyResultPanelOpen }),
   openTaskForm: (options) =>

@@ -114,7 +114,7 @@ export function useTaskActions(viewer: TaskViewer) {
     if (permissions.canApprove) {
       items.push({
         key: 'approve',
-        label: task.status === 'reported' ? 'Approve and close' : 'Close task',
+        label: 'Approve reported',
         onClick: () => approveTasks([task.id]),
       });
     }

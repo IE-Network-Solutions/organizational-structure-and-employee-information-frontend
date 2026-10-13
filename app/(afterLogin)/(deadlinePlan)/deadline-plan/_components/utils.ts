@@ -135,7 +135,7 @@ export interface TaskViewer {
   userId: string;
   /** Ids the viewer manages directly. */
   subordinateIds: string[];
-  /** Holds the approve/reject plan permission (manages anyone's tasks). */
+  /** Kept for compatibility; broad permissions do not grant direct-manager actions. */
   canManageAll: boolean;
 }
 
@@ -153,11 +153,7 @@ export function resolveTaskPermissions(
   viewer: TaskViewer,
 ): TaskPermissions {
   const isOwn = task.assigneeId === viewer.userId;
-  const manages =
-    !isOwn &&
-    (viewer.canManageAll ||
-      task.assignedById === viewer.userId ||
-      viewer.subordinateIds.includes(task.assigneeId));
+  const manages = !isOwn && viewer.subordinateIds.includes(task.assigneeId);
   const involved = isOwn || manages;
   const reported = isTaskReported(task);
   const closed = isTaskClosed(task);
@@ -168,14 +164,9 @@ export function resolveTaskPermissions(
     canReport: involved && open,
     // Only a manager can reopen a task that has been closed.
     canUndoReport: (reported || closed) && (closed ? manages : involved),
-    canLock: involved && open && !task.isLocked,
-    // The assignee cannot lift a lock someone else placed.
-    canUnlock:
-      open &&
-      task.isLocked &&
-      (manages ||
-        (isOwn && (!task.lockedById || task.lockedById === viewer.userId))),
-    canApprove: manages && !closed,
+    canLock: manages && open && !task.isLocked,
+    canUnlock: manages && open && task.isLocked,
+    canApprove: manages && reported && !closed,
   };
 }
 
@@ -214,8 +205,8 @@ export function getEmployeeItems(employeeData: any): any[] {
   if (!employeeData) return [];
   if (Array.isArray(employeeData)) return employeeData;
   if (Array.isArray(employeeData.items)) return employeeData.items;
-  if (Array.isArray(employeeData.data)) return employeeData.data;
   if (Array.isArray(employeeData.users)) return employeeData.users;
+  if (employeeData.data) return getEmployeeItems(employeeData.data);
   return [];
 }
 
@@ -254,11 +245,16 @@ export function getSubordinateIds(employees: any[], managerId: string) {
   return employees
     .filter(
       (employee) =>
-        String(employee?.delegatedTo?.id || employee?.reportingTo?.id || '') ===
-        String(managerId),
+        String(
+          employee?.reportingTo?.id ??
+            employee?.reportingToId ??
+            (typeof employee?.reportingTo === 'string'
+              ? employee.reportingTo
+              : ''),
+        ) === String(managerId),
     )
     .map((employee) => String(employee.id))
-    .filter(Boolean);
+    .filter((id) => id && id !== 'undefined' && id !== managerId);
 }
 
 export function getDepartmentUserIds(
