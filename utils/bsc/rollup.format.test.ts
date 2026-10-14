@@ -21,9 +21,9 @@ function summary(
 
 describe('formatRollupAverage', () => {
   it('returns em dash when nothing is evaluated', () => {
-    expect(formatRollupAverage(summary({ averageScore: 0, evaluatedCount: 0 }))).toBe(
-      '—',
-    );
+    expect(
+      formatRollupAverage(summary({ averageScore: 0, evaluatedCount: 0 })),
+    ).toBe('—');
   });
 
   it('formats a real average including zero when evaluated', () => {

@@ -1,10 +1,7 @@
 'use client';
 
 import React from 'react';
-import {
-  formatRollupCoverage,
-  type RollupSummary,
-} from '@/utils/bsc/rollup';
+import { formatRollupCoverage, type RollupSummary } from '@/utils/bsc/rollup';
 import BscKpiMetricCard from './BscKpiMetricCard';
 
 type Props = {

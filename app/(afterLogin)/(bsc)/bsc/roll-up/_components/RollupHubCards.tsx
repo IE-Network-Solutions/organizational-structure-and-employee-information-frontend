@@ -4,10 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { Progress, Select, Table, Tooltip } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import RollupProgressCard from '@/app/(afterLogin)/(bsc)/bsc/_components/RollupProgressCard';
-import {
-  formatRollupAverage,
-  type RollupSummary,
-} from '@/utils/bsc/rollup';
+import { formatRollupAverage, type RollupSummary } from '@/utils/bsc/rollup';
 import type { ResultsScope } from '@/utils/bsc/scorecardTab';
 
 const tableHeaderClassName = 'text-[#4d4d4d] text-base font-bold';
@@ -65,7 +62,7 @@ export default function RollupHubCards({
         (a.departmentName || a.label).localeCompare(
           b.departmentName || b.label,
         ),
-      render: (_, row) => {
+      render: (unused: unknown, row) => {
         const name = row.departmentName || row.label;
         return (
           <Tooltip title={name}>
@@ -81,10 +78,7 @@ export default function RollupHubCards({
     },
     {
       title: (
-        <span
-          className={tableHeaderClassName}
-          data-cy="bsc-rollup-hub-col-avg"
-        >
+        <span className={tableHeaderClassName} data-cy="bsc-rollup-hub-col-avg">
           Avg score
         </span>
       ),
@@ -97,7 +91,7 @@ export default function RollupHubCards({
         if (!b.evaluatedCount) return -1;
         return a.averageScore - b.averageScore;
       },
-      render: (_, row) => {
+      render: (unused: unknown, row) => {
         const hasScore = row.evaluatedCount > 0;
         const barPercent = hasScore
           ? Math.max(Number(row.averageScore) || 0, 0)
@@ -137,11 +131,8 @@ export default function RollupHubCards({
       key: 'evaluatedCount',
       width: 120,
       sorter: (a, b) => a.evaluatedCount - b.evaluatedCount,
-      render: (_, row) => (
-        <span
-          className={tableCellClassName}
-          data-cy="bsc-rollup-hub-evaluated"
-        >
+      render: (unused: unknown, row) => (
+        <span className={tableCellClassName} data-cy="bsc-rollup-hub-evaluated">
           {row.evaluatedCount}/{row.totalCount}
         </span>
       ),
@@ -158,7 +149,7 @@ export default function RollupHubCards({
       key: 'pendingCount',
       width: 110,
       sorter: (a, b) => a.pendingCount - b.pendingCount,
-      render: (_, row) => (
+      render: (unused: unknown, row) => (
         <span className={tableCellClassName} data-cy="bsc-rollup-hub-pending">
           {row.pendingCount}
         </span>
