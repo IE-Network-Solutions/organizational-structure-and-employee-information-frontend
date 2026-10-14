@@ -532,7 +532,7 @@ export default function MyBscScorecardPage() {
                   className="!text-gray-800"
                   href={scorecardTabHref('mine')}
                 >
-                  BSC
+                  KPI
                 </Link>
               </li>
               <li data-cy="bsc-my-scorecard-breadcrumb-sep">

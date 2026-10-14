@@ -1,7 +1,10 @@
 'use client';
 
 import React from 'react';
-import { type RollupSummary } from '@/utils/bsc/rollup';
+import {
+  formatRollupCoverage,
+  type RollupSummary,
+} from '@/utils/bsc/rollup';
 import BscKpiMetricCard from './BscKpiMetricCard';
 
 type Props = {
@@ -9,6 +12,7 @@ type Props = {
   label?: string;
   onClick?: () => void;
   dataCy: string;
+  showCoverage?: boolean;
 };
 
 export default function RollupProgressCard({
@@ -16,8 +20,10 @@ export default function RollupProgressCard({
   label,
   onClick,
   dataCy,
+  showCoverage = true,
 }: Props) {
   const percent = Number(rollup.averageScore || 0);
+  const hasScore = rollup.evaluatedCount > 0;
   const displayLabel =
     label ||
     (rollup.scope === 'company'
@@ -28,6 +34,8 @@ export default function RollupProgressCard({
     <BscKpiMetricCard
       label={displayLabel}
       percent={percent}
+      hasScore={hasScore}
+      subtitle={showCoverage ? formatRollupCoverage(rollup) : undefined}
       dataCy={dataCy}
       onClick={onClick}
       className="min-w-[260px] flex-none"
