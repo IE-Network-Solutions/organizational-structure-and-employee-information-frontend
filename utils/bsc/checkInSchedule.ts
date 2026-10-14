@@ -162,10 +162,38 @@ function legacyBiWeeklyDayInWindow(date: Dayjs): number {
   return mod + 1;
 }
 
-function anchoredBiWeeklyDayInWindow(date: Dayjs, anchor: Dayjs): number {
-  const days = date.startOf('day').diff(anchor.startOf('day'), 'day');
-  if (days < 0) return 0;
-  return (days % 14) + 1;
+/** Start and end of check-in cycle `index`, counted from the effective date. */
+function checkInCycleBounds(
+  cadence: KpiCheckInCadence,
+  effective: Dayjs,
+  index: number,
+): { start: Dayjs; end: Dayjs } {
+  if (cadence === BscCadence.Monthly) {
+    return {
+      start: effective.add(index, 'month'),
+      end: effective.add(index + 1, 'month'),
+    };
+  }
+  const length = cadence === BscCadence.Weekly ? 7 : 14;
+  return {
+    start: effective.add(index * length, 'day'),
+    end: effective.add((index + 1) * length, 'day'),
+  };
+}
+
+/**
+ * Day a check-in opens in cycle `index`: `checkInDay` days after the cycle
+ * starts (e.g. effective 13 Oct, Monthly, day 10 -> 23 Oct, then 23 Nov).
+ */
+function checkInOpensAt(
+  cadence: KpiCheckInCadence,
+  checkInDay: number,
+  effective: Dayjs,
+  index: number,
+): Dayjs {
+  const { start, end } = checkInCycleBounds(cadence, effective, index);
+  const opens = start.add(Math.max(checkInDay, 0), 'day');
+  return opens.isAfter(end) ? end : opens;
 }
 
 /**
@@ -179,34 +207,9 @@ export function resolveFirstCheckInDate(
   if (!cadence || checkInDay == null || Number.isNaN(Number(checkInDay))) {
     return null;
   }
+  if (!isKpiCheckInCadence(cadence)) return null;
   const effective = parseDay(effectiveFrom) || dayjs().startOf('day');
-  const day = Number(checkInDay);
-
-  if (cadence === BscCadence.Weekly) {
-    const targetWeekday = Math.min(Math.max(day, 1), 7);
-    let cursor = effective.startOf('day');
-    for (let i = 0; i < 7; i += 1) {
-      if (isoWeekday(cursor) === targetWeekday) return cursor;
-      cursor = cursor.add(1, 'day');
-    }
-    return effective;
-  }
-
-  if (cadence === BscCadence.BiWeekly) {
-    const due = Math.min(Math.max(day, 1), 14);
-    return effective.add(due - 1, 'day').startOf('day');
-  }
-
-  if (cadence === BscCadence.Monthly) {
-    const dueThisMonth = clampDayOfMonth(day, effective);
-    if (effective.date() <= dueThisMonth) {
-      return effective.date(dueThisMonth).startOf('day');
-    }
-    const nextMonth = effective.add(1, 'month').startOf('month');
-    return nextMonth.date(clampDayOfMonth(day, nextMonth)).startOf('day');
-  }
-
-  return null;
+  return checkInOpensAt(cadence, Number(checkInDay), effective, 0);
 }
 
 export function formatCheckInDate(date?: Dayjs | null): string {
@@ -260,27 +263,14 @@ export function isCheckInWindowOpen(
     return true;
   }
 
-  const first = resolveFirstCheckInDate(cadence, checkInDay, effective);
-  if (!first || date.isBefore(first)) return false;
-
-  if (cadence === BscCadence.Weekly) {
-    const daysSinceFirst = date.diff(first.startOf('day'), 'day');
-    const offsetInPeriod = daysSinceFirst % 7;
-    return offsetInPeriod >= 0;
+  if (!isKpiCheckInCadence(cadence)) return true;
+  // Open from the check-in day of a cycle until that cycle ends (inclusive),
+  // counted from the effective date.
+  for (let index = 0; index < 10000; index += 1) {
+    const opensAt = checkInOpensAt(cadence, day, effective, index);
+    if (opensAt.isAfter(date)) return false;
+    const { end } = checkInCycleBounds(cadence, effective, index);
+    if (!date.isAfter(end)) return true;
   }
-
-  if (cadence === BscCadence.BiWeekly) {
-    const today = anchoredBiWeeklyDayInWindow(date, effective);
-    const due = Math.min(Math.max(day, 1), 14);
-    return today >= due;
-  }
-
-  if (cadence === BscCadence.Monthly) {
-    const due = clampDayOfMonth(day, date);
-    if (date.date() < due) return false;
-    const firstMonth = first.startOf('month');
-    return !date.startOf('month').isBefore(firstMonth);
-  }
-
-  return true;
+  return false;
 }

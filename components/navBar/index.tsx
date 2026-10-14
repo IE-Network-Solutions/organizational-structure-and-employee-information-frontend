@@ -878,7 +878,7 @@ const Nav: React.FC<MyComponentProps> = ({ children }) => {
       },
       {
         icon: <AssessmentOutlinedIcon style={{ fontSize: 20 }} />,
-        title: 'BSC',
+        title: 'KPI',
         key: 'bsc-menu',
         className: 'font-bold',
         permissions: [Permissions.ViewBsc],
