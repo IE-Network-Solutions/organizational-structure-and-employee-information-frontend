@@ -11,11 +11,14 @@ import {
   DEADLINE_KEY_RESULTS_QUERY_KEY,
   DEADLINE_TASKS_QUERY_KEY,
   deadlinePlanHeaders,
+  searchDeadlineTasks,
 } from './queries';
 import {
   DeadlineTask,
+  DeadlineTaskApprovalPayload,
   DeadlineTaskPayload,
   DeadlineTaskReportPayload,
+  DeadlineTaskSearchFilter,
 } from './interface';
 
 const BASE_URL = `${OKR_URL}/deadline-tasks`;
@@ -80,6 +83,46 @@ const lockDeadlineTasks = async (data: {
     headers: await deadlinePlanHeaders(),
   });
 
+/** Apply a plan lock to every matching active parent, including later pages. */
+const lockDeadlinePlans = async ({
+  filter,
+  isLocked,
+}: {
+  filter: DeadlineTaskSearchFilter;
+  isLocked: boolean;
+}) => {
+  if (!filter.assigneeIds.length || filter.status === 'reported')
+    return { affected: 0 };
+  const activeFilter = { ...filter, status: 'active' as const };
+  const ids = new Set<string>();
+  let totalPages = 1;
+  const batchSize = 100;
+  for (let page = 1; page <= totalPages; page++) {
+    const result = await searchDeadlineTasks(activeFilter, page, batchSize);
+    totalPages = result.meta?.totalPages ?? 1;
+    for (const task of result.items ?? []) {
+      if (
+        filter.assigneeIds.includes(task.assigneeId) &&
+        !task.parentTaskId &&
+        task.status === 'active' &&
+        task.approvalStatus !== 'closed' &&
+        Boolean(task.isLocked) !== isLocked
+      )
+        ids.add(task.id);
+    }
+  }
+  const taskIds = Array.from(ids);
+  let affected = 0;
+  for (let index = 0; index < taskIds.length; index += batchSize) {
+    const result = await lockDeadlineTasks({
+      taskIds: taskIds.slice(index, index + batchSize),
+      isLocked,
+    });
+    affected += result.affected;
+  }
+  return { affected };
+};
+
 const reportDeadlineTasks = async (reports: DeadlineTaskReportPayload[]) =>
   crudRequest({
     url: `${BASE_URL}/report`,
@@ -96,11 +139,11 @@ const unreportDeadlineTasks = async (taskIds: string[]) =>
     headers: await deadlinePlanHeaders(),
   });
 
-const approveDeadlineTasks = async (taskIds: string[]) =>
+const approveDeadlineTasks = async (approval: DeadlineTaskApprovalPayload) =>
   crudRequest({
     url: `${BASE_URL}/approve`,
     method: 'patch',
-    data: { taskIds },
+    data: approval,
     headers: await deadlinePlanHeaders(),
   });
 
@@ -145,6 +188,28 @@ export const useLockDeadlineTasks = () => {
   return useMutation(lockDeadlineTasks, {
     onSuccess: () => refreshTasks(queryClient),
     onError: (error) => showError(error, 'Could not change the lock'),
+  });
+};
+
+export const useLockDeadlinePlans = () => {
+  const queryClient = useQueryClient();
+  return useMutation(lockDeadlinePlans, {
+    onSuccess: (result, { isLocked }) => {
+      refreshTasks(queryClient);
+      NotificationMessage.success({
+        message: result.affected
+          ? isLocked
+            ? 'Plans locked'
+            : 'Plans unlocked'
+          : isLocked
+            ? 'No active tasks need locking'
+            : 'No active tasks need unlocking',
+      });
+    },
+    onError: (error) => {
+      refreshTasks(queryClient);
+      showError(error, 'Could not change the plan locks');
+    },
   });
 };
 

@@ -41,12 +41,26 @@ export function groupTasksByDate(
 
   for (const task of tasks) {
     const date = dayjs(task.deadline);
-    const overdue = !isTaskFinished(task) && date.isBefore(today, 'day');
+    const start = dayjs(task.startDate);
+    const finished = isTaskFinished(task);
+    const overdue = !finished && date.isBefore(today, 'day');
+    // Work spanning today is actionable today, even when its deadline is
+    // several weeks away. Archived reports stay grouped by their deadline.
+    const ongoing =
+      includeToday &&
+      !finished &&
+      !!task.startDate &&
+      start.isValid() &&
+      date.isValid() &&
+      !start.isAfter(today, 'day') &&
+      !date.isBefore(today, 'day');
     const id = overdue
       ? 'overdue'
-      : date.isValid()
-        ? date.format(DATE_FORMAT)
-        : 'undated';
+      : ongoing
+        ? todayKey
+        : date.isValid()
+          ? date.format(DATE_FORMAT)
+          : 'undated';
     let group = groups.get(id);
     if (!group) {
       group = overdue

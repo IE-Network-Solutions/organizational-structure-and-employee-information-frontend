@@ -6,6 +6,7 @@ import { DeadlineTask } from '@/store/server/features/deadlinePlan/interface';
 import PlanCard from './PlanCard';
 
 const mockApprove = jest.fn();
+const mockSetApprovalRequest = jest.fn();
 const mockLock = jest.fn();
 const mockOpenTaskForm = jest.fn();
 const mockSearch = jest.fn();
@@ -40,7 +41,10 @@ jest.mock(
   '@/store/uistate/features/deadlinePlan/useStore',
   () => ({
     useDeadlinePlanStore: (selector: any) =>
-      selector({ openTaskForm: mockOpenTaskForm }),
+      selector({
+        openTaskForm: mockOpenTaskForm,
+        setApprovalRequest: mockSetApprovalRequest,
+      }),
   }),
   { virtual: true },
 );
@@ -115,7 +119,7 @@ describe('grouped subordinate plan controls', () => {
     expect(screen.queryByText(/87 tasks/)).not.toBeInTheDocument();
   });
 
-  it('approves pending reports and locks active tasks using the original eligible task IDs', () => {
+  it('opens manager review for pending reports and locks eligible active tasks', () => {
     mockTasks = [
       taskOf('pending', { status: 'reported', approvalStatus: 'pending' }),
       taskOf('closed', { status: 'reported', approvalStatus: 'closed' }),
@@ -130,7 +134,11 @@ describe('grouped subordinate plan controls', () => {
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: 'Approve reported' }));
-    expect(mockApprove).toHaveBeenCalledWith(['pending']);
+    expect(mockSetApprovalRequest).toHaveBeenCalledWith({
+      taskIds: ['pending'],
+      title: "Hana Bekele's reported tasks",
+    });
+    expect(mockApprove).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Lock tasks' }));
     expect(mockLock).toHaveBeenCalledWith({
       taskIds: ['active'],

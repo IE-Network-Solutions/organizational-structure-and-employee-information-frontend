@@ -32,6 +32,10 @@ jest.mock('./_components/ReportTaskModal', () => ({
   __esModule: true,
   default: () => null,
 }));
+jest.mock('./_components/ApproveTaskModal', () => ({
+  __esModule: true,
+  default: () => null,
+}));
 jest.mock('./_components/KeyResultPanel', () => ({
   __esModule: true,
   default: ({ ownerIds }: any) => (

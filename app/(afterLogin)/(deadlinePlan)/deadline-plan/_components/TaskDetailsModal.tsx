@@ -25,6 +25,7 @@ import {
   UserCell,
 } from './TaskBadges';
 import TaskCompletion from './TaskCompletion';
+import TaskLockButton from './TaskLockButton';
 import { PersonOption } from './useDeadlinePeople';
 import { isTaskDone, TaskActions } from './useTaskActions';
 import {
@@ -139,20 +140,26 @@ export default function TaskDetailsModal({
               </span>
               Task details
             </span>
-            {menuItems?.length ? (
-              <Dropdown
-                menu={{ items: menuItems }}
-                trigger={['click']}
-                placement="bottomRight"
-              >
-                <Button
-                  type="text"
-                  icon={<MoreOutlined />}
-                  aria-label="Task actions"
-                  data-cy={`deadline-task-actions-${task.id}`}
-                />
-              </Dropdown>
-            ) : null}
+            <div
+              className="flex shrink-0 items-center gap-1"
+              data-cy="deadline-detail-management-actions"
+            >
+              <TaskLockButton task={task} actions={actions} />
+              {menuItems?.length ? (
+                <Dropdown
+                  menu={{ items: menuItems }}
+                  trigger={['click']}
+                  placement="bottomRight"
+                >
+                  <Button
+                    type="text"
+                    icon={<MoreOutlined />}
+                    aria-label="Task actions"
+                    data-cy={`deadline-task-actions-${task.id}`}
+                  />
+                </Dropdown>
+              ) : null}
+            </div>
           </div>
           <div
             data-cy="deadline-detail-layout"
@@ -390,6 +397,34 @@ export default function TaskDetailsModal({
                     >
                       {task.customReason}
                     </p>
+                  ) : null}
+                  {task.approvalStatus === 'closed' && task.approvalComment ? (
+                    <div
+                      className="mt-4 border-t border-[#F1F2F6] pt-4"
+                      data-cy="deadline-detail-manager-comment"
+                    >
+                      <h4
+                        className="text-xs font-semibold text-[#161A2C]"
+                        data-cy="deadline-detail-manager-comment-heading"
+                      >
+                        Manager comment
+                      </h4>
+                      <p
+                        className="mt-1 text-[11px] text-slate-500"
+                        data-cy="deadline-detail-manager-comment-author"
+                      >
+                        {getPerson(task.approvedById)?.name ?? 'Direct manager'}
+                        {task.approvedAt
+                          ? ` · ${dayjs(task.approvedAt).format('MMM D, YYYY · h:mm A')}`
+                          : ''}
+                      </p>
+                      <p
+                        className="mt-2 whitespace-pre-wrap break-words text-sm text-[#161A2C]"
+                        data-cy="deadline-detail-manager-comment-text"
+                      >
+                        {task.approvalComment}
+                      </p>
+                    </div>
                   ) : null}
                 </div>
               ) : null}

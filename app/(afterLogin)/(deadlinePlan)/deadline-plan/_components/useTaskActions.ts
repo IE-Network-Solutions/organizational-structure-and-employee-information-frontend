@@ -3,7 +3,6 @@ import { Modal } from 'antd';
 import type { MenuProps } from 'antd';
 import { DeadlineTask } from '@/store/server/features/deadlinePlan/interface';
 import {
-  useApproveDeadlineTasks,
   useDeleteDeadlineTask,
   useLockDeadlineTasks,
   useReportDeadlineTasks,
@@ -21,12 +20,14 @@ export function useTaskActions(viewer: TaskViewer) {
   const setReportingTask = useDeadlinePlanStore(
     (state) => state.setReportingTask,
   );
+  const setApprovalRequest = useDeadlinePlanStore(
+    (state) => state.setApprovalRequest,
+  );
   const { mutate: reportTasks, isLoading: isReporting } =
     useReportDeadlineTasks();
   const { mutate: unreportTasks, isLoading: isUndoing } =
     useUnreportDeadlineTasks();
-  const { mutate: lockTasks } = useLockDeadlineTasks();
-  const { mutate: approveTasks } = useApproveDeadlineTasks();
+  const { mutate: lockTasks, isLoading: isLocking } = useLockDeadlineTasks();
   const { mutate: deleteTask } = useDeleteDeadlineTask();
 
   const permissionsOf = (task: DeadlineTask, parent?: DeadlineTask) =>
@@ -51,6 +52,13 @@ export function useTaskActions(viewer: TaskViewer) {
     } else {
       reportTasks([{ taskId: task.id, outcome: 'done' }]);
     }
+  };
+
+  const setLock = (task: DeadlineTask, isLocked: boolean) => {
+    const permissions = permissionsOf(task);
+    if (isLocking || !(isLocked ? permissions.canLock : permissions.canUnlock))
+      return;
+    lockTasks({ taskIds: [task.id], isLocked });
   };
 
   const menuItemsOf = (
@@ -115,21 +123,8 @@ export function useTaskActions(viewer: TaskViewer) {
       items.push({
         key: 'approve',
         label: 'Approve reported',
-        onClick: () => approveTasks([task.id]),
-      });
-    }
-    if (permissions.canLock) {
-      items.push({
-        key: 'lock',
-        label: 'Lock',
-        onClick: () => lockTasks({ taskIds: [task.id], isLocked: true }),
-      });
-    }
-    if (permissions.canUnlock) {
-      items.push({
-        key: 'unlock',
-        label: 'Unlock',
-        onClick: () => lockTasks({ taskIds: [task.id], isLocked: false }),
+        onClick: () =>
+          setApprovalRequest({ taskIds: [task.id], title: task.title }),
       });
     }
     if (permissions.canEdit) {
@@ -151,6 +146,8 @@ export function useTaskActions(viewer: TaskViewer) {
     canToggle,
     toggleDone,
     menuItemsOf,
+    setLock,
+    isLocking,
     isToggling: isReporting || isUndoing,
   };
 }

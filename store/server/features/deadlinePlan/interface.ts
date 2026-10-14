@@ -56,6 +56,8 @@ export interface DeadlineTask {
   reportedAt: string | null;
   approvalStatus: DeadlineTaskApprovalStatus;
   approvedById: string | null;
+  approvedAt?: string | null;
+  approvalComment?: string | null;
   createdAt: string;
 }
 
@@ -104,6 +106,11 @@ export interface DeadlineTaskReportPayload {
   outcome: DeadlineTaskOutcome;
   actualValue?: number | null;
   customReason?: string | null;
+}
+
+export interface DeadlineTaskApprovalPayload {
+  taskIds: string[];
+  comment?: string;
 }
 
 /** Task counts for one assignee and key result (null = general tasks). */

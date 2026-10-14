@@ -4,10 +4,26 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import Toolbar from './Toolbar';
 import { useDeadlinePlanStore } from '@/store/uistate/features/deadlinePlan/useStore';
 jest.mock('./ViewSwitcher', () => ({ __esModule: true, default: () => null }));
+const mockLockPlans = jest.fn();
+let mockLockState = 'unlocked';
+jest.mock('@/store/server/features/deadlinePlan/mutations', () => ({
+  useLockDeadlinePlans: () => ({ mutate: mockLockPlans, isLoading: false }),
+}));
+jest.mock('@/store/server/features/deadlinePlan/queries', () => ({
+  useDeadlinePlanLockState: () => ({
+    data: mockLockState,
+    isFetching: false,
+    isError: false,
+  }),
+}));
 
 jest.mock('antd', () => ({
   Button: ({ children, onClick, ...props }: any) => (
-    <button onClick={onClick} aria-label={props['aria-label']}>
+    <button
+      onClick={onClick}
+      aria-label={props['aria-label']}
+      disabled={props.disabled}
+    >
       {children}
     </button>
   ),
@@ -15,6 +31,7 @@ jest.mock('antd', () => ({
     <select
       aria-label={props['aria-label']}
       value={value}
+      disabled={props.disabled}
       onChange={(event) => onChange(event.target.value)}
     >
       {options.map((option: any) => (
@@ -31,6 +48,7 @@ jest.mock('antd', () => ({
     </>
   ),
   DatePicker: { RangePicker: () => null },
+  Tooltip: ({ children }: any) => children,
 }));
 jest.mock('./AssigneePicker', () => ({
   __esModule: true,
@@ -58,8 +76,15 @@ const props = {
   ],
   selectedAssigneeIds: ['me', 'alice'],
   getDepartmentMemberIds: () => ['alice'],
+  filter: {
+    assigneeIds: ['me', 'alice'],
+    status: 'active' as const,
+    includeOverdue: true,
+  },
 };
-beforeEach(() =>
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockLockState = 'unlocked';
   useDeadlinePlanStore.setState({
     viewMode: 'list',
     duration: 'upcoming',
@@ -67,8 +92,8 @@ beforeEach(() =>
     department: 'all',
     status: 'active',
     assigneeIds: null,
-  }),
-);
+  });
+});
 
 describe('explicit filter application', () => {
   it('keeps selections pending until Apply and closes the popover after applying', () => {
@@ -133,15 +158,84 @@ describe('explicit filter application', () => {
     expect(useDeadlinePlanStore.getState().assigneeIds).toBeNull();
   });
 
-  it('requires Apply for grouped People selections too', () => {
+  it('consolidates all grouped-view filters into Filters and requires Apply for people changes', () => {
     useDeadlinePlanStore.setState({ viewMode: 'grouped' });
     render(<Toolbar {...props} />);
     fireEvent.click(
-      screen.getByRole('button', { name: 'Choose people and departments' }),
+      screen.getByRole('button', { name: 'Filter and view options' }),
     );
+    expect(
+      screen.queryByRole('button', { name: 'Choose people and departments' }),
+    ).toBeNull();
+    expect(screen.getByLabelText('Department')).toBeTruthy();
+    expect(screen.getByLabelText('Duration')).toBeTruthy();
+    expect(screen.getByLabelText('Task status')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Choose Alice' }));
     expect(useDeadlinePlanStore.getState().assigneeIds).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }));
     expect(useDeadlinePlanStore.getState().assigneeIds).toEqual(['alice']);
+  });
+
+  it('places visible plan locks beside the view switcher and excludes the viewer from management', () => {
+    const { rerender } = render(<Toolbar {...props} />);
+    const lock = screen.getByRole('button', { name: 'Lock plans' });
+    expect(screen.queryByRole('button', { name: 'Unlock plans' })).toBeNull();
+    expect(
+      lock.closest('[data-cy="deadline-plan-view-controls"]'),
+    ).not.toBeNull();
+    fireEvent.click(lock);
+    expect(mockLockPlans).toHaveBeenCalledWith({
+      filter: { ...props.filter, assigneeIds: ['alice'] },
+      isLocked: true,
+    });
+    mockLockState = 'locked';
+    rerender(<Toolbar {...props} />);
+    expect(screen.queryByRole('button', { name: 'Lock plans' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Unlock plans' }));
+    expect(mockLockPlans).toHaveBeenLastCalledWith({
+      filter: { ...props.filter, assigneeIds: ['alice'] },
+      isLocked: false,
+    });
+  });
+
+  it('hides management actions when no selected person reports directly to the viewer', () => {
+    render(<Toolbar {...props} directReportIds={[]} />);
+    expect(screen.queryByRole('button', { name: 'Lock plans' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Unlock plans' })).toBeNull();
+  });
+
+  it('shows only Unlock for already locked plans', () => {
+    mockLockState = 'locked';
+    render(<Toolbar {...props} />);
+    expect(screen.queryByRole('button', { name: 'Lock plans' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Unlock plans' }));
+    expect(mockLockPlans).toHaveBeenCalledWith({
+      filter: { ...props.filter, assigneeIds: ['alice'] },
+      isLocked: false,
+    });
+  });
+
+  it('disables the single lock action when the selected plans contain no active tasks', () => {
+    mockLockState = 'empty';
+    render(<Toolbar {...props} />);
+    const lock = screen.getByRole('button', {
+      name: 'Lock plans',
+    }) as HTMLButtonElement;
+    expect(lock.disabled).toBe(true);
+    expect(screen.queryByRole('button', { name: 'Unlock plans' })).toBeNull();
+    fireEvent.click(lock);
+    expect(mockLockPlans).not.toHaveBeenCalled();
+  });
+
+  it('keeps reported plans from being locked or unlocked', () => {
+    render(
+      <Toolbar {...props} filter={{ ...props.filter, status: 'reported' }} />,
+    );
+    const lock = screen.getByRole('button', {
+      name: 'Lock plans',
+    }) as HTMLButtonElement;
+    expect(lock.disabled).toBe(true);
+    fireEvent.click(lock);
+    expect(mockLockPlans).not.toHaveBeenCalled();
   });
 });

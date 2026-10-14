@@ -31,6 +31,7 @@ interface DeadlinePlanState {
   /** Pre-selects a person when adding a task from their grouped plan. */
   taskFormAssigneeId: string | null;
   reportingTask: DeadlineTask | null;
+  approvalRequest: { taskIds: string[]; title: string } | null;
 
   setViewMode: (viewMode: DeadlineViewMode) => void;
   setDuration: (duration: DeadlineDuration) => void;
@@ -52,6 +53,7 @@ interface DeadlinePlanState {
   }) => void;
   closeTaskForm: () => void;
   setReportingTask: (task: DeadlineTask | null) => void;
+  setApprovalRequest: (request: DeadlinePlanState['approvalRequest']) => void;
 }
 
 export const useDeadlinePlanStore = create<DeadlinePlanState>((set) => ({
@@ -68,6 +70,7 @@ export const useDeadlinePlanStore = create<DeadlinePlanState>((set) => ({
   taskFormKeyResult: null,
   taskFormAssigneeId: null,
   reportingTask: null,
+  approvalRequest: null,
 
   setViewMode: (viewMode) => set({ viewMode }),
   setDuration: (duration) => set({ duration }),
@@ -93,4 +96,5 @@ export const useDeadlinePlanStore = create<DeadlinePlanState>((set) => ({
       taskFormAssigneeId: null,
     }),
   setReportingTask: (reportingTask) => set({ reportingTask }),
+  setApprovalRequest: (approvalRequest) => set({ approvalRequest }),
 }));

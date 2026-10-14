@@ -23,7 +23,7 @@ export const deadlinePlanHeaders = async () => {
   };
 };
 
-const searchDeadlineTasks = async (
+export const searchDeadlineTasks = async (
   filter: DeadlineTaskSearchFilter,
   page: number,
   pageSize: number,
@@ -65,6 +65,41 @@ export const useDeadlineTasks = (
           ? lastPage.meta.currentPage + 1
           : undefined,
     },
+  );
+};
+
+type DeadlinePlanLockState = 'empty' | 'unlocked' | 'locked';
+
+/** A locked plan has no unlocked active parents, including on later pages. */
+const getDeadlinePlanLockState = async (
+  filter: DeadlineTaskSearchFilter,
+): Promise<DeadlinePlanLockState> => {
+  let totalPages = 1;
+  let hasTasks = false;
+  for (let page = 1; page <= totalPages; page++) {
+    const result = await searchDeadlineTasks(filter, page, 100);
+    totalPages = result.meta?.totalPages ?? 1;
+    for (const task of result.items ?? []) {
+      if (
+        !filter.assigneeIds.includes(task.assigneeId) ||
+        task.parentTaskId ||
+        task.status !== 'active' ||
+        task.approvalStatus === 'closed'
+      )
+        continue;
+      hasTasks = true;
+      if (!task.isLocked) return 'unlocked';
+    }
+  }
+  return hasTasks ? 'locked' : 'empty';
+};
+
+export const useDeadlinePlanLockState = (filter: DeadlineTaskSearchFilter) => {
+  const activeFilter = { ...filter, status: 'active' as const };
+  return useQuery<DeadlinePlanLockState>(
+    [DEADLINE_TASKS_QUERY_KEY, 'lockState', activeFilter],
+    () => getDeadlinePlanLockState(activeFilter),
+    { enabled: filter.assigneeIds.length > 0 && filter.status !== 'reported' },
   );
 };
 

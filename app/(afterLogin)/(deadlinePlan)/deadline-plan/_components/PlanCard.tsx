@@ -9,10 +9,7 @@ import {
 } from '@ant-design/icons';
 import { DeadlineTaskSearchFilter } from '@/store/server/features/deadlinePlan/interface';
 import { useDeadlineTasks } from '@/store/server/features/deadlinePlan/queries';
-import {
-  useApproveDeadlineTasks,
-  useLockDeadlineTasks,
-} from '@/store/server/features/deadlinePlan/mutations';
+import { useLockDeadlineTasks } from '@/store/server/features/deadlinePlan/mutations';
 import LoadMore from './LoadMore';
 import TaskList from './TaskList';
 import { PersonOption } from './useDeadlinePeople';
@@ -35,6 +32,9 @@ export default function PlanCard({
   getPerson,
 }: PlanCardProps) {
   const openTaskForm = useDeadlinePlanStore((state) => state.openTaskForm);
+  const setApprovalRequest = useDeadlinePlanStore(
+    (state) => state.setApprovalRequest,
+  );
   const searchFilter = useMemo(
     () => ({ ...filter, assigneeIds: [assigneeId] }),
     [filter, assigneeId],
@@ -42,8 +42,6 @@ export default function PlanCard({
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     useDeadlineTasks(searchFilter);
   const { mutate: lockTasks, isLoading: isLocking } = useLockDeadlineTasks();
-  const { mutate: approveTasks, isLoading: isApproving } =
-    useApproveDeadlineTasks();
 
   const tasks = useMemo(() => flattenTaskPages(data?.pages), [data]);
   const loadMore = useCallback(() => fetchNextPage(), [fetchNextPage]);
@@ -120,8 +118,12 @@ export default function PlanCard({
                 className="!bg-blue-50 !text-okr-primary"
                 size="small"
                 icon={<CheckOutlined aria-hidden />}
-                loading={isApproving}
-                onClick={() => approveTasks(approvableIds)}
+                onClick={() =>
+                  setApprovalRequest({
+                    taskIds: approvableIds,
+                    title: `${title}'s reported tasks`,
+                  })
+                }
                 data-cy="deadline-plan-card-approve-all"
               >
                 Approve reported

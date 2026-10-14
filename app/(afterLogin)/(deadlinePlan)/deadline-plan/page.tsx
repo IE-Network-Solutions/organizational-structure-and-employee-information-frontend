@@ -8,6 +8,7 @@ import GroupedView from './_components/GroupedView';
 import KeyResultPanel from './_components/KeyResultPanel';
 import ListView from './_components/ListView';
 import ReportTaskModal from './_components/ReportTaskModal';
+import ApproveTaskModal from './_components/ApproveTaskModal';
 import TaskFormModal from './_components/TaskFormModal';
 import Toolbar from './_components/Toolbar';
 import { useDeadlinePeople } from './_components/useDeadlinePeople';
@@ -92,6 +93,7 @@ function DeadlinePlanPage() {
           selectedAssigneeIds={selectedAssigneeIds}
           directReportIds={subordinateIds}
           getDepartmentMemberIds={getDepartmentMemberIds}
+          filter={listFilter}
         />
 
         <div
@@ -116,6 +118,7 @@ function DeadlinePlanPage() {
       </div>
       <TaskFormModal userId={userId} people={selectablePeople} />
       <ReportTaskModal />
+      <ApproveTaskModal />
     </div>
   );
 }

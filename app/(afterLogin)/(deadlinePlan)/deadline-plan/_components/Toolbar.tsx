@@ -3,14 +3,18 @@ import React, { useState } from 'react';
 import dayjs from 'dayjs';
 import classNames from 'classnames';
 import { Button, DatePicker, Popover, Select } from 'antd';
-import { FilterOutlined, PlusOutlined, TeamOutlined } from '@ant-design/icons';
-import { DeadlineTaskStatusFilter } from '@/store/server/features/deadlinePlan/interface';
+import { FilterOutlined, PlusOutlined } from '@ant-design/icons';
+import {
+  DeadlineTaskSearchFilter,
+  DeadlineTaskStatusFilter,
+} from '@/store/server/features/deadlinePlan/interface';
 import {
   DeadlineDuration,
   useDeadlinePlanStore,
 } from '@/store/uistate/features/deadlinePlan/useStore';
 import AssigneePicker from './AssigneePicker';
 import ViewSwitcher from './ViewSwitcher';
+import PlanLockActions from './PlanLockActions';
 import { PersonOption } from './useDeadlinePeople';
 import { DATE_FORMAT, resolveDurationRange } from './utils';
 import styles from './deadlinePlan.module.css';
@@ -36,6 +40,7 @@ interface ToolbarProps {
   selectedAssigneeIds: string[];
   directReportIds: string[];
   getDepartmentMemberIds: (department: string) => string[];
+  filter: DeadlineTaskSearchFilter;
   className?: string;
 }
 
@@ -46,6 +51,7 @@ export default function Toolbar({
   selectedAssigneeIds,
   directReportIds,
   getDepartmentMemberIds,
+  filter,
   className,
 }: ToolbarProps) {
   const {
@@ -67,12 +73,10 @@ export default function Toolbar({
     assigneeIds,
   });
   const [draft, setDraft] = useState(snapshot);
-  const [activePopover, setActivePopover] = useState<
-    'filters' | 'people' | null
-  >(null);
-  const setPopover = (kind: 'filters' | 'people', open: boolean) => {
+  const [isFilterOpen, setFilterOpen] = useState(false);
+  const setPopover = (open: boolean) => {
     if (open) setDraft(snapshot());
-    setActivePopover(open ? kind : null);
+    setFilterOpen(open);
   };
   const draftPeople =
     draft.department === 'all'
@@ -95,7 +99,9 @@ export default function Toolbar({
     'Upcoming';
   const hasCustomFilters =
     duration !== 'upcoming' ||
-    (viewMode === 'list' && (department !== 'all' || status !== 'active'));
+    department !== 'all' ||
+    status !== 'active' ||
+    assigneeIds !== null;
 
   const scopeFields = (
     <>
@@ -176,7 +182,7 @@ export default function Toolbar({
       data-cy="deadline-plan-filter-actions"
     >
       <Button
-        onClick={() => setActivePopover(null)}
+        onClick={() => setFilterOpen(false)}
         data-cy="deadline-plan-filter-cancel"
       >
         Cancel
@@ -185,7 +191,7 @@ export default function Toolbar({
         type="primary"
         onClick={() => {
           applyFilters(draft);
-          setActivePopover(null);
+          setFilterOpen(false);
         }}
         data-cy="deadline-plan-filter-apply"
       >
@@ -194,26 +200,10 @@ export default function Toolbar({
     </div>
   );
 
-  const peopleOptions = (
-    <div
-      data-cy="deadline-plan-people-options"
-      className="flex w-[min(300px,calc(100vw-72px))] flex-col gap-4"
-    >
-      <div
-        data-cy="deadline-plan-people-heading"
-        className="text-sm font-semibold text-[#161A2C]"
-      >
-        Choose whose plans to review
-      </div>
-      {scopeFields}
-      {filterActions}
-    </div>
-  );
-
   const filters = (
     <div
       data-cy="deadline-plan-filters"
-      className="flex w-[min(300px,calc(100vw-72px))] flex-col gap-4"
+      className="flex max-h-[70vh] w-[min(300px,calc(100vw-72px))] flex-col gap-4 overflow-y-auto"
     >
       <div
         data-cy="deadline-plan-filter-heading"
@@ -262,33 +252,29 @@ export default function Toolbar({
           data-cy="deadline-plan-history-range"
         />
       ) : null}
-      {viewMode === 'list' ? (
-        <>
-          {scopeFields}
-          <div
-            data-cy="deadline-plan-status-field"
-            className="flex flex-col gap-1.5"
-          >
-            <span
-              data-cy="deadline-plan-status-label"
-              className="text-xs font-medium text-slate-500"
-            >
-              Status
-            </span>
-            <Select
-              className="w-full"
-              value={draftIsHistory ? 'reported' : draft.status}
-              disabled={draftIsHistory}
-              options={STATUS_OPTIONS}
-              onChange={(nextStatus) =>
-                setDraft((current) => ({ ...current, status: nextStatus }))
-              }
-              aria-label="Task status"
-              data-cy="deadline-plan-status"
-            />
-          </div>
-        </>
-      ) : null}
+      {scopeFields}
+      <div
+        data-cy="deadline-plan-status-field"
+        className="flex flex-col gap-1.5"
+      >
+        <span
+          data-cy="deadline-plan-status-label"
+          className="text-xs font-medium text-slate-500"
+        >
+          Status
+        </span>
+        <Select
+          className="w-full"
+          value={draftIsHistory ? 'reported' : draft.status}
+          disabled={draftIsHistory}
+          options={STATUS_OPTIONS}
+          onChange={(nextStatus) =>
+            setDraft((current) => ({ ...current, status: nextStatus }))
+          }
+          aria-label="Task status"
+          data-cy="deadline-plan-status"
+        />
+      </div>
       {filterActions}
     </div>
   );
@@ -330,8 +316,8 @@ export default function Toolbar({
         >
           <Popover
             content={filters}
-            open={activePopover === 'filters'}
-            onOpenChange={(open) => setPopover('filters', open)}
+            open={isFilterOpen}
+            onOpenChange={setPopover}
             trigger="click"
             placement="bottomRight"
             overlayClassName={styles.filterPopover}
@@ -365,26 +351,11 @@ export default function Toolbar({
         className="flex flex-wrap items-center justify-between gap-3"
       >
         <ViewSwitcher value={viewMode} onChange={setViewMode} />
-        {viewMode === 'grouped' ? (
-          <Popover
-            content={peopleOptions}
-            open={activePopover === 'people'}
-            onOpenChange={(open) => setPopover('people', open)}
-            trigger="click"
-            placement="bottomRight"
-            overlayClassName={styles.filterPopover}
-          >
-            <Button
-              type="text"
-              icon={<TeamOutlined />}
-              className="!text-slate-500"
-              aria-label="Choose people and departments"
-              data-cy="deadline-plan-people-button"
-            >
-              People
-            </Button>
-          </Popover>
-        ) : null}
+        <PlanLockActions
+          filter={filter}
+          userId={userId}
+          directReportIds={directReportIds}
+        />
       </div>
     </div>
   );

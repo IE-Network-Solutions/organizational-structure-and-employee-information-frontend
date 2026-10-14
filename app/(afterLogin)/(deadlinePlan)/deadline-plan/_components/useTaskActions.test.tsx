@@ -10,11 +10,14 @@ import {
 import { DeadlineTask } from '@/store/server/features/deadlinePlan/interface';
 import { useTaskActions } from './useTaskActions';
 import TaskCard from './TaskCard';
+import TaskLockButton from './TaskLockButton';
 
 const mockReport = jest.fn();
 const mockUnreport = jest.fn();
 const mockSetReportingTask = jest.fn();
 const mockOpenTaskForm = jest.fn();
+const mockSetApprovalRequest = jest.fn();
+const mockLock = jest.fn();
 
 jest.mock(
   '@/store/server/features/deadlinePlan/mutations',
@@ -24,7 +27,7 @@ jest.mock(
       mutate: mockUnreport,
       isLoading: false,
     }),
-    useLockDeadlineTasks: () => ({ mutate: jest.fn() }),
+    useLockDeadlineTasks: () => ({ mutate: mockLock, isLoading: false }),
     useApproveDeadlineTasks: () => ({ mutate: jest.fn() }),
     useDeleteDeadlineTask: () => ({ mutate: jest.fn() }),
   }),
@@ -38,6 +41,7 @@ jest.mock(
       selector({
         openTaskForm: mockOpenTaskForm,
         setReportingTask: mockSetReportingTask,
+        setApprovalRequest: mockSetApprovalRequest,
       }),
   }),
   { virtual: true },
@@ -76,14 +80,33 @@ beforeEach(() => {
 });
 
 describe('preserved task actions', () => {
-  it('retains Lock and removes Close task for an active subordinate task', () => {
+  it('opens comment review before approving a subordinate report', () => {
+    const { result } = renderHook(() =>
+      useTaskActions({ ...viewer, subordinateIds: ['employee'] }),
+    );
+    const task = taskOf({
+      assigneeId: 'employee',
+      status: 'reported',
+      approvalStatus: 'pending',
+    });
+    const approval = result.current
+      .menuItemsOf(task)
+      ?.find((item: any) => item?.key === 'approve') as any;
+    act(() => approval.onClick());
+    expect(mockSetApprovalRequest).toHaveBeenCalledWith({
+      taskIds: ['task'],
+      title: 'Prepare the launch',
+    });
+  });
+  it('keeps task locks outside the menu and retains report approval', () => {
     const { result } = renderHook(() =>
       useTaskActions({ ...viewer, subordinateIds: ['employee'] }),
     );
     const labels = result.current
       .menuItemsOf(taskOf({ assigneeId: 'employee' }))
       ?.map((item: any) => item?.label);
-    expect(labels).toContain('Lock');
+    expect(labels).not.toContain('Lock');
+    expect(labels).not.toContain('Unlock');
     expect(labels).not.toContain('Close task');
     expect(labels).not.toContain('Approve reported');
     expect(
@@ -91,6 +114,44 @@ describe('preserved task actions', () => {
         .menuItemsOf(taskOf({ assigneeId: 'employee', status: 'reported' }))
         ?.map((item: any) => item?.label),
     ).toContain('Approve reported');
+  });
+
+  it('exposes a visible task lock button only for the direct manager', () => {
+    const { result } = renderHook(() =>
+      useTaskActions({ ...viewer, subordinateIds: ['employee'] }),
+    );
+    const task = taskOf({ assigneeId: 'employee' });
+    const { rerender } = render(
+      <TaskLockButton task={task} actions={result.current} />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Lock task' }));
+    expect(mockLock).toHaveBeenCalledWith({
+      taskIds: ['task'],
+      isLocked: true,
+    });
+    rerender(
+      <TaskLockButton
+        task={{ ...task, isLocked: true }}
+        actions={result.current}
+      />,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Unlock task' }));
+    expect(mockLock).toHaveBeenLastCalledWith({
+      taskIds: ['task'],
+      isLocked: false,
+    });
+    rerender(<TaskLockButton task={taskOf()} actions={result.current} />);
+    expect(screen.queryByRole('button', { name: 'Lock task' })).toBeNull();
+  });
+
+  it('rejects lock requests for an unrelated task even through the action handler', () => {
+    const { result } = renderHook(() =>
+      useTaskActions({ ...viewer, canManageAll: true }),
+    );
+    act(() =>
+      result.current.setLock(taskOf({ assigneeId: 'someone-else' }), true),
+    );
+    expect(mockLock).not.toHaveBeenCalled();
   });
   it('opens the reporting flow for a numeric task instead of posting a completion without its value', () => {
     const task = taskOf({

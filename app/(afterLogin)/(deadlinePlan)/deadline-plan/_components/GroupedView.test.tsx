@@ -1,26 +1,15 @@
 import React from 'react';
 import '@testing-library/jest-dom/jest-globals';
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react';
 import GroupedView from './GroupedView';
 
-const mockSetStatus = jest.fn();
-let mockDuration = 'upcoming';
-jest.mock(
-  '@/store/uistate/features/deadlinePlan/useStore',
-  () => ({
-    useDeadlinePlanStore: () => ({
-      status: 'active',
-      duration: mockDuration,
-      setStatus: mockSetStatus,
-    }),
-  }),
-  { virtual: true },
-);
 jest.mock('./PlanCard', () => ({
   __esModule: true,
-  default: ({ assigneeId }: { assigneeId: string }) => (
-    <div data-cy="test-person-plan">{assigneeId}</div>
+  default: ({ assigneeId, filter }: any) => (
+    <div data-cy="test-person-plan" data-status={filter.status}>
+      {assigneeId}
+    </div>
   ),
 }));
 
@@ -32,17 +21,13 @@ const viewer = {
 const filter = { status: 'active' as const, includeOverdue: true };
 const getPerson = (id: string | null | undefined) =>
   id ? { id, name: id } : null;
-beforeEach(() => {
-  jest.clearAllMocks();
-  mockDuration = 'upcoming';
-});
 
 describe('grouped plan review', () => {
-  it('keeps the selected owner order and exposes reported tasks for review', () => {
+  it('keeps owner order and uses the status provided by the unified filters', () => {
     render(
       <GroupedView
         assigneeIds={['manager', 'employee']}
-        filter={filter}
+        filter={{ ...filter, status: 'reported' }}
         viewer={viewer}
         getPerson={getPerson}
       />,
@@ -52,8 +37,11 @@ describe('grouped plan review', () => {
         .getAllByText(/^(manager|employee)$/)
         .map((element) => element.textContent),
     ).toEqual(['manager', 'employee']);
-    fireEvent.click(screen.getByRole('radio', { name: 'Reported' }));
-    expect(mockSetStatus).toHaveBeenCalledWith('reported');
+    expect(screen.getByText('employee')).toHaveAttribute(
+      'data-status',
+      'reported',
+    );
+    expect(screen.queryByRole('radio', { name: 'Reported' })).toBeNull();
   });
 
   it('retains the original progressive loading of people', () => {
@@ -77,7 +65,6 @@ describe('grouped plan review', () => {
   });
 
   it('keeps History fixed to reported tasks', () => {
-    mockDuration = 'history';
     render(
       <GroupedView
         assigneeIds={['employee']}
@@ -86,8 +73,10 @@ describe('grouped plan review', () => {
         getPerson={getPerson}
       />,
     );
-    expect(screen.getByRole('radio', { name: 'Reported' })).toBeChecked();
-    expect(screen.getByRole('radio', { name: 'Active' })).toBeDisabled();
-    expect(screen.getByRole('radio', { name: 'All' })).toBeDisabled();
+    expect(screen.getByText('employee')).toHaveAttribute(
+      'data-status',
+      'reported',
+    );
+    expect(screen.queryByRole('radio')).toBeNull();
   });
 });
