@@ -53,7 +53,7 @@ export default function BscSettingsLayout({
               className="!text-gray-800"
               data-cy="bsc-settings-breadcrumb-bsc"
             >
-              BSC
+              KPI
             </Link>
             <span data-cy="layout-span-53" className="mx-2 text-gray-400">
               /

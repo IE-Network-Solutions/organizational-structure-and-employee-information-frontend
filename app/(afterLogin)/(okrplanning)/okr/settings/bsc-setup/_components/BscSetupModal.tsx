@@ -435,13 +435,20 @@ export default function BscSetupModal() {
     Form.useWatch('measureDataSources', form) || {};
   const measureAcceptableThresholds: Record<string, number | null | undefined> =
     Form.useWatch('measureAcceptableThresholds', form) || {};
-  const setupKindWatch = Form.useWatch('setupKind', form) as
-    | BscSetupKind
-    | undefined;
-  const effectiveFromWatch = Form.useWatch('effectiveFrom', form) as
-    | Dayjs
-    | undefined;
-  const endDateWatch = Form.useWatch('endDate', form) as Dayjs | undefined;
+  // `preserve` keeps these readable on later steps, where the Define step's
+  // fields are no longer mounted (without it they read back as undefined).
+  const setupKindWatch = Form.useWatch('setupKind', {
+    form,
+    preserve: true,
+  }) as BscSetupKind | undefined;
+  const effectiveFromWatch = Form.useWatch('effectiveFrom', {
+    form,
+    preserve: true,
+  }) as Dayjs | undefined;
+  const endDateWatch = Form.useWatch('endDate', {
+    form,
+    preserve: true,
+  }) as Dayjs | undefined;
   const scopeTarget = Form.useWatch('scopeTarget', form) as
     | BscScopeTarget
     | undefined;
@@ -1736,6 +1743,20 @@ export default function BscSetupModal() {
       footer={null}
       centered
       width={1040}
+      // Keep the modal inside the viewport; the step content scrolls and the
+      // Back / Continue row stays pinned to the bottom (see the button row).
+      styles={{
+        body: {
+          maxHeight: 'calc(100vh - 160px)',
+          overflowY: 'auto',
+          // No sideways scroll; the inline padding keeps antd Row gutters'
+          // negative margins from being clipped.
+          overflowX: 'hidden',
+          paddingInline: 8,
+          // Still scrolls, but without a second scrollbar next to the lists'.
+          scrollbarWidth: 'none',
+        },
+      }}
       closeIcon={<CloseOutlined />}
       title={
         <div data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-1">
@@ -2804,7 +2825,7 @@ export default function BscSetupModal() {
         )}
 
         <div
-          className="mt-6 flex justify-end gap-3"
+          className="sticky bottom-0 z-10 mt-6 flex justify-end gap-3 bg-white pb-1 pt-3"
           data-cy="-okrplanning-okr-settings-bsc-setup-bscsetupmodal-div-41"
         >
           <CustomButton
