@@ -87,7 +87,10 @@ const putConfig = async (data: SaveGrowthPlanConfigPayload) => {
   });
 };
 
-/** Saves the category, then creates any skills entered alongside it. */
+/**
+ * Saves the category, then creates any skills entered alongside it together
+ * with their recommended learning.
+ */
 const saveCategory = async (data: SaveGrowthPlanCategoryPayload) => {
   const requestHeaders = await requestHeader();
   const saved = unwrapItem<ApiCategory>(
@@ -105,7 +108,11 @@ const saveCategory = async (data: SaveGrowthPlanCategoryPayload) => {
       url: `${TNA_URL}/growth-skill`,
       method: 'PUT',
       headers: requestHeaders,
-      data: { categoryId: saved.id, name: skill.name.trim() },
+      data: toSkillBody({
+        categoryId: saved.id,
+        name: skill.name.trim(),
+        ...(skill.resources?.length ? { resources: skill.resources } : {}),
+      }),
     });
   }
 

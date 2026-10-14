@@ -15,7 +15,7 @@ export type SaveGrowthPlanCategoryPayload = Omit<
   description?: string;
   isMapped?: boolean;
   /** Optional skills to create with the category (create or add-on edit). */
-  skills?: Array<{ name: string }>;
+  skills?: Array<{ name: string; resources?: GrowthPlanSkill['resources'] }>;
 };
 
 export type SaveGrowthPlanSkillPayload = Partial<GrowthPlanSkill> & {

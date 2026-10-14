@@ -316,6 +316,9 @@ export const normalizeChecklist = (
   }));
 };
 
+/** A skill's checklist weights are percentages: together at most 100. */
+export const MAX_CHECKLIST_WEIGHT = 100;
+
 export const checklistItemWeight = (item: GrowthPlanChecklistItem): number =>
   typeof item.weight === 'number' && item.weight > 0 ? item.weight : 1;
 

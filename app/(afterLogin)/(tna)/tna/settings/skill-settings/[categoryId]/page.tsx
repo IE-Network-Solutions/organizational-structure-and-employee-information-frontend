@@ -8,15 +8,18 @@ import {
   Input,
   MenuProps,
   Modal,
-  Select,
   Skeleton,
 } from 'antd';
-import { EllipsisOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { EllipsisOutlined } from '@ant-design/icons';
 import { MdDeleteForever, MdModeEditOutline } from 'react-icons/md';
 import { LuArrowLeft, LuPencil, LuPlus } from 'react-icons/lu';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import EmptyState from '@/components/empty';
-import { GrowthPlanSkill, parseYouTubeId } from '@/types/tna/growthPlan';
+import { GrowthPlanSkill } from '@/types/tna/growthPlan';
+import SkillResourcesField, {
+  ResourceFormValue,
+  toSkillResources,
+} from '../_components/skillResourcesField';
 import { useGetGrowthPlanTaxonomy } from '@/store/server/features/tna/growthPlan/queries';
 import {
   useDeleteGrowthPlanSkill,
@@ -138,46 +141,11 @@ const SkillCategoryDetailPage = () => {
     if (!categoryId) return;
     const values = await skillForm.validateFields().catch(() => null);
     if (!values) return;
-    const resources = (
-      (values.resources as Array<{
-        title?: string;
-        type?: string;
-        url?: string;
-        courseId?: string;
-      }>) ?? []
-    )
-      .map((r, idx) => {
-        const type =
-          (r.type as 'link' | 'youtube' | 'document' | 'course') || 'link';
-        if (type === 'course') {
-          if (!r.courseId) return null;
-          const course = courseOptions.find((c) => c.value === r.courseId);
-          const title = r.title?.trim() || course?.label || 'TNA course';
-          return {
-            id:
-              editingSkill?.resources?.[idx]?.id ?? `res-${Date.now()}-${idx}`,
-            title,
-            type: 'course' as const,
-            url: `/tna/management/${r.courseId}`,
-            courseId: r.courseId,
-            courseName: course?.label ?? title,
-            videoId: null,
-          };
-        }
-        if (!r?.title?.trim() || !r?.url?.trim()) return null;
-        const url = r.url.trim();
-        const videoId = type === 'youtube' ? parseYouTubeId(url) : null;
-        return {
-          id: editingSkill?.resources?.[idx]?.id ?? `res-${Date.now()}-${idx}`,
-          title: r.title.trim(),
-          type,
-          url,
-          videoId,
-          courseId: null,
-          courseName: null,
-        };
-      })
-      .filter(Boolean) as NonNullable<GrowthPlanSkill['resources']>;
+    const resources = toSkillResources(
+      values.resources as ResourceFormValue[],
+      courseOptions,
+      editingSkill?.resources,
+    );
 
     saveSkill(
       {
@@ -463,151 +431,11 @@ const SkillCategoryDetailPage = () => {
             Optional links, YouTube, documents, or TNA courses shown on My
             Progress.
           </p>
-          <Form.List name="resources">
-            {(fields, { add, remove }) => (
-              <div
-                data-cy="tna-settings-skill-settings-categoryid-page-div-416"
-                className="flex flex-col gap-3"
-              >
-                {fields.map(({ key, name, ...restField }) => (
-                  <div
-                    data-cy="tna-settings-skill-settings-categoryid-page-div-418"
-                    key={key}
-                    className="rounded-[8px] border border-[#E5E7EB] p-3"
-                  >
-                    <div
-                      data-cy="tna-settings-skill-settings-categoryid-page-div-422"
-                      className="mb-2 flex items-start justify-between gap-2"
-                    >
-                      <Form.Item
-                        {...restField}
-                        name={[name, 'type']}
-                        label="Type"
-                        initialValue="link"
-                        className="mb-2 w-40"
-                      >
-                        <Select
-                          options={[
-                            { value: 'link', label: 'Link' },
-                            { value: 'youtube', label: 'YouTube' },
-                            { value: 'document', label: 'Document' },
-                            { value: 'course', label: 'TNA course' },
-                          ]}
-                        />
-                      </Form.Item>
-                      <button
-                        data-cy="tna-settings-skill-settings-categoryid-page-button-439"
-                        type="button"
-                        className="mt-7 flex h-8 w-8 cursor-pointer items-center justify-center border-none bg-transparent text-[#8c8c8c] hover:text-red-500"
-                        onClick={() => remove(name)}
-                        aria-label="Remove resource"
-                      >
-                        <MinusCircleOutlined />
-                      </button>
-                    </div>
-                    <Form.Item
-                      noStyle
-                      shouldUpdate={(prev, next) =>
-                        prev.resources?.[name]?.type !==
-                        next.resources?.[name]?.type
-                      }
-                    >
-                      {({ getFieldValue, setFieldValue }) => {
-                        const type = getFieldValue(['resources', name, 'type']);
-                        if (type === 'course') {
-                          return (
-                            <>
-                              <Form.Item
-                                {...restField}
-                                name={[name, 'courseId']}
-                                label="TNA course"
-                                className="mb-2"
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: 'Select a course',
-                                  },
-                                ]}
-                              >
-                                <Select
-                                  showSearch
-                                  optionFilterProp="label"
-                                  placeholder="Search courses"
-                                  options={courseOptions}
-                                  onChange={(courseId) => {
-                                    const course = courseOptions.find(
-                                      (c) => c.value === courseId,
-                                    );
-                                    if (course) {
-                                      setFieldValue(
-                                        ['resources', name, 'title'],
-                                        course.label,
-                                      );
-                                      setFieldValue(
-                                        ['resources', name, 'url'],
-                                        `/tna/management/${courseId}`,
-                                      );
-                                    }
-                                  }}
-                                  data-cy={`tna-skill-resource-course-${key}`}
-                                />
-                              </Form.Item>
-                              <Form.Item
-                                {...restField}
-                                name={[name, 'title']}
-                                label="Display title"
-                                className="mb-0"
-                              >
-                                <Input placeholder="Optional display title" />
-                              </Form.Item>
-                              <Form.Item
-                                {...restField}
-                                name={[name, 'url']}
-                                hidden
-                              >
-                                <Input />
-                              </Form.Item>
-                            </>
-                          );
-                        }
-                        return (
-                          <>
-                            <Form.Item
-                              {...restField}
-                              name={[name, 'title']}
-                              label="Title"
-                              className="mb-2"
-                              rules={[{ required: true, message: 'Required' }]}
-                            >
-                              <Input placeholder="Resource title" />
-                            </Form.Item>
-                            <Form.Item
-                              {...restField}
-                              name={[name, 'url']}
-                              label="URL"
-                              className="mb-0"
-                              rules={[{ required: true, message: 'Required' }]}
-                            >
-                              <Input placeholder="https://…" />
-                            </Form.Item>
-                          </>
-                        );
-                      }}
-                    </Form.Item>
-                  </div>
-                ))}
-                <Button
-                  type="dashed"
-                  onClick={() => add({ type: 'link', title: '', url: '' })}
-                  icon={<LuPlus />}
-                  className="w-full"
-                  data-cy="tna-skill-resource-add"
-                >
-                  Add resource
-                </Button>
-              </div>
-            )}
-          </Form.List>
+          <SkillResourcesField
+            listName={['resources']}
+            path={['resources']}
+            courseOptions={courseOptions}
+          />
         </Form>
       </Modal>
 

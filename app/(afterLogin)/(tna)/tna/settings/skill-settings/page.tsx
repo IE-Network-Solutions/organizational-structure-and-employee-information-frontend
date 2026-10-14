@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button, Form, Input, Modal, Skeleton } from 'antd';
 import { MinusCircleOutlined } from '@ant-design/icons';
 import { LuPlus } from 'react-icons/lu';
@@ -9,7 +9,18 @@ import EmptyState from '@/components/empty';
 import { GrowthPlanCategory } from '@/types/tna/growthPlan';
 import { useGetGrowthPlanTaxonomy } from '@/store/server/features/tna/growthPlan/queries';
 import { useSaveGrowthPlanCategory } from '@/store/server/features/tna/growthPlan/mutations';
+import { useGetCoursesManagement } from '@/store/server/features/tna/management/queries';
 import SkillCategoryCard from './_components/categoryCard';
+import SkillResourcesField, {
+  ResourceFormValue,
+  toSkillResources,
+} from './_components/skillResourcesField';
+
+/** A skill row in the category modal: its name and recommended learning. */
+interface CategorySkillFormValue {
+  name?: string;
+  resources?: ResourceFormValue[];
+}
 
 /**
  * Skill Settings — taxonomy category grid.
@@ -27,12 +38,26 @@ const SkillSettingsPage = () => {
   const [editingCategory, setEditingCategory] =
     useState<GrowthPlanCategory | null>(null);
 
+  // Courses only matter while the modal is open (TNA course resources).
+  const { data: coursesData } = useGetCoursesManagement(
+    {},
+    true,
+    categoryModalOpen,
+  );
+  const courseOptions = useMemo(
+    () =>
+      (coursesData?.items ?? [])
+        .filter((c) => c?.id && !c.isDraft)
+        .map((c) => ({ value: c.id, label: c.title })),
+    [coursesData],
+  );
+
   const categories = taxonomy ?? [];
 
   const openCreateCategory = () => {
     setEditingCategory(null);
     categoryForm.resetFields();
-    categoryForm.setFieldsValue({ skills: [{ name: '' }] });
+    categoryForm.setFieldsValue({ skills: [{ name: '', resources: [] }] });
     setCategoryModalOpen(true);
   };
 
@@ -41,7 +66,7 @@ const SkillSettingsPage = () => {
     categoryForm.setFieldsValue({
       name: category.name,
       description: category.description,
-      skills: [{ name: '' }],
+      skills: [{ name: '', resources: [] }],
     });
     setCategoryModalOpen(true);
   };
@@ -50,9 +75,12 @@ const SkillSettingsPage = () => {
     const values = await categoryForm.validateFields().catch(() => null);
     if (!values) return;
 
-    const skillNames = ((values.skills as Array<{ name?: string }>) ?? [])
-      .map((s) => s?.name?.trim())
-      .filter(Boolean) as string[];
+    const skills = ((values.skills as CategorySkillFormValue[]) ?? [])
+      .filter((skill) => skill?.name?.trim())
+      .map((skill) => ({
+        name: (skill.name as string).trim(),
+        resources: toSkillResources(skill.resources, courseOptions),
+      }));
 
     saveCategory(
       {
@@ -60,16 +88,15 @@ const SkillSettingsPage = () => {
         name: values.name,
         description: values.description ?? '',
         isMapped: true,
-        skills: skillNames.map((name) => ({ name })),
+        skills,
       },
       {
-        onSuccess: (created) => {
+        // Stay on the overview: the list refreshes and the new category's
+        // card opens its skills when the admin is ready.
+        onSuccess: () => {
           setCategoryModalOpen(false);
           setEditingCategory(null);
           categoryForm.resetFields();
-          if (!editingCategory && created?.id) {
-            router.push(`/tna/settings/skill-settings/${created.id}`);
-          }
         },
       },
     );
@@ -178,7 +205,7 @@ const SkillSettingsPage = () => {
         <Form
           form={categoryForm}
           layout="vertical"
-          initialValues={{ skills: [{ name: '' }] }}
+          initialValues={{ skills: [{ name: '', resources: [] }] }}
         >
           <Form.Item
             name="name"
@@ -213,37 +240,77 @@ const SkillSettingsPage = () => {
             {(fields, { add, remove }) => (
               <div
                 data-cy="tna-settings-skill-settings-page-div-189"
-                className="flex flex-col gap-2"
+                className="flex flex-col gap-3"
               >
                 {fields.map(({ key, name, ...restField }) => (
                   <div
                     data-cy="tna-settings-skill-settings-page-div-191"
                     key={key}
-                    className="flex items-start gap-2"
+                    className="rounded-[8px] border border-[#E5E7EB] p-3"
                   >
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'name']}
-                      className="mb-0 flex-1"
+                    <div
+                      data-cy={`tna-skill-settings-category-skill-header-${key}`}
+                      className="flex items-start gap-2"
                     >
-                      <Input placeholder="Skill name" />
-                    </Form.Item>
-                    {fields.length > 1 ? (
-                      <button
-                        type="button"
-                        className="mt-1.5 flex h-8 w-8 cursor-pointer items-center justify-center border-none bg-transparent text-[#8c8c8c] hover:text-red-500"
-                        onClick={() => remove(name)}
-                        aria-label="Remove skill"
-                        data-cy={`tna-skill-settings-category-skill-remove-${key}`}
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'name']}
+                        className="mb-0 flex-1"
+                        dependencies={[['skills', name, 'resources']]}
+                        rules={[
+                          ({ getFieldValue }) => ({
+                            // Optional row, but resources need a skill to
+                            // belong to: otherwise they would be dropped.
+                            validator: (rule, value?: string) =>
+                              !value?.trim() &&
+                              (getFieldValue(['skills', name, 'resources'])
+                                ?.length ?? 0) > 0
+                                ? Promise.reject(
+                                    new Error(
+                                      'Enter a skill name for these resources',
+                                    ),
+                                  )
+                                : Promise.resolve(),
+                          }),
+                        ]}
                       >
-                        <MinusCircleOutlined />
-                      </button>
-                    ) : null}
+                        <Input placeholder="Skill name" />
+                      </Form.Item>
+                      {fields.length > 1 ? (
+                        <button
+                          type="button"
+                          className="mt-1.5 flex h-8 w-8 cursor-pointer items-center justify-center border-none bg-transparent text-[#8c8c8c] hover:text-red-500"
+                          onClick={() => remove(name)}
+                          aria-label="Remove skill"
+                          data-cy={`tna-skill-settings-category-skill-remove-${key}`}
+                        >
+                          <MinusCircleOutlined />
+                        </button>
+                      ) : null}
+                    </div>
+                    <div
+                      data-cy={`tna-skill-settings-category-skill-resources-label-${key}`}
+                      className="mb-2 mt-3 text-[12px] font-medium text-[#595959]"
+                    >
+                      Learning resources
+                      <span
+                        data-cy={`tna-skill-settings-category-skill-resources-optional-${key}`}
+                        className="ml-1 font-normal text-[#8c8c8c]"
+                      >
+                        (optional)
+                      </span>
+                    </div>
+                    <SkillResourcesField
+                      listName={[name, 'resources']}
+                      path={['skills', name, 'resources']}
+                      courseOptions={courseOptions}
+                      dataCyPrefix={`tna-skill-settings-category-skill-${key}-resource`}
+                    />
                   </div>
                 ))}
                 <Button
                   type="dashed"
-                  onClick={() => add({ name: '' })}
+                  onClick={() => add({ name: '', resources: [] })}
                   icon={<LuPlus />}
                   className="mt-1 w-full"
                   data-cy="tna-skill-settings-category-skill-add"

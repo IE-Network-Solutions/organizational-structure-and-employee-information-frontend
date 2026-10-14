@@ -89,53 +89,59 @@ const SkillCategoryCard: FC<SkillCategoryCardProps> = ({
   ];
 
   return (
-    <div
-      className="relative cursor-pointer rounded-[8px] bg-[#F9FAFB] p-5 transition-shadow hover:shadow-sm"
-      onClick={() => onManageSkills(item)}
-      data-cy={`tna-skill-category-card-${item.id}`}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onManageSkills(item);
-      }}
-    >
+    <>
       <div
-        className="mb-2 flex items-start justify-between"
-        data-cy={`tna-skill-category-card-header-${item.id}`}
+        className="relative cursor-pointer rounded-[8px] bg-[#F9FAFB] p-5 transition-shadow hover:shadow-sm"
+        onClick={() => onManageSkills(item)}
+        data-cy={`tna-skill-category-card-${item.id}`}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') onManageSkills(item);
+        }}
       >
-        <p
-          data-cy="tna-settings-skill-settings-categorycard-index-p-91"
-          className="mr-2 flex-1 text-[15px] font-semibold leading-tight text-[#262626]"
-        >
-          {item.name}
-        </p>
         <div
-          data-cy="tna-settings-skill-settings-categorycard-index-div-94"
-          onClick={(e) => e.stopPropagation()}
+          className="mb-2 flex items-start justify-between"
+          data-cy={`tna-skill-category-card-header-${item.id}`}
         >
-          <Dropdown
-            menu={{ items: menuItems }}
-            trigger={['click']}
-            placement="bottomRight"
+          <p
+            data-cy="tna-settings-skill-settings-categorycard-index-p-91"
+            className="mr-2 flex-1 text-[15px] font-semibold leading-tight text-[#262626]"
           >
-            <button
-              type="button"
-              className="flex h-8 w-8 cursor-pointer items-center justify-center border-none bg-transparent text-[#8c8c8c] transition-colors hover:text-[#262626]"
-              data-cy={`tna-skill-category-card-menu-${item.id}`}
+            {item.name}
+          </p>
+          <div
+            data-cy="tna-settings-skill-settings-categorycard-index-div-94"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Dropdown
+              menu={{ items: menuItems }}
+              trigger={['click']}
+              placement="bottomRight"
             >
-              <EllipsisOutlined style={{ fontSize: 14 }} />
-            </button>
-          </Dropdown>
+              <button
+                type="button"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center border-none bg-transparent text-[#8c8c8c] transition-colors hover:text-[#262626]"
+                data-cy={`tna-skill-category-card-menu-${item.id}`}
+              >
+                <EllipsisOutlined style={{ fontSize: 14 }} />
+              </button>
+            </Dropdown>
+          </div>
         </div>
+
+        <p
+          data-cy="tna-settings-skill-settings-categorycard-index-p-111"
+          className="mb-0 text-[13px] text-[#8c8c8c]"
+        >
+          {item.skills.length} skill{item.skills.length === 1 ? '' : 's'}
+        </p>
       </div>
 
-      <p
-        data-cy="tna-settings-skill-settings-categorycard-index-p-111"
-        className="mb-0 text-[13px] text-[#8c8c8c]"
-      >
-        {item.skills.length} skill{item.skills.length === 1 ? '' : 's'}
-      </p>
-
+      {/*
+        Outside the clickable card: React passes portal events up its own tree,
+        so a modal inside the card would trigger the card's navigation.
+      */}
       <DeleteModal
         open={deleteModalOpen}
         loading={isLoading}
@@ -154,7 +160,7 @@ const SkillCategoryCard: FC<SkillCategoryCardProps> = ({
         }}
         data-cy={`tna-skill-category-delete-modal-${item.id}`}
       />
-    </div>
+    </>
   );
 };
 

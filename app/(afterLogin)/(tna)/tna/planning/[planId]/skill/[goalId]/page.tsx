@@ -39,6 +39,7 @@ import {
 import {
   checklistItemWeight,
   goalDisplayProgress,
+  MAX_CHECKLIST_WEIGHT,
   GROWTH_PLAN_PROGRESS_STATUS_OPTIONS,
   GrowthPlanMaterial,
   GrowthPlanSkillResource,
@@ -154,6 +155,15 @@ const GrowthPlanSkillDetailPage = () => {
   const checklist = normalizeChecklist(goal?.checklist as any);
   /** Progress comes from the weighted checklist (calculated server-side). */
   const pct = goal ? goalDisplayProgress({ ...goal, checklist }) : 0;
+
+  /** Weights are % of the skill; all items together may not pass 100. */
+  const usedWeight =
+    Math.round(
+      checklist.reduce((sum, item) => sum + checklistItemWeight(item), 0) * 100,
+    ) / 100;
+  const remainingWeight = Math.max(0, MAX_CHECKLIST_WEIGHT - usedWeight);
+  /** The smallest weight the form accepts is 1. */
+  const checklistFull = remainingWeight < 1;
 
   /** The API only accepts work on a skill once its plan is activated. */
   const canEdit = !!goal && !!plan && plan.status !== 'draft';
@@ -380,6 +390,14 @@ const GrowthPlanSkillDetailPage = () => {
                     · {checklist.length}
                   </span>
                 ) : null}
+                {checklist.length ? (
+                  <span
+                    data-cy="pgp-skill-checklist-weight-total"
+                    className="ml-1 font-normal text-[#8c8c8c]"
+                  >
+                    · weight {usedWeight}/{MAX_CHECKLIST_WEIGHT}%
+                  </span>
+                ) : null}
               </div>
               {canEdit ? (
                 <Button
@@ -387,8 +405,11 @@ const GrowthPlanSkillDetailPage = () => {
                   type="link"
                   className="h-auto p-0 text-[#1E40AF]"
                   icon={<LuPlus className="text-xs" />}
+                  disabled={checklistFull}
                   onClick={() => {
-                    checklistForm.setFieldsValue({ weight: 10 });
+                    checklistForm.setFieldsValue({
+                      weight: Math.min(10, Math.floor(remainingWeight)),
+                    });
                     setChecklistOpen(true);
                   }}
                   data-cy="pgp-skill-add-checklist"
@@ -397,6 +418,15 @@ const GrowthPlanSkillDetailPage = () => {
                 </Button>
               ) : null}
             </div>
+            {canEdit && checklistFull ? (
+              <p
+                data-cy="pgp-skill-checklist-full"
+                className="mb-2 text-[11px] text-[#8c8c8c]"
+              >
+                Weights already total {MAX_CHECKLIST_WEIGHT}%. Remove an item to
+                add another.
+              </p>
+            ) : null}
             {checklist.length ? (
               <div
                 data-cy="tna-planning-planid-skill-goalid-page-div-437"
@@ -854,10 +884,29 @@ const GrowthPlanSkillDetailPage = () => {
                 min: 1,
                 message: 'Weight must be at least 1',
               },
+              {
+                validator: (rule, value?: number | null) =>
+                  typeof value === 'number' && value > remainingWeight
+                    ? Promise.reject(
+                        new Error(
+                          `Only ${remainingWeight}% left — checklist weights can't exceed ${MAX_CHECKLIST_WEIGHT}%.`,
+                        ),
+                      )
+                    : Promise.resolve(),
+              },
             ]}
-            extra="Relative share of progress (e.g. 40 + 30 + 30 = 100)."
+            extra={`Share of this skill's progress. ${remainingWeight}% of ${MAX_CHECKLIST_WEIGHT}% left (e.g. 40 + 30 + 30 = 100).`}
           >
-            <InputNumber min={1} max={100} className="w-full" />
+            {/*
+              No max clamp: clamping would silently change the number instead
+              of telling the user why it is too high.
+            */}
+            <InputNumber
+              min={1}
+              className="w-full"
+              addonAfter="%"
+              data-cy="pgp-skill-checklist-weight"
+            />
           </Form.Item>
         </Form>
       </Modal>

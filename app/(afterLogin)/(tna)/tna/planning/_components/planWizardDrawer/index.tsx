@@ -13,7 +13,8 @@ import {
   Tag,
 } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
+import { DATE_FORMAT } from '@/utils/constants';
 import {
   useGrowthPlanStore,
   WizardGoalDraft,
@@ -33,7 +34,17 @@ import NotificationMessage from '@/components/common/notification/notificationMe
  */
 const PlanWizardDrawer = () => {
   const [customForm] = Form.useForm();
+  const customQuarterId: string | undefined = Form.useWatch(
+    'quarterId',
+    customForm,
+  );
   const [skillSearch, setSkillSearch] = useState('');
+  /**
+   * Inline errors stay hidden until the user tries to leave a step with gaps,
+   * then each empty required field turns red until it is filled.
+   */
+  const [showCategoryErrors, setShowCategoryErrors] = useState(false);
+  const [showScheduleErrors, setShowScheduleErrors] = useState(false);
   const {
     isWizardOpen,
     wizardStep,
@@ -68,19 +79,69 @@ const PlanWizardDrawer = () => {
     return skillsForShortlist.filter((s) => s.name.toLowerCase().includes(q));
   }, [skillsForShortlist, skillSearch]);
 
-  const quarters = useMemo(() => {
+  const quarters = useMemo((): WizardQuarter[] => {
     const sessions = activeFy?.sessions ?? [];
     if (sessions.length) {
       return sessions.map((s, idx) => ({
         id: s.id,
         label: s.name || `Q${idx + 1}`,
+        startDate: toDay(s.startDate),
+        endDate: toDay(s.endDate),
       }));
     }
     return [1, 2, 3, 4].map((n) => ({
       id: `q${n}`,
       label: `Q${n}`,
+      startDate: null,
+      endDate: null,
     }));
   }, [activeFy]);
+
+  /**
+   * Dates a deadline may take: the chosen quarter's range, or the whole fiscal
+   * year while no quarter is chosen yet.
+   */
+  const deadlineRange = (quarterId?: string | null): DeadlineRange => {
+    const quarter = quarterId
+      ? quarters.find((q) => q.id === quarterId)
+      : undefined;
+    if (quarter) {
+      return {
+        label: quarter.label,
+        start: quarter.startDate,
+        end: quarter.endDate,
+      };
+    }
+    return {
+      label: activeFy?.name || 'the fiscal year',
+      start: toDay(activeFy?.startDate),
+      end: toDay(activeFy?.endDate),
+    };
+  };
+
+  const isOutsideRange = (date: Dayjs, quarterId?: string | null) => {
+    const { start, end } = deadlineRange(quarterId);
+    return (
+      (!!start && date.isBefore(start, 'day')) ||
+      (!!end && date.isAfter(end, 'day'))
+    );
+  };
+
+  /** Message when a picked deadline falls outside its quarter, else null. */
+  const deadlineRangeError = (
+    quarterId?: string | null,
+    deadline?: string | Dayjs | null,
+  ): string | null => {
+    if (!deadline) return null;
+    const date = dayjs(deadline);
+    if (!date.isValid() || !isOutsideRange(date, quarterId)) return null;
+    const { label, start, end } = deadlineRange(quarterId);
+    const span =
+      start && end
+        ? ` (${start.format(DATE_FORMAT)} – ${end.format(DATE_FORMAT)})`
+        : '';
+    return `Deadline must fall within ${label}${span}`;
+  };
 
   const goalsByQuarter = useMemo(() => {
     const map: Record<string, number> = {};
@@ -97,11 +158,14 @@ const PlanWizardDrawer = () => {
     resetWizard();
     customForm.resetFields();
     setSkillSearch('');
+    setShowCategoryErrors(false);
+    setShowScheduleErrors(false);
   };
 
   const validateStep = (step: number): boolean => {
     if (step === 0) {
       if (!categoryId) {
+        setShowCategoryErrors(true);
         NotificationMessage.warning({
           message: 'Incomplete',
           description: 'Select a skill category.',
@@ -176,10 +240,25 @@ const PlanWizardDrawer = () => {
           !g.measurableOutcome?.trim() || !g.targetDeadline || !g.quarterId,
       );
       if (incomplete) {
+        setShowScheduleErrors(true);
         NotificationMessage.warning({
           message: 'Incomplete goals',
           description:
             'Each goal needs an outcome, deadline, and quarter assignment.',
+        });
+        return false;
+      }
+      const outOfRange = goals.find((g) =>
+        deadlineRangeError(g.quarterId, g.targetDeadline),
+      );
+      if (outOfRange) {
+        setShowScheduleErrors(true);
+        NotificationMessage.warning({
+          message: 'Deadline outside quarter',
+          description: `${outOfRange.skillName}: ${deadlineRangeError(
+            outOfRange.quarterId,
+            outOfRange.targetDeadline,
+          )}.`,
         });
         return false;
       }
@@ -308,7 +387,9 @@ const PlanWizardDrawer = () => {
       data-cy="pgp-wizard-modal"
       styles={{
         body: {
-          height: wizardStep === 0 ? 220 : 560,
+          // Step 0 leaves room for the category dropdown, which opens inside
+          // the dialog (see CATEGORY_LIST_HEIGHT).
+          height: wizardStep === 0 ? 340 : 560,
           paddingTop: 12,
           overflow: 'hidden',
           display: 'flex',
@@ -404,16 +485,28 @@ const PlanWizardDrawer = () => {
             className="flex flex-col gap-4"
             data-cy="pgp-wizard-step-category"
           >
-            <div data-cy="tna-planning-planwizarddrawer-index-div-401">
-              <div
+            <div
+              data-cy="tna-planning-planwizarddrawer-index-div-401"
+              className="relative"
+            >
+              <RequiredLabel
                 data-cy="tna-planning-planwizarddrawer-index-div-402"
-                className="mb-1 text-xs font-semibold text-gray-900"
+                className="font-semibold text-gray-900"
               >
                 Skill category
-              </div>
+              </RequiredLabel>
               <Select
                 className="w-full"
                 placeholder="Select category"
+                // Open inside the dialog (not on <body>) so the menu is
+                // positioned and stacked with the modal, and cap its height
+                // so it stays within the dialog; longer lists scroll.
+                getPopupContainer={(trigger) =>
+                  trigger.parentElement ?? document.body
+                }
+                listHeight={CATEGORY_LIST_HEIGHT}
+                placement="bottomLeft"
+                status={showCategoryErrors && !categoryId ? 'error' : undefined}
                 value={categoryId ?? undefined}
                 onChange={(v) => {
                   setCategoryId(v);
@@ -426,6 +519,11 @@ const PlanWizardDrawer = () => {
                   label: c.name,
                 }))}
                 data-cy="pgp-wizard-category"
+              />
+              <FieldError
+                show={showCategoryErrors && !categoryId}
+                message="Select a skill category"
+                data-cy="pgp-wizard-category-error"
               />
             </div>
             {activeFy && (
@@ -530,100 +628,136 @@ const PlanWizardDrawer = () => {
                 </>
               )}
             </p>
-            {goals.map((goal) => (
-              <div
-                key={goal.key}
-                className="rounded-lg border border-[#E5E7EB] p-3 shadow-none"
-                data-cy={`pgp-wizard-goal-${goal.key}`}
-              >
+            {goals.map((goal) => {
+              const quarterMissing = showScheduleErrors && !goal.quarterId;
+              const deadlineMissing =
+                showScheduleErrors && !goal.targetDeadline;
+              const outcomeMissing =
+                showScheduleErrors && !goal.measurableOutcome?.trim();
+              // Shown at once: a quarter changed after the date was picked is a
+              // conflict the user needs to see before pressing Next.
+              const deadlineOutOfRange = deadlineRangeError(
+                goal.quarterId,
+                goal.targetDeadline,
+              );
+              const goalRange = deadlineRange(goal.quarterId);
+
+              return (
                 <div
-                  data-cy="tna-planning-planwizarddrawer-index-div-512"
-                  className="mb-2 flex flex-wrap items-center gap-2"
-                >
-                  <span
-                    data-cy="tna-planning-planwizarddrawer-index-span-513"
-                    className="text-sm font-semibold text-gray-900"
-                  >
-                    {goal.skillName}
-                  </span>
-                  {goal.isCustom ? <Tag>Custom</Tag> : null}
-                </div>
-                <div
-                  data-cy="tna-planning-planwizarddrawer-index-div-518"
-                  className="grid grid-cols-1 gap-3 sm:grid-cols-2"
-                >
-                  <div data-cy="tna-planning-planwizarddrawer-index-div-519">
-                    <div
-                      data-cy="tna-planning-planwizarddrawer-index-div-520"
-                      className="mb-1 text-xs text-gray-600"
-                    >
-                      Quarter
-                    </div>
-                    <Select
-                      className="w-full"
-                      value={goal.quarterId ?? undefined}
-                      onChange={(v) =>
-                        updateGoal(goal.key, {
-                          quarterId: v,
-                          quarterLabel: quarters.find((q) => q.id === v)?.label,
-                        })
-                      }
-                      options={quarters.map((q) => ({
-                        value: q.id,
-                        label: limitsOn
-                          ? `${q.label} (${goalsByQuarter[q.id] ?? 0}/${config.maxSkillsPerQuarter ?? '∞'})`
-                          : `${q.label} (${goalsByQuarter[q.id] ?? 0})`,
-                      }))}
-                      data-cy={`pgp-wizard-goal-quarter-${goal.key}`}
-                    />
-                  </div>
-                  <div data-cy="tna-planning-planwizarddrawer-index-div-539">
-                    <div
-                      data-cy="tna-planning-planwizarddrawer-index-div-540"
-                      className="mb-1 text-xs text-gray-600"
-                    >
-                      Deadline
-                    </div>
-                    <DatePicker
-                      className="w-full"
-                      value={
-                        goal.targetDeadline
-                          ? dayjs(goal.targetDeadline)
-                          : undefined
-                      }
-                      onChange={(d) =>
-                        updateGoal(goal.key, {
-                          targetDeadline: d ? d.format('YYYY-MM-DD') : null,
-                        })
-                      }
-                      data-cy={`pgp-wizard-goal-deadline-${goal.key}`}
-                    />
-                  </div>
-                </div>
-                <div
-                  data-cy="tna-planning-planwizarddrawer-index-div-557"
-                  className="mt-3"
+                  key={goal.key}
+                  className="rounded-lg border border-[#E5E7EB] p-3 shadow-none"
+                  data-cy={`pgp-wizard-goal-${goal.key}`}
                 >
                   <div
-                    data-cy="tna-planning-planwizarddrawer-index-div-558"
-                    className="mb-1 text-xs text-gray-600"
+                    data-cy="tna-planning-planwizarddrawer-index-div-512"
+                    className="mb-2 flex flex-wrap items-center gap-2"
                   >
-                    Measurable outcome
+                    <span
+                      data-cy="tna-planning-planwizarddrawer-index-span-513"
+                      className="text-sm font-semibold text-gray-900"
+                    >
+                      {goal.skillName}
+                    </span>
+                    {goal.isCustom ? <Tag>Custom</Tag> : null}
                   </div>
-                  <Input.TextArea
-                    rows={2}
-                    value={goal.measurableOutcome}
-                    onChange={(e) =>
-                      updateGoal(goal.key, {
-                        measurableOutcome: e.target.value,
-                      })
-                    }
-                    placeholder="e.g. Earn AWS Solutions Architect cert"
-                    data-cy={`pgp-wizard-goal-outcome-${goal.key}`}
-                  />
+                  <div
+                    data-cy="tna-planning-planwizarddrawer-index-div-518"
+                    className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+                  >
+                    <div data-cy="tna-planning-planwizarddrawer-index-div-519">
+                      <RequiredLabel data-cy="tna-planning-planwizarddrawer-index-div-520">
+                        Quarter
+                      </RequiredLabel>
+                      <Select
+                        className="w-full"
+                        placeholder="Select quarter"
+                        status={quarterMissing ? 'error' : undefined}
+                        value={goal.quarterId ?? undefined}
+                        onChange={(v) =>
+                          updateGoal(goal.key, {
+                            quarterId: v,
+                            quarterLabel: quarters.find((q) => q.id === v)
+                              ?.label,
+                          })
+                        }
+                        options={quarters.map((q) => ({
+                          value: q.id,
+                          label: limitsOn
+                            ? `${q.label} (${goalsByQuarter[q.id] ?? 0}/${config.maxSkillsPerQuarter ?? '∞'})`
+                            : `${q.label} (${goalsByQuarter[q.id] ?? 0})`,
+                        }))}
+                        data-cy={`pgp-wizard-goal-quarter-${goal.key}`}
+                      />
+                      <FieldError
+                        show={quarterMissing}
+                        message="Select a quarter"
+                        data-cy={`pgp-wizard-goal-quarter-error-${goal.key}`}
+                      />
+                    </div>
+                    <div data-cy="tna-planning-planwizarddrawer-index-div-539">
+                      <RequiredLabel data-cy="tna-planning-planwizarddrawer-index-div-540">
+                        Deadline
+                      </RequiredLabel>
+                      <DatePicker
+                        // Remount on quarter change so the calendar opens on it.
+                        key={`${goal.key}-${goal.quarterId ?? 'none'}`}
+                        className="w-full"
+                        status={
+                          deadlineMissing || deadlineOutOfRange
+                            ? 'error'
+                            : undefined
+                        }
+                        value={
+                          goal.targetDeadline
+                            ? dayjs(goal.targetDeadline)
+                            : undefined
+                        }
+                        disabledDate={(date) =>
+                          isOutsideRange(date, goal.quarterId)
+                        }
+                        defaultPickerValue={goalRange.start ?? undefined}
+                        onChange={(d) =>
+                          updateGoal(goal.key, {
+                            targetDeadline: d ? d.format('YYYY-MM-DD') : null,
+                          })
+                        }
+                        data-cy={`pgp-wizard-goal-deadline-${goal.key}`}
+                      />
+                      <FieldError
+                        show={deadlineMissing || !!deadlineOutOfRange}
+                        message={deadlineOutOfRange ?? 'Select a deadline'}
+                        data-cy={`pgp-wizard-goal-deadline-error-${goal.key}`}
+                      />
+                    </div>
+                  </div>
+                  <div
+                    data-cy="tna-planning-planwizarddrawer-index-div-557"
+                    className="mt-3"
+                  >
+                    <RequiredLabel data-cy="tna-planning-planwizarddrawer-index-div-558">
+                      Measurable outcome
+                    </RequiredLabel>
+                    <Input.TextArea
+                      rows={2}
+                      status={outcomeMissing ? 'error' : undefined}
+                      value={goal.measurableOutcome}
+                      onChange={(e) =>
+                        updateGoal(goal.key, {
+                          measurableOutcome: e.target.value,
+                        })
+                      }
+                      placeholder="e.g. Earn AWS Solutions Architect cert"
+                      data-cy={`pgp-wizard-goal-outcome-${goal.key}`}
+                    />
+                    <FieldError
+                      show={outcomeMissing}
+                      message="Enter a measurable outcome"
+                      data-cy={`pgp-wizard-goal-outcome-error-${goal.key}`}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             <div
               className="rounded-lg border border-dashed border-[#D9D9D9] p-3"
@@ -634,12 +768,28 @@ const PlanWizardDrawer = () => {
                 className="mb-2 text-sm font-semibold text-gray-900"
               >
                 Add custom skill
+                <span
+                  data-cy="pgp-wizard-custom-skill-optional"
+                  className="ml-1 font-normal text-[#8c8c8c]"
+                >
+                  (optional)
+                </span>
               </div>
-              <Form form={customForm} layout="vertical">
+              {/*
+                The whole section is optional, so no required asterisks. The
+                rules still apply once the user clicks "Add to plan".
+              */}
+              <Form form={customForm} layout="vertical" requiredMark={false}>
                 <Form.Item
                   name="skillName"
                   label="Skill name"
-                  rules={[{ required: true, message: 'Required' }]}
+                  rules={[
+                    {
+                      required: true,
+                      whitespace: true,
+                      message: 'Enter a skill name',
+                    },
+                  ]}
                 >
                   <Input data-cy="pgp-wizard-custom-name" />
                 </Form.Item>
@@ -647,8 +797,13 @@ const PlanWizardDrawer = () => {
                   data-cy="tna-planning-planwizarddrawer-index-div-591"
                   className="grid grid-cols-1 gap-3 sm:grid-cols-2"
                 >
-                  <Form.Item name="quarterId" label="Quarter">
+                  <Form.Item
+                    name="quarterId"
+                    label="Quarter"
+                    rules={[{ required: true, message: 'Select a quarter' }]}
+                  >
                     <Select
+                      placeholder="Select quarter"
                       options={quarters.map((q) => ({
                         value: q.id,
                         label: q.label,
@@ -656,14 +811,49 @@ const PlanWizardDrawer = () => {
                       data-cy="pgp-wizard-custom-quarter"
                     />
                   </Form.Item>
-                  <Form.Item name="targetDeadline" label="Deadline">
+                  <Form.Item
+                    name="targetDeadline"
+                    label="Deadline"
+                    dependencies={['quarterId']}
+                    rules={[
+                      { required: true, message: 'Select a deadline' },
+                      ({ getFieldValue }) => ({
+                        validator: (rule, value?: Dayjs | null) => {
+                          const error = deadlineRangeError(
+                            getFieldValue('quarterId'),
+                            value,
+                          );
+                          return error
+                            ? Promise.reject(new Error(error))
+                            : Promise.resolve();
+                        },
+                      }),
+                    ]}
+                  >
                     <DatePicker
+                      key={customQuarterId ?? 'none'}
                       className="w-full"
+                      disabledDate={(date) =>
+                        isOutsideRange(date, customQuarterId)
+                      }
+                      defaultPickerValue={
+                        deadlineRange(customQuarterId).start ?? undefined
+                      }
                       data-cy="pgp-wizard-custom-deadline"
                     />
                   </Form.Item>
                 </div>
-                <Form.Item name="measurableOutcome" label="Measurable outcome">
+                <Form.Item
+                  name="measurableOutcome"
+                  label="Measurable outcome"
+                  rules={[
+                    {
+                      required: true,
+                      whitespace: true,
+                      message: 'Enter a measurable outcome',
+                    },
+                  ]}
+                >
                   <Input.TextArea
                     rows={2}
                     data-cy="pgp-wizard-custom-outcome"
@@ -740,5 +930,66 @@ const PlanWizardDrawer = () => {
     </Modal>
   );
 };
+
+/** Category menu height: ~5–6 options, fits the step-0 dialog body. */
+const CATEGORY_LIST_HEIGHT = 176;
+
+interface WizardQuarter {
+  id: string;
+  label: string;
+  startDate: Dayjs | null;
+  endDate: Dayjs | null;
+}
+
+interface DeadlineRange {
+  label: string;
+  start: Dayjs | null;
+  end: Dayjs | null;
+}
+
+/** Parses an org-service date; null when missing or unparseable. */
+const toDay = (value?: Dayjs | string | number | Date | null): Dayjs | null => {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = dayjs(value);
+  return parsed.isValid() ? parsed.startOf('day') : null;
+};
+
+/** Field label with antd's red required asterisk, for fields outside a Form. */
+const RequiredLabel = ({
+  children,
+  className = 'text-gray-600',
+  'data-cy': dataCy,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  'data-cy'?: string;
+}) => (
+  <div className={`mb-1 text-xs ${className}`} data-cy={dataCy}>
+    <span
+      className="mr-1 text-[#ff4d4f]"
+      aria-hidden="true"
+      data-cy={dataCy ? `${dataCy}-required` : 'pgp-wizard-required-mark'}
+    >
+      *
+    </span>
+    {children}
+  </div>
+);
+
+/** Inline validation message styled like antd's Form.Item error. */
+const FieldError = ({
+  show,
+  message,
+  'data-cy': dataCy,
+}: {
+  show: boolean;
+  message: string;
+  'data-cy'?: string;
+}) =>
+  show ? (
+    <div className="mt-1 text-xs text-[#ff4d4f]" role="alert" data-cy={dataCy}>
+      {message}
+    </div>
+  ) : null;
 
 export default PlanWizardDrawer;
