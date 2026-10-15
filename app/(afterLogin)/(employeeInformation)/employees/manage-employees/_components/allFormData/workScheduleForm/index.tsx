@@ -30,13 +30,18 @@ interface WorkScheduleFormProps {
 
 const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
   const { data: workSchedules } = useGetWorkSchedules();
-  const { setSelectedWorkSchedule, workSchedule, setWorkSchedule } =
+  const { setSelectedWorkSchedule, setWorkSchedule } =
     useEmployeeManagementStore();
-  const { data: shiftsPayload } = useGetWorkScheduleShifts(workSchedule || '');
+  const formWorkScheduleId = Form.useWatch('workScheduleId', form) as
+    | string
+    | undefined;
+  const selectedWorkScheduleId = formWorkScheduleId ?? '';
+  const { data: shiftsPayload, isFetching: shiftsFetching } =
+    useGetWorkScheduleShifts(selectedWorkScheduleId);
 
   const selectedSchedule = useMemo(
-    () => workSchedules?.items?.find((s) => s.id === workSchedule),
-    [workSchedules?.items, workSchedule],
+    () => workSchedules?.items?.find((s) => s.id === selectedWorkScheduleId),
+    [workSchedules?.items, selectedWorkScheduleId],
   );
 
   const shiftOptions = useMemo(() => {
@@ -45,23 +50,33 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
     return selectedSchedule?.shifts ?? [];
   }, [shiftsPayload, selectedSchedule]);
 
-  const workscheduleChangeHandler = (value: string) => {
+  React.useEffect(() => {
+    const onlyShiftId =
+      shiftOptions.length === 1 ? shiftOptions[0]?.id : undefined;
+    if (
+      !form ||
+      !selectedWorkScheduleId ||
+      shiftsFetching ||
+      !onlyShiftId ||
+      form.getFieldValue('workScheduleShiftId') === onlyShiftId
+    ) {
+      return;
+    }
+
+    form.setFieldsValue({ workScheduleShiftId: onlyShiftId });
+  }, [form, selectedWorkScheduleId, shiftOptions, shiftsFetching]);
+
+  const workscheduleChangeHandler = (value?: string) => {
     const selectedValue = workSchedules?.items.find(
       (schedule) => schedule.id === value,
     );
     setSelectedWorkSchedule(selectedValue || null);
-    setWorkSchedule(value);
+    setWorkSchedule(value || null);
     form?.setFieldsValue({
-      workScheduleId: value,
+      workScheduleId: value || undefined,
       workScheduleShiftId: undefined,
     });
   };
-
-  React.useEffect(() => {
-    if (form && workSchedule) {
-      form.setFieldsValue({ workScheduleId: workSchedule });
-    }
-  }, [workSchedule, form]);
 
   return (
     <div id="work-schedule-form" data-cy="work-schedule-form">
@@ -103,7 +118,6 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
               placeholder="Select an option"
               onChange={workscheduleChangeHandler}
               allowClear
-              value={workSchedule}
               className="bg-white"
               id="work-schedule-select"
               data-cy="work-schedule-select"
@@ -144,14 +158,14 @@ const WorkScheduleForm: React.FC<WorkScheduleFormProps> = ({ form }) => {
           >
             <Select
               placeholder={
-                workSchedule
+                selectedWorkScheduleId
                   ? shiftOptions.length
                     ? 'Select a shift'
                     : 'No shifts on this schedule'
                   : 'Select a work schedule first'
               }
               allowClear
-              disabled={!workSchedule || shiftOptions.length === 0}
+              disabled={!selectedWorkScheduleId || shiftOptions.length === 0}
               className="bg-white"
               id="work-schedule-shift-select"
               data-cy="work-schedule-shift-select"
